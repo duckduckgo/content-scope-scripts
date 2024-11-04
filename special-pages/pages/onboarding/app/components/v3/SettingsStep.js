@@ -1,4 +1,3 @@
- 
 import { h } from 'preact'
 import { useGlobalDispatch, useGlobalState } from '../../global'
 import { useTypedTranslation } from '../../types'
@@ -15,7 +14,7 @@ import { SlideIn } from './Animation'
  * @param {object} props
  * @param {typeof import('./data').settingsRowItems} props.data
  */
-export function SettingsStep ({ data }) {
+export function SettingsStep({ data }) {
     const platform = usePlatformName()
     const { t } = useTypedTranslation()
 
@@ -35,20 +34,20 @@ export function SettingsStep ({ data }) {
             uiValue: appState.UIValues[rowId],
             pending: pendingId === rowId,
             id: rowId,
-            data: data[rowId](t, platform)
+            data: data[rowId](t, platform),
         }
     })
 
     return (
         <SlideIn>
             <Stack>
-                {appState.status.kind === 'idle' && appState.status.error && (
-                    <p>{appState.status.error}</p>
-                )}
-                <PlainList variant='bordered' animate>
-                    {rows.filter(item => item.visible).map((item, index) => {
-                        return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
-                    })}
+                {appState.status.kind === 'idle' && appState.status.error && <p>{appState.status.error}</p>}
+                <PlainList variant="bordered" animate>
+                    {rows
+                        .filter((item) => item.visible)
+                        .map((item, index) => {
+                            return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
+                        })}
                 </PlainList>
             </Stack>
         </SlideIn>
@@ -71,7 +70,7 @@ export function SettingsStep ({ data }) {
  * @param {ReturnType<typeof useGlobalDispatch>} props.dispatch - The function to dispatch actions.
  * @param {number} props.index
  */
-export function SettingListItem ({ index, item, dispatch }) {
+export function SettingListItem({ index, item, dispatch }) {
     const data = item.data
     const { t } = useTypedTranslation()
 
@@ -80,7 +79,7 @@ export function SettingListItem ({ index, item, dispatch }) {
             kind: 'update-system-value',
             id: data.id,
             payload: { enabled: true },
-            current: item.current
+            current: item.current,
         })
     }
 
@@ -89,7 +88,7 @@ export function SettingListItem ({ index, item, dispatch }) {
             kind: 'update-system-value',
             id: data.id,
             payload: { enabled: false },
-            current: item.current
+            current: item.current,
         })
     }
 
@@ -102,7 +101,11 @@ export function SettingListItem ({ index, item, dispatch }) {
         if (item.uiValue === 'skipped') {
             // is the item something that can only be enabled once?
             if (enabled && item.data.kind === 'one-time') {
-                return <BounceIn delay={'normal'}><Check /></BounceIn>
+                return (
+                    <BounceIn delay={'normal'}>
+                        <Check />
+                    </BounceIn>
+                )
             }
             // otherwise, allow it to be toggled
             return (
@@ -127,7 +130,11 @@ export function SettingListItem ({ index, item, dispatch }) {
 
         // otherwise, it must have been accepted
         if (item.uiValue === 'accepted') {
-            return <BounceIn delay={'normal'}><Check /></BounceIn>
+            return (
+                <BounceIn delay={'normal'}>
+                    <Check />
+                </BounceIn>
+            )
         }
 
         throw new Error('unreachable')
@@ -146,8 +153,12 @@ export function SettingListItem ({ index, item, dispatch }) {
             {item.current && (
                 <ListItem.Indent>
                     <ButtonBar>
-                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>{t('skipButton')}</Button>
-                        <Button disabled={item.pending} variant={item.data.accepButtonVariant} onClick={accept}>{item.data.acceptText}</Button>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>
+                            {t('skipButton')}
+                        </Button>
+                        <Button disabled={item.pending} variant={item.data.accepButtonVariant} onClick={accept}>
+                            {item.data.acceptText}
+                        </Button>
                     </ButtonBar>
                 </ListItem.Indent>
             )}

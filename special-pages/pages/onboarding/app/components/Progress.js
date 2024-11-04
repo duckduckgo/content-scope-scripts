@@ -9,7 +9,7 @@ import cn from 'classnames'
  * @param {number} props.total - The total value of the progress
  * @param {number} props.current - The current value of the progress
  */
-export function Progress ({ total, current }) {
+export function Progress({ total, current }) {
     return (
         <div className={styles.progressContainer}>
             <div className={styles.count}>
@@ -22,7 +22,7 @@ export function Progress ({ total, current }) {
     )
 }
 
-export function SingleLineProgress ({ total, current }) {
+export function SingleLineProgress({ total, current }) {
     return (
         <div className={cn([styles.progressContainer, styles.singleLineContainer])}>
             <div className={styles.count}>

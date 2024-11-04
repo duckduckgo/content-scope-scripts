@@ -14,7 +14,7 @@ function useScrollTarget() {
         ref: linkRef,
         trigger: () => {
             linkRef.current?.scrollIntoView({ behavior: 'smooth' })
-        }
+        },
     }
 }
 
@@ -23,8 +23,8 @@ function useScrollTarget() {
  * @param {import("preact/hooks").MutableRef<HTMLAnchorElement|null>} [props.elemRef]
  */
 export function VisitSiteLink({ elemRef }) {
-    const { t } = useTypedTranslation();
-    const {messaging} = useMessaging();
+    const { t } = useTypedTranslation()
+    const { messaging } = useMessaging()
     return (
         <a className={styles.visitSite} onClick={() => messaging?.visitSite()} ref={elemRef}>
             {t('visitSiteButton')}
@@ -37,7 +37,9 @@ export function AdvancedInfoHeading() {
 
     return (
         <header className={styles.heading}>
-            <Text as="h2" variant="body">{heading}</Text>
+            <Text as="h2" variant="body">
+                {heading}
+            </Text>
         </header>
     )
 }
@@ -47,13 +49,17 @@ export function AdvancedInfoContent() {
 
     return (
         <div className={styles.content}>
-            {content.map(text => <Text as="p" variant="body">{text}</Text>)}
+            {content.map((text) => (
+                <Text as="p" variant="body">
+                    {text}
+                </Text>
+            ))}
         </div>
     )
 }
 
 export function AdvancedInfo() {
-    const { ref, trigger } = useScrollTarget();
+    const { ref, trigger } = useScrollTarget()
 
     return (
         <div className={styles.wrapper}>
@@ -62,7 +68,7 @@ export function AdvancedInfo() {
 
                 <AdvancedInfoContent />
 
-                <VisitSiteLink elemRef={ref}/>
+                <VisitSiteLink elemRef={ref} />
             </div>
         </div>
     )

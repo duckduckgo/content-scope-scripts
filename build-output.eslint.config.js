@@ -4,11 +4,11 @@
 export default [
     {
         languageOptions: {
-            ecmaVersion: "latest",
-            sourceType: "script",
+            ecmaVersion: 'latest',
+            sourceType: 'script',
         },
         rules: {
-            "no-implicit-globals": "error",
-        }
-    }
-];
+            'no-implicit-globals': 'error',
+        },
+    },
+]

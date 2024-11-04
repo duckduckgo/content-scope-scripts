@@ -6,7 +6,7 @@ import { processConfig, isGloballyDisabled } from './../src/utils'
 import { isTrackerOrigin } from '../src/trackers'
 import { WebkitMessagingConfig, TestTransportConfig } from '../../messaging/index.js'
 
-function initCode () {
+function initCode() {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
     if (isGloballyDisabled(processedConfig)) {
@@ -17,21 +17,21 @@ function initCode () {
         processedConfig.messagingConfig = new WebkitMessagingConfig({
             webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
             secret: '',
-            hasModernWebkitAPI: true
+            hasModernWebkitAPI: true,
         })
     } else {
         processedConfig.messagingConfig = new TestTransportConfig({
-            notify () {
+            notify() {
                 // noop
             },
             request: async () => {
                 // noop
             },
-            subscribe () {
+            subscribe() {
                 return () => {
                     // noop
                 }
-            }
+            },
         })
     }
 
@@ -41,7 +41,7 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig
+        messagingConfig: processedConfig.messagingConfig,
     })
 
     init(processedConfig)

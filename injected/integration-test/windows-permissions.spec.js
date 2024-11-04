@@ -25,13 +25,13 @@ export class WindowsPermissionsSpec {
      * @param {import("./type-helpers.mjs").Build} build
      * @param {import("./type-helpers.mjs").PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor(page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
     }
 
-    async enabled () {
+    async enabled() {
         await this.installPolyfills()
         const config = JSON.parse(readFileSync(this.config, 'utf8'))
         await this.setup({ config })
@@ -42,7 +42,7 @@ export class WindowsPermissionsSpec {
      * In CI, the global objects such as USB might not be installed on the
      * version of chromium running there.
      */
-    async installPolyfills () {
+    async installPolyfills() {
         await this.page.addInitScript(windowsGlobalPolyfills)
     }
 
@@ -51,7 +51,7 @@ export class WindowsPermissionsSpec {
      * @param {Record<string, any>} params.config
      * @return {Promise<void>}
      */
-    async setup (params) {
+    async setup(params) {
         const { config } = params
 
         // read the built file from disk and do replacements
@@ -60,17 +60,17 @@ export class WindowsPermissionsSpec {
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
                 platform: { name: 'windows' },
-                debug: true
-            }
+                debug: true,
+            },
         })
 
         await this.page.addInitScript(mockWindowsMessaging, {
             messagingContext: {
                 env: 'development',
                 context: 'contentScopeScripts',
-                featureName: 'n/a'
+                featureName: 'n/a',
             },
-            responses: {}
+            responses: {},
         })
 
         // attach the JS
@@ -82,7 +82,7 @@ export class WindowsPermissionsSpec {
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
-    static create (page, testInfo) {
+    static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new WindowsPermissionsSpec(page, build, platformInfo)

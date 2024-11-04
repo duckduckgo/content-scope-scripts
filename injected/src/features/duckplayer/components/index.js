@@ -7,7 +7,7 @@ import { DDGVideoOverlayMobile } from './ddg-video-overlay-mobile.js'
  * and also to allow remote-config later if needed.
  *
  */
-export function registerCustomElements () {
+export function registerCustomElements() {
     if (!customElementsGet(DDGVideoOverlay.CUSTOM_TAG_NAME)) {
         customElementsDefine(DDGVideoOverlay.CUSTOM_TAG_NAME, DDGVideoOverlay)
     }

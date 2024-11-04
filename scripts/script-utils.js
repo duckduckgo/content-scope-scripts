@@ -8,7 +8,7 @@ import minimist from 'minimist'
  * @param {string[]} filepaths
  * @param {string} content
  */
-export function write (filepaths, content) {
+export function write(filepaths, content) {
     for (const filepath of filepaths.flat()) {
         try {
             const pathWithoutFile = dirname(filepath)
@@ -29,7 +29,7 @@ export function write (filepaths, content) {
  * @param {string[]} requiredFields - array of required keys
  * @param {string} [help] - optional help text
  */
-export function parseArgs (args, requiredFields, help = '') {
+export function parseArgs(args, requiredFields, help = '') {
     const parsedArgs = minimist(args)
 
     for (const field of requiredFields) {
@@ -48,7 +48,7 @@ export function parseArgs (args, requiredFields, help = '') {
  *
  * On windows, 'pathname' has a leading `/` which needs removing
  */
-export function cwd (current) {
+export function cwd(current) {
     const pathname = new URL('.', current).pathname
     if (process.platform === 'win32') {
         return pathname.slice(1)
@@ -61,11 +61,9 @@ export function cwd (current) {
  * @param metaUrl
  * @return {boolean}
  */
-export function isLaunchFile (metaUrl) {
+export function isLaunchFile(metaUrl) {
     if (!metaUrl) {
-        throw new Error(
-            'Incorrect usage of isLaunchFile. Use isLaunchFile(import.meta.url)'
-        )
+        throw new Error('Incorrect usage of isLaunchFile. Use isLaunchFile(import.meta.url)')
     }
     const launchFilePath = process.argv[1]
     const moduleFilePath = fileURLToPath(metaUrl)

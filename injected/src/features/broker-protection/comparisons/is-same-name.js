@@ -8,7 +8,7 @@ import { names } from './constants.js'
  * @param {string | null} [userSuffix]
  * @return {boolean}
  */
-export function isSameName (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) {
+export function isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) {
     // If there's no name on the website, then there's no way we can match it
     if (!fullNameExtracted) {
         return false
@@ -27,7 +27,7 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
     const names = getNames(userFirstName)
 
     for (const firstName of names) {
-    // Let's check if the name matches right off the bat
+        // Let's check if the name matches right off the bat
         const nameCombo1 = `${firstName} ${userLastName}`
         if (fullNameExtracted === nameCombo1) {
             return true
@@ -37,7 +37,8 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
         // might include a middle name.
         if (!userMiddleName) {
             const combinedLength = firstName.length + userLastName.length
-            const matchesFirstAndLast = fullNameExtracted.startsWith(firstName) &&
+            const matchesFirstAndLast =
+                fullNameExtracted.startsWith(firstName) &&
                 fullNameExtracted.endsWith(userLastName) &&
                 fullNameExtracted.length > combinedLength
             if (matchesFirstAndLast) {
@@ -63,7 +64,7 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
             const comparisons = [
                 `${firstName} ${userLastNameOption2}`,
                 `${firstName} ${userLastNameOption3}`,
-                `${firstName} ${userLastNameOption4}`
+                `${firstName} ${userLastNameOption4}`,
             ]
 
             if (comparisons.includes(fullNameExtracted)) {
@@ -80,7 +81,7 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
             const comparisons = [
                 `${userFirstNameOption2} ${userLastName}`,
                 `${userFirstNameOption3} ${userLastName}`,
-                `${userFirstNameOption4} ${userLastName}`
+                `${userFirstNameOption4} ${userLastName}`,
             ]
 
             if (comparisons.includes(fullNameExtracted)) {
@@ -97,7 +98,7 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
                 `${firstName} ${userMiddleName[0]} ${userLastName}`,
                 `${firstName} ${userMiddleName[0]} ${userLastName} ${userSuffix}`,
                 `${firstName} ${userMiddleName}${userLastName}`,
-                `${firstName} ${userMiddleName}${userLastName} ${userSuffix}`
+                `${firstName} ${userMiddleName}${userLastName} ${userSuffix}`,
             ]
 
             if (comparisons.includes(fullNameExtracted)) {
@@ -115,7 +116,7 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
                     `${firstName} ${userMiddleName} ${userLastNameOption4}`,
                     `${firstName} ${userMiddleName[0]} ${userLastNameOption2}`,
                     `${firstName} ${userMiddleName[0]} ${userLastNameOption3}`,
-                    `${firstName} ${userMiddleName[0]} ${userLastNameOption4}`
+                    `${firstName} ${userMiddleName[0]} ${userLastNameOption4}`,
                 ]
 
                 if (comparisons.includes(fullNameExtracted)) {
@@ -135,7 +136,7 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
                     `${userFirstNameOption4} ${userMiddleName} ${userLastName}`,
                     `${userFirstNameOption2} ${userMiddleName[0]} ${userLastName}`,
                     `${userFirstNameOption3} ${userMiddleName[0]} ${userLastName}`,
-                    `${userFirstNameOption4} ${userMiddleName[0]} ${userLastName}`
+                    `${userFirstNameOption4} ${userMiddleName[0]} ${userLastName}`,
                 ]
 
                 if (comparisons.includes(fullNameExtracted)) {
@@ -154,8 +155,10 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
  * @param {string | null} name
  * @return {Set<string>}
  */
-export function getNames (name) {
-    if (!noneEmptyString(name)) { return new Set() }
+export function getNames(name) {
+    if (!noneEmptyString(name)) {
+        return new Set()
+    }
 
     name = name.toLowerCase()
     const nicknames = names.nicknames
@@ -170,10 +173,12 @@ export function getNames (name) {
  * @param {Record<string, string[]>} nicknames
  * @return {Set<string>}
  */
-export function getNicknames (name, nicknames) {
+export function getNicknames(name, nicknames) {
     const emptySet = new Set()
 
-    if (!noneEmptyString(name)) { return emptySet }
+    if (!noneEmptyString(name)) {
+        return emptySet
+    }
 
     name = name.toLowerCase()
 
@@ -191,10 +196,12 @@ export function getNicknames (name, nicknames) {
  * @param {Record<string, string[]>} nicknames
  * @return {Set<string>}
  */
-export function getFullNames (name, nicknames) {
+export function getFullNames(name, nicknames) {
     const fullNames = new Set()
 
-    if (!noneEmptyString(name)) { return fullNames }
+    if (!noneEmptyString(name)) {
+        return fullNames
+    }
 
     name = name.toLowerCase()
 
@@ -212,7 +219,7 @@ export function getFullNames (name, nicknames) {
  * @param {any} [input]
  * @return {input is string}
  */
-function noneEmptyString (input) {
+function noneEmptyString(input) {
     if (typeof input !== 'string') return false
     return input.trim().length > 0
 }

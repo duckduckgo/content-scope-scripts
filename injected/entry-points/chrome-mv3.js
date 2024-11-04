@@ -11,13 +11,13 @@ const trackerLookup = import.meta.trackerLookup
 
 load({
     platform: {
-        name: 'extension'
+        name: 'extension',
     },
     trackerLookup,
     documentOriginIsTracker: isTrackerOrigin(trackerLookup),
     site: computeLimitedSiteObject(),
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    bundledConfig: $BUNDLED_CONFIG$
+    bundledConfig: $BUNDLED_CONFIG$,
 })
 
 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -25,18 +25,20 @@ window.addEventListener(secret, ({ detail: message }) => {
     if (!message) return
 
     switch (message.type) {
-    case 'update':
-        update(message)
-        break
-    case 'register':
-        if (message.argumentsObject) {
-            message.argumentsObject.messageSecret = secret
-            init(message.argumentsObject)
-        }
-        break
+        case 'update':
+            update(message)
+            break
+        case 'register':
+            if (message.argumentsObject) {
+                message.argumentsObject.messageSecret = secret
+                init(message.argumentsObject)
+            }
+            break
     }
 })
 
-window.dispatchEvent(new CustomEvent('ddg-secret', {
-    detail: secret
-}))
+window.dispatchEvent(
+    new CustomEvent('ddg-secret', {
+        detail: secret,
+    }),
+)

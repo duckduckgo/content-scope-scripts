@@ -1,6 +1,13 @@
 /* global mozProxies, cloneInto, exportFunction */
 
-import { functionToString, getOwnPropertyDescriptor, getOwnPropertyDescriptors, objectDefineProperty, objectEntries, objectKeys } from './captured-globals.js'
+import {
+    functionToString,
+    getOwnPropertyDescriptor,
+    getOwnPropertyDescriptors,
+    objectDefineProperty,
+    objectEntries,
+    objectKeys,
+} from './captured-globals.js'
 
 const globalObj = typeof window === 'undefined' ? globalThis : window
 
@@ -16,22 +23,19 @@ export const ddgShimMark = Symbol('ddgShimMark')
  * @param {string} propertyName
  * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
  */
-export function defineProperty (object, propertyName, descriptor) {
+export function defineProperty(object, propertyName, descriptor) {
     if (hasMozProxies) {
         const usedObj = object.wrappedJSObject || object
         const UsedObjectInterface = globalObj.wrappedJSObject.Object
-        const definedDescriptor = new UsedObjectInterface();
-        ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
+        const definedDescriptor = new UsedObjectInterface()
+        ;['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
             if (propertyName in descriptor) {
-                definedDescriptor[propertyName] = cloneInto(
-                    descriptor[propertyName],
-                    definedDescriptor,
-                    { cloneFunctions: true }
-                )
+                definedDescriptor[propertyName] = cloneInto(descriptor[propertyName], definedDescriptor, { cloneFunctions: true })
             }
-        });
-        ['get', 'set'].forEach((methodName) => {
-            if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') { // Firefox returns undefined for missing getters/setters
+        })
+        ;['get', 'set'].forEach((methodName) => {
+            if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') {
+                // Firefox returns undefined for missing getters/setters
                 exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName })
             }
         })
@@ -49,7 +53,7 @@ export function defineProperty (object, propertyName, descriptor) {
  * @param {*} origFn
  * @param {string} [mockValue] - when provided, .toString() will return this value
  */
-export function wrapToString (newFn, origFn, mockValue) {
+export function wrapToString(newFn, origFn, mockValue) {
     if (typeof newFn !== 'function' || typeof origFn !== 'function') {
         return newFn
     }
@@ -64,13 +68,13 @@ export function wrapToString (newFn, origFn, mockValue) {
  * @param {string} [mockValue] - when provided, .toString() will return this value
  * @returns { (target: any, prop: string, receiver: any) => any }
  */
-export function toStringGetTrap (targetFn, mockValue) {
+export function toStringGetTrap(targetFn, mockValue) {
     // We wrap two levels deep to handle toString.toString() calls
-    return function get (target, prop, receiver) {
+    return function get(target, prop, receiver) {
         if (prop === 'toString') {
             const origToString = Reflect.get(targetFn, 'toString', targetFn)
             const toStringProxy = new Proxy(origToString, {
-                apply (target, thisArg, argumentsList) {
+                apply(target, thisArg, argumentsList) {
                     // only mock toString() when called on the proxy itself. If the method is applied to some other object, it should behave as a normal toString()
                     if (thisArg === receiver) {
                         if (mockValue) {
@@ -81,23 +85,23 @@ export function toStringGetTrap (targetFn, mockValue) {
                         return Reflect.apply(target, thisArg, argumentsList)
                     }
                 },
-                get (target, prop, receiver) {
+                get(target, prop, receiver) {
                     // handle toString.toString() result
                     if (prop === 'toString') {
                         const origToStringToString = Reflect.get(origToString, 'toString', origToString)
                         const toStringToStringProxy = new Proxy(origToStringToString, {
-                            apply (target, thisArg, argumentsList) {
+                            apply(target, thisArg, argumentsList) {
                                 if (thisArg === toStringProxy) {
                                     return Reflect.apply(target, origToString, argumentsList)
                                 } else {
                                     return Reflect.apply(target, thisArg, argumentsList)
                                 }
-                            }
+                            },
                         })
                         return toStringToStringProxy
                     }
                     return Reflect.get(target, prop, receiver)
-                }
+                },
             })
             return toStringProxy
         }
@@ -111,23 +115,23 @@ export function toStringGetTrap (targetFn, mockValue) {
  * @param {*} realTarget
  * @returns {Proxy} a proxy for the function
  */
-export function wrapFunction (functionValue, realTarget) {
+export function wrapFunction(functionValue, realTarget) {
     return new Proxy(realTarget, {
-        get (target, prop, receiver) {
+        get(target, prop, receiver) {
             if (prop === 'toString') {
                 const method = Reflect.get(target, prop, receiver).bind(target)
                 Object.defineProperty(method, 'toString', {
                     value: functionToString.bind(functionToString),
-                    enumerable: false
+                    enumerable: false,
                 })
                 return method
             }
             return Reflect.get(target, prop, receiver)
         },
-        apply (target, thisArg, argumentsList) {
+        apply(target, thisArg, argumentsList) {
             // This is where we call our real function
             return Reflect.apply(functionValue, thisArg, argumentsList)
-        }
+        },
     })
 }
 
@@ -139,7 +143,7 @@ export function wrapFunction (functionValue, realTarget) {
  * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
-export function wrapProperty (object, propertyName, descriptor, definePropertyFn) {
+export function wrapProperty(object, propertyName, descriptor, definePropertyFn) {
     if (!object) {
         return
     }
@@ -155,13 +159,14 @@ export function wrapProperty (object, propertyName, descriptor, definePropertyFn
         return
     }
 
-    if (('value' in origDescriptor && 'value' in descriptor) ||
+    if (
+        ('value' in origDescriptor && 'value' in descriptor) ||
         ('get' in origDescriptor && 'get' in descriptor) ||
         ('set' in origDescriptor && 'set' in descriptor)
     ) {
         definePropertyFn(object, propertyName, {
             ...origDescriptor,
-            ...descriptor
+            ...descriptor,
         })
         return origDescriptor
     } else {
@@ -178,7 +183,7 @@ export function wrapProperty (object, propertyName, descriptor, definePropertyFn
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
-export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn) {
+export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
     if (!object) {
         return
     }
@@ -207,7 +212,7 @@ export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn) {
 
     definePropertyFn(object, propertyName, {
         ...origDescriptor,
-        value: newFn
+        value: newFn,
     })
     return origDescriptor
 }
@@ -219,12 +224,7 @@ export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn) {
  * @param {DefineInterfaceOptions} options - options for defining the interface
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
-export function shimInterface (
-    interfaceName,
-    ImplClass,
-    options,
-    definePropertyFn
-) {
+export function shimInterface(interfaceName, ImplClass, options, definePropertyFn) {
     if (import.meta.injectName === 'integration') {
         if (!globalThis.origInterfaceDescriptors) globalThis.origInterfaceDescriptors = {}
         const descriptor = Object.getOwnPropertyDescriptor(globalThis, interfaceName)
@@ -238,13 +238,13 @@ export function shimInterface (
         allowConstructorCall: false,
         disallowConstructor: false,
         constructorErrorMessage: 'Illegal constructor',
-        wrapToString: true
+        wrapToString: true,
     }
 
     const fullOptions = {
         interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
         ...defaultOptions,
-        ...options
+        ...options,
     }
 
     // In some cases we can get away without a full proxy, but in many cases below we need it.
@@ -274,14 +274,14 @@ export function shimInterface (
         for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
             if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
                 ImplClass.prototype[prop] = new Proxy(descriptor.value, {
-                    get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`)
+                    get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`),
                 })
             }
         }
 
         // wrap toString on the constructor function itself
         Object.assign(proxyHandler, {
-            get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`)
+            get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`),
         })
     }
 
@@ -307,7 +307,7 @@ export function shimInterface (
             value: true,
             configurable: false,
             enumerable: false,
-            writable: false
+            writable: false,
         })
     }
 
@@ -316,15 +316,11 @@ export function shimInterface (
         value: interfaceName,
         configurable: true,
         enumerable: false,
-        writable: false
+        writable: false,
     })
 
     // interfaces are exposed directly on the global object, not on its prototype
-    definePropertyFn(
-        globalThis,
-        interfaceName,
-        { ...fullOptions.interfaceDescriptorOptions, value: Interface }
-    )
+    definePropertyFn(globalThis, interfaceName, { ...fullOptions.interfaceDescriptorOptions, value: Interface })
 }
 
 /**
@@ -339,7 +335,7 @@ export function shimInterface (
  * @param {boolean} readOnly - whether the property should be read-only
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
-export function shimProperty (baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
+export function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
     // @ts-expect-error - implInstance is a class instance
     const ImplClass = implInstance.constructor
 
@@ -356,7 +352,7 @@ export function shimProperty (baseObject, propertyName, implInstance, readOnly, 
 
     // mask toString() and toString.toString() on the instance
     const proxiedInstance = new Proxy(implInstance, {
-        get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`)
+        get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`),
     })
 
     /** @type {StrictPropertyDescriptor} */
@@ -366,21 +362,23 @@ export function shimProperty (baseObject, propertyName, implInstance, readOnly, 
     // But there could be other cases, e.g. a property with both a getter and a setter. These could be defined with a raw defineProperty() call.
     // Important: make sure to cover each new shim with a test that verifies that all descriptors match the standard API.
     if (readOnly) {
-        const getter = function get () { return proxiedInstance }
+        const getter = function get() {
+            return proxiedInstance
+        }
         const proxiedGetter = new Proxy(getter, {
-            get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`)
+            get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`),
         })
         descriptor = {
             configurable: true,
             enumerable: true,
-            get: proxiedGetter
+            get: proxiedGetter,
         }
     } else {
         descriptor = {
             configurable: true,
             enumerable: true,
             writable: true,
-            value: proxiedInstance
+            value: proxiedInstance,
         }
     }
 

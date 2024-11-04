@@ -2,7 +2,7 @@
  * @param {object} args
  * @param {string} args.token
  */
-export function captchaCallback (args) {
+export function captchaCallback(args) {
     const clients = findRecaptchaClients(globalThis)
 
     // if a client was found, check there was a function
@@ -23,8 +23,8 @@ export function captchaCallback (args) {
      * Try to find a callback in a path such as ['___grecaptcha_cfg', 'clients', '0', 'U', 'U', 'callback']
      * @param {Record<string, any>} target
      */
-    function findRecaptchaClients (target) {
-        if (typeof (target.___grecaptcha_cfg) === 'undefined') {
+    function findRecaptchaClients(target) {
+        if (typeof target.___grecaptcha_cfg === 'undefined') {
             console.log('target.___grecaptcha_cfg not found in ', location.href)
             return []
         }
@@ -32,19 +32,21 @@ export function captchaCallback (args) {
             const cidNumber = parseInt(cid, 10)
             const data = {
                 id: cid,
-                version: cidNumber >= 10000 ? 'V3' : 'V2'
+                version: cidNumber >= 10000 ? 'V3' : 'V2',
             }
             const objects = Object.entries(client).filter(([, value]) => value && typeof value === 'object')
 
             objects.forEach(([toplevelKey, toplevel]) => {
-                const found = Object.entries(toplevel).find(([, value]) => (
-                    value && typeof value === 'object' && 'sitekey' in value && 'size' in value
-                ))
+                const found = Object.entries(toplevel).find(
+                    ([, value]) => value && typeof value === 'object' && 'sitekey' in value && 'size' in value,
+                )
 
-                if (typeof toplevel === 'object' &&
+                if (
+                    typeof toplevel === 'object' &&
                     typeof HTMLElement !== 'undefined' &&
                     toplevel instanceof HTMLElement &&
-                    toplevel.tagName === 'DIV') {
+                    toplevel.tagName === 'DIV'
+                ) {
                     data.pageurl = toplevel.baseURI
                 }
 

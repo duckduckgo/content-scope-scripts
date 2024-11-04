@@ -3,11 +3,11 @@ import { Centered } from '../components/Layout.js'
 import { RMFConsumer } from '../remote-messaging-framework/RemoteMessagingFramework.js'
 import { RMFProvider } from '../remote-messaging-framework/RMFProvider.js'
 
-export function factory () {
+export function factory() {
     return (
         <Centered>
             <RMFProvider>
-                <RMFConsumer/>
+                <RMFConsumer />
             </RMFProvider>
         </Centered>
     )

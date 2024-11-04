@@ -2,7 +2,7 @@
  * Performance monitor, holds reference to PerformanceMark instances.
  */
 export class PerformanceMonitor {
-    constructor () {
+    constructor() {
         this.marks = []
     }
 
@@ -11,7 +11,7 @@ export class PerformanceMonitor {
      * @param {string} name
      * @returns {PerformanceMark}
      */
-    mark (name) {
+    mark(name) {
         const mark = new PerformanceMark(name)
         this.marks.push(mark)
         return mark
@@ -20,7 +20,7 @@ export class PerformanceMonitor {
     /**
      * Measure all performance markers
      */
-    measureAll () {
+    measureAll() {
         this.marks.forEach((mark) => {
             mark.measure()
         })
@@ -35,16 +35,16 @@ export class PerformanceMark {
     /**
      * @param {string} name
      */
-    constructor (name) {
+    constructor(name) {
         this.name = name
         performance.mark(this.name + 'Start')
     }
 
-    end () {
+    end() {
         performance.mark(this.name + 'End')
     }
 
-    measure () {
+    measure() {
         performance.measure(this.name, this.name + 'Start', this.name + 'End')
     }
 }

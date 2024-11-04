@@ -5,14 +5,14 @@ export class SpecialError {
      * @param {object} params
      * @param {import('../../../types/special-error').InitialSetupResponse['errorData']} params.errorData
      */
-    constructor ({ errorData }) {
+    constructor({ errorData }) {
         this.data = errorData
     }
 
     /**
      * @param {import('../../../types/special-error').InitialSetupResponse['errorData']} [errorData]
      */
-    withErrorData (errorData) {
+    withErrorData(errorData) {
         if (errorData) {
             return new SpecialError({ errorData })
         }
@@ -22,7 +22,7 @@ export class SpecialError {
     /**
      * @param {keyof sampleData|null} [errorId]
      */
-    withSampleErrorId (errorId) {
+    withSampleErrorId(errorId) {
         if (errorId && Object.keys(sampleData).includes(errorId)) {
             return new SpecialError({ errorData: sampleData[errorId].data })
         }

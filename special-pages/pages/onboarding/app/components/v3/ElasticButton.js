@@ -17,12 +17,12 @@ import styles from './ElasticButton.module.css'
  *
  * @param {ElasticButtonProps & import("preact").ComponentProps<"button">} props
  */
-export function ElasticButton ({ text, variant = 'primary', startIcon, endIcon, longestText, elastic = true, ...rest }) {
+export function ElasticButton({ text, variant = 'primary', startIcon, endIcon, longestText, elastic = true, ...rest }) {
     const classes = cn({
         [styles.button]: true,
         [styles.primary]: variant === 'primary',
         [styles.secondary]: variant === 'secondary',
-        [styles.elastic]: elastic === true
+        [styles.elastic]: elastic === true,
     })
     return (
         <button className={classes} aria-label={text} {...rest}>
@@ -43,10 +43,12 @@ export function ElasticButton ({ text, variant = 'primary', startIcon, endIcon, 
  * @param {string} props.text - Button text
  * @param {string} props.longestText - The longest text string the button can have
  */
-export function FixedWidthContent ({ text, longestText }) {
+export function FixedWidthContent({ text, longestText }) {
     return (
         <span className={styles.fixedWidthContainer}>
-            <span aria-hidden={true} className={styles.hiddenContent}>{longestText}</span>
+            <span aria-hidden={true} className={styles.hiddenContent}>
+                {longestText}
+            </span>
             <span className={styles.visibleContent}>{text}</span>
         </span>
     )

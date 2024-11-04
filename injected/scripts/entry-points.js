@@ -18,55 +18,55 @@ const contentScopeName = 'contentScopeFeatures'
 const builds = {
     firefox: {
         input: 'entry-points/mozilla.js',
-        output: ['../build/firefox/inject.js']
+        output: ['../build/firefox/inject.js'],
     },
     apple: {
         input: 'entry-points/apple.js',
         postProcess: true,
-        output: ['../Sources/ContentScopeScripts/dist/contentScope.js']
+        output: ['../Sources/ContentScopeScripts/dist/contentScope.js'],
     },
     'apple-isolated': {
         input: 'entry-points/apple.js',
-        output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js']
+        output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
     },
     android: {
         input: 'entry-points/android.js',
-        output: ['../build/android/contentScope.js']
+        output: ['../build/android/contentScope.js'],
     },
     'android-autofill-password-import': {
         input: 'entry-points/android',
-        output: ['../build/android/autofillPasswordImport.js']
+        output: ['../build/android/autofillPasswordImport.js'],
     },
     windows: {
         input: 'entry-points/windows.js',
-        output: ['../build/windows/contentScope.js']
+        output: ['../build/windows/contentScope.js'],
     },
     integration: {
         input: 'entry-points/integration.js',
         output: [
             '../build/integration/contentScope.js',
             'integration-test/extension/contentScope.js',
-            'integration-test/test-pages/build/contentScope.js'
-        ]
+            'integration-test/test-pages/build/contentScope.js',
+        ],
     },
     'chrome-mv3': {
         input: 'entry-points/chrome-mv3.js',
-        output: ['../build/chrome-mv3/inject.js']
+        output: ['../build/chrome-mv3/inject.js'],
     },
     chrome: {
         input: 'entry-points/chrome.js',
-        output: ['../build/chrome/inject.js']
-    }
+        output: ['../build/chrome/inject.js'],
+    },
 }
 
-async function initOther (injectScriptPath, platformName) {
+async function initOther(injectScriptPath, platformName) {
     const supportsMozProxies = platformName === 'firefox'
     const identName = `inject${camelcase(platformName)}`
     const injectScript = await rollupScript({
         scriptPath: injectScriptPath,
         name: identName,
         supportsMozProxies,
-        platform: platformName
+        platform: platformName,
     })
     const outputScript = injectScript
     return outputScript
@@ -76,13 +76,13 @@ async function initOther (injectScriptPath, platformName) {
  * @param {string} entry
  * @param {string} platformName
  */
-async function initChrome (entry, platformName) {
+async function initChrome(entry, platformName) {
     const replaceString = '/* global contentScopeFeatures */'
     const injectScript = await rollupScript({ scriptPath: entry, platform: platformName })
     const contentScope = await rollupScript({
         scriptPath: contentScopePath,
         name: contentScopeName,
-        platform: platformName
+        platform: platformName,
     })
     // Encode in URI format to prevent breakage (we could choose to just escape ` instead)
     // NB: .replace(/\r\n/g, "\n") is needed because in Windows rollup generates CRLF line endings
@@ -91,7 +91,7 @@ async function initChrome (entry, platformName) {
     return outputScript
 }
 
-async function init () {
+async function init() {
     // verify the input
     const requiredFields = ['platform']
     const args = parseArgs(process.argv.slice(2), requiredFields)

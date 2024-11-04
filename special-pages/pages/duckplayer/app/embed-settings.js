@@ -6,12 +6,7 @@ export class EmbedSettings {
      * @param {boolean} [params.autoplay] - optional timestamp
      * @param {boolean} [params.muted] - optionally start muted
      */
-    constructor ({
-        videoId,
-        timestamp,
-        autoplay = true,
-        muted = false
-    }) {
+    constructor({ videoId, timestamp, autoplay = true, muted = false }) {
         this.videoId = videoId
         this.timestamp = timestamp
         this.autoplay = autoplay
@@ -22,11 +17,11 @@ export class EmbedSettings {
      * @param {boolean|null|undefined} autoplay
      * @return {EmbedSettings}
      */
-    withAutoplay (autoplay) {
+    withAutoplay(autoplay) {
         if (typeof autoplay !== 'boolean') return this
         return new EmbedSettings({
             ...this,
-            autoplay
+            autoplay,
         })
     }
 
@@ -34,11 +29,11 @@ export class EmbedSettings {
      * @param {boolean|null|undefined} muted
      * @return {EmbedSettings}
      */
-    withMuted (muted) {
+    withMuted(muted) {
         if (typeof muted !== 'boolean') return this
         return new EmbedSettings({
             ...this,
-            muted
+            muted,
         })
     }
 
@@ -46,11 +41,11 @@ export class EmbedSettings {
      * @param {string|null|undefined} href
      * @returns {EmbedSettings|null}
      */
-    static fromHref (href) {
+    static fromHref(href) {
         try {
             return new EmbedSettings({
                 videoId: VideoId.fromHref(href),
-                timestamp: Timestamp.fromHref(href)
+                timestamp: Timestamp.fromHref(href),
             })
         } catch (e) {
             console.error(e)
@@ -61,7 +56,7 @@ export class EmbedSettings {
     /**
      * @return {string}
      */
-    toEmbedUrl () {
+    toEmbedUrl() {
         const url = new URL(`/embed/${this.videoId.id}`, 'https://www.youtube-nocookie.com')
 
         url.searchParams.set('iv_load_policy', '1') // show video annotations
@@ -88,7 +83,7 @@ export class EmbedSettings {
      * @param {URL} base
      * @return {string}
      */
-    intoYoutubeUrl (base) {
+    intoYoutubeUrl(base) {
         const url = new URL(base)
         url.searchParams.set('v', this.videoId.id)
         if (this.timestamp && this.timestamp.seconds > 0) {
@@ -106,7 +101,7 @@ class VideoId {
      * @param {string|null|undefined} input
      * @throws {Error}
      */
-    constructor (input) {
+    constructor(input) {
         if (typeof input !== 'string') throw new Error('string required, got: ' + input)
         const sanitized = sanitizeYoutubeId(input)
         if (sanitized === null) throw new Error('invalid ID from: ' + input)
@@ -116,7 +111,7 @@ class VideoId {
     /**
      * @param {string|null|undefined} href
      */
-    static fromHref (href) {
+    static fromHref(href) {
         return new VideoId(idFromHref(href))
     }
 }
@@ -129,7 +124,7 @@ class Timestamp {
      * @param {string|null|undefined} input
      * @throws {Error}
      */
-    constructor (input) {
+    constructor(input) {
         if (typeof input !== 'string') throw new Error('string required for timestamp')
         const seconds = timestampInSeconds(input)
         if (seconds === null) throw new Error('invalid input for timestamp: ' + input)
@@ -140,7 +135,7 @@ class Timestamp {
      * @param {string|null|undefined} href
      * @return {Timestamp|null}
      */
-    static fromHref (href) {
+    static fromHref(href) {
         if (typeof href !== 'string') return null
         const param = timestampFromHref(href)
         if (param) {
@@ -158,7 +153,7 @@ class Timestamp {
  * @param {string|null|undefined} href
  * @return {string|null}
  */
-function idFromHref (href) {
+function idFromHref(href) {
     if (typeof href !== 'string') return null
 
     let url
@@ -188,7 +183,7 @@ function idFromHref (href) {
  * @param {string|null|undefined} href
  * @return {string|null}
  */
-function timestampFromHref (href) {
+function timestampFromHref(href) {
     if (typeof href !== 'string') return null
 
     let url
@@ -215,11 +210,11 @@ function timestampFromHref (href) {
  * @param {string} timestamp - The timestamp to convert.
  * @return {number | null} - The number of seconds in the timestamp, or null if the timestamp is invalid.
  */
-function timestampInSeconds (timestamp) {
+function timestampInSeconds(timestamp) {
     const units = {
         h: 3600,
         m: 60,
-        s: 1
+        s: 1,
     }
 
     const parts = timestamp.split(/(\d+[hms]?)/)
@@ -229,7 +224,7 @@ function timestampInSeconds (timestamp) {
 
         for (const unit in units) {
             if (part.includes(unit)) {
-                return total + (parseInt(part) * units[unit])
+                return total + parseInt(part) * units[unit]
             }
         }
 
@@ -249,7 +244,7 @@ function timestampInSeconds (timestamp) {
  * @param {string} input - The input string to be sanitized.
  * @return {string|null} - The sanitized string or null if the input string contains invalid characters.
  */
-function sanitizeYoutubeId (input) {
+function sanitizeYoutubeId(input) {
     const subject = input.slice(0, 11)
     if (/^[a-zA-Z0-9-_]+$/.test(subject)) {
         return subject

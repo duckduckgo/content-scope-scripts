@@ -41,7 +41,7 @@ test.describe('screenshots @screenshots', () => {
 /**
  * @param {import("@playwright/test").TestInfo} testInfo
  */
-function isMobile (testInfo) {
-    const u = /** @type {any} */(testInfo.project.use)
+function isMobile(testInfo) {
+    const u = /** @type {any} */ (testInfo.project.use)
     return u?.platform === 'android' || u?.platform === 'ios'
 }

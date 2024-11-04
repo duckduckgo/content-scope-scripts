@@ -20,10 +20,10 @@ export const PrivacyStatsContext = createContext({
     /** @type {() => void} */
     toggle: () => {
         throw new Error('must implement')
-    }
+    },
 })
 
-export const PrivacyStatsDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */({}))
+export const PrivacyStatsDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}))
 
 /**
  * A data provider that will use `PrivacyStatsService` to fetch data, subscribe
@@ -32,11 +32,11 @@ export const PrivacyStatsDispatchContext = createContext(/** @type {import("prea
  * @param {Object} props
  * @param {import("preact").ComponentChild} props.children
  */
-export function PrivacyStatsProvider (props) {
-    const initial = /** @type {State} */({
+export function PrivacyStatsProvider(props) {
+    const initial = /** @type {State} */ ({
         status: 'idle',
         data: null,
-        config: null
+        config: null,
     })
 
     // const [state, dispatch] = useReducer(withLog('PrivacyStatsProvider', reducer), initial)
@@ -56,9 +56,7 @@ export function PrivacyStatsProvider (props) {
 
     return (
         <PrivacyStatsContext.Provider value={{ state, toggle }}>
-            <PrivacyStatsDispatchContext.Provider value={dispatch}>
-                {props.children}
-            </PrivacyStatsDispatchContext.Provider>
+            <PrivacyStatsDispatchContext.Provider value={dispatch}>{props.children}</PrivacyStatsDispatchContext.Provider>
         </PrivacyStatsContext.Provider>
     )
 }
@@ -66,8 +64,8 @@ export function PrivacyStatsProvider (props) {
 /**
  * @return {import("preact").RefObject<PrivacyStatsService>}
  */
-export function useService () {
-    const service = useRef(/** @type {PrivacyStatsService|null} */(null))
+export function useService() {
+    const service = useRef(/** @type {PrivacyStatsService|null} */ (null))
     const ntp = useMessaging()
     useEffect(() => {
         const stats = new PrivacyStatsService(ntp)

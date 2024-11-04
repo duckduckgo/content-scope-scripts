@@ -15,7 +15,7 @@ export class DuckPlayerOverlayMessages {
      * @param {import('./overlays.js').Environment} environment
      * @internal
      */
-    constructor (messaging, environment) {
+    constructor(messaging, environment) {
         /**
          * @internal
          */
@@ -26,14 +26,14 @@ export class DuckPlayerOverlayMessages {
     /**
      * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
      */
-    initialSetup () {
+    initialSetup() {
         if (this.environment.isIntegrationMode()) {
             return Promise.resolve({
                 userValues: {
                     overlayInteracted: false,
-                    privatePlayerMode: { alwaysAsk: {} }
+                    privatePlayerMode: { alwaysAsk: {} },
                 },
-                ui: {}
+                ui: {},
             })
         }
         return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP)
@@ -44,24 +44,24 @@ export class DuckPlayerOverlayMessages {
      * @param {import("../duck-player.js").UserValues} userValues
      * @returns {Promise<import("../duck-player.js").UserValues>}
      */
-    setUserValues (userValues) {
+    setUserValues(userValues) {
         return this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues)
     }
 
     /**
      * @returns {Promise<import("../duck-player.js").UserValues>}
      */
-    getUserValues () {
+    getUserValues() {
         return this.messaging.request(constants.MSG_NAME_READ_VALUES, {})
     }
 
     /**
      * @param {Pixel} pixel
      */
-    sendPixel (pixel) {
+    sendPixel(pixel) {
         this.messaging.notify(constants.MSG_NAME_PIXEL, {
             pixelName: pixel.name(),
-            params: pixel.params()
+            params: pixel.params(),
         })
     }
 
@@ -70,14 +70,14 @@ export class DuckPlayerOverlayMessages {
      * See {@link OpenInDuckPlayerMsg} for params
      * @param {OpenInDuckPlayerMsg} params
      */
-    openDuckPlayer (params) {
+    openDuckPlayer(params) {
         return this.messaging.notify(constants.MSG_NAME_OPEN_PLAYER, params)
     }
 
     /**
      * This is sent when the user wants to open Duck Player.
      */
-    openInfo () {
+    openInfo() {
         return this.messaging.notify(constants.MSG_NAME_OPEN_INFO)
     }
 
@@ -85,7 +85,7 @@ export class DuckPlayerOverlayMessages {
      * Get notification when preferences/state changed
      * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
      */
-    onUserValuesChanged (cb) {
+    onUserValuesChanged(cb) {
         return this.messaging.subscribe('onUserValuesChanged', cb)
     }
 
@@ -93,20 +93,22 @@ export class DuckPlayerOverlayMessages {
      * Get notification when ui settings changed
      * @param {(userValues: import("../duck-player.js").UISettings) => void} cb
      */
-    onUIValuesChanged (cb) {
+    onUIValuesChanged(cb) {
         return this.messaging.subscribe('onUIValuesChanged', cb)
     }
 
     /**
      * This allows our SERP to interact with Duck Player settings.
      */
-    serpProxy () {
-        function respond (kind, data) {
-            window.dispatchEvent(new CustomEvent(constants.MSG_NAME_PROXY_RESPONSE, {
-                detail: { kind, data },
-                composed: true,
-                bubbles: true
-            }))
+    serpProxy() {
+        function respond(kind, data) {
+            window.dispatchEvent(
+                new CustomEvent(constants.MSG_NAME_PROXY_RESPONSE, {
+                    detail: { kind, data },
+                    composed: true,
+                    bubbles: true,
+                }),
+            )
         }
 
         // listen for setting and forward to the SERP window
@@ -120,12 +122,12 @@ export class DuckPlayerOverlayMessages {
                 assertCustomEvent(evt)
                 if (evt.detail.kind === constants.MSG_NAME_SET_VALUES) {
                     return this.setUserValues(evt.detail.data)
-                        .then(updated => respond(constants.MSG_NAME_PUSH_DATA, updated))
+                        .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch(console.error)
                 }
                 if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
                     return this.getUserValues()
-                        .then(updated => respond(constants.MSG_NAME_PUSH_DATA, updated))
+                        .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch(console.error)
                 }
                 if (evt.detail.kind === constants.MSG_NAME_OPEN_INFO) {
@@ -143,7 +145,7 @@ export class DuckPlayerOverlayMessages {
  * @param {any} event
  * @returns {asserts event is CustomEvent<{kind: string, data: any}>}
  */
-function assertCustomEvent (event) {
+function assertCustomEvent(event) {
     if (!('detail' in event)) throw new Error('none-custom event')
     if (typeof event.detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string')
 }
@@ -156,23 +158,26 @@ export class Pixel {
      *   | {name: "play.use.thumbnail"}
      *   | {name: "play.do_not_use", remember: "0" | "1"}} input
      */
-    constructor (input) {
+    constructor(input) {
         this.input = input
     }
 
-    name () {
+    name() {
         return this.input.name
     }
 
-    params () {
+    params() {
         switch (this.input.name) {
-        case 'overlay': return {}
-        case 'play.use.thumbnail': return {}
-        case 'play.use':
-        case 'play.do_not_use': {
-            return { remember: this.input.remember }
-        }
-        default: throw new Error('unreachable')
+            case 'overlay':
+                return {}
+            case 'play.use.thumbnail':
+                return {}
+            case 'play.use':
+            case 'play.do_not_use': {
+                return { remember: this.input.remember }
+            }
+            default:
+                throw new Error('unreachable')
         }
     }
 }
@@ -182,7 +187,7 @@ export class OpenInDuckPlayerMsg {
      * @param {object} params
      * @param {string} params.href
      */
-    constructor (params) {
+    constructor(params) {
         this.href = params.href
     }
 }

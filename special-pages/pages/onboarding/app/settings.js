@@ -14,13 +14,13 @@ export class Settings {
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      */
-    constructor ({
+    constructor({
         platform = { name: 'macos' },
         order = DEFAULT_ORDER,
         orderName = 'v1',
         stepDefinitions = defaultStepDefinitions,
         first = 'welcome',
-        exclude = []
+        exclude = [],
     } = {}) {
         this.platform = platform
         this.order = order
@@ -30,13 +30,13 @@ export class Settings {
         this.exclude = exclude
     }
 
-    withPlatformName (name) {
+    withPlatformName(name) {
         /** @type {ImportMeta['platform'][]} */
         const valid = ['windows', 'macos', 'ios', 'android']
-        if (valid.includes(/** @type {any} */(name))) {
+        if (valid.includes(/** @type {any} */ (name))) {
             return new Settings({
                 ...this,
-                platform: { name }
+                platform: { name },
             })
         }
         return this
@@ -46,18 +46,18 @@ export class Settings {
      * @param {string[]|null|undefined} order
      * @return {Settings}
      */
-    withOrder (order) {
+    withOrder(order) {
         if (!order) return this
         if (Array.isArray(order) && order.length === 0) return this
 
-        const valid = order.filter(item => EVERY_PAGE_ID.includes(/** @type {any} */(item)))
-        const invalid = order.filter(item => !EVERY_PAGE_ID.includes(/** @type {any} */(item)))
+        const valid = order.filter((item) => EVERY_PAGE_ID.includes(/** @type {any} */ (item)))
+        const invalid = order.filter((item) => !EVERY_PAGE_ID.includes(/** @type {any} */ (item)))
         if (invalid.length > 0) {
             console.error('ignoring screen order because of invalid entries:', invalid)
         } else {
             return new Settings({
-                order: /** @type {any} */(valid),
-                stepDefinitions: this.stepDefinitions
+                order: /** @type {any} */ (valid),
+                stepDefinitions: this.stepDefinitions,
             })
         }
         return this
@@ -67,27 +67,27 @@ export class Settings {
      * @param {string|null|undefined} named
      * @return {Settings}
      */
-    withNamedOrder (named) {
+    withNamedOrder(named) {
         if (!named) return this
         if (named === 'v1') {
             return new Settings({
                 ...this,
                 orderName: named,
-                order: DEFAULT_ORDER
+                order: DEFAULT_ORDER,
             })
         }
         if (named === 'v2') {
             return new Settings({
                 ...this,
                 orderName: named,
-                order: ALT_ORDER
+                order: ALT_ORDER,
             })
         }
         if (named === 'v3') {
             return new Settings({
                 ...this,
                 orderName: named,
-                order: ORDER_V3
+                order: ORDER_V3,
             })
         } else {
             console.warn('ignoring named order:', named)
@@ -98,14 +98,14 @@ export class Settings {
     /**
      * @param {string[]|null|undefined} exclude
      */
-    withExcludedScreens (exclude) {
+    withExcludedScreens(exclude) {
         if (!exclude) return this
         if (!Array.isArray(exclude) || exclude.length === 0) return this
-        if (!exclude.every(screen => /** @type {string[]} */(this.order).includes(screen))) return this
+        if (!exclude.every((screen) => /** @type {string[]} */ (this.order).includes(screen))) return this
         return new Settings({
             ...this,
             exclude,
-            order: this.order.filter(screen => !exclude.includes(screen))
+            order: this.order.filter((screen) => !exclude.includes(screen)),
         })
     }
 
@@ -113,13 +113,13 @@ export class Settings {
      * @param {string|undefined|null} first
      * @return {Settings}
      */
-    withFirst (first) {
+    withFirst(first) {
         if (!first) return this
         // you can only set 'first' to an element in the running order
-        if (/** @type {string[]} */(this.order).includes(first)) {
+        if (/** @type {string[]} */ (this.order).includes(first)) {
             return new Settings({
                 ...this,
-                first
+                first,
             })
         }
         return this
@@ -129,14 +129,14 @@ export class Settings {
      * @param {import('./data.js').StepDefinitions | Record<string, any> | null | undefined} stepDefinitions
      * @return {Settings}
      */
-    withStepDefinitions (stepDefinitions) {
+    withStepDefinitions(stepDefinitions) {
         if (!stepDefinitions) return this
         if (!Object.keys(stepDefinitions)?.length) return this
 
         const nextSteps = { ...this.stepDefinitions }
 
         for (const [key, value] of Object.entries(stepDefinitions || {})) {
-            if (!this.order.includes(/** @type {any} */(key))) {
+            if (!this.order.includes(/** @type {any} */ (key))) {
                 continue
             }
             console.log('KV', key, value)
@@ -145,7 +145,7 @@ export class Settings {
 
         return new Settings({
             ...this,
-            stepDefinitions: nextSteps
+            stepDefinitions: nextSteps,
         })
     }
 }

@@ -7,8 +7,8 @@ import json from '../src/locales/en/special-error.json'
  * This is a wrapper to only allow keys from the default translation file
  * @type {() => { t: (key: keyof json, replacements?: Record<string, string>) => string }}
  */
-export function useTypedTranslation () {
+export function useTypedTranslation() {
     return {
-        t: useContext(TranslationContext).t
+        t: useContext(TranslationContext).t,
     }
 }

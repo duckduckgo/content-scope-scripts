@@ -14,8 +14,8 @@ import styles from './Animation.module.css'
  * @param {() => void} [props.onAnimationEnd]
  * @param {import("preact").ComponentChild} props.children
  */
-export function SlideIn ({ children, onAnimationEnd }) {
-    const [animationState, setAnimationState] = useState(/** @type {AnimationState} */'idle')
+export function SlideIn({ children, onAnimationEnd }) {
+    const [animationState, setAnimationState] = useState(/** @type {AnimationState} */ 'idle')
     const { activeStepVisible, activeStep } = useContext(GlobalContext)
     const { isReducedMotion } = useEnv()
 
@@ -36,9 +36,7 @@ export function SlideIn ({ children, onAnimationEnd }) {
 
     return (
         <div class={styles.container} onAnimationEnd={animationDidEnd} key={activeStep} data-animation-state={animationState}>
-            <div className={styles.slideIn}>
-                {children}
-            </div>
+            <div className={styles.slideIn}>{children}</div>
         </div>
     )
 }

@@ -70,6 +70,9 @@ test.describe('special-error', () => {
         await special.openPage({ errorId: 'phishing' })
         await special.opensNewPage('Learn more', 'https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/')
         await special.showsAdvancedInfo()
-        await special.opensNewPage('Phishing and Malware Protection help page', 'https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/')
+        await special.opensNewPage(
+            'Phishing and Malware Protection help page',
+            'https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/',
+        )
     })
 })

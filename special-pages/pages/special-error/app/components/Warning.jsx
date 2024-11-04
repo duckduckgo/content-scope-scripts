@@ -22,7 +22,8 @@ export function AdvancedInfoButton({ onClick }) {
         <Button
             variant={platformName === 'macos' ? 'standard' : 'ghost'}
             className={classNames(styles.button, styles.advanced)}
-            onClick={onClick}>
+            onClick={onClick}
+        >
             {platformName === 'ios' ? t('advancedButton') : t('advancedEllipsisButton')}
         </Button>
     )
@@ -37,7 +38,8 @@ export function LeaveSiteButton() {
         <Button
             variant={platformName === 'macos' ? 'accent' : 'primary'}
             className={classNames(styles.button, styles.leaveSite)}
-            onClick={() => messaging?.leaveSite()} >
+            onClick={() => messaging?.leaveSite()}
+        >
             {t('leaveSiteButton')}
         </Button>
     )
@@ -51,10 +53,7 @@ export function WarningHeading() {
     return (
         <header className={classNames(styles.heading, styles[kind])}>
             <i className={styles.icon} aria-hidden="true" />
-            <Text
-                as="h1"
-                variant={platformName === 'macos' ? 'title-2-emphasis' : 'title-2'}
-                strictSpacing={platformName !== 'macos'}>
+            <Text as="h1" variant={platformName === 'macos' ? 'title-2-emphasis' : 'title-2'} strictSpacing={platformName !== 'macos'}>
                 {heading}
             </Text>
         </header>
@@ -66,7 +65,11 @@ export function WarningContent() {
 
     return (
         <div className={styles.content}>
-            {content.map(text => <Text as="p" variant="body">{text}</Text>)}
+            {content.map((text) => (
+                <Text as="p" variant="body">
+                    {text}
+                </Text>
+            ))}
         </div>
     )
 }
@@ -76,7 +79,7 @@ export function WarningContent() {
  * @param {boolean} props.advancedInfoVisible
  * @param {() => void} props.advancedButtonHandler
  */
-export function Warning({ advancedInfoVisible, advancedButtonHandler}) {
+export function Warning({ advancedInfoVisible, advancedButtonHandler }) {
     return (
         <section className={styles.container}>
             <WarningHeading />
@@ -84,7 +87,7 @@ export function Warning({ advancedInfoVisible, advancedButtonHandler}) {
             <WarningContent />
 
             <div className={styles.buttonContainer}>
-                {!advancedInfoVisible && <AdvancedInfoButton onClick={() => advancedButtonHandler()}/>}
+                {!advancedInfoVisible && <AdvancedInfoButton onClick={() => advancedButtonHandler()} />}
                 <LeaveSiteButton />
             </div>
         </section>

@@ -8,7 +8,7 @@ import { execute } from '../execute.js'
  * @param {Document} root
  * @return {Promise<import('../types.js').ActionResponse>}
  */
-export async function expectation (action, userData, root = document) {
+export async function expectation(action, userData, root = document) {
     const results = expectMany(action.expectations, root)
 
     // filter out good results + silent failures, leaving only fatal errors
@@ -17,7 +17,8 @@ export async function expectation (action, userData, root = document) {
             if (x.result === true) return false
             if (action.expectations[index].failSilently) return false
             return true
-        }).map((x) => {
+        })
+        .map((x) => {
             return 'error' in x ? x.error : 'unknown error'
         })
 
@@ -26,7 +27,7 @@ export async function expectation (action, userData, root = document) {
     }
 
     // only run later actions if every expectation was met
-    const runActions = results.every(x => x.result === true)
+    const runActions = results.every((x) => x.result === true)
     const secondaryErrors = []
 
     if (action.actions?.length && runActions) {
@@ -53,18 +54,21 @@ export async function expectation (action, userData, root = document) {
  * @param {Document | HTMLElement} root
  * @return {import("../types").BooleanResult[]}
  */
-export function expectMany (expectations, root) {
-    return expectations.map(expectation => {
+export function expectMany(expectations, root) {
+    return expectations.map((expectation) => {
         switch (expectation.type) {
-        case 'element': return elementExpectation(expectation, root)
-        case 'text': return textExpectation(expectation, root)
-        case 'url': return urlExpectation(expectation)
-        default: {
-            return {
-                result: false,
-                error: `unknown expectation type: ${expectation.type}`
+            case 'element':
+                return elementExpectation(expectation, root)
+            case 'text':
+                return textExpectation(expectation, root)
+            case 'url':
+                return urlExpectation(expectation)
+            default: {
+                return {
+                    result: false,
+                    error: `unknown expectation type: ${expectation.type}`,
+                }
             }
-        }
         }
     })
 }
@@ -77,13 +81,13 @@ export function expectMany (expectations, root) {
  * @param {Document | HTMLElement} root
  * @return {import("../types").BooleanResult}
  */
-export function elementExpectation (expectation, root) {
+export function elementExpectation(expectation, root) {
     if (expectation.parent) {
         const parent = getElement(root, expectation.parent)
         if (!parent) {
             return {
                 result: false,
-                error: `parent element not found with selector: ${expectation.parent}`
+                error: `parent element not found with selector: ${expectation.parent}`,
             }
         }
         parent.scrollIntoView()
@@ -94,7 +98,7 @@ export function elementExpectation (expectation, root) {
     if (!elementExists) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`
+            error: `element with selector ${expectation.selector} not found.`,
         }
     }
     return { result: true }
@@ -107,13 +111,13 @@ export function elementExpectation (expectation, root) {
  * @param {Document | HTMLElement} root
  * @return {import("../types").BooleanResult}
  */
-export function textExpectation (expectation, root) {
+export function textExpectation(expectation, root) {
     // get the target element first
     const elem = getElement(root, expectation.selector)
     if (!elem) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`
+            error: `element with selector ${expectation.selector} not found.`,
         }
     }
 
@@ -121,7 +125,7 @@ export function textExpectation (expectation, root) {
     if (!expectation.expect) {
         return {
             result: false,
-            error: 'missing key: \'expect\''
+            error: "missing key: 'expect'",
         }
     }
 
@@ -131,7 +135,7 @@ export function textExpectation (expectation, root) {
     if (!textExists) {
         return {
             result: false,
-            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`
+            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`,
         }
     }
 
@@ -144,21 +148,21 @@ export function textExpectation (expectation, root) {
  * @param {import("../types").Expectation} expectation
  * @return {import("../types").BooleanResult}
  */
-export function urlExpectation (expectation) {
+export function urlExpectation(expectation) {
     const url = window.location.href
 
     // todo: remove once we have stronger types
     if (!expectation.expect) {
         return {
             result: false,
-            error: 'missing key: \'expect\''
+            error: "missing key: 'expect'",
         }
     }
 
     if (!url.includes(expectation.expect)) {
         return {
             result: false,
-            error: `expected URL to include ${expectation.expect}, but it didn't`
+            error: `expected URL to include ${expectation.expect}, but it didn't`,
         }
     }
 

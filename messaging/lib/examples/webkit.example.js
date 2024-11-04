@@ -6,7 +6,7 @@ import { Messaging, MessagingContext, WebkitMessagingConfig } from '../../index.
 const config = new WebkitMessagingConfig({
     hasModernWebkitAPI: true,
     secret: 'SECRET',
-    webkitMessageHandlerNames: ['contentScopeScripts']
+    webkitMessageHandlerNames: ['contentScopeScripts'],
 })
 
 /**
@@ -15,7 +15,7 @@ const config = new WebkitMessagingConfig({
 const messagingContext = new MessagingContext({
     context: 'contentScopeScripts',
     featureName: 'hello-world',
-    env: 'development'
+    env: 'development',
 })
 
 /**
@@ -26,12 +26,12 @@ const messaging = new Messaging(messagingContext, config)
 /**
  * send notifications (fire and forget)
  */
-messaging.notify('sendPixel');
+messaging.notify('sendPixel')
 
 /**
  * request data
  */
-(async () => {
+;(async () => {
     const result = await messaging.request('helloWorld', { foo: 'bar' })
     console.log(result)
 })()

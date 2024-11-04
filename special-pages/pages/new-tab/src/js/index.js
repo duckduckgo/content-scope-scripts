@@ -5,9 +5,7 @@ import 'preact/devtools'
  * @module New Tab Page
  */
 import { init } from '../../app/index.js'
-import {
-    createTypedMessages
-} from '@duckduckgo/messaging'
+import { createTypedMessages } from '@duckduckgo/messaging'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
 import { Environment } from '../../../../shared/environment.js'
 import { mockTransport } from './mock-transport.js'
@@ -17,7 +15,7 @@ export class NewTabPage {
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      * @param {ImportMeta['injectName']} injectName
      */
-    constructor (messaging, injectName) {
+    constructor(messaging, injectName) {
         /**
          * @internal - test 3
          */
@@ -28,14 +26,14 @@ export class NewTabPage {
     /**
      * @return {Promise<import('../../../../types/new-tab.js').InitialSetupResponse>}
      */
-    init () {
+    init() {
         return this.messaging.request('initialSetup')
     }
 
     /**
      * @param {string} message
      */
-    reportInitException (message) {
+    reportInitException(message) {
         this.messaging.notify('reportInitException', { message })
     }
 
@@ -44,7 +42,7 @@ export class NewTabPage {
      * has occurred that cannot be recovered from
      * @param {{message: string}} params
      */
-    reportPageException (params) {
+    reportPageException(params) {
         this.messaging.notify('reportPageException', params)
     }
 
@@ -52,14 +50,12 @@ export class NewTabPage {
      * Sent when a right-click occurs, and wasn't intercepted by another widget
      * @param {import('../../../../types/new-tab.js').ContextMenuNotify} params
      */
-    contextMenu (params) {
+    contextMenu(params) {
         this.messaging.notify('contextMenu', params)
     }
 }
 
-const baseEnvironment = new Environment()
-    .withInjectName(import.meta.injectName)
-    .withEnv(import.meta.env)
+const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env)
 
 const messaging = createSpecialPageMessaging({
     injectName: import.meta.injectName,
@@ -72,11 +68,11 @@ const messaging = createSpecialPageMessaging({
         // eslint-disable-next-line no-labels,no-unused-labels
         $INTEGRATION: mock = mockTransport()
         return mock
-    }
+    },
 })
 
 const newTabMessaging = new NewTabPage(messaging, import.meta.injectName)
-init(newTabMessaging, baseEnvironment).catch(e => {
+init(newTabMessaging, baseEnvironment).catch((e) => {
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
     newTabMessaging.reportInitException(msg)

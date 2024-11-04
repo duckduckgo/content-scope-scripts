@@ -1,10 +1,10 @@
 export class Cookie {
-    constructor (cookieString) {
+    constructor(cookieString) {
         this.parts = cookieString.split(';')
         this.parse()
     }
 
-    parse () {
+    parse() {
         const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain'])
         this.attrIdx = {}
         this.parts.forEach((part, index) => {
@@ -22,23 +22,23 @@ export class Cookie {
         })
     }
 
-    getExpiry () {
+    getExpiry() {
         // @ts-expect-error expires is not defined in the type definition
         if (!this.maxAge && !this.expires) {
             return NaN
         }
         const expiry = this.maxAge
             ? parseInt(this.maxAge)
-            // @ts-expect-error expires is not defined in the type definition
-            : (new Date(this.expires) - new Date()) / 1000
+            : // @ts-expect-error expires is not defined in the type definition
+              (new Date(this.expires) - new Date()) / 1000
         return expiry
     }
 
-    get maxAge () {
+    get maxAge() {
         return this['max-age']
     }
 
-    set maxAge (value) {
+    set maxAge(value) {
         // @ts-expect-error - Object is possibly 'undefined'.
         if (this.attrIdx['max-age'] > 0) {
             // @ts-expect-error - Object is possibly 'undefined'.
@@ -49,7 +49,7 @@ export class Cookie {
         this.parse()
     }
 
-    toString () {
+    toString() {
         return this.parts.join(';')
     }
 }

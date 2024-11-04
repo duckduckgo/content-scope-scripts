@@ -19,7 +19,7 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider'
  * @param {typeof import('../data').stepMeta} props.metaData
  * @param {string} [props.subtitle] - optional subtitle
  */
-export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
+export function SettingsStep({ onNextPage, data, metaData, subtitle }) {
     const { injectName } = useEnv()
     const { state } = useRollin([300])
     const { t } = useTypedTranslation()
@@ -42,23 +42,23 @@ export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
             pending: pendingId === rowId,
             id: rowId,
             data: data[rowId](t, injectName),
-            meta: metaData[step.id]?.rows?.[rowId]
+            meta: metaData[step.id]?.rows?.[rowId],
         }
     })
 
     return (
         <Stack>
             <Stack animate>
-                {appState.status.kind === 'idle' && appState.status.error && (
-                    <p>{appState.status.error}</p>
-                )}
+                {appState.status.kind === 'idle' && appState.status.error && <p>{appState.status.error}</p>}
                 {state.current > 0 && (
                     <Stack gap={Stack.gaps['4']}>
                         {subtitle && <h2>{subtitle}</h2>}
                         <List>
-                            {rows.filter(item => item.visible).map((item, index) => {
-                                return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
-                            })}
+                            {rows
+                                .filter((item) => item.visible)
+                                .map((item, index) => {
+                                    return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
+                                })}
                         </List>
                     </Stack>
                 )}
@@ -66,7 +66,9 @@ export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
             {complete && (
                 <SlideUp delay={'double'}>
                     <ButtonBar>
-                        <Button onClick={onNextPage} size={'large'}>{t('nextButton')}</Button>
+                        <Button onClick={onNextPage} size={'large'}>
+                            {t('nextButton')}
+                        </Button>
                     </ButtonBar>
                 </SlideUp>
             )}
@@ -91,7 +93,7 @@ export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
  * @param {ReturnType<typeof useGlobalDispatch>} props.dispatch - The function to dispatch actions.
  * @param {number} props.index
  */
-export function SettingListItem ({ index, item, dispatch }) {
+export function SettingListItem({ index, item, dispatch }) {
     const data = item.data
     const { t } = useTypedTranslation()
 
@@ -100,7 +102,7 @@ export function SettingListItem ({ index, item, dispatch }) {
             kind: 'update-system-value',
             id: data.id,
             payload: { enabled: true },
-            current: item.current
+            current: item.current,
         })
     }
 
@@ -109,7 +111,7 @@ export function SettingListItem ({ index, item, dispatch }) {
             kind: 'update-system-value',
             id: data.id,
             payload: { enabled: false },
-            current: item.current
+            current: item.current,
         })
     }
 
@@ -122,7 +124,11 @@ export function SettingListItem ({ index, item, dispatch }) {
         if (item.uiValue === 'skipped') {
             // is the item something that can only be enabled once?
             if (enabled && item.data.kind === 'one-time') {
-                return <BounceIn delay={'normal'}><Check /></BounceIn>
+                return (
+                    <BounceIn delay={'normal'}>
+                        <Check />
+                    </BounceIn>
+                )
             }
             // otherwise, allow it to be toggled
             return (
@@ -147,7 +153,11 @@ export function SettingListItem ({ index, item, dispatch }) {
 
         // otherwise, it must have been accepted
         if (item.uiValue === 'accepted') {
-            return <BounceIn delay={'normal'}><Check /></BounceIn>
+            return (
+                <BounceIn delay={'normal'}>
+                    <Check />
+                </BounceIn>
+            )
         }
 
         throw new Error('unreachable')
@@ -175,22 +185,25 @@ export function SettingListItem ({ index, item, dispatch }) {
             {item.current && display.kind === 'button-bar' && (
                 <ListItem.Indent>
                     <ButtonBar>
-                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>{t('skipButton')}</Button>
-                        <Button disabled={item.pending} variant={'secondary'} onClick={accept}>{item.data.acceptText}</Button>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>
+                            {t('skipButton')}
+                        </Button>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={accept}>
+                            {item.data.acceptText}
+                        </Button>
                     </ButtonBar>
                 </ListItem.Indent>
             )}
             {item.current && display.kind === 'animation' && (
-                <Stack gap='var(--sp-3)'>
-                    <RiveAnimation
-                        animation={display.path}
-                        state={'before'}
-                        isDarkMode={isDarkMode}
-                        stateMachine={'State Machine 1'}
-                    />
+                <Stack gap="var(--sp-3)">
+                    <RiveAnimation animation={display.path} state={'before'} isDarkMode={isDarkMode} stateMachine={'State Machine 1'} />
                     <ButtonBar>
-                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>{t('skipButton')}</Button>
-                        <Button disabled={item.pending} variant={'secondary'} onClick={accept}>{item.data.acceptText}</Button>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>
+                            {t('skipButton')}
+                        </Button>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={accept}>
+                            {item.data.acceptText}
+                        </Button>
                     </ButtonBar>
                 </Stack>
             )}

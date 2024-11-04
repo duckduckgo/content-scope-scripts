@@ -9,15 +9,17 @@ import { ErrorResponse, SuccessResponse } from '../types.js'
  * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
-export function getCaptchaInfo (action, root = document) {
+export function getCaptchaInfo(action, root = document) {
     const pageUrl = window.location.href
     const captchaDiv = getElement(root, action.selector)
 
     // if 'captchaDiv' was missing, cannot continue
-    if (!captchaDiv) return new ErrorResponse({ actionID: action.id, message: `could not find captchaDiv with selector ${action.selector}` })
+    if (!captchaDiv)
+        return new ErrorResponse({ actionID: action.id, message: `could not find captchaDiv with selector ${action.selector}` })
 
     // try 2 different captures
-    const captcha = getElement(captchaDiv, '[src^="https://www.google.com/recaptcha"]') ||
+    const captcha =
+        getElement(captchaDiv, '[src^="https://www.google.com/recaptcha"]') ||
         getElement(captchaDiv, '[src^="https://newassets.hcaptcha.com/captcha"')
 
     // ensure we have the elements
@@ -71,21 +73,21 @@ export function getCaptchaInfo (action, root = document) {
     const responseData = {
         siteKey,
         url: pageUrlWithoutParams,
-        type: captchaType
+        type: captchaType,
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: responseData })
 }
 
 /**
-* Takes the solved captcha token and injects it into the page to solve the captcha
-*
-* @param action
-* @param {string} token
-* @param {Document} root
-* @return {import('../types.js').ActionResponse}
-*/
-export function solveCaptcha (action, token, root = document) {
+ * Takes the solved captcha token and injects it into the page to solve the captcha
+ *
+ * @param action
+ * @param {string} token
+ * @param {Document} root
+ * @return {import('../types.js').ActionResponse}
+ */
+export function solveCaptcha(action, token, root = document) {
     const selectors = ['h-captcha-response', 'g-recaptcha-response']
     let solved = false
 
@@ -109,7 +111,7 @@ export function solveCaptcha (action, token, root = document) {
         return new SuccessResponse({
             actionID: action.id,
             actionType: action.actionType,
-            response: { callback: { eval: javascript } }
+            response: { callback: { eval: javascript } },
         })
     }
 

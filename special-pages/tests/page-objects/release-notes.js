@@ -16,22 +16,22 @@ export class ReleaseNotesPage {
      * @param {Build} build
      * @param {PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor(page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'release-notes',
-            env: 'development'
+            env: 'development',
         })
         this.page.on('console', console.log)
         // default mocks - just enough to render the first page without error
         this.mocks.defaultResponses({
             initialSetup: {
                 env: 'development',
-                locale: 'en'
-            }
+                locale: 'en',
+            },
         })
     }
 
@@ -43,7 +43,7 @@ export class ReleaseNotesPage {
      * @param {'app'|'components'} [params.env] - Optional parameters for opening the page.
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      */
-    async openPage ({ env = 'app', willThrow = false } = { }) {
+    async openPage({ env = 'app', willThrow = false } = {}) {
         await this.mocks.install()
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url())
@@ -53,7 +53,7 @@ export class ReleaseNotesPage {
 
             return route.fulfill({
                 status: 200,
-                path: join(this.basePath, filepath)
+                path: join(this.basePath, filepath),
             })
         })
         const searchParams = new URLSearchParams({ env, debugState: 'true', willThrow: String(willThrow) })
@@ -65,10 +65,10 @@ export class ReleaseNotesPage {
      * select the correct HTML file.
      * @return {string}
      */
-    get basePath () {
+    get basePath() {
         return this.build.switch({
             // windows: () => '../../build/windows/pages/release-notes',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/release-notes'
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/release-notes',
         })
     }
 
@@ -76,17 +76,17 @@ export class ReleaseNotesPage {
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
-    static create (page, testInfo) {
+    static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new ReleaseNotesPage(page, build, platformInfo)
     }
 
-    async reducedMotion () {
+    async reducedMotion() {
         await this.page.emulateMedia({ reducedMotion: 'reduce' })
     }
 
-    async darkMode () {
+    async darkMode() {
         await this.page.emulateMedia({ colorScheme: 'dark' })
     }
 
@@ -94,67 +94,67 @@ export class ReleaseNotesPage {
      * @param {UpdateMessage['status']} messageType
      * @param {Partial<UpdateMessage>} [dataOverrides]
      */
-    async sendSubscriptionMessage (messageType, dataOverrides) {
+    async sendSubscriptionMessage(messageType, dataOverrides) {
         // Wait for the subscription handler to appear before trying to simulate push events.
         // This prevents a race condition where playwright is sending data before `.subscribe` was called
         await this.page.waitForFunction(() => 'onUpdate' in window && typeof window.onUpdate === 'function')
 
         const data = dataOverrides
-            ? { ...sampleData[messageType], .../** @type {object} */(dataOverrides) }
+            ? { ...sampleData[messageType], .../** @type {object} */ (dataOverrides) }
             : { ...sampleData[messageType] }
 
         await this.mocks.simulateSubscriptionMessage('onUpdate', data)
     }
 
-    async releaseNotesLoading () {
+    async releaseNotesLoading() {
         await this.sendSubscriptionMessage('loading')
     }
 
-    async releaseNotesLoadedWithoutPrivacyPro () {
+    async releaseNotesLoadedWithoutPrivacyPro() {
         await this.sendSubscriptionMessage('loaded', { releaseNotesPrivacyPro: undefined })
     }
 
-    async releaseNotesLoaded () {
+    async releaseNotesLoaded() {
         await this.sendSubscriptionMessage('loaded')
     }
 
-    async releaseNotesUpdateReadyWithoutPrivacyPro () {
+    async releaseNotesUpdateReadyWithoutPrivacyPro() {
         await this.sendSubscriptionMessage('updateReady', { releaseNotesPrivacyPro: undefined })
     }
 
-    async releaseNotesUpdateReady () {
+    async releaseNotesUpdateReady() {
         await this.sendSubscriptionMessage('updateReady')
     }
 
-    async releaseNotesManualUpdateReady () {
+    async releaseNotesManualUpdateReady() {
         await this.sendSubscriptionMessage('updateReady', { automaticUpdate: false })
     }
 
-    async releaseNotesCriticalUpdateReady () {
+    async releaseNotesCriticalUpdateReady() {
         await this.sendSubscriptionMessage('criticalUpdateReady')
     }
 
-    async releaseNotesManualCriticalUpdateReady () {
+    async releaseNotesManualCriticalUpdateReady() {
         await this.sendSubscriptionMessage('criticalUpdateReady', { automaticUpdate: false })
     }
 
-    async releaseNotesUpdateErrorWithoutPrivacyPro () {
+    async releaseNotesUpdateErrorWithoutPrivacyPro() {
         await this.sendSubscriptionMessage('updateError', { releaseNotesPrivacyPro: undefined })
     }
 
-    async releaseNotesUpdateError () {
+    async releaseNotesUpdateError() {
         await this.sendSubscriptionMessage('updateError')
     }
 
-    async releaseNotesUpdateDownloading () {
+    async releaseNotesUpdateDownloading() {
         await this.sendSubscriptionMessage('updateDownloading')
     }
 
-    async releaseNotesUpdatePreparing () {
+    async releaseNotesUpdatePreparing() {
         await this.sendSubscriptionMessage('updatePreparing')
     }
 
-    async handlesFatalException () {
+    async handlesFatalException() {
         const { page } = this
         await expect(page.getByRole('heading')).toContainText('Something went wrong')
         const calls = await this.mocks.waitForCallCount({ method: 'reportPageException', count: 1 })
@@ -165,27 +165,27 @@ export class ReleaseNotesPage {
                     featureName: 'release-notes',
                     method: 'reportPageException',
                     params: {
-                        message: 'unknown'
-                    }
-                }
-            }
+                        message: 'unknown',
+                    },
+                },
+            },
         ])
     }
 
-    async didSendInitialHandshake () {
+    async didSendInitialHandshake() {
         const calls = await this.mocks.outgoing({ names: ['initialSetup'] })
         expect(calls).toMatchObject([
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'release-notes',
-                    method: 'initialSetup'
-                }
-            }
+                    method: 'initialSetup',
+                },
+            },
         ])
     }
 
-    async didShowLoadingState () {
+    async didShowLoadingState() {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
         await expect(page.getByText('Last checked: Yesterday')).toBeVisible()
@@ -197,7 +197,7 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible()
     }
 
-    async didShowUpdateDownloadingState () {
+    async didShowUpdateDownloadingState() {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
         await expect(page.getByText('Last checked: Today')).toBeVisible()
@@ -209,7 +209,7 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible()
     }
 
-    async didShowUpdatePreparingState () {
+    async didShowUpdatePreparingState() {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
         await expect(page.getByText('Last checked: Today')).toBeVisible()
@@ -221,7 +221,7 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible()
     }
 
-    async didShowUpToDateState () {
+    async didShowUpToDateState() {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
         await expect(page.getByRole('heading', { name: 'May 20 2024', exact: true })).toBeVisible()
@@ -239,7 +239,7 @@ export class ReleaseNotesPage {
      * @param {boolean} [options.critical=false]
      * @param {boolean} [options.manual=false]
      */
-    async didShowUpdateReadyState ({ critical = false, manual = false }) {
+    async didShowUpdateReadyState({ critical = false, manual = false }) {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
         await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible()
@@ -262,23 +262,23 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).not.toBeVisible()
     }
 
-    async didShowAutomaticUpdateReadyState () {
+    async didShowAutomaticUpdateReadyState() {
         return await this.didShowUpdateReadyState({})
     }
 
-    async didShowManualUpdateReadyState () {
+    async didShowManualUpdateReadyState() {
         return await this.didShowUpdateReadyState({ manual: true })
     }
 
-    async didShowAutomaticCriticalUpdateReadyState () {
+    async didShowAutomaticCriticalUpdateReadyState() {
         return await this.didShowUpdateReadyState({ critical: true })
     }
 
-    async didShowManualCriticalUpdateReadyState () {
+    async didShowManualCriticalUpdateReadyState() {
         return await this.didShowUpdateReadyState({ critical: true, manual: true })
     }
 
-    async didShowUpdateErrorState () {
+    async didShowUpdateErrorState() {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
         await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible()
@@ -290,36 +290,56 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).not.toBeVisible()
     }
 
-    async didShowReleaseNotesListWithoutPrivacyPro () {
+    async didShowReleaseNotesListWithoutPrivacyPro() {
         const { page } = this
 
-        await expect(page.getByText('Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.')).toBeVisible()
-        await expect(page.getByText('Fixed an issue where Microsoft Teams links wouldn\'t open the Teams app.')).toBeVisible()
-        await expect(page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')).toBeVisible()
+        await expect(
+            page.getByText(
+                'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',
+            ),
+        ).toBeVisible()
+        await expect(page.getByText("Fixed an issue where Microsoft Teams links wouldn't open the Teams app.")).toBeVisible()
+        await expect(
+            page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.'),
+        ).toBeVisible()
 
-        await expect(page.getByText('Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.')).not.toBeVisible()
+        await expect(
+            page.getByText(
+                'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.',
+            ),
+        ).not.toBeVisible()
         await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).not.toBeVisible()
 
         await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible()
         await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).not.toBeVisible()
     }
 
-    async didShowReleaseNotesList () {
+    async didShowReleaseNotesList() {
         const { page } = this
 
         await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).toBeVisible()
         await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).toBeVisible()
 
-        await expect(page.getByText('Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.')).toBeVisible()
-        await expect(page.getByText('Fixed an issue where Microsoft Teams links wouldn\'t open the Teams app.')).toBeVisible()
-        await expect(page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')).toBeVisible()
+        await expect(
+            page.getByText(
+                'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',
+            ),
+        ).toBeVisible()
+        await expect(page.getByText("Fixed an issue where Microsoft Teams links wouldn't open the Teams app.")).toBeVisible()
+        await expect(
+            page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.'),
+        ).toBeVisible()
 
-        await expect(page.getByText('Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.')).toBeVisible()
+        await expect(
+            page.getByText(
+                'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.',
+            ),
+        ).toBeVisible()
         await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).toBeVisible()
         await expect(page.getByText('Not subscribed? Find out more at duckduckgo.com/pro')).toBeVisible()
     }
 
-    async didRequestRestart () {
+    async didRequestRestart() {
         const { page } = this
         page.getByRole('button', { name: 'Restart To Update' }).click()
         const calls = await this.mocks.waitForCallCount({ method: 'browserRestart', count: 1 })
@@ -329,13 +349,13 @@ export class ReleaseNotesPage {
                     context: 'specialPages',
                     featureName: 'release-notes',
                     method: 'browserRestart',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
-    async didRequestRetryUpdate () {
+    async didRequestRetryUpdate() {
         const { page } = this
         page.getByRole('button', { name: 'Retry Update' }).click()
         const calls = await this.mocks.waitForCallCount({ method: 'retryUpdate', count: 1 })
@@ -345,9 +365,9 @@ export class ReleaseNotesPage {
                     context: 'specialPages',
                     featureName: 'release-notes',
                     method: 'retryUpdate',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 }

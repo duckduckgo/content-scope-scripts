@@ -4,7 +4,7 @@ import {
     MessagingContext,
     TestTransportConfig,
     WebkitMessagingConfig,
-    WindowsMessagingConfig
+    WindowsMessagingConfig,
 } from '@duckduckgo/messaging'
 
 /**
@@ -15,11 +15,11 @@ import {
  * @param {(() => TestTransportConfig|null) | null | undefined} [opts.mockTransport]
  * @internal
  */
-export function createSpecialPageMessaging (opts) {
+export function createSpecialPageMessaging(opts) {
     const messageContext = new MessagingContext({
         context: 'specialPages',
         featureName: opts.pageName,
-        env: opts.env
+        env: opts.env,
     })
     try {
         if (opts.injectName === 'windows') {
@@ -30,15 +30,15 @@ export function createSpecialPageMessaging (opts) {
                     // @ts-expect-error - not in @types/chrome
                     addEventListener: window.chrome.webview.addEventListener,
                     // @ts-expect-error - not in @types/chrome
-                    removeEventListener: window.chrome.webview.removeEventListener
-                }
+                    removeEventListener: window.chrome.webview.removeEventListener,
+                },
             })
             return new Messaging(messageContext, opts)
         } else if (opts.injectName === 'apple') {
             const opts = new WebkitMessagingConfig({
                 hasModernWebkitAPI: true,
                 secret: '',
-                webkitMessageHandlerNames: ['specialPages']
+                webkitMessageHandlerNames: ['specialPages'],
             })
             return new Messaging(messageContext, opts)
         } else if (opts.injectName === 'android') {
@@ -47,7 +47,7 @@ export function createSpecialPageMessaging (opts) {
                 messageCallback: 'messageCallback',
                 javascriptInterface: messageContext.context,
                 target: globalThis,
-                debug: true
+                debug: true,
             })
             return new Messaging(messageContext, opts)
         }
@@ -56,37 +56,39 @@ export function createSpecialPageMessaging (opts) {
     }
 
     // this fallback allows for the 'integration' target to run without errors
-    const fallback = opts.mockTransport?.() || new TestTransportConfig({
-        /**
-         * @param {import('@duckduckgo/messaging').NotificationMessage} msg
-         */
-        notify (msg) {
-            console.log(msg)
-        },
-        /**
-         * @param {import('@duckduckgo/messaging').RequestMessage} msg
-         */
-         
-        request: (msg) => {
-            console.log(msg)
-            if (msg.method === 'initialSetup') {
-                return Promise.resolve({
-                    locale: 'en',
-                    env: opts.env
-                })
-            }
-            return Promise.resolve(null)
-        },
-        /**
-         * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
-         */
-        subscribe (msg) {
-            console.log(msg)
-            return () => {
-                console.log('teardown')
-            }
-        }
-    })
+    const fallback =
+        opts.mockTransport?.() ||
+        new TestTransportConfig({
+            /**
+             * @param {import('@duckduckgo/messaging').NotificationMessage} msg
+             */
+            notify(msg) {
+                console.log(msg)
+            },
+            /**
+             * @param {import('@duckduckgo/messaging').RequestMessage} msg
+             */
+
+            request: (msg) => {
+                console.log(msg)
+                if (msg.method === 'initialSetup') {
+                    return Promise.resolve({
+                        locale: 'en',
+                        env: opts.env,
+                    })
+                }
+                return Promise.resolve(null)
+            },
+            /**
+             * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
+             */
+            subscribe(msg) {
+                console.log(msg)
+                return () => {
+                    console.log('teardown')
+                }
+            },
+        })
 
     return new Messaging(messageContext, fallback)
 }

@@ -9,76 +9,76 @@
  * @module Webcompat Settings Schema
  */
 
-export type State = "enabled" | "disabled";
+export type State = 'enabled' | 'disabled'
 /**
  * List of domains with specific patch settings
  */
-export type Domains = Domain[];
+export type Domains = Domain[]
 
 /**
  * Settings configuration for Web Compat
  */
 export interface WebCompatSettings {
-  windowSizing?: State;
-  navigatorCredentials?: State;
-  safariObject?: State;
-  messageHandlers?: {
-    state: State;
-    handlerStrategies: {
-      reflect: string[];
-      polyfill: string[];
-      undefined: string[];
-    };
-  };
-  modifyLocalStorage?: {
-    state: State;
-    changes: {
-      key: string;
-      action: string;
-    }[];
-  };
-  notification?: {
-    state: State;
-  };
-  permissions?: {
-    state: State;
-    supportedPermissions: {};
-  };
-  mediaSession?: State;
-  presentation?: State;
-  webShare?: State;
-  viewportWidth?:
-    | State
-    | {
-        state: State;
-        forcedDesktopValue?: string;
-        forcedMobileValue?: string;
-      };
-  screenLock?: State;
-  domains?: Domains;
-  plainTextViewPort?: State;
+    windowSizing?: State
+    navigatorCredentials?: State
+    safariObject?: State
+    messageHandlers?: {
+        state: State
+        handlerStrategies: {
+            reflect: string[]
+            polyfill: string[]
+            undefined: string[]
+        }
+    }
+    modifyLocalStorage?: {
+        state: State
+        changes: {
+            key: string
+            action: string
+        }[]
+    }
+    notification?: {
+        state: State
+    }
+    permissions?: {
+        state: State
+        supportedPermissions: {}
+    }
+    mediaSession?: State
+    presentation?: State
+    webShare?: State
+    viewportWidth?:
+        | State
+        | {
+              state: State
+              forcedDesktopValue?: string
+              forcedMobileValue?: string
+          }
+    screenLock?: State
+    domains?: Domains
+    plainTextViewPort?: State
 }
 export interface Domain {
-  /**
-   * Domain name
-   */
-  domain: string | string[];
-  /**
-   * List of operations to be applied on the settings for a specific domain
-   */
-  patchSettings: PatchSetting[];
+    /**
+     * Domain name
+     */
+    domain: string | string[]
+    /**
+     * List of operations to be applied on the settings for a specific domain
+     */
+    patchSettings: PatchSetting[]
 }
 export interface PatchSetting {
-  /**
-   * The operation to be performed
-   */
-  op: string;
-  /**
-   * The path of the setting to be patched
-   */
-  path: string;
-  /**
-   * The value to replace at the specified path
-   */
-  value: string | unknown[] | {} | number;
+    /**
+     * The operation to be performed
+     */
+    op: string
+    /**
+     * The path of the setting to be patched
+     */
+    path: string
+    /**
+     * The value to replace at the specified path
+     */
+    value: string | unknown[] | {} | number
 }

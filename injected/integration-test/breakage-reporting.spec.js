@@ -2,8 +2,10 @@ import { test, expect } from '@playwright/test'
 import { readFileSync } from 'fs'
 import {
     mockWindowsMessaging,
-    readOutgoingMessages, simulateSubscriptionMessage, waitForCallCount,
-    wrapWindowsScripts
+    readOutgoingMessages,
+    simulateSubscriptionMessage,
+    waitForCallCount,
+    wrapWindowsScripts,
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { perPlatform } from './type-helpers.mjs'
 
@@ -16,17 +18,21 @@ test('Breakage Reporting Feature', async ({ page }, testInfo) => {
         messagingContext: {
             context: 'contentScopeScripts',
             featureName: 'breakageReporting',
-            env: 'development'
+            env: 'development',
         },
         name: 'getBreakageReportValues',
         payload: {},
-        injectName: breakageFeature.build.name
+        injectName: breakageFeature.build.name,
     })
 
-    await page.waitForFunction(waitForCallCount, {
-        method: 'breakageReportResult',
-        count: 1
-    }, { timeout: 5000, polling: 100 })
+    await page.waitForFunction(
+        waitForCallCount,
+        {
+            method: 'breakageReportResult',
+            count: 1,
+        },
+        { timeout: 5000, polling: 100 },
+    )
     const calls = await page.evaluate(readOutgoingMessages)
     expect(calls.length).toBe(1)
 
@@ -44,18 +50,18 @@ export class BreakageReportingSpec {
      * @param {import("./type-helpers.mjs").Build} build
      * @param {import("./type-helpers.mjs").PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor(page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
     }
 
-    async enabled () {
+    async enabled() {
         const config = JSON.parse(readFileSync(this.config, 'utf8'))
         await this.setup({ config })
     }
 
-    async navigate () {
+    async navigate() {
         await this.page.goto(this.htmlPage)
 
         await this.page.evaluate(() => {
@@ -87,7 +93,7 @@ export class BreakageReportingSpec {
      * @param {Record<string, any>} params.config
      * @return {Promise<void>}
      */
-    async setup (params) {
+    async setup(params) {
         const { config } = params
 
         // read the built file from disk and do replacements
@@ -96,17 +102,17 @@ export class BreakageReportingSpec {
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
                 platform: { name: 'windows' },
-                debug: true
-            }
+                debug: true,
+            },
         })
 
         await this.page.addInitScript(mockWindowsMessaging, {
             messagingContext: {
                 env: 'development',
                 context: 'contentScopeScripts',
-                featureName: 'n/a'
+                featureName: 'n/a',
             },
-            responses: {}
+            responses: {},
         })
 
         // attach the JS
@@ -118,7 +124,7 @@ export class BreakageReportingSpec {
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
-    static create (page, testInfo) {
+    static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new BreakageReportingSpec(page, build, platformInfo)

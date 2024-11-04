@@ -1,4 +1,4 @@
-function deleteStorage (subject) {
+function deleteStorage(subject) {
     Object.keys(subject).forEach((key) => {
         if (key.indexOf('yt-player') === 0) {
             return
@@ -7,7 +7,7 @@ function deleteStorage (subject) {
     })
 }
 
-function deleteAllCookies () {
+function deleteAllCookies() {
     const cookies = document.cookie.split(';')
     for (let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i]
@@ -17,7 +17,7 @@ function deleteAllCookies () {
     }
 }
 
-export function initStorage () {
+export function initStorage() {
     window.addEventListener('unload', () => {
         deleteStorage(localStorage)
         deleteStorage(sessionStorage)

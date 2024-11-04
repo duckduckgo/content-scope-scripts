@@ -1,15 +1,15 @@
-import { h } from "preact";
-import { useEffect, useState } from "preact/hooks";
-import { useEnv } from "../../../../shared/components/EnvironmentProvider";
-import { useMessaging } from "../providers/MessagingProvider";
+import { h } from 'preact'
+import { useEffect, useState } from 'preact/hooks'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
+import { useMessaging } from '../providers/MessagingProvider'
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
-import { ErrorFallback } from "./ErrorFallback";
+import { ErrorFallback } from './ErrorFallback'
 import { useTypedTranslation } from '../types'
-import { useErrorData } from "../providers/SpecialErrorProvider";
-import { Warning } from "./Warning";
-import { AdvancedInfo } from "./AdvancedInfo";
+import { useErrorData } from '../providers/SpecialErrorProvider'
+import { Warning } from './Warning'
+import { AdvancedInfo } from './AdvancedInfo'
 
-import styles from "./App.module.css";
+import styles from './App.module.css'
 
 export function SpecialErrorView() {
     const [advancedInfoVisible, setAdvancedInfoVisible] = useState(false)
@@ -22,8 +22,8 @@ export function SpecialErrorView() {
 
     return (
         <div className={styles.container}>
-            <Warning advancedInfoVisible={advancedInfoVisible} advancedButtonHandler={advancedButtonHandler}/>
-            { advancedInfoVisible && <AdvancedInfo />}
+            <Warning advancedInfoVisible={advancedInfoVisible} advancedButtonHandler={advancedButtonHandler} />
+            {advancedInfoVisible && <AdvancedInfo />}
         </div>
     )
 }
@@ -33,10 +33,10 @@ function PageTitle() {
     const { t } = useTypedTranslation()
 
     useEffect(() => {
-        switch(kind) {
+        switch (kind) {
             case 'phishing':
                 document.title = t('phishingPageHeading')
-                break;
+                break
             default:
                 document.title = t('sslPageHeading')
         }
@@ -51,7 +51,7 @@ export function App() {
     /**
      * @param {Error} error
      */
-    function didCatch (error) {
+    function didCatch(error) {
         const message = error?.message || 'unknown'
         console.error('ErrorBoundary', message)
         messaging?.reportPageException({ message })
@@ -62,13 +62,13 @@ export function App() {
             <PageTitle />
             <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
                 <SpecialErrorView />
-                <WillThrow/>
+                <WillThrow />
             </ErrorBoundary>
         </main>
     )
 }
 
-export function WillThrow () {
+export function WillThrow() {
     const env = useEnv()
     if (env.willThrow) {
         throw new Error('Simulated Exception')

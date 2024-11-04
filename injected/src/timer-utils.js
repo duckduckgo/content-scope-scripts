@@ -1,6 +1,6 @@
 export const DEFAULT_RETRY_CONFIG = {
     interval: { ms: 0 },
-    maxAttempts: 1
+    maxAttempts: 1,
 }
 
 /**
@@ -13,7 +13,7 @@ export const DEFAULT_RETRY_CONFIG = {
  * @param {typeof DEFAULT_RETRY_CONFIG} [config]
  * @return {Promise<{ result: FnReturn | undefined, exceptions: string[] }>}
  */
-export async function retry (fn, config = DEFAULT_RETRY_CONFIG) {
+export async function retry(fn, config = DEFAULT_RETRY_CONFIG) {
     let lastResult
     const exceptions = []
     for (let i = 0; i < config.maxAttempts; i++) {
@@ -30,7 +30,7 @@ export async function retry (fn, config = DEFAULT_RETRY_CONFIG) {
         // don't pause on the last item
         if (i === config.maxAttempts - 1) break
 
-        await new Promise(resolve => setTimeout(resolve, config.interval.ms))
+        await new Promise((resolve) => setTimeout(resolve, config.interval.ms))
     }
 
     return { result: lastResult, exceptions }

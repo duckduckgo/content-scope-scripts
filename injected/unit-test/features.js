@@ -16,7 +16,7 @@ describe('Features definition', () => {
             'fingerprintingTemporaryStorage',
             'navigatorInterface',
             'elementHiding',
-            'exceptionHandler'
+            'exceptionHandler',
         ])
     })
 })

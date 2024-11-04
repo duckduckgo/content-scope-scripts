@@ -13,18 +13,21 @@ export class UpdateNotificationService {
      * @param {UpdateNotificationData} initial
      * @internal
      */
-    constructor (ntp, initial) {
+    constructor(ntp, initial) {
         this.ntp = ntp
         /** @type {Service<UpdateNotificationData>} */
-        this.dataService = new Service({
-            subscribe: (cb) => ntp.messaging.subscribe('updateNotification_onDataUpdate', cb)
-        }, initial)
+        this.dataService = new Service(
+            {
+                subscribe: (cb) => ntp.messaging.subscribe('updateNotification_onDataUpdate', cb),
+            },
+            initial,
+        )
     }
 
     /**
      * @internal
      */
-    destroy () {
+    destroy() {
         this.dataService.destroy()
     }
 
@@ -32,17 +35,17 @@ export class UpdateNotificationService {
      * @param {(evt: {data: UpdateNotificationData, source: 'manual' | 'subscription'}) => void} cb
      * @internal
      */
-    onData (cb) {
+    onData(cb) {
         return this.dataService.onData(cb)
     }
 
     /**
      * @internal
      */
-    dismiss () {
+    dismiss() {
         this.ntp.messaging.notify('updateNotification_dismiss')
-         
-        this.dataService.update(_old => {
+
+        this.dataService.update((_old) => {
             return { content: null }
         })
     }

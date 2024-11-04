@@ -13,52 +13,54 @@ const allowedMessages = [
     'setYoutubePreviewsEnabled',
     'unblockClickToLoadContent',
     'updateYouTubeCTLAddedFlag',
-    'updateFacebookCTLBreakageFlags'
+    'updateFacebookCTLBreakageFlags',
 ]
 const messageSecret = randomString()
 
-function randomString () {
+function randomString() {
     const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
     return num.toString().replace('0.', '')
 }
 
-function initCode () {
+function initCode() {
     const trackerLookup = import.meta.trackerLookup
     load({
         platform: {
-            name: 'extension'
+            name: 'extension',
         },
         trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(trackerLookup),
         site: computeLimitedSiteObject(),
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        bundledConfig: $BUNDLED_CONFIG$
+        bundledConfig: $BUNDLED_CONFIG$,
     })
 
-    chrome.runtime.sendMessage({
-        messageType: 'registeredContentScript',
-        options: {
-            documentUrl: window.location.href
-        }
-    },
-    (message) => {
-        // Background has disabled features
-        if (!message) {
-            return
-        }
-        if (message.debug) {
-            window.addEventListener('message', (m) => {
-                if (m.data.action && m.data.message) {
-                    chrome.runtime.sendMessage({
-                        messageType: 'debuggerMessage',
-                        options: m.data
-                    })
-                }
-            })
-        }
-        message.messageSecret = messageSecret
-        init(message)
-    })
+    chrome.runtime.sendMessage(
+        {
+            messageType: 'registeredContentScript',
+            options: {
+                documentUrl: window.location.href,
+            },
+        },
+        (message) => {
+            // Background has disabled features
+            if (!message) {
+                return
+            }
+            if (message.debug) {
+                window.addEventListener('message', (m) => {
+                    if (m.data.action && m.data.message) {
+                        chrome.runtime.sendMessage({
+                            messageType: 'debuggerMessage',
+                            options: m.data,
+                        })
+                    }
+                })
+            }
+            message.messageSecret = messageSecret
+            init(message)
+        },
+    )
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
@@ -67,7 +69,7 @@ function initCode () {
         }
     })
 
-    window.addEventListener('sendMessageProxy' + messageSecret, event => {
+    window.addEventListener('sendMessageProxy' + messageSecret, (event) => {
         event.stopImmediatePropagation()
 
         if (!(event instanceof CustomEvent) || !event?.detail) {
@@ -79,11 +81,11 @@ function initCode () {
             return console.warn('Ignoring invalid sendMessage messageType', messageType)
         }
 
-        chrome.runtime.sendMessage(event.detail, response => {
+        chrome.runtime.sendMessage(event.detail, (response) => {
             const message = {
                 messageType: 'response',
                 responseMessageType: messageType,
-                response
+                response,
             }
 
             update(message)

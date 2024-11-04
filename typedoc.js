@@ -27,13 +27,9 @@ const config = {
         'special-pages/pages/special-error/src/js/index.js',
         'special-pages/pages/special-error/app/types.js',
         'special-pages/pages/new-tab/app/docs.js',
-        'special-pages/types/*'
+        'special-pages/types/*',
     ],
-    categoryOrder: [
-        'Special Pages',
-        'Content Scope Scripts Integrations',
-        'Other'
-    ],
+    categoryOrder: ['Special Pages', 'Content Scope Scripts Integrations', 'Other'],
     out: 'docs',
     excludeExternals: true,
     excludeInternal: true,
@@ -41,7 +37,7 @@ const config = {
     treatWarningsAsErrors: true,
     searchInComments: true,
     modifierTags: [...OptionDefaults.modifierTags, '@implements'],
-    highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid']
+    highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid'],
 }
 
 export default config

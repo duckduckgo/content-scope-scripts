@@ -10,9 +10,10 @@ export class PhoneExtractor {
      * @param {string[]} strs
      * @param {import('../actions/extract.js').ExtractorParams} extractorParams
      */
-    extract (strs, extractorParams) {
-        return strs.map(str => stringToList(str, extractorParams.separator))
+    extract(strs, extractorParams) {
+        return strs
+            .map((str) => stringToList(str, extractorParams.separator))
             .flat()
-            .map(str => str.replace(/\D/g, ''))
+            .map((str) => str.replace(/\D/g, ''))
     }
 }

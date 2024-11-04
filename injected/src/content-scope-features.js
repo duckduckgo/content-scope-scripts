@@ -15,12 +15,8 @@ const performanceMonitor = new PerformanceMonitor()
 // checks by altering document.__proto__. In the future, it might be worth
 // running the checks even earlier (and in the "isolated world" for the Chrome
 // extension), to further reduce that risk.
-const isHTMLDocument = (
-    document instanceof HTMLDocument || (
-        document instanceof XMLDocument &&
-            document.createElement('div') instanceof HTMLDivElement
-    )
-)
+const isHTMLDocument =
+    document instanceof HTMLDocument || (document instanceof XMLDocument && document.createElement('div') instanceof HTMLDivElement)
 
 /**
  * @typedef {object} LoadArgs
@@ -36,15 +32,13 @@ const isHTMLDocument = (
 /**
  * @param {LoadArgs} args
  */
-export function load (args) {
+export function load(args) {
     const mark = performanceMonitor.mark('load')
     if (!isHTMLDocument) {
         return
     }
 
-    const featureNames = typeof import.meta.injectName === 'string'
-        ? platformSupport[import.meta.injectName]
-        : []
+    const featureNames = typeof import.meta.injectName === 'string' ? platformSupport[import.meta.injectName] : []
 
     for (const featureName of featureNames) {
         const ContentFeature = platformFeatures['ddg_feature_' + featureName]
@@ -55,7 +49,7 @@ export function load (args) {
     mark.end()
 }
 
-export async function init (args) {
+export async function init(args) {
     const mark = performanceMonitor.mark('init')
     initArgs = args
     if (!isHTMLDocument) {
@@ -80,7 +74,7 @@ export async function init (args) {
     }
 }
 
-export function update (args) {
+export function update(args) {
     if (!isHTMLDocument) {
         return
     }
@@ -91,11 +85,11 @@ export function update (args) {
     updateFeaturesInner(args)
 }
 
-function alwaysInitExtensionFeatures (args, featureName) {
+function alwaysInitExtensionFeatures(args, featureName) {
     return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName)
 }
 
-async function updateFeaturesInner (args) {
+async function updateFeaturesInner(args) {
     const resolvedFeatures = await Promise.all(features)
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(initArgs, featureName) && featureInstance.update) {

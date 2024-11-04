@@ -6,7 +6,7 @@
  * @param {number} [textLength=1] - The desired length of the modified string. If specified, the string will be repeated to match the desired length.
  * @returns {string} - The modified string with placeholders replaced by corresponding values.
  */
-export function apply (subject, replacements, textLength = 1) {
+export function apply(subject, replacements, textLength = 1) {
     // if no string is provided, just return an empty string (this will cover empty strings too)
     if (typeof subject !== 'string' || subject.length === 0) return ''
 

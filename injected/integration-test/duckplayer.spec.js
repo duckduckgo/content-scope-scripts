@@ -41,7 +41,7 @@ test.describe('Thumbnail Overlays', () => {
         const url = await navigation
         overlays.opensShort(url)
     })
-    test('Overlays don\'t show on thumbnails when disabled', async ({ page }, workerInfo) => {
+    test("Overlays don't show on thumbnails when disabled", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given the "overlays" feature is disabled
@@ -204,7 +204,7 @@ test.describe('Video Player overlays', () => {
         // Then the overlay shows and blocks the video from playing
         await overlays.smallOverlayShows()
     })
-    test('Small overlay is shown when setting is \'enabled\'', async ({ page }, workerInfo) => {
+    test("Small overlay is shown when setting is 'enabled'", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -217,7 +217,7 @@ test.describe('Video Player overlays', () => {
         // Then the overlay shows and blocks the video from playing
         await overlays.smallOverlayShows()
     })
-    test('Overlays are not shown when setting is \'disabled\'', async ({ page }, workerInfo) => {
+    test("Overlays are not shown when setting is 'disabled'", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -232,7 +232,7 @@ test.describe('Video Player overlays', () => {
         // No video overlay
         await overlays.videoOverlayDoesntShow()
     })
-    test('Selecting \'Turn On Duck Player\'', async ({ page }, workerInfo) => {
+    test("Selecting 'Turn On Duck Player'", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -245,7 +245,7 @@ test.describe('Video Player overlays', () => {
         await overlays.turnOnDuckPlayer()
         await overlays.userSettingWasUpdatedTo('always ask') // not updated
     })
-    test('Selecting \'Turn On Duck Player\' + remember', async ({ page }, workerInfo) => {
+    test("Selecting 'Turn On Duck Player' + remember", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -259,7 +259,7 @@ test.describe('Video Player overlays', () => {
         await overlays.turnOnDuckPlayer()
         await overlays.userSettingWasUpdatedTo('enabled') // updated
     })
-    test('Selecting \'No Thanks\'', async ({ page }, workerInfo) => {
+    test("Selecting 'No Thanks'", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -272,7 +272,7 @@ test.describe('Video Player overlays', () => {
         await overlays.noThanks()
         await overlays.secondOverlayExistsOnVideo()
     })
-    test('Selecting \'No Thanks\' + remember', async ({ page }, workerInfo) => {
+    test("Selecting 'No Thanks' + remember", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -287,7 +287,7 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingWasUpdatedTo('always ask remembered') // updated
     })
     test.describe('with remote config overrides', () => {
-        test('Selecting \'No Thanks\' + remember', async ({ page }, workerInfo) => {
+        test("Selecting 'No Thanks' + remember", async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo)
 
             // config with some CSS selectors overridden

@@ -1,4 +1,3 @@
- 
 import { h } from 'preact'
 import { useContext, useRef } from 'preact/hooks'
 import styles from './App.module.css'
@@ -25,7 +24,7 @@ import { useTypedTranslation } from '../types'
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  */
-export function App ({ children }) {
+export function App({ children }) {
     const { debugState, isReducedMotion } = useEnv()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
@@ -62,13 +61,13 @@ export function App ({ children }) {
         summary: t('summary_title'),
         dockSingle: t('systemSettings_title'),
         importSingle: t('systemSettings_title'),
-        makeDefaultSingle: t('systemSettings_title')
+        makeDefaultSingle: t('systemSettings_title'),
     }
 
     // typescript is not quite smart enough to figure this part out
     const pageTitle = titles[activeStep]
-    const nextPageTitle = titles[/** @type {any} */(nextStep)]
-    const pageSubTitle = t(/** @type {any} */(activeStep + '_subtitle'))
+    const nextPageTitle = titles[/** @type {any} */ (nextStep)]
+    const pageSubTitle = t(/** @type {any} */ (activeStep + '_subtitle'))
 
     if (!pageTitle || pageTitle.length === 0) {
         console.warn('missing page title for ', activeStep)
@@ -79,13 +78,7 @@ export function App ({ children }) {
         getStarted: () => <GetStarted onNextPage={enqueueNext} />,
         privateByDefault: () => <PrivacyDefault onNextPage={enqueueNext} />,
         cleanerBrowsing: () => <CleanBrowsing onNextPage={enqueueNext} />,
-        summary: () => (
-            <Summary
-                values={globalState.values}
-                onDismiss={dismiss}
-                onSettings={dismissToSettings}
-            />
-        )
+        summary: () => <Summary values={globalState.values} onDismiss={dismiss} onSettings={dismissToSettings} />,
     }
 
     /** @type {import('../types').Step['id'][]} */
@@ -93,7 +86,7 @@ export function App ({ children }) {
     const showProgress = progress.includes(activeStep)
 
     // for screens that animate out, trigger the 'advance' when it's finished.
-    function animationDidFinish (e) {
+    function animationDidFinish(e) {
         if (e.target?.dataset?.exiting === 'true') {
             advance()
         }
@@ -111,22 +104,24 @@ export function App ({ children }) {
 
     return (
         <main className={styles.main}>
-            <link rel="preload" href={['js', animation].join('/')} as="image"/>
-            <link rel="preload" href={['js', stepMeta.dockSingle.rows.dock.path].join('/')} as="image"/>
-            <link rel="preload" href={['js', stepMeta.importSingle.rows.import.path].join('/')} as="image"/>
-            <link rel="preload" href={['js', stepMeta.makeDefaultSingle.rows['default-browser'].path].join('/')} as="image"/>
-            <Background/>
-            {debugState && <Debug state={globalState}/>}
+            <link rel="preload" href={['js', animation].join('/')} as="image" />
+            <link rel="preload" href={['js', stepMeta.dockSingle.rows.dock.path].join('/')} as="image" />
+            <link rel="preload" href={['js', stepMeta.importSingle.rows.import.path].join('/')} as="image" />
+            <link rel="preload" href={['js', stepMeta.makeDefaultSingle.rows['default-browser'].path].join('/')} as="image" />
+            <Background />
+            {debugState && <Debug state={globalState} />}
             <div className={styles.container} data-current={activeStep}>
-                <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
+                <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
                     <Stack>
-                        <Header aside={showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length}/>}>
-                            {pageTitle && <Typed
-                                onComplete={titleDone}
-                                text={pageTitle}
-                                data-current={activeStep}
-                                data-exiting={pageTitle !== nextPageTitle && String(exiting)}
-                            />}
+                        <Header aside={showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length} />}>
+                            {pageTitle && (
+                                <Typed
+                                    onComplete={titleDone}
+                                    text={pageTitle}
+                                    data-current={activeStep}
+                                    data-exiting={pageTitle !== nextPageTitle && String(exiting)}
+                                />
+                            )}
                         </Header>
                         <div data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
                             {activeStepVisible && (
@@ -145,16 +140,16 @@ export function App ({ children }) {
                             )}
                         </div>
                     </Stack>
-                    <WillThrow/>
+                    <WillThrow />
                 </ErrorBoundary>
             </div>
-            {debugState && <DebugLinks current={activeStep}/>}
+            {debugState && <DebugLinks current={activeStep} />}
             {children}
         </main>
     )
 }
 
-function Debug (props) {
+function Debug(props) {
     return (
         <div style={{ position: 'absolute', top: 0, right: 0, overflowY: 'scroll', height: '100vh' }}>
             <pre>
@@ -164,7 +159,7 @@ function Debug (props) {
     )
 }
 
-function DebugLinks ({ current }) {
+function DebugLinks({ current }) {
     const globalState = useContext(GlobalContext)
 
     const exceptionUrl = new URL(window.location.href)
@@ -174,22 +169,30 @@ function DebugLinks ({ current }) {
     if (window.__playwright_01) return null
     return (
         <div style={{ display: 'flex', gap: '10px', position: 'fixed', bottom: '1rem', justifyContent: 'center', width: '100%' }}>
-            {Object.keys(globalState.stepDefinitions).slice(1).map(pageId => {
-                const next = new URL(window.location.href)
-                next.searchParams.set('page', pageId)
-                return (
-                    <a href={next.toString()} key={pageId} style={{
-                        textDecoration: current === pageId ? 'none' : 'underline',
-                        color: current === pageId ? 'black' : undefined
-                    }}>{pageId}</a>
-                )
-            })}
+            {Object.keys(globalState.stepDefinitions)
+                .slice(1)
+                .map((pageId) => {
+                    const next = new URL(window.location.href)
+                    next.searchParams.set('page', pageId)
+                    return (
+                        <a
+                            href={next.toString()}
+                            key={pageId}
+                            style={{
+                                textDecoration: current === pageId ? 'none' : 'underline',
+                                color: current === pageId ? 'black' : undefined,
+                            }}
+                        >
+                            {pageId}
+                        </a>
+                    )
+                })}
             <a href={exceptionUrl.toString()}>Exception</a>
         </div>
     )
 }
 
-function WillThrow () {
+function WillThrow() {
     const { willThrow } = useEnv()
     if (willThrow) {
         throw new Error('Simulated Exception')
@@ -197,7 +200,7 @@ function WillThrow () {
     return null
 }
 
-export function SkipLink () {
+export function SkipLink() {
     const dispatch = useContext(GlobalDispatch)
     const count = useRef(0)
 
@@ -208,7 +211,5 @@ export function SkipLink () {
         }
     }
 
-    return (
-        <div style="position: fixed; bottom: 0; left: 0; width: 50px; height: 50px" onClick={handler} data-testid="skip" />
-    )
+    return <div style="position: fixed; bottom: 0; left: 0; width: 50px; height: 50px" onClick={handler} data-testid="skip" />
 }

@@ -9,7 +9,7 @@ import { TestTransportConfig } from '../../messaging/index.js'
 /**
  * @deprecated - A temporary constructor for the extension to make the messaging config
  */
-export function extensionConstructMessagingConfig () {
+export function extensionConstructMessagingConfig() {
     const messagingTransport = new SendMessageMessagingTransport()
     return new TestTransportConfig(messagingTransport)
 }
@@ -29,7 +29,7 @@ export class SendMessageMessagingTransport {
      */
     _queue = new Set()
 
-    constructor () {
+    constructor() {
         this.globals = {
             window: globalThis,
             globalThis,
@@ -37,7 +37,7 @@ export class SendMessageMessagingTransport {
             JSONstringify: globalThis.JSON.stringify,
             Promise: globalThis.Promise,
             Error: globalThis.Error,
-            String: globalThis.String
+            String: globalThis.String,
         }
     }
 
@@ -46,14 +46,14 @@ export class SendMessageMessagingTransport {
      * with callback functions in the _queue.
      * @param {any} response
      */
-    onResponse (response) {
+    onResponse(response) {
         this._queue.forEach((subscription) => subscription(response))
     }
 
     /**
      * @param {import('@duckduckgo/messaging').NotificationMessage} msg
      */
-    notify (msg) {
+    notify(msg) {
         let params = msg.params
 
         // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
@@ -74,7 +74,7 @@ export class SendMessageMessagingTransport {
      * @param {import('@duckduckgo/messaging').RequestMessage} req
      * @return {Promise<any>}
      */
-    request (req) {
+    request(req) {
         let comparator = (eventData) => {
             return eventData.responseMessageType === req.method
         }
@@ -109,12 +109,9 @@ export class SendMessageMessagingTransport {
      * @param {import('@duckduckgo/messaging').Subscription} msg
      * @param {(value: unknown | undefined) => void} callback
      */
-    subscribe (msg, callback) {
+    subscribe(msg, callback) {
         const comparator = (eventData) => {
-            return (
-                eventData.messageType === msg.subscriptionName ||
-                eventData.responseMessageType === msg.subscriptionName
-            )
+            return eventData.messageType === msg.subscriptionName || eventData.responseMessageType === msg.subscriptionName
         }
 
         // only forward the 'params' ('response' in current format), to match expected
@@ -130,7 +127,7 @@ export class SendMessageMessagingTransport {
      * @param {(value: any, unsubscribe: (()=>void)) => void} callback
      * @internal
      */
-    _subscribe (comparator, callback) {
+    _subscribe(comparator, callback) {
         /** @type {(()=>void) | undefined} */
         // eslint-disable-next-line prefer-const
         let teardown

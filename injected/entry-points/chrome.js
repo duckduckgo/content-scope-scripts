@@ -16,11 +16,11 @@ const allowedMessages = [
     'setYoutubePreviewsEnabled',
     'unblockClickToLoadContent',
     'updateYouTubeCTLAddedFlag',
-    'updateFacebookCTLBreakageFlags'
+    'updateFacebookCTLBreakageFlags',
 ]
 const messageSecret = randomString()
 
-function inject (code) {
+function inject(code) {
     const elem = document.head || document.documentElement
     // Inject into main page
     try {
@@ -30,16 +30,15 @@ function inject (code) {
         })();`
         elem.appendChild(e)
         e.remove()
-    } catch (e) {
-    }
+    } catch (e) {}
 }
 
-function randomString () {
+function randomString() {
     const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
     return num.toString().replace('0.', '')
 }
 
-function init () {
+function init() {
     const trackerLookup = import.meta.trackerLookup
     const documentOriginIsTracker = isTrackerOrigin(trackerLookup)
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -100,32 +99,34 @@ function init () {
     `
     inject(initialScript)
 
-    chrome.runtime.sendMessage({
-        messageType: 'registeredContentScript',
-        options: {
-            documentUrl: window.location.href
-        }
-    },
-    (message) => {
-        if (!message) {
-            // Remove injected function only as background has disabled feature
-            inject(`delete window.${randomMethodName}`)
-            return
-        }
-        if (message.debug) {
-            window.addEventListener('message', (m) => {
-                if (m.data.action && m.data.message) {
-                    chrome.runtime.sendMessage({ messageType: 'debuggerMessage', options: m.data })
-                }
-            })
-        }
-        message.messageSecret = messageSecret
-        const stringifiedArgs = JSON.stringify(message)
-        const callRandomFunction = `
+    chrome.runtime.sendMessage(
+        {
+            messageType: 'registeredContentScript',
+            options: {
+                documentUrl: window.location.href,
+            },
+        },
+        (message) => {
+            if (!message) {
+                // Remove injected function only as background has disabled feature
+                inject(`delete window.${randomMethodName}`)
+                return
+            }
+            if (message.debug) {
+                window.addEventListener('message', (m) => {
+                    if (m.data.action && m.data.message) {
+                        chrome.runtime.sendMessage({ messageType: 'debuggerMessage', options: m.data })
+                    }
+                })
+            }
+            message.messageSecret = messageSecret
+            const stringifiedArgs = JSON.stringify(message)
+            const callRandomFunction = `
                 window.${randomMethodName}('${randomPassword}', ${stringifiedArgs});
             `
-        inject(callRandomFunction)
-    })
+            inject(callRandomFunction)
+        },
+    )
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
@@ -138,7 +139,7 @@ function init () {
         }
     })
 
-    window.addEventListener('sendMessageProxy' + messageSecret, event => {
+    window.addEventListener('sendMessageProxy' + messageSecret, (event) => {
         event.stopImmediatePropagation()
 
         if (!(event instanceof CustomEvent) || !event?.detail) {
@@ -150,11 +151,11 @@ function init () {
             return console.warn('Ignoring invalid sendMessage messageType', messageType)
         }
 
-        chrome.runtime.sendMessage(event.detail, response => {
+        chrome.runtime.sendMessage(event.detail, (response) => {
             const message = {
                 messageType: 'response',
                 responseMessageType: messageType,
-                response
+                response,
             }
             const stringifiedArgs = JSON.stringify(message)
             const callRandomUpdateFunction = `

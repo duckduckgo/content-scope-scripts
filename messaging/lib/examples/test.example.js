@@ -8,29 +8,29 @@ import { Messaging, MessagingContext, TestTransportConfig } from '../../index.js
  * - subscribe
  */
 const config = new TestTransportConfig({
-    notify (msg) {
+    notify(msg) {
         console.log(msg)
     },
     request: (msg) => {
         if (msg.method === 'getUserValues') {
             return Promise.resolve({
-                foo: 'bar'
+                foo: 'bar',
             })
         }
         return Promise.resolve(null)
     },
-    subscribe (msg) {
+    subscribe(msg) {
         console.log(msg)
         return () => {
             console.log('teardown')
         }
-    }
+    },
 })
 
 const messagingContext = new MessagingContext({
     context: 'contentScopeScripts',
     featureName: 'hello-world',
-    env: 'development'
+    env: 'development',
 })
 
 /**

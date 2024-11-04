@@ -2,11 +2,7 @@ import { createContext, h } from 'preact'
 import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks'
 import { useMessaging } from '../types.js'
 import { RMFService } from './rmf.service.js'
-import {
-    reducer,
-    useDataSubscription,
-    useInitialData
-} from '../service.hooks.js'
+import { reducer, useDataSubscription, useInitialData } from '../service.hooks.js'
 
 /**
  * @typedef {import('../../../../types/new-tab.js').RMFData} RMFData
@@ -31,10 +27,10 @@ export const RMFContext = createContext({
     /** @type {(id: string) => void} */
     secondaryAction: (id) => {
         throw new Error('must implement secondaryAction' + id)
-    }
+    },
 })
 
-export const RMFDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */({}))
+export const RMFDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}))
 
 /**
  * A data provider that will use `RMFService` to fetch data, subscribe
@@ -43,11 +39,11 @@ export const RMFDispatchContext = createContext(/** @type {import("preact/hooks"
  * @param {Object} props
  * @param {import("preact").ComponentChild} props.children
  */
-export function RMFProvider (props) {
-    const initial = /** @type {State} */({
+export function RMFProvider(props) {
+    const initial = /** @type {State} */ ({
         status: 'idle',
         data: null,
-        config: null
+        config: null,
     })
 
     // const [state, dispatch] = useReducer(withLog('RMFProvider', reducer), initial)
@@ -63,25 +59,32 @@ export function RMFProvider (props) {
     useDataSubscription({ dispatch, service })
 
     // todo(valerie): implement onDismiss in the service
-    const dismiss = useCallback((id) => {
-        console.log('onDismiss')
-        service.current?.dismiss(id)
-    }, [service])
+    const dismiss = useCallback(
+        (id) => {
+            console.log('onDismiss')
+            service.current?.dismiss(id)
+        },
+        [service],
+    )
 
-    const primaryAction = useCallback((id) => {
-        service.current?.primaryAction(id)
-    }, [service])
+    const primaryAction = useCallback(
+        (id) => {
+            service.current?.primaryAction(id)
+        },
+        [service],
+    )
 
-    const secondaryAction = useCallback((id) => {
-        console.log('secondaryAction')
-        service.current?.secondaryAction(id)
-    }, [service])
+    const secondaryAction = useCallback(
+        (id) => {
+            console.log('secondaryAction')
+            service.current?.secondaryAction(id)
+        },
+        [service],
+    )
 
     return (
         <RMFContext.Provider value={{ state, dismiss, primaryAction, secondaryAction }}>
-            <RMFDispatchContext.Provider value={dispatch}>
-                {props.children}
-            </RMFDispatchContext.Provider>
+            <RMFDispatchContext.Provider value={dispatch}>{props.children}</RMFDispatchContext.Provider>
         </RMFContext.Provider>
     )
 }
@@ -89,8 +92,8 @@ export function RMFProvider (props) {
 /**
  * @return {import("preact").RefObject<RMFService>}
  */
-export function useService () {
-    const service = useRef(/** @type {RMFService|null} */(null))
+export function useService() {
+    const service = useRef(/** @type {RMFService|null} */ (null))
     const ntp = useMessaging()
     useEffect(() => {
         const stats = new RMFService(ntp)

@@ -1,11 +1,11 @@
-import { h } from "preact"
-import { createContext } from "preact";
-import { Settings } from "../settings";
-import { useContext } from "preact/hooks";
-import { useMessaging } from "../types.js";
-import { EmbedSettings } from "../embed-settings";
+import { h } from 'preact'
+import { createContext } from 'preact'
+import { Settings } from '../settings'
+import { useContext } from 'preact/hooks'
+import { useMessaging } from '../types.js'
+import { EmbedSettings } from '../embed-settings'
 
-const SettingsContext = createContext(/** @type {{settings: Settings}} */({}))
+const SettingsContext = createContext(/** @type {{settings: Settings}} */ ({}))
 
 /**
  * @param {object} params
@@ -13,11 +13,7 @@ const SettingsContext = createContext(/** @type {{settings: Settings}} */({}))
  * @param {import("preact").ComponentChild} params.children
  */
 export function SettingsProvider({ settings, children }) {
-    return (
-        <SettingsContext.Provider value={{settings}}>
-            {children}
-        </SettingsContext.Provider>
-    )
+    return <SettingsContext.Provider value={{ settings }}>{children}</SettingsContext.Provider>
 }
 
 export function usePlatformName() {
@@ -32,17 +28,17 @@ export function useLayout() {
  * Handler for opening settings
  */
 export function useOpenSettingsHandler() {
-    const settings = useContext(SettingsContext).settings;
-    const messaging = useMessaging();
+    const settings = useContext(SettingsContext).settings
+    const messaging = useMessaging()
     return () => {
         switch (settings.platform.name) {
-            case "ios":
-            case "android": {
+            case 'ios':
+            case 'android': {
                 messaging.openSettings()
                 break
             }
             default: {
-                console.warn("unreachable!")
+                console.warn('unreachable!')
             }
         }
     }
@@ -53,24 +49,24 @@ export function useSettingsUrl() {
 }
 
 export function useSettings() {
-    return useContext(SettingsContext).settings;
+    return useContext(SettingsContext).settings
 }
 
 /**
  * Handler for opening info
  */
 export function useOpenInfoHandler() {
-    const settings = useContext(SettingsContext).settings;
-    const messaging = useMessaging();
+    const settings = useContext(SettingsContext).settings
+    const messaging = useMessaging()
     return () => {
         switch (settings.platform.name) {
-            case "android":
-            case "ios": {
+            case 'android':
+            case 'ios': {
                 messaging.openInfo()
-                break;
+                break
             }
             default: {
-                console.warn("unreachable!")
+                console.warn('unreachable!')
             }
         }
     }
@@ -80,17 +76,17 @@ export function useOpenInfoHandler() {
  * Handler for opening info
  */
 export function useOpenOnYoutubeHandler() {
-    const settings = useContext(SettingsContext).settings;
+    const settings = useContext(SettingsContext).settings
     /**
      * @param {EmbedSettings} embed
      */
     return (embed) => {
-        if (!embed) return console.warn("unreachable, settings.embed must be present")
+        if (!embed) return console.warn('unreachable, settings.embed must be present')
         try {
-            const base = new URL(settings.youtubeBase);
-            window.location.href = embed.intoYoutubeUrl(base);
+            const base = new URL(settings.youtubeBase)
+            window.location.href = embed.intoYoutubeUrl(base)
         } catch (e) {
-            console.error("could not form a URL to open in Youtube", e)
+            console.error('could not form a URL to open in Youtube', e)
         }
     }
 }

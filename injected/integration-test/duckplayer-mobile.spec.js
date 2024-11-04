@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 import { DuckplayerOverlays } from './page-objects/duckplayer-overlays.js'
 
 test.describe('Video Player overlays', () => {
-    test('Selecting \'watch here\' on mobile', async ({ page }, workerInfo) => {
+    test("Selecting 'watch here' on mobile", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -17,10 +17,10 @@ test.describe('Video Player overlays', () => {
         await overlays.mobile.overlayIsRemoved()
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
-            { pixelName: 'play.do_not_use', params: { remember: '0' } }
+            { pixelName: 'play.do_not_use', params: { remember: '0' } },
         ])
     })
-    test('Selecting \'watch here\' on mobile + remember', async ({ page }, workerInfo) => {
+    test("Selecting 'watch here' on mobile + remember", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -36,11 +36,11 @@ test.describe('Video Player overlays', () => {
         await overlays.mobile.overlayIsRemoved()
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
-            { pixelName: 'play.do_not_use', params: { remember: '1' } }
+            { pixelName: 'play.do_not_use', params: { remember: '1' } },
         ])
         await overlays.userSettingWasUpdatedTo('disabled')
     })
-    test('Selecting \'watch in duckplayer\' on mobile', async ({ page }, workerInfo) => {
+    test("Selecting 'watch in duckplayer' on mobile", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -53,11 +53,11 @@ test.describe('Video Player overlays', () => {
         await overlays.mobile.choosesDuckPlayer()
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
-            { pixelName: 'play.use', params: { remember: '0' } }
+            { pixelName: 'play.use', params: { remember: '0' } },
         ])
         await overlays.userSettingWasUpdatedTo('always ask')
     })
-    test('Selecting \'watch in duckplayer\' on mobile + remember', async ({ page }, workerInfo) => {
+    test("Selecting 'watch in duckplayer' on mobile + remember", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -71,7 +71,7 @@ test.describe('Video Player overlays', () => {
         await overlays.mobile.choosesDuckPlayer()
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
-            { pixelName: 'play.use', params: { remember: '1' } }
+            { pixelName: 'play.use', params: { remember: '1' } },
         ])
         await overlays.userSettingWasUpdatedTo('enabled')
     })
@@ -92,7 +92,33 @@ test.describe('Video Player overlays', () => {
  * Use this test in `--headed` mode to cycle through every language
  */
 test.describe.skip('Translated Overlays', () => {
-    const items = ['bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'et', 'fi', 'fr', 'hr', 'hu', 'it', 'lt', 'lv', 'nb', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'tr']
+    const items = [
+        'bg',
+        'cs',
+        'da',
+        'de',
+        'el',
+        'en',
+        'es',
+        'et',
+        'fi',
+        'fr',
+        'hr',
+        'hu',
+        'it',
+        'lt',
+        'lv',
+        'nb',
+        'nl',
+        'pl',
+        'pt',
+        'ro',
+        'ru',
+        'sk',
+        'sl',
+        'sv',
+        'tr',
+    ]
     // const items = ['en']
     for (const locale of items) {
         test(`testing UI ${locale}`, async ({ page }, workerInfo) => {
@@ -112,7 +138,7 @@ test.describe.skip('Translated Overlays', () => {
  * Use `npm run playwright-screenshots` to run this test only.
  */
 test.describe('Overlay screenshot @screenshots', () => {
-    test('testing Overlay UI \'en\'', async ({ page }, workerInfo) => {
+    test("testing Overlay UI 'en'", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
         await overlays.withRemoteConfig({ locale: 'en' })
         await overlays.userSettingIs('always ask')

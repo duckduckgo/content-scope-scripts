@@ -9,12 +9,12 @@ export class AutoFocus {
     /**
      * @param {HTMLIFrameElement} iframe
      */
-    iframeDidLoad (iframe) {
+    iframeDidLoad(iframe) {
         const maxAttempts = 1000
         let attempt = 0
         let id
 
-        function check () {
+        function check() {
             if (!iframe.contentDocument) return
             if (attempt > maxAttempts) return
 
@@ -23,7 +23,7 @@ export class AutoFocus {
             const selector = '#player video'
 
             // try to select the video element
-            const video = /** @type {HTMLIFrameElement | null} */(iframe.contentDocument?.body.querySelector(selector))
+            const video = /** @type {HTMLIFrameElement | null} */ (iframe.contentDocument?.body.querySelector(selector))
 
             // if the video is absent, try again
             if (!video) {

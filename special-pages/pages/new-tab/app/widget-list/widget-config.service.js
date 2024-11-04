@@ -9,22 +9,25 @@ export class WidgetConfigService {
      * @param {WidgetConfigs} initialConfig
      * @internal
      */
-    constructor (ntp, initialConfig) {
+    constructor(ntp, initialConfig) {
         /**
          * @type {Service<WidgetConfigs>}
          * @internal
          */
-        this.service = new Service({
-            subscribe: (cb) => ntp.messaging.subscribe('widgets_onConfigUpdated', cb),
-            persist: (data) => ntp.messaging.notify('widgets_setConfig', data)
-        }, initialConfig)
+        this.service = new Service(
+            {
+                subscribe: (cb) => ntp.messaging.subscribe('widgets_onConfigUpdated', cb),
+                persist: (data) => ntp.messaging.notify('widgets_setConfig', data),
+            },
+            initialConfig,
+        )
     }
 
     /**
      * @param {(evt: {data: WidgetConfigs, source: 'manual' | 'subscription'}) => void} cb
      * @internal
      */
-    onData (cb) {
+    onData(cb) {
         return this.service.onData(cb)
     }
 
@@ -36,13 +39,12 @@ export class WidgetConfigService {
      * @param {string} id - the widget ID to toggle.
      * @internal
      */
-    toggleVisibility (id) {
+    toggleVisibility(id) {
         this.service.update((old) => {
-            return old.map(widgetConfigItem => {
+            return old.map((widgetConfigItem) => {
                 if (widgetConfigItem.id === id) {
-                    const alt = widgetConfigItem.visibility === 'visible'
-                        ? /** @type {const} */('hidden')
-                        : /** @type {const} */('visible')
+                    const alt =
+                        widgetConfigItem.visibility === 'visible' ? /** @type {const} */ ('hidden') : /** @type {const} */ ('visible')
                     return { ...widgetConfigItem, visibility: alt }
                 }
                 return widgetConfigItem

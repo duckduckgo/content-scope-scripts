@@ -4,7 +4,7 @@ import {
     mockWindowsMessaging,
     readOutgoingMessages,
     simulateSubscriptionMessage,
-    waitForCallCount
+    waitForCallCount,
 } from '../../../messaging/lib/test-utils.mjs'
 
 export class Mocks {
@@ -20,7 +20,7 @@ export class Mocks {
      * @param {import("../../../injected/integration-test/type-helpers.mjs").PlatformInfo} platform
      * @param {import("@duckduckgo/messaging").MessagingContext} messagingContext
      */
-    constructor (page, build, platform, messagingContext) {
+    constructor(page, build, platform, messagingContext) {
         this.page = page
         this.build = build
         this.platform = platform
@@ -30,47 +30,47 @@ export class Mocks {
     /**
      * @returns {Promise<void|*|string>}
      */
-    async install () {
+    async install() {
         this.page.on('console', (msg) => {
             console.log('->', msg.type(), msg.text())
         })
         await this.installMessagingMocks()
     }
 
-    async installMessagingMocks () {
+    async installMessagingMocks() {
         await this.build.switch({
             windows: async () => {
                 await this.page.addInitScript(mockWindowsMessaging, {
                     messagingContext: this.messagingContext,
-                    responses: this._defaultResponses
+                    responses: this._defaultResponses,
                 })
             },
             apple: async () => {
                 await this.page.addInitScript(mockWebkitMessaging, {
                     messagingContext: this.messagingContext,
-                    responses: this._defaultResponses
+                    responses: this._defaultResponses,
                 })
             },
             android: async () => {
                 await this.page.addInitScript(mockAndroidMessaging, {
                     messagingContext: this.messagingContext,
                     responses: this._defaultResponses,
-                    messageCallback: 'messageCallback'
+                    messageCallback: 'messageCallback',
                 })
             },
             integration: async () => {
                 await this.page.addInitScript(mockWindowsMessaging, {
                     messagingContext: this.messagingContext,
-                    responses: this._defaultResponses
+                    responses: this._defaultResponses,
                 })
-            }
+            },
         })
     }
 
     /**
      * @param {Record<string, any>} responses
      */
-    defaultResponses (responses) {
+    defaultResponses(responses) {
         this._defaultResponses = responses
     }
 
@@ -78,12 +78,12 @@ export class Mocks {
      * @param {string} name
      * @param {Record<string, any>} payload
      */
-    async simulateSubscriptionMessage (name, payload) {
+    async simulateSubscriptionMessage(name, payload) {
         await this.page.evaluate(simulateSubscriptionMessage, {
             messagingContext: this.messagingContext,
             name,
             payload,
-            injectName: this.build.name
+            injectName: this.build.name,
         })
     }
 
@@ -91,7 +91,7 @@ export class Mocks {
      * @param {{names: string[]}} [opts]
      * @returns {Promise<any[]>}
      */
-    async outgoing (opts = { names: [] }) {
+    async outgoing(opts = { names: [] }) {
         const result = await this.page.evaluate(readOutgoingMessages)
         if (Array.isArray(opts.names) && opts.names.length > 0) {
             return result.filter(({ payload }) => opts.names.includes(payload.method))
@@ -106,10 +106,10 @@ export class Mocks {
      * @param {number} [params.timeout]
      * @return {Promise<*>}
      */
-    async waitForCallCount (params) {
+    async waitForCallCount(params) {
         await this.page.waitForFunction(waitForCallCount, params, {
             timeout: params.timeout ?? 3000,
-            polling: 100
+            polling: 100,
         })
         return this.outgoing({ names: [params.method] })
     }

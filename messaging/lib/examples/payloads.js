@@ -9,7 +9,7 @@ const notification = {
     context: 'contentScopeScripts',
     featureName: 'duckPlayerOverlays',
     method: 'setUserValues',
-    params: {}
+    params: {},
 }
 
 /**
@@ -21,7 +21,7 @@ const request = {
     featureName: 'duckPlayerOverlays',
     method: 'setUserValues',
     params: {},
-    id: 'setUserValues.response'
+    id: 'setUserValues.response',
 }
 
 /**
@@ -33,7 +33,7 @@ const messageResponse = {
     featureName: 'duckPlayerOverlays',
     result: {},
     id: 'setUserValues.response',
-    error: undefined
+    error: undefined,
 }
 
 /**
@@ -45,7 +45,7 @@ const messageResponseError = {
     featureName: 'duckPlayerOverlays',
     result: undefined,
     id: 'setUserValues.response',
-    error: { message: '' }
+    error: { message: '' },
 }
 
 /**
@@ -56,5 +56,5 @@ const myEvent = {
     context: 'contentScopeScripts',
     featureName: 'duckPlayerOverlays',
     subscriptionName: 'setUserValues',
-    params: {}
+    params: {},
 }

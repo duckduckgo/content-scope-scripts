@@ -15,7 +15,7 @@ const config = new AndroidMessagingConfig({
     messageCallback: 'callback_123', // the method that android will execute with responses
     target: globalThis, // where the global properties exist
     javascriptInterface,
-    debug: false
+    debug: false,
 })
 
 /**
@@ -24,7 +24,7 @@ const config = new AndroidMessagingConfig({
 const messagingContext = new MessagingContext({
     context: javascriptInterface,
     featureName: 'hello-world',
-    env: 'development'
+    env: 'development',
 })
 
 /**
@@ -52,7 +52,7 @@ unsubscribe()
 const messagingContext1 = new MessagingContext({
     context: 'contentScopeScripts',
     featureName: 'hello-world',
-    env: 'development'
+    env: 'development',
 })
 
 /**

@@ -5,7 +5,7 @@ import { sampleData } from '../../app/sampleData'
  * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
  */
 
-export function mockTransport () {
+export function mockTransport() {
     /**
      * Allows for sample data overrides. Overrides can be combined. Ex:
      *
@@ -17,65 +17,64 @@ export function mockTransport () {
      */
     const dataOverrides = {
         manualUpdate: {
-            automaticUpdate: false
+            automaticUpdate: false,
         },
         noPrivacyPro: {
-            releaseNotesPrivacyPro: undefined
-        }
+            releaseNotesPrivacyPro: undefined,
+        },
     }
 
     return new TestTransportConfig({
-         
-        notify (_msg) {
-        },
-        request (_msg) {
+        notify(_msg) {},
+        request(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) })
             /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['requests']} */
-            const msg = /** @type {any} */(_msg)
+            const msg = /** @type {any} */ (_msg)
             switch (msg.method) {
-            case 'initialSetup': {
-                return Promise.resolve({
-                    env: 'development',
-                    locale: 'en'
-                })
-            }
-            default: return Promise.resolve(null)
+                case 'initialSetup': {
+                    return Promise.resolve({
+                        env: 'development',
+                        locale: 'en',
+                    })
+                }
+                default:
+                    return Promise.resolve(null)
             }
         },
-        subscribe (_msg, callback) {
+        subscribe(_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) })
             /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['subscriptions']['subscriptionEvent']} */
-            const subscription = /** @type {any} */(_msg.subscriptionName)
+            const subscription = /** @type {any} */ (_msg.subscriptionName)
             switch (subscription) {
-            case 'onUpdate': {
-                const searchParams = new URLSearchParams(window.location.search)
-                let stateId = searchParams.get('stateId')
-                if (!stateId || !sampleData[stateId]) {
-                    stateId = 'loading'
-                }
-                let updateData = sampleData[stateId]
-
-                Object.entries(dataOverrides).forEach(([key, value]) => {
-                    if (searchParams.has(key)) {
-                        updateData = { ...updateData, ...value }
+                case 'onUpdate': {
+                    const searchParams = new URLSearchParams(window.location.search)
+                    let stateId = searchParams.get('stateId')
+                    if (!stateId || !sampleData[stateId]) {
+                        stateId = 'loading'
                     }
-                })
+                    let updateData = sampleData[stateId]
 
-                callback(sampleData.loading)
+                    Object.entries(dataOverrides).forEach(([key, value]) => {
+                        if (searchParams.has(key)) {
+                            updateData = { ...updateData, ...value }
+                        }
+                    })
 
-                const timer = setTimeout(() => {
-                    callback(updateData)
-                }, 1000)
+                    callback(sampleData.loading)
 
-                return () => {
-                    clearTimeout(timer)
+                    const timer = setTimeout(() => {
+                        callback(updateData)
+                    }, 1000)
+
+                    return () => {
+                        clearTimeout(timer)
+                    }
                 }
-            }
             }
 
             return () => {
                 // any cleanup
             }
-        }
+        },
     })
 }

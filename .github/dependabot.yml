@@ -1,36 +1,36 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    target-branch: "main"
-    open-pull-requests-limit: 20
-    labels:
-      - "dependencies"
-    groups:
-      eslint:
-        patterns:
-          - "eslint*"
-          - "@typescript-eslint*"
-      stylelint:
-        patterns:
-          - "stylelint*"
-      typescript:
-        patterns:
-          - "typedoc"
-          - "typescript"
-          - "@types/*"
-          - "@typescript-eslint*"
-      rollup:
-        patterns:
-          - "@rollup/*"
-          - "rollup-*"
-          - "rollup"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    target-branch: "main"
-    labels:
-      - "dependencies"
+    - package-ecosystem: 'npm'
+      directory: '/'
+      schedule:
+          interval: 'daily'
+      target-branch: 'main'
+      open-pull-requests-limit: 20
+      labels:
+          - 'dependencies'
+      groups:
+          eslint:
+              patterns:
+                  - 'eslint*'
+                  - '@typescript-eslint*'
+          stylelint:
+              patterns:
+                  - 'stylelint*'
+          typescript:
+              patterns:
+                  - 'typedoc'
+                  - 'typescript'
+                  - '@types/*'
+                  - '@typescript-eslint*'
+          rollup:
+              patterns:
+                  - '@rollup/*'
+                  - 'rollup-*'
+                  - 'rollup'
+    - package-ecosystem: 'github-actions'
+      directory: '/'
+      schedule:
+          interval: 'weekly'
+      target-branch: 'main'
+      labels:
+          - 'dependencies'

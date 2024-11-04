@@ -12,14 +12,14 @@ import { createContext } from 'preact'
  * This is a wrapper to only allow keys from the default translation file
  * @type {() => { t: (key: keyof json, replacements?: Record<string, string>) => string }}
  */
-export function useTypedTranslation () {
+export function useTypedTranslation() {
     return {
-        t: useContext(TranslationContext).t
+        t: useContext(TranslationContext).t,
     }
 }
 
-export const MessagingContext = createContext(/** @type {import("../src/js/index.js").NewTabPage} */({}))
+export const MessagingContext = createContext(/** @type {import("../src/js/index.js").NewTabPage} */ ({}))
 export const useMessaging = () => useContext(MessagingContext)
 
-export const InitialSetupContext = createContext(/** @type {InitialSetupResponse} */({}))
+export const InitialSetupContext = createContext(/** @type {InitialSetupResponse} */ ({}))
 export const useInitialSetupData = () => useContext(InitialSetupContext)

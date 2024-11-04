@@ -10,8 +10,8 @@ describe('generateSchema', () => {
                 method: 'getUserValues',
                 kind: 'request',
                 json: {
-                    $schema: 'http://json-schema.org/draft-07/schema#'
-                }
+                    $schema: 'http://json-schema.org/draft-07/schema#',
+                },
             },
             {
                 relative: 'duck-player/getUserValues.response.json',
@@ -24,10 +24,10 @@ describe('generateSchema', () => {
                     description: 'Return types are nice!',
                     allOf: [
                         {
-                            $ref: './shared/user-values.json'
-                        }
-                    ]
-                }
+                            $ref: './shared/user-values.json',
+                        },
+                    ],
+                },
             },
             {
                 relative: 'duck-player/onUserValuesChanged.subscribe.json',
@@ -39,10 +39,10 @@ describe('generateSchema', () => {
                     $schema: 'http://json-schema.org/draft-07/schema#',
                     allOf: [
                         {
-                            $ref: './shared/user-values.json'
-                        }
-                    ]
-                }
+                            $ref: './shared/user-values.json',
+                        },
+                    ],
+                },
             },
             {
                 relative: 'duck-player/opened.notify.json',
@@ -51,8 +51,8 @@ describe('generateSchema', () => {
                 method: 'opened',
                 kind: 'notify',
                 json: {
-                    $schema: 'http://json-schema.org/draft-07/schema#'
-                }
+                    $schema: 'http://json-schema.org/draft-07/schema#',
+                },
             },
             {
                 relative: 'duck-player/pageView.notify.json',
@@ -64,15 +64,13 @@ describe('generateSchema', () => {
                     $schema: 'http://json-schema.org/draft-07/schema#',
                     type: 'object',
                     additionalProperties: false,
-                    required: [
-                        'a'
-                    ],
+                    required: ['a'],
                     properties: {
                         a: {
-                            type: 'string'
-                        }
-                    }
-                }
+                            type: 'string',
+                        },
+                    },
+                },
             },
             {
                 relative: 'duck-player/setUserValues.request.json',
@@ -84,10 +82,10 @@ describe('generateSchema', () => {
                     $schema: 'http://json-schema.org/draft-07/schema#',
                     allOf: [
                         {
-                            $ref: './shared/user-values.json'
-                        }
-                    ]
-                }
+                            $ref: './shared/user-values.json',
+                        },
+                    ],
+                },
             },
             {
                 relative: 'duck-player/setUserValues.response.json',
@@ -99,11 +97,11 @@ describe('generateSchema', () => {
                     $schema: 'http://json-schema.org/draft-07/schema#',
                     allOf: [
                         {
-                            $ref: './shared/user-values.json'
-                        }
-                    ]
-                }
-            }
+                            $ref: './shared/user-values.json',
+                        },
+                    ],
+                },
+            },
         ]
         const expected = {
             $schema: 'http://json-schema.org/draft-07/schema#',
@@ -119,34 +117,29 @@ describe('generateSchema', () => {
                             title: 'opened_notification',
                             description: 'Generated from @see "../messages/duck-player/opened.notify.json"',
                             additionalProperties: false,
-                            required: [
-                                'method'
-                            ],
+                            required: ['method'],
                             properties: {
                                 method: {
-                                    const: 'opened'
-                                }
-                            }
+                                    const: 'opened',
+                                },
+                            },
                         },
                         {
                             type: 'object',
                             title: 'pageView_notification',
                             description: 'Generated from @see "../messages/duck-player/pageView.notify.json"',
                             additionalProperties: false,
-                            required: [
-                                'method',
-                                'params'
-                            ],
+                            required: ['method', 'params'],
                             properties: {
                                 method: {
-                                    const: 'pageView'
+                                    const: 'pageView',
                                 },
                                 params: {
-                                    $ref: './duck-player/pageView.notify.json'
-                                }
-                            }
-                        }
-                    ]
+                                    $ref: './duck-player/pageView.notify.json',
+                                },
+                            },
+                        },
+                    ],
                 },
                 requests: {
                     oneOf: [
@@ -155,42 +148,35 @@ describe('generateSchema', () => {
                             title: 'getUserValues_request',
                             description: 'Generated from @see "../messages/duck-player/getUserValues.request.json"',
                             additionalProperties: false,
-                            required: [
-                                'method',
-                                'result'
-                            ],
+                            required: ['method', 'result'],
                             properties: {
                                 method: {
-                                    const: 'getUserValues'
+                                    const: 'getUserValues',
                                 },
                                 result: {
-                                    $ref: './duck-player/getUserValues.response.json'
-                                }
-                            }
+                                    $ref: './duck-player/getUserValues.response.json',
+                                },
+                            },
                         },
                         {
                             type: 'object',
                             title: 'setUserValues_request',
                             description: 'Generated from @see "../messages/duck-player/setUserValues.request.json"',
                             additionalProperties: false,
-                            required: [
-                                'method',
-                                'params',
-                                'result'
-                            ],
+                            required: ['method', 'params', 'result'],
                             properties: {
                                 method: {
-                                    const: 'setUserValues'
+                                    const: 'setUserValues',
                                 },
                                 params: {
-                                    $ref: './duck-player/setUserValues.request.json'
+                                    $ref: './duck-player/setUserValues.request.json',
                                 },
                                 result: {
-                                    $ref: './duck-player/setUserValues.response.json'
-                                }
-                            }
-                        }
-                    ]
+                                    $ref: './duck-player/setUserValues.response.json',
+                                },
+                            },
+                        },
+                    ],
                 },
                 subscriptions: {
                     oneOf: [
@@ -199,29 +185,22 @@ describe('generateSchema', () => {
                             title: 'onUserValuesChanged_subscription',
                             description: 'Generated from @see "../messages/duck-player/onUserValuesChanged.subscribe.json"',
                             additionalProperties: false,
-                            required: [
-                                'subscriptionEvent',
-                                'params'
-                            ],
+                            required: ['subscriptionEvent', 'params'],
                             properties: {
                                 subscriptionEvent: {
-                                    const: 'onUserValuesChanged'
+                                    const: 'onUserValuesChanged',
                                 },
                                 params: {
-                                    $ref: './duck-player/onUserValuesChanged.subscribe.json'
-                                }
-                            }
-                        }
-                    ]
-                }
+                                    $ref: './duck-player/onUserValuesChanged.subscribe.json',
+                                },
+                            },
+                        },
+                    ],
+                },
             },
-            required: [
-                'notifications',
-                'requests',
-                'subscriptions'
-            ]
+            required: ['notifications', 'requests', 'subscriptions'],
         }
         const actual = generateSchema('DuckPlayer', fileList)
-        expect(actual).toEqual(/** @type {any} */(expected))
+        expect(actual).toEqual(/** @type {any} */ (expected))
     })
 })

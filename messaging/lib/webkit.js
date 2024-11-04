@@ -61,7 +61,7 @@ export class WebkitMessagingTransport {
      * @param {WebkitMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext
      */
-    constructor (config, messagingContext) {
+    constructor(config, messagingContext) {
         this.messagingContext = messagingContext
         this.config = config
         this.globals = captureGlobals()
@@ -76,7 +76,7 @@ export class WebkitMessagingTransport {
      * @param {*} data
      * @internal
      */
-    wkSend (handler, data = {}) {
+    wkSend(handler, data = {}) {
         if (!(handler in this.globals.window.webkit.messageHandlers)) {
             throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler)
         }
@@ -85,8 +85,8 @@ export class WebkitMessagingTransport {
                 ...data,
                 messageHandling: {
                     ...data.messageHandling,
-                    secret: this.config.secret
-                }
+                    secret: this.config.secret,
+                },
             }
             if (!(handler in this.globals.capturedWebkitHandlers)) {
                 throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler)
@@ -104,7 +104,7 @@ export class WebkitMessagingTransport {
      * @returns {Promise<*>}
      * @internal
      */
-    async wkSendAndWait (handler, data) {
+    async wkSendAndWait(handler, data) {
         if (this.config.hasModernWebkitAPI) {
             const response = await this.wkSend(handler, data)
             return this.globals.JSONparse(response || '{}')
@@ -115,10 +115,7 @@ export class WebkitMessagingTransport {
             const key = await this.createRandKey()
             const iv = this.createRandIv()
 
-            const {
-                ciphertext,
-                tag
-            } = await new this.globals.Promise((/** @type {any} */ resolve) => {
+            const { ciphertext, tag } = await new this.globals.Promise((/** @type {any} */ resolve) => {
                 this.generateRandomMethod(randMethodName, resolve)
 
                 // @ts-expect-error - this is a carve-out for catalina that will be removed soon
@@ -126,7 +123,7 @@ export class WebkitMessagingTransport {
                     methodName: randMethodName,
                     secret: this.config.secret,
                     key: this.globals.Arrayfrom(key),
-                    iv: this.globals.Arrayfrom(iv)
+                    iv: this.globals.Arrayfrom(iv),
                 })
                 this.wkSend(handler, data)
             })
@@ -149,14 +146,14 @@ export class WebkitMessagingTransport {
     /**
      * @param {import('../index.js').NotificationMessage} msg
      */
-    notify (msg) {
+    notify(msg) {
         this.wkSend(msg.context, msg)
     }
 
     /**
      * @param {import('../index.js').RequestMessage} msg
      */
-    async request (msg) {
+    async request(msg) {
         const data = await this.wkSendAndWait(msg.context, msg)
 
         if (isResponseFor(msg, data)) {
@@ -179,7 +176,7 @@ export class WebkitMessagingTransport {
      * @param {Function} callback
      * @internal
      */
-    generateRandomMethod (randomMethodName, callback) {
+    generateRandomMethod(randomMethodName, callback) {
         this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
             enumerable: false,
             // configurable, To allow for deletion later
@@ -189,10 +186,9 @@ export class WebkitMessagingTransport {
              * @param {any[]} args
              */
             value: (...args) => {
-                 
                 callback(...args)
                 delete this.globals.window[randomMethodName]
-            }
+            },
         })
     }
 
@@ -200,7 +196,7 @@ export class WebkitMessagingTransport {
      * @internal
      * @return {string}
      */
-    randomString () {
+    randomString() {
         return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0]
     }
 
@@ -208,7 +204,7 @@ export class WebkitMessagingTransport {
      * @internal
      * @return {string}
      */
-    createRandMethodName () {
+    createRandMethodName() {
         return '_' + this.randomString()
     }
 
@@ -218,14 +214,14 @@ export class WebkitMessagingTransport {
      */
     algoObj = {
         name: 'AES-GCM',
-        length: 256
+        length: 256,
     }
 
     /**
      * @returns {Promise<Uint8Array>}
      * @internal
      */
-    async createRandKey () {
+    async createRandKey() {
         const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt'])
         const exportedKey = await this.globals.exportKey('raw', key)
         return new this.globals.Uint8Array(exportedKey)
@@ -235,7 +231,7 @@ export class WebkitMessagingTransport {
      * @returns {Uint8Array}
      * @internal
      */
-    createRandIv () {
+    createRandIv() {
         return this.globals.getRandomValues(new this.globals.Uint8Array(12))
     }
 
@@ -246,11 +242,11 @@ export class WebkitMessagingTransport {
      * @returns {Promise<string>}
      * @internal
      */
-    async decrypt (ciphertext, key, iv) {
+    async decrypt(ciphertext, key, iv) {
         const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt'])
         const algo = {
             name: 'AES-GCM',
-            iv
+            iv,
         }
 
         const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext)
@@ -265,7 +261,7 @@ export class WebkitMessagingTransport {
      *
      * @param {string[]} handlerNames
      */
-    captureWebkitHandlers (handlerNames) {
+    captureWebkitHandlers(handlerNames) {
         const handlers = window.webkit.messageHandlers
         if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all')
         for (const webkitMessageHandlerName of handlerNames) {
@@ -286,7 +282,7 @@ export class WebkitMessagingTransport {
      * @param {import('../index.js').Subscription} msg
      * @param {(value: unknown) => void} callback
      */
-    subscribe (msg, callback) {
+    subscribe(msg, callback) {
         // for now, bail if there's already a handler setup for this subscription
         if (msg.subscriptionName in this.globals.window) {
             throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`)
@@ -301,7 +297,7 @@ export class WebkitMessagingTransport {
                 } else {
                     console.warn('Received a message that did not match the subscription', data)
                 }
-            }
+            },
         })
         return () => {
             this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName)
@@ -326,7 +322,7 @@ export class WebkitMessagingConfig {
      * @param {string} params.secret
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         /**
          * Whether or not the current WebKit Platform supports secure messaging
          * by default (eg: macOS 11+)
@@ -368,7 +364,7 @@ export class SecureMessagingParams {
      * @param {number[]} params.key
      * @param {number[]} params.iv
      */
-    constructor (params) {
+    constructor(params) {
         /**
          * The method that's been appended to `window` to be called later
          */
@@ -392,7 +388,7 @@ export class SecureMessagingParams {
  * Capture some globals used for messaging handling to prevent page
  * scripts from tampering with this
  */
-function captureGlobals () {
+function captureGlobals() {
     // Create base with null prototype
     const globals = {
         window,
@@ -411,7 +407,7 @@ function captureGlobals () {
         ObjectDefineProperty: window.Object.defineProperty,
         addEventListener: window.addEventListener.bind(window),
         /** @type {Record<string, any>} */
-        capturedWebkitHandlers: {}
+        capturedWebkitHandlers: {},
     }
     if (isSecureContext) {
         // skip for HTTP content since window.crypto.subtle is unavailable

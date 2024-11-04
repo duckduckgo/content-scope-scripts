@@ -18,14 +18,14 @@ export class SpecialErrorPage {
      * @param {Build} build
      * @param {PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor(page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'special-error',
-            env: 'development'
+            env: 'development',
         })
         this.page.on('console', console.log)
     }
@@ -41,15 +41,15 @@ export class SpecialErrorPage {
      * @param {'macos'|'ios'} [params.platformName] - platform name
      * @param {string} [params.locale] - locale
      */
-    async openPage ({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = 'macos', locale } = { }) {
+    async openPage({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = 'macos', locale } = {}) {
         /** @type {import('../../types/special-error.js').InitialSetupResponse} */
         const initialSetup = {
             env: 'development',
             locale: 'en',
             platform: {
-                name: platformName
+                name: platformName,
             },
-            errorData: sampleData[errorId].data
+            errorData: sampleData[errorId].data,
         }
 
         /**
@@ -60,13 +60,16 @@ export class SpecialErrorPage {
          * catching it here and letting it bubble up to fail the playwright test in question.
          */
         if (locale && locale.length === 2) {
-            const localeStrings = readFileSync(require.resolve(`../../pages/special-error/src/locales/${locale}/special-error.json`), 'utf8')
+            const localeStrings = readFileSync(
+                require.resolve(`../../pages/special-error/src/locales/${locale}/special-error.json`),
+                'utf8',
+            )
             initialSetup.localeStrings = localeStrings
             initialSetup.locale = locale
         }
 
         this.mocks.defaultResponses({
-            initialSetup
+            initialSetup,
         })
 
         await this.mocks.install()
@@ -79,7 +82,7 @@ export class SpecialErrorPage {
 
             return route.fulfill({
                 status: 200,
-                path: join(this.basePath, filepath)
+                path: join(this.basePath, filepath),
             })
         })
         const searchParams = new URLSearchParams({ env, debugState: 'true', willThrow: String(willThrow) })
@@ -92,9 +95,9 @@ export class SpecialErrorPage {
      * select the correct HTML file.
      * @return {string}
      */
-    get basePath () {
+    get basePath() {
         return this.build.switch({
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/special-error'
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/special-error',
         })
     }
 
@@ -102,21 +105,21 @@ export class SpecialErrorPage {
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
-    static create (page, testInfo) {
+    static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new SpecialErrorPage(page, build, platformInfo)
     }
 
-    async reducedMotion () {
+    async reducedMotion() {
         await this.page.emulateMedia({ reducedMotion: 'reduce' })
     }
 
-    async darkMode () {
+    async darkMode() {
         await this.page.emulateMedia({ colorScheme: 'dark' })
     }
 
-    async leavesSite () {
+    async leavesSite() {
         await this.page.getByRole('button', { name: 'Leave This Site' }).click()
         const calls = await this.mocks.waitForCallCount({ method: 'leaveSite', count: 1 })
         expect(calls).toMatchObject([
@@ -125,13 +128,13 @@ export class SpecialErrorPage {
                     context: 'specialPages',
                     featureName: 'special-error',
                     method: 'leaveSite',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
-    async visitsSite () {
+    async visitsSite() {
         const { page } = this
         this.showsAdvancedInfo()
         await page.getByText('Accept Risk and Visit Site').click()
@@ -142,67 +145,119 @@ export class SpecialErrorPage {
                     context: 'specialPages',
                     featureName: 'special-error',
                     method: 'visitSite',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
-    async showsExpiredPage () {
+    async showsExpiredPage() {
         const { page } = this
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
-        await expect(page.getByText('The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.',
+                { exact: true },
+            ),
+        ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
-        await expect(page.getByText('The security certificate for example.com is expired. It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'The security certificate for example.com is expired. It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.',
+                { exact: true },
+            ),
+        ).toBeVisible()
     }
 
-    async showsExpiredPageInPolish () {
+    async showsExpiredPageInPolish() {
         const { page } = this
         await expect(page.getByRole('heading')).toContainText('Ostrzeżenie: ta witryna może być niebezpieczna')
     }
 
-    async showsInvalidPage () {
+    async showsInvalidPage() {
         const { page } = this
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
-        await expect(page.getByText('The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.',
+                { exact: true },
+            ),
+        ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
-        await expect(page.getByText('The security certificate for example.com is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'The security certificate for example.com is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.',
+                { exact: true },
+            ),
+        ).toBeVisible()
     }
 
-    async showsSelfSignedPage () {
+    async showsSelfSignedPage() {
         const { page } = this
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
-        await expect(page.getByText('The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.',
+                { exact: true },
+            ),
+        ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
-        await expect(page.getByText('The security certificate for example.com is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'The security certificate for example.com is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.',
+                { exact: true },
+            ),
+        ).toBeVisible()
     }
 
-    async showsWrongHostPage () {
+    async showsWrongHostPage() {
         const { page } = this
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
-        await expect(page.getByText('The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.',
+                { exact: true },
+            ),
+        ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
-        await expect(page.getByText('The security certificate for example.com does not match *.anothersite.com. It’s possible that the website is misconfigured or that an attacker has compromised your connection.', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'The security certificate for example.com does not match *.anothersite.com. It’s possible that the website is misconfigured or that an attacker has compromised your connection.',
+                { exact: true },
+            ),
+        ).toBeVisible()
     }
 
-    async showsPhishingPage () {
+    async showsPhishingPage() {
         const { page } = this
         await expect(page.getByText('Warning: This site puts your personal information at risk', { exact: true })).toBeVisible()
-        await expect(page.getByText('This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. Learn more', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. Learn more',
+                { exact: true },
+            ),
+        ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has been flagged as malicious.', { exact: true })).toBeVisible()
-        await expect(page.getByText('Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.', { exact: true })).toBeVisible()
-        await expect(page.getByText('See our Phishing and Malware Protection help page for more information.', { exact: true })).toBeVisible()
+        await expect(
+            page.getByText(
+                'Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.',
+                { exact: true },
+            ),
+        ).toBeVisible()
+        await expect(
+            page.getByText('See our Phishing and Malware Protection help page for more information.', { exact: true }),
+        ).toBeVisible()
     }
 
     /**
      * Clicks on advanced link to show expanded info
      */
-    async showsAdvancedInfo () {
+    async showsAdvancedInfo() {
         const { page } = this
         await page.getByRole('button', { name: 'Advanced...' }).click()
         const calls = await this.mocks.waitForCallCount({ method: 'advancedInfo', count: 1 })
@@ -212,9 +267,9 @@ export class SpecialErrorPage {
                     context: 'specialPages',
                     featureName: 'special-error',
                     method: 'advancedInfo',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
@@ -223,8 +278,8 @@ export class SpecialErrorPage {
      *
      * @param {string} linkName
      * @param {string} newPageURL
-    */
-    async opensNewPage (linkName, newPageURL) {
+     */
+    async opensNewPage(linkName, newPageURL) {
         const { page } = this
         const newPagePromise = page.waitForEvent('popup')
 
@@ -236,7 +291,7 @@ export class SpecialErrorPage {
         await newPage.close()
     }
 
-    async handlesFatalException () {
+    async handlesFatalException() {
         const { page } = this
         await expect(page.getByRole('heading')).toContainText('Something went wrong')
         const calls = await this.mocks.waitForCallCount({ method: 'reportPageException', count: 1 })
@@ -247,23 +302,23 @@ export class SpecialErrorPage {
                     featureName: 'special-error',
                     method: 'reportPageException',
                     params: {
-                        message: 'unknown'
-                    }
-                }
-            }
+                        message: 'unknown',
+                    },
+                },
+            },
         ])
     }
 
-    async didSendInitialHandshake () {
+    async didSendInitialHandshake() {
         const calls = await this.mocks.outgoing({ names: ['initialSetup'] })
         expect(calls).toMatchObject([
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'special-error',
-                    method: 'initialSetup'
-                }
-            }
+                    method: 'initialSetup',
+                },
+            },
         ])
     }
 }

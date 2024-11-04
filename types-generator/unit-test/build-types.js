@@ -6,24 +6,33 @@ describe('createMessagingTypes', () => {
      * @param {string} a
      * @param {string} b
      */
-    function compare (a, b) {
-        const aLines = a.trim().split('\n').map(x => x.trim()).join('\n')
-        const bLines = b.trim().split('\n').map(x => x.trim()).join('\n')
+    function compare(a, b) {
+        const aLines = a
+            .trim()
+            .split('\n')
+            .map((x) => x.trim())
+            .join('\n')
+        const bLines = b
+            .trim()
+            .split('\n')
+            .map((x) => x.trim())
+            .join('\n')
         expect(aLines).toEqual(bLines)
     }
     it('works with single notification', () => {
-        const actual = createMessagingTypes({
-            topLevelType: 'DuckPlayerMessages',
-            schema: {
-                properties: {
-                    notifications: {
-                        oneOf: [
-                            { a: 'b' }
-                        ]
-                    }
-                }
-            }
-        }, { featurePath: '../features/duck-player.js', className: 'DuckPlayer' })
+        const actual = createMessagingTypes(
+            {
+                topLevelType: 'DuckPlayerMessages',
+                schema: {
+                    properties: {
+                        notifications: {
+                            oneOf: [{ a: 'b' }],
+                        },
+                    },
+                },
+            },
+            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
+        )
         const expected = `
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
@@ -34,18 +43,19 @@ declare module "../features/duck-player.js" {
         compare(actual, expected)
     })
     it('works with single request', () => {
-        const actual = createMessagingTypes({
-            topLevelType: 'DuckPlayerMessages',
-            schema: {
-                properties: {
-                    requests: {
-                        oneOf: [
-                            { a: 'b' }
-                        ]
-                    }
-                }
-            }
-        }, { featurePath: '../features/duck-player.js', className: 'DuckPlayer' })
+        const actual = createMessagingTypes(
+            {
+                topLevelType: 'DuckPlayerMessages',
+                schema: {
+                    properties: {
+                        requests: {
+                            oneOf: [{ a: 'b' }],
+                        },
+                    },
+                },
+            },
+            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
+        )
         const expected = `
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
@@ -56,18 +66,19 @@ declare module "../features/duck-player.js" {
         compare(actual, expected)
     })
     it('works with single subscription', () => {
-        const actual = createMessagingTypes({
-            topLevelType: 'DuckPlayerMessages',
-            schema: {
-                properties: {
-                    subscriptions: {
-                        oneOf: [
-                            { a: 'b' }
-                        ]
-                    }
-                }
-            }
-        }, { featurePath: '../features/duck-player.js', className: 'DuckPlayer' })
+        const actual = createMessagingTypes(
+            {
+                topLevelType: 'DuckPlayerMessages',
+                schema: {
+                    properties: {
+                        subscriptions: {
+                            oneOf: [{ a: 'b' }],
+                        },
+                    },
+                },
+            },
+            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
+        )
         const expected = `
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
@@ -78,28 +89,25 @@ declare module "../features/duck-player.js" {
         compare(actual, expected)
     })
     it('works with multiple types ', () => {
-        const actual = createMessagingTypes({
-            topLevelType: 'DuckPlayerMessages',
-            schema: {
-                properties: {
-                    subscriptions: {
-                        oneOf: [
-                            { a: 'b' }
-                        ]
+        const actual = createMessagingTypes(
+            {
+                topLevelType: 'DuckPlayerMessages',
+                schema: {
+                    properties: {
+                        subscriptions: {
+                            oneOf: [{ a: 'b' }],
+                        },
+                        requests: {
+                            oneOf: [{ a: 'b' }],
+                        },
+                        notifications: {
+                            oneOf: [{ a: 'b' }],
+                        },
                     },
-                    requests: {
-                        oneOf: [
-                            { a: 'b' }
-                        ]
-                    },
-                    notifications: {
-                        oneOf: [
-                            { a: 'b' }
-                        ]
-                    }
-                }
-            }
-        }, { featurePath: '../features/duck-player.js', className: 'DuckPlayer' })
+                },
+            },
+            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
+        )
         const expected = `
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {

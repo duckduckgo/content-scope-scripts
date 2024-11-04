@@ -6,7 +6,7 @@ import { processConfig, isGloballyDisabled, windowsSpecificFeatures } from './..
 import { isTrackerOrigin } from '../src/trackers'
 import { WindowsMessagingConfig } from '../../messaging/index.js'
 
-function initCode () {
+function initCode() {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$, windowsSpecificFeatures)
     if (isGloballyDisabled(processedConfig)) {
@@ -19,8 +19,8 @@ function initCode () {
             // @ts-expect-error - Type 'unknown' is not assignable to type...
             addEventListener: windowsInteropAddEventListener,
             // @ts-expect-error - Type 'unknown' is not assignable to type...
-            removeEventListener: windowsInteropRemoveEventListener
-        }
+            removeEventListener: windowsInteropRemoveEventListener,
+        },
     })
 
     load({
@@ -29,7 +29,7 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig
+        messagingConfig: processedConfig.messagingConfig,
     })
 
     init(processedConfig)

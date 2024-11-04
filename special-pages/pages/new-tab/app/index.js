@@ -11,13 +11,13 @@ import enStrings from '../src/locales/en/newtab.json'
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js'
 import { Settings } from './settings.js'
 import { Components } from './components/Components.jsx'
-import { widgetEntryPoint } from "./widget-list/WidgetList.js";
+import { widgetEntryPoint } from './widget-list/WidgetList.js'
 
 /**
  * @param {import("../src/js").NewTabPage} messaging
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  */
-export async function init (messaging, baseEnvironment) {
+export async function init(messaging, baseEnvironment) {
     const init = await messaging.init()
 
     if (!Array.isArray(init.widgets)) {
@@ -38,14 +38,15 @@ export async function init (messaging, baseEnvironment) {
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
         .withDisplay(baseEnvironment.urlParams.get('display'))
 
-    const strings = environment.locale === 'en'
-        ? enStrings
-        : await fetch(`./locales/${environment.locale}/new-tab.json`)
-            .then(x => x.json())
-            .catch(e => {
-                console.error('Could not load locale', environment.locale, e)
-                return enStrings
-            })
+    const strings =
+        environment.locale === 'en'
+            ? enStrings
+            : await fetch(`./locales/${environment.locale}/new-tab.json`)
+                  .then((x) => x.json())
+                  .catch((e) => {
+                      console.error('Could not load locale', environment.locale, e)
+                      return enStrings
+                  })
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -66,34 +67,31 @@ export async function init (messaging, baseEnvironment) {
 
     document.body.dataset.platformName = settings.platform.name
 
-
     if (environment.display === 'components') {
         document.body.dataset.display = 'components'
         return render(
-            <EnvironmentProvider
-                debugState={environment.debugState}
-                injectName={environment.injectName}
-                willThrow={environment.willThrow}>
+            <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
                 <SettingsProvider settings={settings}>
                     <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
                         <Components />
                     </TranslationProvider>
                 </SettingsProvider>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root,
+        )
     }
 
     const entryPoints = await (async () => {
         try {
-            const loaders = init.widgets.map(widget => {
-                return widgetEntryPoint(widget.id).then(mod => [widget.id, mod]);
+            const loaders = init.widgets.map((widget) => {
+                return widgetEntryPoint(widget.id).then((mod) => [widget.id, mod])
             })
             const entryPoints = await Promise.all(loaders)
-            return Object.fromEntries(entryPoints);
+            return Object.fromEntries(entryPoints)
         } catch (e) {
-            const error = new Error('Error loading widget entry points:' + e.message);
+            const error = new Error('Error loading widget entry points:' + e.message)
             didCatch(error)
-            console.error(error);
+            console.error(error)
             return {}
         }
     })()
@@ -105,13 +103,18 @@ export async function init (messaging, baseEnvironment) {
             willThrow={environment.willThrow}
             env={environment.env}
         >
-            <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
-                <UpdateEnvironment search={window.location.search}/>
+            <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'} />}>
+                <UpdateEnvironment search={window.location.search} />
                 <MessagingContext.Provider value={messaging}>
                     <InitialSetupContext.Provider value={init}>
                         <SettingsProvider settings={settings}>
                             <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
-                                <WidgetConfigProvider api={widgetConfigAPI} widgetConfigs={init.widgetConfigs} widgets={init.widgets} entryPoints={entryPoints}>
+                                <WidgetConfigProvider
+                                    api={widgetConfigAPI}
+                                    widgetConfigs={init.widgetConfigs}
+                                    widgets={init.widgets}
+                                    entryPoints={entryPoints}
+                                >
                                     <App />
                                 </WidgetConfigProvider>
                             </TranslationProvider>
@@ -119,8 +122,7 @@ export async function init (messaging, baseEnvironment) {
                     </InitialSetupContext.Provider>
                 </MessagingContext.Provider>
             </ErrorBoundary>
-        </EnvironmentProvider>
-        ,
-        root
+        </EnvironmentProvider>,
+        root,
     )
 }

@@ -14,14 +14,14 @@ export class OnboardingPage {
      * @param {Build} build
      * @param {PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor(page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'onboarding',
-            env: 'development'
+            env: 'development',
         })
         this.page.on('console', console.log)
         this.defaultResponses = {
@@ -34,20 +34,20 @@ export class OnboardingPage {
                 stepDefinitions: {
                     systemSettings: {
                         // this 'dock' is not part of the default
-                        rows: ['dock', 'import', 'default-browser']
-                    }
+                        rows: ['dock', 'import', 'default-browser'],
+                    },
                 },
-                env: 'development'
-            }
+                env: 'development',
+            },
         }
         // default mocks - just enough to render the first page without error
         this.mocks.defaultResponses(this.defaultResponses)
     }
 
-    withInitData (data) {
+    withInitData(data) {
         this.mocks.defaultResponses({
             ...this.defaultResponses,
-            init: data
+            init: data,
         })
     }
 
@@ -60,7 +60,7 @@ export class OnboardingPage {
      * @param {import('../../pages/onboarding/app/types.js').Step['id']} [params.page] - Optional start page
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      */
-    async openPage ({ env = 'app', page = 'welcome', willThrow = false } = { }) {
+    async openPage({ env = 'app', page = 'welcome', willThrow = false } = {}) {
         await this.mocks.install()
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url())
@@ -70,16 +70,16 @@ export class OnboardingPage {
 
             return route.fulfill({
                 status: 200,
-                path: join(this.basePath, filepath)
+                path: join(this.basePath, filepath),
             })
         })
         const searchParams = new URLSearchParams({ env, page, debugState: 'true', willThrow: String(willThrow) })
         await this.page.goto('/' + '?' + searchParams.toString())
     }
 
-    async skipsOnboarding () {
+    async skipsOnboarding() {
         await this.page.getByTestId('skip').click({
-            clickCount: 5
+            clickCount: 5,
         })
     }
 
@@ -88,10 +88,10 @@ export class OnboardingPage {
      * select the correct HTML file.
      * @return {string}
      */
-    get basePath () {
+    get basePath() {
         return this.build.switch({
             windows: () => '../build/windows/pages/onboarding',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/onboarding'
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/onboarding',
         })
     }
 
@@ -99,21 +99,21 @@ export class OnboardingPage {
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
-    static create (page, testInfo) {
+    static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new OnboardingPage(page, build, platformInfo)
     }
 
-    async reducedMotion () {
+    async reducedMotion() {
         await this.page.emulateMedia({ reducedMotion: 'reduce' })
     }
 
-    async darkMode () {
+    async darkMode() {
         await this.page.emulateMedia({ colorScheme: 'dark' })
     }
 
-    async didSendStepCompletedMessages () {
+    async didSendStepCompletedMessages() {
         const calls = await this.mocks.outgoing({ names: ['stepCompleted'] })
         expect(calls).toMatchObject([
             {
@@ -121,38 +121,38 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'stepCompleted',
-                    params: { id: 'welcome' }
-                }
+                    params: { id: 'welcome' },
+                },
             },
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'stepCompleted',
-                    params: { id: 'getStarted' }
-                }
-            }
+                    params: { id: 'getStarted' },
+                },
+            },
         ])
     }
 
-    async choseToStartBrowsing () {
+    async choseToStartBrowsing() {
         await this.page.getByRole('button', { name: 'Start Browsing' }).click()
     }
 
-    async didDismissToSearch () {
+    async didDismissToSearch() {
         await this.mocks.waitForCallCount({ method: 'dismissToAddressBar', count: 1, timeout: 500 })
     }
 
-    async didDismissToSettings () {
+    async didDismissToSettings() {
         await this.page.getByRole('link', { name: 'Settings' }).click()
         await this.mocks.waitForCallCount({ method: 'dismissToSettings', count: 1, timeout: 500 })
     }
 
-    async skippedCurrent () {
+    async skippedCurrent() {
         await this.page.getByRole('button', { name: 'Skip' }).click()
     }
 
-    async makeDefault () {
+    async makeDefault() {
         const { page } = this
         await page.getByRole('button', { name: 'Make Default' }).click()
         await page.getByRole('img', { name: 'Completed Action' }).waitFor()
@@ -163,13 +163,13 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'requestSetAsDefault',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
-    async importUserData () {
+    async importUserData() {
         const { page } = this
         await page.getByRole('button', { name: 'Import' }).click()
         await page.getByRole('img', { name: 'Completed Action' }).waitFor()
@@ -180,13 +180,13 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'requestImport',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
-    async showBookmarksBar () {
+    async showBookmarksBar() {
         const { page } = this
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click()
         await page.getByRole('img', { name: 'Completed Action' }).waitFor()
@@ -197,17 +197,17 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setBookmarksBar',
-                    params: { enabled: true }
-                }
-            }
+                    params: { enabled: true },
+                },
+            },
         ])
     }
 
-    async skippedBookmarksBar () {
+    async skippedBookmarksBar() {
         await this.skippedCurrent()
     }
 
-    async canToggleBookmarksBar () {
+    async canToggleBookmarksBar() {
         const { page } = this
         const input = page.getByLabel('Bookmarks Bar')
 
@@ -232,21 +232,21 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setBookmarksBar',
-                    params: { enabled: true }
-                }
+                    params: { enabled: true },
+                },
             },
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setBookmarksBar',
-                    params: { enabled: false }
-                }
-            }
+                    params: { enabled: false },
+                },
+            },
         ])
     }
 
-    async restoreSession () {
+    async restoreSession() {
         const { page } = this
         await page.getByRole('button', { name: 'Enable Session Restore' }).click()
         await page.getByRole('img', { name: 'Completed Action' }).waitFor()
@@ -257,13 +257,13 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setSessionRestore',
-                    params: { enabled: true }
-                }
-            }
+                    params: { enabled: true },
+                },
+            },
         ])
     }
 
-    async canToggleRestoreSession () {
+    async canToggleRestoreSession() {
         const { page } = this
         const input = page.getByLabel('Enable Session Restore')
 
@@ -288,21 +288,21 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setSessionRestore',
-                    params: { enabled: true }
-                }
+                    params: { enabled: true },
+                },
             },
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setSessionRestore',
-                    params: { enabled: false }
-                }
-            }
+                    params: { enabled: false },
+                },
+            },
         ])
     }
 
-    async canToggleHomeButton () {
+    async canToggleHomeButton() {
         const { page } = this
         const input = page.getByLabel('Home Button')
 
@@ -327,21 +327,21 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setShowHomeButton',
-                    params: { enabled: true }
-                }
+                    params: { enabled: true },
+                },
             },
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setShowHomeButton',
-                    params: { enabled: false }
-                }
-            }
+                    params: { enabled: false },
+                },
+            },
         ])
     }
 
-    async showHomeButton () {
+    async showHomeButton() {
         const { page } = this
         await page.getByRole('button', { name: 'Show Home Button' }).click()
         await expect(page.getByRole('img', { name: 'Completed Action' })).toBeVisible()
@@ -352,13 +352,13 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setShowHomeButton',
-                    params: { enabled: true }
-                }
-            }
+                    params: { enabled: true },
+                },
+            },
         ])
     }
 
-    async startBrowsing () {
+    async startBrowsing() {
         const { page } = this
         await page.getByRole('button', { name: 'Start Browsing' }).click()
         const calls = await this.mocks.outgoing({ names: ['dismissToAddressBar'] })
@@ -368,23 +368,23 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'dismissToAddressBar',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
-    async hasAdditionalInformation () {
+    async hasAdditionalInformation() {
         const { page } = this
         await expect(page.locator('h2')).toContainText('Make DuckDuckGo work just the way you want.')
     }
 
-    async hasAdditionalInformationV3 () {
+    async hasAdditionalInformationV3() {
         const { page } = this
         await expect(page.locator('h2')).toContainText('Set things up just the way you want.')
     }
 
-    async handlesFatalException () {
+    async handlesFatalException() {
         const { page } = this
         await expect(page.getByRole('heading')).toContainText('Something went wrong')
         const calls = await this.mocks.waitForCallCount({ method: 'reportPageException', count: 1 })
@@ -396,37 +396,39 @@ export class OnboardingPage {
                     method: 'reportPageException',
                     params: {
                         message: 'Simulated Exception',
-                        id: 'welcome'
-                    }
-                }
-            }
+                        id: 'welcome',
+                    },
+                },
+            },
         ])
     }
 
-    async getStarted () {
+    async getStarted() {
         const { page } = this
         await page.getByRole('button', { name: 'Get Started' }).click()
-        await expect(page.getByLabel('Unlike other browsers,')).toContainText('Unlike other browsers, DuckDuckGo comes with privacy by default')
+        await expect(page.getByLabel('Unlike other browsers,')).toContainText(
+            'Unlike other browsers, DuckDuckGo comes with privacy by default',
+        )
     }
 
-    async didSendInitialHandshake () {
+    async didSendInitialHandshake() {
         const calls = await this.mocks.outgoing({ names: ['init'] })
         expect(calls).toMatchObject([
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
-                    method: 'init'
-                }
-            }
+                    method: 'init',
+                },
+            },
         ])
     }
 
-    async keepInTaskbar () {
+    async keepInTaskbar() {
         const { page } = this
         const locator = this.build.switch({
             apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
-            windows: () => page.getByRole('button', { name: 'Pin to Taskbar' })
+            windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
         })
         await locator.click()
         const calls = await this.mocks.waitForCallCount({ method: 'requestDockOptIn', count: 1 })
@@ -435,13 +437,13 @@ export class OnboardingPage {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
-                    method: 'requestDockOptIn'
-                }
-            }
+                    method: 'requestDockOptIn',
+                },
+            },
         ])
     }
 
-    async completesOrderV2 () {
+    async completesOrderV2() {
         const { page } = this
         await page.getByRole('button', { name: 'Get Started' }).click()
         await page.getByRole('button', { name: 'Got It' }).click()
@@ -453,7 +455,7 @@ export class OnboardingPage {
 
         const dockTitle = this.build.switch({
             windows: () => page.getByText('Keep DuckDuckGo in your Taskbar'),
-            apple: () => page.getByText('Keep DuckDuckGo in your Dock')
+            apple: () => page.getByText('Keep DuckDuckGo in your Dock'),
         })
 
         await dockTitle.waitFor({ timeout: 1000 })
@@ -468,7 +470,7 @@ export class OnboardingPage {
         await page.getByLabel('Customize your experience').waitFor({ timeout: 1000 })
     }
 
-    async completesOrderV2WithoutDock () {
+    async completesOrderV2WithoutDock() {
         const { page } = this
         await page.getByRole('button', { name: 'Get Started' }).click()
         await page.getByRole('button', { name: 'Got It' }).click()
@@ -486,7 +488,7 @@ export class OnboardingPage {
         await page.getByLabel('Customize your experience').waitFor({ timeout: 1000 })
     }
 
-    async completesOrderV3 () {
+    async completesOrderV3() {
         const { page } = this
         /* Welcome */
         await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 })
@@ -505,7 +507,7 @@ export class OnboardingPage {
         await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 })
         const dockButton = this.build.switch({
             windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
-            apple: () => page.getByRole('button', { name: 'Keep in Dock' })
+            apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
         })
         await dockButton.click()
         await page.getByRole('button', { name: 'Import' }).click()
@@ -525,7 +527,7 @@ export class OnboardingPage {
         await this.startBrowsing()
     }
 
-    async completesOrderV3WithoutSettings () {
+    async completesOrderV3WithoutSettings() {
         const { page } = this
 
         /* Welcome */

@@ -171,14 +171,40 @@ test.describe('duckplayer mobile settings', () => {
  */
 test.describe('translated DuckPlayer UI', () => {
     test.skip('testing UI for locales', async ({ page }, workerInfo) => {
-        const items = ['bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'et', 'fi', 'fr', 'hr', 'hu', 'it', 'lt', 'lv', 'nb', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'tr']
+        const items = [
+            'bg',
+            'cs',
+            'da',
+            'de',
+            'el',
+            'en',
+            'es',
+            'et',
+            'fi',
+            'fr',
+            'hr',
+            'hu',
+            'it',
+            'lt',
+            'lv',
+            'nb',
+            'nl',
+            'pl',
+            'pt',
+            'ro',
+            'ru',
+            'sk',
+            'sl',
+            'sv',
+            'tr',
+        ]
         for (const locale of items) {
             const duckplayer = DuckPlayerPage.create(page, workerInfo)
             await duckplayer.openWithVideoID()
             await duckplayer.hasLoadedIframe()
             const params = new URLSearchParams({
                 locale,
-                videoID: 'VIDEO_ID'
+                videoID: 'VIDEO_ID',
             })
             await duckplayer.openPage(params)
             await page.pause()
@@ -246,13 +272,13 @@ test.describe('reporting exceptions', () => {
 /**
  * @param {import("@playwright/test").TestInfo} testInfo
  */
-function isMobile (testInfo) {
-    const u = /** @type {any} */(testInfo.project.use)
+function isMobile(testInfo) {
+    const u = /** @type {any} */ (testInfo.project.use)
     return u?.platform === 'android' || u?.platform === 'ios'
 }
 /**
  * @param {import("@playwright/test").TestInfo} testInfo
  */
-function isDesktop (testInfo) {
+function isDesktop(testInfo) {
     return !isMobile(testInfo)
 }

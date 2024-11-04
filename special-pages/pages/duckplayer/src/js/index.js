@@ -8,7 +8,7 @@ export class DuckplayerPage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
-    constructor (messaging, injectName) {
+    constructor(messaging, injectName) {
         this.messaging = createTypedMessages(this, messaging)
         this.injectName = injectName
     }
@@ -18,7 +18,7 @@ export class DuckplayerPage {
      * has occurred that cannot be recovered from
      * @returns {Promise<import("../../../../types/duckplayer").InitialSetupResponse>}
      */
-    initialSetup () {
+    initialSetup() {
         if (this.injectName === 'integration') {
             return Promise.resolve({
                 platform: { name: 'ios' },
@@ -26,13 +26,13 @@ export class DuckplayerPage {
                 userValues: { privatePlayerMode: { alwaysAsk: {} }, overlayInteracted: false },
                 settings: {
                     pip: {
-                        state: 'enabled'
+                        state: 'enabled',
                     },
                     autoplay: {
-                        state: 'enabled'
-                    }
+                        state: 'enabled',
+                    },
                 },
-                locale: 'en'
+                locale: 'en',
             })
         }
         return this.messaging.request('initialSetup')
@@ -43,21 +43,21 @@ export class DuckplayerPage {
      *
      * @param {import("../../../../types/duckplayer").UserValues} userValues
      */
-    setUserValues (userValues) {
+    setUserValues(userValues) {
         return this.messaging.request('setUserValues', userValues)
     }
 
     /**
      * For platforms that require a message to open settings
      */
-    openSettings () {
+    openSettings() {
         return this.messaging.notify('openSettings')
     }
 
     /**
      * For platforms that require a message to open info modal
      */
-    openInfo () {
+    openInfo() {
         return this.messaging.notify('openInfo')
     }
 
@@ -86,7 +86,7 @@ export class DuckplayerPage {
      *
      * @param {(value: import("../../../../types/duckplayer").UserValues) => void} cb
      */
-    onUserValuesChanged (cb) {
+    onUserValuesChanged(cb) {
         return this.messaging.subscribe('onUserValuesChanged', cb)
     }
 
@@ -95,7 +95,7 @@ export class DuckplayerPage {
      * has occurred that cannot be recovered from
      * @param {{message: string}} params
      */
-    reportPageException (params) {
+    reportPageException(params) {
         this.messaging.notify('reportPageException', params)
     }
 
@@ -103,7 +103,7 @@ export class DuckplayerPage {
      * This will be sent if the application fails to load.
      * @param {{message: string}} params
      */
-    reportInitException (params) {
+    reportInitException(params) {
         this.messaging.notify('reportInitException', params)
     }
 }
@@ -120,7 +120,7 @@ export class Telemetry {
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      * @internal
      */
-    constructor (messaging) {
+    constructor(messaging) {
         /**
          * @internal
          */
@@ -131,7 +131,7 @@ export class Telemetry {
      * @param {import('../../../../types/duckplayer').TelemetryEvent} event
      * @internal
      */
-    _event (event) {
+    _event(event) {
         this.messaging.notify('telemetryEvent', event)
     }
 
@@ -150,27 +150,25 @@ export class Telemetry {
      * }
      * ```
      */
-    landscapeImpression () {
+    landscapeImpression() {
         if (this.oneTimeEvents.has('landscapeImpression')) return
         this.oneTimeEvents.add('landscapeImpression')
         this._event({ attributes: { name: 'impression', value: 'landscape-layout' } })
     }
 }
 
-const baseEnvironment = new Environment()
-    .withInjectName(document.documentElement.dataset.platform)
-    .withEnv(import.meta.env)
+const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env)
 
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
-    pageName: 'duckPlayerPage'
+    pageName: 'duckPlayerPage',
 })
 
 const duckplayerPage = new DuckplayerPage(messaging, import.meta.injectName)
 const telemetry = new Telemetry(messaging)
 
-init(duckplayerPage, telemetry, baseEnvironment).catch(e => {
+init(duckplayerPage, telemetry, baseEnvironment).catch((e) => {
     // messages.
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'

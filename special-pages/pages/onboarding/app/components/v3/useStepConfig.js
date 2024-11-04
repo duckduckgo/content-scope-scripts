@@ -10,12 +10,12 @@ import { useBeforeAfter } from './BeforeAfterProvider'
  * @param {import('../../types').Step['id']} activeStep
  * @returns {import('./data-types').Progress}
  */
-function calculateProgress (order, activeStep) {
+function calculateProgress(order, activeStep) {
     const progressSteps = order.slice(2, order.length)
 
     return {
         current: progressSteps.indexOf(activeStep) + 1,
-        total: progressSteps.length
+        total: progressSteps.length,
     }
 }
 
@@ -23,7 +23,7 @@ function calculateProgress (order, activeStep) {
  *
  * @returns {import('./data-types').StepData}
  */
-export function useStepConfig () {
+export function useStepConfig() {
     const globalState = useContext(GlobalContext)
     const platformName = usePlatformName() || 'macos'
     const dispatch = useContext(GlobalDispatch)
@@ -41,18 +41,19 @@ export function useStepConfig () {
     const dismiss = () => dispatch({ kind: 'dismiss' })
 
     /** @type {(id: import('../../types').SystemValueId) => void} */
-    const enableSystemValue = (id) => dispatch({
-        kind: 'update-system-value',
-        id,
-        payload: { enabled: true },
-        current: true
-    })
+    const enableSystemValue = (id) =>
+        dispatch({
+            kind: 'update-system-value',
+            id,
+            payload: { enabled: true },
+            current: true,
+        })
 
     /** @type {import('./data-types').BeforeAfterFunctions} */
     const beforeAfter = {
         get: () => getStep(activeStep),
         set: (value) => setStep(activeStep, value),
-        toggle: () => toggleStep(activeStep)
+        toggle: () => toggleStep(activeStep),
     }
 
     /** @type {import('./data-types').StepConfigParams} */
@@ -64,7 +65,7 @@ export function useStepConfig () {
         advance,
         dismiss,
         enableSystemValue,
-        beforeAfter
+        beforeAfter,
     }
 
     if (!stepsConfig[activeStep]) {
@@ -73,6 +74,6 @@ export function useStepConfig () {
 
     return {
         ...configParams,
-        ...stepsConfig[activeStep](configParams)
+        ...stepsConfig[activeStep](configParams),
     }
 }

@@ -10,7 +10,7 @@ export class TitleCapture {
     /**
      * @param {HTMLIFrameElement} iframe
      */
-    iframeDidLoad (iframe) {
+    iframeDidLoad(iframe) {
         /** @type {(title: string) => void} */
         const setter = (title) => {
             const validTitle = getValidVideoTitle(title)
@@ -28,7 +28,6 @@ export class TitleCapture {
         }
 
         if (doc.title) {
-             
             setter(doc.title)
         }
         if (win && doc) {

@@ -1,6 +1,6 @@
-import styles from "./Switch.module.css";
-import { h } from "preact";
-import cn from "classnames";
+import styles from './Switch.module.css'
+import { h } from 'preact'
+import cn from 'classnames'
 
 /**
  * Renders a switch component with given checked, id and onChange props.
@@ -13,14 +13,15 @@ import cn from "classnames";
  */
 export function Switch({ checked, onChange, id, platformName = 'ios' }) {
     return (
-        <button role="switch"
-                aria-checked={checked}
-                onClick={onChange}
-                id={id}
-                className={cn(styles.switch, {
-                    [styles.ios]: platformName === 'ios',
-                    [styles.android]: platformName === 'android',
-                })}
+        <button
+            role="switch"
+            aria-checked={checked}
+            onClick={onChange}
+            id={id}
+            className={cn(styles.switch, {
+                [styles.ios]: platformName === 'ios',
+                [styles.android]: platformName === 'android',
+            })}
         >
             <span className={styles.thumb}></span>
         </button>

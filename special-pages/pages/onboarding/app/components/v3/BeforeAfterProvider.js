@@ -36,42 +36,38 @@ const BeforeAfterContext = createContext({
      */
     toggleStep: (step) => {
         console.log(step)
-    }
+    },
 })
 
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  */
-export function BeforeAfterProvider ({ children }) {
+export function BeforeAfterProvider({ children }) {
     const [stepStates, setStepStates] = useState({})
 
-    function getStep (step) {
+    function getStep(step) {
         return stepStates[step] || null
     }
 
-    function setStep (step, value) {
+    function setStep(step, value) {
         if (steps.includes(step) && beforeAfterValues.includes(value)) {
-            setStepStates(prevState => ({ ...prevState, [step]: value }))
+            setStepStates((prevState) => ({ ...prevState, [step]: value }))
         }
     }
 
-    function toggleStep (step) {
+    function toggleStep(step) {
         if (steps.includes(step)) {
-            setStepStates(prevState => {
+            setStepStates((prevState) => {
                 const newValue = prevState[step] === 'before' ? 'after' : 'before'
                 return { ...prevState, [step]: newValue }
             })
         }
     }
 
-    return (
-        <BeforeAfterContext.Provider value={{ stepStates, getStep, setStep, toggleStep }}>
-            {children}
-        </BeforeAfterContext.Provider>
-    )
+    return <BeforeAfterContext.Provider value={{ stepStates, getStep, setStep, toggleStep }}>{children}</BeforeAfterContext.Provider>
 }
 
-export function useBeforeAfter () {
+export function useBeforeAfter() {
     return useContext(BeforeAfterContext)
 }

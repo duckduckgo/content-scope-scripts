@@ -6,7 +6,8 @@ import { perPlatform } from '../../../injected/integration-test/type-helpers.mjs
 const MOCK_VIDEO_ID = 'VIDEO_ID'
 const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube'
 const youtubeEmbed = (id) => 'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&rel=0&modestbranding=1'
-const youtubeEmbedIOS = (id) => 'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&muted=1&rel=0&modestbranding=1'
+const youtubeEmbedIOS = (id) =>
+    'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&muted=1&rel=0&modestbranding=1'
 const html = {
     unsupported: `<html><head><title>${MOCK_VIDEO_TITLE}</title></head>
 <body>
@@ -21,7 +22,7 @@ const html = {
     </div>
 </div>
 </body>
-</html>`
+</html>`,
 }
 
 /**
@@ -35,14 +36,14 @@ export class DuckPlayerPage {
      * @param {Build} build
      * @param {PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor(page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'duckPlayerPage',
-            env: 'development'
+            env: 'development',
         })
         // default mocks - just enough to render the first page without error
         this.defaults = {
@@ -50,27 +51,27 @@ export class DuckPlayerPage {
             initialSetup: {
                 settings: {
                     pip: {
-                        state: 'disabled'
-                    }
+                        state: 'disabled',
+                    },
                 },
                 userValues: {
                     privatePlayerMode: { alwaysAsk: {} },
-                    overlayInteracted: false
+                    overlayInteracted: false,
                 },
                 locale: 'en',
                 env: 'development',
-                platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name }
+                platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name },
             },
             /** @type {import('../../types/duckplayer.js').UserValues} */
             getUserValues: {
                 privatePlayerMode: { alwaysAsk: {} },
-                overlayInteracted: false
+                overlayInteracted: false,
             },
             /** @type {import('../../types/duckplayer.js').UserValues} */
             setUserValues: {
                 privatePlayerMode: { enabled: {} },
-                overlayInteracted: false
-            }
+                overlayInteracted: false,
+            },
         }
         this.mocks.defaultResponses(this.defaults)
     }
@@ -80,7 +81,7 @@ export class DuckPlayerPage {
      * @param {URLSearchParams} urlParams
      * @return {Promise<void>}
      */
-    async openPage (urlParams) {
+    async openPage(urlParams) {
         const url = 'https://www.youtube-nocookie.com' + '?' + urlParams.toString()
         await this.mocks.install()
         await this.installYoutubeMocks(urlParams)
@@ -88,27 +89,27 @@ export class DuckPlayerPage {
         await this.page.goto(url)
     }
 
-    async reducedMotion () {
+    async reducedMotion() {
         await this.page.emulateMedia({ reducedMotion: 'reduce' })
     }
 
-    playerIsEnabled () {
+    playerIsEnabled() {
         this.mocks.defaultResponses({
             ...this.defaults,
             initialSetup: {
                 ...this.defaults.initialSetup,
                 userValues: {
                     privatePlayerMode: { enabled: {} },
-                    overlayInteracted: false
-                }
-            }
+                    overlayInteracted: false,
+                },
+            },
         })
     }
 
     /**
      * @param {{ state: 'enabled' | 'disabled' }} setting
      */
-    pipSettingIs (setting) {
+    pipSettingIs(setting) {
         const clone = structuredClone(this.defaults)
         clone.initialSetup.settings.pip = setting
         this.mocks.defaultResponses(clone)
@@ -117,7 +118,7 @@ export class DuckPlayerPage {
     /**
      * @param {{ state: 'enabled' | 'disabled' }} setting
      */
-    focusModeSettingIs (setting) {
+    focusModeSettingIs(setting) {
         const clone = structuredClone(this.defaults)
         clone.initialSetup.settings.focusMode = setting
         this.mocks.defaultResponses(clone)
@@ -129,7 +130,7 @@ export class DuckPlayerPage {
      * @param {URLSearchParams} urlParams
      * @return {Promise<void>}
      */
-    async installYoutubeMocks (urlParams) {
+    async installYoutubeMocks(urlParams) {
         await this.page.route('https://www.youtube-nocookie.com/**', (route, req) => {
             const url = new URL(req.url())
             if (url.pathname.startsWith('/embed')) {
@@ -141,7 +142,7 @@ export class DuckPlayerPage {
 
             return route.fulfill({
                 status: 200,
-                path: join(this.basePath, filepath)
+                path: join(this.basePath, filepath),
             })
         })
 
@@ -151,11 +152,12 @@ export class DuckPlayerPage {
                 return request.fulfill({
                     status: 200,
                     body: html.unsupported,
-                    contentType: 'text/html'
+                    contentType: 'text/html',
                 })
             }
 
-            const mp4VideoPlaceholderAsDataURI = 'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAwFtZGF0AAACogYF//+b3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1MiByMjg1NCBlMjA5YTFjIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNyAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzowMTMzIHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTEgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz02MyBsb29rYWhlYWRfdGhyZWFkcz0yIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTMgYl9weXJhbWlkPTIgYl9hZGFwdD1xLTIgYl9iaWFzPTAgZGlyZWN0PTEgd2VpZ2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNSBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmM9bG9va2FoZWFkIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCB2YnY9MCBjbG9zZWRfZ29wPTAgY3V0X3Rocm91Z2g9MCAnbm8tZGlndHMuanBnLTFgcC1mbHWinS3SlB8AP0AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABSAAAAAAAAAAAAAAAAAAABBZHJ0AAAAAAAAAA=='
+            const mp4VideoPlaceholderAsDataURI =
+                'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAwFtZGF0AAACogYF//+b3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1MiByMjg1NCBlMjA5YTFjIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNyAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzowMTMzIHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTEgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz02MyBsb29rYWhlYWRfdGhyZWFkcz0yIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTMgYl9weXJhbWlkPTIgYl9hZGFwdD1xLTIgYl9iaWFzPTAgZGlyZWN0PTEgd2VpZ2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNSBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmM9bG9va2FoZWFkIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCB2YnY9MCBjbG9zZWRfZ29wPTAgY3V0X3Rocm91Z2g9MCAnbm8tZGlndHMuanBnLTFgcC1mbHWinS3SlB8AP0AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABSAAAAAAAAAAAAAAAAAAABBZHJ0AAAAAAAAAA=='
             return request.fulfill({
                 status: 200,
                 contentType: 'text/html',
@@ -190,7 +192,7 @@ export class DuckPlayerPage {
                             <button class="ytp-pip-button">PIP</button>
                         </div>
                     </body>
-                </html>`
+                </html>`,
             })
         })
 
@@ -198,7 +200,7 @@ export class DuckPlayerPage {
         await this.page.route('https://www.youtube.com/**', (request) => {
             return request.fulfill({
                 status: 200,
-                body: 'youtube watch'
+                body: 'youtube watch',
             })
         })
     }
@@ -207,12 +209,12 @@ export class DuckPlayerPage {
      * @param {string} [videoID]
      * @returns {Promise<void>}
      */
-    async openWithVideoID (videoID = MOCK_VIDEO_ID) {
+    async openWithVideoID(videoID = MOCK_VIDEO_ID) {
         const params = new URLSearchParams({ videoID })
         await this.openPage(params)
     }
 
-    async openWithException () {
+    async openWithException() {
         const params = new URLSearchParams({ willThrow: String(true) })
         await this.openPage(params)
     }
@@ -221,12 +223,12 @@ export class DuckPlayerPage {
      * @param {string} [videoID]
      * @returns {Promise<void>}
      */
-    async openWithoutFocusMode (videoID = MOCK_VIDEO_ID) {
+    async openWithoutFocusMode(videoID = MOCK_VIDEO_ID) {
         const params = new URLSearchParams({ videoID, focusMode: 'disabled' })
         await this.openPage(params)
     }
 
-    async showsErrorMessage () {
+    async showsErrorMessage() {
         await expect(this.page.locator('body')).toContainText('Something went wrong!')
     }
 
@@ -235,7 +237,7 @@ export class DuckPlayerPage {
      * @param {string} [videoID]
      * @returns {Promise<void>}
      */
-    async openWithTimestamp (timestamp, videoID = MOCK_VIDEO_ID) {
+    async openWithTimestamp(timestamp, videoID = MOCK_VIDEO_ID) {
         const params = new URLSearchParams(Object.entries({ videoID, t: timestamp }))
         await this.openPage(params)
     }
@@ -244,26 +246,23 @@ export class DuckPlayerPage {
      * @param {string} [videoID]
      * @returns {Promise<void>}
      */
-    async hasLoadedIframe (videoID = MOCK_VIDEO_ID) {
-        const url = this.platform.name === 'ios'
-            ? youtubeEmbedIOS(videoID)
-            : youtubeEmbed(videoID)
+    async hasLoadedIframe(videoID = MOCK_VIDEO_ID) {
+        const url = this.platform.name === 'ios' ? youtubeEmbedIOS(videoID) : youtubeEmbed(videoID)
 
         const expected = new URL(url)
-        await expect(this.page.locator('iframe'))
-            .toHaveAttribute('src', expected.toString())
+        await expect(this.page.locator('iframe')).toHaveAttribute('src', expected.toString())
     }
 
-    async videoHasFocus () {
+    async videoHasFocus() {
         await expect(this.page.frameLocator('iframe').locator('video')).toBeVisible()
         await expect(this.page.locator('body')).toHaveAttribute('data-video-state', 'loaded+focussed')
     }
 
-    async hasPipButton () {
+    async hasPipButton() {
         await this.page.frameLocator('iframe').getByRole('button', { name: 'PIP' }).click()
     }
 
-    async pipButtonIsAbsent () {
+    async pipButtonIsAbsent() {
         const count = await this.page.frameLocator('iframe').getByRole('button', { name: 'PIP' }).count()
         expect(count).toBe(0)
     }
@@ -271,15 +270,15 @@ export class DuckPlayerPage {
     /**
      * @param {'on'|'off'} focusModeValue
      */
-    async focusModeIs (focusModeValue) {
+    async focusModeIs(focusModeValue) {
         await expect(this.page.getByRole('document')).toHaveAttribute('data-focus-mode', focusModeValue)
     }
 
-    async focusModeIsAbsent () {
+    async focusModeIsAbsent() {
         await expect(this.page.getByRole('document')).not.toHaveAttribute('data-focus-mode')
     }
 
-    async hasTheSameTitleAsEmbed () {
+    async hasTheSameTitleAsEmbed() {
         const expected = 'Duck Player - Embedded Video'
 
         // verify initial
@@ -294,11 +293,9 @@ export class DuckPlayerPage {
      * @param {string} [videoID]
      * @returns {Promise<void>}
      */
-    async videoStartsAtTimestamp (seconds, videoID = MOCK_VIDEO_ID) {
+    async videoStartsAtTimestamp(seconds, videoID = MOCK_VIDEO_ID) {
         // construct the expected url
-        const url = this.platform.name === 'ios'
-            ? youtubeEmbedIOS(videoID)
-            : youtubeEmbed(videoID)
+        const url = this.platform.name === 'ios' ? youtubeEmbedIOS(videoID) : youtubeEmbed(videoID)
         const youtubeSrc = new URL(url)
 
         youtubeSrc.searchParams.set('start', seconds)
@@ -306,48 +303,47 @@ export class DuckPlayerPage {
         const expected = youtubeSrc.toString()
 
         // verify that the iframe src contains the timestamp
-        await expect(this.page.locator('iframe'))
-            .toHaveAttribute('src', expected)
+        await expect(this.page.locator('iframe')).toHaveAttribute('src', expected)
     }
 
-    async hasShownErrorMessage () {
+    async hasShownErrorMessage() {
         await expect(this.page.getByText('ERROR: Invalid video id')).toBeVisible()
     }
 
-    async hasNotAddedIframe () {
+    async hasNotAddedIframe() {
         await expect(this.page.locator('iframe')).toHaveCount(0)
     }
 
-    async toolbarIsVisible () {
+    async toolbarIsVisible() {
         await this.page.getByText('Always open YouTube videos here').waitFor({ state: 'visible' })
     }
 
-    async toolbarIsHidden () {
+    async toolbarIsHidden() {
         await this.page.getByText('Always open YouTube videos here').waitFor({ state: 'hidden' })
     }
 
-    async infoTooltipIsShowsOnFocus () {
+    async infoTooltipIsShowsOnFocus() {
         await this.page.getByLabel('Info').hover()
         await expect(this.page.getByRole('tooltip')).toBeVisible()
     }
 
-    async infoTooltipHides () {
+    async infoTooltipHides() {
         await this.page.locator('body').hover()
         await expect(this.page.getByRole('tooltip')).toBeHidden()
     }
 
-    async opensSettingsInNewTab () {
+    async opensSettingsInNewTab() {
         const expected = 'duck://settings/duckplayer'
         const openSettings = this.page.getByRole('link', { name: 'Open Settings' })
         expect(await openSettings.getAttribute('href')).toEqual(expected)
         expect(await openSettings.getAttribute('target')).toEqual('_blank')
     }
 
-    async opensInYoutube () {
+    async opensInYoutube() {
         await this.build.switch({
             windows: async () => {
-                const failure = new Promise(resolve => {
-                    this.page.context().on('requestfailed', f => {
+                const failure = new Promise((resolve) => {
+                    this.page.context().on('requestfailed', (f) => {
                         resolve(f.url())
                     })
                 })
@@ -355,23 +351,23 @@ export class DuckPlayerPage {
                 expect(await failure).toEqual('duck://player/openInYoutube?v=VIDEO_ID')
             },
             apple: async () => {
-                const nextNavigation = new Promise(resolve => {
-                    this.page.context().on('request', f => {
+                const nextNavigation = new Promise((resolve) => {
+                    this.page.context().on('request', (f) => {
                         resolve(f.url())
                     })
                 })
                 await this.page.getByRole('button', { name: 'Watch on YouTube' }).click()
                 expect(await nextNavigation).toEqual('https://www.youtube.com/watch?v=VIDEO_ID')
-            }
+            },
         })
     }
 
-    async opensInYoutubeFromError ({ videoID = 'UNSUPPORTED' }) {
+    async opensInYoutubeFromError({ videoID = 'UNSUPPORTED' }) {
         const action = () => this.page.frameLocator('#player').getByRole('link', { name: 'Watch on YouTube' }).click()
         await this.build.switch({
             windows: async () => {
-                const failure = new Promise(resolve => {
-                    this.page.context().on('requestfailed', f => {
+                const failure = new Promise((resolve) => {
+                    this.page.context().on('requestfailed', (f) => {
                         resolve(f.url())
                     })
                 })
@@ -396,42 +392,42 @@ export class DuckPlayerPage {
                 // todo: why does this not work on android?
                 await action()
                 // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
-            }
+            },
         })
     }
 
     /**
      * @return {Promise<void>}
      */
-    async enabledViaSettings () {
+    async enabledViaSettings() {
         await this.mocks.simulateSubscriptionMessage('onUserValuesChanged', {
             privatePlayerMode: {
-                enabled: {}
+                enabled: {},
             },
-            overlayInteracted: false
+            overlayInteracted: false,
         })
     }
 
-    async checkboxWasChecked () {
+    async checkboxWasChecked() {
         await this.page.locator('[type=checkbox]').isChecked()
     }
 
     /**
      * @return {Promise<void>}
      */
-    async didReceiveFirstSettingsUpdate () {
+    async didReceiveFirstSettingsUpdate() {
         await this.mocks.waitForCallCount({ count: 1, method: 'initialSetup' })
     }
 
-    async toggleAlwaysOpenSetting () {
+    async toggleAlwaysOpenSetting() {
         await this.page.getByLabel('Always open YouTube videos here').click()
     }
 
-    async settingsAreVisible () {
+    async settingsAreVisible() {
         await expect(this.page.getByRole('button', { name: 'Watch on YouTube' })).toBeVisible()
     }
 
-    async sentUpdatedSettings () {
+    async sentUpdatedSettings() {
         const calls = await this.mocks.waitForCallCount({ count: 1, method: 'setUserValues' })
         expect(calls[0].payload).toMatchObject({
             context: 'specialPages',
@@ -440,16 +436,16 @@ export class DuckPlayerPage {
             params: {
                 overlayInteracted: false,
                 privatePlayerMode: {
-                    enabled: {}
-                }
-            }
+                    enabled: {},
+                },
+            },
         })
     }
 
     /**
      * @param {import('../../types/duckplayer.js').TelemetryEvent} evt
      */
-    async didSendTelemetry (evt) {
+    async didSendTelemetry(evt) {
         const events = await this.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 })
         expect(events).toStrictEqual([
             {
@@ -457,20 +453,20 @@ export class DuckPlayerPage {
                     context: 'specialPages',
                     featureName: 'duckPlayerPage',
                     method: 'telemetryEvent',
-                    params: evt
-                }
-            }
+                    params: evt,
+                },
+            },
         ])
     }
 
-    async withStorageValues () {
+    async withStorageValues() {
         await this.page.evaluate(() => {
             localStorage.setItem('foo', 'bar')
             localStorage.setItem('yt-player-other', 'baz')
         })
     }
 
-    async storageClearedAfterReload () {
+    async storageClearedAfterReload() {
         await this.page.reload()
         const storaget = await this.page.evaluate(() => localStorage)
         const keys = Object.keys(storaget)
@@ -482,11 +478,11 @@ export class DuckPlayerPage {
      * select the correct HTML file.
      * @return {string}
      */
-    get basePath () {
+    get basePath() {
         return this.build.switch({
             windows: () => '../build/windows/pages/duckplayer',
             android: () => '../build/android/pages/duckplayer',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/duckplayer'
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/duckplayer',
         })
     }
 
@@ -494,51 +490,49 @@ export class DuckPlayerPage {
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
-    static create (page, testInfo) {
+    static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new DuckPlayerPage(page, build, platformInfo)
     }
 
-    async allowsPopups () {
+    async allowsPopups() {
         const expected = 'allow-popups allow-scripts allow-same-origin allow-popups-to-escape-sandbox'
         await expect(this.page.locator('iframe')).toHaveAttribute('sandbox', expected)
     }
 
-    async openSettings () {
+    async openSettings() {
         const { page } = this
         await page.getByLabel('Open Settings').click()
     }
 
-    async didOpenMobileSettings () {
+    async didOpenMobileSettings() {
         await this.build.switch({
             android: async () => {
                 await this.mocks.waitForCallCount({ count: 1, method: 'openSettings' })
             },
             apple: async () => {
                 await this.mocks.waitForCallCount({ count: 1, method: 'openSettings' })
-            }
+            },
         })
     }
 
-    async didOpenSettings () {
+    async didOpenSettings() {
         await this.mocks.waitForCallCount({ count: 1, method: 'openSettings' })
     }
 
-    async didOpenInfo () {
+    async didOpenInfo() {
         await this.mocks.waitForCallCount({ count: 1, method: 'openInfo' })
     }
 
-    async didWatchOnYoutube () {
+    async didWatchOnYoutube() {}
 
-    }
-
-    async watchOnYoutube () {
+    async watchOnYoutube() {
         const { page } = this
         await page.getByRole('button', { name: 'Watch on YouTube' }).click()
     }
 
-    async openInfo () {
+    async openInfo() {
         const { page } = this
         await page.getByRole('button', { name: 'Open Info' }).click()
     }

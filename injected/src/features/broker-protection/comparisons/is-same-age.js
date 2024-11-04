@@ -3,7 +3,7 @@
  * @param ageFound
  * @return {boolean}
  */
-export function isSameAge (userAge, ageFound) {
+export function isSameAge(userAge, ageFound) {
     // variance allows for +/- 1 on the data broker and +/- 1 based on the only having a birth year
     const ageVariance = 2
     userAge = parseInt(userAge)

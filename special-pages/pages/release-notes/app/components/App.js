@@ -1,4 +1,3 @@
- 
 import { h } from 'preact'
 import { useEffect, useState } from 'preact/hooks'
 import { useMessaging } from '../index'
@@ -17,7 +16,7 @@ import styles from './App.module.css'
  * @param {object} props
  * @param {import("preact").ComponentChild} [props.children]
  */
-export function App ({ children }) {
+export function App({ children }) {
     const { messages } = useMessaging()
     /** @type {ReturnType<typeof useState<UpdateMessage>>} */
     const [releaseData, setReleaseData] = useState()
@@ -32,7 +31,7 @@ export function App ({ children }) {
     /**
      * @param {Error} error
      */
-    function didCatch (error) {
+    function didCatch(error) {
         const message = error?.message || 'unknown'
         console.error('ErrorBoundary', message)
         messages?.reportPageException({ message })
@@ -43,17 +42,15 @@ export function App ({ children }) {
                 <header className={styles.header}>
                     <DuckDuckGoLogo />
                 </header>
-                <div class={styles.core}>
-                    {releaseData && <ReleaseNotes releaseData={releaseData}/>}
-                </div>
-                <WillThrow/>
+                <div class={styles.core}>{releaseData && <ReleaseNotes releaseData={releaseData} />}</div>
+                <WillThrow />
                 {children}
             </ErrorBoundary>
         </main>
     )
 }
 
-export function WillThrow () {
+export function WillThrow() {
     const env = useEnv()
     if (env.willThrow) {
         throw new Error('Simulated Exception')

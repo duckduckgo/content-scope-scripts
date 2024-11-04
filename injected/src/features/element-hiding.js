@@ -20,7 +20,7 @@ let featureInstance
  * @param {Object} rule
  * @param {HTMLElement} [previousElement]
  */
-function collapseDomNode (element, rule, previousElement) {
+function collapseDomNode(element, rule, previousElement) {
     if (!element) {
         return
     }
@@ -33,33 +33,33 @@ function collapseDomNode (element, rule, previousElement) {
     }
 
     switch (type) {
-    case 'hide':
-        hideNode(element)
-        break
-    case 'hide-empty':
-        if (isDomNodeEmpty(element)) {
+        case 'hide':
             hideNode(element)
-            appliedRules.add(rule)
-        }
-        break
-    case 'closest-empty':
-        // hide the outermost empty node so that we may unhide if ad loads
-        if (isDomNodeEmpty(element)) {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            collapseDomNode(element.parentNode, rule, element)
-        } else if (previousElement) {
-            hideNode(previousElement)
-            appliedRules.add(rule)
-        }
-        break
-    case 'modify-attr':
-        modifyAttribute(element, rule.values)
-        break
-    case 'modify-style':
-        modifyStyle(element, rule.values)
-        break
-    default:
-        break
+            break
+        case 'hide-empty':
+            if (isDomNodeEmpty(element)) {
+                hideNode(element)
+                appliedRules.add(rule)
+            }
+            break
+        case 'closest-empty':
+            // hide the outermost empty node so that we may unhide if ad loads
+            if (isDomNodeEmpty(element)) {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                collapseDomNode(element.parentNode, rule, element)
+            } else if (previousElement) {
+                hideNode(previousElement)
+                appliedRules.add(rule)
+            }
+            break
+        case 'modify-attr':
+            modifyAttribute(element, rule.values)
+            break
+        case 'modify-style':
+            modifyStyle(element, rule.values)
+            break
+        default:
+            break
     }
 }
 
@@ -68,7 +68,7 @@ function collapseDomNode (element, rule, previousElement) {
  * @param {HTMLElement} element
  * @param {Object} rule
  */
-function expandNonEmptyDomNode (element, rule) {
+function expandNonEmptyDomNode(element, rule) {
     if (!element) {
         return
     }
@@ -77,22 +77,22 @@ function expandNonEmptyDomNode (element, rule) {
     const alreadyHidden = hiddenElements.has(element)
 
     switch (type) {
-    case 'hide':
-        // only care about rule types that specifically apply to empty elements
-        break
-    case 'hide-empty':
-    case 'closest-empty':
-        if (alreadyHidden && !isDomNodeEmpty(element)) {
-            unhideNode(element)
-        } else if (type === 'closest-empty') {
-            // iterate upwards from matching DOM elements until we arrive at previously
-            // hidden element. Unhide element if it contains visible content.
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            expandNonEmptyDomNode(element.parentNode, rule)
-        }
-        break
-    default:
-        break
+        case 'hide':
+            // only care about rule types that specifically apply to empty elements
+            break
+        case 'hide-empty':
+        case 'closest-empty':
+            if (alreadyHidden && !isDomNodeEmpty(element)) {
+                unhideNode(element)
+            } else if (type === 'closest-empty') {
+                // iterate upwards from matching DOM elements until we arrive at previously
+                // hidden element. Unhide element if it contains visible content.
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                expandNonEmptyDomNode(element.parentNode, rule)
+            }
+            break
+        default:
+            break
     }
 }
 
@@ -100,13 +100,13 @@ function expandNonEmptyDomNode (element, rule) {
  * Hide DOM element
  * @param {HTMLElement} element
  */
-function hideNode (element) {
+function hideNode(element) {
     // maintain a reference to each hidden element along with the properties
     // that are being overwritten
     const cachedDisplayProperties = {
         display: element.style.display,
         'min-height': element.style.minHeight,
-        height: element.style.height
+        height: element.style.height,
     }
     hiddenElements.set(element, cachedDisplayProperties)
 
@@ -123,7 +123,7 @@ function hideNode (element) {
  * Show previously hidden DOM element
  * @param {HTMLElement} element
  */
-function unhideNode (element) {
+function unhideNode(element) {
     const cachedDisplayProperties = hiddenElements.get(element)
     if (!cachedDisplayProperties) {
         return
@@ -140,7 +140,7 @@ function unhideNode (element) {
  * Check if DOM element contains visible content
  * @param {HTMLElement} node
  */
-function isDomNodeEmpty (node) {
+function isDomNodeEmpty(node) {
     // no sense wasting cycles checking if the page's body element is empty
     if (node.tagName === 'BODY') {
         return false
@@ -162,16 +162,20 @@ function isDomNodeEmpty (node) {
     // - node doesn't contain any iframes
     // - node contains iframes, all of which are hidden or have src='about:blank'
     const noFramesWithContent = frameElements.every((frame) => {
-        return (frame.hidden || frame.src === 'about:blank')
+        return frame.hidden || frame.src === 'about:blank'
     })
     // ad containers often contain tracking pixels and other small images (eg adchoices logo).
     // these should be treated as empty and hidden, but real images should not.
     const visibleImages = imageElements.some((image) => {
-        return (image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20)
+        return image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20
     })
 
-    if ((visibleText === '' || adLabelStrings.includes(visibleText)) &&
-        mediaAndFormContent === null && noFramesWithContent && !visibleImages) {
+    if (
+        (visibleText === '' || adLabelStrings.includes(visibleText)) &&
+        mediaAndFormContent === null &&
+        noFramesWithContent &&
+        !visibleImages
+    ) {
         return true
     }
     return false
@@ -184,7 +188,7 @@ function isDomNodeEmpty (node) {
  * @param {string} values[].property
  * @param {string} values[].value
  */
-function modifyAttribute (element, values) {
+function modifyAttribute(element, values) {
     values.forEach((item) => {
         element.setAttribute(item.property, item.value)
     })
@@ -198,7 +202,7 @@ function modifyAttribute (element, values) {
  * @param {string} values[].property
  * @param {string} values[].value
  */
-function modifyStyle (element, values) {
+function modifyStyle(element, values) {
     values.forEach((item) => {
         element.style.setProperty(item.property, item.value, 'important')
     })
@@ -211,7 +215,7 @@ function modifyStyle (element, values) {
  * @param {string} rules[].selector
  * @param {string} rules[].type
  */
-function extractTimeoutRules (rules) {
+function extractTimeoutRules(rules) {
     if (!shouldInjectStyleTag) {
         return rules
     }
@@ -237,7 +241,7 @@ function extractTimeoutRules (rules) {
  * @param {string} rules[].selector
  * @param {string} rules[].type
  */
-function injectStyleTag (rules) {
+function injectStyleTag(rules) {
     // wrap selector list in :is(...) to make it a forgiving selector list. this enables
     // us to use selectors not supported in all browsers, eg :has in Firefox
     let selector = ''
@@ -261,7 +265,7 @@ function injectStyleTag (rules) {
  * @param {string} rules[].selector
  * @param {string} rules[].type
  */
-function hideAdNodes (rules) {
+function hideAdNodes(rules) {
     const document = globalThis.document
 
     rules.forEach((rule) => {
@@ -277,7 +281,7 @@ function hideAdNodes (rules) {
 /**
  * Iterate over previously hidden elements, unhiding if content has loaded into them
  */
-function unhideLoadedAds () {
+function unhideLoadedAds() {
     const document = globalThis.document
 
     appliedRules.forEach((rule) => {
@@ -293,12 +297,12 @@ function unhideLoadedAds () {
 /**
  * Wrap selector(s) in :is(..) to make them forgiving
  */
-function forgivingSelector (selector) {
+function forgivingSelector(selector) {
     return `:is(${selector})`
 }
 
 export default class ElementHiding extends ContentFeature {
-    init () {
+    init() {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         featureInstance = this
 
@@ -359,10 +363,10 @@ export default class ElementHiding extends ContentFeature {
         // single page applications don't have a DOMContentLoaded event on navigations, so
         // we use proxy/reflect on history.pushState to call applyRules on page navigations
         const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
-            apply (target, thisArg, args) {
+            apply(target, thisArg, args) {
                 applyRules(activeRules)
                 return DDGReflect.apply(target, thisArg, args)
-            }
+            },
         })
         historyMethodProxy.overload()
         // listen for popstate events in order to run on back/forward navigations
@@ -377,7 +381,7 @@ export default class ElementHiding extends ContentFeature {
      * @param {string} rules[].selector
      * @param {string} rules[].type
      */
-    applyRules (rules) {
+    applyRules(rules) {
         const timeoutRules = extractTimeoutRules(rules)
         const clearCacheTimer = unhideTimeouts.concat(hideTimeouts).reduce((a, b) => Math.max(a, b), 0) + 100
 

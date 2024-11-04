@@ -1,12 +1,12 @@
 import { h } from 'preact'
-import { useTypedTranslation } from "../types"
-import { useErrorData } from "../providers/SpecialErrorProvider";
-import { Trans } from "../../../../shared/components/TranslationsProvider";
-import { phishingHelpPageURL } from "../constants";
+import { useTypedTranslation } from '../types'
+import { useErrorData } from '../providers/SpecialErrorProvider'
+import { Trans } from '../../../../shared/components/TranslationsProvider'
+import { phishingHelpPageURL } from '../constants'
 
 const phishingAnchorTagValues = {
     href: phishingHelpPageURL,
-    target: 'blank'
+    target: 'blank',
 }
 
 /**
@@ -45,16 +45,12 @@ export function useWarningContent() {
     const { kind } = useErrorData()
 
     if (kind === 'phishing') {
-        return [
-            <Trans str={t('phishingWarningText')} values={{ a: phishingAnchorTagValues }}/>
-        ]
+        return [<Trans str={t('phishingWarningText')} values={{ a: phishingAnchorTagValues }} />]
     }
 
     if (kind === 'ssl') {
-        const { domain } = /** @type {SSLError}} */(errorData)
-        return [
-            <Trans str={t('sslWarningText', { domain })} values=""/>
-        ]
+        const { domain } = /** @type {SSLError}} */ (errorData)
+        return [<Trans str={t('sslWarningText', { domain })} values="" />]
     }
 
     throw new Error(`Unhandled error kind ${kind}`)
@@ -87,32 +83,21 @@ export function useAdvancedInfoContent() {
     const { kind } = errorData
 
     if (kind === 'phishing') {
-        return [
-            t('phishingAdvancedInfoText_1'),
-            <Trans str={t('phishingAdvancedInfoText_2')} values={{ a: phishingAnchorTagValues }}/>
-        ]
+        return [t('phishingAdvancedInfoText_1'), <Trans str={t('phishingAdvancedInfoText_2')} values={{ a: phishingAnchorTagValues }} />]
     }
 
     if (kind === 'ssl') {
-        const { errorType, domain } = /** @type {SSLError}} */(errorData)
+        const { errorType, domain } = /** @type {SSLError}} */ (errorData)
         switch (errorType) {
             case 'expired':
-                return [
-                    <Trans str={t('sslExpiredAdvancedInfoText', { domain })} values=""/>
-                ]
+                return [<Trans str={t('sslExpiredAdvancedInfoText', { domain })} values="" />]
             case 'invalid':
-                return [
-                    <Trans str={t('sslInvalidAdvancedInfoText', { domain })} values=""/>
-                ]
+                return [<Trans str={t('sslInvalidAdvancedInfoText', { domain })} values="" />]
             case 'selfSigned':
-                return [
-                    <Trans str={t('sslSelfSignedAdvancedInfoText', { domain })} values=""/>
-                ]
+                return [<Trans str={t('sslSelfSignedAdvancedInfoText', { domain })} values="" />]
             case 'wrongHost':
-                const { eTldPlus1 } = /** @type {SSLWrongHost} */(errorData)
-                return [
-                    <Trans str={t('sslWrongHostAdvancedInfoText', { domain, eTldPlus1 })} values=""/>
-                ]
+                const { eTldPlus1 } = /** @type {SSLWrongHost} */ (errorData)
+                return [<Trans str={t('sslWrongHostAdvancedInfoText', { domain, eTldPlus1 })} values="" />]
             default:
                 throw new Error(`Unhandled SSL error type ${errorType}`)
         }

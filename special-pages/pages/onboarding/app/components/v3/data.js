@@ -21,8 +21,8 @@ export const stepsConfig = {
             heading: {
                 title: t('welcome_title'),
                 speechBubble: false,
-                children: <Timeout onComplete={advance} ignore={true} />
-            }
+                children: <Timeout onComplete={advance} ignore={true} />,
+            },
         }
     },
     getStarted: ({ t, advance }) => {
@@ -31,8 +31,8 @@ export const stepsConfig = {
             heading: {
                 title: t('getStarted_title_v3', { newline: '\n' }).split('{paragraph}'),
                 speechBubble: true,
-                children: <ElasticButton onClick={advance} text={t('getStartedButton_v3')} />
-            }
+                children: <ElasticButton onClick={advance} text={t('getStartedButton_v3')} />,
+            },
         }
     },
     makeDefaultSingle: ({ t, globalState, advance, enableSystemValue }) => {
@@ -43,44 +43,44 @@ export const stepsConfig = {
             variant: 'box',
             heading: {
                 title: isIdle ? t('protectionsActivated_title') : t('makeDefaultAccept_title'),
-                speechBubble: true
+                speechBubble: true,
             },
             dismissButton: isIdle
                 ? {
-                    text: t('skipButton'),
-                    handler: advance
-                }
+                      text: t('skipButton'),
+                      handler: advance,
+                  }
                 : null,
             acceptButton: isIdle
                 ? {
-                    text: t('makeDefaultButton'),
-                    handler: () => enableSystemValue('default-browser')
-                }
+                      text: t('makeDefaultButton'),
+                      handler: () => enableSystemValue('default-browser'),
+                  }
                 : {
-                    text: t('nextButton'),
-                    handler: advance
-                },
-            content: <MakeDefaultStep />
+                      text: t('nextButton'),
+                      handler: advance,
+                  },
+            content: <MakeDefaultStep />,
         }
     },
     systemSettings: ({ t, globalState, advance }) => {
         const { step, activeRow } = globalState
-        const isDone = activeRow >= /** @type {import('../../types').SystemSettingsStep} */(step).rows.length
+        const isDone = activeRow >= /** @type {import('../../types').SystemSettingsStep} */ (step).rows.length
 
         return {
             variant: 'box',
             heading: {
                 title: t('systemSettings_title_v3'),
                 subtitle: t('systemSettings_subtitle_v3'),
-                speechBubble: true
+                speechBubble: true,
             },
             acceptButton: isDone
                 ? {
-                    text: t('nextButton'),
-                    handler: advance
-                }
+                      text: t('nextButton'),
+                      handler: advance,
+                  }
                 : null,
-            content: <SettingsStep data={settingsRowItems} />
+            content: <SettingsStep data={settingsRowItems} />,
         }
     },
     duckPlayerSingle: ({ t, advance, beforeAfter }) => {
@@ -94,42 +94,42 @@ export const stepsConfig = {
             heading: {
                 title: t('duckPlayer_title'),
                 subtitle: t('duckPlayer_subtitle'),
-                speechBubble: true
+                speechBubble: true,
             },
             dismissButton: {
                 startIcon: <Replay direction={beforeAfterState === 'before' ? 'forward' : 'backward'} />,
                 text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
                 longestText,
-                handler: () => beforeAfter.toggle()
+                handler: () => beforeAfter.toggle(),
             },
             acceptButton: {
                 text: t('nextButton'),
-                handler: advance
+                handler: advance,
             },
-            content: <DuckPlayerStep />
+            content: <DuckPlayerStep />,
         }
     },
     customize: ({ t, globalState, dismiss }) => {
         const { step, activeRow } = globalState
-        const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */(step).rows.length
+        const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */ (step).rows.length
 
         return {
             variant: 'box',
             heading: {
                 title: t('customize_title_v3'),
                 subtitle: t('customize_subtitle_v3'),
-                speechBubble: true
+                speechBubble: true,
             },
             acceptButton: isDone
                 ? {
-                    text: t('startBrowsing'),
-                    endIcon: <Launch/>,
-                    handler: dismiss
-                }
+                      text: t('startBrowsing'),
+                      endIcon: <Launch />,
+                      handler: dismiss,
+                  }
                 : null,
-            content: <SettingsStep data={settingsRowItems} />
+            content: <SettingsStep data={settingsRowItems} />,
         }
-    }
+    },
 }
 
 /**
@@ -143,7 +143,7 @@ export const stepsConfig = {
  * @property {'primary'|'secondary'} [accepButtonVariant]
  * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined,
  * @property acceptText is shown.
-*/
+ */
 
 /** @type {Record<import('../../types').SystemValueId, (t: import('../../types').TranslationFn, platform: ImportMeta['platform']) => RowData>} */
 export const settingsRowItems = {
@@ -153,7 +153,7 @@ export const settingsRowItems = {
         title: t('row_default-browser_title_v3'),
         kind: 'one-time',
         acceptText: t('row_default-browser_accept'),
-        accepButtonVariant: 'primary'
+        accepButtonVariant: 'primary',
     }),
     import: (t) => ({
         id: 'import',
@@ -163,7 +163,7 @@ export const settingsRowItems = {
         kind: 'one-time',
         acceptText: t('row_import_accept_v3'),
         acceptTextRecall: t('row_import_accept'),
-        accepButtonVariant: 'primary'
+        accepButtonVariant: 'primary',
     }),
     dock: (t, platform) => {
         const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3')
@@ -177,7 +177,7 @@ export const settingsRowItems = {
             secondaryText,
             kind: 'one-time',
             acceptText,
-            accepButtonVariant: 'primary'
+            accepButtonVariant: 'primary',
         }
     },
     bookmarks: (t) => ({
@@ -186,7 +186,7 @@ export const settingsRowItems = {
         title: t('row_bookmarks_title_v3'),
         kind: 'toggle',
         acceptText: t('row_bookmarks_accept'),
-        accepButtonVariant: 'secondary'
+        accepButtonVariant: 'secondary',
     }),
     'session-restore': (t) => ({
         id: 'session-restore',
@@ -194,7 +194,7 @@ export const settingsRowItems = {
         title: t('row_session-restore_title_v3'),
         kind: 'toggle',
         acceptText: t('row_session-restore_accept'),
-        accepButtonVariant: 'secondary'
+        accepButtonVariant: 'secondary',
     }),
     'home-shortcut': (t) => ({
         id: 'home-shortcut',
@@ -202,19 +202,19 @@ export const settingsRowItems = {
         title: t('row_home-shortcut_title_v3'),
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept'),
-        accepButtonVariant: 'secondary'
-    })
+        accepButtonVariant: 'secondary',
+    }),
 }
 
 export const stepDefinitions = {
     systemSettings: {
         id: 'systemSettings',
         kind: 'settings',
-        rows: ['dock', 'import']
+        rows: ['dock', 'import'],
     },
     customize: {
         id: 'customize',
         kind: 'settings',
-        rows: ['bookmarks', 'session-restore', 'home-shortcut']
-    }
+        rows: ['bookmarks', 'session-restore', 'home-shortcut'],
+    },
 }

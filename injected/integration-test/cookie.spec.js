@@ -25,10 +25,10 @@ test.describe('Cookie protection tests', () => {
         const result = await page.evaluate(async () => {
             // @ts-expect-error - Invalid argument to document.cookie on purpose for test
             document.cookie = {
-                toString () {
-                    const expires = (new Date(+new Date() + 86400 * 1000 * 100)).toUTCString()
+                toString() {
+                    const expires = new Date(+new Date() + 86400 * 1000 * 100).toUTCString()
                     return 'a=b; expires=' + expires
-                }
+                },
             }
             // wait for a tick, as cookie modification happens in a promise
             await new Promise((resolve) => setTimeout(resolve, 1))

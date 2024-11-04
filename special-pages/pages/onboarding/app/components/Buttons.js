@@ -7,7 +7,7 @@ import cn from 'classnames'
  *
  * @param {import("preact").ComponentProps<"div">} props
  */
-export function ButtonBar (props) {
+export function ButtonBar(props) {
     const { children, ...rest } = props
     return (
         <div className={styles.buttons} {...rest}>
@@ -28,13 +28,13 @@ export function ButtonBar (props) {
  *
  * @param {ButtonProps & Omit<import("preact").ComponentProps<"button">, "size">} props
  */
-export function Button ({ variant = 'primary', size = 'normal', children, ...rest }) {
+export function Button({ variant = 'primary', size = 'normal', children, ...rest }) {
     const classes = cn({
         [styles.button]: true,
         [styles.primary]: variant === 'primary',
         [styles.secondary]: variant === 'secondary',
         [styles.large]: size === 'large',
-        [styles.xl]: size === 'xl'
+        [styles.xl]: size === 'xl',
     })
     return (
         <button className={classes} {...rest}>
