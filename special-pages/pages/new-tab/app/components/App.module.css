@@ -17,7 +17,17 @@ body {
     margin-right: auto;
 }
 
+body:has([data-reset-layout="true"]) .layout {
+    padding-top: 0;
+}
+
 :global(.layout-centered) {
     margin-inline: auto;
+    width: 100%;
     max-width: calc(504 * var(--px-in-rem));
+}
+
+/** Don't affect layout if empty (eg: if a widget was toggled) **/
+:global(.layout-centered:empty) {
+    display: contents;
 }
