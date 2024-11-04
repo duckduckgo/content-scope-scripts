@@ -18,7 +18,7 @@ export const SwitchContext = createContext({
     /** @type {() => void} */
     onDone: () => {
         throw new Error('must implement')
-    }
+    },
 })
 
 export function SwitchProvider({ children }) {

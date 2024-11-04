@@ -22,7 +22,7 @@ const widgetMap = {
         <UpdateNotificationProvider>
             <UpdateNotificationConsumer />
         </UpdateNotificationProvider>
-    )
+    ),
 }
 
 export function WidgetList() {

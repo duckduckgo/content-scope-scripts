@@ -23,38 +23,38 @@ export const support = {
         integration: ['copy', 'build-js'],
         windows: ['copy', 'build-js'],
         apple: ['copy', 'build-js', 'inline-html'],
-        android: ['copy', 'build-js']
+        android: ['copy', 'build-js'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     errorpage: {
         integration: ['copy'],
-        apple: ['copy', 'inline-html']
+        apple: ['copy', 'inline-html'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     onboarding: {
         integration: ['copy', 'build-js'],
         windows: ['copy', 'build-js'],
-        apple: ['copy', 'build-js']
+        apple: ['copy', 'build-js'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     example: {
-        integration: ['copy', 'build-js']
+        integration: ['copy', 'build-js'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     'release-notes': {
         integration: ['copy', 'build-js'],
-        apple: ['copy', 'build-js']
+        apple: ['copy', 'build-js'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     'special-error': {
         integration: ['copy', 'build-js'],
-        apple: ['copy', 'build-js', 'inline-html']
+        apple: ['copy', 'build-js', 'inline-html'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     'new-tab': {
         integration: ['copy', 'build-js'],
-        windows: ['copy', 'build-js']
-    }
+        windows: ['copy', 'build-js'],
+    },
 }
 
 /** @type {{src: string, dest: string, injectName: string}[]} */
@@ -83,7 +83,7 @@ for (const [pageName, injectNames] of Object.entries(support)) {
                 copyJobs.push({
                     src: pageSrc,
                     dest: pageOutputDirectory,
-                    injectName
+                    injectName,
                 })
             }
             if (job === 'build-js') {
@@ -95,7 +95,7 @@ for (const [pageName, injectNames] of Object.entries(support)) {
                     entryPoints,
                     outputDir,
                     injectName,
-                    pageName
+                    pageName,
                 })
             }
             if (job === 'inline-html') {
@@ -119,11 +119,11 @@ for (const copyJob of copyJobs) {
     if (!DRY_RUN) {
         rmSync(copyJob.dest, {
             force: true,
-            recursive: true
+            recursive: true,
         })
         cpSync(copyJob.src, copyJob.dest, {
             force: true,
-            recursive: true
+            recursive: true,
         })
     }
 }
@@ -146,14 +146,14 @@ for (const buildJob of buildJobs) {
                 '.data.svg': 'dataurl',
                 '.jpg': 'file',
                 '.png': 'file',
-                '.riv': 'file'
+                '.riv': 'file',
             },
             define: {
                 'import.meta.env': JSON.stringify(NODE_ENV),
                 'import.meta.injectName': JSON.stringify(buildJob.injectName),
-                'import.meta.pageName': JSON.stringify(buildJob.pageName)
+                'import.meta.pageName': JSON.stringify(buildJob.pageName),
             },
-            dropLabels: buildJob.injectName === 'integration' ? [] : ['$INTEGRATION']
+            dropLabels: buildJob.injectName === 'integration' ? [] : ['$INTEGRATION'],
         })
     }
 }
@@ -164,7 +164,7 @@ for (const inlineJob of inlineJobs) {
             {
                 fileContent: readFileSync(inlineJob.src, 'utf8'),
                 relativeTo: join(inlineJob.src, '..'),
-                images: true
+                images: true,
             },
             (error, result) => {
                 if (error) {

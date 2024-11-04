@@ -69,7 +69,7 @@ describe('Actions', () => {
                     'katherine',
                     'kathryn',
                     'katia',
-                    'katy'
+                    'katy',
                 ])
             })
 
@@ -90,7 +90,7 @@ describe('Actions', () => {
                 firstName: 'Jon',
                 middleName: 'Andrew',
                 lastName: 'Smith',
-                suffix: null
+                suffix: null,
             }
 
             it('should match if exact match', () => {
@@ -151,7 +151,7 @@ describe('Actions', () => {
             it('Should return the profile unchanged if profileUrl is not present', async () => {
                 const profile = {
                     firstName: 'John',
-                    lastName: 'Doe'
+                    lastName: 'Doe',
                 }
 
                 const generatedProfile = await new ProfileHashTransformer().transform(profile, {})
@@ -161,13 +161,13 @@ describe('Actions', () => {
             it('Should return the profile unchanged if identifierType is not set to hash', async () => {
                 const profile = {
                     firstName: 'John',
-                    lastName: 'Doe'
+                    lastName: 'Doe',
                 }
 
                 const params = {
                     profileUrl: {
-                        identifierType: /** @type {IdentifierType} */ ('param')
-                    }
+                        identifierType: /** @type {IdentifierType} */ ('param'),
+                    },
                 }
 
                 const generatedProfile = await new ProfileHashTransformer().transform(profile, params)
@@ -177,13 +177,13 @@ describe('Actions', () => {
             it('Should return a profile with a hash in the identifier if the identifierType is set to hash', async () => {
                 const profile = {
                     firstName: 'John',
-                    lastName: 'Doe'
+                    lastName: 'Doe',
                 }
 
                 const params = {
                     profileUrl: {
-                        identifierType: /** @type {IdentifierType} */ ('hash')
-                    }
+                        identifierType: /** @type {IdentifierType} */ ('hash'),
+                    },
                 }
 
                 const generatedProfile = await new ProfileHashTransformer().transform(profile, params)
@@ -204,7 +204,7 @@ describe('Actions', () => {
                         { city: 'Chicago', state: 'IL' },
                         { city: 'River Forest', state: 'IL' },
                         { city: 'Forest Park', state: 'IL' },
-                        { city: 'Oak Park', state: 'IL' }
+                        { city: 'Oak Park', state: 'IL' },
                     ])
                 }
             })
@@ -217,7 +217,7 @@ describe('Actions', () => {
                     'Chicago IL   60611',
                     'River Forest IL 60305-1243',
                     'Forest Park IL, 60130-1234',
-                    'Oak Park IL, 60302'
+                    'Oak Park IL, 60302',
                 ]
 
                 const result = new CityStateExtractor().extract(cityStateZipList, {})
@@ -227,7 +227,7 @@ describe('Actions', () => {
                     { city: 'Chicago', state: 'IL' },
                     { city: 'River Forest', state: 'IL' },
                     { city: 'Forest Park', state: 'IL' },
-                    { city: 'Oak Park', state: 'IL' }
+                    { city: 'Oak Park', state: 'IL' },
                 ])
             })
         })
@@ -242,7 +242,7 @@ describe('Actions', () => {
                     const result = new CityStateExtractor().extract(list, {})
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
-                        { city: 'River Forest', state: 'IL' }
+                        { city: 'River Forest', state: 'IL' },
                     ])
                 }
             })
@@ -253,37 +253,37 @@ describe('Actions', () => {
                 {
                     listString: 'Chicago IL\nRiver Forest IL\nForest Park IL\nOak Park IL',
                     separator: '\n',
-                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']
+                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'],
                 },
                 {
                     listString: 'Chicago, IL\nRiver Forest, IL\nForest Park, IL\nOak Park, IL',
                     separator: '\n',
-                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL']
+                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL'],
                 },
                 {
                     listString: 'Chicago IL | River Forest IL | Forest Park IL | Oak Park IL',
                     separator: '|',
-                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']
+                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'],
                 },
                 {
                     listString: 'Chicago, IL | River Forest, IL | Forest Park, IL | Oak Park, IL',
                     separator: '|',
-                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL']
+                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL'],
                 },
                 {
                     listString: 'Chicago, IL • River Forest, IL • Forest Park, IL • Oak Park, IL',
                     separator: '•',
-                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL']
+                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL'],
                 },
                 {
                     listString: 'Chicago IL • River Forest IL • Forest Park IL • Oak Park IL',
                     separator: '•',
-                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']
+                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'],
                 },
                 {
                     listString: 'Chicago IL   ·   River Forest IL   ·   Forest Park IL   ·   Oak Park IL',
-                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']
-                }
+                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'],
+                },
             ]
             it('should get correct city state with separator', () => {
                 for (const item of cityStateList) {
@@ -295,7 +295,7 @@ describe('Actions', () => {
                         { city: 'Chicago', state: 'IL' },
                         { city: 'River Forest', state: 'IL' },
                         { city: 'Forest Park', state: 'IL' },
-                        { city: 'Oak Park', state: 'IL' }
+                        { city: 'Oak Park', state: 'IL' },
                     ])
                 }
             })
@@ -307,8 +307,8 @@ describe('Actions', () => {
                     {
                         firstName: 'John',
                         middleName: null,
-                        lastName: 'Smith'
-                    }
+                        lastName: 'Smith',
+                    },
                 ],
                 userAge: '40',
                 addresses: [
@@ -316,9 +316,9 @@ describe('Actions', () => {
                         addressLine1: '123 Fake St',
                         city: 'Chicago',
                         state: 'IL',
-                        zip: '60602'
-                    }
-                ]
+                        zip: '60602',
+                    },
+                ],
             }
             describe('matchAddressFromAddressListCityState', () => {
                 it('should match when city/state is present', () => {
@@ -338,7 +338,7 @@ describe('Actions', () => {
             lastName: 'Smith',
             city: 'Chicago',
             state: 'IL',
-            age: '24'
+            age: '24',
         }
 
         const userData2 = {
@@ -346,14 +346,14 @@ describe('Actions', () => {
             lastName: 'Smith',
             city: 'West Montego',
             state: 'NY',
-            age: '24'
+            age: '24',
         }
 
         it('should build url without params', () => {
             const result = replaceTemplatedUrl(
                 {
                     id: 0,
-                    url: 'https://example.com/optout'
+                    url: 'https://example.com/optout',
                 },
                 userData
             )
@@ -365,7 +365,7 @@ describe('Actions', () => {
                 {
                     id: 0,
                     // eslint-disable-next-line no-template-curly-in-string
-                    url: 'https://example.com/profile/${firstName}-${lastName}/a/b/c/search?state=${state}&city=${city|hyphenated}&fage=${age}'
+                    url: 'https://example.com/profile/${firstName}-${lastName}/a/b/c/search?state=${state}&city=${city|hyphenated}&fage=${age}',
                 },
                 userData
             )
@@ -376,7 +376,7 @@ describe('Actions', () => {
             const result = replaceTemplatedUrl(
                 {
                     id: 0,
-                    url: 'https://example.com/name/$%7BfirstName%7Cdowncase%7D-$%7BlastName%7Cdowncase%7D/$%7Bcity%7Cdowncase%7D-$%7Bstate%7CstateFull%7Cdowncase%7D?age=$%7Bage%7D'
+                    url: 'https://example.com/name/$%7BfirstName%7Cdowncase%7D-$%7BlastName%7Cdowncase%7D/$%7Bcity%7Cdowncase%7D-$%7Bstate%7CstateFull%7Cdowncase%7D?age=$%7Bage%7D',
                 },
                 userData
             )
@@ -388,7 +388,7 @@ describe('Actions', () => {
                 {
                     id: 0,
                     // eslint-disable-next-line no-template-curly-in-string
-                    url: 'https://example.com/profile/${firstName|downcase}-${lastName|downcase}/a/b/c/search?state=${state|downcase}&city=${city|downcase}&fage=${age}'
+                    url: 'https://example.com/profile/${firstName|downcase}-${lastName|downcase}/a/b/c/search?state=${state|downcase}&city=${city|downcase}&fage=${age}',
                 },
                 userData
             )
@@ -400,7 +400,7 @@ describe('Actions', () => {
                 {
                     id: 0,
                     // eslint-disable-next-line no-template-curly-in-string
-                    url: 'https://example.com/profile/a/b/c/search?name=${firstName}-${lastName}&other=foobar'
+                    url: 'https://example.com/profile/a/b/c/search?name=${firstName}-${lastName}&other=foobar',
                 },
                 userData
             )
@@ -412,7 +412,7 @@ describe('Actions', () => {
                 {
                     id: 0,
                     // eslint-disable-next-line no-template-curly-in-string
-                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}',
                 },
                 userData
             )
@@ -425,7 +425,7 @@ describe('Actions', () => {
                 {
                     id: 0,
                     // eslint-disable-next-line no-template-curly-in-string
-                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}',
                 },
                 userData2
             )
@@ -437,7 +437,7 @@ describe('Actions', () => {
             const result = replaceTemplatedUrl(
                 {
                     // eslint-disable-next-line no-template-curly-in-string
-                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|downcase|hyphenated}&fage=${age}'
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|downcase|hyphenated}&fage=${age}',
                 },
                 userData2
             )
@@ -450,7 +450,7 @@ describe('Actions', () => {
                 {
                     id: 0,
                     // eslint-disable-next-line no-template-curly-in-string
-                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated|downcase}&fage=${age}'
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated|downcase}&fage=${age}',
                 },
                 userData2
             )
@@ -463,7 +463,7 @@ describe('Actions', () => {
                 {
                     id: 0,
                     // eslint-disable-next-line no-template-curly-in-string
-                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|snakecase|downcase}&fage=${age}'
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|snakecase|downcase}&fage=${age}',
                 },
                 userData2
             )
@@ -477,26 +477,26 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     input: 'https://example.com/a/${middleName|defaultIfEmpty:~}/b',
                     expected: 'https://example.com/a/~/b',
-                    data: userData2
+                    data: userData2,
                 },
                 {
                     // eslint-disable-next-line no-template-curly-in-string
                     input: 'https://example.com/a/${middleName|downcase|defaultIfEmpty:anything}/b',
                     expected: 'https://example.com/a/anything/b',
-                    data: userData2
+                    data: userData2,
                 },
                 {
                     // eslint-disable-next-line no-template-curly-in-string
                     input: 'https://example.com/a/${middleName|downcase|defaultIfEmpty:anything}/b',
                     expected: 'https://example.com/a/kittie/b',
-                    data: { ...userData2, middleName: 'Kittie' }
-                }
+                    data: { ...userData2, middleName: 'Kittie' },
+                },
             ]
             for (const testCase of testCases) {
                 const result = replaceTemplatedUrl(
                     {
                         id: 0,
-                        url: testCase.input
+                        url: testCase.input,
                     },
                     testCase.data
                 )
@@ -509,13 +509,13 @@ describe('Actions', () => {
                 {
                     id: 0,
                     // eslint-disable-next-line no-template-curly-in-string
-                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state|stateFull|hyphenated}&city=${city}&fage=${age}'
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state|stateFull|hyphenated}&city=${city}&fage=${age}',
                 },
                 userData2
             )
 
             expect(result).toEqual({
-                url: 'https://example.com/profile/search?fname=John&lname=Smith&state=New-York&city=West+Montego&fage=24'
+                url: 'https://example.com/profile/search?fname=John&lname=Smith&state=New-York&city=West+Montego&fage=24',
             })
         })
 
@@ -525,7 +525,7 @@ describe('Actions', () => {
                     id: 0,
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city}&fage=${age|ageRange}',
-                    ageRange: ['18-30', '31-40', '41-50']
+                    ageRange: ['18-30', '31-40', '41-50'],
                 },
                 userData
             )
@@ -537,7 +537,7 @@ describe('Actions', () => {
             const result = replaceTemplatedUrl(
                 {
                     id: 0,
-                    url: null
+                    url: null,
                 },
                 userData
             )
@@ -551,7 +551,7 @@ describe('Actions', () => {
                     fc.oneof(
                         fc.anything(),
                         fc.record({
-                            url: fc.anything()
+                            url: fc.anything(),
                         })
                     ),
                     fc.oneof(fc.anything(), fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer(), fc.boolean()))),
@@ -577,14 +577,14 @@ describe('Actions', () => {
                         // eslint-disable-next-line no-template-curly-in-string
                         url: fc.constant(
                             'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
-                        )
+                        ),
                     }),
                     fc.record({
                         firstName: fc.string(),
                         lastName: fc.string(),
                         city: fc.string(),
                         state: fc.string(),
-                        age: fc.oneof(fc.string(), fc.integer())
+                        age: fc.oneof(fc.string(), fc.integer()),
                     }),
                     (action, userData) => {
                         const result = replaceTemplatedUrl(action, userData)
@@ -671,7 +671,7 @@ describe('utils', () => {
         it('generates a hash from a profile', async () => {
             const profile = {
                 firstName: 'John',
-                lastName: 'Doe'
+                lastName: 'Doe',
             }
 
             const result = await hashObject(profile)
@@ -684,7 +684,7 @@ describe('utils', () => {
         it('generates a stable hash from a profile', async () => {
             const profile = {
                 firstName: 'John',
-                lastName: 'Doe'
+                lastName: 'Doe',
             }
 
             const originalResult = await hashObject(profile)
@@ -706,16 +706,16 @@ describe('utils', () => {
             const addresses = [
                 {
                     city: 'Houston',
-                    state: 'TX'
+                    state: 'TX',
                 },
                 {
                     city: 'Ontario',
-                    state: 'CA'
+                    state: 'CA',
                 },
                 {
                     city: 'Dallas',
-                    state: 'TX'
-                }
+                    state: 'TX',
+                },
             ]
 
             const result = sortAddressesByStateAndCity(addresses)
@@ -723,16 +723,16 @@ describe('utils', () => {
             expect(result).toEqual([
                 {
                     city: 'Ontario',
-                    state: 'CA'
+                    state: 'CA',
                 },
                 {
                     city: 'Dallas',
-                    state: 'TX'
+                    state: 'TX',
                 },
                 {
                     city: 'Houston',
-                    state: 'TX'
-                }
+                    state: 'TX',
+                },
             ])
         })
     })

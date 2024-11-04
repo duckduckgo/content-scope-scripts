@@ -771,7 +771,7 @@ export const names = {
                 'daisy',
                 'margery',
                 'gretta',
-                'rita'
+                'rita',
             ],
             margaretta: ['maggie', 'meg', 'peg', 'midge', 'margie', 'madge', 'peggy', 'marge', 'daisy', 'margery', 'gretta', 'rita'],
             margarita: [
@@ -787,7 +787,7 @@ export const names = {
                 'daisy',
                 'peggie',
                 'rita',
-                'margo'
+                'margo',
             ],
             marge: ['margery', 'margaret', 'margaretta'],
             margie: ['marjorie'],
@@ -810,7 +810,7 @@ export const names = {
                 'marie',
                 'mamie',
                 'mary',
-                'maria'
+                'maria',
             ],
             marilyn: ['mary'],
             marion: ['mary'],
@@ -1197,10 +1197,10 @@ export const names = {
             zack: ['zach', 'zak'],
             zebedee: ['zeb'],
             zedediah: ['dyer', 'zed', 'diah'],
-            zephaniah: ['zeph']
+            zephaniah: ['zeph'],
         }
         return this._memo
-    }
+    },
 }
 
 export const states = {
@@ -1254,5 +1254,5 @@ export const states = {
     WA: 'Washington',
     WV: 'West Virginia',
     WI: 'Wisconsin',
-    WY: 'Wyoming'
+    WY: 'Wyoming',
 }

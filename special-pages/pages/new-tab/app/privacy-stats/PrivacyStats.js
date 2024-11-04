@@ -71,7 +71,7 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
                 expansion={expansion}
                 buttonAttrs={{
                     'aria-controls': WIDGET_ID,
-                    id: TOGGLE_ID
+                    id: TOGGLE_ID,
                 }}
             />
             {expanded && someCompanies && <Body trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />}
@@ -114,7 +114,7 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
                         ...buttonAttrs,
                         hidden: trackerCompanies.length === 0,
                         'aria-expanded': expansion === 'expanded',
-                        'aria-pressed': expansion === 'expanded'
+                        'aria-pressed': expansion === 'expanded',
                     }}
                     onClick={onToggle}
                     text={expansion === 'expanded' ? t('trackerStatsHideLabel') : t('trackerStatsToggleLabel')}
@@ -143,7 +143,7 @@ export function Body({ trackerCompanies, listAttrs = {} }) {
                 const percentage = Math.min((company.count * 100) / max, 100)
                 const valueOrMin = Math.max(percentage, 10)
                 const inlineStyles = {
-                    width: `${valueOrMin}%`
+                    width: `${valueOrMin}%`,
                 }
                 const countText = formatter.format(company.count)
                 return (

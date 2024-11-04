@@ -26,27 +26,27 @@ describe('individual extractors', () => {
                 // eslint-disable-next-line no-template-curly-in-string
                 identifier: 'https://duckduckgo.com/my/profile/${firstName}-${lastName}/${id}',
                 profileUrl: 'https://duckduckgo.com/my/profile/john-smith/223',
-                expected: 'https://duckduckgo.com/my/profile/john-smith/223'
+                expected: 'https://duckduckgo.com/my/profile/john-smith/223',
             },
             {
                 identifierType: /** @type {IdentifierType} */ ('param'),
                 identifier: 'pid',
                 profileUrl: 'https://duckduckgo.com/my/profile?id=test',
-                expected: 'https://duckduckgo.com/my/profile?id=test'
+                expected: 'https://duckduckgo.com/my/profile?id=test',
             },
             {
                 identifierType: /** @type {IdentifierType} */ ('param'),
                 // eslint-disable-next-line no-template-curly-in-string
                 identifier: 'https://duckduckgo.com/my/profile/${firstName}-${lastName}/${id}',
                 profileUrl: 'https://duckduckgo.com/my/profile/john-smith/223',
-                expected: 'https://duckduckgo.com/my/profile/john-smith/223'
+                expected: 'https://duckduckgo.com/my/profile/john-smith/223',
             },
             {
                 identifierType: /** @type {IdentifierType} */ ('param'),
                 identifier: 'id',
                 profileUrl: 'https://duckduckgo.com/my/profile?id=test',
-                expected: 'test'
-            }
+                expected: 'test',
+            },
         ]
 
         testCases.forEach(({ identifierType, identifier, profileUrl, expected }) => {

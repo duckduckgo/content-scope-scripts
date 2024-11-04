@@ -22,7 +22,7 @@ export function MobileButtons({ embed }) {
                 icon={true}
                 buttonProps={{
                     'aria-label': t('openInfoButton'),
-                    onClick: openInfo
+                    onClick: openInfo,
                 }}
             >
                 <Icon src={info} />
@@ -31,7 +31,7 @@ export function MobileButtons({ embed }) {
                 icon={true}
                 buttonProps={{
                     'aria-label': t('openSettingsButton'),
-                    onClick: openSettings
+                    onClick: openSettings,
                 }}
             >
                 <Icon src={cog} />
@@ -41,7 +41,7 @@ export function MobileButtons({ embed }) {
                 buttonProps={{
                     onClick: () => {
                         if (embed) openOnYoutube(embed)
-                    }
+                    },
                 }}
             >
                 {t('watchOnYoutube')}

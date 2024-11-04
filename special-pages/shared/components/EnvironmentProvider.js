@@ -8,7 +8,7 @@ const EnvironmentContext = createContext({
     injectName: /** @type {import('../environment').Environment['injectName']} */ ('windows'),
     willThrow: false,
     /** @type {import('../environment').Environment['env']} */
-    env: 'production'
+    env: 'production',
 })
 
 const THEME_QUERY = '(prefers-color-scheme: dark)'
@@ -69,7 +69,7 @@ export function EnvironmentProvider({ children, debugState, env = 'production', 
                 isDarkMode: theme === 'dark',
                 injectName,
                 willThrow,
-                env
+                env,
             }}
         >
             {children}

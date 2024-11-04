@@ -31,7 +31,7 @@ export class WindowsMessagingTransport {
             JSONstringify: window.JSON.stringify,
             Promise: window.Promise,
             Error: window.Error,
-            String: window.String
+            String: window.String,
         }
         for (const [methodName, fn] of Object.entries(this.config.methods)) {
             if (typeof fn !== 'function') {
@@ -285,7 +285,7 @@ export class WindowsNotification {
             Data: data,
             Feature: notification.context,
             SubFeatureName: notification.featureName,
-            Name: notification.method
+            Name: notification.method,
         }
         return output
     }
@@ -327,7 +327,7 @@ export class WindowsRequestMessage {
             Feature: msg.context,
             SubFeatureName: msg.featureName,
             Name: msg.method,
-            Id: msg.id
+            Id: msg.id,
         }
         return output
     }

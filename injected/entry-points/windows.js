@@ -19,8 +19,8 @@ function initCode() {
             // @ts-expect-error - Type 'unknown' is not assignable to type...
             addEventListener: windowsInteropAddEventListener,
             // @ts-expect-error - Type 'unknown' is not assignable to type...
-            removeEventListener: windowsInteropRemoveEventListener
-        }
+            removeEventListener: windowsInteropRemoveEventListener,
+        },
     })
 
     load({
@@ -29,7 +29,7 @@ function initCode() {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig
+        messagingConfig: processedConfig.messagingConfig,
     })
 
     init(processedConfig)

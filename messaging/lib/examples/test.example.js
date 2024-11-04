@@ -14,7 +14,7 @@ const config = new TestTransportConfig({
     request: (msg) => {
         if (msg.method === 'getUserValues') {
             return Promise.resolve({
-                foo: 'bar'
+                foo: 'bar',
             })
         }
         return Promise.resolve(null)
@@ -24,13 +24,13 @@ const config = new TestTransportConfig({
         return () => {
             console.log('teardown')
         }
-    }
+    },
 })
 
 const messagingContext = new MessagingContext({
     context: 'contentScopeScripts',
     featureName: 'hello-world',
-    env: 'development'
+    env: 'development',
 })
 
 /**

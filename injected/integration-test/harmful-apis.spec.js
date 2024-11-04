@@ -25,7 +25,7 @@ test.skip('Harmful APIs protections', async ({ page }, testInfo) => {
         'WebMidi',
         'IdleDetection',
         'WebNfc',
-        'StorageManager'
+        'StorageManager',
     ].forEach((name) => {
         for (const result of results[name]) {
             expect(result.result).toEqual(result.expected)
@@ -93,17 +93,17 @@ export class HarmfulApisSpec {
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
                 platform: { name: 'windows' },
-                debug: true
-            }
+                debug: true,
+            },
         })
 
         await this.page.addInitScript(mockWindowsMessaging, {
             messagingContext: {
                 env: 'development',
                 context: 'contentScopeScripts',
-                featureName: 'n/a'
+                featureName: 'n/a',
             },
-            responses: {}
+            responses: {},
         })
 
         // attach the JS

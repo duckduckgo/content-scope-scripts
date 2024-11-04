@@ -10,7 +10,7 @@ export const TranslationContext = createContext({
     /** @type {LocalTranslationFn} */
     t: () => {
         throw new Error('must implement')
-    }
+    },
 })
 
 /**

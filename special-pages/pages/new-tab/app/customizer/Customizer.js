@@ -62,7 +62,7 @@ export function getItems() {
     const detail = {
         register: (/** @type {VisibilityRowData} */ incoming) => {
             next.push(incoming)
-        }
+        },
     }
     const event = new CustomEvent(Customizer.OPEN_EVENT, { detail })
     window.dispatchEvent(event)
@@ -84,7 +84,7 @@ export function useContextMenu() {
             const simplified = items.map((item) => {
                 return {
                     id: item.id,
-                    title: item.title
+                    title: item.title,
                 }
             })
             messaging.contextMenu({ visibilityMenuItems: simplified })

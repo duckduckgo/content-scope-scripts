@@ -25,7 +25,7 @@ export class SpecialErrorPage {
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'special-error',
-            env: 'development'
+            env: 'development',
         })
         this.page.on('console', console.log)
     }
@@ -47,9 +47,9 @@ export class SpecialErrorPage {
             env: 'development',
             locale: 'en',
             platform: {
-                name: platformName
+                name: platformName,
             },
-            errorData: sampleData[errorId].data
+            errorData: sampleData[errorId].data,
         }
 
         /**
@@ -69,7 +69,7 @@ export class SpecialErrorPage {
         }
 
         this.mocks.defaultResponses({
-            initialSetup
+            initialSetup,
         })
 
         await this.mocks.install()
@@ -82,7 +82,7 @@ export class SpecialErrorPage {
 
             return route.fulfill({
                 status: 200,
-                path: join(this.basePath, filepath)
+                path: join(this.basePath, filepath),
             })
         })
         const searchParams = new URLSearchParams({ env, debugState: 'true', willThrow: String(willThrow) })
@@ -97,7 +97,7 @@ export class SpecialErrorPage {
      */
     get basePath() {
         return this.build.switch({
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/special-error'
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/special-error',
         })
     }
 
@@ -128,9 +128,9 @@ export class SpecialErrorPage {
                     context: 'specialPages',
                     featureName: 'special-error',
                     method: 'leaveSite',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
@@ -145,9 +145,9 @@ export class SpecialErrorPage {
                     context: 'specialPages',
                     featureName: 'special-error',
                     method: 'visitSite',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
@@ -267,9 +267,9 @@ export class SpecialErrorPage {
                     context: 'specialPages',
                     featureName: 'special-error',
                     method: 'advancedInfo',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
@@ -302,10 +302,10 @@ export class SpecialErrorPage {
                     featureName: 'special-error',
                     method: 'reportPageException',
                     params: {
-                        message: 'unknown'
-                    }
-                }
-            }
+                        message: 'unknown',
+                    },
+                },
+            },
         ])
     }
 
@@ -316,9 +316,9 @@ export class SpecialErrorPage {
                 payload: {
                     context: 'specialPages',
                     featureName: 'special-error',
-                    method: 'initialSetup'
-                }
-            }
+                    method: 'initialSetup',
+                },
+            },
         ])
     }
 }

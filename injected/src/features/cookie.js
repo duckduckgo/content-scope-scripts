@@ -5,7 +5,7 @@ import {
     isBeingFramed,
     isThirdPartyFrame,
     getTabHostname,
-    matchHostname
+    matchHostname,
 } from '../utils.js'
 import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
@@ -35,13 +35,13 @@ let cookiePolicy = {
     isThirdPartyFrame: isThirdPartyFrame(),
     policy: {
         threshold: 604800, // 7 days
-        maxAge: 604800 // 7 days
+        maxAge: 604800, // 7 days
     },
     trackerPolicy: {
         threshold: 86400, // 1 day
-        maxAge: 86400 // 1 day
+        maxAge: 86400, // 1 day
     },
-    allowlist: /** @type {{ host: string }[]} */ ([])
+    allowlist: /** @type {{ host: string }[]} */ ([]),
 }
 let trackerLookup = {}
 
@@ -59,7 +59,7 @@ function debugHelper(action, reason, ctx) {
             reason,
             stack: ctx.stack,
             documentUrl: globalThis.document.location.href,
-            value: ctx.value
+            value: ctx.value,
         })
 }
 
@@ -153,7 +153,7 @@ export default class CookieFeature extends ContentFeature {
                 const stack = getStack()
                 getCookieContext = {
                     stack,
-                    value: 'getter'
+                    value: 'getter',
                 }
             }
 
@@ -181,7 +181,7 @@ export default class CookieFeature extends ContentFeature {
                 const stack = getStack()
                 setCookieContext = {
                     stack,
-                    value
+                    value,
                 }
             }
 
@@ -236,7 +236,7 @@ export default class CookieFeature extends ContentFeature {
 
         this.wrapProperty(globalThis.Document.prototype, 'cookie', {
             set: setCookiePolicy,
-            get: getCookiePolicy
+            get: getCookiePolicy,
         })
     }
 
@@ -247,14 +247,14 @@ export default class CookieFeature extends ContentFeature {
             shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
             allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
             policy: this.getFeatureSetting('firstPartyCookiePolicy'),
-            trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy')
+            trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy'),
         }
         // The extension provides some additional info about the cookie policy, let's use that over our guesses
         if (args.cookie) {
             const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */ (args.cookie)
             cookiePolicy = {
                 ...extensionCookiePolicy,
-                ...restOfPolicy
+                ...restOfPolicy,
             }
         } else {
             // copy non-null entries from restOfPolicy to cookiePolicy

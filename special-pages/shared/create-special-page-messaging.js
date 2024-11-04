@@ -4,7 +4,7 @@ import {
     MessagingContext,
     TestTransportConfig,
     WebkitMessagingConfig,
-    WindowsMessagingConfig
+    WindowsMessagingConfig,
 } from '@duckduckgo/messaging'
 
 /**
@@ -19,7 +19,7 @@ export function createSpecialPageMessaging(opts) {
     const messageContext = new MessagingContext({
         context: 'specialPages',
         featureName: opts.pageName,
-        env: opts.env
+        env: opts.env,
     })
     try {
         if (opts.injectName === 'windows') {
@@ -30,15 +30,15 @@ export function createSpecialPageMessaging(opts) {
                     // @ts-expect-error - not in @types/chrome
                     addEventListener: window.chrome.webview.addEventListener,
                     // @ts-expect-error - not in @types/chrome
-                    removeEventListener: window.chrome.webview.removeEventListener
-                }
+                    removeEventListener: window.chrome.webview.removeEventListener,
+                },
             })
             return new Messaging(messageContext, opts)
         } else if (opts.injectName === 'apple') {
             const opts = new WebkitMessagingConfig({
                 hasModernWebkitAPI: true,
                 secret: '',
-                webkitMessageHandlerNames: ['specialPages']
+                webkitMessageHandlerNames: ['specialPages'],
             })
             return new Messaging(messageContext, opts)
         } else if (opts.injectName === 'android') {
@@ -47,7 +47,7 @@ export function createSpecialPageMessaging(opts) {
                 messageCallback: 'messageCallback',
                 javascriptInterface: messageContext.context,
                 target: globalThis,
-                debug: true
+                debug: true,
             })
             return new Messaging(messageContext, opts)
         }
@@ -74,7 +74,7 @@ export function createSpecialPageMessaging(opts) {
                 if (msg.method === 'initialSetup') {
                     return Promise.resolve({
                         locale: 'en',
-                        env: opts.env
+                        env: opts.env,
                     })
                 }
                 return Promise.resolve(null)
@@ -87,7 +87,7 @@ export function createSpecialPageMessaging(opts) {
                 return () => {
                     console.log('teardown')
                 }
-            }
+            },
         })
 
     return new Messaging(messageContext, fallback)

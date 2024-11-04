@@ -10,7 +10,7 @@ export const baseFeatures = /** @type {const} */ ([
     'fingerprintingTemporaryStorage',
     'navigatorInterface',
     'elementHiding',
-    'exceptionHandler'
+    'exceptionHandler',
 ])
 
 const otherFeatures = /** @type {const} */ ([
@@ -23,7 +23,7 @@ const otherFeatures = /** @type {const} */ ([
     'brokerProtection',
     'performanceMetrics',
     'breakageReporting',
-    'autofillPasswordImport'
+    'autofillPasswordImport',
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -37,5 +37,5 @@ export const platformSupport = {
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
     'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
-    integration: [...baseFeatures, ...otherFeatures]
+    integration: [...baseFeatures, ...otherFeatures],
 }

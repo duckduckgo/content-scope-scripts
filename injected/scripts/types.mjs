@@ -20,14 +20,14 @@ const injectSchemaMapping = {
         types: join(injectRoot, 'src/types/webcompat-settings.d.ts'),
         // todo: fix this on windows.
         exclude: process.platform === 'win32',
-        kind: 'settings'
+        kind: 'settings',
     },
     'Duckplayer Settings': {
         schema: join(configBuilderRoot, 'tests/schemas/duckplayer-settings.json'),
         types: join(injectRoot, 'src/types/duckplayer-settings.d.ts'),
         // todo: fix this on windows.
         exclude: process.platform === 'win32',
-        kind: 'settings'
+        kind: 'settings',
     },
     'Schema Messages': {
         schemaDir: join(injectRoot, 'src/messages'),
@@ -36,8 +36,8 @@ const injectSchemaMapping = {
         exclude: process.platform === 'win32',
         kind: 'messages',
         resolve: (dirname) => '../features/' + dirname + '.js',
-        className: (topLevelType) => topLevelType.replace('Messages', '')
-    }
+        className: (topLevelType) => topLevelType.replace('Messages', ''),
+    },
 }
 
 if (isLaunchFile(import.meta.url)) {

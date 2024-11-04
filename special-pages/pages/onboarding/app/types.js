@@ -51,7 +51,7 @@ export const EVERY_PAGE_ID = [
     'dockSingle',
     'importSingle',
     'makeDefaultSingle',
-    'duckPlayerSingle'
+    'duckPlayerSingle',
 ]
 
 /** @type {Step['id'][]} */
@@ -67,7 +67,7 @@ export const ALT_ORDER = [
     'importSingle',
     'makeDefaultSingle',
     'customize',
-    'summary'
+    'summary',
 ]
 
 /** @type {Step['id'][]} */
@@ -139,6 +139,6 @@ export {}
  */
 export function useTypedTranslation() {
     return {
-        t: useContext(TranslationContext).t
+        t: useContext(TranslationContext).t,
     }
 }

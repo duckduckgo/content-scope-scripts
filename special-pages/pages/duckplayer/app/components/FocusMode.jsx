@@ -71,7 +71,7 @@ export function HideInFocusMode({ children, style = 'fade' }) {
     const classes = cn({
         [styles.hideInFocus]: true,
         [styles.fade]: style === 'fade',
-        [styles.slide]: style === 'slide'
+        [styles.slide]: style === 'slide',
     })
     return (
         <div class={classes} data-style={style}>

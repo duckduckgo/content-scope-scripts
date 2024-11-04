@@ -4,7 +4,7 @@ import {
     mockWindowsMessaging,
     readOutgoingMessages,
     simulateSubscriptionMessage,
-    waitForCallCount
+    waitForCallCount,
 } from '../../../messaging/lib/test-utils.mjs'
 
 export class Mocks {
@@ -42,28 +42,28 @@ export class Mocks {
             windows: async () => {
                 await this.page.addInitScript(mockWindowsMessaging, {
                     messagingContext: this.messagingContext,
-                    responses: this._defaultResponses
+                    responses: this._defaultResponses,
                 })
             },
             apple: async () => {
                 await this.page.addInitScript(mockWebkitMessaging, {
                     messagingContext: this.messagingContext,
-                    responses: this._defaultResponses
+                    responses: this._defaultResponses,
                 })
             },
             android: async () => {
                 await this.page.addInitScript(mockAndroidMessaging, {
                     messagingContext: this.messagingContext,
                     responses: this._defaultResponses,
-                    messageCallback: 'messageCallback'
+                    messageCallback: 'messageCallback',
                 })
             },
             integration: async () => {
                 await this.page.addInitScript(mockWindowsMessaging, {
                     messagingContext: this.messagingContext,
-                    responses: this._defaultResponses
+                    responses: this._defaultResponses,
                 })
-            }
+            },
         })
     }
 
@@ -83,7 +83,7 @@ export class Mocks {
             messagingContext: this.messagingContext,
             name,
             payload,
-            injectName: this.build.name
+            injectName: this.build.name,
         })
     }
 
@@ -109,7 +109,7 @@ export class Mocks {
     async waitForCallCount(params) {
         await this.page.waitForFunction(waitForCallCount, params, {
             timeout: params.timeout ?? 3000,
-            polling: 100
+            polling: 100,
         })
         return this.outgoing({ names: [params.method] })
     }

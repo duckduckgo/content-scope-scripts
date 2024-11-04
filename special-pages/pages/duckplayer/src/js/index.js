@@ -26,13 +26,13 @@ export class DuckplayerPage {
                 userValues: { privatePlayerMode: { alwaysAsk: {} }, overlayInteracted: false },
                 settings: {
                     pip: {
-                        state: 'enabled'
+                        state: 'enabled',
                     },
                     autoplay: {
-                        state: 'enabled'
-                    }
+                        state: 'enabled',
+                    },
                 },
-                locale: 'en'
+                locale: 'en',
             })
         }
         return this.messaging.request('initialSetup')
@@ -162,7 +162,7 @@ const baseEnvironment = new Environment().withInjectName(document.documentElemen
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
-    pageName: 'duckPlayerPage'
+    pageName: 'duckPlayerPage',
 })
 
 const duckplayerPage = new DuckplayerPage(messaging, import.meta.injectName)

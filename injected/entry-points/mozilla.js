@@ -13,7 +13,7 @@ const allowedMessages = [
     'setYoutubePreviewsEnabled',
     'unblockClickToLoadContent',
     'updateYouTubeCTLAddedFlag',
-    'updateFacebookCTLBreakageFlags'
+    'updateFacebookCTLBreakageFlags',
 ]
 const messageSecret = randomString()
 
@@ -26,21 +26,21 @@ function initCode() {
     const trackerLookup = import.meta.trackerLookup
     load({
         platform: {
-            name: 'extension'
+            name: 'extension',
         },
         trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(trackerLookup),
         site: computeLimitedSiteObject(),
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        bundledConfig: $BUNDLED_CONFIG$
+        bundledConfig: $BUNDLED_CONFIG$,
     })
 
     chrome.runtime.sendMessage(
         {
             messageType: 'registeredContentScript',
             options: {
-                documentUrl: window.location.href
-            }
+                documentUrl: window.location.href,
+            },
         },
         (message) => {
             // Background has disabled features
@@ -52,7 +52,7 @@ function initCode() {
                     if (m.data.action && m.data.message) {
                         chrome.runtime.sendMessage({
                             messageType: 'debuggerMessage',
-                            options: m.data
+                            options: m.data,
                         })
                     }
                 })
@@ -85,7 +85,7 @@ function initCode() {
             const message = {
                 messageType: 'response',
                 responseMessageType: messageType,
-                response
+                response,
             }
 
             update(message)

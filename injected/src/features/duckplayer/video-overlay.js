@@ -169,7 +169,7 @@ export class VideoOverlay {
             // first visit
             !this.lastVideoId,
             // new video id
-            this.lastVideoId && this.lastVideoId !== params.id // different
+            this.lastVideoId && this.lastVideoId !== params.id, // different
         ]
 
         if (conditions.some(Boolean)) {
@@ -249,7 +249,7 @@ export class VideoOverlay {
                     environment,
                     params,
                     ui: this.ui,
-                    manager: this
+                    manager: this,
                 })
                 targetElement.appendChild(elem)
             }
@@ -318,7 +318,7 @@ export class VideoOverlay {
         }
         const outgoing = {
             overlayInteracted: false,
-            privatePlayerMode
+            privatePlayerMode,
         }
         this.messages
             .setUserValues(outgoing)
@@ -350,7 +350,7 @@ export class VideoOverlay {
             this.messages
                 .setUserValues({
                     privatePlayerMode,
-                    overlayInteracted: true
+                    overlayInteracted: true,
                 })
                 .then((values) => {
                     this.userValues = values
@@ -376,7 +376,7 @@ export class VideoOverlay {
         /** @type {import("../duck-player.js").UserValues} */
         const outgoing = {
             overlayInteracted: false,
-            privatePlayerMode: remember ? { enabled: {} } : { alwaysAsk: {} }
+            privatePlayerMode: remember ? { enabled: {} } : { alwaysAsk: {} },
         }
 
         const result = await this.messages.setUserValues(outgoing)
@@ -405,7 +405,7 @@ export class VideoOverlay {
         /** @type {import("../duck-player.js").UserValues} */
         const next = {
             privatePlayerMode: { disabled: {} },
-            overlayInteracted: false
+            overlayInteracted: false,
         }
 
         if (this.environment.debug) {

@@ -13,14 +13,14 @@ export class PrivacyStatsService {
         /** @type {Service<PrivacyStatsData>} */
         this.dataService = new Service({
             initial: () => ntp.messaging.request('stats_getData'),
-            subscribe: (cb) => ntp.messaging.subscribe('stats_onDataUpdate', cb)
+            subscribe: (cb) => ntp.messaging.subscribe('stats_onDataUpdate', cb),
         })
 
         /** @type {Service<StatsConfig>} */
         this.configService = new Service({
             initial: () => ntp.messaging.request('stats_getConfig'),
             subscribe: (cb) => ntp.messaging.subscribe('stats_onConfigUpdate', cb),
-            persist: (data) => ntp.messaging.notify('stats_setConfig', data)
+            persist: (data) => ntp.messaging.notify('stats_setConfig', data),
         })
     }
 

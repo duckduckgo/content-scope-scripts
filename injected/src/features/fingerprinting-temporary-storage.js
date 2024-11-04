@@ -29,7 +29,7 @@ export default class FingerprintingTemporaryStorage extends ContentFeature {
                 this.defineProperty(Navigator.prototype, 'webkitTemporaryStorage', {
                     get: () => tStorage,
                     enumerable: true,
-                    configurable: true
+                    configurable: true,
                 })
             } catch (e) {}
         }

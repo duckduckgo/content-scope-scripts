@@ -6,7 +6,7 @@ import { phishingHelpPageURL } from '../constants'
 
 const phishingAnchorTagValues = {
     href: phishingHelpPageURL,
-    target: 'blank'
+    target: 'blank',
 }
 
 /**

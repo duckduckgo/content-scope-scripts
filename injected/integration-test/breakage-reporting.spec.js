@@ -5,7 +5,7 @@ import {
     readOutgoingMessages,
     simulateSubscriptionMessage,
     waitForCallCount,
-    wrapWindowsScripts
+    wrapWindowsScripts,
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { perPlatform } from './type-helpers.mjs'
 
@@ -18,18 +18,18 @@ test('Breakage Reporting Feature', async ({ page }, testInfo) => {
         messagingContext: {
             context: 'contentScopeScripts',
             featureName: 'breakageReporting',
-            env: 'development'
+            env: 'development',
         },
         name: 'getBreakageReportValues',
         payload: {},
-        injectName: breakageFeature.build.name
+        injectName: breakageFeature.build.name,
     })
 
     await page.waitForFunction(
         waitForCallCount,
         {
             method: 'breakageReportResult',
-            count: 1
+            count: 1,
         },
         { timeout: 5000, polling: 100 }
     )
@@ -102,17 +102,17 @@ export class BreakageReportingSpec {
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
                 platform: { name: 'windows' },
-                debug: true
-            }
+                debug: true,
+            },
         })
 
         await this.page.addInitScript(mockWindowsMessaging, {
             messagingContext: {
                 env: 'development',
                 context: 'contentScopeScripts',
-                featureName: 'n/a'
+                featureName: 'n/a',
             },
-            responses: {}
+            responses: {},
         })
 
         // attach the JS

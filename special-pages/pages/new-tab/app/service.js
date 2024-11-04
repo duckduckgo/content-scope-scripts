@@ -118,8 +118,8 @@ export class Service {
         const dataEvent = new CustomEvent('data', {
             detail: {
                 data: this.data,
-                source
-            }
+                source,
+            },
         })
         this.eventTarget.dispatchEvent(dataEvent)
 

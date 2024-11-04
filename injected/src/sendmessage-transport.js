@@ -37,7 +37,7 @@ export class SendMessageMessagingTransport {
             JSONstringify: globalThis.JSON.stringify,
             Promise: globalThis.Promise,
             Error: globalThis.Error,
-            String: globalThis.String
+            String: globalThis.String,
         }
     }
 

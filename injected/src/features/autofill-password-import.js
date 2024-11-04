@@ -22,7 +22,7 @@ export default class AutofillPasswordImport extends ContentFeature {
     get settingsButtonStyle() {
         return {
             scale: 1,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+            backgroundColor: 'rgba(0, 39, 142, 0.5)',
         }
     }
 
@@ -32,7 +32,7 @@ export default class AutofillPasswordImport extends ContentFeature {
     get exportButtonStyle() {
         return {
             scale: 1.01,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+            backgroundColor: 'rgba(0, 39, 142, 0.5)',
         }
     }
 
@@ -42,7 +42,7 @@ export default class AutofillPasswordImport extends ContentFeature {
     get signInButtonStyle() {
         return {
             scale: 1.5,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+            backgroundColor: 'rgba(0, 39, 142, 0.5)',
         }
     }
 
@@ -58,7 +58,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                 ? {
                       style: this.settingsButtonStyle,
                       element,
-                      shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false
+                      shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
                   }
                 : null
         } else if (path === '/options') {
@@ -67,7 +67,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                 ? {
                       style: this.exportButtonStyle,
                       element,
-                      shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false
+                      shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
                   }
                 : null
         } else if (path === '/intro') {
@@ -76,7 +76,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                 ? {
                       style: this.signInButtonStyle,
                       element,
-                      shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false
+                      shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
                   }
                 : null
         } else {
@@ -93,18 +93,18 @@ export default class AutofillPasswordImport extends ContentFeature {
         element.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
-            inline: 'center'
+            inline: 'center',
         }) // Scroll into view
         const keyframes = [
             { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0, borderRadius: '2px' }, // Start: transparent
             { backgroundColor: style.backgroundColor, offset: 0.5, borderRadius: '2px', transform: `scale(${style.scale})` }, // Midpoint: blue with 50% opacity
-            { backgroundColor: 'rgba(0, 0, 255, 0)', borderRadius: '2px', offset: 1 } // End: transparent
+            { backgroundColor: 'rgba(0, 0, 255, 0)', borderRadius: '2px', offset: 1 }, // End: transparent
         ]
 
         // Define the animation options
         const options = {
             duration: ANIMATION_DURATION_MS,
-            iterations: ANIMATION_ITERATIONS
+            iterations: ANIMATION_ITERATIONS,
         }
 
         // Apply the animation to the element
@@ -227,7 +227,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                 const path = args[1] === '' ? args[2].split('?')[0] : args[1]
                 await handleElementForPath(path)
                 return DDGReflect.apply(target, thisArg, args)
-            }
+            },
         })
         historyMethodProxy.overload()
         // listen for popstate events in order to run on back/forward navigations

@@ -52,8 +52,8 @@ export function WithNotes({ notes, version }) {
                         e.preventDefault()
                         if (!ref.current) return
                         ref.current.open = !ref.current.open
-                    }
-                }
+                    },
+                },
             }}
         />
     )

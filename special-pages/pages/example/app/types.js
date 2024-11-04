@@ -9,6 +9,6 @@ import json from '../src/locales/en/example.json'
  */
 export function useTypedTranslation() {
     return {
-        t: useContext(TranslationContext).t
+        t: useContext(TranslationContext).t,
     }
 }

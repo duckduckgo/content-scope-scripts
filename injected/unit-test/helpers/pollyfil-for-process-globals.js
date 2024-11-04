@@ -6,15 +6,15 @@ export default function setup() {
             href: 'http://localhost:8080',
             // @ts-expect-error - ancestorOrigins is not defined in the type definition
             ancestorOrigins: {
-                length: 0
-            }
-        }
+                length: 0,
+            },
+        },
     }
     globalThis.location = {
         href: 'http://localhost:8080',
         // @ts-expect-error - ancestorOrigins is not defined in the type definition
         ancestorOrigins: {
-            length: 0
-        }
+            length: 0,
+        },
     }
 }

@@ -13,13 +13,13 @@ test.describe('Ensure safari interface is injected', () => {
 
         await gotoAndWait(page, '/blank.html', {
             site: {
-                enabledFeatures: ['webCompat']
+                enabledFeatures: ['webCompat'],
             },
             featureSettings: {
                 webCompat: {
-                    safariObject: 'enabled'
-                }
-            }
+                    safariObject: 'enabled',
+                },
+            },
         })
         const hasSafari = await page.evaluate(() => {
             return 'safari' in window
@@ -99,13 +99,13 @@ test.describe('Ensure Notification interface is injected', () => {
             '/blank.html',
             {
                 site: {
-                    enabledFeatures: ['webCompat']
+                    enabledFeatures: ['webCompat'],
                 },
                 featureSettings: {
                     webCompat: {
-                        notification: 'enabled'
-                    }
-                }
+                        notification: 'enabled',
+                    },
+                },
             },
             removeNotificationScript
         )
@@ -171,7 +171,7 @@ test.describe('Permissions API', () => {
                 '/blank.html',
                 {
                     site: {
-                        enabledFeatures: ['webCompat']
+                        enabledFeatures: ['webCompat'],
                     },
                     featureSettings: {
                         webCompat: {
@@ -180,16 +180,16 @@ test.describe('Permissions API', () => {
                                 supportedPermissions: {
                                     geolocation: {},
                                     push: {
-                                        name: 'notifications'
+                                        name: 'notifications',
                                     },
                                     camera: {
                                         name: 'video_capture',
-                                        native: true
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                        native: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
                 removePermissionsScript
             )
@@ -305,13 +305,13 @@ test.describe('ScreenOrientation API', () => {
         async function beforeAll(page) {
             await gotoAndWait(page, '/blank.html', {
                 site: {
-                    enabledFeatures: ['webCompat']
+                    enabledFeatures: ['webCompat'],
                 },
                 featureSettings: {
                     webCompat: {
-                        screenLock: 'enabled'
-                    }
-                }
+                        screenLock: 'enabled',
+                    },
+                },
             })
         }
 
@@ -459,13 +459,13 @@ test.describe('Web Share API', () => {
         test('should not expose navigator.canShare() and navigator.share()', async ({ page }) => {
             await gotoAndWait(page, '/blank.html', {
                 site: {
-                    enabledFeatures: ['webCompat']
+                    enabledFeatures: ['webCompat'],
                 },
                 featureSettings: {
                     webCompat: {
                         // no webShare
-                    }
-                }
+                    },
+                },
             })
             const noCanShare = await page.evaluate(checkForCanShare)
             const noShare = await page.evaluate(checkForShare)
@@ -479,13 +479,13 @@ test.describe('Web Share API', () => {
         async function navigate(page) {
             await gotoAndWait(page, '/blank.html', {
                 site: {
-                    enabledFeatures: ['webCompat']
+                    enabledFeatures: ['webCompat'],
                 },
                 featureSettings: {
                     webCompat: {
-                        webShare: 'enabled'
-                    }
-                }
+                        webShare: 'enabled',
+                    },
+                },
             })
         }
 
@@ -624,7 +624,7 @@ test.describe('Web Share API', () => {
                     expect(message).toMatchObject({
                         featureName: 'webCompat',
                         method: 'webShare',
-                        params: { title: 'xxx', url: 'http://example.com/' }
+                        params: { title: 'xxx', url: 'http://example.com/' },
                     })
                     expect(result).toBeUndefined()
                 })
@@ -636,7 +636,7 @@ test.describe('Web Share API', () => {
                     expect(message).toMatchObject({
                         featureName: 'webCompat',
                         method: 'webShare',
-                        params: { text: 'xxx http://example.com/' }
+                        params: { text: 'xxx http://example.com/' },
                     })
                     expect(result).toBeUndefined()
                 })
@@ -743,7 +743,7 @@ test.describe('Viewport fixes', () => {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: false,
-                forcedZoomEnabled: true
+                forcedZoomEnabled: true,
             },
             'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\''
         )
@@ -757,7 +757,7 @@ test.describe('Viewport fixes', () => {
             await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: { state: 'enabled', forcedMobileValue: 'bla, bla, bla' } } },
-                desktopModeEnabled: false
+                desktopModeEnabled: false,
             })
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual('bla, bla, bla')
@@ -767,7 +767,7 @@ test.describe('Viewport fixes', () => {
             await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                desktopModeEnabled: false
+                desktopModeEnabled: false,
             })
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
@@ -780,7 +780,7 @@ test.describe('Viewport fixes', () => {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: false,
-                forcedZoomEnabled: true
+                forcedZoomEnabled: true,
             })
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
@@ -797,7 +797,7 @@ test.describe('Viewport fixes', () => {
                 {
                     site: { enabledFeatures: ['webCompat'] },
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                    desktopModeEnabled: false
+                    desktopModeEnabled: false,
                 },
                 'document.head.innerHTML += \'<meta name="viewport" content="initial-scale=1.00001, something-something">\''
             )
@@ -812,7 +812,7 @@ test.describe('Viewport fixes', () => {
                 {
                     site: { enabledFeatures: ['webCompat'] },
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                    desktopModeEnabled: false
+                    desktopModeEnabled: false,
                 },
                 'document.head.innerHTML += \'<meta name="viewport" content="initIAL-scale=1.00001, something-something">\''
             )
@@ -826,7 +826,7 @@ test.describe('Viewport fixes', () => {
             await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: { state: 'enabled', forcedDesktopValue: 'bla, bla, bla' } } },
-                desktopModeEnabled: true
+                desktopModeEnabled: true,
             })
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual('bla, bla, bla')
@@ -839,7 +839,7 @@ test.describe('Viewport fixes', () => {
                 {
                     site: { enabledFeatures: ['webCompat'] },
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                    desktopModeEnabled: true
+                    desktopModeEnabled: true,
                 },
                 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\''
             )
@@ -858,7 +858,7 @@ test.describe('Viewport fixes', () => {
                 {
                     site: { enabledFeatures: ['webCompat'] },
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                    desktopModeEnabled: true
+                    desktopModeEnabled: true,
                 },
                 'document.head.innerHTML += \'<meta name="viewport" content="something-something">\''
             )
@@ -878,7 +878,7 @@ test.describe('Viewport fixes', () => {
                     site: { enabledFeatures: ['webCompat'] },
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                     desktopModeEnabled: true,
-                    forcedZoomEnabled: true
+                    forcedZoomEnabled: true,
                 },
                 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\''
             )
@@ -899,7 +899,7 @@ test.describe('Viewport fixes', () => {
                 {
                     site: { enabledFeatures: ['webCompat'] },
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                    desktopModeEnabled: true
+                    desktopModeEnabled: true,
                 },
                 'document.head.innerHTML += \'<meta name="viewport" content="wIDth=device-width, iniTIal-scale=2, usER-scalable=no, something-something">\''
             )

@@ -131,7 +131,7 @@ function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
 
         setCoords({
             left: actualBox.left - overlayParentBox.left,
-            width: actualBox.width
+            width: actualBox.width,
         })
     }
 
@@ -157,7 +157,7 @@ function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
                     top: 0,
                     left: coords.left,
                     width: coords.width,
-                    whiteSpace: 'pre-line'
+                    whiteSpace: 'pre-line',
                 }}
             >
                 {currentText}

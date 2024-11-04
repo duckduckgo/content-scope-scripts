@@ -13,7 +13,7 @@ export class RMFService {
         /** @type {Service<RMFData>} */
         this.dataService = new Service({
             initial: () => ntp.messaging.request('rmf_getData'),
-            subscribe: (cb) => ntp.messaging.subscribe('rmf_onDataUpdate', cb)
+            subscribe: (cb) => ntp.messaging.subscribe('rmf_onDataUpdate', cb),
         })
     }
 

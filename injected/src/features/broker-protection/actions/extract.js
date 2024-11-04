@@ -62,8 +62,8 @@ export async function extract(action, userData, root = document) {
         response: filtered,
         meta: {
             userData,
-            extractResults: debugResults
-        }
+            extractResults: debugResults,
+        },
     })
 }
 
@@ -103,9 +103,9 @@ export function extractProfiles(action, userData, root = document) {
                 result,
                 score,
                 element,
-                matchedFields
+                matchedFields,
             })
-        })
+        }),
     }
 }
 
@@ -240,7 +240,7 @@ export function aggregateFields(profile) {
         ...(profile.addressCityState || []),
         ...(profile.addressCityStateList || []),
         ...(profile.addressFullList || []),
-        ...(profile.addressFull || [])
+        ...(profile.addressFull || []),
     ]
     const addressMap = new Map(combinedAddresses.map((addr) => [`${addr.city},${addr.state}`, addr]))
     const addresses = sortAddressesByStateAndCity([...addressMap.values()])
@@ -263,7 +263,7 @@ export function aggregateFields(profile) {
         addresses,
         phoneNumbers,
         relatives,
-        ...profile.profileUrl
+        ...profile.profileUrl,
     }
 }
 
@@ -324,7 +324,7 @@ async function applyPostTransforms(profile, params) {
     /** @type {import("../types.js").AsyncProfileTransform[]} */
     const transforms = [
         // creates a hash if needed
-        new ProfileHashTransformer()
+        new ProfileHashTransformer(),
     ]
 
     let output = profile
@@ -349,7 +349,7 @@ export function stringToList(inputList, separator) {
 const rules = {
     profileUrl: function (link) {
         return link?.href ?? null
-    }
+    },
 }
 
 /**
@@ -365,7 +365,7 @@ const rules = {
 function removeCommonSuffixesAndPrefixes(elementValue) {
     const regexes = [
         // match text such as +3 more when it appears at the end of a string
-        /\+\s*\d+.*$/
+        /\+\s*\d+.*$/,
     ]
     // strings that are always safe to remove from the start
     const startsWith = [
@@ -379,7 +379,7 @@ function removeCommonSuffixesAndPrefixes(elementValue) {
         'Lives in:',
         'Related to:',
         'No other aliases.',
-        'RESIDES IN'
+        'RESIDES IN',
     ]
 
     // strings that are always safe to remove from the end

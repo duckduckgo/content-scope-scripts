@@ -44,7 +44,7 @@ function StatusText({ status, version, progress = 0 }) {
         updateError: t('updateError'),
         criticalUpdateReady: t('criticallyOutOfDate'),
         updateDownloading: t('updateDownloading', { progress: progressPercentage }),
-        updatePreparing: t('updatePreparing')
+        updatePreparing: t('updatePreparing'),
     }
 
     return (
@@ -68,7 +68,7 @@ function StatusIcon({ status, className }) {
         criticalUpdateReady: styles.warningIcon,
         updateError: styles.warningIcon,
         updatePreparing: styles.spinnerIcon,
-        updateDownloading: styles.spinnerIcon
+        updateDownloading: styles.spinnerIcon,
     }
 
     return <div className={classNames(styles.statusIcon, iconClasses[status], className)} />
@@ -239,8 +239,8 @@ export function CardContents({ releaseData }) {
                     <a href="https://duckduckgo.com/pro" target="_blank">
                         duckduckgo.com/pro
                     </a>
-                </span>
-            ]
+                </span>,
+            ],
         })
     }
 

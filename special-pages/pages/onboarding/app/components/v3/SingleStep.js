@@ -48,7 +48,7 @@ export function SingleStep() {
 
     const classes = cn({
         [styles.panel]: true,
-        [styles.boxed]: variant === 'box'
+        [styles.boxed]: variant === 'box',
     })
 
     const onTitleComplete = () => dispatch({ kind: 'title-complete' })

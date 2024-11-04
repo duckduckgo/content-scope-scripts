@@ -11,7 +11,7 @@ import styles from './Components.module.css'
 /** @type {Record<Extract<import("../../../../types/special-error.js").InitialSetupResponse['platform']['name'], "macos"|"ios">, string>} */
 const platforms = {
     macos: 'macOS',
-    ios: 'iOS'
+    ios: 'iOS',
 }
 
 /**

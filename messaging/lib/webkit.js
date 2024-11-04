@@ -85,8 +85,8 @@ export class WebkitMessagingTransport {
                 ...data,
                 messageHandling: {
                     ...data.messageHandling,
-                    secret: this.config.secret
-                }
+                    secret: this.config.secret,
+                },
             }
             if (!(handler in this.globals.capturedWebkitHandlers)) {
                 throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler)
@@ -123,7 +123,7 @@ export class WebkitMessagingTransport {
                     methodName: randMethodName,
                     secret: this.config.secret,
                     key: this.globals.Arrayfrom(key),
-                    iv: this.globals.Arrayfrom(iv)
+                    iv: this.globals.Arrayfrom(iv),
                 })
                 this.wkSend(handler, data)
             })
@@ -189,7 +189,7 @@ export class WebkitMessagingTransport {
                 // eslint-disable-next-line n/no-callback-literal
                 callback(...args)
                 delete this.globals.window[randomMethodName]
-            }
+            },
         })
     }
 
@@ -215,7 +215,7 @@ export class WebkitMessagingTransport {
      */
     algoObj = {
         name: 'AES-GCM',
-        length: 256
+        length: 256,
     }
 
     /**
@@ -247,7 +247,7 @@ export class WebkitMessagingTransport {
         const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt'])
         const algo = {
             name: 'AES-GCM',
-            iv
+            iv,
         }
 
         const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext)
@@ -298,7 +298,7 @@ export class WebkitMessagingTransport {
                 } else {
                     console.warn('Received a message that did not match the subscription', data)
                 }
-            }
+            },
         })
         return () => {
             this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName)
@@ -408,7 +408,7 @@ function captureGlobals() {
         ObjectDefineProperty: window.Object.defineProperty,
         addEventListener: window.addEventListener.bind(window),
         /** @type {Record<string, any>} */
-        capturedWebkitHandlers: {}
+        capturedWebkitHandlers: {},
     }
     if (isSecureContext) {
         // skip for HTTP content since window.crypto.subtle is unavailable

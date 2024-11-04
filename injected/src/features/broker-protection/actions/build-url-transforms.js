@@ -38,7 +38,7 @@ const baseTransforms = new Map([
     ['lastName', (value) => capitalize(value)],
     ['state', (value) => value.toLowerCase()],
     ['city', (value) => capitalize(value)],
-    ['age', (value) => value.toString()]
+    ['age', (value) => value.toString()],
 ])
 
 /**
@@ -69,8 +69,8 @@ const optionalTransforms = new Map([
                 return ageNumber >= Number(min) && ageNumber <= Number(max)
             })
             return ageRange || value
-        }
-    ]
+        },
+    ],
 ])
 
 /**

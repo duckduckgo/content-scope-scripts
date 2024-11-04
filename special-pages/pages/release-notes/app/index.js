@@ -10,7 +10,7 @@ import enStrings from '../src/locales/en/release-notes.json'
 import '../../../shared/styles/global.css' // global styles
 
 export const MessagingContext = createContext({
-    messages: /** @type {import('../src/js/index').ReleaseNotesPage | null} */ (null)
+    messages: /** @type {import('../src/js/index').ReleaseNotesPage | null} */ (null),
 })
 
 export const useMessaging = () => useContext(MessagingContext)

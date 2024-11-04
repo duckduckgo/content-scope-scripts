@@ -17,7 +17,7 @@ export function click(action, userData, root = document) {
         if (!elements?.length) {
             return new ErrorResponse({
                 actionID: action.id,
-                message: `could not find element to click with selector '${element.selector}'!`
+                message: `could not find element to click with selector '${element.selector}'!`,
             })
         }
 

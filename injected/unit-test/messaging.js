@@ -6,7 +6,7 @@ import {
     NotificationMessage,
     Subscription,
     MessageResponse,
-    SubscriptionEvent
+    SubscriptionEvent,
 } from '@duckduckgo/messaging'
 import { AndroidMessagingConfig } from '@duckduckgo/messaging/lib/android.js'
 
@@ -29,7 +29,7 @@ describe('Messaging Transports', () => {
                 featureName: 'hello-world',
                 id: requestMessage.id,
                 method: 'helloWorld',
-                params: { foo: 'bar' }
+                params: { foo: 'bar' },
             })
         )
     })
@@ -45,7 +45,7 @@ describe('Messaging Transports', () => {
                 context: 'contentScopeScripts',
                 featureName: 'hello-world',
                 method: 'helloWorld',
-                params: { foo: 'bar' }
+                params: { foo: 'bar' },
             })
         )
     })
@@ -61,7 +61,7 @@ describe('Messaging Transports', () => {
             new Subscription({
                 context: 'contentScopeScripts',
                 featureName: 'hello-world',
-                subscriptionName: 'helloWorld'
+                subscriptionName: 'helloWorld',
             }),
             callback
         )
@@ -79,7 +79,7 @@ describe('Android', () => {
             messageSecret: 'abc',
             javascriptInterface: 'AnyRandomValue',
             messageCallback: 'callback_abc_def',
-            debug: false
+            debug: false,
         })
         return config
     }
@@ -91,7 +91,7 @@ describe('Android', () => {
         const messageContextA = new MessagingContext({
             context: 'contentScopeScripts',
             featureName,
-            env: 'development'
+            env: 'development',
         })
         const messaging = new Messaging(messageContextA, config)
         return { messaging }
@@ -100,8 +100,8 @@ describe('Android', () => {
         const spy = jasmine.createSpy()
         const target = {
             AnyRandomValue: {
-                process: spy
-            }
+                process: spy,
+            },
         }
         const config = createConfig(target)
         const { messaging } = createContext('featureA', config)
@@ -114,8 +114,8 @@ describe('Android', () => {
         const spy = jasmine.createSpy()
         const target = {
             AnyRandomValue: {
-                process: spy
-            }
+                process: spy,
+            },
         }
         const config = createConfig(target)
         const { messaging } = createContext('featureA', config)
@@ -140,8 +140,8 @@ describe('Android', () => {
                     msg = JSON.parse(outgoing)
                     token = _token
                     spy(outgoing, _token)
-                }
-            }
+                },
+            },
         }
         const config = createConfig(target)
         const { messaging } = createContext('featureA', config)
@@ -155,7 +155,7 @@ describe('Android', () => {
             id: msg.id,
             context: 'contentScopeScripts',
             featureName: msg.featureName,
-            result: { foo: 'bar' }
+            result: { foo: 'bar' },
         })
 
         // pretend to call back from native
@@ -169,7 +169,7 @@ describe('Android', () => {
             featureName: 'featureA',
             method: 'helloWorld',
             id: msg.id,
-            params: {}
+            params: {},
         }
 
         // Android messages are sent as a JSON string
@@ -186,8 +186,8 @@ describe('Android', () => {
         const spy = jasmine.createSpy()
         const globalTarget = {
             AnyRandomValue: {
-                process: spy
-            }
+                process: spy,
+            },
         }
         const config = createConfig(globalTarget)
         const { messaging } = createContext('featureA', config)
@@ -197,7 +197,7 @@ describe('Android', () => {
             context: 'contentScopeScripts',
             featureName: 'featureA',
             subscriptionName: 'onUpdate',
-            params: { foo: 'bar' }
+            params: { foo: 'bar' },
         })
 
         // subscribe to 'onUpdate'
@@ -232,7 +232,7 @@ function createMessaging() {
             return () => {
                 // test teardown
             }
-        }
+        },
     }
 
     const testTransportConfig = new TestTransportConfig(transport)
@@ -240,7 +240,7 @@ function createMessaging() {
     const messagingContext = new MessagingContext({
         context: 'contentScopeScripts',
         featureName: 'hello-world',
-        env: 'development'
+        env: 'development',
     })
 
     const messaging = new Messaging(messagingContext, testTransportConfig)

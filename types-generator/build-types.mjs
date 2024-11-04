@@ -79,7 +79,7 @@ async function createTypesForSchemaFile(featureName, schemaFilePath) {
                  *
                  * @module ${featureName} Schema
                  */
-                `
+                `,
     })
 }
 
@@ -103,7 +103,7 @@ export async function createTypesForSchemaMessages(featureName, schema, rootDir)
              *
              * @module ${featureName} Messages
              */
-            `
+            `,
     })
     return typescript
 }

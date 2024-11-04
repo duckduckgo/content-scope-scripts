@@ -19,7 +19,7 @@ export class NewtabPage {
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'newTabPage',
-            env: 'development'
+            env: 'development',
         })
         this.page.on('console', console.log)
         // default mocks - just enough to render the first page without error
@@ -31,20 +31,20 @@ export class NewtabPage {
                 widgets: [{ id: 'rmf' }, { id: 'favorites' }, { id: 'privacyStats' }],
                 widgetConfigs: [
                     { id: 'favorites', visibility: 'visible' },
-                    { id: 'privacyStats', visibility: 'visible' }
+                    { id: 'privacyStats', visibility: 'visible' },
                 ],
                 env: 'development',
                 locale: 'en',
                 platform: {
-                    name: this.platform.name || 'windows'
+                    name: this.platform.name || 'windows',
                 },
-                updateNotification: { content: null }
+                updateNotification: { content: null },
             },
             stats_getConfig: {},
             stats_getData: {},
             rmf_getConfig: {},
             rmf_getData: {},
-            widgets_setConfig: {}
+            widgets_setConfig: {},
         })
     }
 
@@ -91,7 +91,7 @@ export class NewtabPage {
     get basePath() {
         return this.build.switch({
             windows: () => '../build/windows/pages/new-tab',
-            integration: () => '../build/integration/pages/new-tab'
+            integration: () => '../build/integration/pages/new-tab',
         })
     }
 

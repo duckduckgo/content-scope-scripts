@@ -10,8 +10,8 @@ describe('generateSchema', () => {
                 method: 'getUserValues',
                 kind: 'request',
                 json: {
-                    $schema: 'http://json-schema.org/draft-07/schema#'
-                }
+                    $schema: 'http://json-schema.org/draft-07/schema#',
+                },
             },
             {
                 relative: 'duck-player/getUserValues.response.json',
@@ -24,10 +24,10 @@ describe('generateSchema', () => {
                     description: 'Return types are nice!',
                     allOf: [
                         {
-                            $ref: './shared/user-values.json'
-                        }
-                    ]
-                }
+                            $ref: './shared/user-values.json',
+                        },
+                    ],
+                },
             },
             {
                 relative: 'duck-player/onUserValuesChanged.subscribe.json',
@@ -39,10 +39,10 @@ describe('generateSchema', () => {
                     $schema: 'http://json-schema.org/draft-07/schema#',
                     allOf: [
                         {
-                            $ref: './shared/user-values.json'
-                        }
-                    ]
-                }
+                            $ref: './shared/user-values.json',
+                        },
+                    ],
+                },
             },
             {
                 relative: 'duck-player/opened.notify.json',
@@ -51,8 +51,8 @@ describe('generateSchema', () => {
                 method: 'opened',
                 kind: 'notify',
                 json: {
-                    $schema: 'http://json-schema.org/draft-07/schema#'
-                }
+                    $schema: 'http://json-schema.org/draft-07/schema#',
+                },
             },
             {
                 relative: 'duck-player/pageView.notify.json',
@@ -67,10 +67,10 @@ describe('generateSchema', () => {
                     required: ['a'],
                     properties: {
                         a: {
-                            type: 'string'
-                        }
-                    }
-                }
+                            type: 'string',
+                        },
+                    },
+                },
             },
             {
                 relative: 'duck-player/setUserValues.request.json',
@@ -82,10 +82,10 @@ describe('generateSchema', () => {
                     $schema: 'http://json-schema.org/draft-07/schema#',
                     allOf: [
                         {
-                            $ref: './shared/user-values.json'
-                        }
-                    ]
-                }
+                            $ref: './shared/user-values.json',
+                        },
+                    ],
+                },
             },
             {
                 relative: 'duck-player/setUserValues.response.json',
@@ -97,11 +97,11 @@ describe('generateSchema', () => {
                     $schema: 'http://json-schema.org/draft-07/schema#',
                     allOf: [
                         {
-                            $ref: './shared/user-values.json'
-                        }
-                    ]
-                }
-            }
+                            $ref: './shared/user-values.json',
+                        },
+                    ],
+                },
+            },
         ]
         const expected = {
             $schema: 'http://json-schema.org/draft-07/schema#',
@@ -120,9 +120,9 @@ describe('generateSchema', () => {
                             required: ['method'],
                             properties: {
                                 method: {
-                                    const: 'opened'
-                                }
-                            }
+                                    const: 'opened',
+                                },
+                            },
                         },
                         {
                             type: 'object',
@@ -132,14 +132,14 @@ describe('generateSchema', () => {
                             required: ['method', 'params'],
                             properties: {
                                 method: {
-                                    const: 'pageView'
+                                    const: 'pageView',
                                 },
                                 params: {
-                                    $ref: './duck-player/pageView.notify.json'
-                                }
-                            }
-                        }
-                    ]
+                                    $ref: './duck-player/pageView.notify.json',
+                                },
+                            },
+                        },
+                    ],
                 },
                 requests: {
                     oneOf: [
@@ -151,12 +151,12 @@ describe('generateSchema', () => {
                             required: ['method', 'result'],
                             properties: {
                                 method: {
-                                    const: 'getUserValues'
+                                    const: 'getUserValues',
                                 },
                                 result: {
-                                    $ref: './duck-player/getUserValues.response.json'
-                                }
-                            }
+                                    $ref: './duck-player/getUserValues.response.json',
+                                },
+                            },
                         },
                         {
                             type: 'object',
@@ -166,17 +166,17 @@ describe('generateSchema', () => {
                             required: ['method', 'params', 'result'],
                             properties: {
                                 method: {
-                                    const: 'setUserValues'
+                                    const: 'setUserValues',
                                 },
                                 params: {
-                                    $ref: './duck-player/setUserValues.request.json'
+                                    $ref: './duck-player/setUserValues.request.json',
                                 },
                                 result: {
-                                    $ref: './duck-player/setUserValues.response.json'
-                                }
-                            }
-                        }
-                    ]
+                                    $ref: './duck-player/setUserValues.response.json',
+                                },
+                            },
+                        },
+                    ],
                 },
                 subscriptions: {
                     oneOf: [
@@ -188,17 +188,17 @@ describe('generateSchema', () => {
                             required: ['subscriptionEvent', 'params'],
                             properties: {
                                 subscriptionEvent: {
-                                    const: 'onUserValuesChanged'
+                                    const: 'onUserValuesChanged',
                                 },
                                 params: {
-                                    $ref: './duck-player/onUserValuesChanged.subscribe.json'
-                                }
-                            }
-                        }
-                    ]
-                }
+                                    $ref: './duck-player/onUserValuesChanged.subscribe.json',
+                                },
+                            },
+                        },
+                    ],
+                },
             },
-            required: ['notifications', 'requests', 'subscriptions']
+            required: ['notifications', 'requests', 'subscriptions'],
         }
         const actual = generateSchema('DuckPlayer', fileList)
         expect(actual).toEqual(/** @type {any} */ (expected))

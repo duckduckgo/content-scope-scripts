@@ -5,7 +5,7 @@
 export const SupportStatus = {
     NOT_SUPPORTED: 'notSupported',
     PARTIAL_SUPPORT: 'partialSupport',
-    FULL_SUPPORT: 'fullSupport'
+    FULL_SUPPORT: 'fullSupport',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,8 +28,8 @@ export const comparisonTableData = (t) => [
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'shield.svg',
@@ -37,8 +37,8 @@ export const comparisonTableData = (t) => [
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.PARTIAL_SUPPORT,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'cookie.svg',
@@ -46,8 +46,8 @@ export const comparisonTableData = (t) => [
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'ads.svg',
@@ -55,8 +55,8 @@ export const comparisonTableData = (t) => [
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'fire.svg',
@@ -64,8 +64,8 @@ export const comparisonTableData = (t) => [
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'video-player.svg',
@@ -73,7 +73,7 @@ export const comparisonTableData = (t) => [
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
-    }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
+    },
 ]

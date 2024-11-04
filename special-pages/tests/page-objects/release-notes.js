@@ -23,15 +23,15 @@ export class ReleaseNotesPage {
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'release-notes',
-            env: 'development'
+            env: 'development',
         })
         this.page.on('console', console.log)
         // default mocks - just enough to render the first page without error
         this.mocks.defaultResponses({
             initialSetup: {
                 env: 'development',
-                locale: 'en'
-            }
+                locale: 'en',
+            },
         })
     }
 
@@ -53,7 +53,7 @@ export class ReleaseNotesPage {
 
             return route.fulfill({
                 status: 200,
-                path: join(this.basePath, filepath)
+                path: join(this.basePath, filepath),
             })
         })
         const searchParams = new URLSearchParams({ env, debugState: 'true', willThrow: String(willThrow) })
@@ -68,7 +68,7 @@ export class ReleaseNotesPage {
     get basePath() {
         return this.build.switch({
             // windows: () => '../../build/windows/pages/release-notes',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/release-notes'
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/release-notes',
         })
     }
 
@@ -165,10 +165,10 @@ export class ReleaseNotesPage {
                     featureName: 'release-notes',
                     method: 'reportPageException',
                     params: {
-                        message: 'unknown'
-                    }
-                }
-            }
+                        message: 'unknown',
+                    },
+                },
+            },
         ])
     }
 
@@ -179,9 +179,9 @@ export class ReleaseNotesPage {
                 payload: {
                     context: 'specialPages',
                     featureName: 'release-notes',
-                    method: 'initialSetup'
-                }
-            }
+                    method: 'initialSetup',
+                },
+            },
         ])
     }
 
@@ -349,9 +349,9 @@ export class ReleaseNotesPage {
                     context: 'specialPages',
                     featureName: 'release-notes',
                     method: 'browserRestart',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
@@ -365,9 +365,9 @@ export class ReleaseNotesPage {
                     context: 'specialPages',
                     featureName: 'release-notes',
                     method: 'retryUpdate',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 }

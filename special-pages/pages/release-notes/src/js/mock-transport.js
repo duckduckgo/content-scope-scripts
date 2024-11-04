@@ -17,11 +17,11 @@ export function mockTransport() {
      */
     const dataOverrides = {
         manualUpdate: {
-            automaticUpdate: false
+            automaticUpdate: false,
         },
         noPrivacyPro: {
-            releaseNotesPrivacyPro: undefined
-        }
+            releaseNotesPrivacyPro: undefined,
+        },
     }
 
     return new TestTransportConfig({
@@ -35,7 +35,7 @@ export function mockTransport() {
                 case 'initialSetup': {
                     return Promise.resolve({
                         env: 'development',
-                        locale: 'en'
+                        locale: 'en',
                     })
                 }
                 default:
@@ -76,6 +76,6 @@ export function mockTransport() {
             return () => {
                 // any cleanup
             }
-        }
+        },
     })
 }

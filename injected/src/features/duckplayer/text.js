@@ -5,38 +5,38 @@ import { html } from '../../dom-utils'
  */
 const text = {
     playText: {
-        title: 'Duck Player'
+        title: 'Duck Player',
     },
     videoOverlayTitle: {
-        title: 'Tired of targeted YouTube ads and recommendations?'
+        title: 'Tired of targeted YouTube ads and recommendations?',
     },
     videoOverlayTitle2: {
-        title: 'Turn on Duck Player to watch without targeted ads'
+        title: 'Turn on Duck Player to watch without targeted ads',
     },
     videoOverlayTitle3: {
-        title: 'Drowning in ads on YouTube? {newline} Turn on Duck Player.'
+        title: 'Drowning in ads on YouTube? {newline} Turn on Duck Player.',
     },
     videoOverlaySubtitle: {
-        title: 'provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.'
+        title: 'provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.',
     },
     videoOverlaySubtitle2: {
-        title: 'What you watch in DuckDuckGo won’t influence your recommendations on YouTube.'
+        title: 'What you watch in DuckDuckGo won’t influence your recommendations on YouTube.',
     },
     videoButtonOpen: {
-        title: 'Watch in Duck Player'
+        title: 'Watch in Duck Player',
     },
     videoButtonOpen2: {
-        title: 'Turn On Duck Player'
+        title: 'Turn On Duck Player',
     },
     videoButtonOptOut: {
-        title: 'Watch Here'
+        title: 'Watch Here',
     },
     videoButtonOptOut2: {
-        title: 'No Thanks'
+        title: 'No Thanks',
     },
     rememberLabel: {
-        title: 'Remember my choice'
-    }
+        title: 'Remember my choice',
+    },
 }
 
 export const i18n = {
@@ -54,7 +54,7 @@ export const i18n = {
             return 'missing'
         }
         return match.title
-    }
+    },
 }
 
 /**
@@ -87,8 +87,8 @@ export const overlayCopyVariants = {
         subtitle: i18n.t('videoOverlaySubtitle2'),
         buttonOptOut: i18n.t('videoButtonOptOut2'),
         buttonOpen: i18n.t('videoButtonOpen2'),
-        rememberLabel: i18n.t('rememberLabel')
-    }
+        rememberLabel: i18n.t('rememberLabel'),
+    },
 }
 
 /**
@@ -101,6 +101,6 @@ export const mobileStrings = (lookup) => {
         subtitle: lookup.videoOverlaySubtitle2,
         buttonOptOut: lookup.videoButtonOptOut2,
         buttonOpen: lookup.videoButtonOpen2,
-        rememberLabel: lookup.rememberLabel
+        rememberLabel: lookup.rememberLabel,
     }
 }

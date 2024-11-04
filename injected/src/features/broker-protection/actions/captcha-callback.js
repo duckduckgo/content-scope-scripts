@@ -32,7 +32,7 @@ export function captchaCallback(args) {
             const cidNumber = parseInt(cid, 10)
             const data = {
                 id: cid,
-                version: cidNumber >= 10000 ? 'V3' : 'V2'
+                version: cidNumber >= 10000 ? 'V3' : 'V2',
             }
             const objects = Object.entries(client).filter(([, value]) => value && typeof value === 'object')
 

@@ -19,7 +19,7 @@ export const UpdateNotificationContext = createContext({
     /** @type {() => void} */
     dismiss: () => {
         throw new Error('must implement dismiss')
-    }
+    },
 })
 
 export const UpdateNotificationDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}))
@@ -48,7 +48,7 @@ function UpdateNotificationWithInitial({ updateNotification, children }) {
     const initial = /** @type {State} */ ({
         status: 'ready',
         data: updateNotification,
-        config: undefined
+        config: undefined,
     })
 
     // const [state, dispatch] = useReducer(withLog('RMFProvider', reducer), initial)

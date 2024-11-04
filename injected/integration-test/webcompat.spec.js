@@ -12,23 +12,23 @@ test('web compat', async ({ page }, testInfo) => {
             {
                 name: 'Error not thrown polyfil',
                 result: true,
-                expected: true
-            }
+                expected: true,
+            },
         ],
         'webkit.messageHandlers - undefined should throw': [
             {
                 name: 'undefined handler should throw',
                 result: true,
-                expected: true
-            }
+                expected: true,
+            },
         ],
         'webkit.messageHandlers - reflected message': [
             {
                 name: 'reflected message should pass through',
                 result: 'test',
-                expected: 'test'
-            }
-        ]
+                expected: 'test',
+            },
+        ],
     })
 })
 
@@ -83,17 +83,17 @@ export class WebcompatSpec {
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
                 platform: { name: 'windows' },
-                debug: true
-            }
+                debug: true,
+            },
         })
 
         await this.page.addInitScript(mockWebkitMessaging, {
             messagingContext: {
                 env: 'development',
                 context: 'contentScopeScripts',
-                featureName: 'n/a'
+                featureName: 'n/a',
             },
-            responses: {}
+            responses: {},
         })
 
         // attach the JS

@@ -285,7 +285,7 @@ const functionMap = {
         debugger
     },
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    noop: () => {}
+    noop: () => {},
 }
 
 /**
@@ -402,7 +402,7 @@ export class DDGProxy {
                     kind: this.property,
                     documentUrl: document.location.href,
                     stack: getStack(),
-                    args: debugSerialize(args[2])
+                    args: debugSerialize(args[2]),
                 })
             }
             // The normal return value
@@ -417,7 +417,7 @@ export class DDGProxy {
                 const method = Reflect.get(target, prop, receiver).bind(target)
                 Object.defineProperty(method, 'toString', {
                     value: String.toString.bind(String.toString),
-                    enumerable: false
+                    enumerable: false,
                 })
                 return method
             }
@@ -455,7 +455,7 @@ export class DDGProxy {
             value: this.internal,
             writable: true,
             enumerable: true,
-            configurable: true
+            configurable: true,
         })
     }
 }
@@ -485,7 +485,7 @@ export function postDebugMessage(feature, message, allowNonDebug = false) {
     }
     globalObj.postMessage({
         action: feature,
-        message
+        message,
     })
 }
 
@@ -547,7 +547,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
 export function computeLimitedSiteObject() {
     const topLevelHostname = getTabHostname()
     return {
-        domain: topLevelHostname
+        domain: topLevelHostname,
     }
 }
 
@@ -661,7 +661,7 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
     output.site = Object.assign(site, {
         isBroken,
         allowlisted,
-        enabledFeatures
+        enabledFeatures,
     })
 
     // Copy feature settings from remote config to preferences object

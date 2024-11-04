@@ -21,7 +21,7 @@ class Template {
             "'": '&apos;',
             '<': '&lt;',
             '>': '&gt;',
-            '/': '&#x2F;'
+            '/': '&#x2F;',
         }
         return String(str).replace(/[&"'<>/]/g, (m) => replacements[m])
     }
@@ -76,6 +76,6 @@ export function createPolicy() {
         return globalThis.trustedTypes?.createPolicy?.('ddg-default', { createHTML: (s) => s })
     }
     return {
-        createHTML: (s) => s
+        createHTML: (s) => s,
     }
 }

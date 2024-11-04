@@ -108,8 +108,8 @@ export const sjcl = (() => {
                     return 'NOT READY: ' + this.message
                 }
                 this.message = message
-            }
-        }
+            },
+        },
     }
     /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
      *
@@ -327,7 +327,7 @@ export const sjcl = (() => {
                 a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24)
             }
             return a
-        }
+        },
     }
     /** @fileOverview Bit array codec implementations.
      *
@@ -374,7 +374,7 @@ export const sjcl = (() => {
                 out.push(sjcl.bitArray.partial(8 * (i & 3), tmp))
             }
             return out
-        }
+        },
     }
     /** @fileOverview Bit array codec implementations.
      *
@@ -409,7 +409,7 @@ export const sjcl = (() => {
                 out.push(parseInt(str.substr(i, 8), 16) ^ 0)
             }
             return sjcl.bitArray.clamp(out, len * 4)
-        }
+        },
     }
 
     /** @fileOverview Javascript SHA-256 implementation.
@@ -672,7 +672,7 @@ export const sjcl = (() => {
             h[5] = (h[5] + h5) | 0
             h[6] = (h[6] + h6) | 0
             h[7] = (h[7] + h7) | 0
-        }
+        },
     }
 
     /** @fileOverview HMAC implementation.

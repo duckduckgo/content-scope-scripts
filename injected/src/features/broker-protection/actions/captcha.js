@@ -73,7 +73,7 @@ export function getCaptchaInfo(action, root = document) {
     const responseData = {
         siteKey,
         url: pageUrlWithoutParams,
-        type: captchaType
+        type: captchaType,
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: responseData })
@@ -111,7 +111,7 @@ export function solveCaptcha(action, token, root = document) {
         return new SuccessResponse({
             actionID: action.id,
             actionType: action.actionType,
-            response: { callback: { eval: javascript } }
+            response: { callback: { eval: javascript } },
         })
     }
 

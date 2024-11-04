@@ -120,7 +120,7 @@ function thumbnailOverlays({ userValues, settings, messages, environment, ui }) 
         // must not be set to play in DuckPlayer
         ui?.playInDuckPlayer !== true,
         // must be a desktop layout
-        environment.layout === 'desktop'
+        environment.layout === 'desktop',
     ]
 
     // Only show thumbnails if ALL conditions above are met
@@ -129,7 +129,7 @@ function thumbnailOverlays({ userValues, settings, messages, environment, ui }) 
     return new Thumbnails({
         environment,
         settings,
-        messages
+        messages,
     })
 }
 
@@ -145,7 +145,7 @@ function clickInterceptions({ userValues, settings, messages, environment, ui })
         // either enabled via prefs
         'enabled' in userValues.privatePlayerMode,
         // or has a one-time override
-        ui?.playInDuckPlayer === true
+        ui?.playInDuckPlayer === true,
     ]
 
     // Intercept clicks if ANY of the conditions above are met
@@ -154,7 +154,7 @@ function clickInterceptions({ userValues, settings, messages, environment, ui })
     return new ClickInterception({
         environment,
         settings,
-        messages
+        messages,
     })
 }
 

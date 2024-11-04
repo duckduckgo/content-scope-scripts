@@ -7,14 +7,14 @@ export default class WindowsPermissionUsage extends ContentFeature {
         const Permission = {
             Geolocation: 'geolocation',
             Camera: 'camera',
-            Microphone: 'microphone'
+            Microphone: 'microphone',
         }
 
         const Status = {
             Inactive: 'inactive',
             Accessed: 'accessed',
             Active: 'active',
-            Paused: 'paused'
+            Paused: 'paused',
         }
 
         const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top
@@ -24,7 +24,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             windowsInteropPostMessage({
                 Feature: 'Permissions',
                 Name: name,
-                Data: data
+                Data: data,
             })
         }
 
@@ -55,7 +55,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 const id = DDGReflect.apply(target, thisArg, args)
                 watchedPositions.add(id)
                 return id
-            }
+            },
         })
         watchPositionProxy.overload()
 
@@ -66,7 +66,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
                     signalPermissionStatus(Permission.Geolocation, Status.Inactive)
                 }
-            }
+            },
         })
         clearWatchProxy.overload()
 
@@ -79,7 +79,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                     successHandler?.(position)
                 }
                 return DDGReflect.apply(target, thisArg, args)
-            }
+            },
         })
         getCurrentPositionProxy.overload()
 
@@ -239,7 +239,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             apply(target, thisArg, args) {
                 handleTrackEnded(thisArg)
                 return DDGReflect.apply(target, thisArg, args)
-            }
+            },
         })
         stopTrackProxy.overload()
 
@@ -253,7 +253,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                     monitorTrack(clonedTrack)
                 }
                 return clonedTrack
-            }
+            },
         })
         cloneTrackProxy.overload()
 
@@ -277,7 +277,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                     signalAudioTracksState()
                 }
                 return result
-            }
+            },
         })
 
         // proxy for get*Tracks methods -> needed to monitor tracks returned by saved media stream coming for MediaDevices.getUserMedia
@@ -290,7 +290,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                         tracks.forEach(monitorTrack)
                     }
                     return tracks
-                }
+                },
             })
             getTracksProxy.overload()
         }
@@ -305,7 +305,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                     userMediaStreams.add(clonedStream)
                 }
                 return clonedStream
-            }
+            },
         })
         cloneMediaStreamProxy.overload()
 
@@ -347,7 +347,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                         }
                         return stream
                     })
-                }
+                },
             })
             getUserMediaProxy.overload()
         }
@@ -387,7 +387,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             { name: 'HID', prototype: () => HID.prototype, method: 'requestDevice', isPromise: true },
             { name: 'Protocol handler', prototype: () => Navigator.prototype, method: 'registerProtocolHandler', isPromise: false },
-            { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true }
+            { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true },
         ]
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {
@@ -398,7 +398,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                         } else {
                             throw new DOMException('Permission denied')
                         }
-                    }
+                    },
                 })
                 proxy.overload()
             } catch (error) {
@@ -411,7 +411,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             { name: 'Idle detection', permission: 'IdleDetector' },
             { name: 'NFC', permission: 'NDEFReader' },
             { name: 'Orientation', permission: 'ondeviceorientation' },
-            { name: 'Motion', permission: 'ondevicemotion' }
+            { name: 'Motion', permission: 'ondevicemotion' },
         ]
         for (const { permission } of permissionsToDelete) {
             if (permission in window) {

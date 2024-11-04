@@ -35,7 +35,7 @@ export async function execute(action, inputData, root = document) {
             default: {
                 return new ErrorResponse({
                     actionID: action.id,
-                    message: `unimplemented actionType: ${action.actionType}`
+                    message: `unimplemented actionType: ${action.actionType}`,
                 })
             }
         }
@@ -43,7 +43,7 @@ export async function execute(action, inputData, root = document) {
         console.log('unhandled exception: ', e)
         return new ErrorResponse({
             actionID: action.id,
-            message: `unhandled exception: ${e.message}`
+            message: `unhandled exception: ${e.message}`,
         })
     }
 }

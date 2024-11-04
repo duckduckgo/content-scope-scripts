@@ -49,9 +49,9 @@ function baseSchema(file) {
         required: ['method'],
         properties: {
             method: {
-                const: file.method
-            }
-        }
+                const: file.method,
+            },
+        },
     }
 }
 /**
@@ -66,9 +66,9 @@ function subscribeBaseSchema(file) {
         required: ['subscriptionEvent'],
         properties: {
             subscriptionEvent: {
-                const: file.method
-            }
-        }
+                const: file.method,
+            },
+        },
     }
 }
 
@@ -145,7 +145,7 @@ export function generateSchema(featureName, fileList) {
         additionalProperties: false,
         properties: {},
         /** @type {string[]} */
-        required: []
+        required: [],
     }
 
     if (notifications.length) {

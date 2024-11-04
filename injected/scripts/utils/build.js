@@ -13,7 +13,7 @@ function prefixPlugin(prefixMessage) {
         name: 'prefix-plugin',
         renderChunk(code) {
             return `${prefixMessage}\n${code}`
-        }
+        },
     }
 }
 
@@ -22,7 +22,7 @@ function suffixPlugin(suffixMessage) {
         name: 'suffix-plugin',
         renderChunk(code) {
             return `${code}\n${suffixMessage}`
-        }
+        },
     }
 }
 
@@ -53,7 +53,7 @@ export async function rollupScript(params) {
     const plugins = [
         css(),
         svg({
-            stringify: true
+            stringify: true,
         }),
         loadFeatures(platform, featureNames),
         resolve(),
@@ -65,10 +65,10 @@ export async function rollupScript(params) {
                 mozProxies,
                 'import.meta.injectName': JSON.stringify(platform),
                 // To be replaced by the extension, but prevents tree shaking
-                'import.meta.trackerLookup': trackerLookup
-            }
+                'import.meta.trackerLookup': trackerLookup,
+            },
         }),
-        prefixPlugin(prefixMessage)
+        prefixPlugin(prefixMessage),
     ]
 
     if (platform === 'firefox') {
@@ -77,7 +77,7 @@ export async function rollupScript(params) {
 
     const bundle = await rollup.rollup({
         input: scriptPath,
-        plugins
+        plugins,
     })
 
     const generated = await bundle.generate({
@@ -86,7 +86,7 @@ export async function rollupScript(params) {
         inlineDynamicImports: true,
         name,
         // This if for seedrandom causing build issues
-        globals: { crypto: 'undefined' }
+        globals: { crypto: 'undefined' },
     })
 
     return generated.output[0].code
@@ -116,7 +116,7 @@ function loadFeatures(platform, featureNames = platformSupport[platform]) {
                 const ident = `ddg_feature_${featureName}`
                 return {
                     ident,
-                    importPath: path
+                    importPath: path,
                 }
             })
 
@@ -127,7 +127,7 @@ function loadFeatures(platform, featureNames = platformSupport[platform]) {
             const exportString = `export default {\n    ${exportsString}\n}`
 
             return [importString, exportString].join('\n')
-        }
+        },
     }
 }
 

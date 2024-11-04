@@ -25,7 +25,7 @@ import {
     WindowsMessagingTransport,
     WindowsInteropMethods,
     WindowsNotification,
-    WindowsRequestMessage
+    WindowsRequestMessage,
 } from './lib/windows.js'
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
 import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js'
@@ -85,7 +85,7 @@ export class Messaging {
             context: this.messagingContext.context,
             featureName: this.messagingContext.featureName,
             method: name,
-            params: data
+            params: data,
         })
         this.transport.notify(message)
     }
@@ -111,7 +111,7 @@ export class Messaging {
             featureName: this.messagingContext.featureName,
             method: name,
             params: data,
-            id
+            id,
         })
         return this.transport.request(message)
     }
@@ -125,7 +125,7 @@ export class Messaging {
         const msg = new Subscription({
             context: this.messagingContext.context,
             featureName: this.messagingContext.featureName,
-            subscriptionName: name
+            subscriptionName: name,
         })
         return this.transport.subscribe(msg, callback)
     }
@@ -260,5 +260,5 @@ export {
     WindowsRequestMessage,
     AndroidMessagingConfig,
     AndroidMessagingTransport,
-    createTypedMessages
+    createTypedMessages,
 }

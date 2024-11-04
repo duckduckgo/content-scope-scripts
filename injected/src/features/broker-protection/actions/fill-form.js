@@ -59,7 +59,7 @@ export function fillMany(root, elements, data) {
             if (!element.min || !element.max) {
                 results.push({
                     result: false,
-                    error: `element found with selector '${element.selector}', but missing min and/or max values`
+                    error: `element found with selector '${element.selector}', but missing min and/or max values`,
                 })
                 continue
             }
@@ -80,7 +80,7 @@ export function fillMany(root, elements, data) {
             if (!Object.prototype.hasOwnProperty.call(data, 'city') || !Object.prototype.hasOwnProperty.call(data, 'state')) {
                 results.push({
                     result: false,
-                    error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'`
+                    error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'`,
                 })
                 continue
             }
@@ -89,14 +89,14 @@ export function fillMany(root, elements, data) {
             if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
                 results.push({
                     result: false,
-                    error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`
+                    error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`,
                 })
                 continue
             }
             if (!data[element.type]) {
                 results.push({
                     result: false,
-                    error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}`
+                    error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}`,
                 })
                 continue
             }
@@ -144,7 +144,7 @@ function setValueForInput(el, val) {
             const events = [
                 new Event('input', { bubbles: true }),
                 new Event('keyup', { bubbles: true }),
-                new Event('change', { bubbles: true })
+                new Event('change', { bubbles: true }),
             ]
             events.forEach((ev) => el.dispatchEvent(ev))
             originalSet.call(el, val)
@@ -157,7 +157,7 @@ function setValueForInput(el, val) {
                 new Event('mousedown', { bubbles: true }),
                 new Event('mouseup', { bubbles: true }),
                 new Event('click', { bubbles: true }),
-                new Event('change', { bubbles: true })
+                new Event('change', { bubbles: true }),
             ]
             events.forEach((ev) => el.dispatchEvent(ev))
             events.forEach((ev) => el.dispatchEvent(ev))
@@ -195,7 +195,8 @@ function setImageUpload(element) {
         dataTransfer.items.add(new File([blob], 'id.png', { type: 'image/png' }))
 
         // Step 4: Assign the Blob to the Input Element
-        /** @type {any} */ ;(element).files = dataTransfer.files
+        /** @type {any} */
+        element.files = dataTransfer.files
         return { result: true }
     } catch (e) {
         // failed

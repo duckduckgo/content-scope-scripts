@@ -89,7 +89,7 @@ const ctl = {
     addDebugFlag() {
         if (!_addDebugFlag) throw new Error('addDebugFlag not initialized')
         return _addDebugFlag()
-    }
+    },
 }
 
 /*********************************************************
@@ -133,8 +133,8 @@ class DuckWidget {
                 detail: {
                     entity: this.entity,
                     replaceSettings: this.replaceSettings,
-                    widgetID: this.widgetID
-                }
+                    widgetID: this.widgetID,
+                },
             })
         )
     }
@@ -633,9 +633,9 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
                 learnMore: {
                     // Localized strings for "Learn More" link.
                     readAbout: sharedStrings.readAbout,
-                    learnMore: sharedStrings.learnMore
+                    learnMore: sharedStrings.learnMore,
                 },
-                onClick: widget.clickFunction.bind(widget)
+                onClick: widget.clickFunction.bind(widget),
             }).element
             facebookLoginButton.classList.add('fb-login-button', 'FacebookLogin__button')
             facebookLoginButton.appendChild(makeFontFaceStyleElement())
@@ -673,9 +673,9 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
                 learnMore: {
                     // Localized strings for "Learn More" link.
                     readAbout: sharedStrings.readAbout,
-                    learnMore: sharedStrings.learnMore
+                    learnMore: sharedStrings.learnMore,
                 },
-                onButtonClick: widget.clickFunction.bind(widget)
+                onButtonClick: widget.clickFunction.bind(widget),
             })
             mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
 
@@ -749,7 +749,7 @@ function replaceYouTubeCTL(trackingElement, widget) {
                 learnMore: {
                     // Localized strings for "Learn More" link.
                     readAbout: sharedStrings.readAbout,
-                    learnMore: sharedStrings.learnMore
+                    learnMore: sharedStrings.learnMore,
                 },
                 withToggle: {
                     // Toggle config to be displayed in the bottom of the placeholder
@@ -757,13 +757,13 @@ function replaceYouTubeCTL(trackingElement, widget) {
                     dataKey: 'yt-preview-toggle', // data-key attribute for button
                     label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
                     size: widget.isMobilePlatform() ? 'lg' : 'md',
-                    onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }) // Toggle click callback
+                    onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), // Toggle click callback
                 },
                 withFeedback: {
                     label: sharedStrings.shareFeedback,
-                    onClick: () => openShareFeedbackPage()
+                    onClick: () => openShareFeedbackPage(),
                 },
-                onButtonClick: widget.clickFunction.bind(widget)
+                onButtonClick: widget.clickFunction.bind(widget),
             })
             mobileBlockedPlaceholderElement.appendChild(makeFontFaceStyleElement())
             mobileBlockedPlaceholderElement.id = trackingElement.id
@@ -949,8 +949,8 @@ async function runLogin(entity) {
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-run-login', {
             detail: {
-                entity
-            }
+                entity,
+            },
         })
     )
 }
@@ -964,8 +964,8 @@ function abortSurrogateConfirmation(entity) {
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-cancel-modal', {
             detail: {
-                entity
-            }
+                entity,
+            },
         })
     )
 }
@@ -1344,7 +1344,7 @@ function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement)
 
     return {
         button,
-        container
+        container,
     }
 }
 
@@ -1621,7 +1621,7 @@ function createYouTubeBlockingDialog(trackingElement, widget) {
 
     return {
         blockingDialog: contentBlock,
-        shadowRoot
+        shadowRoot,
     }
 }
 
@@ -2000,7 +2000,7 @@ export default class ClickToLoad extends ContentFeature {
             const config = new WebkitMessagingConfig({
                 secret: '',
                 hasModernWebkitAPI: true,
-                webkitMessageHandlerNames: ['contentScopeScriptsIsolated']
+                webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
             })
             this._messaging = new Messaging(this.messagingContext, config)
             return this._messaging

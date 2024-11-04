@@ -14,7 +14,7 @@ export class ProfileUrlExtractor {
         if (strs.length === 0) return null
         const profile = {
             profileUrl: strs[0],
-            identifier: strs[0]
+            identifier: strs[0],
         }
 
         if (!extractorParams.identifierType || !extractorParams.identifier) {
@@ -66,7 +66,7 @@ export class ProfileHashTransformer {
 
         return {
             ...profile,
-            identifier: await hashObject(profile)
+            identifier: await hashObject(profile),
         }
     }
 }

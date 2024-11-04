@@ -17,7 +17,7 @@ function initCode() {
         processedConfig.messagingConfig = new WebkitMessagingConfig({
             webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
             secret: '',
-            hasModernWebkitAPI: true
+            hasModernWebkitAPI: true,
         })
     } else {
         processedConfig.messagingConfig = new TestTransportConfig({
@@ -31,7 +31,7 @@ function initCode() {
                 return () => {
                     // noop
                 }
-            }
+            },
         })
     }
 
@@ -41,7 +41,7 @@ function initCode() {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig
+        messagingConfig: processedConfig.messagingConfig,
     })
 
     init(processedConfig)

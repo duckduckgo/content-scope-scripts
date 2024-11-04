@@ -16,7 +16,7 @@ const allowedMessages = [
     'setYoutubePreviewsEnabled',
     'unblockClickToLoadContent',
     'updateYouTubeCTLAddedFlag',
-    'updateFacebookCTLBreakageFlags'
+    'updateFacebookCTLBreakageFlags',
 ]
 const messageSecret = randomString()
 
@@ -103,8 +103,8 @@ function init() {
         {
             messageType: 'registeredContentScript',
             options: {
-                documentUrl: window.location.href
-            }
+                documentUrl: window.location.href,
+            },
         },
         (message) => {
             if (!message) {
@@ -155,7 +155,7 @@ function init() {
             const message = {
                 messageType: 'response',
                 responseMessageType: messageType,
-                response
+                response,
             }
             const stringifiedArgs = JSON.stringify(message)
             const callRandomUpdateFunction = `

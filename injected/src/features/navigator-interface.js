@@ -26,11 +26,11 @@ export default class NavigatorInterface extends ContentFeature {
                     platform: args.platform.name,
                     isDuckDuckGo() {
                         return DDGPromise.resolve(true)
-                    }
+                    },
                 },
                 enumerable: true,
                 configurable: false,
-                writable: false
+                writable: false,
             })
         } catch {
             // todo: Just ignore this exception?

@@ -48,7 +48,7 @@ export class DDGCtlLoginButton {
          * @type {ShadowRoot}
          */
         const shadow = this.element.attachShadow({
-            mode: this.params.devMode ? 'open' : 'closed'
+            mode: this.params.devMode ? 'open' : 'closed',
         })
 
         /**

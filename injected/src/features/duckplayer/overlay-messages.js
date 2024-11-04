@@ -31,9 +31,9 @@ export class DuckPlayerOverlayMessages {
             return Promise.resolve({
                 userValues: {
                     overlayInteracted: false,
-                    privatePlayerMode: { alwaysAsk: {} }
+                    privatePlayerMode: { alwaysAsk: {} },
                 },
-                ui: {}
+                ui: {},
             })
         }
         return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP)
@@ -61,7 +61,7 @@ export class DuckPlayerOverlayMessages {
     sendPixel(pixel) {
         this.messaging.notify(constants.MSG_NAME_PIXEL, {
             pixelName: pixel.name(),
-            params: pixel.params()
+            params: pixel.params(),
         })
     }
 
@@ -106,7 +106,7 @@ export class DuckPlayerOverlayMessages {
                 new CustomEvent(constants.MSG_NAME_PROXY_RESPONSE, {
                     detail: { kind, data },
                     composed: true,
-                    bubbles: true
+                    bubbles: true,
                 })
             )
         }

@@ -106,7 +106,7 @@ export default class ContentFeature {
         return new MessagingContext({
             context: contextName,
             env: this.isDebug ? 'development' : 'production',
-            featureName: this.name
+            featureName: this.name,
         })
     }
 
@@ -302,7 +302,7 @@ export default class ContentFeature {
         if (this.#isDebugFlagSet) return
         this.#isDebugFlagSet = true
         this.messaging?.notify('addDebugFlag', {
-            flag: this.name
+            flag: this.name,
         })
     }
 
@@ -324,7 +324,7 @@ export default class ContentFeature {
                     apply(target, thisArg, argumentsList) {
                         addDebugFlag()
                         return Reflect.apply(descriptorProp, thisArg, argumentsList)
-                    }
+                    },
                 })
                 descriptor[k] = wrapToString(wrapper, descriptorProp)
             }

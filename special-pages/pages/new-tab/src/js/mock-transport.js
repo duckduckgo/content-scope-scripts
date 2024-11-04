@@ -19,7 +19,7 @@ export function mockTransport() {
     function broadcast(named) {
         setTimeout(() => {
             channel.postMessage({
-                change: named
+                change: named,
             })
         }, 100)
     }
@@ -225,12 +225,12 @@ export function mockTransport() {
                         { id: 'updateNotification' },
                         { id: 'rmf' },
                         { id: 'favorites' },
-                        { id: 'privacyStats' }
+                        { id: 'privacyStats' },
                     ]
 
                     const widgetConfigFromStorage = read('widget_config') || [
                         { id: 'favorites', visibility: 'visible' },
-                        { id: 'privacyStats', visibility: 'visible' }
+                        { id: 'privacyStats', visibility: 'visible' },
                     ]
 
                     /** @type {UpdateNotificationData} */
@@ -251,7 +251,7 @@ export function mockTransport() {
                         platform: { name: 'integration' },
                         env: 'development',
                         locale: 'en',
-                        updateNotification
+                        updateNotification,
                     }
 
                     return Promise.resolve(initial)
@@ -260,6 +260,6 @@ export function mockTransport() {
                     return Promise.reject(new Error('unhandled request' + msg))
                 }
             }
-        }
+        },
     })
 }

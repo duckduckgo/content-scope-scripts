@@ -26,11 +26,11 @@ test.describe('newtab widgets', () => {
                     featureName: 'newTabPage',
                     params: [
                         { id: 'favorites', visibility: 'visible' },
-                        { id: 'privacyStats', visibility: 'hidden' }
+                        { id: 'privacyStats', visibility: 'hidden' },
                     ],
-                    method: 'widgets_setConfig'
-                }
-            }
+                    method: 'widgets_setConfig',
+                },
+            },
         ])
     })
     test.skip('widget config double click', async ({ page }, workerInfo) => {
@@ -59,11 +59,11 @@ test.describe('newtab widgets', () => {
                     featureName: 'newTabPage',
                     params: [
                         { id: 'favorites', visibility: 'visible' },
-                        { id: 'privacyStats', visibility: 'visible' }
+                        { id: 'privacyStats', visibility: 'visible' },
                     ],
-                    method: 'widgets_setConfig'
-                }
-            }
+                    method: 'widgets_setConfig',
+                },
+            },
         ])
     })
     test('context menu', async ({ page }, workerInfo) => {
@@ -85,14 +85,14 @@ test.describe('newtab widgets', () => {
                 visibilityMenuItems: [
                     {
                         id: 'favorites',
-                        title: 'Favorites'
+                        title: 'Favorites',
                     },
                     {
                         id: 'privacyStats',
-                        title: 'Privacy Stats'
-                    }
-                ]
-            }
+                        title: 'Privacy Stats',
+                    },
+                ],
+            },
         })
     })
 })

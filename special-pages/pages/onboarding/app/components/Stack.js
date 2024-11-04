@@ -26,5 +26,5 @@ export function Stack({ children, gap = 'var(--sp-6)', animate = false, debug = 
 Stack.gaps = {
     6: 'var(--sp-6)',
     4: 'var(--sp-4)',
-    3: 'var(--sp-3)'
+    3: 'var(--sp-3)',
 }

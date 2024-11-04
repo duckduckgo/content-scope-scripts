@@ -13,7 +13,7 @@ const widget = { id: 'newsWidget' }
  */
 const widgetConfigs = [
     { id: 'weatherWidget', visibility: 'visible' },
-    { id: 'newsWidget', visibility: 'visible' }
+    { id: 'newsWidget', visibility: 'visible' },
 ]
 
 /**
@@ -21,7 +21,7 @@ const widgetConfigs = [
  */
 const widgetConfig = {
     id: 'weatherWidget',
-    visibility: 'visible'
+    visibility: 'visible',
 }
 
 /**
@@ -33,12 +33,12 @@ const initialSetupResponse = {
     widgets: [{ id: 'updateNotification' }, { id: 'rmf' }, { id: 'favorites' }, { id: 'privacyStats' }],
     widgetConfigs: [
         { id: 'favorites', visibility: 'visible' },
-        { id: 'privacyStats', visibility: 'visible' }
+        { id: 'privacyStats', visibility: 'visible' },
     ],
     env: 'production',
     locale: 'en',
     platform: { name: 'windows' },
-    updateNotification: { content: null }
+    updateNotification: { content: null },
 }
 
 export {}

@@ -14,7 +14,7 @@ const parsedConfig = {}
 // Construct a parsed config object with all base features enabled
 Object.keys(baseFeatures).forEach((key) => {
     parsedConfig[key] = {
-        enabled: 'enabled'
+        enabled: 'enabled',
     }
 })
 
@@ -27,7 +27,7 @@ function wrapScript(js, replacements) {
 
 const tests = [
     // Generated using `node scripts/generate-har.js`
-    { url: 'duckduckgo.com/c-s-s-says-hello', har: getHARPath('duckduckgo.com/search.har') }
+    { url: 'duckduckgo.com/c-s-s-says-hello', har: getHARPath('duckduckgo.com/search.har') },
 ]
 
 test.describe('Remotely loaded files tests', () => {
@@ -39,15 +39,15 @@ test.describe('Remotely loaded files tests', () => {
                 $USER_PREFERENCES$: {
                     // @ts-expect-error - no platform key
                     platform: { name: testInfo.project.use.platform },
-                    debug: true
-                }
+                    debug: true,
+                },
             })
             await page.addInitScript({ content: injectedJS })
             await page.routeFromHAR(testCase.har)
             await page.goto(`https://${testCase.url}`, { waitUntil: 'networkidle' })
             const values = await page.evaluate(() => {
                 return {
-                    results: document.querySelectorAll('[data-layout="organic"]').length
+                    results: document.querySelectorAll('[data-layout="organic"]').length,
                 }
             })
             expect(values.results).toBeGreaterThan(1)

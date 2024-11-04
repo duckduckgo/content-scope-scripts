@@ -22,15 +22,15 @@ function generateConfig() {
         debug: false,
         sessionKey: 'randomVal',
         platform: {
-            name: 'extension'
+            name: 'extension',
         },
         site: {
             domain: topLevelUrl.hostname,
             isBroken: false,
             allowlisted: false,
-            enabledFeatures: ['fingerprintingCanvas', 'fingerprintingScreenSize', 'navigatorInterface', 'cookie']
+            enabledFeatures: ['fingerprintingCanvas', 'fingerprintingScreenSize', 'navigatorInterface', 'cookie'],
         },
-        trackerLookup
+        trackerLookup,
     }
 }
 
@@ -82,7 +82,7 @@ async function initCode() {
             return () => {
                 // noop
             }
-        }
+        },
     })
     load({
         // @ts-expect-error Types of property 'name' are incompatible.
@@ -90,7 +90,7 @@ async function initCode() {
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
-        messagingConfig: processedConfig.messagingConfig
+        messagingConfig: processedConfig.messagingConfig,
     })
 
     // mark this phase as loaded

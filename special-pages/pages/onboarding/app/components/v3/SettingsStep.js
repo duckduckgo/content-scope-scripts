@@ -35,7 +35,7 @@ export function SettingsStep({ data }) {
             uiValue: appState.UIValues[rowId],
             pending: pendingId === rowId,
             id: rowId,
-            data: data[rowId](t, platform)
+            data: data[rowId](t, platform),
         }
     })
 
@@ -80,7 +80,7 @@ export function SettingListItem({ index, item, dispatch }) {
             kind: 'update-system-value',
             id: data.id,
             payload: { enabled: true },
-            current: item.current
+            current: item.current,
         })
     }
 
@@ -89,7 +89,7 @@ export function SettingListItem({ index, item, dispatch }) {
             kind: 'update-system-value',
             id: data.id,
             payload: { enabled: false },
-            current: item.current
+            current: item.current,
         })
     }
 

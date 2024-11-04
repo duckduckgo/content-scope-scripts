@@ -26,10 +26,10 @@ describe('createMessagingTypes', () => {
                 schema: {
                     properties: {
                         notifications: {
-                            oneOf: [{ a: 'b' }]
-                        }
-                    }
-                }
+                            oneOf: [{ a: 'b' }],
+                        },
+                    },
+                },
             },
             { featurePath: '../features/duck-player.js', className: 'DuckPlayer' }
         )
@@ -49,10 +49,10 @@ declare module "../features/duck-player.js" {
                 schema: {
                     properties: {
                         requests: {
-                            oneOf: [{ a: 'b' }]
-                        }
-                    }
-                }
+                            oneOf: [{ a: 'b' }],
+                        },
+                    },
+                },
             },
             { featurePath: '../features/duck-player.js', className: 'DuckPlayer' }
         )
@@ -72,10 +72,10 @@ declare module "../features/duck-player.js" {
                 schema: {
                     properties: {
                         subscriptions: {
-                            oneOf: [{ a: 'b' }]
-                        }
-                    }
-                }
+                            oneOf: [{ a: 'b' }],
+                        },
+                    },
+                },
             },
             { featurePath: '../features/duck-player.js', className: 'DuckPlayer' }
         )
@@ -95,16 +95,16 @@ declare module "../features/duck-player.js" {
                 schema: {
                     properties: {
                         subscriptions: {
-                            oneOf: [{ a: 'b' }]
+                            oneOf: [{ a: 'b' }],
                         },
                         requests: {
-                            oneOf: [{ a: 'b' }]
+                            oneOf: [{ a: 'b' }],
                         },
                         notifications: {
-                            oneOf: [{ a: 'b' }]
-                        }
-                    }
-                }
+                            oneOf: [{ a: 'b' }],
+                        },
+                    },
+                },
             },
             { featurePath: '../features/duck-player.js', className: 'DuckPlayer' }
         )

@@ -42,7 +42,7 @@ export function SettingsStep({ onNextPage, data, metaData, subtitle }) {
             pending: pendingId === rowId,
             id: rowId,
             data: data[rowId](t, injectName),
-            meta: metaData[step.id]?.rows?.[rowId]
+            meta: metaData[step.id]?.rows?.[rowId],
         }
     })
 
@@ -102,7 +102,7 @@ export function SettingListItem({ index, item, dispatch }) {
             kind: 'update-system-value',
             id: data.id,
             payload: { enabled: true },
-            current: item.current
+            current: item.current,
         })
     }
 
@@ -111,7 +111,7 @@ export function SettingListItem({ index, item, dispatch }) {
             kind: 'update-system-value',
             id: data.id,
             payload: { enabled: false },
-            current: item.current
+            current: item.current,
         })
     }
 

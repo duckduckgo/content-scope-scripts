@@ -7,7 +7,7 @@ import {
     ReleaseNotesSubheading,
     ReleaseNotesList,
     ReleaseNotesContent,
-    ReleaseNotes
+    ReleaseNotes,
 } from './components/ReleaseNotes'
 import { Button } from '../../../shared/components/Button/Button'
 import { Card } from '../../../shared/components/Card/Card'
@@ -31,8 +31,8 @@ export function Components() {
             notes: [
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel viverra est. Ut non nisi lacus. Ut sodales leo sed ex condimentum tincidunt.',
                 'Sed eget risus luctus, convallis sapien nec, tincidunt orci.',
-                'Sed et lobortis enim. Curabitur sit amet placerat felis.'
-            ]
+                'Sed et lobortis enim. Curabitur sit amet placerat felis.',
+            ],
         },
         {
             icon: 'PrivacyPro',
@@ -40,9 +40,9 @@ export function Components() {
             notes: [
                 'Cras egestas, dui eu sodales congue, ex augue vehicula ipsum, sed egestas est justo in enim.',
                 'Duis varius in ex at vestibulum. Morbi finibus fringilla urna, ac varius quam vestibulum sit amet.',
-                'Morbi a ligula vel metus ultrices sodales quis vel velit.'
-            ]
-        }
+                'Morbi a ligula vel metus ultrices sodales quis vel velit.',
+            ],
+        },
     ]
 
     return (
@@ -132,7 +132,7 @@ export function Components() {
                     releaseData={
                         /** @type {import('../../../types/release-notes').UpdateMessage} */ ({
                             ...sampleData.updateReady,
-                            automaticUpdate: false
+                            automaticUpdate: false,
                         })
                     }
                 />

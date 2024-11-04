@@ -17,7 +17,7 @@ const expectedFingerprintValues = {
     colorDepth: 24,
     pixelDepth: 24,
     productSub: '20030107',
-    vendorSub: ''
+    vendorSub: '',
 }
 
 const pagePath = '/index.html'
@@ -42,7 +42,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
                         colorDepth: screen.colorDepth,
                         pixelDepth: screen.pixelDepth,
                         productSub: navigator.productSub,
-                        vendorSub: navigator.vendorSub
+                        vendorSub: navigator.vendorSub,
                     }
                 })
 
@@ -78,7 +78,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
 
             return {
                 canvas: fingerprint.components.canvas.value,
-                plugin: fingerprint.components.plugins.value
+                plugin: fingerprint.components.plugins.value,
             }
         }
 

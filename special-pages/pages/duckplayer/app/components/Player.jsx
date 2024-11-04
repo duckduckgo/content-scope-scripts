@@ -20,12 +20,12 @@ export function Player({ src, layout }) {
         [styles.root]: true,
         [styles.player]: true,
         [styles.desktop]: layout === 'desktop',
-        [styles.mobile]: layout === 'mobile'
+        [styles.mobile]: layout === 'mobile',
     })
     const iframeClasses = cn({
         [styles.iframe]: true,
         [styles.desktop]: layout === 'desktop',
-        [styles.mobile]: layout === 'mobile'
+        [styles.mobile]: layout === 'mobile',
     })
     return (
         <div class={wrapperClasses}>
@@ -51,14 +51,14 @@ export function Player({ src, layout }) {
 export function PlayerError({ kind, layout }) {
     const { t } = useTypedTranslation()
     const errors = {
-        ['invalid-id']: <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />
+        ['invalid-id']: <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />,
     }
     const text = errors[kind] || errors['invalid-id']
     return (
         <div
             class={cn(styles.root, {
                 [styles.desktop]: layout === 'desktop',
-                [styles.mobile]: layout === 'mobile'
+                [styles.mobile]: layout === 'mobile',
             })}
         >
             <div className={styles.error}>
@@ -101,7 +101,7 @@ function useIframeEffects(src) {
             features.pip(),
             features.clickCapture(),
             features.titleCapture(),
-            features.mouseCapture()
+            features.mouseCapture(),
         ]
 
         /**

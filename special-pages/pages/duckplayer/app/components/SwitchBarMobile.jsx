@@ -33,7 +33,7 @@ export function SwitchBarMobile({ platformName }) {
     const classes = cn({
         [styles.switchBar]: true,
         [styles.stateExiting]: state === 'exiting',
-        [styles.stateHidden]: state === 'completed'
+        [styles.stateHidden]: state === 'completed',
     })
 
     return (

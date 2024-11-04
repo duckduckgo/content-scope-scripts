@@ -60,18 +60,18 @@ export class AutofillPasswordImportSpec {
                 debug: true,
                 javascriptInterface: '',
                 messageCallback: '',
-                sessionKey: ''
-            }
+                sessionKey: '',
+            },
         })
 
         await this.page.addInitScript(mockAndroidMessaging, {
             messagingContext: {
                 env: 'development',
                 context: 'contentScopeScripts',
-                featureName: 'n/a'
+                featureName: 'n/a',
             },
             responses: {},
-            messageCallback: ''
+            messageCallback: '',
         })
 
         // attach the JS

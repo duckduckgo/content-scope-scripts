@@ -57,7 +57,7 @@ function PlainHeading({ title, subtitle, onComplete, children }) {
 
     const subtitleClass = cn({
         [styles.subTitle]: true,
-        [styles.hidden]: !typingDone
+        [styles.hidden]: !typingDone,
     })
 
     return (
@@ -146,13 +146,13 @@ function SpeechBubble({ title, subtitle, onComplete, children }) {
     const subtitleClass = cn({
         bubbleSubtitle: true,
         [styles.subTitle]: true,
-        [styles.hidden]: animationState !== 'typing-done'
+        [styles.hidden]: animationState !== 'typing-done',
     })
 
     const childrenClass = cn({
         bubbleChildren: true,
         [styles.additionalContent]: true,
-        [styles.hidden]: animationState !== 'typing-done'
+        [styles.hidden]: animationState !== 'typing-done',
     })
 
     return (

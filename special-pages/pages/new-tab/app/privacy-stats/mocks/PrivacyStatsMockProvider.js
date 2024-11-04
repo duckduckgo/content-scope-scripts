@@ -28,12 +28,12 @@ export function PrivacyStatsMockProvider({
     data = stats.few,
     config = { expansion: 'expanded', animation: { kind: 'auto-animate' } },
     ticker = false,
-    children
+    children,
 }) {
     const initial = /** @type {import('../PrivacyStatsProvider.js').State} */ ({
         status: 'ready',
         data,
-        config
+        config,
     })
 
     /** @type {[State, import('preact/hooks').Dispatch<Events>]} */
@@ -47,7 +47,7 @@ export function PrivacyStatsMockProvider({
                 trackerCompanies: state.data.trackerCompanies.map((company, index) => {
                     if (index === 0) return { ...company, count: company.count + 1 }
                     return company
-                })
+                }),
             }
             const time = setTimeout(() => {
                 send({ kind: 'data', data: next })

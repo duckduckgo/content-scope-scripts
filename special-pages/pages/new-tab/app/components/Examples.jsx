@@ -15,38 +15,38 @@ export const mainExamples = {
             <PrivacyStatsMockProvider ticker={true}>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
-        )
+        ),
     },
     'stats.few.collapsed': {
         factory: () => (
             <PrivacyStatsMockProvider config={{ expansion: 'collapsed' }}>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
-        )
+        ),
     },
     'stats.single': {
         factory: () => (
             <PrivacyStatsMockProvider data={stats.single}>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
-        )
+        ),
     },
     'stats.none': {
         factory: () => (
             <PrivacyStatsMockProvider data={stats.none}>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
-        )
+        ),
     },
     'stats.norecent': {
         factory: () => (
             <PrivacyStatsMockProvider data={stats.norecent}>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
-        )
+        ),
     },
     'stats.list': {
-        factory: () => <Body trackerCompanies={stats.few.trackerCompanies} listAttrs={{ id: 'example-stats.list' }} />
+        factory: () => <Body trackerCompanies={stats.few.trackerCompanies} listAttrs={{ id: 'example-stats.list' }} />,
     },
     'stats.heading': {
         factory: () => (
@@ -56,7 +56,7 @@ export const mainExamples = {
                 expansion={'expanded'}
                 onToggle={noop('stats.heading onToggle')}
             />
-        )
+        ),
     },
     'stats.heading.none': {
         factory: () => (
@@ -66,18 +66,18 @@ export const mainExamples = {
                 expansion={'expanded'}
                 onToggle={noop('stats.heading onToggle')}
             />
-        )
+        ),
     },
     'rmf.small': {
-        factory: () => <RemoteMessagingFramework message={rmfDataExamples.small.content} dismiss={() => {}} />
+        factory: () => <RemoteMessagingFramework message={rmfDataExamples.small.content} dismiss={() => {}} />,
     },
     'rmf.medium': {
-        factory: () => <RemoteMessagingFramework message={rmfDataExamples.medium.content} dismiss={() => {}} />
+        factory: () => <RemoteMessagingFramework message={rmfDataExamples.medium.content} dismiss={() => {}} />,
     },
     'rmf.big-single-action': {
         factory: () => (
             <RemoteMessagingFramework message={rmfDataExamples.big_single_action.content} primaryAction={() => {}} dismiss={() => {}} />
-        )
+        ),
     },
     'rmf.big-two-action': {
         factory: () => (
@@ -87,8 +87,8 @@ export const mainExamples = {
                 secondaryAction={() => {}}
                 dismiss={() => {}}
             />
-        )
-    }
+        ),
+    },
 }
 
 export const otherExamples = {
@@ -98,12 +98,12 @@ export const otherExamples = {
                 ticker={true}
                 config={{
                     expansion: 'expanded',
-                    animation: { kind: 'none' }
+                    animation: { kind: 'none' },
                 }}
             >
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
-        )
+        ),
     },
     'stats.with-view-transitions': {
         factory: () => (
@@ -111,12 +111,12 @@ export const otherExamples = {
                 ticker={true}
                 config={{
                     expansion: 'expanded',
-                    animation: { kind: 'view-transitions' }
+                    animation: { kind: 'view-transitions' },
                 }}
             >
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
-        )
+        ),
     },
     'rmf.big-two-action-overflow': {
         factory: () => (
@@ -126,7 +126,7 @@ export const otherExamples = {
                 secondaryAction={() => {}}
                 dismiss={() => {}}
             />
-        )
+        ),
     },
     'customizer-menu': {
         factory: () => (
@@ -144,7 +144,7 @@ export const otherExamples = {
                                 icon: 'star',
                                 toggle: noop('toggle favorites'),
                                 visibility: 'hidden',
-                                index: 0
+                                index: 0,
                             },
                             {
                                 id: 'privacyStats',
@@ -152,14 +152,14 @@ export const otherExamples = {
                                 icon: 'shield',
                                 toggle: noop('toggle favorites'),
                                 visibility: 'visible',
-                                index: 1
-                            }
+                                index: 1,
+                            },
                         ]}
                     />
                 </MaxContent>
             </Fragment>
-        )
-    }
+        ),
+    },
 }
 
 function MaxContent({ children }) {

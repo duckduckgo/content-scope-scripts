@@ -7,7 +7,7 @@ import {
     wrapWebkitScripts,
     simulateSubscriptionMessage,
     wrapWindowsScripts,
-    mockWindowsMessaging
+    mockWindowsMessaging,
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { perPlatform } from '../type-helpers.mjs'
 
@@ -99,7 +99,7 @@ export class BrokerProtectionPage {
         expect(response).toStrictEqual({
             siteKey: '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn',
             url: 'http://localhost:3220/broker-protection/pages/captcha.html',
-            type: 'recaptcha2'
+            type: 'recaptcha2',
         })
     }
 
@@ -110,7 +110,7 @@ export class BrokerProtectionPage {
         expect(response).toStrictEqual({
             siteKey: '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn',
             url: 'http://localhost:3220/broker-protection/pages/captcha2.html',
-            type: 'hcaptcha'
+            type: 'hcaptcha',
         })
     }
 
@@ -173,9 +173,9 @@ export class BrokerProtectionPage {
                     context: this.messagingContext.context,
                     featureName: 'brokerProtection',
                     method: 'ready',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
@@ -188,7 +188,7 @@ export class BrokerProtectionPage {
             messagingContext: this.messagingContext,
             name,
             payload,
-            injectName: this.build.name
+            injectName: this.build.name,
         })
     }
 
@@ -200,7 +200,7 @@ export class BrokerProtectionPage {
         return {
             context,
             featureName: 'brokerProtection',
-            env: 'development'
+            env: 'development',
         }
     }
 
@@ -218,7 +218,7 @@ export class BrokerProtectionPage {
         // read the built file from disk and do replacements
         const wrapFn = this.build.switch({
             'apple-isolated': () => wrapWebkitScripts,
-            windows: () => wrapWindowsScripts
+            windows: () => wrapWindowsScripts,
         })
 
         const injectedJS = wrapFn(this.build.artifact, {
@@ -226,20 +226,20 @@ export class BrokerProtectionPage {
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
                 platform: { name: this.platform.name },
-                debug: true
-            }
+                debug: true,
+            },
         })
 
         const mockMessaging = this.build.switch({
             'apple-isolated': () => mockWebkitMessaging,
-            windows: () => mockWindowsMessaging
+            windows: () => mockWindowsMessaging,
         })
 
         await this.page.addInitScript(mockMessaging, {
             messagingContext: this.messagingContext,
             responses: {
-                ready: {}
-            }
+                ready: {},
+            },
         })
 
         // attach the JS
@@ -255,7 +255,7 @@ export class BrokerProtectionPage {
             waitForCallCount,
             {
                 method,
-                count: 1
+                count: 1,
             },
             { timeout: 5000, polling: 100 }
         )

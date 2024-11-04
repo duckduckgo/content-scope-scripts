@@ -18,7 +18,7 @@ export class UpdateNotificationService {
         /** @type {Service<UpdateNotificationData>} */
         this.dataService = new Service(
             {
-                subscribe: (cb) => ntp.messaging.subscribe('updateNotification_onDataUpdate', cb)
+                subscribe: (cb) => ntp.messaging.subscribe('updateNotification_onDataUpdate', cb),
             },
             initial
         )

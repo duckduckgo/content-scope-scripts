@@ -14,7 +14,7 @@ function useScrollTarget() {
         ref: linkRef,
         trigger: () => {
             linkRef.current?.scrollIntoView({ behavior: 'smooth' })
-        }
+        },
     }
 }
 

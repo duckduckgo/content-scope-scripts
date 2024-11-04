@@ -58,7 +58,7 @@ export class OnboardingMessages {
                 exclude: [],
                 order: 'v3',
                 locale: 'en',
-                env: 'development'
+                env: 'development',
             }
         }
         return await this.messaging.request('init')

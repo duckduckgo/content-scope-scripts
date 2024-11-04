@@ -13,7 +13,7 @@ export class Settings {
         if (valid.includes(/** @type {any} */ (name))) {
             return new Settings({
                 ...this,
-                platform: { name }
+                platform: { name },
             })
         }
         return this

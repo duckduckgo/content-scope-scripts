@@ -34,7 +34,7 @@ export function reducer(state, action) {
                 case 'title-complete': {
                     return {
                         ...state,
-                        activeStepVisible: true
+                        activeStepVisible: true,
                     }
                 }
                 case 'advance': {
@@ -48,7 +48,7 @@ export function reducer(state, action) {
                             activeRow: 0,
                             activeStepVisible: false,
                             exiting: false,
-                            step: state.stepDefinitions[state.order[nextPageIndex]]
+                            step: state.stepDefinitions[state.order[nextPageIndex]],
                         }
                     }
                     return state
@@ -56,7 +56,7 @@ export function reducer(state, action) {
                 case 'enqueue-next': {
                     return {
                         ...state,
-                        exiting: true
+                        exiting: true,
                     }
                 }
                 default:
@@ -83,19 +83,19 @@ export function reducer(state, action) {
                             status: { kind: 'idle' },
                             step: {
                                 // bump the step (show the next row)
-                                ...state.step
+                                ...state.step,
                             },
                             activeRow: isCurrent ? state.activeRow + 1 : state.activeRow,
                             values: {
                                 ...state.values,
                                 // store the updated value in global state
-                                [systemValueId]: action.payload
+                                [systemValueId]: action.payload,
                             },
                             UIValues: {
                                 ...state.UIValues,
                                 // store the UI state, so we know if it was skipped or not
-                                [systemValueId]: nextUIState
-                            }
+                                [systemValueId]: nextUIState,
+                            },
                         }
                     }
                     throw new Error('unimplemented')
@@ -103,7 +103,7 @@ export function reducer(state, action) {
                 case 'exec-error': {
                     return {
                         ...state,
-                        status: { kind: 'idle', error: action.message }
+                        status: { kind: 'idle', error: action.message },
                     }
                 }
                 default:
@@ -141,8 +141,8 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             'default-browser': 'idle',
             bookmarks: 'idle',
             'session-restore': 'idle',
-            'home-shortcut': 'idle'
-        }
+            'home-shortcut': 'idle',
+        },
     })
 
     const proxy = useCallback(
@@ -189,7 +189,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                 dispatch({
                     kind: 'exec-complete',
                     id: action.id,
-                    payload
+                    payload,
                 })
             })
             // eslint-disable-next-line promise/prefer-await-to-then

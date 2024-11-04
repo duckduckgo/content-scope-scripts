@@ -6,15 +6,15 @@ const privacyStatsData = {
     trackerCompanies: [
         { displayName: 'Tracker Co. A', count: 1234 },
         { displayName: 'Tracker Co. B', count: 5678 },
-        { displayName: 'Tracker Co. C', count: 91011 }
-    ]
+        { displayName: 'Tracker Co. C', count: 91011 },
+    ],
 }
 
 /**
  * @type {import("../../../types/new-tab").StatsConfig}
  */
 const minimumConfig = {
-    expansion: 'expanded'
+    expansion: 'expanded',
 }
 
 /**
@@ -22,7 +22,7 @@ const minimumConfig = {
  */
 const withAnimation = {
     expansion: 'expanded',
-    animation: { kind: 'view-transitions' }
+    animation: { kind: 'view-transitions' },
 }
 
 export {}

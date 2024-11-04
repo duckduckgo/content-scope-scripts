@@ -5,7 +5,7 @@ export function windowsGlobalPolyfills() {
         globalThis.Bluetooth.prototype = {
             requestDevice: async () => {
                 /* noop */
-            }
+            },
         }
     }
     // @ts-expect-error - testing
@@ -14,7 +14,7 @@ export function windowsGlobalPolyfills() {
         globalThis.USB.prototype = {
             requestDevice: async () => {
                 /* noop */
-            }
+            },
         }
     }
 
@@ -24,7 +24,7 @@ export function windowsGlobalPolyfills() {
         globalThis.Serial.prototype = {
             requestPort: async () => {
                 /* noop */
-            }
+            },
         }
     }
     // @ts-expect-error - testing
@@ -33,7 +33,7 @@ export function windowsGlobalPolyfills() {
         globalThis.HID.prototype = {
             requestDevice: async () => {
                 /* noop */
-            }
+            },
         }
     }
 }

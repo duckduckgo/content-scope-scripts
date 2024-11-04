@@ -241,7 +241,7 @@ export function Components() {
                         onSettings={noop('onSettings')}
                         values={{
                             dock: { enabled: true },
-                            'session-restore': { enabled: true }
+                            'session-restore': { enabled: true },
                         }}
                     />
 

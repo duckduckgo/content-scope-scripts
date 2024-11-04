@@ -35,7 +35,7 @@ export function PlainList({ variant, animate = false, children }) {
 
     const classes = cn({
         [styles.plainList]: true,
-        [styles.borderedList]: variant === 'bordered'
+        [styles.borderedList]: variant === 'bordered',
     })
 
     useEffect(() => {

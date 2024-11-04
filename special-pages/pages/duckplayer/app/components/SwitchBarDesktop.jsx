@@ -20,7 +20,7 @@ export function SwitchBarDesktop() {
     const classes = cn({
         [styles.switchBarDesktop]: true,
         [styles.stateExiting]: state === 'exiting',
-        [styles.stateCompleted]: state === 'completed'
+        [styles.stateCompleted]: state === 'completed',
     })
 
     return (

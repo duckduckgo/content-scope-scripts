@@ -27,7 +27,7 @@ export const RMFContext = createContext({
     /** @type {(id: string) => void} */
     secondaryAction: (id) => {
         throw new Error('must implement secondaryAction' + id)
-    }
+    },
 })
 
 export const RMFDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}))
@@ -43,7 +43,7 @@ export function RMFProvider(props) {
     const initial = /** @type {State} */ ({
         status: 'idle',
         data: null,
-        config: null
+        config: null,
     })
 
     // const [state, dispatch] = useReducer(withLog('RMFProvider', reducer), initial)

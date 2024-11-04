@@ -59,7 +59,7 @@ export default class HarmfulApis extends ContentFeature {
                 return {
                     name: queryObject.name,
                     state: 'denied',
-                    status: 'denied'
+                    status: 'denied',
                 }
             }
             return origResult
@@ -81,7 +81,7 @@ export default class HarmfulApis extends ContentFeature {
                     this.wrapProperty(globalThis, dom0HandlerName, {
                         set: () => {
                             /* noop */
-                        }
+                        },
                     })
                 }
             }
@@ -112,7 +112,7 @@ export default class HarmfulApis extends ContentFeature {
                 // block all sensors
                 const EventCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Event
                 const error = new EventCls('error', {
-                    error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError')
+                    error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError'),
                 })
                 // isTrusted will be false, but not much we can do here
                 this.dispatchEvent(error)
@@ -140,7 +140,7 @@ export default class HarmfulApis extends ContentFeature {
                             result = value.map((brand) => {
                                 return {
                                     brand: brand.brand,
-                                    version: stripVersion(brand.version)
+                                    version: stripVersion(brand.version),
                                 }
                             })
                         }
@@ -165,7 +165,7 @@ export default class HarmfulApis extends ContentFeature {
                             result = value.map((brand) => {
                                 return {
                                     brand: brand.brand,
-                                    version: stripVersion(brand.version, highEntropyValues.trimFullVersionList)
+                                    version: stripVersion(brand.version, highEntropyValues.trimFullVersionList),
                                 }
                             })
                         }

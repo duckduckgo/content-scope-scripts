@@ -106,7 +106,7 @@ const messaging = createSpecialPageMessaging({
         // eslint-disable-next-line no-labels
         $INTEGRATION: mock = mockTransport()
         return mock
-    }
+    },
 })
 
 const releaseNotesPage = new ReleaseNotesPage(messaging)

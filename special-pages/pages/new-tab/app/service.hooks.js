@@ -48,7 +48,7 @@ export function reducer(state, event) {
                         ...state,
                         status: /** @type {const} */ ('ready'),
                         data: event.data,
-                        config: event.config
+                        config: event.config,
                     }
                 }
                 case 'error': {

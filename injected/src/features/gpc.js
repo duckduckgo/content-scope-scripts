@@ -11,7 +11,7 @@ export default class GlobalPrivacyControl extends ContentFeature {
                 this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                     get: () => true,
                     configurable: true,
-                    enumerable: true
+                    enumerable: true,
                 })
             } else {
                 // If GPC off & unsupported by browser, set DOM property prototype to false
@@ -21,7 +21,7 @@ export default class GlobalPrivacyControl extends ContentFeature {
                 this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                     get: () => false,
                     configurable: true,
-                    enumerable: true
+                    enumerable: true,
                 })
             }
         } catch {

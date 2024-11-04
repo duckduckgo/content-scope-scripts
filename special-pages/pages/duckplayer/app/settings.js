@@ -10,7 +10,7 @@ export class Settings {
         platform = { name: 'macos' },
         pip = { state: 'disabled' },
         autoplay = { state: 'enabled' },
-        focusMode = { state: 'enabled' }
+        focusMode = { state: 'enabled' },
     }) {
         this.platform = platform
         this.pip = pip
@@ -35,7 +35,7 @@ export class Settings {
         if (settings.state === 'enabled' || settings.state === 'disabled') {
             return new Settings({
                 ...this,
-                [named]: settings
+                [named]: settings,
             })
         }
         return this
@@ -47,7 +47,7 @@ export class Settings {
         if (valid.includes(/** @type {any} */ (name))) {
             return new Settings({
                 ...this,
-                platform: { name }
+                platform: { name },
             })
         }
         return this
@@ -61,7 +61,7 @@ export class Settings {
         if (newState === 'disabled' || newState === 'enabled') {
             return new Settings({
                 ...this,
-                focusMode: { state: newState }
+                focusMode: { state: newState },
             })
         }
 

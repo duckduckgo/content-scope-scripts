@@ -37,13 +37,13 @@ test.describe('Broker Protection communications', () => {
                     addresses: [
                         { city: 'Chicago', state: 'IL' },
                         { city: 'Cadillac', state: 'MI' },
-                        { city: 'Ypsilanti', state: 'MI' }
+                        { city: 'Ypsilanti', state: 'MI' },
                     ],
                     phoneNumbers: [],
                     relatives: ['Cheryl Lamar'],
                     profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
-                    identifier: baseURL + 'view/John-Smith-CyFdD.F'
-                }
+                    identifier: baseURL + 'view/John-Smith-CyFdD.F',
+                },
             ])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
@@ -62,13 +62,13 @@ test.describe('Broker Protection communications', () => {
                     addresses: [
                         { city: 'Chicago', state: 'IL' },
                         { city: 'Cadillac', state: 'MI' },
-                        { city: 'Ypsilanti', state: 'MI' }
+                        { city: 'Ypsilanti', state: 'MI' },
                     ],
                     phoneNumbers: [],
                     relatives: ['Cheryl Lamar'],
                     profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
-                    identifier: baseURL + 'view/John-Smith-CyFdD.F'
-                }
+                    identifier: baseURL + 'view/John-Smith-CyFdD.F',
+                },
             ])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
@@ -88,12 +88,12 @@ test.describe('Broker Protection communications', () => {
                     addresses: [
                         { city: 'Miami', state: 'FL' },
                         { city: 'Miami Gardens', state: 'FL' },
-                        { city: 'Opa Locka', state: 'FL' }
+                        { city: 'Opa Locka', state: 'FL' },
                     ],
                     phoneNumbers: [],
                     relatives: [],
                     profileUrl: baseURL + 'view/Ben-Smith-CQEmF3CB',
-                    identifier: baseURL + 'view/Ben-Smith-CQEmF3CB'
+                    identifier: baseURL + 'view/Ben-Smith-CQEmF3CB',
                 },
                 {
                     name: 'Ben Smith',
@@ -103,7 +103,7 @@ test.describe('Broker Protection communications', () => {
                     phoneNumbers: [],
                     relatives: [],
                     profileUrl: baseURL + 'view/Ben-Smith-DSAJBtFB',
-                    identifier: baseURL + 'view/Ben-Smith-DSAJBtFB'
+                    identifier: baseURL + 'view/Ben-Smith-DSAJBtFB',
                 },
                 {
                     name: 'Benjamin H Smith',
@@ -112,22 +112,22 @@ test.describe('Broker Protection communications', () => {
                     addresses: [
                         {
                             city: 'Fort Lauderdale',
-                            state: 'FL'
+                            state: 'FL',
                         },
                         {
                             city: 'Miami',
-                            state: 'FL'
+                            state: 'FL',
                         },
                         {
                             city: 'Indianapolis',
-                            state: 'IN'
-                        }
+                            state: 'IN',
+                        },
                     ],
                     phoneNumbers: [],
                     relatives: [],
                     profileUrl: baseURL + 'view/Benjamin-Smith-GpC.DQCB',
-                    identifier: baseURL + 'view/Benjamin-Smith-GpC.DQCB'
-                }
+                    identifier: baseURL + 'view/Benjamin-Smith-GpC.DQCB',
+                },
             ])
         })
 
@@ -146,7 +146,7 @@ test.describe('Broker Protection communications', () => {
                     addresses: [
                         { city: 'Miami', state: 'FL' },
                         { city: 'Orlando', state: 'FL' },
-                        { city: 'Plantation', state: 'FL' }
+                        { city: 'Plantation', state: 'FL' },
                     ],
                     profileUrl:
                         baseURL +
@@ -155,8 +155,8 @@ test.describe('Broker Protection communications', () => {
                         baseURL +
                         'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
                     phoneNumbers: [],
-                    relatives: []
-                }
+                    relatives: [],
+                },
             ])
         })
 
@@ -178,8 +178,8 @@ test.describe('Broker Protection communications', () => {
                     identifier:
                         baseURL + 'products/name?firstName=ben&lastName=smith&ln=smith&city=tampa&state=fl&id=G-3492284932683347509',
                     phoneNumbers: [],
-                    relatives: []
-                }
+                    relatives: [],
+                },
             ])
         })
 
@@ -201,11 +201,11 @@ test.describe('Broker Protection communications', () => {
                     addresses: [
                         {
                             city: 'Orlando',
-                            state: 'FL'
-                        }
+                            state: 'FL',
+                        },
                     ],
-                    relatives: []
-                }
+                    relatives: [],
+                },
             ])
         })
 
@@ -223,13 +223,13 @@ test.describe('Broker Protection communications', () => {
                     alternativeNames: ['John Ark', 'John Mark', 'John Smith', 'John-Mark Smith', 'Johna Smith', 'Johnmark Smith'],
                     addresses: [
                         { city: 'Chicago', state: 'IL' },
-                        { city: 'Evanston', state: 'IL' }
+                        { city: 'Evanston', state: 'IL' },
                     ],
                     profileUrl: baseURL + 'pp/John-Smith-HdDWHRBD',
                     identifier: baseURL + 'pp/John-Smith-HdDWHRBD',
                     relatives: ['Margaret Kelly', 'Mary Kelly', 'Michael Kelly'],
-                    phoneNumbers: []
-                }
+                    phoneNumbers: [],
+                },
             ])
         })
 
@@ -247,14 +247,14 @@ test.describe('Broker Protection communications', () => {
                     addresses: [
                         { city: 'Chicago', state: 'IL' },
                         { city: 'South Holland', state: 'IL' },
-                        { city: 'Crown Point', state: 'IN' }
+                        { city: 'Crown Point', state: 'IN' },
                     ],
                     alternativeNames: [],
                     relatives: ['Brittany J Hoard', 'Jame...', 'Joyce E Doyle'],
                     profileUrl: baseURL + 'find/person/p286nuu00u98lu9n0n96',
                     identifier: baseURL + 'find/person/p286nuu00u98lu9n0n96',
-                    phoneNumbers: []
-                }
+                    phoneNumbers: [],
+                },
             ])
         })
 
@@ -273,14 +273,14 @@ test.describe('Broker Protection communications', () => {
                         { city: 'Chicago', state: 'IL' },
                         { city: 'Forest Park', state: 'IL' },
                         { city: 'Oak Park', state: 'IL' },
-                        { city: 'River Forest', state: 'IL' }
+                        { city: 'River Forest', state: 'IL' },
                     ],
                     alternativeNames: ['John Farmersmith', 'John Smith', 'Johni Smith'],
                     phoneNumbers: [],
                     relatives: ['Alexander Makely', 'Ethel Makely', 'Veronica Berrios'],
                     profileUrl: baseURL + 'people/John-Smith-AIGwGOFD',
-                    identifier: baseURL + 'people/John-Smith-AIGwGOFD'
-                }
+                    identifier: baseURL + 'people/John-Smith-AIGwGOFD',
+                },
             ])
         })
 
@@ -299,18 +299,18 @@ test.describe('Broker Protection communications', () => {
                     addresses: [
                         { city: 'Chicago', state: 'IL' },
                         { city: 'Cadillac', state: 'MI' },
-                        { city: 'Ypsilanti', state: 'MI' }
+                        { city: 'Ypsilanti', state: 'MI' },
                     ],
                     phoneNumbers: [],
                     relatives: ['Cheryl Lamar'],
-                    identifier: 'b3ccf90a0ffaaa5f57fd262ab1b694b3c208d622'
-                }
+                    identifier: 'b3ccf90a0ffaaa5f57fd262ab1b694b3c208d622',
+                },
             ])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
 
         test('returns an empty array when no profile selector matches but the no results selector is present', async ({
-            page
+            page,
         }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
@@ -322,7 +322,7 @@ test.describe('Broker Protection communications', () => {
         })
 
         test('returns an error when no profile selector matches and the no results selector is not present', async ({
-            page
+            page,
         }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
@@ -462,11 +462,11 @@ test.describe('Broker Protection communications', () => {
                             {
                                 type: 'element',
                                 selector: '.slow-element',
-                                parent: 'body.delay-complete'
-                            }
-                        ]
-                    }
-                }
+                                parent: 'body.delay-complete',
+                            },
+                        ],
+                    },
+                },
             })
 
             const response = await dbp.waitForMessage('actionCompleted')
@@ -538,16 +538,16 @@ test.describe('Broker Protection communications', () => {
                         retry: {
                             environment: 'web',
                             maxAttempts: 10,
-                            interval: { ms: 1000 }
+                            interval: { ms: 1000 },
                         },
                         elements: [
                             {
                                 type: 'button',
-                                selector: 'button'
-                            }
-                        ]
-                    }
-                }
+                                selector: 'button',
+                            },
+                        ],
+                    },
+                },
             })
             await page.getByRole('heading', { name: 'Retry' }).waitFor({ timeout: 5000 })
 
@@ -567,11 +567,11 @@ test.describe('Broker Protection communications', () => {
                         elements: [
                             {
                                 type: 'button',
-                                selector: 'button'
-                            }
-                        ]
-                    }
-                }
+                                selector: 'button',
+                            },
+                        ],
+                    },
+                },
             })
 
             const response = await dbp.waitForMessage('actionCompleted')

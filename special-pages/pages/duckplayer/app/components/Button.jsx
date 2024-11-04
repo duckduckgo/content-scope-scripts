@@ -18,7 +18,7 @@ export function Button({ children, formfactor = 'mobile', icon = false, fill = f
         [styles.desktop]: formfactor === 'desktop',
         [styles.highlight]: highlight === true,
         [styles.fill]: fill === true,
-        [styles.iconOnly]: icon === true
+        [styles.iconOnly]: icon === true,
     })
     return (
         <button class={classes} type="button" {...buttonProps}>
@@ -42,7 +42,7 @@ export function ButtonLink({ children, formfactor = 'mobile', icon = false, fill
         [styles.desktop]: formfactor === 'desktop',
         [styles.highlight]: highlight === true,
         [styles.fill]: fill === true,
-        [styles.iconOnly]: icon === true
+        [styles.iconOnly]: icon === true,
     })
     return (
         <a class={classes} type="button" {...anchorProps}>

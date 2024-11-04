@@ -22,7 +22,7 @@ const html = {
     </div>
 </div>
 </body>
-</html>`
+</html>`,
 }
 
 /**
@@ -43,7 +43,7 @@ export class DuckPlayerPage {
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'duckPlayerPage',
-            env: 'development'
+            env: 'development',
         })
         // default mocks - just enough to render the first page without error
         this.defaults = {
@@ -51,27 +51,27 @@ export class DuckPlayerPage {
             initialSetup: {
                 settings: {
                     pip: {
-                        state: 'disabled'
-                    }
+                        state: 'disabled',
+                    },
                 },
                 userValues: {
                     privatePlayerMode: { alwaysAsk: {} },
-                    overlayInteracted: false
+                    overlayInteracted: false,
                 },
                 locale: 'en',
                 env: 'development',
-                platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name }
+                platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name },
             },
             /** @type {import('../../types/duckplayer.js').UserValues} */
             getUserValues: {
                 privatePlayerMode: { alwaysAsk: {} },
-                overlayInteracted: false
+                overlayInteracted: false,
             },
             /** @type {import('../../types/duckplayer.js').UserValues} */
             setUserValues: {
                 privatePlayerMode: { enabled: {} },
-                overlayInteracted: false
-            }
+                overlayInteracted: false,
+            },
         }
         this.mocks.defaultResponses(this.defaults)
     }
@@ -100,9 +100,9 @@ export class DuckPlayerPage {
                 ...this.defaults.initialSetup,
                 userValues: {
                     privatePlayerMode: { enabled: {} },
-                    overlayInteracted: false
-                }
-            }
+                    overlayInteracted: false,
+                },
+            },
         })
     }
 
@@ -142,7 +142,7 @@ export class DuckPlayerPage {
 
             return route.fulfill({
                 status: 200,
-                path: join(this.basePath, filepath)
+                path: join(this.basePath, filepath),
             })
         })
 
@@ -152,7 +152,7 @@ export class DuckPlayerPage {
                 return request.fulfill({
                     status: 200,
                     body: html.unsupported,
-                    contentType: 'text/html'
+                    contentType: 'text/html',
                 })
             }
 
@@ -192,7 +192,7 @@ export class DuckPlayerPage {
                             <button class="ytp-pip-button">PIP</button>
                         </div>
                     </body>
-                </html>`
+                </html>`,
             })
         })
 
@@ -200,7 +200,7 @@ export class DuckPlayerPage {
         await this.page.route('https://www.youtube.com/**', (request) => {
             return request.fulfill({
                 status: 200,
-                body: 'youtube watch'
+                body: 'youtube watch',
             })
         })
     }
@@ -358,7 +358,7 @@ export class DuckPlayerPage {
                 })
                 await this.page.getByRole('button', { name: 'Watch on YouTube' }).click()
                 expect(await nextNavigation).toEqual('https://www.youtube.com/watch?v=VIDEO_ID')
-            }
+            },
         })
     }
 
@@ -392,7 +392,7 @@ export class DuckPlayerPage {
                 // todo: why does this not work on android?
                 await action()
                 // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
-            }
+            },
         })
     }
 
@@ -402,9 +402,9 @@ export class DuckPlayerPage {
     async enabledViaSettings() {
         await this.mocks.simulateSubscriptionMessage('onUserValuesChanged', {
             privatePlayerMode: {
-                enabled: {}
+                enabled: {},
             },
-            overlayInteracted: false
+            overlayInteracted: false,
         })
     }
 
@@ -436,9 +436,9 @@ export class DuckPlayerPage {
             params: {
                 overlayInteracted: false,
                 privatePlayerMode: {
-                    enabled: {}
-                }
-            }
+                    enabled: {},
+                },
+            },
         })
     }
 
@@ -453,9 +453,9 @@ export class DuckPlayerPage {
                     context: 'specialPages',
                     featureName: 'duckPlayerPage',
                     method: 'telemetryEvent',
-                    params: evt
-                }
-            }
+                    params: evt,
+                },
+            },
         ])
     }
 
@@ -482,7 +482,7 @@ export class DuckPlayerPage {
         return this.build.switch({
             windows: () => '../build/windows/pages/duckplayer',
             android: () => '../build/android/pages/duckplayer',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/duckplayer'
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/duckplayer',
         })
     }
 
@@ -513,7 +513,7 @@ export class DuckPlayerPage {
             },
             apple: async () => {
                 await this.mocks.waitForCallCount({ count: 1, method: 'openSettings' })
-            }
+            },
         })
     }
 

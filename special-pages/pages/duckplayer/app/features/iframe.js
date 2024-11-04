@@ -25,7 +25,7 @@ export class IframeFeature {
         return {
             iframeDidLoad: () => {
                 return () => {}
-            }
+            },
         }
     }
 }
@@ -59,7 +59,7 @@ export function createIframeFeatures(settings) {
          */
         clickCapture: () => {
             return new ClickCapture({
-                baseUrl: settings.youtubeBase
+                baseUrl: settings.youtubeBase,
             })
         },
         /**
@@ -73,6 +73,6 @@ export function createIframeFeatures(settings) {
          */
         mouseCapture: () => {
             return new MouseCapture()
-        }
+        },
     }
 }

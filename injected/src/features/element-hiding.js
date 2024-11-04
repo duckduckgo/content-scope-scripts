@@ -106,7 +106,7 @@ function hideNode(element) {
     const cachedDisplayProperties = {
         display: element.style.display,
         'min-height': element.style.minHeight,
-        height: element.style.height
+        height: element.style.height,
     }
     hiddenElements.set(element, cachedDisplayProperties)
 
@@ -366,7 +366,7 @@ export default class ElementHiding extends ContentFeature {
             apply(target, thisArg, args) {
                 applyRules(activeRules)
                 return DDGReflect.apply(target, thisArg, args)
-            }
+            },
         })
         historyMethodProxy.overload()
         // listen for popstate events in order to run on back/forward navigations

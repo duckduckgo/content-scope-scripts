@@ -7,35 +7,35 @@ export default class FingerprintingScreenSize extends ContentFeature {
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         this.origPropertyValues.availTop = globalThis.screen.availTop
         this.wrapProperty(globalThis.Screen.prototype, 'availTop', {
-            get: () => this.getFeatureAttr('availTop', 0)
+            get: () => this.getFeatureAttr('availTop', 0),
         })
 
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         this.origPropertyValues.availLeft = globalThis.screen.availLeft
         this.wrapProperty(globalThis.Screen.prototype, 'availLeft', {
-            get: () => this.getFeatureAttr('availLeft', 0)
+            get: () => this.getFeatureAttr('availLeft', 0),
         })
 
         this.origPropertyValues.availWidth = globalThis.screen.availWidth
         const forcedAvailWidthValue = globalThis.screen.width
         this.wrapProperty(globalThis.Screen.prototype, 'availWidth', {
-            get: () => forcedAvailWidthValue
+            get: () => forcedAvailWidthValue,
         })
 
         this.origPropertyValues.availHeight = globalThis.screen.availHeight
         const forcedAvailHeightValue = globalThis.screen.height
         this.wrapProperty(globalThis.Screen.prototype, 'availHeight', {
-            get: () => forcedAvailHeightValue
+            get: () => forcedAvailHeightValue,
         })
 
         this.origPropertyValues.colorDepth = globalThis.screen.colorDepth
         this.wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
-            get: () => this.getFeatureAttr('colorDepth', 24)
+            get: () => this.getFeatureAttr('colorDepth', 24),
         })
 
         this.origPropertyValues.pixelDepth = globalThis.screen.pixelDepth
         this.wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
-            get: () => this.getFeatureAttr('pixelDepth', 24)
+            get: () => this.getFeatureAttr('pixelDepth', 24),
         })
 
         globalThis.window.addEventListener('resize', () => {
@@ -68,7 +68,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
                 set: () => {},
                 configurable: true,
-                enumerable: true
+                enumerable: true,
             })
         } catch (e) {}
     }

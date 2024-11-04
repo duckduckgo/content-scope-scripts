@@ -10,38 +10,38 @@ export default defineConfig({
                 'integration-test/harmful-apis.spec.js',
                 'integration-test/windows-permissions.spec.js',
                 'integration-test/broker-protection.spec.js',
-                'integration-test/breakage-reporting.spec.js'
+                'integration-test/breakage-reporting.spec.js',
             ],
-            use: { injectName: 'windows', platform: 'windows' }
+            use: { injectName: 'windows', platform: 'windows' },
         },
         {
             name: 'apple-isolated',
             testMatch: [
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
-                'integration-test/broker-protection.spec.js'
+                'integration-test/broker-protection.spec.js',
             ],
-            use: { injectName: 'apple-isolated', platform: 'macos' }
+            use: { injectName: 'apple-isolated', platform: 'macos' },
         },
         {
             name: 'apple',
             testMatch: ['integration-test/webcompat.spec.js'],
-            use: { injectName: 'apple', platform: 'macos' }
+            use: { injectName: 'apple', platform: 'macos' },
         },
         {
             name: 'ios',
             testMatch: ['integration-test/duckplayer-mobile.spec.js'],
-            use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] }
+            use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
             name: 'android',
             testMatch: ['integration-test/duckplayer-mobile.spec.js'],
-            use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] }
+            use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] },
         },
         {
             name: 'android-autofill-password-import',
             testMatch: ['integration-test/autofill-password-import.spec.js'],
-            use: { injectName: 'android-autofill-password-import', platform: 'android', ...devices['Galaxy S5'] }
+            use: { injectName: 'android-autofill-password-import', platform: 'android', ...devices['Galaxy S5'] },
         },
         {
             name: 'chrome',
@@ -52,15 +52,15 @@ export default defineConfig({
                 'integration-test/navigator-interface.spec.js',
                 'integration-test/pages.spec.js',
                 'integration-test/utils.spec.js',
-                'integration-test/web-compat.spec.js'
+                'integration-test/web-compat.spec.js',
             ],
-            use: { injectName: 'chrome', platform: 'extension', ...devices['Desktop Chrome'] }
+            use: { injectName: 'chrome', platform: 'extension', ...devices['Desktop Chrome'] },
         },
         {
             name: 'firefox',
             testMatch: 'integration-test/remote-pages.spec.js',
-            use: { injectName: 'firefox', platform: 'extension', ...devices['Desktop Firefox'] }
-        }
+            use: { injectName: 'firefox', platform: 'extension', ...devices['Desktop Firefox'] },
+        },
     ],
     timeout: 30 * 1000,
     expect: {
@@ -68,7 +68,7 @@ export default defineConfig({
          * Maximum time expect() should wait for the condition to be met.
          * For example in `await expect(locator).toHaveText();`
          */
-        timeout: 5000
+        timeout: 5000,
     },
     /* Run tests in files in parallel */
     fullyParallel: !process.env.CI,
@@ -84,7 +84,7 @@ export default defineConfig({
         reuseExistingServer: true,
         ignoreHTTPSErrors: true,
         command: 'npm run serve',
-        port: 3220
+        port: 3220,
     },
     use: {
         /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
@@ -92,6 +92,6 @@ export default defineConfig({
         /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: 'http://localhost:3220/',
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-        trace: 'on-first-retry'
-    }
+        trace: 'on-first-retry',
+    },
 })

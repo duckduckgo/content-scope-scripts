@@ -21,7 +21,7 @@ export class OnboardingPage {
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'onboarding',
-            env: 'development'
+            env: 'development',
         })
         this.page.on('console', console.log)
         this.defaultResponses = {
@@ -34,11 +34,11 @@ export class OnboardingPage {
                 stepDefinitions: {
                     systemSettings: {
                         // this 'dock' is not part of the default
-                        rows: ['dock', 'import', 'default-browser']
-                    }
+                        rows: ['dock', 'import', 'default-browser'],
+                    },
                 },
-                env: 'development'
-            }
+                env: 'development',
+            },
         }
         // default mocks - just enough to render the first page without error
         this.mocks.defaultResponses(this.defaultResponses)
@@ -47,7 +47,7 @@ export class OnboardingPage {
     withInitData(data) {
         this.mocks.defaultResponses({
             ...this.defaultResponses,
-            init: data
+            init: data,
         })
     }
 
@@ -70,7 +70,7 @@ export class OnboardingPage {
 
             return route.fulfill({
                 status: 200,
-                path: join(this.basePath, filepath)
+                path: join(this.basePath, filepath),
             })
         })
         const searchParams = new URLSearchParams({ env, page, debugState: 'true', willThrow: String(willThrow) })
@@ -79,7 +79,7 @@ export class OnboardingPage {
 
     async skipsOnboarding() {
         await this.page.getByTestId('skip').click({
-            clickCount: 5
+            clickCount: 5,
         })
     }
 
@@ -91,7 +91,7 @@ export class OnboardingPage {
     get basePath() {
         return this.build.switch({
             windows: () => '../build/windows/pages/onboarding',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/onboarding'
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/onboarding',
         })
     }
 
@@ -121,17 +121,17 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'stepCompleted',
-                    params: { id: 'welcome' }
-                }
+                    params: { id: 'welcome' },
+                },
             },
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'stepCompleted',
-                    params: { id: 'getStarted' }
-                }
-            }
+                    params: { id: 'getStarted' },
+                },
+            },
         ])
     }
 
@@ -163,9 +163,9 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'requestSetAsDefault',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
@@ -180,9 +180,9 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'requestImport',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
@@ -197,9 +197,9 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setBookmarksBar',
-                    params: { enabled: true }
-                }
-            }
+                    params: { enabled: true },
+                },
+            },
         ])
     }
 
@@ -232,17 +232,17 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setBookmarksBar',
-                    params: { enabled: true }
-                }
+                    params: { enabled: true },
+                },
             },
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setBookmarksBar',
-                    params: { enabled: false }
-                }
-            }
+                    params: { enabled: false },
+                },
+            },
         ])
     }
 
@@ -257,9 +257,9 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setSessionRestore',
-                    params: { enabled: true }
-                }
-            }
+                    params: { enabled: true },
+                },
+            },
         ])
     }
 
@@ -288,17 +288,17 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setSessionRestore',
-                    params: { enabled: true }
-                }
+                    params: { enabled: true },
+                },
             },
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setSessionRestore',
-                    params: { enabled: false }
-                }
-            }
+                    params: { enabled: false },
+                },
+            },
         ])
     }
 
@@ -327,17 +327,17 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setShowHomeButton',
-                    params: { enabled: true }
-                }
+                    params: { enabled: true },
+                },
             },
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setShowHomeButton',
-                    params: { enabled: false }
-                }
-            }
+                    params: { enabled: false },
+                },
+            },
         ])
     }
 
@@ -352,9 +352,9 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setShowHomeButton',
-                    params: { enabled: true }
-                }
-            }
+                    params: { enabled: true },
+                },
+            },
         ])
     }
 
@@ -368,9 +368,9 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'dismissToAddressBar',
-                    params: {}
-                }
-            }
+                    params: {},
+                },
+            },
         ])
     }
 
@@ -396,10 +396,10 @@ export class OnboardingPage {
                     method: 'reportPageException',
                     params: {
                         message: 'Simulated Exception',
-                        id: 'welcome'
-                    }
-                }
-            }
+                        id: 'welcome',
+                    },
+                },
+            },
         ])
     }
 
@@ -418,9 +418,9 @@ export class OnboardingPage {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
-                    method: 'init'
-                }
-            }
+                    method: 'init',
+                },
+            },
         ])
     }
 
@@ -428,7 +428,7 @@ export class OnboardingPage {
         const { page } = this
         const locator = this.build.switch({
             apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
-            windows: () => page.getByRole('button', { name: 'Pin to Taskbar' })
+            windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
         })
         await locator.click()
         const calls = await this.mocks.waitForCallCount({ method: 'requestDockOptIn', count: 1 })
@@ -437,9 +437,9 @@ export class OnboardingPage {
                 payload: {
                     context: 'specialPages',
                     featureName: 'onboarding',
-                    method: 'requestDockOptIn'
-                }
-            }
+                    method: 'requestDockOptIn',
+                },
+            },
         ])
     }
 
@@ -455,7 +455,7 @@ export class OnboardingPage {
 
         const dockTitle = this.build.switch({
             windows: () => page.getByText('Keep DuckDuckGo in your Taskbar'),
-            apple: () => page.getByText('Keep DuckDuckGo in your Dock')
+            apple: () => page.getByText('Keep DuckDuckGo in your Dock'),
         })
 
         await dockTitle.waitFor({ timeout: 1000 })
@@ -507,7 +507,7 @@ export class OnboardingPage {
         await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 })
         const dockButton = this.build.switch({
             windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
-            apple: () => page.getByRole('button', { name: 'Keep in Dock' })
+            apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
         })
         await dockButton.click()
         await page.getByRole('button', { name: 'Import' }).click()

@@ -15,7 +15,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
-            start: '3723'
+            start: '3723',
         }
         if (!actual) throw new Error('unreachable')
         const asParams = Object.fromEntries(new URL(actual).searchParams)
@@ -28,7 +28,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
-            start: '3723'
+            start: '3723',
         }
         if (!actual) throw new Error('unreachable')
         const asParams = Object.fromEntries(new URL(actual).searchParams)
@@ -41,7 +41,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
-            start: '3723'
+            start: '3723',
         }
         if (!actual) throw new Error('unreachable')
         const asParams = Object.fromEntries(new URL(actual).searchParams)
@@ -53,7 +53,7 @@ describe('creates embed url', () => {
             iv_load_policy: '1',
             autoplay: '1',
             rel: '0',
-            modestbranding: '1'
+            modestbranding: '1',
         }
         if (!actual) throw new Error('unreachable')
         const asParams = Object.fromEntries(new URL(actual).searchParams)
@@ -67,7 +67,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
-            muted: '1'
+            muted: '1',
         }
         if (!actual) throw new Error('unreachable')
         const asParams = Object.fromEntries(new URL(actual).searchParams)
@@ -79,7 +79,7 @@ describe('creates embed url', () => {
         const expected = {
             iv_load_policy: '1',
             rel: '0',
-            modestbranding: '1'
+            modestbranding: '1',
         }
         if (!actual) throw new Error('unreachable')
         const asParams = Object.fromEntries(new URL(actual).searchParams)
@@ -92,7 +92,7 @@ describe('creates embed url', () => {
             iv_load_policy: '1',
             autoplay: '1',
             rel: '0',
-            modestbranding: '1'
+            modestbranding: '1',
         }
         if (!actual) throw new Error('unreachable')
         const asParams = Object.fromEntries(new URL(actual).searchParams)

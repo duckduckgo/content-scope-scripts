@@ -15,7 +15,7 @@ export function Tooltip({ id, isVisible, position }) {
         <div
             class={cn(styles.tooltip, {
                 [styles.top]: position === 'top',
-                [styles.bottom]: position === 'bottom'
+                [styles.bottom]: position === 'bottom',
             })}
             role="tooltip"
             aria-hidden={!isVisible}

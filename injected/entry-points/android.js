@@ -22,7 +22,7 @@ function initCode() {
         messageCallback,
         javascriptInterface,
         target: globalThis,
-        debug: processedConfig.debug
+        debug: processedConfig.debug,
     })
 
     load({
@@ -31,7 +31,7 @@ function initCode() {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig
+        messagingConfig: processedConfig.messagingConfig,
     })
 
     init(processedConfig)

@@ -12,6 +12,6 @@ export function createAppFeaturesFrom(settings) {
             } else {
                 return null
             }
-        }
+        },
     }
 }

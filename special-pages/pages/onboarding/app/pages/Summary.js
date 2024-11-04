@@ -27,7 +27,7 @@ export function Summary({ values, onDismiss, onSettings }) {
         const subject = fn(t)
         return {
             icon: subject.icon,
-            summary: subject.summary
+            summary: subject.summary,
         }
     })
 
@@ -41,7 +41,7 @@ export function Summary({ values, onDismiss, onSettings }) {
             const subject = settingsRowItems[key](t)
             return {
                 icon: subject.icon,
-                summary: subject.summary
+                summary: subject.summary,
             }
         })
 
@@ -71,8 +71,8 @@ export function Summary({ values, onDismiss, onSettings }) {
                     values={{
                         a: {
                             href: 'about:preferences',
-                            click: onSettingsHandler
-                        }
+                            click: onSettingsHandler,
+                        },
                     }}
                 />
             </div>

@@ -20,8 +20,8 @@ export function mockWindowsMessaging(params) {
         mockResponses: params.responses,
         subscriptionEvents: [],
         mocks: {
-            outgoing: []
-        }
+            outgoing: [],
+        },
     }
     const listeners = []
     // @ts-ignore
@@ -47,14 +47,14 @@ export function mockWindowsMessaging(params) {
                 featureName: input.SubFeatureName,
                 params: input.Data,
                 method: input.Name,
-                id: undefined
+                id: undefined,
             }
 
             // add the Id if it was a RequestMessage
             if ('Id' in input) {
                 msg = {
                     ...msg,
-                    id: input.Id
+                    id: input.Id,
                 }
             }
 
@@ -62,7 +62,7 @@ export function mockWindowsMessaging(params) {
             window.__playwright_01.mocks.outgoing.push(
                 JSON.parse(
                     JSON.stringify({
-                        payload: msg
+                        payload: msg,
                     })
                 )
             )
@@ -89,8 +89,8 @@ export function mockWindowsMessaging(params) {
                             context: msg.context,
                             featureName: msg.featureName,
                             // @ts-ignore - shane: fix this
-                            id: msg.id
-                        }
+                            id: msg.id,
+                        },
                     })
                 }
             }, 0)
@@ -103,7 +103,7 @@ export function mockWindowsMessaging(params) {
         },
         addEventListener(_name, listener) {
             listeners.push(listener)
-        }
+        },
     }
 }
 
@@ -119,8 +119,8 @@ export function mockWebkitMessaging(params) {
         mockResponses: params.responses,
         subscriptionEvents: [],
         mocks: {
-            outgoing: []
-        }
+            outgoing: [],
+        },
     }
     window.webkit = {
         messageHandlers: {
@@ -132,7 +132,7 @@ export function mockWebkitMessaging(params) {
                     window.__playwright_01.mocks.outgoing.push(
                         JSON.parse(
                             JSON.stringify({
-                                payload: msg
+                                payload: msg,
                             })
                         )
                     )
@@ -157,13 +157,13 @@ export function mockWebkitMessaging(params) {
                         context: msg.context,
                         featureName: msg.featureName,
                         // @ts-ignore - shane: fix this
-                        id: msg.id
+                        id: msg.id,
                     }
 
                     return JSON.stringify(r)
-                }
-            }
-        }
+                },
+            },
+        },
     }
 }
 
@@ -180,8 +180,8 @@ export function mockAndroidMessaging(params) {
         mockResponses: params.responses,
         subscriptionEvents: [],
         mocks: {
-            outgoing: []
-        }
+            outgoing: [],
+        },
     }
     window[params.messagingContext.context] = {
         /**
@@ -196,7 +196,7 @@ export function mockAndroidMessaging(params) {
             window.__playwright_01.mocks.outgoing.push(
                 JSON.parse(
                     JSON.stringify({
-                        payload: msg
+                        payload: msg,
                     })
                 )
             )
@@ -218,11 +218,11 @@ export function mockAndroidMessaging(params) {
                 context: msg.context,
                 featureName: msg.featureName,
                 // @ts-ignore - shane: fix this
-                id: msg.id
+                id: msg.id,
             }
 
             globalThis['messageCallback']?.(secret, r)
-        }
+        },
     }
 }
 
@@ -233,7 +233,7 @@ export function mockAndroidMessaging(params) {
 export function mockResponses(params) {
     window.__playwright_01.mockResponses = {
         ...window.__playwright_01.mockResponses,
-        ...params.responses
+        ...params.responses,
     }
 }
 
@@ -311,7 +311,7 @@ export function simulateSubscriptionMessage(params) {
         context: params.messagingContext.context,
         featureName: params.messagingContext.featureName,
         subscriptionName: params.name,
-        params: params.payload
+        params: params.payload,
     }
     switch (params.injectName) {
         case 'windows': {

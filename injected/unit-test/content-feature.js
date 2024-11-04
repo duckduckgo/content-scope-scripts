@@ -15,7 +15,7 @@ describe('ContentFeature class', () => {
         const me = new MyTestFeature('test')
         me.callInit({
             site: {
-                domain: 'beep.example.com'
+                domain: 'beep.example.com',
             },
             featureSettings: {
                 test: {
@@ -28,20 +28,20 @@ describe('ContentFeature class', () => {
                             domain: 'example.com',
                             patchSettings: [
                                 { op: 'replace', path: '/test', value: 'enabled2' },
-                                { op: 'replace', path: '/otherTest', value: 'enabled' }
-                            ]
+                                { op: 'replace', path: '/otherTest', value: 'enabled' },
+                            ],
                         },
                         {
                             domain: 'beep.example.com',
-                            patchSettings: [{ op: 'replace', path: '/test', value: 'enabled3' }]
+                            patchSettings: [{ op: 'replace', path: '/test', value: 'enabled3' }],
                         },
                         {
                             domain: ['meep.com', 'example.com'],
-                            patchSettings: [{ op: 'replace', path: '/arrayTest', value: 'enabledArray' }]
-                        }
-                    ]
-                }
-            }
+                            patchSettings: [{ op: 'replace', path: '/arrayTest', value: 'enabledArray' }],
+                        },
+                    ],
+                },
+            },
         })
         expect(didRun).withContext('Should run').toBeTrue()
     })
@@ -52,7 +52,7 @@ describe('ContentFeature class', () => {
             // @ts-ignore partial mock
             messaging = {
                 // eslint-disable-next-line
-                notify(name, data) {}
+                notify(name, data) {},
             }
         }
         let feature
@@ -73,7 +73,7 @@ describe('ContentFeature class', () => {
             const spyNotify = spyOn(feature.messaging, 'notify')
             feature.addDebugFlag()
             expect(spyNotify).toHaveBeenCalledWith('addDebugFlag', {
-                flag: 'someFeatureName'
+                flag: 'someFeatureName',
             })
         })
     })
@@ -95,7 +95,7 @@ describe('ContentFeature class', () => {
                 value: () => 'someValue',
                 writable: true,
                 enumerable: true,
-                configurable: true
+                configurable: true,
             })
             expect(feature.debugFlagAdded).toBeUndefined()
             expect(object.someProp()).toBe('someValue')
@@ -107,7 +107,7 @@ describe('ContentFeature class', () => {
                 value: null,
                 writable: true,
                 enumerable: true,
-                configurable: true
+                configurable: true,
             })
             expect(feature.debugFlagAdded).toBeTrue()
         })
@@ -117,7 +117,7 @@ describe('ContentFeature class', () => {
             feature.defineProperty(object, 'someProp', {
                 get: () => 'someValue',
                 enumerable: true,
-                configurable: true
+                configurable: true,
             })
             expect(feature.debugFlagAdded).toBeUndefined()
             expect(object.someProp).toBe('someValue')
@@ -130,7 +130,7 @@ describe('ContentFeature class', () => {
                 get: null,
                 set: undefined,
                 enumerable: true,
-                configurable: true
+                configurable: true,
             })
             expect(feature.debugFlagAdded).toBeTrue()
         })
@@ -140,7 +140,7 @@ describe('ContentFeature class', () => {
             feature.defineProperty(object, 'someProp', {
                 set: () => {},
                 enumerable: true,
-                configurable: true
+                configurable: true,
             })
             expect(feature.debugFlagAdded).toBeUndefined()
             expect((object.someProp = 'someValue')).toBe('someValue')
@@ -153,7 +153,7 @@ describe('ContentFeature class', () => {
                 // @ts-expect-error set is overridden
                 set: null,
                 enumerable: true,
-                configurable: true
+                configurable: true,
             })
             expect(feature.debugFlagAdded).toBeTrue()
         })
@@ -165,7 +165,7 @@ describe('ContentFeature class', () => {
                 value: fn,
                 writable: true,
                 enumerable: true,
-                configurable: true
+                configurable: true,
             })
             expect(object.someProp()).toBe('someValue')
             expect(object.someProp.toString()).toBe(fn.toString())

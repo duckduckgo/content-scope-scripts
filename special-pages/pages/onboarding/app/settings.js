@@ -20,7 +20,7 @@ export class Settings {
         orderName = 'v1',
         stepDefinitions = defaultStepDefinitions,
         first = 'welcome',
-        exclude = []
+        exclude = [],
     } = {}) {
         this.platform = platform
         this.order = order
@@ -36,7 +36,7 @@ export class Settings {
         if (valid.includes(/** @type {any} */ (name))) {
             return new Settings({
                 ...this,
-                platform: { name }
+                platform: { name },
             })
         }
         return this
@@ -57,7 +57,7 @@ export class Settings {
         } else {
             return new Settings({
                 order: /** @type {any} */ (valid),
-                stepDefinitions: this.stepDefinitions
+                stepDefinitions: this.stepDefinitions,
             })
         }
         return this
@@ -73,21 +73,21 @@ export class Settings {
             return new Settings({
                 ...this,
                 orderName: named,
-                order: DEFAULT_ORDER
+                order: DEFAULT_ORDER,
             })
         }
         if (named === 'v2') {
             return new Settings({
                 ...this,
                 orderName: named,
-                order: ALT_ORDER
+                order: ALT_ORDER,
             })
         }
         if (named === 'v3') {
             return new Settings({
                 ...this,
                 orderName: named,
-                order: ORDER_V3
+                order: ORDER_V3,
             })
         } else {
             console.warn('ignoring named order:', named)
@@ -105,7 +105,7 @@ export class Settings {
         return new Settings({
             ...this,
             exclude,
-            order: this.order.filter((screen) => !exclude.includes(screen))
+            order: this.order.filter((screen) => !exclude.includes(screen)),
         })
     }
 
@@ -119,7 +119,7 @@ export class Settings {
         if (/** @type {string[]} */ (this.order).includes(first)) {
             return new Settings({
                 ...this,
-                first
+                first,
             })
         }
         return this
@@ -145,7 +145,7 @@ export class Settings {
 
         return new Settings({
             ...this,
-            stepDefinitions: nextSteps
+            stepDefinitions: nextSteps,
         })
     }
 }

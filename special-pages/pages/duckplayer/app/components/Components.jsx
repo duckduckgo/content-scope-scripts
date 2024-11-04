@@ -18,7 +18,7 @@ import { SwitchProvider } from '../providers/SwitchProvider.jsx'
 
 export function Components() {
     const settings = new Settings({
-        platform: { name: 'macos' }
+        platform: { name: 'macos' },
     })
     let embed = EmbedSettings.fromHref('https://localhost?videoID=123')
     let url = embed?.toEmbedUrl()

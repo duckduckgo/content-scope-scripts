@@ -68,7 +68,7 @@ const messaging = createSpecialPageMessaging({
         // eslint-disable-next-line no-labels
         $INTEGRATION: mock = mockTransport()
         return mock
-    }
+    },
 })
 
 const newTabMessaging = new NewTabPage(messaging, import.meta.injectName)

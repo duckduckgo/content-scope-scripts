@@ -64,7 +64,7 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
             const comparisons = [
                 `${firstName} ${userLastNameOption2}`,
                 `${firstName} ${userLastNameOption3}`,
-                `${firstName} ${userLastNameOption4}`
+                `${firstName} ${userLastNameOption4}`,
             ]
 
             if (comparisons.includes(fullNameExtracted)) {
@@ -81,7 +81,7 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
             const comparisons = [
                 `${userFirstNameOption2} ${userLastName}`,
                 `${userFirstNameOption3} ${userLastName}`,
-                `${userFirstNameOption4} ${userLastName}`
+                `${userFirstNameOption4} ${userLastName}`,
             ]
 
             if (comparisons.includes(fullNameExtracted)) {
@@ -98,7 +98,7 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
                 `${firstName} ${userMiddleName[0]} ${userLastName}`,
                 `${firstName} ${userMiddleName[0]} ${userLastName} ${userSuffix}`,
                 `${firstName} ${userMiddleName}${userLastName}`,
-                `${firstName} ${userMiddleName}${userLastName} ${userSuffix}`
+                `${firstName} ${userMiddleName}${userLastName} ${userSuffix}`,
             ]
 
             if (comparisons.includes(fullNameExtracted)) {
@@ -116,7 +116,7 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
                     `${firstName} ${userMiddleName} ${userLastNameOption4}`,
                     `${firstName} ${userMiddleName[0]} ${userLastNameOption2}`,
                     `${firstName} ${userMiddleName[0]} ${userLastNameOption3}`,
-                    `${firstName} ${userMiddleName[0]} ${userLastNameOption4}`
+                    `${firstName} ${userMiddleName[0]} ${userLastNameOption4}`,
                 ]
 
                 if (comparisons.includes(fullNameExtracted)) {
@@ -136,7 +136,7 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
                     `${userFirstNameOption4} ${userMiddleName} ${userLastName}`,
                     `${userFirstNameOption2} ${userMiddleName[0]} ${userLastName}`,
                     `${userFirstNameOption3} ${userMiddleName[0]} ${userLastName}`,
-                    `${userFirstNameOption4} ${userMiddleName[0]} ${userLastName}`
+                    `${userFirstNameOption4} ${userMiddleName[0]} ${userLastName}`,
                 ]
 
                 if (comparisons.includes(fullNameExtracted)) {

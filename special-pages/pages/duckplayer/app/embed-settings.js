@@ -21,7 +21,7 @@ export class EmbedSettings {
         if (typeof autoplay !== 'boolean') return this
         return new EmbedSettings({
             ...this,
-            autoplay
+            autoplay,
         })
     }
 
@@ -33,7 +33,7 @@ export class EmbedSettings {
         if (typeof muted !== 'boolean') return this
         return new EmbedSettings({
             ...this,
-            muted
+            muted,
         })
     }
 
@@ -45,7 +45,7 @@ export class EmbedSettings {
         try {
             return new EmbedSettings({
                 videoId: VideoId.fromHref(href),
-                timestamp: Timestamp.fromHref(href)
+                timestamp: Timestamp.fromHref(href),
             })
         } catch (e) {
             console.error(e)
@@ -214,7 +214,7 @@ function timestampInSeconds(timestamp) {
     const units = {
         h: 3600,
         m: 60,
-        s: 1
+        s: 1,
     }
 
     const parts = timestamp.split(/(\d+[hms]?)/)

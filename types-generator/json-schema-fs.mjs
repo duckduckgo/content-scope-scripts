@@ -21,12 +21,12 @@ export function createFileList(rootDir, featureDirName) {
                 filename: x.name,
                 method: valid.method,
                 kind: valid.kind,
-                json: JSON.parse(content)
+                json: JSON.parse(content),
             }
         }
         return {
             valid: false,
-            errors: [`invalid filename ${x.name}, expected \`request\`, \`notify\` or \`subscribe\``]
+            errors: [`invalid filename ${x.name}, expected \`request\`, \`notify\` or \`subscribe\``],
         }
     })
 }
@@ -60,7 +60,7 @@ export async function createSchemasFromFiles(rootDir) {
             featureName,
             topLevelType,
             dirname: dir.name,
-            schema
+            schema,
         })
     }
 

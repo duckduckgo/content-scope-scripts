@@ -6,7 +6,7 @@ import {
     getOwnPropertyDescriptors,
     objectDefineProperty,
     objectEntries,
-    objectKeys
+    objectKeys,
 } from './captured-globals.js'
 
 const globalObj = typeof window === 'undefined' ? globalThis : window
@@ -96,12 +96,12 @@ export function toStringGetTrap(targetFn, mockValue) {
                                 } else {
                                     return Reflect.apply(target, thisArg, argumentsList)
                                 }
-                            }
+                            },
                         })
                         return toStringToStringProxy
                     }
                     return Reflect.get(target, prop, receiver)
-                }
+                },
             })
             return toStringProxy
         }
@@ -122,7 +122,7 @@ export function wrapFunction(functionValue, realTarget) {
                 const method = Reflect.get(target, prop, receiver).bind(target)
                 Object.defineProperty(method, 'toString', {
                     value: functionToString.bind(functionToString),
-                    enumerable: false
+                    enumerable: false,
                 })
                 return method
             }
@@ -131,7 +131,7 @@ export function wrapFunction(functionValue, realTarget) {
         apply(target, thisArg, argumentsList) {
             // This is where we call our real function
             return Reflect.apply(functionValue, thisArg, argumentsList)
-        }
+        },
     })
 }
 
@@ -166,7 +166,7 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
     ) {
         definePropertyFn(object, propertyName, {
             ...origDescriptor,
-            ...descriptor
+            ...descriptor,
         })
         return origDescriptor
     } else {
@@ -212,7 +212,7 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
 
     definePropertyFn(object, propertyName, {
         ...origDescriptor,
-        value: newFn
+        value: newFn,
     })
     return origDescriptor
 }
@@ -238,13 +238,13 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
         allowConstructorCall: false,
         disallowConstructor: false,
         constructorErrorMessage: 'Illegal constructor',
-        wrapToString: true
+        wrapToString: true,
     }
 
     const fullOptions = {
         interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
         ...defaultOptions,
-        ...options
+        ...options,
     }
 
     // In some cases we can get away without a full proxy, but in many cases below we need it.
@@ -274,14 +274,14 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
         for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
             if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
                 ImplClass.prototype[prop] = new Proxy(descriptor.value, {
-                    get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`)
+                    get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`),
                 })
             }
         }
 
         // wrap toString on the constructor function itself
         Object.assign(proxyHandler, {
-            get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`)
+            get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`),
         })
     }
 
@@ -307,7 +307,7 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
             value: true,
             configurable: false,
             enumerable: false,
-            writable: false
+            writable: false,
         })
     }
 
@@ -316,7 +316,7 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
         value: interfaceName,
         configurable: true,
         enumerable: false,
-        writable: false
+        writable: false,
     })
 
     // interfaces are exposed directly on the global object, not on its prototype
@@ -352,7 +352,7 @@ export function shimProperty(baseObject, propertyName, implInstance, readOnly, d
 
     // mask toString() and toString.toString() on the instance
     const proxiedInstance = new Proxy(implInstance, {
-        get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`)
+        get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`),
     })
 
     /** @type {StrictPropertyDescriptor} */
@@ -366,19 +366,19 @@ export function shimProperty(baseObject, propertyName, implInstance, readOnly, d
             return proxiedInstance
         }
         const proxiedGetter = new Proxy(getter, {
-            get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`)
+            get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`),
         })
         descriptor = {
             configurable: true,
             enumerable: true,
-            get: proxiedGetter
+            get: proxiedGetter,
         }
     } else {
         descriptor = {
             configurable: true,
             enumerable: true,
             writable: true,
-            value: proxiedInstance
+            value: proxiedInstance,
         }
     }
 

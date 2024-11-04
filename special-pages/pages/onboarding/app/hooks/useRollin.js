@@ -25,7 +25,7 @@ export function useRollin(frames) {
             ...prev,
             current: next,
             frame: prev.frames[next],
-            isLast: next === prev.frames.length
+            isLast: next === prev.frames.length,
         }
     }, /** @type {RollInState} */ ({ current: 0, frames, frame: frames[0], isLast: false }))
 
@@ -47,6 +47,6 @@ export function useRollin(frames) {
         state,
         advance: () => {
             dispatch('advance')
-        }
+        },
     }
 }

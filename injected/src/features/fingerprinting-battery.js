@@ -15,7 +15,7 @@ export default class FingerprintingBattery extends ContentFeature {
                 charging: true,
                 chargingTime: 0,
                 dischargingTime: Infinity,
-                level: 1
+                level: 1,
             }
             const eventProperties = ['onchargingchange', 'onchargingtimechange', 'ondischargingtimechange', 'onlevelchange']
 
@@ -26,7 +26,7 @@ export default class FingerprintingBattery extends ContentFeature {
                         configurable: true,
                         get: () => {
                             return val
-                        }
+                        },
                     })
                 } catch (e) {}
             }
@@ -38,7 +38,7 @@ export default class FingerprintingBattery extends ContentFeature {
                         set: (x) => x, // noop
                         get: () => {
                             return null
-                        }
+                        },
                     })
                 } catch (e) {}
             }

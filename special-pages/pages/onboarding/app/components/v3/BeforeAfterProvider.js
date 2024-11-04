@@ -36,7 +36,7 @@ const BeforeAfterContext = createContext({
      */
     toggleStep: (step) => {
         console.log(step)
-    }
+    },
 })
 
 /**

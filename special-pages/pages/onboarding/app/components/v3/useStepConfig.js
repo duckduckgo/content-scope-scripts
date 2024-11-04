@@ -15,7 +15,7 @@ function calculateProgress(order, activeStep) {
 
     return {
         current: progressSteps.indexOf(activeStep) + 1,
-        total: progressSteps.length
+        total: progressSteps.length,
     }
 }
 
@@ -46,14 +46,14 @@ export function useStepConfig() {
             kind: 'update-system-value',
             id,
             payload: { enabled: true },
-            current: true
+            current: true,
         })
 
     /** @type {import('./data-types').BeforeAfterFunctions} */
     const beforeAfter = {
         get: () => getStep(activeStep),
         set: (value) => setStep(activeStep, value),
-        toggle: () => toggleStep(activeStep)
+        toggle: () => toggleStep(activeStep),
     }
 
     /** @type {import('./data-types').StepConfigParams} */
@@ -65,7 +65,7 @@ export function useStepConfig() {
         advance,
         dismiss,
         enableSystemValue,
-        beforeAfter
+        beforeAfter,
     }
 
     if (!stepsConfig[activeStep]) {
@@ -74,6 +74,6 @@ export function useStepConfig() {
 
     return {
         ...configParams,
-        ...stepsConfig[activeStep](configParams)
+        ...stepsConfig[activeStep](configParams),
     }
 }

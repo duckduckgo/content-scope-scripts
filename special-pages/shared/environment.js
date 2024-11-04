@@ -21,7 +21,7 @@ export class Environment {
         debugState = urlParams.has('debugState'),
         display = 'app',
         locale = 'en',
-        textLength = 1
+        textLength = 1,
     } = {}) {
         this.display = display
         this.urlParams = urlParams
@@ -42,7 +42,7 @@ export class Environment {
         if (!isInjectName(injectName)) return this
         return new Environment({
             ...this,
-            injectName
+            injectName,
         })
     }
 
@@ -56,7 +56,7 @@ export class Environment {
 
         return new Environment({
             ...this,
-            env
+            env,
         })
     }
 
@@ -70,7 +70,7 @@ export class Environment {
 
         return new Environment({
             ...this,
-            display
+            display,
         })
     }
 
@@ -85,7 +85,7 @@ export class Environment {
 
         return new Environment({
             ...this,
-            locale
+            locale,
         })
     }
 
@@ -99,7 +99,7 @@ export class Environment {
         if (num >= 1 && num <= 2) {
             return new Environment({
                 ...this,
-                textLength: num
+                textLength: num,
             })
         }
         return this

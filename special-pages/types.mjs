@@ -13,8 +13,8 @@ const specialPagesTypes = {
         exclude: process.platform === 'win32',
         kind: 'messages',
         resolve: (dirname) => '../pages/' + dirname + '/src/js/index.js',
-        className: (topLevelType) => topLevelType.replace('Messages', 'Page')
-    }
+        className: (topLevelType) => topLevelType.replace('Messages', 'Page'),
+    },
 }
 
 if (isLaunchFile(import.meta.url)) {

@@ -119,11 +119,11 @@ test.describe('onboarding', () => {
                 stepDefinitions: {
                     systemSettings: {
                         // this 'dock' is not part of the default
-                        rows: ['dock', 'import', 'default-browser']
-                    }
+                        rows: ['dock', 'import', 'default-browser'],
+                    },
                 },
                 env: 'development',
-                order: 'v2'
+                order: 'v2',
             })
             await onboarding.reducedMotion()
             await onboarding.darkMode()
@@ -136,12 +136,12 @@ test.describe('onboarding', () => {
                 stepDefinitions: {
                     systemSettings: {
                         // this 'dock' is not part of the default
-                        rows: ['dock', 'import', 'default-browser']
-                    }
+                        rows: ['dock', 'import', 'default-browser'],
+                    },
                 },
                 env: 'development',
                 order: 'v2',
-                exclude: ['dockSingle']
+                exclude: ['dockSingle'],
             })
             await onboarding.reducedMotion()
             await onboarding.darkMode()
@@ -154,7 +154,7 @@ test.describe('onboarding', () => {
             const onboarding = OnboardingPage.create(page, workerInfo)
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v3'
+                order: 'v3',
             })
             await onboarding.reducedMotion()
             await onboarding.darkMode()
@@ -166,7 +166,7 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: null,
                 order: 'v3',
-                exclude: ['systemSettings']
+                exclude: ['systemSettings'],
             })
             await onboarding.reducedMotion()
             await onboarding.darkMode()
@@ -178,7 +178,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'systemSettings' })
@@ -190,7 +190,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'systemSettings' })
@@ -205,7 +205,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'systemSettings' })
@@ -218,7 +218,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'systemSettings' })
@@ -236,7 +236,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'customize' })
@@ -246,7 +246,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'customize' })
@@ -258,7 +258,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'customize' })
@@ -271,7 +271,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'customize' })
@@ -284,7 +284,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'customize' })
@@ -298,7 +298,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'customize' })
@@ -314,7 +314,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'customize' })
@@ -331,7 +331,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3'
+                    order: 'v3',
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'customize' })

@@ -85,7 +85,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
          * @type {ShadowRoot}
          */
         const shadow = this.attachShadow({
-            mode: this.params.devMode ? 'open' : 'closed'
+            mode: this.params.devMode ? 'open' : 'closed',
         })
 
         /**
@@ -132,7 +132,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
         container.classList.add('DuckDuckGoSocialContainer')
         const cardClassNames = [
             ['slim-card', !!useSlimCard],
-            ['with-feedback-link', !!withFeedback]
+            ['with-feedback-link', !!withFeedback],
         ]
             .map(([className, active]) => (active ? className : ''))
             .join(' ')

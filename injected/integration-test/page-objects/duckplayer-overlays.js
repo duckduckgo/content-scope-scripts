@@ -8,7 +8,7 @@ import {
     simulateSubscriptionMessage,
     waitForCallCount,
     wrapWebkitScripts,
-    wrapWindowsScripts
+    wrapWindowsScripts,
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { expect } from '@playwright/test'
 import { perPlatform } from '../type-helpers.mjs'
@@ -19,30 +19,30 @@ const userValues = {
     /** @type {import("../../src/features/duck-player.js").UserValues} */
     'always ask': {
         privatePlayerMode: { alwaysAsk: {} },
-        overlayInteracted: false
+        overlayInteracted: false,
     },
     /** @type {import("../../src/features/duck-player.js").UserValues} */
     'always ask remembered': {
         privatePlayerMode: { alwaysAsk: {} },
-        overlayInteracted: true
+        overlayInteracted: true,
     },
     /** @type {import("../../src/features/duck-player.js").UserValues} */
     enabled: {
         privatePlayerMode: { enabled: {} },
-        overlayInteracted: false
+        overlayInteracted: false,
     },
     /** @type {import("../../src/features/duck-player.js").UserValues} */
     disabled: {
         privatePlayerMode: { disabled: {} },
-        overlayInteracted: false
-    }
+        overlayInteracted: false,
+    },
 }
 
 // Possible UI Settings
 const uiSettings = {
     'play in duck player': {
-        playInDuckPlayer: true
-    }
+        playInDuckPlayer: true,
+    },
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -53,7 +53,7 @@ const configFiles = /** @type {const} */ ([
     'thumbnail-overlays-disabled.json',
     'click-interceptions-disabled.json',
     'video-overlays-disabled.json',
-    'video-alt-selectors.json'
+    'video-alt-selectors.json',
 ])
 
 export class DuckplayerOverlays {
@@ -85,7 +85,7 @@ export class DuckplayerOverlays {
     async gotoThumbsPage(params = {}) {
         const { variant = 'default' } = params
         const urlParams = new URLSearchParams({
-            variant
+            variant,
         })
         await this.page.goto(this.overlaysPage + '?' + urlParams.toString())
     }
@@ -165,7 +165,7 @@ export class DuckplayerOverlays {
         const { variant = 'default', videoID = '123', pageType = 'playerPage' } = params
         const urlParams = new URLSearchParams([
             ['v', videoID],
-            ['variant', variant]
+            ['variant', variant],
         ])
 
         const page = this[pageType]
@@ -191,7 +191,7 @@ export class DuckplayerOverlays {
             context: this.messagingContext,
             featureName: 'duckPlayer',
             params: {},
-            method: 'getUserValues'
+            method: 'getUserValues',
         })
     }
 
@@ -260,9 +260,9 @@ export class DuckplayerOverlays {
             responses: {
                 initialSetup: {
                     userValues: userValues[setting],
-                    ui: {}
-                }
-            }
+                    ui: {},
+                },
+            },
         })
     }
 
@@ -274,7 +274,7 @@ export class DuckplayerOverlays {
     async initialSetupIs(userValueSetting, uiSetting) {
         const initialSetupResponse = {
             userValues: userValues[userValueSetting],
-            ui: {}
+            ui: {},
         }
 
         if (uiSetting && uiSettings[uiSetting]) {
@@ -283,8 +283,8 @@ export class DuckplayerOverlays {
 
         await this.page.addInitScript(mockResponses, {
             responses: {
-                initialSetup: initialSetupResponse
-            }
+                initialSetup: initialSetupResponse,
+            },
         })
     }
 
@@ -296,11 +296,11 @@ export class DuckplayerOverlays {
             messagingContext: {
                 context: this.messagingContext,
                 featureName: 'duckPlayer',
-                env: 'development'
+                env: 'development',
             },
             name: 'onUserValuesChanged',
             payload: userValues[setting],
-            injectName: this.build.name
+            injectName: this.build.name,
         })
     }
 
@@ -312,11 +312,11 @@ export class DuckplayerOverlays {
             messagingContext: {
                 context: this.messagingContext,
                 featureName: 'duckPlayer',
-                env: 'development'
+                env: 'development',
             },
             name: 'onUIValuesChanged',
             payload: uiSettings[setting],
-            injectName: this.build.name
+            injectName: this.build.name,
         })
     }
 
@@ -414,7 +414,7 @@ export class DuckplayerOverlays {
 
                 // assert the page tried to navigate to duck player
                 expect(await failure).toEqual('duck://player/123')
-            }
+            },
         })
     }
 
@@ -441,11 +441,11 @@ export class DuckplayerOverlays {
                     context: this.messagingContext,
                     featureName: 'duckPlayer',
                     params: {
-                        href: 'duck://player/' + id
+                        href: 'duck://player/' + id,
                     },
-                    method: 'openDuckPlayer'
-                }
-            }
+                    method: 'openDuckPlayer',
+                },
+            },
         ])
     }
 
@@ -486,14 +486,14 @@ export class DuckplayerOverlays {
             },
             android: async () => {
                 // noop
-            }
+            },
         })
 
         // read the built file from disk and do replacements
         const wrapFn = this.build.switch({
             'apple-isolated': () => wrapWebkitScripts,
             windows: () => wrapWindowsScripts,
-            android: () => wrapWebkitScripts
+            android: () => wrapWebkitScripts,
         })
 
         const injectedJS = wrapFn(this.build.artifact, {
@@ -507,40 +507,40 @@ export class DuckplayerOverlays {
                 messageCallback: 'messageCallback',
                 messageSecret: 'duckduckgo-android-messaging-secret',
                 javascriptInterface: this.messagingContext,
-                locale
-            }
+                locale,
+            },
         })
 
         const mockMessaging = this.build.switch({
             windows: () => mockWindowsMessaging,
             'apple-isolated': () => mockWebkitMessaging,
-            android: () => mockAndroidMessaging
+            android: () => mockAndroidMessaging,
         })
 
         await this.page.addInitScript(mockMessaging, {
             messagingContext: {
                 env: 'development',
                 context: this.messagingContext,
-                featureName: 'duckPlayer'
+                featureName: 'duckPlayer',
             },
             responses: {
                 initialSetup: {
                     userValues: {
                         privatePlayerMode: { alwaysAsk: {} },
-                        overlayInteracted: false
+                        overlayInteracted: false,
                     },
-                    ui: {}
+                    ui: {},
                 },
                 getUserValues: {
                     privatePlayerMode: { alwaysAsk: {} },
-                    overlayInteracted: false
+                    overlayInteracted: false,
                 },
                 setUserValues: {
                     privatePlayerMode: { alwaysAsk: {} },
-                    overlayInteracted: false
+                    overlayInteracted: false,
                 },
-                sendDuckPlayerPixel: {}
-            }
+                sendDuckPlayerPixel: {},
+            },
         })
 
         // attach the JS
@@ -555,7 +555,7 @@ export class DuckplayerOverlays {
             waitForCallCount,
             {
                 method,
-                count: 1
+                count: 1,
             },
             { timeout: 3000, polling: 100 }
         )
@@ -575,9 +575,9 @@ export class DuckplayerOverlays {
                     context: this.messagingContext,
                     featureName: 'duckPlayer',
                     params: userValues[setting],
-                    method: 'setUserValues'
-                }
-            }
+                    method: 'setUserValues',
+                },
+            },
         ])
     }
 

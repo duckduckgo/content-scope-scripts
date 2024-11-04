@@ -17,7 +17,7 @@ test.describe('Video Player overlays', () => {
         await overlays.mobile.overlayIsRemoved()
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
-            { pixelName: 'play.do_not_use', params: { remember: '0' } }
+            { pixelName: 'play.do_not_use', params: { remember: '0' } },
         ])
     })
     test("Selecting 'watch here' on mobile + remember", async ({ page }, workerInfo) => {
@@ -36,7 +36,7 @@ test.describe('Video Player overlays', () => {
         await overlays.mobile.overlayIsRemoved()
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
-            { pixelName: 'play.do_not_use', params: { remember: '1' } }
+            { pixelName: 'play.do_not_use', params: { remember: '1' } },
         ])
         await overlays.userSettingWasUpdatedTo('disabled')
     })
@@ -53,7 +53,7 @@ test.describe('Video Player overlays', () => {
         await overlays.mobile.choosesDuckPlayer()
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
-            { pixelName: 'play.use', params: { remember: '0' } }
+            { pixelName: 'play.use', params: { remember: '0' } },
         ])
         await overlays.userSettingWasUpdatedTo('always ask')
     })
@@ -71,7 +71,7 @@ test.describe('Video Player overlays', () => {
         await overlays.mobile.choosesDuckPlayer()
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
-            { pixelName: 'play.use', params: { remember: '1' } }
+            { pixelName: 'play.use', params: { remember: '1' } },
         ])
         await overlays.userSettingWasUpdatedTo('enabled')
     })
@@ -117,7 +117,7 @@ test.describe.skip('Translated Overlays', () => {
         'sk',
         'sl',
         'sv',
-        'tr'
+        'tr',
     ]
     // const items = ['en']
     for (const locale of items) {

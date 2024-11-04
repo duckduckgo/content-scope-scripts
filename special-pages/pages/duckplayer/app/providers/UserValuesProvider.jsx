@@ -11,14 +11,14 @@ const UserValuesContext = createContext({
     /** @type {UserValues} */
     value: {
         privatePlayerMode: { alwaysAsk: {} },
-        overlayInteracted: false
+        overlayInteracted: false,
     },
     /**
      * @type {() => void}
      */
     setEnabled: () => {
         // throw new Error('must implement')
-    }
+    },
 })
 
 /**
@@ -49,7 +49,7 @@ export function UserValuesProvider({ initial, children }) {
     function setEnabled() {
         const values = {
             privatePlayerMode: { enabled: {} },
-            overlayInteracted: false
+            overlayInteracted: false,
         }
         messaging
             .setUserValues(values)

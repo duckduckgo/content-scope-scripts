@@ -6,8 +6,8 @@ const rmfDataSmallMsg = {
         messageType: 'small',
         id: 'id-1',
         titleText: 'Tell Us Your Thoughts on Privacy Pro',
-        descriptionText: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'
-    }
+        descriptionText: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+    },
 }
 
 /**
@@ -19,8 +19,8 @@ const rmfDataMediumMsg = {
         id: 'id-2',
         icon: 'DDGAnnounce',
         titleText: 'New Search Feature!',
-        descriptionText: 'DuckDuckGo now offers Instant Answers for quicker access to the information you need.'
-    }
+        descriptionText: 'DuckDuckGo now offers Instant Answers for quicker access to the information you need.',
+    },
 }
 
 /**
@@ -33,8 +33,8 @@ const rmfDataBigSingleActionMsg = {
         titleText: 'Tell Us Your Thoughts on Privacy Pro',
         descriptionText: 'Take our short anonymous survey and share your feedback.',
         icon: 'PrivacyPro',
-        primaryActionText: 'Take Survey'
-    }
+        primaryActionText: 'Take Survey',
+    },
 }
 
 /**
@@ -48,6 +48,6 @@ const rmfDataBigTwoActionMsg = {
         descriptionText: 'Take our short anonymous survey and share your feedback.',
         icon: 'Announce',
         primaryActionText: 'Take Survey',
-        secondaryActionText: 'Remind me'
-    }
+        secondaryActionText: 'Remind me',
+    },
 }

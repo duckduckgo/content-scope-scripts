@@ -2,7 +2,7 @@ import { createContext, h } from 'preact'
 import { useContext } from 'preact/hooks'
 
 export const MessagingContext = createContext({
-    messaging: /** @type {import('../../src/js/index').SpecialErrorPage | null} */ (null)
+    messaging: /** @type {import('../../src/js/index').SpecialErrorPage | null} */ (null),
 })
 
 /**

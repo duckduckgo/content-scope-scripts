@@ -22,7 +22,7 @@ export function ElasticButton({ text, variant = 'primary', startIcon, endIcon, l
         [styles.button]: true,
         [styles.primary]: variant === 'primary',
         [styles.secondary]: variant === 'secondary',
-        [styles.elastic]: elastic === true
+        [styles.elastic]: elastic === true,
     })
     return (
         <button className={classes} aria-label={text} {...rest}>

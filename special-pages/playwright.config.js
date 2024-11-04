@@ -8,8 +8,8 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Edge'],
                 injectName: 'windows',
-                platform: 'windows'
-            }
+                platform: 'windows',
+            },
         },
         {
             name: 'integration',
@@ -17,8 +17,8 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Chrome'],
                 injectName: 'integration',
-                platform: 'windows'
-            }
+                platform: 'windows',
+            },
         },
         {
             name: 'macos',
@@ -28,13 +28,13 @@ export default defineConfig({
                 'onboarding.spec.js',
                 'sslerror.spec.js',
                 'release-notes.spec.js',
-                'special-error.spec.js'
+                'special-error.spec.js',
             ],
             use: {
                 ...devices['Desktop Safari'],
                 injectName: 'apple',
-                platform: 'macos'
-            }
+                platform: 'macos',
+            },
         },
         {
             name: 'android',
@@ -42,8 +42,8 @@ export default defineConfig({
             use: {
                 ...devices['Galaxy S III'],
                 injectName: 'android',
-                platform: 'android'
-            }
+                platform: 'android',
+            },
         },
         {
             name: 'android-landscape',
@@ -51,8 +51,8 @@ export default defineConfig({
             use: {
                 ...devices['Galaxy S III landscape'],
                 injectName: 'android',
-                platform: 'android'
-            }
+                platform: 'android',
+            },
         },
         {
             name: 'ios',
@@ -60,9 +60,9 @@ export default defineConfig({
             use: {
                 ...devices['iPhone 14'],
                 injectName: 'apple',
-                platform: 'ios'
-            }
-        }
+                platform: 'ios',
+            },
+        },
     ],
     fullyParallel: !process.env.CI,
     /* Don't allow `.only` in CI */
@@ -77,10 +77,10 @@ export default defineConfig({
         command: 'npm run serve',
         port: 3210,
         reuseExistingServer: true,
-        env: process.env
+        env: process.env,
     },
     use: {
         actionTimeout: 5000,
-        trace: 'on-first-retry'
-    }
+        trace: 'on-first-retry',
+    },
 })

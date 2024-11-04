@@ -34,7 +34,7 @@ export function Button({ variant = 'primary', size = 'normal', children, ...rest
         [styles.primary]: variant === 'primary',
         [styles.secondary]: variant === 'secondary',
         [styles.large]: size === 'large',
-        [styles.xl]: size === 'xl'
+        [styles.xl]: size === 'xl',
     })
     return (
         <button className={classes} {...rest}>

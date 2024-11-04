@@ -9,7 +9,7 @@ export default class BreakageReporting extends ContentFeature {
 
             this.messaging.notify('breakageReportResult', {
                 jsPerformance,
-                referrer
+                referrer,
             })
         })
     }

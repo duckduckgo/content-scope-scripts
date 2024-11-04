@@ -61,7 +61,7 @@ export class Build {
             android: () => '../build/android/contentScope.js',
             apple: () => '../Sources/ContentScopeScripts/dist/contentScope.js',
             'apple-isolated': () => '../Sources/ContentScopeScripts/dist/contentScopeIsolated.js',
-            'android-autofill-password-import': () => '../build/android/autofillPasswordImport.js'
+            'android-autofill-password-import': () => '../build/android/autofillPasswordImport.js',
         })
         return readFileSync(path, 'utf8')
     }

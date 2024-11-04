@@ -13,7 +13,7 @@ export function PlayerContainer({ children, inset }) {
     return (
         <div
             class={cn(styles.container, {
-                [styles.inset]: inset
+                [styles.inset]: inset,
             })}
         >
             {children}

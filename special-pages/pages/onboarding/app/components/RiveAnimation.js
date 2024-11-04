@@ -27,7 +27,7 @@ export function RiveAnimation({ animation, state, stateMachine, artboard, inputN
             enableRiveAssetCDN: false,
             autoplay,
             artboard,
-            stateMachines: stateMachine
+            stateMachines: stateMachine,
         })
         return () => {
             rive.current?.cleanup()

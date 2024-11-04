@@ -24,9 +24,9 @@ test.describe('Test integration pages', () => {
         /** @type {import('../src/utils.js').UserPreferences} */
         const userPreferences = {
             platform: {
-                name: 'extension'
+                name: 'extension',
             },
-            sessionKey: 'test'
+            sessionKey: 'test',
         }
         const processedConfig = processConfig(
             config,

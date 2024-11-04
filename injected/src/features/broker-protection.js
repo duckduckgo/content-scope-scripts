@@ -29,7 +29,7 @@ export default class BrokerProtection extends ContentFeature {
                 if (!retryConfig && action.actionType === 'extract') {
                     retryConfig = {
                         interval: { ms: 1000 },
-                        maxAttempts: 30
+                        maxAttempts: 30,
                     }
                 }
 
@@ -40,7 +40,7 @@ export default class BrokerProtection extends ContentFeature {
                     if (action.expectations.some((x) => x.type === 'element')) {
                         retryConfig = {
                             interval: { ms: 1000 },
-                            maxAttempts: 30
+                            maxAttempts: 30,
                         }
                     }
                 }

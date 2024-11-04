@@ -14,7 +14,7 @@ import { createContext } from 'preact'
  */
 export function useTypedTranslation() {
     return {
-        t: useContext(TranslationContext).t
+        t: useContext(TranslationContext).t,
     }
 }
 

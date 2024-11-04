@@ -21,48 +21,48 @@ describe('Helpers checks', () => {
                 testFeature: {
                     state: 'enabled',
                     settings: {
-                        beep: 'boop'
+                        beep: 'boop',
                     },
-                    exceptions: []
+                    exceptions: [],
                 },
                 testFeatureTooBig: {
                     state: 'enabled',
                     minSupportedVersion: 100,
                     settings: {},
-                    exceptions: []
+                    exceptions: [],
                 },
                 testFeatureSmall: {
                     state: 'enabled',
                     minSupportedVersion: 99,
                     settings: {},
-                    exceptions: []
+                    exceptions: [],
                 },
                 testFeatureSmaller: {
                     state: 'enabled',
                     minSupportedVersion: 98,
                     settings: {
-                        barp: true
+                        barp: true,
                     },
-                    exceptions: []
+                    exceptions: [],
                 },
                 testFeatureOutlier: {
                     state: 'enabled',
                     minSupportedVersion: 97000,
                     settings: {},
-                    exceptions: []
-                }
+                    exceptions: [],
+                },
             },
-            unprotectedTemporary: []
+            unprotectedTemporary: [],
         }
         const processedConfig = processConfig(
             configIn,
             [],
             {
                 platform: {
-                    name: 'android'
+                    name: 'android',
                 },
                 versionNumber: 99,
-                sessionKey: 'testSessionKey'
+                sessionKey: 'testSessionKey',
             },
             []
         )
@@ -72,26 +72,26 @@ describe('Helpers checks', () => {
                 isBroken: false,
                 allowlisted: false,
                 // testFeatureTooBig is not enabled because it's minSupportedVersion is 100
-                enabledFeatures: ['testFeature', 'testFeatureSmall', 'testFeatureSmaller']
+                enabledFeatures: ['testFeature', 'testFeatureSmall', 'testFeatureSmaller'],
             },
             featureSettings: {
                 testFeature: {
-                    beep: 'boop'
+                    beep: 'boop',
                 },
                 testFeatureSmall: {},
                 testFeatureSmaller: {
-                    barp: true
-                }
+                    barp: true,
+                },
             },
             platform: {
                 name: 'android',
-                version: 99
+                version: 99,
             },
             versionNumber: 99,
             sessionKey: 'testSessionKey',
             // import.meta.trackerLookup is undefined because we've not overloaded it
             trackerLookup: undefined,
-            bundledConfig: configIn
+            bundledConfig: configIn,
         })
     })
 
@@ -101,48 +101,48 @@ describe('Helpers checks', () => {
                 testFeature: {
                     state: 'enabled',
                     settings: {
-                        beep: 'boop'
+                        beep: 'boop',
                     },
-                    exceptions: []
+                    exceptions: [],
                 },
                 testFeatureTooBig: {
                     state: 'enabled',
                     minSupportedVersion: '1.0.0',
                     settings: {},
-                    exceptions: []
+                    exceptions: [],
                 },
                 testFeatureSmall: {
                     state: 'enabled',
                     minSupportedVersion: '0.9.9',
                     settings: {},
-                    exceptions: []
+                    exceptions: [],
                 },
                 testFeatureSmaller: {
                     state: 'enabled',
                     minSupportedVersion: '0.9.8',
                     settings: {
-                        barp: true
+                        barp: true,
                     },
-                    exceptions: []
+                    exceptions: [],
                 },
                 testFeatureOutlier: {
                     state: 'enabled',
                     minSupportedVersion: '97.0.00',
                     settings: {},
-                    exceptions: []
-                }
+                    exceptions: [],
+                },
             },
-            unprotectedTemporary: []
+            unprotectedTemporary: [],
         }
         const processedConfig = processConfig(
             configIn,
             [],
             {
                 platform: {
-                    name: 'ios'
+                    name: 'ios',
                 },
                 versionString: '0.9.9',
-                sessionKey: 'testSessionKey'
+                sessionKey: 'testSessionKey',
             },
             []
         )
@@ -152,25 +152,25 @@ describe('Helpers checks', () => {
                 isBroken: false,
                 allowlisted: false,
                 // testFeatureTooBig is not enabled because it's minSupportedVersion is 100
-                enabledFeatures: ['testFeature', 'testFeatureSmall', 'testFeatureSmaller']
+                enabledFeatures: ['testFeature', 'testFeatureSmall', 'testFeatureSmaller'],
             },
             featureSettings: {
                 testFeature: {
-                    beep: 'boop'
+                    beep: 'boop',
                 },
                 testFeatureSmall: {},
                 testFeatureSmaller: {
-                    barp: true
-                }
+                    barp: true,
+                },
             },
             platform: {
                 name: 'ios',
-                version: '0.9.9'
+                version: '0.9.9',
             },
             versionString: '0.9.9',
             sessionKey: 'testSessionKey',
             trackerLookup: undefined,
-            bundledConfig: configIn
+            bundledConfig: configIn,
         })
     })
 
@@ -203,7 +203,7 @@ describe('Helpers checks', () => {
             ['102.12.12.1', '102.12.12.3', true],
             ['102.12.12.1', '102.12.12.1.1', true],
             ['102.12.12.1', '102.12.12.2.1', true],
-            ['102.12.12.1', '102.12.12.1.1.1.1.1.1.1', true]
+            ['102.12.12.1', '102.12.12.1.1.1.1.1.1.1', true],
         ]
         for (const testCase of cases) {
             const [versionString, extensionVersionString, expectedOutcome] = testCase

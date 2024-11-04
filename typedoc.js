@@ -27,7 +27,7 @@ const config = {
         'special-pages/pages/special-error/src/js/index.js',
         'special-pages/pages/special-error/app/types.js',
         'special-pages/pages/new-tab/app/docs.js',
-        'special-pages/types/*'
+        'special-pages/types/*',
     ],
     categoryOrder: ['Special Pages', 'Content Scope Scripts Integrations', 'Other'],
     out: 'docs',
@@ -36,7 +36,7 @@ const config = {
     readme: 'none',
     treatWarningsAsErrors: true,
     searchInComments: true,
-    modifierTags: [...OptionDefaults.modifierTags, '@implements']
+    modifierTags: [...OptionDefaults.modifierTags, '@implements'],
 }
 
 export default config

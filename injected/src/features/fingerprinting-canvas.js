@@ -36,7 +36,7 @@ export default class FingerprintingCanvas extends ContentFeature {
                     canvasContexts.set(thisArg, context)
                 } catch {}
                 return context
-            }
+            },
         })
         proxy.overload()
 
@@ -53,7 +53,7 @@ export default class FingerprintingCanvas extends ContentFeature {
                         clearCache(thisArg.canvas)
                     }
                     return DDGReflect.apply(target, thisArg, args)
-                }
+                },
             })
             safeMethodProxy.overload()
         }
@@ -77,7 +77,7 @@ export default class FingerprintingCanvas extends ContentFeature {
             'createConicGradient',
             'createLinearGradient',
             'createRadialGradient',
-            'createPattern'
+            'createPattern',
         ]
         for (const methodName of unsafeMethods) {
             // Some methods are browser specific
@@ -87,7 +87,7 @@ export default class FingerprintingCanvas extends ContentFeature {
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         treatAsUnsafe(thisArg.canvas)
                         return DDGReflect.apply(target, thisArg, args)
-                    }
+                    },
                 })
                 unsafeProxy.overload()
             }
@@ -102,7 +102,7 @@ export default class FingerprintingCanvas extends ContentFeature {
                 'createProgram',
                 'linkProgram',
                 'drawElements',
-                'drawArrays'
+                'drawArrays',
             ]
             const glContexts = [WebGLRenderingContext]
             if ('WebGL2RenderingContext' in globalThis) {
@@ -117,7 +117,7 @@ export default class FingerprintingCanvas extends ContentFeature {
                                 // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                                 treatAsUnsafe(thisArg.canvas)
                                 return DDGReflect.apply(target, thisArg, args)
-                            }
+                            },
                         })
                         unsafeProxy.overload()
                     }
@@ -141,7 +141,7 @@ export default class FingerprintingCanvas extends ContentFeature {
                 } catch {}
 
                 return DDGReflect.apply(target, thisArg, args)
-            }
+            },
         })
         getImageDataProxy.overload()
 
@@ -182,7 +182,7 @@ export default class FingerprintingCanvas extends ContentFeature {
                         // Something we did caused an exception, fall back to the native
                         return DDGReflect.apply(target, thisArg, args)
                     }
-                }
+                },
             })
             proxy.overload()
         }

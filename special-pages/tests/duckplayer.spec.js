@@ -196,7 +196,7 @@ test.describe('translated DuckPlayer UI', () => {
             'sk',
             'sl',
             'sv',
-            'tr'
+            'tr',
         ]
         for (const locale of items) {
             const duckplayer = DuckPlayerPage.create(page, workerInfo)
@@ -204,7 +204,7 @@ test.describe('translated DuckPlayer UI', () => {
             await duckplayer.hasLoadedIframe()
             const params = new URLSearchParams({
                 locale,
-                videoID: 'VIDEO_ID'
+                videoID: 'VIDEO_ID',
             })
             await duckplayer.openPage(params)
             await page.pause()

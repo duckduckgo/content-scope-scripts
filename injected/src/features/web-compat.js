@@ -131,7 +131,7 @@ export class WebCompat extends ContentFeature {
             configurable: true,
             enumerable: true,
             writable: true,
-            value: canShare
+            value: canShare,
         })
 
         this.defineProperty(Navigator.prototype, 'share', {
@@ -168,7 +168,7 @@ export class WebCompat extends ContentFeature {
                             throw new DOMException(resp.failure.message, 'DataError')
                     }
                 }
-            }
+            },
         })
     }
 
@@ -186,7 +186,7 @@ export class WebCompat extends ContentFeature {
             },
             writable: true,
             configurable: true,
-            enumerable: false
+            enumerable: false,
         })
 
         this.defineProperty(window.Notification, 'requestPermission', {
@@ -195,19 +195,19 @@ export class WebCompat extends ContentFeature {
             },
             writable: true,
             configurable: true,
-            enumerable: true
+            enumerable: true,
         })
 
         this.defineProperty(window.Notification, 'permission', {
             get: () => 'denied',
             configurable: true,
-            enumerable: false
+            enumerable: false,
         })
 
         this.defineProperty(window.Notification, 'maxActions', {
             get: () => 2,
             configurable: true,
-            enumerable: true
+            enumerable: true,
         })
     }
 
@@ -247,7 +247,7 @@ export class WebCompat extends ContentFeature {
                     }
                 }
                 return Reflect.apply(target, thisArg, args)
-            }
+            },
         })
     }
 
@@ -299,7 +299,7 @@ export class WebCompat extends ContentFeature {
             {
                 get(target, name) {
                     return Reflect.get(target, name)
-                }
+                },
             }
         )
         // Expose the API
@@ -320,7 +320,7 @@ export class WebCompat extends ContentFeature {
             'portrait-secondary',
             'landscape-primary',
             'landscape-secondary',
-            'unsupported'
+            'unsupported',
         ]
 
         this.wrapProperty(globalThis.ScreenOrientation.prototype, 'lock', {
@@ -363,13 +363,13 @@ export class WebCompat extends ContentFeature {
                 }
 
                 return Promise.resolve()
-            }
+            },
         })
 
         this.wrapProperty(globalThis.ScreenOrientation.prototype, 'unlock', {
             value: () => {
                 this.messaging.request(MSG_SCREEN_UNLOCK, {})
-            }
+            },
         })
     }
 
@@ -384,14 +384,14 @@ export class WebCompat extends ContentFeature {
             const value = {
                 get() {
                     return Promise.reject(new Error())
-                }
+                },
             }
             // TODO: original property is an accessor descriptor
             this.defineProperty(Navigator.prototype, 'credentials', {
                 value,
                 configurable: true,
                 enumerable: true,
-                writable: true
+                writable: true,
             })
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
@@ -408,13 +408,13 @@ export class WebCompat extends ContentFeature {
                 value: {},
                 writable: true,
                 configurable: true,
-                enumerable: true
+                enumerable: true,
             })
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.safari, 'pushNotification', {
                 value: {},
                 configurable: true,
-                enumerable: true
+                enumerable: true,
             })
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.safari.pushNotification, 'toString', {
@@ -422,7 +422,7 @@ export class WebCompat extends ContentFeature {
                     return '[object SafariRemoteNotification]'
                 },
                 configurable: true,
-                enumerable: true
+                enumerable: true,
             })
             class SafariRemoteNotificationPermission {
                 constructor() {
@@ -436,7 +436,7 @@ export class WebCompat extends ContentFeature {
                     return new SafariRemoteNotificationPermission()
                 },
                 configurable: true,
-                enumerable: true
+                enumerable: true,
             })
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.safari.pushNotification, 'requestPermission', {
@@ -449,7 +449,7 @@ export class WebCompat extends ContentFeature {
                     throw new Error(reason)
                 },
                 configurable: true,
-                enumerable: true
+                enumerable: true,
             })
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
@@ -476,7 +476,7 @@ export class WebCompat extends ContentFeature {
             this.shimInterface('MediaSession', MyMediaSession, {
                 disallowConstructor: true,
                 allowConstructorCall: false,
-                wrapToString: true
+                wrapToString: true,
             })
             this.shimProperty(Navigator.prototype, 'mediaSession', new MyMediaSession(), true)
 
@@ -493,7 +493,7 @@ export class WebCompat extends ContentFeature {
                 {
                     disallowConstructor: false,
                     allowConstructorCall: false,
-                    wrapToString: true
+                    wrapToString: true,
                 }
             )
         } catch {
@@ -522,7 +522,7 @@ export class WebCompat extends ContentFeature {
             this.shimInterface('Presentation', MyPresentation, {
                 disallowConstructor: true,
                 allowConstructorCall: false,
-                wrapToString: true
+                wrapToString: true,
             })
 
             // @ts-expect-error Presentation API is still experimental, TS types are missing
@@ -534,7 +534,7 @@ export class WebCompat extends ContentFeature {
                 {
                     disallowConstructor: true,
                     allowConstructorCall: false,
-                    wrapToString: true
+                    wrapToString: true,
                 }
             )
 
@@ -547,7 +547,7 @@ export class WebCompat extends ContentFeature {
                 {
                     disallowConstructor: true,
                     allowConstructorCall: false,
-                    wrapToString: true
+                    wrapToString: true,
                 }
             )
 
@@ -611,17 +611,17 @@ export class WebCompat extends ContentFeature {
                     return {
                         postMessage() {
                             return Promise.resolve({})
-                        }
+                        },
                     }
                 }
                 // if we get here, we couldn't handle the message handler name, so we opt for doing nothing.
                 // It's unlikely we'll ever reach here, since `["*"]' should be present
-            }
+            },
         })
 
         globalThis.webkit = {
             ...globalThis.webkit,
-            messageHandlers: proxy
+            messageHandlers: proxy,
         }
     }
 

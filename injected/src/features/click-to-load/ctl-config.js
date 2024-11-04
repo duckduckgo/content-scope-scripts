@@ -63,8 +63,8 @@ export function getStyles(assets) {
             `,
                 inactive: `
                 background-color: #666666;
-            `
-            }
+            `,
+            },
         },
         lightMode: {
             background: `
@@ -97,8 +97,8 @@ export function getStyles(assets) {
             `,
                 inactive: `
                 background-color: #666666;
-            `
-            }
+            `,
+            },
         },
         loginMode: {
             buttonBackground: `
@@ -106,7 +106,7 @@ export function getStyles(assets) {
         `,
             buttonFont: `
             color: #FFFFFF;
-        `
+        `,
         },
         cancelMode: {
             buttonBackground: `
@@ -120,7 +120,7 @@ export function getStyles(assets) {
         `,
             buttonBackgroundPress: `
             background: rgba(0, 0, 0, 0.18);
-        `
+        `,
         },
         button: `
         border-radius: 8px;
@@ -505,7 +505,7 @@ export function getStyles(assets) {
         `,
             inactive: `
             left: 1px;
-        `
+        `,
         },
         placeholderWrapperDiv: `
         position: relative;
@@ -611,7 +611,7 @@ export function getStyles(assets) {
     `,
         youTubePreviewInfoText: `
         color: #ABABAB;
-    `
+    `,
     }
 }
 
@@ -633,52 +633,52 @@ export function getConfig(locale) {
                 messageTitle: fbStrings.informationalModalMessageTitle,
                 messageBody: fbStrings.informationalModalMessageBody,
                 confirmButtonText: fbStrings.informationalModalConfirmButtonText,
-                rejectButtonText: fbStrings.informationalModalRejectButtonText
+                rejectButtonText: fbStrings.informationalModalRejectButtonText,
             },
             elementData: {
                 'FB Like Button': {
                     selectors: ['.fb-like'],
                     replaceSettings: {
-                        type: 'blank'
-                    }
+                        type: 'blank',
+                    },
                 },
                 'FB Button iFrames': {
                     selectors: [
                         "iframe[src*='//www.facebook.com/plugins/like.php']",
                         "iframe[src*='//www.facebook.com/v2.0/plugins/like.php']",
                         "iframe[src*='//www.facebook.com/plugins/share_button.php']",
-                        "iframe[src*='//www.facebook.com/v2.0/plugins/share_button.php']"
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/share_button.php']",
                     ],
                     replaceSettings: {
-                        type: 'blank'
-                    }
+                        type: 'blank',
+                    },
                 },
                 'FB Save Button': {
                     selectors: ['.fb-save'],
                     replaceSettings: {
-                        type: 'blank'
-                    }
+                        type: 'blank',
+                    },
                 },
                 'FB Share Button': {
                     selectors: ['.fb-share-button'],
                     replaceSettings: {
-                        type: 'blank'
-                    }
+                        type: 'blank',
+                    },
                 },
                 'FB Page iFrames': {
                     selectors: [
                         "iframe[src*='//www.facebook.com/plugins/page.php']",
-                        "iframe[src*='//www.facebook.com/v2.0/plugins/page.php']"
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/page.php']",
                     ],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockContent,
                         infoTitle: fbStrings.infoTitleUnblockContent,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
-                        type: 'originalElement'
-                    }
+                        type: 'originalElement',
+                    },
                 },
                 'FB Page Div': {
                     selectors: ['.fb-page'],
@@ -686,7 +686,7 @@ export function getConfig(locale) {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockContent,
                         infoTitle: fbStrings.infoTitleUnblockContent,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
                         type: 'iFrame',
@@ -695,44 +695,44 @@ export function getConfig(locale) {
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
-                                required: true
+                                required: true,
                             },
                             'data-tabs': {
-                                default: 'timeline'
+                                default: 'timeline',
                             },
                             'data-height': {
-                                default: '500'
+                                default: '500',
                             },
                             'data-width': {
-                                default: '500'
-                            }
+                                default: '500',
+                            },
                         },
                         styleDataAttributes: {
                             width: {
                                 name: 'data-width',
-                                unit: 'px'
+                                unit: 'px',
                             },
                             height: {
                                 name: 'data-height',
-                                unit: 'px'
-                            }
-                        }
-                    }
+                                unit: 'px',
+                            },
+                        },
+                    },
                 },
                 'FB Comment iFrames': {
                     selectors: [
                         "iframe[src*='//www.facebook.com/plugins/comment_embed.php']",
-                        "iframe[src*='//www.facebook.com/v2.0/plugins/comment_embed.php']"
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/comment_embed.php']",
                     ],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockComment,
                         infoTitle: fbStrings.infoTitleUnblockComment,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
-                        type: 'originalElement'
-                    }
+                        type: 'originalElement',
+                    },
                 },
                 'FB Comments': {
                     selectors: ['.fb-comments', 'fb\\:comments'],
@@ -740,7 +740,7 @@ export function getConfig(locale) {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockComments,
                         infoTitle: fbStrings.infoTitleUnblockComments,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
                         type: 'allowFull',
@@ -749,16 +749,16 @@ export function getConfig(locale) {
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
-                                required: true
+                                required: true,
                             },
                             'data-numposts': {
-                                default: 10
+                                default: 10,
                             },
                             'data-width': {
-                                default: '500'
-                            }
-                        }
-                    }
+                                default: '500',
+                            },
+                        },
+                    },
                 },
                 'FB Embedded Comment Div': {
                     selectors: ['.fb-comment-embed'],
@@ -766,7 +766,7 @@ export function getConfig(locale) {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockComment,
                         infoTitle: fbStrings.infoTitleUnblockComment,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
                         type: 'iFrame',
@@ -775,37 +775,37 @@ export function getConfig(locale) {
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
-                                required: true
+                                required: true,
                             },
                             'data-width': {
-                                default: '500'
+                                default: '500',
                             },
                             'data-include-parent': {
-                                default: 'false'
-                            }
+                                default: 'false',
+                            },
                         },
                         styleDataAttributes: {
                             width: {
                                 name: 'data-width',
-                                unit: 'px'
-                            }
-                        }
-                    }
+                                unit: 'px',
+                            },
+                        },
+                    },
                 },
                 'FB Post iFrames': {
                     selectors: [
                         "iframe[src*='//www.facebook.com/plugins/post.php']",
-                        "iframe[src*='//www.facebook.com/v2.0/plugins/post.php']"
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/post.php']",
                     ],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockPost,
                         infoTitle: fbStrings.infoTitleUnblockPost,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
-                        type: 'originalElement'
-                    }
+                        type: 'originalElement',
+                    },
                 },
                 'FB Posts Div': {
                     selectors: ['.fb-post'],
@@ -813,7 +813,7 @@ export function getConfig(locale) {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockPost,
                         infoTitle: fbStrings.infoTitleUnblockPost,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
                         type: 'allowFull',
@@ -821,39 +821,39 @@ export function getConfig(locale) {
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
-                                required: true
+                                required: true,
                             },
                             'data-width': {
-                                default: '500'
-                            }
+                                default: '500',
+                            },
                         },
                         styleDataAttributes: {
                             width: {
                                 name: 'data-width',
-                                unit: 'px'
+                                unit: 'px',
                             },
                             height: {
                                 name: 'data-height',
                                 unit: 'px',
-                                fallbackAttribute: 'data-width'
-                            }
-                        }
-                    }
+                                fallbackAttribute: 'data-width',
+                            },
+                        },
+                    },
                 },
                 'FB Video iFrames': {
                     selectors: [
                         "iframe[src*='//www.facebook.com/plugins/video.php']",
-                        "iframe[src*='//www.facebook.com/v2.0/plugins/video.php']"
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/video.php']",
                     ],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockVideo,
                         infoTitle: fbStrings.infoTitleUnblockVideo,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
-                        type: 'originalElement'
-                    }
+                        type: 'originalElement',
+                    },
                 },
                 'FB Video': {
                     selectors: ['.fb-video'],
@@ -861,7 +861,7 @@ export function getConfig(locale) {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockVideo,
                         infoTitle: fbStrings.infoTitleUnblockVideo,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
                         type: 'iFrame',
@@ -869,39 +869,39 @@ export function getConfig(locale) {
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
-                                required: true
+                                required: true,
                             },
                             'data-width': {
-                                default: '500'
-                            }
+                                default: '500',
+                            },
                         },
                         styleDataAttributes: {
                             width: {
                                 name: 'data-width',
-                                unit: 'px'
+                                unit: 'px',
                             },
                             height: {
                                 name: 'data-height',
                                 unit: 'px',
-                                fallbackAttribute: 'data-width'
-                            }
-                        }
-                    }
+                                fallbackAttribute: 'data-width',
+                            },
+                        },
+                    },
                 },
                 'FB Group iFrames': {
                     selectors: [
                         "iframe[src*='//www.facebook.com/plugins/group.php']",
-                        "iframe[src*='//www.facebook.com/v2.0/plugins/group.php']"
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/group.php']",
                     ],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockContent,
                         infoTitle: fbStrings.infoTitleUnblockContent,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
-                        type: 'originalElement'
-                    }
+                        type: 'originalElement',
+                    },
                 },
                 'FB Group': {
                     selectors: ['.fb-group'],
@@ -909,7 +909,7 @@ export function getConfig(locale) {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockContent,
                         infoTitle: fbStrings.infoTitleUnblockContent,
-                        infoText: fbStrings.infoTextUnblockContent
+                        infoText: fbStrings.infoTextUnblockContent,
                     },
                     clickAction: {
                         type: 'iFrame',
@@ -917,19 +917,19 @@ export function getConfig(locale) {
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
-                                required: true
+                                required: true,
                             },
                             'data-width': {
-                                default: '500'
-                            }
+                                default: '500',
+                            },
                         },
                         styleDataAttributes: {
                             width: {
                                 name: 'data-width',
-                                unit: 'px'
-                            }
-                        }
-                    }
+                                unit: 'px',
+                            },
+                        },
+                    },
                 },
                 'FB Login Button': {
                     selectors: ['.fb-login-button'],
@@ -938,7 +938,7 @@ export function getConfig(locale) {
                         icon: blockedFBLogo,
                         buttonText: fbStrings.loginButtonText,
                         buttonTextUnblockLogin: fbStrings.buttonTextUnblockLogin,
-                        popupBodyText: fbStrings.loginBodyText
+                        popupBodyText: fbStrings.loginBodyText,
                     },
                     clickAction: {
                         type: 'allowFull',
@@ -947,18 +947,18 @@ export function getConfig(locale) {
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
-                                required: true
+                                required: true,
                             },
                             'data-width': {
-                                default: '500'
+                                default: '500',
                             },
                             app_id_replace: {
-                                default: 'null'
-                            }
-                        }
-                    }
-                }
-            }
+                                default: 'null',
+                            },
+                        },
+                    },
+                },
+            },
         },
         Youtube: {
             informationalModal: {
@@ -966,7 +966,7 @@ export function getConfig(locale) {
                 messageTitle: ytStrings.informationalModalMessageTitle,
                 messageBody: ytStrings.informationalModalMessageBody,
                 confirmButtonText: ytStrings.informationalModalConfirmButtonText,
-                rejectButtonText: ytStrings.informationalModalRejectButtonText
+                rejectButtonText: ytStrings.informationalModalRejectButtonText,
             },
             elementData: {
                 'YouTube embedded video': {
@@ -978,7 +978,7 @@ export function getConfig(locale) {
                         "iframe[data-src*='//youtube.com/embed']",
                         "iframe[data-src*='//youtube-nocookie.com/embed']",
                         "iframe[data-src*='//www.youtube.com/embed']",
-                        "iframe[data-src*='//www.youtube-nocookie.com/embed']"
+                        "iframe[data-src*='//www.youtube-nocookie.com/embed']",
                     ],
                     replaceSettings: {
                         type: 'youtube-video',
@@ -992,13 +992,13 @@ export function getConfig(locale) {
                             previewToggleEnabledDuckDuckGoText: ytStrings.infoPreviewToggleEnabledText,
                             videoPlayIcon: {
                                 lightMode: videoPlayLight,
-                                darkMode: videoPlayDark
-                            }
-                        }
+                                darkMode: videoPlayDark,
+                            },
+                        },
                     },
                     clickAction: {
-                        type: 'youtube-video'
-                    }
+                        type: 'youtube-video',
+                    },
                 },
                 'YouTube embedded subscription button': {
                     selectors: [
@@ -1009,14 +1009,14 @@ export function getConfig(locale) {
                         "iframe[data-src*='//youtube.com/subscribe_embed']",
                         "iframe[data-src*='//youtube-nocookie.com/subscribe_embed']",
                         "iframe[data-src*='//www.youtube.com/subscribe_embed']",
-                        "iframe[data-src*='//www.youtube-nocookie.com/subscribe_embed']"
+                        "iframe[data-src*='//www.youtube-nocookie.com/subscribe_embed']",
                     ],
                     replaceSettings: {
-                        type: 'blank'
-                    }
-                }
-            }
-        }
+                        type: 'blank',
+                    },
+                },
+            },
+        },
     }
 
     return { config, sharedStrings }

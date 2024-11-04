@@ -1,6 +1,6 @@
 export const DEFAULT_RETRY_CONFIG = {
     interval: { ms: 0 },
-    maxAttempts: 1
+    maxAttempts: 1,
 }
 
 /**

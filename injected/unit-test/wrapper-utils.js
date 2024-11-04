@@ -45,7 +45,7 @@ describe('Shim API', () => {
                 {
                     wrapToString: true,
                     disallowConstructor: false,
-                    allowConstructorCall: false
+                    allowConstructorCall: false,
                 },
                 definePropertyFn
             )
@@ -74,7 +74,7 @@ describe('Shim API', () => {
                 {
                     disallowConstructor: false,
                     allowConstructorCall: false,
-                    wrapToString: true
+                    wrapToString: true,
                 },
                 definePropertyFn
             )
@@ -86,7 +86,7 @@ describe('Shim API', () => {
                 {
                     disallowConstructor: true,
                     allowConstructorCall: false,
-                    wrapToString: true
+                    wrapToString: true,
                 },
                 definePropertyFn
             )
@@ -99,7 +99,7 @@ describe('Shim API', () => {
                     disallowConstructor: true,
                     constructorErrorMessage: 'friendly message',
                     allowConstructorCall: false,
-                    wrapToString: true
+                    wrapToString: true,
                 },
                 definePropertyFn
             )
@@ -115,7 +115,7 @@ describe('Shim API', () => {
                 {
                     allowConstructorCall: true,
                     wrapToString: true,
-                    disallowConstructor: false
+                    disallowConstructor: false,
                 },
                 definePropertyFn
             )
@@ -132,7 +132,7 @@ describe('Shim API', () => {
                 {
                     allowConstructorCall: false,
                     wrapToString: true,
-                    disallowConstructor: false
+                    disallowConstructor: false,
                 },
                 definePropertyFn
             )
@@ -147,7 +147,7 @@ describe('Shim API', () => {
                 {
                     wrapToString: false,
                     disallowConstructor: false,
-                    allowConstructorCall: false
+                    allowConstructorCall: false,
                 },
                 definePropertyFn
             )
@@ -165,7 +165,7 @@ describe('Shim API', () => {
                 {
                     wrapToString: true,
                     disallowConstructor: false,
-                    allowConstructorCall: false
+                    allowConstructorCall: false,
                 },
                 definePropertyFn
             )
@@ -184,7 +184,7 @@ describe('Shim API', () => {
                 {
                     wrapToString: true,
                     disallowConstructor: false,
-                    allowConstructorCall: false
+                    allowConstructorCall: false,
                 },
                 definePropertyFn
             )
@@ -207,7 +207,7 @@ describe('Shim API', () => {
                 {
                     wrapToString: true,
                     disallowConstructor: false,
-                    allowConstructorCall: false
+                    allowConstructorCall: false,
                 },
                 definePropertyFn
             )
@@ -222,7 +222,7 @@ describe('Shim API', () => {
                     value: null,
                     configurable: true,
                     enumerable: true,
-                    writable: true
+                    writable: true,
                 },
                 'property should be writable'
             )
@@ -235,7 +235,7 @@ describe('Shim API', () => {
                 {
                     wrapToString: true,
                     disallowConstructor: false,
-                    allowConstructorCall: false
+                    allowConstructorCall: false,
                 },
                 definePropertyFn
             )
@@ -259,7 +259,7 @@ describe('Shim API', () => {
                 // @ts-expect-error set is overridden
                 set: undefined,
                 configurable: true,
-                enumerable: true
+                enumerable: true,
             })
 
             expect(getter.toString()).toBe('function get mediaSession() { [native code] }')

@@ -98,7 +98,7 @@ export default class DuckPlayerFeature extends ContentFeature {
             debug: args.debug,
             injectName: import.meta.injectName,
             platform: this.platform,
-            locale
+            locale,
         })
         const comms = new DuckPlayerOverlayMessages(this.messaging, env)
 

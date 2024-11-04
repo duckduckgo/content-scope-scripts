@@ -17,7 +17,7 @@ export class WidgetConfigService {
         this.service = new Service(
             {
                 subscribe: (cb) => ntp.messaging.subscribe('widgets_onConfigUpdated', cb),
-                persist: (data) => ntp.messaging.notify('widgets_setConfig', data)
+                persist: (data) => ntp.messaging.notify('widgets_setConfig', data),
             },
             initialConfig
         )

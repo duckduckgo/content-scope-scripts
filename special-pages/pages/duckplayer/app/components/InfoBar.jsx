@@ -111,7 +111,7 @@ function ControlBarDesktop({ embed }) {
                 anchorProps={{
                     href: settingsUrl,
                     target: '_blank',
-                    'aria-label': t('openSettingsButton')
+                    'aria-label': t('openSettingsButton'),
                 }}
             >
                 <Icon src={cog} />
@@ -121,7 +121,7 @@ function ControlBarDesktop({ embed }) {
                 buttonProps={{
                     onClick: () => {
                         if (embed) openOnYoutube(embed)
-                    }
+                    },
                 }}
             >
                 {t('watchOnYoutube')}

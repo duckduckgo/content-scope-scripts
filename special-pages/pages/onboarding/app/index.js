@@ -21,7 +21,7 @@ const baseEnvironment = new Environment().withInjectName(document.documentElemen
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
-    pageName: 'onboarding'
+    pageName: 'onboarding',
 })
 
 const onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName)

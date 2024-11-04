@@ -64,7 +64,7 @@ export class ProfileResult {
             scrapedData: this.scrapedData,
             result: this.result,
             score: this.score,
-            matchedFields: this.matchedFields
+            matchedFields: this.matchedFields,
         }
     }
 }

@@ -95,7 +95,7 @@ export class IntegrationSpecialErrorPage extends SpecialErrorPage {
         let platform = { name: 'macos' }
         if (platformName && supportedPlatforms.includes(platformName)) {
             platform = {
-                name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */ (platformName)
+                name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */ (platformName),
             }
         }
 
@@ -103,7 +103,7 @@ export class IntegrationSpecialErrorPage extends SpecialErrorPage {
             env: 'development',
             locale: 'en',
             platform,
-            errorData
+            errorData,
         })
     }
 }
@@ -113,7 +113,7 @@ const baseEnvironment = new Environment().withInjectName(document.documentElemen
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
-    pageName: /** @type {string} */ (import.meta.pageName)
+    pageName: /** @type {string} */ (import.meta.pageName),
 })
 
 const specialErrorPage =

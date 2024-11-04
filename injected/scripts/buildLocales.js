@@ -33,7 +33,7 @@ function bundle(localesRoot) {
 
 const jobs = {
     'src/locales/click-to-load': '../build/locales/ctl-locales.js',
-    'src/locales/duckplayer': '../build/locales/duckplayer-locales.js'
+    'src/locales/duckplayer': '../build/locales/duckplayer-locales.js',
 }
 
 for (const [dir, output] of Object.entries(jobs)) {

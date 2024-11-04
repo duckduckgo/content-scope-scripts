@@ -333,7 +333,7 @@ export class AndroidMessagingConfig {
         }
 
         Object.defineProperty(this.target, this.messageCallback, {
-            value: responseHandler
+            value: responseHandler,
         })
     }
 }

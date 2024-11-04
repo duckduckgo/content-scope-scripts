@@ -7,7 +7,7 @@ export default class Referrer extends ContentFeature {
             // trim referrer to origin.
             const trimmedReferer = new URL(document.referrer).origin + '/'
             this.wrapProperty(Document.prototype, 'referrer', {
-                get: () => trimmedReferer
+                get: () => trimmedReferer,
             })
         }
     }

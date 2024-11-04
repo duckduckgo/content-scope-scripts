@@ -20,7 +20,7 @@ export function Switch({ checked, onChange, id, platformName = 'ios' }) {
             id={id}
             className={cn(styles.switch, {
                 [styles.ios]: platformName === 'ios',
-                [styles.android]: platformName === 'android'
+                [styles.android]: platformName === 'android',
             })}
         >
             <span className={styles.thumb}></span>

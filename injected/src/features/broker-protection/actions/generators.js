@@ -39,7 +39,7 @@ export function generateStreetAddress() {
         'Ridge',
         'Valley',
         'Meadow',
-        'Forest'
+        'Forest',
     ]
     const streetName = streetNames[generateRandomInt(0, streetNames.length - 1)]
     const suffixes = ['', 'St', 'Ave', 'Blvd', 'Rd', 'Ct', 'Dr', 'Ln', 'Pkwy', 'Pl', 'Ter', 'Way']

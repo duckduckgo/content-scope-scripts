@@ -17,11 +17,11 @@ export const WidgetConfigContext = createContext({
 
     /** @type {(id:string) => void} */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    toggle: (_id) => {}
+    toggle: (_id) => {},
 })
 
 export const WidgetConfigDispatchContext = createContext({
-    dispatch: null
+    dispatch: null,
 })
 
 /**
@@ -56,7 +56,7 @@ export function WidgetConfigProvider(props) {
                 widgets: props.widgets,
                 // this will be updated via subscriptions
                 widgetConfigItems: data || [],
-                toggle
+                toggle,
             }}
         >
             {props.children}
@@ -71,7 +71,7 @@ const WidgetVisibilityContext = createContext({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     toggle: (_id) => {},
     /** @type {number} */
-    index: -1
+    index: -1,
 })
 
 export function useVisibility() {
@@ -95,7 +95,7 @@ export function WidgetVisibilityProvider(props) {
                 visibility: props.visibility,
                 id: props.id,
                 toggle,
-                index: props.index
+                index: props.index,
             }}
         >
             {props.children}

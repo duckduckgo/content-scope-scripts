@@ -19,14 +19,14 @@ const config = new WindowsMessagingConfig({
     methods: {
         postMessage: windowsInteropPostMessage,
         addEventListener: windowsInteropAddEventListener,
-        removeEventListener: windowsInteropRemoveEventListener
-    }
+        removeEventListener: windowsInteropRemoveEventListener,
+    },
 })
 
 const messagingContext = new MessagingContext({
     context: 'contentScopeScripts',
     featureName: 'hello-world',
-    env: 'development'
+    env: 'development',
 })
 
 /**

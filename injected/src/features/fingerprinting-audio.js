@@ -60,7 +60,7 @@ export default class FingerprintingAudio extends ContentFeature {
                 } catch {
                     return DDGReflect.apply(target, thisArg, args)
                 }
-            }
+            },
         })
         copyFromChannelProxy.overload()
 
@@ -91,7 +91,7 @@ export default class FingerprintingAudio extends ContentFeature {
                     transformArrayData(channelData, domainKey, sessionKey, thisArg, args)
                 } catch {}
                 return channelData
-            }
+            },
         })
         getChannelDataProxy.overload()
 
@@ -105,7 +105,7 @@ export default class FingerprintingAudio extends ContentFeature {
                         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                         transformArrayData(args[0], domainKey, sessionKey, thisArg, args)
                     } catch {}
-                }
+                },
             })
             proxy.overload()
         }

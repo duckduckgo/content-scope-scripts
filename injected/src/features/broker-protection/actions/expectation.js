@@ -66,7 +66,7 @@ export function expectMany(expectations, root) {
             default: {
                 return {
                     result: false,
-                    error: `unknown expectation type: ${expectation.type}`
+                    error: `unknown expectation type: ${expectation.type}`,
                 }
             }
         }
@@ -87,7 +87,7 @@ export function elementExpectation(expectation, root) {
         if (!parent) {
             return {
                 result: false,
-                error: `parent element not found with selector: ${expectation.parent}`
+                error: `parent element not found with selector: ${expectation.parent}`,
             }
         }
         parent.scrollIntoView()
@@ -98,7 +98,7 @@ export function elementExpectation(expectation, root) {
     if (!elementExists) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`
+            error: `element with selector ${expectation.selector} not found.`,
         }
     }
     return { result: true }
@@ -117,7 +117,7 @@ export function textExpectation(expectation, root) {
     if (!elem) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`
+            error: `element with selector ${expectation.selector} not found.`,
         }
     }
 
@@ -125,7 +125,7 @@ export function textExpectation(expectation, root) {
     if (!expectation.expect) {
         return {
             result: false,
-            error: "missing key: 'expect'"
+            error: "missing key: 'expect'",
         }
     }
 
@@ -135,7 +135,7 @@ export function textExpectation(expectation, root) {
     if (!textExists) {
         return {
             result: false,
-            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`
+            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`,
         }
     }
 
@@ -155,14 +155,14 @@ export function urlExpectation(expectation) {
     if (!expectation.expect) {
         return {
             result: false,
-            error: "missing key: 'expect'"
+            error: "missing key: 'expect'",
         }
     }
 
     if (!url.includes(expectation.expect)) {
         return {
             result: false,
-            error: `expected URL to include ${expectation.expect}, but it didn't`
+            error: `expected URL to include ${expectation.expect}, but it didn't`,
         }
     }
 

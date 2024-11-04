@@ -20,7 +20,7 @@ export const PrivacyStatsContext = createContext({
     /** @type {() => void} */
     toggle: () => {
         throw new Error('must implement')
-    }
+    },
 })
 
 export const PrivacyStatsDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}))
@@ -36,7 +36,7 @@ export function PrivacyStatsProvider(props) {
     const initial = /** @type {State} */ ({
         status: 'idle',
         data: null,
-        config: null
+        config: null,
     })
 
     // const [state, dispatch] = useReducer(withLog('PrivacyStatsProvider', reducer), initial)
