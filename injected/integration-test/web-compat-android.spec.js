@@ -247,6 +247,7 @@ test.describe('Web Share API', () => {
                         return { threw: e }
                     })
 
+                    // In page context, it should be a DOMException with name DataError, but page.evaluate() serializes everything in the message
                     expect(result.threw.message).toContain('DataError: something wrong')
                 })
 
@@ -261,7 +262,8 @@ test.describe('Web Share API', () => {
                     const result = await page.evaluate('navigator.share({ text: "xxx" })').catch((e) => {
                         return { threw: e }
                     })
-                    // console.error(result.threw)
+
+                    // In page context, it should be a DOMException with name AbortError, but page.evaluate() serializes everything in the message
                     expect(result.threw.message).toContain('AbortError: some error message')
                 })
             })
