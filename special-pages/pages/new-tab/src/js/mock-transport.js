@@ -88,7 +88,7 @@ export function mockTransport () {
             }
             case 'stats_setConfig': {
                 if (!msg.params) throw new Error('unreachable')
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                 
                 const { animation, ...rest } = msg.params
                 write('stats_config', rest)
                 broadcast('stats_config')

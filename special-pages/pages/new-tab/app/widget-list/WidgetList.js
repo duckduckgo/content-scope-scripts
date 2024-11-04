@@ -21,12 +21,12 @@ function placeholderWidget (id) {
 
 /**
  * @param {string} id
- * @return {{factory: () => import("preact").ComponentChild}}
+ * @return {Promise<{factory: () => import("preact").ComponentChild}>}
  */
-function widgetEntryPoint (id) {
+export async function widgetEntryPoint (id) {
     try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const mod = require(`../entry-points/${id}.js`)
+         
+        const mod = await import(`../entry-points/${id}.js`)
         if (typeof mod.factory !== 'function') {
             console.error(`module found for ${id}, but missing 'factory' export`)
             return placeholderWidget(id)
@@ -36,16 +36,16 @@ function widgetEntryPoint (id) {
         console.error(e)
         return placeholderWidget(id)
     }
-}
+};
 
 export function WidgetList () {
-    const { widgets, widgetConfigItems } = useContext(WidgetConfigContext)
+    const { widgets, widgetConfigItems, entryPoints } = useContext(WidgetConfigContext)
 
     return (
         <Stack gap={'var(--sp-8)'}>
             {widgets.map((widget, index) => {
                 const matchingConfig = widgetConfigItems.find(item => item.id === widget.id)
-                const matchingEntryPoint = widgetEntryPoint(widget.id)
+                const matchingEntryPoint = entryPoints[widget.id]
                 if (!matchingConfig) {
                     return (
                         <Fragment key={widget.id}>
