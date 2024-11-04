@@ -7,12 +7,11 @@ export default tseslint.config(
     ...ddgConfig,
     ...tseslint.configs.recommended,
     {
-      rules: {
-        'indent': 'off',
-        'curly': 'off',
-        'quote-props': 'off',
-        'no-template-curly-in-string': 'off',
-      },
+        rules: {
+            indent: 'off',
+            curly: 'off',
+            'quote-props': 'off',
+        },
     },
     {
         ignores: [
@@ -114,5 +113,5 @@ export default tseslint.config(
                 ...globals.webextensions,
             },
         },
-    }
+    },
 )
