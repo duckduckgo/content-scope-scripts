@@ -1,0 +1,7 @@
+build/**/*
+docs/**/*
+**/*.json
+**/*.md
+**/*.html
+**/*.har
+**/*.css
