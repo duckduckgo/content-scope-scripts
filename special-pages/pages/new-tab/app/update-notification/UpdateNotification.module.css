@@ -4,24 +4,20 @@
 .root {
     border-bottom: 1px solid var(--ntp-surface-border-color);
     position: relative;
-    min-height: var(--sp-10);
-
-    &:hover {
-        .dismiss {
-            opacity: 1;
-        }
-    }
-    &:focus-within {
-        .dismiss {
-            opacity: 1;
-        }
-    }
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
+
 .body {
     position: relative;
     text-align: center;
+    width: 100%;
+    padding-block: var(--sp-6);
 }
-
+.details {
+    width: 100%;
+}
 .inlineLink {
     text-decoration: none;
     &:focus-visible {
@@ -56,17 +52,9 @@
     display: none;
 }
 
-.dismiss {
-    opacity: 0;
-    transition: all .3s;
-    position: absolute;
-    top: -2px;
-    right: var(--sp-2);
-}
-
 .detailsContent {
     padding-inline: var(--sp-2);
-    padding-block: var(--sp-4);
+    margin-top: var(--sp-2);
     text-align: left;
 }
 
@@ -75,6 +63,13 @@
     li {
         list-style: disc
     }
+}
+
+.dismiss {
+    transition: all .3s;
+    position: absolute;
+    top: calc(var(--sp-6) - 4px);
+    right: var(--sp-2);
 }
 
 .dismissBtn {
