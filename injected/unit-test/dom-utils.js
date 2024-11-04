@@ -8,7 +8,8 @@ describe('dom-utils.js - escapedTemplate', () => {
             input: () =>
                 html`<p>Foo</p>
                     <p>Bar</p>`,
-            expected: '<p>Foo</p><p>Bar</p>',
+            expected: `<p>Foo</p>
+                    <p>Bar</p>`,
         },
         { title: 'nested', input: () => html`<div>${html`<p>${'Nested'}</p>`}</div>`, expected: '<div><p>Nested</p></div>' },
         {

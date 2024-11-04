@@ -33,7 +33,7 @@
     "types-generator"
   ],
   "devDependencies": {
-    "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#10f44587b85f9ce9ea8a91b46d3eb5c180195ca1",
+    "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
     "@playwright/test": "^1.48.2",
     "@types/eslint__js": "^8.42.3",
     "eslint": "^9.13.0",
