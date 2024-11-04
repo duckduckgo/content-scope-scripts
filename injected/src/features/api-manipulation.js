@@ -1,0 +1,127 @@
+import ContentFeature from '../content-feature'
+import { processAttr } from '../utils'
+
+export default class ApiManipulation extends ContentFeature {
+    init () {
+        console.log('ApiManipulation.init()')
+        const apiChanges = this.getFeatureSetting('apiChanges')
+        if (apiChanges) {
+            for (const scope in apiChanges) {
+                const change = apiChanges[scope]
+                console.log('ApiManipulation.init() scope:', scope, 'change:', change)
+                if (!this.checkIsValidAPIChange(change)) {
+                    continue
+                }
+                console.log('ApiManipulation.init() valid scope:', scope, 'change:', change)
+                this.applyApiChange(scope, change)
+            }
+        }
+    }
+
+    /**
+     * Checks if the config API change is valid.
+     * @param {any} change
+     * @returns {change is APIChange}
+     */
+    checkIsValidAPIChange (change) {
+        if (typeof change !== 'object') {
+            return false
+        }
+        if (change.type === 'remove') {
+            return true
+        }
+        if (change.type === 'wrapPropertyValue') {
+            if (change.writable && typeof change.writable !== 'boolean') {
+                return false
+            }
+            if (change.enumerable && typeof change.enumerable !== 'boolean') {
+                return false
+            }
+            if (change.configurable && typeof change.configurable !== 'boolean') {
+                return false
+            }
+            return typeof change.value !== 'undefined'
+        }
+        return false
+    }
+
+    // TODO move this to schema definition imported from the privacy-config
+    /**
+     * @typedef {Object} APIChange
+     * @property {"remove"|"wrapPropertyValue"} type
+     * @property {any} [value] - The value to set.
+     * @property {boolean} [writable] - Whether the property is writable.
+     * @property {boolean} [enumerable] - Whether the property is enumerable.
+     * @property {boolean} [configurable] - Whether the property is configurable.
+     */
+
+    /**
+     * Applies a change to DOM APIs.
+     * @param {string} scope
+     * @param {APIChange} change
+     * @returns {void}
+     */
+    applyApiChange (scope, change) {
+        const response = this.getGlobalObject(scope)
+        if (!response) {
+            return
+        }
+        const [obj, key] = response
+        if (change.type === 'remove') {
+            this.removeApiMethod(obj, key)
+        } else if (change.type === 'wrapPropertyValue') {
+            this.wrapPropertyValue(obj, key, change)
+        }
+    }
+
+    /**
+     * Removes a method from an API.
+     * @param {object} api
+     * @param {string} key
+     */
+    removeApiMethod (api, key) {
+        if (api[key]) {
+            try {
+                delete api[key]
+            } catch (e) {
+            }
+        }
+    }
+
+    /**
+     * Wraps a property value with a value.
+     * @param {object} api
+     * @param {string} key
+     * @param {APIChange} change
+     */
+    wrapPropertyValue (api, key, change) {
+        this.wrapProperty(api, key, {
+            value: processAttr(change.value, undefined),
+            writable: change.writable || false,
+            enumerable: change.enumerable || false,
+            configurable: change.configurable || false
+        })
+    }
+
+    /**
+     * Looks up a global object from a scope, e.g. 'Navigator.prototype'.
+     * @param {string} scope the scope of the object to get to.
+     * @returns {[object, string]|null} the object at the scope.
+     */
+    getGlobalObject (scope) {
+        const parts = scope.split('.')
+        // get the last part of the scope
+        const lastPart = parts.pop()
+        if (!lastPart) {
+            return null
+        }
+        let obj = window
+        for (const part of parts) {
+            obj = obj[part]
+            if (!obj) {
+                return null
+            }
+        }
+        return [obj, lastPart]
+    }
+}
