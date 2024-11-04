@@ -40,7 +40,8 @@ export default defineConfig({
         {
             name: 'android',
             testMatch: [
-                'integration-test/duckplayer-mobile.spec.js'
+                'integration-test/duckplayer-mobile.spec.js',
+                'integration-test/web-compat-android.spec.js'
             ],
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] }
         },
