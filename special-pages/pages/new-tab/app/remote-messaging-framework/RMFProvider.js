@@ -64,14 +64,14 @@ export function RMFProvider(props) {
             console.log('onDismiss')
             service.current?.dismiss(id)
         },
-        [service]
+        [service],
     )
 
     const primaryAction = useCallback(
         (id) => {
             service.current?.primaryAction(id)
         },
-        [service]
+        [service],
     )
 
     const secondaryAction = useCallback(
@@ -79,7 +79,7 @@ export function RMFProvider(props) {
             console.log('secondaryAction')
             service.current?.secondaryAction(id)
         },
-        [service]
+        [service],
     )
 
     return (

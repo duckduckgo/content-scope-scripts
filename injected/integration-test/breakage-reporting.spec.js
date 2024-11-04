@@ -31,7 +31,7 @@ test('Breakage Reporting Feature', async ({ page }, testInfo) => {
             method: 'breakageReportResult',
             count: 1,
         },
-        { timeout: 5000, polling: 100 }
+        { timeout: 5000, polling: 100 },
     )
     const calls = await page.evaluate(readOutgoingMessages)
     expect(calls.length).toBe(1)

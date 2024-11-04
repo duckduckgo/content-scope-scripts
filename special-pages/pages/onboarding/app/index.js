@@ -86,7 +86,7 @@ async function init() {
                     </SettingsProvider>
                 </TranslationProvider>
             </EnvironmentProvider>,
-            root
+            root,
         )
     }
     if (environment.display === 'components') {
@@ -96,7 +96,7 @@ async function init() {
                     <Components />
                 </TranslationProvider>
             </EnvironmentProvider>,
-            root
+            root,
         )
     }
 }

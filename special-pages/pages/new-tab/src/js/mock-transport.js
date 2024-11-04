@@ -129,7 +129,7 @@ export function mockTransport() {
                                 }
                             }
                         },
-                        { signal: controller.signal }
+                        { signal: controller.signal },
                     )
                     return () => controller.abort()
                 }
@@ -145,7 +145,7 @@ export function mockTransport() {
                                 }
                             }
                         },
-                        { signal: controller.signal }
+                        { signal: controller.signal },
                     )
                     return () => controller.abort()
                 }

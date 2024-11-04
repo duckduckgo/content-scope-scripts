@@ -76,7 +76,7 @@ export async function init(messaging, baseEnvironment) {
                     </TranslationProvider>
                 </SettingsProvider>
             </EnvironmentProvider>,
-            root
+            root,
         )
     }
 
@@ -102,6 +102,6 @@ export async function init(messaging, baseEnvironment) {
                 </MessagingContext.Provider>
             </ErrorBoundary>
         </EnvironmentProvider>,
-        root
+        root,
     )
 }

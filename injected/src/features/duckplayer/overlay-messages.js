@@ -107,7 +107,7 @@ export class DuckPlayerOverlayMessages {
                     detail: { kind, data },
                     composed: true,
                     bubbles: true,
-                })
+                }),
             )
         }
 

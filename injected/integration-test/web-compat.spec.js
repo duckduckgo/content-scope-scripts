@@ -48,7 +48,7 @@ test.describe('Ensure safari interface is injected', () => {
             }
         })
         expect(pushNotificationRequestPermissionThrow).toEqual(
-            "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function."
+            "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function.",
         )
 
         const pushNotificationRequestPermission = await page.evaluate(() => {
@@ -107,7 +107,7 @@ test.describe('Ensure Notification interface is injected', () => {
                     },
                 },
             },
-            removeNotificationScript
+            removeNotificationScript,
         )
         const hasNotification = await page.evaluate(checkForNotification)
         expect(hasNotification).toEqual(true)
@@ -191,7 +191,7 @@ test.describe('Permissions API', () => {
                         },
                     },
                 },
-                removePermissionsScript
+                removePermissionsScript,
             )
         }
         /**
@@ -349,7 +349,7 @@ test.describe('ScreenOrientation API', () => {
             const { result } = await checkLock(page, undefined)
             expect(result.threw).not.toBeUndefined()
             expect(result.threw.message).toContain(
-                "Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present"
+                "Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present",
             )
         })
 
@@ -446,7 +446,7 @@ test.describe('Viewport fixes', () => {
             page,
             '/blank.html',
             { site: { enabledFeatures: [] } },
-            'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\''
+            'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\'',
         )
         const initialViewportValue = await page.evaluate(getViewportValue)
         // Base implementation of the test env should have it.
@@ -468,7 +468,7 @@ test.describe('Viewport fixes', () => {
                 desktopModeEnabled: false,
                 forcedZoomEnabled: true,
             },
-            'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\''
+            'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\'',
         )
 
         const viewportValue = await page.evaluate(getViewportValue)
@@ -509,7 +509,7 @@ test.describe('Viewport fixes', () => {
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual(
-                `initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}`
+                `initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}`,
             )
         })
 
@@ -522,7 +522,7 @@ test.describe('Viewport fixes', () => {
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                     desktopModeEnabled: false,
                 },
-                'document.head.innerHTML += \'<meta name="viewport" content="initial-scale=1.00001, something-something">\''
+                'document.head.innerHTML += \'<meta name="viewport" content="initial-scale=1.00001, something-something">\'',
             )
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual('width=device-width, initial-scale=1.00001, something-something')
@@ -537,7 +537,7 @@ test.describe('Viewport fixes', () => {
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                     desktopModeEnabled: false,
                 },
-                'document.head.innerHTML += \'<meta name="viewport" content="initIAL-scale=1.00001, something-something">\''
+                'document.head.innerHTML += \'<meta name="viewport" content="initIAL-scale=1.00001, something-something">\'',
             )
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual('width=device-width, initIAL-scale=1.00001, something-something')
@@ -564,13 +564,13 @@ test.describe('Viewport fixes', () => {
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                     desktopModeEnabled: true,
                 },
-                'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\''
+                'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\'',
             )
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual(
-                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`,
             )
         })
 
@@ -583,13 +583,13 @@ test.describe('Viewport fixes', () => {
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                     desktopModeEnabled: true,
                 },
-                'document.head.innerHTML += \'<meta name="viewport" content="something-something">\''
+                'document.head.innerHTML += \'<meta name="viewport" content="something-something">\'',
             )
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual(
-                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`,
             )
         })
 
@@ -603,15 +603,15 @@ test.describe('Viewport fixes', () => {
                     desktopModeEnabled: true,
                     forcedZoomEnabled: true,
                 },
-                'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\''
+                'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\'',
             )
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual(
                 `initial-scale=${(width / expectedWidth).toFixed(
-                    3
-                )}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, something-something`
+                    3,
+                )}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, something-something`,
             )
         })
 
@@ -624,13 +624,13 @@ test.describe('Viewport fixes', () => {
                     featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                     desktopModeEnabled: true,
                 },
-                'document.head.innerHTML += \'<meta name="viewport" content="wIDth=device-width, iniTIal-scale=2, usER-scalable=no, something-something">\''
+                'document.head.innerHTML += \'<meta name="viewport" content="wIDth=device-width, iniTIal-scale=2, usER-scalable=no, something-something">\'',
             )
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual(
-                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`,
             )
         })
     })

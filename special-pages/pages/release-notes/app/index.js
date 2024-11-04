@@ -53,7 +53,7 @@ export async function init(messages, baseEnvironment) {
                     </MessagingContext.Provider>
                 </TranslationProvider>
             </EnvironmentProvider>,
-            root
+            root,
         )
     }
     if (environment.display === 'components') {
@@ -65,7 +65,7 @@ export async function init(messages, baseEnvironment) {
                     </MessagingContext.Provider>
                 </TranslationProvider>
             </EnvironmentProvider>,
-            root
+            root,
         )
     }
 }

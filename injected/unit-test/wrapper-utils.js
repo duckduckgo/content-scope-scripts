@@ -47,7 +47,7 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                     allowConstructorCall: false,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             expect(definePropertyFn).toHaveBeenCalledTimes(2)
             const NewMediaSession = globalThis.MediaSession
@@ -76,7 +76,7 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                     wrapToString: true,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             expect(() => new globalThis.MediaSession()).not.toThrow()
 
@@ -88,7 +88,7 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                     wrapToString: true,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             expect(() => new globalThis.MediaSession()).toThrowError(TypeError)
 
@@ -101,10 +101,10 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                     wrapToString: true,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             expect(() => new globalThis.MediaSession()).toThrowMatching(
-                (err) => err instanceof TypeError && err.message === 'friendly message'
+                (err) => err instanceof TypeError && err.message === 'friendly message',
             )
         })
 
@@ -117,7 +117,7 @@ describe('Shim API', () => {
                     wrapToString: true,
                     disallowConstructor: false,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             // @ts-expect-error real MediaSession is not callable
             expect(() => globalThis.MediaSession()).not.toThrow()
@@ -134,7 +134,7 @@ describe('Shim API', () => {
                     wrapToString: true,
                     disallowConstructor: false,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             // @ts-expect-error real MediaSession is not callable
             expect(() => globalThis.MediaSession()).toThrowError(TypeError)
@@ -149,7 +149,7 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                     allowConstructorCall: false,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             expect(globalThis.MediaSession.toString()).not.toContain('class')
             expect(globalThis.MediaSession.toString.toString())
@@ -167,7 +167,7 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                     allowConstructorCall: false,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
 
             expect(globalThis.MediaSession.toString()).toBe('function MediaSession() { [native code] }')
@@ -186,7 +186,7 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                     allowConstructorCall: false,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             const instance = new MyMediaSession()
             shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn)
@@ -209,7 +209,7 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                     allowConstructorCall: false,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             const instance = new MyMediaSession()
             shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn)
@@ -224,7 +224,7 @@ describe('Shim API', () => {
                     enumerable: true,
                     writable: true,
                 },
-                'property should be writable'
+                'property should be writable',
             )
         })
 
@@ -237,7 +237,7 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                     allowConstructorCall: false,
                 },
-                definePropertyFn
+                definePropertyFn,
             )
             const instance = new MyMediaSession()
             shimProperty(navigatorPrototype, 'mediaSession', instance, true, definePropertyFn)

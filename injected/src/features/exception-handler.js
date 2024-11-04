@@ -15,7 +15,7 @@ export default class ExceptionHandler extends ContentFeature {
                     colno: e.colno,
                     stack: e.error?.stack,
                 },
-                true
+                true,
             )
             this.addDebugFlag()
         }

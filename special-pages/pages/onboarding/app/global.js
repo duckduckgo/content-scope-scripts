@@ -165,7 +165,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                 messaging.dismissToAddressBar()
             }
         },
-        [state, messaging]
+        [state, messaging],
     )
 
     // handle *fatal* state (from error boundary)

@@ -72,7 +72,7 @@ test.describe('special-error', () => {
         await special.showsAdvancedInfo()
         await special.opensNewPage(
             'Phishing and Malware Protection help page',
-            'https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/'
+            'https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/',
         )
     })
 })

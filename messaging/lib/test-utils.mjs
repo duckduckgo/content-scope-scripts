@@ -63,8 +63,8 @@ export function mockWindowsMessaging(params) {
                 JSON.parse(
                     JSON.stringify({
                         payload: msg,
-                    })
-                )
+                    }),
+                ),
             )
 
             // if there's no 'id' field, we don't need to respond
@@ -132,8 +132,8 @@ export function mockWebkitMessaging(params) {
                         JSON.parse(
                             JSON.stringify({
                                 payload: msg,
-                            })
-                        )
+                            }),
+                        ),
                     )
 
                     // force a 'tick' to allow tests to reset mocks before reading responses
@@ -196,8 +196,8 @@ export function mockAndroidMessaging(params) {
                 JSON.parse(
                     JSON.stringify({
                         payload: msg,
-                    })
-                )
+                    }),
+                ),
             )
 
             // if it's a notification, simulate the empty response and don't check for a response

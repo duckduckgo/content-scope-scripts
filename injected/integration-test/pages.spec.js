@@ -31,7 +31,7 @@ test.describe('Test integration pages', () => {
         const processedConfig = processConfig(
             config,
             /* userList */ [],
-            /* preferences */ userPreferences /*, platformSpecificFeatures = [] */
+            /* preferences */ userPreferences /*, platformSpecificFeatures = [] */,
         )
 
         await gotoAndWait(page, `/${pageName}?automation=true`, processedConfig, evalBeforeInit)
@@ -70,7 +70,7 @@ test.describe('Test integration pages', () => {
         await testPage(
             page,
             'webcompat/pages/modify-localstorage.html',
-            `${process.cwd()}/integration-test/test-pages/webcompat/config/modify-localstorage.json`
+            `${process.cwd()}/integration-test/test-pages/webcompat/config/modify-localstorage.json`,
         )
     })
 })

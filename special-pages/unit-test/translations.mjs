@@ -48,7 +48,7 @@ describe('applying string replacements for translations', () => {
                     console.error(error)
                     return false
                 }
-            })
+            }),
             // two failure that occurred during testing
             // { seed: 1952265913, path: "20:1:0:0:1:1:2:1:25:3:1", endOnFailure: true }
             // { seed: -458639988, path: "0:0:0:0", endOnFailure: true }

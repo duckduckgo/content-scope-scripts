@@ -73,7 +73,7 @@ export class IconOverlay {
 
         overlay.setAttribute(
             'style',
-            '' + 'top: ' + videoElementOffset.top + 'px;' + 'left: ' + videoElementOffset.left + 'px;' + 'display:block;'
+            '' + 'top: ' + videoElementOffset.top + 'px;' + 'left: ' + videoElementOffset.left + 'px;' + 'display:block;',
         )
 
         overlay.setAttribute('data-size', 'fixed ' + this.getThumbnailSize(videoElement))

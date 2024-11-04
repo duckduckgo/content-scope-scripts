@@ -257,7 +257,7 @@ export class BrokerProtectionPage {
                 method,
                 count: 1,
             },
-            { timeout: 5000, polling: 100 }
+            { timeout: 5000, polling: 100 },
         )
         const calls = await this.page.evaluate(readOutgoingMessages)
         return calls.filter((v) => v.payload.method === method)

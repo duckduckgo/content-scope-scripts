@@ -62,7 +62,7 @@ export class SpecialErrorPage {
         if (locale && locale.length === 2) {
             const localeStrings = readFileSync(
                 require.resolve(`../../pages/special-error/src/locales/${locale}/special-error.json`),
-                'utf8'
+                'utf8',
             )
             initialSetup.localeStrings = localeStrings
             initialSetup.locale = locale
@@ -157,16 +157,16 @@ export class SpecialErrorPage {
         await expect(
             page.getByText(
                 'The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
         await expect(
             page.getByText(
                 'The security certificate for example.com is expired. It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
     }
 
@@ -181,16 +181,16 @@ export class SpecialErrorPage {
         await expect(
             page.getByText(
                 'The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
         await expect(
             page.getByText(
                 'The security certificate for example.com is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
     }
 
@@ -200,16 +200,16 @@ export class SpecialErrorPage {
         await expect(
             page.getByText(
                 'The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
         await expect(
             page.getByText(
                 'The security certificate for example.com is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
     }
 
@@ -219,16 +219,16 @@ export class SpecialErrorPage {
         await expect(
             page.getByText(
                 'The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
         await expect(
             page.getByText(
                 'The security certificate for example.com does not match *.anothersite.com. It’s possible that the website is misconfigured or that an attacker has compromised your connection.',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
     }
 
@@ -238,19 +238,19 @@ export class SpecialErrorPage {
         await expect(
             page.getByText(
                 'This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. Learn more',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has been flagged as malicious.', { exact: true })).toBeVisible()
         await expect(
             page.getByText(
                 'Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.',
-                { exact: true }
-            )
+                { exact: true },
+            ),
         ).toBeVisible()
         await expect(
-            page.getByText('See our Phishing and Malware Protection help page for more information.', { exact: true })
+            page.getByText('See our Phishing and Malware Protection help page for more information.', { exact: true }),
         ).toBeVisible()
     }
 

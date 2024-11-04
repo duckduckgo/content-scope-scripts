@@ -40,5 +40,5 @@ window.addEventListener(secret, ({ detail: message }) => {
 window.dispatchEvent(
     new CustomEvent('ddg-secret', {
         detail: secret,
-    })
+    }),
 )

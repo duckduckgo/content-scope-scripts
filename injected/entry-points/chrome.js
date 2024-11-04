@@ -125,7 +125,7 @@ function init() {
                 window.${randomMethodName}('${randomPassword}', ${stringifiedArgs});
             `
             inject(callRandomFunction)
-        }
+        },
     )
 
     chrome.runtime.onMessage.addListener((message) => {

@@ -31,7 +31,7 @@ describe('createMessagingTypes', () => {
                     },
                 },
             },
-            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' }
+            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
         )
         const expected = `
 declare module "../features/duck-player.js" {
@@ -54,7 +54,7 @@ declare module "../features/duck-player.js" {
                     },
                 },
             },
-            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' }
+            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
         )
         const expected = `
 declare module "../features/duck-player.js" {
@@ -77,7 +77,7 @@ declare module "../features/duck-player.js" {
                     },
                 },
             },
-            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' }
+            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
         )
         const expected = `
 declare module "../features/duck-player.js" {
@@ -106,7 +106,7 @@ declare module "../features/duck-player.js" {
                     },
                 },
             },
-            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' }
+            { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
         )
         const expected = `
 declare module "../features/duck-player.js" {

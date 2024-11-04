@@ -135,7 +135,7 @@ class DuckWidget {
                     replaceSettings: this.replaceSettings,
                     widgetID: this.widgetID,
                 },
-            })
+            }),
         )
     }
 
@@ -497,7 +497,7 @@ class DuckWidget {
                             // Focus on new element for screen readers.
                             fbElement.focus()
                         },
-                        { once: true }
+                        { once: true },
                     )
                     // Note: This event only fires on Firefox, on Chrome the frame's
                     //       load event will always fire.
@@ -646,7 +646,7 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
                 widget.getMode(),
                 widget.replaceSettings.popupBodyText,
                 icon,
-                trackingElement
+                trackingElement,
             )
             button.addEventListener('click', widget.clickFunction(trackingElement, container))
             replaceTrackingElement(widget, trackingElement, container)
@@ -951,7 +951,7 @@ async function runLogin(entity) {
             detail: {
                 entity,
             },
-        })
+        }),
     )
 }
 
@@ -966,7 +966,7 @@ function abortSurrogateConfirmation(entity) {
             detail: {
                 entity,
             },
-        })
+        }),
     )
 }
 
@@ -1605,10 +1605,10 @@ function createYouTubeBlockingDialog(trackingElement, widget) {
         false,
         '',
         '',
-        'yt-preview-toggle'
+        'yt-preview-toggle',
     )
     previewToggle.addEventListener('click', () =>
-        makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), widget.entity)
+        makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), widget.entity),
     )
     bottomRow.appendChild(previewToggle)
 
@@ -1715,7 +1715,7 @@ function createYouTubePreview(originalElement, widget) {
         true,
         '',
         styles.youTubePreviewToggleText,
-        'yt-preview-toggle'
+        'yt-preview-toggle',
     )
     previewToggle.addEventListener('click', () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: false }))
 
@@ -1868,7 +1868,7 @@ export default class ClickToLoad extends ContentFeature {
             // TODO: Pass `message.options.ruleAction` through, that way only
             //       content corresponding to the entity for that ruleAction need to
             //       be replaced with a placeholder.
-            () => this.replaceClickToLoadElements()
+            () => this.replaceClickToLoadElements(),
         )
 
         // Request the current state of Click to Load from the platform.
@@ -1972,7 +1972,7 @@ export default class ClickToLoad extends ContentFeature {
 
                         const widget = new DuckWidget(widgetData, trackingElement, entity, this.platform)
                         return createPlaceholderElementAndReplace(widget, trackingElement)
-                    })
+                    }),
                 )
             }
         }

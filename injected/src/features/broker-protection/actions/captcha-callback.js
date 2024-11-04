@@ -38,7 +38,7 @@ export function captchaCallback(args) {
 
             objects.forEach(([toplevelKey, toplevel]) => {
                 const found = Object.entries(toplevel).find(
-                    ([, value]) => value && typeof value === 'object' && 'sitekey' in value && 'size' in value
+                    ([, value]) => value && typeof value === 'object' && 'sitekey' in value && 'size' in value,
                 )
 
                 if (

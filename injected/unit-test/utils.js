@@ -64,7 +64,7 @@ describe('Helpers checks', () => {
                 versionNumber: 99,
                 sessionKey: 'testSessionKey',
             },
-            []
+            [],
         )
         expect(processedConfig).toEqual({
             site: {
@@ -144,7 +144,7 @@ describe('Helpers checks', () => {
                 versionString: '0.9.9',
                 sessionKey: 'testSessionKey',
             },
-            []
+            [],
         )
         expect(processedConfig).toEqual({
             site: {

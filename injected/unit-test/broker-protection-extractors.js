@@ -12,7 +12,7 @@ describe('individual extractors', () => {
                     const numbers = new PhoneExtractor().extract(cleanInput, {})
                     const cleanOutput = cleanArray(numbers)
                     return cleanOutput.every((num) => num.match(/^\d+$/))
-                })
+                }),
             )
         })
     })

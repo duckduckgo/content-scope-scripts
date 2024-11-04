@@ -120,8 +120,8 @@ describe('Actions', () => {
                         (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
                             const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
                             expect(typeof result).toBe('boolean')
-                        }
-                    )
+                        },
+                    ),
                 )
             })
             it('property testing isSameName -> boolean (seed 1)', () => {
@@ -137,9 +137,9 @@ describe('Actions', () => {
                         (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
                             const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
                             expect(typeof result).toBe('boolean')
-                        }
+                        },
                     ),
-                    { seed: 203542789, path: '70:1:0:0:1:85:86:85:86:86', endOnFailure: true }
+                    { seed: 203542789, path: '70:1:0:0:1:85:86:85:86:86', endOnFailure: true },
                 )
             })
         })
@@ -355,7 +355,7 @@ describe('Actions', () => {
                     id: 0,
                     url: 'https://example.com/optout',
                 },
-                userData
+                userData,
             )
             expect(result).toEqual({ url: 'https://example.com/optout' })
         })
@@ -367,7 +367,7 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/${firstName}-${lastName}/a/b/c/search?state=${state}&city=${city|hyphenated}&fage=${age}',
                 },
-                userData
+                userData,
             )
             expect(result).toEqual({ url: 'https://example.com/profile/John-Smith/a/b/c/search?state=il&city=Chicago&fage=24' })
         })
@@ -378,7 +378,7 @@ describe('Actions', () => {
                     id: 0,
                     url: 'https://example.com/name/$%7BfirstName%7Cdowncase%7D-$%7BlastName%7Cdowncase%7D/$%7Bcity%7Cdowncase%7D-$%7Bstate%7CstateFull%7Cdowncase%7D?age=$%7Bage%7D',
                 },
-                userData
+                userData,
             )
             expect(result).toEqual({ url: 'https://example.com/name/john-smith/chicago-illinois?age=24' })
         })
@@ -390,7 +390,7 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/${firstName|downcase}-${lastName|downcase}/a/b/c/search?state=${state|downcase}&city=${city|downcase}&fage=${age}',
                 },
-                userData
+                userData,
             )
             expect(result).toEqual({ url: 'https://example.com/profile/john-smith/a/b/c/search?state=il&city=chicago&fage=24' })
         })
@@ -402,7 +402,7 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/a/b/c/search?name=${firstName}-${lastName}&other=foobar',
                 },
-                userData
+                userData,
             )
             expect(result).toEqual({ url: 'https://example.com/profile/a/b/c/search?name=John-Smith&other=foobar' })
         })
@@ -414,7 +414,7 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}',
                 },
-                userData
+                userData,
             )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=il&city=Chicago&fage=24' })
@@ -427,7 +427,7 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}',
                 },
-                userData2
+                userData2,
             )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=West-Montego&fage=24' })
@@ -439,7 +439,7 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|downcase|hyphenated}&fage=${age}',
                 },
-                userData2
+                userData2,
             )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=west-montego&fage=24' })
@@ -452,7 +452,7 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated|downcase}&fage=${age}',
                 },
-                userData2
+                userData2,
             )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=west-montego&fage=24' })
@@ -465,7 +465,7 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|snakecase|downcase}&fage=${age}',
                 },
-                userData2
+                userData2,
             )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=west_montego&fage=24' })
@@ -498,7 +498,7 @@ describe('Actions', () => {
                         id: 0,
                         url: testCase.input,
                     },
-                    testCase.data
+                    testCase.data,
                 )
                 expect(result).toEqual({ url: testCase.expected })
             }
@@ -511,7 +511,7 @@ describe('Actions', () => {
                     // eslint-disable-next-line no-template-curly-in-string
                     url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state|stateFull|hyphenated}&city=${city}&fage=${age}',
                 },
-                userData2
+                userData2,
             )
 
             expect(result).toEqual({
@@ -527,7 +527,7 @@ describe('Actions', () => {
                     url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city}&fage=${age|ageRange}',
                     ageRange: ['18-30', '31-40', '41-50'],
                 },
-                userData
+                userData,
             )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=il&city=Chicago&fage=18-30' })
@@ -539,7 +539,7 @@ describe('Actions', () => {
                     id: 0,
                     url: null,
                 },
-                userData
+                userData,
             )
 
             expect(result).toEqual({ error: 'Error: No url provided.' })
@@ -552,7 +552,7 @@ describe('Actions', () => {
                         fc.anything(),
                         fc.record({
                             url: fc.anything(),
-                        })
+                        }),
                     ),
                     fc.oneof(fc.anything(), fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer(), fc.boolean()))),
                     (action, userData) => {
@@ -565,8 +565,8 @@ describe('Actions', () => {
                             const url = new URL(result.url)
                             expect(url).toBeDefined()
                         }
-                    }
-                )
+                    },
+                ),
             )
         })
 
@@ -574,9 +574,9 @@ describe('Actions', () => {
             fc.assert(
                 fc.property(
                     fc.record({
-                        // eslint-disable-next-line no-template-curly-in-string
                         url: fc.constant(
-                            'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
+                            // eslint-disable-next-line no-template-curly-in-string
+                            'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}',
                         ),
                     }),
                     fc.record({
@@ -593,8 +593,8 @@ describe('Actions', () => {
                             const url = new URL(result.url)
                             expect(url).toBeDefined()
                         }
-                    }
-                )
+                    },
+                ),
             )
         })
         it('should test the regex replacer with random values', () => {
@@ -614,8 +614,8 @@ describe('Actions', () => {
                     (input, action, userData) => {
                         const output = processTemplateStringWithUserData(input, /** @type {any} */ (action), userData)
                         expect(typeof output).toEqual('string')
-                    }
-                )
+                    },
+                ),
             )
         })
     })
@@ -662,7 +662,7 @@ describe('utils', () => {
                     const result = generateRandomInt(min, max)
 
                     return Number.isInteger(result) && result >= min && result <= max
-                })
+                }),
             )
         })
     })

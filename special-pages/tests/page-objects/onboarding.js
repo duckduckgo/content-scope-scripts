@@ -407,7 +407,7 @@ export class OnboardingPage {
         const { page } = this
         await page.getByRole('button', { name: 'Get Started' }).click()
         await expect(page.getByLabel('Unlike other browsers,')).toContainText(
-            'Unlike other browsers, DuckDuckGo comes with privacy by default'
+            'Unlike other browsers, DuckDuckGo comes with privacy by default',
         )
     }
 

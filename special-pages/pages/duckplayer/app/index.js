@@ -105,7 +105,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
                     </TelemetryContext.Provider>
                 </ErrorBoundary>
             </EnvironmentProvider>,
-            root
+            root,
         )
     } else if (environment.display === 'components') {
         render(
@@ -116,7 +116,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
                     </TranslationProvider>
                 </MessagingContext.Provider>
             </EnvironmentProvider>,
-            root
+            root,
         )
     }
 }

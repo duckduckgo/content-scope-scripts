@@ -684,7 +684,7 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
 export function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
     const remoteFeatureNames = Object.keys(data.features)
     const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
-        (featureName) => !remoteFeatureNames.includes(featureName)
+        (featureName) => !remoteFeatureNames.includes(featureName),
     )
     const enabledFeatures = remoteFeatureNames
         .filter((featureName) => {

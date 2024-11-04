@@ -95,7 +95,7 @@ function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
                 setCurrentIndex(text.length)
                 enabled = false
             },
-            { signal: controller.signal }
+            { signal: controller.signal },
         )
 
         if (currentIndex < text.length) {
@@ -105,7 +105,7 @@ function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
                     setCurrentText((prevText) => prevText + text[currentIndex])
                     setCurrentIndex((prevIndex) => prevIndex + 1)
                 },
-                text[currentIndex] === '\n' ? delay * 10 : delay
+                text[currentIndex] === '\n' ? delay * 10 : delay,
             )
             return () => {
                 clearTimeout(timeout)

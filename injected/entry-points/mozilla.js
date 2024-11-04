@@ -59,7 +59,7 @@ function initCode() {
             }
             message.messageSecret = messageSecret
             init(message)
-        }
+        },
     )
 
     chrome.runtime.onMessage.addListener((message) => {

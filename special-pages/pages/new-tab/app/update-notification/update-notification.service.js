@@ -20,7 +20,7 @@ export class UpdateNotificationService {
             {
                 subscribe: (cb) => ntp.messaging.subscribe('updateNotification_onDataUpdate', cb),
             },
-            initial
+            initial,
         )
     }
 

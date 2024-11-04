@@ -36,7 +36,7 @@ test.describe('Web Share API', () => {
                     },
                 },
                 null,
-                'script'
+                'script',
             )
             const noCanShare = await page.evaluate(checkForCanShare)
             const noShare = await page.evaluate(checkForShare)
@@ -63,7 +63,7 @@ test.describe('Web Share API', () => {
                     },
                 },
                 null,
-                'script'
+                'script',
             )
         }
 

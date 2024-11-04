@@ -22,7 +22,7 @@ export function DuckPlayerStep() {
                 () => {
                     setStep('duckPlayerSingle', 'after')
                 },
-                isReducedMotion ? 100 : 0
+                isReducedMotion ? 100 : 0,
             )
         }
 

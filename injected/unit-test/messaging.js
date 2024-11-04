@@ -30,7 +30,7 @@ describe('Messaging Transports', () => {
                 id: requestMessage.id,
                 method: 'helloWorld',
                 params: { foo: 'bar' },
-            })
+            }),
         )
     })
     it('calls transport with a NotificationMessage', () => {
@@ -46,7 +46,7 @@ describe('Messaging Transports', () => {
                 featureName: 'hello-world',
                 method: 'helloWorld',
                 params: { foo: 'bar' },
-            })
+            }),
         )
     })
     it('calls transport with a Subscription', () => {
@@ -63,7 +63,7 @@ describe('Messaging Transports', () => {
                 featureName: 'hello-world',
                 subscriptionName: 'helloWorld',
             }),
-            callback
+            callback,
         )
     })
 })

@@ -114,7 +114,7 @@ async function initCode() {
             // set status to initialized so that tests can resume
             setStatus('initialized')
         },
-        { once: true }
+        { once: true },
     )
 }
 

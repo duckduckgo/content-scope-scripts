@@ -295,18 +295,18 @@ export class ReleaseNotesPage {
 
         await expect(
             page.getByText(
-                'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.'
-            )
+                'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',
+            ),
         ).toBeVisible()
         await expect(page.getByText("Fixed an issue where Microsoft Teams links wouldn't open the Teams app.")).toBeVisible()
         await expect(
-            page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')
+            page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.'),
         ).toBeVisible()
 
         await expect(
             page.getByText(
-                'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.'
-            )
+                'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.',
+            ),
         ).not.toBeVisible()
         await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).not.toBeVisible()
 
@@ -322,18 +322,18 @@ export class ReleaseNotesPage {
 
         await expect(
             page.getByText(
-                'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.'
-            )
+                'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',
+            ),
         ).toBeVisible()
         await expect(page.getByText("Fixed an issue where Microsoft Teams links wouldn't open the Teams app.")).toBeVisible()
         await expect(
-            page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')
+            page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.'),
         ).toBeVisible()
 
         await expect(
             page.getByText(
-                'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.'
-            )
+                'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.',
+            ),
         ).toBeVisible()
         await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).toBeVisible()
         await expect(page.getByText('Not subscribed? Find out more at duckduckgo.com/pro')).toBeVisible()

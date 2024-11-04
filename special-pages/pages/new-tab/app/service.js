@@ -59,7 +59,7 @@ export class Service {
             (/** @type {CustomEvent<{data: Data, source: 'manual' | 'subscription'}>} */ evt) => {
                 cb(evt.detail)
             },
-            { signal: controller.signal }
+            { signal: controller.signal },
         )
         return () => controller.abort()
     }

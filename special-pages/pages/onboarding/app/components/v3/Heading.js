@@ -92,7 +92,7 @@ function SpeechBubble({ title, subtitle, onComplete, children }) {
     const calculateMaximumWidth = (element) => {
         const { height } = element.getBoundingClientRect()
         const widths = Array.from(element.querySelectorAll('.bubbleTitle span, .bubbleSubtitle, .bubbleChildren > *')).map(
-            (e) => e.getBoundingClientRect().width
+            (e) => e.getBoundingClientRect().width,
         )
         const width = Math.max(...widths)
 

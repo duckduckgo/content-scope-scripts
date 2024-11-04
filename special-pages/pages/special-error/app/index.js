@@ -73,7 +73,7 @@ export async function init(messaging, baseEnvironment) {
                     </MessagingProvider>
                 </TranslationProvider>
             </EnvironmentProvider>,
-            root
+            root,
         )
     } else if (environment.display === 'components') {
         render(
@@ -86,7 +86,7 @@ export async function init(messaging, baseEnvironment) {
                     </SettingsProvider>
                 </TranslationProvider>
             </EnvironmentProvider>,
-            root
+            root,
         )
     }
 }

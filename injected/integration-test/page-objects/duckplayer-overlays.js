@@ -142,7 +142,7 @@ export class DuckplayerOverlays {
                 }
                 return false
             },
-            { timeout: 1000 }
+            { timeout: 1000 },
         )
     }
 
@@ -557,7 +557,7 @@ export class DuckplayerOverlays {
                 method,
                 count: 1,
             },
-            { timeout: 3000, polling: 100 }
+            { timeout: 3000, polling: 100 },
         )
         const calls = await this.page.evaluate(readOutgoingMessages)
         return calls.filter((v) => v.payload.method === method)

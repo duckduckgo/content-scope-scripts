@@ -88,7 +88,7 @@ for (const [pageName, injectNames] of Object.entries(support)) {
             }
             if (job === 'build-js') {
                 const entryPoints = [join(pageSrc, 'js', 'index.js'), join(pageSrc, 'js', 'inline.js')].filter((pathname) =>
-                    existsSync(pathname)
+                    existsSync(pathname),
                 )
                 const outputDir = join(pageOutputDirectory, 'js')
                 buildJobs.push({
@@ -171,7 +171,7 @@ for (const inlineJob of inlineJobs) {
                     return exitWithErrors([error])
                 }
                 writeFileSync(inlineJob.src, result)
-            }
+            },
         )
     }
 }
