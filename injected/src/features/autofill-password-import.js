@@ -128,7 +128,7 @@ export default class AutofillPasswordImport extends ContentFeature {
         const svgElement = mainElement.parentNode?.querySelector('svg') ?? mainElement.querySelector('svg')
 
         const isRound = style.borderRadius === '100%'
-        const elementToCenterOn =  isRound ? svgElement : mainElement
+        const elementToCenterOn = isRound ? svgElement : mainElement
         const { top, left, width, height } = elementToCenterOn.getBoundingClientRect()
         overlay.style.position = 'absolute'
 
