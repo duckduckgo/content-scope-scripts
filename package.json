@@ -45,5 +45,12 @@
     "minimist": "^1.2.8",
     "typedoc": "^0.26.10",
     "typescript": "^5.6.3"
+  },
+  "prettier": {
+      "trailingComma" : "none",
+      "semi": false,
+      "singleQuote": true,
+      "printWidth": 140,
+      "tabWidth": 4
   }
 }
