@@ -5,6 +5,7 @@ const ANIMATION_DURATION_MS = 1000
 const ANIMATION_ITERATIONS = Infinity
 const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)'
 const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)'
+const OVERLAY_ID = 'ddg-password-import-overlay'
 
 /**
  * This feature is responsible for animating some buttons passwords.google.com,
@@ -27,6 +28,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                 start: 'scale(0.90)',
                 mid: 'scale(0.96)'
             },
+            zIndex: '984',
             borderRadius: '100%',
             offsetLeft: 0.03,
             offsetTop: 0.03
@@ -42,6 +44,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                 start: 'scale(1)',
                 mid: 'scale(1.01)'
             },
+            zIndex: '984',
             borderRadius: '100%',
             offsetLeft: 0,
             offsetTop: 0
@@ -57,6 +60,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                 start: 'scale(1)',
                 mid: 'scale(1.3, 1.5)'
             },
+            zIndex: '999',
             borderRadius: '2px',
             offsetLeft: 0.08,
             offsetTop: 0.05
@@ -66,7 +70,7 @@ export default class AutofillPasswordImport extends ContentFeature {
     /**
      * Takes a path and returns the element and style to animate.
      * @param {string} path
-     * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean}|null>}
+     * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean, shouldWatchForRemoval: boolean}|null>}
      */
     async getElementAndStyleFromPath (path) {
         if (path === '/') {
@@ -75,7 +79,8 @@ export default class AutofillPasswordImport extends ContentFeature {
                 ? {
                     style: this.settingsButtonStyle,
                     element,
-                    shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false
+                    shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
+                    shouldWatchForRemoval: false
                 }
                 : null
         } else if (path === '/options') {
@@ -84,7 +89,8 @@ export default class AutofillPasswordImport extends ContentFeature {
                 ? {
                     style: this.exportButtonStyle,
                     element,
-                    shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false
+                    shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
+                    shouldWatchForRemoval: true
                 }
                 : null
         } else if (path === '/intro') {
@@ -93,7 +99,8 @@ export default class AutofillPasswordImport extends ContentFeature {
                 ? {
                     style: this.signInButtonStyle,
                     element,
-                    shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false
+                    shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
+                    shouldWatchForRemoval: false
                 }
                 : null
         } else {
@@ -101,23 +108,61 @@ export default class AutofillPasswordImport extends ContentFeature {
         }
     }
 
-    insertOverlayElement (mainElement, offsetLeft, offsetTop) {
+    hasNoOtherSiblings (element) {
+        return element.parentNode && element.parentNode.children.length === 1
+    }
+
+    removeOverlayIfNeeded () {
+        const existingOverlay = document.getElementById(OVERLAY_ID)
+        if (existingOverlay != null) {
+            existingOverlay.style.display = 'none'
+            existingOverlay.remove()
+        }
+    }
+
+    insertOverlayElement (mainElement, style) {
+        this.removeOverlayIfNeeded()
+
         const overlay = document.createElement('div')
+        overlay.setAttribute('id', OVERLAY_ID)
+        const svgElement = mainElement.parentNode?.querySelector('svg') ?? mainElement.querySelector('svg')
+
+        const isRound = style.borderRadius === '100%'
+        const elementToCenterOn =  isRound ? svgElement : mainElement
+        const { top, left, width, height } = elementToCenterOn.getBoundingClientRect()
         overlay.style.position = 'absolute'
 
-        // FIXME: Workaround for the overlay not being positioned correctly
-        overlay.style.top = `calc(${mainElement.offsetTop}px - ${offsetTop}em)`
-        overlay.style.left = `calc(${mainElement.offsetLeft}px - ${offsetLeft}em)`
-        const dimensions = mainElement.getBoundingClientRect()
-        overlay.style.width = `${dimensions.width}px`
-        overlay.style.height = `${dimensions.height}px`
+        overlay.style.top = `calc(${top}px + ${window.scrollY}px - ${isRound ? height / 2 : 0}px - 1px - ${style.offsetTop}em)`
+        overlay.style.left = `calc(${left}px + ${window.scrollX}px - ${isRound ? width / 2 : 0}px - 1px - ${style.offsetLeft}em)`
+
+        const mainElementRect = mainElement.getBoundingClientRect()
+        overlay.style.width = `${mainElementRect.width}px`
+        overlay.style.height = `${mainElementRect.height}px`
+        overlay.style.zIndex = style.zIndex
 
         // Ensure overlay is non-interactive
         overlay.style.pointerEvents = 'none'
 
-        // Ensure that the element is injected before the parent to avoid z-index issues
-        mainElement.parentNode.insertBefore(overlay, mainElement.nextSibling)
+        // insert in document.body
+        document.body.appendChild(overlay)
         return overlay
+    }
+
+    observeElementRemoval (element, onRemoveCallback) {
+        // Set up the mutation observer
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+            // Check if the element has been removed from its parent
+                if (mutation.type === 'childList' && !document.contains(element)) {
+                    // Element has been removed
+                    onRemoveCallback()
+                    observer.disconnect() // Stop observing
+                }
+            })
+        })
+
+        // Start observing the parent node for child list changes
+        observer.observe(document.body, { childList: true, subtree: true })
     }
 
     /**
@@ -126,7 +171,7 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @param {any} style
      */
     animateElement (element, style) {
-        const overlay = this.insertOverlayElement(element, style.offsetLeft, style.offsetTop)
+        const overlay = this.insertOverlayElement(element, style)
         overlay.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
@@ -199,11 +244,18 @@ export default class AutofillPasswordImport extends ContentFeature {
             this.#settingsButtonSettings?.path,
             this.#signInButtonSettings?.path
         ]
+        this.removeOverlayIfNeeded()
         if (supportedPaths.includes(path)) {
             try {
-                const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
+                const { element, style, shouldTap, shouldWatchForRemoval } = await this.getElementAndStyleFromPath(path) ?? {}
                 if (element != null) {
                     shouldTap ? this.autotapElement(element) : setTimeout(() => this.animateElement(element, style), 300)
+                    if (shouldWatchForRemoval) {
+                        // Sometimes navigation events are not triggered, then we need to watch for removal
+                        this.observeElementRemoval(element, () => {
+                            this.removeOverlayIfNeeded()
+                        })
+                    }
                 }
             } catch {
                 console.error('password-import: handleElementForPath failed for path:', path)
