@@ -19,6 +19,7 @@
     width: 100%;
 }
 .inlineLink {
+    color: var(--color-blue-50);
     text-decoration: none;
     &:focus-visible {
         text-decoration: underline;
