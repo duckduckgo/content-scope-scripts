@@ -16,7 +16,7 @@ export const WidgetConfigContext = createContext({
     widgetConfigItems: [],
 
     /** @type {(id:string) => void} */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     toggle: (_id) => {
 
     }
@@ -68,7 +68,7 @@ const WidgetVisibilityContext = createContext({
     visibility: /** @type {WidgetConfigItem['visibility']} */('visible'),
     id: /** @type {WidgetConfigItem['id']} */(''),
     /** @type {(id: string) => void} */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     toggle: (_id) => {},
     /** @type {number} */
     index: -1

@@ -16,7 +16,8 @@
     "docs-watch": "typedoc --watch",
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
-    "lint": "eslint . && npm run tsc",
+    "lint": "eslint . && npm run tsc && npm run lint-no-output-globals",
+    "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js Sources/ContentScopeScripts/dist/contentScope.js",
     "postlint": "npm run lint --workspaces --if-present",
     "lint-fix": "eslint . --fix && npm run tsc",
     "stylelint": "npx stylelint \"**/*.css\"",
@@ -31,20 +32,17 @@
     "messaging",
     "types-generator"
   ],
-  "dependencies": {},
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.9.1",
-    "eslint": "^8.57.1",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.1.1",
+    "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#51dc868a4342379d6aec1d0f4214156e7046d5f6",
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "^9.13.0",
+    "minimist": "^1.2.8",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-csstree-validator": "^3.0.0",
-    "minimist": "^1.2.8",
     "typedoc": "^0.26.10",
     "typescript": "^5.6.3",
+    "typescript-eslint": "^8.12.2",
     "@playwright/test": "^1.48.2"
   }
 }

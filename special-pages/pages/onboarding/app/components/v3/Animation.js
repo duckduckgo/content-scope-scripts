@@ -21,6 +21,7 @@ export function SlideIn ({ children, onAnimationEnd }) {
 
     const animationEnd = useCallback(() => {
         setAnimationState('done')
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         onAnimationEnd && onAnimationEnd()
     }, [onAnimationEnd])
 

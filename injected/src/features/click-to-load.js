@@ -1887,7 +1887,7 @@ export default class ClickToLoad extends ContentFeature {
         })
         // Listen to message from Platform letting CTL know that we're ready to
         // replace elements in the page
-        // eslint-disable-next-line promise/prefer-await-to-then
+         
         this.messaging.subscribe(
             'displayClickToLoadPlaceholders',
             // TODO: Pass `message.options.ruleAction` through, that way only

@@ -79,7 +79,7 @@ export class Extractor {
      * @param {import("./actions/extract").ExtractorParams} extractorParams
      * @return {JsonValue}
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     extract (noneEmptyStringArray, extractorParams) {
         throw new Error('must implement extract')
     }
@@ -94,7 +94,7 @@ export class AsyncProfileTransform {
      * @param {Record<string, any>} profileParams - the original action params from `action.profile`
      * @return {Promise<Record<string, any>>}
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     transform (profile, profileParams) {
         throw new Error('must implement extract')
     }

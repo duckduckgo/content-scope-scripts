@@ -1,3 +1,4 @@
+/* eslint-disable promise/prefer-await-to-then */
 import { join } from "node:path";
 import { cwd, isLaunchFile } from "../scripts/script-utils.js";
 import { buildTypes } from "../types-generator/build-types.mjs";

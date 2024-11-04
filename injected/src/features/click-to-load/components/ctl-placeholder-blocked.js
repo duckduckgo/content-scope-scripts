@@ -113,6 +113,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
         /**
          * Append both to the shadow root
          */
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         feedbackLink && this.placeholderBlocked.appendChild(feedbackLink)
         shadow.appendChild(this.placeholderBlocked)
         shadow.appendChild(style)
