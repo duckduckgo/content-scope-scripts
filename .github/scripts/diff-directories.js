@@ -46,7 +46,7 @@ function displayDiffs (dir1Files, dir2Files, isOpen) {
     }
     for (const [filePath, fileContent] of Object.entries(dir1Files)) {
         let diffOut = ''
-        let compareOut = undefined
+        let compareOut
         if (filePath in dir2Files) {
             const fileOut = fileContent
             const file2Out = dir2Files[filePath]
@@ -71,7 +71,7 @@ function displayDiffs (dir1Files, dir2Files, isOpen) {
         const rollup = rollupGrouping[key]
         let outString = `
         `
-        let title = key
+        const title = key
         if (rollup.files.length) {
             for (const file of rollup.files) {
                 outString += `- ${file}\n`
@@ -84,7 +84,7 @@ function displayDiffs (dir1Files, dir2Files, isOpen) {
 }
 
 function renderDetails (section, text, isOpen) {
-    if (section == 'dist') {
+    if (section === 'dist') {
         section = 'apple'
     }
     const open = section !== 'integration' ? 'open' : ''
@@ -119,6 +119,6 @@ sortFiles(readFilesRecursively(dir1 + sourcesOutput), 'dir1')
 sortFiles(readFilesRecursively(dir2 + sourcesOutput), 'dir2')
 
 
-//console.log(Object.keys(files))
+// console.log(Object.keys(files))
 const fileOut = displayDiffs(sections.dir1, sections.dir2, true)
 console.log(fileOut)

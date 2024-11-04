@@ -2,6 +2,7 @@ import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFea
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js'
+// eslint-disable-next-line no-redeclare
 import { Proxy, Reflect } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../../messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
@@ -28,8 +29,10 @@ export default class ContentFeature {
     /** @type {boolean | undefined} */
     #documentOriginIsTracker
     /** @type {Record<string, unknown> | undefined} */
+    // eslint-disable-next-line no-unused-private-class-members
     #bundledfeatureSettings
     /** @type {import('../../messaging').Messaging} */
+    // eslint-disable-next-line no-unused-private-class-members
     #messaging
     /** @type {boolean} */
     #isDebugFlagSet = false
@@ -37,32 +40,32 @@ export default class ContentFeature {
     /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
     #args
 
-    constructor(featureName) {
+    constructor (featureName) {
         this.name = featureName
         this.#args = null
         this.monitor = new PerformanceMonitor()
     }
 
-    get isDebug() {
+    get isDebug () {
         return this.#args?.debug || false
     }
 
-    get desktopModeEnabled() {
+    get desktopModeEnabled () {
         return this.#args?.desktopModeEnabled || false
     }
 
-    get forcedZoomEnabled() {
+    get forcedZoomEnabled () {
         return this.#args?.forcedZoomEnabled || false
     }
 
     /**
      * @param {import('./utils').Platform} platform
      */
-    set platform(platform) {
+    set platform (platform) {
         this._platform = platform
     }
 
-    get platform() {
+    get platform () {
         // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'
         return this._platform
     }
@@ -70,28 +73,28 @@ export default class ContentFeature {
     /**
      * @type {AssetConfig | undefined}
      */
-    get assetConfig() {
+    get assetConfig () {
         return this.#args?.assets
     }
 
     /**
      * @returns {boolean}
      */
-    get documentOriginIsTracker() {
+    get documentOriginIsTracker () {
         return !!this.#documentOriginIsTracker
     }
 
     /**
      * @returns {object}
      **/
-    get trackerLookup() {
+    get trackerLookup () {
         return this.#trackerLookup || {}
     }
 
     /**
      * @returns {import('./utils.js').RemoteConfig | undefined}
      **/
-    get bundledConfig() {
+    get bundledConfig () {
         return this.#bundledConfig
     }
 
@@ -99,14 +102,16 @@ export default class ContentFeature {
      * @deprecated as we should make this internal to the class and not used externally
      * @return {MessagingContext}
      */
-    _createMessagingContext() {
+    _createMessagingContext () {
         const injectName = import.meta.injectName
-        const contextName = injectName === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts'
+        const contextName = injectName === 'apple-isolated'
+            ? 'contentScopeScriptsIsolated'
+            : 'contentScopeScripts'
 
         return new MessagingContext({
             context: contextName,
             env: this.isDebug ? 'development' : 'production',
-            featureName: this.name,
+            featureName: this.name
         })
     }
 
@@ -115,7 +120,7 @@ export default class ContentFeature {
      *
      * @return {import('@duckduckgo/messaging').Messaging}
      */
-    get messaging() {
+    get messaging () {
         if (this._messaging) return this._messaging
         const messagingContext = this._createMessagingContext()
         let messagingConfig = this.#args?.messagingConfig
@@ -136,7 +141,7 @@ export default class ContentFeature {
      * @param {any} defaultValue - The default value to use if the config setting is not set
      * @returns The value of the config setting or the default value
      */
-    getFeatureAttr(attrName, defaultValue) {
+    getFeatureAttr (attrName, defaultValue) {
         const configSetting = this.getFeatureSetting(attrName)
         return processAttr(configSetting, defaultValue)
     }
@@ -147,7 +152,7 @@ export default class ContentFeature {
      * @param {string} [featureName]
      * @returns {any}
      */
-    getFeatureSetting(featureKeyName, featureName) {
+    getFeatureSetting (featureKeyName, featureName) {
         let result = this._getFeatureSettings(featureName)
         if (featureKeyName === 'domains') {
             throw new Error('domains is a reserved feature setting key name')
@@ -173,7 +178,7 @@ export default class ContentFeature {
      * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
      * @returns {any}
      */
-    _getFeatureSettings(featureName) {
+    _getFeatureSettings (featureName) {
         const camelFeatureName = featureName || camelcase(this.name)
         return this.#args?.featureSettings?.[camelFeatureName]
     }
@@ -185,7 +190,7 @@ export default class ContentFeature {
      * @param {string} [featureName]
      * @returns {boolean}
      */
-    getFeatureSettingEnabled(featureKeyName, featureName) {
+    getFeatureSettingEnabled (featureKeyName, featureName) {
         const result = this.getFeatureSetting(featureKeyName, featureName)
         if (typeof result === 'object') {
             return result.state === 'enabled'
@@ -198,7 +203,7 @@ export default class ContentFeature {
      * @param {string} featureKeyName
      * @return {any[]}
      */
-    matchDomainFeatureSetting(featureKeyName) {
+    matchDomainFeatureSetting (featureKeyName) {
         const domain = this.#args?.site.domain
         if (!domain) return []
         const domains = this._getFeatureSettings()?.[featureKeyName] || []
@@ -212,10 +217,11 @@ export default class ContentFeature {
         })
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-    init(args) {}
+     
+    init (args) {
+    }
 
-    callInit(args) {
+    callInit (args) {
         const mark = this.monitor.mark(this.name + 'CallInit')
         this.#args = args
         this.platform = args.platform
@@ -224,8 +230,9 @@ export default class ContentFeature {
         this.measure()
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-    load(args) {}
+     
+    load (args) {
+    }
 
     /**
      * This is a wrapper around `this.messaging.notify` that applies the
@@ -235,7 +242,7 @@ export default class ContentFeature {
      *
      * @type {import("@duckduckgo/messaging").Messaging['notify']}
      */
-    notify(...args) {
+    notify (...args) {
         const [name, params] = args
         this.messaging.notify(name, params)
     }
@@ -248,7 +255,7 @@ export default class ContentFeature {
      *
      * @type {import("@duckduckgo/messaging").Messaging['request']}
      */
-    request(...args) {
+    request (...args) {
         const [name, params] = args
         return this.messaging.request(name, params)
     }
@@ -261,7 +268,7 @@ export default class ContentFeature {
      *
      * @type {import("@duckduckgo/messaging").Messaging['subscribe']}
      */
-    subscribe(...args) {
+    subscribe (...args) {
         const [name, cb] = args
         return this.messaging.subscribe(name, cb)
     }
@@ -269,7 +276,7 @@ export default class ContentFeature {
     /**
      * @param {import('./content-scope-features.js').LoadArgs} args
      */
-    callLoad(args) {
+    callLoad (args) {
         const mark = this.monitor.mark(this.name + 'CallLoad')
         this.#args = args
         this.platform = args.platform
@@ -286,23 +293,24 @@ export default class ContentFeature {
         mark.end()
     }
 
-    measure() {
+    measure () {
         if (this.#args?.debug) {
             this.monitor.measureAll()
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    update() {}
+     
+    update () {
+    }
 
     /**
      * Register a flag that will be added to page breakage reports
      */
-    addDebugFlag() {
+    addDebugFlag () {
         if (this.#isDebugFlagSet) return
         this.#isDebugFlagSet = true
         this.messaging?.notify('addDebugFlag', {
-            flag: this.name,
+            flag: this.name
         })
     }
 
@@ -313,18 +321,18 @@ export default class ContentFeature {
      * @param {string} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
-    defineProperty(object, propertyName, descriptor) {
+    defineProperty (object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
         // NOTE: properties passing data in `value` would not be caught by this
-        ;['value', 'get', 'set'].forEach((k) => {
+        ['value', 'get', 'set'].forEach((k) => {
             const descriptorProp = descriptor[k]
             if (typeof descriptorProp === 'function') {
                 const addDebugFlag = this.addDebugFlag.bind(this)
                 const wrapper = new Proxy(descriptorProp, {
-                    apply(target, thisArg, argumentsList) {
+                    apply (target, thisArg, argumentsList) {
                         addDebugFlag()
                         return Reflect.apply(descriptorProp, thisArg, argumentsList)
-                    },
+                    }
                 })
                 descriptor[k] = wrapToString(wrapper, descriptorProp)
             }
@@ -340,7 +348,7 @@ export default class ContentFeature {
      * @param {Partial<PropertyDescriptor>} descriptor
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
-    wrapProperty(object, propertyName, descriptor) {
+    wrapProperty (object, propertyName, descriptor) {
         return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this))
     }
 
@@ -351,7 +359,7 @@ export default class ContentFeature {
      * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
-    wrapMethod(object, propertyName, wrapperFn) {
+    wrapMethod (object, propertyName, wrapperFn) {
         return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this))
     }
 
@@ -361,7 +369,11 @@ export default class ContentFeature {
      * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
      * @param {import('./wrapper-utils').DefineInterfaceOptions} options
      */
-    shimInterface(interfaceName, ImplClass, options) {
+    shimInterface (
+        interfaceName,
+        ImplClass,
+        options
+    ) {
         return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this))
     }
 
@@ -376,7 +388,7 @@ export default class ContentFeature {
      * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
      * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
      */
-    shimProperty(instanceHost, instanceProp, implInstance, readOnly = false) {
+    shimProperty (instanceHost, instanceProp, implInstance, readOnly = false) {
         return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this))
     }
 }

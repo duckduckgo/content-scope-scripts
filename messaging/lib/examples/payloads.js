@@ -52,7 +52,7 @@ const messageResponseError = {
  * This is the payload response for a subscriptionEvent
  * @type {SubscriptionEvent}
  */
-const event = {
+const myEvent = {
     context: 'contentScopeScripts',
     featureName: 'duckPlayerOverlays',
     subscriptionName: 'setUserValues',

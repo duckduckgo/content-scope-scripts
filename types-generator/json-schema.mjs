@@ -1,19 +1,20 @@
-import { createFileList } from './json-schema-fs.mjs'
+/**
+ * @typedef {import("./json-schema-fs.mjs").createFileList} createFileList
+ */
 
 /**
  * @param {ReturnType<createFileList>[number]} file
  */
 function title(file) {
     switch (file.kind) {
-        case 'request':
-        case 'response':
-            return file.method + '_' + file.kind
-        case 'subscribe':
-            return file.method + '_' + 'subscription'
-        case 'notify':
-            return file.method + '_' + 'notification'
-        default:
-            return file.kind
+    case "request":
+    case "response":
+        return file.method + '_' + file.kind
+    case "subscribe":
+        return file.method + '_' + "subscription"
+    case "notify":
+        return file.method + '_' + "notification"
+    default: return file.kind
     }
 }
 
@@ -21,8 +22,8 @@ function title(file) {
  * @param {ReturnType<createFileList>[number]} file
  */
 function description(file) {
-    const inputpath = `../messages/${file.relative}`
-    return `Generated from @see ${JSON.stringify(inputpath)}`
+    const inputpath = `../messages/${file.relative}`;
+    return `Generated from @see ${JSON.stringify(inputpath)}`;
 }
 
 /**
@@ -42,16 +43,16 @@ function hasParams(schema) {
  */
 function baseSchema(file) {
     return {
-        type: 'object',
+        type: "object",
         title: title(file),
         description: description(file),
         additionalProperties: false,
-        required: ['method'],
+        required: ["method"],
         properties: {
             method: {
-                const: file.method,
+                const: file.method
             },
-        },
+        }
     }
 }
 /**
@@ -59,16 +60,16 @@ function baseSchema(file) {
  */
 function subscribeBaseSchema(file) {
     return {
-        type: 'object',
+        type: "object",
         title: title(file),
         description: description(file),
         additionalProperties: false,
-        required: ['subscriptionEvent'],
+        required: ["subscriptionEvent"],
         properties: {
             subscriptionEvent: {
-                const: file.method,
+                const: file.method
             },
-        },
+        }
     }
 }
 
@@ -77,13 +78,13 @@ function subscribeBaseSchema(file) {
  */
 function createNotification(file) {
     if (file.valid === false) throw new Error('unreachable')
-    const json = file.json
+    const json = file.json;
     const base = baseSchema(file)
     if (hasParams(json)) {
-        base.properties.params = { $ref: './' + file.relative }
+        base.properties.params = { $ref: "./" + file.relative }
         base.required.push('params')
     }
-    return base
+    return base;
 }
 
 /**
@@ -91,12 +92,12 @@ function createNotification(file) {
  * @param {ReturnType<createFileList>[number]} [response]
  */
 function createRequest(file, response) {
-    const base = createNotification(file)
+    const base = createNotification(file);
     if (response && response.valid) {
-        base.properties.result = { $ref: './' + response.relative }
+        base.properties.result = { $ref: "./" + response.relative }
         base.required.push('result')
     }
-    return base
+    return base;
 }
 
 /**
@@ -104,13 +105,13 @@ function createRequest(file, response) {
  */
 function createSubscription(file) {
     if (file.valid === false) throw new Error('unreachable')
-    const json = file.json
+    const json = file.json;
     const base = subscribeBaseSchema(file)
     if (hasParams(json)) {
-        base.properties.params = { $ref: './' + file.relative }
+        base.properties.params = { $ref: "./" + file.relative }
         base.required.push('params')
     }
-    return base
+    return base;
 }
 
 /**
@@ -119,17 +120,17 @@ function createSubscription(file) {
  * @return {import("json-schema-to-typescript").JSONSchema}
  */
 export function generateSchema(featureName, fileList) {
-    const notifications = []
-    const requests = []
-    const subscriptions = []
+    const notifications = [];
+    const requests = [];
+    const subscriptions = [];
 
-    for (let file of fileList.filter((x) => x.valid)) {
-        if (file.valid === false) continue // ts
+    for (const file of fileList.filter(x => x.valid)) {
+        if (file.valid === false) continue; // ts
         if (file.kind === 'notify') {
             notifications.push(createNotification(file))
         }
         if (file.kind === 'request') {
-            const response = fileList.find((x) => x.valid && x.method === file.method && x.kind === 'response')
+            const response = fileList.find(x => x.valid && x.method === file.method && x.kind === 'response');
             requests.push(createRequest(file, response))
         }
         if (file.kind === 'subscribe') {
@@ -138,29 +139,29 @@ export function generateSchema(featureName, fileList) {
     }
 
     const base = {
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        type: 'object',
-        title: featureName + '_messages',
+        $schema: "http://json-schema.org/draft-07/schema#",
+        type: "object",
+        title: featureName + "_messages",
         description: `Requests, Notifications and Subscriptions from the ${featureName} feature`,
         additionalProperties: false,
         properties: {},
         /** @type {string[]} */
-        required: [],
+        required: []
     }
 
     if (notifications.length) {
-        base.properties.notifications = { oneOf: notifications }
+        base.properties.notifications = {oneOf: notifications}
         base.required.push('notifications')
     }
     if (requests.length) {
-        base.properties.requests = { oneOf: requests }
+        base.properties.requests = {oneOf: requests}
         base.required.push('requests')
     }
     if (subscriptions.length) {
-        base.properties.subscriptions = { oneOf: subscriptions }
+        base.properties.subscriptions = {oneOf: subscriptions}
         base.required.push('subscriptions')
     }
-    return /** @type {import("json-schema-to-typescript").JSONSchema} */ (base)
+    return /** @type {import("json-schema-to-typescript").JSONSchema} */(base);
 }
 
 /**
@@ -172,10 +173,10 @@ export function generateSchema(featureName, fileList) {
  */
 export function createMessagingTypes(job, { featurePath, className }) {
     const json = job.schema
-    const notifications = json.properties?.notifications?.oneOf?.length ?? 0 > 0
-    const requests = json.properties?.requests?.oneOf?.length ?? 0 > 0
-    const subscriptions = json.properties?.subscriptions?.oneOf?.length ?? 0 > 0
-    const lines = []
+    const notifications = (json.properties?.notifications?.oneOf?.length ?? 0) > 0;
+    const requests = (json.properties?.requests?.oneOf?.length ?? 0) > 0;
+    const subscriptions = (json.properties?.subscriptions?.oneOf?.length ?? 0) > 0;
+    const lines = [];
     if (notifications) {
         lines.push(`notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<${job.topLevelType}>['notify']`)
     }

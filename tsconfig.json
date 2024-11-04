@@ -30,7 +30,8 @@
     "injected",
     "injected/src/globals.d.ts",
     "injected/src/features/duckplayer/duckplayer-settings.ts",
-    "typedoc.js"
+    "typedoc.js",
+    ".github/scripts"
   ],
   "exclude": [
     "injected/integration-test/test-pages",

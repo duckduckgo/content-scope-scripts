@@ -28,7 +28,7 @@ export class TitleCapture {
         }
 
         if (doc.title) {
-            // eslint-disable-next-line n/no-callback-literal
+             
             setter(doc.title)
         }
         if (win && doc) {

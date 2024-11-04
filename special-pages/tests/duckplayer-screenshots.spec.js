@@ -1,3 +1,4 @@
+/* global process */
 import { expect, test } from '@playwright/test'
 import { DuckPlayerPage } from './page-objects/duck-player.js'
 

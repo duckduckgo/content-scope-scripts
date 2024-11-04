@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js'
+// eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js'
 
 /**

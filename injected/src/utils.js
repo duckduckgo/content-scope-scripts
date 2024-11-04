@@ -1,8 +1,9 @@
+/* eslint-disable no-redeclare, no-global-assign */
 /* global cloneInto, exportFunction, mozProxies */
 import { Set } from './captured-globals.js'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
-// eslint-disable-next-line no-global-assign
+ 
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
@@ -10,14 +11,14 @@ let messageSecret
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
 export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window)
-export function registerMessageSecret(secret) {
+export function registerMessageSecret (secret) {
     messageSecret = secret
 }
 
 /**
  * @returns {HTMLElement} the element to inject the script into
  */
-export function getInjectionElement() {
+export function getInjectionElement () {
     return document.head || document.documentElement
 }
 
@@ -29,7 +30,7 @@ const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
  * @param {string} css
  * @returns {HTMLLinkElement | HTMLStyleElement}
  */
-export function createStyleElement(css) {
+export function createStyleElement (css) {
     let style
     if (hasMozProxies) {
         style = document.createElement('link')
@@ -46,7 +47,7 @@ export function createStyleElement(css) {
 /**
  * Injects a script into the page, avoiding CSP restrictions if possible.
  */
-export function injectGlobalStyles(css) {
+export function injectGlobalStyles (css) {
     const style = createStyleElement(css)
     getInjectionElement().appendChild(style)
 }
@@ -55,18 +56,18 @@ export function injectGlobalStyles(css) {
  * Used for testing to override the globals used within this file.
  * @param {window} globalObjIn
  */
-export function setGlobal(globalObjIn) {
+export function setGlobal (globalObjIn) {
     globalObj = globalObjIn
     Error = globalObj.Error
 }
 
 // linear feedback shift register to find a random approximation
-export function nextRandom(v) {
+export function nextRandom (v) {
     return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)))
 }
 
 const exemptionLists = {}
-export function shouldExemptUrl(type, url) {
+export function shouldExemptUrl (type, url) {
     for (const regex of exemptionLists[type]) {
         if (regex.test(url)) {
             return true
@@ -77,7 +78,7 @@ export function shouldExemptUrl(type, url) {
 
 let debug = false
 
-export function initStringExemptionLists(args) {
+export function initStringExemptionLists (args) {
     const { stringExemptionLists } = args
     debug = args.debug
     for (const type in stringExemptionLists) {
@@ -92,7 +93,7 @@ export function initStringExemptionLists(args) {
  * Best guess effort if the document is being framed
  * @returns {boolean} if we infer the document is framed
  */
-export function isBeingFramed() {
+export function isBeingFramed () {
     if (globalThis.location && 'ancestorOrigins' in globalThis.location) {
         return globalThis.location.ancestorOrigins.length > 0
     }
@@ -103,7 +104,7 @@ export function isBeingFramed() {
  * Best guess effort if the document is third party
  * @returns {boolean} if we infer the document is third party
  */
-export function isThirdPartyFrame() {
+export function isThirdPartyFrame () {
     if (!isBeingFramed()) {
         return false
     }
@@ -115,11 +116,11 @@ export function isThirdPartyFrame() {
     return !matchHostname(globalThis.location.hostname, tabHostname)
 }
 
-function isThirdPartyOrigin(hostname) {
+function isThirdPartyOrigin (hostname) {
     return matchHostname(globalThis.location.hostname, hostname)
 }
 
-export function hasThirdPartyOrigin(scriptOrigins) {
+export function hasThirdPartyOrigin (scriptOrigins) {
     for (const origin of scriptOrigins) {
         if (isThirdPartyOrigin(origin)) {
             return true
@@ -132,7 +133,7 @@ export function hasThirdPartyOrigin(scriptOrigins) {
  * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
  * @returns {string|null} inferred tab hostname
  */
-export function getTabHostname() {
+export function getTabHostname () {
     let framingOrigin = null
     try {
         // @ts-expect-error - globalThis.top is possibly 'null' here
@@ -162,12 +163,12 @@ export function getTabHostname() {
  * @param {string} exceptionDomain
  * @returns {boolean}
  */
-export function matchHostname(hostname, exceptionDomain) {
+export function matchHostname (hostname, exceptionDomain) {
     return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
 }
 
 const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/
-export function getStackTraceUrls(stack) {
+export function getStackTraceUrls (stack) {
     const urls = new Set()
     try {
         const errorLines = stack.split('\n')
@@ -184,7 +185,7 @@ export function getStackTraceUrls(stack) {
     return urls
 }
 
-export function getStackTraceOrigins(stack) {
+export function getStackTraceOrigins (stack) {
     const urls = getStackTraceUrls(stack)
     const origins = new Set()
     for (const url of urls) {
@@ -194,7 +195,7 @@ export function getStackTraceOrigins(stack) {
 }
 
 // Checks the stack trace if there are known libraries that are broken.
-export function shouldExemptMethod(type) {
+export function shouldExemptMethod (type) {
     // Short circuit stack tracing if we don't have checks
     if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
         return false
@@ -210,7 +211,7 @@ export function shouldExemptMethod(type) {
 }
 
 // Iterate through the key, passing an item index and a byte to be modified
-export function iterateDataKey(key, callback) {
+export function iterateDataKey (key, callback) {
     let item = key.charCodeAt(0)
     for (const i in key) {
         let byte = key.charCodeAt(i)
@@ -230,20 +231,20 @@ export function iterateDataKey(key, callback) {
     }
 }
 
-export function isFeatureBroken(args, feature) {
+export function isFeatureBroken (args, feature) {
     return isWindowsSpecificFeature(feature)
         ? !args.site.enabledFeatures.includes(feature)
         : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
 }
 
-export function camelcase(dashCaseText) {
+export function camelcase (dashCaseText) {
     return dashCaseText.replace(/-(.)/g, (match, letter) => {
         return letter.toUpperCase()
     })
 }
 
 // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
-function isAppleSilicon() {
+function isAppleSilicon () {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl')
 
@@ -261,7 +262,7 @@ function isAppleSilicon() {
  * @param {*[]} configSetting - Config setting which should contain a list of possible values
  * @returns {*|undefined} - The value from the list that best matches the criteria in the config
  */
-function processAttrByCriteria(configSetting) {
+function processAttrByCriteria (configSetting) {
     let bestOption
     for (const item of configSetting) {
         if (item.criteria) {
@@ -284,8 +285,8 @@ const functionMap = {
         // eslint-disable-next-line no-debugger
         debugger
     },
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    noop: () => {},
+     
+    noop: () => { }
 }
 
 /**
@@ -294,46 +295,46 @@ const functionMap = {
  * @param {*} [defaultValue]
  * @returns
  */
-export function processAttr(configSetting, defaultValue) {
+export function processAttr (configSetting, defaultValue) {
     if (configSetting === undefined) {
         return defaultValue
     }
 
     const configSettingType = typeof configSetting
     switch (configSettingType) {
-        case 'object':
-            if (Array.isArray(configSetting)) {
-                configSetting = processAttrByCriteria(configSetting)
-                if (configSetting === undefined) {
-                    return defaultValue
-                }
-            }
-
-            if (!configSetting.type) {
+    case 'object':
+        if (Array.isArray(configSetting)) {
+            configSetting = processAttrByCriteria(configSetting)
+            if (configSetting === undefined) {
                 return defaultValue
             }
+        }
 
-            if (configSetting.type === 'function') {
-                if (configSetting.functionName && functionMap[configSetting.functionName]) {
-                    return functionMap[configSetting.functionName]
-                }
-            }
-
-            if (configSetting.type === 'undefined') {
-                return undefined
-            }
-
-            return configSetting.value
-        default:
+        if (!configSetting.type) {
             return defaultValue
+        }
+
+        if (configSetting.type === 'function') {
+            if (configSetting.functionName && functionMap[configSetting.functionName]) {
+                return functionMap[configSetting.functionName]
+            }
+        }
+
+        if (configSetting.type === 'undefined') {
+            return undefined
+        }
+
+        return configSetting.value
+    default:
+        return defaultValue
     }
 }
 
-export function getStack() {
+export function getStack () {
     return new Error().stack
 }
 
-export function getContextId(scope) {
+export function getContextId (scope) {
     if (document?.currentScript && 'contextID' in document.currentScript) {
         return document.currentScript.contextID
     }
@@ -352,7 +353,7 @@ export function getContextId(scope) {
  * @param {*[]} argsArray
  * @returns {string}
  */
-function debugSerialize(argsArray) {
+function debugSerialize (argsArray) {
     const maxSerializedSize = 1000
     const serializedArgs = argsArray.map((arg) => {
         try {
@@ -385,7 +386,7 @@ export class DDGProxy {
      * @param {string} property
      * @param {ProxyObject<P>} proxyObject
      */
-    constructor(feature, objectScope, property, proxyObject) {
+    constructor (feature, objectScope, property, proxyObject) {
         this.objectScope = objectScope
         this.property = property
         this.feature = feature
@@ -402,7 +403,7 @@ export class DDGProxy {
                     kind: this.property,
                     documentUrl: document.location.href,
                     stack: getStack(),
-                    args: debugSerialize(args[2]),
+                    args: debugSerialize(args[2])
                 })
             }
             // The normal return value
@@ -417,7 +418,7 @@ export class DDGProxy {
                 const method = Reflect.get(target, prop, receiver).bind(target)
                 Object.defineProperty(method, 'toString', {
                     value: String.toString.bind(String.toString),
-                    enumerable: false,
+                    enumerable: false
                 })
                 return method
             }
@@ -440,7 +441,7 @@ export class DDGProxy {
     }
 
     // Actually apply the proxy to the native property
-    overload() {
+    overload () {
         if (hasMozProxies) {
             // @ts-expect-error wrappedJSObject is not a property of objectScope
             exportFunction(this.internal, this.objectScope, { defineAs: this.property })
@@ -449,19 +450,19 @@ export class DDGProxy {
         }
     }
 
-    overloadDescriptor() {
+    overloadDescriptor () {
         // TODO: this is not always correct! Use wrap* or shim* methods instead
         this.feature.defineProperty(this.objectScope, this.property, {
             value: this.internal,
             writable: true,
             enumerable: true,
-            configurable: true,
+            configurable: true
         })
     }
 }
 
 const maxCounter = new Map()
-function numberOfTimesDebugged(feature) {
+function numberOfTimesDebugged (feature) {
     if (!maxCounter.has(feature)) {
         maxCounter.set(feature, 1)
     } else {
@@ -472,7 +473,7 @@ function numberOfTimesDebugged(feature) {
 
 const DEBUG_MAX_TIMES = 5000
 
-export function postDebugMessage(feature, message, allowNonDebug = false) {
+export function postDebugMessage (feature, message, allowNonDebug = false) {
     if (!debug && !allowNonDebug) {
         return
     }
@@ -485,7 +486,7 @@ export function postDebugMessage(feature, message, allowNonDebug = false) {
     }
     globalObj.postMessage({
         action: feature,
-        message,
+        message
     })
 }
 
@@ -506,7 +507,7 @@ if (hasMozProxies) {
  * @param {object[]} featureList
  * @returns {boolean}
  */
-export function isUnprotectedDomain(topLevelHostname, featureList) {
+export function isUnprotectedDomain (topLevelHostname, featureList) {
     let unprotectedDomain = false
     if (!topLevelHostname) {
         return false
@@ -517,7 +518,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
     while (domainParts.length > 1 && !unprotectedDomain) {
         const partialDomain = domainParts.join('.')
 
-        unprotectedDomain = featureList.filter((domain) => domain.domain === partialDomain).length > 0
+        unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0
 
         domainParts.shift()
     }
@@ -544,10 +545,10 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
 /**
  * Used to inialize extension code in the load phase
  */
-export function computeLimitedSiteObject() {
+export function computeLimitedSiteObject () {
     const topLevelHostname = getTabHostname()
     return {
-        domain: topLevelHostname,
+        domain: topLevelHostname
     }
 }
 
@@ -556,7 +557,7 @@ export function computeLimitedSiteObject() {
  * @param {UserPreferences} preferences
  * @returns {string | number | undefined}
  */
-function getPlatformVersion(preferences) {
+function getPlatformVersion (preferences) {
     if (preferences.versionNumber) {
         return preferences.versionNumber
     }
@@ -571,7 +572,7 @@ function getPlatformVersion(preferences) {
  * @param {string} version
  * @returns string
  */
-export function stripVersion(version, keepComponents = 1) {
+export function stripVersion (version, keepComponents = 1) {
     const splitVersion = version.split('.')
     const filteredVersion = []
     let foundNonZero = false
@@ -588,7 +589,7 @@ export function stripVersion(version, keepComponents = 1) {
     return filteredVersion.join('.')
 }
 
-function parseVersionString(versionString) {
+function parseVersionString (versionString) {
     return versionString.split('.').map(Number)
 }
 
@@ -597,7 +598,7 @@ function parseVersionString(versionString) {
  * @param {string} applicationVersionString
  * @returns {boolean}
  */
-export function satisfiesMinVersion(minVersionString, applicationVersionString) {
+export function satisfiesMinVersion (minVersionString, applicationVersionString) {
     const minVersions = parseVersionString(minVersionString)
     const currentVersions = parseVersionString(applicationVersionString)
     const maxLength = Math.max(minVersions.length, currentVersions.length)
@@ -619,7 +620,7 @@ export function satisfiesMinVersion(minVersionString, applicationVersionString) 
  * @param {string | number | undefined} currentVersion
  * @returns {boolean}
  */
-function isSupportedVersion(minSupportedVersion, currentVersion) {
+function isSupportedVersion (minSupportedVersion, currentVersion) {
     if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {
         if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {
             return true
@@ -644,10 +645,10 @@ function isSupportedVersion(minSupportedVersion, currentVersion) {
  * @param {UserPreferences} preferences
  * @param {string[]} platformSpecificFeatures
  */
-export function processConfig(data, userList, preferences, platformSpecificFeatures = []) {
+export function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
     const topLevelHostname = getTabHostname()
     const site = computeLimitedSiteObject()
-    const allowlisted = userList.filter((domain) => domain === topLevelHostname).length > 0
+    const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0
     /** @type {Record<string, any>} */
     const output = { ...preferences }
     if (output.platform) {
@@ -661,7 +662,7 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
     output.site = Object.assign(site, {
         isBroken,
         allowlisted,
-        enabledFeatures,
+        enabledFeatures
     })
 
     // Copy feature settings from remote config to preferences object
@@ -680,23 +681,19 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
  * @param {string[]} platformSpecificFeatures
  * @returns {string[]}
  */
-export function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
+export function computeEnabledFeatures (data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
     const remoteFeatureNames = Object.keys(data.features)
-    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
-        (featureName) => !remoteFeatureNames.includes(featureName)
-    )
-    const enabledFeatures = remoteFeatureNames
-        .filter((featureName) => {
-            const feature = data.features[featureName]
-            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
-            if (feature.minSupportedVersion && platformVersion) {
-                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
-                    return false
-                }
+    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
+    const enabledFeatures = remoteFeatureNames.filter((featureName) => {
+        const feature = data.features[featureName]
+        // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+        if (feature.minSupportedVersion && platformVersion) {
+            if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
+                return false
             }
-            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
-        })
-        .concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
+        }
+        return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
+    }).concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
     return enabledFeatures
 }
 
@@ -706,7 +703,7 @@ export function computeEnabledFeatures(data, topLevelHostname, platformVersion, 
  * @param {string[]} enabledFeatures
  * @returns {Record<string, unknown>}
  */
-export function parseFeatureSettings(data, enabledFeatures) {
+export function parseFeatureSettings (data, enabledFeatures) {
     /** @type {Record<string, unknown>} */
     const featureSettings = {}
     const remoteFeatureNames = Object.keys(data.features)
@@ -720,17 +717,17 @@ export function parseFeatureSettings(data, enabledFeatures) {
     return featureSettings
 }
 
-export function isGloballyDisabled(args) {
+export function isGloballyDisabled (args) {
     return args.site.allowlisted || args.site.isBroken
 }
 
 export const windowsSpecificFeatures = ['windowsPermissionUsage']
 
-export function isWindowsSpecificFeature(featureName) {
+export function isWindowsSpecificFeature (featureName) {
     return windowsSpecificFeatures.includes(featureName)
 }
 
-export function createCustomEvent(eventName, eventDetail) {
+export function createCustomEvent (eventName, eventDetail) {
     // By default, Firefox protects the event detail Object from the page,
     // leading to "Permission denied to access property" errors.
     // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
@@ -743,12 +740,9 @@ export function createCustomEvent(eventName, eventDetail) {
 }
 
 /** @deprecated */
-export function legacySendMessage(messageType, options) {
+export function legacySendMessage (messageType, options) {
     // FF & Chrome
-    return (
-        originalWindowDispatchEvent &&
-        originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
-    )
+    return originalWindowDispatchEvent && originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
     // TBD other platforms
 }
 
@@ -759,7 +753,7 @@ export function legacySendMessage(messageType, options) {
  * @param {number} [delay=500] - The initial delay to be used to create the exponential backoff.
  * @returns {Promise<Element|HTMLElement|null>}
  */
-export function withExponentialBackoff(fn, maxAttempts = 4, delay = 500) {
+export function withExponentialBackoff (fn, maxAttempts = 4, delay = 500) {
     return new Promise((resolve, reject) => {
         let attempts = 0
         const tryFn = () => {

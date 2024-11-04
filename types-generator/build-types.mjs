@@ -1,8 +1,8 @@
 import { cwd, write } from '../scripts/script-utils.js'
 import { join, relative } from 'node:path'
 import { compile, compileFromFile } from 'json-schema-to-typescript'
-import { createMessagingTypes } from './json-schema.mjs'
-import { createSchemasFromFiles } from './json-schema-fs.mjs'
+import { createMessagingTypes } from "./json-schema.mjs";
+import { createSchemasFromFiles } from "./json-schema-fs.mjs";
 
 const ROOT = join(cwd(import.meta.url), '..')
 
@@ -32,27 +32,27 @@ const ROOT = join(cwd(import.meta.url), '..')
  * @param {Record<string, Mapping>} mapping
  */
 export async function buildTypes(mapping) {
-    for (let [featureName, manifest] of Object.entries(mapping)) {
-        if (manifest.exclude) continue
+    for (const [featureName, manifest] of Object.entries(mapping)) {
+        if (manifest.exclude) continue;
         if (manifest.kind === 'settings') {
-            const typescript = await createTypesForSchemaFile(featureName, manifest.schema)
-            let content = typescript.replace(/\r\n/g, '\n')
+            const typescript = await createTypesForSchemaFile(featureName, manifest.schema);
+            const content = typescript.replace(/\r\n/g, '\n')
             write([manifest.types], content)
             console.log('✅ %s schema written to `%s` from schema `%s`', featureName, relative(ROOT, manifest.types), manifest.schema)
         }
         if (manifest.kind === 'messages') {
             // create a job for each sub-folder that contains schemas
-            const schemas = await createSchemasFromFiles(manifest.schemaDir)
+            const schemas = createSchemasFromFiles(manifest.schemaDir)
 
             // for each folder
-            for (let schema of schemas) {
+            for (const schema of schemas) {
                 const typescript = await createTypesForSchemaMessages(schema.featureName, schema.schema, manifest.schemaDir)
-                let featurePath = manifest.resolve(schema.dirname)
-                let className = manifest.className(schema.topLevelType)
+                const featurePath = manifest.resolve(schema.dirname)
+                const className = manifest.className(schema.topLevelType)
                 const messageTypes = createMessagingTypes(schema, { featurePath, className })
                 const content = [typescript.replace(/\r\n/g, '\n'), messageTypes].join('')
                 const filename = schema.dirname + '.ts'
-                const outputFile = join(manifest.typesDir, filename)
+                const outputFile = join(manifest.typesDir, filename);
                 write([outputFile], content)
                 console.log('✅ %s schema written to', schema.featureName, outputFile)
             }
@@ -79,7 +79,7 @@ async function createTypesForSchemaFile(featureName, schemaFilePath) {
                  *
                  * @module ${featureName} Schema
                  */
-                `,
+                `
     })
 }
 
@@ -92,7 +92,7 @@ async function createTypesForSchemaFile(featureName, schemaFilePath) {
  * @return {Promise<string>}
  */
 export async function createTypesForSchemaMessages(featureName, schema, rootDir) {
-    const typescript = await compile(/** @type {any} */ (schema), featureName, {
+    const typescript = await compile(/** @type {any} */(schema), featureName, {
         cwd: rootDir,
         additionalProperties: false,
         bannerComment: `
@@ -104,6 +104,7 @@ export async function createTypesForSchemaMessages(featureName, schema, rootDir)
              * @module ${featureName} Messages
              */
             `,
-    })
+    });
     return typescript
 }
+

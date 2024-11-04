@@ -186,7 +186,7 @@ export class WebkitMessagingTransport {
              * @param {any[]} args
              */
             value: (...args) => {
-                // eslint-disable-next-line n/no-callback-literal
+                 
                 callback(...args)
                 delete this.globals.window[randomMethodName]
             },

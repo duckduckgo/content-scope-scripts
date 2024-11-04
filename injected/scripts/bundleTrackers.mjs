@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-redeclare
 import fetch from 'node-fetch'
 import { parseArgs, write } from '../../scripts/script-utils.js'
 

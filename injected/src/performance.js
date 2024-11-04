@@ -30,6 +30,7 @@ export class PerformanceMonitor {
 /**
  * Tiny wrapper around performance.mark and performance.measure
  */
+// eslint-disable-next-line no-redeclare
 export class PerformanceMark {
     /**
      * @param {string} name

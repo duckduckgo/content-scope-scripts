@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 import { h } from 'preact'
 import { useGlobalDispatch, useGlobalState } from '../../global'
 import { useTypedTranslation } from '../../types'

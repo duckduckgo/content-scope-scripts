@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 import { h } from 'preact'
 import { Stack } from '../components/Stack'
 import { Launch, SlideUp } from '../components/Icons'

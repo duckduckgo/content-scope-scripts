@@ -14,18 +14,16 @@ export class IframeFeature {
      * @param {HTMLIFrameElement} iframe
      * @returns {(() => void) | null}
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    iframeDidLoad(iframe) {
+     
+    iframeDidLoad (iframe) {
         return () => {
             console.log('teardown')
         }
     }
 
-    static noop() {
+    static noop () {
         return {
-            iframeDidLoad: () => {
-                return () => {}
-            },
+            iframeDidLoad: () => { return () => {} }
         }
     }
 }
@@ -37,7 +35,7 @@ export class IframeFeature {
  * @param {import("../settings").Settings} settings
  * @returns {Record<string, () => IframeFeature>}
  */
-export function createIframeFeatures(settings) {
+export function createIframeFeatures (settings) {
     return {
         /**
          * @return {IframeFeature}
@@ -59,7 +57,7 @@ export function createIframeFeatures(settings) {
          */
         clickCapture: () => {
             return new ClickCapture({
-                baseUrl: settings.youtubeBase,
+                baseUrl: settings.youtubeBase
             })
         },
         /**
@@ -73,6 +71,6 @@ export function createIframeFeatures(settings) {
          */
         mouseCapture: () => {
             return new MouseCapture()
-        },
+        }
     }
 }
