@@ -609,9 +609,7 @@ test.describe('Viewport fixes', () => {
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual(
-                `initial-scale=${(width / expectedWidth).toFixed(
-                    3,
-                )}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, something-something`,
+                `initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, something-something`,
             )
         })
 

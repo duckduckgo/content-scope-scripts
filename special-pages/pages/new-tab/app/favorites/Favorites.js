@@ -15,10 +15,8 @@ export function FavoritesCustomized() {
         return null
     }
     return (
-        <div class="layout-centered">
-            <p>
-                Favourites here... (id: <code>{id}</code>)
-            </p>
-        </div>
+        <p>
+            Favourites here... (id: <code>{id}</code>)
+        </p>
     )
 }

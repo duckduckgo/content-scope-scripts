@@ -18,7 +18,7 @@ export function UpdateNotification({ notes, dismiss, version }) {
     const { t } = useTypedTranslation()
 
     return (
-        <div class={styles.root}>
+        <div class={styles.root} data-reset-layout="true">
             <div class={cn('layout-centered', styles.body)}>
                 {notes.length > 0 && <WithNotes notes={notes} version={version} />}
                 {notes.length === 0 && <WithoutNotes version={version} />}
@@ -31,10 +31,6 @@ export function UpdateNotification({ notes, dismiss, version }) {
             </div>
         </div>
     )
-}
-
-export function PulledUp({ children }) {
-    return <div class={styles.pulled}>{children}</div>
 }
 
 export function WithNotes({ notes, version }) {
@@ -83,11 +79,7 @@ export function UpdateNotificationConsumer() {
 
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {
-        return (
-            <PulledUp>
-                <UpdateNotification notes={state.data.content.notes} version={state.data.content.version} dismiss={dismiss} />
-            </PulledUp>
-        )
+        return <UpdateNotification notes={state.data.content.notes} version={state.data.content.version} dismiss={dismiss} />
     }
     return null
 }

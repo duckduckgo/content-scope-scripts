@@ -12,6 +12,9 @@ export const WidgetConfigContext = createContext({
     /** @type {Widgets} */
     widgets: [],
 
+    /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
+    entryPoints: {},
+
     /** @type {WidgetConfigItem[]} */
     widgetConfigItems: [],
 
@@ -28,6 +31,7 @@ export const WidgetConfigDispatchContext = createContext({
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  * @param {WidgetConfigItem[]} props.widgetConfigs - the initial config data
+ * @param {Record<string, {factory: () => import("preact").ComponentChild}>} props.entryPoints
  * @param {Widgets} props.widgets - the initial widget list
  * @param {WidgetConfigAPI} props.api - the stateful API manager
  */
@@ -54,6 +58,7 @@ export function WidgetConfigProvider(props) {
             value={{
                 // this field is static for the lifespan of the page
                 widgets: props.widgets,
+                entryPoints: props.entryPoints,
                 // this will be updated via subscriptions
                 widgetConfigItems: data || [],
                 toggle,

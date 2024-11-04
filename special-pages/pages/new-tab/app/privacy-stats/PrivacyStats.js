@@ -1,5 +1,4 @@
 import { h } from 'preact'
-import cn from 'classnames'
 import styles from './PrivacyStats.module.css'
 import { useTypedTranslation } from '../types.js'
 import { useContext, useState, useId, useCallback } from 'preact/hooks'
@@ -63,7 +62,7 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
     const TOGGLE_ID = useId()
 
     return (
-        <div class={cn('layout-centered', styles.root)} ref={parentRef}>
+        <div class={styles.root} ref={parentRef}>
             <Heading
                 totalCount={data.totalCount}
                 trackerCompanies={data.trackerCompanies}

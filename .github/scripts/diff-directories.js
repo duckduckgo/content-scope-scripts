@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-function readFilesRecursively (directory) {
+function readFilesRecursively(directory) {
     const filenames = fs.readdirSync(directory)
     const files = {}
 
@@ -22,16 +22,16 @@ function readFilesRecursively (directory) {
     return files
 }
 
-function upperCaseFirstLetter (string) {
+function upperCaseFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
-function displayDiffs (dir1Files, dir2Files, isOpen) {
+function displayDiffs(dir1Files, dir2Files, isOpen) {
     const rollupGrouping = {}
     /**
      * Rolls up multiple files with the same diff into a single entry
-     * @param {string} fileName 
-     * @param {string} string 
+     * @param {string} fileName
+     * @param {string} string
      * @param {string} [summary]
      */
     function add(fileName, string, summary = undefined) {
@@ -67,23 +67,25 @@ function displayDiffs (dir1Files, dir2Files, isOpen) {
     for (const filePath of Object.keys(dir2Files)) {
         add(filePath, '❌ File only exists in new changeset', 'New Files')
     }
-    const outString = Object.keys(rollupGrouping).map(key => {
-        const rollup = rollupGrouping[key]
-        let outString = `
+    const outString = Object.keys(rollupGrouping)
+        .map((key) => {
+            const rollup = rollupGrouping[key]
+            let outString = `
         `
-        const title = key
-        if (rollup.files.length) {
-            for (const file of rollup.files) {
-                outString += `- ${file}\n`
+            const title = key
+            if (rollup.files.length) {
+                for (const file of rollup.files) {
+                    outString += `- ${file}\n`
+                }
             }
-        }
-        outString += '\n\n' + rollup.string
-        return renderDetails(title, outString, isOpen)
-    }).join('\n')
+            outString += '\n\n' + rollup.string
+            return renderDetails(title, outString, isOpen)
+        })
+        .join('\n')
     return outString
 }
 
-function renderDetails (section, text, isOpen) {
+function renderDetails(section, text, isOpen) {
     if (section === 'dist') {
         section = 'apple'
     }
@@ -102,9 +104,8 @@ if (process.argv.length !== 4) {
 const dir1 = process.argv[2]
 const dir2 = process.argv[3]
 
-const sections = {
-}
-function sortFiles (dirFiles, dirName) {
+const sections = {}
+function sortFiles(dirFiles, dirName) {
     for (const [filePath, fileContent] of Object.entries(dirFiles)) {
         sections[dirName] = sections[dirName] || {}
         sections[dirName][filePath] = fileContent
@@ -117,7 +118,6 @@ sortFiles(readFilesRecursively(dir1 + buildDir), 'dir1')
 sortFiles(readFilesRecursively(dir2 + buildDir), 'dir2')
 sortFiles(readFilesRecursively(dir1 + sourcesOutput), 'dir1')
 sortFiles(readFilesRecursively(dir2 + sourcesOutput), 'dir2')
-
 
 // console.log(Object.keys(files))
 const fileOut = displayDiffs(sections.dir1, sections.dir2, true)
