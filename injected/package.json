@@ -42,15 +42,15 @@
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-replace": "^6.0.1",
-    "@types/chrome": "^0.0.279",
+    "@types/chrome": "^0.0.280",
     "@types/jasmine": "^5.1.4",
-    "@types/node": "^22.8.6",
+    "@types/node": "^22.8.7",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
     "config-builder": "github:duckduckgo/privacy-configuration#1729260354597",
     "fast-check": "^3.23.1",
     "jasmine": "^5.4.0",
     "minimist": "^1.2.8",
-    "rollup": "^4.24.3",
+    "rollup": "^4.24.4",
     "rollup-plugin-import-css": "^3.5.6",
     "rollup-plugin-svg-import": "^3.0.0"
   }
