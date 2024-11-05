@@ -2,6 +2,7 @@ import { Fragment, h } from 'preact';
 import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMockProvider.js';
 import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js';
 import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js';
+import { NextStepsCard } from '../next-steps/NextStepsCard.js';
 import { stats } from '../privacy-stats/mocks/stats.js';
 import { noop } from '../utils.js';
 import { VisibilityMenu } from '../customizer/VisibilityMenu.js';
@@ -91,6 +92,21 @@ export const mainExamples = {
         ),
     },
     ...favoritesExamples,
+    'next-steps.bringStuff': {
+        factory: () => <NextStepsCard type="bringStuff" dismiss={() => {}} action={() => {}} />,
+    },
+    'next-steps.duckPlayer': {
+        factory: () => <NextStepsCard type="duckPlayer" dismiss={() => {}} action={() => {}} />,
+    },
+    'next-steps.defaultApp': {
+        factory: () => <NextStepsCard type="defaultApp" dismiss={() => {}} action={() => {}} />,
+    },
+    'next-steps.emailProtection': {
+        factory: () => <NextStepsCard type="emailProtection" dismiss={() => {}} action={() => {}} />,
+    },
+    'next-steps.blockCookies': {
+        factory: () => <NextStepsCard type="blockCookies" dismiss={() => {}} action={() => {}} />,
+    },
 };
 
 export const otherExamples = {
