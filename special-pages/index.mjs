@@ -54,6 +54,7 @@ export const support = {
     'new-tab': {
         integration: ['copy', 'build-js'],
         windows: ['copy', 'build-js'],
+        apple: ['copy', 'build-js'],
     },
 }
 
