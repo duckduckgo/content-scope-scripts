@@ -30,8 +30,8 @@ export default class AutofillPasswordImport extends ContentFeature {
             },
             zIndex: '984',
             borderRadius: '100%',
-            offsetLeft: 0.03,
-            offsetTop: 0.03
+            offsetLeftEm: 0.02,
+            offsetTopEm: 0
         }
     }
 
@@ -46,8 +46,8 @@ export default class AutofillPasswordImport extends ContentFeature {
             },
             zIndex: '984',
             borderRadius: '100%',
-            offsetLeft: 0,
-            offsetTop: 0
+            offsetLeftEm: 0,
+            offsetTopEm: 0
         }
     }
 
@@ -62,8 +62,8 @@ export default class AutofillPasswordImport extends ContentFeature {
             },
             zIndex: '999',
             borderRadius: '2px',
-            offsetLeft: 0.08,
-            offsetTop: 0.05
+            offsetLeftEm: 0,
+            offsetTopEm: -0.05
         }
     }
 
@@ -139,8 +139,8 @@ export default class AutofillPasswordImport extends ContentFeature {
             const { top, left, width, height } = elementToCenterOn.getBoundingClientRect()
             overlay.style.position = 'absolute'
     
-            overlay.style.top = `calc(${top}px + ${window.scrollY}px - ${isRound ? height / 2 : 0}px - 1px - ${style.offsetTop}em)`
-            overlay.style.left = `calc(${left}px + ${window.scrollX}px - ${isRound ? width / 2 : 0}px - 1px - ${style.offsetLeft}em)`
+            overlay.style.top = `calc(${top}px + ${window.scrollY}px - ${isRound ? height / 2 : 0}px - 1px - ${style.offsetTopEm}em)`
+            overlay.style.left = `calc(${left}px + ${window.scrollX}px - ${isRound ? width / 2 : 0}px - 1px - ${style.offsetLeftEm}em)`
     
             const mainElementRect = mainElement.getBoundingClientRect()
             overlay.style.width = `${mainElementRect.width}px`
