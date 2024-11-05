@@ -6,6 +6,7 @@ const ANIMATION_ITERATIONS = Infinity
 const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)'
 const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)'
 const OVERLAY_ID = 'ddg-password-import-overlay'
+const ANIMATION_TIMEOUT = 300
 
 /**
  * This feature is responsible for animating some buttons passwords.google.com,
@@ -270,7 +271,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                     if (shouldTap) {
                         this.autotapElement(element)
                     } else {
-                        setTimeout(() => this.animateElement(element, style), 300)
+                        setTimeout(() => this.animateElement(element, style), ANIMATION_TIMEOUT)
                     }
                     if (shouldWatchForRemoval) {
                         // Sometimes navigation events are not triggered, then we need to watch for removal
