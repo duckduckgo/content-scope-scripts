@@ -1,16 +1,16 @@
-import { createTypedMessages } from '@duckduckgo/messaging'
-import { Environment } from '../../../../shared/environment.js'
-import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js'
-import { init } from '../../app/index.js'
-import { initStorage } from './storage.js'
+import { createTypedMessages } from '@duckduckgo/messaging';
+import { Environment } from '../../../../shared/environment.js';
+import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js';
+import { init } from '../../app/index.js';
+import { initStorage } from './storage.js';
 
 export class DuckplayerPage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
     constructor(messaging, injectName) {
-        this.messaging = createTypedMessages(this, messaging)
-        this.injectName = injectName
+        this.messaging = createTypedMessages(this, messaging);
+        this.injectName = injectName;
     }
 
     /**
@@ -33,9 +33,9 @@ export class DuckplayerPage {
                     },
                 },
                 locale: 'en',
-            })
+            });
         }
-        return this.messaging.request('initialSetup')
+        return this.messaging.request('initialSetup');
     }
 
     /**
@@ -44,21 +44,21 @@ export class DuckplayerPage {
      * @param {import("../../../../types/duckplayer").UserValues} userValues
      */
     setUserValues(userValues) {
-        return this.messaging.request('setUserValues', userValues)
+        return this.messaging.request('setUserValues', userValues);
     }
 
     /**
      * For platforms that require a message to open settings
      */
     openSettings() {
-        return this.messaging.notify('openSettings')
+        return this.messaging.notify('openSettings');
     }
 
     /**
      * For platforms that require a message to open info modal
      */
     openInfo() {
-        return this.messaging.notify('openInfo')
+        return this.messaging.notify('openInfo');
     }
 
     /**
@@ -87,7 +87,7 @@ export class DuckplayerPage {
      * @param {(value: import("../../../../types/duckplayer").UserValues) => void} cb
      */
     onUserValuesChanged(cb) {
-        return this.messaging.subscribe('onUserValuesChanged', cb)
+        return this.messaging.subscribe('onUserValuesChanged', cb);
     }
 
     /**
@@ -96,7 +96,7 @@ export class DuckplayerPage {
      * @param {{message: string}} params
      */
     reportPageException(params) {
-        this.messaging.notify('reportPageException', params)
+        this.messaging.notify('reportPageException', params);
     }
 
     /**
@@ -104,7 +104,7 @@ export class DuckplayerPage {
      * @param {{message: string}} params
      */
     reportInitException(params) {
-        this.messaging.notify('reportInitException', params)
+        this.messaging.notify('reportInitException', params);
     }
 }
 
@@ -115,7 +115,7 @@ export class Telemetry {
     /**
      * @internal
      */
-    oneTimeEvents = new Set()
+    oneTimeEvents = new Set();
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      * @internal
@@ -124,7 +124,7 @@ export class Telemetry {
         /**
          * @internal
          */
-        this.messaging = messaging
+        this.messaging = messaging;
     }
 
     /**
@@ -132,7 +132,7 @@ export class Telemetry {
      * @internal
      */
     _event(event) {
-        this.messaging.notify('telemetryEvent', event)
+        this.messaging.notify('telemetryEvent', event);
     }
 
     /**
@@ -151,28 +151,28 @@ export class Telemetry {
      * ```
      */
     landscapeImpression() {
-        if (this.oneTimeEvents.has('landscapeImpression')) return
-        this.oneTimeEvents.add('landscapeImpression')
-        this._event({ attributes: { name: 'impression', value: 'landscape-layout' } })
+        if (this.oneTimeEvents.has('landscapeImpression')) return;
+        this.oneTimeEvents.add('landscapeImpression');
+        this._event({ attributes: { name: 'impression', value: 'landscape-layout' } });
     }
 }
 
-const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env)
+const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
 
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
     pageName: 'duckPlayerPage',
-})
+});
 
-const duckplayerPage = new DuckplayerPage(messaging, import.meta.injectName)
-const telemetry = new Telemetry(messaging)
+const duckplayerPage = new DuckplayerPage(messaging, import.meta.injectName);
+const telemetry = new Telemetry(messaging);
 
 init(duckplayerPage, telemetry, baseEnvironment).catch((e) => {
     // messages.
-    console.error(e)
-    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
-    duckplayerPage.reportInitException({ message: msg })
-})
+    console.error(e);
+    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
+    duckplayerPage.reportInitException({ message: msg });
+});
 
-initStorage()
+initStorage();

@@ -1,7 +1,7 @@
-import styles from './Wordmark.module.css'
-import mobileStyles from './Wordmark-mobile.module.css'
-import dax from '../img/dax.data.svg'
-import { h } from 'preact'
+import styles from './Wordmark.module.css';
+import mobileStyles from './Wordmark-mobile.module.css';
+import dax from '../img/dax.data.svg';
+import { h } from 'preact';
 
 export function Wordmark() {
     return (
@@ -11,7 +11,7 @@ export function Wordmark() {
             </div>
             <div className={styles.text}>Duck Player</div>
         </div>
-    )
+    );
 }
 
 export function MobileWordmark() {
@@ -22,5 +22,5 @@ export function MobileWordmark() {
             </span>
             <span class={mobileStyles.text}>Duck Player</span>
         </div>
-    )
+    );
 }

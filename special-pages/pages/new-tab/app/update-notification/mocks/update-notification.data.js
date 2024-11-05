@@ -14,4 +14,4 @@ export const updateNotificationExamples = {
             version: '1.91',
         },
     },
-}
+};

@@ -14,7 +14,7 @@ export class ErrorResponse {
      * @param {string} params.message
      */
     constructor(params) {
-        this.error = params
+        this.error = params;
     }
 }
 
@@ -30,7 +30,7 @@ export class SuccessResponse {
      * @param {Record<string, any>} [params.meta] - optional meta data
      */
     constructor(params) {
-        this.success = params
+        this.success = params;
     }
 }
 
@@ -48,11 +48,11 @@ export class ProfileResult {
      * @param {Record<string, any>} params.scrapedData
      */
     constructor(params) {
-        this.scrapedData = params.scrapedData
-        this.result = params.result
-        this.score = params.score
-        this.element = params.element
-        this.matchedFields = params.matchedFields
+        this.scrapedData = params.scrapedData;
+        this.result = params.result;
+        this.score = params.score;
+        this.element = params.element;
+        this.matchedFields = params.matchedFields;
     }
 
     /**
@@ -65,7 +65,7 @@ export class ProfileResult {
             result: this.result,
             score: this.score,
             matchedFields: this.matchedFields,
-        }
+        };
     }
 }
 
@@ -81,7 +81,7 @@ export class Extractor {
      */
 
     extract(noneEmptyStringArray, extractorParams) {
-        throw new Error('must implement extract')
+        throw new Error('must implement extract');
     }
 }
 
@@ -96,6 +96,6 @@ export class AsyncProfileTransform {
      */
 
     transform(profile, profileParams) {
-        throw new Error('must implement extract')
+        throw new Error('must implement extract');
     }
 }

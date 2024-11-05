@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useReducer } from 'preact/hooks'
-import { h } from 'preact'
-import { PrivacyStatsContext, PrivacyStatsDispatchContext } from '../PrivacyStatsProvider.js'
-import { stats } from './stats.js'
-import { reducer } from '../../service.hooks.js'
+import { useCallback, useEffect, useReducer } from 'preact/hooks';
+import { h } from 'preact';
+import { PrivacyStatsContext, PrivacyStatsDispatchContext } from '../PrivacyStatsProvider.js';
+import { stats } from './stats.js';
+import { reducer } from '../../service.hooks.js';
 
 /**
  * @typedef {import('../../../../../types/new-tab').TrackerCompany} TrackerCompany
@@ -34,41 +34,41 @@ export function PrivacyStatsMockProvider({
         status: 'ready',
         data,
         config,
-    })
+    });
 
     /** @type {[State, import('preact/hooks').Dispatch<Events>]} */
-    const [state, send] = useReducer(reducer, initial)
+    const [state, send] = useReducer(reducer, initial);
 
     useEffect(() => {
-        if (!ticker) return
+        if (!ticker) return;
         if (state.status === 'ready') {
             const next = {
                 totalCount: state.data.totalCount + 1,
                 trackerCompanies: state.data.trackerCompanies.map((company, index) => {
-                    if (index === 0) return { ...company, count: company.count + 1 }
-                    return company
+                    if (index === 0) return { ...company, count: company.count + 1 };
+                    return company;
                 }),
-            }
+            };
             const time = setTimeout(() => {
-                send({ kind: 'data', data: next })
-            }, 1000)
-            return () => clearTimeout(time)
+                send({ kind: 'data', data: next });
+            }, 1000);
+            return () => clearTimeout(time);
         }
-        return () => {}
-    }, [state.data?.totalCount, ticker])
+        return () => {};
+    }, [state.data?.totalCount, ticker]);
 
     const toggle = useCallback(() => {
-        if (state.status !== 'ready') return console.warn('was not ready')
+        if (state.status !== 'ready') return console.warn('was not ready');
         if (state.config?.expansion === 'expanded') {
-            send({ kind: 'config', config: { ...state.config, expansion: 'collapsed' } })
+            send({ kind: 'config', config: { ...state.config, expansion: 'collapsed' } });
         } else {
-            send({ kind: 'config', config: { ...state.config, expansion: 'expanded' } })
+            send({ kind: 'config', config: { ...state.config, expansion: 'expanded' } });
         }
-    }, [state.config?.expansion])
+    }, [state.config?.expansion]);
 
     return (
         <PrivacyStatsContext.Provider value={{ state, toggle }}>
             <PrivacyStatsDispatchContext.Provider value={send}>{children}</PrivacyStatsDispatchContext.Provider>
         </PrivacyStatsContext.Provider>
-    )
+    );
 }

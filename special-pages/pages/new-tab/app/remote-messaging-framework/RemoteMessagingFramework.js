@@ -1,9 +1,9 @@
-import { h } from 'preact'
-import cn from 'classnames'
-import styles from './RemoteMessagingFramework.module.css'
-import { useContext } from 'preact/hooks'
-import { RMFContext } from './RMFProvider.js'
-import { Cross } from '../components/Icons.js'
+import { h } from 'preact';
+import cn from 'classnames';
+import styles from './RemoteMessagingFramework.module.css';
+import { useContext } from 'preact/hooks';
+import { RMFContext } from './RMFProvider.js';
+import { Cross } from '../components/Icons.js';
 
 /**
  * @import { RMFMessage } from "../../../../types/new-tab"
@@ -15,7 +15,7 @@ import { Cross } from '../components/Icons.js'
  */
 
 export function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
-    const { id, messageType, titleText, descriptionText } = message
+    const { id, messageType, titleText, descriptionText } = message;
     return (
         <div id={id} class={cn(styles.root, messageType !== 'small' && message.icon && styles.icon)}>
             {messageType !== 'small' && message.icon && (
@@ -52,11 +52,11 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
                 <Cross />
             </button>
         </div>
-    )
+    );
 }
 
 export function RMFConsumer() {
-    const { state, primaryAction, secondaryAction, dismiss } = useContext(RMFContext)
+    const { state, primaryAction, secondaryAction, dismiss } = useContext(RMFContext);
 
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {
@@ -67,7 +67,7 @@ export function RMFConsumer() {
                 secondaryAction={secondaryAction}
                 dismiss={dismiss}
             />
-        )
+        );
     }
-    return null
+    return null;
 }

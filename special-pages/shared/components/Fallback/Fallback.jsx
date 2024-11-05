@@ -1,5 +1,5 @@
-import { h } from 'preact'
-import styles from './Fallback.module.css'
+import { h } from 'preact';
+import styles from './Fallback.module.css';
 
 /**
  * @param {object} props
@@ -17,5 +17,5 @@ export function Fallback({ showDetails }) {
                 )}
             </div>
         </div>
-    )
+    );
 }

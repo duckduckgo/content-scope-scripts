@@ -1,8 +1,8 @@
-import { useContext } from 'preact/hooks'
-import { TranslationContext } from '../../../shared/components/TranslationsProvider.js'
+import { useContext } from 'preact/hooks';
+import { TranslationContext } from '../../../shared/components/TranslationsProvider.js';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import json from '../src/locales/en/newtab.json'
-import { createContext } from 'preact'
+import json from '../src/locales/en/newtab.json';
+import { createContext } from 'preact';
 
 /**
  * @import { InitialSetupResponse } from "../../../types/new-tab.js";
@@ -15,11 +15,11 @@ import { createContext } from 'preact'
 export function useTypedTranslation() {
     return {
         t: useContext(TranslationContext).t,
-    }
+    };
 }
 
-export const MessagingContext = createContext(/** @type {import("../src/js/index.js").NewTabPage} */ ({}))
-export const useMessaging = () => useContext(MessagingContext)
+export const MessagingContext = createContext(/** @type {import("../src/js/index.js").NewTabPage} */ ({}));
+export const useMessaging = () => useContext(MessagingContext);
 
-export const InitialSetupContext = createContext(/** @type {InitialSetupResponse} */ ({}))
-export const useInitialSetupData = () => useContext(InitialSetupContext)
+export const InitialSetupContext = createContext(/** @type {InitialSetupResponse} */ ({}));
+export const useInitialSetupData = () => useContext(InitialSetupContext);

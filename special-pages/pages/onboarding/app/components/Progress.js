@@ -1,6 +1,6 @@
-import styles from './Progress.module.css'
-import { h } from 'preact'
-import cn from 'classnames'
+import styles from './Progress.module.css';
+import { h } from 'preact';
+import cn from 'classnames';
 
 /**
  * Renders a progress component indicating the current progress
@@ -19,7 +19,7 @@ export function Progress({ total, current }) {
                 (Page {current} of circa {total})
             </progress>
         </div>
-    )
+    );
 }
 
 export function SingleLineProgress({ total, current }) {
@@ -32,5 +32,5 @@ export function SingleLineProgress({ total, current }) {
                 (Page {current} of circa {total})
             </progress>
         </div>
-    )
+    );
 }

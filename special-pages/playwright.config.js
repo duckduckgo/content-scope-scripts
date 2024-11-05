@@ -1,5 +1,5 @@
 /* global process */
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
     projects: [
@@ -84,4 +84,4 @@ export default defineConfig({
         actionTimeout: 5000,
         trace: 'on-first-retry',
     },
-})
+});

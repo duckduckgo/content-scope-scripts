@@ -1,14 +1,14 @@
-import { h, render } from 'preact'
-import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider.js'
+import { h, render } from 'preact';
+import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider.js';
 
-import { App } from './components/App.jsx'
-import { Components } from './components/Components.jsx'
+import { App } from './components/App.jsx';
+import { Components } from './components/Components.jsx';
 
-import enStrings from '../src/locales/en/example.json'
-import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
-import { callWithRetry } from '../../../shared/call-with-retry.js'
+import enStrings from '../src/locales/en/example.json';
+import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
+import { callWithRetry } from '../../../shared/call-with-retry.js';
 
-import '../../../shared/styles/global.css' // global styles
+import '../../../shared/styles/global.css'; // global styles
 
 /**
  * @param {import("../src/js/index.js").ExamplePage} messaging
@@ -16,12 +16,12 @@ import '../../../shared/styles/global.css' // global styles
  * @return {Promise<void>}
  */
 export async function init(messaging, baseEnvironment) {
-    const result = await callWithRetry(() => messaging.initialSetup())
+    const result = await callWithRetry(() => messaging.initialSetup());
     if ('error' in result) {
-        throw new Error(result.error)
+        throw new Error(result.error);
     }
 
-    const init = result.value
+    const init = result.value;
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -29,7 +29,7 @@ export async function init(messaging, baseEnvironment) {
         .withLocale(init.locale)
         .withLocale(baseEnvironment.urlParams.get('locale'))
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
-        .withDisplay(baseEnvironment.urlParams.get('display'))
+        .withDisplay(baseEnvironment.urlParams.get('display'));
 
     const strings =
         environment.locale === 'en'
@@ -37,17 +37,17 @@ export async function init(messaging, baseEnvironment) {
             : await fetch(`./locales/${environment.locale}/example.json`)
                   .then((resp) => {
                       if (!resp.ok) {
-                          throw new Error('did not give a result')
+                          throw new Error('did not give a result');
                       }
-                      return resp.json()
+                      return resp.json();
                   })
                   .catch((e) => {
-                      console.error('Could not load locale', environment.locale, e)
-                      return enStrings
-                  })
+                      console.error('Could not load locale', environment.locale, e);
+                      return enStrings;
+                  });
 
-    const root = document.querySelector('#app')
-    if (!root) throw new Error('could not render, root element missing')
+    const root = document.querySelector('#app');
+    if (!root) throw new Error('could not render, root element missing');
 
     if (environment.display === 'app') {
         render(
@@ -58,7 +58,7 @@ export async function init(messaging, baseEnvironment) {
                 </TranslationProvider>
             </EnvironmentProvider>,
             root,
-        )
+        );
     } else if (environment.display === 'components') {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
@@ -67,6 +67,6 @@ export async function init(messaging, baseEnvironment) {
                 </TranslationProvider>
             </EnvironmentProvider>,
             root,
-        )
+        );
     }
 }

@@ -1,6 +1,6 @@
-import styles from './Switch.module.css'
-import { h } from 'preact'
-import cn from 'classnames'
+import styles from './Switch.module.css';
+import { h } from 'preact';
+import cn from 'classnames';
 
 /**
  * Renders a switch component with given checked, id and onChange props.
@@ -25,5 +25,5 @@ export function Switch({ checked, onChange, id, platformName = 'ios' }) {
         >
             <span className={styles.thumb}></span>
         </button>
-    )
+    );
 }

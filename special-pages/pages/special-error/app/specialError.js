@@ -1,4 +1,4 @@
-import { sampleData } from '../src/js/sampleData'
+import { sampleData } from '../src/js/sampleData';
 
 export class SpecialError {
     /**
@@ -6,7 +6,7 @@ export class SpecialError {
      * @param {import('../../../types/special-error').InitialSetupResponse['errorData']} params.errorData
      */
     constructor({ errorData }) {
-        this.data = errorData
+        this.data = errorData;
     }
 
     /**
@@ -14,9 +14,9 @@ export class SpecialError {
      */
     withErrorData(errorData) {
         if (errorData) {
-            return new SpecialError({ errorData })
+            return new SpecialError({ errorData });
         }
-        return this
+        return this;
     }
 
     /**
@@ -24,8 +24,8 @@ export class SpecialError {
      */
     withSampleErrorId(errorId) {
         if (errorId && Object.keys(sampleData).includes(errorId)) {
-            return new SpecialError({ errorData: sampleData[errorId].data })
+            return new SpecialError({ errorData: sampleData[errorId].data });
         }
-        return this
+        return this;
     }
 }

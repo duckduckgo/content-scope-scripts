@@ -1,21 +1,21 @@
-import { h } from 'preact'
-import { useOpenInfoHandler, useOpenOnYoutubeHandler, useOpenSettingsHandler } from '../providers/SettingsProvider.jsx'
-import { useTypedTranslation } from '../types.js'
-import { Button, Icon } from './Button.jsx'
+import { h } from 'preact';
+import { useOpenInfoHandler, useOpenOnYoutubeHandler, useOpenSettingsHandler } from '../providers/SettingsProvider.jsx';
+import { useTypedTranslation } from '../types.js';
+import { Button, Icon } from './Button.jsx';
 
-import styles from './MobileButtons.module.css'
-import info from '../img/info.data.svg'
-import cog from '../img/cog.data.svg'
+import styles from './MobileButtons.module.css';
+import info from '../img/info.data.svg';
+import cog from '../img/cog.data.svg';
 
 /**
  * @param {object} props
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
 export function MobileButtons({ embed }) {
-    const openSettings = useOpenSettingsHandler()
-    const openInfo = useOpenInfoHandler()
-    const openOnYoutube = useOpenOnYoutubeHandler()
-    const { t } = useTypedTranslation()
+    const openSettings = useOpenSettingsHandler();
+    const openInfo = useOpenInfoHandler();
+    const openOnYoutube = useOpenOnYoutubeHandler();
+    const { t } = useTypedTranslation();
     return (
         <div class={styles.buttons}>
             <Button
@@ -40,12 +40,12 @@ export function MobileButtons({ embed }) {
                 fill={true}
                 buttonProps={{
                     onClick: () => {
-                        if (embed) openOnYoutube(embed)
+                        if (embed) openOnYoutube(embed);
                     },
                 }}
             >
                 {t('watchOnYoutube')}
             </Button>
         </div>
-    )
+    );
 }

@@ -14,11 +14,11 @@
  * @property {string} [locale] - optional override for the locale
  */
 
-import { init } from '../../app/index'
-import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
-import { Environment } from '../../../../shared/environment'
-import { createTypedMessages } from '@duckduckgo/messaging'
-import { mockTransport } from './mock-transport.js'
+import { init } from '../../app/index';
+import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging';
+import { Environment } from '../../../../shared/environment';
+import { createTypedMessages } from '@duckduckgo/messaging';
+import { mockTransport } from './mock-transport.js';
 
 /**
  * This describes the messages that will be sent to the native layer,
@@ -32,7 +32,7 @@ export class ReleaseNotesPage {
         /**
          * @internal
          */
-        this.messaging = createTypedMessages(this, messaging)
+        this.messaging = createTypedMessages(this, messaging);
     }
 
     /**
@@ -49,7 +49,7 @@ export class ReleaseNotesPage {
      * @returns {Promise<InitResponse>}
      */
     async initialSetup() {
-        return await this.messaging.request('initialSetup')
+        return await this.messaging.request('initialSetup');
     }
 
     /**
@@ -58,7 +58,7 @@ export class ReleaseNotesPage {
      * @param {{message: string}} params
      */
     reportPageException(params) {
-        this.messaging.notify('reportPageException', params)
+        this.messaging.notify('reportPageException', params);
     }
 
     /**
@@ -66,21 +66,21 @@ export class ReleaseNotesPage {
      * @param {{message: string}} params
      */
     reportInitException(params) {
-        this.messaging.notify('reportInitException', params)
+        this.messaging.notify('reportInitException', params);
     }
 
     /**
      * Forwards a click on restart button to browser
      */
     browserRestart() {
-        this.messaging.notify('browserRestart', {})
+        this.messaging.notify('browserRestart', {});
     }
 
     /**
      * Forwards a click on retry update button to browser
      */
     retryUpdate() {
-        this.messaging.notify('retryUpdate', {})
+        this.messaging.notify('retryUpdate', {});
     }
 
     /**
@@ -88,11 +88,11 @@ export class ReleaseNotesPage {
      * @param {(value: import('../../../../types/release-notes').UpdateMessage) => void} callback
      */
     onUpdate(callback) {
-        return this.messaging.subscribe('onUpdate', callback)
+        return this.messaging.subscribe('onUpdate', callback);
     }
 }
 
-const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env) // use the build's ENV
+const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env); // use the build's ENV
 
 // share this in the app, it's an instance of `ReleaseNotesMessages` where all your native comms should be
 const messaging = createSpecialPageMessaging({
@@ -101,18 +101,18 @@ const messaging = createSpecialPageMessaging({
     pageName: import.meta.pageName || 'unknown',
     mockTransport: () => {
         // only in integration environments
-        if (baseEnvironment.injectName !== 'integration') return null
-        let mock = null
+        if (baseEnvironment.injectName !== 'integration') return null;
+        let mock = null;
         // eslint-disable-next-line no-labels, no-unused-labels
-        $INTEGRATION: mock = mockTransport()
-        return mock
+        $INTEGRATION: mock = mockTransport();
+        return mock;
     },
-})
+});
 
-const releaseNotesPage = new ReleaseNotesPage(messaging)
+const releaseNotesPage = new ReleaseNotesPage(messaging);
 
 init(releaseNotesPage, baseEnvironment).catch((e) => {
-    console.error(e)
-    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
-    releaseNotesPage.reportInitException({ message: msg })
-})
+    console.error(e);
+    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
+    releaseNotesPage.reportInitException({ message: msg });
+});

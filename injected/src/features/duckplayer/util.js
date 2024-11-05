@@ -8,9 +8,9 @@
 export function addTrustedEventListener(element, event, callback) {
     element.addEventListener(event, (e) => {
         if (e.isTrusted) {
-            callback(e)
+            callback(e);
         }
-    })
+    });
 }
 
 /**
@@ -21,7 +21,7 @@ export function addTrustedEventListener(element, event, callback) {
  * @param {string} imageUrl
  */
 export function appendImageAsBackground(parent, targetSelector, imageUrl) {
-    const canceled = false
+    const canceled = false;
 
     /**
      * Make a HEAD request to see what the status of this image is, without
@@ -32,53 +32,53 @@ export function appendImageAsBackground(parent, targetSelector, imageUrl) {
      */
     fetch(imageUrl, { method: 'HEAD' })
         .then((x) => {
-            const status = String(x.status)
-            if (canceled) return console.warn('not adding image, cancelled')
+            const status = String(x.status);
+            if (canceled) return console.warn('not adding image, cancelled');
             if (status.startsWith('2')) {
                 if (!canceled) {
-                    append()
+                    append();
                 } else {
-                    console.warn('ignoring cancelled load')
+                    console.warn('ignoring cancelled load');
                 }
             } else {
-                markError()
+                markError();
             }
         })
         .catch(() => {
-            console.error('e from fetch')
-        })
+            console.error('e from fetch');
+        });
 
     /**
      * If loading fails, mark the parent with data-attributes
      */
     function markError() {
-        parent.dataset.thumbLoaded = String(false)
-        parent.dataset.error = String(true)
+        parent.dataset.thumbLoaded = String(false);
+        parent.dataset.error = String(true);
     }
 
     /**
      * If loading succeeds, try to append the image
      */
     function append() {
-        const targetElement = parent.querySelector(targetSelector)
+        const targetElement = parent.querySelector(targetSelector);
         if (!(targetElement instanceof HTMLElement))
-            return console.warn('could not find child with selector', targetSelector, 'from', parent)
-        parent.dataset.thumbLoaded = String(true)
-        parent.dataset.thumbSrc = imageUrl
-        const img = new Image()
-        img.src = imageUrl
+            return console.warn('could not find child with selector', targetSelector, 'from', parent);
+        parent.dataset.thumbLoaded = String(true);
+        parent.dataset.thumbSrc = imageUrl;
+        const img = new Image();
+        img.src = imageUrl;
         img.onload = function () {
-            if (canceled) return console.warn('not adding image, cancelled')
-            targetElement.style.backgroundImage = `url(${imageUrl})`
-            targetElement.style.backgroundSize = 'cover'
-        }
+            if (canceled) return console.warn('not adding image, cancelled');
+            targetElement.style.backgroundImage = `url(${imageUrl})`;
+            targetElement.style.backgroundSize = 'cover';
+        };
         img.onerror = function () {
-            if (canceled) return console.warn('not calling markError, cancelled')
-            markError()
-            const targetElement = parent.querySelector(targetSelector)
-            if (!(targetElement instanceof HTMLElement)) return
-            targetElement.style.backgroundImage = ''
-        }
+            if (canceled) return console.warn('not calling markError, cancelled');
+            markError();
+            const targetElement = parent.querySelector(targetSelector);
+            if (!(targetElement instanceof HTMLElement)) return;
+            targetElement.style.backgroundImage = '';
+        };
     }
 }
 
@@ -88,11 +88,11 @@ export class SideEffects {
      * @param {boolean} [params.debug]
      */
     constructor({ debug = false } = {}) {
-        this.debug = debug
+        this.debug = debug;
     }
 
     /** @type {{fn: () => void, name: string}[]} */
-    _cleanups = []
+    _cleanups = [];
     /**
      * Wrap a side-effecting operation for easier debugging
      * and teardown/release of resources
@@ -102,14 +102,14 @@ export class SideEffects {
     add(name, fn) {
         try {
             if (this.debug) {
-                console.log('☢️', name)
+                console.log('☢️', name);
             }
-            const cleanup = fn()
+            const cleanup = fn();
             if (typeof cleanup === 'function') {
-                this._cleanups.push({ name, fn: cleanup })
+                this._cleanups.push({ name, fn: cleanup });
             }
         } catch (e) {
-            console.error('%s threw an error', name, e)
+            console.error('%s threw an error', name, e);
         }
     }
 
@@ -121,17 +121,17 @@ export class SideEffects {
             if (typeof cleanup.fn === 'function') {
                 try {
                     if (this.debug) {
-                        console.log('🗑️', cleanup.name)
+                        console.log('🗑️', cleanup.name);
                     }
-                    cleanup.fn()
+                    cleanup.fn();
                 } catch (e) {
-                    console.error(`cleanup ${cleanup.name} threw`, e)
+                    console.error(`cleanup ${cleanup.name} threw`, e);
                 }
             } else {
-                throw new Error('invalid cleanup')
+                throw new Error('invalid cleanup');
             }
         }
-        this._cleanups = []
+        this._cleanups = [];
     }
 }
 
@@ -156,12 +156,12 @@ export class VideoParams {
      * @param {string|null|undefined} time - an optional time
      */
     constructor(id, time) {
-        this.id = id
-        this.time = time
+        this.id = id;
+        this.time = time;
     }
 
-    static validVideoId = /^[a-zA-Z0-9-_]+$/
-    static validTimestamp = /^[0-9hms]+$/
+    static validVideoId = /^[a-zA-Z0-9-_]+$/;
+    static validTimestamp = /^[0-9hms]+$/;
 
     /**
      * @returns {string}
@@ -170,12 +170,12 @@ export class VideoParams {
         // no try/catch because we already validated the ID
         // in Microsoft WebView2 v118+ changing from special protocol (https) to non-special one (duck) is forbidden
         // so we need to construct duck player this way
-        const duckUrl = new URL(`duck://player/${this.id}`)
+        const duckUrl = new URL(`duck://player/${this.id}`);
 
         if (this.time) {
-            duckUrl.searchParams.set('t', this.time)
+            duckUrl.searchParams.set('t', this.time);
         }
-        return duckUrl.href
+        return duckUrl.href;
     }
 
     /**
@@ -185,16 +185,16 @@ export class VideoParams {
      * @returns {VideoParams|null}
      */
     static forWatchPage(href) {
-        let url
+        let url;
         try {
-            url = new URL(href)
+            url = new URL(href);
         } catch (e) {
-            return null
+            return null;
         }
         if (!url.pathname.startsWith('/watch')) {
-            return null
+            return null;
         }
-        return VideoParams.fromHref(url.href)
+        return VideoParams.fromHref(url.href);
     }
 
     /**
@@ -204,13 +204,13 @@ export class VideoParams {
      * @returns {VideoParams|null}
      */
     static fromPathname(pathname) {
-        let url
+        let url;
         try {
-            url = new URL(pathname, window.location.origin)
+            url = new URL(pathname, window.location.origin);
         } catch (e) {
-            return null
+            return null;
         }
-        return VideoParams.fromHref(url.href)
+        return VideoParams.fromHref(url.href);
     }
 
     /**
@@ -221,42 +221,42 @@ export class VideoParams {
      * @returns {VideoParams|null}
      */
     static fromHref(href) {
-        let url
+        let url;
         try {
-            url = new URL(href)
+            url = new URL(href);
         } catch (e) {
-            return null
+            return null;
         }
 
-        let id = null
+        let id = null;
 
         // known params
-        const vParam = url.searchParams.get('v')
-        const tParam = url.searchParams.get('t')
+        const vParam = url.searchParams.get('v');
+        const tParam = url.searchParams.get('t');
 
         // don't continue if 'list' is present, but 'index' is not.
         //   valid: '/watch?v=321&list=123&index=1234'
         // invalid: '/watch?v=321&list=123' <- index absent
         if (url.searchParams.has('list') && !url.searchParams.has('index')) {
-            return null
+            return null;
         }
 
-        let time = null
+        let time = null;
 
         // ensure youtube video id is good
         if (vParam && VideoParams.validVideoId.test(vParam)) {
-            id = vParam
+            id = vParam;
         } else {
             // if the video ID is invalid, we cannot produce an instance of VideoParams
-            return null
+            return null;
         }
 
         // ensure timestamp is good, if set
         if (tParam && VideoParams.validTimestamp.test(tParam)) {
-            time = tParam
+            time = tParam;
         }
 
-        return new VideoParams(id, time)
+        return new VideoParams(id, time);
     }
 }
 
@@ -267,17 +267,17 @@ export class VideoParams {
  * if the DOM is already loaded.
  */
 export class DomState {
-    loaded = false
-    loadedCallbacks = []
+    loaded = false;
+    loadedCallbacks = [];
     constructor() {
         window.addEventListener('DOMContentLoaded', () => {
-            this.loaded = true
-            this.loadedCallbacks.forEach((cb) => cb())
-        })
+            this.loaded = true;
+            this.loadedCallbacks.forEach((cb) => cb());
+        });
     }
 
     onLoaded(loadedCallback) {
-        if (this.loaded) return loadedCallback()
-        this.loadedCallbacks.push(loadedCallback)
+        if (this.loaded) return loadedCallback();
+        this.loadedCallbacks.push(loadedCallback);
     }
 }

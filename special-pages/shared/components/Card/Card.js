@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import classNames from 'classnames'
-import styles from './Card.module.css'
+import { h } from 'preact';
+import classNames from 'classnames';
+import styles from './Card.module.css';
 
 /**
  * @param {object} props
@@ -8,5 +8,5 @@ import styles from './Card.module.css'
  * @param {import("preact").ComponentChild} [props.children]
  */
 export function Card({ className, children }) {
-    return <section className={classNames(styles.card, className)}>{children}</section>
+    return <section className={classNames(styles.card, className)}>{children}</section>;
 }

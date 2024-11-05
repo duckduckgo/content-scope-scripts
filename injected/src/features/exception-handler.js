@@ -1,5 +1,5 @@
-import { postDebugMessage } from '../utils.js'
-import ContentFeature from '../content-feature.js'
+import { postDebugMessage } from '../utils.js';
+import ContentFeature from '../content-feature.js';
 
 export default class ExceptionHandler extends ContentFeature {
     init() {
@@ -16,9 +16,9 @@ export default class ExceptionHandler extends ContentFeature {
                     stack: e.error?.stack,
                 },
                 true,
-            )
-            this.addDebugFlag()
-        }
-        globalThis.addEventListener('error', handleUncaughtException)
+            );
+            this.addDebugFlag();
+        };
+        globalThis.addEventListener('error', handleUncaughtException);
     }
 }

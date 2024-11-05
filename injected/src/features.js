@@ -11,7 +11,7 @@ export const baseFeatures = /** @type {const} */ ([
     'navigatorInterface',
     'elementHiding',
     'exceptionHandler',
-])
+]);
 
 const otherFeatures = /** @type {const} */ ([
     'clickToLoad',
@@ -24,7 +24,7 @@ const otherFeatures = /** @type {const} */ ([
     'performanceMetrics',
     'breakageReporting',
     'autofillPasswordImport',
-])
+]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
@@ -38,4 +38,4 @@ export const platformSupport = {
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
     'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
     integration: [...baseFeatures, ...otherFeatures],
-}
+};

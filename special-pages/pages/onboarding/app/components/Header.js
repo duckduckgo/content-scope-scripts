@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import styles from './Header.module.css'
-import { Delay } from './Timeout'
+import { h } from 'preact';
+import styles from './Header.module.css';
+import { Delay } from './Timeout';
 
 /**
  * Renders a header component.
@@ -23,5 +23,5 @@ export function Header({ children, aside = null }) {
             </div>
             {aside && <div className={styles.aside}>{aside}</div>}
         </header>
-    )
+    );
 }

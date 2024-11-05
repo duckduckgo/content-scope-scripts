@@ -1,10 +1,10 @@
-import { h } from 'preact'
-import cn from 'classnames'
-import styles from './SwitchBarMobile.module.css'
-import { useContext, useId } from 'preact/hooks'
-import { SwitchContext } from '../providers/SwitchProvider.jsx'
-import { Switch } from './Switch.jsx'
-import { useTypedTranslation } from '../types.js'
+import { h } from 'preact';
+import cn from 'classnames';
+import styles from './SwitchBarMobile.module.css';
+import { useContext, useId } from 'preact/hooks';
+import { SwitchContext } from '../providers/SwitchProvider.jsx';
+import { Switch } from './Switch.jsx';
+import { useTypedTranslation } from '../types.js';
 
 /**
  * Renders a switch bar component.
@@ -13,20 +13,20 @@ import { useTypedTranslation } from '../types.js'
  * @param {ImportMeta['platform']} props.platformName - The name of the platform.
  */
 export function SwitchBarMobile({ platformName }) {
-    const { onChange, onDone, state } = useContext(SwitchContext)
-    const { t } = useTypedTranslation()
-    const inputId = useId()
+    const { onChange, onDone, state } = useContext(SwitchContext);
+    const { t } = useTypedTranslation();
+    const inputId = useId();
 
     function blockClick(e) {
         if (state === 'exiting') {
-            return e.preventDefault()
+            return e.preventDefault();
         }
     }
 
     function onTransitionEnd(e) {
         // check it's the root element that's finished animating
         if (e.target?.dataset?.state === 'exiting') {
-            onDone()
+            onDone();
         }
     }
 
@@ -34,7 +34,7 @@ export function SwitchBarMobile({ platformName }) {
         [styles.switchBar]: true,
         [styles.stateExiting]: state === 'exiting',
         [styles.stateHidden]: state === 'completed',
-    })
+    });
 
     return (
         <div class={classes} data-state={state} data-allow-animation="true" onTransitionEnd={onTransitionEnd}>
@@ -45,5 +45,5 @@ export function SwitchBarMobile({ platformName }) {
                 <Switch checked={state !== 'showing'} onChange={onChange} platformName={platformName} id={inputId} />
             </div>
         </div>
-    )
+    );
 }

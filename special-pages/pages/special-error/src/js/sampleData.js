@@ -39,4 +39,4 @@ export const sampleData = {
             eTldPlus1: 'anothersite.com',
         },
     },
-}
+};

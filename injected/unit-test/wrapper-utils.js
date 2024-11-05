@@ -1,41 +1,41 @@
-import { shimInterface, shimProperty } from '../src/wrapper-utils.js'
+import { shimInterface, shimProperty } from '../src/wrapper-utils.js';
 
 describe('Shim API', () => {
     // MediaSession is just an example, to make it close to reality
     /** @type {typeof MediaSession} */
-    let MyMediaSession
+    let MyMediaSession;
 
-    let definePropertyFn
-    let navigatorPrototype
-    let navigator
+    let definePropertyFn;
+    let navigatorPrototype;
+    let navigator;
 
     beforeEach(() => {
-        expect(globalThis.MediaSession).toBeUndefined()
+        expect(globalThis.MediaSession).toBeUndefined();
         MyMediaSession = class {
-            metadata = null
+            metadata = null;
             /** @type {MediaSession['playbackState']} */
-            playbackState = 'none'
+            playbackState = 'none';
 
             setActionHandler() {
-                return 123
+                return 123;
             }
 
             setCameraActive() {}
             setMicrophoneActive() {}
             setPositionState() {}
-        }
-        definePropertyFn = spyOn(Object, 'defineProperty').and.callThrough()
+        };
+        definePropertyFn = spyOn(Object, 'defineProperty').and.callThrough();
 
-        navigatorPrototype = {}
+        navigatorPrototype = {};
         function NavigatorConstructor() {}
-        NavigatorConstructor.prototype = navigatorPrototype
-        navigator = new NavigatorConstructor()
-    })
+        NavigatorConstructor.prototype = navigatorPrototype;
+        navigator = new NavigatorConstructor();
+    });
 
     afterEach(() => {
         // @ts-expect-error globalThis is read-only
-        delete globalThis.MediaSession
-    })
+        delete globalThis.MediaSession;
+    });
 
     describe('shimInterface()', () => {
         it('should (re)define the global', () => {
@@ -48,24 +48,24 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
-            )
-            expect(definePropertyFn).toHaveBeenCalledTimes(2)
-            const NewMediaSession = globalThis.MediaSession
-            expect(NewMediaSession).toBeDefined()
-            const newPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
+            );
+            expect(definePropertyFn).toHaveBeenCalledTimes(2);
+            const NewMediaSession = globalThis.MediaSession;
+            expect(NewMediaSession).toBeDefined();
+            const newPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession');
 
             expect({ ...newPropertyDescriptor, value: null })
                 .withContext('property descriptors should match')
-                .toEqual({ value: null, writable: true, enumerable: false, configurable: true })
-            expect(NewMediaSession.name).toBe('MediaSession')
+                .toEqual({ value: null, writable: true, enumerable: false, configurable: true });
+            expect(NewMediaSession.name).toBe('MediaSession');
 
             expect(new MyMediaSession() instanceof NewMediaSession)
                 .withContext('instances should pass the instanceof check')
-                .toBeTrue()
+                .toBeTrue();
             expect(new NewMediaSession() instanceof NewMediaSession)
                 .withContext('instances should pass the instanceof check')
-                .toBeTrue()
-        })
+                .toBeTrue();
+        });
 
         it('should support disallowConstructor', () => {
             shimInterface(
@@ -77,8 +77,8 @@ describe('Shim API', () => {
                     wrapToString: true,
                 },
                 definePropertyFn,
-            )
-            expect(() => new globalThis.MediaSession()).not.toThrow()
+            );
+            expect(() => new globalThis.MediaSession()).not.toThrow();
 
             shimInterface(
                 'MediaSession',
@@ -89,8 +89,8 @@ describe('Shim API', () => {
                     wrapToString: true,
                 },
                 definePropertyFn,
-            )
-            expect(() => new globalThis.MediaSession()).toThrowError(TypeError)
+            );
+            expect(() => new globalThis.MediaSession()).toThrowError(TypeError);
 
             shimInterface(
                 'MediaSession',
@@ -102,11 +102,11 @@ describe('Shim API', () => {
                     wrapToString: true,
                 },
                 definePropertyFn,
-            )
+            );
             expect(() => new globalThis.MediaSession()).toThrowMatching(
                 (err) => err instanceof TypeError && err.message === 'friendly message',
-            )
-        })
+            );
+        });
 
         it('should support allowConstructorCall', () => {
             shimInterface(
@@ -118,13 +118,13 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                 },
                 definePropertyFn,
-            )
+            );
             // @ts-expect-error real MediaSession is not callable
-            expect(() => globalThis.MediaSession()).not.toThrow()
+            expect(() => globalThis.MediaSession()).not.toThrow();
             // @ts-expect-error real MediaSession is not callable
             expect(globalThis.MediaSession() instanceof globalThis.MediaSession)
                 .withContext('instances should pass the instanceof check')
-                .toBeTrue()
+                .toBeTrue();
 
             shimInterface(
                 'MediaSession',
@@ -135,10 +135,10 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                 },
                 definePropertyFn,
-            )
+            );
             // @ts-expect-error real MediaSession is not callable
-            expect(() => globalThis.MediaSession()).toThrowError(TypeError)
-        })
+            expect(() => globalThis.MediaSession()).toThrowError(TypeError);
+        });
 
         it('should support wrapToString', () => {
             shimInterface(
@@ -150,14 +150,14 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
-            )
-            expect(globalThis.MediaSession.toString()).not.toContain('class')
+            );
+            expect(globalThis.MediaSession.toString()).not.toContain('class');
             expect(globalThis.MediaSession.toString.toString())
                 .withContext("Shim's toString.toString() should not be masked")
-                .toBe(MyMediaSession.toString.toString())
+                .toBe(MyMediaSession.toString.toString());
             expect(globalThis.MediaSession.prototype.setActionHandler.toString())
                 .withContext("Shim's method's .toString() should not be masked")
-                .toBe(MyMediaSession.prototype.setActionHandler.toString())
+                .toBe(MyMediaSession.prototype.setActionHandler.toString());
 
             shimInterface(
                 'MediaSession',
@@ -168,13 +168,13 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
-            )
+            );
 
-            expect(globalThis.MediaSession.toString()).toBe('function MediaSession() { [native code] }')
-            expect(globalThis.MediaSession.toString.toString()).toBe('function toString() { [native code] }')
-            expect(globalThis.MediaSession.prototype.setActionHandler.toString()).toBe('function setActionHandler() { [native code] }')
-        })
-    })
+            expect(globalThis.MediaSession.toString()).toBe('function MediaSession() { [native code] }');
+            expect(globalThis.MediaSession.toString.toString()).toBe('function toString() { [native code] }');
+            expect(globalThis.MediaSession.prototype.setActionHandler.toString()).toBe('function setActionHandler() { [native code] }');
+        });
+    });
 
     describe('shimProperty()', () => {
         it('should correctly shim the property', () => {
@@ -187,18 +187,18 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
-            )
-            const instance = new MyMediaSession()
-            shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn)
+            );
+            const instance = new MyMediaSession();
+            shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn);
 
-            const NewMediaSession = globalThis.MediaSession
+            const NewMediaSession = globalThis.MediaSession;
             expect(navigator.mediaSession instanceof NewMediaSession)
                 .withContext('instances should pass the instanceof check')
-                .toBeTrue()
-            expect(navigator.mediaSession.setActionHandler()).withContext('method should return expected value').toBe(123)
-            expect(navigator.mediaSession.toString()).toBe('[object MediaSession]')
-            expect(navigator.mediaSession.toString.toString()).toBe('function toString() { [native code] }')
-        })
+                .toBeTrue();
+            expect(navigator.mediaSession.setActionHandler()).withContext('method should return expected value').toBe(123);
+            expect(navigator.mediaSession.toString()).toBe('[object MediaSession]');
+            expect(navigator.mediaSession.toString.toString()).toBe('function toString() { [native code] }');
+        });
 
         it('should support writable properties', () => {
             shimInterface(
@@ -210,13 +210,13 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
-            )
-            const instance = new MyMediaSession()
-            shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn)
+            );
+            const instance = new MyMediaSession();
+            shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn);
 
-            const descriptor = Object.getOwnPropertyDescriptor(navigatorPrototype, 'mediaSession')
+            const descriptor = Object.getOwnPropertyDescriptor(navigatorPrototype, 'mediaSession');
             // @ts-expect-error we know it's defined
-            descriptor.value = null
+            descriptor.value = null;
             expect(descriptor).toEqual(
                 {
                     value: null,
@@ -225,8 +225,8 @@ describe('Shim API', () => {
                     writable: true,
                 },
                 'property should be writable',
-            )
-        })
+            );
+        });
 
         it('should support readonly properties', () => {
             shimInterface(
@@ -238,21 +238,21 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
-            )
-            const instance = new MyMediaSession()
-            shimProperty(navigatorPrototype, 'mediaSession', instance, true, definePropertyFn)
+            );
+            const instance = new MyMediaSession();
+            shimProperty(navigatorPrototype, 'mediaSession', instance, true, definePropertyFn);
 
             /** @type {import('../src/wrapper-utils').StrictAccessorDescriptor} */
             // @ts-expect-error we know it's defined
-            const descriptor = Object.getOwnPropertyDescriptor(navigatorPrototype, 'mediaSession')
+            const descriptor = Object.getOwnPropertyDescriptor(navigatorPrototype, 'mediaSession');
 
-            expect(descriptor.get).toBeDefined()
-            expect(descriptor.set).toBeUndefined()
+            expect(descriptor.get).toBeDefined();
+            expect(descriptor.set).toBeUndefined();
 
-            const getter = descriptor.get
+            const getter = descriptor.get;
 
             // @ts-expect-error we know it's defined
-            descriptor.get = null
+            descriptor.get = null;
             expect(descriptor).toEqual({
                 // @ts-expect-error get is overridden
                 get: null,
@@ -260,9 +260,9 @@ describe('Shim API', () => {
                 set: undefined,
                 configurable: true,
                 enumerable: true,
-            })
+            });
 
-            expect(getter.toString()).toBe('function get mediaSession() { [native code] }')
-        })
-    })
-})
+            expect(getter.toString()).toBe('function get mediaSession() { [native code] }');
+        });
+    });
+});

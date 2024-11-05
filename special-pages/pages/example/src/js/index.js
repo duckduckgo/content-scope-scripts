@@ -4,17 +4,17 @@
  * @module Example Page
  */
 
-import { createTypedMessages } from '@duckduckgo/messaging'
-import { Environment } from '../../../../shared/environment.js'
-import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js'
-import { init } from '../../app/index.js'
+import { createTypedMessages } from '@duckduckgo/messaging';
+import { Environment } from '../../../../shared/environment.js';
+import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js';
+import { init } from '../../app/index.js';
 
 export class ExamplePage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
     constructor(messaging) {
-        this.messaging = createTypedMessages(this, messaging)
+        this.messaging = createTypedMessages(this, messaging);
     }
 
     /**
@@ -31,7 +31,7 @@ export class ExamplePage {
      * @returns {Promise<import('../../../../types/example').InitialSetupResponse>}
      */
     initialSetup() {
-        return this.messaging.request('initialSetup')
+        return this.messaging.request('initialSetup');
     }
 
     /**
@@ -40,7 +40,7 @@ export class ExamplePage {
      * @param {{message: string}} params
      */
     reportPageException(params) {
-        this.messaging.notify('reportPageException', params)
+        this.messaging.notify('reportPageException', params);
     }
 
     /**
@@ -48,23 +48,23 @@ export class ExamplePage {
      * @param {{message: string}} params
      */
     reportInitException(params) {
-        this.messaging.notify('reportInitException', params)
+        this.messaging.notify('reportInitException', params);
     }
 }
 
-const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env)
+const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
 
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
     pageName: /** @type {string} */ (import.meta.pageName),
-})
+});
 
-const example = new ExamplePage(messaging)
+const example = new ExamplePage(messaging);
 
 init(example, baseEnvironment).catch((e) => {
     // messages.
-    console.error(e)
-    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
-    example.reportInitException({ message: msg })
-})
+    console.error(e);
+    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
+    example.reportInitException({ message: msg });
+});

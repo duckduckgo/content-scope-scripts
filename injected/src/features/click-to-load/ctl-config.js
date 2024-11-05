@@ -1,6 +1,6 @@
-import { blockedFBLogo, blockedYTVideo, videoPlayDark, videoPlayLight } from './ctl-assets.js'
+import { blockedFBLogo, blockedYTVideo, videoPlayDark, videoPlayLight } from './ctl-assets.js';
 
-import localesJSON from '../../../../build/locales/ctl-locales.js'
+import localesJSON from '../../../../build/locales/ctl-locales.js';
 
 /*********************************************************
  *  Style Definitions
@@ -11,10 +11,10 @@ import localesJSON from '../../../../build/locales/ctl-locales.js'
  * @param {import('../../content-feature.js').AssetConfig} [assets]
  */
 export function getStyles(assets) {
-    let fontStyle = ''
+    let fontStyle = '';
     let regularFontFamily =
-        "system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"
-    let boldFontFamily = regularFontFamily
+        "system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'";
+    let boldFontFamily = regularFontFamily;
     if (assets?.regularFontUrl && assets?.boldFontUrl) {
         fontStyle = `
         @font-face{
@@ -26,9 +26,9 @@ export function getStyles(assets) {
             font-weight: bold;
             src: url(${assets.boldFontUrl});
         }
-    `
-        regularFontFamily = 'DuckDuckGoPrivacyEssentials'
-        boldFontFamily = 'DuckDuckGoPrivacyEssentialsBold'
+    `;
+        regularFontFamily = 'DuckDuckGoPrivacyEssentials';
+        boldFontFamily = 'DuckDuckGoPrivacyEssentialsBold';
     }
     return {
         fontStyle,
@@ -612,19 +612,19 @@ export function getStyles(assets) {
         youTubePreviewInfoText: `
         color: #ABABAB;
     `,
-    }
+    };
 }
 
 /**
  * @param {string} locale UI locale
  */
 export function getConfig(locale) {
-    const allLocales = JSON.parse(localesJSON)
-    const localeStrings = allLocales[locale] || allLocales.en
+    const allLocales = JSON.parse(localesJSON);
+    const localeStrings = allLocales[locale] || allLocales.en;
 
-    const fbStrings = localeStrings['facebook.json']
-    const ytStrings = localeStrings['youtube.json']
-    const sharedStrings = localeStrings['shared.json']
+    const fbStrings = localeStrings['facebook.json'];
+    const ytStrings = localeStrings['youtube.json'];
+    const sharedStrings = localeStrings['shared.json'];
 
     const config = {
         'Facebook, Inc.': {
@@ -1017,7 +1017,7 @@ export function getConfig(locale) {
                 },
             },
         },
-    }
+    };
 
-    return { config, sharedStrings }
+    return { config, sharedStrings };
 }

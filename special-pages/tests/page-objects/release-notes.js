@@ -1,8 +1,8 @@
-import { Mocks } from './mocks.js'
-import { perPlatform } from '../../../injected/integration-test/type-helpers.mjs'
-import { join } from 'node:path'
-import { expect } from '@playwright/test'
-import { sampleData } from '../../pages/release-notes/app/sampleData.js'
+import { Mocks } from './mocks.js';
+import { perPlatform } from '../../../injected/integration-test/type-helpers.mjs';
+import { join } from 'node:path';
+import { expect } from '@playwright/test';
+import { sampleData } from '../../pages/release-notes/app/sampleData.js';
 
 /**
  * @typedef {import('../../../injected/integration-test/type-helpers.mjs').Build} Build
@@ -17,22 +17,22 @@ export class ReleaseNotesPage {
      * @param {PlatformInfo} platform
      */
     constructor(page, build, platform) {
-        this.page = page
-        this.build = build
-        this.platform = platform
+        this.page = page;
+        this.build = build;
+        this.platform = platform;
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'release-notes',
             env: 'development',
-        })
-        this.page.on('console', console.log)
+        });
+        this.page.on('console', console.log);
         // default mocks - just enough to render the first page without error
         this.mocks.defaultResponses({
             initialSetup: {
                 env: 'development',
                 locale: 'en',
             },
-        })
+        });
     }
 
     /**
@@ -44,20 +44,20 @@ export class ReleaseNotesPage {
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      */
     async openPage({ env = 'app', willThrow = false } = {}) {
-        await this.mocks.install()
+        await this.mocks.install();
         await this.page.route('/**', (route, req) => {
-            const url = new URL(req.url())
+            const url = new URL(req.url());
             // try to serve assets, but change `/` to 'index'
-            let filepath = url.pathname
-            if (filepath === '/') filepath = 'index.html'
+            let filepath = url.pathname;
+            if (filepath === '/') filepath = 'index.html';
 
             return route.fulfill({
                 status: 200,
                 path: join(this.basePath, filepath),
-            })
-        })
-        const searchParams = new URLSearchParams({ env, debugState: 'true', willThrow: String(willThrow) })
-        await this.page.goto('/' + '?' + searchParams.toString())
+            });
+        });
+        const searchParams = new URLSearchParams({ env, debugState: 'true', willThrow: String(willThrow) });
+        await this.page.goto('/' + '?' + searchParams.toString());
     }
 
     /**
@@ -69,7 +69,7 @@ export class ReleaseNotesPage {
         return this.build.switch({
             // windows: () => '../../build/windows/pages/release-notes',
             apple: () => '../Sources/ContentScopeScripts/dist/pages/release-notes',
-        })
+        });
     }
 
     /**
@@ -78,16 +78,16 @@ export class ReleaseNotesPage {
      */
     static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
-        const { platformInfo, build } = perPlatform(testInfo.project.use)
-        return new ReleaseNotesPage(page, build, platformInfo)
+        const { platformInfo, build } = perPlatform(testInfo.project.use);
+        return new ReleaseNotesPage(page, build, platformInfo);
     }
 
     async reducedMotion() {
-        await this.page.emulateMedia({ reducedMotion: 'reduce' })
+        await this.page.emulateMedia({ reducedMotion: 'reduce' });
     }
 
     async darkMode() {
-        await this.page.emulateMedia({ colorScheme: 'dark' })
+        await this.page.emulateMedia({ colorScheme: 'dark' });
     }
 
     /**
@@ -97,67 +97,67 @@ export class ReleaseNotesPage {
     async sendSubscriptionMessage(messageType, dataOverrides) {
         // Wait for the subscription handler to appear before trying to simulate push events.
         // This prevents a race condition where playwright is sending data before `.subscribe` was called
-        await this.page.waitForFunction(() => 'onUpdate' in window && typeof window.onUpdate === 'function')
+        await this.page.waitForFunction(() => 'onUpdate' in window && typeof window.onUpdate === 'function');
 
         const data = dataOverrides
             ? { ...sampleData[messageType], .../** @type {object} */ (dataOverrides) }
-            : { ...sampleData[messageType] }
+            : { ...sampleData[messageType] };
 
-        await this.mocks.simulateSubscriptionMessage('onUpdate', data)
+        await this.mocks.simulateSubscriptionMessage('onUpdate', data);
     }
 
     async releaseNotesLoading() {
-        await this.sendSubscriptionMessage('loading')
+        await this.sendSubscriptionMessage('loading');
     }
 
     async releaseNotesLoadedWithoutPrivacyPro() {
-        await this.sendSubscriptionMessage('loaded', { releaseNotesPrivacyPro: undefined })
+        await this.sendSubscriptionMessage('loaded', { releaseNotesPrivacyPro: undefined });
     }
 
     async releaseNotesLoaded() {
-        await this.sendSubscriptionMessage('loaded')
+        await this.sendSubscriptionMessage('loaded');
     }
 
     async releaseNotesUpdateReadyWithoutPrivacyPro() {
-        await this.sendSubscriptionMessage('updateReady', { releaseNotesPrivacyPro: undefined })
+        await this.sendSubscriptionMessage('updateReady', { releaseNotesPrivacyPro: undefined });
     }
 
     async releaseNotesUpdateReady() {
-        await this.sendSubscriptionMessage('updateReady')
+        await this.sendSubscriptionMessage('updateReady');
     }
 
     async releaseNotesManualUpdateReady() {
-        await this.sendSubscriptionMessage('updateReady', { automaticUpdate: false })
+        await this.sendSubscriptionMessage('updateReady', { automaticUpdate: false });
     }
 
     async releaseNotesCriticalUpdateReady() {
-        await this.sendSubscriptionMessage('criticalUpdateReady')
+        await this.sendSubscriptionMessage('criticalUpdateReady');
     }
 
     async releaseNotesManualCriticalUpdateReady() {
-        await this.sendSubscriptionMessage('criticalUpdateReady', { automaticUpdate: false })
+        await this.sendSubscriptionMessage('criticalUpdateReady', { automaticUpdate: false });
     }
 
     async releaseNotesUpdateErrorWithoutPrivacyPro() {
-        await this.sendSubscriptionMessage('updateError', { releaseNotesPrivacyPro: undefined })
+        await this.sendSubscriptionMessage('updateError', { releaseNotesPrivacyPro: undefined });
     }
 
     async releaseNotesUpdateError() {
-        await this.sendSubscriptionMessage('updateError')
+        await this.sendSubscriptionMessage('updateError');
     }
 
     async releaseNotesUpdateDownloading() {
-        await this.sendSubscriptionMessage('updateDownloading')
+        await this.sendSubscriptionMessage('updateDownloading');
     }
 
     async releaseNotesUpdatePreparing() {
-        await this.sendSubscriptionMessage('updatePreparing')
+        await this.sendSubscriptionMessage('updatePreparing');
     }
 
     async handlesFatalException() {
-        const { page } = this
-        await expect(page.getByRole('heading')).toContainText('Something went wrong')
-        const calls = await this.mocks.waitForCallCount({ method: 'reportPageException', count: 1 })
+        const { page } = this;
+        await expect(page.getByRole('heading')).toContainText('Something went wrong');
+        const calls = await this.mocks.waitForCallCount({ method: 'reportPageException', count: 1 });
         expect(calls).toMatchObject([
             {
                 payload: {
@@ -169,11 +169,11 @@ export class ReleaseNotesPage {
                     },
                 },
             },
-        ])
+        ]);
     }
 
     async didSendInitialHandshake() {
-        const calls = await this.mocks.outgoing({ names: ['initialSetup'] })
+        const calls = await this.mocks.outgoing({ names: ['initialSetup'] });
         expect(calls).toMatchObject([
             {
                 payload: {
@@ -182,56 +182,56 @@ export class ReleaseNotesPage {
                     method: 'initialSetup',
                 },
             },
-        ])
+        ]);
     }
 
     async didShowLoadingState() {
-        const { page } = this
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
-        await expect(page.getByText('Last checked: Yesterday')).toBeVisible()
-        await expect(page.getByText('Version 1.0.1 — Checking for update')).toBeVisible()
-        await expect(page.getByTestId('placeholder')).toBeVisible()
+        const { page } = this;
+        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByText('Last checked: Yesterday')).toBeVisible();
+        await expect(page.getByText('Version 1.0.1 — Checking for update')).toBeVisible();
+        await expect(page.getByTestId('placeholder')).toBeVisible();
 
-        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible()
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible()
-        await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible()
+        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
     async didShowUpdateDownloadingState() {
-        const { page } = this
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
-        await expect(page.getByText('Last checked: Today')).toBeVisible()
-        await expect(page.getByText('Version 1.0.1 — Downloading update 74%')).toBeVisible()
-        await expect(page.getByTestId('placeholder')).toBeVisible()
+        const { page } = this;
+        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByText('Last checked: Today')).toBeVisible();
+        await expect(page.getByText('Version 1.0.1 — Downloading update 74%')).toBeVisible();
+        await expect(page.getByTestId('placeholder')).toBeVisible();
 
-        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible()
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible()
-        await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible()
+        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
     async didShowUpdatePreparingState() {
-        const { page } = this
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
-        await expect(page.getByText('Last checked: Today')).toBeVisible()
-        await expect(page.getByText('Version 1.0.1 — Preparing update')).toBeVisible()
-        await expect(page.getByTestId('placeholder')).toBeVisible()
+        const { page } = this;
+        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByText('Last checked: Today')).toBeVisible();
+        await expect(page.getByText('Version 1.0.1 — Preparing update')).toBeVisible();
+        await expect(page.getByTestId('placeholder')).toBeVisible();
 
-        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible()
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible()
-        await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible()
+        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
     async didShowUpToDateState() {
-        const { page } = this
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
-        await expect(page.getByRole('heading', { name: 'May 20 2024', exact: true })).toBeVisible()
+        const { page } = this;
+        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'May 20 2024', exact: true })).toBeVisible();
 
-        await expect(page.getByText('Last checked: Today')).toBeVisible()
-        await expect(page.getByText('Version 1.0.1 — DuckDuckGo is up to date')).toBeVisible()
-        await expect(page.getByText('Version 1.0.1', { exact: true })).toBeVisible()
+        await expect(page.getByText('Last checked: Today')).toBeVisible();
+        await expect(page.getByText('Version 1.0.1 — DuckDuckGo is up to date')).toBeVisible();
+        await expect(page.getByText('Version 1.0.1', { exact: true })).toBeVisible();
 
-        await expect(page.getByTestId('placeholder')).not.toBeVisible()
-        await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible()
+        await expect(page.getByTestId('placeholder')).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
     /**
@@ -240,109 +240,109 @@ export class ReleaseNotesPage {
      * @param {boolean} [options.manual=false]
      */
     async didShowUpdateReadyState({ critical = false, manual = false }) {
-        const { page } = this
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
-        await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible()
+        const { page } = this;
+        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible();
 
-        await expect(page.getByText('Last checked: Today')).toBeVisible()
+        await expect(page.getByText('Last checked: Today')).toBeVisible();
         if (critical) {
-            await expect(page.getByText('Version 1.0.1 — Critical update needed')).toBeVisible()
+            await expect(page.getByText('Version 1.0.1 — Critical update needed')).toBeVisible();
         } else {
-            await expect(page.getByText('Version 1.0.1 — A newer version of the browser is available')).toBeVisible()
+            await expect(page.getByText('Version 1.0.1 — A newer version of the browser is available')).toBeVisible();
         }
 
         if (manual) {
-            await expect(page.getByRole('button', { name: 'Update DuckDuckGo' })).toBeVisible()
+            await expect(page.getByRole('button', { name: 'Update DuckDuckGo' })).toBeVisible();
         } else {
-            await expect(page.getByRole('button', { name: 'Restart To Update' })).toBeVisible()
+            await expect(page.getByRole('button', { name: 'Restart To Update' })).toBeVisible();
         }
 
-        await expect(page.getByText('Version 1.2.0', { exact: true })).toBeVisible()
+        await expect(page.getByText('Version 1.2.0', { exact: true })).toBeVisible();
 
-        await expect(page.getByTestId('placeholder')).not.toBeVisible()
+        await expect(page.getByTestId('placeholder')).not.toBeVisible();
     }
 
     async didShowAutomaticUpdateReadyState() {
-        return await this.didShowUpdateReadyState({})
+        return await this.didShowUpdateReadyState({});
     }
 
     async didShowManualUpdateReadyState() {
-        return await this.didShowUpdateReadyState({ manual: true })
+        return await this.didShowUpdateReadyState({ manual: true });
     }
 
     async didShowAutomaticCriticalUpdateReadyState() {
-        return await this.didShowUpdateReadyState({ critical: true })
+        return await this.didShowUpdateReadyState({ critical: true });
     }
 
     async didShowManualCriticalUpdateReadyState() {
-        return await this.didShowUpdateReadyState({ critical: true, manual: true })
+        return await this.didShowUpdateReadyState({ critical: true, manual: true });
     }
 
     async didShowUpdateErrorState() {
-        const { page } = this
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible()
-        await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible()
+        const { page } = this;
+        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible();
 
-        await expect(page.getByText('Last checked: Today')).toBeVisible()
-        await expect(page.getByText('Version 1.0.1 — Update failed')).toBeVisible()
-        await expect(page.getByText('Version 1.2.0', { exact: true })).toBeVisible()
+        await expect(page.getByText('Last checked: Today')).toBeVisible();
+        await expect(page.getByText('Version 1.0.1 — Update failed')).toBeVisible();
+        await expect(page.getByText('Version 1.2.0', { exact: true })).toBeVisible();
 
-        await expect(page.getByTestId('placeholder')).not.toBeVisible()
+        await expect(page.getByTestId('placeholder')).not.toBeVisible();
     }
 
     async didShowReleaseNotesListWithoutPrivacyPro() {
-        const { page } = this
+        const { page } = this;
 
         await expect(
             page.getByText(
                 'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',
             ),
-        ).toBeVisible()
-        await expect(page.getByText("Fixed an issue where Microsoft Teams links wouldn't open the Teams app.")).toBeVisible()
+        ).toBeVisible();
+        await expect(page.getByText("Fixed an issue where Microsoft Teams links wouldn't open the Teams app.")).toBeVisible();
         await expect(
             page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.'),
-        ).toBeVisible()
+        ).toBeVisible();
 
         await expect(
             page.getByText(
                 'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.',
             ),
-        ).not.toBeVisible()
-        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).not.toBeVisible()
+        ).not.toBeVisible();
+        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).not.toBeVisible();
 
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible()
-        await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).not.toBeVisible()
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).not.toBeVisible();
     }
 
     async didShowReleaseNotesList() {
-        const { page } = this
+        const { page } = this;
 
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).toBeVisible()
-        await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).toBeVisible();
 
         await expect(
             page.getByText(
                 'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',
             ),
-        ).toBeVisible()
-        await expect(page.getByText("Fixed an issue where Microsoft Teams links wouldn't open the Teams app.")).toBeVisible()
+        ).toBeVisible();
+        await expect(page.getByText("Fixed an issue where Microsoft Teams links wouldn't open the Teams app.")).toBeVisible();
         await expect(
             page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.'),
-        ).toBeVisible()
+        ).toBeVisible();
 
         await expect(
             page.getByText(
                 'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.',
             ),
-        ).toBeVisible()
-        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).toBeVisible()
-        await expect(page.getByText('Not subscribed? Find out more at duckduckgo.com/pro')).toBeVisible()
+        ).toBeVisible();
+        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).toBeVisible();
+        await expect(page.getByText('Not subscribed? Find out more at duckduckgo.com/pro')).toBeVisible();
     }
 
     async didRequestRestart() {
-        const { page } = this
-        page.getByRole('button', { name: 'Restart To Update' }).click()
-        const calls = await this.mocks.waitForCallCount({ method: 'browserRestart', count: 1 })
+        const { page } = this;
+        page.getByRole('button', { name: 'Restart To Update' }).click();
+        const calls = await this.mocks.waitForCallCount({ method: 'browserRestart', count: 1 });
         expect(calls).toMatchObject([
             {
                 payload: {
@@ -352,13 +352,13 @@ export class ReleaseNotesPage {
                     params: {},
                 },
             },
-        ])
+        ]);
     }
 
     async didRequestRetryUpdate() {
-        const { page } = this
-        page.getByRole('button', { name: 'Retry Update' }).click()
-        const calls = await this.mocks.waitForCallCount({ method: 'retryUpdate', count: 1 })
+        const { page } = this;
+        page.getByRole('button', { name: 'Retry Update' }).click();
+        const calls = await this.mocks.waitForCallCount({ method: 'retryUpdate', count: 1 });
         expect(calls).toMatchObject([
             {
                 payload: {
@@ -368,6 +368,6 @@ export class ReleaseNotesPage {
                     params: {},
                 },
             },
-        ])
+        ]);
     }
 }

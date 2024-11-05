@@ -1,11 +1,11 @@
-import { h } from 'preact'
-import cn from 'classnames'
-import styles from './Player.module.css'
-import { useEffect, useRef } from 'preact/hooks'
-import { useSettings } from '../providers/SettingsProvider.jsx'
-import { createIframeFeatures } from '../features/iframe.js'
-import { Settings } from '../settings'
-import { useTypedTranslation } from '../types.js'
+import { h } from 'preact';
+import cn from 'classnames';
+import styles from './Player.module.css';
+import { useEffect, useRef } from 'preact/hooks';
+import { useSettings } from '../providers/SettingsProvider.jsx';
+import { createIframeFeatures } from '../features/iframe.js';
+import { Settings } from '../settings';
+import { useTypedTranslation } from '../types.js';
 
 /**
  * Player component renders an embedded media player.
@@ -15,18 +15,18 @@ import { useTypedTranslation } from '../types.js'
  * @param {Settings['layout']} props.layout
  */
 export function Player({ src, layout }) {
-    const { ref, didLoad } = useIframeEffects(src)
+    const { ref, didLoad } = useIframeEffects(src);
     const wrapperClasses = cn({
         [styles.root]: true,
         [styles.player]: true,
         [styles.desktop]: layout === 'desktop',
         [styles.mobile]: layout === 'mobile',
-    })
+    });
     const iframeClasses = cn({
         [styles.iframe]: true,
         [styles.desktop]: layout === 'desktop',
         [styles.mobile]: layout === 'mobile',
-    })
+    });
     return (
         <div class={wrapperClasses}>
             <iframe
@@ -40,7 +40,7 @@ export function Player({ src, layout }) {
                 onLoad={didLoad}
             />
         </div>
-    )
+    );
 }
 
 /**
@@ -49,11 +49,11 @@ export function Player({ src, layout }) {
  * @param {'invalid-id'} props.kind
  */
 export function PlayerError({ kind, layout }) {
-    const { t } = useTypedTranslation()
+    const { t } = useTypedTranslation();
     const errors = {
         ['invalid-id']: <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />,
-    }
-    const text = errors[kind] || errors['invalid-id']
+    };
+    const text = errors[kind] || errors['invalid-id'];
     return (
         <div
             class={cn(styles.root, {
@@ -65,7 +65,7 @@ export function PlayerError({ kind, layout }) {
                 <p>{text}</p>
             </div>
         </div>
-    )
+    );
 }
 
 /**
@@ -86,14 +86,14 @@ export function PlayerError({ kind, layout }) {
  * }}
  */
 function useIframeEffects(src) {
-    const ref = useRef(/** @type {HTMLIFrameElement|null} */ (null))
-    const didLoad = useRef(/** @type {boolean} */ (false))
-    const settings = useSettings()
+    const ref = useRef(/** @type {HTMLIFrameElement|null} */ (null));
+    const didLoad = useRef(/** @type {boolean} */ (false));
+    const settings = useSettings();
 
     useEffect(() => {
-        if (!ref.current) return
-        const iframe = ref.current
-        const features = createIframeFeatures(settings)
+        if (!ref.current) return;
+        const iframe = ref.current;
+        const features = createIframeFeatures(settings);
 
         /** @type {import("../features/iframe.js").IframeFeature[]} */
         const iframeFeatures = [
@@ -102,35 +102,35 @@ function useIframeEffects(src) {
             features.clickCapture(),
             features.titleCapture(),
             features.mouseCapture(),
-        ]
+        ];
 
         /**
          * @type {ReturnType<import("../features/pip").IframeFeature['iframeDidLoad']>[]}
          */
-        const cleanups = []
+        const cleanups = [];
         const loadHandler = () => {
             for (let feature of iframeFeatures) {
                 try {
-                    cleanups.push(feature.iframeDidLoad(iframe))
+                    cleanups.push(feature.iframeDidLoad(iframe));
                 } catch (e) {
-                    console.error(e)
+                    console.error(e);
                 }
             }
-        }
+        };
 
         if (didLoad.current === true) {
-            loadHandler()
+            loadHandler();
         } else {
-            iframe.addEventListener('load', loadHandler)
+            iframe.addEventListener('load', loadHandler);
         }
 
         return () => {
             for (let cleanup of cleanups) {
-                cleanup?.()
+                cleanup?.();
             }
-            iframe.removeEventListener('load', loadHandler)
-        }
-    }, [src, settings])
+            iframe.removeEventListener('load', loadHandler);
+        };
+    }, [src, settings]);
 
-    return { ref, didLoad: () => (didLoad.current = true) }
+    return { ref, didLoad: () => (didLoad.current = true) };
 }

@@ -1,9 +1,9 @@
-import { h } from 'preact'
-import { useId } from 'preact/hooks'
+import { h } from 'preact';
+import { useId } from 'preact/hooks';
 
-import { DuckFoot, Shield } from '../components/Icons.js'
-import styles from './VisibilityMenu.module.css'
-import { useTypedTranslation } from '../types.js'
+import { DuckFoot, Shield } from '../components/Icons.js';
+import styles from './VisibilityMenu.module.css';
+import { useTypedTranslation } from '../types.js';
 
 /**
  * @import { Widgets, WidgetConfigItem } from '../../../../types/new-tab.js'
@@ -18,8 +18,8 @@ import { useTypedTranslation } from '../types.js'
  * @param {VisibilityRowData[]} props.rows
  */
 export function VisibilityMenu({ rows }) {
-    const { t } = useTypedTranslation()
-    const MENU_ID = useId()
+    const { t } = useTypedTranslation();
+    const MENU_ID = useId();
 
     return (
         <div className={styles.dropdownInner}>
@@ -56,9 +56,9 @@ export function VisibilityMenu({ rows }) {
                                 <span>{row.title ?? row.id}</span>
                             </label>
                         </li>
-                    )
+                    );
                 })}
             </ul>
         </div>
-    )
+    );
 }

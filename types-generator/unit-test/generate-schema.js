@@ -1,4 +1,4 @@
-import { generateSchema } from '../json-schema.mjs'
+import { generateSchema } from '../json-schema.mjs';
 
 describe('generateSchema', () => {
     it('generates a schema structure from a file structure', () => {
@@ -102,7 +102,7 @@ describe('generateSchema', () => {
                     ],
                 },
             },
-        ]
+        ];
         const expected = {
             $schema: 'http://json-schema.org/draft-07/schema#',
             type: 'object',
@@ -199,8 +199,8 @@ describe('generateSchema', () => {
                 },
             },
             required: ['notifications', 'requests', 'subscriptions'],
-        }
-        const actual = generateSchema('DuckPlayer', fileList)
-        expect(actual).toEqual(/** @type {any} */ (expected))
-    })
-})
+        };
+        const actual = generateSchema('DuckPlayer', fileList);
+        expect(actual).toEqual(/** @type {any} */ (expected));
+    });
+});

@@ -1,13 +1,13 @@
-import { cwd, isLaunchFile } from '../../scripts/script-utils.js'
-import { dirname, join } from 'node:path'
-import { createRequire } from 'node:module'
-import { buildTypes } from '../../types-generator/build-types.mjs'
+import { cwd, isLaunchFile } from '../../scripts/script-utils.js';
+import { dirname, join } from 'node:path';
+import { createRequire } from 'node:module';
+import { buildTypes } from '../../types-generator/build-types.mjs';
 
-const injectRoot = join(cwd(import.meta.url), '..')
+const injectRoot = join(cwd(import.meta.url), '..');
 
 // eslint-disable-next-line no-redeclare
-const require = createRequire(import.meta.url)
-const configBuilderRoot = dirname(require.resolve('config-builder'))
+const require = createRequire(import.meta.url);
+const configBuilderRoot = dirname(require.resolve('config-builder'));
 
 /** @type {Record<string, import('../../types-generator/build-types.mjs').Mapping>} */
 const injectSchemaMapping = {
@@ -39,13 +39,13 @@ const injectSchemaMapping = {
         resolve: (dirname) => '../features/' + dirname + '.js',
         className: (topLevelType) => topLevelType.replace('Messages', ''),
     },
-}
+};
 
 if (isLaunchFile(import.meta.url)) {
     buildTypes(injectSchemaMapping)
         // eslint-disable-next-line promise/prefer-await-to-then
         .catch((error) => {
-            console.error(error)
-            process.exit(1)
-        })
+            console.error(error);
+            process.exit(1);
+        });
 }

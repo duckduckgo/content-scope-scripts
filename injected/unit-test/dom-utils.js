@@ -1,4 +1,4 @@
-import { html } from '../src/dom-utils.js'
+import { html } from '../src/dom-utils.js';
 
 describe('dom-utils.js - escapedTemplate', () => {
     const tests = [
@@ -15,22 +15,22 @@ describe('dom-utils.js - escapedTemplate', () => {
         {
             title: 'loop',
             input: () => {
-                const items = [{ value: 'foo' }, { value: 'bar' }]
+                const items = [{ value: 'foo' }, { value: 'bar' }];
                 return html`<h1>Heading</h1>
                     <ul>
                         ${items.map((item) => html`<li>${item.value}</li>`)};
-                    </ul>`
+                    </ul>`;
             },
             expected: `<h1>Heading</h1>
                     <ul>
                         <li>foo</li><li>bar</li>;
                     </ul>`,
         },
-    ]
+    ];
     for (const test of tests) {
         it(`should generate ${test.title}`, () => {
-            const actual = test.input().toString()
-            expect(actual).toEqual(test.expected)
-        })
+            const actual = test.input().toString();
+            expect(actual).toEqual(test.expected);
+        });
     }
-})
+});

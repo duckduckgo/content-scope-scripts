@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs';
 
 /**
  * Allows per-platform values. The 'platform' string is powered from globals.d.ts
@@ -18,13 +18,13 @@ import { readFileSync } from 'node:fs'
  */
 export function platform(name, switchItems) {
     if (name in switchItems) {
-        const fn = switchItems[name]
+        const fn = switchItems[name];
         if (!fn) {
-            throw new Error('missing impl for that')
+            throw new Error('missing impl for that');
         }
-        return fn()
+        return fn();
     }
-    throw new Error('missing impl for that')
+    throw new Error('missing impl for that');
 }
 
 export class Build {
@@ -32,7 +32,7 @@ export class Build {
      * @param {NonNullable<ImportMeta['injectName']>} name
      */
     constructor(name) {
-        this.name = name
+        this.name = name;
     }
 
     /**
@@ -42,13 +42,13 @@ export class Build {
      */
     switch(switchItems) {
         if (this.name in switchItems) {
-            const fn = switchItems[this.name]
+            const fn = switchItems[this.name];
             if (!fn) {
-                throw new Error('missing impl for that')
+                throw new Error('missing impl for that');
             }
-            return fn()
+            return fn();
         }
-        throw new Error('missing impl for that on platform: ' + this.name)
+        throw new Error('missing impl for that on platform: ' + this.name);
     }
 
     /**
@@ -62,8 +62,8 @@ export class Build {
             apple: () => '../Sources/ContentScopeScripts/dist/contentScope.js',
             'apple-isolated': () => '../Sources/ContentScopeScripts/dist/contentScopeIsolated.js',
             'android-autofill-password-import': () => '../build/android/autofillPasswordImport.js',
-        })
-        return readFileSync(path, 'utf8')
+        });
+        return readFileSync(path, 'utf8');
     }
 
     /**
@@ -72,11 +72,11 @@ export class Build {
      */
     static supported(name) {
         /** @type {ImportMeta['injectName'][]} */
-        const items = ['apple', 'apple-isolated', 'windows', 'integration', 'android', 'android-autofill-password-import']
+        const items = ['apple', 'apple-isolated', 'windows', 'integration', 'android', 'android-autofill-password-import'];
         if (items.includes(name)) {
-            return name
+            return name;
         }
-        return undefined
+        return undefined;
     }
 }
 
@@ -86,7 +86,7 @@ export class PlatformInfo {
      * @param {ImportMeta['platform']} params.name
      */
     constructor(params) {
-        this.name = params.name
+        this.name = params.name;
     }
 
     /**
@@ -95,11 +95,11 @@ export class PlatformInfo {
      */
     static supported(name) {
         /** @type {ImportMeta['platform'][]} */
-        const items = ['macos', 'ios', 'windows', 'android']
+        const items = ['macos', 'ios', 'windows', 'android'];
         if (items.includes(name)) {
-            return name
+            return name;
         }
-        return undefined
+        return undefined;
     }
 }
 
@@ -113,23 +113,23 @@ export class PlatformInfo {
 export function perPlatform(config) {
     // Read the configuration object to determine which platform we're testing against
     if (!('injectName' in config) || typeof config.injectName !== 'string') {
-        throw new Error('unsupported project - missing `use.injectName`')
+        throw new Error('unsupported project - missing `use.injectName`');
     }
 
     if (!('platform' in config) || typeof config.platform !== 'string') {
-        throw new Error('unsupported project - missing `use.platform`')
+        throw new Error('unsupported project - missing `use.platform`');
     }
 
-    const name = Build.supported(config.injectName)
+    const name = Build.supported(config.injectName);
     if (name) {
-        const build = new Build(name)
-        const platform = PlatformInfo.supported(config.platform)
+        const build = new Build(name);
+        const platform = PlatformInfo.supported(config.platform);
         if (platform) {
-            const platformInfo = new PlatformInfo({ name: platform })
-            return { build, platformInfo }
+            const platformInfo = new PlatformInfo({ name: platform });
+            return { build, platformInfo };
         }
     }
 
     // If we get here, it's a mis-configuration
-    throw new Error('unreachable')
+    throw new Error('unreachable');
 }

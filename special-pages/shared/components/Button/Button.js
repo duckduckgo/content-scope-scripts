@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import classNames from 'classnames'
-import styles from './Button.module.css'
+import { h } from 'preact';
+import classNames from 'classnames';
+import styles from './Button.module.css';
 
 /**
  * @param {object} props
@@ -22,12 +22,12 @@ export function Button({ variant, className, children, onClick, type = 'button' 
                  */
                 (event) => {
                     if (onClick) {
-                        onClick(event)
+                        onClick(event);
                     }
                 }
             }
         >
             {children}
         </button>
-    )
+    );
 }

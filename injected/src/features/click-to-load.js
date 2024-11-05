@@ -1,12 +1,12 @@
-import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../../messaging/index.js'
-import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
-import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js'
-import { getStyles, getConfig } from './click-to-load/ctl-config.js'
-import { SendMessageMessagingTransport } from '../sendmessage-transport.js'
-import ContentFeature from '../content-feature.js'
-import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
-import { DDGCtlLoginButton } from './click-to-load/components/ctl-login-button.js'
-import { registerCustomElements } from './click-to-load/components'
+import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../../messaging/index.js';
+import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js';
+import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js';
+import { getStyles, getConfig } from './click-to-load/ctl-config.js';
+import { SendMessageMessagingTransport } from '../sendmessage-transport.js';
+import ContentFeature from '../content-feature.js';
+import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js';
+import { DDGCtlLoginButton } from './click-to-load/components/ctl-login-button.js';
+import { registerCustomElements } from './click-to-load/components';
 
 /**
  * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
@@ -17,80 +17,80 @@ import { registerCustomElements } from './click-to-load/components'
  *     - `'cancelMode'`: Secondary colors styling for all themes
  */
 
-let devMode = false
-let isYoutubePreviewsEnabled = false
-let appID
+let devMode = false;
+let isYoutubePreviewsEnabled = false;
+let appID;
 
-const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
+const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle';
 
 // Configuration for how the placeholder elements should look and behave.
 // @see {getConfig}
-let config = null
-let sharedStrings = null
-let styles = null
+let config = null;
+let sharedStrings = null;
+let styles = null;
 
 /**
  * List of platforms where we can skip showing a Web Modal from C-S-S.
  * It is generally expected that the platform will show a native modal instead.
  * @type {import('../utils').Platform["name"][]} */
-const platformsWithNativeModalSupport = ['android', 'ios']
+const platformsWithNativeModalSupport = ['android', 'ios'];
 /**
  * Platforms supporting the new layout using Web Components.
  * @type {import('../utils').Platform["name"][]} */
-const platformsWithWebComponentsEnabled = ['android', 'ios']
+const platformsWithWebComponentsEnabled = ['android', 'ios'];
 /**
  * Based on the current Platform where the Widget is running, it will
  * return if it is one of our mobile apps or not. This should be used to
  * define which layout to use between Mobile and Desktop Platforms variations.
  * @type {import('../utils').Platform["name"][]} */
-const mobilePlatforms = ['android', 'ios']
+const mobilePlatforms = ['android', 'ios'];
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
 //       places.
-const entities = []
-const entityData = {}
+const entities = [];
+const entityData = {};
 
 // Used to avoid displaying placeholders for the same tracking element twice.
-const knownTrackingElements = new WeakSet()
+const knownTrackingElements = new WeakSet();
 
 // Promise that is resolved when the Click to Load feature init() function has
 // finished its work, enough that it's now safe to replace elements with
 // placeholders.
-let readyToDisplayPlaceholdersResolver
+let readyToDisplayPlaceholdersResolver;
 const readyToDisplayPlaceholders = new Promise((resolve) => {
-    readyToDisplayPlaceholdersResolver = resolve
-})
+    readyToDisplayPlaceholdersResolver = resolve;
+});
 
 // Promise that is resolved when the page has finished loading (and
 // readyToDisplayPlaceholders has resolved). Wait for this before sending
 // essential messages to surrogate scripts.
-let afterPageLoadResolver
+let afterPageLoadResolver;
 const afterPageLoad = new Promise((resolve) => {
-    afterPageLoadResolver = resolve
-})
+    afterPageLoadResolver = resolve;
+});
 
 // Messaging layer for Click to Load. The messaging instance is initialized in
 // ClickToLoad.init() and updated here to be used outside ClickToLoad class
 // we need a module scoped reference.
 /** @type {import("@duckduckgo/messaging").Messaging} */
-let _messagingModuleScope
+let _messagingModuleScope;
 /** @type function */
-let _addDebugFlag
+let _addDebugFlag;
 const ctl = {
     /**
      * @return {import("@duckduckgo/messaging").Messaging}
      */
     get messaging() {
-        if (!_messagingModuleScope) throw new Error('Messaging not initialized')
-        return _messagingModuleScope
+        if (!_messagingModuleScope) throw new Error('Messaging not initialized');
+        return _messagingModuleScope;
     },
 
     addDebugFlag() {
-        if (!_addDebugFlag) throw new Error('addDebugFlag not initialized')
-        return _addDebugFlag()
+        if (!_addDebugFlag) throw new Error('addDebugFlag not initialized');
+        return _addDebugFlag();
     },
-}
+};
 
 /*********************************************************
  *  Widget Replacement logic
@@ -107,18 +107,18 @@ class DuckWidget {
      *   The platform where Click to Load and the Duck Widget is running on (ie Extension, Android App, etc)
      */
     constructor(widgetData, originalElement, entity, platform) {
-        this.clickAction = { ...widgetData.clickAction } // shallow copy
-        this.replaceSettings = widgetData.replaceSettings
-        this.originalElement = originalElement
-        this.placeholderElement = null
-        this.dataElements = {}
-        this.gatherDataElements()
-        this.entity = entity
-        this.widgetID = Math.random()
-        this.autoplay = false
+        this.clickAction = { ...widgetData.clickAction }; // shallow copy
+        this.replaceSettings = widgetData.replaceSettings;
+        this.originalElement = originalElement;
+        this.placeholderElement = null;
+        this.dataElements = {};
+        this.gatherDataElements();
+        this.entity = entity;
+        this.widgetID = Math.random();
+        this.autoplay = false;
         // Boolean if widget is unblocked and content should not be blocked
-        this.isUnblocked = false
-        this.platform = platform
+        this.isUnblocked = false;
+        this.platform = platform;
     }
 
     /**
@@ -136,7 +136,7 @@ class DuckWidget {
                     widgetID: this.widgetID,
                 },
             }),
-        )
+        );
     }
 
     /**
@@ -146,44 +146,44 @@ class DuckWidget {
      */
     gatherDataElements() {
         if (!this.clickAction.urlDataAttributesToPreserve) {
-            return
+            return;
         }
         for (const [attrName, attrSettings] of Object.entries(this.clickAction.urlDataAttributesToPreserve)) {
-            let value = this.originalElement.getAttribute(attrName)
+            let value = this.originalElement.getAttribute(attrName);
             if (!value) {
                 if (attrSettings.required) {
                     // Missing a required attribute means we won't be able to replace it
                     // with a light version, replace with full version.
-                    this.clickAction.type = 'allowFull'
+                    this.clickAction.type = 'allowFull';
                 }
 
                 // If the attribute is "width", try first to measure the parent's width and use that as a default value.
                 if (attrName === 'data-width') {
-                    const windowWidth = window.innerWidth
-                    const { parentElement } = this.originalElement
-                    const parentStyles = parentElement ? window.getComputedStyle(parentElement) : null
-                    let parentInnerWidth = null
+                    const windowWidth = window.innerWidth;
+                    const { parentElement } = this.originalElement;
+                    const parentStyles = parentElement ? window.getComputedStyle(parentElement) : null;
+                    let parentInnerWidth = null;
 
                     // We want to calculate the inner width of the parent element as the iframe, when added back,
                     // should not be bigger than the space available in the parent element. There is no straightforward way of
                     // doing this. We need to get the parent's .clientWidth and remove the paddings size from it.
                     if (parentElement && parentStyles && parentStyles.display !== 'inline') {
                         parentInnerWidth =
-                            parentElement.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight)
+                            parentElement.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight);
                     }
 
                     if (parentInnerWidth && parentInnerWidth < windowWidth) {
-                        value = parentInnerWidth.toString()
+                        value = parentInnerWidth.toString();
                     } else {
                         // Our default value for width is often greater than the window size of smaller
                         // screens (ie mobile). Then use whatever is the smallest value.
-                        value = Math.min(attrSettings.default, windowWidth).toString()
+                        value = Math.min(attrSettings.default, windowWidth).toString();
                     }
                 } else {
-                    value = attrSettings.default
+                    value = attrSettings.default;
                 }
             }
-            this.dataElements[attrName] = value
+            this.dataElements[attrName] = value;
         }
     }
 
@@ -195,8 +195,8 @@ class DuckWidget {
     getTargetURL() {
         // Copying over data fields should be done lazily, since some required data may not be
         // captured until after page scripts run.
-        this.copySocialDataFields()
-        return this.clickAction.targetURL
+        this.copySocialDataFields();
+        return this.clickAction.targetURL;
     }
 
     /**
@@ -206,12 +206,12 @@ class DuckWidget {
     getMode() {
         // Login buttons are always the login style types
         if (this.replaceSettings.type === 'loginButton') {
-            return 'loginMode'
+            return 'loginMode';
         }
         if (window?.matchMedia('(prefers-color-scheme: dark)')?.matches) {
-            return 'darkMode'
+            return 'darkMode';
         }
-        return 'lightMode'
+        return 'lightMode';
     }
 
     /**
@@ -221,28 +221,28 @@ class DuckWidget {
      * @returns {string}
      */
     getStyle() {
-        let styleString = 'border: none;'
+        let styleString = 'border: none;';
 
         if (this.clickAction.styleDataAttributes) {
             // Copy elements from the original div into style attributes as directed by config
             for (const [attr, valAttr] of Object.entries(this.clickAction.styleDataAttributes)) {
-                let valueFound = this.dataElements[valAttr.name]
+                let valueFound = this.dataElements[valAttr.name];
                 if (!valueFound) {
-                    valueFound = this.dataElements[valAttr.fallbackAttribute]
+                    valueFound = this.dataElements[valAttr.fallbackAttribute];
                 }
-                let partialStyleString = ''
+                let partialStyleString = '';
                 if (valueFound) {
-                    partialStyleString += `${attr}: ${valueFound}`
+                    partialStyleString += `${attr}: ${valueFound}`;
                 }
                 if (!partialStyleString.includes(valAttr.unit)) {
-                    partialStyleString += valAttr.unit
+                    partialStyleString += valAttr.unit;
                 }
-                partialStyleString += ';'
-                styleString += partialStyleString
+                partialStyleString += ';';
+                styleString += partialStyleString;
             }
         }
 
-        return styleString
+        return styleString;
     }
 
     /**
@@ -252,19 +252,19 @@ class DuckWidget {
      */
     copySocialDataFields() {
         if (!this.clickAction.urlDataAttributesToPreserve) {
-            return
+            return;
         }
 
         // App ID may be set by client scripts, and is required for some elements.
         if (this.dataElements.app_id_replace && appID != null) {
-            this.clickAction.targetURL = this.clickAction.targetURL.replace('app_id_replace', appID)
+            this.clickAction.targetURL = this.clickAction.targetURL.replace('app_id_replace', appID);
         }
 
         for (const key of Object.keys(this.dataElements)) {
-            let attrValue = this.dataElements[key]
+            let attrValue = this.dataElements[key];
 
             if (!attrValue) {
-                continue
+                continue;
             }
 
             // The URL for Facebook videos are specified as the data-href
@@ -272,10 +272,10 @@ class DuckWidget {
             // Some websites omit the protocol part of the URL when doing
             // that, which then prevents the iframe from loading correctly.
             if (key === 'data-href' && attrValue.startsWith('//')) {
-                attrValue = window.location.protocol + attrValue
+                attrValue = window.location.protocol + attrValue;
             }
 
-            this.clickAction.targetURL = this.clickAction.targetURL.replace(key, encodeURIComponent(attrValue))
+            this.clickAction.targetURL = this.clickAction.targetURL.replace(key, encodeURIComponent(attrValue));
         }
     }
 
@@ -285,12 +285,12 @@ class DuckWidget {
      * @returns {HTMLIFrameElement}
      */
     createFBIFrame() {
-        const frame = document.createElement('iframe')
+        const frame = document.createElement('iframe');
 
-        frame.setAttribute('src', this.getTargetURL())
-        frame.setAttribute('style', this.getStyle())
+        frame.setAttribute('src', this.getTargetURL());
+        frame.setAttribute('style', this.getStyle());
 
-        return frame
+        return frame;
     }
 
     /**
@@ -302,13 +302,13 @@ class DuckWidget {
      *   Function to be called if the video fails to load.
      */
     adjustYouTubeVideoElement(videoElement) {
-        let onError = null
+        let onError = null;
 
         if (!videoElement.src) {
-            return onError
+            return onError;
         }
-        const url = new URL(videoElement.src)
-        const { hostname: originalHostname } = url
+        const url = new URL(videoElement.src);
+        const { hostname: originalHostname } = url;
 
         // Upgrade video to YouTube's "privacy enhanced" mode, but fall back
         // to standard mode if the video fails to load.
@@ -317,30 +317,30 @@ class DuckWidget {
         //     violation on Chrome, see https://crbug.com/1271196.
         //  2. The onError event doesn't fire for blocked iframes on Chrome.
         if (originalHostname !== 'www.youtube-nocookie.com') {
-            url.hostname = 'www.youtube-nocookie.com'
+            url.hostname = 'www.youtube-nocookie.com';
             onError = (event) => {
-                url.hostname = originalHostname
-                videoElement.src = url.href
-                event.stopImmediatePropagation()
-            }
+                url.hostname = originalHostname;
+                videoElement.src = url.href;
+                event.stopImmediatePropagation();
+            };
         }
 
         // Configure auto-play correctly depending on if the video's preview
         // loaded, otherwise it doesn't allow autoplay.
-        let allowString = videoElement.getAttribute('allow') || ''
-        const allowed = new Set(allowString.split(';').map((s) => s.trim()))
+        let allowString = videoElement.getAttribute('allow') || '';
+        const allowed = new Set(allowString.split(';').map((s) => s.trim()));
         if (this.autoplay) {
-            allowed.add('autoplay')
-            url.searchParams.set('autoplay', '1')
+            allowed.add('autoplay');
+            url.searchParams.set('autoplay', '1');
         } else {
-            allowed.delete('autoplay')
-            url.searchParams.delete('autoplay')
+            allowed.delete('autoplay');
+            url.searchParams.delete('autoplay');
         }
-        allowString = Array.from(allowed).join('; ')
-        videoElement.setAttribute('allow', allowString)
+        allowString = Array.from(allowed).join('; ');
+        videoElement.setAttribute('allow', allowString);
 
-        videoElement.src = url.href
-        return onError
+        videoElement.src = url.href;
+        return onError;
     }
 
     /**
@@ -356,17 +356,17 @@ class DuckWidget {
      */
     fadeElement(element, interval, fadeIn) {
         return new Promise((resolve) => {
-            let opacity = fadeIn ? 0 : 1
-            const originStyle = element.style.cssText
+            let opacity = fadeIn ? 0 : 1;
+            const originStyle = element.style.cssText;
             const fadeOut = setInterval(function () {
-                opacity += fadeIn ? 0.03 : -0.03
-                element.style.cssText = originStyle + `opacity: ${opacity};`
+                opacity += fadeIn ? 0.03 : -0.03;
+                element.style.cssText = originStyle + `opacity: ${opacity};`;
                 if (opacity <= 0 || opacity >= 1) {
-                    clearInterval(fadeOut)
-                    resolve()
+                    clearInterval(fadeOut);
+                    resolve();
                 }
-            }, interval)
-        })
+            }, interval);
+        });
     }
 
     /**
@@ -377,7 +377,7 @@ class DuckWidget {
      *    Promise that resolves when the fade out is complete.
      */
     fadeOutElement(element) {
-        return this.fadeElement(element, 10, false)
+        return this.fadeElement(element, 10, false);
     }
 
     /**
@@ -388,7 +388,7 @@ class DuckWidget {
      *    Promise that resolves when the fade in is complete.
      */
     fadeInElement(element) {
-        return this.fadeElement(element, 10, true)
+        return this.fadeElement(element, 10, true);
     }
 
     /**
@@ -401,125 +401,125 @@ class DuckWidget {
      *   The placeholder element.
      */
     clickFunction(originalElement, replacementElement) {
-        let clicked = false
+        let clicked = false;
         const handleClick = (e) => {
             // Ensure that the click is created by a user event & prevent double clicks from adding more animations
             if (e.isTrusted && !clicked) {
-                e.stopPropagation()
-                this.isUnblocked = true
-                clicked = true
-                let isLogin = false
+                e.stopPropagation();
+                this.isUnblocked = true;
+                clicked = true;
+                let isLogin = false;
                 // Logins triggered by user click means they were not triggered by the surrogate
-                const isSurrogateLogin = false
-                const clickElement = e.srcElement // Object.assign({}, e)
+                const isSurrogateLogin = false;
+                const clickElement = e.srcElement; // Object.assign({}, e)
                 if (this.replaceSettings.type === 'loginButton') {
-                    isLogin = true
+                    isLogin = true;
                 }
-                const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
+                const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
                 // eslint-disable-next-line promise/prefer-await-to-then
                 unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then((response) => {
                     // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
                     if (response && response.type === 'ddg-ctp-user-cancel') {
-                        return abortSurrogateConfirmation(this.entity)
+                        return abortSurrogateConfirmation(this.entity);
                     }
 
-                    const parent = replacementElement.parentNode
+                    const parent = replacementElement.parentNode;
 
                     // The placeholder was removed from the DOM while we loaded
                     // the original content, give up.
-                    if (!parent) return
+                    if (!parent) return;
 
                     // If we allow everything when this element is clicked,
                     // notify surrogate to enable SDK and replace original element.
                     if (this.clickAction.type === 'allowFull') {
-                        parent.replaceChild(originalElement, replacementElement)
-                        this.dispatchEvent(window, 'ddg-ctp-load-sdk')
-                        return
+                        parent.replaceChild(originalElement, replacementElement);
+                        this.dispatchEvent(window, 'ddg-ctp-load-sdk');
+                        return;
                     }
                     // Create a container for the new FB element
-                    const fbContainer = document.createElement('div')
-                    fbContainer.style.cssText = styles.wrapperDiv
-                    const fadeIn = document.createElement('div')
-                    fadeIn.style.cssText = 'display: none; opacity: 0;'
+                    const fbContainer = document.createElement('div');
+                    fbContainer.style.cssText = styles.wrapperDiv;
+                    const fadeIn = document.createElement('div');
+                    fadeIn.style.cssText = 'display: none; opacity: 0;';
 
                     // Loading animation (FB can take some time to load)
-                    const loadingImg = document.createElement('img')
-                    loadingImg.setAttribute('src', loadingImages[this.getMode()])
-                    loadingImg.setAttribute('height', '14px')
-                    loadingImg.style.cssText = styles.loadingImg
+                    const loadingImg = document.createElement('img');
+                    loadingImg.setAttribute('src', loadingImages[this.getMode()]);
+                    loadingImg.setAttribute('height', '14px');
+                    loadingImg.style.cssText = styles.loadingImg;
 
                     // Always add the animation to the button, regardless of click source
                     if (clickElement.nodeName === 'BUTTON') {
-                        clickElement.firstElementChild.insertBefore(loadingImg, clickElement.firstElementChild.firstChild)
+                        clickElement.firstElementChild.insertBefore(loadingImg, clickElement.firstElementChild.firstChild);
                     } else {
                         // try to find the button
-                        let el = clickElement
-                        let button = null
+                        let el = clickElement;
+                        let button = null;
                         while (button === null && el !== null) {
-                            button = el.querySelector('button')
-                            el = el.parentElement
+                            button = el.querySelector('button');
+                            el = el.parentElement;
                         }
                         if (button) {
-                            button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild)
+                            button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild);
                         }
                     }
 
-                    fbContainer.appendChild(fadeIn)
+                    fbContainer.appendChild(fadeIn);
 
-                    let fbElement
-                    let onError = null
+                    let fbElement;
+                    let onError = null;
                     switch (this.clickAction.type) {
                         case 'iFrame':
-                            fbElement = this.createFBIFrame()
-                            break
+                            fbElement = this.createFBIFrame();
+                            break;
                         case 'youtube-video':
-                            onError = this.adjustYouTubeVideoElement(originalElement)
-                            fbElement = originalElement
-                            break
+                            onError = this.adjustYouTubeVideoElement(originalElement);
+                            fbElement = originalElement;
+                            break;
                         default:
-                            fbElement = originalElement
-                            break
+                            fbElement = originalElement;
+                            break;
                     }
 
                     // Modify the overlay to include a Facebook iFrame, which
                     // starts invisible. Once loaded, fade out and remove the
                     // overlay then fade in the Facebook content.
-                    parent.replaceChild(fbContainer, replacementElement)
-                    fbContainer.appendChild(replacementElement)
-                    fadeIn.appendChild(fbElement)
+                    parent.replaceChild(fbContainer, replacementElement);
+                    fbContainer.appendChild(replacementElement);
+                    fadeIn.appendChild(fbElement);
                     fbElement.addEventListener(
                         'load',
                         async () => {
-                            await this.fadeOutElement(replacementElement)
-                            fbContainer.replaceWith(fbElement)
-                            this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked')
-                            await this.fadeInElement(fadeIn)
+                            await this.fadeOutElement(replacementElement);
+                            fbContainer.replaceWith(fbElement);
+                            this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked');
+                            await this.fadeInElement(fadeIn);
                             // Focus on new element for screen readers.
-                            fbElement.focus()
+                            fbElement.focus();
                         },
                         { once: true },
-                    )
+                    );
                     // Note: This event only fires on Firefox, on Chrome the frame's
                     //       load event will always fire.
                     if (onError) {
-                        fbElement.addEventListener('error', onError, { once: true })
+                        fbElement.addEventListener('error', onError, { once: true });
                     }
-                })
+                });
             }
-        }
+        };
         // If this is a login button, show modal if needed
         if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
             return (e) => {
                 // Even if the user cancels the login attempt, consider Facebook Click to
                 // Load to have been active on the page if the user reports the page as broken.
                 if (this.entity === 'Facebook, Inc.') {
-                    notifyFacebookLogin()
+                    notifyFacebookLogin();
                 }
 
-                handleUnblockConfirmation(this.platform.name, this.entity, handleClick, e)
-            }
+                handleUnblockConfirmation(this.platform.name, this.entity, handleClick, e);
+            };
         }
-        return handleClick
+        return handleClick;
     }
 
     /**
@@ -528,7 +528,7 @@ class DuckWidget {
      * @returns {boolean}
      */
     shouldUseCustomElement() {
-        return platformsWithWebComponentsEnabled.includes(this.platform.name)
+        return platformsWithWebComponentsEnabled.includes(this.platform.name);
     }
 
     /**
@@ -538,7 +538,7 @@ class DuckWidget {
      * @returns {boolean}
      */
     isMobilePlatform() {
-        return mobilePlatforms.includes(this.platform.name)
+        return mobilePlatforms.includes(this.platform.name);
     }
 }
 
@@ -576,19 +576,19 @@ function replaceTrackingElement(widget, trackingElement, placeholderElement) {
     // In some situations (e.g. YouTube Click to Load previews are
     // enabled/disabled), a second placeholder will be shown for a tracking
     // element.
-    const elementToReplace = widget.placeholderElement || trackingElement
+    const elementToReplace = widget.placeholderElement || trackingElement;
 
     // Note the placeholder element, so that it can also be replaced later if
     // necessary.
-    widget.placeholderElement = placeholderElement
+    widget.placeholderElement = placeholderElement;
 
     // First hide the element, since we need to keep it in the DOM until the
     // events have been dispatched.
-    const originalDisplay = [elementToReplace.style.getPropertyValue('display'), elementToReplace.style.getPropertyPriority('display')]
-    elementToReplace.style.setProperty('display', 'none', 'important')
+    const originalDisplay = [elementToReplace.style.getPropertyValue('display'), elementToReplace.style.getPropertyPriority('display')];
+    elementToReplace.style.setProperty('display', 'none', 'important');
 
     // Add the placeholder element to the page.
-    elementToReplace.parentElement.insertBefore(placeholderElement, elementToReplace)
+    elementToReplace.parentElement.insertBefore(placeholderElement, elementToReplace);
 
     // While the placeholder is shown (and original element hidden)
     // synchronously, the events are dispatched (and original element removed
@@ -597,14 +597,14 @@ function replaceTrackingElement(widget, trackingElement, placeholderElement) {
     afterPageLoad.then(() => {
         // With page load complete, and both elements in the DOM, the events can
         // be dispatched.
-        widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
-        widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element')
+        widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element');
+        widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element');
 
         // Once the events are sent, the tracking element (or previous
         // placeholder) can finally be removed from the DOM.
-        elementToReplace.remove()
-        elementToReplace.style.setProperty('display', ...originalDisplay)
-    })
+        elementToReplace.remove();
+        elementToReplace.style.setProperty('display', ...originalDisplay);
+    });
 }
 
 /**
@@ -617,11 +617,11 @@ function replaceTrackingElement(widget, trackingElement, placeholderElement) {
  */
 function createPlaceholderElementAndReplace(widget, trackingElement) {
     if (widget.replaceSettings.type === 'blank') {
-        replaceTrackingElement(widget, trackingElement, document.createElement('div'))
+        replaceTrackingElement(widget, trackingElement, document.createElement('div'));
     }
 
     if (widget.replaceSettings.type === 'loginButton') {
-        const icon = widget.replaceSettings.icon
+        const icon = widget.replaceSettings.icon;
         // Create a button to replace old element
         if (widget.shouldUseCustomElement()) {
             const facebookLoginButton = new DDGCtlLoginButton({
@@ -636,10 +636,10 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
                     learnMore: sharedStrings.learnMore,
                 },
                 onClick: widget.clickFunction.bind(widget),
-            }).element
-            facebookLoginButton.classList.add('fb-login-button', 'FacebookLogin__button')
-            facebookLoginButton.appendChild(makeFontFaceStyleElement())
-            replaceTrackingElement(widget, trackingElement, facebookLoginButton)
+            }).element;
+            facebookLoginButton.classList.add('fb-login-button', 'FacebookLogin__button');
+            facebookLoginButton.appendChild(makeFontFaceStyleElement());
+            replaceTrackingElement(widget, trackingElement, facebookLoginButton);
         } else {
             const { button, container } = makeLoginButton(
                 widget.replaceSettings.buttonText,
@@ -647,16 +647,16 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
                 widget.replaceSettings.popupBodyText,
                 icon,
                 trackingElement,
-            )
-            button.addEventListener('click', widget.clickFunction(trackingElement, container))
-            replaceTrackingElement(widget, trackingElement, container)
+            );
+            button.addEventListener('click', widget.clickFunction(trackingElement, container));
+            replaceTrackingElement(widget, trackingElement, container);
         }
     }
 
     // Facebook
     if (widget.replaceSettings.type === 'dialog') {
-        ctl.addDebugFlag()
-        ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookPlaceholderShown: true })
+        ctl.addDebugFlag();
+        ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookPlaceholderShown: true });
         if (widget.shouldUseCustomElement()) {
             /**
              * Creates a custom HTML element with the placeholder element for blocked
@@ -676,36 +676,36 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
                     learnMore: sharedStrings.learnMore,
                 },
                 onButtonClick: widget.clickFunction.bind(widget),
-            })
-            mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
+            });
+            mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement());
 
-            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder)
-            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder)
+            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder);
+            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder);
         } else {
-            const icon = widget.replaceSettings.icon
-            const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
-            const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
-            const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, icon)
-            button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
-            textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
+            const icon = widget.replaceSettings.icon;
+            const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
+            const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
+            const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, icon);
+            button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+            textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
 
-            replaceTrackingElement(widget, trackingElement, contentBlock)
-            showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
+            replaceTrackingElement(widget, trackingElement, contentBlock);
+            showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock);
         }
     }
 
     // YouTube
     if (widget.replaceSettings.type === 'youtube-video') {
-        ctl.addDebugFlag()
-        ctl.messaging.notify('updateYouTubeCTLAddedFlag', { youTubeCTLAddedFlag: true })
-        replaceYouTubeCTL(trackingElement, widget)
+        ctl.addDebugFlag();
+        ctl.messaging.notify('updateYouTubeCTLAddedFlag', { youTubeCTLAddedFlag: true });
+        replaceYouTubeCTL(trackingElement, widget);
 
         // Subscribe to changes to youtubePreviewsEnabled setting
         // and update the CTL state
         ctl.messaging.subscribe('setYoutubePreviewsEnabled', ({ value }) => {
-            isYoutubePreviewsEnabled = value
-            replaceYouTubeCTL(trackingElement, widget)
-        })
+            isYoutubePreviewsEnabled = value;
+            replaceYouTubeCTL(trackingElement, widget);
+        });
     }
 }
 
@@ -718,20 +718,20 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
 function replaceYouTubeCTL(trackingElement, widget) {
     // Skip replacing tracking element if it has already been unblocked
     if (widget.isUnblocked) {
-        return
+        return;
     }
 
     if (isYoutubePreviewsEnabled === true) {
         // Show YouTube Preview for embedded video
-        const oldPlaceholder = widget.placeholderElement
-        const { youTubePreview, shadowRoot } = createYouTubePreview(trackingElement, widget)
-        resizeElementToMatch(oldPlaceholder || trackingElement, youTubePreview)
-        replaceTrackingElement(widget, trackingElement, youTubePreview)
-        showExtraUnblockIfShortPlaceholder(shadowRoot, youTubePreview)
+        const oldPlaceholder = widget.placeholderElement;
+        const { youTubePreview, shadowRoot } = createYouTubePreview(trackingElement, widget);
+        resizeElementToMatch(oldPlaceholder || trackingElement, youTubePreview);
+        replaceTrackingElement(widget, trackingElement, youTubePreview);
+        showExtraUnblockIfShortPlaceholder(shadowRoot, youTubePreview);
     } else {
         // Block YouTube embedded video and display blocking dialog
-        widget.autoplay = false
-        const oldPlaceholder = widget.placeholderElement
+        widget.autoplay = false;
+        const oldPlaceholder = widget.placeholderElement;
 
         if (widget.shouldUseCustomElement()) {
             /**
@@ -764,18 +764,18 @@ function replaceYouTubeCTL(trackingElement, widget) {
                     onClick: () => openShareFeedbackPage(),
                 },
                 onButtonClick: widget.clickFunction.bind(widget),
-            })
-            mobileBlockedPlaceholderElement.appendChild(makeFontFaceStyleElement())
-            mobileBlockedPlaceholderElement.id = trackingElement.id
-            resizeElementToMatch(oldPlaceholder || trackingElement, mobileBlockedPlaceholderElement)
-            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholderElement)
-            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholderElement)
+            });
+            mobileBlockedPlaceholderElement.appendChild(makeFontFaceStyleElement());
+            mobileBlockedPlaceholderElement.id = trackingElement.id;
+            resizeElementToMatch(oldPlaceholder || trackingElement, mobileBlockedPlaceholderElement);
+            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholderElement);
+            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholderElement);
         } else {
-            const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
-            resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
-            replaceTrackingElement(widget, trackingElement, blockingDialog)
-            showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
-            hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460)
+            const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget);
+            resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog);
+            replaceTrackingElement(widget, trackingElement, blockingDialog);
+            showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog);
+            hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460);
         }
     }
 }
@@ -790,35 +790,35 @@ function replaceYouTubeCTL(trackingElement, widget) {
  */
 function showExtraUnblockIfShortPlaceholder(shadowRoot, placeholder) {
     if (!placeholder.parentElement) {
-        return
+        return;
     }
-    const parentStyles = window.getComputedStyle(placeholder.parentElement)
+    const parentStyles = window.getComputedStyle(placeholder.parentElement);
     // Inline elements, like span or p, don't have a height value that we can use because they're
     // not a "block" like element with defined sizes. Because we skip this check on "inline"
     // parents, it might be necessary to traverse up the DOM tree until we find the nearest non
     // "inline" parent to get a reliable height for this check.
     if (parentStyles.display === 'inline') {
-        return
+        return;
     }
-    const { height: placeholderHeight } = placeholder.getBoundingClientRect()
-    const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect()
+    const { height: placeholderHeight } = placeholder.getBoundingClientRect();
+    const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect();
 
     if ((placeholderHeight > 0 && placeholderHeight <= 200) || (parentHeight > 0 && parentHeight <= 230)) {
         if (shadowRoot) {
             /** @type {HTMLElement?} */
-            const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
+            const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`);
             if (titleRowTextButton) {
-                titleRowTextButton.style.display = 'block'
+                titleRowTextButton.style.display = 'block';
             }
         }
         // Avoid the placeholder being taller than the containing element
         // and overflowing.
         /** @type {HTMLElement?} */
-        const blockedDiv = shadowRoot?.querySelector('.DuckDuckGoSocialContainer') || placeholder
+        const blockedDiv = shadowRoot?.querySelector('.DuckDuckGoSocialContainer') || placeholder;
         if (blockedDiv) {
-            blockedDiv.style.minHeight = 'initial'
-            blockedDiv.style.maxHeight = parentHeight + 'px'
-            blockedDiv.style.overflow = 'hidden'
+            blockedDiv.style.minHeight = 'initial';
+            blockedDiv.style.maxHeight = parentHeight + 'px';
+            blockedDiv.style.overflow = 'hidden';
         }
     }
 }
@@ -833,30 +833,30 @@ function showExtraUnblockIfShortPlaceholder(shadowRoot, placeholder) {
  *    narrow.
  */
 function hideInfoTextIfNarrowPlaceholder(shadowRoot, placeholder, narrowWidth) {
-    const { width: placeholderWidth } = placeholder.getBoundingClientRect()
+    const { width: placeholderWidth } = placeholder.getBoundingClientRect();
     if (placeholderWidth > 0 && placeholderWidth <= narrowWidth) {
-        const buttonContainer = shadowRoot.querySelector('.DuckDuckGoButton.primary')?.parentElement
-        const contentTitle = shadowRoot.getElementById('contentTitle')
-        const infoText = shadowRoot.getElementById('infoText')
+        const buttonContainer = shadowRoot.querySelector('.DuckDuckGoButton.primary')?.parentElement;
+        const contentTitle = shadowRoot.getElementById('contentTitle');
+        const infoText = shadowRoot.getElementById('infoText');
         /** @type {HTMLElement?} */
-        const learnMoreLink = shadowRoot.getElementById('learnMoreLink')
+        const learnMoreLink = shadowRoot.getElementById('learnMoreLink');
 
         // These elements will exist, but this check keeps TypeScript happy.
         if (!buttonContainer || !contentTitle || !infoText || !learnMoreLink) {
-            return
+            return;
         }
 
         // Remove the information text.
-        infoText.remove()
-        learnMoreLink.remove()
+        infoText.remove();
+        learnMoreLink.remove();
 
         // Append the "Learn More" link to the title.
-        contentTitle.innerText += '. '
-        learnMoreLink.style.removeProperty('font-size')
-        contentTitle.appendChild(learnMoreLink)
+        contentTitle.innerText += '. ';
+        learnMoreLink.style.removeProperty('font-size');
+        contentTitle.appendChild(learnMoreLink);
 
         // Improve margin/padding, to ensure as much is displayed as possible.
-        buttonContainer.style.removeProperty('margin')
+        buttonContainer.style.removeProperty('margin');
     }
 }
 
@@ -888,7 +888,7 @@ function hideInfoTextIfNarrowPlaceholder(shadowRoot, placeholder, narrowWidth) {
  * @returns {Promise<any>}
  */
 function unblockClickToLoadContent(message) {
-    return ctl.messaging.request('unblockClickToLoadContent', message)
+    return ctl.messaging.request('unblockClickToLoadContent', message);
 }
 
 /**
@@ -910,11 +910,11 @@ function handleUnblockConfirmation(platformName, entity, acceptFunction, ...acce
     // confirmation. In these cases we send directly the unblock request to the platform
     // and the platform chooses how to best handle it.
     if (platformsWithNativeModalSupport.includes(platformName)) {
-        acceptFunction(...acceptFunctionParams)
+        acceptFunction(...acceptFunctionParams);
         // By default, for other platforms (ie Extension), we show a web modal with a
         // confirmation request to the user before we proceed to unblock the content.
     } else {
-        makeModal(entity, acceptFunction, ...acceptFunctionParams)
+        makeModal(entity, acceptFunction, ...acceptFunctionParams);
     }
 }
 
@@ -924,8 +924,8 @@ function handleUnblockConfirmation(platformName, entity, acceptFunction, ...acce
  * the website as broken.
  */
 function notifyFacebookLogin() {
-    ctl.addDebugFlag()
-    ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookLogin: true })
+    ctl.addDebugFlag();
+    ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookLogin: true });
 }
 
 /**
@@ -936,14 +936,14 @@ function notifyFacebookLogin() {
  */
 async function runLogin(entity) {
     if (entity === 'Facebook, Inc.') {
-        notifyFacebookLogin()
+        notifyFacebookLogin();
     }
 
-    const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
-    const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true })
+    const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
+    const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true });
     // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
     if (response && response.type === 'ddg-ctp-user-cancel') {
-        return abortSurrogateConfirmation(this.entity)
+        return abortSurrogateConfirmation(this.entity);
     }
     // Communicate with surrogate to run login
     originalWindowDispatchEvent(
@@ -952,7 +952,7 @@ async function runLogin(entity) {
                 entity,
             },
         }),
-    )
+    );
 }
 
 /**
@@ -967,11 +967,11 @@ function abortSurrogateConfirmation(entity) {
                 entity,
             },
         }),
-    )
+    );
 }
 
 function openShareFeedbackPage() {
-    ctl.messaging.notify('openShareFeedbackPage')
+    ctl.messaging.notify('openShareFeedbackPage');
 }
 
 /*********************************************************
@@ -984,14 +984,14 @@ function openShareFeedbackPage() {
  * @returns {HTMLAnchorElement}
  */
 function getLearnMoreLink(mode = 'lightMode') {
-    const linkElement = document.createElement('a')
-    linkElement.style.cssText = styles.generalLink + styles[mode].linkFont
-    linkElement.ariaLabel = sharedStrings.readAbout
-    linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/'
-    linkElement.target = '_blank'
-    linkElement.textContent = sharedStrings.learnMore
-    linkElement.id = 'learnMoreLink'
-    return linkElement
+    const linkElement = document.createElement('a');
+    linkElement.style.cssText = styles.generalLink + styles[mode].linkFont;
+    linkElement.ariaLabel = sharedStrings.readAbout;
+    linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/';
+    linkElement.target = '_blank';
+    linkElement.textContent = sharedStrings.learnMore;
+    linkElement.id = 'learnMoreLink';
+    return linkElement;
 }
 
 /**
@@ -1000,8 +1000,8 @@ function getLearnMoreLink(mode = 'lightMode') {
  * @param {HTMLElement} targetElement
  */
 function resizeElementToMatch(sourceElement, targetElement) {
-    const computedStyle = window.getComputedStyle(sourceElement)
-    const stylesToCopy = ['position', 'top', 'bottom', 'left', 'right', 'transform', 'margin']
+    const computedStyle = window.getComputedStyle(sourceElement);
+    const stylesToCopy = ['position', 'top', 'bottom', 'left', 'right', 'transform', 'margin'];
 
     // It's apparently preferable to use the source element's size relative to
     // the current viewport, when resizing the target element. However, the
@@ -1009,26 +1009,26 @@ function resizeElementToMatch(sourceElement, targetElement) {
     // that happens, getBoundingClientRect will return all zeros.
     // TODO: Remove this entirely, and always use the computed height/width of
     //       the source element instead?
-    const { height, width } = sourceElement.getBoundingClientRect()
+    const { height, width } = sourceElement.getBoundingClientRect();
     if (height > 0 && width > 0) {
-        targetElement.style.height = height + 'px'
-        targetElement.style.width = width + 'px'
+        targetElement.style.height = height + 'px';
+        targetElement.style.width = width + 'px';
     } else {
-        stylesToCopy.push('height', 'width')
+        stylesToCopy.push('height', 'width');
     }
 
     for (const key of stylesToCopy) {
-        targetElement.style[key] = computedStyle[key]
+        targetElement.style[key] = computedStyle[key];
     }
 
     // If the parent element is very small (and its dimensions can be trusted) set a max height/width
     // to avoid the placeholder overflowing.
     if (computedStyle.display !== 'inline') {
         if (targetElement.style.maxHeight < computedStyle.height) {
-            targetElement.style.maxHeight = 'initial'
+            targetElement.style.maxHeight = 'initial';
         }
         if (targetElement.style.maxWidth < computedStyle.width) {
-            targetElement.style.maxWidth = 'initial'
+            targetElement.style.maxWidth = 'initial';
         }
     }
 }
@@ -1042,9 +1042,9 @@ function makeFontFaceStyleElement() {
     // Put our custom font-faces inside the wrapper element, since
     // @font-face does not work inside a shadowRoot.
     // See https://github.com/mdn/interactive-examples/issues/887.
-    const fontFaceStyleElement = document.createElement('style')
-    fontFaceStyleElement.textContent = styles.fontStyle
-    return fontFaceStyleElement
+    const fontFaceStyleElement = document.createElement('style');
+    fontFaceStyleElement.textContent = styles.fontStyle;
+    return fontFaceStyleElement;
 }
 
 /**
@@ -1056,8 +1056,8 @@ function makeFontFaceStyleElement() {
  */
 function makeBaseStyleElement(mode = 'lightMode') {
     // Style element includes our font & overwrites page styles
-    const styleElement = document.createElement('style')
-    const wrapperClass = 'DuckDuckGoSocialContainer'
+    const styleElement = document.createElement('style');
+    const wrapperClass = 'DuckDuckGoSocialContainer';
     styleElement.textContent = `
         .${wrapperClass} a {
             ${styles[mode].linkFont}
@@ -1097,8 +1097,8 @@ function makeBaseStyleElement(mode = 'lightMode') {
         .DuckDuckGoButton.secondary:active {
            ${styles.cancelMode.buttonBackgroundPress}
         }
-    `
-    return { wrapperClass, styleElement }
+    `;
+    return { wrapperClass, styleElement };
 }
 
 /**
@@ -1109,10 +1109,10 @@ function makeBaseStyleElement(mode = 'lightMode') {
  * @returns {HTMLAnchorElement}
  */
 function makeTextButton(linkText, mode = 'lightMode') {
-    const linkElement = document.createElement('a')
-    linkElement.style.cssText = styles.headerLink + styles[mode].linkFont
-    linkElement.textContent = linkText
-    return linkElement
+    const linkElement = document.createElement('a');
+    linkElement.style.cssText = styles.headerLink + styles[mode].linkFont;
+    linkElement.textContent = linkText;
+    return linkElement;
 }
 
 /**
@@ -1126,15 +1126,15 @@ function makeTextButton(linkText, mode = 'lightMode') {
  * @returns {HTMLButtonElement} Button element
  */
 function makeButton(buttonText, mode = 'lightMode') {
-    const button = document.createElement('button')
-    button.classList.add('DuckDuckGoButton')
-    button.classList.add(mode === 'cancelMode' ? 'secondary' : 'primary')
+    const button = document.createElement('button');
+    button.classList.add('DuckDuckGoButton');
+    button.classList.add(mode === 'cancelMode' ? 'secondary' : 'primary');
     if (buttonText) {
-        const textContainer = document.createElement('div')
-        textContainer.textContent = buttonText
-        button.appendChild(textContainer)
+        const textContainer = document.createElement('div');
+        textContainer.textContent = buttonText;
+        button.appendChild(textContainer);
     }
-    return button
+    return button;
 }
 
 /**
@@ -1149,25 +1149,25 @@ function makeButton(buttonText, mode = 'lightMode') {
  * @returns {HTMLButtonElement}
  */
 function makeToggleButton(mode, isActive = false, classNames = '', dataKey = '') {
-    const toggleButton = document.createElement('button')
-    toggleButton.className = classNames
-    toggleButton.style.cssText = styles.toggleButton
-    toggleButton.type = 'button'
-    toggleButton.setAttribute('aria-pressed', isActive ? 'true' : 'false')
-    toggleButton.setAttribute('data-key', dataKey)
+    const toggleButton = document.createElement('button');
+    toggleButton.className = classNames;
+    toggleButton.style.cssText = styles.toggleButton;
+    toggleButton.type = 'button';
+    toggleButton.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    toggleButton.setAttribute('data-key', dataKey);
 
-    const activeKey = isActive ? 'active' : 'inactive'
+    const activeKey = isActive ? 'active' : 'inactive';
 
-    const toggleBg = document.createElement('div')
-    toggleBg.style.cssText = styles.toggleButtonBg + styles[mode].toggleButtonBgState[activeKey]
+    const toggleBg = document.createElement('div');
+    toggleBg.style.cssText = styles.toggleButtonBg + styles[mode].toggleButtonBgState[activeKey];
 
-    const toggleKnob = document.createElement('div')
-    toggleKnob.style.cssText = styles.toggleButtonKnob + styles.toggleButtonKnobState[activeKey]
+    const toggleKnob = document.createElement('div');
+    toggleKnob.style.cssText = styles.toggleButtonKnob + styles.toggleButtonKnobState[activeKey];
 
-    toggleButton.appendChild(toggleBg)
-    toggleButton.appendChild(toggleKnob)
+    toggleButton.appendChild(toggleBg);
+    toggleButton.appendChild(toggleKnob);
 
-    return toggleButton
+    return toggleButton;
 }
 
 /**
@@ -1187,18 +1187,18 @@ function makeToggleButton(mode, isActive = false, classNames = '', dataKey = '')
  * @returns {HTMLDivElement}
  */
 function makeToggleButtonWithText(text, mode, isActive = false, toggleClassNames = '', textCssStyles = '', dataKey = '') {
-    const wrapper = document.createElement('div')
-    wrapper.style.cssText = styles.toggleButtonWrapper
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = styles.toggleButtonWrapper;
 
-    const toggleButton = makeToggleButton(mode, isActive, toggleClassNames, dataKey)
+    const toggleButton = makeToggleButton(mode, isActive, toggleClassNames, dataKey);
 
-    const textDiv = document.createElement('div')
-    textDiv.style.cssText = styles.contentText + styles.toggleButtonText + styles[mode].toggleButtonText + textCssStyles
-    textDiv.textContent = text
+    const textDiv = document.createElement('div');
+    textDiv.style.cssText = styles.contentText + styles.toggleButtonText + styles[mode].toggleButtonText + textCssStyles;
+    textDiv.textContent = text;
 
-    wrapper.appendChild(toggleButton)
-    wrapper.appendChild(textDiv)
-    return wrapper
+    wrapper.appendChild(toggleButton);
+    wrapper.appendChild(textDiv);
+    return wrapper;
 }
 
 /**
@@ -1206,12 +1206,12 @@ function makeToggleButtonWithText(text, mode, isActive = false, toggleClassNames
  * @returns {HTMLDivElement}
  */
 function makeDefaultBlockIcon() {
-    const blockedIcon = document.createElement('div')
-    const dash = document.createElement('div')
-    blockedIcon.appendChild(dash)
-    blockedIcon.style.cssText = styles.circle
-    dash.style.cssText = styles.rectangle
-    return blockedIcon
+    const blockedIcon = document.createElement('div');
+    const dash = document.createElement('div');
+    blockedIcon.appendChild(dash);
+    blockedIcon.style.cssText = styles.circle;
+    dash.style.cssText = styles.rectangle;
+    return blockedIcon;
 }
 
 /**
@@ -1219,18 +1219,18 @@ function makeDefaultBlockIcon() {
  * @returns {HTMLAnchorElement}
  */
 function makeShareFeedbackLink() {
-    const feedbackLink = document.createElement('a')
-    feedbackLink.style.cssText = styles.feedbackLink
-    feedbackLink.target = '_blank'
-    feedbackLink.href = '#'
-    feedbackLink.text = sharedStrings.shareFeedback
+    const feedbackLink = document.createElement('a');
+    feedbackLink.style.cssText = styles.feedbackLink;
+    feedbackLink.target = '_blank';
+    feedbackLink.href = '#';
+    feedbackLink.text = sharedStrings.shareFeedback;
     // Open Feedback Form page through background event to avoid browser blocking extension link
     feedbackLink.addEventListener('click', function (e) {
-        e.preventDefault()
-        openShareFeedbackPage()
-    })
+        e.preventDefault();
+        openShareFeedbackPage();
+    });
 
-    return feedbackLink
+    return feedbackLink;
 }
 
 /**
@@ -1238,13 +1238,13 @@ function makeShareFeedbackLink() {
  * @returns {HTMLDivElement}
  */
 function makeShareFeedbackRow() {
-    const feedbackRow = document.createElement('div')
-    feedbackRow.style.cssText = styles.feedbackRow
+    const feedbackRow = document.createElement('div');
+    feedbackRow.style.cssText = styles.feedbackRow;
 
-    const feedbackLink = makeShareFeedbackLink()
-    feedbackRow.appendChild(feedbackLink)
+    const feedbackLink = makeShareFeedbackLink();
+    feedbackRow.appendChild(feedbackLink);
 
-    return feedbackRow
+    return feedbackRow;
 }
 
 /**
@@ -1265,14 +1265,14 @@ function makeShareFeedbackRow() {
  * @returns {{ container: HTMLDivElement, button: HTMLButtonElement }}
  */
 function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement) {
-    const container = document.createElement('div')
-    container.style.cssText = 'position: relative;'
-    container.appendChild(makeFontFaceStyleElement())
+    const container = document.createElement('div');
+    container.style.cssText = 'position: relative;';
+    container.appendChild(makeFontFaceStyleElement());
 
-    const shadowRoot = container.attachShadow({ mode: devMode ? 'open' : 'closed' })
+    const shadowRoot = container.attachShadow({ mode: devMode ? 'open' : 'closed' });
     // inherit any class styles on the button
-    container.className = 'fb-login-button FacebookLogin__button'
-    const { styleElement } = makeBaseStyleElement(mode)
+    container.className = 'fb-login-button FacebookLogin__button';
+    const { styleElement } = makeBaseStyleElement(mode);
     styleElement.textContent += `
         #DuckDuckGoPrivacyEssentialsHoverableText {
             display: none;
@@ -1280,72 +1280,72 @@ function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement)
         #DuckDuckGoPrivacyEssentialsHoverable:hover #DuckDuckGoPrivacyEssentialsHoverableText {
             display: block;
         }
-    `
-    shadowRoot.appendChild(styleElement)
+    `;
+    shadowRoot.appendChild(styleElement);
 
-    const hoverContainer = document.createElement('div')
-    hoverContainer.id = 'DuckDuckGoPrivacyEssentialsHoverable'
-    hoverContainer.style.cssText = styles.hoverContainer
-    shadowRoot.appendChild(hoverContainer)
+    const hoverContainer = document.createElement('div');
+    hoverContainer.id = 'DuckDuckGoPrivacyEssentialsHoverable';
+    hoverContainer.style.cssText = styles.hoverContainer;
+    shadowRoot.appendChild(hoverContainer);
 
     // Make the button
-    const button = makeButton(buttonText, mode)
+    const button = makeButton(buttonText, mode);
     // Add blocked icon
     if (!icon) {
-        button.appendChild(makeDefaultBlockIcon())
+        button.appendChild(makeDefaultBlockIcon());
     } else {
-        const imgElement = document.createElement('img')
-        imgElement.style.cssText = styles.loginIcon
-        imgElement.setAttribute('src', icon)
-        imgElement.setAttribute('height', '28px')
-        button.appendChild(imgElement)
+        const imgElement = document.createElement('img');
+        imgElement.style.cssText = styles.loginIcon;
+        imgElement.setAttribute('src', icon);
+        imgElement.setAttribute('height', '28px');
+        button.appendChild(imgElement);
     }
-    hoverContainer.appendChild(button)
+    hoverContainer.appendChild(button);
 
     // hover action
-    const hoverBox = document.createElement('div')
-    hoverBox.id = 'DuckDuckGoPrivacyEssentialsHoverableText'
-    hoverBox.style.cssText = styles.textBubble
-    const arrow = document.createElement('div')
-    arrow.style.cssText = styles.textArrow
-    hoverBox.appendChild(arrow)
-    const branding = createTitleRow('DuckDuckGo')
-    branding.style.cssText += styles.hoverTextTitle
-    hoverBox.appendChild(branding)
-    const hoverText = document.createElement('div')
-    hoverText.style.cssText = styles.hoverTextBody
-    hoverText.textContent = hoverTextBody + ' '
-    hoverText.appendChild(getLearnMoreLink(mode))
-    hoverBox.appendChild(hoverText)
+    const hoverBox = document.createElement('div');
+    hoverBox.id = 'DuckDuckGoPrivacyEssentialsHoverableText';
+    hoverBox.style.cssText = styles.textBubble;
+    const arrow = document.createElement('div');
+    arrow.style.cssText = styles.textArrow;
+    hoverBox.appendChild(arrow);
+    const branding = createTitleRow('DuckDuckGo');
+    branding.style.cssText += styles.hoverTextTitle;
+    hoverBox.appendChild(branding);
+    const hoverText = document.createElement('div');
+    hoverText.style.cssText = styles.hoverTextBody;
+    hoverText.textContent = hoverTextBody + ' ';
+    hoverText.appendChild(getLearnMoreLink(mode));
+    hoverBox.appendChild(hoverText);
 
-    hoverContainer.appendChild(hoverBox)
-    const rect = originalElement.getBoundingClientRect()
+    hoverContainer.appendChild(hoverBox);
+    const rect = originalElement.getBoundingClientRect();
 
     // The left side of the hover popup may go offscreen if the
     // login button is all the way on the left side of the page. This
     // If that is the case, dynamically shift the box right so it shows
     // properly.
     if (rect.left < styles.textBubbleLeftShift) {
-        const leftShift = -rect.left + 10 // 10px away from edge of the screen
-        hoverBox.style.cssText += `left: ${leftShift}px;`
-        const change = (1 - rect.left / styles.textBubbleLeftShift) * (100 - styles.arrowDefaultLocationPercent)
-        arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent - change)}%;`
+        const leftShift = -rect.left + 10; // 10px away from edge of the screen
+        hoverBox.style.cssText += `left: ${leftShift}px;`;
+        const change = (1 - rect.left / styles.textBubbleLeftShift) * (100 - styles.arrowDefaultLocationPercent);
+        arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent - change)}%;`;
     } else if (rect.left + styles.textBubbleWidth - styles.textBubbleLeftShift > window.innerWidth) {
-        const rightShift = rect.left + styles.textBubbleWidth - styles.textBubbleLeftShift
-        const diff = Math.min(rightShift - window.innerWidth, styles.textBubbleLeftShift)
-        const rightMargin = 20 // Add some margin to the page, so scrollbar doesn't overlap.
-        hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift + diff + rightMargin}px;`
-        const change = (diff / styles.textBubbleLeftShift) * (100 - styles.arrowDefaultLocationPercent)
-        arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent + change)}%;`
+        const rightShift = rect.left + styles.textBubbleWidth - styles.textBubbleLeftShift;
+        const diff = Math.min(rightShift - window.innerWidth, styles.textBubbleLeftShift);
+        const rightMargin = 20; // Add some margin to the page, so scrollbar doesn't overlap.
+        hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift + diff + rightMargin}px;`;
+        const change = (diff / styles.textBubbleLeftShift) * (100 - styles.arrowDefaultLocationPercent);
+        arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent + change)}%;`;
     } else {
-        hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift}px;`
-        arrow.style.cssText += `left: ${styles.arrowDefaultLocationPercent}%;`
+        hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift}px;`;
+        arrow.style.cssText += `left: ${styles.arrowDefaultLocationPercent}%;`;
     }
 
     return {
         button,
         container,
-    }
+    };
 }
 
 /**
@@ -1361,82 +1361,82 @@ function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement)
  *   TODO: Have the caller bind these arguments to the function instead.
  */
 function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
-    const icon = entityData[entity].modalIcon
+    const icon = entityData[entity].modalIcon;
 
-    const modalContainer = document.createElement('div')
-    modalContainer.setAttribute('data-key', 'modal')
-    modalContainer.style.cssText = styles.modalContainer
+    const modalContainer = document.createElement('div');
+    modalContainer.setAttribute('data-key', 'modal');
+    modalContainer.style.cssText = styles.modalContainer;
 
-    modalContainer.appendChild(makeFontFaceStyleElement())
+    modalContainer.appendChild(makeFontFaceStyleElement());
 
     const closeModal = () => {
-        document.body.removeChild(modalContainer)
-        abortSurrogateConfirmation(entity)
-    }
+        document.body.removeChild(modalContainer);
+        abortSurrogateConfirmation(entity);
+    };
 
     // Protect the contents of our modal inside a shadowRoot, to avoid
     // it being styled by the website's stylesheets.
-    const shadowRoot = modalContainer.attachShadow({ mode: devMode ? 'open' : 'closed' })
-    const { styleElement } = makeBaseStyleElement('lightMode')
-    shadowRoot.appendChild(styleElement)
+    const shadowRoot = modalContainer.attachShadow({ mode: devMode ? 'open' : 'closed' });
+    const { styleElement } = makeBaseStyleElement('lightMode');
+    shadowRoot.appendChild(styleElement);
 
-    const pageOverlay = document.createElement('div')
-    pageOverlay.style.cssText = styles.overlay
+    const pageOverlay = document.createElement('div');
+    pageOverlay.style.cssText = styles.overlay;
 
-    const modal = document.createElement('div')
-    modal.style.cssText = styles.modal
+    const modal = document.createElement('div');
+    modal.style.cssText = styles.modal;
 
     // Title
-    const modalTitle = createTitleRow('DuckDuckGo', null, closeModal)
-    modal.appendChild(modalTitle)
+    const modalTitle = createTitleRow('DuckDuckGo', null, closeModal);
+    modal.appendChild(modalTitle);
 
-    const iconElement = document.createElement('img')
-    iconElement.style.cssText = styles.icon + styles.modalIcon
-    iconElement.setAttribute('src', icon)
-    iconElement.setAttribute('height', '70px')
+    const iconElement = document.createElement('img');
+    iconElement.style.cssText = styles.icon + styles.modalIcon;
+    iconElement.setAttribute('src', icon);
+    iconElement.setAttribute('height', '70px');
 
-    const title = document.createElement('div')
-    title.style.cssText = styles.modalContentTitle
-    title.textContent = entityData[entity].modalTitle
+    const title = document.createElement('div');
+    title.style.cssText = styles.modalContentTitle;
+    title.textContent = entityData[entity].modalTitle;
 
     // Content
-    const modalContent = document.createElement('div')
-    modalContent.style.cssText = styles.modalContent
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = styles.modalContent;
 
-    const message = document.createElement('div')
-    message.style.cssText = styles.modalContentText
-    message.textContent = entityData[entity].modalText + ' '
-    message.appendChild(getLearnMoreLink())
+    const message = document.createElement('div');
+    message.style.cssText = styles.modalContentText;
+    message.textContent = entityData[entity].modalText + ' ';
+    message.appendChild(getLearnMoreLink());
 
-    modalContent.appendChild(iconElement)
-    modalContent.appendChild(title)
-    modalContent.appendChild(message)
+    modalContent.appendChild(iconElement);
+    modalContent.appendChild(title);
+    modalContent.appendChild(message);
 
     // Buttons
-    const buttonRow = document.createElement('div')
-    buttonRow.style.cssText = styles.modalButtonRow
-    const allowButton = makeButton(entityData[entity].modalAcceptText, 'lightMode')
-    allowButton.style.cssText += styles.modalButton + 'margin-bottom: 8px;'
-    allowButton.setAttribute('data-key', 'allow')
+    const buttonRow = document.createElement('div');
+    buttonRow.style.cssText = styles.modalButtonRow;
+    const allowButton = makeButton(entityData[entity].modalAcceptText, 'lightMode');
+    allowButton.style.cssText += styles.modalButton + 'margin-bottom: 8px;';
+    allowButton.setAttribute('data-key', 'allow');
     allowButton.addEventListener('click', function doLogin() {
-        acceptFunction(...acceptFunctionParams)
-        document.body.removeChild(modalContainer)
-    })
-    const rejectButton = makeButton(entityData[entity].modalRejectText, 'cancelMode')
-    rejectButton.setAttribute('data-key', 'reject')
-    rejectButton.style.cssText += styles.modalButton
-    rejectButton.addEventListener('click', closeModal)
+        acceptFunction(...acceptFunctionParams);
+        document.body.removeChild(modalContainer);
+    });
+    const rejectButton = makeButton(entityData[entity].modalRejectText, 'cancelMode');
+    rejectButton.setAttribute('data-key', 'reject');
+    rejectButton.style.cssText += styles.modalButton;
+    rejectButton.addEventListener('click', closeModal);
 
-    buttonRow.appendChild(allowButton)
-    buttonRow.appendChild(rejectButton)
-    modalContent.appendChild(buttonRow)
+    buttonRow.appendChild(allowButton);
+    buttonRow.appendChild(rejectButton);
+    modalContent.appendChild(buttonRow);
 
-    modal.appendChild(modalContent)
+    modal.appendChild(modalContent);
 
-    shadowRoot.appendChild(pageOverlay)
-    shadowRoot.appendChild(modal)
+    shadowRoot.appendChild(pageOverlay);
+    shadowRoot.appendChild(modal);
 
-    document.body.insertBefore(modalContainer, document.body.childNodes[0])
+    document.body.insertBefore(modalContainer, document.body.childNodes[0]);
 }
 
 /**
@@ -1451,46 +1451,46 @@ function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
  */
 function createTitleRow(message, textButton, closeBtnFn) {
     // Create row container
-    const row = document.createElement('div')
-    row.style.cssText = styles.titleBox
+    const row = document.createElement('div');
+    row.style.cssText = styles.titleBox;
 
     // Logo
-    const logoContainer = document.createElement('div')
-    logoContainer.style.cssText = styles.logo
-    const logoElement = document.createElement('img')
-    logoElement.setAttribute('src', logoImg)
-    logoElement.setAttribute('height', '21px')
-    logoElement.style.cssText = styles.logoImg
-    logoContainer.appendChild(logoElement)
-    row.appendChild(logoContainer)
+    const logoContainer = document.createElement('div');
+    logoContainer.style.cssText = styles.logo;
+    const logoElement = document.createElement('img');
+    logoElement.setAttribute('src', logoImg);
+    logoElement.setAttribute('height', '21px');
+    logoElement.style.cssText = styles.logoImg;
+    logoContainer.appendChild(logoElement);
+    row.appendChild(logoContainer);
 
     // Content box title
-    const msgElement = document.createElement('div')
-    msgElement.id = titleID // Ensure we can find this to potentially hide it later.
-    msgElement.textContent = message
-    msgElement.style.cssText = styles.title
-    row.appendChild(msgElement)
+    const msgElement = document.createElement('div');
+    msgElement.id = titleID; // Ensure we can find this to potentially hide it later.
+    msgElement.textContent = message;
+    msgElement.style.cssText = styles.title;
+    row.appendChild(msgElement);
 
     // Close Button
     if (typeof closeBtnFn === 'function') {
-        const closeButton = document.createElement('button')
-        closeButton.style.cssText = styles.closeButton
-        const closeIconImg = document.createElement('img')
-        closeIconImg.setAttribute('src', closeIcon)
-        closeIconImg.setAttribute('height', '12px')
-        closeIconImg.style.cssText = styles.closeIcon
-        closeButton.appendChild(closeIconImg)
-        closeButton.addEventListener('click', closeBtnFn)
-        row.appendChild(closeButton)
+        const closeButton = document.createElement('button');
+        closeButton.style.cssText = styles.closeButton;
+        const closeIconImg = document.createElement('img');
+        closeIconImg.setAttribute('src', closeIcon);
+        closeIconImg.setAttribute('height', '12px');
+        closeIconImg.style.cssText = styles.closeIcon;
+        closeButton.appendChild(closeIconImg);
+        closeButton.addEventListener('click', closeBtnFn);
+        row.appendChild(closeButton);
     }
 
     // Text button for very small boxes
     if (textButton) {
-        textButton.id = titleID + 'TextButton'
-        row.appendChild(textButton)
+        textButton.id = titleID + 'TextButton';
+        row.appendChild(textButton);
     }
 
-    return row
+    return row;
 }
 
 /**
@@ -1510,81 +1510,81 @@ function createTitleRow(message, textButton, closeBtnFn) {
  * @returns {{ contentBlock: HTMLDivElement, shadowRoot: ShadowRoot }}
  */
 function createContentBlock(widget, button, textButton, img, bottomRow) {
-    const contentBlock = document.createElement('div')
-    contentBlock.style.cssText = styles.wrapperDiv
+    const contentBlock = document.createElement('div');
+    contentBlock.style.cssText = styles.wrapperDiv;
 
-    contentBlock.appendChild(makeFontFaceStyleElement())
+    contentBlock.appendChild(makeFontFaceStyleElement());
 
     // Put everything else inside the shadowRoot of the wrapper element to
     // reduce the chances of the website's stylesheets messing up the
     // placeholder's appearance.
-    const shadowRootMode = devMode ? 'open' : 'closed'
-    const shadowRoot = contentBlock.attachShadow({ mode: shadowRootMode })
+    const shadowRootMode = devMode ? 'open' : 'closed';
+    const shadowRoot = contentBlock.attachShadow({ mode: shadowRootMode });
 
     // Style element includes our font & overwrites page styles
-    const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode())
-    shadowRoot.appendChild(styleElement)
+    const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode());
+    shadowRoot.appendChild(styleElement);
 
     // Create overall grid structure
-    const element = document.createElement('div')
-    element.style.cssText = styles.block + styles[widget.getMode()].background + styles[widget.getMode()].textFont
+    const element = document.createElement('div');
+    element.style.cssText = styles.block + styles[widget.getMode()].background + styles[widget.getMode()].textFont;
     if (widget.replaceSettings.type === 'youtube-video') {
-        element.style.cssText += styles.youTubeDialogBlock
+        element.style.cssText += styles.youTubeDialogBlock;
     }
-    element.className = wrapperClass
-    shadowRoot.appendChild(element)
+    element.className = wrapperClass;
+    shadowRoot.appendChild(element);
 
     // grid of three rows
-    const titleRow = document.createElement('div')
-    titleRow.style.cssText = styles.headerRow
-    element.appendChild(titleRow)
-    titleRow.appendChild(createTitleRow('DuckDuckGo', textButton))
+    const titleRow = document.createElement('div');
+    titleRow.style.cssText = styles.headerRow;
+    element.appendChild(titleRow);
+    titleRow.appendChild(createTitleRow('DuckDuckGo', textButton));
 
-    const contentRow = document.createElement('div')
-    contentRow.style.cssText = styles.content
+    const contentRow = document.createElement('div');
+    contentRow.style.cssText = styles.content;
 
     if (img) {
-        const imageRow = document.createElement('div')
-        imageRow.style.cssText = styles.imgRow
-        const imgElement = document.createElement('img')
-        imgElement.style.cssText = styles.icon
-        imgElement.setAttribute('src', img)
-        imgElement.setAttribute('height', '70px')
-        imageRow.appendChild(imgElement)
-        element.appendChild(imageRow)
+        const imageRow = document.createElement('div');
+        imageRow.style.cssText = styles.imgRow;
+        const imgElement = document.createElement('img');
+        imgElement.style.cssText = styles.icon;
+        imgElement.setAttribute('src', img);
+        imgElement.setAttribute('height', '70px');
+        imageRow.appendChild(imgElement);
+        element.appendChild(imageRow);
     }
 
-    const contentTitle = document.createElement('div')
-    contentTitle.style.cssText = styles.contentTitle
-    contentTitle.textContent = widget.replaceSettings.infoTitle
-    contentTitle.id = 'contentTitle'
-    contentRow.appendChild(contentTitle)
-    const contentText = document.createElement('div')
-    contentText.style.cssText = styles.contentText
-    const contentTextSpan = document.createElement('span')
-    contentTextSpan.id = 'infoText'
-    contentTextSpan.textContent = widget.replaceSettings.infoText + ' '
-    contentText.appendChild(contentTextSpan)
-    contentText.appendChild(getLearnMoreLink())
-    contentRow.appendChild(contentText)
-    element.appendChild(contentRow)
+    const contentTitle = document.createElement('div');
+    contentTitle.style.cssText = styles.contentTitle;
+    contentTitle.textContent = widget.replaceSettings.infoTitle;
+    contentTitle.id = 'contentTitle';
+    contentRow.appendChild(contentTitle);
+    const contentText = document.createElement('div');
+    contentText.style.cssText = styles.contentText;
+    const contentTextSpan = document.createElement('span');
+    contentTextSpan.id = 'infoText';
+    contentTextSpan.textContent = widget.replaceSettings.infoText + ' ';
+    contentText.appendChild(contentTextSpan);
+    contentText.appendChild(getLearnMoreLink());
+    contentRow.appendChild(contentText);
+    element.appendChild(contentRow);
 
-    const buttonRow = document.createElement('div')
-    buttonRow.style.cssText = styles.buttonRow
-    buttonRow.appendChild(button)
-    contentText.appendChild(buttonRow)
+    const buttonRow = document.createElement('div');
+    buttonRow.style.cssText = styles.buttonRow;
+    buttonRow.appendChild(button);
+    contentText.appendChild(buttonRow);
 
     if (bottomRow) {
-        contentRow.appendChild(bottomRow)
+        contentRow.appendChild(bottomRow);
     }
 
     /** Share Feedback Link */
     if (widget.replaceSettings.type === 'youtube-video') {
-        const feedbackRow = makeShareFeedbackRow()
-        shadowRoot.appendChild(feedbackRow)
+        const feedbackRow = makeShareFeedbackRow();
+        shadowRoot.appendChild(feedbackRow);
     }
 
-    return { contentBlock, shadowRoot }
+    return { contentBlock, shadowRoot };
 }
 
 /**
@@ -1594,11 +1594,11 @@ function createContentBlock(widget, button, textButton, img, bottomRow) {
  * @returns {{ blockingDialog: HTMLElement, shadowRoot: ShadowRoot }}
  */
 function createYouTubeBlockingDialog(trackingElement, widget) {
-    const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
-    const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
+    const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
+    const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
 
-    const bottomRow = document.createElement('div')
-    bottomRow.style.cssText = styles.youTubeDialogBottomRow
+    const bottomRow = document.createElement('div');
+    bottomRow.style.cssText = styles.youTubeDialogBottomRow;
     const previewToggle = makeToggleButtonWithText(
         widget.replaceSettings.previewToggleText,
         widget.getMode(),
@@ -1606,23 +1606,23 @@ function createYouTubeBlockingDialog(trackingElement, widget) {
         '',
         '',
         'yt-preview-toggle',
-    )
+    );
     previewToggle.addEventListener('click', () =>
         makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), widget.entity),
-    )
-    bottomRow.appendChild(previewToggle)
+    );
+    bottomRow.appendChild(previewToggle);
 
-    const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, null, bottomRow)
-    contentBlock.id = trackingElement.id
-    contentBlock.style.cssText += styles.wrapperDiv + styles.youTubeWrapperDiv
+    const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, null, bottomRow);
+    contentBlock.id = trackingElement.id;
+    contentBlock.style.cssText += styles.wrapperDiv + styles.youTubeWrapperDiv;
 
-    button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
-    textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
+    button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+    textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
 
     return {
         blockingDialog: contentBlock,
         shadowRoot,
-    }
+    };
 }
 
 /**
@@ -1637,75 +1637,75 @@ function createYouTubeBlockingDialog(trackingElement, widget) {
  *   Object containing the YouTube Preview element and its shadowRoot.
  */
 function createYouTubePreview(originalElement, widget) {
-    const youTubePreview = document.createElement('div')
-    youTubePreview.id = originalElement.id
-    youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv
+    const youTubePreview = document.createElement('div');
+    youTubePreview.id = originalElement.id;
+    youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv;
 
-    youTubePreview.appendChild(makeFontFaceStyleElement())
+    youTubePreview.appendChild(makeFontFaceStyleElement());
 
     // Protect the contents of our placeholder inside a shadowRoot, to avoid
     // it being styled by the website's stylesheets.
-    const shadowRoot = youTubePreview.attachShadow({ mode: devMode ? 'open' : 'closed' })
-    const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode())
-    shadowRoot.appendChild(styleElement)
+    const shadowRoot = youTubePreview.attachShadow({ mode: devMode ? 'open' : 'closed' });
+    const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode());
+    shadowRoot.appendChild(styleElement);
 
-    const youTubePreviewDiv = document.createElement('div')
-    youTubePreviewDiv.style.cssText = styles.youTubeDialogDiv
-    youTubePreviewDiv.classList.add(wrapperClass)
-    shadowRoot.appendChild(youTubePreviewDiv)
+    const youTubePreviewDiv = document.createElement('div');
+    youTubePreviewDiv.style.cssText = styles.youTubeDialogDiv;
+    youTubePreviewDiv.classList.add(wrapperClass);
+    shadowRoot.appendChild(youTubePreviewDiv);
 
     /** Preview Image */
-    const previewImageWrapper = document.createElement('div')
-    previewImageWrapper.style.cssText = styles.youTubePreviewWrapperImg
-    youTubePreviewDiv.appendChild(previewImageWrapper)
+    const previewImageWrapper = document.createElement('div');
+    previewImageWrapper.style.cssText = styles.youTubePreviewWrapperImg;
+    youTubePreviewDiv.appendChild(previewImageWrapper);
     // We use an image element for the preview image so that we can ensure
     // the referrer isn't passed.
-    const previewImageElement = document.createElement('img')
-    previewImageElement.setAttribute('referrerPolicy', 'no-referrer')
-    previewImageElement.style.cssText = styles.youTubePreviewImg
-    previewImageWrapper.appendChild(previewImageElement)
+    const previewImageElement = document.createElement('img');
+    previewImageElement.setAttribute('referrerPolicy', 'no-referrer');
+    previewImageElement.style.cssText = styles.youTubePreviewImg;
+    previewImageWrapper.appendChild(previewImageElement);
 
-    const innerDiv = document.createElement('div')
-    innerDiv.style.cssText = styles.youTubePlaceholder
+    const innerDiv = document.createElement('div');
+    innerDiv.style.cssText = styles.youTubePlaceholder;
 
     /** Top section */
-    const topSection = document.createElement('div')
-    topSection.style.cssText = styles.youTubeTopSection
-    innerDiv.appendChild(topSection)
+    const topSection = document.createElement('div');
+    topSection.style.cssText = styles.youTubeTopSection;
+    innerDiv.appendChild(topSection);
 
     /** Video Title */
-    const titleElement = document.createElement('p')
-    titleElement.style.cssText = styles.youTubeTitle
-    topSection.appendChild(titleElement)
+    const titleElement = document.createElement('p');
+    titleElement.style.cssText = styles.youTubeTitle;
+    topSection.appendChild(titleElement);
 
     /** Text Button on top section */
     // Use darkMode styles because the preview background is dark and causes poor contrast
     // with lightMode button, making it hard to read.
-    const textButton = makeTextButton(widget.replaceSettings.buttonText, 'darkMode')
-    textButton.id = titleID + 'TextButton'
+    const textButton = makeTextButton(widget.replaceSettings.buttonText, 'darkMode');
+    textButton.id = titleID + 'TextButton';
 
-    textButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview))
-    topSection.appendChild(textButton)
+    textButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview));
+    topSection.appendChild(textButton);
 
     /** Play Button */
-    const playButtonRow = document.createElement('div')
-    playButtonRow.style.cssText = styles.youTubePlayButtonRow
+    const playButtonRow = document.createElement('div');
+    playButtonRow.style.cssText = styles.youTubePlayButtonRow;
 
-    const playButton = makeButton('', widget.getMode())
-    playButton.style.cssText += styles.youTubePlayButton
+    const playButton = makeButton('', widget.getMode());
+    playButton.style.cssText += styles.youTubePlayButton;
 
-    const videoPlayImg = document.createElement('img')
-    const videoPlayIcon = widget.replaceSettings.placeholder.videoPlayIcon[widget.getMode()]
-    videoPlayImg.setAttribute('src', videoPlayIcon)
-    playButton.appendChild(videoPlayImg)
+    const videoPlayImg = document.createElement('img');
+    const videoPlayIcon = widget.replaceSettings.placeholder.videoPlayIcon[widget.getMode()];
+    videoPlayImg.setAttribute('src', videoPlayIcon);
+    playButton.appendChild(videoPlayImg);
 
-    playButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview))
-    playButtonRow.appendChild(playButton)
-    innerDiv.appendChild(playButtonRow)
+    playButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview));
+    playButtonRow.appendChild(playButton);
+    innerDiv.appendChild(playButtonRow);
 
     /** Preview Toggle */
-    const previewToggleRow = document.createElement('div')
-    previewToggleRow.style.cssText = styles.youTubePreviewToggleRow
+    const previewToggleRow = document.createElement('div');
+    previewToggleRow.style.cssText = styles.youTubePreviewToggleRow;
 
     // TODO: Use `widget.replaceSettings.placeholder.previewToggleEnabledDuckDuckGoText` for toggle
     // copy when implementing mobile YT CTL Preview
@@ -1716,12 +1716,12 @@ function createYouTubePreview(originalElement, widget) {
         '',
         styles.youTubePreviewToggleText,
         'yt-preview-toggle',
-    )
-    previewToggle.addEventListener('click', () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: false }))
+    );
+    previewToggle.addEventListener('click', () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: false }));
 
     /** Preview Info Text */
-    const previewText = document.createElement('div')
-    previewText.style.cssText = styles.contentText + styles.toggleButtonText + styles.youTubePreviewInfoText
+    const previewText = document.createElement('div');
+    previewText.style.cssText = styles.contentText + styles.toggleButtonText + styles.youTubePreviewInfoText;
     // Since this string contains an anchor element, setting innerText won't
     // work.
     // Warning: This is not ideal! The translated (and original) strings must be
@@ -1729,45 +1729,45 @@ function createYouTubePreview(originalElement, widget) {
     //          Ideally, the translation system would allow only certain element
     //          types to be included, and would avoid the URLs for links being
     //          included in the translations.
-    previewText.insertAdjacentHTML('beforeend', widget.replaceSettings.placeholder.previewInfoText)
-    const previewTextLink = previewText.querySelector('a')
+    previewText.insertAdjacentHTML('beforeend', widget.replaceSettings.placeholder.previewInfoText);
+    const previewTextLink = previewText.querySelector('a');
     if (previewTextLink) {
-        const newPreviewTextLink = getLearnMoreLink(widget.getMode())
-        newPreviewTextLink.innerText = previewTextLink.innerText
-        previewTextLink.replaceWith(newPreviewTextLink)
+        const newPreviewTextLink = getLearnMoreLink(widget.getMode());
+        newPreviewTextLink.innerText = previewTextLink.innerText;
+        previewTextLink.replaceWith(newPreviewTextLink);
     }
 
-    previewToggleRow.appendChild(previewToggle)
-    previewToggleRow.appendChild(previewText)
-    innerDiv.appendChild(previewToggleRow)
+    previewToggleRow.appendChild(previewToggle);
+    previewToggleRow.appendChild(previewText);
+    innerDiv.appendChild(previewToggleRow);
 
-    youTubePreviewDiv.appendChild(innerDiv)
+    youTubePreviewDiv.appendChild(innerDiv);
 
     // We use .then() instead of await here to show the placeholder right away
     // while the YouTube endpoint takes it time to respond.
-    const videoURL = originalElement.src || originalElement.getAttribute('data-src')
+    const videoURL = originalElement.src || originalElement.getAttribute('data-src');
     ctl.messaging
         .request('getYouTubeVideoDetails', { videoURL })
         // eslint-disable-next-line promise/prefer-await-to-then
         .then(({ videoURL: videoURLResp, status, title, previewImage }) => {
             if (!status || videoURLResp !== videoURL) {
-                return
+                return;
             }
             if (status === 'success') {
-                titleElement.innerText = title
-                titleElement.title = title
+                titleElement.innerText = title;
+                titleElement.title = title;
                 if (previewImage) {
-                    previewImageElement.setAttribute('src', previewImage)
+                    previewImageElement.setAttribute('src', previewImage);
                 }
-                widget.autoplay = true
+                widget.autoplay = true;
             }
-        })
+        });
 
     /** Share Feedback Link */
-    const feedbackRow = makeShareFeedbackRow()
-    shadowRoot.appendChild(feedbackRow)
+    const feedbackRow = makeShareFeedbackRow();
+    shadowRoot.appendChild(feedbackRow);
 
-    return { youTubePreview, shadowRoot }
+    return { youTubePreview, shadowRoot };
 }
 
 /**
@@ -1776,7 +1776,7 @@ function createYouTubePreview(originalElement, widget) {
 
 export default class ClickToLoad extends ContentFeature {
     /** @type {MessagingContext} */
-    #messagingContext
+    #messagingContext;
 
     async init(args) {
         /**
@@ -1784,82 +1784,82 @@ export default class ClickToLoad extends ContentFeature {
          * accidentally enabled this
          */
         if (!this.messaging) {
-            throw new Error('Cannot operate click to load without a messaging backend')
+            throw new Error('Cannot operate click to load without a messaging backend');
         }
-        _messagingModuleScope = this.messaging
-        _addDebugFlag = this.addDebugFlag.bind(this)
+        _messagingModuleScope = this.messaging;
+        _addDebugFlag = this.addDebugFlag.bind(this);
 
-        const websiteOwner = args?.site?.parentEntity
-        const settings = args?.featureSettings?.clickToLoad || {}
-        const locale = args?.locale || 'en'
-        const localizedConfig = getConfig(locale)
-        config = localizedConfig.config
-        sharedStrings = localizedConfig.sharedStrings
+        const websiteOwner = args?.site?.parentEntity;
+        const settings = args?.featureSettings?.clickToLoad || {};
+        const locale = args?.locale || 'en';
+        const localizedConfig = getConfig(locale);
+        config = localizedConfig.config;
+        sharedStrings = localizedConfig.sharedStrings;
         // update styles if asset config was sent
-        styles = getStyles(this.assetConfig)
+        styles = getStyles(this.assetConfig);
 
         /**
          * Register Custom Elements only when Click to Load is initialized, to ensure it is only
          * called when config is ready and any previous context have been appropriately invalidated
          * prior when applicable (ie Firefox when hot reloading the Extension)
          */
-        registerCustomElements()
+        registerCustomElements();
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the
             // extension's clickToLoad settings.
             if ((websiteOwner && entity === websiteOwner) || !settings[entity] || settings[entity].state !== 'enabled') {
-                delete config[entity]
-                continue
+                delete config[entity];
+                continue;
             }
 
             // Populate the entities and entityData data structures.
             // TODO: Remove them and this logic, they seem unnecessary.
 
-            entities.push(entity)
+            entities.push(entity);
 
-            const shouldShowLoginModal = !!config[entity].informationalModal
-            const currentEntityData = { shouldShowLoginModal }
+            const shouldShowLoginModal = !!config[entity].informationalModal;
+            const currentEntityData = { shouldShowLoginModal };
 
             if (shouldShowLoginModal) {
-                const { informationalModal } = config[entity]
-                currentEntityData.modalIcon = informationalModal.icon
-                currentEntityData.modalTitle = informationalModal.messageTitle
-                currentEntityData.modalText = informationalModal.messageBody
-                currentEntityData.modalAcceptText = informationalModal.confirmButtonText
-                currentEntityData.modalRejectText = informationalModal.rejectButtonText
+                const { informationalModal } = config[entity];
+                currentEntityData.modalIcon = informationalModal.icon;
+                currentEntityData.modalTitle = informationalModal.messageTitle;
+                currentEntityData.modalText = informationalModal.messageBody;
+                currentEntityData.modalAcceptText = informationalModal.confirmButtonText;
+                currentEntityData.modalRejectText = informationalModal.rejectButtonText;
             }
 
-            entityData[entity] = currentEntityData
+            entityData[entity] = currentEntityData;
         }
 
         // Listen for window events from "surrogate" scripts.
         window.addEventListener('ddg-ctp', (/** @type {CustomEvent} */ event) => {
-            if (!('detail' in event)) return
+            if (!('detail' in event)) return;
 
-            const entity = event.detail?.entity
+            const entity = event.detail?.entity;
             if (!entities.includes(entity)) {
                 // Unknown entity, reject
-                return
+                return;
             }
             if (event.detail?.appID) {
-                appID = JSON.stringify(event.detail.appID).replace(/"/g, '')
+                appID = JSON.stringify(event.detail.appID).replace(/"/g, '');
             }
             // Handle login call
             if (event.detail?.action === 'login') {
                 // Even if the user cancels the login attempt, consider Facebook Click to
                 // Load to have been active on the page if the user reports the page as broken.
                 if (entity === 'Facebook, Inc.') {
-                    notifyFacebookLogin()
+                    notifyFacebookLogin();
                 }
 
                 if (entityData[entity].shouldShowLoginModal) {
-                    handleUnblockConfirmation(this.platform.name, entity, runLogin, entity)
+                    handleUnblockConfirmation(this.platform.name, entity, runLogin, entity);
                 } else {
-                    runLogin(entity)
+                    runLogin(entity);
                 }
             }
-        })
+        });
         // Listen to message from Platform letting CTL know that we're ready to
         // replace elements in the page
 
@@ -1869,36 +1869,36 @@ export default class ClickToLoad extends ContentFeature {
             //       content corresponding to the entity for that ruleAction need to
             //       be replaced with a placeholder.
             () => this.replaceClickToLoadElements(),
-        )
+        );
 
         // Request the current state of Click to Load from the platform.
         // Note: When the response is received, the response handler resolves
         //       the readyToDisplayPlaceholders Promise.
-        const clickToLoadState = await this.messaging.request('getClickToLoadState')
-        this.onClickToLoadState(clickToLoadState)
+        const clickToLoadState = await this.messaging.request('getClickToLoadState');
+        this.onClickToLoadState(clickToLoadState);
 
         // Then wait for the page to finish loading, and resolve the
         // afterPageLoad Promise.
         if (document.readyState === 'complete') {
-            afterPageLoadResolver()
+            afterPageLoadResolver();
         } else {
-            window.addEventListener('load', afterPageLoadResolver, { once: true })
+            window.addEventListener('load', afterPageLoadResolver, { once: true });
         }
-        await afterPageLoad
+        await afterPageLoad;
 
         // On some websites, the "ddg-ctp-ready" event is occasionally
         // dispatched too early, before the listener is ready to receive it.
         // To counter that, catch "ddg-ctp-surrogate-load" events dispatched
         // _after_ page, so the "ddg-ctp-ready" event can be dispatched again.
         window.addEventListener('ddg-ctp-surrogate-load', () => {
-            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'))
-        })
+            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+        });
 
         // Then wait for any in-progress element replacements, before letting
         // the surrogate scripts know to start.
         window.setTimeout(() => {
-            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'))
-        }, 0)
+            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+        }, 0);
     }
 
     /**
@@ -1910,18 +1910,18 @@ export default class ClickToLoad extends ContentFeature {
     update(message) {
         // TODO: Once all Click to Load messages include the feature property, drop
         //       messages that don't include the feature property too.
-        if (message?.feature && message?.feature !== 'clickToLoad') return
+        if (message?.feature && message?.feature !== 'clickToLoad') return;
 
-        const messageType = message?.messageType
-        if (!messageType) return
+        const messageType = message?.messageType;
+        if (!messageType) return;
 
         if (!this._clickToLoadMessagingTransport) {
-            throw new Error('_clickToLoadMessagingTransport not ready. Cannot operate click to load without a messaging backend')
+            throw new Error('_clickToLoadMessagingTransport not ready. Cannot operate click to load without a messaging backend');
         }
 
         // Send to Messaging layer the response or subscription message received
         // from the Platform.
-        return this._clickToLoadMessagingTransport.onResponse(message)
+        return this._clickToLoadMessagingTransport.onResponse(message);
     }
 
     /**
@@ -1931,12 +1931,12 @@ export default class ClickToLoad extends ContentFeature {
      * @param {boolean} state.youtubePreviewsEnabled YouTube Click to Load - YT Previews enabled flag
      */
     onClickToLoadState(state) {
-        devMode = state.devMode
-        isYoutubePreviewsEnabled = state.youtubePreviewsEnabled
+        devMode = state.devMode;
+        isYoutubePreviewsEnabled = state.youtubePreviewsEnabled;
 
         // Mark the feature as ready, to allow placeholder
         // replacements to start.
-        readyToDisplayPlaceholdersResolver()
+        readyToDisplayPlaceholdersResolver();
     }
 
     /**
@@ -1947,33 +1947,33 @@ export default class ClickToLoad extends ContentFeature {
      *   in the document will be replaced instead.
      */
     async replaceClickToLoadElements(targetElement) {
-        await readyToDisplayPlaceholders
+        await readyToDisplayPlaceholders;
 
         for (const entity of Object.keys(config)) {
             for (const widgetData of Object.values(config[entity].elementData)) {
-                const selector = widgetData.selectors.join()
+                const selector = widgetData.selectors.join();
 
-                let trackingElements = []
+                let trackingElements = [];
                 if (targetElement) {
                     if (targetElement.matches(selector)) {
-                        trackingElements.push(targetElement)
+                        trackingElements.push(targetElement);
                     }
                 } else {
-                    trackingElements = Array.from(document.querySelectorAll(selector))
+                    trackingElements = Array.from(document.querySelectorAll(selector));
                 }
 
                 await Promise.all(
                     trackingElements.map((trackingElement) => {
                         if (knownTrackingElements.has(trackingElement)) {
-                            return Promise.resolve()
+                            return Promise.resolve();
                         }
 
-                        knownTrackingElements.add(trackingElement)
+                        knownTrackingElements.add(trackingElement);
 
-                        const widget = new DuckWidget(widgetData, trackingElement, entity, this.platform)
-                        return createPlaceholderElementAndReplace(widget, trackingElement)
+                        const widget = new DuckWidget(widgetData, trackingElement, entity, this.platform);
+                        return createPlaceholderElementAndReplace(widget, trackingElement);
                     }),
-                )
+                );
             }
         }
     }
@@ -1982,30 +1982,30 @@ export default class ClickToLoad extends ContentFeature {
      * @returns {MessagingContext}
      */
     get messagingContext() {
-        if (this.#messagingContext) return this.#messagingContext
-        this.#messagingContext = this._createMessagingContext()
-        return this.#messagingContext
+        if (this.#messagingContext) return this.#messagingContext;
+        this.#messagingContext = this._createMessagingContext();
+        return this.#messagingContext;
     }
 
     // Messaging layer between Click to Load and the Platform
     get messaging() {
-        if (this._messaging) return this._messaging
+        if (this._messaging) return this._messaging;
 
         if (this.platform.name === 'android' || this.platform.name === 'extension') {
-            this._clickToLoadMessagingTransport = new SendMessageMessagingTransport()
-            const config = new TestTransportConfig(this._clickToLoadMessagingTransport)
-            this._messaging = new Messaging(this.messagingContext, config)
-            return this._messaging
+            this._clickToLoadMessagingTransport = new SendMessageMessagingTransport();
+            const config = new TestTransportConfig(this._clickToLoadMessagingTransport);
+            this._messaging = new Messaging(this.messagingContext, config);
+            return this._messaging;
         } else if (this.platform.name === 'ios' || this.platform.name === 'macos') {
             const config = new WebkitMessagingConfig({
                 secret: '',
                 hasModernWebkitAPI: true,
                 webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
-            })
-            this._messaging = new Messaging(this.messagingContext, config)
-            return this._messaging
+            });
+            this._messaging = new Messaging(this.messagingContext, config);
+            return this._messaging;
         } else {
-            throw new Error('Messaging not supported yet on platform: ' + this.name)
+            throw new Error('Messaging not supported yet on platform: ' + this.name);
         }
     }
 }

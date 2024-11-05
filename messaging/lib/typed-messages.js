@@ -12,6 +12,6 @@
  * @returns {BaseClass}
  */
 export function createTypedMessages(base, messaging) {
-    const asAny = /** @type {any} */ (messaging)
-    return /** @type {BaseClass} */ (asAny)
+    const asAny = /** @type {any} */ (messaging);
+    return /** @type {BaseClass} */ (asAny);
 }

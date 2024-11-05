@@ -7,10 +7,10 @@
  */
 export function getElement(doc = document, selector) {
     if (isXpath(selector)) {
-        return safeQuerySelectorXPath(doc, selector)
+        return safeQuerySelectorXPath(doc, selector);
     }
 
-    return safeQuerySelector(doc, selector)
+    return safeQuerySelector(doc, selector);
 }
 
 /**
@@ -22,10 +22,10 @@ export function getElement(doc = document, selector) {
  */
 export function getElements(doc = document, selector) {
     if (isXpath(selector)) {
-        return safeQuerySelectorAllXpath(doc, selector)
+        return safeQuerySelectorAllXpath(doc, selector);
     }
 
-    return safeQuerySelectorAll(doc, selector)
+    return safeQuerySelectorAll(doc, selector);
 }
 
 /**
@@ -37,13 +37,13 @@ export function getElements(doc = document, selector) {
 export function getElementMatches(element, selector) {
     try {
         if (isXpath(selector)) {
-            return matchesXPath(element, selector) ? element : null
+            return matchesXPath(element, selector) ? element : null;
         } else {
-            return element.matches(selector) ? element : null
+            return element.matches(selector) ? element : null;
         }
     } catch (e) {
-        console.error('getElementMatches threw: ', e)
-        return null
+        console.error('getElementMatches threw: ', e);
+        return null;
     }
 }
 
@@ -54,9 +54,9 @@ export function getElementMatches(element, selector) {
  * @return {boolean}
  */
 function matchesXPath(element, selector) {
-    const xpathResult = document.evaluate(selector, element, null, XPathResult.BOOLEAN_TYPE, null)
+    const xpathResult = document.evaluate(selector, element, null, XPathResult.BOOLEAN_TYPE, null);
 
-    return xpathResult.booleanValue
+    return xpathResult.booleanValue;
 }
 
 /**
@@ -64,12 +64,12 @@ function matchesXPath(element, selector) {
  * @returns {boolean}
  */
 function isXpath(selector) {
-    if (!(typeof selector === 'string')) return false
+    if (!(typeof selector === 'string')) return false;
 
     // see: https://www.w3.org/TR/xpath20/
     // "When the context item is a node, it can also be referred to as the context node. The context item is returned by an expression consisting of a single dot"
-    if (selector === '.') return true
-    return selector.startsWith('//') || selector.startsWith('./') || selector.startsWith('(')
+    if (selector === '.') return true;
+    return selector.startsWith('//') || selector.startsWith('./') || selector.startsWith('(');
 }
 
 /**
@@ -80,11 +80,11 @@ function isXpath(selector) {
 function safeQuerySelectorAll(element, selector) {
     try {
         if (element && 'querySelectorAll' in element) {
-            return Array.from(element?.querySelectorAll?.(selector))
+            return Array.from(element?.querySelectorAll?.(selector));
         }
-        return null
+        return null;
     } catch (e) {
-        return null
+        return null;
     }
 }
 /**
@@ -95,11 +95,11 @@ function safeQuerySelectorAll(element, selector) {
 function safeQuerySelector(element, selector) {
     try {
         if (element && 'querySelector' in element) {
-            return element?.querySelector?.(selector)
+            return element?.querySelector?.(selector);
         }
-        return null
+        return null;
     } catch (e) {
-        return null
+        return null;
     }
 }
 
@@ -110,15 +110,15 @@ function safeQuerySelector(element, selector) {
  */
 function safeQuerySelectorXPath(element, selector) {
     try {
-        const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
-        const single = match?.singleNodeValue
+        const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+        const single = match?.singleNodeValue;
         if (single) {
-            return /** @type {HTMLElement} */ (single)
+            return /** @type {HTMLElement} */ (single);
         }
-        return null
+        return null;
     } catch (e) {
-        console.log('safeQuerySelectorXPath threw', e)
-        return null
+        console.log('safeQuerySelectorXPath threw', e);
+        return null;
     }
 }
 
@@ -130,20 +130,20 @@ function safeQuerySelectorXPath(element, selector) {
 function safeQuerySelectorAllXpath(element, selector) {
     try {
         // gets all elements matching the xpath query
-        const xpathResult = document.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)
+        const xpathResult = document.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
         if (xpathResult) {
             /** @type {HTMLElement[]} */
-            const matchedNodes = []
+            const matchedNodes = [];
             for (let i = 0; i < xpathResult.snapshotLength; i++) {
-                const item = xpathResult.snapshotItem(i)
-                if (item) matchedNodes.push(/** @type {HTMLElement} */ (item))
+                const item = xpathResult.snapshotItem(i);
+                if (item) matchedNodes.push(/** @type {HTMLElement} */ (item));
             }
-            return /** @type {HTMLElement[]} */ (matchedNodes)
+            return /** @type {HTMLElement[]} */ (matchedNodes);
         }
-        return null
+        return null;
     } catch (e) {
-        console.log('safeQuerySelectorAllXpath threw', e)
-        return null
+        console.log('safeQuerySelectorAllXpath threw', e);
+        return null;
     }
 }
 
@@ -153,7 +153,7 @@ function safeQuerySelectorAllXpath(element, selector) {
  * @returns {number}
  */
 export function generateRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min)
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 /**
@@ -166,25 +166,25 @@ export function generateRandomInt(min, max) {
  */
 export function cleanArray(input, prev = []) {
     if (!Array.isArray(input)) {
-        if (input === null) return prev
-        if (input === undefined) return prev
+        if (input === null) return prev;
+        if (input === undefined) return prev;
         // special case for empty strings
         if (typeof input === 'string') {
-            const trimmed = input.trim()
+            const trimmed = input.trim();
             if (trimmed.length > 0) {
-                prev.push(/** @type {NonNullable<T>} */ (trimmed))
+                prev.push(/** @type {NonNullable<T>} */ (trimmed));
             }
         } else {
-            prev.push(input)
+            prev.push(input);
         }
-        return prev
+        return prev;
     }
 
     for (const item of input) {
-        prev.push(...cleanArray(item))
+        prev.push(...cleanArray(item));
     }
 
-    return prev
+    return prev;
 }
 
 /**
@@ -194,8 +194,8 @@ export function cleanArray(input, prev = []) {
  * @return {boolean} - True if the input is a non-empty string, false otherwise.
  */
 export function nonEmptyString(input) {
-    if (typeof input !== 'string') return false
-    return input.trim().length > 0
+    if (typeof input !== 'string') return false;
+    return input.trim().length > 0;
 }
 
 /**
@@ -206,9 +206,9 @@ export function nonEmptyString(input) {
  * @return {boolean} - Returns true if the strings are a matching pair, false otherwise.
  */
 export function matchingPair(a, b) {
-    if (!nonEmptyString(a)) return false
-    if (!nonEmptyString(b)) return false
-    return a.toLowerCase().trim() === b.toLowerCase().trim()
+    if (!nonEmptyString(a)) return false;
+    if (!nonEmptyString(b)) return false;
+    return a.toLowerCase().trim() === b.toLowerCase().trim();
 }
 
 /**
@@ -220,23 +220,23 @@ export function matchingPair(a, b) {
 export function sortAddressesByStateAndCity(addresses) {
     return addresses.sort((a, b) => {
         if (a.state < b.state) {
-            return -1
+            return -1;
         }
         if (a.state > b.state) {
-            return 1
+            return 1;
         }
-        return a.city.localeCompare(b.city)
-    })
+        return a.city.localeCompare(b.city);
+    });
 }
 
 /**
  * Returns a SHA-1 hash of the profile
  */
 export async function hashObject(profile) {
-    const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)) // encode as (utf-8)
-    const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
-    const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
-    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
+    const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)); // encode as (utf-8)
+    const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8); // hash the message
+    const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
 
-    return hashHex
+    return hashHex;
 }

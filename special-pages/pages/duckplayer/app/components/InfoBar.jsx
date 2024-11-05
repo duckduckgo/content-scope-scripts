@@ -1,16 +1,16 @@
-import styles from './InfoBar.module.css'
-import { h } from 'preact'
-import dax from '../img/dax.data.svg'
-import info from '../img/info.data.svg'
-import cog from '../img/cog.data.svg'
-import { Button, ButtonLink, Icon } from './Button.jsx'
-import { SwitchBarDesktop } from './SwitchBarDesktop.jsx'
-import { useOpenOnYoutubeHandler, useSettingsUrl } from '../providers/SettingsProvider.jsx'
-import { useContext, useLayoutEffect, useRef, useState } from 'preact/hooks'
-import { SwitchContext, SwitchProvider } from '../providers/SwitchProvider.jsx'
-import { Tooltip } from './Tooltip.jsx'
-import { useSetFocusMode } from './FocusMode.jsx'
-import { useTypedTranslation } from '../types.js'
+import styles from './InfoBar.module.css';
+import { h } from 'preact';
+import dax from '../img/dax.data.svg';
+import info from '../img/info.data.svg';
+import cog from '../img/cog.data.svg';
+import { Button, ButtonLink, Icon } from './Button.jsx';
+import { SwitchBarDesktop } from './SwitchBarDesktop.jsx';
+import { useOpenOnYoutubeHandler, useSettingsUrl } from '../providers/SettingsProvider.jsx';
+import { useContext, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { SwitchContext, SwitchProvider } from '../providers/SwitchProvider.jsx';
+import { Tooltip } from './Tooltip.jsx';
+import { useSetFocusMode } from './FocusMode.jsx';
+import { useTypedTranslation } from '../types.js';
 
 /**
  * @param {object} props
@@ -35,7 +35,7 @@ export function InfoBar({ embed }) {
                 </SwitchProvider>
             </div>
         </div>
-    )
+    );
 }
 
 /**
@@ -43,37 +43,37 @@ export function InfoBar({ embed }) {
  * @param {boolean} [props.debugStyles]
  */
 export function InfoIcon({ debugStyles = false }) {
-    const setFocusMode = useSetFocusMode()
-    const [isVisible, setIsVisible] = useState(debugStyles)
-    const [isBottom, setIsBottom] = useState(false)
+    const setFocusMode = useSetFocusMode();
+    const [isVisible, setIsVisible] = useState(debugStyles);
+    const [isBottom, setIsBottom] = useState(false);
     /**
      * @type {import("preact/hooks").MutableRef<HTMLButtonElement|null>}
      */
-    const tooltipRef = useRef(null)
+    const tooltipRef = useRef(null);
 
     function show() {
-        setIsVisible(true)
-        setFocusMode('paused')
+        setIsVisible(true);
+        setFocusMode('paused');
     }
     function hide() {
-        setIsVisible(false)
-        setFocusMode('enabled')
+        setIsVisible(false);
+        setFocusMode('enabled');
     }
 
     useLayoutEffect(() => {
-        if (!tooltipRef.current) return
-        const icon = tooltipRef.current
-        const rect = icon.getBoundingClientRect()
+        if (!tooltipRef.current) return;
+        const icon = tooltipRef.current;
+        const rect = icon.getBoundingClientRect();
 
-        const iconTop = rect.top + window.scrollY
-        const spaceBelowIcon = window.innerHeight - iconTop
+        const iconTop = rect.top + window.scrollY;
+        const spaceBelowIcon = window.innerHeight - iconTop;
 
         if (spaceBelowIcon < 125) {
-            return setIsBottom(false)
+            return setIsBottom(false);
         }
 
-        return setIsBottom(true)
-    }, [isVisible])
+        return setIsBottom(true);
+    }, [isVisible]);
 
     return (
         <button
@@ -90,7 +90,7 @@ export function InfoIcon({ debugStyles = false }) {
             <Icon src={info} />
             <Tooltip id="tooltip1" isVisible={isVisible} position={isBottom ? 'bottom' : 'top'} />
         </button>
-    )
+    );
 }
 
 /**
@@ -98,10 +98,10 @@ export function InfoIcon({ debugStyles = false }) {
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
 function ControlBarDesktop({ embed }) {
-    const settingsUrl = useSettingsUrl()
-    const openOnYoutube = useOpenOnYoutubeHandler()
-    const { t } = useTypedTranslation()
-    const { state } = useContext(SwitchContext)
+    const settingsUrl = useSettingsUrl();
+    const openOnYoutube = useOpenOnYoutubeHandler();
+    const { t } = useTypedTranslation();
+    const { state } = useContext(SwitchContext);
     return (
         <div className={styles.controls}>
             <ButtonLink
@@ -120,14 +120,14 @@ function ControlBarDesktop({ embed }) {
                 formfactor={'desktop'}
                 buttonProps={{
                     onClick: () => {
-                        if (embed) openOnYoutube(embed)
+                        if (embed) openOnYoutube(embed);
                     },
                 }}
             >
                 {t('watchOnYoutube')}
             </Button>
         </div>
-    )
+    );
 }
 
 /**
@@ -135,5 +135,5 @@ function ControlBarDesktop({ embed }) {
  * @param {import("preact").ComponentChild} props.children
  */
 export function InfoBarContainer({ children }) {
-    return <div class={styles.container}>{children}</div>
+    return <div class={styles.container}>{children}</div>;
 }

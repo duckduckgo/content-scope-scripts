@@ -1,10 +1,10 @@
-import { h } from 'preact'
-import { Launch, Replay } from '../../components/Icons'
-import { MakeDefaultStep } from './MakeDefaultStep'
-import { DuckPlayerStep } from './DuckPlayerStep'
-import { ElasticButton } from './ElasticButton'
-import { Timeout } from '../Timeout'
-import { SettingsStep } from './SettingsStep'
+import { h } from 'preact';
+import { Launch, Replay } from '../../components/Icons';
+import { MakeDefaultStep } from './MakeDefaultStep';
+import { DuckPlayerStep } from './DuckPlayerStep';
+import { ElasticButton } from './ElasticButton';
+import { Timeout } from '../Timeout';
+import { SettingsStep } from './SettingsStep';
 
 /**
  * This sets up individual steps in the v3 (highlights) version of onboarding
@@ -23,7 +23,7 @@ export const stepsConfig = {
                 speechBubble: false,
                 children: <Timeout onComplete={advance} ignore={true} />,
             },
-        }
+        };
     },
     getStarted: ({ t, advance }) => {
         return {
@@ -33,11 +33,11 @@ export const stepsConfig = {
                 speechBubble: true,
                 children: <ElasticButton onClick={advance} text={t('getStartedButton_v3')} />,
             },
-        }
+        };
     },
     makeDefaultSingle: ({ t, globalState, advance, enableSystemValue }) => {
-        const { UIValues } = globalState
-        const isIdle = UIValues['default-browser'] === 'idle'
+        const { UIValues } = globalState;
+        const isIdle = UIValues['default-browser'] === 'idle';
 
         return {
             variant: 'box',
@@ -61,11 +61,11 @@ export const stepsConfig = {
                       handler: advance,
                   },
             content: <MakeDefaultStep />,
-        }
+        };
     },
     systemSettings: ({ t, globalState, advance }) => {
-        const { step, activeRow } = globalState
-        const isDone = activeRow >= /** @type {import('../../types').SystemSettingsStep} */ (step).rows.length
+        const { step, activeRow } = globalState;
+        const isDone = activeRow >= /** @type {import('../../types').SystemSettingsStep} */ (step).rows.length;
 
         return {
             variant: 'box',
@@ -81,13 +81,13 @@ export const stepsConfig = {
                   }
                 : null,
             content: <SettingsStep data={settingsRowItems} />,
-        }
+        };
     },
     duckPlayerSingle: ({ t, advance, beforeAfter }) => {
-        const beforeAfterState = beforeAfter.get()
+        const beforeAfterState = beforeAfter.get();
         const longestText = [t('beforeAfter_duckPlayer_show'), t('beforeAfter_duckPlayer_hide')].reduce((acc, cur) => {
-            return cur.length > acc.length ? cur : acc
-        })
+            return cur.length > acc.length ? cur : acc;
+        });
 
         return {
             variant: 'box',
@@ -107,11 +107,11 @@ export const stepsConfig = {
                 handler: advance,
             },
             content: <DuckPlayerStep />,
-        }
+        };
     },
     customize: ({ t, globalState, dismiss }) => {
-        const { step, activeRow } = globalState
-        const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */ (step).rows.length
+        const { step, activeRow } = globalState;
+        const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */ (step).rows.length;
 
         return {
             variant: 'box',
@@ -128,9 +128,9 @@ export const stepsConfig = {
                   }
                 : null,
             content: <SettingsStep data={settingsRowItems} />,
-        }
+        };
     },
-}
+};
 
 /**
  * @typedef {object} RowData
@@ -166,9 +166,9 @@ export const settingsRowItems = {
         accepButtonVariant: 'primary',
     }),
     dock: (t, platform) => {
-        const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3')
-        const acceptText = platform === 'macos' ? t('row_dock_macos_accept') : t('row_dock_accept')
-        const secondaryText = platform === 'macos' ? t('row_dock_summary_v3') : t('row_taskbar_summary_v3')
+        const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3');
+        const acceptText = platform === 'macos' ? t('row_dock_macos_accept') : t('row_dock_accept');
+        const secondaryText = platform === 'macos' ? t('row_dock_summary_v3') : t('row_taskbar_summary_v3');
 
         return {
             id: 'dock',
@@ -178,7 +178,7 @@ export const settingsRowItems = {
             kind: 'one-time',
             acceptText,
             accepButtonVariant: 'primary',
-        }
+        };
     },
     bookmarks: (t) => ({
         id: 'bookmarks',
@@ -204,7 +204,7 @@ export const settingsRowItems = {
         acceptText: t('row_home-shortcut_accept'),
         accepButtonVariant: 'secondary',
     }),
-}
+};
 
 export const stepDefinitions = {
     systemSettings: {
@@ -217,4 +217,4 @@ export const stepDefinitions = {
         kind: 'settings',
         rows: ['bookmarks', 'session-restore', 'home-shortcut'],
     },
-}
+};

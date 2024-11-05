@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import json from '../src/locales/en/onboarding.json'
-import { TranslationContext } from '../../../shared/components/TranslationsProvider'
-import { useContext } from 'preact/hooks'
+import json from '../src/locales/en/onboarding.json';
+import { TranslationContext } from '../../../shared/components/TranslationsProvider';
+import { useContext } from 'preact/hooks';
 
 /**
  * @typedef {'dock'
@@ -52,10 +52,10 @@ export const EVERY_PAGE_ID = [
     'importSingle',
     'makeDefaultSingle',
     'duckPlayerSingle',
-]
+];
 
 /** @type {Step['id'][]} */
-export const DEFAULT_ORDER = ['welcome', 'getStarted', 'privateByDefault', 'cleanerBrowsing', 'systemSettings', 'customize', 'summary']
+export const DEFAULT_ORDER = ['welcome', 'getStarted', 'privateByDefault', 'cleanerBrowsing', 'systemSettings', 'customize', 'summary'];
 
 /** @type {Step['id'][]} */
 export const ALT_ORDER = [
@@ -68,10 +68,10 @@ export const ALT_ORDER = [
     'makeDefaultSingle',
     'customize',
     'summary',
-]
+];
 
 /** @type {Step['id'][]} */
-export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize']
+export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize'];
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host
@@ -125,9 +125,9 @@ export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  */
 
 /** @type {ImportMeta['injectName'][]} */
-export const PLATFORMS = ['apple', 'windows']
+export const PLATFORMS = ['apple', 'windows'];
 
-export {}
+export {};
 
 /**
  * @typedef {ReturnType<useTypedTranslation>['t']} TranslationFn
@@ -140,5 +140,5 @@ export {}
 export function useTypedTranslation() {
     return {
         t: useContext(TranslationContext).t,
-    }
+    };
 }

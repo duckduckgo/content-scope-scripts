@@ -1,34 +1,34 @@
-import styles from './components/App.module.css'
-import { Stack } from './components/Stack'
-import { Header } from './components/Header'
-import { Progress, SingleLineProgress } from './components/Progress'
-import { ListItem } from './components/ListItem'
-import { BounceIn, Check, Launch, Replay } from './components/Icons'
-import { List } from './components/List'
-import { Button, ButtonBar } from './components/Buttons'
-import { ElasticButton } from './components/v3/ElasticButton'
-import classNames from 'classnames'
-import { h } from 'preact'
-import { Background } from './components/Background'
-import { settingsRowItems } from './data'
-import { Summary } from './pages/Summary'
-import { Switch } from './components/Switch'
-import { useState } from 'preact/hooks'
-import { Typed } from './components/Typed'
-import { CleanBrowsing } from './pages/CleanBrowsing'
-import { useTypedTranslation } from './types'
-import { ComparisonTable } from './components/v3/ComparisonTable'
-import { Heading } from './components/v3/Heading'
-import { Hiker } from './components/v3/Hiker'
+import styles from './components/App.module.css';
+import { Stack } from './components/Stack';
+import { Header } from './components/Header';
+import { Progress, SingleLineProgress } from './components/Progress';
+import { ListItem } from './components/ListItem';
+import { BounceIn, Check, Launch, Replay } from './components/Icons';
+import { List } from './components/List';
+import { Button, ButtonBar } from './components/Buttons';
+import { ElasticButton } from './components/v3/ElasticButton';
+import classNames from 'classnames';
+import { h } from 'preact';
+import { Background } from './components/Background';
+import { settingsRowItems } from './data';
+import { Summary } from './pages/Summary';
+import { Switch } from './components/Switch';
+import { useState } from 'preact/hooks';
+import { Typed } from './components/Typed';
+import { CleanBrowsing } from './pages/CleanBrowsing';
+import { useTypedTranslation } from './types';
+import { ComparisonTable } from './components/v3/ComparisonTable';
+import { Heading } from './components/v3/Heading';
+import { Hiker } from './components/v3/Hiker';
 
 function noop(name) {
     return () => {
-        console.log('clicked ' + name)
-    }
+        console.log('clicked ' + name);
+    };
 }
 
 function NewCheck({ variant }) {
-    const [selected, setSelected] = useState(false)
+    const [selected, setSelected] = useState(false);
     return (
         <Switch
             pending={false}
@@ -38,11 +38,11 @@ function NewCheck({ variant }) {
             onChecked={() => setSelected(true)}
             onUnchecked={() => setSelected(false)}
         />
-    )
+    );
 }
 
 export function Components() {
-    const { t } = useTypedTranslation()
+    const { t } = useTypedTranslation();
     return (
         <main className={styles.main}>
             <Background />
@@ -218,7 +218,7 @@ export function Components() {
                                             title={settingsRowItems[key](t).title}
                                             secondaryText={settingsRowItems[key](t).secondaryText}
                                         />
-                                    )
+                                    );
                                 })}
                             </List>
                         </Stack>
@@ -285,5 +285,5 @@ export function Components() {
             <div className={classNames(styles.foreground, styles.layer2)} />
             <div className={classNames(styles.foreground, styles.layer3)} />
         </main>
-    )
+    );
 }

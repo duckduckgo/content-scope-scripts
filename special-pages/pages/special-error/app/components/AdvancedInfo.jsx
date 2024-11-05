@@ -1,21 +1,21 @@
-import { h } from 'preact'
-import { useRef, useEffect } from 'preact/hooks'
-import { useTypedTranslation } from '../types'
-import { Text } from '../../../../shared/components/Text/Text'
-import { useMessaging } from '../providers/MessagingProvider'
-import { useAdvancedInfoHeading, useAdvancedInfoContent } from '../hooks/ErrorStrings'
+import { h } from 'preact';
+import { useRef, useEffect } from 'preact/hooks';
+import { useTypedTranslation } from '../types';
+import { Text } from '../../../../shared/components/Text/Text';
+import { useMessaging } from '../providers/MessagingProvider';
+import { useAdvancedInfoHeading, useAdvancedInfoContent } from '../hooks/ErrorStrings';
 
-import styles from './AdvancedInfo.module.css'
+import styles from './AdvancedInfo.module.css';
 
 function useScrollTarget() {
     /** @type {import("preact/hooks").MutableRef<HTMLAnchorElement|null>} */
-    const linkRef = useRef(null)
+    const linkRef = useRef(null);
     return {
         ref: linkRef,
         trigger: () => {
-            linkRef.current?.scrollIntoView({ behavior: 'smooth' })
+            linkRef.current?.scrollIntoView({ behavior: 'smooth' });
         },
-    }
+    };
 }
 
 /**
@@ -23,17 +23,17 @@ function useScrollTarget() {
  * @param {import("preact/hooks").MutableRef<HTMLAnchorElement|null>} [props.elemRef]
  */
 export function VisitSiteLink({ elemRef }) {
-    const { t } = useTypedTranslation()
-    const { messaging } = useMessaging()
+    const { t } = useTypedTranslation();
+    const { messaging } = useMessaging();
     return (
         <a className={styles.visitSite} onClick={() => messaging?.visitSite()} ref={elemRef}>
             {t('visitSiteButton')}
         </a>
-    )
+    );
 }
 
 export function AdvancedInfoHeading() {
-    const heading = useAdvancedInfoHeading()
+    const heading = useAdvancedInfoHeading();
 
     return (
         <header className={styles.heading}>
@@ -41,11 +41,11 @@ export function AdvancedInfoHeading() {
                 {heading}
             </Text>
         </header>
-    )
+    );
 }
 
 export function AdvancedInfoContent() {
-    const content = useAdvancedInfoContent()
+    const content = useAdvancedInfoContent();
 
     return (
         <div className={styles.content}>
@@ -55,11 +55,11 @@ export function AdvancedInfoContent() {
                 </Text>
             ))}
         </div>
-    )
+    );
 }
 
 export function AdvancedInfo() {
-    const { ref, trigger } = useScrollTarget()
+    const { ref, trigger } = useScrollTarget();
 
     return (
         <div className={styles.wrapper}>
@@ -71,5 +71,5 @@ export function AdvancedInfo() {
                 <VisitSiteLink elemRef={ref} />
             </div>
         </div>
-    )
+    );
 }

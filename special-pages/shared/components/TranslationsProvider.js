@@ -1,6 +1,6 @@
-import { createContext, h } from 'preact'
-import { useEffect, useRef } from 'preact/hooks'
-import { apply } from '../translations'
+import { createContext, h } from 'preact';
+import { useEffect, useRef } from 'preact/hooks';
+import { apply } from '../translations';
 
 /**
  * @typedef {(key: string, replacements?: Record<string, any>) => string} LocalTranslationFn
@@ -9,9 +9,9 @@ import { apply } from '../translations'
 export const TranslationContext = createContext({
     /** @type {LocalTranslationFn} */
     t: () => {
-        throw new Error('must implement')
+        throw new Error('must implement');
     },
-})
+});
 
 /**
  * A component that provides translation functionality.
@@ -29,11 +29,11 @@ export function TranslationProvider({ children, translationObject, fallback, tex
      * @type {LocalTranslationFn}
      */
     function t(inputKey, replacements) {
-        const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title
-        return apply(subject, replacements, textLength)
+        const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
+        return apply(subject, replacements, textLength);
     }
 
-    return <TranslationContext.Provider value={{ t }}>{children}</TranslationContext.Provider>
+    return <TranslationContext.Provider value={{ t }}>{children}</TranslationContext.Provider>;
 }
 
 /**
@@ -48,30 +48,30 @@ export function TranslationProvider({ children, translationObject, fallback, tex
  */
 export function Trans({ str, values }) {
     /** @type {import('preact/hooks').MutableRef<HTMLDivElement | null>} */
-    const ref = useRef(null)
+    const ref = useRef(null);
     /** @type {import('preact/hooks').MutableRef<(()=>void)[]>} */
-    const cleanups = useRef([])
+    const cleanups = useRef([]);
 
     useEffect(() => {
-        if (!ref.current) return
-        const curr = ref.current
-        const cleanupsCurr = cleanups.current
+        if (!ref.current) return;
+        const curr = ref.current;
+        const cleanupsCurr = cleanups.current;
         Object.entries(values).forEach(([tag, attributes]) => {
             curr.querySelectorAll(tag).forEach((el) => {
                 Object.entries(attributes).forEach(([key, value]) => {
                     if (typeof value === 'function') {
-                        el.addEventListener(key, value)
-                        cleanupsCurr.push(() => el.removeEventListener(key, value))
+                        el.addEventListener(key, value);
+                        cleanupsCurr.push(() => el.removeEventListener(key, value));
                     } else {
-                        el.setAttribute(key, value)
+                        el.setAttribute(key, value);
                     }
-                })
-            })
-        })
+                });
+            });
+        });
         return () => {
-            cleanupsCurr.forEach((fn) => fn())
-        }
-    }, [values, str])
+            cleanupsCurr.forEach((fn) => fn());
+        };
+    }, [values, str]);
 
-    return <span ref={ref} dangerouslySetInnerHTML={{ __html: str }} />
+    return <span ref={ref} dangerouslySetInnerHTML={{ __html: str }} />;
 }

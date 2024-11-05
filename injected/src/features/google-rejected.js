@@ -1,25 +1,25 @@
-import ContentFeature from '../content-feature'
+import ContentFeature from '../content-feature';
 
 export default class GoogleRejected extends ContentFeature {
     init() {
         try {
             if ('browsingTopics' in Document.prototype) {
-                delete Document.prototype.browsingTopics
+                delete Document.prototype.browsingTopics;
             }
             if ('joinAdInterestGroup' in Navigator.prototype) {
-                delete Navigator.prototype.joinAdInterestGroup
+                delete Navigator.prototype.joinAdInterestGroup;
             }
             if ('leaveAdInterestGroup' in Navigator.prototype) {
-                delete Navigator.prototype.leaveAdInterestGroup
+                delete Navigator.prototype.leaveAdInterestGroup;
             }
             if ('updateAdInterestGroups' in Navigator.prototype) {
-                delete Navigator.prototype.updateAdInterestGroups
+                delete Navigator.prototype.updateAdInterestGroups;
             }
             if ('runAdAuction' in Navigator.prototype) {
-                delete Navigator.prototype.runAdAuction
+                delete Navigator.prototype.runAdAuction;
             }
             if ('adAuctionComponents' in Navigator.prototype) {
-                delete Navigator.prototype.adAuctionComponents
+                delete Navigator.prototype.adAuctionComponents;
             }
         } catch {
             // Throw away this exception, it's likely a confict with another extension

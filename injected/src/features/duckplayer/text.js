@@ -1,4 +1,4 @@
-import { html } from '../../dom-utils'
+import { html } from '../../dom-utils';
 
 /**
  * If this get's localised in the future, this would likely be in a json file
@@ -37,7 +37,7 @@ const text = {
     rememberLabel: {
         title: 'Remember my choice',
     },
-}
+};
 
 export const i18n = {
     /**
@@ -46,23 +46,23 @@ export const i18n = {
     t(name) {
         // eslint-disable-next-line no-prototype-builtins
         if (!text.hasOwnProperty(name)) {
-            console.error(`missing key ${name}`)
-            return 'missing'
+            console.error(`missing key ${name}`);
+            return 'missing';
         }
-        const match = text[name]
+        const match = text[name];
         if (!match.title) {
-            return 'missing'
+            return 'missing';
         }
-        return match.title
+        return match.title;
     },
-}
+};
 
 /**
  * Converts occurrences of {newline} in a string to <br> tags
  * @param {string} text
  */
 export function nl2br(text) {
-    return html`${text.split('{newline}').map((line, i) => (i === 0 ? line : html`<br />${line}`))}`
+    return html`${text.split('{newline}').map((line, i) => (i === 0 ? line : html`<br />${line}`))}`;
 }
 
 /**
@@ -89,7 +89,7 @@ export const overlayCopyVariants = {
         buttonOpen: i18n.t('videoButtonOpen2'),
         rememberLabel: i18n.t('rememberLabel'),
     },
-}
+};
 
 /**
  * @param {Record<string, string>} lookup
@@ -102,5 +102,5 @@ export const mobileStrings = (lookup) => {
         buttonOptOut: lookup.videoButtonOptOut2,
         buttonOpen: lookup.videoButtonOpen2,
         rememberLabel: lookup.rememberLabel,
-    }
-}
+    };
+};

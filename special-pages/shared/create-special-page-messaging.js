@@ -5,7 +5,7 @@ import {
     TestTransportConfig,
     WebkitMessagingConfig,
     WindowsMessagingConfig,
-} from '@duckduckgo/messaging'
+} from '@duckduckgo/messaging';
 
 /**
  * @param {object} opts
@@ -20,7 +20,7 @@ export function createSpecialPageMessaging(opts) {
         context: 'specialPages',
         featureName: opts.pageName,
         env: opts.env,
-    })
+    });
     try {
         if (opts.injectName === 'windows') {
             const opts = new WindowsMessagingConfig({
@@ -32,15 +32,15 @@ export function createSpecialPageMessaging(opts) {
                     // @ts-expect-error - not in @types/chrome
                     removeEventListener: window.chrome.webview.removeEventListener,
                 },
-            })
-            return new Messaging(messageContext, opts)
+            });
+            return new Messaging(messageContext, opts);
         } else if (opts.injectName === 'apple') {
             const opts = new WebkitMessagingConfig({
                 hasModernWebkitAPI: true,
                 secret: '',
                 webkitMessageHandlerNames: ['specialPages'],
-            })
-            return new Messaging(messageContext, opts)
+            });
+            return new Messaging(messageContext, opts);
         } else if (opts.injectName === 'android') {
             const opts = new AndroidMessagingConfig({
                 messageSecret: 'duckduckgo-android-messaging-secret',
@@ -48,11 +48,11 @@ export function createSpecialPageMessaging(opts) {
                 javascriptInterface: messageContext.context,
                 target: globalThis,
                 debug: true,
-            })
-            return new Messaging(messageContext, opts)
+            });
+            return new Messaging(messageContext, opts);
         }
     } catch (e) {
-        console.error('could not access handlers for %s, falling back to mock interface', opts.injectName)
+        console.error('could not access handlers for %s, falling back to mock interface', opts.injectName);
     }
 
     // this fallback allows for the 'integration' target to run without errors
@@ -63,32 +63,32 @@ export function createSpecialPageMessaging(opts) {
              * @param {import('@duckduckgo/messaging').NotificationMessage} msg
              */
             notify(msg) {
-                console.log(msg)
+                console.log(msg);
             },
             /**
              * @param {import('@duckduckgo/messaging').RequestMessage} msg
              */
 
             request: (msg) => {
-                console.log(msg)
+                console.log(msg);
                 if (msg.method === 'initialSetup') {
                     return Promise.resolve({
                         locale: 'en',
                         env: opts.env,
-                    })
+                    });
                 }
-                return Promise.resolve(null)
+                return Promise.resolve(null);
             },
             /**
              * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
              */
             subscribe(msg) {
-                console.log(msg)
+                console.log(msg);
                 return () => {
-                    console.log('teardown')
-                }
+                    console.log('teardown');
+                };
             },
-        })
+        });
 
-    return new Messaging(messageContext, fallback)
+    return new Messaging(messageContext, fallback);
 }

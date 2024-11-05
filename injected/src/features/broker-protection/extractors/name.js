@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Extractor } from '../types.js'
-import { stringToList } from '../actions/extract.js'
+import { Extractor } from '../types.js';
+import { stringToList } from '../actions/extract.js';
 
 /**
  * @implements {Extractor<string | null>}
@@ -12,8 +12,8 @@ export class NameExtractor {
      */
 
     extract(strs, _extractorParams) {
-        if (!strs[0]) return null
-        return strs[0].replace(/\n/g, ' ').trim()
+        if (!strs[0]) return null;
+        return strs[0].replace(/\n/g, ' ').trim();
     }
 }
 
@@ -27,6 +27,6 @@ export class AlternativeNamesExtractor {
      * @returns {string[]}
      */
     extract(strs, extractorParams) {
-        return strs.map((x) => stringToList(x, extractorParams.separator)).flat()
+        return strs.map((x) => stringToList(x, extractorParams.separator)).flat();
     }
 }

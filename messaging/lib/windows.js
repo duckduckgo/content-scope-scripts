@@ -7,7 +7,7 @@
  *
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport, NotificationMessage, RequestMessage } from '../index.js'
+import { MessagingTransport, NotificationMessage, RequestMessage } from '../index.js';
 
 /**
  * An implementation of {@link MessagingTransport} for Windows
@@ -23,8 +23,8 @@ export class WindowsMessagingTransport {
      * @internal
      */
     constructor(config, messagingContext) {
-        this.messagingContext = messagingContext
-        this.config = config
+        this.messagingContext = messagingContext;
+        this.config = config;
         this.globals = {
             window,
             JSONparse: window.JSON.parse,
@@ -32,10 +32,10 @@ export class WindowsMessagingTransport {
             Promise: window.Promise,
             Error: window.Error,
             String: window.String,
-        }
+        };
         for (const [methodName, fn] of Object.entries(this.config.methods)) {
             if (typeof fn !== 'function') {
-                throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName)
+                throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName);
             }
         }
     }
@@ -44,9 +44,9 @@ export class WindowsMessagingTransport {
      * @param {import('../index.js').NotificationMessage} msg
      */
     notify(msg) {
-        const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}))
-        const notification = WindowsNotification.fromNotification(msg, data)
-        this.config.methods.postMessage(notification)
+        const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+        const notification = WindowsNotification.fromNotification(msg, data);
+        this.config.methods.postMessage(notification);
     }
 
     /**
@@ -56,49 +56,49 @@ export class WindowsMessagingTransport {
      */
     request(msg, opts = {}) {
         // convert the message to window-specific naming
-        const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}))
-        const outgoing = WindowsRequestMessage.fromRequest(msg, data)
+        const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+        const outgoing = WindowsRequestMessage.fromRequest(msg, data);
 
         // send the message
-        this.config.methods.postMessage(outgoing)
+        this.config.methods.postMessage(outgoing);
 
         // compare incoming messages against the `msg.id`
         const comparator = (eventData) => {
-            return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id
-        }
+            return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
+        };
 
         /**
          * @param data
          * @return {data is import('../index.js').MessageResponse}
          */
         function isMessageResponse(data) {
-            if ('result' in data) return true
-            if ('error' in data) return true
-            return false
+            if ('result' in data) return true;
+            if ('error' in data) return true;
+            return false;
         }
 
         // now wait for a matching message
         return new this.globals.Promise((resolve, reject) => {
             try {
                 this._subscribe(comparator, opts, (value, unsubscribe) => {
-                    unsubscribe()
+                    unsubscribe();
 
                     if (!isMessageResponse(value)) {
-                        console.warn('unknown response type', value)
-                        return reject(new this.globals.Error('unknown response'))
+                        console.warn('unknown response type', value);
+                        return reject(new this.globals.Error('unknown response'));
                     }
 
                     if (value.result) {
-                        return resolve(value.result)
+                        return resolve(value.result);
                     }
 
-                    const message = this.globals.String(value.error?.message || 'unknown error')
-                    reject(new this.globals.Error(message))
-                })
+                    const message = this.globals.String(value.error?.message || 'unknown error');
+                    reject(new this.globals.Error(message));
+                });
             } catch (e) {
-                reject(e)
+                reject(e);
             }
-        })
+        });
     }
 
     /**
@@ -112,16 +112,16 @@ export class WindowsMessagingTransport {
                 eventData.featureName === msg.featureName &&
                 eventData.context === msg.context &&
                 eventData.subscriptionName === msg.subscriptionName
-            )
-        }
+            );
+        };
 
         // only forward the 'params' from a SubscriptionEvent
         const cb = (eventData) => {
-            return callback(eventData.params)
-        }
+            return callback(eventData.params);
+        };
 
         // now listen for matching incoming messages.
-        return this._subscribe(comparator, {}, cb)
+        return this._subscribe(comparator, {}, cb);
     }
 
     /**
@@ -136,11 +136,11 @@ export class WindowsMessagingTransport {
     _subscribe(comparator, options, callback) {
         // if already aborted, reject immediately
         if (options?.signal?.aborted) {
-            throw new DOMException('Aborted', 'AbortError')
+            throw new DOMException('Aborted', 'AbortError');
         }
         /** @type {(()=>void) | undefined} */
         // eslint-disable-next-line prefer-const
-        let teardown
+        let teardown;
 
         /**
          * @param {MessageEvent} event
@@ -148,41 +148,41 @@ export class WindowsMessagingTransport {
         const idHandler = (event) => {
             if (this.messagingContext.env === 'production') {
                 if (event.origin !== null && event.origin !== undefined) {
-                    console.warn('ignoring because evt.origin is not `null` or `undefined`')
-                    return
+                    console.warn('ignoring because evt.origin is not `null` or `undefined`');
+                    return;
                 }
             }
             if (!event.data) {
-                console.warn('data absent from message')
-                return
+                console.warn('data absent from message');
+                return;
             }
             if (comparator(event.data)) {
-                if (!teardown) throw new Error('unreachable')
-                callback(event.data, teardown)
+                if (!teardown) throw new Error('unreachable');
+                callback(event.data, teardown);
             }
-        }
+        };
 
         // what to do if this promise is aborted
         const abortHandler = () => {
-            teardown?.()
-            throw new DOMException('Aborted', 'AbortError')
-        }
+            teardown?.();
+            throw new DOMException('Aborted', 'AbortError');
+        };
 
         // console.log('DEBUG: handler setup', { config, comparator })
 
-        this.config.methods.addEventListener('message', idHandler)
-        options?.signal?.addEventListener('abort', abortHandler)
+        this.config.methods.addEventListener('message', idHandler);
+        options?.signal?.addEventListener('abort', abortHandler);
 
         teardown = () => {
             // console.log('DEBUG: handler teardown', { config, comparator })
 
-            this.config.methods.removeEventListener('message', idHandler)
-            options?.signal?.removeEventListener('abort', abortHandler)
-        }
+            this.config.methods.removeEventListener('message', idHandler);
+            options?.signal?.removeEventListener('abort', abortHandler);
+        };
 
         return () => {
-            teardown?.()
-        }
+            teardown?.();
+        };
     }
 }
 
@@ -215,11 +215,11 @@ export class WindowsMessagingConfig {
         /**
          * The methods required for communication
          */
-        this.methods = params.methods
+        this.methods = params.methods;
         /**
          * @type {'windows'}
          */
-        this.platform = 'windows'
+        this.platform = 'windows';
     }
 }
 
@@ -234,9 +234,9 @@ export class WindowsInteropMethods {
      * @param {Window['removeEventListener']} params.removeEventListener
      */
     constructor(params) {
-        this.postMessage = params.postMessage
-        this.addEventListener = params.addEventListener
-        this.removeEventListener = params.removeEventListener
+        this.postMessage = params.postMessage;
+        this.addEventListener = params.addEventListener;
+        this.removeEventListener = params.removeEventListener;
     }
 }
 
@@ -259,19 +259,19 @@ export class WindowsNotification {
         /**
          * Alias for: {@link NotificationMessage.context}
          */
-        this.Feature = params.Feature
+        this.Feature = params.Feature;
         /**
          * Alias for: {@link NotificationMessage.featureName}
          */
-        this.SubFeatureName = params.SubFeatureName
+        this.SubFeatureName = params.SubFeatureName;
         /**
          * Alias for: {@link NotificationMessage.method}
          */
-        this.Name = params.Name
+        this.Name = params.Name;
         /**
          * Alias for: {@link NotificationMessage.params}
          */
-        this.Data = params.Data
+        this.Data = params.Data;
     }
 
     /**
@@ -286,8 +286,8 @@ export class WindowsNotification {
             Feature: notification.context,
             SubFeatureName: notification.featureName,
             Name: notification.method,
-        }
-        return output
+        };
+        return output;
     }
 }
 
@@ -307,11 +307,11 @@ export class WindowsRequestMessage {
      * @internal
      */
     constructor(params) {
-        this.Feature = params.Feature
-        this.SubFeatureName = params.SubFeatureName
-        this.Name = params.Name
-        this.Data = params.Data
-        this.Id = params.Id
+        this.Feature = params.Feature;
+        this.SubFeatureName = params.SubFeatureName;
+        this.Name = params.Name;
+        this.Data = params.Data;
+        this.Id = params.Id;
     }
 
     /**
@@ -328,7 +328,7 @@ export class WindowsRequestMessage {
             SubFeatureName: msg.featureName,
             Name: msg.method,
             Id: msg.id,
-        }
-        return output
+        };
+        return output;
     }
 }

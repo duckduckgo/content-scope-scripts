@@ -1,5 +1,5 @@
 /* eslint-disable promise/prefer-await-to-then */
-import * as constants from './constants.js'
+import * as constants from './constants.js';
 
 /**
  * @typedef {import("@duckduckgo/messaging").Messaging} Messaging
@@ -19,8 +19,8 @@ export class DuckPlayerOverlayMessages {
         /**
          * @internal
          */
-        this.messaging = messaging
-        this.environment = environment
+        this.messaging = messaging;
+        this.environment = environment;
     }
 
     /**
@@ -34,9 +34,9 @@ export class DuckPlayerOverlayMessages {
                     privatePlayerMode: { alwaysAsk: {} },
                 },
                 ui: {},
-            })
+            });
         }
-        return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP)
+        return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
     }
 
     /**
@@ -45,14 +45,14 @@ export class DuckPlayerOverlayMessages {
      * @returns {Promise<import("../duck-player.js").UserValues>}
      */
     setUserValues(userValues) {
-        return this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues)
+        return this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues);
     }
 
     /**
      * @returns {Promise<import("../duck-player.js").UserValues>}
      */
     getUserValues() {
-        return this.messaging.request(constants.MSG_NAME_READ_VALUES, {})
+        return this.messaging.request(constants.MSG_NAME_READ_VALUES, {});
     }
 
     /**
@@ -62,7 +62,7 @@ export class DuckPlayerOverlayMessages {
         this.messaging.notify(constants.MSG_NAME_PIXEL, {
             pixelName: pixel.name(),
             params: pixel.params(),
-        })
+        });
     }
 
     /**
@@ -71,14 +71,14 @@ export class DuckPlayerOverlayMessages {
      * @param {OpenInDuckPlayerMsg} params
      */
     openDuckPlayer(params) {
-        return this.messaging.notify(constants.MSG_NAME_OPEN_PLAYER, params)
+        return this.messaging.notify(constants.MSG_NAME_OPEN_PLAYER, params);
     }
 
     /**
      * This is sent when the user wants to open Duck Player.
      */
     openInfo() {
-        return this.messaging.notify(constants.MSG_NAME_OPEN_INFO)
+        return this.messaging.notify(constants.MSG_NAME_OPEN_INFO);
     }
 
     /**
@@ -86,7 +86,7 @@ export class DuckPlayerOverlayMessages {
      * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
      */
     onUserValuesChanged(cb) {
-        return this.messaging.subscribe('onUserValuesChanged', cb)
+        return this.messaging.subscribe('onUserValuesChanged', cb);
     }
 
     /**
@@ -94,7 +94,7 @@ export class DuckPlayerOverlayMessages {
      * @param {(userValues: import("../duck-player.js").UISettings) => void} cb
      */
     onUIValuesChanged(cb) {
-        return this.messaging.subscribe('onUIValuesChanged', cb)
+        return this.messaging.subscribe('onUIValuesChanged', cb);
     }
 
     /**
@@ -108,36 +108,36 @@ export class DuckPlayerOverlayMessages {
                     composed: true,
                     bubbles: true,
                 }),
-            )
+            );
         }
 
         // listen for setting and forward to the SERP window
         this.onUserValuesChanged((values) => {
-            respond(constants.MSG_NAME_PUSH_DATA, values)
-        })
+            respond(constants.MSG_NAME_PUSH_DATA, values);
+        });
 
         // accept messages from the SERP and forward them to native
         window.addEventListener(constants.MSG_NAME_PROXY_INCOMING, (evt) => {
             try {
-                assertCustomEvent(evt)
+                assertCustomEvent(evt);
                 if (evt.detail.kind === constants.MSG_NAME_SET_VALUES) {
                     return this.setUserValues(evt.detail.data)
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
-                        .catch(console.error)
+                        .catch(console.error);
                 }
                 if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
                     return this.getUserValues()
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
-                        .catch(console.error)
+                        .catch(console.error);
                 }
                 if (evt.detail.kind === constants.MSG_NAME_OPEN_INFO) {
-                    return this.openInfo()
+                    return this.openInfo();
                 }
-                console.warn('unhandled event', evt)
+                console.warn('unhandled event', evt);
             } catch (e) {
-                console.warn('cannot handle this message', e)
+                console.warn('cannot handle this message', e);
             }
-        })
+        });
     }
 }
 
@@ -146,8 +146,8 @@ export class DuckPlayerOverlayMessages {
  * @returns {asserts event is CustomEvent<{kind: string, data: any}>}
  */
 function assertCustomEvent(event) {
-    if (!('detail' in event)) throw new Error('none-custom event')
-    if (typeof event.detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string')
+    if (!('detail' in event)) throw new Error('none-custom event');
+    if (typeof event.detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string');
 }
 
 export class Pixel {
@@ -159,25 +159,25 @@ export class Pixel {
      *   | {name: "play.do_not_use", remember: "0" | "1"}} input
      */
     constructor(input) {
-        this.input = input
+        this.input = input;
     }
 
     name() {
-        return this.input.name
+        return this.input.name;
     }
 
     params() {
         switch (this.input.name) {
             case 'overlay':
-                return {}
+                return {};
             case 'play.use.thumbnail':
-                return {}
+                return {};
             case 'play.use':
             case 'play.do_not_use': {
-                return { remember: this.input.remember }
+                return { remember: this.input.remember };
             }
             default:
-                throw new Error('unreachable')
+                throw new Error('unreachable');
         }
     }
 }
@@ -188,6 +188,6 @@ export class OpenInDuckPlayerMsg {
      * @param {string} params.href
      */
     constructor(params) {
-        this.href = params.href
+        this.href = params.href;
     }
 }

@@ -9,9 +9,9 @@
  * @module Harmful APIs protection
  *
  */
-import ContentFeature from '../content-feature'
-import { DDGReflect, stripVersion } from '../utils'
-import { hasMozProxies } from '../wrapper-utils'
+import ContentFeature from '../content-feature';
+import { DDGReflect, stripVersion } from '../utils';
+import { hasMozProxies } from '../wrapper-utils';
 
 /**
  * Blocks some privacy harmful APIs.
@@ -21,23 +21,23 @@ export default class HarmfulApis extends ContentFeature {
     init() {
         // @ts-expect-error linting is not yet seet up for worker context
         /** @type Navigator | WorkerNavigator */
-        this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype
+        this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype;
 
-        this.removeDeviceOrientationEvents(this.getFeatureSetting('deviceOrientation'))
-        this.blockGenericSensorApi(this.getFeatureSetting('GenericSensor'))
-        this.filterUAClientHints(this.getFeatureSetting('UaClientHints'))
-        this.removeNetworkInformationApi(this.getFeatureSetting('NetworkInformation'))
-        this.blockGetInstalledRelatedApps(this.getFeatureSetting('getInstalledRelatedApps'))
-        this.removeFileSystemAccessApi(this.getFeatureSetting('FileSystemAccess'))
-        this.blockWindowPlacementApi(this.getFeatureSetting('WindowPlacement'))
-        this.blockWebBluetoothApi(this.getFeatureSetting('WebBluetooth'))
-        this.blockWebUsbApi(this.getFeatureSetting('WebUsb'))
-        this.blockWebSerialApi(this.getFeatureSetting('WebSerial'))
-        this.blockWebHidApi(this.getFeatureSetting('WebHid'))
-        this.blockWebMidiApi(this.getFeatureSetting('WebMidi'))
-        this.removeIdleDetectionApi(this.getFeatureSetting('IdleDetection'))
-        this.removeWebNfcApi(this.getFeatureSetting('WebNfc'))
-        this.filterStorageManagerApi(this.getFeatureSetting('StorageManager'))
+        this.removeDeviceOrientationEvents(this.getFeatureSetting('deviceOrientation'));
+        this.blockGenericSensorApi(this.getFeatureSetting('GenericSensor'));
+        this.filterUAClientHints(this.getFeatureSetting('UaClientHints'));
+        this.removeNetworkInformationApi(this.getFeatureSetting('NetworkInformation'));
+        this.blockGetInstalledRelatedApps(this.getFeatureSetting('getInstalledRelatedApps'));
+        this.removeFileSystemAccessApi(this.getFeatureSetting('FileSystemAccess'));
+        this.blockWindowPlacementApi(this.getFeatureSetting('WindowPlacement'));
+        this.blockWebBluetoothApi(this.getFeatureSetting('WebBluetooth'));
+        this.blockWebUsbApi(this.getFeatureSetting('WebUsb'));
+        this.blockWebSerialApi(this.getFeatureSetting('WebSerial'));
+        this.blockWebHidApi(this.getFeatureSetting('WebHid'));
+        this.blockWebMidiApi(this.getFeatureSetting('WebMidi'));
+        this.removeIdleDetectionApi(this.getFeatureSetting('IdleDetection'));
+        this.removeWebNfcApi(this.getFeatureSetting('WebNfc'));
+        this.filterStorageManagerApi(this.getFeatureSetting('StorageManager'));
     }
 
     /**
@@ -49,21 +49,21 @@ export default class HarmfulApis extends ContentFeature {
      */
     filterPermissionQuery(permissions) {
         if (!permissions || permissions.length === 0) {
-            return
+            return;
         }
         this.wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
             // call the original function first in case it throws an error
-            const origResult = await DDGReflect.apply(nativeImpl, this, [queryObject])
+            const origResult = await DDGReflect.apply(nativeImpl, this, [queryObject]);
 
             if (permissions.includes(queryObject.name)) {
                 return {
                     name: queryObject.name,
                     state: 'denied',
                     status: 'denied',
-                }
+                };
             }
-            return origResult
-        })
+            return origResult;
+        });
     }
 
     /**
@@ -71,29 +71,29 @@ export default class HarmfulApis extends ContentFeature {
      */
     removeDeviceOrientationEvents(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
-        const eventsToBlock = settings.filterEvents || []
+        const eventsToBlock = settings.filterEvents || [];
         if (eventsToBlock.length > 0) {
             for (const eventName of eventsToBlock) {
-                const dom0HandlerName = `on${eventName}`
+                const dom0HandlerName = `on${eventName}`;
                 if (dom0HandlerName in globalThis) {
                     this.wrapProperty(globalThis, dom0HandlerName, {
                         set: () => {
                             /* noop */
                         },
-                    })
+                    });
                 }
             }
             // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
             if (!hasMozProxies) {
                 this.wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
                     if (eventsToBlock.includes(type) && this === globalThis) {
-                        console.log('blocked event', type)
-                        return
+                        console.log('blocked event', type);
+                        return;
                     }
-                    return DDGReflect.apply(nativeImpl, this, [type, ...restArgs])
-                })
+                    return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
+                });
             }
         }
     }
@@ -103,20 +103,20 @@ export default class HarmfulApis extends ContentFeature {
      */
     blockGenericSensorApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
-        const permissionsToFilter = settings.filterPermissions ?? ['accelerometer', 'ambient-light-sensor', 'gyroscope', 'magnetometer']
-        this.filterPermissionQuery(permissionsToFilter)
+        const permissionsToFilter = settings.filterPermissions ?? ['accelerometer', 'ambient-light-sensor', 'gyroscope', 'magnetometer'];
+        this.filterPermissionQuery(permissionsToFilter);
         if (settings.blockSensorStart) {
             this.wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
                 // block all sensors
-                const EventCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Event
+                const EventCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Event;
                 const error = new EventCls('error', {
                     error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError'),
-                })
+                });
                 // isTrusted will be false, but not much we can do here
-                this.dispatchEvent(error)
-            })
+                this.dispatchEvent(error);
+            });
         }
     }
 
@@ -125,14 +125,14 @@ export default class HarmfulApis extends ContentFeature {
      */
     filterUAClientHints(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         this.wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
-            const nativeResult = await DDGReflect.apply(nativeImpl, this, [hints]) // this may throw an error, and that is fine
-            const filteredResult = {}
-            const highEntropyValues = settings.highEntropyValues || {}
+            const nativeResult = await DDGReflect.apply(nativeImpl, this, [hints]); // this may throw an error, and that is fine
+            const filteredResult = {};
+            const highEntropyValues = settings.highEntropyValues || {};
             for (const [key, value] of Object.entries(nativeResult)) {
-                let result = value
+                let result = value;
 
                 switch (key) {
                     case 'brands':
@@ -141,61 +141,61 @@ export default class HarmfulApis extends ContentFeature {
                                 return {
                                     brand: brand.brand,
                                     version: stripVersion(brand.version),
-                                }
-                            })
+                                };
+                            });
                         }
-                        break
+                        break;
                     case 'model':
                         if (typeof highEntropyValues.model !== 'undefined') {
-                            result = highEntropyValues.model
+                            result = highEntropyValues.model;
                         }
-                        break
+                        break;
                     case 'platformVersion':
                         if (highEntropyValues.trimPlatformVersion) {
-                            result = stripVersion(value, highEntropyValues.trimPlatformVersion)
+                            result = stripVersion(value, highEntropyValues.trimPlatformVersion);
                         }
-                        break
+                        break;
                     case 'uaFullVersion':
                         if (highEntropyValues.trimUaFullVersion) {
-                            result = stripVersion(value, highEntropyValues.trimUaFullVersion)
+                            result = stripVersion(value, highEntropyValues.trimUaFullVersion);
                         }
-                        break
+                        break;
                     case 'fullVersionList':
                         if (highEntropyValues.trimFullVersionList) {
                             result = value.map((brand) => {
                                 return {
                                     brand: brand.brand,
                                     version: stripVersion(brand.version, highEntropyValues.trimFullVersionList),
-                                }
-                            })
+                                };
+                            });
                         }
-                        break
+                        break;
                     case 'architecture':
                         if (typeof highEntropyValues.architecture !== 'undefined') {
-                            result = highEntropyValues.architecture
+                            result = highEntropyValues.architecture;
                         }
-                        break
+                        break;
                     case 'bitness':
                         if (typeof highEntropyValues.bitness !== 'undefined') {
-                            result = highEntropyValues.bitness
+                            result = highEntropyValues.bitness;
                         }
-                        break
+                        break;
                     case 'platform':
                         if (typeof highEntropyValues.platform !== 'undefined') {
-                            result = highEntropyValues.platform
+                            result = highEntropyValues.platform;
                         }
-                        break
+                        break;
                     case 'mobile':
                         if (typeof highEntropyValues.mobile !== 'undefined') {
-                            result = highEntropyValues.mobile
+                            result = highEntropyValues.mobile;
                         }
-                        break
+                        break;
                 }
 
-                filteredResult[key] = result
+                filteredResult[key] = result;
             }
-            return filteredResult
-        })
+            return filteredResult;
+        });
     }
 
     /**
@@ -203,12 +203,12 @@ export default class HarmfulApis extends ContentFeature {
      */
     removeNetworkInformationApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         if (!('connection' in this.navigatorPrototype)) {
-            return
+            return;
         }
-        delete this.navigatorPrototype.connection
+        delete this.navigatorPrototype.connection;
     }
 
     /**
@@ -216,11 +216,11 @@ export default class HarmfulApis extends ContentFeature {
      */
     blockGetInstalledRelatedApps(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         this.wrapMethod(this.navigatorPrototype, 'getInstalledRelatedApps', function () {
-            return Promise.resolve(settings.returnValue ?? [])
-        })
+            return Promise.resolve(settings.returnValue ?? []);
+        });
     }
 
     /**
@@ -228,23 +228,23 @@ export default class HarmfulApis extends ContentFeature {
      */
     removeFileSystemAccessApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         if ('showOpenFilePicker' in globalThis && settings.disableOpenFilePicker) {
-            delete globalThis.showOpenFilePicker
+            delete globalThis.showOpenFilePicker;
         }
         if ('showSaveFilePicker' in globalThis && settings.disableSaveFilePicker) {
-            delete globalThis.showSaveFilePicker
+            delete globalThis.showSaveFilePicker;
         }
         if ('showDirectoryPicker' in globalThis && settings.disableDirectoryPicker) {
-            delete globalThis.showDirectoryPicker
+            delete globalThis.showDirectoryPicker;
         }
         if (
             'DataTransferItem' in globalThis &&
             'getAsFileSystemHandle' in globalThis.DataTransferItem.prototype &&
             settings.disableGetAsFileSystemHandle
         ) {
-            delete globalThis.DataTransferItem.prototype.getAsFileSystemHandle
+            delete globalThis.DataTransferItem.prototype.getAsFileSystemHandle;
         }
     }
 
@@ -253,12 +253,12 @@ export default class HarmfulApis extends ContentFeature {
      */
     blockWindowPlacementApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         if ('screenIsExtended' in settings) {
-            this.wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => settings.screenIsExtended })
+            this.wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => settings.screenIsExtended });
         }
-        this.filterPermissionQuery(settings.filterPermissions ?? ['window-placement', 'window-management'])
+        this.filterPermissionQuery(settings.filterPermissions ?? ['window-placement', 'window-management']);
     }
 
     /**
@@ -266,31 +266,31 @@ export default class HarmfulApis extends ContentFeature {
      */
     blockWebBluetoothApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         if (!('Bluetooth' in globalThis)) {
-            return
+            return;
         }
         // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
         if (settings.filterEvents && settings.filterEvents.length > 0 && !hasMozProxies) {
             this.wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
                 if (settings.filterEvents?.includes(type) && this instanceof globalThis.Bluetooth) {
-                    return
+                    return;
                 }
-                return DDGReflect.apply(nativeImpl, this, [type, ...restArgs])
-            })
+                return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
+            });
         }
 
-        this.filterPermissionQuery(settings.filterPermissions ?? ['bluetooth'])
+        this.filterPermissionQuery(settings.filterPermissions ?? ['bluetooth']);
 
         if (settings.blockRequestDevice) {
             this.wrapMethod(globalThis.Bluetooth?.prototype, 'requestDevice', function () {
-                return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
-            })
+                return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'));
+            });
         }
 
         if (settings.blockGetAvailability) {
-            this.wrapMethod(globalThis.Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false))
+            this.wrapMethod(globalThis.Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false));
         }
     }
 
@@ -299,11 +299,11 @@ export default class HarmfulApis extends ContentFeature {
      */
     blockWebUsbApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         this.wrapMethod(globalThis.USB?.prototype, 'requestDevice', function () {
-            return Promise.reject(new DOMException('No device selected.', 'NotFoundError'))
-        })
+            return Promise.reject(new DOMException('No device selected.', 'NotFoundError'));
+        });
     }
 
     /**
@@ -311,11 +311,11 @@ export default class HarmfulApis extends ContentFeature {
      */
     blockWebSerialApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         this.wrapMethod(globalThis.Serial?.prototype, 'requestPort', function () {
-            return Promise.reject(new DOMException('No port selected.', 'NotFoundError'))
-        })
+            return Promise.reject(new DOMException('No port selected.', 'NotFoundError'));
+        });
     }
 
     /**
@@ -323,10 +323,10 @@ export default class HarmfulApis extends ContentFeature {
      */
     blockWebHidApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         // Chrome 113 does not throw errors, and only returns an empty array here
-        this.wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => Promise.resolve([]))
+        this.wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => Promise.resolve([]));
     }
 
     /**
@@ -334,12 +334,12 @@ export default class HarmfulApis extends ContentFeature {
      */
     blockWebMidiApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         this.wrapMethod(this.navigatorPrototype, 'requestMIDIAccess', function () {
-            return Promise.reject(new DOMException('Permission is denied.', 'SecurityError'))
-        })
-        this.filterPermissionQuery(settings.filterPermissions ?? ['midi'])
+            return Promise.reject(new DOMException('Permission is denied.', 'SecurityError'));
+        });
+        this.filterPermissionQuery(settings.filterPermissions ?? ['midi']);
     }
 
     /**
@@ -347,11 +347,11 @@ export default class HarmfulApis extends ContentFeature {
      */
     removeIdleDetectionApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         if ('IdleDetector' in globalThis) {
-            delete globalThis.IdleDetector
-            this.filterPermissionQuery(settings.filterPermissions ?? ['idle-detection'])
+            delete globalThis.IdleDetector;
+            this.filterPermissionQuery(settings.filterPermissions ?? ['idle-detection']);
         }
     }
 
@@ -360,16 +360,16 @@ export default class HarmfulApis extends ContentFeature {
      */
     removeWebNfcApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         if ('NDEFReader' in globalThis && settings.disableNdefReader) {
-            delete globalThis.NDEFReader
+            delete globalThis.NDEFReader;
         }
         if ('NDEFMessage' in globalThis && settings.disableNdefMessage) {
-            delete globalThis.NDEFMessage
+            delete globalThis.NDEFMessage;
         }
         if ('NDEFRecord' in globalThis && settings.disableNdefRecord) {
-            delete globalThis.NDEFRecord
+            delete globalThis.NDEFRecord;
         }
     }
 
@@ -378,24 +378,24 @@ export default class HarmfulApis extends ContentFeature {
      */
     filterStorageManagerApi(settings) {
         if (settings?.state !== 'enabled') {
-            return
+            return;
         }
         if (settings.allowedQuotaValues) {
-            const values = settings.allowedQuotaValues.slice()
-            values.sort().filter((v) => v > 0)
-            values.unshift(0)
+            const values = settings.allowedQuotaValues.slice();
+            values.sort().filter((v) => v > 0);
+            values.unshift(0);
             // now, values is a sorted array of positive numbers, with 0 as the first element
             if (values.length > 0) {
                 this.wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl, ...args) {
-                    const result = await DDGReflect.apply(nativeImpl, this, args)
+                    const result = await DDGReflect.apply(nativeImpl, this, args);
                     // find the first allowed value from the right that is smaller than the result
-                    let i = values.length - 1
+                    let i = values.length - 1;
                     while (i > 0 && values[i] > result.quota) {
-                        i--
+                        i--;
                     }
-                    result.quota = values[i]
-                    return result
-                })
+                    result.quota = values[i];
+                    return result;
+                });
             }
         }
     }

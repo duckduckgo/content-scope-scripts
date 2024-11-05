@@ -1,5 +1,5 @@
-import { createContext, h } from 'preact'
-import { useContext, useEffect, useState } from 'preact/hooks'
+import { createContext, h } from 'preact';
+import { useContext, useEffect, useState } from 'preact/hooks';
 
 /**
  * @typedef {import('../../../../types/new-tab.js').WidgetConfigs} WidgetConfigs
@@ -21,11 +21,11 @@ export const WidgetConfigContext = createContext({
     /** @type {(id:string) => void} */
 
     toggle: (_id) => {},
-})
+});
 
 export const WidgetConfigDispatchContext = createContext({
     dispatch: null,
-})
+});
 
 /**
  * @param {object} props
@@ -36,21 +36,21 @@ export const WidgetConfigDispatchContext = createContext({
  * @param {WidgetConfigAPI} props.api - the stateful API manager
  */
 export function WidgetConfigProvider(props) {
-    const [data, setData] = useState(props.widgetConfigs)
+    const [data, setData] = useState(props.widgetConfigs);
 
     // todo: should we just useSyncExternalStore here?
     useEffect(() => {
         const unsub = props.api.onData((widgetConfig) => {
-            setData(widgetConfig.data)
-        })
-        return () => unsub()
-    }, [props.api])
+            setData(widgetConfig.data);
+        });
+        return () => unsub();
+    }, [props.api]);
 
     /**
      * @param {string} id
      */
     function toggle(id) {
-        props.api.toggleVisibility(id)
+        props.api.toggleVisibility(id);
     }
 
     return (
@@ -66,7 +66,7 @@ export function WidgetConfigProvider(props) {
         >
             {props.children}
         </WidgetConfigContext.Provider>
-    )
+    );
 }
 
 const WidgetVisibilityContext = createContext({
@@ -77,10 +77,10 @@ const WidgetVisibilityContext = createContext({
     toggle: (_id) => {},
     /** @type {number} */
     index: -1,
-})
+});
 
 export function useVisibility() {
-    return useContext(WidgetVisibilityContext)
+    return useContext(WidgetVisibilityContext);
 }
 
 /**
@@ -92,7 +92,7 @@ export function useVisibility() {
  * @param {import("preact").ComponentChild} props.children
  */
 export function WidgetVisibilityProvider(props) {
-    const { toggle } = useContext(WidgetConfigContext)
+    const { toggle } = useContext(WidgetConfigContext);
 
     return (
         <WidgetVisibilityContext.Provider
@@ -105,5 +105,5 @@ export function WidgetVisibilityProvider(props) {
         >
             {props.children}
         </WidgetVisibilityContext.Provider>
-    )
+    );
 }

@@ -1,20 +1,20 @@
-import { h, Fragment } from 'preact'
-import styles from './DesktopApp.module.css'
-import { Background } from './Background.jsx'
-import { InfoBar, InfoBarContainer } from './InfoBar.jsx'
-import { PlayerContainer } from './PlayerContainer.jsx'
-import { Player, PlayerError } from './Player.jsx'
-import { useSettings } from '../providers/SettingsProvider.jsx'
-import { createAppFeaturesFrom } from '../features/app.js'
-import { HideInFocusMode } from './FocusMode.jsx'
+import { h, Fragment } from 'preact';
+import styles from './DesktopApp.module.css';
+import { Background } from './Background.jsx';
+import { InfoBar, InfoBarContainer } from './InfoBar.jsx';
+import { PlayerContainer } from './PlayerContainer.jsx';
+import { Player, PlayerError } from './Player.jsx';
+import { useSettings } from '../providers/SettingsProvider.jsx';
+import { createAppFeaturesFrom } from '../features/app.js';
+import { HideInFocusMode } from './FocusMode.jsx';
 
 /**
  * @param {object} props
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
 export function DesktopApp({ embed }) {
-    const settings = useSettings()
-    const features = createAppFeaturesFrom(settings)
+    const settings = useSettings();
+    const features = createAppFeaturesFrom(settings);
     return (
         <>
             <Background />
@@ -23,7 +23,7 @@ export function DesktopApp({ embed }) {
                 <DesktopLayout embed={embed} />
             </main>
         </>
-    )
+    );
 }
 
 /**
@@ -43,5 +43,5 @@ function DesktopLayout({ embed }) {
                 </HideInFocusMode>
             </PlayerContainer>
         </div>
-    )
+    );
 }

@@ -1,9 +1,9 @@
-import { createContext, h } from 'preact'
-import { useContext } from 'preact/hooks'
+import { createContext, h } from 'preact';
+import { useContext } from 'preact/hooks';
 
 export const MessagingContext = createContext({
     messaging: /** @type {import('../../src/js/index').SpecialErrorPage | null} */ (null),
-})
+});
 
 /**
  * Provide messaging for the application.
@@ -13,9 +13,9 @@ export const MessagingContext = createContext({
  * @param {import('../../src/js/index').SpecialErrorPage | null} props.messaging
  */
 export function MessagingProvider({ children, messaging }) {
-    return <MessagingContext.Provider value={{ messaging }}>{children}</MessagingContext.Provider>
+    return <MessagingContext.Provider value={{ messaging }}>{children}</MessagingContext.Provider>;
 }
 
 export function useMessaging() {
-    return useContext(MessagingContext)
+    return useContext(MessagingContext);
 }

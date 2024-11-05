@@ -1,5 +1,5 @@
-import { aggregateFields, createProfile } from '../src/features/broker-protection/actions/extract.js'
-import { cleanArray } from '../src/features/broker-protection/utils.js'
+import { aggregateFields, createProfile } from '../src/features/broker-protection/actions/extract.js';
+import { cleanArray } from '../src/features/broker-protection/utils.js';
 
 describe('create profiles from extracted data', () => {
     describe('cleanArray', () => {
@@ -18,13 +18,13 @@ describe('create profiles from extracted data', () => {
                 { input: [[[]]], expected: [] },
                 { input: [null, '', 0, '  '], expected: [0] },
                 { input: [null, '000'], expected: ['000'] },
-            ]
+            ];
             for (const item of items) {
-                const actual = cleanArray(item.input)
-                expect(actual).toEqual(item.expected)
+                const actual = cleanArray(item.input);
+                expect(actual).toEqual(item.expected);
             }
-        })
-    })
+        });
+    });
     it('handles combined, single strings', () => {
         const selectors = {
             name: {
@@ -35,7 +35,7 @@ describe('create profiles from extracted data', () => {
                 selector: '.name',
                 afterText: ',',
             },
-        }
+        };
 
         const elementExamples = [
             { text: 'John smith, 39', expected: { name: 'John smith', age: '39' } },
@@ -58,16 +58,16 @@ describe('create profiles from extracted data', () => {
             { text: 'John smith', expected: { name: 'John smith', age: null } },
             { text: 'John smith   ,   ', expected: { name: 'John smith', age: null } },
             { text: 'John smith   \n,\n   ', expected: { name: 'John smith', age: null } },
-        ]
+        ];
 
         for (const elementExample of elementExamples) {
             const elementFactory = () => {
-                return [{ innerText: elementExample.text }]
-            }
-            const profile = createProfile(elementFactory, selectors)
-            expect(profile).toEqual(elementExample.expected)
+                return [{ innerText: elementExample.text }];
+            };
+            const profile = createProfile(elementFactory, selectors);
+            expect(profile).toEqual(elementExample.expected);
         }
-    })
+    });
     it('handles multiple strings', () => {
         const elementExamples = [
             {
@@ -109,14 +109,14 @@ describe('create profiles from extracted data', () => {
                     alternativeNamesList: ['John Smith', 'Jon Smith'],
                 },
             },
-        ]
+        ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements
-            const profile = createProfile(elementFactory, elementExample.selectors)
-            expect(profile).toEqual(elementExample.expected)
+            const elementFactory = () => elementExample.elements;
+            const profile = createProfile(elementFactory, elementExample.selectors);
+            expect(profile).toEqual(elementExample.expected);
         }
-    })
+    });
     it('should omit invalid addresses', () => {
         const elementExamples = [
             {
@@ -130,14 +130,14 @@ describe('create profiles from extracted data', () => {
                     addressCityState: [],
                 },
             },
-        ]
+        ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements
-            const profile = createProfile(elementFactory, elementExample.selectors)
-            expect(profile).toEqual(elementExample.expected)
+            const elementFactory = () => elementExample.elements;
+            const profile = createProfile(elementFactory, elementExample.selectors);
+            expect(profile).toEqual(elementExample.expected);
         }
-    })
+    });
 
     it('should omit duplicate addresses when aggregated', () => {
         const elementExamples = [
@@ -153,15 +153,15 @@ describe('create profiles from extracted data', () => {
                     addresses: [{ city: 'Dallas', state: 'TX' }],
                 },
             },
-        ]
+        ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements
-            const profile = createProfile(elementFactory, elementExample.selectors)
-            const aggregated = aggregateFields(profile)
-            expect(aggregated.addresses).toEqual(elementExample.expected.addresses)
+            const elementFactory = () => elementExample.elements;
+            const profile = createProfile(elementFactory, elementExample.selectors);
+            const aggregated = aggregateFields(profile);
+            expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
         }
-    })
+    });
 
     it('should handle addressCityStateList', () => {
         const example = {
@@ -178,14 +178,14 @@ describe('create profiles from extracted data', () => {
                     { city: 'The Colony', state: 'TX' },
                 ],
             },
-        }
+        };
 
-        const elementFactory = () => example.elements
-        const profile = createProfile(elementFactory, /** @type {any} */ (example.selectors))
-        const aggregated = aggregateFields(profile)
+        const elementFactory = () => example.elements;
+        const profile = createProfile(elementFactory, /** @type {any} */ (example.selectors));
+        const aggregated = aggregateFields(profile);
 
-        expect(aggregated.addresses).toEqual(example.expected.addresses)
-    })
+        expect(aggregated.addresses).toEqual(example.expected.addresses);
+    });
 
     it('should include addresses from `addressFullList` - https://app.asana.com/0/0/1206856260863051/f', () => {
         const elementExamples = [
@@ -204,15 +204,15 @@ describe('create profiles from extracted data', () => {
                     ],
                 },
             },
-        ]
+        ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements
-            const profile = createProfile(elementFactory, /** @type {any} */ (elementExample.selectors))
-            const aggregated = aggregateFields(profile)
-            expect(aggregated.addresses).toEqual(elementExample.expected.addresses)
+            const elementFactory = () => elementExample.elements;
+            const profile = createProfile(elementFactory, /** @type {any} */ (elementExample.selectors));
+            const aggregated = aggregateFields(profile);
+            expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
         }
-    })
+    });
 
     it('should exclude common prefixes/suffixes https://app.asana.com/0/0/1206808591178551/f', () => {
         const selectors = {
@@ -221,7 +221,7 @@ describe('create profiles from extracted data', () => {
                 findElements: true,
                 afterText: 'AKA:',
             },
-        }
+        };
         const elementFactory = (key) => {
             return {
                 relativesList: [
@@ -240,9 +240,9 @@ describe('create profiles from extracted data', () => {
                     { innerText: 'Jill Johnson, 39 +4 more' },
                     { innerText: 'Jack Johnson, 39 - ' },
                 ],
-            }[key]
-        }
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
+            }[key];
+        };
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
         expect(scraped).toEqual({
             relativesList: [
                 'Jane Smith',
@@ -260,8 +260,8 @@ describe('create profiles from extracted data', () => {
                 'Jill Johnson',
                 'Jack Johnson',
             ],
-        })
-    })
+        });
+    });
 
     it('(1) Addresses: general validation [validation] https://app.asana.com/0/0/1206808587680141/f', () => {
         const selectors = {
@@ -275,20 +275,20 @@ describe('create profiles from extracted data', () => {
                 selector: 'example',
                 findElements: true,
             },
-        }
+        };
         const elementFactory = (key) => {
             return {
                 name: [{ innerText: 'Shane Osbourne' }],
                 age: [{ innerText: '39' }],
                 addressCityState: [{ innerText: 'Dallas, TX' }, { innerText: 'anything, here' }],
-            }[key]
-        }
-        const expected = [{ city: 'Dallas', state: 'TX' }]
+            }[key];
+        };
+        const expected = [{ city: 'Dallas', state: 'TX' }];
 
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
-        const actual = aggregateFields(scraped)
-        expect(actual.addresses).toEqual(expected)
-    })
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const actual = aggregateFields(scraped);
+        expect(actual.addresses).toEqual(expected);
+    });
 
     it('should sort relatives by name alphabetically', () => {
         const selectors = {
@@ -296,7 +296,7 @@ describe('create profiles from extracted data', () => {
                 selector: 'example',
                 findElements: true,
             },
-        }
+        };
         const elementFactory = (key) => {
             return {
                 relativesList: [
@@ -306,13 +306,13 @@ describe('create profiles from extracted data', () => {
                     { innerText: 'Jill Johnson' },
                     { innerText: 'Jack Johnson' },
                 ],
-            }[key]
-        }
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
-        const actual = aggregateFields(scraped)
+            }[key];
+        };
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const actual = aggregateFields(scraped);
 
-        expect(actual.relatives).toEqual(['Dale Johnson', 'Jack Johnson', 'Jill Johnson', 'Jimmy Smith', 'John Smith'])
-    })
+        expect(actual.relatives).toEqual(['Dale Johnson', 'Jack Johnson', 'Jill Johnson', 'Jimmy Smith', 'John Smith']);
+    });
 
     it('should sort phone numbers numerically', () => {
         const selectors = {
@@ -320,7 +320,7 @@ describe('create profiles from extracted data', () => {
                 selector: 'example',
                 findElements: true,
             },
-        }
+        };
         const elementFactory = (key) => {
             return {
                 phoneList: [
@@ -330,13 +330,13 @@ describe('create profiles from extracted data', () => {
                     { innerText: '123-456-7891' },
                     { innerText: '123-456-7890' },
                 ],
-            }[key]
-        }
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
-        const actual = aggregateFields(scraped)
+            }[key];
+        };
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const actual = aggregateFields(scraped);
 
-        expect(actual.phoneNumbers).toEqual(['1234567890', '1234567891', '1234567892', '1234567894', '1234567895'])
-    })
+        expect(actual.phoneNumbers).toEqual(['1234567890', '1234567891', '1234567892', '1234567894', '1234567895']);
+    });
 
     it('should sort alternative names alphabetically', () => {
         const selectors = {
@@ -344,7 +344,7 @@ describe('create profiles from extracted data', () => {
                 selector: 'example',
                 findElements: true,
             },
-        }
+        };
         const elementFactory = (key) => {
             return {
                 alternativeNamesList: [
@@ -353,11 +353,11 @@ describe('create profiles from extracted data', () => {
                     { innerText: 'Roger Star' },
                     { innerText: 'Fred Firth' },
                 ],
-            }[key]
-        }
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
-        const actual = aggregateFields(scraped)
+            }[key];
+        };
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const actual = aggregateFields(scraped);
 
-        expect(actual.alternativeNames).toEqual(['Fred Firth', 'Jerry Doug', 'Marvin Smith', 'Roger Star'])
-    })
-})
+        expect(actual.alternativeNames).toEqual(['Fred Firth', 'Jerry Doug', 'Marvin Smith', 'Roger Star']);
+    });
+});

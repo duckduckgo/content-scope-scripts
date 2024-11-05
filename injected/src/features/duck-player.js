@@ -31,11 +31,11 @@
  *
  * @module Duck Player Overlays
  */
-import ContentFeature from '../content-feature.js'
+import ContentFeature from '../content-feature.js';
 
-import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckplayer/overlay-messages.js'
-import { isBeingFramed } from '../utils.js'
-import { Environment, initOverlays } from './duckplayer/overlays.js'
+import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckplayer/overlay-messages.js';
+import { isBeingFramed } from '../utils.js';
+import { Environment, initOverlays } from './duckplayer/overlays.js';
 
 /**
  * @typedef UserValues - A way to communicate user settings
@@ -63,25 +63,25 @@ export default class DuckPlayerFeature extends ContentFeature {
         /**
          * This feature never operates in a frame
          */
-        if (isBeingFramed()) return
+        if (isBeingFramed()) return;
 
         /**
          * Just the 'overlays' part of the settings object.
          * @type {import("../types/duckplayer-settings.js").DuckPlayerSettings['overlays']}
          */
-        const overlaySettings = this.getFeatureSetting('overlays')
-        const overlaysEnabled = overlaySettings?.youtube?.state === 'enabled'
+        const overlaySettings = this.getFeatureSetting('overlays');
+        const overlaysEnabled = overlaySettings?.youtube?.state === 'enabled';
 
         /**
          * Serp proxy
          */
-        const serpProxyEnabled = overlaySettings?.serpProxy?.state === 'enabled'
+        const serpProxyEnabled = overlaySettings?.serpProxy?.state === 'enabled';
 
         /**
          * Bail if no features are enabled
          */
         if (!overlaysEnabled && !serpProxyEnabled) {
-            return
+            return;
         }
 
         /**
@@ -89,27 +89,27 @@ export default class DuckPlayerFeature extends ContentFeature {
          * accidentally enabled this
          */
         if (!this.messaging) {
-            throw new Error('cannot operate duck player without a messaging backend')
+            throw new Error('cannot operate duck player without a messaging backend');
         }
 
-        const locale = args?.locale || args?.language || 'en'
+        const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
             debug: args.debug,
             injectName: import.meta.injectName,
             platform: this.platform,
             locale,
-        })
-        const comms = new DuckPlayerOverlayMessages(this.messaging, env)
+        });
+        const comms = new DuckPlayerOverlayMessages(this.messaging, env);
 
         if (overlaysEnabled) {
-            initOverlays(overlaySettings.youtube, env, comms)
+            initOverlays(overlaySettings.youtube, env, comms);
         } else if (serpProxyEnabled) {
-            comms.serpProxy()
+            comms.serpProxy();
         }
     }
 
     load(args) {
-        super.load(args)
+        super.load(args);
     }
 }
 
@@ -118,4 +118,4 @@ export default class DuckPlayerFeature extends ContentFeature {
  */
 
 // for docs generation
-export { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel }
+export { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel };

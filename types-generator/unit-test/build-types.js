@@ -1,4 +1,4 @@
-import { createMessagingTypes } from '../json-schema.mjs'
+import { createMessagingTypes } from '../json-schema.mjs';
 
 describe('createMessagingTypes', () => {
     /**
@@ -11,13 +11,13 @@ describe('createMessagingTypes', () => {
             .trim()
             .split('\n')
             .map((x) => x.trim())
-            .join('\n')
+            .join('\n');
         const bLines = b
             .trim()
             .split('\n')
             .map((x) => x.trim())
-            .join('\n')
-        expect(aLines).toEqual(bLines)
+            .join('\n');
+        expect(aLines).toEqual(bLines);
     }
     it('works with single notification', () => {
         const actual = createMessagingTypes(
@@ -32,16 +32,16 @@ describe('createMessagingTypes', () => {
                 },
             },
             { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
-        )
+        );
         const expected = `
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckPlayerMessages>['notify']
   }
 }
-`
-        compare(actual, expected)
-    })
+`;
+        compare(actual, expected);
+    });
     it('works with single request', () => {
         const actual = createMessagingTypes(
             {
@@ -55,16 +55,16 @@ declare module "../features/duck-player.js" {
                 },
             },
             { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
-        )
+        );
         const expected = `
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckPlayerMessages>['request']
   }
 }
-`
-        compare(actual, expected)
-    })
+`;
+        compare(actual, expected);
+    });
     it('works with single subscription', () => {
         const actual = createMessagingTypes(
             {
@@ -78,16 +78,16 @@ declare module "../features/duck-player.js" {
                 },
             },
             { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
-        )
+        );
         const expected = `
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
     subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckPlayerMessages>['subscribe']
   }
 }
-`
-        compare(actual, expected)
-    })
+`;
+        compare(actual, expected);
+    });
     it('works with multiple types ', () => {
         const actual = createMessagingTypes(
             {
@@ -107,7 +107,7 @@ declare module "../features/duck-player.js" {
                 },
             },
             { featurePath: '../features/duck-player.js', className: 'DuckPlayer' },
-        )
+        );
         const expected = `
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
@@ -116,7 +116,7 @@ declare module "../features/duck-player.js" {
     subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckPlayerMessages>['subscribe']
   }
 }
-`
-        compare(actual, expected)
-    })
-})
+`;
+        compare(actual, expected);
+    });
+});

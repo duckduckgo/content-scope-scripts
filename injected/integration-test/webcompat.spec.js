@@ -1,12 +1,12 @@
-import { test, expect } from '@playwright/test'
-import { readFileSync } from 'fs'
-import { mockWebkitMessaging, wrapWebkitScripts } from '@duckduckgo/messaging/lib/test-utils.mjs'
-import { perPlatform } from './type-helpers.mjs'
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'fs';
+import { mockWebkitMessaging, wrapWebkitScripts } from '@duckduckgo/messaging/lib/test-utils.mjs';
+import { perPlatform } from './type-helpers.mjs';
 
 test('web compat', async ({ page }, testInfo) => {
-    const webcompat = WebcompatSpec.create(page, testInfo)
-    await webcompat.enabled()
-    const results = await webcompat.collectResults()
+    const webcompat = WebcompatSpec.create(page, testInfo);
+    await webcompat.enabled();
+    const results = await webcompat.collectResults();
     expect(results).toMatchObject({
         'webkit.messageHandlers - polyfill prevents throw': [
             {
@@ -29,12 +29,12 @@ test('web compat', async ({ page }, testInfo) => {
                 expected: 'test',
             },
         ],
-    })
-})
+    });
+});
 
 export class WebcompatSpec {
-    htmlPage = '/webcompat/pages/message-handlers.html'
-    config = './integration-test/test-pages/webcompat/config/message-handlers.json'
+    htmlPage = '/webcompat/pages/message-handlers.html';
+    config = './integration-test/test-pages/webcompat/config/message-handlers.json';
 
     /**
      * @param {import('@playwright/test').Page} page
@@ -42,31 +42,31 @@ export class WebcompatSpec {
      * @param {import('./type-helpers.mjs').PlatformInfo} platform
      */
     constructor(page, build, platform) {
-        this.page = page
-        this.build = build
-        this.platform = platform
+        this.page = page;
+        this.build = build;
+        this.platform = platform;
         page.on('console', (msg) => {
-            console.log(msg.type(), msg.text())
-        })
+            console.log(msg.type(), msg.text());
+        });
     }
 
     async enabled() {
-        const config = JSON.parse(readFileSync(this.config, 'utf8'))
-        await this.setup({ config })
-        await this.page.goto(this.htmlPage)
+        const config = JSON.parse(readFileSync(this.config, 'utf8'));
+        await this.setup({ config });
+        await this.page.goto(this.htmlPage);
     }
 
     collectResults() {
         return this.page.evaluate(() => {
             return new Promise((resolve) => {
                 // @ts-expect-error - this is added by the test framework
-                if (window.results) return resolve(window.results)
+                if (window.results) return resolve(window.results);
                 window.addEventListener('results-ready', () => {
                     // @ts-expect-error - this is added by the test framework
-                    resolve(window.results)
-                })
-            })
-        })
+                    resolve(window.results);
+                });
+            });
+        });
     }
 
     /**
@@ -75,7 +75,7 @@ export class WebcompatSpec {
      * @return {Promise<void>}
      */
     async setup(params) {
-        const { config } = params
+        const { config } = params;
 
         // read the built file from disk and do replacements
         const injectedJS = wrapWebkitScripts(this.build.artifact, {
@@ -85,7 +85,7 @@ export class WebcompatSpec {
                 platform: { name: 'windows' },
                 debug: true,
             },
-        })
+        });
 
         await this.page.addInitScript(mockWebkitMessaging, {
             messagingContext: {
@@ -94,10 +94,10 @@ export class WebcompatSpec {
                 featureName: 'n/a',
             },
             responses: {},
-        })
+        });
 
         // attach the JS
-        await this.page.addInitScript(injectedJS)
+        await this.page.addInitScript(injectedJS);
     }
 
     /**
@@ -107,7 +107,7 @@ export class WebcompatSpec {
      */
     static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
-        const { platformInfo, build } = perPlatform(testInfo.project.use)
-        return new WebcompatSpec(page, build, platformInfo)
+        const { platformInfo, build } = perPlatform(testInfo.project.use);
+        return new WebcompatSpec(page, build, platformInfo);
     }
 }

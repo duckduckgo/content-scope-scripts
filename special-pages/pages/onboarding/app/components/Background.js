@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import styles from './Background.module.css'
-import cn from 'classnames'
+import { h } from 'preact';
+import styles from './Background.module.css';
+import cn from 'classnames';
 
 export function Background() {
     return (
@@ -9,5 +9,5 @@ export function Background() {
             <div className={cn(styles.foreground, styles.layer2)} />
             <div className={cn(styles.foreground, styles.layer3)} />
         </div>
-    )
+    );
 }

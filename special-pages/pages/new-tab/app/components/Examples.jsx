@@ -1,12 +1,12 @@
-import { Fragment, h } from 'preact'
-import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMockProvider.js'
-import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js'
-import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js'
-import { stats } from '../privacy-stats/mocks/stats.js'
-import { noop } from '../utils.js'
-import { VisibilityMenu } from '../customizer/VisibilityMenu.js'
-import { CustomizerButton } from '../customizer/Customizer.js'
-import { rmfDataExamples } from '../remote-messaging-framework/mocks/rmf.data.js'
+import { Fragment, h } from 'preact';
+import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMockProvider.js';
+import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js';
+import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js';
+import { stats } from '../privacy-stats/mocks/stats.js';
+import { noop } from '../utils.js';
+import { VisibilityMenu } from '../customizer/VisibilityMenu.js';
+import { CustomizerButton } from '../customizer/Customizer.js';
+import { rmfDataExamples } from '../remote-messaging-framework/mocks/rmf.data.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -89,7 +89,7 @@ export const mainExamples = {
             />
         ),
     },
-}
+};
 
 export const otherExamples = {
     'stats.without-animation': {
@@ -160,8 +160,8 @@ export const otherExamples = {
             </Fragment>
         ),
     },
-}
+};
 
 function MaxContent({ children }) {
-    return <div style={{ display: 'grid', gridTemplateColumns: 'max-content' }}>{children}</div>
+    return <div style={{ display: 'grid', gridTemplateColumns: 'max-content' }}>{children}</div>;
 }

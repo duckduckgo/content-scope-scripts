@@ -3,10 +3,10 @@
  * that might be needed in CSS or JS
  */
 
-const param = new URLSearchParams(window.location.search).get('platform') || import.meta.injectName
+const param = new URLSearchParams(window.location.search).get('platform') || import.meta.injectName;
 
 if (isAllowed(param)) {
-    document.documentElement.dataset.platform = String(param)
+    document.documentElement.dataset.platform = String(param);
 }
 
 /**
@@ -15,6 +15,6 @@ if (isAllowed(param)) {
  */
 function isAllowed(input) {
     /** @type {ImportMeta['injectName'][]} */
-    const allowed = ['windows', 'apple', 'integration']
-    return allowed.includes(input)
+    const allowed = ['windows', 'apple', 'integration'];
+    return allowed.includes(input);
 }

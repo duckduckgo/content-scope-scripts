@@ -1,6 +1,6 @@
-import tseslint from 'typescript-eslint'
-import ddgConfig from '@duckduckgo/eslint-config'
-import globals from 'globals'
+import tseslint from 'typescript-eslint';
+import ddgConfig from '@duckduckgo/eslint-config';
+import globals from 'globals';
 
 // @ts-check
 export default tseslint.config(
@@ -108,4 +108,4 @@ export default tseslint.config(
             },
         },
     },
-)
+);

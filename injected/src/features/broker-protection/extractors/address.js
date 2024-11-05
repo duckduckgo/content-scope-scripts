@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Extractor } from '../types.js'
-import { stringToList } from '../actions/extract.js'
-import parseAddress from 'parse-address'
-import { states } from '../comparisons/constants.js'
+import { Extractor } from '../types.js';
+import { stringToList } from '../actions/extract.js';
+import parseAddress from 'parse-address';
+import { states } from '../comparisons/constants.js';
 
 /**
  * @implements {Extractor<{city:string; state: string|null}[]>}
@@ -13,8 +13,8 @@ export class CityStateExtractor {
      * @param {import('../actions/extract.js').ExtractorParams} extractorParams
      */
     extract(strs, extractorParams) {
-        const cityStateList = strs.map((str) => stringToList(str, extractorParams.separator)).flat()
-        return getCityStateCombos(cityStateList)
+        const cityStateList = strs.map((str) => stringToList(str, extractorParams.separator)).flat();
+        return getCityStateCombos(cityStateList);
     }
 }
 
@@ -36,9 +36,9 @@ export class AddressFullExtractor {
                 // at least 'city' is required.
                 .filter((parsed) => Boolean(parsed?.city))
                 .map((addr) => {
-                    return { city: addr.city, state: addr.state || null }
+                    return { city: addr.city, state: addr.state || null };
                 })
-        )
+        );
     }
 }
 
@@ -47,31 +47,31 @@ export class AddressFullExtractor {
  * @return {{ city: string, state: string|null }[] }
  */
 function getCityStateCombos(inputList) {
-    const output = []
+    const output = [];
     for (let item of inputList) {
-        let words
+        let words;
         // Strip out the zip code since we're only interested in city/state here.
-        item = item.replace(/,?\s*\d{5}(-\d{4})?/, '')
+        item = item.replace(/,?\s*\d{5}(-\d{4})?/, '');
 
         if (item.includes(',')) {
-            words = item.split(',').map((item) => item.trim())
+            words = item.split(',').map((item) => item.trim());
         } else {
-            words = item.split(' ').map((item) => item.trim())
+            words = item.split(' ').map((item) => item.trim());
         }
         // we are removing this partial city/state combos at the end (i.e. Chi...)
         if (words.length === 1) {
-            continue
+            continue;
         }
 
-        const state = words.pop()
-        const city = words.join(' ')
+        const state = words.pop();
+        const city = words.join(' ');
 
         // exclude invalid states
         if (state && !Object.keys(states).includes(state.toUpperCase())) {
-            continue
+            continue;
         }
 
-        output.push({ city, state: state || null })
+        output.push({ city, state: state || null });
     }
-    return output
+    return output;
 }

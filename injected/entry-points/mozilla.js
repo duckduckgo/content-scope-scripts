@@ -1,9 +1,9 @@
 /**
  * @module Mozilla integration
  */
-import { load, init, update } from '../src/content-scope-features.js'
-import { isTrackerOrigin } from '../src/trackers'
-import { computeLimitedSiteObject } from '../src/utils.js'
+import { load, init, update } from '../src/content-scope-features.js';
+import { isTrackerOrigin } from '../src/trackers';
+import { computeLimitedSiteObject } from '../src/utils.js';
 
 const allowedMessages = [
     'getClickToLoadState',
@@ -14,16 +14,16 @@ const allowedMessages = [
     'unblockClickToLoadContent',
     'updateYouTubeCTLAddedFlag',
     'updateFacebookCTLBreakageFlags',
-]
-const messageSecret = randomString()
+];
+const messageSecret = randomString();
 
 function randomString() {
-    const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
-    return num.toString().replace('0.', '')
+    const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+    return num.toString().replace('0.', '');
 }
 
 function initCode() {
-    const trackerLookup = import.meta.trackerLookup
+    const trackerLookup = import.meta.trackerLookup;
     load({
         platform: {
             name: 'extension',
@@ -33,7 +33,7 @@ function initCode() {
         site: computeLimitedSiteObject(),
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         bundledConfig: $BUNDLED_CONFIG$,
-    })
+    });
 
     chrome.runtime.sendMessage(
         {
@@ -45,7 +45,7 @@ function initCode() {
         (message) => {
             // Background has disabled features
             if (!message) {
-                return
+                return;
             }
             if (message.debug) {
                 window.addEventListener('message', (m) => {
@@ -53,32 +53,32 @@ function initCode() {
                         chrome.runtime.sendMessage({
                             messageType: 'debuggerMessage',
                             options: m.data,
-                        })
+                        });
                     }
-                })
+                });
             }
-            message.messageSecret = messageSecret
-            init(message)
+            message.messageSecret = messageSecret;
+            init(message);
         },
-    )
+    );
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
         if (message && message.type === 'update') {
-            update(message)
+            update(message);
         }
-    })
+    });
 
     window.addEventListener('sendMessageProxy' + messageSecret, (event) => {
-        event.stopImmediatePropagation()
+        event.stopImmediatePropagation();
 
         if (!(event instanceof CustomEvent) || !event?.detail) {
-            return console.warn('no details in sendMessage proxy', event)
+            return console.warn('no details in sendMessage proxy', event);
         }
 
-        const messageType = event.detail?.messageType
+        const messageType = event.detail?.messageType;
         if (!allowedMessages.includes(messageType)) {
-            return console.warn('Ignoring invalid sendMessage messageType', messageType)
+            return console.warn('Ignoring invalid sendMessage messageType', messageType);
         }
 
         chrome.runtime.sendMessage(event.detail, (response) => {
@@ -86,11 +86,11 @@ function initCode() {
                 messageType: 'response',
                 responseMessageType: messageType,
                 response,
-            }
+            };
 
-            update(message)
-        })
-    })
+            update(message);
+        });
+    });
 }
 
-initCode()
+initCode();

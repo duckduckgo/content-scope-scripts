@@ -1,7 +1,7 @@
 export const DEFAULT_RETRY_CONFIG = {
     interval: { ms: 0 },
     maxAttempts: 1,
-}
+};
 
 /**
  * A generic retry mechanism for synchronous functions that return
@@ -14,24 +14,24 @@ export const DEFAULT_RETRY_CONFIG = {
  * @return {Promise<{ result: FnReturn | undefined, exceptions: string[] }>}
  */
 export async function retry(fn, config = DEFAULT_RETRY_CONFIG) {
-    let lastResult
-    const exceptions = []
+    let lastResult;
+    const exceptions = [];
     for (let i = 0; i < config.maxAttempts; i++) {
         try {
-            lastResult = await Promise.resolve(fn())
+            lastResult = await Promise.resolve(fn());
         } catch (e) {
-            exceptions.push(e.toString())
+            exceptions.push(e.toString());
         }
 
         // stop when there's a good result to return
         // since fn() returns either { success: <value> } or { error: ... }
-        if (lastResult && 'success' in lastResult) break
+        if (lastResult && 'success' in lastResult) break;
 
         // don't pause on the last item
-        if (i === config.maxAttempts - 1) break
+        if (i === config.maxAttempts - 1) break;
 
-        await new Promise((resolve) => setTimeout(resolve, config.interval.ms))
+        await new Promise((resolve) => setTimeout(resolve, config.interval.ms));
     }
 
-    return { result: lastResult, exceptions }
+    return { result: lastResult, exceptions };
 }

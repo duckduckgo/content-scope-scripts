@@ -2,7 +2,7 @@
  * @typedef {import("../../../../types/new-tab.js").PrivacyStatsData} PrivacyStatsData
  * @typedef {import("../../../../types/new-tab.js").StatsConfig} StatsConfig
  */
-import { Service } from '../service.js'
+import { Service } from '../service.js';
 
 export class PrivacyStatsService {
     /**
@@ -14,14 +14,14 @@ export class PrivacyStatsService {
         this.dataService = new Service({
             initial: () => ntp.messaging.request('stats_getData'),
             subscribe: (cb) => ntp.messaging.subscribe('stats_onDataUpdate', cb),
-        })
+        });
 
         /** @type {Service<StatsConfig>} */
         this.configService = new Service({
             initial: () => ntp.messaging.request('stats_getConfig'),
             subscribe: (cb) => ntp.messaging.subscribe('stats_onConfigUpdate', cb),
             persist: (data) => ntp.messaging.notify('stats_setConfig', data),
-        })
+        });
     }
 
     /**
@@ -29,18 +29,18 @@ export class PrivacyStatsService {
      * @internal
      */
     async getInitial() {
-        const p1 = this.configService.fetchInitial()
-        const p2 = this.dataService.fetchInitial()
-        const [config, data] = await Promise.all([p1, p2])
-        return { config, data }
+        const p1 = this.configService.fetchInitial();
+        const p2 = this.dataService.fetchInitial();
+        const [config, data] = await Promise.all([p1, p2]);
+        return { config, data };
     }
 
     /**
      * @internal
      */
     destroy() {
-        this.configService.destroy()
-        this.dataService.destroy()
+        this.configService.destroy();
+        this.dataService.destroy();
     }
 
     /**
@@ -48,7 +48,7 @@ export class PrivacyStatsService {
      * @internal
      */
     onData(cb) {
-        return this.dataService.onData(cb)
+        return this.dataService.onData(cb);
     }
 
     /**
@@ -56,7 +56,7 @@ export class PrivacyStatsService {
      * @internal
      */
     onConfig(cb) {
-        return this.configService.onData(cb)
+        return this.configService.onData(cb);
     }
 
     /**
@@ -67,10 +67,10 @@ export class PrivacyStatsService {
     toggleExpansion() {
         this.configService.update((old) => {
             if (old.expansion === 'expanded') {
-                return { ...old, expansion: /** @type {const} */ ('collapsed') }
+                return { ...old, expansion: /** @type {const} */ ('collapsed') };
             } else {
-                return { ...old, expansion: /** @type {const} */ ('expanded') }
+                return { ...old, expansion: /** @type {const} */ ('expanded') };
             }
-        })
+        });
     }
 }

@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import styles from './Switch.module.css'
-import { useEnv } from '../../../../shared/components/EnvironmentProvider'
+import { h } from 'preact';
+import styles from './Switch.module.css';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 
 /**
  * Switch component used to toggle between two states.
@@ -14,14 +14,14 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider'
  * @param {Function} props.onUnchecked - Callback function to be called when the switch is unchecked.
  */
 export function Switch({ checked = false, variant, ...props }) {
-    const { onChecked, onUnchecked, ariaLabel, pending } = props
-    const env = useEnv()
-    const platform = variant || env.injectName
+    const { onChecked, onUnchecked, ariaLabel, pending } = props;
+    const env = useEnv();
+    const platform = variant || env.injectName;
     function change(e) {
         if (e.target.checked === true) {
-            onChecked()
+            onChecked();
         } else {
-            onUnchecked()
+            onUnchecked();
         }
     }
     return (
@@ -37,5 +37,5 @@ export function Switch({ checked = false, variant, ...props }) {
             />
             <span className={styles.switch} style="transition-duration: 130ms;transition-delay: 0ms;"></span>
         </label>
-    )
+    );
 }

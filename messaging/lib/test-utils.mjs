@@ -22,10 +22,10 @@ export function mockWindowsMessaging(params) {
         mocks: {
             outgoing: [],
         },
-    }
-    const listeners = []
+    };
+    const listeners = [];
     // @ts-expect-error mocking is intentional
-    window.chrome = {}
+    window.chrome = {};
     // @ts-expect-error mocking is intentional
     window.chrome.webview = {
         /**
@@ -36,10 +36,10 @@ export function mockWindowsMessaging(params) {
             if ('subscriptionName' in input) {
                 setTimeout(() => {
                     for (const listener of listeners) {
-                        listener({ origin: window.origin, data: input })
+                        listener({ origin: window.origin, data: input });
                     }
-                }, 0)
-                return
+                }, 0);
+                return;
             }
             /** @type {NotificationMessage | RequestMessage} */
             let msg = {
@@ -48,14 +48,14 @@ export function mockWindowsMessaging(params) {
                 params: input.Data,
                 method: input.Name,
                 id: undefined,
-            }
+            };
 
             // add the Id if it was a RequestMessage
             if ('Id' in input) {
                 msg = {
                     ...msg,
                     id: input.Id,
-                }
+                };
             }
 
             // record the call
@@ -65,20 +65,20 @@ export function mockWindowsMessaging(params) {
                         payload: msg,
                     }),
                 ),
-            )
+            );
 
             // if there's no 'id' field, we don't need to respond
-            if (!('id' in msg)) return
+            if (!('id' in msg)) return;
 
             // If we get here, it needed a response **and** we have a value for it
             setTimeout(() => {
                 // if the mocked response is absent, bail with an error
                 if (!(msg.method in window.__playwright_01.mockResponses)) {
-                    throw new Error('response not found for ' + msg.method)
+                    throw new Error('response not found for ' + msg.method);
                 }
 
                 // now access the response
-                const response = window.__playwright_01.mockResponses[msg.method]
+                const response = window.__playwright_01.mockResponses[msg.method];
 
                 for (const listener of listeners) {
                     listener({
@@ -90,20 +90,20 @@ export function mockWindowsMessaging(params) {
                             featureName: msg.featureName,
                             id: msg.id,
                         },
-                    })
+                    });
                 }
-            }, 0)
+            }, 0);
         },
         removeEventListener(_name, _listener) {
-            const index = listeners.indexOf(_listener)
+            const index = listeners.indexOf(_listener);
             if (index > -1) {
-                listeners.splice(index, 1)
+                listeners.splice(index, 1);
             }
         },
         addEventListener(_name, listener) {
-            listeners.push(listener)
+            listeners.push(listener);
         },
-    }
+    };
 }
 
 /**
@@ -120,7 +120,7 @@ export function mockWebkitMessaging(params) {
         mocks: {
             outgoing: [],
         },
-    }
+    };
     window.webkit = {
         messageHandlers: {
             [params.messagingContext.context]: {
@@ -134,21 +134,21 @@ export function mockWebkitMessaging(params) {
                                 payload: msg,
                             }),
                         ),
-                    )
+                    );
 
                     // force a 'tick' to allow tests to reset mocks before reading responses
-                    await new Promise((resolve) => setTimeout(resolve, 0))
+                    await new Promise((resolve) => setTimeout(resolve, 0));
 
                     // if it's a notification, simulate the empty response and don't check for a response
                     if (!('id' in msg)) {
-                        return JSON.stringify({})
+                        return JSON.stringify({});
                     }
 
                     if (!(msg.method in window.__playwright_01.mockResponses)) {
-                        throw new Error('response not found for ' + msg.method)
+                        throw new Error('response not found for ' + msg.method);
                     }
 
-                    const response = window.__playwright_01.mockResponses[msg.method]
+                    const response = window.__playwright_01.mockResponses[msg.method];
 
                     /** @type {Omit<MessageResponse, 'error'>} */
                     const r = {
@@ -156,13 +156,13 @@ export function mockWebkitMessaging(params) {
                         context: msg.context,
                         featureName: msg.featureName,
                         id: msg.id,
-                    }
+                    };
 
-                    return JSON.stringify(r)
+                    return JSON.stringify(r);
                 },
             },
         },
-    }
+    };
 }
 
 /**
@@ -180,7 +180,7 @@ export function mockAndroidMessaging(params) {
         mocks: {
             outgoing: [],
         },
-    }
+    };
     window[params.messagingContext.context] = {
         /**
          * @param {string} jsonString
@@ -190,7 +190,7 @@ export function mockAndroidMessaging(params) {
         // eslint-disable-next-line require-await
         process: async (jsonString, secret) => {
             /** @type {RequestMessage | NotificationMessage} */
-            const msg = JSON.parse(jsonString)
+            const msg = JSON.parse(jsonString);
 
             window.__playwright_01.mocks.outgoing.push(
                 JSON.parse(
@@ -198,18 +198,18 @@ export function mockAndroidMessaging(params) {
                         payload: msg,
                     }),
                 ),
-            )
+            );
 
             // if it's a notification, simulate the empty response and don't check for a response
             if (!('id' in msg)) {
-                return
+                return;
             }
 
             if (!(msg.method in window.__playwright_01.mockResponses)) {
-                throw new Error('response not found for ' + msg.method)
+                throw new Error('response not found for ' + msg.method);
             }
 
-            const response = window.__playwright_01.mockResponses[msg.method]
+            const response = window.__playwright_01.mockResponses[msg.method];
 
             /** @type {Omit<MessageResponse, 'error'>} */
             const r = {
@@ -217,11 +217,11 @@ export function mockAndroidMessaging(params) {
                 context: msg.context,
                 featureName: msg.featureName,
                 id: msg.id,
-            }
+            };
 
-            globalThis.messageCallback?.(secret, r)
+            globalThis.messageCallback?.(secret, r);
         },
-    }
+    };
 }
 
 /**
@@ -232,7 +232,7 @@ export function mockResponses(params) {
     window.__playwright_01.mockResponses = {
         ...window.__playwright_01.mockResponses,
         ...params.responses,
-    }
+    };
 }
 
 /**
@@ -241,14 +241,14 @@ export function mockResponses(params) {
  * @param {number} params.count
  */
 export function waitForCallCount(params) {
-    const outgoing = window.__playwright_01.mocks.outgoing
+    const outgoing = window.__playwright_01.mocks.outgoing;
     const filtered = outgoing.filter(({ payload }) => {
         if ('method' in payload) {
-            return params.method === payload.method
+            return params.method === payload.method;
         }
-        return false
-    })
-    return filtered.length >= params.count
+        return false;
+    });
+    return filtered.length >= params.count;
 }
 
 /**
@@ -256,7 +256,7 @@ export function waitForCallCount(params) {
  * @return {any}
  */
 export function readOutgoingMessages() {
-    return window.__playwright_01.mocks.outgoing
+    return window.__playwright_01.mocks.outgoing;
 }
 
 /**
@@ -266,7 +266,7 @@ export function readOutgoingMessages() {
  */
 export function wrapWindowsScripts(js, replacements) {
     for (const [find, replace] of Object.entries(replacements)) {
-        js = js.replace(find, JSON.stringify(replace))
+        js = js.replace(find, JSON.stringify(replace));
     }
     return `
         (() => {
@@ -282,7 +282,7 @@ export function wrapWindowsScripts(js, replacements) {
                 console.error(e)
             }
         })();
-    `
+    `;
 }
 
 /**
@@ -292,9 +292,9 @@ export function wrapWindowsScripts(js, replacements) {
  */
 export function wrapWebkitScripts(js, replacements) {
     for (const [find, replace] of Object.entries(replacements)) {
-        js = js.replace(find, JSON.stringify(replace))
+        js = js.replace(find, JSON.stringify(replace));
     }
-    return js
+    return js;
 }
 
 /**
@@ -310,21 +310,21 @@ export function simulateSubscriptionMessage(params) {
         featureName: params.messagingContext.featureName,
         subscriptionName: params.name,
         params: params.payload,
-    }
+    };
     switch (params.injectName) {
         case 'windows': {
             // @ts-expect-error DDG custom global
-            const fn = window.chrome?.webview?.postMessage || window.windowsInteropPostMessage
-            fn(subscriptionEvent)
-            break
+            const fn = window.chrome?.webview?.postMessage || window.windowsInteropPostMessage;
+            fn(subscriptionEvent);
+            break;
         }
         case 'apple':
         case 'apple-isolated': {
-            if (!(params.name in window)) throw new Error('subscription fn not found for: ' + params.injectName)
-            window[params.name](subscriptionEvent)
-            break
+            if (!(params.name in window)) throw new Error('subscription fn not found for: ' + params.injectName);
+            window[params.name](subscriptionEvent);
+            break;
         }
         default:
-            throw new Error('platform not supported yet: ' + params.injectName)
+            throw new Error('platform not supported yet: ' + params.injectName);
     }
 }

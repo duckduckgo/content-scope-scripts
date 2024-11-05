@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { availableIcons } from './components/ListItem'
-import pinningAnimation from './animations/taskbar_pinning.riv'
-import importAnimation from './animations/import.riv'
-import defaultAnimation from './animations/set_default.riv'
+import { availableIcons } from './components/ListItem';
+import pinningAnimation from './animations/taskbar_pinning.riv';
+import importAnimation from './animations/import.riv';
+import defaultAnimation from './animations/set_default.riv';
 
 /**
  * @typedef {object} RowData
@@ -82,7 +82,7 @@ export const stepDefinitions = {
         id: 'duckPlayerSingle',
         kind: 'info',
     },
-}
+};
 
 export const stepMeta = /** @type {const} */ ({
     dockSingle: {
@@ -109,7 +109,7 @@ export const stepMeta = /** @type {const} */ ({
             },
         },
     },
-})
+});
 /**
  * Row items that do not cause system settings to be altered
  * @type {Record<string, (t: import('./types').TranslationFn) => Omit<RowData, "id" | "acceptText"> & { id: string }>}
@@ -155,13 +155,13 @@ export const noneSettingsRowItems = {
         secondaryText: t('row_duckPlayer_desc'),
         kind: 'one-time',
     }),
-}
+};
 
 /** @type {Record<import('./types').SystemValueId, (t: import('./types').TranslationFn, platform: ImportMeta['injectName']) => RowData>} */
 export const settingsRowItems = {
     dock: (t, platform) => {
-        const title = platform === 'apple' ? t('row_dock_macos_title') : t('row_dock_title')
-        const acceptText = platform === 'apple' ? t('row_dock_macos_accept') : t('row_dock_accept')
+        const title = platform === 'apple' ? t('row_dock_macos_title') : t('row_dock_title');
+        const acceptText = platform === 'apple' ? t('row_dock_macos_accept') : t('row_dock_accept');
         return {
             id: 'dock',
             icon: 'dock.png',
@@ -170,7 +170,7 @@ export const settingsRowItems = {
             summary: t('row_dock_summary'),
             kind: 'one-time',
             acceptText,
-        }
+        };
     },
     import: (t) => ({
         id: 'import',
@@ -217,7 +217,7 @@ export const settingsRowItems = {
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept'),
     }),
-}
+};
 
 /**
  * @typedef {Object} BeforeAfter
@@ -251,4 +251,4 @@ export const beforeAfterMeta = {
         inputName: 'Duck Player?',
         stateMachine: 'State Machine 2',
     }),
-}
+};

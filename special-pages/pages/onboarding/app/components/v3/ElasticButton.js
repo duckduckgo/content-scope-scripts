@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import cn from 'classnames'
-import styles from './ElasticButton.module.css'
+import { h } from 'preact';
+import cn from 'classnames';
+import styles from './ElasticButton.module.css';
 
 /**
  * @typedef {Object} ElasticButtonProps
@@ -23,7 +23,7 @@ export function ElasticButton({ text, variant = 'primary', startIcon, endIcon, l
         [styles.primary]: variant === 'primary',
         [styles.secondary]: variant === 'secondary',
         [styles.elastic]: elastic === true,
-    })
+    });
     return (
         <button className={classes} aria-label={text} {...rest}>
             <div className={styles.background}></div>
@@ -33,7 +33,7 @@ export function ElasticButton({ text, variant = 'primary', startIcon, endIcon, l
                 {endIcon}
             </div>
         </button>
-    )
+    );
 }
 
 /**
@@ -51,5 +51,5 @@ export function FixedWidthContent({ text, longestText }) {
             </span>
             <span className={styles.visibleContent}>{text}</span>
         </span>
-    )
+    );
 }

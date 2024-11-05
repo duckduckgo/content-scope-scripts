@@ -3,8 +3,8 @@
  */
 class Template {
     constructor(strings, values) {
-        this.values = values
-        this.strings = strings
+        this.values = values;
+        this.strings = strings;
     }
 
     /**
@@ -22,41 +22,41 @@ class Template {
             '<': '&lt;',
             '>': '&gt;',
             '/': '&#x2F;',
-        }
-        return String(str).replace(/[&"'<>/]/g, (m) => replacements[m])
+        };
+        return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
     }
 
     potentiallyEscape(value) {
         if (typeof value === 'object') {
             if (value instanceof Array) {
-                return value.map((val) => this.potentiallyEscape(val)).join('')
+                return value.map((val) => this.potentiallyEscape(val)).join('');
             }
 
             // If we are an escaped template let join call toString on it
             if (value instanceof Template) {
-                return value
+                return value;
             }
 
-            throw new Error('Unknown object to escape')
+            throw new Error('Unknown object to escape');
         }
-        return this.escapeXML(value)
+        return this.escapeXML(value);
     }
 
     toString() {
-        const result = []
+        const result = [];
 
         for (const [i, string] of this.strings.entries()) {
-            result.push(string)
+            result.push(string);
             if (i < this.values.length) {
-                result.push(this.potentiallyEscape(this.values[i]))
+                result.push(this.potentiallyEscape(this.values[i]));
             }
         }
-        return result.join('')
+        return result.join('');
     }
 }
 
 export function html(strings, ...values) {
-    return new Template(strings, values)
+    return new Template(strings, values);
 }
 
 /**
@@ -64,7 +64,7 @@ export function html(strings, ...values) {
  * @return {Template}
  */
 export function trustedUnsafe(string) {
-    return html([string])
+    return html([string]);
 }
 
 /**
@@ -73,9 +73,9 @@ export function trustedUnsafe(string) {
  */
 export function createPolicy() {
     if (globalThis.trustedTypes) {
-        return globalThis.trustedTypes?.createPolicy?.('ddg-default', { createHTML: (s) => s })
+        return globalThis.trustedTypes?.createPolicy?.('ddg-default', { createHTML: (s) => s });
     }
     return {
         createHTML: (s) => s,
-    }
+    };
 }

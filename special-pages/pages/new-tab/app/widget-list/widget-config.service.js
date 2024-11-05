@@ -1,7 +1,7 @@
 /**
  * @typedef {import("../../../../types/new-tab.js").WidgetConfigs} WidgetConfigs
  */
-import { Service } from '../service.js'
+import { Service } from '../service.js';
 
 export class WidgetConfigService {
     /**
@@ -20,7 +20,7 @@ export class WidgetConfigService {
                 persist: (data) => ntp.messaging.notify('widgets_setConfig', data),
             },
             initialConfig,
-        )
+        );
     }
 
     /**
@@ -28,7 +28,7 @@ export class WidgetConfigService {
      * @internal
      */
     onData(cb) {
-        return this.service.onData(cb)
+        return this.service.onData(cb);
     }
 
     /**
@@ -44,11 +44,11 @@ export class WidgetConfigService {
             return old.map((widgetConfigItem) => {
                 if (widgetConfigItem.id === id) {
                     const alt =
-                        widgetConfigItem.visibility === 'visible' ? /** @type {const} */ ('hidden') : /** @type {const} */ ('visible')
-                    return { ...widgetConfigItem, visibility: alt }
+                        widgetConfigItem.visibility === 'visible' ? /** @type {const} */ ('hidden') : /** @type {const} */ ('visible');
+                    return { ...widgetConfigItem, visibility: alt };
                 }
-                return widgetConfigItem
-            })
-        })
+                return widgetConfigItem;
+            });
+        });
     }
 }

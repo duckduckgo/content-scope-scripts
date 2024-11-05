@@ -1,8 +1,8 @@
-import { createContext, h } from 'preact'
-import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks'
-import { useInitialSetupData, useMessaging } from '../types.js'
-import { UpdateNotificationService } from './update-notification.service.js'
-import { reducer, useDataSubscription } from '../service.hooks.js'
+import { createContext, h } from 'preact';
+import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useInitialSetupData, useMessaging } from '../types.js';
+import { UpdateNotificationService } from './update-notification.service.js';
+import { reducer, useDataSubscription } from '../service.hooks.js';
 
 /**
  * @typedef {import('../../../../types/new-tab.js').UpdateNotificationData} UpdateNotificationData
@@ -18,11 +18,11 @@ export const UpdateNotificationContext = createContext({
     state: { status: 'idle', data: null, config: null },
     /** @type {() => void} */
     dismiss: () => {
-        throw new Error('must implement dismiss')
+        throw new Error('must implement dismiss');
     },
-})
+});
 
-export const UpdateNotificationDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}))
+export const UpdateNotificationDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}));
 
 /**
  * A data provider that will use `RMFService` to fetch data, subscribe
@@ -32,11 +32,11 @@ export const UpdateNotificationDispatchContext = createContext(/** @type {import
  * @param {import("preact").ComponentChild} props.children
  */
 export function UpdateNotificationProvider(props) {
-    const { updateNotification } = useInitialSetupData()
+    const { updateNotification } = useInitialSetupData();
     if (updateNotification === null) {
-        return null
+        return null;
     }
-    return <UpdateNotificationWithInitial updateNotification={updateNotification}>{props.children}</UpdateNotificationWithInitial>
+    return <UpdateNotificationWithInitial updateNotification={updateNotification}>{props.children}</UpdateNotificationWithInitial>;
 }
 
 /**
@@ -49,26 +49,26 @@ function UpdateNotificationWithInitial({ updateNotification, children }) {
         status: 'ready',
         data: updateNotification,
         config: undefined,
-    })
+    });
 
     // const [state, dispatch] = useReducer(withLog('RMFProvider', reducer), initial)
-    const [state, dispatch] = useReducer(reducer, initial)
+    const [state, dispatch] = useReducer(reducer, initial);
 
     // create an instance of `RMFService` for the lifespan of this component.
-    const service = useService(updateNotification)
+    const service = useService(updateNotification);
 
     // subscribe to data updates
-    useDataSubscription({ dispatch, service })
+    useDataSubscription({ dispatch, service });
 
     const dismiss = useCallback(() => {
-        service.current?.dismiss()
-    }, [service])
+        service.current?.dismiss();
+    }, [service]);
 
     return (
         <UpdateNotificationContext.Provider value={{ state, dismiss }}>
             <UpdateNotificationDispatchContext.Provider value={dispatch}>{children}</UpdateNotificationDispatchContext.Provider>
         </UpdateNotificationContext.Provider>
-    )
+    );
 }
 
 /**
@@ -76,14 +76,14 @@ function UpdateNotificationWithInitial({ updateNotification, children }) {
  * @return {import("preact").RefObject<UpdateNotificationService>}
  */
 export function useService(initial) {
-    const service = useRef(/** @type {UpdateNotificationService|null} */ (null))
-    const ntp = useMessaging()
+    const service = useRef(/** @type {UpdateNotificationService|null} */ (null));
+    const ntp = useMessaging();
     useEffect(() => {
-        const stats = new UpdateNotificationService(ntp, initial)
-        service.current = stats
+        const stats = new UpdateNotificationService(ntp, initial);
+        service.current = stats;
         return () => {
-            stats.destroy()
-        }
-    }, [ntp, initial])
-    return service
+            stats.destroy();
+        };
+    }, [ntp, initial]);
+    return service;
 }

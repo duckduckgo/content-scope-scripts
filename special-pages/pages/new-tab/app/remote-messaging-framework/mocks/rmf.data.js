@@ -52,4 +52,4 @@ export const rmfDataExamples = {
             secondaryActionText: 'Remind me later, but only if I’m actually going to update soon',
         },
     },
-}
+};

@@ -11,8 +11,8 @@
  *
  */
 export class Service {
-    eventTarget = new EventTarget()
-    DEBOUNCE_TIME_MS = 200
+    eventTarget = new EventTarget();
+    DEBOUNCE_TIME_MS = 200;
     /**
      * @param {object} props
      * @param {() => Promise<Data>} [props.initial]
@@ -22,12 +22,12 @@ export class Service {
      * @param {Data|null} [initial] - optional initial data
      */
     constructor(props, initial) {
-        this.impl = props
+        this.impl = props;
 
         if (initial) {
-            this.data = initial
+            this.data = initial;
         } else {
-            this.data = null
+            this.data = null;
         }
     }
 
@@ -35,10 +35,10 @@ export class Service {
      * @return {Promise<Data>}
      */
     async fetchInitial() {
-        if (!this.impl.initial) throw new Error('unreachable')
-        const initial = await this.impl.initial()
-        this._accept(initial, 'initial')
-        return /** @type {Data} */ (this.data)
+        if (!this.impl.initial) throw new Error('unreachable');
+        const initial = await this.impl.initial();
+        this._accept(initial, 'initial');
+        return /** @type {Data} */ (this.data);
     }
 
     /**
@@ -52,23 +52,23 @@ export class Service {
      * @param {(evt: {data: Data, source: 'manual' | 'subscription'}) => void} cb
      */
     onData(cb) {
-        this._setupSubscription()
-        const controller = new AbortController()
+        this._setupSubscription();
+        const controller = new AbortController();
         this.eventTarget.addEventListener(
             'data',
             (/** @type {CustomEvent<{data: Data, source: 'manual' | 'subscription'}>} */ evt) => {
-                cb(evt.detail)
+                cb(evt.detail);
             },
             { signal: controller.signal },
-        )
-        return () => controller.abort()
+        );
+        return () => controller.abort();
     }
 
     /**
      * Remove data subscriptions
      */
     destroy() {
-        this.sub?.()
+        this.sub?.();
     }
 
     /**
@@ -76,10 +76,10 @@ export class Service {
      * @private
      */
     _setupSubscription() {
-        if (this.sub) return
+        if (this.sub) return;
         this.sub = this.impl.subscribe?.((data) => {
-            this._accept(data, 'subscription')
-        })
+            this._accept(data, 'subscription');
+        });
     }
 
     /**
@@ -91,12 +91,12 @@ export class Service {
      * @param {(prev: Data) => Data} updaterFn - the function that returns the next state
      */
     update(updaterFn) {
-        if (this.data === null) return
-        const next = updaterFn(this.data)
+        if (this.data === null) return;
+        const next = updaterFn(this.data);
         if (next) {
-            this._accept(next, 'manual')
+            this._accept(next, 'manual');
         } else {
-            console.warn('could not update')
+            console.warn('could not update');
         }
     }
 
@@ -106,13 +106,13 @@ export class Service {
      * @private
      */
     _accept(data, source) {
-        this.data = /** @type {NonNullable<Data>} */ (data)
+        this.data = /** @type {NonNullable<Data>} */ (data);
 
         // do nothing when it's the initial data
-        if (source === 'initial') return
+        if (source === 'initial') return;
 
         // always cancel any existing debounced timers
-        this.clearDebounceTimer()
+        this.clearDebounceTimer();
 
         // always broadcast the change on the event target
         const dataEvent = new CustomEvent('data', {
@@ -120,15 +120,15 @@ export class Service {
                 data: this.data,
                 source,
             },
-        })
-        this.eventTarget.dispatchEvent(dataEvent)
+        });
+        this.eventTarget.dispatchEvent(dataEvent);
 
         // try to persist if the last try was 'manual' update
         if (source === 'manual') {
-            const time = window.location.search.includes('p2') ? this.DEBOUNCE_TIME_MS * 20.5 : this.DEBOUNCE_TIME_MS
+            const time = window.location.search.includes('p2') ? this.DEBOUNCE_TIME_MS * 20.5 : this.DEBOUNCE_TIME_MS;
             this.debounceTimer = setTimeout(() => {
-                this.persist()
-            }, time)
+                this.persist();
+            }, time);
         }
     }
 
@@ -137,8 +137,8 @@ export class Service {
      */
     clearDebounceTimer() {
         if (this.debounceTimer) {
-            clearTimeout(this.debounceTimer)
-            this.debounceTimer = null
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = null;
         }
     }
 
@@ -147,12 +147,12 @@ export class Service {
      */
     persist() {
         // some services will not implement persistence
-        if (!this.impl.persist) return
+        if (!this.impl.persist) return;
 
         // if the data was never set, there's nothing to persist
-        if (this.data === null) return
+        if (this.data === null) return;
 
         // send the data
-        this.impl.persist(this.data)
+        this.impl.persist(this.data);
     }
 }

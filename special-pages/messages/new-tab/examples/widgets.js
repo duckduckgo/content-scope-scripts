@@ -1,12 +1,12 @@
 /**
  * @type {import("../../../types/new-tab").Widgets}
  */
-const widgets = [{ id: 'weatherWidget' }, { id: 'newsWidget' }]
+const widgets = [{ id: 'weatherWidget' }, { id: 'newsWidget' }];
 
 /**
  * @type {import("../../../types/new-tab").WidgetListItem}
  */
-const widget = { id: 'newsWidget' }
+const widget = { id: 'newsWidget' };
 
 /**
  * @type {import("../../../types/new-tab").WidgetConfigs}
@@ -14,7 +14,7 @@ const widget = { id: 'newsWidget' }
 const widgetConfigs = [
     { id: 'weatherWidget', visibility: 'visible' },
     { id: 'newsWidget', visibility: 'visible' },
-]
+];
 
 /**
  * @type {import("../../../types/new-tab").WidgetConfigItem}
@@ -22,7 +22,7 @@ const widgetConfigs = [
 const widgetConfig = {
     id: 'weatherWidget',
     visibility: 'visible',
-}
+};
 
 /**
  * Widgets + WidgetConfigs when delivered in first payload...
@@ -39,6 +39,6 @@ const initialSetupResponse = {
     locale: 'en',
     platform: { name: 'windows' },
     updateNotification: { content: null },
-}
+};
 
-export {}
+export {};

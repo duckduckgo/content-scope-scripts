@@ -1,14 +1,14 @@
-import { h } from 'preact'
-import cn from 'classnames'
-import { useStepConfig } from './useStepConfig'
-import { useGlobalDispatch } from '../../global'
-import { Heading } from './Heading'
-import { SingleLineProgress } from '../Progress'
-import { ElasticButton } from './ElasticButton'
-import { Stack } from '../Stack'
-import { SlideIn } from './Animation'
+import { h } from 'preact';
+import cn from 'classnames';
+import { useStepConfig } from './useStepConfig';
+import { useGlobalDispatch } from '../../global';
+import { Heading } from './Heading';
+import { SingleLineProgress } from '../Progress';
+import { ElasticButton } from './ElasticButton';
+import { Stack } from '../Stack';
+import { SlideIn } from './Animation';
 
-import styles from './SingleStep.module.css'
+import styles from './SingleStep.module.css';
 
 /**
  * @param {object} props
@@ -39,19 +39,19 @@ export function StepGrid({ progress, dismissButton, acceptButton, children }) {
                 )}
             </div>
         </div>
-    )
+    );
 }
 
 export function SingleStep() {
-    const dispatch = useGlobalDispatch()
-    const { variant, heading, dismissButton, acceptButton, content, progress } = useStepConfig()
+    const dispatch = useGlobalDispatch();
+    const { variant, heading, dismissButton, acceptButton, content, progress } = useStepConfig();
 
     const classes = cn({
         [styles.panel]: true,
         [styles.boxed]: variant === 'box',
-    })
+    });
 
-    const onTitleComplete = () => dispatch({ kind: 'title-complete' })
+    const onTitleComplete = () => dispatch({ kind: 'title-complete' });
 
     return (
         <div className={classes}>
@@ -79,5 +79,5 @@ export function SingleStep() {
                 )}
             </Stack>
         </div>
-    )
+    );
 }

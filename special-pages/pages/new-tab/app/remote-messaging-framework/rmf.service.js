@@ -1,7 +1,7 @@
 /**
  * @typedef {import("../../../../types/new-tab.js").RMFData} RMFData
  */
-import { Service } from '../service.js'
+import { Service } from '../service.js';
 
 export class RMFService {
     /**
@@ -9,12 +9,12 @@ export class RMFService {
      * @internal
      */
     constructor(ntp) {
-        this.ntp = ntp
+        this.ntp = ntp;
         /** @type {Service<RMFData>} */
         this.dataService = new Service({
             initial: () => ntp.messaging.request('rmf_getData'),
             subscribe: (cb) => ntp.messaging.subscribe('rmf_onDataUpdate', cb),
-        })
+        });
     }
 
     /**
@@ -22,14 +22,14 @@ export class RMFService {
      * @internal
      */
     async getInitial() {
-        return await this.dataService.fetchInitial()
+        return await this.dataService.fetchInitial();
     }
 
     /**
      * @internal
      */
     destroy() {
-        this.dataService.destroy()
+        this.dataService.destroy();
     }
 
     /**
@@ -37,7 +37,7 @@ export class RMFService {
      * @internal
      */
     onData(cb) {
-        return this.dataService.onData(cb)
+        return this.dataService.onData(cb);
     }
 
     /**
@@ -45,20 +45,20 @@ export class RMFService {
      * @internal
      */
     dismiss(id) {
-        return this.ntp.messaging.notify('rmf_dismiss', { id })
+        return this.ntp.messaging.notify('rmf_dismiss', { id });
     }
 
     /**
      * @param {string} id
      */
     primaryAction(id) {
-        this.ntp.messaging.notify('rmf_primaryAction', { id })
+        this.ntp.messaging.notify('rmf_primaryAction', { id });
     }
 
     /**
      * @param {string} id
      */
     secondaryAction(id) {
-        this.ntp.messaging.notify('rmf_secondaryAction', { id })
+        this.ntp.messaging.notify('rmf_secondaryAction', { id });
     }
 }

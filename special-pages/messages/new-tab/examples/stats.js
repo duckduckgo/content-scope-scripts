@@ -8,7 +8,7 @@ const privacyStatsData = {
         { displayName: 'Tracker Co. B', count: 5678 },
         { displayName: 'Tracker Co. C', count: 91011 },
     ],
-}
+};
 
 /**
  * @type {import("../../../types/new-tab").StatsConfig}
@@ -16,7 +16,7 @@ const privacyStatsData = {
 const minimumConfig = {
     expansion: 'expanded',
     animation: { kind: 'none' },
-}
+};
 
 /**
  * @type {import("../../../types/new-tab").StatsConfig}
@@ -24,6 +24,6 @@ const minimumConfig = {
 const withAnimation = {
     expansion: 'expanded',
     animation: { kind: 'view-transitions' },
-}
+};
 
-export {}
+export {};

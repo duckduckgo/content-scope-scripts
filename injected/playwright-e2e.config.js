@@ -1,9 +1,9 @@
 /* global process */
-import { defineConfig } from '@playwright/test'
-import { dirname, join } from 'node:path'
-const __dirname = dirname(new URL(import.meta.url).pathname)
+import { defineConfig } from '@playwright/test';
+import { dirname, join } from 'node:path';
+const __dirname = dirname(new URL(import.meta.url).pathname);
 
-export const STORAGE_STATE = join(__dirname, 'integration-test/state/yt.json')
+export const STORAGE_STATE = join(__dirname, 'integration-test/state/yt.json');
 
 export default defineConfig({
     projects: [
@@ -44,4 +44,4 @@ export default defineConfig({
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
     },
-})
+});

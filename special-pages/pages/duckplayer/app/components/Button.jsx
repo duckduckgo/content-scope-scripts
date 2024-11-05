@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import cn from 'classnames'
-import styles from './Button.module.css'
+import { h } from 'preact';
+import cn from 'classnames';
+import styles from './Button.module.css';
 
 /**
  *
@@ -19,12 +19,12 @@ export function Button({ children, formfactor = 'mobile', icon = false, fill = f
         [styles.highlight]: highlight === true,
         [styles.fill]: fill === true,
         [styles.iconOnly]: icon === true,
-    })
+    });
     return (
         <button class={classes} type="button" {...buttonProps}>
             {children}
         </button>
-    )
+    );
 }
 
 /**
@@ -43,12 +43,12 @@ export function ButtonLink({ children, formfactor = 'mobile', icon = false, fill
         [styles.highlight]: highlight === true,
         [styles.fill]: fill === true,
         [styles.iconOnly]: icon === true,
-    })
+    });
     return (
         <a class={classes} type="button" {...anchorProps}>
             {children}
         </a>
-    )
+    );
 }
 
 export function Icon({ src }) {
@@ -56,5 +56,5 @@ export function Icon({ src }) {
         <span class={styles.icon}>
             <img src={src} alt="" />
         </span>
-    )
+    );
 }

@@ -1,5 +1,5 @@
-import { h } from 'preact'
-import styles from './Icons.module.css'
+import { h } from 'preact';
+import styles from './Icons.module.css';
 
 /**
  * BounceIn animates the given children by applying bounce-in animation effect using CSS.
@@ -13,7 +13,7 @@ export function BounceIn({ children, delay = 'none' }) {
         <div className={styles.bounceIn} data-delay={delay}>
             {children}
         </div>
-    )
+    );
 }
 
 /**
@@ -28,7 +28,7 @@ export function FadeIn({ children, delay = 'none' }) {
         <div className={styles.fadeIn} data-delay={delay}>
             {children}
         </div>
-    )
+    );
 }
 
 /**
@@ -43,7 +43,7 @@ export function SlideIn({ children, delay = 'none' }) {
         <div className={styles.slideIn} data-delay={delay}>
             {children}
         </div>
-    )
+    );
 }
 
 /**
@@ -58,7 +58,7 @@ export function SlideUp({ children, delay = 'none' }) {
         <div className={styles.slideUp} data-delay={delay}>
             {children}
         </div>
-    )
+    );
 }
 
 export function Check() {
@@ -86,7 +86,7 @@ export function Check() {
                 </clipPath>
             </defs>
         </svg>
-    )
+    );
 }
 
 export function Play() {
@@ -97,7 +97,7 @@ export function Play() {
                 fill="currentColor"
             />
         </svg>
-    )
+    );
 }
 
 /**
@@ -128,7 +128,7 @@ export function Replay({ direction = 'backward' }) {
                 </clipPath>
             </defs>
         </svg>
-    )
+    );
 }
 
 export function Launch() {
@@ -161,5 +161,5 @@ export function Launch() {
                 </clipPath>
             </defs>
         </svg>
-    )
+    );
 }

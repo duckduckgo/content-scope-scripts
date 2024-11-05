@@ -23,14 +23,14 @@ export class Environment {
         locale = 'en',
         textLength = 1,
     } = {}) {
-        this.display = display
-        this.urlParams = urlParams
-        this.injectName = injectName
-        this.willThrow = willThrow
-        this.debugState = debugState
-        this.env = env
-        this.locale = locale
-        this.textLength = textLength
+        this.display = display;
+        this.urlParams = urlParams;
+        this.injectName = injectName;
+        this.willThrow = willThrow;
+        this.debugState = debugState;
+        this.env = env;
+        this.locale = locale;
+        this.textLength = textLength;
     }
 
     /**
@@ -38,12 +38,12 @@ export class Environment {
      * @returns {Environment}
      */
     withInjectName(injectName) {
-        if (!injectName) return this
-        if (!isInjectName(injectName)) return this
+        if (!injectName) return this;
+        if (!isInjectName(injectName)) return this;
         return new Environment({
             ...this,
             injectName,
-        })
+        });
     }
 
     /**
@@ -51,13 +51,13 @@ export class Environment {
      * @returns {Environment}
      */
     withEnv(env) {
-        if (!env) return this
-        if (env !== 'production' && env !== 'development') return this
+        if (!env) return this;
+        if (env !== 'production' && env !== 'development') return this;
 
         return new Environment({
             ...this,
             env,
-        })
+        });
     }
 
     /**
@@ -65,13 +65,13 @@ export class Environment {
      * @returns {Environment}
      */
     withDisplay(display) {
-        if (!display) return this
-        if (display !== 'app' && display !== 'components') return this
+        if (!display) return this;
+        if (display !== 'app' && display !== 'components') return this;
 
         return new Environment({
             ...this,
             display,
-        })
+        });
     }
 
     /**
@@ -79,14 +79,14 @@ export class Environment {
      * @returns {Environment}
      */
     withLocale(locale) {
-        if (!locale) return this
-        if (typeof locale !== 'string') return this
-        if (locale.length !== 2) return this
+        if (!locale) return this;
+        if (typeof locale !== 'string') return this;
+        if (locale.length !== 2) return this;
 
         return new Environment({
             ...this,
             locale,
-        })
+        });
     }
 
     /**
@@ -94,15 +94,15 @@ export class Environment {
      * @returns {Environment}
      */
     withTextLength(length) {
-        if (!length) return this
-        const num = Number(length)
+        if (!length) return this;
+        const num = Number(length);
         if (num >= 1 && num <= 2) {
             return new Environment({
                 ...this,
                 textLength: num,
-            })
+            });
         }
-        return this
+        return this;
     }
 }
 
@@ -112,6 +112,6 @@ export class Environment {
  */
 function isInjectName(input) {
     /** @type {ImportMeta['injectName'][]} */
-    const allowed = ['windows', 'apple', 'integration', 'android']
-    return allowed.includes(input)
+    const allowed = ['windows', 'apple', 'integration', 'android'];
+    return allowed.includes(input);
 }

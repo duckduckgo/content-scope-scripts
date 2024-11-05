@@ -1,29 +1,29 @@
-import { h } from 'preact'
-import { useGlobalDispatch, useGlobalState } from '../../global'
-import { useTypedTranslation } from '../../types'
-import { usePlatformName } from '../SettingsProvider'
-import { ListItem } from '../../components/ListItem'
-import { BounceIn, Check, FadeIn } from '../../components/Icons'
-import { Stack } from '../../components/Stack'
-import { Button, ButtonBar } from './Buttons'
-import { Switch } from '../../components/Switch'
-import { PlainList } from '../../components/List'
-import { SlideIn } from './Animation'
+import { h } from 'preact';
+import { useGlobalDispatch, useGlobalState } from '../../global';
+import { useTypedTranslation } from '../../types';
+import { usePlatformName } from '../SettingsProvider';
+import { ListItem } from '../../components/ListItem';
+import { BounceIn, Check, FadeIn } from '../../components/Icons';
+import { Stack } from '../../components/Stack';
+import { Button, ButtonBar } from './Buttons';
+import { Switch } from '../../components/Switch';
+import { PlainList } from '../../components/List';
+import { SlideIn } from './Animation';
 
 /**
  * @param {object} props
  * @param {typeof import('./data').settingsRowItems} props.data
  */
 export function SettingsStep({ data }) {
-    const platform = usePlatformName()
-    const { t } = useTypedTranslation()
+    const platform = usePlatformName();
+    const { t } = useTypedTranslation();
 
-    const dispatch = useGlobalDispatch()
-    const appState = useGlobalState()
-    if (appState.step.kind !== 'settings') throw new Error('unreachable, for TS benefit')
+    const dispatch = useGlobalDispatch();
+    const appState = useGlobalState();
+    if (appState.step.kind !== 'settings') throw new Error('unreachable, for TS benefit');
 
-    const { step, status } = appState
-    const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id
+    const { step, status } = appState;
+    const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id;
 
     /** @type {import("preact").ComponentProps<SettingListItem>['item'][]} */
     const rows = step.rows.map((rowId, index) => {
@@ -35,8 +35,8 @@ export function SettingsStep({ data }) {
             pending: pendingId === rowId,
             id: rowId,
             data: data[rowId](t, platform),
-        }
-    })
+        };
+    });
 
     return (
         <SlideIn>
@@ -46,12 +46,12 @@ export function SettingsStep({ data }) {
                     {rows
                         .filter((item) => item.visible)
                         .map((item, index) => {
-                            return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
+                            return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />;
                         })}
                 </PlainList>
             </Stack>
         </SlideIn>
-    )
+    );
 }
 
 /**
@@ -71,8 +71,8 @@ export function SettingsStep({ data }) {
  * @param {number} props.index
  */
 export function SettingListItem({ index, item, dispatch }) {
-    const data = item.data
-    const { t } = useTypedTranslation()
+    const data = item.data;
+    const { t } = useTypedTranslation();
 
     const accept = () => {
         dispatch({
@@ -80,8 +80,8 @@ export function SettingListItem({ index, item, dispatch }) {
             id: data.id,
             payload: { enabled: true },
             current: item.current,
-        })
-    }
+        });
+    };
 
     const deny = () => {
         dispatch({
@@ -89,13 +89,13 @@ export function SettingListItem({ index, item, dispatch }) {
             id: data.id,
             payload: { enabled: false },
             current: item.current,
-        })
-    }
+        });
+    };
 
     const inline = (() => {
-        if (item.uiValue === 'idle') return null
-        if (!item.systemValue) return null
-        const enabled = item.systemValue.enabled
+        if (item.uiValue === 'idle') return null;
+        if (!item.systemValue) return null;
+        const enabled = item.systemValue.enabled;
 
         // was this item previously skipped?
         if (item.uiValue === 'skipped') {
@@ -105,7 +105,7 @@ export function SettingListItem({ index, item, dispatch }) {
                     <BounceIn delay={'normal'}>
                         <Check />
                     </BounceIn>
-                )
+                );
             }
             // otherwise, allow it to be toggled
             return (
@@ -125,7 +125,7 @@ export function SettingListItem({ index, item, dispatch }) {
                         />
                     )}
                 </FadeIn>
-            )
+            );
         }
 
         // otherwise, it must have been accepted
@@ -134,11 +134,11 @@ export function SettingListItem({ index, item, dispatch }) {
                 <BounceIn delay={'normal'}>
                     <Check />
                 </BounceIn>
-            )
+            );
         }
 
-        throw new Error('unreachable')
-    })()
+        throw new Error('unreachable');
+    })();
 
     return (
         <ListItem
@@ -163,5 +163,5 @@ export function SettingListItem({ index, item, dispatch }) {
                 </ListItem.Indent>
             )}
         </ListItem>
-    )
+    );
 }

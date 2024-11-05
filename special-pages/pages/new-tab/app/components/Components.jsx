@@ -1,29 +1,29 @@
-import { Fragment, h } from 'preact'
-import styles from './Components.module.css'
-import { mainExamples, otherExamples } from './Examples.jsx'
-import { updateNotificationExamples } from '../update-notification/UpdateNotification.examples.js'
-const url = new URL(window.location.href)
+import { Fragment, h } from 'preact';
+import styles from './Components.module.css';
+import { mainExamples, otherExamples } from './Examples.jsx';
+import { updateNotificationExamples } from '../update-notification/UpdateNotification.examples.js';
+const url = new URL(window.location.href);
 
 const list = {
     ...mainExamples,
     ...otherExamples,
     ...updateNotificationExamples,
-}
+};
 
-const entries = Object.entries(list)
+const entries = Object.entries(list);
 
 export function Components() {
-    const ids = url.searchParams.getAll('id')
-    const isolated = url.searchParams.has('isolate')
-    const e2e = url.searchParams.has('e2e')
-    const entryIds = entries.map(([id]) => id)
+    const ids = url.searchParams.getAll('id');
+    const isolated = url.searchParams.has('isolate');
+    const e2e = url.searchParams.has('e2e');
+    const entryIds = entries.map(([id]) => id);
 
-    const validIds = ids.filter((id) => entryIds.includes(id))
+    const validIds = ids.filter((id) => entryIds.includes(id));
 
-    const filtered = validIds.length ? validIds.map((id) => /** @type {const} */ ([id, list[id]])) : entries
+    const filtered = validIds.length ? validIds.map((id) => /** @type {const} */ ([id, list[id]])) : entries;
 
     if (isolated) {
-        return <Isolated entries={filtered} e2e={e2e} />
+        return <Isolated entries={filtered} e2e={e2e} />;
     }
 
     return (
@@ -31,7 +31,7 @@ export function Components() {
             <DebugBar id={ids[0]} ids={ids} entries={entries} />
             <Stage entries={/** @type {any} */ (filtered)} />
         </div>
-    )
+    );
 }
 
 /**
@@ -44,27 +44,27 @@ function Stage({ entries }) {
     return (
         <div class={styles.componentList} data-testid="stage">
             {entries.map(([id, item]) => {
-                const next = new URL(url)
-                next.searchParams.set('isolate', 'true')
-                next.searchParams.set('id', id)
+                const next = new URL(url);
+                next.searchParams.set('isolate', 'true');
+                next.searchParams.set('id', id);
 
-                const selected = new URL(url)
-                selected.searchParams.set('id', id)
+                const selected = new URL(url);
+                selected.searchParams.set('id', id);
 
-                const e2e = new URL(url)
-                e2e.searchParams.set('isolate', 'true')
-                e2e.searchParams.set('id', id)
-                e2e.searchParams.set('e2e', 'true')
+                const e2e = new URL(url);
+                e2e.searchParams.set('isolate', 'true');
+                e2e.searchParams.set('id', id);
+                e2e.searchParams.set('e2e', 'true');
 
-                const without = new URL(url)
-                const current = without.searchParams.getAll('id')
-                const others = current.filter((x) => x !== id)
-                const matching = current.filter((x) => x === id)
-                const matchingMinus1 = matching.length === 1 ? [] : matching.slice(0, -1)
+                const without = new URL(url);
+                const current = without.searchParams.getAll('id');
+                const others = current.filter((x) => x !== id);
+                const matching = current.filter((x) => x === id);
+                const matchingMinus1 = matching.length === 1 ? [] : matching.slice(0, -1);
 
-                without.searchParams.delete('id')
+                without.searchParams.delete('id');
                 for (let string of [...others, ...matchingMinus1]) {
-                    without.searchParams.append('id', string)
+                    without.searchParams.append('id', string);
                 }
 
                 return (
@@ -95,10 +95,10 @@ function Stage({ entries }) {
                             {item.factory()}
                         </div>
                     </Fragment>
-                )
+                );
             })}
         </div>
-    )
+    );
 }
 
 function Isolated({ entries, e2e }) {
@@ -106,18 +106,18 @@ function Isolated({ entries, e2e }) {
         return (
             <div>
                 {entries.map(([id, item]) => {
-                    return <Fragment key={id}>{item.factory()}</Fragment>
+                    return <Fragment key={id}>{item.factory()}</Fragment>;
                 })}
             </div>
-        )
+        );
     }
     return (
         <div class={styles.componentList} data-testid="stage">
             {entries.map(([id, item], index) => {
-                return <div key={id + index}>{item.factory()}</div>
+                return <div key={id + index}>{item.factory()}</div>;
             })}
         </div>
-    )
+    );
 }
 
 function DebugBar({ entries, id, ids }) {
@@ -128,17 +128,17 @@ function DebugBar({ entries, id, ids }) {
             <TextLength />
             <Isolate />
         </div>
-    )
+    );
 }
 
 function TextLength() {
     function onClick() {
-        url.searchParams.set('textLength', '1.5')
-        window.location.href = url.toString()
+        url.searchParams.set('textLength', '1.5');
+        window.location.href = url.toString();
     }
     function onReset() {
-        url.searchParams.delete('textLength')
-        window.location.href = url.toString()
+        url.searchParams.delete('textLength');
+        window.location.href = url.toString();
     }
     return (
         <div class={styles.buttonRow}>
@@ -149,19 +149,19 @@ function TextLength() {
                 Text Length 1.5x
             </button>
         </div>
-    )
+    );
 }
 
 function Isolate() {
-    const next = new URL(url)
-    next.searchParams.set('isolate', 'true')
+    const next = new URL(url);
+    next.searchParams.set('isolate', 'true');
     return (
         <div class={styles.buttonRow}>
             <a href={next.toString()} target={'_blank'}>
                 Isolate (open in a new tab)
             </a>
         </div>
-    )
+    );
 }
 
 /**
@@ -173,20 +173,20 @@ function Isolate() {
  */
 function ExampleSelector({ entries, id }) {
     function onReset() {
-        const url = new URL(window.location.href)
-        url.searchParams.delete('id')
-        window.location.href = url.toString()
+        const url = new URL(window.location.href);
+        url.searchParams.delete('id');
+        window.location.href = url.toString();
     }
 
     function onChange(event) {
-        if (!event.target) return
-        if (!(event.target instanceof HTMLSelectElement)) return
-        const selectedId = event.target.value
+        if (!event.target) return;
+        if (!(event.target instanceof HTMLSelectElement)) return;
+        const selectedId = event.target.value;
         if (selectedId) {
-            if (selectedId === 'none') return onReset()
-            const url = new URL(window.location.href)
-            url.searchParams.set('id', selectedId)
-            window.location.href = url.toString()
+            if (selectedId === 'none') return onReset();
+            const url = new URL(window.location.href);
+            url.searchParams.set('id', selectedId);
+            window.location.href = url.toString();
         }
     }
     return (
@@ -206,7 +206,7 @@ function ExampleSelector({ entries, id }) {
                 <button onClick={onReset}>RESET 🔁</button>
             </div>
         </Fragment>
-    )
+    );
 }
 
 /**
@@ -218,21 +218,21 @@ function ExampleSelector({ entries, id }) {
  */
 function Append({ entries, id }) {
     function onReset() {
-        const url = new URL(window.location.href)
-        url.searchParams.delete('id')
-        window.location.href = url.toString()
+        const url = new URL(window.location.href);
+        url.searchParams.delete('id');
+        window.location.href = url.toString();
     }
 
     function onSubmit(event) {
-        if (!event.target) return
-        event.preventDefault()
-        const form = event.target
-        const data = new FormData(form)
-        const value = data.get('add-id')
-        if (typeof value !== 'string') return
-        const url = new URL(window.location.href)
-        url.searchParams.append('id', value)
-        window.location.href = url.toString()
+        if (!event.target) return;
+        event.preventDefault();
+        const form = event.target;
+        const data = new FormData(form);
+        const value = data.get('add-id');
+        if (typeof value !== 'string') return;
+        const url = new URL(window.location.href);
+        url.searchParams.append('id', value);
+        window.location.href = url.toString();
     }
 
     return (
@@ -252,5 +252,5 @@ function Append({ entries, id }) {
                 <button>Confirm</button>
             </form>
         </Fragment>
-    )
+    );
 }

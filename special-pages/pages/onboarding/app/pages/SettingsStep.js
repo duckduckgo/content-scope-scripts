@@ -1,16 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { h, Fragment } from 'preact'
-import { ListItem } from '../components/ListItem'
-import { BounceIn, Check, FadeIn, SlideUp } from '../components/Icons'
-import { List } from '../components/List'
-import { Stack } from '../components/Stack'
-import { Button, ButtonBar } from '../components/Buttons'
-import { useGlobalDispatch, useGlobalState } from '../global'
-import { useRollin } from '../hooks/useRollin'
-import { Switch } from '../components/Switch'
-import { useTypedTranslation } from '../types'
-import { RiveAnimation } from '../components/RiveAnimation'
-import { useEnv } from '../../../../shared/components/EnvironmentProvider'
+import { h, Fragment } from 'preact';
+import { ListItem } from '../components/ListItem';
+import { BounceIn, Check, FadeIn, SlideUp } from '../components/Icons';
+import { List } from '../components/List';
+import { Stack } from '../components/Stack';
+import { Button, ButtonBar } from '../components/Buttons';
+import { useGlobalDispatch, useGlobalState } from '../global';
+import { useRollin } from '../hooks/useRollin';
+import { Switch } from '../components/Switch';
+import { useTypedTranslation } from '../types';
+import { RiveAnimation } from '../components/RiveAnimation';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 
 /**
  * @param {object} props
@@ -20,17 +20,17 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider'
  * @param {string} [props.subtitle] - optional subtitle
  */
 export function SettingsStep({ onNextPage, data, metaData, subtitle }) {
-    const { injectName } = useEnv()
-    const { state } = useRollin([300])
-    const { t } = useTypedTranslation()
+    const { injectName } = useEnv();
+    const { state } = useRollin([300]);
+    const { t } = useTypedTranslation();
 
-    const dispatch = useGlobalDispatch()
-    const appState = useGlobalState()
-    if (appState.step.kind !== 'settings') throw new Error('unreachable, for TS benefit')
+    const dispatch = useGlobalDispatch();
+    const appState = useGlobalState();
+    if (appState.step.kind !== 'settings') throw new Error('unreachable, for TS benefit');
 
-    const { step, status } = appState
-    const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id
-    const complete = appState.activeRow >= step.rows.length
+    const { step, status } = appState;
+    const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id;
+    const complete = appState.activeRow >= step.rows.length;
 
     /** @type {import("preact").ComponentProps<SettingListItem>['item'][]} */
     const rows = step.rows.map((rowId, index) => {
@@ -43,8 +43,8 @@ export function SettingsStep({ onNextPage, data, metaData, subtitle }) {
             id: rowId,
             data: data[rowId](t, injectName),
             meta: metaData[step.id]?.rows?.[rowId],
-        }
-    })
+        };
+    });
 
     return (
         <Stack>
@@ -57,7 +57,7 @@ export function SettingsStep({ onNextPage, data, metaData, subtitle }) {
                             {rows
                                 .filter((item) => item.visible)
                                 .map((item, index) => {
-                                    return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
+                                    return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />;
                                 })}
                         </List>
                     </Stack>
@@ -73,7 +73,7 @@ export function SettingsStep({ onNextPage, data, metaData, subtitle }) {
                 </SlideUp>
             )}
         </Stack>
-    )
+    );
 }
 
 /**
@@ -94,8 +94,8 @@ export function SettingsStep({ onNextPage, data, metaData, subtitle }) {
  * @param {number} props.index
  */
 export function SettingListItem({ index, item, dispatch }) {
-    const data = item.data
-    const { t } = useTypedTranslation()
+    const data = item.data;
+    const { t } = useTypedTranslation();
 
     const accept = () => {
         dispatch({
@@ -103,8 +103,8 @@ export function SettingListItem({ index, item, dispatch }) {
             id: data.id,
             payload: { enabled: true },
             current: item.current,
-        })
-    }
+        });
+    };
 
     const deny = () => {
         dispatch({
@@ -112,13 +112,13 @@ export function SettingListItem({ index, item, dispatch }) {
             id: data.id,
             payload: { enabled: false },
             current: item.current,
-        })
-    }
+        });
+    };
 
     const inline = (() => {
-        if (item.uiValue === 'idle') return null
-        if (!item.systemValue) return null
-        const enabled = item.systemValue.enabled
+        if (item.uiValue === 'idle') return null;
+        if (!item.systemValue) return null;
+        const enabled = item.systemValue.enabled;
 
         // was this item previously skipped?
         if (item.uiValue === 'skipped') {
@@ -128,7 +128,7 @@ export function SettingListItem({ index, item, dispatch }) {
                     <BounceIn delay={'normal'}>
                         <Check />
                     </BounceIn>
-                )
+                );
             }
             // otherwise, allow it to be toggled
             return (
@@ -148,7 +148,7 @@ export function SettingListItem({ index, item, dispatch }) {
                         />
                     )}
                 </FadeIn>
-            )
+            );
         }
 
         // otherwise, it must have been accepted
@@ -157,20 +157,20 @@ export function SettingListItem({ index, item, dispatch }) {
                 <BounceIn delay={'normal'}>
                     <Check />
                 </BounceIn>
-            )
+            );
         }
 
-        throw new Error('unreachable')
-    })()
+        throw new Error('unreachable');
+    })();
 
     const display = (() => {
         if (item.meta) {
-            return item.meta
+            return item.meta;
         }
-        return { kind: 'button-bar' }
-    })()
+        return { kind: 'button-bar' };
+    })();
 
-    const { isDarkMode } = useEnv()
+    const { isDarkMode } = useEnv();
 
     return (
         <ListItem
@@ -208,5 +208,5 @@ export function SettingListItem({ index, item, dispatch }) {
                 </Stack>
             )}
         </ListItem>
-    )
+    );
 }

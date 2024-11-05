@@ -1,10 +1,10 @@
-import { h } from 'preact'
-import { useEffect, useRef, useState, useCallback, useId } from 'preact/hooks'
-import styles from './Customizer.module.css'
-import { VisibilityMenu } from './VisibilityMenu.js'
-import { CustomizeIcon } from '../components/Icons.js'
-import cn from 'classnames'
-import { useMessaging } from '../types.js'
+import { h } from 'preact';
+import { useEffect, useRef, useState, useCallback, useId } from 'preact/hooks';
+import styles from './Customizer.module.css';
+import { VisibilityMenu } from './VisibilityMenu.js';
+import { CustomizeIcon } from '../components/Icons.js';
+import cn from 'classnames';
+import { useMessaging } from '../types.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../../types/new-tab.js'
@@ -14,34 +14,34 @@ import { useMessaging } from '../types.js'
  * Represents the NTP customizer. For now it's just the ability to toggle sections.
  */
 export function Customizer() {
-    const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown()
-    const [rowData, setRowData] = useState(/** @type {VisibilityRowData[]} */ ([]))
+    const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown();
+    const [rowData, setRowData] = useState(/** @type {VisibilityRowData[]} */ ([]));
 
-    useContextMenu()
+    useContextMenu();
 
     /**
      * Dispatch an event every time the customizer is opened - this
      * allows widgets to register themselves and provide titles/icons etc.
      */
     const toggleMenu = useCallback(() => {
-        if (isOpen) return setIsOpen(false)
-        setRowData(getItems())
-        setIsOpen(true)
-    }, [isOpen])
+        if (isOpen) return setIsOpen(false);
+        setRowData(getItems());
+        setIsOpen(true);
+    }, [isOpen]);
 
     useEffect(() => {
-        if (!isOpen) return
+        if (!isOpen) return;
         function handler() {
-            setRowData(getItems())
+            setRowData(getItems());
         }
-        window.addEventListener(Customizer.UPDATE_EVENT, handler)
+        window.addEventListener(Customizer.UPDATE_EVENT, handler);
         return () => {
-            window.removeEventListener(Customizer.UPDATE_EVENT, handler)
-        }
-    }, [isOpen])
+            window.removeEventListener(Customizer.UPDATE_EVENT, handler);
+        };
+    }, [isOpen]);
 
-    const MENU_ID = useId()
-    const BUTTON_ID = useId()
+    const MENU_ID = useId();
+    const BUTTON_ID = useId();
 
     return (
         <div class={styles.root} ref={dropdownRef}>
@@ -50,36 +50,36 @@ export function Customizer() {
                 <VisibilityMenu rows={rowData} />
             </div>
         </div>
-    )
+    );
 }
 
-Customizer.OPEN_EVENT = 'ntp-customizer-open'
-Customizer.UPDATE_EVENT = 'ntp-customizer-update'
+Customizer.OPEN_EVENT = 'ntp-customizer-open';
+Customizer.UPDATE_EVENT = 'ntp-customizer-update';
 
 export function getItems() {
     /** @type {VisibilityRowData[]} */
-    const next = []
+    const next = [];
     const detail = {
         register: (/** @type {VisibilityRowData} */ incoming) => {
-            next.push(incoming)
+            next.push(incoming);
         },
-    }
-    const event = new CustomEvent(Customizer.OPEN_EVENT, { detail })
-    window.dispatchEvent(event)
-    next.sort((a, b) => a.index - b.index)
-    return next
+    };
+    const event = new CustomEvent(Customizer.OPEN_EVENT, { detail });
+    window.dispatchEvent(event);
+    next.sort((a, b) => a.index - b.index);
+    return next;
 }
 
 /**
  * Forward the contextmenu event
  */
 export function useContextMenu() {
-    const messaging = useMessaging()
+    const messaging = useMessaging();
     useEffect(() => {
         function handler(e) {
-            e.preventDefault()
-            e.stopImmediatePropagation()
-            const items = getItems()
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            const items = getItems();
             /** @type {VisibilityMenuItem[]} */
             const simplified = items
                 .filter((x) => x.id !== 'debug')
@@ -87,15 +87,15 @@ export function useContextMenu() {
                     return {
                         id: item.id,
                         title: item.title,
-                    }
-                })
-            messaging.contextMenu({ visibilityMenuItems: simplified })
+                    };
+                });
+            messaging.contextMenu({ visibilityMenuItems: simplified });
         }
-        document.body.addEventListener('contextmenu', handler)
+        document.body.addEventListener('contextmenu', handler);
         return () => {
-            document.body.removeEventListener('contextmenu', handler)
-        }
-    }, [messaging])
+            document.body.removeEventListener('contextmenu', handler);
+        };
+    }, [messaging]);
 }
 
 /**
@@ -120,63 +120,63 @@ export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonR
             <CustomizeIcon />
             <span>Customize</span>
         </button>
-    )
+    );
 }
 
 export function CustomizerMenuPositionedFixed({ children }) {
-    return <div class={styles.lowerRightFixed}>{children}</div>
+    return <div class={styles.lowerRightFixed}>{children}</div>;
 }
 
 function useDropdown() {
     /** @type {import("preact").Ref<HTMLDivElement>} */
-    const dropdownRef = useRef(null)
+    const dropdownRef = useRef(null);
     /** @type {import("preact").Ref<HTMLButtonElement>} */
-    const buttonRef = useRef(null)
+    const buttonRef = useRef(null);
 
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(false);
 
     /**
      * Event handlers when it's open
      */
     useEffect(() => {
-        if (!isOpen) return
+        if (!isOpen) return;
         const handleFocusOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !buttonRef.current?.contains(event.target)) {
-                setIsOpen(false)
+                setIsOpen(false);
             }
-        }
+        };
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains?.(event.target)) {
-                setIsOpen(false)
+                setIsOpen(false);
             }
-        }
+        };
         const handleKeyDown = (event) => {
             if (event.key === 'Escape') {
-                setIsOpen(false)
-                buttonRef.current?.focus?.()
+                setIsOpen(false);
+                buttonRef.current?.focus?.();
             }
-        }
-        document.addEventListener('mousedown', handleClickOutside)
-        document.addEventListener('keydown', handleKeyDown)
-        document.addEventListener('focusin', handleFocusOutside)
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('focusin', handleFocusOutside);
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-            document.removeEventListener('keydown', handleKeyDown)
-            document.removeEventListener('focusin', handleFocusOutside)
-        }
-    }, [isOpen])
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('focusin', handleFocusOutside);
+        };
+    }, [isOpen]);
 
-    return { dropdownRef, buttonRef, isOpen, setIsOpen }
+    return { dropdownRef, buttonRef, isOpen, setIsOpen };
 }
 
 export class VisibilityRowState {
-    checked
+    checked;
     /**
      * @param {object} params
      * @param {boolean} params.checked - whether this item should appear 'checked'
      */
     constructor({ checked }) {
-        this.checked = checked
+        this.checked = checked;
     }
 }
 
@@ -191,12 +191,12 @@ export class VisibilityRowData {
      * @param {WidgetVisibility} params.visibility - known icon name, maps to an SVG
      */
     constructor({ id, title, icon, toggle, visibility, index }) {
-        this.id = id
-        this.title = title
-        this.icon = icon
-        this.toggle = toggle
-        this.index = index
-        this.visibility = visibility
+        this.id = id;
+        this.title = title;
+        this.icon = icon;
+        this.toggle = toggle;
+        this.index = index;
+        this.visibility = visibility;
     }
 }
 
@@ -207,13 +207,13 @@ export class VisibilityRowData {
 export function useCustomizer({ title, id, icon, toggle, visibility, index }) {
     useEffect(() => {
         const handler = (/** @type {CustomEvent<any>} */ e) => {
-            e.detail.register({ title, id, icon, toggle, visibility, index })
-        }
-        window.addEventListener(Customizer.OPEN_EVENT, handler)
-        return () => window.removeEventListener(Customizer.OPEN_EVENT, handler)
-    }, [title, id, icon, toggle, visibility, index])
+            e.detail.register({ title, id, icon, toggle, visibility, index });
+        };
+        window.addEventListener(Customizer.OPEN_EVENT, handler);
+        return () => window.removeEventListener(Customizer.OPEN_EVENT, handler);
+    }, [title, id, icon, toggle, visibility, index]);
 
     useEffect(() => {
-        window.dispatchEvent(new Event(Customizer.UPDATE_EVENT))
-    }, [visibility])
+        window.dispatchEvent(new Event(Customizer.UPDATE_EVENT));
+    }, [visibility]);
 }

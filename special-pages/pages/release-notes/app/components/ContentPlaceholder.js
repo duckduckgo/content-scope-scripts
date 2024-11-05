@@ -2,8 +2,8 @@
  * Renders a purely visual placeholder for when content is still loading.
  * Sematic HTML tags are used to mimic the final rendered elements.
  */
-import { h } from 'preact'
-import styles from './ContentPlaceholder.module.css'
+import { h } from 'preact';
+import styles from './ContentPlaceholder.module.css';
 
 export function ContentPlaceholder() {
     return (
@@ -21,5 +21,5 @@ export function ContentPlaceholder() {
                 </li>
             </ul>
         </div>
-    )
+    );
 }

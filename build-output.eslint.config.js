@@ -11,4 +11,4 @@ export default [
             'no-implicit-globals': 'error',
         },
     },
-]
+];

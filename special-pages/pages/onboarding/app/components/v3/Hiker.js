@@ -1,7 +1,7 @@
-import { h } from 'preact'
+import { h } from 'preact';
 
-import styles from './Hiker.module.css'
+import styles from './Hiker.module.css';
 
 export function Hiker() {
-    return <img className={styles.hiker} src="assets/img/hiker.svg" alt="Image of hiker" />
+    return <img className={styles.hiker} src="assets/img/hiker.svg" alt="Image of hiker" />;
 }

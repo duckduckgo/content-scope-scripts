@@ -1,7 +1,7 @@
-import { h, createContext } from 'preact'
-import { useContext } from 'preact/hooks'
+import { h, createContext } from 'preact';
+import { useContext } from 'preact/hooks';
 
-const SettingsContext = createContext(/** @type {{platform: {name: ImportMeta['platform']}|undefined}} */ ({}))
+const SettingsContext = createContext(/** @type {{platform: {name: ImportMeta['platform']}|undefined}} */ ({}));
 
 /**
  * @param {object} params
@@ -9,9 +9,9 @@ const SettingsContext = createContext(/** @type {{platform: {name: ImportMeta['p
  * @param {import("preact").ComponentChild} params.children
  */
 export function SettingsProvider({ platform, children }) {
-    return <SettingsContext.Provider value={{ platform }}>{children}</SettingsContext.Provider>
+    return <SettingsContext.Provider value={{ platform }}>{children}</SettingsContext.Provider>;
 }
 
 export function usePlatformName() {
-    return useContext(SettingsContext).platform?.name
+    return useContext(SettingsContext).platform?.name;
 }

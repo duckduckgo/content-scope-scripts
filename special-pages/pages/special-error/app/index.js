@@ -1,21 +1,21 @@
-import { h, render } from 'preact'
-import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider.js'
+import { h, render } from 'preact';
+import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider.js';
 
-import { App } from './components/App.jsx'
-import { Components } from './components/Components.jsx'
+import { App } from './components/App.jsx';
+import { Components } from './components/Components.jsx';
 
-import enStrings from '../src/locales/en/special-error.json'
-import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
-import { MessagingProvider } from './providers/MessagingProvider.js'
-import { SettingsProvider } from './providers/SettingsProvider.jsx'
-import { SpecialErrorProvider } from './providers/SpecialErrorProvider.js'
-import { callWithRetry } from '../../../shared/call-with-retry.js'
+import enStrings from '../src/locales/en/special-error.json';
+import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
+import { MessagingProvider } from './providers/MessagingProvider.js';
+import { SettingsProvider } from './providers/SettingsProvider.jsx';
+import { SpecialErrorProvider } from './providers/SpecialErrorProvider.js';
+import { callWithRetry } from '../../../shared/call-with-retry.js';
 
-import { Settings } from './settings.js'
-import { SpecialError } from './specialError.js'
+import { Settings } from './settings.js';
+import { SpecialError } from './specialError.js';
 
-import '../../../shared/styles/global.css' // global styles
-import './styles/variables.css'
+import '../../../shared/styles/global.css'; // global styles
+import './styles/variables.css';
 
 /**
  * @param {import("../src/js/index.js").SpecialErrorPage} messaging
@@ -23,15 +23,15 @@ import './styles/variables.css'
  * @return {Promise<void>}
  */
 export async function init(messaging, baseEnvironment) {
-    const result = await callWithRetry(() => messaging.initialSetup())
+    const result = await callWithRetry(() => messaging.initialSetup());
     if ('error' in result) {
-        throw new Error(result.error)
+        throw new Error(result.error);
     }
 
-    const init = result.value
-    const missingProperties = ['errorData', 'platform'].filter((prop) => !init[prop])
+    const init = result.value;
+    const missingProperties = ['errorData', 'platform'].filter((prop) => !init[prop]);
     if (missingProperties.length > 0) {
-        throw new Error(`Missing setup data: ${missingProperties.join(', ')}`)
+        throw new Error(`Missing setup data: ${missingProperties.join(', ')}`);
     }
 
     // update the 'env' in case it was changed by native sides
@@ -40,24 +40,24 @@ export async function init(messaging, baseEnvironment) {
         .withLocale(init.locale)
         .withLocale(baseEnvironment.urlParams.get('locale'))
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
-        .withDisplay(baseEnvironment.urlParams.get('display'))
+        .withDisplay(baseEnvironment.urlParams.get('display'));
 
     const strings =
         environment.locale === 'en'
             ? enStrings
-            : (await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale)) || enStrings
+            : (await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale)) || enStrings;
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
-        .withPlatformName(baseEnvironment.urlParams.get('platform'))
+        .withPlatformName(baseEnvironment.urlParams.get('platform'));
 
-    document.body.dataset.platformName = settings.platform?.name
+    document.body.dataset.platformName = settings.platform?.name;
 
-    const specialError = new SpecialError({ errorData: init.errorData }).withSampleErrorId(baseEnvironment.urlParams.get('errorId'))
+    const specialError = new SpecialError({ errorData: init.errorData }).withSampleErrorId(baseEnvironment.urlParams.get('errorId'));
 
-    const root = document.querySelector('#app')
-    if (!root) throw new Error('could not render, root element missing')
+    const root = document.querySelector('#app');
+    if (!root) throw new Error('could not render, root element missing');
 
     if (environment.display === 'app') {
         render(
@@ -74,7 +74,7 @@ export async function init(messaging, baseEnvironment) {
                 </TranslationProvider>
             </EnvironmentProvider>,
             root,
-        )
+        );
     } else if (environment.display === 'components') {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
@@ -87,7 +87,7 @@ export async function init(messaging, baseEnvironment) {
                 </TranslationProvider>
             </EnvironmentProvider>,
             root,
-        )
+        );
     }
 }
 
@@ -106,22 +106,22 @@ async function getTranslationsFromStringOrLoadDynamically(stringInput, locale) {
      */
     if (stringInput) {
         try {
-            return JSON.parse(stringInput)
+            return JSON.parse(stringInput);
         } catch (e) {
-            console.warn('String could not be parsed. Falling back to fetch...')
+            console.warn('String could not be parsed. Falling back to fetch...');
         }
     }
 
     // If parsing failed or stringInput was null/undefined, proceed with fetch
     try {
-        const response = await fetch(`./locales/${locale}/special-error.json`)
+        const response = await fetch(`./locales/${locale}/special-error.json`);
         if (!response.ok) {
-            console.error('Network response was not ok')
-            return null
+            console.error('Network response was not ok');
+            return null;
         }
-        return await response.json()
+        return await response.json();
     } catch (e) {
-        console.error('Failed to fetch or parse JSON from the network:', e)
-        return null
+        console.error('Failed to fetch or parse JSON from the network:', e);
+        return null;
     }
 }

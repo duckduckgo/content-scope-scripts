@@ -6,12 +6,12 @@ export const SupportStatus = {
     NOT_SUPPORTED: 'notSupported',
     PARTIAL_SUPPORT: 'partialSupport',
     FULL_SUPPORT: 'fullSupport',
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const tableIcons = ['ads.svg', 'cookie.svg', 'fire.svg', 'search.svg', 'shield.svg', 'video-player.svg']
+const tableIcons = ['ads.svg', 'cookie.svg', 'fire.svg', 'search.svg', 'shield.svg', 'video-player.svg'];
 
-export const tableIconPrefix = 'assets/img/steps/v3/'
+export const tableIconPrefix = 'assets/img/steps/v3/';
 
 /** @typedef {{ icon: tableIcons[number], title: string, statuses: Record<'chrome'|'safari'|'ddg', SupportStatus> }} FeatureSupportData */
 
@@ -76,4 +76,4 @@ export const comparisonTableData = (t) => [
             ddg: SupportStatus.FULL_SUPPORT,
         },
     },
-]
+];

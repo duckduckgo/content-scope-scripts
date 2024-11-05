@@ -10,7 +10,7 @@ export const sjcl = (() => {
      * @author Dan Boneh
      */
 
-    'use strict'
+    'use strict';
     /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
     /*global document, window, escape, unescape, module, require, Uint32Array */
 
@@ -72,9 +72,9 @@ export const sjcl = (() => {
              */
             corrupt: function (message) {
                 this.toString = function () {
-                    return 'CORRUPT: ' + this.message
-                }
-                this.message = message
+                    return 'CORRUPT: ' + this.message;
+                };
+                this.message = message;
             },
 
             /**
@@ -83,9 +83,9 @@ export const sjcl = (() => {
              */
             invalid: function (message) {
                 this.toString = function () {
-                    return 'INVALID: ' + this.message
-                }
-                this.message = message
+                    return 'INVALID: ' + this.message;
+                };
+                this.message = message;
             },
 
             /**
@@ -94,9 +94,9 @@ export const sjcl = (() => {
              */
             bug: function (message) {
                 this.toString = function () {
-                    return 'BUG: ' + this.message
-                }
-                this.message = message
+                    return 'BUG: ' + this.message;
+                };
+                this.message = message;
             },
 
             /**
@@ -105,12 +105,12 @@ export const sjcl = (() => {
              */
             notReady: function (message) {
                 this.toString = function () {
-                    return 'NOT READY: ' + this.message
-                }
-                this.message = message
+                    return 'NOT READY: ' + this.message;
+                };
+                this.message = message;
             },
         },
-    }
+    };
     /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
      *
      * @author Emily Stark
@@ -152,8 +152,8 @@ export const sjcl = (() => {
          * @return {bitArray} The requested slice.
          */
         bitSlice: function (a, bstart, bend) {
-            a = sjcl.bitArray._shiftRight(a.slice(bstart / 32), 32 - (bstart & 31)).slice(1)
-            return bend === undefined ? a : sjcl.bitArray.clamp(a, bend - bstart)
+            a = sjcl.bitArray._shiftRight(a.slice(bstart / 32), 32 - (bstart & 31)).slice(1);
+            return bend === undefined ? a : sjcl.bitArray.clamp(a, bend - bstart);
         },
 
         /**
@@ -167,15 +167,15 @@ export const sjcl = (() => {
             // FIXME: this Math.floor is not necessary at all, but for some reason
             // seems to suppress a bug in the Chromium JIT.
             var x,
-                sh = Math.floor((-bstart - blength) & 31)
+                sh = Math.floor((-bstart - blength) & 31);
             if (((bstart + blength - 1) ^ bstart) & -32) {
                 // it crosses a boundary
-                x = (a[(bstart / 32) | 0] << (32 - sh)) ^ (a[(bstart / 32 + 1) | 0] >>> sh)
+                x = (a[(bstart / 32) | 0] << (32 - sh)) ^ (a[(bstart / 32 + 1) | 0] >>> sh);
             } else {
                 // within a single word
-                x = a[(bstart / 32) | 0] >>> sh
+                x = a[(bstart / 32) | 0] >>> sh;
             }
-            return x & ((1 << blength) - 1)
+            return x & ((1 << blength) - 1);
         },
 
         /**
@@ -186,15 +186,15 @@ export const sjcl = (() => {
          */
         concat: function (a1, a2) {
             if (a1.length === 0 || a2.length === 0) {
-                return a1.concat(a2)
+                return a1.concat(a2);
             }
 
             var last = a1[a1.length - 1],
-                shift = sjcl.bitArray.getPartial(last)
+                shift = sjcl.bitArray.getPartial(last);
             if (shift === 32) {
-                return a1.concat(a2)
+                return a1.concat(a2);
             } else {
-                return sjcl.bitArray._shiftRight(a2, shift, last | 0, a1.slice(0, a1.length - 1))
+                return sjcl.bitArray._shiftRight(a2, shift, last | 0, a1.slice(0, a1.length - 1));
             }
         },
 
@@ -205,12 +205,12 @@ export const sjcl = (() => {
          */
         bitLength: function (a) {
             var l = a.length,
-                x
+                x;
             if (l === 0) {
-                return 0
+                return 0;
             }
-            x = a[l - 1]
-            return (l - 1) * 32 + sjcl.bitArray.getPartial(x)
+            x = a[l - 1];
+            return (l - 1) * 32 + sjcl.bitArray.getPartial(x);
         },
 
         /**
@@ -221,15 +221,15 @@ export const sjcl = (() => {
          */
         clamp: function (a, len) {
             if (a.length * 32 < len) {
-                return a
+                return a;
             }
-            a = a.slice(0, Math.ceil(len / 32))
-            var l = a.length
-            len = len & 31
+            a = a.slice(0, Math.ceil(len / 32));
+            var l = a.length;
+            len = len & 31;
             if (l > 0 && len) {
-                a[l - 1] = sjcl.bitArray.partial(len, a[l - 1] & (0x80000000 >> (len - 1)), 1)
+                a[l - 1] = sjcl.bitArray.partial(len, a[l - 1] & (0x80000000 >> (len - 1)), 1);
             }
-            return a
+            return a;
         },
 
         /**
@@ -241,9 +241,9 @@ export const sjcl = (() => {
          */
         partial: function (len, x, _end) {
             if (len === 32) {
-                return x
+                return x;
             }
-            return (_end ? x | 0 : x << (32 - len)) + len * 0x10000000000
+            return (_end ? x | 0 : x << (32 - len)) + len * 0x10000000000;
         },
 
         /**
@@ -252,7 +252,7 @@ export const sjcl = (() => {
          * @return {Number} The number of bits used by the partial word.
          */
         getPartial: function (x) {
-            return Math.round(x / 0x10000000000) || 32
+            return Math.round(x / 0x10000000000) || 32;
         },
 
         /**
@@ -263,14 +263,14 @@ export const sjcl = (() => {
          */
         equal: function (a, b) {
             if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
-                return false
+                return false;
             }
             var x = 0,
-                i
+                i;
             for (i = 0; i < a.length; i++) {
-                x |= a[i] ^ b[i]
+                x |= a[i] ^ b[i];
             }
-            return x === 0
+            return x === 0;
         },
 
         /** Shift an array right.
@@ -283,34 +283,34 @@ export const sjcl = (() => {
         _shiftRight: function (a, shift, carry, out) {
             var i,
                 last2 = 0,
-                shift2
+                shift2;
             if (out === undefined) {
-                out = []
+                out = [];
             }
 
             for (; shift >= 32; shift -= 32) {
-                out.push(carry)
-                carry = 0
+                out.push(carry);
+                carry = 0;
             }
             if (shift === 0) {
-                return out.concat(a)
+                return out.concat(a);
             }
 
             for (i = 0; i < a.length; i++) {
-                out.push(carry | (a[i] >>> shift))
-                carry = a[i] << (32 - shift)
+                out.push(carry | (a[i] >>> shift));
+                carry = a[i] << (32 - shift);
             }
-            last2 = a.length ? a[a.length - 1] : 0
-            shift2 = sjcl.bitArray.getPartial(last2)
-            out.push(sjcl.bitArray.partial((shift + shift2) & 31, shift + shift2 > 32 ? carry : out.pop(), 1))
-            return out
+            last2 = a.length ? a[a.length - 1] : 0;
+            shift2 = sjcl.bitArray.getPartial(last2);
+            out.push(sjcl.bitArray.partial((shift + shift2) & 31, shift + shift2 > 32 ? carry : out.pop(), 1));
+            return out;
         },
 
         /** xor a block of 4 words together.
          * @private
          */
         _xor4: function (x, y) {
-            return [x[0] ^ y[0], x[1] ^ y[1], x[2] ^ y[2], x[3] ^ y[3]]
+            return [x[0] ^ y[0], x[1] ^ y[1], x[2] ^ y[2], x[3] ^ y[3]];
         },
 
         /** byteswap a word array inplace.
@@ -321,14 +321,14 @@ export const sjcl = (() => {
         byteswapM: function (a) {
             var i,
                 v,
-                m = 0xff00
+                m = 0xff00;
             for (i = 0; i < a.length; ++i) {
-                v = a[i]
-                a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24)
+                v = a[i];
+                a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
             }
-            return a
+            return a;
         },
-    }
+    };
     /** @fileOverview Bit array codec implementations.
      *
      * @author Emily Stark
@@ -346,36 +346,36 @@ export const sjcl = (() => {
             var out = '',
                 bl = sjcl.bitArray.bitLength(arr),
                 i,
-                tmp
+                tmp;
             for (i = 0; i < bl / 8; i++) {
                 if ((i & 3) === 0) {
-                    tmp = arr[i / 4]
+                    tmp = arr[i / 4];
                 }
-                out += String.fromCharCode(((tmp >>> 8) >>> 8) >>> 8)
-                tmp <<= 8
+                out += String.fromCharCode(((tmp >>> 8) >>> 8) >>> 8);
+                tmp <<= 8;
             }
-            return decodeURIComponent(escape(out))
+            return decodeURIComponent(escape(out));
         },
 
         /** Convert from a UTF-8 string to a bitArray. */
         toBits: function (str) {
-            str = unescape(encodeURIComponent(str))
+            str = unescape(encodeURIComponent(str));
             var out = [],
                 i,
-                tmp = 0
+                tmp = 0;
             for (i = 0; i < str.length; i++) {
-                tmp = (tmp << 8) | str.charCodeAt(i)
+                tmp = (tmp << 8) | str.charCodeAt(i);
                 if ((i & 3) === 3) {
-                    out.push(tmp)
-                    tmp = 0
+                    out.push(tmp);
+                    tmp = 0;
                 }
             }
             if (i & 3) {
-                out.push(sjcl.bitArray.partial(8 * (i & 3), tmp))
+                out.push(sjcl.bitArray.partial(8 * (i & 3), tmp));
             }
-            return out
+            return out;
         },
-    }
+    };
     /** @fileOverview Bit array codec implementations.
      *
      * @author Emily Stark
@@ -391,26 +391,26 @@ export const sjcl = (() => {
         /** Convert from a bitArray to a hex string. */
         fromBits: function (arr) {
             var out = '',
-                i
+                i;
             for (i = 0; i < arr.length; i++) {
-                out += ((arr[i] | 0) + 0xf00000000000).toString(16).substr(4)
+                out += ((arr[i] | 0) + 0xf00000000000).toString(16).substr(4);
             }
-            return out.substr(0, sjcl.bitArray.bitLength(arr) / 4) //.replace(/(.{8})/g, "$1 ");
+            return out.substr(0, sjcl.bitArray.bitLength(arr) / 4); //.replace(/(.{8})/g, "$1 ");
         },
         /** Convert from a hex string to a bitArray. */
         toBits: function (str) {
             var i,
                 out = [],
-                len
-            str = str.replace(/\s|0x/g, '')
-            len = str.length
-            str = str + '00000000'
+                len;
+            str = str.replace(/\s|0x/g, '');
+            len = str.length;
+            str = str + '00000000';
             for (i = 0; i < str.length; i += 8) {
-                out.push(parseInt(str.substr(i, 8), 16) ^ 0)
+                out.push(parseInt(str.substr(i, 8), 16) ^ 0);
             }
-            return sjcl.bitArray.clamp(out, len * 4)
+            return sjcl.bitArray.clamp(out, len * 4);
         },
-    }
+    };
 
     /** @fileOverview Javascript SHA-256 implementation.
      *
@@ -433,16 +433,16 @@ export const sjcl = (() => {
      */
     sjcl.hash.sha256 = function (hash) {
         if (!this._key[0]) {
-            this._precompute()
+            this._precompute();
         }
         if (hash) {
-            this._h = hash._h.slice(0)
-            this._buffer = hash._buffer.slice(0)
-            this._length = hash._length
+            this._h = hash._h.slice(0);
+            this._buffer = hash._buffer.slice(0);
+            this._length = hash._length;
         } else {
-            this.reset()
+            this.reset();
         }
-    }
+    };
 
     /**
      * Hash a string or an array of words.
@@ -451,8 +451,8 @@ export const sjcl = (() => {
      * @return {bitArray} The hash value, an array of 16 big-endian words.
      */
     sjcl.hash.sha256.hash = function (data) {
-        return new sjcl.hash.sha256().update(data).finalize()
-    }
+        return new sjcl.hash.sha256().update(data).finalize();
+    };
 
     sjcl.hash.sha256.prototype = {
         /**
@@ -466,10 +466,10 @@ export const sjcl = (() => {
          * @return this
          */
         reset: function () {
-            this._h = this._init.slice(0)
-            this._buffer = []
-            this._length = 0
-            return this
+            this._h = this._init.slice(0);
+            this._buffer = [];
+            this._length = 0;
+            return this;
         },
 
         /**
@@ -479,30 +479,30 @@ export const sjcl = (() => {
          */
         update: function (data) {
             if (typeof data === 'string') {
-                data = sjcl.codec.utf8String.toBits(data)
+                data = sjcl.codec.utf8String.toBits(data);
             }
             var i,
                 b = (this._buffer = sjcl.bitArray.concat(this._buffer, data)),
                 ol = this._length,
-                nl = (this._length = ol + sjcl.bitArray.bitLength(data))
+                nl = (this._length = ol + sjcl.bitArray.bitLength(data));
             if (nl > 9007199254740991) {
-                throw new sjcl.exception.invalid('Cannot hash more than 2^53 - 1 bits')
+                throw new sjcl.exception.invalid('Cannot hash more than 2^53 - 1 bits');
             }
 
             if (typeof Uint32Array !== 'undefined') {
-                var c = new Uint32Array(b)
-                var j = 0
+                var c = new Uint32Array(b);
+                var j = 0;
                 for (i = 512 + ol - ((512 + ol) & 511); i <= nl; i += 512) {
-                    this._block(c.subarray(16 * j, 16 * (j + 1)))
-                    j += 1
+                    this._block(c.subarray(16 * j, 16 * (j + 1)));
+                    j += 1;
                 }
-                b.splice(0, 16 * j)
+                b.splice(0, 16 * j);
             } else {
                 for (i = 512 + ol - ((512 + ol) & 511); i <= nl; i += 512) {
-                    this._block(b.splice(0, 16))
+                    this._block(b.splice(0, 16));
                 }
             }
-            return this
+            return this;
         },
 
         /**
@@ -512,26 +512,26 @@ export const sjcl = (() => {
         finalize: function () {
             var i,
                 b = this._buffer,
-                h = this._h
+                h = this._h;
 
             // Round out and push the buffer
-            b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)])
+            b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]);
 
             // Round out the buffer to a multiple of 16 words, less the 2 length words.
             for (i = b.length + 2; i & 15; i++) {
-                b.push(0)
+                b.push(0);
             }
 
             // append the length
-            b.push(Math.floor(this._length / 0x100000000))
-            b.push(this._length | 0)
+            b.push(Math.floor(this._length / 0x100000000));
+            b.push(this._length | 0);
 
             while (b.length) {
-                this._block(b.splice(0, 16))
+                this._block(b.splice(0, 16));
             }
 
-            this.reset()
-            return h
+            this.reset();
+            return h;
         },
 
         /**
@@ -568,26 +568,26 @@ export const sjcl = (() => {
             var i = 0,
                 prime = 2,
                 factor,
-                isPrime
+                isPrime;
 
             function frac(x) {
-                return ((x - Math.floor(x)) * 0x100000000) | 0
+                return ((x - Math.floor(x)) * 0x100000000) | 0;
             }
 
             for (; i < 64; prime++) {
-                isPrime = true
+                isPrime = true;
                 for (factor = 2; factor * factor <= prime; factor++) {
                     if (prime % factor === 0) {
-                        isPrime = false
-                        break
+                        isPrime = false;
+                        break;
                     }
                 }
                 if (isPrime) {
                     if (i < 8) {
-                        this._init[i] = frac(Math.pow(prime, 1 / 2))
+                        this._init[i] = frac(Math.pow(prime, 1 / 2));
                     }
-                    this._key[i] = frac(Math.pow(prime, 1 / 3))
-                    i++
+                    this._key[i] = frac(Math.pow(prime, 1 / 3));
+                    i++;
                 }
             }
         },
@@ -611,7 +611,7 @@ export const sjcl = (() => {
                 h4 = h[4],
                 h5 = h[5],
                 h6 = h[6],
-                h7 = h[7]
+                h7 = h[7];
 
             /* Rationale for placement of |0 :
              * If a value can overflow is original 32 bits by a factor of more than a few
@@ -629,16 +629,16 @@ export const sjcl = (() => {
             for (i = 0; i < 64; i++) {
                 // load up the input word for this round
                 if (i < 16) {
-                    tmp = w[i]
+                    tmp = w[i];
                 } else {
-                    a = w[(i + 1) & 15]
-                    b = w[(i + 14) & 15]
+                    a = w[(i + 1) & 15];
+                    b = w[(i + 14) & 15];
                     tmp = w[i & 15] =
                         (((a >>> 7) ^ (a >>> 18) ^ (a >>> 3) ^ (a << 25) ^ (a << 14)) +
                             ((b >>> 17) ^ (b >>> 19) ^ (b >>> 10) ^ (b << 15) ^ (b << 13)) +
                             w[i & 15] +
                             w[(i + 9) & 15]) |
-                        0
+                        0;
                 }
 
                 tmp =
@@ -646,34 +646,34 @@ export const sjcl = (() => {
                     h7 +
                     ((h4 >>> 6) ^ (h4 >>> 11) ^ (h4 >>> 25) ^ (h4 << 26) ^ (h4 << 21) ^ (h4 << 7)) +
                     (h6 ^ (h4 & (h5 ^ h6))) +
-                    k[i] // | 0;
+                    k[i]; // | 0;
 
                 // shift register
-                h7 = h6
-                h6 = h5
-                h5 = h4
-                h4 = (h3 + tmp) | 0
-                h3 = h2
-                h2 = h1
-                h1 = h0
+                h7 = h6;
+                h6 = h5;
+                h5 = h4;
+                h4 = (h3 + tmp) | 0;
+                h3 = h2;
+                h2 = h1;
+                h1 = h0;
 
                 h0 =
                     (tmp +
                         ((h1 & h2) ^ (h3 & (h1 ^ h2))) +
                         ((h1 >>> 2) ^ (h1 >>> 13) ^ (h1 >>> 22) ^ (h1 << 30) ^ (h1 << 19) ^ (h1 << 10))) |
-                    0
+                    0;
             }
 
-            h[0] = (h[0] + h0) | 0
-            h[1] = (h[1] + h1) | 0
-            h[2] = (h[2] + h2) | 0
-            h[3] = (h[3] + h3) | 0
-            h[4] = (h[4] + h4) | 0
-            h[5] = (h[5] + h5) | 0
-            h[6] = (h[6] + h6) | 0
-            h[7] = (h[7] + h7) | 0
+            h[0] = (h[0] + h0) | 0;
+            h[1] = (h[1] + h1) | 0;
+            h[2] = (h[2] + h2) | 0;
+            h[3] = (h[3] + h3) | 0;
+            h[4] = (h[4] + h4) | 0;
+            h[5] = (h[5] + h5) | 0;
+            h[6] = (h[6] + h6) | 0;
+            h[7] = (h[7] + h7) | 0;
         },
-    }
+    };
 
     /** @fileOverview HMAC implementation.
      *
@@ -688,56 +688,56 @@ export const sjcl = (() => {
      * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
      */
     sjcl.misc.hmac = function (key, Hash) {
-        this._hash = Hash = Hash || sjcl.hash.sha256
+        this._hash = Hash = Hash || sjcl.hash.sha256;
         var exKey = [[], []],
             i,
-            bs = Hash.prototype.blockSize / 32
-        this._baseHash = [new Hash(), new Hash()]
+            bs = Hash.prototype.blockSize / 32;
+        this._baseHash = [new Hash(), new Hash()];
 
         if (key.length > bs) {
-            key = Hash.hash(key)
+            key = Hash.hash(key);
         }
 
         for (i = 0; i < bs; i++) {
-            exKey[0][i] = key[i] ^ 0x36363636
-            exKey[1][i] = key[i] ^ 0x5c5c5c5c
+            exKey[0][i] = key[i] ^ 0x36363636;
+            exKey[1][i] = key[i] ^ 0x5c5c5c5c;
         }
 
-        this._baseHash[0].update(exKey[0])
-        this._baseHash[1].update(exKey[1])
-        this._resultHash = new Hash(this._baseHash[0])
-    }
+        this._baseHash[0].update(exKey[0]);
+        this._baseHash[1].update(exKey[1]);
+        this._resultHash = new Hash(this._baseHash[0]);
+    };
 
     /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
      * @param {bitArray|String} data The data to mac.
      */
     sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
         if (!this._updated) {
-            this.update(data)
-            return this.digest(data)
+            this.update(data);
+            return this.digest(data);
         } else {
-            throw new sjcl.exception.invalid('encrypt on already updated hmac called!')
+            throw new sjcl.exception.invalid('encrypt on already updated hmac called!');
         }
-    }
+    };
 
     sjcl.misc.hmac.prototype.reset = function () {
-        this._resultHash = new this._hash(this._baseHash[0])
-        this._updated = false
-    }
+        this._resultHash = new this._hash(this._baseHash[0]);
+        this._updated = false;
+    };
 
     sjcl.misc.hmac.prototype.update = function (data) {
-        this._updated = true
-        this._resultHash.update(data)
-    }
+        this._updated = true;
+        this._resultHash.update(data);
+    };
 
     sjcl.misc.hmac.prototype.digest = function () {
         var w = this._resultHash.finalize(),
-            result = new this._hash(this._baseHash[1]).update(w).finalize()
+            result = new this._hash(this._baseHash[1]).update(w).finalize();
 
-        this.reset()
+        this.reset();
 
-        return result
-    }
+        return result;
+    };
 
-    return sjcl
-})()
+    return sjcl;
+})();

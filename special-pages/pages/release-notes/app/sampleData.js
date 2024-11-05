@@ -2,7 +2,7 @@
  * @typedef {import('../../../types/release-notes').UpdateMessage} UpdateMessage
  */
 
-const timestampInSeconds = Date.now() / 1000
+const timestampInSeconds = Date.now() / 1000;
 
 /**
  * @type {Record<UpdateMessage['status'], UpdateMessage>}
@@ -92,4 +92,4 @@ export const sampleData = {
         lastUpdate: timestampInSeconds,
         status: 'updatePreparing',
     },
-}
+};

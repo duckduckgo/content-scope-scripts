@@ -1,12 +1,12 @@
-import { h } from 'preact'
-import styles from './PrivacyStats.module.css'
-import { useTypedTranslation } from '../types.js'
-import { useContext, useState, useId, useCallback } from 'preact/hooks'
-import { PrivacyStatsContext, PrivacyStatsProvider } from './PrivacyStatsProvider.js'
-import { useVisibility } from '../widget-list/widget-config.provider.js'
-import { viewTransition } from '../utils.js'
-import { ShowHideButton } from '../components/ShowHideButton.jsx'
-import { useCustomizer } from '../customizer/Customizer.js'
+import { h } from 'preact';
+import styles from './PrivacyStats.module.css';
+import { useTypedTranslation } from '../types.js';
+import { useContext, useState, useId, useCallback } from 'preact/hooks';
+import { PrivacyStatsContext, PrivacyStatsProvider } from './PrivacyStatsProvider.js';
+import { useVisibility } from '../widget-list/widget-config.provider.js';
+import { viewTransition } from '../utils.js';
+import { ShowHideButton } from '../components/ShowHideButton.jsx';
+import { useCustomizer } from '../customizer/Customizer.js';
 
 /**
  * @typedef {import('../../../../types/new-tab').TrackerCompany} TrackerCompany
@@ -26,11 +26,11 @@ import { useCustomizer } from '../customizer/Customizer.js'
  */
 export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animate' }) {
     if (animation === 'view-transitions') {
-        return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />
+        return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />;
     }
 
     // no animations
-    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={toggle} />
+    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={toggle} />;
 }
 
 /**
@@ -41,9 +41,9 @@ export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animat
  */
 function WithViewTransitions({ expansion, data, toggle }) {
     const willToggle = useCallback(() => {
-        viewTransition(toggle)
-    }, [toggle])
-    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={willToggle} />
+        viewTransition(toggle);
+    }, [toggle]);
+    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={willToggle} />;
 }
 
 /**
@@ -54,12 +54,12 @@ function WithViewTransitions({ expansion, data, toggle }) {
  * @param {()=>void} props.toggle
  */
 function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
-    const expanded = expansion === 'expanded'
-    const someCompanies = data.trackerCompanies.length > 0
+    const expanded = expansion === 'expanded';
+    const someCompanies = data.trackerCompanies.length > 0;
 
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
-    const WIDGET_ID = useId()
-    const TOGGLE_ID = useId()
+    const WIDGET_ID = useId();
+    const TOGGLE_ID = useId();
 
     return (
         <div class={styles.root} ref={parentRef}>
@@ -75,7 +75,7 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
             />
             {expanded && someCompanies && <Body trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />}
         </div>
-    )
+    );
 }
 
 /**
@@ -87,18 +87,18 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
 export function Heading({ expansion, trackerCompanies, totalCount, onToggle, buttonAttrs = {} }) {
-    const { t } = useTypedTranslation()
-    const [formatter] = useState(() => new Intl.NumberFormat())
-    const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0)
+    const { t } = useTypedTranslation();
+    const [formatter] = useState(() => new Intl.NumberFormat());
+    const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0);
     const recentTitle =
         recent === 1
             ? t('trackerStatsFeedCountBlockedSingular')
-            : t('trackerStatsFeedCountBlockedPlural', { count: formatter.format(recent) })
+            : t('trackerStatsFeedCountBlockedPlural', { count: formatter.format(recent) });
 
-    const none = totalCount === 0
-    const some = totalCount > 0
-    const alltime = formatter.format(totalCount)
-    const alltimeTitle = totalCount === 1 ? t('trackerStatsCountBlockedSingular') : t('trackerStatsCountBlockedPlural', { count: alltime })
+    const none = totalCount === 0;
+    const some = totalCount > 0;
+    const alltime = formatter.format(totalCount);
+    const alltimeTitle = totalCount === 1 ? t('trackerStatsCountBlockedSingular') : t('trackerStatsCountBlockedPlural', { count: alltime });
 
     return (
         <div className={styles.heading}>
@@ -124,7 +124,7 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
                 {recent > 0 && recentTitle}
             </p>
         </div>
-    )
+    );
 }
 
 /**
@@ -134,18 +134,18 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
  */
 // eslint-disable-next-line no-redeclare
 export function Body({ trackerCompanies, listAttrs = {} }) {
-    const max = trackerCompanies[0]?.count ?? 0
-    const [formatter] = useState(() => new Intl.NumberFormat())
+    const max = trackerCompanies[0]?.count ?? 0;
+    const [formatter] = useState(() => new Intl.NumberFormat());
 
     return (
         <ul {...listAttrs} class={styles.list}>
             {trackerCompanies.map((company) => {
-                const percentage = Math.min((company.count * 100) / max, 100)
-                const valueOrMin = Math.max(percentage, 10)
+                const percentage = Math.min((company.count * 100) / max, 100);
+                const valueOrMin = Math.max(percentage, 10);
                 const inlineStyles = {
                     width: `${valueOrMin}%`,
-                }
-                const countText = formatter.format(company.count)
+                };
+                const countText = formatter.format(company.count);
                 return (
                     <li key={company.displayName}>
                         <div class={styles.row}>
@@ -158,10 +158,10 @@ export function Body({ trackerCompanies, listAttrs = {} }) {
                             <span class={styles.fill} style={inlineStyles}></span>
                         </div>
                     </li>
-                )
+                );
             })}
         </ul>
-    )
+    );
 }
 
 /**
@@ -171,21 +171,21 @@ export function Body({ trackerCompanies, listAttrs = {} }) {
  * whether to incur the side effects (data fetching).
  */
 export function PrivacyStatsCustomized() {
-    const { t } = useTypedTranslation()
-    const { visibility, id, toggle, index } = useVisibility()
+    const { t } = useTypedTranslation();
+    const { visibility, id, toggle, index } = useVisibility();
 
-    const title = t('trackerStatsMenuTitle')
-    useCustomizer({ title, id, icon: 'shield', toggle, visibility, index })
+    const title = t('trackerStatsMenuTitle');
+    useCustomizer({ title, id, icon: 'shield', toggle, visibility, index });
 
     if (visibility === 'hidden') {
-        return null
+        return null;
     }
 
     return (
         <PrivacyStatsProvider>
             <PrivacyStatsConsumer />
         </PrivacyStatsProvider>
-    )
+    );
 }
 
 /**
@@ -201,19 +201,19 @@ export function PrivacyStatsCustomized() {
  * ```
  */
 export function PrivacyStatsConsumer() {
-    const { state, toggle } = useContext(PrivacyStatsContext)
+    const { state, toggle } = useContext(PrivacyStatsContext);
     if (state.status === 'ready') {
         return (
             <PrivacyStats expansion={state.config.expansion} animation={state.config.animation?.kind} data={state.data} toggle={toggle} />
-        )
+        );
     }
-    return null
+    return null;
 }
 
 function CompanyIcon({ company }) {
-    const icon = company.displayName.toLowerCase().split('.')[0]
-    const cleaned = icon.replace(/ /g, '-')
-    const firstChar = icon[0]
+    const icon = company.displayName.toLowerCase().split('.')[0];
+    const cleaned = icon.replace(/ /g, '-');
+    const firstChar = icon[0];
 
     return (
         <span className={styles.icon}>
@@ -224,24 +224,24 @@ function CompanyIcon({ company }) {
                     alt={icon + ' icon'}
                     className={styles.companyImgIcon}
                     onLoad={(e) => {
-                        if (!e.target) return
-                        if (!(e.target instanceof HTMLImageElement)) return
-                        e.target.dataset.loaded = String(true)
+                        if (!e.target) return;
+                        if (!(e.target instanceof HTMLImageElement)) return;
+                        e.target.dataset.loaded = String(true);
                     }}
                     onError={(e) => {
-                        if (!e.target) return
-                        if (!(e.target instanceof HTMLImageElement)) return
+                        if (!e.target) return;
+                        if (!(e.target instanceof HTMLImageElement)) return;
                         if (e.target.dataset.loadingFallback) {
-                            e.target.dataset.errored = String(true)
-                            return
+                            e.target.dataset.errored = String(true);
+                            return;
                         }
-                        e.target.dataset.loadingFallback = String(true)
-                        e.target.src = `./company-icons/${firstChar}.svg`
+                        e.target.dataset.loadingFallback = String(true);
+                        e.target.src = `./company-icons/${firstChar}.svg`;
                     }}
                 />
             )}
         </span>
-    )
+    );
 }
 
 function Other() {
@@ -254,5 +254,5 @@ function Other() {
                 fill="currentColor"
             />
         </svg>
-    )
+    );
 }

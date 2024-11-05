@@ -1,4 +1,4 @@
-import { platformSupport } from '../src/features.js'
+import { platformSupport } from '../src/features.js';
 
 describe('Features definition', () => {
     it('calls `webCompat` before `fingerPrintingScreenSize` https://app.asana.com/0/1177771139624306/1204944717262422/f', () => {
@@ -17,6 +17,6 @@ describe('Features definition', () => {
             'navigatorInterface',
             'elementHiding',
             'exceptionHandler',
-        ])
-    })
-})
+        ]);
+    });
+});

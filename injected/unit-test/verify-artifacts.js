@@ -1,17 +1,17 @@
-import { join, relative } from 'node:path'
-import { readFileSync, statSync } from 'node:fs'
-import { cwd } from '../../scripts/script-utils.js'
+import { join, relative } from 'node:path';
+import { readFileSync, statSync } from 'node:fs';
+import { cwd } from '../../scripts/script-utils.js';
 
 // path helpers
-const ROOT = join(cwd(import.meta.url), '..', '..')
-console.log(ROOT)
-const BUILD = join(ROOT, 'build')
-const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
-console.log(APPLE_BUILD)
-let CSS_OUTPUT_SIZE = 760_000
-const CSS_OUTPUT_SIZE_CHROME = CSS_OUTPUT_SIZE * 1.45 // 45% larger for Chrome MV2 due to base64 encoding
+const ROOT = join(cwd(import.meta.url), '..', '..');
+console.log(ROOT);
+const BUILD = join(ROOT, 'build');
+const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
+console.log(APPLE_BUILD);
+let CSS_OUTPUT_SIZE = 760_000;
+const CSS_OUTPUT_SIZE_CHROME = CSS_OUTPUT_SIZE * 1.45; // 45% larger for Chrome MV2 due to base64 encoding
 if (process.platform === 'win32') {
-    CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1 // 10% larger for Windows due to line endings
+    CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1; // 10% larger for Windows due to line endings
 }
 
 const checks = {
@@ -64,30 +64,30 @@ const checks = {
             { kind: 'containsString', text: '#bundledConfig', includes: false },
         ],
     },
-}
+};
 
 describe('checks', () => {
     for (const [platformName, platformChecks] of Object.entries(checks)) {
         for (const check of platformChecks.tests) {
-            const localPath = relative(ROOT, platformChecks.file)
+            const localPath = relative(ROOT, platformChecks.file);
             if (check.kind === 'maxFileSize') {
                 it(`${platformName}: '${localPath}' is smaller than ${check.value}`, () => {
-                    const stats = statSync(platformChecks.file)
-                    expect(stats.size).toBeLessThan(check.value)
-                })
+                    const stats = statSync(platformChecks.file);
+                    expect(stats.size).toBeLessThan(check.value);
+                });
             }
             if (check.kind === 'containsString') {
                 it(`${platformName}: '${localPath}' contains ${check.text}`, () => {
-                    const fileContents = readFileSync(platformChecks.file).toString()
+                    const fileContents = readFileSync(platformChecks.file).toString();
                     // @ts-expect-error - can't infer that value is a number without adding types
-                    const includes = fileContents.includes(check.text)
+                    const includes = fileContents.includes(check.text);
                     if (check.includes) {
-                        expect(includes).toBeTrue()
+                        expect(includes).toBeTrue();
                     } else {
-                        expect(includes).toBeFalse()
+                        expect(includes).toBeFalse();
                     }
-                })
+                });
             }
         }
     }
-})
+});

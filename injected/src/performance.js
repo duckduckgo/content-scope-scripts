@@ -3,7 +3,7 @@
  */
 export class PerformanceMonitor {
     constructor() {
-        this.marks = []
+        this.marks = [];
     }
 
     /**
@@ -12,9 +12,9 @@ export class PerformanceMonitor {
      * @returns {PerformanceMark}
      */
     mark(name) {
-        const mark = new PerformanceMark(name)
-        this.marks.push(mark)
-        return mark
+        const mark = new PerformanceMark(name);
+        this.marks.push(mark);
+        return mark;
     }
 
     /**
@@ -22,8 +22,8 @@ export class PerformanceMonitor {
      */
     measureAll() {
         this.marks.forEach((mark) => {
-            mark.measure()
-        })
+            mark.measure();
+        });
     }
 }
 
@@ -36,15 +36,15 @@ export class PerformanceMark {
      * @param {string} name
      */
     constructor(name) {
-        this.name = name
-        performance.mark(this.name + 'Start')
+        this.name = name;
+        performance.mark(this.name + 'Start');
     }
 
     end() {
-        performance.mark(this.name + 'End')
+        performance.mark(this.name + 'End');
     }
 
     measure() {
-        performance.measure(this.name, this.name + 'Start', this.name + 'End')
+        performance.measure(this.name, this.name + 'Start', this.name + 'End');
     }
 }

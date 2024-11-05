@@ -46,4 +46,4 @@ export const stats = {
         trackerCompanies: [],
         trackerCompaniesPeriod: 'last-day',
     },
-}
+};

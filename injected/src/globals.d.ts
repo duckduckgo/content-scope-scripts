@@ -1,20 +1,20 @@
-declare const mozProxies: boolean
-declare function exportFunction(fn: () => unknown, desc: object, out: object): void
-declare function exportFunction(fn: () => unknown, desc: object): void
-declare function cloneInto(fn: object, desc: object, out: object): void
-declare function cloneInto(fn: object, desc: object): void
+declare const mozProxies: boolean;
+declare function exportFunction(fn: () => unknown, desc: object, out: object): void;
+declare function exportFunction(fn: () => unknown, desc: object): void;
+declare function cloneInto(fn: object, desc: object, out: object): void;
+declare function cloneInto(fn: object, desc: object): void;
 declare namespace contentScopeFeatures {
-    function init(args: object): void
-    function load(args: object): void
-    function update(args: object): void
+    function init(args: object): void;
+    function load(args: object): void;
+    function update(args: object): void;
 }
 
 /**
  * Allows checks like `import.meta.env === "development"'
  */
 interface ImportMeta {
-    env: 'production' | 'development'
-    platform?: 'windows' | 'macos' | 'android' | 'ios'
+    env: 'production' | 'development';
+    platform?: 'windows' | 'macos' | 'android' | 'ios';
     // this represents the different build artifact names
     injectName?:
         | 'firefox'
@@ -25,29 +25,29 @@ interface ImportMeta {
         | 'integration'
         | 'chrome-mv3'
         | 'chrome'
-        | 'android-autofill-password-import'
-    trackerLookup?: Record<string, unknown>
-    pageName?: string
+        | 'android-autofill-password-import';
+    trackerLookup?: Record<string, unknown>;
+    pageName?: string;
 }
 
 declare module '*.svg' {
-    const content: string
-    export default content
+    const content: string;
+    export default content;
 }
 declare module '*.module.css' {
-    const content: Record<string, string>
-    export default content
+    const content: Record<string, string>;
+    export default content;
 }
 declare module '*.css' {
-    const content: string
-    export default content
+    const content: string;
+    export default content;
 }
 declare module '*.riv' {
-    const filepath: string
-    export default filepath
+    const filepath: string;
+    export default filepath;
 }
 
 declare module 'ddg:platformFeatures' {
-    const output: Record<string, new (featureName: string) => import('./content-feature').default>
-    export default output
+    const output: Record<string, new (featureName: string) => import('./content-feature').default>;
+    export default output;
 }

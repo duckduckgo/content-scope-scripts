@@ -1,7 +1,7 @@
-import { h } from 'preact'
-import cn from 'classnames'
-import styles from './Tooltip.module.css'
-import { useTypedTranslation } from '../types.js'
+import { h } from 'preact';
+import cn from 'classnames';
+import styles from './Tooltip.module.css';
+import { useTypedTranslation } from '../types.js';
 
 /**
  * @param {object} props
@@ -10,7 +10,7 @@ import { useTypedTranslation } from '../types.js'
  * @param {'top' | 'bottom'} props.position
  */
 export function Tooltip({ id, isVisible, position }) {
-    const { t } = useTypedTranslation()
+    const { t } = useTypedTranslation();
     return (
         <div
             class={cn(styles.tooltip, {
@@ -23,5 +23,5 @@ export function Tooltip({ id, isVisible, position }) {
         >
             {t('tooltipInfo')}
         </div>
-    )
+    );
 }

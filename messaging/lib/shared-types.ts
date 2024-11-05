@@ -1,10 +1,10 @@
 export interface MessageTypes {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    requests?: Record<string, any>
+    requests?: Record<string, any>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    notifications?: Record<string, any>
+    notifications?: Record<string, any>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    subscriptions?: Record<string, any>
+    subscriptions?: Record<string, any>;
 }
 
 /**
@@ -17,14 +17,14 @@ export interface MessagingBase<T extends MessageTypes = MessageTypes> {
         Msg = Extract<T['notifications'], { method: Method }>,
     >(
         ...args: Msg extends { params: infer Params } ? [Method, Params] : [Method]
-    ): void
+    ): void;
     request<
         Method extends T['requests'] extends { method: string } ? T['requests']['method'] : never,
         Msg = Extract<T['requests'], { method: Method }>,
         Return = Msg extends { result: infer Result } ? Result : void,
     >(
         ...args: Msg extends { params: infer Params } ? [Method, Params] : [Method]
-    ): Promise<Return>
+    ): Promise<Return>;
     subscribe<
         Method extends T['subscriptions'] extends { subscriptionEvent: string } ? T['subscriptions']['subscriptionEvent'] : never,
         Msg = Extract<T['subscriptions'], { subscriptionEvent: Method }>,
@@ -32,5 +32,5 @@ export interface MessagingBase<T extends MessageTypes = MessageTypes> {
     >(
         subscriptionEvent: Method,
         cb: Callback,
-    ): () => void
+    ): () => void;
 }

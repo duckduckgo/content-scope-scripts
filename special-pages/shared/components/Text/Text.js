@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import classNames from 'classnames'
-import styles from './Text.module.css'
+import { h } from 'preact';
+import classNames from 'classnames';
+import styles from './Text.module.css';
 
 /**
  * @param {object} props
@@ -16,5 +16,5 @@ export function Text({ as: Comp = 'p', variant, strictSpacing = true, className,
         <Comp className={classNames({ [styles[`${variant}`]]: variant, [styles.strictSpacing]: strictSpacing }, className)}>
             {children}
         </Comp>
-    )
+    );
 }

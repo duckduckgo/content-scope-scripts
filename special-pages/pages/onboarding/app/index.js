@@ -1,38 +1,38 @@
-import { OnboardingMessages } from './messages'
-import { render, h } from 'preact'
-import './styles/global.css' // global styles
-import { App, SkipLink } from './components/App.js'
-import { App2 } from './components/App2'
-import { GlobalProvider } from './global'
-import { Components } from './Components'
-import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider'
-import { Environment } from '../../../shared/environment'
-import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging'
-import { Settings } from './settings'
-import { callWithRetry } from '../../../shared/call-with-retry'
-import { TranslationProvider } from '../../../shared/components/TranslationsProvider'
-import { SettingsProvider } from './components/SettingsProvider'
-import enStrings from '../src/locales/en/onboarding.json'
-import { stepDefinitions as stepDefinitionsV3 } from './components/v3/data'
+import { OnboardingMessages } from './messages';
+import { render, h } from 'preact';
+import './styles/global.css'; // global styles
+import { App, SkipLink } from './components/App.js';
+import { App2 } from './components/App2';
+import { GlobalProvider } from './global';
+import { Components } from './Components';
+import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider';
+import { Environment } from '../../../shared/environment';
+import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging';
+import { Settings } from './settings';
+import { callWithRetry } from '../../../shared/call-with-retry';
+import { TranslationProvider } from '../../../shared/components/TranslationsProvider';
+import { SettingsProvider } from './components/SettingsProvider';
+import enStrings from '../src/locales/en/onboarding.json';
+import { stepDefinitions as stepDefinitionsV3 } from './components/v3/data';
 
-const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env)
+const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
 
 // share this in the app, it's an instance of `OnboardingMessages` where all your native comms should be
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
     pageName: 'onboarding',
-})
+});
 
-const onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName)
+const onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName);
 
 async function init() {
-    const result = await callWithRetry(() => onboarding.init())
+    const result = await callWithRetry(() => onboarding.init());
     if ('error' in result) {
-        throw new Error(result.error)
+        throw new Error(result.error);
     }
 
-    const init = result.value
+    const init = result.value;
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -40,7 +40,7 @@ async function init() {
         .withLocale(init.locale)
         .withLocale(baseEnvironment.urlParams.get('locale'))
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
-        .withDisplay(baseEnvironment.urlParams.get('display'))
+        .withDisplay(baseEnvironment.urlParams.get('display'));
 
     const strings =
         environment.locale === 'en'
@@ -48,9 +48,9 @@ async function init() {
             : await fetch(`./locales/${environment.locale}/onboarding.json`)
                   .then((x) => x.json())
                   .catch((e) => {
-                      console.error('Could not load locale', environment.locale, e)
-                      return enStrings
-                  })
+                      console.error('Could not load locale', environment.locale, e);
+                      return enStrings;
+                  });
 
     const settings = new Settings()
         .withPlatformName(baseEnvironment.injectName)
@@ -62,12 +62,12 @@ async function init() {
         .withNamedOrder(environment.urlParams.get('order'))
         .withExcludedScreens(init.exclude)
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
-        .withFirst(environment.urlParams.get('page'))
+        .withFirst(environment.urlParams.get('page'));
 
-    const AppComponent = settings.orderName === 'v3' ? App2 : App
+    const AppComponent = settings.orderName === 'v3' ? App2 : App;
 
-    const root = document.querySelector('#app')
-    if (!root) throw new Error('could not render, root element missing')
+    const root = document.querySelector('#app');
+    if (!root) throw new Error('could not render, root element missing');
 
     if (environment.display === 'app') {
         render(
@@ -87,7 +87,7 @@ async function init() {
                 </TranslationProvider>
             </EnvironmentProvider>,
             root,
-        )
+        );
     }
     if (environment.display === 'components') {
         render(
@@ -97,12 +97,12 @@ async function init() {
                 </TranslationProvider>
             </EnvironmentProvider>,
             root,
-        )
+        );
     }
 }
 
 init().catch((e) => {
-    console.error(e)
-    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
-    onboarding.reportInitException({ message: msg })
-})
+    console.error(e);
+    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
+    onboarding.reportInitException({ message: msg });
+});

@@ -1,5 +1,5 @@
-import { Mocks } from '../../../tests/page-objects/mocks.js'
-import { perPlatform } from 'injected/integration-test/type-helpers.mjs'
+import { Mocks } from '../../../tests/page-objects/mocks.js';
+import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
 
 /**
  * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
@@ -13,15 +13,15 @@ export class NewtabPage {
      * @param {PlatformInfo} platform
      */
     constructor(page, build, platform) {
-        this.page = page
-        this.build = build
-        this.platform = platform
+        this.page = page;
+        this.build = build;
+        this.platform = platform;
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'newTabPage',
             env: 'development',
-        })
-        this.page.on('console', console.log)
+        });
+        this.page.on('console', console.log);
         // default mocks - just enough to render the first page without error
         this.mocks.defaultResponses({
             requestSetAsDefault: {},
@@ -45,7 +45,7 @@ export class NewtabPage {
             rmf_getConfig: {},
             rmf_getData: {},
             widgets_setConfig: {},
-        })
+        });
     }
 
     /**
@@ -61,26 +61,26 @@ export class NewtabPage {
      * @param {string} [params.platformName] - Optional parameters for opening the page.
      */
     async openPage({ mode = 'debug', platformName, willThrow = false, favoritesCount, rmf, updateNotification } = {}) {
-        await this.mocks.install()
-        const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) })
+        await this.mocks.install();
+        const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) });
 
         if (favoritesCount !== undefined) {
-            searchParams.set('favorites', String(favoritesCount))
+            searchParams.set('favorites', String(favoritesCount));
         }
 
         if (rmf !== undefined) {
-            searchParams.set('rmf', rmf)
+            searchParams.set('rmf', rmf);
         }
 
         if (platformName !== undefined) {
-            searchParams.set('platform', platformName)
+            searchParams.set('platform', platformName);
         }
 
         if (updateNotification !== undefined) {
-            searchParams.set('update-notification', updateNotification)
+            searchParams.set('update-notification', updateNotification);
         }
 
-        await this.page.goto('/new-tab' + '?' + searchParams.toString())
+        await this.page.goto('/new-tab' + '?' + searchParams.toString());
     }
 
     /**
@@ -92,7 +92,7 @@ export class NewtabPage {
         return this.build.switch({
             windows: () => '../build/windows/pages/new-tab',
             integration: () => '../build/integration/pages/new-tab',
-        })
+        });
     }
 
     /**
@@ -101,15 +101,15 @@ export class NewtabPage {
      */
     static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
-        const { platformInfo, build } = perPlatform(testInfo.project.use)
-        return new NewtabPage(page, build, platformInfo)
+        const { platformInfo, build } = perPlatform(testInfo.project.use);
+        return new NewtabPage(page, build, platformInfo);
     }
 
     async reducedMotion() {
-        await this.page.emulateMedia({ reducedMotion: 'reduce' })
+        await this.page.emulateMedia({ reducedMotion: 'reduce' });
     }
 
     async darkMode() {
-        await this.page.emulateMedia({ colorScheme: 'dark' })
+        await this.page.emulateMedia({ colorScheme: 'dark' });
     }
 }

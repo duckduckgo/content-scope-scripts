@@ -8,7 +8,7 @@ export const names = {
      * @return {Record<string, string[]>}
      */
     get nicknames() {
-        if (this._memo !== null) return this._memo
+        if (this._memo !== null) return this._memo;
         this._memo = {
             aaron: ['erin', 'ronnie', 'ron'],
             abbigail: ['nabby', 'abby', 'gail', 'abbe', 'abbi', 'abbey', 'abbie'],
@@ -1198,10 +1198,10 @@ export const names = {
             zebedee: ['zeb'],
             zedediah: ['dyer', 'zed', 'diah'],
             zephaniah: ['zeph'],
-        }
-        return this._memo
+        };
+        return this._memo;
     },
-}
+};
 
 export const states = {
     AL: 'Alabama',
@@ -1255,4 +1255,4 @@ export const states = {
     WV: 'West Virginia',
     WI: 'Wisconsin',
     WY: 'Wyoming',
-}
+};

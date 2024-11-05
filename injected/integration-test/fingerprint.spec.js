@@ -1,14 +1,14 @@
 /**
  *  Tests for fingerprint defenses. Ensure that fingerprinting is actually being blocked.
  */
-import { test as base, expect } from '@playwright/test'
-import { testContextForExtension } from './helpers/harness.js'
-import { createRequire } from 'node:module'
+import { test as base, expect } from '@playwright/test';
+import { testContextForExtension } from './helpers/harness.js';
+import { createRequire } from 'node:module';
 
 // eslint-disable-next-line no-redeclare
-const require = createRequire(import.meta.url)
+const require = createRequire(import.meta.url);
 
-const test = testContextForExtension(base)
+const test = testContextForExtension(base);
 
 const expectedFingerprintValues = {
     availTop: 0,
@@ -19,17 +19,17 @@ const expectedFingerprintValues = {
     pixelDepth: 24,
     productSub: '20030107',
     vendorSub: '',
-}
+};
 
-const pagePath = '/index.html'
-const tests = [{ url: `http://localhost:3220${pagePath}` }, { url: `http://127.0.0.1:8383${pagePath}` }]
+const pagePath = '/index.html';
+const tests = [{ url: `http://localhost:3220${pagePath}` }, { url: `http://127.0.0.1:8383${pagePath}` }];
 
 test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () => {
     test.describe.serial('Fingerprint Defense Tests', () => {
         for (const _test of tests) {
             test(`${_test.url} should include anti-fingerprinting code`, async ({ page, altServerPort }) => {
-                console.log('running:', altServerPort)
-                await page.goto(_test.url)
+                console.log('running:', altServerPort);
+                await page.goto(_test.url);
                 const values = await page.evaluate(() => {
                     return {
                         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -44,19 +44,19 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
                         pixelDepth: screen.pixelDepth,
                         productSub: navigator.productSub,
                         vendorSub: navigator.vendorSub,
-                    }
-                })
+                    };
+                });
 
                 for (const [name, prop] of Object.entries(values)) {
                     await test.step(name, () => {
-                        expect(prop).toEqual(expectedFingerprintValues[name])
-                    })
+                        expect(prop).toEqual(expectedFingerprintValues[name]);
+                    });
                 }
 
-                await page.close()
-            })
+                await page.close();
+            });
         }
-    })
+    });
 
     test.describe.serial('First Party Fingerprint Randomization', () => {
         /**
@@ -64,74 +64,74 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
          * @param {tests[number]} test
          */
         async function runTest(page, test) {
-            await page.goto(test.url)
-            const lib = require.resolve('@fingerprintjs/fingerprintjs/dist/fp.js')
-            await page.addScriptTag({ path: lib })
+            await page.goto(test.url);
+            const lib = require.resolve('@fingerprintjs/fingerprintjs/dist/fp.js');
+            await page.addScriptTag({ path: lib });
 
             const fingerprint = await page.evaluate(() => {
                 /* global FingerprintJS */
                 return (async () => {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    const fp = await FingerprintJS.load()
-                    return fp.get()
-                })()
-            })
+                    const fp = await FingerprintJS.load();
+                    return fp.get();
+                })();
+            });
 
             return {
                 canvas: fingerprint.components.canvas.value,
                 plugin: fingerprint.components.plugins.value,
-            }
+            };
         }
 
         for (const testCase of tests) {
             test(`Fingerprints should not change amongst page loads test ${testCase.url}`, async ({ page, altServerPort }) => {
-                console.log('running:', altServerPort)
-                const result = await runTest(page, testCase)
+                console.log('running:', altServerPort);
+                const result = await runTest(page, testCase);
 
-                const result2 = await runTest(page, testCase)
-                expect(result.canvas).toEqual(result2.canvas)
-                expect(result.plugin).toEqual(result2.plugin)
-            })
+                const result2 = await runTest(page, testCase);
+                expect(result.canvas).toEqual(result2.canvas);
+                expect(result.plugin).toEqual(result2.plugin);
+            });
         }
 
         test('Fingerprints should not match across first parties', async ({ page, altServerPort }) => {
-            console.log('running:', altServerPort)
-            const canvas = new Set()
-            const plugin = new Set()
+            console.log('running:', altServerPort);
+            const canvas = new Set();
+            const plugin = new Set();
 
             for (const testCase of tests) {
-                const result = await runTest(page, testCase)
+                const result = await runTest(page, testCase);
 
                 // Add the fingerprints to a set, if the result doesn't match it won't be added
-                canvas.add(JSON.stringify(result.canvas))
-                plugin.add(JSON.stringify(result.plugin))
+                canvas.add(JSON.stringify(result.canvas));
+                plugin.add(JSON.stringify(result.plugin));
             }
 
             // Ensure that the number of test pages match the number in the set
-            expect(canvas.size).toEqual(tests.length)
-            expect(plugin.size).toEqual(1)
-        })
-    })
+            expect(canvas.size).toEqual(tests.length);
+            expect(plugin.size).toEqual(1);
+        });
+    });
 
     test.describe.serial('Verify injected script is not visible to the page', () => {
         tests.forEach((testCase) => {
             test(`Fingerprints should not match across first parties ${testCase.url}`, async ({ page, altServerPort }) => {
-                console.log('running:', altServerPort)
-                await page.goto(testCase.url)
+                console.log('running:', altServerPort);
+                await page.goto(testCase.url);
 
                 // give it another second just to be sure
-                await page.waitForTimeout(1000)
+                await page.waitForTimeout(1000);
 
                 const sjclVal = await page.evaluate(() => {
                     if ('sjcl' in window) {
-                        return 'visible'
+                        return 'visible';
                     } else {
-                        return 'invisible'
+                        return 'invisible';
                     }
-                })
+                });
 
-                expect(sjclVal).toEqual('invisible')
-            })
-        })
-    })
-})
+                expect(sjclVal).toEqual('invisible');
+            });
+        });
+    });
+});

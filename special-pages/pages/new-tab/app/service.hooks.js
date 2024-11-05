@@ -22,7 +22,7 @@
  * } State
  */
 
-import { useCallback, useEffect } from 'preact/hooks'
+import { useCallback, useEffect } from 'preact/hooks';
 
 /**
  * @template D
@@ -35,10 +35,10 @@ export function reducer(state, event) {
         case 'idle': {
             switch (event.kind) {
                 case 'load-initial': {
-                    return { ...state, status: /** @type {const} */ ('pending-initial') }
+                    return { ...state, status: /** @type {const} */ ('pending-initial') };
                 }
                 default:
-                    return state
+                    return state;
             }
         }
         case 'pending-initial': {
@@ -49,33 +49,33 @@ export function reducer(state, event) {
                         status: /** @type {const} */ ('ready'),
                         data: event.data,
                         config: event.config,
-                    }
+                    };
                 }
                 case 'error': {
-                    console.error('error with initial data', event.error)
-                    return state
+                    console.error('error with initial data', event.error);
+                    return state;
                 }
                 default:
-                    return state
+                    return state;
             }
         }
         case 'ready': {
             switch (event.kind) {
                 case 'config': {
-                    return { ...state, config: event.config }
+                    return { ...state, config: event.config };
                 }
                 case 'data': {
-                    return { ...state, data: event.data }
+                    return { ...state, data: event.data };
                 }
                 case 'clear': {
-                    return { ...state, effect: null }
+                    return { ...state, effect: null };
                 }
                 default:
-                    return state
+                    return state;
             }
         }
         default:
-            return state
+            return state;
     }
 }
 
@@ -90,29 +90,29 @@ export function reducer(state, event) {
  */
 export function useInitialDataAndConfig({ dispatch, service }) {
     useEffect(() => {
-        if (!service.current) return console.warn('missing service')
-        const stats = service.current
+        if (!service.current) return console.warn('missing service');
+        const stats = service.current;
         async function init() {
-            const { config, data } = await stats.getInitial()
+            const { config, data } = await stats.getInitial();
             if (data) {
-                dispatch({ kind: 'initial-data', data, config })
+                dispatch({ kind: 'initial-data', data, config });
             } else {
-                dispatch({ kind: 'error', error: 'missing data from getInitial' })
+                dispatch({ kind: 'error', error: 'missing data from getInitial' });
             }
         }
 
-        dispatch({ kind: 'load-initial' })
+        dispatch({ kind: 'load-initial' });
 
         // eslint-disable-next-line promise/prefer-await-to-then
         init().catch((e) => {
-            console.error('uncaught error', e)
-            dispatch({ kind: 'error', error: e })
-        })
+            console.error('uncaught error', e);
+            dispatch({ kind: 'error', error: e });
+        });
 
         return () => {
-            stats.destroy()
-        }
-    }, [])
+            stats.destroy();
+        };
+    }, []);
 }
 
 /**
@@ -126,29 +126,29 @@ export function useInitialDataAndConfig({ dispatch, service }) {
  */
 export function useInitialData({ dispatch, service }) {
     useEffect(() => {
-        if (!service.current) return console.warn('missing service')
-        const stats = service.current
+        if (!service.current) return console.warn('missing service');
+        const stats = service.current;
         async function init() {
-            const data = await stats.getInitial()
+            const data = await stats.getInitial();
             if (data) {
-                dispatch({ kind: 'initial-data', data })
+                dispatch({ kind: 'initial-data', data });
             } else {
-                dispatch({ kind: 'error', error: 'missing data from getInitial' })
+                dispatch({ kind: 'error', error: 'missing data from getInitial' });
             }
         }
 
-        dispatch({ kind: 'load-initial' })
+        dispatch({ kind: 'load-initial' });
 
         // eslint-disable-next-line promise/prefer-await-to-then
         init().catch((e) => {
-            console.error('uncaught error', e)
-            dispatch({ kind: 'error', error: e })
-        })
+            console.error('uncaught error', e);
+            dispatch({ kind: 'error', error: e });
+        });
 
         return () => {
-            stats.destroy()
-        }
-    }, [])
+            stats.destroy();
+        };
+    }, []);
 }
 
 /**
@@ -162,15 +162,15 @@ export function useInitialData({ dispatch, service }) {
  */
 export function useDataSubscription({ dispatch, service }) {
     useEffect(() => {
-        if (!service.current) return console.warn('could not access service')
+        if (!service.current) return console.warn('could not access service');
 
         const unsub = service.current.onData((evt) => {
-            dispatch({ kind: 'data', data: evt.data })
-        })
+            dispatch({ kind: 'data', data: evt.data });
+        });
         return () => {
-            unsub()
-        }
-    }, [service, dispatch])
+            unsub();
+        };
+    }, [service, dispatch]);
 }
 
 /**
@@ -189,18 +189,18 @@ export function useConfigSubscription({ dispatch, service }) {
      * The result of that toggle will be broadcasts immediately, allowing real-time (optimistic) UI updates
      */
     const toggle = useCallback(() => {
-        service.current?.toggleExpansion()
-    }, [service, dispatch])
+        service.current?.toggleExpansion();
+    }, [service, dispatch]);
 
     useEffect(() => {
-        if (!service.current) return console.warn('could not access service')
+        if (!service.current) return console.warn('could not access service');
         const unsub2 = service.current.onConfig((data) => {
-            dispatch({ kind: 'config', config: data.data })
-        })
+            dispatch({ kind: 'config', config: data.data });
+        });
         return () => {
-            unsub2()
-        }
-    }, [service])
+            unsub2();
+        };
+    }, [service]);
 
-    return { toggle }
+    return { toggle };
 }

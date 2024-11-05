@@ -35,24 +35,24 @@ export class RequestMessage {
          * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
          * @type {string}
          */
-        this.context = params.context
+        this.context = params.context;
         /**
          * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
          * @type {string}
          */
-        this.featureName = params.featureName
+        this.featureName = params.featureName;
         /**
          * The name of the handler to be executed on the native side
          */
-        this.method = params.method
+        this.method = params.method;
         /**
          * The `id` that native sides can use when sending back a response
          */
-        this.id = params.id
+        this.id = params.id;
         /**
          * Optional data payload - must be a plain key/value object
          */
-        this.params = params.params
+        this.params = params.params;
     }
 }
 
@@ -74,24 +74,24 @@ export class MessageResponse {
          * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
          * @type {string}
          */
-        this.context = params.context
+        this.context = params.context;
         /**
          * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
          * @type {string}
          */
-        this.featureName = params.featureName
+        this.featureName = params.featureName;
         /**
          * The resulting payload - must be a plain object
          */
-        this.result = params.result
+        this.result = params.result;
         /**
          * The `id` that is used to pair this response with its sender
          */
-        this.id = params.id
+        this.id = params.id;
         /**
          * An optional error
          */
-        this.error = params.error
+        this.error = params.error;
     }
 }
 
@@ -112,19 +112,19 @@ export class NotificationMessage {
         /**
          * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
          */
-        this.context = params.context
+        this.context = params.context;
         /**
          * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
          */
-        this.featureName = params.featureName
+        this.featureName = params.featureName;
         /**
          * The name of the handler to be executed on the native side
          */
-        this.method = params.method
+        this.method = params.method;
         /**
          * An optional payload
          */
-        this.params = params.params
+        this.params = params.params;
     }
 }
 
@@ -137,9 +137,9 @@ export class Subscription {
      * @internal
      */
     constructor(params) {
-        this.context = params.context
-        this.featureName = params.featureName
-        this.subscriptionName = params.subscriptionName
+        this.context = params.context;
+        this.featureName = params.featureName;
+        this.subscriptionName = params.subscriptionName;
     }
 }
 
@@ -156,10 +156,10 @@ export class SubscriptionEvent {
      * @internal
      */
     constructor(params) {
-        this.context = params.context
-        this.featureName = params.featureName
-        this.subscriptionName = params.subscriptionName
-        this.params = params.params
+        this.context = params.context;
+        this.featureName = params.featureName;
+        this.subscriptionName = params.subscriptionName;
+        this.params = params.params;
     }
 }
 
@@ -173,7 +173,7 @@ export class MessageError {
      * @internal
      */
     constructor(params) {
-        this.message = params.message
+        this.message = params.message;
     }
 }
 
@@ -184,14 +184,14 @@ export class MessageError {
  */
 export function isResponseFor(request, data) {
     if ('result' in data) {
-        return data.featureName === request.featureName && data.context === request.context && data.id === request.id
+        return data.featureName === request.featureName && data.context === request.context && data.id === request.id;
     }
     if ('error' in data) {
         if ('message' in data.error) {
-            return true
+            return true;
         }
     }
-    return false
+    return false;
 }
 
 /**
@@ -201,8 +201,8 @@ export function isResponseFor(request, data) {
  */
 export function isSubscriptionEventFor(sub, data) {
     if ('subscriptionName' in data) {
-        return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName
+        return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName;
     }
 
-    return false
+    return false;
 }

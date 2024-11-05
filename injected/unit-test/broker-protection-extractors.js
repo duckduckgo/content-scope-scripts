@@ -1,21 +1,21 @@
-import fc from 'fast-check'
-import { cleanArray } from '../src/features/broker-protection/utils.js'
-import { PhoneExtractor } from '../src/features/broker-protection/extractors/phone.js'
-import { ProfileUrlExtractor } from '../src/features/broker-protection/extractors/profile-url.js'
+import fc from 'fast-check';
+import { cleanArray } from '../src/features/broker-protection/utils.js';
+import { PhoneExtractor } from '../src/features/broker-protection/extractors/phone.js';
+import { ProfileUrlExtractor } from '../src/features/broker-protection/extractors/profile-url.js';
 
 describe('individual extractors', () => {
     describe('PhoneExtractor', () => {
         it('should extract digits only', () => {
             fc.assert(
                 fc.property(fc.array(fc.string()), (s) => {
-                    const cleanInput = cleanArray(s)
-                    const numbers = new PhoneExtractor().extract(cleanInput, {})
-                    const cleanOutput = cleanArray(numbers)
-                    return cleanOutput.every((num) => num.match(/^\d+$/))
+                    const cleanInput = cleanArray(s);
+                    const numbers = new PhoneExtractor().extract(cleanInput, {});
+                    const cleanOutput = cleanArray(numbers);
+                    return cleanOutput.every((num) => num.match(/^\d+$/));
                 }),
-            )
-        })
-    })
+            );
+        });
+    });
     describe('ProfileUrlExtractor', () => {
         /**
          * @typedef {import("../src/features/broker-protection/actions/extract.js").IdentifierType} IdentifierType
@@ -47,14 +47,14 @@ describe('individual extractors', () => {
                 profileUrl: 'https://duckduckgo.com/my/profile?id=test',
                 expected: 'test',
             },
-        ]
+        ];
 
         testCases.forEach(({ identifierType, identifier, profileUrl, expected }) => {
             it(`should return the correct identifier when identifierType is "${identifierType}" and identifier is "${identifier}"`, () => {
-                const profile = new ProfileUrlExtractor().extract([profileUrl], { identifierType, identifier })
+                const profile = new ProfileUrlExtractor().extract([profileUrl], { identifierType, identifier });
 
-                expect(profile?.identifier).toEqual(expected)
-            })
-        })
-    })
-})
+                expect(profile?.identifier).toEqual(expected);
+            });
+        });
+    });
+});

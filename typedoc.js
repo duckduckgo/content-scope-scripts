@@ -1,4 +1,4 @@
-import { OptionDefaults } from 'typedoc'
+import { OptionDefaults } from 'typedoc';
 
 /** @type {Partial<import('typedoc').TypeDocOptions>} */
 const config = {
@@ -38,6 +38,6 @@ const config = {
     searchInComments: true,
     modifierTags: [...OptionDefaults.modifierTags, '@implements'],
     highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid'],
-}
+};
 
-export default config
+export default config;

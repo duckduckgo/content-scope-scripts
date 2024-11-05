@@ -1,36 +1,36 @@
-import { h } from 'preact'
-import { ListItem } from '../components/ListItem'
-import { BounceIn, Check, SlideUp } from '../components/Icons'
-import { List } from '../components/List'
-import { Stack } from '../components/Stack'
-import { Button, ButtonBar } from '../components/Buttons'
-import { useRollin } from '../hooks/useRollin'
-import { beforeAfterMeta, noneSettingsRowItems } from '../data'
-import { Delay } from '../components/Timeout'
-import { Animate } from '../components/Animate'
-import { RiveAnimation } from '../components/RiveAnimation'
-import { BeforeAfter } from '../components/BeforeAfter'
-import { useEnv } from '../../../../shared/components/EnvironmentProvider'
-import { useTypedTranslation } from '../types'
+import { h } from 'preact';
+import { ListItem } from '../components/ListItem';
+import { BounceIn, Check, SlideUp } from '../components/Icons';
+import { List } from '../components/List';
+import { Stack } from '../components/Stack';
+import { Button, ButtonBar } from '../components/Buttons';
+import { useRollin } from '../hooks/useRollin';
+import { beforeAfterMeta, noneSettingsRowItems } from '../data';
+import { Delay } from '../components/Timeout';
+import { Animate } from '../components/Animate';
+import { RiveAnimation } from '../components/RiveAnimation';
+import { BeforeAfter } from '../components/BeforeAfter';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider';
+import { useTypedTranslation } from '../types';
 
-import animation from '../animations/Onboarding.riv'
+import animation from '../animations/Onboarding.riv';
 
-export { animation }
+export { animation };
 
 /**
  * @param {object} props
  * @param {(args: any) => void} props.onNextPage
  */
 export function CleanBrowsing({ onNextPage }) {
-    const { t } = useTypedTranslation()
+    const { t } = useTypedTranslation();
 
-    const rows = [noneSettingsRowItems.fewerAds(t), noneSettingsRowItems.duckPlayer(t)]
+    const rows = [noneSettingsRowItems.fewerAds(t), noneSettingsRowItems.duckPlayer(t)];
 
     // show each after interaction
-    const frames = new Array(rows.length).fill('start-trigger')
+    const frames = new Array(rows.length).fill('start-trigger');
 
     // each section (after initial delay) is user-triggered here
-    const { state, advance } = useRollin([300, ...frames])
+    const { state, advance } = useRollin([300, ...frames]);
 
     return (
         <Stack>
@@ -38,8 +38,8 @@ export function CleanBrowsing({ onNextPage }) {
                 {state.current > 0 && (
                     <List animate>
                         {rows.slice(0, state.current).map((row, index) => {
-                            const isCurrent = state.current === index + 1
-                            return <RowItem isCurrent={isCurrent} row={row} index={index} advance={advance} />
+                            const isCurrent = state.current === index + 1;
+                            return <RowItem isCurrent={isCurrent} row={row} index={index} advance={advance} />;
                         })}
                     </List>
                 )}
@@ -54,13 +54,13 @@ export function CleanBrowsing({ onNextPage }) {
                 </SlideUp>
             )}
         </Stack>
-    )
+    );
 }
 
 function RowItem({ isCurrent, row, index, advance }) {
-    const { isDarkMode } = useEnv()
-    const { t } = useTypedTranslation()
-    const meta = beforeAfterMeta[row.id](t)
+    const { isDarkMode } = useEnv();
+    const { t } = useTypedTranslation();
+    const meta = beforeAfterMeta[row.id](t);
     return (
         <ListItem
             key={row.icon}
@@ -85,7 +85,7 @@ function RowItem({ isCurrent, row, index, advance }) {
                             btnAfter={meta.btnAfterText}
                             btnBefore={meta.btnBeforeText}
                             media={({ state }) => {
-                                const animationState = state === 'initial' || state === 'before' ? 'before' : 'after'
+                                const animationState = state === 'initial' || state === 'before' ? 'before' : 'after';
                                 return (
                                     <RiveAnimation
                                         animation={animation}
@@ -95,12 +95,12 @@ function RowItem({ isCurrent, row, index, advance }) {
                                         inputName={meta.inputName}
                                         stateMachine={meta.stateMachine}
                                     />
-                                )
+                                );
                             }}
                         />
                     </Delay>
                 </Animate>
             )}
         </ListItem>
-    )
+    );
 }

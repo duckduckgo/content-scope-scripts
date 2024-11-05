@@ -1,5 +1,5 @@
-import { h } from 'preact'
+import { h } from 'preact';
 
 export function ErrorFallback() {
-    return <h1>Something went wrong</h1>
+    return <h1>Something went wrong</h1>;
 }

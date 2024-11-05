@@ -10,14 +10,14 @@
  */
 export function log(name, state, event, reducer) {
     if (window.__playwright_01) {
-        return reducer(state, event)
+        return reducer(state, event);
     }
-    console.group(`[${name}]`)
-    console.log('  [incoming]', state, event)
-    const next = reducer(state, event)
-    console.log('      [next]', next)
-    console.groupEnd()
-    return next
+    console.group(`[${name}]`);
+    console.log('  [incoming]', state, event);
+    const next = reducer(state, event);
+    console.log('      [next]', next);
+    console.groupEnd();
+    return next;
 }
 
 /**
@@ -37,7 +37,7 @@ export function log(name, state, event, reducer) {
  * @return {(a: TState, b: TEvent) => TState}
  */
 export function withLog(name, reducer) {
-    return (state, event) => log(name, state, event, reducer)
+    return (state, event) => log(name, state, event, reducer);
 }
 
 /**
@@ -45,9 +45,9 @@ export function withLog(name, reducer) {
  */
 export function viewTransition(fn) {
     if ('startViewTransition' in document && typeof document.startViewTransition === 'function') {
-        return document.startViewTransition(fn)
+        return document.startViewTransition(fn);
     }
-    return fn()
+    return fn();
 }
 
 /**
@@ -55,6 +55,6 @@ export function viewTransition(fn) {
  */
 export function noop(named) {
     return () => {
-        console.log(named, 'noop')
-    }
+        console.log(named, 'noop');
+    };
 }

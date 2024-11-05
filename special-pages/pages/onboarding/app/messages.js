@@ -25,8 +25,8 @@ export class OnboardingMessages {
         /**
          * @internal
          */
-        this.messaging = messaging
-        this.injectName = injectName
+        this.messaging = messaging;
+        this.injectName = injectName;
     }
 
     /**
@@ -59,9 +59,9 @@ export class OnboardingMessages {
                 order: 'v3',
                 locale: 'en',
                 env: 'development',
-            }
+            };
         }
-        return await this.messaging.request('init')
+        return await this.messaging.request('init');
     }
 
     /**
@@ -70,7 +70,7 @@ export class OnboardingMessages {
      * @param {StepCompleteParams} params
      */
     stepCompleted(params) {
-        this.messaging.notify('stepCompleted', params)
+        this.messaging.notify('stepCompleted', params);
     }
 
     /**
@@ -79,7 +79,7 @@ export class OnboardingMessages {
      * @param {import('./types').BooleanSystemValue} params
      */
     setBookmarksBar(params) {
-        this.messaging.notify('setBookmarksBar', params)
+        this.messaging.notify('setBookmarksBar', params);
     }
 
     /**
@@ -88,7 +88,7 @@ export class OnboardingMessages {
      * @param {import('./types').BooleanSystemValue} params
      */
     setSessionRestore(params) {
-        this.messaging.notify('setSessionRestore', params)
+        this.messaging.notify('setSessionRestore', params);
     }
 
     /**
@@ -99,7 +99,7 @@ export class OnboardingMessages {
      * @param {import('./types').BooleanSystemValue} params
      */
     setShowHomeButton(params) {
-        this.messaging.notify('setShowHomeButton', params)
+        this.messaging.notify('setShowHomeButton', params);
     }
 
     /**
@@ -110,7 +110,7 @@ export class OnboardingMessages {
      * @returns {Promise<any>}
      */
     requestDockOptIn() {
-        return this.messaging.request('requestDockOptIn')
+        return this.messaging.request('requestDockOptIn');
     }
 
     /**
@@ -122,7 +122,7 @@ export class OnboardingMessages {
      * @returns {Promise<any>}
      */
     requestImport() {
-        return this.messaging.request('requestImport')
+        return this.messaging.request('requestImport');
     }
 
     /**
@@ -134,21 +134,21 @@ export class OnboardingMessages {
      * @returns {Promise<any>}
      */
     requestSetAsDefault() {
-        return this.messaging.request('requestSetAsDefault')
+        return this.messaging.request('requestSetAsDefault');
     }
 
     /**
      * Sent when onboarding is complete and the user has chosen to go to settings
      */
     dismissToSettings() {
-        this.messaging.notify('dismissToSettings')
+        this.messaging.notify('dismissToSettings');
     }
 
     /**
      * Sent when the "Start Browsing" button has been clicked.
      */
     dismissToAddressBar() {
-        this.messaging.notify('dismissToAddressBar')
+        this.messaging.notify('dismissToAddressBar');
     }
 
     /**
@@ -157,7 +157,7 @@ export class OnboardingMessages {
      * @param {import('./types').ErrorBoundaryEvent["error"]} params
      */
     reportPageException(params) {
-        this.messaging.notify('reportPageException', params)
+        this.messaging.notify('reportPageException', params);
     }
 
     /**
@@ -165,6 +165,6 @@ export class OnboardingMessages {
      * @param {{message: string}} params
      */
     reportInitException(params) {
-        this.messaging.notify('reportInitException', params)
+        this.messaging.notify('reportInitException', params);
     }
 }

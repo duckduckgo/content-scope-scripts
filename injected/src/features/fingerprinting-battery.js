@@ -1,4 +1,4 @@
-import ContentFeature from '../content-feature'
+import ContentFeature from '../content-feature';
 
 /**
  * Overwrites the Battery API if present in the browser.
@@ -9,15 +9,15 @@ export default class FingerprintingBattery extends ContentFeature {
     init() {
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         if (globalThis.navigator.getBattery) {
-            const BatteryManager = globalThis.BatteryManager
+            const BatteryManager = globalThis.BatteryManager;
 
             const spoofedValues = {
                 charging: true,
                 chargingTime: 0,
                 dischargingTime: Infinity,
                 level: 1,
-            }
-            const eventProperties = ['onchargingchange', 'onchargingtimechange', 'ondischargingtimechange', 'onlevelchange']
+            };
+            const eventProperties = ['onchargingchange', 'onchargingtimechange', 'ondischargingtimechange', 'onlevelchange'];
 
             for (const [prop, val] of Object.entries(spoofedValues)) {
                 try {
@@ -25,9 +25,9 @@ export default class FingerprintingBattery extends ContentFeature {
                         enumerable: true,
                         configurable: true,
                         get: () => {
-                            return val
+                            return val;
                         },
-                    })
+                    });
                 } catch (e) {}
             }
             for (const eventProp of eventProperties) {
@@ -37,9 +37,9 @@ export default class FingerprintingBattery extends ContentFeature {
                         configurable: true,
                         set: (x) => x, // noop
                         get: () => {
-                            return null
+                            return null;
                         },
-                    })
+                    });
                 } catch (e) {}
             }
         }

@@ -1,9 +1,9 @@
 /* eslint-disable promise/prefer-await-to-then */
-import { join } from 'node:path'
-import { cwd, isLaunchFile } from '../scripts/script-utils.js'
-import { buildTypes } from '../types-generator/build-types.mjs'
+import { join } from 'node:path';
+import { cwd, isLaunchFile } from '../scripts/script-utils.js';
+import { buildTypes } from '../types-generator/build-types.mjs';
 
-const specialPagesRoot = cwd(import.meta.url)
+const specialPagesRoot = cwd(import.meta.url);
 
 /** @type {Record<string, import('../types-generator/build-types.mjs').Mapping>} */
 const specialPagesTypes = {
@@ -16,11 +16,11 @@ const specialPagesTypes = {
         resolve: (dirname) => '../pages/' + dirname + '/src/js/index.js',
         className: (topLevelType) => topLevelType.replace('Messages', 'Page'),
     },
-}
+};
 
 if (isLaunchFile(import.meta.url)) {
     buildTypes(specialPagesTypes).catch((error) => {
-        console.error(error)
-        process.exit(1)
-    })
+        console.error(error);
+        process.exit(1);
+    });
 }

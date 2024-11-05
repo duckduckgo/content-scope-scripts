@@ -1,4 +1,4 @@
-import { useEffect } from 'preact/hooks'
+import { useEffect } from 'preact/hooks';
 
 /**
  * Device orientation
@@ -8,28 +8,28 @@ import { useEffect } from 'preact/hooks'
 export function OrientationProvider({ onChange }) {
     useEffect(() => {
         if (!screen.orientation?.type) {
-            onChange(getOrientationFromWidth())
-            return
+            onChange(getOrientationFromWidth());
+            return;
         }
-        onChange(getOrientationFromScreen())
+        onChange(getOrientationFromScreen());
         const handleOrientationChange = () => {
-            onChange(getOrientationFromScreen())
-        }
-        screen.orientation.addEventListener('change', handleOrientationChange)
-        return () => screen.orientation.removeEventListener('change', handleOrientationChange)
-    }, [])
+            onChange(getOrientationFromScreen());
+        };
+        screen.orientation.addEventListener('change', handleOrientationChange);
+        return () => screen.orientation.removeEventListener('change', handleOrientationChange);
+    }, []);
 
     useEffect(() => {
-        let timer
+        let timer;
         const listener = () => {
-            clearTimeout(timer)
-            timer = setTimeout(() => onChange(getOrientationFromWidth()), 300)
-        }
-        window.addEventListener('resize', listener)
-        return () => window.removeEventListener('resize', listener)
-    }, [])
+            clearTimeout(timer);
+            timer = setTimeout(() => onChange(getOrientationFromWidth()), 300);
+        };
+        window.addEventListener('resize', listener);
+        return () => window.removeEventListener('resize', listener);
+    }, []);
 
-    return null
+    return null;
 }
 
 /**
@@ -44,12 +44,12 @@ export function OrientationProvider({ onChange }) {
  * @return {"portrait" | "landscape"} The current orientation of the screen. It can be either 'portrait' or 'landscape'.
  */
 function getOrientationFromWidth() {
-    return window.innerWidth > window.innerHeight ? 'landscape' : 'portrait'
+    return window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
 }
 
 /**
  * @return {"portrait" | "landscape"} The current orientation of the screen. It can be either 'portrait' or 'landscape'.
  */
 function getOrientationFromScreen() {
-    return screen.orientation.type.includes('landscape') ? 'landscape' : 'portrait'
+    return screen.orientation.type.includes('landscape') ? 'landscape' : 'portrait';
 }

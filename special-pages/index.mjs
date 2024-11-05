@@ -3,19 +3,19 @@
  *
  * @module Special Pages
  */
-import { join, relative } from 'node:path'
-import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs'
-import { buildSync } from 'esbuild'
-import { cwd, parseArgs } from '../scripts/script-utils.js'
-import inliner from 'web-resource-inliner'
+import { join, relative } from 'node:path';
+import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs';
+import { buildSync } from 'esbuild';
+import { cwd, parseArgs } from '../scripts/script-utils.js';
+import inliner from 'web-resource-inliner';
 
-const CWD = cwd(import.meta.url)
-const ROOT = join(CWD, '../')
-const BUILD = join(ROOT, 'build')
-const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
-const args = parseArgs(process.argv.slice(2), [])
-const NODE_ENV = args.env || 'production'
-const DEBUG = Boolean(args.debug)
+const CWD = cwd(import.meta.url);
+const ROOT = join(CWD, '../');
+const BUILD = join(ROOT, 'build');
+const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
+const args = parseArgs(process.argv.slice(2), []);
+const NODE_ENV = args.env || 'production';
+const DEBUG = Boolean(args.debug);
 
 export const support = {
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
@@ -55,28 +55,28 @@ export const support = {
         integration: ['copy', 'build-js'],
         windows: ['copy', 'build-js'],
     },
-}
+};
 
 /** @type {{src: string, dest: string, injectName: string}[]} */
-const copyJobs = []
+const copyJobs = [];
 /** @type {{entryPoints: string[], outputDir: string, injectName: string, pageName: string}[]} */
-const buildJobs = []
+const buildJobs = [];
 /** @type {{src: string}[]} */
-const inlineJobs = []
-const errors = []
-const DRY_RUN = false
+const inlineJobs = [];
+const errors = [];
+const DRY_RUN = false;
 
 for (const [pageName, injectNames] of Object.entries(support)) {
-    const pageSrc = join(CWD, 'pages', pageName, 'src')
+    const pageSrc = join(CWD, 'pages', pageName, 'src');
     if (!existsSync(pageSrc)) {
-        errors.push(`${pageSrc} does not exist. Each page must have a 'src' directory`)
-        continue
+        errors.push(`${pageSrc} does not exist. Each page must have a 'src' directory`);
+        continue;
     }
     for (const [injectName, jobs] of Object.entries(injectNames)) {
         // output main dir
-        const buildDir = injectName === 'apple' ? APPLE_BUILD : join(BUILD, injectName)
+        const buildDir = injectName === 'apple' ? APPLE_BUILD : join(BUILD, injectName);
 
-        const pageOutputDirectory = join(buildDir, 'pages', pageName)
+        const pageOutputDirectory = join(buildDir, 'pages', pageName);
 
         for (const job of jobs) {
             if (job === 'copy') {
@@ -84,53 +84,53 @@ for (const [pageName, injectNames] of Object.entries(support)) {
                     src: pageSrc,
                     dest: pageOutputDirectory,
                     injectName,
-                })
+                });
             }
             if (job === 'build-js') {
                 const entryPoints = [join(pageSrc, 'js', 'index.js'), join(pageSrc, 'js', 'inline.js')].filter((pathname) =>
                     existsSync(pathname),
-                )
-                const outputDir = join(pageOutputDirectory, 'js')
+                );
+                const outputDir = join(pageOutputDirectory, 'js');
                 buildJobs.push({
                     entryPoints,
                     outputDir,
                     injectName,
                     pageName,
-                })
+                });
             }
             if (job === 'inline-html') {
-                const htmlSrc = join(pageOutputDirectory, 'index.html')
-                inlineJobs.push({ src: htmlSrc })
+                const htmlSrc = join(pageOutputDirectory, 'index.html');
+                inlineJobs.push({ src: htmlSrc });
             }
         }
     }
 }
 
 if (copyJobs.length === 0) {
-    console.log("⚠️ nothing to copy. This probably means that there isn't any pages to release yet.")
+    console.log("⚠️ nothing to copy. This probably means that there isn't any pages to release yet.");
 }
 
 if (errors.length > 0) {
-    exitWithErrors(errors)
+    exitWithErrors(errors);
 }
 
 for (const copyJob of copyJobs) {
-    if (DEBUG) console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest))
+    if (DEBUG) console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest));
     if (!DRY_RUN) {
         rmSync(copyJob.dest, {
             force: true,
             recursive: true,
-        })
+        });
         cpSync(copyJob.src, copyJob.dest, {
             force: true,
             recursive: true,
-        })
+        });
     }
 }
 for (const buildJob of buildJobs) {
-    if (DEBUG) console.log('BUILD:', buildJob.entryPoints, relative(ROOT, buildJob.outputDir))
-    if (DEBUG) console.log('\t- import.meta.env: ', NODE_ENV)
-    if (DEBUG) console.log('\t- import.meta.injectName: ', buildJob.injectName)
+    if (DEBUG) console.log('BUILD:', buildJob.entryPoints, relative(ROOT, buildJob.outputDir));
+    if (DEBUG) console.log('\t- import.meta.env: ', NODE_ENV);
+    if (DEBUG) console.log('\t- import.meta.injectName: ', buildJob.injectName);
     if (!DRY_RUN) {
         buildSync({
             entryPoints: buildJob.entryPoints,
@@ -154,11 +154,11 @@ for (const buildJob of buildJobs) {
                 'import.meta.pageName': JSON.stringify(buildJob.pageName),
             },
             dropLabels: buildJob.injectName === 'integration' ? [] : ['$INTEGRATION'],
-        })
+        });
     }
 }
 for (const inlineJob of inlineJobs) {
-    if (DEBUG) console.log('INLINE:', relative(ROOT, inlineJob.src))
+    if (DEBUG) console.log('INLINE:', relative(ROOT, inlineJob.src));
     if (!DRY_RUN) {
         inliner.html(
             {
@@ -168,11 +168,11 @@ for (const inlineJob of inlineJobs) {
             },
             (error, result) => {
                 if (error) {
-                    return exitWithErrors([error])
+                    return exitWithErrors([error]);
                 }
-                writeFileSync(inlineJob.src, result)
+                writeFileSync(inlineJob.src, result);
             },
-        )
+        );
     }
 }
 
@@ -181,7 +181,7 @@ for (const inlineJob of inlineJobs) {
  */
 function exitWithErrors(errors) {
     for (const error of errors) {
-        console.log(error)
+        console.log(error);
     }
-    process.exit(1)
+    process.exit(1);
 }

@@ -1,10 +1,10 @@
-import { h } from 'preact'
-import cn from 'classnames'
-import { useState, useRef, useLayoutEffect, useEffect } from 'preact/hooks'
-import { Typed } from '../Typed'
-import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
+import { h } from 'preact';
+import cn from 'classnames';
+import { useState, useRef, useLayoutEffect, useEffect } from 'preact/hooks';
+import { Typed } from '../Typed';
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 
-import styles from './Heading.module.css'
+import styles from './Heading.module.css';
 
 /**
  * Animated Dax heading with optional speech bubble
@@ -19,16 +19,16 @@ import styles from './Heading.module.css'
 export function Heading({ title, subtitle, speechBubble = false, onTitleComplete, children }) {
     const onComplete = () => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        onTitleComplete && onTitleComplete()
-    }
-    const HeadingComponent = speechBubble ? SpeechBubble : PlainHeading
+        onTitleComplete && onTitleComplete();
+    };
+    const HeadingComponent = speechBubble ? SpeechBubble : PlainHeading;
 
     if (!title) {
-        console.warn('Missing title')
-        return null
+        console.warn('Missing title');
+        return null;
     }
 
-    const titleArray = Array.isArray(title) ? title : [title]
+    const titleArray = Array.isArray(title) ? title : [title];
 
     return (
         <header className={styles.heading}>
@@ -39,7 +39,7 @@ export function Heading({ title, subtitle, speechBubble = false, onTitleComplete
                 {children}
             </HeadingComponent>
         </header>
-    )
+    );
 }
 
 /**
@@ -50,17 +50,17 @@ export function Heading({ title, subtitle, speechBubble = false, onTitleComplete
  * @param {import('preact').ComponentChildren} props.children
  */
 function PlainHeading({ title, subtitle, onComplete, children }) {
-    const [typingDone, setTypingDone] = useState(false)
+    const [typingDone, setTypingDone] = useState(false);
     const onTypingComplete = () => {
-        setTypingDone(true)
+        setTypingDone(true);
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        onComplete && onComplete()
-    }
+        onComplete && onComplete();
+    };
 
     const subtitleClass = cn({
         [styles.subTitle]: true,
         [styles.hidden]: !typingDone,
-    })
+    });
 
     return (
         <div className={styles.headingContents}>
@@ -68,7 +68,7 @@ function PlainHeading({ title, subtitle, onComplete, children }) {
             {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
             {typingDone && children}
         </div>
-    )
+    );
 }
 
 /** @typedef {'animating'|'animation-done'|'typing-done'} AnimationState */
@@ -81,82 +81,82 @@ function PlainHeading({ title, subtitle, onComplete, children }) {
  * @param {import('preact').ComponentChildren} props.children
  */
 function SpeechBubble({ title, subtitle, onComplete, children }) {
-    const bubbleContents = useRef(null)
-    const { isReducedMotion } = useEnv()
-    const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+    const bubbleContents = useRef(null);
+    const { isReducedMotion } = useEnv();
+    const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-    const initialState = /** @type {AnimationState} */ (isReducedMotion ? 'typing-done' : 'animating')
-    const [animationState, setAnimationState] = useState(initialState)
+    const initialState = /** @type {AnimationState} */ (isReducedMotion ? 'typing-done' : 'animating');
+    const [animationState, setAnimationState] = useState(initialState);
 
     /** @type {(element: HTMLElement) => { width: number, height: number }} */
     const calculateMaximumWidth = (element) => {
-        const { height } = element.getBoundingClientRect()
+        const { height } = element.getBoundingClientRect();
         const widths = Array.from(element.querySelectorAll('.bubbleTitle span, .bubbleSubtitle, .bubbleChildren > *')).map(
             (e) => e.getBoundingClientRect().width,
-        )
-        const width = Math.max(...widths)
+        );
+        const width = Math.max(...widths);
 
-        return { width, height }
-    }
+        return { width, height };
+    };
 
     useLayoutEffect(() => {
         if (bubbleContents.current) {
-            const { width, height } = calculateMaximumWidth(/** @type {HTMLDivElement} */ (bubbleContents.current))
+            const { width, height } = calculateMaximumWidth(/** @type {HTMLDivElement} */ (bubbleContents.current));
             if (dimensions.width !== width || dimensions.height !== height) {
-                setAnimationState(initialState)
-                setDimensions({ width, height })
+                setAnimationState(initialState);
+                setDimensions({ width, height });
             }
         }
-    }, [bubbleContents, title, subtitle, children])
+    }, [bubbleContents, title, subtitle, children]);
 
     useEffect(() => {
-        let debounce
+        let debounce;
         const handleResize = () => {
             if (bubbleContents.current) {
-                const { width, height } = calculateMaximumWidth(/** @type {HTMLDivElement} */ (bubbleContents.current))
+                const { width, height } = calculateMaximumWidth(/** @type {HTMLDivElement} */ (bubbleContents.current));
                 if (dimensions.width !== width || dimensions.height !== height) {
-                    setDimensions({ width, height })
+                    setDimensions({ width, height });
                 }
             }
-        }
+        };
 
         window.addEventListener('resize', () => {
-            clearTimeout(debounce)
-            debounce = setTimeout(handleResize, 30)
-        })
+            clearTimeout(debounce);
+            debounce = setTimeout(handleResize, 30);
+        });
 
         return () => {
-            clearTimeout(debounce)
-            window.removeEventListener('resize', handleResize)
-        }
-    })
+            clearTimeout(debounce);
+            window.removeEventListener('resize', handleResize);
+        };
+    });
 
     const onTransitionEnd = () => {
         setAnimationState((state) => {
-            if (state === 'animating') return 'animation-done'
-            return state
-        })
-    }
+            if (state === 'animating') return 'animation-done';
+            return state;
+        });
+    };
 
     const onTypingComplete = () => {
-        setAnimationState('typing-done')
+        setAnimationState('typing-done');
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        onComplete && onComplete()
-    }
+        onComplete && onComplete();
+    };
 
-    const titleClass = cn(['bubbleTitle', styles.title])
+    const titleClass = cn(['bubbleTitle', styles.title]);
 
     const subtitleClass = cn({
         bubbleSubtitle: true,
         [styles.subTitle]: true,
         [styles.hidden]: animationState !== 'typing-done',
-    })
+    });
 
     const childrenClass = cn({
         bubbleChildren: true,
         [styles.additionalContent]: true,
         [styles.hidden]: animationState !== 'typing-done',
-    })
+    });
 
     return (
         <div className={styles.speechBubble}>
@@ -176,7 +176,7 @@ function SpeechBubble({ title, subtitle, onComplete, children }) {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 /**
@@ -186,16 +186,16 @@ function SpeechBubble({ title, subtitle, onComplete, children }) {
  * @param {() => void} [props.onComplete]
  */
 export function TypedTitle({ title, paused = true, onComplete }) {
-    const [textIndex, setTextIndex] = useState(0)
+    const [textIndex, setTextIndex] = useState(0);
 
     const onTypingComplete = () => {
-        setTextIndex((value) => (value += 1))
+        setTextIndex((value) => (value += 1));
 
         if (textIndex >= title.length - 1) {
             // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            onComplete && onComplete()
+            onComplete && onComplete();
         }
-    }
+    };
 
     return (
         <div className={styles.titleContainer}>
@@ -203,5 +203,5 @@ export function TypedTitle({ title, paused = true, onComplete }) {
                 <Typed key={index} onComplete={onTypingComplete} text={text} paused={paused || textIndex < index} />
             ))}
         </div>
-    )
+    );
 }

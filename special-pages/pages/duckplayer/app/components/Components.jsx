@@ -1,28 +1,28 @@
-import { Fragment, h } from 'preact'
-import styles from './Components.module.css'
-import { PlayerContainer, PlayerInternal } from './PlayerContainer.jsx'
-import info from '../img/info.data.svg'
-import cog from '../img/cog.data.svg'
-import { Button, Icon } from './Button.jsx'
-import { FloatingBar } from './FloatingBar.jsx'
-import { SwitchBarMobile } from './SwitchBarMobile.jsx'
-import { InfoBar, InfoBarContainer, InfoIcon } from './InfoBar.jsx'
-import { Wordmark } from './Wordmark.jsx'
-import { Background } from './Background.jsx'
-import { Player, PlayerError } from './Player.jsx'
-import { SettingsProvider } from '../providers/SettingsProvider.jsx'
-import { Settings } from '../settings.js'
-import { EmbedSettings } from '../embed-settings.js'
-import { SwitchBarDesktop } from './SwitchBarDesktop.jsx'
-import { SwitchProvider } from '../providers/SwitchProvider.jsx'
+import { Fragment, h } from 'preact';
+import styles from './Components.module.css';
+import { PlayerContainer, PlayerInternal } from './PlayerContainer.jsx';
+import info from '../img/info.data.svg';
+import cog from '../img/cog.data.svg';
+import { Button, Icon } from './Button.jsx';
+import { FloatingBar } from './FloatingBar.jsx';
+import { SwitchBarMobile } from './SwitchBarMobile.jsx';
+import { InfoBar, InfoBarContainer, InfoIcon } from './InfoBar.jsx';
+import { Wordmark } from './Wordmark.jsx';
+import { Background } from './Background.jsx';
+import { Player, PlayerError } from './Player.jsx';
+import { SettingsProvider } from '../providers/SettingsProvider.jsx';
+import { Settings } from '../settings.js';
+import { EmbedSettings } from '../embed-settings.js';
+import { SwitchBarDesktop } from './SwitchBarDesktop.jsx';
+import { SwitchProvider } from '../providers/SwitchProvider.jsx';
 
 export function Components() {
     const settings = new Settings({
         platform: { name: 'macos' },
-    })
-    let embed = EmbedSettings.fromHref('https://localhost?videoID=123')
-    let url = embed?.toEmbedUrl()
-    if (!url) throw new Error('unreachable')
+    });
+    let embed = EmbedSettings.fromHref('https://localhost?videoID=123');
+    let url = embed?.toEmbedUrl();
+    if (!url) throw new Error('unreachable');
     return (
         <>
             <div data-layout="mobile">
@@ -98,5 +98,5 @@ export function Components() {
                 <br />
             </main>
         </>
-    )
+    );
 }

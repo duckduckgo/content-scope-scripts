@@ -1,6 +1,6 @@
-import styles from './ShowHide.module.css'
-import { ChevronButton } from './Icons.js'
-import { h } from 'preact'
+import styles from './ShowHide.module.css';
+import { ChevronButton } from './Icons.js';
+import { h } from 'preact';
 
 /**
  * Function to handle showing or hiding content based on certain conditions.
@@ -15,5 +15,5 @@ export function ShowHideButton({ text, onClick, buttonAttrs = {} }) {
         <button {...buttonAttrs} class={styles.button} aria-label={text} onClick={onClick}>
             <ChevronButton />
         </button>
-    )
+    );
 }

@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Extractor } from '../types.js'
+import { Extractor } from '../types.js';
 
 /**
  * @implements {Extractor<string | null>}
@@ -11,7 +11,7 @@ export class AgeExtractor {
      */
 
     extract(strs, _extractorParams) {
-        if (!strs[0]) return null
-        return strs[0].match(/\d+/)?.[0] ?? null
+        if (!strs[0]) return null;
+        return strs[0].match(/\d+/)?.[0] ?? null;
     }
 }

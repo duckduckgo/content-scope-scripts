@@ -8,7 +8,7 @@ const rmfDataSmallMsg = {
         titleText: 'Tell Us Your Thoughts on Privacy Pro',
         descriptionText: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
     },
-}
+};
 
 /**
  * @type {import("../../../types/new-tab").RMFData}
@@ -21,7 +21,7 @@ const rmfDataMediumMsg = {
         titleText: 'New Search Feature!',
         descriptionText: 'DuckDuckGo now offers Instant Answers for quicker access to the information you need.',
     },
-}
+};
 
 /**
  * @type {import("../../../types/new-tab").RMFData}
@@ -35,7 +35,7 @@ const rmfDataBigSingleActionMsg = {
         icon: 'PrivacyPro',
         primaryActionText: 'Take Survey',
     },
-}
+};
 
 /**
  * @type {import("../../../types/new-tab").RMFData}
@@ -50,4 +50,4 @@ const rmfDataBigTwoActionMsg = {
         primaryActionText: 'Take Survey',
         secondaryActionText: 'Remind me',
     },
-}
+};

@@ -1,23 +1,23 @@
-import { load, init } from '../src/content-scope-features.js'
-import { isTrackerOrigin } from '../src/trackers'
-import { TestTransportConfig } from '../../messaging/index.js'
+import { load, init } from '../src/content-scope-features.js';
+import { isTrackerOrigin } from '../src/trackers';
+import { TestTransportConfig } from '../../messaging/index.js';
 function getTopLevelURL() {
     try {
         // FROM: https://stackoverflow.com/a/7739035/73479
         // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
         if (window.location !== window.parent.location) {
-            return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
+            return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href);
         } else {
-            return new URL(window.location.href)
+            return new URL(window.location.href);
         }
     } catch (error) {
-        return new URL(location.href)
+        return new URL(location.href);
     }
 }
 
 function generateConfig() {
-    const topLevelUrl = getTopLevelURL()
-    const trackerLookup = import.meta.trackerLookup
+    const topLevelUrl = getTopLevelURL();
+    const trackerLookup = import.meta.trackerLookup;
     return {
         debug: false,
         sessionKey: 'randomVal',
@@ -31,7 +31,7 @@ function generateConfig() {
             enabledFeatures: ['fingerprintingCanvas', 'fingerprintingScreenSize', 'navigatorInterface', 'cookie'],
         },
         trackerLookup,
-    }
+    };
 }
 
 /**
@@ -40,7 +40,7 @@ function generateConfig() {
  * @returns {boolean}
  */
 function isObject(item) {
-    return item && typeof item === 'object' && !Array.isArray(item)
+    return item && typeof item === 'object' && !Array.isArray(item);
 }
 
 /**
@@ -49,26 +49,26 @@ function isObject(item) {
  * @param sources
  */
 function mergeDeep(target, ...sources) {
-    if (!sources.length) return target
-    const source = sources.shift()
+    if (!sources.length) return target;
+    const source = sources.shift();
 
     if (isObject(target) && isObject(source)) {
         for (const key in source) {
             if (isObject(source[key])) {
-                if (!target[key]) Object.assign(target, { [key]: {} })
-                mergeDeep(target[key], source[key])
+                if (!target[key]) Object.assign(target, { [key]: {} });
+                mergeDeep(target[key], source[key]);
             } else {
-                Object.assign(target, { [key]: source[key] })
+                Object.assign(target, { [key]: source[key] });
             }
         }
     }
 
-    return mergeDeep(target, ...sources)
+    return mergeDeep(target, ...sources);
 }
 
 async function initCode() {
-    const topLevelUrl = getTopLevelURL()
-    const processedConfig = generateConfig()
+    const topLevelUrl = getTopLevelURL();
+    const processedConfig = generateConfig();
 
     // mock Messaging and allow for tests to intercept them
     globalThis.cssMessaging = processedConfig.messagingConfig = new TestTransportConfig({
@@ -81,9 +81,9 @@ async function initCode() {
         subscribe() {
             return () => {
                 // noop
-            }
+            };
         },
-    })
+    });
     load({
         // @ts-expect-error Types of property 'name' are incompatible.
         platform: processedConfig.platform,
@@ -91,15 +91,15 @@ async function initCode() {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         messagingConfig: processedConfig.messagingConfig,
-    })
+    });
 
     // mark this phase as loaded
-    setStatus('loaded')
+    setStatus('loaded');
 
     if (!topLevelUrl.searchParams.has('wait-for-init-args')) {
-        await init(processedConfig)
-        setStatus('initialized')
-        return
+        await init(processedConfig);
+        setStatus('initialized');
+        return;
     }
 
     // Wait for a message containing additional config
@@ -107,15 +107,15 @@ async function initCode() {
         'content-scope-init-args',
         async (evt) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            const merged = mergeDeep(processedConfig, evt.detail)
+            const merged = mergeDeep(processedConfig, evt.detail);
             // init features
-            await init(merged)
+            await init(merged);
 
             // set status to initialized so that tests can resume
-            setStatus('initialized')
+            setStatus('initialized');
         },
         { once: true },
-    )
+    );
 }
 
 /**
@@ -123,7 +123,7 @@ async function initCode() {
  */
 function setStatus(status) {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    window.__content_scope_status = status
+    window.__content_scope_status = status;
 }
 
-initCode()
+initCode();

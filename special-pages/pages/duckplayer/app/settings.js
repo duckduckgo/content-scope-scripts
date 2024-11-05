@@ -12,10 +12,10 @@ export class Settings {
         autoplay = { state: 'enabled' },
         focusMode = { state: 'enabled' },
     }) {
-        this.platform = platform
-        this.pip = pip
-        this.autoplay = autoplay
-        this.focusMode = focusMode
+        this.platform = platform;
+        this.pip = pip;
+        this.autoplay = autoplay;
+        this.focusMode = focusMode;
     }
 
     /**
@@ -24,33 +24,33 @@ export class Settings {
      * @return {Settings}
      */
     withFeatureState(named, settings) {
-        if (!settings) return this
+        if (!settings) return this;
         /** @type {(keyof import("../../../types/duckplayer").DuckPlayerPageSettings)[]} */
-        const valid = ['pip', 'autoplay', 'focusMode']
+        const valid = ['pip', 'autoplay', 'focusMode'];
         if (!valid.includes(named)) {
-            console.warn(`Excluding invalid feature key ${named}`)
-            return this
+            console.warn(`Excluding invalid feature key ${named}`);
+            return this;
         }
 
         if (settings.state === 'enabled' || settings.state === 'disabled') {
             return new Settings({
                 ...this,
                 [named]: settings,
-            })
+            });
         }
-        return this
+        return this;
     }
 
     withPlatformName(name) {
         /** @type {ImportMeta['platform'][]} */
-        const valid = ['windows', 'macos', 'ios', 'android']
+        const valid = ['windows', 'macos', 'ios', 'android'];
         if (valid.includes(/** @type {any} */ (name))) {
             return new Settings({
                 ...this,
                 platform: { name },
-            })
+            });
         }
-        return this
+        return this;
     }
 
     /**
@@ -62,10 +62,10 @@ export class Settings {
             return new Settings({
                 ...this,
                 focusMode: { state: newState },
-            })
+            });
         }
 
-        return this
+        return this;
     }
 
     /**
@@ -76,13 +76,13 @@ export class Settings {
             case 'windows':
             case 'ios':
             case 'android': {
-                return 'duck://player/openInYoutube'
+                return 'duck://player/openInYoutube';
             }
             case 'macos': {
-                return 'https://www.youtube.com/watch'
+                return 'https://www.youtube.com/watch';
             }
             default:
-                throw new Error('unreachable')
+                throw new Error('unreachable');
         }
     }
 
@@ -93,14 +93,14 @@ export class Settings {
         switch (this.platform.name) {
             case 'windows':
             case 'macos': {
-                return 'desktop'
+                return 'desktop';
             }
             case 'ios':
             case 'android': {
-                return 'mobile'
+                return 'mobile';
             }
             default:
-                return 'desktop'
+                return 'desktop';
         }
     }
 }
