@@ -19,6 +19,7 @@ export default class AutofillPasswordImport extends ContentFeature {
     #exportButtonSettings
     #settingsButtonSettings
     #signInButtonSettings
+    #elementToCenterOn
 
     /**
      * @returns {any}
@@ -31,7 +32,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             },
             zIndex: '984',
             borderRadius: '100%',
-            offsetLeftEm: 0.02,
+            offsetLeftEm: 0.01,
             offsetTopEm: 0
         }
     }
@@ -117,7 +118,32 @@ export default class AutofillPasswordImport extends ContentFeature {
         if (existingOverlay != null) {
             existingOverlay.style.display = 'none'
             existingOverlay.remove()
+            document.removeEventListener('scroll', this.updateOverlayPosition.bind(this))
         }
+    }
+
+    /**
+     * Updates the position of the overlay based on the element to center on.
+     * @param {HTMLDivElement} overlay
+     * @param {any} style
+     */
+    updateOverlayPosition (overlay, style) {
+        const animations = overlay.getAnimations()
+        animations.forEach(animation => animation.pause())
+        const { top, left, width, height } = this.elementToCenterOn.getBoundingClientRect()
+        overlay.style.position = 'absolute'
+        
+        const isRound = style.borderRadius === '100%'
+
+        const widthOffset = isRound ? (width/2) : 0
+        const heightOffset = isRound ? (height/2) : 0
+
+        overlay.style.top = `calc(${top}px + ${window.scrollY}px - ${widthOffset}px - 1px - ${style.offsetTopEm}em)`
+        overlay.style.left = `calc(${left}px + ${window.scrollX}px - ${heightOffset}px - 1px - ${style.offsetLeftEm}em)`
+
+        // Ensure overlay is non-interactive
+        overlay.style.pointerEvents = 'none'
+        animations.forEach(animation => animation.play())
     }
 
     /**
@@ -130,19 +156,14 @@ export default class AutofillPasswordImport extends ContentFeature {
     insertOverlayElement (mainElement, style) {
         this.removeOverlayIfNeeded()
 
+        
         const overlay = document.createElement('div')
         overlay.setAttribute('id', OVERLAY_ID)
-        const svgElement = mainElement.parentNode?.querySelector('svg') ?? mainElement.querySelector('svg')
 
-        const isRound = style.borderRadius === '100%'
-        const elementToCenterOn = (isRound && svgElement != null) ? svgElement : mainElement
-        if (elementToCenterOn) {
-            const { top, left, width, height } = elementToCenterOn.getBoundingClientRect()
-            overlay.style.position = 'absolute'
-    
-            overlay.style.top = `calc(${top}px + ${window.scrollY}px - ${isRound ? height / 2 : 0}px - 1px - ${style.offsetTopEm}em)`
-            overlay.style.left = `calc(${left}px + ${window.scrollX}px - ${isRound ? width / 2 : 0}px - 1px - ${style.offsetLeftEm}em)`
-    
+        if (this.elementToCenterOn != null) {
+
+            this.updateOverlayPosition(overlay, style)
+        
             const mainElementRect = mainElement.getBoundingClientRect()
             overlay.style.width = `${mainElementRect.width}px`
             overlay.style.height = `${mainElementRect.height}px`
@@ -150,6 +171,10 @@ export default class AutofillPasswordImport extends ContentFeature {
     
             // Ensure overlay is non-interactive
             overlay.style.pointerEvents = 'none'
+
+            document.addEventListener('scroll', () => {
+                requestAnimationFrame(() => this.updateOverlayPosition(overlay, style))
+            })
     
             // insert in document.body
             document.body.appendChild(overlay)
@@ -181,6 +206,15 @@ export default class AutofillPasswordImport extends ContentFeature {
         // Start observing the parent node for child list changes
         observer.observe(document.body, { childList: true, subtree: true })
     }
+
+    setElementToCenterOn (element, style) {
+        const svgElement = element.parentNode?.querySelector('svg') ?? element.querySelector('svg')
+        this.#elementToCenterOn = (style.borderRadius === '100%' && svgElement != null) ? svgElement : element
+    }
+
+    get elementToCenterOn () {
+        return this.#elementToCenterOn
+    } 
 
     /**
      * Moves the element into view and animates it.
@@ -267,6 +301,7 @@ export default class AutofillPasswordImport extends ContentFeature {
         if (supportedPaths.includes(path)) {
             try {
                 const { element, style, shouldTap, shouldWatchForRemoval } = await this.getElementAndStyleFromPath(path) ?? {}
+                this.setElementToCenterOn(element, style)
                 if (element != null) {
                     if (shouldTap) {
                         this.autotapElement(element)
