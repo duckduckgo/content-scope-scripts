@@ -264,7 +264,6 @@ export default class AutofillPasswordImport extends ContentFeature {
             this.#settingsButtonSettings?.path,
             this.#signInButtonSettings?.path
         ]
-        console.log("supprotedPaths", supportedPaths, path)
         if (supportedPaths.includes(path)) {
             try {
                 const { element, style, shouldTap, shouldWatchForRemoval } = await this.getElementAndStyleFromPath(path) ?? {}
@@ -272,7 +271,16 @@ export default class AutofillPasswordImport extends ContentFeature {
                     if (shouldTap) {
                         this.autotapElement(element)
                     } else {
-                        setTimeout(() => this.animateElement(element, style), DELAY_BEFORE_ANIMATION)
+                        const domLoaded = new Promise((resolve) => {
+                            if (document.readyState === "loading") {
+                              document.addEventListener("DOMContentLoaded", resolve);
+                            } else {
+                              // @ts-expect-error 
+                              resolve()
+                            }
+                          })
+                          await domLoaded
+                          this.animateElement(element, style)
                     }
                     if (shouldWatchForRemoval) {
                         // Sometimes navigation events are not triggered, then we need to watch for removal
