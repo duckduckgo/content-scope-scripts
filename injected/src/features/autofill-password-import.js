@@ -108,10 +108,9 @@ export default class AutofillPasswordImport extends ContentFeature {
         }
     }
 
-    hasNoOtherSiblings (element) {
-        return element.parentNode && element.parentNode.children.length === 1
-    }
-
+    /**
+     * Removes the overlay if it exists.
+     */
     removeOverlayIfNeeded () {
         const existingOverlay = document.getElementById(OVERLAY_ID)
         if (existingOverlay != null) {
@@ -120,6 +119,13 @@ export default class AutofillPasswordImport extends ContentFeature {
         }
     }
 
+    /**
+     * Inserts an overlay element to animate, by adding a div to the body 
+     * and styling it based on the found element. 
+     * @param {HTMLElement|Element} mainElement 
+     * @param {any} style 
+     * @returns {HTMLElement|Element|null}
+     */
     insertOverlayElement (mainElement, style) {
         this.removeOverlayIfNeeded()
 
@@ -129,25 +135,35 @@ export default class AutofillPasswordImport extends ContentFeature {
 
         const isRound = style.borderRadius === '100%'
         const elementToCenterOn = isRound ? svgElement : mainElement
-        const { top, left, width, height } = elementToCenterOn.getBoundingClientRect()
-        overlay.style.position = 'absolute'
+        if (elementToCenterOn) {
+            const { top, left, width, height } = elementToCenterOn.getBoundingClientRect()
+            overlay.style.position = 'absolute'
+    
+            overlay.style.top = `calc(${top}px + ${window.scrollY}px - ${isRound ? height / 2 : 0}px - 1px - ${style.offsetTop}em)`
+            overlay.style.left = `calc(${left}px + ${window.scrollX}px - ${isRound ? width / 2 : 0}px - 1px - ${style.offsetLeft}em)`
+    
+            const mainElementRect = mainElement.getBoundingClientRect()
+            overlay.style.width = `${mainElementRect.width}px`
+            overlay.style.height = `${mainElementRect.height}px`
+            overlay.style.zIndex = style.zIndex
+    
+            // Ensure overlay is non-interactive
+            overlay.style.pointerEvents = 'none'
+    
+            // insert in document.body
+            document.body.appendChild(overlay)
+            return overlay
+        } else {
+            return null
+        }
 
-        overlay.style.top = `calc(${top}px + ${window.scrollY}px - ${isRound ? height / 2 : 0}px - 1px - ${style.offsetTop}em)`
-        overlay.style.left = `calc(${left}px + ${window.scrollX}px - ${isRound ? width / 2 : 0}px - 1px - ${style.offsetLeft}em)`
-
-        const mainElementRect = mainElement.getBoundingClientRect()
-        overlay.style.width = `${mainElementRect.width}px`
-        overlay.style.height = `${mainElementRect.height}px`
-        overlay.style.zIndex = style.zIndex
-
-        // Ensure overlay is non-interactive
-        overlay.style.pointerEvents = 'none'
-
-        // insert in document.body
-        document.body.appendChild(overlay)
-        return overlay
     }
 
+    /**
+     * Observes the removal of an element from the DOM.
+     * @param {HTMLElement|Element} element 
+     * @param {any} onRemoveCallback 
+     */
     observeElementRemoval (element, onRemoveCallback) {
         // Set up the mutation observer
         const observer = new MutationObserver((mutations) => {
@@ -172,25 +188,27 @@ export default class AutofillPasswordImport extends ContentFeature {
      */
     animateElement (element, style) {
         const overlay = this.insertOverlayElement(element, style)
-        overlay.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'center'
-        }) // Scroll into view
-        const keyframes = [
-            { backgroundColor: BACKGROUND_COLOR_START, offset: 0, borderRadius: style.borderRadius, border: `1px solid ${BACKGROUND_COLOR_START}`, transform: style.transform.start }, // Start: 10% blue
-            { backgroundColor: BACKGROUND_COLOR_END, offset: 0.5, borderRadius: style.borderRadius, border: `1px solid ${BACKGROUND_COLOR_END}`, transform: style.transform.mid, transformOrigin: 'center' }, // Middle: 25% blue
-            { backgroundColor: BACKGROUND_COLOR_START, offset: 1, borderRadius: style.borderRadius, border: `1px solid ${BACKGROUND_COLOR_START}`, transform: style.transform.start } // End: 10% blue
-        ]
-
-        // Define the animation options
-        const options = {
-            duration: ANIMATION_DURATION_MS,
-            iterations: ANIMATION_ITERATIONS
+        if (overlay != null) {
+            overlay.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center'
+            }) // Scroll into view
+            const keyframes = [
+                { backgroundColor: BACKGROUND_COLOR_START, offset: 0, borderRadius: style.borderRadius, border: `1px solid ${BACKGROUND_COLOR_START}`, transform: style.transform.start }, // Start: 10% blue
+                { backgroundColor: BACKGROUND_COLOR_END, offset: 0.5, borderRadius: style.borderRadius, border: `1px solid ${BACKGROUND_COLOR_END}`, transform: style.transform.mid, transformOrigin: 'center' }, // Middle: 25% blue
+                { backgroundColor: BACKGROUND_COLOR_START, offset: 1, borderRadius: style.borderRadius, border: `1px solid ${BACKGROUND_COLOR_START}`, transform: style.transform.start } // End: 10% blue
+            ]
+    
+            // Define the animation options
+            const options = {
+                duration: ANIMATION_DURATION_MS,
+                iterations: ANIMATION_ITERATIONS
+            }
+    
+            // Apply the animation to the element
+            overlay.animate(keyframes, options)
         }
-
-        // Apply the animation to the element
-        overlay.animate(keyframes, options)
     }
 
     autotapElement (element) {
