@@ -1,4 +1,5 @@
-import { Messaging, MessagingContext, WebkitMessagingConfig } from '../../index.js'
+import { MessagingContext } from '../../index.js'
+import { WebkitMessagingConfig } from '../webkit.js'
 
 /**
  * Configuration for WebkitMessaging
@@ -21,7 +22,7 @@ const messagingContext = new MessagingContext({
 /**
  * With config + context, now create an instance:
  */
-const messaging = new Messaging(messagingContext, config)
+const messaging = config.intoMessaging(messagingContext)
 
 /**
  * send notifications (fire and forget)

@@ -4,7 +4,7 @@
 import { load, init } from '../src/content-scope-features.js'
 import { processConfig, isGloballyDisabled } from './../src/utils'
 import { isTrackerOrigin } from '../src/trackers'
-import { AndroidMessagingConfig } from '../../messaging/index.js'
+import { AndroidMessagingConfig } from '../../messaging/lib/android.js'
 
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f

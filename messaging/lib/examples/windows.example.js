@@ -1,5 +1,5 @@
 import { WindowsMessagingConfig } from '../windows.js'
-import { Messaging, MessagingContext } from '../../index.js'
+import { MessagingContext } from '../../index.js'
 
 /**
  * These 3 required methods that get assigned by the Native side.
@@ -32,7 +32,7 @@ const messagingContext = new MessagingContext({
 /**
  * And then send notifications!
  */
-const messaging = new Messaging(messagingContext, config)
+const messaging = config.intoMessaging(messagingContext)
 messaging.notify('helloWorld')
 
 /**

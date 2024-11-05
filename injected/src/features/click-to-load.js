@@ -1,4 +1,3 @@
-import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../../messaging/index.js'
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
@@ -7,6 +6,7 @@ import ContentFeature from '../content-feature.js'
 import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
 import { DDGCtlLoginButton } from './click-to-load/components/ctl-login-button.js'
 import { registerCustomElements } from './click-to-load/components'
+import { TestTransportConfig } from '@duckduckgo/messaging'
 
 /**
  * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
@@ -2019,16 +2019,10 @@ export default class ClickToLoad extends ContentFeature {
         if (this.platform.name === 'android' || this.platform.name === 'extension') {
             this._clickToLoadMessagingTransport = new SendMessageMessagingTransport()
             const config = new TestTransportConfig(this._clickToLoadMessagingTransport)
-            this._messaging = new Messaging(this.messagingContext, config)
+            this._messaging = config.intoMessaging(this.messagingContext)
             return this._messaging
         } else if (this.platform.name === 'ios' || this.platform.name === 'macos') {
-            const config = new WebkitMessagingConfig({
-                secret: '',
-                hasModernWebkitAPI: true,
-                webkitMessageHandlerNames: ['contentScopeScriptsIsolated']
-            })
-            this._messaging = new Messaging(this.messagingContext, config)
-            return this._messaging
+            return this.messaging
         } else {
             throw new Error('Messaging not supported yet on platform: ' + this.name)
         }

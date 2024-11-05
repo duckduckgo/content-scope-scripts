@@ -1,4 +1,4 @@
-import { Messaging, MessagingContext } from '../../index.js'
+import { MessagingContext } from '../../index.js'
 import { AndroidMessagingConfig } from '../android.js'
 
 /**
@@ -30,7 +30,7 @@ const messagingContext = new MessagingContext({
 /**
  * And then send notifications!
  */
-const messaging = new Messaging(messagingContext, config)
+const messaging = config.intoMessaging(messagingContext)
 messaging.notify('helloWorld')
 
 /**
@@ -63,8 +63,8 @@ const messagingContext2 = { ...messagingContext1, featureName: 'duckPlayer' }
 /**
  * Now, each feature has its own isolated messaging...
  */
-const messaging1 = new Messaging(messagingContext, config)
+const messaging1 = config.intoMessaging(messagingContext1)
 messaging1.notify('helloWorld')
 
-const messaging2 = new Messaging(messagingContext2, config)
+const messaging2 = config.intoMessaging(messagingContext2)
 messaging2.notify('getUserValues')

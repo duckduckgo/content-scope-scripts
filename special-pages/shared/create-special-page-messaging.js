@@ -1,11 +1,13 @@
 import {
-    AndroidMessagingConfig,
     Messaging,
     MessagingContext,
-    TestTransportConfig,
-    WebkitMessagingConfig,
-    WindowsMessagingConfig
+    TestTransport,
+    TestTransportConfig
 } from '@duckduckgo/messaging'
+
+import { WindowsMessagingConfig } from '@duckduckgo/messaging/lib/windows.js'
+import { WebkitMessagingConfig } from '@duckduckgo/messaging/lib/webkit.js'
+import { AndroidMessagingConfig } from '@duckduckgo/messaging/lib/android.js'
 
 /**
  * @param {object} opts
@@ -33,14 +35,14 @@ export function createSpecialPageMessaging (opts) {
                     removeEventListener: window.chrome.webview.removeEventListener
                 }
             })
-            return new Messaging(messageContext, opts)
+            return opts.intoMessaging(messageContext)
         } else if (opts.injectName === 'apple') {
             const opts = new WebkitMessagingConfig({
                 hasModernWebkitAPI: true,
                 secret: '',
                 webkitMessageHandlerNames: ['specialPages']
             })
-            return new Messaging(messageContext, opts)
+            return opts.intoMessaging(messageContext)
         } else if (opts.injectName === 'android') {
             const opts = new AndroidMessagingConfig({
                 messageSecret: 'duckduckgo-android-messaging-secret',
@@ -49,7 +51,7 @@ export function createSpecialPageMessaging (opts) {
                 target: globalThis,
                 debug: true
             })
-            return new Messaging(messageContext, opts)
+            return opts.intoMessaging(messageContext)
         }
     } catch (e) {
         console.error('could not access handlers for %s, falling back to mock interface', opts.injectName)
@@ -88,5 +90,5 @@ export function createSpecialPageMessaging (opts) {
         }
     })
 
-    return new Messaging(messageContext, fallback)
+    return new Messaging(messageContext, new TestTransport(fallback, messageContext))
 }
