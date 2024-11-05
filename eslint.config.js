@@ -22,6 +22,7 @@ export default tseslint.config(
             "playwright-report",
             "test-results",
             "injected/src/types",
+            ".idea"
         ],
     },
     {
