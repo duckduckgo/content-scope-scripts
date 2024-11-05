@@ -91,19 +91,29 @@ export const mainExamples = {
         ),
     },
     'next-steps.bringStuff': {
-        factory: () => <NextStepsCard type="bringStuff" dismiss={() => {}} action={() => {}} />,
+        factory: () => <NextStepsCard type="bringStuff" dismiss={() => {}}  />,
     },
     'next-steps.duckPlayer': {
-        factory: () => <NextStepsCard type="duckPlayer" dismiss={() => {}} action={() => {}} />,
+        factory: () => <NextStepsCard type="duckPlayer" dismiss={() => {}}  />,
     },
     'next-steps.defaultApp': {
-        factory: () => <NextStepsCard type="defaultApp" dismiss={() => {}} action={() => {}} />,
+        factory: () => <NextStepsCard type="defaultApp" dismiss={() => {}}  />,
     },
     'next-steps.emailProtection': {
-        factory: () => <NextStepsCard type="emailProtection" dismiss={() => {}} action={() => {}} />,
+        factory: () => <NextStepsCard type="emailProtection" dismiss={() => {}}  />,
     },
     'next-steps.blockCookies': {
-        factory: () => <NextStepsCard type="blockCookies" dismiss={() => {}} action={() => {}} />,
+        factory: () => <NextStepsCard type="blockCookies" dismiss={() => {}}  />
+        )
+    },
+    'next-steps.addAppDockMac': {
+        factory: () => (
+            <NextStepsCard type="addAppDockMac" dismiss={() => {}}  />
+        )
+    },
+    'next-steps.addToDockWindows': {
+        factory: () => (
+            <NextStepsCard type="pinAppToTaskbar" dismiss={() => {}}  />,
     },
 };
 

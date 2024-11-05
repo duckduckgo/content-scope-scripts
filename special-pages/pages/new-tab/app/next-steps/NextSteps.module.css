@@ -40,6 +40,7 @@
     border-radius: 6px;
     text-wrap: nowrap;
     font-weight: var(--title-2-font-weight);
+    color: var(--ddg-color-primary);
 
 
     &:hover {
@@ -49,6 +50,7 @@
 
     &:active {
         background-color: var(--ddg-color-primary);
+        color: var(--color-white);
     }
 
     &:disabled {
