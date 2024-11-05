@@ -257,12 +257,12 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @param {string} path
      */
     async handleElementForPath (path) {
+        this.removeOverlayIfNeeded()
         const supportedPaths = [
             this.#exportButtonSettings?.path,
             this.#settingsButtonSettings?.path,
             this.#signInButtonSettings?.path
         ]
-        this.removeOverlayIfNeeded()
         if (supportedPaths.includes(path)) {
             try {
                 const { element, style, shouldTap, shouldWatchForRemoval } = await this.getElementAndStyleFromPath(path) ?? {}
