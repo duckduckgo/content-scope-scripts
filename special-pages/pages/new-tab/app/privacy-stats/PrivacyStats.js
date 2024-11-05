@@ -60,6 +60,7 @@ function PrivacyStatsConfigured ({ parentRef, expansion, data, toggle }) {
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId()
     const TOGGLE_ID = useId()
+
     return (
         <div class={styles.root} ref={parentRef}>
             <Heading
@@ -140,6 +141,7 @@ export function Heading ({ expansion, trackerCompanies, totalCount, onToggle, bu
  * @param {import("preact").ComponentProps<'ul'>} [props.listAttrs]
  * @param {TrackerCompany[]} props.trackerCompanies
  */
+// eslint-disable-next-line no-redeclare
 export function Body ({ trackerCompanies, listAttrs = {} }) {
     const max = trackerCompanies[0]?.count ?? 0
     const [formatter] = useState(() => new Intl.NumberFormat())

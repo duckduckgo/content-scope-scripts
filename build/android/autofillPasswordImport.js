@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    /* eslint-disable no-redeclare */
     const Set$1 = globalThis.Set;
     const Reflect$1 = globalThis.Reflect;
     globalThis.customElements?.get.bind(globalThis.customElements);
@@ -13,10 +14,11 @@
     const objectDefineProperty = Object.defineProperty;
     const Proxy$1 = globalThis.Proxy;
 
+    /* eslint-disable no-redeclare, no-global-assign */
     /* global cloneInto, exportFunction, false */
 
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
-    // eslint-disable-next-line no-global-assign
+     
     let globalObj = typeof window === 'undefined' ? globalThis : window;
     let Error$1 = globalObj.Error;
     let messageSecret;
@@ -186,7 +188,7 @@
             // eslint-disable-next-line no-debugger
             debugger
         },
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+         
         noop: () => { }
     };
 
@@ -735,6 +737,7 @@
     /**
      * Tiny wrapper around performance.mark and performance.measure
      */
+    // eslint-disable-next-line no-redeclare
     class PerformanceMark {
         /**
          * @param {string} name
@@ -753,19 +756,20 @@
         }
     }
 
-    function _typeof$2(obj) { "@babel/helpers - typeof"; return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$2(obj); }
     function isJSONArray(value) {
       return Array.isArray(value);
     }
     function isJSONObject(value) {
-      return value !== null && _typeof$2(value) === 'object' && value.constructor === Object // do not match on classes or Array
+      return value !== null && typeof value === 'object' && (value.constructor === undefined ||
+      // for example Object.create(null)
+      value.constructor.name === 'Object') // do not match on classes or Array
       ;
     }
 
-    function _typeof$1(obj) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$1(obj); }
     /**
      * Test deep equality of two JSON values, objects, or arrays
-     */ // TODO: write unit tests
+     */
+    // TODO: write unit tests
     function isEqual(a, b) {
       // FIXME: this function will return false for two objects with the same keys
       //  but different order of keys
@@ -793,15 +797,19 @@
      */
     // TODO: write unit tests
     function isObjectOrArray(value) {
-      return _typeof$1(value) === 'object' && value !== null;
+      return typeof value === 'object' && value !== null;
     }
 
-    function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-    function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-    function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-    function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-    function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-    function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+    /**
+     * Immutability helpers
+     *
+     * inspiration:
+     *
+     * https://www.npmjs.com/package/seamless-immutable
+     * https://www.npmjs.com/package/ih
+     * https://www.npmjs.com/package/mutatis
+     * https://github.com/mariocasciaro/object-path-immutable
+     */
 
     /**
      * Shallow clone of an Object, Array, or value
@@ -810,10 +818,10 @@
     function shallowClone(value) {
       if (isJSONArray(value)) {
         // copy array items
-        var copy = value.slice();
+        const copy = value.slice();
 
         // copy all symbols
-        Object.getOwnPropertySymbols(value).forEach(function (symbol) {
+        Object.getOwnPropertySymbols(value).forEach(symbol => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           copy[symbol] = value[symbol];
@@ -821,15 +829,17 @@
         return copy;
       } else if (isJSONObject(value)) {
         // copy object properties
-        var _copy = _objectSpread({}, value);
+        const copy = {
+          ...value
+        };
 
         // copy all symbols
-        Object.getOwnPropertySymbols(value).forEach(function (symbol) {
+        Object.getOwnPropertySymbols(value).forEach(symbol => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          _copy[symbol] = value[symbol];
+          copy[symbol] = value[symbol];
         });
-        return _copy;
+        return copy;
       } else {
         return value;
       }
@@ -846,7 +856,7 @@
         // return original object unchanged when the new value is identical to the old one
         return object;
       } else {
-        var updatedObject = shallowClone(object);
+        const updatedObject = shallowClone(object);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         updatedObject[key] = value;
@@ -860,8 +870,8 @@
      * @return Returns the field when found, or undefined when the path doesn't exist
      */
     function getIn(object, path) {
-      var value = object;
-      var i = 0;
+      let value = object;
+      let i = 0;
       while (i < path.length) {
         if (isJSONObject(value)) {
           value = value[path[i]];
@@ -892,19 +902,19 @@
      * @return Returns a new, updated object or array
      */
     function setIn(object, path, value) {
-      var createPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      let createPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       if (path.length === 0) {
         return value;
       }
-      var key = path[0];
+      const key = path[0];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      var updatedValue = setIn(object ? object[key] : undefined, path.slice(1), value, createPath);
+      const updatedValue = setIn(object ? object[key] : undefined, path.slice(1), value, createPath);
       if (isJSONObject(object) || isJSONArray(object)) {
         return applyProp(object, key, updatedValue);
       } else {
         if (createPath) {
-          var newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
+          const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           newObject[key] = updatedValue;
@@ -914,7 +924,7 @@
         }
       }
     }
-    var IS_INTEGER_REGEX = /^\d+$/;
+    const IS_INTEGER_REGEX = /^\d+$/;
 
     /**
      * helper function to replace a nested property in an object with a new value
@@ -922,17 +932,17 @@
      *
      * @return  Returns a new, updated object or array
      */
-    function updateIn(object, path, callback) {
+    function updateIn(object, path, transform) {
       if (path.length === 0) {
-        return callback(object);
+        return transform(object);
       }
       if (!isObjectOrArray(object)) {
         throw new Error('Path doesn\'t exist');
       }
-      var key = path[0];
+      const key = path[0];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      var updatedValue = updateIn(object[key], path.slice(1), callback);
+      const updatedValue = updateIn(object[key], path.slice(1), transform);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return applyProp(object, key, updatedValue);
@@ -952,25 +962,25 @@
         throw new Error('Path does not exist');
       }
       if (path.length === 1) {
-        var _key = path[0];
-        if (!(_key in object)) {
+        const key = path[0];
+        if (!(key in object)) {
           // key doesn't exist. return object unchanged
           return object;
         } else {
-          var updatedObject = shallowClone(object);
+          const updatedObject = shallowClone(object);
           if (isJSONArray(updatedObject)) {
-            updatedObject.splice(parseInt(_key), 1);
+            updatedObject.splice(parseInt(key), 1);
           }
           if (isJSONObject(updatedObject)) {
-            delete updatedObject[_key];
+            delete updatedObject[key];
           }
           return updatedObject;
         }
       }
-      var key = path[0];
+      const key = path[0];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      var updatedValue = deleteIn(object[key], path.slice(1));
+      const updatedValue = deleteIn(object[key], path.slice(1));
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return applyProp(object, key, updatedValue);
@@ -983,13 +993,13 @@
      *     insertAt({arr: [1,2,3]}, ['arr', '2'], 'inserted')  // [1,2,'inserted',3]
      */
     function insertAt(document, path, value) {
-      var parentPath = path.slice(0, path.length - 1);
-      var index = path[path.length - 1];
-      return updateIn(document, parentPath, function (items) {
+      const parentPath = path.slice(0, path.length - 1);
+      const index = path[path.length - 1];
+      return updateIn(document, parentPath, items => {
         if (!Array.isArray(items)) {
           throw new TypeError('Array expected at path ' + JSON.stringify(parentPath));
         }
-        var updatedItems = shallowClone(items);
+        const updatedItems = shallowClone(items);
         updatedItems.splice(parseInt(index), 0, value);
         return updatedItems;
       });
@@ -1019,12 +1029,10 @@
      * Parse a JSON Pointer
      */
     function parseJSONPointer(pointer) {
-      var path = pointer.split('/');
+      const path = pointer.split('/');
       path.shift(); // remove the first empty entry
 
-      return path.map(function (p) {
-        return p.replace(/~1/g, '/').replace(/~0/g, '~');
-      });
+      return path.map(p => p.replace(/~1/g, '/').replace(/~0/g, '~'));
     }
 
     /**
@@ -1047,31 +1055,11 @@
      * instead, the patch is applied in an immutable way
      */
     function immutableJSONPatch(document, operations, options) {
-      var updatedDocument = document;
-      for (var i = 0; i < operations.length; i++) {
+      let updatedDocument = document;
+      for (let i = 0; i < operations.length; i++) {
         validateJSONPatchOperation(operations[i]);
-        var operation = operations[i];
-
-        // TODO: test before
-        if (options && options.before) {
-          var result = options.before(updatedDocument, operation);
-          if (result !== undefined) {
-            if (result.document !== undefined) {
-              updatedDocument = result.document;
-            }
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (result.json !== undefined) {
-              // TODO: deprecated since v5.0.0. Cleanup this warning some day
-              throw new Error('Deprecation warning: returned object property ".json" has been renamed to ".document"');
-            }
-            if (result.operation !== undefined) {
-              operation = result.operation;
-            }
-          }
-        }
-        var previousDocument = updatedDocument;
-        var path = parsePath(updatedDocument, operation.path);
+        let operation = operations[i];
+        const path = parsePath(updatedDocument, operation.path);
         if (operation.op === 'add') {
           updatedDocument = add(updatedDocument, path, operation.value);
         } else if (operation.op === 'remove') {
@@ -1086,14 +1074,6 @@
           test(updatedDocument, path, operation.value);
         } else {
           throw new Error('Unknown JSONPatch operation ' + JSON.stringify(operation));
-        }
-
-        // TODO: test after
-        if (options && options.after) {
-          var _result = options.after(updatedDocument, operation, previousDocument);
-          if (_result !== undefined) {
-            updatedDocument = _result;
-          }
         }
       }
       return updatedDocument;
@@ -1128,12 +1108,12 @@
      * Copy a value
      */
     function copy(document, path, from) {
-      var value = getIn(document, from);
+      const value = getIn(document, from);
       if (isArrayItem(document, path)) {
         return insertAt(document, path, value);
       } else {
-        var _value = getIn(document, from);
-        return setIn(document, path, _value);
+        const value = getIn(document, from);
+        return setIn(document, path, value);
       }
     }
 
@@ -1141,10 +1121,10 @@
      * Move a value
      */
     function move(document, path, from) {
-      var value = getIn(document, from);
+      const value = getIn(document, from);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      var removedJson = deleteIn(document, from);
+      const removedJson = deleteIn(document, from);
       return isArrayItem(removedJson, path) ? insertAt(removedJson, path, value) : setIn(removedJson, path, value);
     }
 
@@ -1154,21 +1134,21 @@
      */
     function test(document, path, value) {
       if (value === undefined) {
-        throw new Error("Test failed: no value provided (path: \"".concat(compileJSONPointer(path), "\")"));
+        throw new Error(`Test failed: no value provided (path: "${compileJSONPointer(path)}")`);
       }
       if (!existsIn(document, path)) {
-        throw new Error("Test failed: path not found (path: \"".concat(compileJSONPointer(path), "\")"));
+        throw new Error(`Test failed: path not found (path: "${compileJSONPointer(path)}")`);
       }
-      var actualValue = getIn(document, path);
+      const actualValue = getIn(document, path);
       if (!isEqual(actualValue, value)) {
-        throw new Error("Test failed, value differs (path: \"".concat(compileJSONPointer(path), "\")"));
+        throw new Error(`Test failed, value differs (path: "${compileJSONPointer(path)}")`);
       }
     }
     function isArrayItem(document, path) {
       if (path.length === 0) {
         return false;
       }
-      var parent = getIn(document, initial(path));
+      const parent = getIn(document, initial(path));
       return Array.isArray(parent);
     }
 
@@ -1180,8 +1160,8 @@
       if (last(path) !== '-') {
         return path;
       }
-      var parentPath = initial(path);
-      var parent = getIn(document, parentPath);
+      const parentPath = initial(path);
+      const parent = getIn(document, parentPath);
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -1194,7 +1174,7 @@
      */
     function validateJSONPatchOperation(operation) {
       // TODO: write unit tests
-      var ops = ['add', 'remove', 'replace', 'copy', 'move', 'test'];
+      const ops = ['add', 'remove', 'replace', 'copy', 'move', 'test'];
       if (!ops.includes(operation.op)) {
         throw new Error('Unknown JSONPatch op ' + JSON.stringify(operation.op));
       }
@@ -1728,13 +1708,13 @@
             };
 
             // console.log('DEBUG: handler setup', { config, comparator })
-            // eslint-disable-next-line no-undef
+             
             this.config.methods.addEventListener('message', idHandler);
             options?.signal?.addEventListener('abort', abortHandler);
 
             teardown = () => {
                 // console.log('DEBUG: handler teardown', { config, comparator })
-                // eslint-disable-next-line no-undef
+                 
                 this.config.methods.removeEventListener('message', idHandler);
                 options?.signal?.removeEventListener('abort', abortHandler);
             };
@@ -2204,7 +2184,7 @@
                  * @param {any[]} args
                  */
                 value: (...args) => {
-                    // eslint-disable-next-line n/no-callback-literal
+                     
                     callback(...args);
                     delete this.globals.window[randomMethodName];
                 }
@@ -3156,8 +3136,10 @@
         /** @type {boolean | undefined} */
         #documentOriginIsTracker
         /** @type {Record<string, unknown> | undefined} */
+        // eslint-disable-next-line no-unused-private-class-members
         #bundledfeatureSettings
         /** @type {import('../../messaging').Messaging} */
+        // eslint-disable-next-line no-unused-private-class-members
         #messaging
         /** @type {boolean} */
         #isDebugFlagSet = false
@@ -3339,7 +3321,7 @@
             })
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+         
         init (args) {
         }
 
@@ -3352,7 +3334,7 @@
             this.measure();
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+         
         load (args) {
         }
 
@@ -3421,7 +3403,7 @@
             }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+         
         update () {
         }
 
@@ -3680,6 +3662,7 @@
                 try {
                     const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {};
                     if (element != null) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                         shouldTap ? this.autotapElement(element) : this.animateElement(element, style);
                     }
                 } catch {

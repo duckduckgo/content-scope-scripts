@@ -168,8 +168,14 @@ body:not([data-platform-name]) {
       color-burn,
       normal;
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%),
-      linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.06) 100%),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0) 100%),
+      linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.06) 100%),
       #007aff;
     border-radius: var(--sp-2);
     border: 1px solid rgba(40, 145, 255, 0.05);
@@ -180,10 +186,20 @@ body:not([data-platform-name]) {
     line-height: var(--sp-8);
     padding: 0 var(--sp-4);
     &:hover {
-      background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749db;
+      background:
+        linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.16) 100%),
+        #2749db;
     }
     &:active {
-      background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #1743d1;
+      background:
+        linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.16) 100%),
+        #1743d1;
     }
   }
 }
@@ -191,8 +207,18 @@ body:not([data-platform-name]) {
   --macos-control-standard-background-rest: #fff;
   --macos-control-standard-background-rest--dark: rgba(255, 255, 255, 0.28);
   --macos-control-standard-background-pressed: #e7e7e7;
-  --macos-control-accent-branded-background-rest: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749db;
-  --macos-control-accent-branded-background-pressed: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #1743d1;
+  --macos-control-accent-branded-background-rest:
+    linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.16) 100%),
+    #2749db;
+  --macos-control-accent-branded-background-pressed:
+    linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.16) 100%),
+    #1743d1;
   --macos-control-standard-shadow:
     0 1px 0 0 rgba(255, 255, 255, 0.2) inset,
     0 1px 0 0 rgba(255, 255, 255, 0.05) inset,

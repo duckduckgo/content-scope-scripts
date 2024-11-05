@@ -1,28 +1,14 @@
 (() => {
   var __defProp = Object.defineProperty;
+  var __typeError = (msg) => {
+    throw TypeError(msg);
+  };
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => {
-    __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
-  var __accessCheck = (obj, member, msg) => {
-    if (!member.has(obj))
-      throw TypeError("Cannot " + msg);
-  };
-  var __privateGet = (obj, member, getter) => {
-    __accessCheck(obj, member, "read from private field");
-    return getter ? getter.call(obj) : member.get(obj);
-  };
-  var __privateAdd = (obj, member, value) => {
-    if (member.has(obj))
-      throw TypeError("Cannot add the same private member more than once");
-    member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-  };
-  var __privateSet = (obj, member, value, setter) => {
-    __accessCheck(obj, member, "write to private field");
-    setter ? setter.call(obj, value) : member.set(obj, value);
-    return value;
-  };
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+  var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+  var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+  var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
   /*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */
   (function() {
     "use strict";
@@ -193,7 +179,6 @@
         console.log("debugger", ...args);
         debugger;
       },
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       noop: () => {
       }
     };
@@ -581,27 +566,12 @@
         performance.measure(this.name, this.name + "Start", this.name + "End");
       }
     }
-    function _typeof$2(obj) {
-      "@babel/helpers - typeof";
-      return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj2) {
-        return typeof obj2;
-      } : function(obj2) {
-        return obj2 && "function" == typeof Symbol && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-      }, _typeof$2(obj);
-    }
     function isJSONArray(value) {
       return Array.isArray(value);
     }
     function isJSONObject(value) {
-      return value !== null && _typeof$2(value) === "object" && value.constructor === Object;
-    }
-    function _typeof$1(obj) {
-      "@babel/helpers - typeof";
-      return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj2) {
-        return typeof obj2;
-      } : function(obj2) {
-        return obj2 && "function" == typeof Symbol && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-      }, _typeof$1(obj);
+      return value !== null && typeof value === "object" && (value.constructor === void 0 || // for example Object.create(null)
+      value.constructor.name === "Object");
     }
     function isEqual(a, b) {
       return JSON.stringify(a) === JSON.stringify(b);
@@ -613,75 +583,23 @@
       return array[array.length - 1];
     }
     function isObjectOrArray(value) {
-      return _typeof$1(value) === "object" && value !== null;
-    }
-    function _typeof(obj) {
-      "@babel/helpers - typeof";
-      return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj2) {
-        return typeof obj2;
-      } : function(obj2) {
-        return obj2 && "function" == typeof Symbol && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-      }, _typeof(obj);
-    }
-    function ownKeys(object, enumerableOnly) {
-      var keys = Object.keys(object);
-      if (Object.getOwnPropertySymbols) {
-        var symbols = Object.getOwnPropertySymbols(object);
-        enumerableOnly && (symbols = symbols.filter(function(sym) {
-          return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-        })), keys.push.apply(keys, symbols);
-      }
-      return keys;
-    }
-    function _objectSpread(target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = null != arguments[i] ? arguments[i] : {};
-        i % 2 ? ownKeys(Object(source), true).forEach(function(key) {
-          _defineProperty(target, key, source[key]);
-        }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function(key) {
-          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-        });
-      }
-      return target;
-    }
-    function _defineProperty(obj, key, value) {
-      key = _toPropertyKey(key);
-      if (key in obj) {
-        Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
-      } else {
-        obj[key] = value;
-      }
-      return obj;
-    }
-    function _toPropertyKey(arg) {
-      var key = _toPrimitive(arg, "string");
-      return _typeof(key) === "symbol" ? key : String(key);
-    }
-    function _toPrimitive(input, hint) {
-      if (_typeof(input) !== "object" || input === null)
-        return input;
-      var prim = input[Symbol.toPrimitive];
-      if (prim !== void 0) {
-        var res = prim.call(input, hint || "default");
-        if (_typeof(res) !== "object")
-          return res;
-        throw new TypeError("@@toPrimitive must return a primitive value.");
-      }
-      return (hint === "string" ? String : Number)(input);
+      return typeof value === "object" && value !== null;
     }
     function shallowClone(value) {
       if (isJSONArray(value)) {
-        var copy2 = value.slice();
-        Object.getOwnPropertySymbols(value).forEach(function(symbol) {
+        const copy2 = value.slice();
+        Object.getOwnPropertySymbols(value).forEach((symbol) => {
           copy2[symbol] = value[symbol];
         });
         return copy2;
       } else if (isJSONObject(value)) {
-        var _copy = _objectSpread({}, value);
-        Object.getOwnPropertySymbols(value).forEach(function(symbol) {
-          _copy[symbol] = value[symbol];
+        const copy2 = {
+          ...value
+        };
+        Object.getOwnPropertySymbols(value).forEach((symbol) => {
+          copy2[symbol] = value[symbol];
         });
-        return _copy;
+        return copy2;
       } else {
         return value;
       }
@@ -690,14 +608,14 @@
       if (object[key] === value) {
         return object;
       } else {
-        var updatedObject = shallowClone(object);
+        const updatedObject = shallowClone(object);
         updatedObject[key] = value;
         return updatedObject;
       }
     }
     function getIn(object, path) {
-      var value = object;
-      var i = 0;
+      let value = object;
+      let i = 0;
       while (i < path.length) {
         if (isJSONObject(value)) {
           value = value[path[i]];
@@ -711,17 +629,17 @@
       return value;
     }
     function setIn(object, path, value) {
-      var createPath = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : false;
+      let createPath = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : false;
       if (path.length === 0) {
         return value;
       }
-      var key = path[0];
-      var updatedValue = setIn(object ? object[key] : void 0, path.slice(1), value, createPath);
+      const key = path[0];
+      const updatedValue = setIn(object ? object[key] : void 0, path.slice(1), value, createPath);
       if (isJSONObject(object) || isJSONArray(object)) {
         return applyProp(object, key, updatedValue);
       } else {
         if (createPath) {
-          var newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
+          const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
           newObject[key] = updatedValue;
           return newObject;
         } else {
@@ -729,16 +647,16 @@
         }
       }
     }
-    var IS_INTEGER_REGEX = /^\d+$/;
-    function updateIn(object, path, callback) {
+    const IS_INTEGER_REGEX = /^\d+$/;
+    function updateIn(object, path, transform) {
       if (path.length === 0) {
-        return callback(object);
+        return transform(object);
       }
       if (!isObjectOrArray(object)) {
         throw new Error("Path doesn't exist");
       }
-      var key = path[0];
-      var updatedValue = updateIn(object[key], path.slice(1), callback);
+      const key = path[0];
+      const updatedValue = updateIn(object[key], path.slice(1), transform);
       return applyProp(object, key, updatedValue);
     }
     function deleteIn(object, path) {
@@ -749,32 +667,32 @@
         throw new Error("Path does not exist");
       }
       if (path.length === 1) {
-        var _key = path[0];
-        if (!(_key in object)) {
+        const key2 = path[0];
+        if (!(key2 in object)) {
           return object;
         } else {
-          var updatedObject = shallowClone(object);
+          const updatedObject = shallowClone(object);
           if (isJSONArray(updatedObject)) {
-            updatedObject.splice(parseInt(_key), 1);
+            updatedObject.splice(parseInt(key2), 1);
           }
           if (isJSONObject(updatedObject)) {
-            delete updatedObject[_key];
+            delete updatedObject[key2];
           }
           return updatedObject;
         }
       }
-      var key = path[0];
-      var updatedValue = deleteIn(object[key], path.slice(1));
+      const key = path[0];
+      const updatedValue = deleteIn(object[key], path.slice(1));
       return applyProp(object, key, updatedValue);
     }
     function insertAt(document2, path, value) {
-      var parentPath = path.slice(0, path.length - 1);
-      var index = path[path.length - 1];
-      return updateIn(document2, parentPath, function(items) {
+      const parentPath = path.slice(0, path.length - 1);
+      const index = path[path.length - 1];
+      return updateIn(document2, parentPath, (items) => {
         if (!Array.isArray(items)) {
           throw new TypeError("Array expected at path " + JSON.stringify(parentPath));
         }
-        var updatedItems = shallowClone(items);
+        const updatedItems = shallowClone(items);
         updatedItems.splice(parseInt(index), 0, value);
         return updatedItems;
       });
@@ -792,11 +710,9 @@
       return existsIn(document2[path[0]], path.slice(1));
     }
     function parseJSONPointer(pointer) {
-      var path = pointer.split("/");
+      const path = pointer.split("/");
       path.shift();
-      return path.map(function(p) {
-        return p.replace(/~1/g, "/").replace(/~0/g, "~");
-      });
+      return path.map((p) => p.replace(/~1/g, "/").replace(/~0/g, "~"));
     }
     function compileJSONPointer(path) {
       return path.map(compileJSONPointerProp).join("");
@@ -805,26 +721,11 @@
       return "/" + String(pathProp).replace(/~/g, "~0").replace(/\//g, "~1");
     }
     function immutableJSONPatch(document2, operations, options) {
-      var updatedDocument = document2;
-      for (var i = 0; i < operations.length; i++) {
+      let updatedDocument = document2;
+      for (let i = 0; i < operations.length; i++) {
         validateJSONPatchOperation(operations[i]);
-        var operation = operations[i];
-        if (options && options.before) {
-          var result = options.before(updatedDocument, operation);
-          if (result !== void 0) {
-            if (result.document !== void 0) {
-              updatedDocument = result.document;
-            }
-            if (result.json !== void 0) {
-              throw new Error('Deprecation warning: returned object property ".json" has been renamed to ".document"');
-            }
-            if (result.operation !== void 0) {
-              operation = result.operation;
-            }
-          }
-        }
-        var previousDocument = updatedDocument;
-        var path = parsePath(updatedDocument, operation.path);
+        let operation = operations[i];
+        const path = parsePath(updatedDocument, operation.path);
         if (operation.op === "add") {
           updatedDocument = add(updatedDocument, path, operation.value);
         } else if (operation.op === "remove") {
@@ -839,12 +740,6 @@
           test(updatedDocument, path, operation.value);
         } else {
           throw new Error("Unknown JSONPatch operation " + JSON.stringify(operation));
-        }
-        if (options && options.after) {
-          var _result = options.after(updatedDocument, operation, previousDocument);
-          if (_result !== void 0) {
-            updatedDocument = _result;
-          }
         }
       }
       return updatedDocument;
@@ -863,48 +758,48 @@
       }
     }
     function copy(document2, path, from) {
-      var value = getIn(document2, from);
+      const value = getIn(document2, from);
       if (isArrayItem(document2, path)) {
         return insertAt(document2, path, value);
       } else {
-        var _value = getIn(document2, from);
-        return setIn(document2, path, _value);
+        const value2 = getIn(document2, from);
+        return setIn(document2, path, value2);
       }
     }
     function move(document2, path, from) {
-      var value = getIn(document2, from);
-      var removedJson = deleteIn(document2, from);
+      const value = getIn(document2, from);
+      const removedJson = deleteIn(document2, from);
       return isArrayItem(removedJson, path) ? insertAt(removedJson, path, value) : setIn(removedJson, path, value);
     }
     function test(document2, path, value) {
       if (value === void 0) {
-        throw new Error('Test failed: no value provided (path: "'.concat(compileJSONPointer(path), '")'));
+        throw new Error(`Test failed: no value provided (path: "${compileJSONPointer(path)}")`);
       }
       if (!existsIn(document2, path)) {
-        throw new Error('Test failed: path not found (path: "'.concat(compileJSONPointer(path), '")'));
+        throw new Error(`Test failed: path not found (path: "${compileJSONPointer(path)}")`);
       }
-      var actualValue = getIn(document2, path);
+      const actualValue = getIn(document2, path);
       if (!isEqual(actualValue, value)) {
-        throw new Error('Test failed, value differs (path: "'.concat(compileJSONPointer(path), '")'));
+        throw new Error(`Test failed, value differs (path: "${compileJSONPointer(path)}")`);
       }
     }
     function isArrayItem(document2, path) {
       if (path.length === 0) {
         return false;
       }
-      var parent = getIn(document2, initial(path));
+      const parent = getIn(document2, initial(path));
       return Array.isArray(parent);
     }
     function resolvePathIndex(document2, path) {
       if (last(path) !== "-") {
         return path;
       }
-      var parentPath = initial(path);
-      var parent = getIn(document2, parentPath);
+      const parentPath = initial(path);
+      const parent = getIn(document2, parentPath);
       return parentPath.concat(parent.length);
     }
     function validateJSONPatchOperation(operation) {
-      var ops = ["add", "remove", "replace", "copy", "move", "test"];
+      const ops = ["add", "remove", "replace", "copy", "move", "test"];
       if (!ops.includes(operation.op)) {
         throw new Error("Unknown JSONPatch op " + JSON.stringify(operation.op));
       }
@@ -1136,10 +1031,8 @@
           return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
         };
         function isMessageResponse(data2) {
-          if ("result" in data2)
-            return true;
-          if ("error" in data2)
-            return true;
+          if ("result" in data2) return true;
+          if ("error" in data2) return true;
           return false;
         }
         return new this.globals.Promise((resolve, reject) => {
@@ -1200,8 +1093,7 @@
             return;
           }
           if (comparator(event.data)) {
-            if (!teardown)
-              throw new Error("unreachable");
+            if (!teardown) throw new Error("unreachable");
             callback(event.data, teardown);
           }
         };
@@ -1547,8 +1439,7 @@
        */
       captureWebkitHandlers(handlerNames) {
         const handlers = window.webkit.messageHandlers;
-        if (!handlers)
-          throw new MissingHandler("window.webkit.messageHandlers was absent", "all");
+        if (!handlers) throw new MissingHandler("window.webkit.messageHandlers was absent", "all");
         for (const webkitMessageHandlerName of handlerNames) {
           if (typeof handlers[webkitMessageHandlerName]?.postMessage === "function") {
             const original = handlers[webkitMessageHandlerName];
@@ -1771,8 +1662,7 @@
        * @internal
        */
       _dispatch(payload) {
-        if (!payload)
-          return this._log("no response");
+        if (!payload) return this._log("no response");
         if ("id" in payload) {
           if (this.listeners.has(payload.id)) {
             this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
@@ -2067,8 +1957,7 @@
             return;
           }
           if (comparator(event)) {
-            if (!teardown)
-              throw new this.globals.Error("unreachable");
+            if (!teardown) throw new this.globals.Error("unreachable");
             callback(event, teardown);
           }
         };
@@ -2084,19 +1973,21 @@
     class ContentFeature {
       constructor(featureName) {
         /** @type {import('./utils.js').RemoteConfig | undefined} */
-        __privateAdd(this, _bundledConfig, void 0);
+        __privateAdd(this, _bundledConfig);
         /** @type {object | undefined} */
-        __privateAdd(this, _trackerLookup, void 0);
+        __privateAdd(this, _trackerLookup);
         /** @type {boolean | undefined} */
-        __privateAdd(this, _documentOriginIsTracker, void 0);
+        __privateAdd(this, _documentOriginIsTracker);
         /** @type {Record<string, unknown> | undefined} */
-        __privateAdd(this, _bundledfeatureSettings, void 0);
+        // eslint-disable-next-line no-unused-private-class-members
+        __privateAdd(this, _bundledfeatureSettings);
         /** @type {import('../../messaging').Messaging} */
-        __privateAdd(this, _messaging, void 0);
+        // eslint-disable-next-line no-unused-private-class-members
+        __privateAdd(this, _messaging);
         /** @type {boolean} */
         __privateAdd(this, _isDebugFlagSet, false);
         /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
-        __privateAdd(this, _args, void 0);
+        __privateAdd(this, _args);
         this.name = featureName;
         __privateSet(this, _args, null);
         this.monitor = new PerformanceMonitor();
@@ -2161,13 +2052,11 @@
        * @return {import('@duckduckgo/messaging').Messaging}
        */
       get messaging() {
-        if (this._messaging)
-          return this._messaging;
+        if (this._messaging) return this._messaging;
         const messagingContext = this._createMessagingContext();
         let messagingConfig = __privateGet(this, _args)?.messagingConfig;
         if (!messagingConfig) {
-          if (this.platform?.name !== "extension")
-            throw new Error("Only extension messaging supported, all others should be passed in");
+          if (this.platform?.name !== "extension") throw new Error("Only extension messaging supported, all others should be passed in");
           messagingConfig = extensionConstructMessagingConfig();
         }
         this._messaging = new Messaging(messagingContext, messagingConfig);
@@ -2242,8 +2131,7 @@
        */
       matchDomainFeatureSetting(featureKeyName) {
         const domain = __privateGet(this, _args)?.site.domain;
-        if (!domain)
-          return [];
+        if (!domain) return [];
         const domains = this._getFeatureSettings()?.[featureKeyName] || [];
         return domains.filter((rule) => {
           if (Array.isArray(rule.domain)) {
@@ -2254,7 +2142,6 @@
           return matchHostname(domain, rule.domain);
         });
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
       init(args) {
       }
       callInit(args) {
@@ -2265,7 +2152,6 @@
         mark.end();
         this.measure();
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
       load(args) {
       }
       /**
@@ -2326,15 +2212,13 @@
           this.monitor.measureAll();
         }
       }
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       update() {
       }
       /**
        * Register a flag that will be added to page breakage reports
        */
       addDebugFlag() {
-        if (__privateGet(this, _isDebugFlagSet))
-          return;
+        if (__privateGet(this, _isDebugFlagSet)) return;
         __privateSet(this, _isDebugFlagSet, true);
         this.messaging?.notify("addDebugFlag", {
           flag: this.name
@@ -2426,36 +2310,27 @@
     const MSG_SCREEN_LOCK = "screenLock";
     const MSG_SCREEN_UNLOCK = "screenUnlock";
     function canShare(data) {
-      if (typeof data !== "object")
-        return false;
-      if (!("url" in data) && !("title" in data) && !("text" in data))
-        return false;
-      if ("files" in data)
-        return false;
-      if ("title" in data && typeof data.title !== "string")
-        return false;
-      if ("text" in data && typeof data.text !== "string")
-        return false;
+      if (typeof data !== "object") return false;
+      if (!("url" in data) && !("title" in data) && !("text" in data)) return false;
+      if ("files" in data) return false;
+      if ("title" in data && typeof data.title !== "string") return false;
+      if ("text" in data && typeof data.text !== "string") return false;
       if ("url" in data) {
-        if (typeof data.url !== "string")
-          return false;
+        if (typeof data.url !== "string") return false;
         try {
           const url = new URL$1(data.url, location.href);
-          if (url.protocol !== "http:" && url.protocol !== "https:")
-            return false;
+          if (url.protocol !== "http:" && url.protocol !== "https:") return false;
         } catch (err) {
           return false;
         }
       }
-      if (window !== window.top)
-        return false;
+      if (window !== window.top) return false;
       return true;
     }
     function cleanShareData(data) {
       const dataToSend = {};
       for (const key of ["title", "text", "url"]) {
-        if (key in data)
-          dataToSend[key] = data[key];
+        if (key in data) dataToSend[key] = data[key];
       }
       if ("url" in data) {
         dataToSend.url = new URL$1(data.url, location.href).href;
@@ -2521,8 +2396,7 @@
       }
       /** Shim Web Share API in Android WebView */
       shimWebShare() {
-        if (typeof navigator.canShare === "function" || typeof navigator.share === "function")
-          return;
+        if (typeof navigator.canShare === "function" || typeof navigator.share === "function") return;
         this.defineProperty(Navigator.prototype, "canShare", {
           configurable: true,
           enumerable: true,
@@ -2534,8 +2408,7 @@
           enumerable: true,
           writable: true,
           value: async (data) => {
-            if (!canShare(data))
-              return Promise.reject(new TypeError("Invalid share data"));
+            if (!canShare(data)) return Promise.reject(new TypeError("Invalid share data"));
             if (__privateGet(this, _activeShareRequest)) {
               return Promise.reject(new DOMException("Share already in progress", "InvalidStateError"));
             }
@@ -2888,8 +2761,7 @@
        */
       modifyLocalStorage() {
         const settings = this.getFeatureSetting("modifyLocalStorage");
-        if (!settings || !settings.changes)
-          return;
+        if (!settings || !settings.changes) return;
         settings.changes.forEach((change) => {
           if (change.action === "delete") {
             localStorage.removeItem(change.key);
@@ -2901,10 +2773,8 @@
        */
       messageHandlersFix() {
         const settings = this.getFeatureSetting("messageHandlers");
-        if (!globalThis.webkit?.messageHandlers)
-          return;
-        if (!settings)
-          return;
+        if (!globalThis.webkit?.messageHandlers) return;
+        if (!settings) return;
         const proxy = new Proxy(globalThis.webkit.messageHandlers, {
           get(target, messageName, receiver) {
             const handlerName = String(messageName);
@@ -3638,696 +3508,682 @@
         }
       }
     }
-    var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
     function getDefaultExportFromCjs(x) {
       return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
     }
     var alea$1 = { exports: {} };
-    alea$1.exports;
-    (function(module) {
-      (function(global2, module2, define) {
-        function Alea(seed) {
-          var me = this, mash = Mash();
-          me.next = function() {
-            var t = 2091639 * me.s0 + me.c * 23283064365386963e-26;
-            me.s0 = me.s1;
-            me.s1 = me.s2;
-            return me.s2 = t - (me.c = t | 0);
-          };
-          me.c = 1;
-          me.s0 = mash(" ");
-          me.s1 = mash(" ");
-          me.s2 = mash(" ");
-          me.s0 -= mash(seed);
-          if (me.s0 < 0) {
-            me.s0 += 1;
-          }
-          me.s1 -= mash(seed);
-          if (me.s1 < 0) {
-            me.s1 += 1;
-          }
-          me.s2 -= mash(seed);
-          if (me.s2 < 0) {
-            me.s2 += 1;
-          }
-          mash = null;
-        }
-        function copy2(f, t) {
-          t.c = f.c;
-          t.s0 = f.s0;
-          t.s1 = f.s1;
-          t.s2 = f.s2;
-          return t;
-        }
-        function impl(seed, opts) {
-          var xg = new Alea(seed), state = opts && opts.state, prng = xg.next;
-          prng.int32 = function() {
-            return xg.next() * 4294967296 | 0;
-          };
-          prng.double = function() {
-            return prng() + (prng() * 2097152 | 0) * 11102230246251565e-32;
-          };
-          prng.quick = prng;
-          if (state) {
-            if (typeof state == "object")
-              copy2(state, xg);
-            prng.state = function() {
-              return copy2(xg, {});
+    var alea = alea$1.exports;
+    var hasRequiredAlea;
+    function requireAlea() {
+      if (hasRequiredAlea) return alea$1.exports;
+      hasRequiredAlea = 1;
+      (function(module) {
+        (function(global, module2, define) {
+          function Alea(seed) {
+            var me = this, mash = Mash();
+            me.next = function() {
+              var t = 2091639 * me.s0 + me.c * 23283064365386963e-26;
+              me.s0 = me.s1;
+              me.s1 = me.s2;
+              return me.s2 = t - (me.c = t | 0);
             };
-          }
-          return prng;
-        }
-        function Mash() {
-          var n = 4022871197;
-          var mash = function(data) {
-            data = String(data);
-            for (var i = 0; i < data.length; i++) {
-              n += data.charCodeAt(i);
-              var h = 0.02519603282416938 * n;
-              n = h >>> 0;
-              h -= n;
-              h *= n;
-              n = h >>> 0;
-              h -= n;
-              n += h * 4294967296;
+            me.c = 1;
+            me.s0 = mash(" ");
+            me.s1 = mash(" ");
+            me.s2 = mash(" ");
+            me.s0 -= mash(seed);
+            if (me.s0 < 0) {
+              me.s0 += 1;
             }
-            return (n >>> 0) * 23283064365386963e-26;
-          };
-          return mash;
-        }
-        if (module2 && module2.exports) {
-          module2.exports = impl;
-        } else if (define && define.amd) {
-          define(function() {
-            return impl;
-          });
-        } else {
-          this.alea = impl;
-        }
-      })(
-        commonjsGlobal,
-        module,
-        // present in node.js
-        false
-        // present with an AMD loader
-      );
-    })(alea$1);
-    var aleaExports = alea$1.exports;
+            me.s1 -= mash(seed);
+            if (me.s1 < 0) {
+              me.s1 += 1;
+            }
+            me.s2 -= mash(seed);
+            if (me.s2 < 0) {
+              me.s2 += 1;
+            }
+            mash = null;
+          }
+          function copy2(f, t) {
+            t.c = f.c;
+            t.s0 = f.s0;
+            t.s1 = f.s1;
+            t.s2 = f.s2;
+            return t;
+          }
+          function impl(seed, opts) {
+            var xg = new Alea(seed), state = opts && opts.state, prng = xg.next;
+            prng.int32 = function() {
+              return xg.next() * 4294967296 | 0;
+            };
+            prng.double = function() {
+              return prng() + (prng() * 2097152 | 0) * 11102230246251565e-32;
+            };
+            prng.quick = prng;
+            if (state) {
+              if (typeof state == "object") copy2(state, xg);
+              prng.state = function() {
+                return copy2(xg, {});
+              };
+            }
+            return prng;
+          }
+          function Mash() {
+            var n = 4022871197;
+            var mash = function(data) {
+              data = String(data);
+              for (var i = 0; i < data.length; i++) {
+                n += data.charCodeAt(i);
+                var h = 0.02519603282416938 * n;
+                n = h >>> 0;
+                h -= n;
+                h *= n;
+                n = h >>> 0;
+                h -= n;
+                n += h * 4294967296;
+              }
+              return (n >>> 0) * 23283064365386963e-26;
+            };
+            return mash;
+          }
+          if (module2 && module2.exports) {
+            module2.exports = impl;
+          } else {
+            this.alea = impl;
+          }
+        })(
+          alea,
+          module
+        );
+      })(alea$1);
+      return alea$1.exports;
+    }
     var xor128$1 = { exports: {} };
-    xor128$1.exports;
-    (function(module) {
-      (function(global2, module2, define) {
-        function XorGen(seed) {
-          var me = this, strseed = "";
-          me.x = 0;
-          me.y = 0;
-          me.z = 0;
-          me.w = 0;
-          me.next = function() {
-            var t = me.x ^ me.x << 11;
-            me.x = me.y;
-            me.y = me.z;
-            me.z = me.w;
-            return me.w ^= me.w >>> 19 ^ t ^ t >>> 8;
-          };
-          if (seed === (seed | 0)) {
-            me.x = seed;
-          } else {
-            strseed += seed;
-          }
-          for (var k = 0; k < strseed.length + 64; k++) {
-            me.x ^= strseed.charCodeAt(k) | 0;
-            me.next();
-          }
-        }
-        function copy2(f, t) {
-          t.x = f.x;
-          t.y = f.y;
-          t.z = f.z;
-          t.w = f.w;
-          return t;
-        }
-        function impl(seed, opts) {
-          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
-            return (xg.next() >>> 0) / 4294967296;
-          };
-          prng.double = function() {
-            do {
-              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
-            } while (result === 0);
-            return result;
-          };
-          prng.int32 = xg.next;
-          prng.quick = prng;
-          if (state) {
-            if (typeof state == "object")
-              copy2(state, xg);
-            prng.state = function() {
-              return copy2(xg, {});
+    var xor128 = xor128$1.exports;
+    var hasRequiredXor128;
+    function requireXor128() {
+      if (hasRequiredXor128) return xor128$1.exports;
+      hasRequiredXor128 = 1;
+      (function(module) {
+        (function(global, module2, define) {
+          function XorGen(seed) {
+            var me = this, strseed = "";
+            me.x = 0;
+            me.y = 0;
+            me.z = 0;
+            me.w = 0;
+            me.next = function() {
+              var t = me.x ^ me.x << 11;
+              me.x = me.y;
+              me.y = me.z;
+              me.z = me.w;
+              return me.w ^= me.w >>> 19 ^ t ^ t >>> 8;
             };
+            if (seed === (seed | 0)) {
+              me.x = seed;
+            } else {
+              strseed += seed;
+            }
+            for (var k = 0; k < strseed.length + 64; k++) {
+              me.x ^= strseed.charCodeAt(k) | 0;
+              me.next();
+            }
           }
-          return prng;
-        }
-        if (module2 && module2.exports) {
-          module2.exports = impl;
-        } else if (define && define.amd) {
-          define(function() {
-            return impl;
-          });
-        } else {
-          this.xor128 = impl;
-        }
-      })(
-        commonjsGlobal,
-        module,
-        // present in node.js
-        false
-        // present with an AMD loader
-      );
-    })(xor128$1);
-    var xor128Exports = xor128$1.exports;
+          function copy2(f, t) {
+            t.x = f.x;
+            t.y = f.y;
+            t.z = f.z;
+            t.w = f.w;
+            return t;
+          }
+          function impl(seed, opts) {
+            var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+              return (xg.next() >>> 0) / 4294967296;
+            };
+            prng.double = function() {
+              do {
+                var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+              } while (result === 0);
+              return result;
+            };
+            prng.int32 = xg.next;
+            prng.quick = prng;
+            if (state) {
+              if (typeof state == "object") copy2(state, xg);
+              prng.state = function() {
+                return copy2(xg, {});
+              };
+            }
+            return prng;
+          }
+          if (module2 && module2.exports) {
+            module2.exports = impl;
+          } else {
+            this.xor128 = impl;
+          }
+        })(
+          xor128,
+          module
+        );
+      })(xor128$1);
+      return xor128$1.exports;
+    }
     var xorwow$1 = { exports: {} };
-    xorwow$1.exports;
-    (function(module) {
-      (function(global2, module2, define) {
-        function XorGen(seed) {
-          var me = this, strseed = "";
-          me.next = function() {
-            var t = me.x ^ me.x >>> 2;
-            me.x = me.y;
-            me.y = me.z;
-            me.z = me.w;
-            me.w = me.v;
-            return (me.d = me.d + 362437 | 0) + (me.v = me.v ^ me.v << 4 ^ (t ^ t << 1)) | 0;
-          };
-          me.x = 0;
-          me.y = 0;
-          me.z = 0;
-          me.w = 0;
-          me.v = 0;
-          if (seed === (seed | 0)) {
-            me.x = seed;
+    var xorwow = xorwow$1.exports;
+    var hasRequiredXorwow;
+    function requireXorwow() {
+      if (hasRequiredXorwow) return xorwow$1.exports;
+      hasRequiredXorwow = 1;
+      (function(module) {
+        (function(global, module2, define) {
+          function XorGen(seed) {
+            var me = this, strseed = "";
+            me.next = function() {
+              var t = me.x ^ me.x >>> 2;
+              me.x = me.y;
+              me.y = me.z;
+              me.z = me.w;
+              me.w = me.v;
+              return (me.d = me.d + 362437 | 0) + (me.v = me.v ^ me.v << 4 ^ (t ^ t << 1)) | 0;
+            };
+            me.x = 0;
+            me.y = 0;
+            me.z = 0;
+            me.w = 0;
+            me.v = 0;
+            if (seed === (seed | 0)) {
+              me.x = seed;
+            } else {
+              strseed += seed;
+            }
+            for (var k = 0; k < strseed.length + 64; k++) {
+              me.x ^= strseed.charCodeAt(k) | 0;
+              if (k == strseed.length) {
+                me.d = me.x << 10 ^ me.x >>> 4;
+              }
+              me.next();
+            }
+          }
+          function copy2(f, t) {
+            t.x = f.x;
+            t.y = f.y;
+            t.z = f.z;
+            t.w = f.w;
+            t.v = f.v;
+            t.d = f.d;
+            return t;
+          }
+          function impl(seed, opts) {
+            var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+              return (xg.next() >>> 0) / 4294967296;
+            };
+            prng.double = function() {
+              do {
+                var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+              } while (result === 0);
+              return result;
+            };
+            prng.int32 = xg.next;
+            prng.quick = prng;
+            if (state) {
+              if (typeof state == "object") copy2(state, xg);
+              prng.state = function() {
+                return copy2(xg, {});
+              };
+            }
+            return prng;
+          }
+          if (module2 && module2.exports) {
+            module2.exports = impl;
           } else {
-            strseed += seed;
+            this.xorwow = impl;
           }
-          for (var k = 0; k < strseed.length + 64; k++) {
-            me.x ^= strseed.charCodeAt(k) | 0;
-            if (k == strseed.length) {
-              me.d = me.x << 10 ^ me.x >>> 4;
-            }
-            me.next();
-          }
-        }
-        function copy2(f, t) {
-          t.x = f.x;
-          t.y = f.y;
-          t.z = f.z;
-          t.w = f.w;
-          t.v = f.v;
-          t.d = f.d;
-          return t;
-        }
-        function impl(seed, opts) {
-          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
-            return (xg.next() >>> 0) / 4294967296;
-          };
-          prng.double = function() {
-            do {
-              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
-            } while (result === 0);
-            return result;
-          };
-          prng.int32 = xg.next;
-          prng.quick = prng;
-          if (state) {
-            if (typeof state == "object")
-              copy2(state, xg);
-            prng.state = function() {
-              return copy2(xg, {});
-            };
-          }
-          return prng;
-        }
-        if (module2 && module2.exports) {
-          module2.exports = impl;
-        } else if (define && define.amd) {
-          define(function() {
-            return impl;
-          });
-        } else {
-          this.xorwow = impl;
-        }
-      })(
-        commonjsGlobal,
-        module,
-        // present in node.js
-        false
-        // present with an AMD loader
-      );
-    })(xorwow$1);
-    var xorwowExports = xorwow$1.exports;
+        })(
+          xorwow,
+          module
+        );
+      })(xorwow$1);
+      return xorwow$1.exports;
+    }
     var xorshift7$1 = { exports: {} };
-    xorshift7$1.exports;
-    (function(module) {
-      (function(global2, module2, define) {
-        function XorGen(seed) {
-          var me = this;
-          me.next = function() {
-            var X = me.x, i = me.i, t, v;
-            t = X[i];
-            t ^= t >>> 7;
-            v = t ^ t << 24;
-            t = X[i + 1 & 7];
-            v ^= t ^ t >>> 10;
-            t = X[i + 3 & 7];
-            v ^= t ^ t >>> 3;
-            t = X[i + 4 & 7];
-            v ^= t ^ t << 7;
-            t = X[i + 7 & 7];
-            t = t ^ t << 13;
-            v ^= t ^ t << 9;
-            X[i] = v;
-            me.i = i + 1 & 7;
-            return v;
-          };
-          function init2(me2, seed2) {
-            var j, X = [];
-            if (seed2 === (seed2 | 0)) {
-              X[0] = seed2;
-            } else {
-              seed2 = "" + seed2;
-              for (j = 0; j < seed2.length; ++j) {
-                X[j & 7] = X[j & 7] << 15 ^ seed2.charCodeAt(j) + X[j + 1 & 7] << 13;
-              }
-            }
-            while (X.length < 8)
-              X.push(0);
-            for (j = 0; j < 8 && X[j] === 0; ++j)
-              ;
-            if (j == 8)
-              X[7] = -1;
-            else
-              X[j];
-            me2.x = X;
-            me2.i = 0;
-            for (j = 256; j > 0; --j) {
-              me2.next();
-            }
-          }
-          init2(me, seed);
-        }
-        function copy2(f, t) {
-          t.x = f.x.slice();
-          t.i = f.i;
-          return t;
-        }
-        function impl(seed, opts) {
-          if (seed == null)
-            seed = +/* @__PURE__ */ new Date();
-          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
-            return (xg.next() >>> 0) / 4294967296;
-          };
-          prng.double = function() {
-            do {
-              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
-            } while (result === 0);
-            return result;
-          };
-          prng.int32 = xg.next;
-          prng.quick = prng;
-          if (state) {
-            if (state.x)
-              copy2(state, xg);
-            prng.state = function() {
-              return copy2(xg, {});
+    var xorshift7 = xorshift7$1.exports;
+    var hasRequiredXorshift7;
+    function requireXorshift7() {
+      if (hasRequiredXorshift7) return xorshift7$1.exports;
+      hasRequiredXorshift7 = 1;
+      (function(module) {
+        (function(global, module2, define) {
+          function XorGen(seed) {
+            var me = this;
+            me.next = function() {
+              var X = me.x, i = me.i, t, v;
+              t = X[i];
+              t ^= t >>> 7;
+              v = t ^ t << 24;
+              t = X[i + 1 & 7];
+              v ^= t ^ t >>> 10;
+              t = X[i + 3 & 7];
+              v ^= t ^ t >>> 3;
+              t = X[i + 4 & 7];
+              v ^= t ^ t << 7;
+              t = X[i + 7 & 7];
+              t = t ^ t << 13;
+              v ^= t ^ t << 9;
+              X[i] = v;
+              me.i = i + 1 & 7;
+              return v;
             };
-          }
-          return prng;
-        }
-        if (module2 && module2.exports) {
-          module2.exports = impl;
-        } else if (define && define.amd) {
-          define(function() {
-            return impl;
-          });
-        } else {
-          this.xorshift7 = impl;
-        }
-      })(
-        commonjsGlobal,
-        module,
-        // present in node.js
-        false
-        // present with an AMD loader
-      );
-    })(xorshift7$1);
-    var xorshift7Exports = xorshift7$1.exports;
-    var xor4096$1 = { exports: {} };
-    xor4096$1.exports;
-    (function(module) {
-      (function(global2, module2, define) {
-        function XorGen(seed) {
-          var me = this;
-          me.next = function() {
-            var w = me.w, X = me.X, i = me.i, t, v;
-            me.w = w = w + 1640531527 | 0;
-            v = X[i + 34 & 127];
-            t = X[i = i + 1 & 127];
-            v ^= v << 13;
-            t ^= t << 17;
-            v ^= v >>> 15;
-            t ^= t >>> 12;
-            v = X[i] = v ^ t;
-            me.i = i;
-            return v + (w ^ w >>> 16) | 0;
-          };
-          function init2(me2, seed2) {
-            var t, v, i, j, w, X = [], limit = 128;
-            if (seed2 === (seed2 | 0)) {
-              v = seed2;
-              seed2 = null;
-            } else {
-              seed2 = seed2 + "\0";
-              v = 0;
-              limit = Math.max(limit, seed2.length);
-            }
-            for (i = 0, j = -32; j < limit; ++j) {
-              if (seed2)
-                v ^= seed2.charCodeAt((j + 32) % seed2.length);
-              if (j === 0)
-                w = v;
-              v ^= v << 10;
-              v ^= v >>> 15;
-              v ^= v << 4;
-              v ^= v >>> 13;
-              if (j >= 0) {
-                w = w + 1640531527 | 0;
-                t = X[j & 127] ^= v + w;
-                i = 0 == t ? i + 1 : 0;
+            function init2(me2, seed2) {
+              var j, X = [];
+              if (seed2 === (seed2 | 0)) {
+                X[0] = seed2;
+              } else {
+                seed2 = "" + seed2;
+                for (j = 0; j < seed2.length; ++j) {
+                  X[j & 7] = X[j & 7] << 15 ^ seed2.charCodeAt(j) + X[j + 1 & 7] << 13;
+                }
+              }
+              while (X.length < 8) X.push(0);
+              for (j = 0; j < 8 && X[j] === 0; ++j) ;
+              if (j == 8) X[7] = -1;
+              else X[j];
+              me2.x = X;
+              me2.i = 0;
+              for (j = 256; j > 0; --j) {
+                me2.next();
               }
             }
-            if (i >= 128) {
-              X[(seed2 && seed2.length || 0) & 127] = -1;
+            init2(me, seed);
+          }
+          function copy2(f, t) {
+            t.x = f.x.slice();
+            t.i = f.i;
+            return t;
+          }
+          function impl(seed, opts) {
+            if (seed == null) seed = +/* @__PURE__ */ new Date();
+            var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+              return (xg.next() >>> 0) / 4294967296;
+            };
+            prng.double = function() {
+              do {
+                var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+              } while (result === 0);
+              return result;
+            };
+            prng.int32 = xg.next;
+            prng.quick = prng;
+            if (state) {
+              if (state.x) copy2(state, xg);
+              prng.state = function() {
+                return copy2(xg, {});
+              };
             }
-            i = 127;
-            for (j = 4 * 128; j > 0; --j) {
+            return prng;
+          }
+          if (module2 && module2.exports) {
+            module2.exports = impl;
+          } else {
+            this.xorshift7 = impl;
+          }
+        })(
+          xorshift7,
+          module
+        );
+      })(xorshift7$1);
+      return xorshift7$1.exports;
+    }
+    var xor4096$1 = { exports: {} };
+    var xor4096 = xor4096$1.exports;
+    var hasRequiredXor4096;
+    function requireXor4096() {
+      if (hasRequiredXor4096) return xor4096$1.exports;
+      hasRequiredXor4096 = 1;
+      (function(module) {
+        (function(global, module2, define) {
+          function XorGen(seed) {
+            var me = this;
+            me.next = function() {
+              var w = me.w, X = me.X, i = me.i, t, v;
+              me.w = w = w + 1640531527 | 0;
               v = X[i + 34 & 127];
               t = X[i = i + 1 & 127];
               v ^= v << 13;
               t ^= t << 17;
               v ^= v >>> 15;
               t ^= t >>> 12;
-              X[i] = v ^ t;
-            }
-            me2.w = w;
-            me2.X = X;
-            me2.i = i;
-          }
-          init2(me, seed);
-        }
-        function copy2(f, t) {
-          t.i = f.i;
-          t.w = f.w;
-          t.X = f.X.slice();
-          return t;
-        }
-        function impl(seed, opts) {
-          if (seed == null)
-            seed = +/* @__PURE__ */ new Date();
-          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
-            return (xg.next() >>> 0) / 4294967296;
-          };
-          prng.double = function() {
-            do {
-              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
-            } while (result === 0);
-            return result;
-          };
-          prng.int32 = xg.next;
-          prng.quick = prng;
-          if (state) {
-            if (state.X)
-              copy2(state, xg);
-            prng.state = function() {
-              return copy2(xg, {});
+              v = X[i] = v ^ t;
+              me.i = i;
+              return v + (w ^ w >>> 16) | 0;
             };
-          }
-          return prng;
-        }
-        if (module2 && module2.exports) {
-          module2.exports = impl;
-        } else if (define && define.amd) {
-          define(function() {
-            return impl;
-          });
-        } else {
-          this.xor4096 = impl;
-        }
-      })(
-        commonjsGlobal,
-        // window object or global
-        module,
-        // present in node.js
-        false
-        // present with an AMD loader
-      );
-    })(xor4096$1);
-    var xor4096Exports = xor4096$1.exports;
-    var tychei$1 = { exports: {} };
-    tychei$1.exports;
-    (function(module) {
-      (function(global2, module2, define) {
-        function XorGen(seed) {
-          var me = this, strseed = "";
-          me.next = function() {
-            var b = me.b, c = me.c, d = me.d, a = me.a;
-            b = b << 25 ^ b >>> 7 ^ c;
-            c = c - d | 0;
-            d = d << 24 ^ d >>> 8 ^ a;
-            a = a - b | 0;
-            me.b = b = b << 20 ^ b >>> 12 ^ c;
-            me.c = c = c - d | 0;
-            me.d = d << 16 ^ c >>> 16 ^ a;
-            return me.a = a - b | 0;
-          };
-          me.a = 0;
-          me.b = 0;
-          me.c = 2654435769 | 0;
-          me.d = 1367130551;
-          if (seed === Math.floor(seed)) {
-            me.a = seed / 4294967296 | 0;
-            me.b = seed | 0;
-          } else {
-            strseed += seed;
-          }
-          for (var k = 0; k < strseed.length + 20; k++) {
-            me.b ^= strseed.charCodeAt(k) | 0;
-            me.next();
-          }
-        }
-        function copy2(f, t) {
-          t.a = f.a;
-          t.b = f.b;
-          t.c = f.c;
-          t.d = f.d;
-          return t;
-        }
-        function impl(seed, opts) {
-          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
-            return (xg.next() >>> 0) / 4294967296;
-          };
-          prng.double = function() {
-            do {
-              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
-            } while (result === 0);
-            return result;
-          };
-          prng.int32 = xg.next;
-          prng.quick = prng;
-          if (state) {
-            if (typeof state == "object")
-              copy2(state, xg);
-            prng.state = function() {
-              return copy2(xg, {});
-            };
-          }
-          return prng;
-        }
-        if (module2 && module2.exports) {
-          module2.exports = impl;
-        } else if (define && define.amd) {
-          define(function() {
-            return impl;
-          });
-        } else {
-          this.tychei = impl;
-        }
-      })(
-        commonjsGlobal,
-        module,
-        // present in node.js
-        false
-        // present with an AMD loader
-      );
-    })(tychei$1);
-    var tycheiExports = tychei$1.exports;
-    var seedrandom$1 = { exports: {} };
-    (function(module) {
-      (function(global2, pool, math) {
-        var width = 256, chunks = 6, digits = 52, rngname = "random", startdenom = math.pow(width, chunks), significance = math.pow(2, digits), overflow = significance * 2, mask = width - 1, nodecrypto;
-        function seedrandom2(seed, options, callback) {
-          var key = [];
-          options = options == true ? { entropy: true } : options || {};
-          var shortseed = mixkey(flatten(
-            options.entropy ? [seed, tostring(pool)] : seed == null ? autoseed() : seed,
-            3
-          ), key);
-          var arc4 = new ARC4(key);
-          var prng = function() {
-            var n = arc4.g(chunks), d = startdenom, x = 0;
-            while (n < significance) {
-              n = (n + x) * width;
-              d *= width;
-              x = arc4.g(1);
-            }
-            while (n >= overflow) {
-              n /= 2;
-              d /= 2;
-              x >>>= 1;
-            }
-            return (n + x) / d;
-          };
-          prng.int32 = function() {
-            return arc4.g(4) | 0;
-          };
-          prng.quick = function() {
-            return arc4.g(4) / 4294967296;
-          };
-          prng.double = prng;
-          mixkey(tostring(arc4.S), pool);
-          return (options.pass || callback || function(prng2, seed2, is_math_call, state) {
-            if (state) {
-              if (state.S) {
-                copy2(state, arc4);
+            function init2(me2, seed2) {
+              var t, v, i, j, w, X = [], limit = 128;
+              if (seed2 === (seed2 | 0)) {
+                v = seed2;
+                seed2 = null;
+              } else {
+                seed2 = seed2 + "\0";
+                v = 0;
+                limit = Math.max(limit, seed2.length);
               }
-              prng2.state = function() {
-                return copy2(arc4, {});
+              for (i = 0, j = -32; j < limit; ++j) {
+                if (seed2) v ^= seed2.charCodeAt((j + 32) % seed2.length);
+                if (j === 0) w = v;
+                v ^= v << 10;
+                v ^= v >>> 15;
+                v ^= v << 4;
+                v ^= v >>> 13;
+                if (j >= 0) {
+                  w = w + 1640531527 | 0;
+                  t = X[j & 127] ^= v + w;
+                  i = 0 == t ? i + 1 : 0;
+                }
+              }
+              if (i >= 128) {
+                X[(seed2 && seed2.length || 0) & 127] = -1;
+              }
+              i = 127;
+              for (j = 4 * 128; j > 0; --j) {
+                v = X[i + 34 & 127];
+                t = X[i = i + 1 & 127];
+                v ^= v << 13;
+                t ^= t << 17;
+                v ^= v >>> 15;
+                t ^= t >>> 12;
+                X[i] = v ^ t;
+              }
+              me2.w = w;
+              me2.X = X;
+              me2.i = i;
+            }
+            init2(me, seed);
+          }
+          function copy2(f, t) {
+            t.i = f.i;
+            t.w = f.w;
+            t.X = f.X.slice();
+            return t;
+          }
+          function impl(seed, opts) {
+            if (seed == null) seed = +/* @__PURE__ */ new Date();
+            var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+              return (xg.next() >>> 0) / 4294967296;
+            };
+            prng.double = function() {
+              do {
+                var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+              } while (result === 0);
+              return result;
+            };
+            prng.int32 = xg.next;
+            prng.quick = prng;
+            if (state) {
+              if (state.X) copy2(state, xg);
+              prng.state = function() {
+                return copy2(xg, {});
               };
             }
-            if (is_math_call) {
-              math[rngname] = prng2;
-              return seed2;
-            } else
-              return prng2;
-          })(
-            prng,
-            shortseed,
-            "global" in options ? options.global : this == math,
-            options.state
-          );
-        }
-        function ARC4(key) {
-          var t, keylen = key.length, me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
-          if (!keylen) {
-            key = [keylen++];
+            return prng;
           }
-          while (i < width) {
-            s[i] = i++;
+          if (module2 && module2.exports) {
+            module2.exports = impl;
+          } else {
+            this.xor4096 = impl;
           }
-          for (i = 0; i < width; i++) {
-            s[i] = s[j = mask & j + key[i % keylen] + (t = s[i])];
-            s[j] = t;
-          }
-          (me.g = function(count) {
-            var t2, r = 0, i2 = me.i, j2 = me.j, s2 = me.S;
-            while (count--) {
-              t2 = s2[i2 = mask & i2 + 1];
-              r = r * width + s2[mask & (s2[i2] = s2[j2 = mask & j2 + t2]) + (s2[j2] = t2)];
+        })(
+          xor4096,
+          // window object or global
+          module
+        );
+      })(xor4096$1);
+      return xor4096$1.exports;
+    }
+    var tychei$1 = { exports: {} };
+    var tychei = tychei$1.exports;
+    var hasRequiredTychei;
+    function requireTychei() {
+      if (hasRequiredTychei) return tychei$1.exports;
+      hasRequiredTychei = 1;
+      (function(module) {
+        (function(global, module2, define) {
+          function XorGen(seed) {
+            var me = this, strseed = "";
+            me.next = function() {
+              var b = me.b, c = me.c, d = me.d, a = me.a;
+              b = b << 25 ^ b >>> 7 ^ c;
+              c = c - d | 0;
+              d = d << 24 ^ d >>> 8 ^ a;
+              a = a - b | 0;
+              me.b = b = b << 20 ^ b >>> 12 ^ c;
+              me.c = c = c - d | 0;
+              me.d = d << 16 ^ c >>> 16 ^ a;
+              return me.a = a - b | 0;
+            };
+            me.a = 0;
+            me.b = 0;
+            me.c = 2654435769 | 0;
+            me.d = 1367130551;
+            if (seed === Math.floor(seed)) {
+              me.a = seed / 4294967296 | 0;
+              me.b = seed | 0;
+            } else {
+              strseed += seed;
             }
-            me.i = i2;
-            me.j = j2;
-            return r;
-          })(width);
-        }
-        function copy2(f, t) {
-          t.i = f.i;
-          t.j = f.j;
-          t.S = f.S.slice();
-          return t;
-        }
-        function flatten(obj, depth) {
-          var result = [], typ = typeof obj, prop;
-          if (depth && typ == "object") {
-            for (prop in obj) {
-              try {
-                result.push(flatten(obj[prop], depth - 1));
-              } catch (e) {
+            for (var k = 0; k < strseed.length + 20; k++) {
+              me.b ^= strseed.charCodeAt(k) | 0;
+              me.next();
+            }
+          }
+          function copy2(f, t) {
+            t.a = f.a;
+            t.b = f.b;
+            t.c = f.c;
+            t.d = f.d;
+            return t;
+          }
+          function impl(seed, opts) {
+            var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+              return (xg.next() >>> 0) / 4294967296;
+            };
+            prng.double = function() {
+              do {
+                var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+              } while (result === 0);
+              return result;
+            };
+            prng.int32 = xg.next;
+            prng.quick = prng;
+            if (state) {
+              if (typeof state == "object") copy2(state, xg);
+              prng.state = function() {
+                return copy2(xg, {});
+              };
+            }
+            return prng;
+          }
+          if (module2 && module2.exports) {
+            module2.exports = impl;
+          } else {
+            this.tychei = impl;
+          }
+        })(
+          tychei,
+          module
+        );
+      })(tychei$1);
+      return tychei$1.exports;
+    }
+    var seedrandom$2 = { exports: {} };
+    var seedrandom$1 = seedrandom$2.exports;
+    var hasRequiredSeedrandom$1;
+    function requireSeedrandom$1() {
+      if (hasRequiredSeedrandom$1) return seedrandom$2.exports;
+      hasRequiredSeedrandom$1 = 1;
+      (function(module) {
+        (function(global, pool, math) {
+          var width = 256, chunks = 6, digits = 52, rngname = "random", startdenom = math.pow(width, chunks), significance = math.pow(2, digits), overflow = significance * 2, mask = width - 1, nodecrypto;
+          function seedrandom2(seed, options, callback) {
+            var key = [];
+            options = options == true ? { entropy: true } : options || {};
+            var shortseed = mixkey(flatten(
+              options.entropy ? [seed, tostring(pool)] : seed == null ? autoseed() : seed,
+              3
+            ), key);
+            var arc4 = new ARC4(key);
+            var prng = function() {
+              var n = arc4.g(chunks), d = startdenom, x = 0;
+              while (n < significance) {
+                n = (n + x) * width;
+                d *= width;
+                x = arc4.g(1);
+              }
+              while (n >= overflow) {
+                n /= 2;
+                d /= 2;
+                x >>>= 1;
+              }
+              return (n + x) / d;
+            };
+            prng.int32 = function() {
+              return arc4.g(4) | 0;
+            };
+            prng.quick = function() {
+              return arc4.g(4) / 4294967296;
+            };
+            prng.double = prng;
+            mixkey(tostring(arc4.S), pool);
+            return (options.pass || callback || function(prng2, seed2, is_math_call, state) {
+              if (state) {
+                if (state.S) {
+                  copy2(state, arc4);
+                }
+                prng2.state = function() {
+                  return copy2(arc4, {});
+                };
+              }
+              if (is_math_call) {
+                math[rngname] = prng2;
+                return seed2;
+              } else return prng2;
+            })(
+              prng,
+              shortseed,
+              "global" in options ? options.global : this == math,
+              options.state
+            );
+          }
+          function ARC4(key) {
+            var t, keylen = key.length, me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+            if (!keylen) {
+              key = [keylen++];
+            }
+            while (i < width) {
+              s[i] = i++;
+            }
+            for (i = 0; i < width; i++) {
+              s[i] = s[j = mask & j + key[i % keylen] + (t = s[i])];
+              s[j] = t;
+            }
+            (me.g = function(count) {
+              var t2, r = 0, i2 = me.i, j2 = me.j, s2 = me.S;
+              while (count--) {
+                t2 = s2[i2 = mask & i2 + 1];
+                r = r * width + s2[mask & (s2[i2] = s2[j2 = mask & j2 + t2]) + (s2[j2] = t2)];
+              }
+              me.i = i2;
+              me.j = j2;
+              return r;
+            })(width);
+          }
+          function copy2(f, t) {
+            t.i = f.i;
+            t.j = f.j;
+            t.S = f.S.slice();
+            return t;
+          }
+          function flatten(obj, depth) {
+            var result = [], typ = typeof obj, prop;
+            if (depth && typ == "object") {
+              for (prop in obj) {
+                try {
+                  result.push(flatten(obj[prop], depth - 1));
+                } catch (e) {
+                }
               }
             }
+            return result.length ? result : typ == "string" ? obj : obj + "\0";
           }
-          return result.length ? result : typ == "string" ? obj : obj + "\0";
-        }
-        function mixkey(seed, key) {
-          var stringseed = seed + "", smear, j = 0;
-          while (j < stringseed.length) {
-            key[mask & j] = mask & (smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++);
-          }
-          return tostring(key);
-        }
-        function autoseed() {
-          try {
-            var out;
-            if (nodecrypto && (out = nodecrypto.randomBytes)) {
-              out = out(width);
-            } else {
-              out = new Uint8Array(width);
-              (global2.crypto || global2.msCrypto).getRandomValues(out);
+          function mixkey(seed, key) {
+            var stringseed = seed + "", smear, j = 0;
+            while (j < stringseed.length) {
+              key[mask & j] = mask & (smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++);
             }
-            return tostring(out);
-          } catch (e) {
-            var browser = global2.navigator, plugins = browser && browser.plugins;
-            return [+/* @__PURE__ */ new Date(), global2, plugins, global2.screen, tostring(pool)];
+            return tostring(key);
           }
-        }
-        function tostring(a) {
-          return String.fromCharCode.apply(0, a);
-        }
-        mixkey(math.random(), pool);
-        if (module.exports) {
-          module.exports = seedrandom2;
-          try {
-            nodecrypto = require("crypto");
-          } catch (ex) {
+          function autoseed() {
+            try {
+              var out;
+              if (nodecrypto && (out = nodecrypto.randomBytes)) {
+                out = out(width);
+              } else {
+                out = new Uint8Array(width);
+                (global.crypto || global.msCrypto).getRandomValues(out);
+              }
+              return tostring(out);
+            } catch (e) {
+              var browser = global.navigator, plugins = browser && browser.plugins;
+              return [+/* @__PURE__ */ new Date(), global, plugins, global.screen, tostring(pool)];
+            }
           }
-        } else {
-          math["seed" + rngname] = seedrandom2;
-        }
-      })(
-        // global: `self` in browsers (including strict mode and web workers),
-        // otherwise `this` in Node and other environments
-        typeof self !== "undefined" ? self : commonjsGlobal,
-        [],
-        // pool: entropy pool starts empty
-        Math
-        // math: package containing random, pow, and seedrandom
-      );
-    })(seedrandom$1);
-    var seedrandomExports = seedrandom$1.exports;
-    var alea = aleaExports;
-    var xor128 = xor128Exports;
-    var xorwow = xorwowExports;
-    var xorshift7 = xorshift7Exports;
-    var xor4096 = xor4096Exports;
-    var tychei = tycheiExports;
-    var sr = seedrandomExports;
-    sr.alea = alea;
-    sr.xor128 = xor128;
-    sr.xorwow = xorwow;
-    sr.xorshift7 = xorshift7;
-    sr.xor4096 = xor4096;
-    sr.tychei = tychei;
-    var seedrandom = sr;
-    var Seedrandom = /* @__PURE__ */ getDefaultExportFromCjs(seedrandom);
+          function tostring(a) {
+            return String.fromCharCode.apply(0, a);
+          }
+          mixkey(math.random(), pool);
+          if (module.exports) {
+            module.exports = seedrandom2;
+            try {
+              nodecrypto = require("crypto");
+            } catch (ex) {
+            }
+          } else {
+            math["seed" + rngname] = seedrandom2;
+          }
+        })(
+          // global: `self` in browsers (including strict mode and web workers),
+          // otherwise `this` in Node and other environments
+          typeof self !== "undefined" ? self : seedrandom$1,
+          [],
+          // pool: entropy pool starts empty
+          Math
+          // math: package containing random, pow, and seedrandom
+        );
+      })(seedrandom$2);
+      return seedrandom$2.exports;
+    }
+    var seedrandom;
+    var hasRequiredSeedrandom;
+    function requireSeedrandom() {
+      if (hasRequiredSeedrandom) return seedrandom;
+      hasRequiredSeedrandom = 1;
+      var alea2 = requireAlea();
+      var xor1282 = requireXor128();
+      var xorwow2 = requireXorwow();
+      var xorshift72 = requireXorshift7();
+      var xor40962 = requireXor4096();
+      var tychei2 = requireTychei();
+      var sr = requireSeedrandom$1();
+      sr.alea = alea2;
+      sr.xor128 = xor1282;
+      sr.xorwow = xorwow2;
+      sr.xorshift7 = xorshift72;
+      sr.xor4096 = xor40962;
+      sr.tychei = tychei2;
+      seedrandom = sr;
+      return seedrandom;
+    }
+    var seedrandomExports = requireSeedrandom();
+    var Seedrandom = /* @__PURE__ */ getDefaultExportFromCjs(seedrandomExports);
     function computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
       if (!ctx) {
         ctx = canvas.getContext("2d");
@@ -4606,16 +4462,14 @@
       init(args) {
         try {
           if (args.globalPrivacyControlValue) {
-            if (navigator.globalPrivacyControl)
-              return;
+            if (navigator.globalPrivacyControl) return;
             this.defineProperty(Navigator.prototype, "globalPrivacyControl", {
               get: () => true,
               configurable: true,
               enumerable: true
             });
           } else {
-            if (typeof navigator.globalPrivacyControl !== "undefined")
-              return;
+            if (typeof navigator.globalPrivacyControl !== "undefined") return;
             this.defineProperty(Navigator.prototype, "globalPrivacyControl", {
               get: () => false,
               configurable: true,
@@ -4711,7 +4565,6 @@
         try {
           this.defineProperty(globalThis, property, {
             get: () => value,
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
             set: () => {
             },
             configurable: true,

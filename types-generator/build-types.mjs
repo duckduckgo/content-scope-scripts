@@ -32,23 +32,23 @@ const ROOT = join(cwd(import.meta.url), '..')
  * @param {Record<string, Mapping>} mapping
  */
 export async function buildTypes(mapping) {
-    for (let [featureName, manifest] of Object.entries(mapping)) {
+    for (const [featureName, manifest] of Object.entries(mapping)) {
         if (manifest.exclude) continue;
         if (manifest.kind === 'settings') {
             const typescript = await createTypesForSchemaFile(featureName, manifest.schema);
-            let content = typescript.replace(/\r\n/g, '\n')
+            const content = typescript.replace(/\r\n/g, '\n')
             write([manifest.types], content)
             console.log('✅ %s schema written to `%s` from schema `%s`', featureName, relative(ROOT, manifest.types), manifest.schema)
         }
         if (manifest.kind === 'messages') {
             // create a job for each sub-folder that contains schemas
-            const schemas = await createSchemasFromFiles(manifest.schemaDir)
+            const schemas = createSchemasFromFiles(manifest.schemaDir)
 
             // for each folder
-            for (let schema of schemas) {
+            for (const schema of schemas) {
                 const typescript = await createTypesForSchemaMessages(schema.featureName, schema.schema, manifest.schemaDir)
-                let featurePath = manifest.resolve(schema.dirname)
-                let className = manifest.className(schema.topLevelType)
+                const featurePath = manifest.resolve(schema.dirname)
+                const className = manifest.className(schema.topLevelType)
                 const messageTypes = createMessagingTypes(schema, { featurePath, className })
                 const content = [typescript.replace(/\r\n/g, '\n'), messageTypes].join('')
                 const filename = schema.dirname + '.ts'

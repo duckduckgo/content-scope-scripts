@@ -18,6 +18,7 @@ import styles from './Heading.module.css'
  */
 export function Heading ({ title, subtitle, speechBubble = false, onTitleComplete, children }) {
     const onComplete = () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         onTitleComplete && onTitleComplete()
     }
     const HeadingComponent = speechBubble ? SpeechBubble : PlainHeading
@@ -55,6 +56,7 @@ function PlainHeading ({ title, subtitle, onComplete, children }) {
     const [typingDone, setTypingDone] = useState(false)
     const onTypingComplete = () => {
         setTypingDone(true)
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         onComplete && onComplete()
     }
 
@@ -141,6 +143,7 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
 
     const onTypingComplete = () => {
         setAnimationState('typing-done')
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         onComplete && onComplete()
     }
 
@@ -190,6 +193,7 @@ export function TypedTitle ({ title, paused = true, onComplete }) {
         setTextIndex(value => (value += 1))
 
         if (textIndex >= title.length - 1) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             onComplete && onComplete()
         }
     }

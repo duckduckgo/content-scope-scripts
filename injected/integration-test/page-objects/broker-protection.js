@@ -265,10 +265,12 @@ export class BrokerProtectionPage {
      * @param {object} response
      */
     isErrorMessage (response) {
+        // eslint-disable-next-line no-unsafe-optional-chaining
         expect('error' in response[0].payload?.params?.result).toBe(true)
     }
 
     isSuccessMessage (response) {
+        // eslint-disable-next-line no-unsafe-optional-chaining
         expect('success' in response[0].payload?.params?.result).toBe(true)
     }
 

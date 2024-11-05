@@ -4,13 +4,14 @@ import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/componen
 import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx'
 import { ErrorBoundary } from '../../../shared/components/ErrorBoundary.js'
 import { SettingsProvider } from './settings.provider.js'
-import { MessagingContext } from './types'
+import { InitialSetupContext, MessagingContext } from './types'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
 import { WidgetConfigService } from './widget-list/widget-config.service.js'
 import enStrings from '../src/locales/en/newtab.json'
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js'
 import { Settings } from './settings.js'
 import { Components } from './components/Components.jsx'
+import { widgetEntryPoint } from "./widget-list/WidgetList.js";
 
 /**
  * @param {import("../src/js").NewTabPage} messaging
@@ -65,6 +66,7 @@ export async function init (messaging, baseEnvironment) {
 
     document.body.dataset.platformName = settings.platform.name
 
+
     if (environment.display === 'components') {
         document.body.dataset.display = 'components'
         return render(
@@ -81,6 +83,21 @@ export async function init (messaging, baseEnvironment) {
             , root)
     }
 
+    const entryPoints = await (async () => {
+        try {
+            const loaders = init.widgets.map(widget => {
+                return widgetEntryPoint(widget.id).then(mod => [widget.id, mod]);
+            })
+            const entryPoints = await Promise.all(loaders)
+            return Object.fromEntries(entryPoints);
+        } catch (e) {
+            const error = new Error('Error loading widget entry points:' + e.message);
+            didCatch(error)
+            console.error(error);
+            return {}
+        }
+    })()
+
     render(
         <EnvironmentProvider
             debugState={environment.debugState}
@@ -91,13 +108,15 @@ export async function init (messaging, baseEnvironment) {
             <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
                 <UpdateEnvironment search={window.location.search}/>
                 <MessagingContext.Provider value={messaging}>
-                    <SettingsProvider settings={settings}>
-                        <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
-                            <WidgetConfigProvider api={widgetConfigAPI} widgetConfigs={init.widgetConfigs} widgets={init.widgets}>
-                                <App />
-                            </WidgetConfigProvider>
-                        </TranslationProvider>
-                    </SettingsProvider>
+                    <InitialSetupContext.Provider value={init}>
+                        <SettingsProvider settings={settings}>
+                            <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                                <WidgetConfigProvider api={widgetConfigAPI} widgetConfigs={init.widgetConfigs} widgets={init.widgets} entryPoints={entryPoints}>
+                                    <App />
+                                </WidgetConfigProvider>
+                            </TranslationProvider>
+                        </SettingsProvider>
+                    </InitialSetupContext.Provider>
                 </MessagingContext.Provider>
             </ErrorBoundary>
         </EnvironmentProvider>

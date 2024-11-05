@@ -15,7 +15,7 @@ describe('Messaging Transports', () => {
         messaging.request('helloWorld', { foo: 'bar' })
 
         // grab the auto-generated `id` field
-        const [requestMessage] = spy.calls.first()?.args
+        const [requestMessage] = spy.calls.first()?.args ?? []
         expect(typeof requestMessage.id).toBe('string')
         expect(requestMessage.id.length).toBeGreaterThan(0)
 
@@ -206,16 +206,16 @@ describe('Android', () => {
 function createMessaging () {
     /** @type {import("@duckduckgo/messaging").MessagingTransport} */
     const transport = {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         notify (msg) {
             // test
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         request: (_msg) => {
             // test
             return Promise.resolve(null)
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         subscribe (_msg) {
             // test
             return () => {

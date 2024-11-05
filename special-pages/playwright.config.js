@@ -1,3 +1,4 @@
+/* global process */
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
@@ -20,7 +21,8 @@ export default defineConfig({
             testMatch: [
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
-                'new-tab.spec.js'
+                'new-tab.spec.js',
+                'update-notification.spec.js'
             ],
             use: {
                 ...devices['Desktop Chrome'],

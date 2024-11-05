@@ -166,6 +166,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             try {
                 const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
                 if (element != null) {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                     shouldTap ? this.autotapElement(element) : this.animateElement(element, style)
                 }
             } catch {

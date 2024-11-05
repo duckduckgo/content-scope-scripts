@@ -386,7 +386,12 @@ h2 {
   background: rgba(0, 0, 0, 0.06);
 }
 .Buttons_primary {
-  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), var(--ddg-color-primary);
+  background:
+    radial-gradient(
+      70.96% 100% at 49.83% 0%,
+      rgba(107, 78, 186, 0) 39.72%,
+      rgba(107, 78, 186, 0.24) 100%),
+    var(--ddg-color-primary);
   box-shadow:
     0px 4px 6px rgba(64, 38, 115, 0.16),
     0px 6px 16px rgba(38, 64, 115, 0.16),
@@ -394,10 +399,20 @@ h2 {
   min-width: 116px;
 }
 .Buttons_primary:hover {
-  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.4) 100%), #2b55ca;
+  background:
+    radial-gradient(
+      70.96% 100% at 49.83% 0%,
+      rgba(107, 78, 186, 0) 39.72%,
+      rgba(107, 78, 186, 0.4) 100%),
+    #2b55ca;
 }
 .Buttons_primary:active {
-  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #1e42a4;
+  background:
+    radial-gradient(
+      70.96% 100% at 49.83% 0%,
+      rgba(107, 78, 186, 0) 39.72%,
+      rgba(107, 78, 186, 0.24) 100%),
+    #1e42a4;
 }
 
 /* pages/onboarding/app/components/ListItem.module.css */
@@ -836,7 +851,12 @@ input:checked:active + .Switch_switch:after {
     filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
   }
   [data-variant=apple] input:checked + .Switch_switch:after {
-    background: linear-gradient(180deg, #3969EF 0%, #2C4AAC 0.01%, #3152BF 100%);
+    background:
+      linear-gradient(
+        180deg,
+        #3969EF 0%,
+        #2C4AAC 0.01%,
+        #3152BF 100%);
     box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
   }
 }
@@ -982,7 +1002,12 @@ input:checked:active + .Switch_switch:after {
   }
 }
 .Progress_progress[value]::-webkit-progress-value {
-  background: linear-gradient(90deg, #3969ef 0%, #6b4eba 48.24%, #de5833 100%);
+  background:
+    linear-gradient(
+      90deg,
+      #3969ef 0%,
+      #6b4eba 48.24%,
+      #de5833 100%);
   border-radius: 72px;
 }
 .Progress_singleLineContainer {
@@ -1295,7 +1320,12 @@ input:checked:active + .Switch_switch:after {
   font-weight: 700;
   min-width: 116px;
   & .ElasticButton_background {
-    background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), var(--ddg-color-primary);
+    background:
+      radial-gradient(
+        70.96% 100% at 49.83% 0%,
+        rgba(107, 78, 186, 0) 39.72%,
+        rgba(107, 78, 186, 0.24) 100%),
+      var(--ddg-color-primary);
     box-shadow:
       0px 4px 6px rgba(64, 38, 115, 0.16),
       0px 6px 16px rgba(38, 64, 115, 0.16),
@@ -1304,12 +1334,22 @@ input:checked:active + .Switch_switch:after {
 }
 .ElasticButton_primary:hover {
   & .ElasticButton_background {
-    background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.4) 100%), #2b55ca;
+    background:
+      radial-gradient(
+        70.96% 100% at 49.83% 0%,
+        rgba(107, 78, 186, 0) 39.72%,
+        rgba(107, 78, 186, 0.4) 100%),
+      #2b55ca;
   }
 }
 .ElasticButton_primary:active {
   & .ElasticButton_background {
-    background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #1e42a4;
+    background:
+      radial-gradient(
+        70.96% 100% at 49.83% 0%,
+        rgba(107, 78, 186, 0) 39.72%,
+        rgba(107, 78, 186, 0.24) 100%),
+      #1e42a4;
   }
 }
 .ElasticButton_fixedWidthContainer {
@@ -1409,7 +1449,12 @@ input:checked:active + .Switch_switch:after {
   background: rgba(0, 0, 0, 0.06);
 }
 .Buttons_primary2 {
-  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), var(--ddg-color-primary);
+  background:
+    radial-gradient(
+      70.96% 100% at 49.83% 0%,
+      rgba(107, 78, 186, 0) 39.72%,
+      rgba(107, 78, 186, 0.24) 100%),
+    var(--ddg-color-primary);
   box-shadow:
     0px 4px 6px rgba(64, 38, 115, 0.16),
     0px 6px 16px rgba(38, 64, 115, 0.16),
@@ -1417,10 +1462,20 @@ input:checked:active + .Switch_switch:after {
   min-width: 116px;
 }
 .Buttons_primary2:hover {
-  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.4) 100%), #2b55ca;
+  background:
+    radial-gradient(
+      70.96% 100% at 49.83% 0%,
+      rgba(107, 78, 186, 0) 39.72%,
+      rgba(107, 78, 186, 0.4) 100%),
+    #2b55ca;
 }
 .Buttons_primary2:active {
-  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #1e42a4;
+  background:
+    radial-gradient(
+      70.96% 100% at 49.83% 0%,
+      rgba(107, 78, 186, 0) 39.72%,
+      rgba(107, 78, 186, 0.24) 100%),
+    #1e42a4;
 }
 
 /* pages/onboarding/app/components/v3/Heading.module.css */
@@ -1501,12 +1556,20 @@ input:checked:active + .Switch_switch:after {
 .Heading_speechBubbleCallout {
   backdrop-filter: blur(var(--sp-16));
   -webkit-backdrop-filter: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.60) 100%);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.84) 0%,
+      rgba(255, 255, 255, 0.60) 100%);
   mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="40" fill="none"><path fill="%23000" d="M21.627 34.502c-4.4-3.677-14.05-12.309-21.115-22.728-1.63-2.403.911-5.248 3.657-4.457 11.207 3.226 16.613-.79 18.715-3.195.828-.948 1.103-2.221 1.103-3.495L24 0v40l-.013-.497a6.54 6.54 0 0 0-2.36-5.001z"/></svg>');
   mask-position: right var(--sp-8);
   mask-repeat: no-repeat;
   @media (prefers-color-scheme: dark) {
-    background: linear-gradient(180deg, #333 0%, rgba(51, 51, 51, 0.72) 100%);
+    background:
+      linear-gradient(
+        180deg,
+        #333 0%,
+        rgba(51, 51, 51, 0.72) 100%);
   }
 }
 .Heading_speechBubbleContainer {
@@ -1515,7 +1578,11 @@ input:checked:active + .Switch_switch:after {
 .Heading_speechBubbleBackground {
   backdrop-filter: blur(var(--sp-16));
   -webkit-backdrop-filter: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.60) 100%);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.84) 0%,
+      rgba(255, 255, 255, 0.60) 100%);
   border-radius: var(--sp-6);
   box-sizing: content-box;
   min-height: var(--sp-24);
@@ -1524,7 +1591,11 @@ input:checked:active + .Switch_switch:after {
   transition: all 300ms ease-in-out;
   z-index: 1000;
   @media (prefers-color-scheme: dark) {
-    background: linear-gradient(180deg, #333 0%, rgba(51, 51, 51, 0.72) 100%);
+    background:
+      linear-gradient(
+        180deg,
+        #333 0%,
+        rgba(51, 51, 51, 0.72) 100%);
   }
 }
 .Heading_speechBubbleContents {

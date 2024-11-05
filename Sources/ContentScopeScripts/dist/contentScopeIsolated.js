@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    /* eslint-disable no-redeclare */
     const Reflect$1 = globalThis.Reflect;
     const customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
     const customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
@@ -12,6 +13,7 @@
     const objectDefineProperty = Object.defineProperty;
     const Proxy$1 = globalThis.Proxy;
 
+    /* eslint-disable no-redeclare, no-global-assign */
     /* global cloneInto, exportFunction, false */
     let messageSecret;
 
@@ -138,7 +140,7 @@
             // eslint-disable-next-line no-debugger
             debugger
         },
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+         
         noop: () => { }
     };
 
@@ -511,6 +513,7 @@
     /**
      * Tiny wrapper around performance.mark and performance.measure
      */
+    // eslint-disable-next-line no-redeclare
     class PerformanceMark {
         /**
          * @param {string} name
@@ -529,19 +532,20 @@
         }
     }
 
-    function _typeof$2(obj) { "@babel/helpers - typeof"; return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$2(obj); }
     function isJSONArray(value) {
       return Array.isArray(value);
     }
     function isJSONObject(value) {
-      return value !== null && _typeof$2(value) === 'object' && value.constructor === Object // do not match on classes or Array
+      return value !== null && typeof value === 'object' && (value.constructor === undefined ||
+      // for example Object.create(null)
+      value.constructor.name === 'Object') // do not match on classes or Array
       ;
     }
 
-    function _typeof$1(obj) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$1(obj); }
     /**
      * Test deep equality of two JSON values, objects, or arrays
-     */ // TODO: write unit tests
+     */
+    // TODO: write unit tests
     function isEqual(a, b) {
       // FIXME: this function will return false for two objects with the same keys
       //  but different order of keys
@@ -569,15 +573,19 @@
      */
     // TODO: write unit tests
     function isObjectOrArray(value) {
-      return _typeof$1(value) === 'object' && value !== null;
+      return typeof value === 'object' && value !== null;
     }
 
-    function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-    function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-    function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-    function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-    function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-    function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+    /**
+     * Immutability helpers
+     *
+     * inspiration:
+     *
+     * https://www.npmjs.com/package/seamless-immutable
+     * https://www.npmjs.com/package/ih
+     * https://www.npmjs.com/package/mutatis
+     * https://github.com/mariocasciaro/object-path-immutable
+     */
 
     /**
      * Shallow clone of an Object, Array, or value
@@ -586,10 +594,10 @@
     function shallowClone(value) {
       if (isJSONArray(value)) {
         // copy array items
-        var copy = value.slice();
+        const copy = value.slice();
 
         // copy all symbols
-        Object.getOwnPropertySymbols(value).forEach(function (symbol) {
+        Object.getOwnPropertySymbols(value).forEach(symbol => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           copy[symbol] = value[symbol];
@@ -597,15 +605,17 @@
         return copy;
       } else if (isJSONObject(value)) {
         // copy object properties
-        var _copy = _objectSpread({}, value);
+        const copy = {
+          ...value
+        };
 
         // copy all symbols
-        Object.getOwnPropertySymbols(value).forEach(function (symbol) {
+        Object.getOwnPropertySymbols(value).forEach(symbol => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          _copy[symbol] = value[symbol];
+          copy[symbol] = value[symbol];
         });
-        return _copy;
+        return copy;
       } else {
         return value;
       }
@@ -622,7 +632,7 @@
         // return original object unchanged when the new value is identical to the old one
         return object;
       } else {
-        var updatedObject = shallowClone(object);
+        const updatedObject = shallowClone(object);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         updatedObject[key] = value;
@@ -636,8 +646,8 @@
      * @return Returns the field when found, or undefined when the path doesn't exist
      */
     function getIn(object, path) {
-      var value = object;
-      var i = 0;
+      let value = object;
+      let i = 0;
       while (i < path.length) {
         if (isJSONObject(value)) {
           value = value[path[i]];
@@ -668,19 +678,19 @@
      * @return Returns a new, updated object or array
      */
     function setIn(object, path, value) {
-      var createPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      let createPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       if (path.length === 0) {
         return value;
       }
-      var key = path[0];
+      const key = path[0];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      var updatedValue = setIn(object ? object[key] : undefined, path.slice(1), value, createPath);
+      const updatedValue = setIn(object ? object[key] : undefined, path.slice(1), value, createPath);
       if (isJSONObject(object) || isJSONArray(object)) {
         return applyProp(object, key, updatedValue);
       } else {
         if (createPath) {
-          var newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
+          const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           newObject[key] = updatedValue;
@@ -690,7 +700,7 @@
         }
       }
     }
-    var IS_INTEGER_REGEX = /^\d+$/;
+    const IS_INTEGER_REGEX = /^\d+$/;
 
     /**
      * helper function to replace a nested property in an object with a new value
@@ -698,17 +708,17 @@
      *
      * @return  Returns a new, updated object or array
      */
-    function updateIn(object, path, callback) {
+    function updateIn(object, path, transform) {
       if (path.length === 0) {
-        return callback(object);
+        return transform(object);
       }
       if (!isObjectOrArray(object)) {
         throw new Error('Path doesn\'t exist');
       }
-      var key = path[0];
+      const key = path[0];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      var updatedValue = updateIn(object[key], path.slice(1), callback);
+      const updatedValue = updateIn(object[key], path.slice(1), transform);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return applyProp(object, key, updatedValue);
@@ -728,25 +738,25 @@
         throw new Error('Path does not exist');
       }
       if (path.length === 1) {
-        var _key = path[0];
-        if (!(_key in object)) {
+        const key = path[0];
+        if (!(key in object)) {
           // key doesn't exist. return object unchanged
           return object;
         } else {
-          var updatedObject = shallowClone(object);
+          const updatedObject = shallowClone(object);
           if (isJSONArray(updatedObject)) {
-            updatedObject.splice(parseInt(_key), 1);
+            updatedObject.splice(parseInt(key), 1);
           }
           if (isJSONObject(updatedObject)) {
-            delete updatedObject[_key];
+            delete updatedObject[key];
           }
           return updatedObject;
         }
       }
-      var key = path[0];
+      const key = path[0];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      var updatedValue = deleteIn(object[key], path.slice(1));
+      const updatedValue = deleteIn(object[key], path.slice(1));
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return applyProp(object, key, updatedValue);
@@ -759,13 +769,13 @@
      *     insertAt({arr: [1,2,3]}, ['arr', '2'], 'inserted')  // [1,2,'inserted',3]
      */
     function insertAt(document, path, value) {
-      var parentPath = path.slice(0, path.length - 1);
-      var index = path[path.length - 1];
-      return updateIn(document, parentPath, function (items) {
+      const parentPath = path.slice(0, path.length - 1);
+      const index = path[path.length - 1];
+      return updateIn(document, parentPath, items => {
         if (!Array.isArray(items)) {
           throw new TypeError('Array expected at path ' + JSON.stringify(parentPath));
         }
-        var updatedItems = shallowClone(items);
+        const updatedItems = shallowClone(items);
         updatedItems.splice(parseInt(index), 0, value);
         return updatedItems;
       });
@@ -795,12 +805,10 @@
      * Parse a JSON Pointer
      */
     function parseJSONPointer(pointer) {
-      var path = pointer.split('/');
+      const path = pointer.split('/');
       path.shift(); // remove the first empty entry
 
-      return path.map(function (p) {
-        return p.replace(/~1/g, '/').replace(/~0/g, '~');
-      });
+      return path.map(p => p.replace(/~1/g, '/').replace(/~0/g, '~'));
     }
 
     /**
@@ -823,31 +831,11 @@
      * instead, the patch is applied in an immutable way
      */
     function immutableJSONPatch(document, operations, options) {
-      var updatedDocument = document;
-      for (var i = 0; i < operations.length; i++) {
+      let updatedDocument = document;
+      for (let i = 0; i < operations.length; i++) {
         validateJSONPatchOperation(operations[i]);
-        var operation = operations[i];
-
-        // TODO: test before
-        if (options && options.before) {
-          var result = options.before(updatedDocument, operation);
-          if (result !== undefined) {
-            if (result.document !== undefined) {
-              updatedDocument = result.document;
-            }
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (result.json !== undefined) {
-              // TODO: deprecated since v5.0.0. Cleanup this warning some day
-              throw new Error('Deprecation warning: returned object property ".json" has been renamed to ".document"');
-            }
-            if (result.operation !== undefined) {
-              operation = result.operation;
-            }
-          }
-        }
-        var previousDocument = updatedDocument;
-        var path = parsePath(updatedDocument, operation.path);
+        let operation = operations[i];
+        const path = parsePath(updatedDocument, operation.path);
         if (operation.op === 'add') {
           updatedDocument = add(updatedDocument, path, operation.value);
         } else if (operation.op === 'remove') {
@@ -862,14 +850,6 @@
           test(updatedDocument, path, operation.value);
         } else {
           throw new Error('Unknown JSONPatch operation ' + JSON.stringify(operation));
-        }
-
-        // TODO: test after
-        if (options && options.after) {
-          var _result = options.after(updatedDocument, operation, previousDocument);
-          if (_result !== undefined) {
-            updatedDocument = _result;
-          }
         }
       }
       return updatedDocument;
@@ -904,12 +884,12 @@
      * Copy a value
      */
     function copy(document, path, from) {
-      var value = getIn(document, from);
+      const value = getIn(document, from);
       if (isArrayItem(document, path)) {
         return insertAt(document, path, value);
       } else {
-        var _value = getIn(document, from);
-        return setIn(document, path, _value);
+        const value = getIn(document, from);
+        return setIn(document, path, value);
       }
     }
 
@@ -917,10 +897,10 @@
      * Move a value
      */
     function move(document, path, from) {
-      var value = getIn(document, from);
+      const value = getIn(document, from);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      var removedJson = deleteIn(document, from);
+      const removedJson = deleteIn(document, from);
       return isArrayItem(removedJson, path) ? insertAt(removedJson, path, value) : setIn(removedJson, path, value);
     }
 
@@ -930,21 +910,21 @@
      */
     function test(document, path, value) {
       if (value === undefined) {
-        throw new Error("Test failed: no value provided (path: \"".concat(compileJSONPointer(path), "\")"));
+        throw new Error(`Test failed: no value provided (path: "${compileJSONPointer(path)}")`);
       }
       if (!existsIn(document, path)) {
-        throw new Error("Test failed: path not found (path: \"".concat(compileJSONPointer(path), "\")"));
+        throw new Error(`Test failed: path not found (path: "${compileJSONPointer(path)}")`);
       }
-      var actualValue = getIn(document, path);
+      const actualValue = getIn(document, path);
       if (!isEqual(actualValue, value)) {
-        throw new Error("Test failed, value differs (path: \"".concat(compileJSONPointer(path), "\")"));
+        throw new Error(`Test failed, value differs (path: "${compileJSONPointer(path)}")`);
       }
     }
     function isArrayItem(document, path) {
       if (path.length === 0) {
         return false;
       }
-      var parent = getIn(document, initial(path));
+      const parent = getIn(document, initial(path));
       return Array.isArray(parent);
     }
 
@@ -956,8 +936,8 @@
       if (last(path) !== '-') {
         return path;
       }
-      var parentPath = initial(path);
-      var parent = getIn(document, parentPath);
+      const parentPath = initial(path);
+      const parent = getIn(document, parentPath);
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -970,7 +950,7 @@
      */
     function validateJSONPatchOperation(operation) {
       // TODO: write unit tests
-      var ops = ['add', 'remove', 'replace', 'copy', 'move', 'test'];
+      const ops = ['add', 'remove', 'replace', 'copy', 'move', 'test'];
       if (!ops.includes(operation.op)) {
         throw new Error('Unknown JSONPatch op ' + JSON.stringify(operation.op));
       }
@@ -1504,13 +1484,13 @@
             };
 
             // console.log('DEBUG: handler setup', { config, comparator })
-            // eslint-disable-next-line no-undef
+             
             this.config.methods.addEventListener('message', idHandler);
             options?.signal?.addEventListener('abort', abortHandler);
 
             teardown = () => {
                 // console.log('DEBUG: handler teardown', { config, comparator })
-                // eslint-disable-next-line no-undef
+                 
                 this.config.methods.removeEventListener('message', idHandler);
                 options?.signal?.removeEventListener('abort', abortHandler);
             };
@@ -1980,7 +1960,7 @@
                  * @param {any[]} args
                  */
                 value: (...args) => {
-                    // eslint-disable-next-line n/no-callback-literal
+                     
                     callback(...args);
                     delete this.globals.window[randomMethodName];
                 }
@@ -2932,8 +2912,10 @@
         /** @type {boolean | undefined} */
         #documentOriginIsTracker
         /** @type {Record<string, unknown> | undefined} */
+        // eslint-disable-next-line no-unused-private-class-members
         #bundledfeatureSettings
         /** @type {import('../../messaging').Messaging} */
+        // eslint-disable-next-line no-unused-private-class-members
         #messaging
         /** @type {boolean} */
         #isDebugFlagSet = false
@@ -3116,7 +3098,7 @@
             })
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+         
         init (args) {
         }
 
@@ -3129,7 +3111,7 @@
             this.measure();
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+         
         load (args) {
         }
 
@@ -3198,7 +3180,7 @@
             }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+         
         update () {
         }
 
@@ -5568,7 +5550,7 @@
      * @internal
      */
     class DuckPlayerFeature extends ContentFeature {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         init (args) {
             /**
              * This feature never operates in a frame
@@ -7973,7 +7955,7 @@
          * @param {string[]} strs
          * @param {import('../actions/extract.js').ExtractorParams} _extractorParams
          */
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         extract (strs, _extractorParams) {
             if (!strs[0]) return null
             return strs[0].match(/\d+/)?.[0] ?? null
@@ -7990,7 +7972,7 @@
          * @param {string[]} strs
          * @param {import('../actions/extract.js').ExtractorParams} _extractorParams
          */
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         extract (strs, _extractorParams) {
             if (!strs[0]) return null
             return strs[0].replace(/\n/g, ' ').trim()
@@ -9950,750 +9932,758 @@
     	return xregexp;
     }
 
-    (function (exports) {
+    var hasRequiredAddress;
 
-    	(function(){
-    	  var root;
-    	  root = this;
-    	  var XRegExp;
+    function requireAddress () {
+    	if (hasRequiredAddress) return address;
+    	hasRequiredAddress = 1;
+    	(function (exports) {
 
-    	  if (typeof commonjsRequire !== "undefined"){
-    	     XRegExp = requireXregexp();
-    	  }
-    	  else
-    	    XRegExp = root.XRegExp;
+    		(function(){
+    		  var root;
+    		  root = this;
+    		  var XRegExp;
 
-    	  var parser = {};
-    	  var Addr_Match = {};
+    		  if (typeof commonjsRequire !== "undefined"){
+    		     XRegExp = requireXregexp();
+    		  }
+    		  else
+    		    XRegExp = root.XRegExp;
 
-    	  var Directional = {
-    	    north       : "N",
-    	    northeast   : "NE",
-    	    east        : "E",
-    	    southeast   : "SE",
-    	    south       : "S",
-    	    southwest   : "SW",
-    	    west        : "W",
-    	    northwest   : "NW",
-    	  };
+    		  var parser = {};
+    		  var Addr_Match = {};
 
-    	  var Street_Type = {
-    	    allee       : "aly",
-    	    alley       : "aly",
-    	    ally        : "aly",
-    	    anex        : "anx",
-    	    annex       : "anx",
-    	    annx        : "anx",
-    	    arcade      : "arc",
-    	    av          : "ave",
-    	    aven        : "ave",
-    	    avenu       : "ave",
-    	    avenue      : "ave",
-    	    avn         : "ave",
-    	    avnue       : "ave",
-    	    bayoo       : "byu",
-    	    bayou       : "byu",
-    	    beach       : "bch",
-    	    bend        : "bnd",
-    	    bluf        : "blf",
-    	    bluff       : "blf",
-    	    bluffs      : "blfs",
-    	    bot         : "btm",
-    	    bottm       : "btm",
-    	    bottom      : "btm",
-    	    boul        : "blvd",
-    	    boulevard   : "blvd",
-    	    boulv       : "blvd",
-    	    branch      : "br",
-    	    brdge       : "brg",
-    	    bridge      : "brg",
-    	    brnch       : "br",
-    	    brook       : "brk",
-    	    brooks      : "brks",
-    	    burg        : "bg",
-    	    burgs       : "bgs",
-    	    bypa        : "byp",
-    	    bypas       : "byp",
-    	    bypass      : "byp",
-    	    byps        : "byp",
-    	    camp        : "cp",
-    	    canyn       : "cyn",
-    	    canyon      : "cyn",
-    	    cape        : "cpe",
-    	    causeway    : "cswy",
-    	    causway     : "cswy",
-    	    causwa      : "cswy",
-    	    cen         : "ctr",
-    	    cent        : "ctr",
-    	    center      : "ctr",
-    	    centers     : "ctrs",
-    	    centr       : "ctr",
-    	    centre      : "ctr",
-    	    circ        : "cir",
-    	    circl       : "cir",
-    	    circle      : "cir",
-    	    circles     : "cirs",
-    	    ck          : "crk",
-    	    cliff       : "clf",
-    	    cliffs      : "clfs",
-    	    club        : "clb",
-    	    cmp         : "cp",
-    	    cnter       : "ctr",
-    	    cntr        : "ctr",
-    	    cnyn        : "cyn",
-    	    common      : "cmn",
-    	    commons     : "cmns",
-    	    corner      : "cor",
-    	    corners     : "cors",
-    	    course      : "crse",
-    	    court       : "ct",
-    	    courts      : "cts",
-    	    cove        : "cv",
-    	    coves       : "cvs",
-    	    cr          : "crk",
-    	    crcl        : "cir",
-    	    crcle       : "cir",
-    	    crecent     : "cres",
-    	    creek       : "crk",
-    	    crescent    : "cres",
-    	    cresent     : "cres",
-    	    crest       : "crst",
-    	    crossing    : "xing",
-    	    crossroad   : "xrd",
-    	    crossroads  : "xrds",
-    	    crscnt      : "cres",
-    	    crsent      : "cres",
-    	    crsnt       : "cres",
-    	    crssing     : "xing",
-    	    crssng      : "xing",
-    	    crt         : "ct",
-    	    curve       : "curv",
-    	    dale        : "dl",
-    	    dam         : "dm",
-    	    div         : "dv",
-    	    divide      : "dv",
-    	    driv        : "dr",
-    	    drive       : "dr",
-    	    drives      : "drs",
-    	    drv         : "dr",
-    	    dvd         : "dv",
-    	    estate      : "est",
-    	    estates     : "ests",
-    	    exp         : "expy",
-    	    expr        : "expy",
-    	    express     : "expy",
-    	    expressway  : "expy",
-    	    expw        : "expy",
-    	    extension   : "ext",
-    	    extensions  : "exts",
-    	    extn        : "ext",
-    	    extnsn      : "ext",
-    	    fall        : "fall",
-    	    falls       : "fls",
-    	    ferry       : "fry",
-    	    field       : "fld",
-    	    fields      : "flds",
-    	    flat        : "flt",
-    	    flats       : "flts",
-    	    ford        : "frd",
-    	    fords       : "frds",
-    	    forest      : "frst",
-    	    forests     : "frst",
-    	    forg        : "frg",
-    	    forge       : "frg",
-    	    forges      : "frgs",
-    	    fork        : "frk",
-    	    forks       : "frks",
-    	    fort        : "ft",
-    	    freeway     : "fwy",
-    	    freewy      : "fwy",
-    	    frry        : "fry",
-    	    frt         : "ft",
-    	    frway       : "fwy",
-    	    frwy        : "fwy",
-    	    garden      : "gdn",
-    	    gardens     : "gdns",
-    	    gardn       : "gdn",
-    	    gateway     : "gtwy",
-    	    gatewy      : "gtwy",
-    	    gatway      : "gtwy",
-    	    glen        : "gln",
-    	    glens       : "glns",
-    	    grden       : "gdn",
-    	    grdn        : "gdn",
-    	    grdns       : "gdns",
-    	    green       : "grn",
-    	    greens      : "grns",
-    	    grov        : "grv",
-    	    grove       : "grv",
-    	    groves      : "grvs",
-    	    gtway       : "gtwy",
-    	    harb        : "hbr",
-    	    harbor      : "hbr",
-    	    harbors     : "hbrs",
-    	    harbr       : "hbr",
-    	    haven       : "hvn",
-    	    havn        : "hvn",
-    	    height      : "hts",
-    	    heights     : "hts",
-    	    hgts        : "hts",
-    	    highway     : "hwy",
-    	    highwy      : "hwy",
-    	    hill        : "hl",
-    	    hills       : "hls",
-    	    hiway       : "hwy",
-    	    hiwy        : "hwy",
-    	    hllw        : "holw",
-    	    hollow      : "holw",
-    	    hollows     : "holw",
-    	    holws       : "holw",
-    	    hrbor       : "hbr",
-    	    ht          : "hts",
-    	    hway        : "hwy",
-    	    inlet       : "inlt",
-    	    island      : "is",
-    	    islands     : "iss",
-    	    isles       : "isle",
-    	    islnd       : "is",
-    	    islnds      : "iss",
-    	    jction      : "jct",
-    	    jctn        : "jct",
-    	    jctns       : "jcts",
-    	    junction    : "jct",
-    	    junctions   : "jcts",
-    	    junctn      : "jct",
-    	    juncton     : "jct",
-    	    key         : "ky",
-    	    keys        : "kys",
-    	    knol        : "knl",
-    	    knoll       : "knl",
-    	    knolls      : "knls",
-    	    la          : "ln",
-    	    lake        : "lk",
-    	    lakes       : "lks",
-    	    land        : "land",
-    	    landing     : "lndg",
-    	    lane        : "ln",
-    	    lanes       : "ln",
-    	    ldge        : "ldg",
-    	    light       : "lgt",
-    	    lights      : "lgts",
-    	    lndng       : "lndg",
-    	    loaf        : "lf",
-    	    lock        : "lck",
-    	    locks       : "lcks",
-    	    lodg        : "ldg",
-    	    lodge       : "ldg",
-    	    loops       : "loop",
-    	    mall        : "mall",
-    	    manor       : "mnr",
-    	    manors      : "mnrs",
-    	    meadow      : "mdw",
-    	    meadows     : "mdws",
-    	    medows      : "mdws",
-    	    mews        : "mews",
-    	    mill        : "ml",
-    	    mills       : "mls",
-    	    mission     : "msn",
-    	    missn       : "msn",
-    	    mnt         : "mt",
-    	    mntain      : "mtn",
-    	    mntn        : "mtn",
-    	    mntns       : "mtns",
-    	    motorway    : "mtwy",
-    	    mount       : "mt",
-    	    mountain    : "mtn",
-    	    mountains   : "mtns",
-    	    mountin     : "mtn",
-    	    mssn        : "msn",
-    	    mtin        : "mtn",
-    	    neck        : "nck",
-    	    orchard     : "orch",
-    	    orchrd      : "orch",
-    	    overpass    : "opas",
-    	    ovl         : "oval",
-    	    parks       : "park",
-    	    parkway     : "pkwy",
-    	    parkways    : "pkwy",
-    	    parkwy      : "pkwy",
-    	    pass        : "pass",
-    	    passage     : "psge",
-    	    paths       : "path",
-    	    pikes       : "pike",
-    	    pine        : "pne",
-    	    pines       : "pnes",
-    	    pk          : "park",
-    	    pkway       : "pkwy",
-    	    pkwys       : "pkwy",
-    	    pky         : "pkwy",
-    	    place       : "pl",
-    	    plain       : "pln",
-    	    plaines     : "plns",
-    	    plains      : "plns",
-    	    plaza       : "plz",
-    	    plza        : "plz",
-    	    point       : "pt",
-    	    points      : "pts",
-    	    port        : "prt",
-    	    ports       : "prts",
-    	    prairie     : "pr",
-    	    prarie      : "pr",
-    	    prk         : "park",
-    	    prr         : "pr",
-    	    rad         : "radl",
-    	    radial      : "radl",
-    	    radiel      : "radl",
-    	    ranch       : "rnch",
-    	    ranches     : "rnch",
-    	    rapid       : "rpd",
-    	    rapids      : "rpds",
-    	    rdge        : "rdg",
-    	    rest        : "rst",
-    	    ridge       : "rdg",
-    	    ridges      : "rdgs",
-    	    river       : "riv",
-    	    rivr        : "riv",
-    	    rnchs       : "rnch",
-    	    road        : "rd",
-    	    roads       : "rds",
-    	    route       : "rte",
-    	    rvr         : "riv",
-    	    row         : "row",
-    	    rue         : "rue",
-    	    run         : "run",
-    	    shoal       : "shl",
-    	    shoals      : "shls",
-    	    shoar       : "shr",
-    	    shoars      : "shrs",
-    	    shore       : "shr",
-    	    shores      : "shrs",
-    	    skyway      : "skwy",
-    	    spng        : "spg",
-    	    spngs       : "spgs",
-    	    spring      : "spg",
-    	    springs     : "spgs",
-    	    sprng       : "spg",
-    	    sprngs      : "spgs",
-    	    spurs       : "spur",
-    	    sqr         : "sq",
-    	    sqre        : "sq",
-    	    sqrs        : "sqs",
-    	    squ         : "sq",
-    	    square      : "sq",
-    	    squares     : "sqs",
-    	    station     : "sta",
-    	    statn       : "sta",
-    	    stn         : "sta",
-    	    str         : "st",
-    	    strav       : "stra",
-    	    strave      : "stra",
-    	    straven     : "stra",
-    	    stravenue   : "stra",
-    	    stravn      : "stra",
-    	    stream      : "strm",
-    	    street      : "st",
-    	    streets     : "sts",
-    	    streme      : "strm",
-    	    strt        : "st",
-    	    strvn       : "stra",
-    	    strvnue     : "stra",
-    	    sumit       : "smt",
-    	    sumitt      : "smt",
-    	    summit      : "smt",
-    	    terr        : "ter",
-    	    terrace     : "ter",
-    	    throughway  : "trwy",
-    	    tpk         : "tpke",
-    	    tr          : "trl",
-    	    trace       : "trce",
-    	    traces      : "trce",
-    	    track       : "trak",
-    	    tracks      : "trak",
-    	    trafficway  : "trfy",
-    	    trail       : "trl",
-    	    trails      : "trl",
-    	    trk         : "trak",
-    	    trks        : "trak",
-    	    trls        : "trl",
-    	    trnpk       : "tpke",
-    	    trpk        : "tpke",
-    	    tunel       : "tunl",
-    	    tunls       : "tunl",
-    	    tunnel      : "tunl",
-    	    tunnels     : "tunl",
-    	    tunnl       : "tunl",
-    	    turnpike    : "tpke",
-    	    turnpk      : "tpke",
-    	    underpass   : "upas",
-    	    union       : "un",
-    	    unions      : "uns",
-    	    valley      : "vly",
-    	    valleys     : "vlys",
-    	    vally       : "vly",
-    	    vdct        : "via",
-    	    viadct      : "via",
-    	    viaduct     : "via",
-    	    view        : "vw",
-    	    views       : "vws",
-    	    vill        : "vlg",
-    	    villag      : "vlg",
-    	    village     : "vlg",
-    	    villages    : "vlgs",
-    	    ville       : "vl",
-    	    villg       : "vlg",
-    	    villiage    : "vlg",
-    	    vist        : "vis",
-    	    vista       : "vis",
-    	    vlly        : "vly",
-    	    vst         : "vis",
-    	    vsta        : "vis",
-    	    wall        : "wall",
-    	    walks       : "walk",
-    	    well        : "wl",
-    	    wells       : "wls",
-    	    wy          : "way",
-    	  };
+    		  var Directional = {
+    		    north       : "N",
+    		    northeast   : "NE",
+    		    east        : "E",
+    		    southeast   : "SE",
+    		    south       : "S",
+    		    southwest   : "SW",
+    		    west        : "W",
+    		    northwest   : "NW",
+    		  };
 
-    	  var State_Code = {
-    	    "alabama" : "AL",
-    	    "alaska" : "AK",
-    	    "american samoa" : "AS",
-    	    "arizona" : "AZ",
-    	    "arkansas" : "AR",
-    	    "california" : "CA",
-    	    "colorado" : "CO",
-    	    "connecticut" : "CT",
-    	    "delaware" : "DE",
-    	    "district of columbia" : "DC",
-    	    "federated states of micronesia" : "FM",
-    	    "florida" : "FL",
-    	    "georgia" : "GA",
-    	    "guam" : "GU",
-    	    "hawaii" : "HI",
-    	    "idaho" : "ID",
-    	    "illinois" : "IL",
-    	    "indiana" : "IN",
-    	    "iowa" : "IA",
-    	    "kansas" : "KS",
-    	    "kentucky" : "KY",
-    	    "louisiana" : "LA",
-    	    "maine" : "ME",
-    	    "marshall islands" : "MH",
-    	    "maryland" : "MD",
-    	    "massachusetts" : "MA",
-    	    "michigan" : "MI",
-    	    "minnesota" : "MN",
-    	    "mississippi" : "MS",
-    	    "missouri" : "MO",
-    	    "montana" : "MT",
-    	    "nebraska" : "NE",
-    	    "nevada" : "NV",
-    	    "new hampshire" : "NH",
-    	    "new jersey" : "NJ",
-    	    "new mexico" : "NM",
-    	    "new york" : "NY",
-    	    "north carolina" : "NC",
-    	    "north dakota" : "ND",
-    	    "northern mariana islands" : "MP",
-    	    "ohio" : "OH",
-    	    "oklahoma" : "OK",
-    	    "oregon" : "OR",
-    	    "palau" : "PW",
-    	    "pennsylvania" : "PA",
-    	    "puerto rico" : "PR",
-    	    "rhode island" : "RI",
-    	    "south carolina" : "SC",
-    	    "south dakota" : "SD",
-    	    "tennessee" : "TN",
-    	    "texas" : "TX",
-    	    "utah" : "UT",
-    	    "vermont" : "VT",
-    	    "virgin islands" : "VI",
-    	    "virginia" : "VA",
-    	    "washington" : "WA",
-    	    "west virginia" : "WV",
-    	    "wisconsin" : "WI",
-    	    "wyoming" : "WY",
-    	  };
+    		  var Street_Type = {
+    		    allee       : "aly",
+    		    alley       : "aly",
+    		    ally        : "aly",
+    		    anex        : "anx",
+    		    annex       : "anx",
+    		    annx        : "anx",
+    		    arcade      : "arc",
+    		    av          : "ave",
+    		    aven        : "ave",
+    		    avenu       : "ave",
+    		    avenue      : "ave",
+    		    avn         : "ave",
+    		    avnue       : "ave",
+    		    bayoo       : "byu",
+    		    bayou       : "byu",
+    		    beach       : "bch",
+    		    bend        : "bnd",
+    		    bluf        : "blf",
+    		    bluff       : "blf",
+    		    bluffs      : "blfs",
+    		    bot         : "btm",
+    		    bottm       : "btm",
+    		    bottom      : "btm",
+    		    boul        : "blvd",
+    		    boulevard   : "blvd",
+    		    boulv       : "blvd",
+    		    branch      : "br",
+    		    brdge       : "brg",
+    		    bridge      : "brg",
+    		    brnch       : "br",
+    		    brook       : "brk",
+    		    brooks      : "brks",
+    		    burg        : "bg",
+    		    burgs       : "bgs",
+    		    bypa        : "byp",
+    		    bypas       : "byp",
+    		    bypass      : "byp",
+    		    byps        : "byp",
+    		    camp        : "cp",
+    		    canyn       : "cyn",
+    		    canyon      : "cyn",
+    		    cape        : "cpe",
+    		    causeway    : "cswy",
+    		    causway     : "cswy",
+    		    causwa      : "cswy",
+    		    cen         : "ctr",
+    		    cent        : "ctr",
+    		    center      : "ctr",
+    		    centers     : "ctrs",
+    		    centr       : "ctr",
+    		    centre      : "ctr",
+    		    circ        : "cir",
+    		    circl       : "cir",
+    		    circle      : "cir",
+    		    circles     : "cirs",
+    		    ck          : "crk",
+    		    cliff       : "clf",
+    		    cliffs      : "clfs",
+    		    club        : "clb",
+    		    cmp         : "cp",
+    		    cnter       : "ctr",
+    		    cntr        : "ctr",
+    		    cnyn        : "cyn",
+    		    common      : "cmn",
+    		    commons     : "cmns",
+    		    corner      : "cor",
+    		    corners     : "cors",
+    		    course      : "crse",
+    		    court       : "ct",
+    		    courts      : "cts",
+    		    cove        : "cv",
+    		    coves       : "cvs",
+    		    cr          : "crk",
+    		    crcl        : "cir",
+    		    crcle       : "cir",
+    		    crecent     : "cres",
+    		    creek       : "crk",
+    		    crescent    : "cres",
+    		    cresent     : "cres",
+    		    crest       : "crst",
+    		    crossing    : "xing",
+    		    crossroad   : "xrd",
+    		    crossroads  : "xrds",
+    		    crscnt      : "cres",
+    		    crsent      : "cres",
+    		    crsnt       : "cres",
+    		    crssing     : "xing",
+    		    crssng      : "xing",
+    		    crt         : "ct",
+    		    curve       : "curv",
+    		    dale        : "dl",
+    		    dam         : "dm",
+    		    div         : "dv",
+    		    divide      : "dv",
+    		    driv        : "dr",
+    		    drive       : "dr",
+    		    drives      : "drs",
+    		    drv         : "dr",
+    		    dvd         : "dv",
+    		    estate      : "est",
+    		    estates     : "ests",
+    		    exp         : "expy",
+    		    expr        : "expy",
+    		    express     : "expy",
+    		    expressway  : "expy",
+    		    expw        : "expy",
+    		    extension   : "ext",
+    		    extensions  : "exts",
+    		    extn        : "ext",
+    		    extnsn      : "ext",
+    		    fall        : "fall",
+    		    falls       : "fls",
+    		    ferry       : "fry",
+    		    field       : "fld",
+    		    fields      : "flds",
+    		    flat        : "flt",
+    		    flats       : "flts",
+    		    ford        : "frd",
+    		    fords       : "frds",
+    		    forest      : "frst",
+    		    forests     : "frst",
+    		    forg        : "frg",
+    		    forge       : "frg",
+    		    forges      : "frgs",
+    		    fork        : "frk",
+    		    forks       : "frks",
+    		    fort        : "ft",
+    		    freeway     : "fwy",
+    		    freewy      : "fwy",
+    		    frry        : "fry",
+    		    frt         : "ft",
+    		    frway       : "fwy",
+    		    frwy        : "fwy",
+    		    garden      : "gdn",
+    		    gardens     : "gdns",
+    		    gardn       : "gdn",
+    		    gateway     : "gtwy",
+    		    gatewy      : "gtwy",
+    		    gatway      : "gtwy",
+    		    glen        : "gln",
+    		    glens       : "glns",
+    		    grden       : "gdn",
+    		    grdn        : "gdn",
+    		    grdns       : "gdns",
+    		    green       : "grn",
+    		    greens      : "grns",
+    		    grov        : "grv",
+    		    grove       : "grv",
+    		    groves      : "grvs",
+    		    gtway       : "gtwy",
+    		    harb        : "hbr",
+    		    harbor      : "hbr",
+    		    harbors     : "hbrs",
+    		    harbr       : "hbr",
+    		    haven       : "hvn",
+    		    havn        : "hvn",
+    		    height      : "hts",
+    		    heights     : "hts",
+    		    hgts        : "hts",
+    		    highway     : "hwy",
+    		    highwy      : "hwy",
+    		    hill        : "hl",
+    		    hills       : "hls",
+    		    hiway       : "hwy",
+    		    hiwy        : "hwy",
+    		    hllw        : "holw",
+    		    hollow      : "holw",
+    		    hollows     : "holw",
+    		    holws       : "holw",
+    		    hrbor       : "hbr",
+    		    ht          : "hts",
+    		    hway        : "hwy",
+    		    inlet       : "inlt",
+    		    island      : "is",
+    		    islands     : "iss",
+    		    isles       : "isle",
+    		    islnd       : "is",
+    		    islnds      : "iss",
+    		    jction      : "jct",
+    		    jctn        : "jct",
+    		    jctns       : "jcts",
+    		    junction    : "jct",
+    		    junctions   : "jcts",
+    		    junctn      : "jct",
+    		    juncton     : "jct",
+    		    key         : "ky",
+    		    keys        : "kys",
+    		    knol        : "knl",
+    		    knoll       : "knl",
+    		    knolls      : "knls",
+    		    la          : "ln",
+    		    lake        : "lk",
+    		    lakes       : "lks",
+    		    land        : "land",
+    		    landing     : "lndg",
+    		    lane        : "ln",
+    		    lanes       : "ln",
+    		    ldge        : "ldg",
+    		    light       : "lgt",
+    		    lights      : "lgts",
+    		    lndng       : "lndg",
+    		    loaf        : "lf",
+    		    lock        : "lck",
+    		    locks       : "lcks",
+    		    lodg        : "ldg",
+    		    lodge       : "ldg",
+    		    loops       : "loop",
+    		    mall        : "mall",
+    		    manor       : "mnr",
+    		    manors      : "mnrs",
+    		    meadow      : "mdw",
+    		    meadows     : "mdws",
+    		    medows      : "mdws",
+    		    mews        : "mews",
+    		    mill        : "ml",
+    		    mills       : "mls",
+    		    mission     : "msn",
+    		    missn       : "msn",
+    		    mnt         : "mt",
+    		    mntain      : "mtn",
+    		    mntn        : "mtn",
+    		    mntns       : "mtns",
+    		    motorway    : "mtwy",
+    		    mount       : "mt",
+    		    mountain    : "mtn",
+    		    mountains   : "mtns",
+    		    mountin     : "mtn",
+    		    mssn        : "msn",
+    		    mtin        : "mtn",
+    		    neck        : "nck",
+    		    orchard     : "orch",
+    		    orchrd      : "orch",
+    		    overpass    : "opas",
+    		    ovl         : "oval",
+    		    parks       : "park",
+    		    parkway     : "pkwy",
+    		    parkways    : "pkwy",
+    		    parkwy      : "pkwy",
+    		    pass        : "pass",
+    		    passage     : "psge",
+    		    paths       : "path",
+    		    pikes       : "pike",
+    		    pine        : "pne",
+    		    pines       : "pnes",
+    		    pk          : "park",
+    		    pkway       : "pkwy",
+    		    pkwys       : "pkwy",
+    		    pky         : "pkwy",
+    		    place       : "pl",
+    		    plain       : "pln",
+    		    plaines     : "plns",
+    		    plains      : "plns",
+    		    plaza       : "plz",
+    		    plza        : "plz",
+    		    point       : "pt",
+    		    points      : "pts",
+    		    port        : "prt",
+    		    ports       : "prts",
+    		    prairie     : "pr",
+    		    prarie      : "pr",
+    		    prk         : "park",
+    		    prr         : "pr",
+    		    rad         : "radl",
+    		    radial      : "radl",
+    		    radiel      : "radl",
+    		    ranch       : "rnch",
+    		    ranches     : "rnch",
+    		    rapid       : "rpd",
+    		    rapids      : "rpds",
+    		    rdge        : "rdg",
+    		    rest        : "rst",
+    		    ridge       : "rdg",
+    		    ridges      : "rdgs",
+    		    river       : "riv",
+    		    rivr        : "riv",
+    		    rnchs       : "rnch",
+    		    road        : "rd",
+    		    roads       : "rds",
+    		    route       : "rte",
+    		    rvr         : "riv",
+    		    row         : "row",
+    		    rue         : "rue",
+    		    run         : "run",
+    		    shoal       : "shl",
+    		    shoals      : "shls",
+    		    shoar       : "shr",
+    		    shoars      : "shrs",
+    		    shore       : "shr",
+    		    shores      : "shrs",
+    		    skyway      : "skwy",
+    		    spng        : "spg",
+    		    spngs       : "spgs",
+    		    spring      : "spg",
+    		    springs     : "spgs",
+    		    sprng       : "spg",
+    		    sprngs      : "spgs",
+    		    spurs       : "spur",
+    		    sqr         : "sq",
+    		    sqre        : "sq",
+    		    sqrs        : "sqs",
+    		    squ         : "sq",
+    		    square      : "sq",
+    		    squares     : "sqs",
+    		    station     : "sta",
+    		    statn       : "sta",
+    		    stn         : "sta",
+    		    str         : "st",
+    		    strav       : "stra",
+    		    strave      : "stra",
+    		    straven     : "stra",
+    		    stravenue   : "stra",
+    		    stravn      : "stra",
+    		    stream      : "strm",
+    		    street      : "st",
+    		    streets     : "sts",
+    		    streme      : "strm",
+    		    strt        : "st",
+    		    strvn       : "stra",
+    		    strvnue     : "stra",
+    		    sumit       : "smt",
+    		    sumitt      : "smt",
+    		    summit      : "smt",
+    		    terr        : "ter",
+    		    terrace     : "ter",
+    		    throughway  : "trwy",
+    		    tpk         : "tpke",
+    		    tr          : "trl",
+    		    trace       : "trce",
+    		    traces      : "trce",
+    		    track       : "trak",
+    		    tracks      : "trak",
+    		    trafficway  : "trfy",
+    		    trail       : "trl",
+    		    trails      : "trl",
+    		    trk         : "trak",
+    		    trks        : "trak",
+    		    trls        : "trl",
+    		    trnpk       : "tpke",
+    		    trpk        : "tpke",
+    		    tunel       : "tunl",
+    		    tunls       : "tunl",
+    		    tunnel      : "tunl",
+    		    tunnels     : "tunl",
+    		    tunnl       : "tunl",
+    		    turnpike    : "tpke",
+    		    turnpk      : "tpke",
+    		    underpass   : "upas",
+    		    union       : "un",
+    		    unions      : "uns",
+    		    valley      : "vly",
+    		    valleys     : "vlys",
+    		    vally       : "vly",
+    		    vdct        : "via",
+    		    viadct      : "via",
+    		    viaduct     : "via",
+    		    view        : "vw",
+    		    views       : "vws",
+    		    vill        : "vlg",
+    		    villag      : "vlg",
+    		    village     : "vlg",
+    		    villages    : "vlgs",
+    		    ville       : "vl",
+    		    villg       : "vlg",
+    		    villiage    : "vlg",
+    		    vist        : "vis",
+    		    vista       : "vis",
+    		    vlly        : "vly",
+    		    vst         : "vis",
+    		    vsta        : "vis",
+    		    wall        : "wall",
+    		    walks       : "walk",
+    		    well        : "wl",
+    		    wells       : "wls",
+    		    wy          : "way",
+    		  };
 
-    	  var Direction_Code;
-    	  var initialized = false;
+    		  var State_Code = {
+    		    "alabama" : "AL",
+    		    "alaska" : "AK",
+    		    "american samoa" : "AS",
+    		    "arizona" : "AZ",
+    		    "arkansas" : "AR",
+    		    "california" : "CA",
+    		    "colorado" : "CO",
+    		    "connecticut" : "CT",
+    		    "delaware" : "DE",
+    		    "district of columbia" : "DC",
+    		    "federated states of micronesia" : "FM",
+    		    "florida" : "FL",
+    		    "georgia" : "GA",
+    		    "guam" : "GU",
+    		    "hawaii" : "HI",
+    		    "idaho" : "ID",
+    		    "illinois" : "IL",
+    		    "indiana" : "IN",
+    		    "iowa" : "IA",
+    		    "kansas" : "KS",
+    		    "kentucky" : "KY",
+    		    "louisiana" : "LA",
+    		    "maine" : "ME",
+    		    "marshall islands" : "MH",
+    		    "maryland" : "MD",
+    		    "massachusetts" : "MA",
+    		    "michigan" : "MI",
+    		    "minnesota" : "MN",
+    		    "mississippi" : "MS",
+    		    "missouri" : "MO",
+    		    "montana" : "MT",
+    		    "nebraska" : "NE",
+    		    "nevada" : "NV",
+    		    "new hampshire" : "NH",
+    		    "new jersey" : "NJ",
+    		    "new mexico" : "NM",
+    		    "new york" : "NY",
+    		    "north carolina" : "NC",
+    		    "north dakota" : "ND",
+    		    "northern mariana islands" : "MP",
+    		    "ohio" : "OH",
+    		    "oklahoma" : "OK",
+    		    "oregon" : "OR",
+    		    "palau" : "PW",
+    		    "pennsylvania" : "PA",
+    		    "puerto rico" : "PR",
+    		    "rhode island" : "RI",
+    		    "south carolina" : "SC",
+    		    "south dakota" : "SD",
+    		    "tennessee" : "TN",
+    		    "texas" : "TX",
+    		    "utah" : "UT",
+    		    "vermont" : "VT",
+    		    "virgin islands" : "VI",
+    		    "virginia" : "VA",
+    		    "washington" : "WA",
+    		    "west virginia" : "WV",
+    		    "wisconsin" : "WI",
+    		    "wyoming" : "WY",
+    		  };
 
-    	  var Normalize_Map = {
-    	    prefix: Directional,
-    	    prefix1: Directional,
-    	    prefix2: Directional,
-    	    suffix: Directional,
-    	    suffix1: Directional,
-    	    suffix2: Directional,
-    	    type: Street_Type,
-    	    type1: Street_Type,
-    	    type2: Street_Type,
-    	    state: State_Code,
-    	  };
+    		  var Direction_Code;
+    		  var initialized = false;
 
-    	  function capitalize(s){
-    	    return s && s[0].toUpperCase() + s.slice(1);
-    	  }
-    	  function keys(o){
-    	    return Object.keys(o);
-    	  }
-    	  function values(o){
-    	    var v = [];
-    	    keys(o).forEach(function(k){
-    	      v.push(o[k]);
-    	    });
-    	    return v;
-    	  }
-    	  function each(o,fn){
-    	    keys(o).forEach(function(k){
-    	      fn(o[k],k);
-    	    });
-    	  }
-    	  function invert(o){
-    	    var o1= {};
-    	    keys(o).forEach(function(k){
-    	      o1[o[k]] = k;
-    	    });
-    	    return o1;
-    	  }
-    	  function flatten(o){
-    	    return keys(o).concat(values(o));
-    	  }
-    	  function lazyInit(){
-    	    if (initialized) {
-    	      return;
-    	    }
-    	    initialized = true;
+    		  var Normalize_Map = {
+    		    prefix: Directional,
+    		    prefix1: Directional,
+    		    prefix2: Directional,
+    		    suffix: Directional,
+    		    suffix1: Directional,
+    		    suffix2: Directional,
+    		    type: Street_Type,
+    		    type1: Street_Type,
+    		    type2: Street_Type,
+    		    state: State_Code,
+    		  };
 
-    	    Direction_Code = invert(Directional);
+    		  function capitalize(s){
+    		    return s && s[0].toUpperCase() + s.slice(1);
+    		  }
+    		  function keys(o){
+    		    return Object.keys(o);
+    		  }
+    		  function values(o){
+    		    var v = [];
+    		    keys(o).forEach(function(k){
+    		      v.push(o[k]);
+    		    });
+    		    return v;
+    		  }
+    		  function each(o,fn){
+    		    keys(o).forEach(function(k){
+    		      fn(o[k],k);
+    		    });
+    		  }
+    		  function invert(o){
+    		    var o1= {};
+    		    keys(o).forEach(function(k){
+    		      o1[o[k]] = k;
+    		    });
+    		    return o1;
+    		  }
+    		  function flatten(o){
+    		    return keys(o).concat(values(o));
+    		  }
+    		  function lazyInit(){
+    		    if (initialized) {
+    		      return;
+    		    }
+    		    initialized = true;
 
-    	    /*
-    	    var Street_Type_Match = {};
-    	    each(Street_Type,function(v,k){ Street_Type_Match[v] = XRegExp.escape(v) });
-    	    each(Street_Type,function(v,k){ Street_Type_Match[v] = Street_Type_Match[v] + "|" + XRegExp.escape(k); });
-    	    each(Street_Type_Match,function(v,k){ Street_Type_Match[k] = new RegExp( '\\b(?:' +  Street_Type_Match[k]  + ')\\b', 'i') });
-    	    */
+    		    Direction_Code = invert(Directional);
 
-    	    Addr_Match = {
-    	      type    : flatten(Street_Type).sort().filter(function(v,i,arr){return arr.indexOf(v)===i }).join('|'),
-    	      fraction : '\\d+\\/\\d+',
-    	      state   : '\\b(?:' + keys(State_Code).concat(values(State_Code)).map(XRegExp.escape).join('|') + ')\\b',
-    	      direct  : values(Directional).sort(function(a,b){return a.length < b.length}).reduce(function(prev,curr){return prev.concat([XRegExp.escape(curr.replace(/\w/g,'$&.')),curr])},keys(Directional)).join('|'),
-    	      dircode : keys(Direction_Code).join("|"),
-    	      zip     : '(?<zip>\\d{5})[- ]?(?<plus4>\\d{4})?',
-    	      corner  : '(?:\\band\\b|\\bat\\b|&|\\@)',
-    	    };
+    		    /*
+    		    var Street_Type_Match = {};
+    		    each(Street_Type,function(v,k){ Street_Type_Match[v] = XRegExp.escape(v) });
+    		    each(Street_Type,function(v,k){ Street_Type_Match[v] = Street_Type_Match[v] + "|" + XRegExp.escape(k); });
+    		    each(Street_Type_Match,function(v,k){ Street_Type_Match[k] = new RegExp( '\\b(?:' +  Street_Type_Match[k]  + ')\\b', 'i') });
+    		    */
 
-    	    Addr_Match.number = '(?<number>(\\d+-?\\d*)|([N|S|E|W]\\d{1,3}[N|S|E|W]\\d{1,6}))(?=\\D)';
+    		    Addr_Match = {
+    		      type    : flatten(Street_Type).sort().filter(function(v,i,arr){return arr.indexOf(v)===i }).join('|'),
+    		      fraction : '\\d+\\/\\d+',
+    		      state   : '\\b(?:' + keys(State_Code).concat(values(State_Code)).map(XRegExp.escape).join('|') + ')\\b',
+    		      direct  : values(Directional).sort(function(a,b){return a.length < b.length}).reduce(function(prev,curr){return prev.concat([XRegExp.escape(curr.replace(/\w/g,'$&.')),curr])},keys(Directional)).join('|'),
+    		      dircode : keys(Direction_Code).join("|"),
+    		      zip     : '(?<zip>\\d{5})[- ]?(?<plus4>\\d{4})?',
+    		      corner  : '(?:\\band\\b|\\bat\\b|&|\\@)',
+    		    };
 
-    	    Addr_Match.street = '                                       \n\
-	      (?:                                                       \n\
-	        (?:(?<street_0>'+Addr_Match.direct+')\\W+               \n\
-	           (?<type_0>'+Addr_Match.type+')\\b                    \n\
-	        )                                                       \n\
-	        |                                                       \n\
-	        (?:(?<prefix_0>'+Addr_Match.direct+')\\W+)?             \n\
-	        (?:                                                     \n\
-	          (?<street_1>[^,]*\\d)                                 \n\
-	          (?:[^\\w,]*(?<suffix_1>'+Addr_Match.direct+')\\b)     \n\
-	          |                                                     \n\
-	          (?<street_2>[^,]+)                                    \n\
-	          (?:[^\\w,]+(?<type_2>'+Addr_Match.type+')\\b)         \n\
-	          (?:[^\\w,]+(?<suffix_2>'+Addr_Match.direct+')\\b)?    \n\
-	          |                                                     \n\
-	          (?<street_3>[^,]+?)                                   \n\
-	          (?:[^\\w,]+(?<type_3>'+Addr_Match.type+')\\b)?        \n\
-	          (?:[^\\w,]+(?<suffix_3>'+Addr_Match.direct+')\\b)?    \n\
-	        )                                                       \n\
-	      )';
+    		    Addr_Match.number = '(?<number>(\\d+-?\\d*)|([N|S|E|W]\\d{1,3}[N|S|E|W]\\d{1,6}))(?=\\D)';
 
-    	    Addr_Match.po_box = 'p\\W*(?:[om]|ost\\ ?office)\\W*b(?:ox)?';
+    		    Addr_Match.street = '                                       \n\
+		      (?:                                                       \n\
+		        (?:(?<street_0>'+Addr_Match.direct+')\\W+               \n\
+		           (?<type_0>'+Addr_Match.type+')\\b                    \n\
+		        )                                                       \n\
+		        |                                                       \n\
+		        (?:(?<prefix_0>'+Addr_Match.direct+')\\W+)?             \n\
+		        (?:                                                     \n\
+		          (?<street_1>[^,]*\\d)                                 \n\
+		          (?:[^\\w,]*(?<suffix_1>'+Addr_Match.direct+')\\b)     \n\
+		          |                                                     \n\
+		          (?<street_2>[^,]+)                                    \n\
+		          (?:[^\\w,]+(?<type_2>'+Addr_Match.type+')\\b)         \n\
+		          (?:[^\\w,]+(?<suffix_2>'+Addr_Match.direct+')\\b)?    \n\
+		          |                                                     \n\
+		          (?<street_3>[^,]+?)                                   \n\
+		          (?:[^\\w,]+(?<type_3>'+Addr_Match.type+')\\b)?        \n\
+		          (?:[^\\w,]+(?<suffix_3>'+Addr_Match.direct+')\\b)?    \n\
+		        )                                                       \n\
+		      )';
 
-    	    Addr_Match.sec_unit_type_numbered = '             \n\
-	      (?<sec_unit_type_1>su?i?te                      \n\
-	        |'+Addr_Match.po_box+'                        \n\
-	        |(?:ap|dep)(?:ar)?t(?:me?nt)?                 \n\
-	        |ro*m                                         \n\
-	        |flo*r?                                       \n\
-	        |uni?t                                        \n\
-	        |bu?i?ldi?n?g                                 \n\
-	        |ha?nga?r                                     \n\
-	        |lo?t                                         \n\
-	        |pier                                         \n\
-	        |slip                                         \n\
-	        |spa?ce?                                      \n\
-	        |stop                                         \n\
-	        |tra?i?le?r                                   \n\
-	        |box)(?![a-z]                                 \n\
-	      )                                               \n\
-	      ';
+    		    Addr_Match.po_box = 'p\\W*(?:[om]|ost\\ ?office)\\W*b(?:ox)?';
 
-    	    Addr_Match.sec_unit_type_unnumbered = '           \n\
-	      (?<sec_unit_type_2>ba?se?me?n?t                 \n\
-	        |fro?nt                                       \n\
-	        |lo?bby                                       \n\
-	        |lowe?r                                       \n\
-	        |off?i?ce?                                    \n\
-	        |pe?n?t?ho?u?s?e?                             \n\
-	        |rear                                         \n\
-	        |side                                         \n\
-	        |uppe?r                                       \n\
-	      )\\b';
+    		    Addr_Match.sec_unit_type_numbered = '             \n\
+		      (?<sec_unit_type_1>su?i?te                      \n\
+		        |'+Addr_Match.po_box+'                        \n\
+		        |(?:ap|dep)(?:ar)?t(?:me?nt)?                 \n\
+		        |ro*m                                         \n\
+		        |flo*r?                                       \n\
+		        |uni?t                                        \n\
+		        |bu?i?ldi?n?g                                 \n\
+		        |ha?nga?r                                     \n\
+		        |lo?t                                         \n\
+		        |pier                                         \n\
+		        |slip                                         \n\
+		        |spa?ce?                                      \n\
+		        |stop                                         \n\
+		        |tra?i?le?r                                   \n\
+		        |box)(?![a-z]                                 \n\
+		      )                                               \n\
+		      ';
 
-    	    Addr_Match.sec_unit = '                               \n\
-	      (?:                               #fix3             \n\
-	        (?:                             #fix1             \n\
-	          (?:                                             \n\
-	            (?:'+Addr_Match.sec_unit_type_numbered+'\\W*) \n\
-	            |(?<sec_unit_type_3>\\#)\\W*                  \n\
-	          )                                               \n\
-	          (?<sec_unit_num_1>[\\w-]+)                      \n\
-	        )                                                 \n\
-	        |                                                 \n\
-	        '+Addr_Match.sec_unit_type_unnumbered+'           \n\
-	      )';
+    		    Addr_Match.sec_unit_type_unnumbered = '           \n\
+		      (?<sec_unit_type_2>ba?se?me?n?t                 \n\
+		        |fro?nt                                       \n\
+		        |lo?bby                                       \n\
+		        |lowe?r                                       \n\
+		        |off?i?ce?                                    \n\
+		        |pe?n?t?ho?u?s?e?                             \n\
+		        |rear                                         \n\
+		        |side                                         \n\
+		        |uppe?r                                       \n\
+		      )\\b';
 
-    	    Addr_Match.city_and_state = '                       \n\
-	      (?:                                               \n\
-	        (?<city>[^\\d,]+?)\\W+                          \n\
-	        (?<state>'+Addr_Match.state+')                  \n\
-	      )                                                 \n\
-	      ';
+    		    Addr_Match.sec_unit = '                               \n\
+		      (?:                               #fix3             \n\
+		        (?:                             #fix1             \n\
+		          (?:                                             \n\
+		            (?:'+Addr_Match.sec_unit_type_numbered+'\\W*) \n\
+		            |(?<sec_unit_type_3>\\#)\\W*                  \n\
+		          )                                               \n\
+		          (?<sec_unit_num_1>[\\w-]+)                      \n\
+		        )                                                 \n\
+		        |                                                 \n\
+		        '+Addr_Match.sec_unit_type_unnumbered+'           \n\
+		      )';
 
-    	    Addr_Match.place = '                                \n\
-	      (?:'+Addr_Match.city_and_state+'\\W*)?            \n\
-	      (?:'+Addr_Match.zip+')?                           \n\
-	      ';
+    		    Addr_Match.city_and_state = '                       \n\
+		      (?:                                               \n\
+		        (?<city>[^\\d,]+?)\\W+                          \n\
+		        (?<state>'+Addr_Match.state+')                  \n\
+		      )                                                 \n\
+		      ';
 
-    	    Addr_Match.address = XRegExp('                      \n\
-	      ^                                                 \n\
-	      [^\\w\\#]*                                        \n\
-	      ('+Addr_Match.number+')\\W*                       \n\
-	      (?:'+Addr_Match.fraction+'\\W*)?                  \n\
-	         '+Addr_Match.street+'\\W+                      \n\
-	      (?:'+Addr_Match.sec_unit+')?\\W*          #fix2   \n\
-	         '+Addr_Match.place+'                           \n\
-	      \\W*$','ix');
+    		    Addr_Match.place = '                                \n\
+		      (?:'+Addr_Match.city_and_state+'\\W*)?            \n\
+		      (?:'+Addr_Match.zip+')?                           \n\
+		      ';
 
-    	    var sep = '(?:\\W+|$)'; // no support for \Z
+    		    Addr_Match.address = XRegExp('                      \n\
+		      ^                                                 \n\
+		      [^\\w\\#]*                                        \n\
+		      ('+Addr_Match.number+')\\W*                       \n\
+		      (?:'+Addr_Match.fraction+'\\W*)?                  \n\
+		         '+Addr_Match.street+'\\W+                      \n\
+		      (?:'+Addr_Match.sec_unit+')?\\W*          #fix2   \n\
+		         '+Addr_Match.place+'                           \n\
+		      \\W*$','ix');
 
-    	    Addr_Match.informal_address = XRegExp('                   \n\
-	      ^                                                       \n\
-	      \\s*                                                    \n\
-	      (?:'+Addr_Match.sec_unit+sep+')?                        \n\
-	      (?:'+Addr_Match.number+')?\\W*                          \n\
-	      (?:'+Addr_Match.fraction+'\\W*)?                        \n\
-	         '+Addr_Match.street+sep+'                            \n\
-	      (?:'+Addr_Match.sec_unit.replace(/_\d/g,'$&1')+sep+')?  \n\
-	      (?:'+Addr_Match.place+')?                               \n\
-	      ','ix');
+    		    var sep = '(?:\\W+|$)'; // no support for \Z
 
-    	    Addr_Match.po_address = XRegExp('                         \n\
-	      ^                                                       \n\
-	      \\s*                                                    \n\
-	      (?:'+Addr_Match.sec_unit.replace(/_\d/g,'$&1')+sep+')?  \n\
-	      (?:'+Addr_Match.place+')?                               \n\
-	      ','ix');
+    		    Addr_Match.informal_address = XRegExp('                   \n\
+		      ^                                                       \n\
+		      \\s*                                                    \n\
+		      (?:'+Addr_Match.sec_unit+sep+')?                        \n\
+		      (?:'+Addr_Match.number+')?\\W*                          \n\
+		      (?:'+Addr_Match.fraction+'\\W*)?                        \n\
+		         '+Addr_Match.street+sep+'                            \n\
+		      (?:'+Addr_Match.sec_unit.replace(/_\d/g,'$&1')+sep+')?  \n\
+		      (?:'+Addr_Match.place+')?                               \n\
+		      ','ix');
 
-    	    Addr_Match.intersection = XRegExp('                     \n\
-	      ^\\W*                                                 \n\
-	      '+Addr_Match.street.replace(/_\d/g,'1$&')+'\\W*?      \n\
-	      \\s+'+Addr_Match.corner+'\\s+                         \n\
-	      '+Addr_Match.street.replace(/_\d/g,'2$&') + '\\W+     \n\
-	      '+Addr_Match.place+'\\W*$','ix');
-    	  }
-    	  parser.normalize_address = function(parts){
-    	    lazyInit();
-    	    if(!parts)
-    	      return null;
-    	    var parsed = {};
+    		    Addr_Match.po_address = XRegExp('                         \n\
+		      ^                                                       \n\
+		      \\s*                                                    \n\
+		      (?:'+Addr_Match.sec_unit.replace(/_\d/g,'$&1')+sep+')?  \n\
+		      (?:'+Addr_Match.place+')?                               \n\
+		      ','ix');
 
-    	    Object.keys(parts).forEach(function(k){
-    	      if(['input','index'].indexOf(k) !== -1 || isFinite(k))
-    	        return;
-    	      var key = isFinite(k.split('_').pop())? k.split('_').slice(0,-1).join('_'): k ;
-    	      if(parts[k])
-    	        parsed[key] = parts[k].trim().replace(/^\s+|\s+$|[^\w\s\-#&]/g, '');
-    	    });
-    	    each(Normalize_Map, function(map,key) {
-    	      if(parsed[key] && map[parsed[key].toLowerCase()]) {
-    	        parsed[key] = map[parsed[key].toLowerCase()];
-    	      }
-    	    });
+    		    Addr_Match.intersection = XRegExp('                     \n\
+		      ^\\W*                                                 \n\
+		      '+Addr_Match.street.replace(/_\d/g,'1$&')+'\\W*?      \n\
+		      \\s+'+Addr_Match.corner+'\\s+                         \n\
+		      '+Addr_Match.street.replace(/_\d/g,'2$&') + '\\W+     \n\
+		      '+Addr_Match.place+'\\W*$','ix');
+    		  }
+    		  parser.normalize_address = function(parts){
+    		    lazyInit();
+    		    if(!parts)
+    		      return null;
+    		    var parsed = {};
 
-    	    ['type', 'type1', 'type2'].forEach(function(key){
-    	      if(key in parsed)
-    	        parsed[key] = parsed[key].charAt(0).toUpperCase() + parsed[key].slice(1).toLowerCase();
-    	    });
+    		    Object.keys(parts).forEach(function(k){
+    		      if(['input','index'].indexOf(k) !== -1 || isFinite(k))
+    		        return;
+    		      var key = isFinite(k.split('_').pop())? k.split('_').slice(0,-1).join('_'): k ;
+    		      if(parts[k])
+    		        parsed[key] = parts[k].trim().replace(/^\s+|\s+$|[^\w\s\-#&]/g, '');
+    		    });
+    		    each(Normalize_Map, function(map,key) {
+    		      if(parsed[key] && map[parsed[key].toLowerCase()]) {
+    		        parsed[key] = map[parsed[key].toLowerCase()];
+    		      }
+    		    });
 
-    	    if(parsed.city){
-    	      parsed.city = XRegExp.replace(parsed.city,
-    	        XRegExp('^(?<dircode>'+Addr_Match.dircode+')\\s+(?=\\S)','ix'),
-    	        function(match){
-    	          return capitalize(Direction_Code[match.dircode.toUpperCase()]) +' ';
-    	        });
-    	    }
-    	    return parsed;
-    	  };
+    		    ['type', 'type1', 'type2'].forEach(function(key){
+    		      if(key in parsed)
+    		        parsed[key] = parsed[key].charAt(0).toUpperCase() + parsed[key].slice(1).toLowerCase();
+    		    });
 
-    	  parser.parseAddress = function(address){
-    	    lazyInit();
-    	    var parts = XRegExp.exec(address,Addr_Match.address);
-    	    return parser.normalize_address(parts);
-    	  };
-    	  parser.parseInformalAddress = function(address){
-    	    lazyInit();
-    	    var parts = XRegExp.exec(address,Addr_Match.informal_address);
-    	    return parser.normalize_address(parts);
-    	  }; 
-    	  parser.parsePoAddress = function(address){
-    	    lazyInit();
-    	    var parts = XRegExp.exec(address,Addr_Match.po_address);
-    	    return parser.normalize_address(parts);
-    	  };
-    	  parser.parseLocation = function(address){
-    	    lazyInit();
-    	    if (XRegExp(Addr_Match.corner,'xi').test(address)) {
-    	        return parser.parseIntersection(address);
-    	    }
-    	    if (XRegExp('^'+Addr_Match.po_box,'xi').test(address)){
-    	      return parser.parsePoAddress(address);
-    	    }
-    	    return parser.parseAddress(address)
-    	        || parser.parseInformalAddress(address);
-    	  };
-    	  parser.parseIntersection = function(address){
-    	    lazyInit();
-    	    var parts = XRegExp.exec(address,Addr_Match.intersection);
-    	    parts = parser.normalize_address(parts);
-    	    if(parts){
-    	        parts.type2 = parts.type2 || '';
-    	        parts.type1 = parts.type1 || '';
-    	        if (parts.type2 && !parts.type1 || (parts.type1 === parts.type2)) {
-    	            var type = parts.type2;
-    	            type = XRegExp.replace(type,/s\W*$/,'');
-    	            if (XRegExp('^'+Addr_Match.type+'$','ix').test(type)) {
-    	                parts.type1 = parts.type2 = type;
-    	            }
-    	        }
-    	    }
+    		    if(parsed.city){
+    		      parsed.city = XRegExp.replace(parsed.city,
+    		        XRegExp('^(?<dircode>'+Addr_Match.dircode+')\\s+(?=\\S)','ix'),
+    		        function(match){
+    		          return capitalize(Direction_Code[match.dircode.toUpperCase()]) +' ';
+    		        });
+    		    }
+    		    return parsed;
+    		  };
 
-    	    return parts;
-    	  };
+    		  parser.parseAddress = function(address){
+    		    lazyInit();
+    		    var parts = XRegExp.exec(address,Addr_Match.address);
+    		    return parser.normalize_address(parts);
+    		  };
+    		  parser.parseInformalAddress = function(address){
+    		    lazyInit();
+    		    var parts = XRegExp.exec(address,Addr_Match.informal_address);
+    		    return parser.normalize_address(parts);
+    		  }; 
+    		  parser.parsePoAddress = function(address){
+    		    lazyInit();
+    		    var parts = XRegExp.exec(address,Addr_Match.po_address);
+    		    return parser.normalize_address(parts);
+    		  };
+    		  parser.parseLocation = function(address){
+    		    lazyInit();
+    		    if (XRegExp(Addr_Match.corner,'xi').test(address)) {
+    		        return parser.parseIntersection(address);
+    		    }
+    		    if (XRegExp('^'+Addr_Match.po_box,'xi').test(address)){
+    		      return parser.parsePoAddress(address);
+    		    }
+    		    return parser.parseAddress(address)
+    		        || parser.parseInformalAddress(address);
+    		  };
+    		  parser.parseIntersection = function(address){
+    		    lazyInit();
+    		    var parts = XRegExp.exec(address,Addr_Match.intersection);
+    		    parts = parser.normalize_address(parts);
+    		    if(parts){
+    		        parts.type2 = parts.type2 || '';
+    		        parts.type1 = parts.type1 || '';
+    		        if (parts.type2 && !parts.type1 || (parts.type1 === parts.type2)) {
+    		            var type = parts.type2;
+    		            type = XRegExp.replace(type,/s\W*$/,'');
+    		            if (XRegExp('^'+Addr_Match.type+'$','ix').test(type)) {
+    		                parts.type1 = parts.type2 = type;
+    		            }
+    		        }
+    		    }
 
-    	  // AMD / RequireJS
-    	  {
-    	    exports.parseIntersection = parser.parseIntersection;
-    	    exports.parseLocation = parser.parseLocation;
-    	    exports.parseInformalAddress = parser.parseInformalAddress;
-    	    exports.parseAddress = parser.parseAddress;
-    	  }
+    		    return parts;
+    		  };
 
-    	}()); 
-    } (address));
+    		  // AMD / RequireJS
+    		  {
+    		    exports.parseIntersection = parser.parseIntersection;
+    		    exports.parseLocation = parser.parseLocation;
+    		    exports.parseInformalAddress = parser.parseInformalAddress;
+    		    exports.parseAddress = parser.parseAddress;
+    		  }
 
-    var parseAddress = /*@__PURE__*/getDefaultExportFromCjs(address);
+    		}()); 
+    	} (address));
+    	return address;
+    }
+
+    var addressExports = requireAddress();
+    var parseAddress = /*@__PURE__*/getDefaultExportFromCjs(addressExports);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
@@ -10914,7 +10904,7 @@
         const filtered = await Promise.all(filteredPromises);
 
         // omit the DOM node from data transfer
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const debugResults = extractResult.results.map((result) => result.asData());
 
         return new SuccessResponse({
@@ -13230,6 +13220,7 @@
             /**
              * Append both to the shadow root
              */
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             feedbackLink && this.placeholderBlocked.appendChild(feedbackLink);
             shadow.appendChild(this.placeholderBlocked);
             shadow.appendChild(style);
@@ -15500,7 +15491,7 @@
             });
             // Listen to message from Platform letting CTL know that we're ready to
             // replace elements in the page
-            // eslint-disable-next-line promise/prefer-await-to-then
+             
             this.messaging.subscribe(
                 'displayClickToLoadPlaceholders',
                 // TODO: Pass `message.options.ruleAction` through, that way only

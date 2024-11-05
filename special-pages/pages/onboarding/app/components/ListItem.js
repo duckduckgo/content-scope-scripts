@@ -3,7 +3,7 @@ import cn from 'classnames'
 import styles from './ListItem.module.css'
 import { Check } from './Icons'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export const availableIcons = /** @type {const} */ ([
     'bookmarks.png',
     'browsing.png',

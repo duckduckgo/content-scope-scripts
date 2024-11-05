@@ -249,15 +249,252 @@ body {
   font-size: var(--body-font-size);
   font-weight: var(--body-font-weight);
   line-height: var(--body-line-height);
-  padding-left: var(--sp-6);
-  padding-right: var(--sp-6);
 }
 .App_layout {
   padding-top: var(--sp-16);
   padding-bottom: var(--sp-16);
-  max-width: calc(504 * var(--px-in-rem));
   margin-left: auto;
   margin-right: auto;
+}
+body:has([data-reset-layout=true]) .App_layout {
+  padding-top: 0;
+}
+.layout-centered {
+  margin-inline: auto;
+  width: 100%;
+  max-width: calc(504 * var(--px-in-rem));
+}
+.layout-centered:empty {
+  display: contents;
+}
+
+/* pages/onboarding/app/components/Stack.module.css */
+.Stack_stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  width: 100%;
+  &[data-debug=true] {
+    > * {
+      outline: 1px dotted black;
+    }
+  }
+}
+
+/* pages/new-tab/app/customizer/Customizer.module.css */
+.Customizer_root {
+  position: relative;
+}
+.Customizer_lowerRightFixed {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+}
+.Customizer_dropdownMenu {
+  display: none;
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+}
+.Customizer_show {
+  display: block;
+}
+.Customizer_customizeButton {
+  background-color: transparent;
+  border: 1px solid var(--color-black-at-9);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+  color: var(--color-black-at-84);
+  @media screen and (prefers-color-scheme: dark) {
+    color: var(--color-white-at-80);
+    border-color: var(--color-white-at-9);
+  }
+  &:focus-visible {
+    outline: 1px dotted var(--ntp-focus-outline-color);
+  }
+  &:hover {
+    background-color: var(--color-black-at-6);
+    border-color: var(--color-black-at-18);
+    @media screen and (prefers-color-scheme: dark) {
+      background-color: var(--color-white-at-18);
+      border-color: var(--color-white-at-36);
+    }
+  }
+  &:active {
+    background-color: var(--color-white-at-12);
+    @media screen and (prefers-color-scheme: dark) {
+      background-color: var(--color-white-at-24);
+      border-color: var(--color-white-at-50);
+    }
+  }
+}
+
+/* pages/new-tab/app/components/Icons.module.css */
+.Icons_chevron {
+  &:hover .Icons_chevronCircle {
+    fill: black;
+    fill-opacity: 0.06;
+    @media screen and (prefers-color-scheme: dark) {
+      fill: white;
+      fill-opacity: 0.12;
+    }
+  }
+}
+.Icons_chevronCircle {
+  transition: all .3s;
+  fill-opacity: 0;
+}
+.Icons_chevronArrow {
+  @media screen and (prefers-color-scheme: dark) {
+    fill: white;
+    fill-opacity: 0.5;
+  }
+}
+.Icons_customize {
+}
+
+/* pages/new-tab/app/customizer/VisibilityMenu.module.css */
+.VisibilityMenu_dropdownInner {
+  background: var(--ntp-surface-background-color);
+  padding: var(--sp-1);
+  border-radius: 8px;
+  backdrop-filter: blur(48px);
+  border: 1px solid var(--color-black-at-9);
+  box-shadow:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.12),
+    0px 8px 16px 0px rgba(0, 0, 0, 0.20),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+  @media screen and (prefers-color-scheme: dark) {
+    border-color: var(--color-white-at-9);
+    box-shadow:
+      0px 0px 0px 1px rgba(255, 255, 255, 0.09) inset,
+      0px 0px 0px 1px rgba(0, 0, 0, 0.50),
+      0px 2px 4px 0px rgba(0, 0, 0, 0.15),
+      0px 8px 16px 0px rgba(0, 0, 0, 0.40);
+  }
+}
+.VisibilityMenu_list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.VisibilityMenu_menuItemLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  font-size: var(--title-3-em-font-size);
+  height: 28px;
+  padding-left: 10px;
+  padding-right: 10px;
+  > * {
+    min-width: 0;
+  }
+}
+.VisibilityMenu_svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+}
+.VisibilityMenu_checkbox {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+.VisibilityMenu_checkboxIcon {
+  font-size: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1px solid var(--color-black-at-48);
+  @media screen and (prefers-color-scheme: dark) {
+    border-color: rgba(255, 255, 255, 0.42);
+    background: rgba(255, 255, 255, 0.12);
+  }
+  &:hover {
+    background:
+      linear-gradient(
+        0deg,
+        var(--color-black-at-6) 0%,
+        var(--color-black-at-6) 100%);
+    @media screen and (prefers-color-scheme: dark) {
+      background:
+        linear-gradient(
+          0deg,
+          var(--color-white-at-18) 0%,
+          var(--color-white-at-18) 100%),
+        var(--color-white-at-12);
+    }
+  }
+  &:active {
+    background:
+      linear-gradient(
+        0deg,
+        var(--color-black-at-12) 0%,
+        var(--color-black-at-12) 100%),
+      var(--color-white-at-60);
+    @media screen and (prefers-color-scheme: dark) {
+      background:
+        linear-gradient(
+          0deg,
+          var(--color-white-at-24) 0%,
+          var(--color-white-at-24) 100%),
+        var(--color-white-at-12);
+    }
+  }
+}
+.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon {
+  background: var(--color-blue-50);
+  border-color: var(--color-blue-50);
+  @media screen and (prefers-color-scheme: dark) {
+    background: var(--color-blue-20);
+    border-color: var(--color-blue-20);
+  }
+  &:hover {
+    background: var(--color-blue-60);
+    border-color: var(--color-blue-60);
+    @media screen and (prefers-color-scheme: dark) {
+      background: var(--color-blue-30);
+      border-color: var(--color-blue-30);
+    }
+  }
+  &:active {
+    background: var(--color-blue-70);
+    border-color: var(--color-blue-70);
+    @media screen and (prefers-color-scheme: dark) {
+      background: var(--color-blue-40);
+      border-color: var(--color-blue-40);
+    }
+  }
+}
+.VisibilityMenu_menuItemLabel .VisibilityMenu_checkboxIcon svg path {
+  opacity: 0;
+}
+.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon svg path {
+  stroke: white;
+  opacity: 1;
+  @media screen and (prefers-color-scheme: dark) {
+    stroke: black;
+  }
+}
+.VisibilityMenu_menuItemLabel input:focus-visible + .VisibilityMenu_checkboxIcon {
+  outline: dotted 1px var(--ntp-focus-outline-color);
+  outline-offset: 2px;
 }
 
 /* pages/new-tab/app/privacy-stats/PrivacyStats.module.css */
@@ -270,6 +507,7 @@ body {
   align-items: start;
   grid-template-columns: auto;
   grid-row-gap: 18px;
+  width: 100%;
   @media screen and (prefers-color-scheme: dark) {
     border-color: var(--color-white-at-9);
   }
@@ -455,7 +693,6 @@ body {
   justify-content: center;
   align-items: center;
   color: var(--ntp-text-normal);
-  background: var(--ntp-background-color);
   height: 32px;
   width: 32px;
   line-height: 32px;
@@ -470,176 +707,6 @@ body {
   &:focus-visible {
     opacity: 1;
     outline: 1px dotted var(--ntp-focus-outline-color);
-  }
-}
-
-/* pages/new-tab/app/components/Icons.module.css */
-.Icons_chevron {
-  &:hover .Icons_chevronCircle {
-    fill: black;
-    fill-opacity: 0.06;
-    @media screen and (prefers-color-scheme: dark) {
-      fill: white;
-      fill-opacity: 0.12;
-    }
-  }
-}
-.Icons_chevronCircle {
-  transition: all .3s;
-  fill-opacity: 0;
-}
-.Icons_chevronArrow {
-  @media screen and (prefers-color-scheme: dark) {
-    fill: white;
-    fill-opacity: 0.5;
-  }
-}
-.Icons_customize {
-}
-
-/* pages/new-tab/app/customizer/Customizer.module.css */
-.Customizer_root {
-  position: relative;
-}
-.Customizer_lowerRightFixed {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-}
-.Customizer_dropdownMenu {
-  display: none;
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 10px);
-}
-.Customizer_show {
-  display: block;
-}
-.Customizer_customizeButton {
-  background-color: transparent;
-  border: 1px solid var(--color-black-at-9);
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  display: flex;
-  gap: 6px;
-  color: var(--color-black-at-84);
-  @media screen and (prefers-color-scheme: dark) {
-    color: var(--color-white-at-80);
-    border-color: var(--color-white-at-9);
-  }
-  &:focus-visible {
-    outline: 1px dotted var(--ntp-focus-outline-color);
-  }
-  &:hover {
-    background-color: var(--color-black-at-6);
-    border-color: var(--color-black-at-18);
-    @media screen and (prefers-color-scheme: dark) {
-      background-color: var(--color-white-at-18);
-      border-color: var(--color-white-at-36);
-    }
-  }
-  &:active {
-    background-color: var(--color-white-at-12);
-    @media screen and (prefers-color-scheme: dark) {
-      background-color: var(--color-white-at-24);
-      border-color: var(--color-white-at-50);
-    }
-  }
-}
-
-/* pages/new-tab/app/customizer/VisibilityMenu.module.css */
-.VisibilityMenu_dropdownInner {
-  background: var(--ntp-surface-background-color);
-  padding: var(--sp-1);
-  border-radius: 8px;
-  backdrop-filter: blur(48px);
-  border: 1px solid var(--color-black-at-9);
-  box-shadow:
-    0px 0px 0px 1px rgba(0, 0, 0, 0.12),
-    0px 8px 16px 0px rgba(0, 0, 0, 0.20),
-    0px 2px 4px 0px rgba(0, 0, 0, 0.15);
-  @media screen and (prefers-color-scheme: dark) {
-    border-color: var(--color-white-at-9);
-    box-shadow:
-      0px 0px 0px 1px rgba(255, 255, 255, 0.09) inset,
-      0px 0px 0px 1px rgba(0, 0, 0, 0.50),
-      0px 2px 4px 0px rgba(0, 0, 0, 0.15),
-      0px 8px 16px 0px rgba(0, 0, 0, 0.40);
-  }
-}
-.VisibilityMenu_list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-}
-.VisibilityMenu_menuItemLabel {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  white-space: nowrap;
-  font-size: var(--title-3-em-font-size);
-  height: 28px;
-  padding-left: 10px;
-  padding-right: 10px;
-  > * {
-    min-width: 0;
-  }
-}
-.VisibilityMenu_svg {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  display: flex;
-}
-.VisibilityMenu_checkbox {
-  position: absolute;
-  clip: rect(1px, 1px, 1px, 1px);
-  padding: 0;
-  border: 0;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-}
-.VisibilityMenu_checkboxIcon {
-  font-size: 0;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border-radius: 4px;
-  border: 1px solid var(--color-black-at-9);
-  @media screen and (prefers-color-scheme: dark) {
-    border: 1px solid var(--color-white-at-9);
-  }
-}
-.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon {
-  background: var(--color-blue-50);
-  border-color: var(--color-blue-50);
-}
-.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon svg path {
-  stroke: white;
-}
-.VisibilityMenu_menuItemLabel input:focus-visible + .VisibilityMenu_checkboxIcon {
-  outline: dotted 1px var(--ntp-focus-outline-color);
-  outline-offset: 2px;
-}
-
-/* pages/onboarding/app/components/Stack.module.css */
-.Stack_stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-8);
-  width: 100%;
-  &[data-debug=true] {
-    > * {
-      outline: 1px dotted black;
-    }
   }
 }
 
@@ -659,6 +726,7 @@ body {
     "Segoe UI",
     Roboto;
   color: var(--color-black);
+  width: 100%;
   &.RemoteMessagingFramework_icon {
     padding-left: var(--sp-2);
   }
@@ -798,6 +866,114 @@ body {
   }
 }
 
+/* pages/new-tab/app/update-notification/UpdateNotification.module.css */
+.UpdateNotification_pulled {
+  margin-top: -40px;
+}
+.UpdateNotification_root {
+  border-bottom: 1px solid var(--ntp-surface-border-color);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.UpdateNotification_body {
+  position: relative;
+  text-align: center;
+  width: 100%;
+  padding-block: var(--sp-6);
+}
+.UpdateNotification_details {
+  width: 100%;
+}
+.UpdateNotification_inlineLink {
+  color: var(--color-blue-50);
+  text-decoration: none;
+  &:focus-visible {
+    text-decoration: underline;
+  }
+  &:focus {
+    outline: none;
+  }
+  &:hover {
+    text-decoration: underline;
+  }
+  @media screen and (prefers-color-scheme: dark) {
+    color: white;
+    text-decoration: underline;
+    &:hover {
+      text-decoration: none;
+    }
+    &:focus-visible {
+      outline: 1px dotted var(--ntp-focus-outline-color);
+      border-radius: 4px;
+      text-decoration: none;
+    }
+  }
+}
+.UpdateNotification_summary {
+  list-style: none;
+}
+.UpdateNotification_summary::-webkit-details-marker {
+  display: none;
+}
+.UpdateNotification_detailsContent {
+  padding-inline: var(--sp-2);
+  margin-top: var(--sp-2);
+  text-align: left;
+}
+.UpdateNotification_list {
+  margin-left: var(--sp-20);
+  li {
+    list-style: disc;
+  }
+}
+.UpdateNotification_dismiss {
+  transition: all .3s;
+  position: absolute;
+  top: calc(var(--sp-6) - 4px);
+  right: var(--sp-2);
+}
+.UpdateNotification_dismissBtn {
+  height: 24px;
+  width: 24px;
+  padding: 0;
+  background-color: var(--ntp-background-color);
+  color: var(--color-black-at-60);
+  border: none;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  transition: background-color .3s;
+  svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+  }
+  &:active {
+    background-color: var(--color-black-at-18);
+    color: var(--color-black-at-84);
+  }
+  &:hover {
+    background-color: var(--color-black-at-9);
+  }
+  &:focus-visible {
+    outline: 1px dotted var(--ntp-focus-outline-color);
+    outline-offset: 4px;
+  }
+  @media screen and (prefers-color-scheme: dark) {
+    color: var(--color-white-at-60);
+    &:hover {
+      background-color: var(--color-white-at-9);
+    }
+    &:active {
+      background-color: var(--color-white-at-18);
+      color: var(--color-white-at-84);
+    }
+  }
+}
+
 /* shared/components/Fallback/Fallback.module.css */
 .Fallback_fallback {
   height: 100%;
@@ -805,11 +981,6 @@ body {
 }
 
 /* pages/new-tab/app/components/Components.module.css */
-[data-display=components] {
-  a {
-    color: var(--ntp-text-normal);
-  }
-}
 body[data-display=components] {
   padding-left: 0;
   padding-right: 0;
@@ -835,6 +1006,7 @@ body[data-display=components] {
   gap: 1em;
 }
 .Components_itemLink {
+  color: var(--ntp-text-normal);
   padding: 0.2em 0.3em;
   border: 1px solid var(--color-gray-60);
   border-radius: 4px;

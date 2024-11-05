@@ -4,9 +4,10 @@ import styles from './Customizer.module.css'
 import { VisibilityMenu } from './VisibilityMenu.js'
 import { CustomizeIcon } from '../components/Icons.js'
 import cn from 'classnames'
+import { useMessaging } from '../types.js'
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility } from '../../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../../types/new-tab.js'
  */
 
 /**
@@ -15,6 +16,8 @@ import cn from 'classnames'
 export function Customizer () {
     const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown()
     const [rowData, setRowData] = useState(/** @type {VisibilityRowData[]} */([]))
+
+    useContextMenu()
 
     /**
      * Dispatch an event every time the customizer is opened - this
@@ -63,7 +66,7 @@ export function Customizer () {
 Customizer.OPEN_EVENT = 'ntp-customizer-open'
 Customizer.UPDATE_EVENT = 'ntp-customizer-update'
 
-function getItems () {
+export function getItems () {
     /** @type {VisibilityRowData[]} */
     const next = []
     const detail = {
@@ -75,6 +78,34 @@ function getItems () {
     window.dispatchEvent(event)
     next.sort((a, b) => a.index - b.index)
     return next
+}
+
+/**
+ * Forward the contextmenu event
+ */
+export function useContextMenu () {
+    const messaging = useMessaging()
+    useEffect(() => {
+        function handler (e) {
+            e.preventDefault()
+            e.stopImmediatePropagation()
+            const items = getItems()
+            /** @type {VisibilityMenuItem[]} */
+            const simplified = items
+                .filter(x => x.id !== 'debug')
+                .map(item => {
+                    return {
+                        id: item.id,
+                        title: item.title
+                    }
+                })
+            messaging.contextMenu({ visibilityMenuItems: simplified })
+        }
+        document.body.addEventListener('contextmenu', handler)
+        return () => {
+            document.body.removeEventListener('contextmenu', handler)
+        }
+    }, [messaging])
 }
 
 /**

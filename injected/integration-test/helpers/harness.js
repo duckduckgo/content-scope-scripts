@@ -1,3 +1,4 @@
+/* global process */
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -92,9 +93,10 @@ export function testContextForExtension (test) {
  * @param {string} urlString
  * @param {Record<string, any>} [args]
  * @param {string|null} [evalBeforeInit]
+ * @param {"extension" | "script"} [kind] - if 'extension', the script will be loaded separately. if 'script' we'll append a script tag
  * @returns {Promise<void>}
  */
-export async function gotoAndWait (page, urlString, args = {}, evalBeforeInit = null) {
+export async function gotoAndWait (page, urlString, args = {}, evalBeforeInit = null, kind = 'extension') {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, search] = urlString.split('?')
     const searchParams = new URLSearchParams(search)
@@ -103,6 +105,12 @@ export async function gotoAndWait (page, urlString, args = {}, evalBeforeInit = 
     searchParams.append('wait-for-init-args', 'true')
 
     await page.goto(urlString + '?' + searchParams.toString())
+
+    if (kind === 'script') {
+        await page.addScriptTag({
+            url: './build/contentScope.js'
+        })
+    }
 
     // wait until contentScopeFeatures.load() has completed
     await page.waitForFunction(() => {
