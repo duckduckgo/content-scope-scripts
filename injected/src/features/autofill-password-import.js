@@ -1,12 +1,12 @@
 import ContentFeature from '../content-feature'
 import { DDGProxy, DDGReflect, withExponentialBackoff } from '../utils'
 
-const ANIMATION_DURATION_MS = 1000
-const ANIMATION_ITERATIONS = Infinity
-const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)'
-const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)'
-const OVERLAY_ID = 'ddg-password-import-overlay'
-const ANIMATION_TIMEOUT = 300
+export const ANIMATION_DURATION_MS = 1000
+export const ANIMATION_ITERATIONS = Infinity
+export const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)'
+export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)'
+export const OVERLAY_ID = 'ddg-password-import-overlay'
+export const DELAY_BEFORE_ANIMATION = 300
 
 /**
  * This feature is responsible for animating some buttons passwords.google.com,
@@ -135,7 +135,7 @@ export default class AutofillPasswordImport extends ContentFeature {
         const svgElement = mainElement.parentNode?.querySelector('svg') ?? mainElement.querySelector('svg')
 
         const isRound = style.borderRadius === '100%'
-        const elementToCenterOn = isRound ? svgElement : mainElement
+        const elementToCenterOn = (isRound && svgElement != null) ? svgElement : mainElement
         if (elementToCenterOn) {
             const { top, left, width, height } = elementToCenterOn.getBoundingClientRect()
             overlay.style.position = 'absolute'
@@ -264,6 +264,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             this.#settingsButtonSettings?.path,
             this.#signInButtonSettings?.path
         ]
+        console.log("supprotedPaths", supportedPaths, path)
         if (supportedPaths.includes(path)) {
             try {
                 const { element, style, shouldTap, shouldWatchForRemoval } = await this.getElementAndStyleFromPath(path) ?? {}
@@ -271,7 +272,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                     if (shouldTap) {
                         this.autotapElement(element)
                     } else {
-                        setTimeout(() => this.animateElement(element, style), ANIMATION_TIMEOUT)
+                        setTimeout(() => this.animateElement(element, style), DELAY_BEFORE_ANIMATION)
                     }
                     if (shouldWatchForRemoval) {
                         // Sometimes navigation events are not triggered, then we need to watch for removal

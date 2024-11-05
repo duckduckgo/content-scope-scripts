@@ -1,26 +1,29 @@
-import { test } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { readFileSync } from 'fs'
 import {
     mockAndroidMessaging,
     wrapWebkitScripts
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { perPlatform } from './type-helpers.mjs'
+import { OVERLAY_ID } from '../src/features/autofill-password-import'
 
 test('Password import feature', async ({ page }, testInfo) => {
     const passwordImportFeature = AutofillPasswordImportSpec.create(page, testInfo)
     await passwordImportFeature.enabled()
     await passwordImportFeature.navigate()
-    const didAnimatePasswordOptions = passwordImportFeature.waitForAnimation('a[aria-label="Password options"]')
     await passwordImportFeature.clickOnElement('Home page')
-    await didAnimatePasswordOptions
+    await passwordImportFeature.waitForAnimation()
 
-    const didAnimateSignin = passwordImportFeature.waitForAnimation('a[aria-label="Sign in"]')
     await passwordImportFeature.clickOnElement('Signin page')
-    await didAnimateSignin
+    await passwordImportFeature.waitForAnimation()
 
-    const didAnimateExport = passwordImportFeature.waitForAnimation('button[aria-label="Export"]')
     await passwordImportFeature.clickOnElement('Export page')
-    await didAnimateExport
+    await passwordImportFeature.waitForAnimation()
+
+    // Test unsupported path
+    await passwordImportFeature.clickOnElement('Unsupported page')
+    const overlay = page.locator(`#${OVERLAY_ID}`) 
+    await expect(overlay).not.toBeVisible()
 })
 
 export class AutofillPasswordImportSpec {
@@ -94,17 +97,10 @@ export class AutofillPasswordImportSpec {
 
     /**
      * Helper to assert that an element is animating
-     * @param {string} selector
      */
-    async waitForAnimation (selector) {
-        const locator = this.page.locator(selector)
-        return await locator.evaluate((el) => {
-            if (el != null) {
-                return el.getAnimations().some((animation) => animation.playState === 'running')
-            } else {
-                return false
-            }
-        }, selector)
+    async waitForAnimation () {
+        const locator = this.page.locator(`#${OVERLAY_ID}`)
+        await expect(locator).toBeVisible()
     }
 
     /**
