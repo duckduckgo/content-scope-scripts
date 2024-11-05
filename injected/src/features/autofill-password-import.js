@@ -273,14 +273,14 @@ export default class AutofillPasswordImport extends ContentFeature {
                     } else {
                         const domLoaded = new Promise((resolve) => {
                             if (document.readyState === "loading") {
-                              document.addEventListener("DOMContentLoaded", resolve);
+                                document.addEventListener("DOMContentLoaded", resolve);
                             } else {
-                              // @ts-expect-error 
-                              resolve()
+                                // @ts-expect-error - caller doesn't expect a value here
+                                resolve()
                             }
-                          })
-                          await domLoaded
-                          this.animateElement(element, style)
+                        })
+                        await domLoaded
+                        this.animateElement(element, style)
                     }
                     if (shouldWatchForRemoval) {
                         // Sometimes navigation events are not triggered, then we need to watch for removal
