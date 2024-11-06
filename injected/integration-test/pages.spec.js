@@ -66,9 +66,9 @@ test.describe('Test integration pages', () => {
         await testPage(
             page,
             'api-manipulation/pages/apis.html',
-            `${process.cwd()}/integration-test/test-pages/api-manipulation/config/apis.json`
-        )
-    })
+            `${process.cwd()}/integration-test/test-pages/api-manipulation/config/apis.json`,
+        );
+    });
 
     test('Web compat shims correctness', async ({ page }) => {
         await testPage(page, 'webcompat/pages/shims.html', `${process.cwd()}/integration-test/test-pages/webcompat/config/shims.json`);
