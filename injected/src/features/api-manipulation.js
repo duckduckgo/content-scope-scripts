@@ -3,16 +3,13 @@ import { processAttr } from '../utils'
 
 export default class ApiManipulation extends ContentFeature {
     init () {
-        console.log('ApiManipulation.init()')
         const apiChanges = this.getFeatureSetting('apiChanges')
         if (apiChanges) {
             for (const scope in apiChanges) {
                 const change = apiChanges[scope]
-                console.log('ApiManipulation.init() scope:', scope, 'change:', change)
                 if (!this.checkIsValidAPIChange(change)) {
                     continue
                 }
-                console.log('ApiManipulation.init() valid scope:', scope, 'change:', change)
                 this.applyApiChange(scope, change)
             }
         }
@@ -80,11 +77,11 @@ export default class ApiManipulation extends ContentFeature {
      * @param {string} key
      */
     removeApiMethod (api, key) {
-        if (api[key]) {
-            try {
+        try {
+            if (key in api) {
                 delete api[key]
-            } catch (e) {
             }
+        } catch (e) {
         }
     }
 
@@ -96,8 +93,7 @@ export default class ApiManipulation extends ContentFeature {
      */
     wrapPropertyValue (api, key, change) {
         this.wrapProperty(api, key, {
-            value: processAttr(change.value, undefined),
-            writable: change.writable || false,
+            get: () => processAttr(change.value, undefined),
             enumerable: change.enumerable || false,
             configurable: change.configurable || false
         })
