@@ -11,13 +11,15 @@ import { NextStepsCard } from './NextStepsCard';
  */
 /*
  * @param {object} props
- * @param {[string]} props.types
+ * @param {string[]} props.types
  * @param {Expansion} props.expansion
  * @param {()=>void} props.toggle
+ * @param {(id: string)=>void} props.action
+ * @param {(id: string)=>void} props.dismiss
  * @param {Animation['kind']} [props.animation] - optionally configure animations
  */
 
-export function NextStepsCardGroup({ types, expansion, toggle, animation }) {
+export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, animation = 'none' }) {
     const shownCards = expansion === 'expanded' ? types : types.slice(0, 2);
 
     console.log({ types, shownCards });
@@ -26,11 +28,11 @@ export function NextStepsCardGroup({ types, expansion, toggle, animation }) {
             <NextStepsBubbleHeader />
             <div class={styles.nextStepsCardGrid}>
                 {shownCards.map((type) => (
-                    <NextStepsCard key={type} type={type} dismiss={() => {}} />
+                    <NextStepsCard key={type} type={type} dismiss={dismiss} action={action}/>
                 ))}
             </div>
 
-            {types.length > 2 && <button>{expansion === 'expanded' ? 'Show Less' : 'Show More'}</button>}
+            {types.length > 2 && <button onClick={toggle}>{expansion === 'expanded' ? 'Show Less' : 'Show More'}</button>}
         </div>
     );
 }

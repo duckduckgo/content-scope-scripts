@@ -94,25 +94,25 @@ export const mainExamples = {
     },
     ...favoritesExamples,
     'next-steps.bringStuff': {
-        factory: () => <NextStepsCard type="bringStuff" dismiss={() => {}} />,
+        factory: () => <NextStepsCard type="bringStuff" dismiss={noop('dismiss')} action={noop('action')} />,
     },
-    'next-steps.duckPlayer': {
-        factory: () => <NextStepsCard type="duckPlayer" dismiss={() => {}} />,
+    'next-steps.duckplayer': {
+        factory: () => <NextStepsCard type="duckplayer" dismiss={noop('dismiss')} action={noop('action')} />,
     },
     'next-steps.defaultApp': {
-        factory: () => <NextStepsCard type="defaultApp" dismiss={() => {}} />,
+        factory: () => <NextStepsCard type="defaultApp" dismiss={noop('dismiss')} action={noop('action')} />,
     },
     'next-steps.emailProtection': {
-        factory: () => <NextStepsCard type="emailProtection" dismiss={() => {}} />,
+        factory: () => <NextStepsCard type="emailProtection" dismiss={noop('dismiss')} action={noop('action')} />,
     },
     'next-steps.blockCookies': {
-        factory: () => <NextStepsCard type="blockCookies" dismiss={() => {}} />,
+        factory: () => <NextStepsCard type="blockCookies" dismiss={noop('dismiss')} action={noop('action')} />,
     },
     'next-steps.addAppDockMac': {
-        factory: () => <NextStepsCard type="addAppDockMac" dismiss={() => {}} />,
+        factory: () => <NextStepsCard type="addAppDockMac" dismiss={noop('dismiss')} action={noop('action')} />,
     },
-    'next-steps.addToDockWindows': {
-        factory: () => <NextStepsCard type="pinAppToTaskbar" dismiss={() => {}} />,
+    'next-steps.pinToTaskbarWindows': {
+        factory: () => <NextStepsCard type="pinAppToTaskbarWindows" dismiss={noop('dismiss')} action={noop('action')} />,
     },
     'next-steps.bubble': {
         factory: () => <NextStepsBubbleHeader />,
@@ -120,9 +120,19 @@ export const mainExamples = {
     'next-steps.cardGroup.all': {
         factory: () => (
             <NextStepsCardGroup
-                types={['bringStuff', 'defaultApp', 'blockCookies', 'emailProtection', 'duckPlayer', 'addAppDockMac', 'pinAppToTaskbar']}
+                types={[
+                    'bringStuff',
+                    'defaultApp',
+                    'blockCookies',
+                    'emailProtection',
+                    'duckplayer',
+                    'addAppDockMac',
+                    'pinAppToTaskbarWindows',
+                ]}
                 expansion="collapsed"
-                toggle={() => {}}
+                toggle={noop('toggle')}
+                dismiss={noop('dismiss')}
+                action={noop('action')}
                 animation="None"
             />
         ),
@@ -130,18 +140,46 @@ export const mainExamples = {
     'next-steps.cardGroup.all-expanded': {
         factory: () => (
             <NextStepsCardGroup
-                types={['bringStuff', 'defaultApp', 'blockCookies', 'emailProtection', 'duckPlayer', 'addAppDockMac', 'pinAppToTaskbar']}
+                types={[
+                    'bringStuff',
+                    'defaultApp',
+                    'blockCookies',
+                    'emailProtection',
+                    'duckplayer',
+                    'addAppDockMac',
+                    'pinAppToTaskbarWindows',
+                ]}
                 expansion="expanded"
-                toggle={() => {}}
+                toggle={noop('toggle')}
+                dismiss={noop('dismiss')}
+                action={noop('action')}
                 animation="None"
             />
         ),
     },
     'next-steps.cardGroup.two': {
-        factory: () => <NextStepsCardGroup types={['bringStuff', 'defaultApp']} expansion="collapsed" toggle={() => {}} animation="None" />,
+        factory: () => (
+            <NextStepsCardGroup
+                types={['bringStuff', 'defaultApp']}
+                expansion="collapsed"
+                toggle={noop('toggle')}
+                dismiss={noop('dismiss')}
+                action={noop('action')}
+                animation="None"
+            />
+        ),
     },
     'next-steps.cardGroup.one': {
-        factory: () => <NextStepsCardGroup types={['bringStuff']} expansion="collapsed" toggle={() => {}} animation="None" />,
+        factory: () => (
+            <NextStepsCardGroup
+                types={['bringStuff']}
+                expansion="collapsed"
+                toggle={noop('toggle')}
+                dismiss={noop('dismiss')}
+                action={noop('action')}
+                animation="None"
+            />
+        ),
     },
 };
 

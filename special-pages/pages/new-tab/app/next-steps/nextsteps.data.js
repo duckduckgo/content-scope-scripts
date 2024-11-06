@@ -1,65 +1,98 @@
-export const oldVariants = {
-    bringStuff: {
+// // import { TranslationContext } from "../../../../shared/components/TranslationsProvider"
+
+// /**
+//  * @typedef {ReturnType<useTypedTranslation>['t']} TranslationFn
+//  */
+
+// /**
+//  * This is a wrapper to only allow keys from the default translation file
+//  * @type {() => { t: (key: keyof json, replacements?: Record<string, string>) => string }}
+//  */
+// // export function useTypedTranslation () {
+// //     return {
+// //         t: useContext(TranslationContext).t
+// //     }
+// // }
+
+// /**
+
+//  * @type {Record<string, (t: import('../types').TranslationFn) => Omit<RowData, "id" | "acceptText"> & { id: string }>}
+//  */
+export const variants = {
+    // /**
+    //  * @param {import('../types').TranslationFn} t
+    //  */
+    bringStuff: (t) => ({
         id: 'bring-stuff',
         icon: 'Bring-Stuff',
-        titleText: 'Bring your stuff',
-        descriptionText: 'Import bookmarks, favorites, and passwords for a smooth transition from your old browser.',
+        title: t('nextSteps_bringStuff_title'),
+        summary: t('nextSteps_bringStuff_summary'),
         action: () => {},
-        actionText: 'Import Now',
-        confirmationText: 'Imported!',
-    },
-    defaultApp: {
+        actionText: t('nextSteps_bringStuff_actionText'),
+    }),
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
+    defaultApp: (t) => ({
         id: 'defaultApp',
         icon: 'Default-App',
-        titleText: 'Set as Default Browser',
-        descriptionText: 'We automatically block trackers as you browse. It’s privacy, simplified.',
+        title: t('nextSteps_defaultApp_title'),
+        summary: t('nextSteps_defaultApp_summary'),
         action: () => {},
-        actionText: 'Make Default Browser',
-        confirmationText: 'Done',
-    },
-    blockCookies: {
+        actionText: t('nextSteps_defaultApp_actionText'),
+    }),
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
+    blockCookies: (t) => ({
         id: 'blockCookies',
         icon: 'Cookie-Pops',
-        titleText: 'Block Cookie Pop-ups',
-        descriptionText: 'We need your permission to say no to cookies on your behalf. Easy choice.',
+        title: t('nextSteps_blockCookies_title'),
+        summary: t('nextSteps_blockCookies_summary'),
         action: () => {},
-        actionText: 'Block Cookie Pop-ups',
-        confirmationText: 'Done',
-    },
-    emailProtection: {
+        actionText: t('nextSteps_blockCookies_actionText'),
+    }),
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
+    emailProtection: (t) => ({
         id: 'emailProtection',
         icon: 'Email-Protection',
-        titleText: 'Protect Your Inbox',
-        descriptionText: 'Generate @duck.com addresses that remove trackers from email and forwards to your inbox.',
+        title: t('nextSteps_emailProtection_title'),
+        summary: t('nextSteps_emailProtection_summary'),
         action: () => {},
-        actionText: 'Get Email Protection',
-        confirmationText: 'Done',
-    },
-    duckPlayer: {
+        actionText: t('nextSteps_emailProtection_actionText'),
+    }),
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
+    duckPlayer: (t) => ({
         id: 'duckplayer',
         icon: 'Tube-Clean',
-        titleText: 'YouTube Without Creepy Ads',
-        descriptionText: 'Enjoy a clean viewing experience without personalized ads.',
+        title: t('nextSteps_duckPlayer_title'),
+        summary: t('nextSteps_duckPlayer_summary'),
         action: () => {},
-        actionText: 'Try DuckPlayer',
-        confirmationText: 'Imported!',
-    },
-    addAppDockMac: {
+        actionText: t('nextSteps_duckPlayer_actionText'),
+    }),
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
+    addAppDockMac: (t) => ({
         id: 'addAppToDockMac',
         icon: 'Dock-Add-Mac',
-        titleText: 'Add App to the Dock',
-        descriptionText: 'Access DuckDuckGo faster by adding it to the Dock.',
+        title: t('nextSteps_addAppDockMac_title'),
+        summary: t('nextSteps_addAppDockMac_summary'),
         action: () => {},
-        actionText: 'Add to Dock',
-        confirmationText: 'Added to your Dock!',
-    },
-    pinAppToTaskbar: {
-        id: 'pinAppToTaskbar',
+        actionText: t('nextSteps_addAppDockMac_actionText'),
+        confirmationText: t('nextSteps_addAppDockMac_actionText'),
+    }),
+    pinAppToTaskbarWindows: (t) => ({
+        id: 'pinAppToTaskbarWindows',
         icon: 'Dock-Add-Windows',
-        titleText: 'Pin App to the Taskbar',
-        description: 'Access DuckDuckGo faster by pinning it to the Taskbar.',
+        title: t('nextSteps_pinAppToTaskbarWindows_title'),
+        summary: t('nextSteps_pinAppToTaskbarWindows_summary'),
         action: () => {},
-        actionText: 'Pin to Taskbar',
-        confirmationText: 'Pinned to Taskbar', // this is only available >= Windows 11 users
-    },
+        actionText: t('nextSteps_pinAppToTaskbarWindows_actionText'),
+        confirmationText: t('nextSteps_pinAppToTaskbarWindows_actionText'), // this is only available >= Windows 11 users
+    }),
 };
