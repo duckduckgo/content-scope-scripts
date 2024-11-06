@@ -17,6 +17,7 @@ describe('Features definition', () => {
             'navigatorInterface',
             'elementHiding',
             'exceptionHandler',
+            'apiManipulation',
         ]);
     });
 });
