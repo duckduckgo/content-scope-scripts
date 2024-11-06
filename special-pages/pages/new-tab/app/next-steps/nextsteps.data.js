@@ -1,4 +1,4 @@
-export const variants = {
+export const oldVariants = {
     bringStuff: {
         id: 'bring-stuff',
         icon: 'Bring-Stuff',

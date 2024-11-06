@@ -137,3 +137,28 @@
         }
     }
 }
+
+.nextStepsBubble {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    p {
+        background-color: var(--ddg-color-primary);
+        line-height: normal;
+        padding: 2px 0 3px;
+        font-weight: 600;
+        color: var(--color-white-at-84);
+    }
+
+    @media screen and (prefers-color-scheme: dark) {
+        svg path {
+            fill: var(--color-blue-30);
+        }
+
+        p {
+            background-color: var(--color-blue-30);
+            color: var(--color-blue-90);
+        }
+    }
+}
