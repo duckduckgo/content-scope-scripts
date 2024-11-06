@@ -27,17 +27,14 @@ export default class ApiManipulation extends ContentFeature {
         if (change.type === 'remove') {
             return true;
         }
-        if (change.type === 'wrapPropertyValue') {
-            if (change.writable && typeof change.writable !== 'boolean') {
-                return false;
-            }
+        if (change.type === 'descriptor') {
             if (change.enumerable && typeof change.enumerable !== 'boolean') {
                 return false;
             }
             if (change.configurable && typeof change.configurable !== 'boolean') {
                 return false;
             }
-            return typeof change.value !== 'undefined';
+            return typeof change.getterValue !== 'undefined';
         }
         return false;
     }
@@ -45,9 +42,8 @@ export default class ApiManipulation extends ContentFeature {
     // TODO move this to schema definition imported from the privacy-config
     /**
      * @typedef {Object} APIChange
-     * @property {"remove"|"wrapPropertyValue"} type
-     * @property {any} [value] - The value to set.
-     * @property {boolean} [writable] - Whether the property is writable.
+     * @property {"remove"|"descriptor"} type
+     * @property {any} [getterValue] - The value returned from a getter.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
      */
@@ -66,8 +62,8 @@ export default class ApiManipulation extends ContentFeature {
         const [obj, key] = response;
         if (change.type === 'remove') {
             this.removeApiMethod(obj, key);
-        } else if (change.type === 'wrapPropertyValue') {
-            this.wrapPropertyValue(obj, key, change);
+        } else if (change.type === 'descriptor') {
+            this.wrapApiDescriptor(obj, key, change);
         }
     }
 
@@ -85,14 +81,14 @@ export default class ApiManipulation extends ContentFeature {
     }
 
     /**
-     * Wraps a property value with a value.
+     * Wraps a property with descriptor.
      * @param {object} api
      * @param {string} key
      * @param {APIChange} change
      */
-    wrapPropertyValue(api, key, change) {
+    wrapApiDescriptor(api, key, change) {
         this.wrapProperty(api, key, {
-            get: () => processAttr(change.value, undefined),
+            get: () => processAttr(change.getterValue, undefined),
             enumerable: change.enumerable || false,
             configurable: change.configurable || false,
         });

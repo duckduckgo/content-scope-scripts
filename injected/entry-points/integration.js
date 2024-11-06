@@ -76,8 +76,8 @@ function generateConfig() {
                         type: 'remove',
                     },
                     'Navigator.prototype.protectedAudience': {
-                        type: 'wrapPropertyValue',
-                        value: {
+                        type: 'descriptor',
+                        getterValue: {
                             type: 'undefined',
                         },
                     },

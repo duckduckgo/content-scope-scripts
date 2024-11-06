@@ -5,8 +5,8 @@
             "settings": {
                 "apiChanges": {
                     "Navigator.prototype.hardwareConcurrency": {
-                        "type": "wrapPropertyValue",
-                        "value": {
+                        "type": "descriptor",
+                        "getterValue": {
                             "type": "number",
                             "value": 222
                         }
