@@ -5,20 +5,13 @@
 export const SupportStatus = {
     NOT_SUPPORTED: 'notSupported',
     PARTIAL_SUPPORT: 'partialSupport',
-    FULL_SUPPORT: 'fullSupport'
-}
+    FULL_SUPPORT: 'fullSupport',
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const tableIcons = [
-    'ads.svg',
-    'cookie.svg',
-    'fire.svg',
-    'search.svg',
-    'shield.svg',
-    'video-player.svg'
-]
+const tableIcons = ['ads.svg', 'cookie.svg', 'fire.svg', 'search.svg', 'shield.svg', 'video-player.svg'];
 
-export const tableIconPrefix = 'assets/img/steps/v3/'
+export const tableIconPrefix = 'assets/img/steps/v3/';
 
 /** @typedef {{ icon: tableIcons[number], title: string, statuses: Record<'chrome'|'safari'|'ddg', SupportStatus> }} FeatureSupportData */
 
@@ -28,15 +21,15 @@ export const tableIconPrefix = 'assets/img/steps/v3/'
  * Safari was removed from the latest comparison table layout. Keeping it the data just in case it comes back.
  *
  * @type {(t: ReturnType<typeof import('../../types')['useTypedTranslation']>['t']) => FeatureSupportData[]} */
-export const comparisonTableData = (t) => ([
+export const comparisonTableData = (t) => [
     {
         icon: 'search.svg',
         title: t('comparison_searchPrivately'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'shield.svg',
@@ -44,8 +37,8 @@ export const comparisonTableData = (t) => ([
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.PARTIAL_SUPPORT,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'cookie.svg',
@@ -53,8 +46,8 @@ export const comparisonTableData = (t) => ([
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'ads.svg',
@@ -62,8 +55,8 @@ export const comparisonTableData = (t) => ([
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'fire.svg',
@@ -71,8 +64,8 @@ export const comparisonTableData = (t) => ([
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
     },
     {
         icon: 'video-player.svg',
@@ -80,7 +73,7 @@ export const comparisonTableData = (t) => ([
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
-            ddg: SupportStatus.FULL_SUPPORT
-        }
-    }
-])
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
+    },
+];

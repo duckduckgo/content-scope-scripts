@@ -1,38 +1,38 @@
 /**
  * @module Apple integration
  */
-import { load, init } from '../src/content-scope-features.js'
-import { processConfig, isGloballyDisabled } from './../src/utils'
-import { isTrackerOrigin } from '../src/trackers'
-import { WebkitMessagingConfig, TestTransportConfig } from '../../messaging/index.js'
+import { load, init } from '../src/content-scope-features.js';
+import { processConfig, isGloballyDisabled } from './../src/utils';
+import { isTrackerOrigin } from '../src/trackers';
+import { WebkitMessagingConfig, TestTransportConfig } from '../../messaging/index.js';
 
-function initCode () {
+function initCode() {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
+    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
     if (isGloballyDisabled(processedConfig)) {
-        return
+        return;
     }
 
     if (import.meta.injectName === 'apple-isolated') {
         processedConfig.messagingConfig = new WebkitMessagingConfig({
             webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
             secret: '',
-            hasModernWebkitAPI: true
-        })
+            hasModernWebkitAPI: true,
+        });
     } else {
         processedConfig.messagingConfig = new TestTransportConfig({
-            notify () {
+            notify() {
                 // noop
             },
             request: async () => {
                 // noop
             },
-            subscribe () {
+            subscribe() {
                 return () => {
                     // noop
-                }
-            }
-        })
+                };
+            },
+        });
     }
 
     load({
@@ -41,13 +41,13 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig
-    })
+        messagingConfig: processedConfig.messagingConfig,
+    });
 
-    init(processedConfig)
+    init(processedConfig);
 
     // Not supported:
     // update(message)
 }
 
-initCode()
+initCode();

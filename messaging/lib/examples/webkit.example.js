@@ -1,4 +1,4 @@
-import { Messaging, MessagingContext, WebkitMessagingConfig } from '../../index.js'
+import { Messaging, MessagingContext, WebkitMessagingConfig } from '../../index.js';
 
 /**
  * Configuration for WebkitMessaging
@@ -6,8 +6,8 @@ import { Messaging, MessagingContext, WebkitMessagingConfig } from '../../index.
 const config = new WebkitMessagingConfig({
     hasModernWebkitAPI: true,
     secret: 'SECRET',
-    webkitMessageHandlerNames: ['contentScopeScripts']
-})
+    webkitMessageHandlerNames: ['contentScopeScripts'],
+});
 
 /**
  * Context for messaging - this helps native platforms differentiate between senders
@@ -15,13 +15,13 @@ const config = new WebkitMessagingConfig({
 const messagingContext = new MessagingContext({
     context: 'contentScopeScripts',
     featureName: 'hello-world',
-    env: 'development'
-})
+    env: 'development',
+});
 
 /**
  * With config + context, now create an instance:
  */
-const messaging = new Messaging(messagingContext, config)
+const messaging = new Messaging(messagingContext, config);
 
 /**
  * send notifications (fire and forget)
@@ -32,6 +32,6 @@ messaging.notify('sendPixel');
  * request data
  */
 (async () => {
-    const result = await messaging.request('helloWorld', { foo: 'bar' })
-    console.log(result)
-})()
+    const result = await messaging.request('helloWorld', { foo: 'bar' });
+    console.log(result);
+})();

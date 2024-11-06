@@ -1,7 +1,7 @@
-import {readdirSync, readFileSync} from "fs";
-import {join} from "node:path";
-import {toSafeString} from "json-schema-to-typescript/dist/src/utils.js";
-import {generateSchema} from "./json-schema.mjs";
+import { readdirSync, readFileSync } from 'fs';
+import { join } from 'node:path';
+import { toSafeString } from 'json-schema-to-typescript/dist/src/utils.js';
+import { generateSchema } from './json-schema.mjs';
 
 /**
  * From a directory, produce a list of valid json-schema files that can be used.
@@ -9,27 +9,26 @@ import {generateSchema} from "./json-schema.mjs";
  * @param {string} featureDirName
  */
 export function createFileList(rootDir, featureDirName) {
-    const files = readdirSync(join(rootDir, featureDirName), {withFileTypes: true})
-    return files
-        .map(x => {
-            const valid = isValidFileName(x);
-            if (valid.result) {
-                const abs = join(rootDir, featureDirName, x.name);
-                const content = readFileSync(abs, 'utf8');
-                return {
-                    relative: join(featureDirName, x.name),
-                    valid: true,
-                    filename: x.name,
-                    method: valid.method,
-                    kind: valid.kind,
-                    json: JSON.parse(content)
-                }
-            }
+    const files = readdirSync(join(rootDir, featureDirName), { withFileTypes: true });
+    return files.map((x) => {
+        const valid = isValidFileName(x);
+        if (valid.result) {
+            const abs = join(rootDir, featureDirName, x.name);
+            const content = readFileSync(abs, 'utf8');
             return {
-                valid: false,
-                errors: [`invalid filename ${x.name}, expected \`request\`, \`notify\` or \`subscribe\``]
-            }
-        })
+                relative: join(featureDirName, x.name),
+                valid: true,
+                filename: x.name,
+                method: valid.method,
+                kind: valid.kind,
+                json: JSON.parse(content),
+            };
+        }
+        return {
+            valid: false,
+            errors: [`invalid filename ${x.name}, expected \`request\`, \`notify\` or \`subscribe\``],
+        };
+    });
 }
 
 /**
@@ -43,26 +42,26 @@ export function createFileList(rootDir, featureDirName) {
  */
 export function createSchemasFromFiles(rootDir) {
     const dirList = readdirSync(rootDir, { withFileTypes: true });
-    const dirs = dirList.filter(x => x.isDirectory());
+    const dirs = dirList.filter((x) => x.isDirectory());
 
     const outputs = [];
 
     for (const dir of dirs) {
         const fileList = createFileList(rootDir, dir.name);
-        const valid = fileList.filter(x => x.valid);
+        const valid = fileList.filter((x) => x.valid);
         if (valid.length === 0) continue;
 
         const featureName = toSafeString(dir.name);
         const schema = generateSchema(featureName, valid);
-        if (!schema.title) throw new Error('invariant: expected string')
+        if (!schema.title) throw new Error('invariant: expected string');
         const topLevelType = toSafeString(schema.title);
 
         outputs.push({
             featureName,
             topLevelType,
             dirname: dir.name,
-            schema
-        })
+            schema,
+        });
     }
 
     return outputs;
@@ -71,12 +70,12 @@ export function createSchemasFromFiles(rootDir) {
  * @param {import("node:fs").Dirent} file
  */
 export function isValidFileName(file) {
-    if (!file.isFile()) return {result: false}
-    if (!file.name.endsWith('json')) return {result: false}
+    if (!file.isFile()) return { result: false };
+    if (!file.name.endsWith('json')) return { result: false };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [method, kind, ext] = file.name.split('.');
     if (kind === 'request' || kind === 'response' || kind === 'notify' || kind === 'subscribe') {
-        return { result: true, method, kind }
+        return { result: true, method, kind };
     }
     return { result: false };
 }

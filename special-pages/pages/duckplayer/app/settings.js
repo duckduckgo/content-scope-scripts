@@ -6,16 +6,16 @@ export class Settings {
      * @param {{state: 'enabled' | 'disabled'}} [params.autoplay]
      * @param {{state: 'enabled' | 'disabled'}} [params.focusMode]
      */
-    constructor ({
+    constructor({
         platform = { name: 'macos' },
         pip = { state: 'disabled' },
         autoplay = { state: 'enabled' },
-        focusMode = { state: 'enabled' }
+        focusMode = { state: 'enabled' },
     }) {
-        this.platform = platform
-        this.pip = pip
-        this.autoplay = autoplay
-        this.focusMode = focusMode
+        this.platform = platform;
+        this.pip = pip;
+        this.autoplay = autoplay;
+        this.focusMode = focusMode;
     }
 
     /**
@@ -23,82 +23,84 @@ export class Settings {
      * @param {{state: 'enabled' | 'disabled'} | null | undefined} settings
      * @return {Settings}
      */
-    withFeatureState (named, settings) {
-        if (!settings) return this
+    withFeatureState(named, settings) {
+        if (!settings) return this;
         /** @type {(keyof import("../../../types/duckplayer").DuckPlayerPageSettings)[]} */
-        const valid = ['pip', 'autoplay', 'focusMode']
+        const valid = ['pip', 'autoplay', 'focusMode'];
         if (!valid.includes(named)) {
-            console.warn(`Excluding invalid feature key ${named}`)
-            return this
+            console.warn(`Excluding invalid feature key ${named}`);
+            return this;
         }
 
         if (settings.state === 'enabled' || settings.state === 'disabled') {
             return new Settings({
                 ...this,
-                [named]: settings
-            })
+                [named]: settings,
+            });
         }
-        return this
+        return this;
     }
 
-    withPlatformName (name) {
+    withPlatformName(name) {
         /** @type {ImportMeta['platform'][]} */
-        const valid = ['windows', 'macos', 'ios', 'android']
-        if (valid.includes(/** @type {any} */(name))) {
+        const valid = ['windows', 'macos', 'ios', 'android'];
+        if (valid.includes(/** @type {any} */ (name))) {
             return new Settings({
                 ...this,
-                platform: { name }
-            })
+                platform: { name },
+            });
         }
-        return this
+        return this;
     }
 
     /**
      * @param {string|null|undefined} newState
      * @return {Settings}
      */
-    withDisabledFocusMode (newState) {
+    withDisabledFocusMode(newState) {
         if (newState === 'disabled' || newState === 'enabled') {
             return new Settings({
                 ...this,
-                focusMode: { state: newState }
-            })
+                focusMode: { state: newState },
+            });
         }
 
-        return this
+        return this;
     }
 
     /**
      * @return {string}
      */
-    get youtubeBase () {
+    get youtubeBase() {
         switch (this.platform.name) {
-        case 'windows':
-        case 'ios':
-        case 'android': {
-            return 'duck://player/openInYoutube'
-        }
-        case 'macos': {
-            return 'https://www.youtube.com/watch'
-        }
-        default: throw new Error('unreachable')
+            case 'windows':
+            case 'ios':
+            case 'android': {
+                return 'duck://player/openInYoutube';
+            }
+            case 'macos': {
+                return 'https://www.youtube.com/watch';
+            }
+            default:
+                throw new Error('unreachable');
         }
     }
 
     /**
      * @return {'desktop' | 'mobile'}
      */
-    get layout () {
+    get layout() {
         switch (this.platform.name) {
-        case 'windows':
-        case 'macos': {
-            return 'desktop'
-        }
-        case 'ios':
-        case 'android': {
-            return 'mobile'
-        }
-        default: return 'desktop'
+            case 'windows':
+            case 'macos': {
+                return 'desktop';
+            }
+            case 'ios':
+            case 'android': {
+                return 'mobile';
+            }
+            default:
+                return 'desktop';
         }
     }
 }

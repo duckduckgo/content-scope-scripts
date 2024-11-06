@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import classNames from 'classnames'
-import styles from './Button.module.css'
+import { h } from 'preact';
+import classNames from 'classnames';
+import styles from './Button.module.css';
 
 /**
  * @param {object} props
@@ -11,7 +11,7 @@ import styles from './Button.module.css'
  * @param {import("preact").JSX.MouseEventHandler<EventTarget>} [props.onClick]
  * @param {import('preact').ComponentProps<'button'>} [props.otherProps]
  */
-export function Button ({ variant, className, children, onClick, type = 'button' }) {
+export function Button({ variant, className, children, onClick, type = 'button' }) {
     return (
         <button
             className={classNames(styles.button, { [styles[`${variant}`]]: !!variant }, className)}
@@ -22,11 +22,12 @@ export function Button ({ variant, className, children, onClick, type = 'button'
                  */
                 (event) => {
                     if (onClick) {
-                        onClick(event)
+                        onClick(event);
                     }
-                }}
+                }
+            }
         >
             {children}
         </button>
-    )
+    );
 }

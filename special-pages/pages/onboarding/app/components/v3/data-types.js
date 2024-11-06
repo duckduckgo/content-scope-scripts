@@ -55,4 +55,4 @@
  * @typedef {StepConfigParams & StepConfig} StepData
  */
 
-export {}
+export {};

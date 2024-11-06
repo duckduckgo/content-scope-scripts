@@ -3,4 +3,4 @@
  * that might be needed in CSS or JS
  */
 
-document.documentElement.dataset.platform = import.meta.injectName
+document.documentElement.dataset.platform = import.meta.injectName;

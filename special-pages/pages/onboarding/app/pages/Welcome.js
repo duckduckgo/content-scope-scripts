@@ -1,7 +1,7 @@
-import { h } from 'preact'
-import { Button } from '../components/Buttons'
-import { SlideUp } from '../components/Icons'
-import { useTypedTranslation } from '../types'
+import { h } from 'preact';
+import { Button } from '../components/Buttons';
+import { SlideUp } from '../components/Icons';
+import { useTypedTranslation } from '../types';
 
 /**
  * Renders the first page of the application and provides an option to move to the next page.
@@ -9,8 +9,8 @@ import { useTypedTranslation } from '../types'
  * @param {Object} props - The component props.
  * @param {() => void} props.onNextPage - Callback function to be called when the "Get Started" button is clicked.
  */
-export function GetStarted ({ onNextPage }) {
-    const { t } = useTypedTranslation()
+export function GetStarted({ onNextPage }) {
+    const { t } = useTypedTranslation();
 
     return (
         <SlideUp>
@@ -18,5 +18,5 @@ export function GetStarted ({ onNextPage }) {
                 {t('getStartedButton')}
             </Button>
         </SlideUp>
-    )
+    );
 }

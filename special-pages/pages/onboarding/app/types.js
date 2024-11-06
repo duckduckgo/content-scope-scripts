@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import json from '../src/locales/en/onboarding.json'
-import { TranslationContext } from '../../../shared/components/TranslationsProvider'
-import { useContext } from 'preact/hooks'
+import json from '../src/locales/en/onboarding.json';
+import { TranslationContext } from '../../../shared/components/TranslationsProvider';
+import { useContext } from 'preact/hooks';
 
 /**
  * @typedef {'dock'
@@ -51,19 +51,11 @@ export const EVERY_PAGE_ID = [
     'dockSingle',
     'importSingle',
     'makeDefaultSingle',
-    'duckPlayerSingle'
-]
+    'duckPlayerSingle',
+];
 
 /** @type {Step['id'][]} */
-export const DEFAULT_ORDER = [
-    'welcome',
-    'getStarted',
-    'privateByDefault',
-    'cleanerBrowsing',
-    'systemSettings',
-    'customize',
-    'summary'
-]
+export const DEFAULT_ORDER = ['welcome', 'getStarted', 'privateByDefault', 'cleanerBrowsing', 'systemSettings', 'customize', 'summary'];
 
 /** @type {Step['id'][]} */
 export const ALT_ORDER = [
@@ -75,18 +67,11 @@ export const ALT_ORDER = [
     'importSingle',
     'makeDefaultSingle',
     'customize',
-    'summary'
-]
+    'summary',
+];
 
 /** @type {Step['id'][]} */
-export const ORDER_V3 = [
-    'welcome',
-    'getStarted',
-    'makeDefaultSingle',
-    'systemSettings',
-    'duckPlayerSingle',
-    'customize'
-]
+export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize'];
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host
@@ -140,12 +125,9 @@ export const ORDER_V3 = [
  */
 
 /** @type {ImportMeta['injectName'][]} */
-export const PLATFORMS = [
-    'apple',
-    'windows'
-]
+export const PLATFORMS = ['apple', 'windows'];
 
-export {}
+export {};
 
 /**
  * @typedef {ReturnType<useTypedTranslation>['t']} TranslationFn
@@ -155,8 +137,8 @@ export {}
  * This is a wrapper to only allow keys from the default translation file
  * @type {() => { t: (key: keyof json, replacements?: Record<string, string>) => string }}
  */
-export function useTypedTranslation () {
+export function useTypedTranslation() {
     return {
-        t: useContext(TranslationContext).t
-    }
+        t: useContext(TranslationContext).t,
+    };
 }

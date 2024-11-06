@@ -1,8 +1,8 @@
-import ContentFeature from '../content-feature'
-import { DDGProxy, DDGReflect, withExponentialBackoff } from '../utils'
+import ContentFeature from '../content-feature';
+import { DDGProxy, DDGReflect, withExponentialBackoff } from '../utils';
 
-const ANIMATION_DURATION_MS = 1000
-const ANIMATION_ITERATIONS = Infinity
+const ANIMATION_DURATION_MS = 1000;
+const ANIMATION_ITERATIONS = Infinity;
 
 /**
  * This feature is responsible for animating some buttons passwords.google.com,
@@ -12,38 +12,38 @@ const ANIMATION_ITERATIONS = Infinity
  * 3. Animate the element, or tap it if it should be autotapped.
  */
 export default class AutofillPasswordImport extends ContentFeature {
-    #exportButtonSettings
-    #settingsButtonSettings
-    #signInButtonSettings
+    #exportButtonSettings;
+    #settingsButtonSettings;
+    #signInButtonSettings;
 
     /**
      * @returns {any}
      */
-    get settingsButtonStyle () {
+    get settingsButtonStyle() {
         return {
             scale: 1,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-        }
+            backgroundColor: 'rgba(0, 39, 142, 0.5)',
+        };
     }
 
     /**
      * @returns {any}
      */
-    get exportButtonStyle () {
+    get exportButtonStyle() {
         return {
             scale: 1.01,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-        }
+            backgroundColor: 'rgba(0, 39, 142, 0.5)',
+        };
     }
 
     /**
      * @returns {any}
      */
-    get signInButtonStyle () {
+    get signInButtonStyle() {
         return {
             scale: 1.5,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-        }
+            backgroundColor: 'rgba(0, 39, 142, 0.5)',
+        };
     }
 
     /**
@@ -51,36 +51,36 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @param {string} path
      * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean}|null>}
      */
-    async getElementAndStyleFromPath (path) {
+    async getElementAndStyleFromPath(path) {
         if (path === '/') {
-            const element = await this.findSettingsElement()
+            const element = await this.findSettingsElement();
             return element != null
                 ? {
-                    style: this.settingsButtonStyle,
-                    element,
-                    shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false
-                }
-                : null
+                      style: this.settingsButtonStyle,
+                      element,
+                      shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
+                  }
+                : null;
         } else if (path === '/options') {
-            const element = await this.findExportElement()
+            const element = await this.findExportElement();
             return element != null
                 ? {
-                    style: this.exportButtonStyle,
-                    element,
-                    shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false
-                }
-                : null
+                      style: this.exportButtonStyle,
+                      element,
+                      shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
+                  }
+                : null;
         } else if (path === '/intro') {
-            const element = await this.findSignInButton()
+            const element = await this.findSignInButton();
             return element != null
                 ? {
-                    style: this.signInButtonStyle,
-                    element,
-                    shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false
-                }
-                : null
+                      style: this.signInButtonStyle,
+                      element,
+                      shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
+                  }
+                : null;
         } else {
-            return null
+            return null;
         }
     }
 
@@ -89,30 +89,30 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @param {HTMLElement|Element} element
      * @param {any} style
      */
-    animateElement (element, style) {
+    animateElement(element, style) {
         element.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
-            inline: 'center'
-        }) // Scroll into view
+            inline: 'center',
+        }); // Scroll into view
         const keyframes = [
             { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0, borderRadius: '2px' }, // Start: transparent
             { backgroundColor: style.backgroundColor, offset: 0.5, borderRadius: '2px', transform: `scale(${style.scale})` }, // Midpoint: blue with 50% opacity
-            { backgroundColor: 'rgba(0, 0, 255, 0)', borderRadius: '2px', offset: 1 } // End: transparent
-        ]
+            { backgroundColor: 'rgba(0, 0, 255, 0)', borderRadius: '2px', offset: 1 }, // End: transparent
+        ];
 
         // Define the animation options
         const options = {
             duration: ANIMATION_DURATION_MS,
-            iterations: ANIMATION_ITERATIONS
-        }
+            iterations: ANIMATION_ITERATIONS,
+        };
 
         // Apply the animation to the element
-        element.animate(keyframes, options)
+        element.animate(keyframes, options);
     }
 
-    autotapElement (element) {
-        element.click()
+    autotapElement(element) {
+        element.click();
     }
 
     /**
@@ -121,56 +121,52 @@ export default class AutofillPasswordImport extends ContentFeature {
      * If that fails, we look for the button based on it's label.
      * @returns {Promise<HTMLElement|Element|null>}
      */
-    async findExportElement () {
+    async findExportElement() {
         const findInContainer = () => {
-            const exportButtonContainer = document.querySelector(this.exportButtonContainerSelector)
-            return exportButtonContainer && exportButtonContainer.querySelectorAll('button')[1]
-        }
+            const exportButtonContainer = document.querySelector(this.exportButtonContainerSelector);
+            return exportButtonContainer && exportButtonContainer.querySelectorAll('button')[1];
+        };
 
         const findWithLabel = () => {
-            return document.querySelector(this.exportButtonLabelTextSelector)
-        }
+            return document.querySelector(this.exportButtonLabelTextSelector);
+        };
 
-        return await withExponentialBackoff(() => findInContainer() ?? findWithLabel())
+        return await withExponentialBackoff(() => findInContainer() ?? findWithLabel());
     }
 
     /**
      * @returns {Promise<HTMLElement|Element|null>}
      */
-    async findSettingsElement () {
+    async findSettingsElement() {
         const fn = () => {
-            const settingsButton = document.querySelector(this.settingsButtonSelector)
-            return settingsButton
-        }
-        return await withExponentialBackoff(fn)
+            const settingsButton = document.querySelector(this.settingsButtonSelector);
+            return settingsButton;
+        };
+        return await withExponentialBackoff(fn);
     }
 
     /**
      * @returns {Promise<HTMLElement|Element|null>}
      */
-    async findSignInButton () {
-        return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector))
+    async findSignInButton() {
+        return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector));
     }
 
     /**
      * Checks if the path is supported and animates/taps the element if it is.
      * @param {string} path
      */
-    async handleElementForPath (path) {
-        const supportedPaths = [
-            this.#exportButtonSettings?.path,
-            this.#settingsButtonSettings?.path,
-            this.#signInButtonSettings?.path
-        ]
+    async handleElementForPath(path) {
+        const supportedPaths = [this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path];
         if (supportedPaths.indexOf(path)) {
             try {
-                const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
+                const { element, style, shouldTap } = (await this.getElementAndStyleFromPath(path)) ?? {};
                 if (element != null) {
                     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                    shouldTap ? this.autotapElement(element) : this.animateElement(element, style)
+                    shouldTap ? this.autotapElement(element) : this.animateElement(element, style);
                 }
             } catch {
-                console.error('password-import: handleElementForPath failed for path:', path)
+                console.error('password-import: handleElementForPath failed for path:', path);
             }
         }
     }
@@ -178,76 +174,70 @@ export default class AutofillPasswordImport extends ContentFeature {
     /**
      * @returns {string}
      */
-    get exportButtonContainerSelector () {
-        return this.#exportButtonSettings?.selectors?.join(',')
+    get exportButtonContainerSelector() {
+        return this.#exportButtonSettings?.selectors?.join(',');
     }
 
     /**
      * @returns {string}
      */
-    get exportButtonLabelTextSelector () {
-        return this.#exportButtonSettings?.labelTexts
-            .map(text => `button[aria-label="${text}"]`)
-            .join(',')
+    get exportButtonLabelTextSelector() {
+        return this.#exportButtonSettings?.labelTexts.map((text) => `button[aria-label="${text}"]`).join(',');
     }
 
     /**
      * @returns {string}
      */
-    get signinLabelTextSelector () {
-        return this.#signInButtonSettings?.labelTexts
-            .map(text => `a[aria-label="${text}"]:not([target="_top"])`)
-            .join(',')
+    get signinLabelTextSelector() {
+        return this.#signInButtonSettings?.labelTexts.map((text) => `a[aria-label="${text}"]:not([target="_top"])`).join(',');
     }
 
     /**
      * @returns {string}
      */
-    get signinButtonSelector () {
-        return `${this.#signInButtonSettings?.selectors?.join(',')}, ${this.signinLabelTextSelector}`
+    get signinButtonSelector() {
+        return `${this.#signInButtonSettings?.selectors?.join(',')}, ${this.signinLabelTextSelector}`;
     }
 
     /**
      * @returns {string}
      */
-    get settingsLabelTextSelector () {
-        return this.#settingsButtonSettings?.labelTexts
-            .map(text => `a[aria-label="${text}"]`)
-            .join(',')
+    get settingsLabelTextSelector() {
+        return this.#settingsButtonSettings?.labelTexts.map((text) => `a[aria-label="${text}"]`).join(',');
     }
 
     /**
      * @returns {string}
      */
-    get settingsButtonSelector () {
-        return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`
+    get settingsButtonSelector() {
+        return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`;
     }
 
-    setButtonSettings () {
-        this.#exportButtonSettings = this.getFeatureSetting('exportButton')
-        this.#signInButtonSettings = this.getFeatureSetting('signInButton')
-        this.#settingsButtonSettings = this.getFeatureSetting('settingsButton')
+    setButtonSettings() {
+        this.#exportButtonSettings = this.getFeatureSetting('exportButton');
+        this.#signInButtonSettings = this.getFeatureSetting('signInButton');
+        this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
     }
 
-    init () {
-        this.setButtonSettings()
+    init() {
+        this.setButtonSettings();
 
-        const handleElementForPath = this.handleElementForPath.bind(this)
+        const handleElementForPath = this.handleElementForPath.bind(this);
         const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
-            async apply (target, thisArg, args) {
-                const path = args[1] === '' ? args[2].split('?')[0] : args[1]
-                await handleElementForPath(path)
-                return DDGReflect.apply(target, thisArg, args)
-            }
-        })
-        historyMethodProxy.overload()
+            async apply(target, thisArg, args) {
+                const path = args[1] === '' ? args[2].split('?')[0] : args[1];
+                await handleElementForPath(path);
+                return DDGReflect.apply(target, thisArg, args);
+            },
+        });
+        historyMethodProxy.overload();
         // listen for popstate events in order to run on back/forward navigations
         window.addEventListener('popstate', async () => {
-            await handleElementForPath(window.location.pathname)
-        })
+            await handleElementForPath(window.location.pathname);
+        });
 
         document.addEventListener('DOMContentLoaded', async () => {
-            await handleElementForPath(window.location.pathname)
-        })
+            await handleElementForPath(window.location.pathname);
+        });
     }
 }

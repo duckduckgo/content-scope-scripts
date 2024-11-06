@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import classNames from 'classnames'
-import styles from './Text.module.css'
+import { h } from 'preact';
+import classNames from 'classnames';
+import styles from './Text.module.css';
 
 /**
  * @param {object} props
@@ -11,10 +11,10 @@ import styles from './Text.module.css'
  * @param {import("preact").ComponentChild} [props.children]
  */
 // eslint-disable-next-line no-redeclare
-export function Text ({ as: Comp = 'p', variant, strictSpacing = true, className, children }) {
+export function Text({ as: Comp = 'p', variant, strictSpacing = true, className, children }) {
     return (
         <Comp className={classNames({ [styles[`${variant}`]]: variant, [styles.strictSpacing]: strictSpacing }, className)}>
             {children}
         </Comp>
-    )
+    );
 }
