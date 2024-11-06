@@ -2,7 +2,9 @@ import { h } from 'preact';
 import cn from 'classnames';
 import styles from './NextSteps.module.css';
 import { Cross } from '../components/Icons.js';
-import { oldVariants } from './nextsteps.data';
+// import { oldVariants } from './nextsteps.data';
+import { variants } from './nextsteps.data2.js';
+import { useTypedTranslation } from '../types.js';
 // import { useTypedTranslation } from "../types"
 // const {t} = useTypedTranslation()
 
@@ -11,13 +13,15 @@ import { oldVariants } from './nextsteps.data';
 /*
  * @param {object} props
  * @param {string} props.type
- * @param {(id) => void} props.dismiss
+ * @param {(id: string) => void} props.dismiss
+ * @param {(id: string) => void} props.action
  */
 
-export function NextStepsCard({ type, dismiss }) {
-    // const message = variants[type]?.(t)
-    console.log({ type });
-    const message = oldVariants[type];
+export function NextStepsCard({ type, dismiss, action }) {
+    const { t } = useTypedTranslation();
+    const message = variants[type]?.(t);
+    // console.log({ type });
+    // const message = oldVariants[type];
     console.log({ message });
     return (
         <div class={styles.root}>
@@ -26,7 +30,9 @@ export function NextStepsCard({ type, dismiss }) {
 
             <p class={styles.title}>{message.title}</p>
             <p class={styles.description}>{message.summary}</p>
-            <button class={styles.btn}>{message.actionText}</button>
+            <button class={styles.btn} onClick={() => action(message.id)}>
+                {message.actionText}
+            </button>
             <button class={cn(styles.btn, styles.dismissBtn)} onClick={() => dismiss(message.id)} aria-label="Close">
                 <Cross />
             </button>

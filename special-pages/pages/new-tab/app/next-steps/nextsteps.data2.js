@@ -22,7 +22,7 @@ export const variants = {
     // /**
     //  * @param {import('../types').TranslationFn} t
     //  */
-    bringStuff: (t) => ({
+    'bring-stuff': (t) => ({
         id: 'bring-stuff',
         icon: 'Bring-Stuff',
         title: t('nextSteps_bringStuff_title'),
@@ -66,7 +66,7 @@ export const variants = {
     // /**
     //  * @param {import('./types').TranslationFn} t
     //  */
-    duckPlayer: (t) => ({
+    duckplayer: (t) => ({
         id: 'duckplayer',
         icon: 'Tube-Clean',
         title: t('nextSteps_duckPlayer_title'),
