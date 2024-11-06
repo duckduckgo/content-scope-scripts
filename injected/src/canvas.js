@@ -1,5 +1,5 @@
-import { getDataKeySync } from './crypto.js'
-import Seedrandom from 'seedrandom'
+import { getDataKeySync } from './crypto.js';
+import Seedrandom from 'seedrandom';
 
 /**
  * @param {HTMLCanvasElement} canvas
@@ -8,41 +8,41 @@ import Seedrandom from 'seedrandom'
  * @param {any} getImageDataProxy
  * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
  */
-export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+export function computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
     if (!ctx) {
         // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
-        ctx = canvas.getContext('2d')
+        ctx = canvas.getContext('2d');
     }
 
     // Make a off-screen canvas and put the data there
-    const offScreenCanvas = document.createElement('canvas')
-    offScreenCanvas.width = canvas.width
-    offScreenCanvas.height = canvas.height
-    const offScreenCtx = offScreenCanvas.getContext('2d')
+    const offScreenCanvas = document.createElement('canvas');
+    offScreenCanvas.width = canvas.width;
+    offScreenCanvas.height = canvas.height;
+    const offScreenCtx = offScreenCanvas.getContext('2d');
 
-    let rasterizedCtx = ctx
+    let rasterizedCtx = ctx;
     // If we're not a 2d canvas we need to rasterise first into 2d
-    const rasterizeToCanvas = !(ctx instanceof CanvasRenderingContext2D)
+    const rasterizeToCanvas = !(ctx instanceof CanvasRenderingContext2D);
     if (rasterizeToCanvas) {
         // @ts-expect-error - Type 'CanvasRenderingContext2D | null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
-        rasterizedCtx = offScreenCtx
+        rasterizedCtx = offScreenCtx;
         // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
-        offScreenCtx.drawImage(canvas, 0, 0)
+        offScreenCtx.drawImage(canvas, 0, 0);
     }
 
     // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
-    let imageData = getImageDataProxy._native.apply(rasterizedCtx, [0, 0, canvas.width, canvas.height])
-    imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width)
+    let imageData = getImageDataProxy._native.apply(rasterizedCtx, [0, 0, canvas.width, canvas.height]);
+    imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width);
 
     if (rasterizeToCanvas) {
         // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D'.
-        clearCanvas(offScreenCtx)
+        clearCanvas(offScreenCtx);
     }
 
     // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
-    offScreenCtx.putImageData(imageData, 0, 0)
+    offScreenCtx.putImageData(imageData, 0, 0);
 
-    return { offScreenCanvas, offScreenCtx }
+    return { offScreenCanvas, offScreenCtx };
 }
 
 /**
@@ -50,13 +50,13 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
  *
  * @param {CanvasRenderingContext2D} canvasContext
  */
-function clearCanvas (canvasContext) {
+function clearCanvas(canvasContext) {
     // Save state and clean the pixels from the canvas
-    canvasContext.save()
-    canvasContext.globalCompositeOperation = 'destination-out'
-    canvasContext.fillStyle = 'rgb(255,255,255)'
-    canvasContext.fillRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height)
-    canvasContext.restore()
+    canvasContext.save();
+    canvasContext.globalCompositeOperation = 'destination-out';
+    canvasContext.fillStyle = 'rgb(255,255,255)';
+    canvasContext.fillRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
+    canvasContext.restore();
 }
 
 /**
@@ -65,30 +65,30 @@ function clearCanvas (canvasContext) {
  * @param {string} domainKey
  * @param {number} width
  */
-export function modifyPixelData (imageData, domainKey, sessionKey, width) {
-    const d = imageData.data
-    const length = d.length / 4
-    let checkSum = 0
-    const mappingArray = []
+export function modifyPixelData(imageData, domainKey, sessionKey, width) {
+    const d = imageData.data;
+    const length = d.length / 4;
+    let checkSum = 0;
+    const mappingArray = [];
     for (let i = 0; i < length; i += 4) {
         if (!shouldIgnorePixel(d, i) && !adjacentSame(d, i, width)) {
-            mappingArray.push(i)
-            checkSum += d[i] + d[i + 1] + d[i + 2] + d[i + 3]
+            mappingArray.push(i);
+            checkSum += d[i] + d[i + 1] + d[i + 2] + d[i + 3];
         }
     }
 
-    const windowHash = getDataKeySync(sessionKey, domainKey, checkSum)
-    const rng = new Seedrandom(windowHash)
+    const windowHash = getDataKeySync(sessionKey, domainKey, checkSum);
+    const rng = new Seedrandom(windowHash);
     for (let i = 0; i < mappingArray.length; i++) {
-        const rand = rng()
-        const byte = Math.floor(rand * 10)
-        const channel = byte % 3
-        const pixelCanvasIndex = mappingArray[i] + channel
+        const rand = rng();
+        const byte = Math.floor(rand * 10);
+        const channel = byte % 3;
+        const pixelCanvasIndex = mappingArray[i] + channel;
 
-        d[pixelCanvasIndex] = d[pixelCanvasIndex] ^ (byte & 0x1)
+        d[pixelCanvasIndex] = d[pixelCanvasIndex] ^ (byte & 0x1);
     }
 
-    return imageData
+    return imageData;
 }
 
 /**
@@ -98,54 +98,54 @@ export function modifyPixelData (imageData, domainKey, sessionKey, width) {
  * @param {number} index
  * @param {number} width
  */
-function adjacentSame (imageData, index, width) {
-    const widthPixel = width * 4
-    const x = index % widthPixel
-    const maxLength = imageData.length
+function adjacentSame(imageData, index, width) {
+    const widthPixel = width * 4;
+    const x = index % widthPixel;
+    const maxLength = imageData.length;
 
     // Pixels not on the right border of the canvas
     if (x < widthPixel) {
-        const right = index + 4
+        const right = index + 4;
         if (!pixelsSame(imageData, index, right)) {
-            return false
+            return false;
         }
-        const diagonalRightUp = right - widthPixel
+        const diagonalRightUp = right - widthPixel;
         if (diagonalRightUp > 0 && !pixelsSame(imageData, index, diagonalRightUp)) {
-            return false
+            return false;
         }
-        const diagonalRightDown = right + widthPixel
+        const diagonalRightDown = right + widthPixel;
         if (diagonalRightDown < maxLength && !pixelsSame(imageData, index, diagonalRightDown)) {
-            return false
+            return false;
         }
     }
 
     // Pixels not on the left border of the canvas
     if (x > 0) {
-        const left = index - 4
+        const left = index - 4;
         if (!pixelsSame(imageData, index, left)) {
-            return false
+            return false;
         }
-        const diagonalLeftUp = left - widthPixel
+        const diagonalLeftUp = left - widthPixel;
         if (diagonalLeftUp > 0 && !pixelsSame(imageData, index, diagonalLeftUp)) {
-            return false
+            return false;
         }
-        const diagonalLeftDown = left + widthPixel
+        const diagonalLeftDown = left + widthPixel;
         if (diagonalLeftDown < maxLength && !pixelsSame(imageData, index, diagonalLeftDown)) {
-            return false
+            return false;
         }
     }
 
-    const up = index - widthPixel
+    const up = index - widthPixel;
     if (up > 0 && !pixelsSame(imageData, index, up)) {
-        return false
+        return false;
     }
 
-    const down = index + widthPixel
+    const down = index + widthPixel;
     if (down < maxLength && !pixelsSame(imageData, index, down)) {
-        return false
+        return false;
     }
 
-    return true
+    return true;
 }
 
 /**
@@ -154,11 +154,13 @@ function adjacentSame (imageData, index, width) {
  * @param {number} index
  * @param {number} index2
  */
-function pixelsSame (imageData, index, index2) {
-    return imageData[index] === imageData[index2] &&
-           imageData[index + 1] === imageData[index2 + 1] &&
-           imageData[index + 2] === imageData[index2 + 2] &&
-           imageData[index + 3] === imageData[index2 + 3]
+function pixelsSame(imageData, index, index2) {
+    return (
+        imageData[index] === imageData[index2] &&
+        imageData[index + 1] === imageData[index2 + 1] &&
+        imageData[index + 2] === imageData[index2 + 2] &&
+        imageData[index + 3] === imageData[index2 + 3]
+    );
 }
 
 /**
@@ -167,10 +169,10 @@ function pixelsSame (imageData, index, index2) {
  * @param {number} index
  * @returns {boolean}
  */
-function shouldIgnorePixel (imageData, index) {
+function shouldIgnorePixel(imageData, index) {
     // Transparent pixels
     if (imageData[index + 3] === 0) {
-        return true
+        return true;
     }
-    return false
+    return false;
 }

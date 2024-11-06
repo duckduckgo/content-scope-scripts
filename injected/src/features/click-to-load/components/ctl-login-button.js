@@ -1,7 +1,7 @@
-import { html } from '../../../dom-utils'
-import cssVars from '../assets/shared.css'
-import css from '../assets/ctl-login-button.css'
-import { logoImg } from '../ctl-assets'
+import { html } from '../../../dom-utils';
+import cssVars from '../assets/shared.css';
+import css from '../assets/ctl-login-button.css';
+import { logoImg } from '../ctl-assets';
 
 /**
  * @typedef LearnMoreParams - "Learn More" link params
@@ -20,7 +20,7 @@ export class DDGCtlLoginButton {
      * Placeholder container element for blocked login button
      * @type {HTMLDivElement}
      */
-    #element
+    #element;
 
     /**
      * @param {object} params - Params for building a custom element with
@@ -34,60 +34,60 @@ export class DDGCtlLoginButton {
      * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
      * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onClick
      */
-    constructor (params) {
-        this.params = params
+    constructor(params) {
+        this.params = params;
 
         /**
          * Create the placeholder element to be inject in the page
          * @type {HTMLDivElement}
          */
-        this.element = document.createElement('div')
+        this.element = document.createElement('div');
 
         /**
          * Create the shadow root, closed to prevent any outside observers
          * @type {ShadowRoot}
          */
         const shadow = this.element.attachShadow({
-            mode: this.params.devMode ? 'open' : 'closed'
-        })
+            mode: this.params.devMode ? 'open' : 'closed',
+        });
 
         /**
          * Add our styles
          * @type {HTMLStyleElement}
          */
-        const style = document.createElement('style')
-        style.innerText = cssVars + css
+        const style = document.createElement('style');
+        style.innerText = cssVars + css;
 
         /**
          * Create the Facebook login button
          * @type {HTMLDivElement}
          */
-        const loginButton = this._createLoginButton()
+        const loginButton = this._createLoginButton();
 
         /**
          * Setup the click handlers
          */
-        this._setupEventListeners(loginButton)
+        this._setupEventListeners(loginButton);
 
         /**
          * Append both to the shadow root
          */
-        shadow.appendChild(loginButton)
-        shadow.appendChild(style)
+        shadow.appendChild(loginButton);
+        shadow.appendChild(style);
     }
 
     /**
      * @returns {HTMLDivElement}
      */
-    get element () {
-        return this.#element
+    get element() {
+        return this.#element;
     }
 
     /**
      * @param {HTMLDivElement} el - New placeholder element
      */
-    set element (el) {
-        this.#element = el
+    set element(el) {
+        this.#element = el;
     }
 
     /**
@@ -96,14 +96,14 @@ export class DDGCtlLoginButton {
      * proceed.
      * @returns {HTMLDivElement}
      */
-    _createLoginButton () {
-        const { label, hoverText, logoIcon, learnMore } = this.params
+    _createLoginButton() {
+        const { label, hoverText, logoIcon, learnMore } = this.params;
 
-        const { popoverStyle, arrowStyle } = this._calculatePopoverPosition()
+        const { popoverStyle, arrowStyle } = this._calculatePopoverPosition();
 
-        const container = document.createElement('div')
+        const container = document.createElement('div');
         // Add our own styles and inherit any local class styles on the button
-        container.classList.add('ddg-fb-login-container')
+        container.classList.add('ddg-fb-login-container');
 
         container.innerHTML = html`
             <div id="DuckDuckGoPrivacyEssentialsHoverable">
@@ -138,9 +138,9 @@ export class DDGCtlLoginButton {
                     </div>
                 </div>
             </div>
-        `.toString()
+        `.toString();
 
-        return container
+        return container;
     }
 
     /**
@@ -153,45 +153,43 @@ export class DDGCtlLoginButton {
      *  arrowStyle: string,   // CSS styles to be applied in the Popover arrow
      * }}
      */
-    _calculatePopoverPosition () {
-        const { originalElement } = this.params
-        const rect = originalElement.getBoundingClientRect()
-        const textBubbleWidth = 360 // Should match the width rule in .ddg-popover
-        const textBubbleLeftShift = 100 // Should match the CSS left: rule in .ddg-popover
-        const arrowDefaultLocationPercent = 50
+    _calculatePopoverPosition() {
+        const { originalElement } = this.params;
+        const rect = originalElement.getBoundingClientRect();
+        const textBubbleWidth = 360; // Should match the width rule in .ddg-popover
+        const textBubbleLeftShift = 100; // Should match the CSS left: rule in .ddg-popover
+        const arrowDefaultLocationPercent = 50;
 
-        let popoverStyle
-        let arrowStyle
+        let popoverStyle;
+        let arrowStyle;
 
         if (rect.left < textBubbleLeftShift) {
-            const leftShift = -rect.left + 10 // 10px away from edge of the screen
-            popoverStyle = `left: ${leftShift}px;`
-            const change = (1 - rect.left / textBubbleLeftShift) * (100 - arrowDefaultLocationPercent)
-            arrowStyle = `left: ${Math.max(10, arrowDefaultLocationPercent - change)}%;`
+            const leftShift = -rect.left + 10; // 10px away from edge of the screen
+            popoverStyle = `left: ${leftShift}px;`;
+            const change = (1 - rect.left / textBubbleLeftShift) * (100 - arrowDefaultLocationPercent);
+            arrowStyle = `left: ${Math.max(10, arrowDefaultLocationPercent - change)}%;`;
         } else if (rect.left + textBubbleWidth - textBubbleLeftShift > window.innerWidth) {
-            const rightShift = rect.left + textBubbleWidth - textBubbleLeftShift
-            const diff = Math.min(rightShift - window.innerWidth, textBubbleLeftShift)
-            const rightMargin = 20 // Add some margin to the page, so scrollbar doesn't overlap.
-            popoverStyle = `left: -${textBubbleLeftShift + diff + rightMargin}px;`
-            const change = (diff / textBubbleLeftShift) * (100 - arrowDefaultLocationPercent)
-            arrowStyle = `left: ${Math.max(10, arrowDefaultLocationPercent + change)}%;`
+            const rightShift = rect.left + textBubbleWidth - textBubbleLeftShift;
+            const diff = Math.min(rightShift - window.innerWidth, textBubbleLeftShift);
+            const rightMargin = 20; // Add some margin to the page, so scrollbar doesn't overlap.
+            popoverStyle = `left: -${textBubbleLeftShift + diff + rightMargin}px;`;
+            const change = (diff / textBubbleLeftShift) * (100 - arrowDefaultLocationPercent);
+            arrowStyle = `left: ${Math.max(10, arrowDefaultLocationPercent + change)}%;`;
         } else {
-            popoverStyle = `left: -${textBubbleLeftShift}px;`
-            arrowStyle = `left: ${arrowDefaultLocationPercent}%;`
+            popoverStyle = `left: -${textBubbleLeftShift}px;`;
+            arrowStyle = `left: ${arrowDefaultLocationPercent}%;`;
         }
 
-        return { popoverStyle, arrowStyle }
+        return { popoverStyle, arrowStyle };
     }
 
     /**
      *
      * @param {HTMLElement} loginButton
      */
-    _setupEventListeners (loginButton) {
-        const { originalElement, onClick } = this.params
+    _setupEventListeners(loginButton) {
+        const { originalElement, onClick } = this.params;
 
-        loginButton
-            .querySelector('.ddg-ctl-fb-login-btn')
-            ?.addEventListener('click', onClick(originalElement, this.element))
+        loginButton.querySelector('.ddg-ctl-fb-login-btn')?.addEventListener('click', onClick(originalElement, this.element));
     }
 }

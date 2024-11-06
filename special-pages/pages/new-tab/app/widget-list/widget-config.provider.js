@@ -1,5 +1,5 @@
-import { createContext, h } from 'preact'
-import { useContext, useEffect, useState } from 'preact/hooks'
+import { createContext, h } from 'preact';
+import { useContext, useEffect, useState } from 'preact/hooks';
 
 /**
  * @typedef {import('../../../../types/new-tab.js').WidgetConfigs} WidgetConfigs
@@ -20,14 +20,12 @@ export const WidgetConfigContext = createContext({
 
     /** @type {(id:string) => void} */
 
-    toggle: (_id) => {
-
-    }
-})
+    toggle: (_id) => {},
+});
 
 export const WidgetConfigDispatchContext = createContext({
-    dispatch: null
-})
+    dispatch: null,
+});
 
 /**
  * @param {object} props
@@ -37,50 +35,52 @@ export const WidgetConfigDispatchContext = createContext({
  * @param {Widgets} props.widgets - the initial widget list
  * @param {WidgetConfigAPI} props.api - the stateful API manager
  */
-export function WidgetConfigProvider (props) {
-    const [data, setData] = useState(props.widgetConfigs)
+export function WidgetConfigProvider(props) {
+    const [data, setData] = useState(props.widgetConfigs);
 
     // todo: should we just useSyncExternalStore here?
     useEffect(() => {
         const unsub = props.api.onData((widgetConfig) => {
-            setData(widgetConfig.data)
-        })
-        return () => unsub()
-    }, [props.api])
+            setData(widgetConfig.data);
+        });
+        return () => unsub();
+    }, [props.api]);
 
     /**
      * @param {string} id
      */
-    function toggle (id) {
-        props.api.toggleVisibility(id)
+    function toggle(id) {
+        props.api.toggleVisibility(id);
     }
 
     return (
-        <WidgetConfigContext.Provider value={{
-            // this field is static for the lifespan of the page
-            widgets: props.widgets,
-            entryPoints: props.entryPoints,
-            // this will be updated via subscriptions
-            widgetConfigItems: data || [],
-            toggle
-        }}>
+        <WidgetConfigContext.Provider
+            value={{
+                // this field is static for the lifespan of the page
+                widgets: props.widgets,
+                entryPoints: props.entryPoints,
+                // this will be updated via subscriptions
+                widgetConfigItems: data || [],
+                toggle,
+            }}
+        >
             {props.children}
         </WidgetConfigContext.Provider>
-    )
+    );
 }
 
 const WidgetVisibilityContext = createContext({
-    visibility: /** @type {WidgetConfigItem['visibility']} */('visible'),
-    id: /** @type {WidgetConfigItem['id']} */(''),
+    visibility: /** @type {WidgetConfigItem['visibility']} */ ('visible'),
+    id: /** @type {WidgetConfigItem['id']} */ (''),
     /** @type {(id: string) => void} */
 
     toggle: (_id) => {},
     /** @type {number} */
-    index: -1
-})
+    index: -1,
+});
 
-export function useVisibility () {
-    return useContext(WidgetVisibilityContext)
+export function useVisibility() {
+    return useContext(WidgetVisibilityContext);
 }
 
 /**
@@ -91,15 +91,19 @@ export function useVisibility () {
  * @param {number} props.index - the current id key used for storage
  * @param {import("preact").ComponentChild} props.children
  */
-export function WidgetVisibilityProvider (props) {
-    const { toggle } = useContext(WidgetConfigContext)
+export function WidgetVisibilityProvider(props) {
+    const { toggle } = useContext(WidgetConfigContext);
 
-    return <WidgetVisibilityContext.Provider value={{
-        visibility: props.visibility,
-        id: props.id,
-        toggle,
-        index: props.index
-    }}>
-        {props.children}
-    </WidgetVisibilityContext.Provider>
+    return (
+        <WidgetVisibilityContext.Provider
+            value={{
+                visibility: props.visibility,
+                id: props.id,
+                toggle,
+                index: props.index,
+            }}
+        >
+            {props.children}
+        </WidgetVisibilityContext.Provider>
+    );
 }

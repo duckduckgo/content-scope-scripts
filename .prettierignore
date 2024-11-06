@@ -1,0 +1,10 @@
+build/**/*
+docs/**/*
+injected/src/types
+special-pages/types
+injected/integration-test/extension/contentScope.js
+**/*.json
+**/*.md
+**/*.html
+**/*.har
+**/*.css

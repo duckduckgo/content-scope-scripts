@@ -1,19 +1,19 @@
-import { h } from 'preact'
-import styles from './Buttons.module.css'
-import cn from 'classnames'
+import { h } from 'preact';
+import styles from './Buttons.module.css';
+import cn from 'classnames';
 
 /**
  * Renders a button bar component.
  *
  * @param {import("preact").ComponentProps<"div">} props
  */
-export function ButtonBar (props) {
-    const { children, ...rest } = props
+export function ButtonBar(props) {
+    const { children, ...rest } = props;
     return (
         <div className={styles.buttons} {...rest}>
             {children}
         </div>
-    )
+    );
 }
 
 /**
@@ -28,17 +28,17 @@ export function ButtonBar (props) {
  *
  * @param {ButtonProps & Omit<import("preact").ComponentProps<"button">, "size">} props
  */
-export function Button ({ variant = 'primary', size = 'normal', children, ...rest }) {
+export function Button({ variant = 'primary', size = 'normal', children, ...rest }) {
     const classes = cn({
         [styles.button]: true,
         [styles.primary]: variant === 'primary',
         [styles.secondary]: variant === 'secondary',
         [styles.large]: size === 'large',
-        [styles.xl]: size === 'xl'
-    })
+        [styles.xl]: size === 'xl',
+    });
     return (
         <button className={classes} {...rest}>
             {children}
         </button>
-    )
+    );
 }
