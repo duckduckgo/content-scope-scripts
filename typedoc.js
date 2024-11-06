@@ -10,6 +10,7 @@ const config = {
         'injected/entry-points/mozilla.js',
         'injected/entry-points/windows.js',
         'injected/src/types/*.ts',
+        'injected/src/features/api-manipulation.js',
         'injected/src/features/duck-player.js',
         'injected/src/features/duckplayer/thumbnails.js',
         'injected/src/features/duckplayer/video-overlay.js',
