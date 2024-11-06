@@ -52,7 +52,7 @@ export default class ApiManipulation extends ContentFeature {
     /**
      * @typedef {Object} APIChange
      * @property {"remove"|"descriptor"} type
-     * @property {any} [getterValue] - The value returned from a getter.
+     * @property {import('../utils.js').ConfigSetting} [getterValue] - The value returned from a getter.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
      */
@@ -96,11 +96,14 @@ export default class ApiManipulation extends ContentFeature {
      * @param {APIChange} change
      */
     wrapApiDescriptor(api, key, change) {
-        this.wrapProperty(api, key, {
-            get: () => processAttr(change.getterValue, undefined),
-            enumerable: change.enumerable || true,
-            configurable: change.configurable || true,
-        });
+        const getterValue = change.getterValue;
+        if (getterValue) {
+            this.wrapProperty(api, key, {
+                get: () => processAttr(getterValue, undefined),
+                enumerable: change.enumerable ?? true,
+                configurable: change.configurable ?? true,
+            });
+        }
     }
 
     /**
