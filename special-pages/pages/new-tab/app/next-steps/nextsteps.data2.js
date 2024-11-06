@@ -1,27 +1,27 @@
-import { TranslationContext } from '../../../../shared/components/TranslationsProvider';
+// // import { TranslationContext } from "../../../../shared/components/TranslationsProvider"
 
-/**
- * @typedef {ReturnType<useTypedTranslation>['t']} TranslationFn
- */
+// /**
+//  * @typedef {ReturnType<useTypedTranslation>['t']} TranslationFn
+//  */
 
-/**
- * This is a wrapper to only allow keys from the default translation file
- * @type {() => { t: (key: keyof json, replacements?: Record<string, string>) => string }}
- */
-// export function useTypedTranslation () {
-//     return {
-//         t: useContext(TranslationContext).t
-//     }
-// }
+// /**
+//  * This is a wrapper to only allow keys from the default translation file
+//  * @type {() => { t: (key: keyof json, replacements?: Record<string, string>) => string }}
+//  */
+// // export function useTypedTranslation () {
+// //     return {
+// //         t: useContext(TranslationContext).t
+// //     }
+// // }
 
-/**
+// /**
 
- * @type {Record<string, (t: import('../types').TranslationFn) => Omit<RowData, "id" | "acceptText"> & { id: string }>}
- */
+//  * @type {Record<string, (t: import('../types').TranslationFn) => Omit<RowData, "id" | "acceptText"> & { id: string }>}
+//  */
 export const variants = {
-    /**
-     * @param {import('../types').TranslationFn} t
-     */
+    // /**
+    //  * @param {import('../types').TranslationFn} t
+    //  */
     bringStuff: (t) => ({
         id: 'bring-stuff',
         icon: 'Bring-Stuff',
@@ -30,9 +30,9 @@ export const variants = {
         action: () => {},
         actionText: t('nextSteps_bringStuff_actionText'),
     }),
-    /**
-     * @param {import('./types').TranslationFn} t
-     */
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
     defaultApp: (t) => ({
         id: 'defaultApp',
         icon: 'Default-App',
@@ -41,9 +41,9 @@ export const variants = {
         action: () => {},
         actionText: t('nextSteps_defaultApp_actionText'),
     }),
-    /**
-     * @param {import('./types').TranslationFn} t
-     */
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
     blockCookies: (t) => ({
         id: 'blockCookies',
         icon: 'Cookie-Pops',
@@ -52,9 +52,9 @@ export const variants = {
         action: () => {},
         actionText: t('nextSteps_blockCookies_actionText'),
     }),
-    /**
-     * @param {import('./types').TranslationFn} t
-     */
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
     emailProtection: (t) => ({
         id: 'emailProtection',
         icon: 'Email-Protection',
@@ -63,9 +63,9 @@ export const variants = {
         action: () => {},
         actionText: t('nextSteps_emailProtection_actionText'),
     }),
-    /**
-     * @param {import('./types').TranslationFn} t
-     */
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
     duckPlayer: (t) => ({
         id: 'duckplayer',
         icon: 'Tube-Clean',
@@ -74,9 +74,9 @@ export const variants = {
         action: () => {},
         actionText: t('nextSteps_duckPlayer_actionText'),
     }),
-    /**
-     * @param {import('./types').TranslationFn} t
-     */
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
     addAppDockMac: (t) => ({
         id: 'addAppToDockMac',
         icon: 'Dock-Add-Mac',
