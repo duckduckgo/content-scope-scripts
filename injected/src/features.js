@@ -12,7 +12,7 @@ export const baseFeatures = /** @type {const} */ ([
     'elementHiding',
     'exceptionHandler',
     'apiManipulation',
-])
+]);
 
 const otherFeatures = /** @type {const} */ ([
     'clickToLoad',

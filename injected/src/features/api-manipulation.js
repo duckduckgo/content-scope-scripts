@@ -1,16 +1,16 @@
-import ContentFeature from '../content-feature'
-import { processAttr } from '../utils'
+import ContentFeature from '../content-feature';
+import { processAttr } from '../utils';
 
 export default class ApiManipulation extends ContentFeature {
-    init () {
-        const apiChanges = this.getFeatureSetting('apiChanges')
+    init() {
+        const apiChanges = this.getFeatureSetting('apiChanges');
         if (apiChanges) {
             for (const scope in apiChanges) {
-                const change = apiChanges[scope]
+                const change = apiChanges[scope];
                 if (!this.checkIsValidAPIChange(change)) {
-                    continue
+                    continue;
                 }
-                this.applyApiChange(scope, change)
+                this.applyApiChange(scope, change);
             }
         }
     }
@@ -20,26 +20,26 @@ export default class ApiManipulation extends ContentFeature {
      * @param {any} change
      * @returns {change is APIChange}
      */
-    checkIsValidAPIChange (change) {
+    checkIsValidAPIChange(change) {
         if (typeof change !== 'object') {
-            return false
+            return false;
         }
         if (change.type === 'remove') {
-            return true
+            return true;
         }
         if (change.type === 'wrapPropertyValue') {
             if (change.writable && typeof change.writable !== 'boolean') {
-                return false
+                return false;
             }
             if (change.enumerable && typeof change.enumerable !== 'boolean') {
-                return false
+                return false;
             }
             if (change.configurable && typeof change.configurable !== 'boolean') {
-                return false
+                return false;
             }
-            return typeof change.value !== 'undefined'
+            return typeof change.value !== 'undefined';
         }
-        return false
+        return false;
     }
 
     // TODO move this to schema definition imported from the privacy-config
@@ -58,16 +58,16 @@ export default class ApiManipulation extends ContentFeature {
      * @param {APIChange} change
      * @returns {void}
      */
-    applyApiChange (scope, change) {
-        const response = this.getGlobalObject(scope)
+    applyApiChange(scope, change) {
+        const response = this.getGlobalObject(scope);
         if (!response) {
-            return
+            return;
         }
-        const [obj, key] = response
+        const [obj, key] = response;
         if (change.type === 'remove') {
-            this.removeApiMethod(obj, key)
+            this.removeApiMethod(obj, key);
         } else if (change.type === 'wrapPropertyValue') {
-            this.wrapPropertyValue(obj, key, change)
+            this.wrapPropertyValue(obj, key, change);
         }
     }
 
@@ -76,13 +76,12 @@ export default class ApiManipulation extends ContentFeature {
      * @param {object} api
      * @param {string} key
      */
-    removeApiMethod (api, key) {
+    removeApiMethod(api, key) {
         try {
             if (key in api) {
-                delete api[key]
+                delete api[key];
             }
-        } catch (e) {
-        }
+        } catch (e) {}
     }
 
     /**
@@ -91,12 +90,12 @@ export default class ApiManipulation extends ContentFeature {
      * @param {string} key
      * @param {APIChange} change
      */
-    wrapPropertyValue (api, key, change) {
+    wrapPropertyValue(api, key, change) {
         this.wrapProperty(api, key, {
             get: () => processAttr(change.value, undefined),
             enumerable: change.enumerable || false,
-            configurable: change.configurable || false
-        })
+            configurable: change.configurable || false,
+        });
     }
 
     /**
@@ -104,20 +103,20 @@ export default class ApiManipulation extends ContentFeature {
      * @param {string} scope the scope of the object to get to.
      * @returns {[object, string]|null} the object at the scope.
      */
-    getGlobalObject (scope) {
-        const parts = scope.split('.')
+    getGlobalObject(scope) {
+        const parts = scope.split('.');
         // get the last part of the scope
-        const lastPart = parts.pop()
+        const lastPart = parts.pop();
         if (!lastPart) {
-            return null
+            return null;
         }
-        let obj = window
+        let obj = window;
         for (const part of parts) {
-            obj = obj[part]
+            obj = obj[part];
             if (!obj) {
-                return null
+                return null;
             }
         }
-        return [obj, lastPart]
+        return [obj, lastPart];
     }
 }
