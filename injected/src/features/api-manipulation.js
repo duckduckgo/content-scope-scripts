@@ -1,6 +1,15 @@
+/**
+ * This feature allows remote configuration of APIs that exist within the DOM.
+ * We support removal of APIs and returning different values from getters.
+ *
+ * @module API manipulation
+ */
 import ContentFeature from '../content-feature';
 import { processAttr } from '../utils';
 
+/**
+ * @internal
+ */
 export default class ApiManipulation extends ContentFeature {
     init() {
         const apiChanges = this.getFeatureSetting('apiChanges');
@@ -89,8 +98,8 @@ export default class ApiManipulation extends ContentFeature {
     wrapApiDescriptor(api, key, change) {
         this.wrapProperty(api, key, {
             get: () => processAttr(change.getterValue, undefined),
-            enumerable: change.enumerable || false,
-            configurable: change.configurable || false,
+            enumerable: change.enumerable || true,
+            configurable: change.configurable || true,
         });
     }
 
