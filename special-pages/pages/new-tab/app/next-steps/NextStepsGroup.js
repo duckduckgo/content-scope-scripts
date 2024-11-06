@@ -35,14 +35,10 @@ export function NextStepsCardGroup({ types, expansion, toggle, animation }) {
     );
 }
 
-/*
- * @param {object} props
- * @param {string} [props.className]
- */
-export function NextStepsBubbleHeader({ className }) {
+export function NextStepsBubbleHeader() {
     // const text = t("nextSteps_sectionTitle")
     return (
-        <div class={cn(styles.nextStepsBubble, className)}>
+        <div class={cn(styles.nextStepsBubble)}>
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="26" viewBox="0 0 12 26" fill="none">
                 <path
                     fill-rule="evenodd"
