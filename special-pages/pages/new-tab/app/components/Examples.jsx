@@ -3,6 +3,7 @@ import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMoc
 import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js';
 import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js';
 import { NextStepsCard } from '../next-steps/NextStepsCard.js';
+import { NextStepsCardGroup, NextStepsBubbleHeader } from '../next-steps/NextStepsGroup.js';
 import { stats } from '../privacy-stats/mocks/stats.js';
 import { noop } from '../utils.js';
 import { VisibilityMenu } from '../customizer/VisibilityMenu.js';
@@ -92,30 +93,43 @@ export const mainExamples = {
         ),
     },
     ...favoritesExamples,
-    'next-steps.bringStuff': {
-        factory: () => <NextStepsCard type="bringStuff" dismiss={() => {}}  />,
-    },
-    'next-steps.duckPlayer': {
-        factory: () => <NextStepsCard type="duckPlayer" dismiss={() => {}}  />,
-    },
-    'next-steps.defaultApp': {
-        factory: () => <NextStepsCard type="defaultApp" dismiss={() => {}}  />,
-    },
-    'next-steps.emailProtection': {
-        factory: () => <NextStepsCard type="emailProtection" dismiss={() => {}}  />,
-    },
-    'next-steps.blockCookies': {
-        factory: () => <NextStepsCard type="blockCookies" dismiss={() => {}}  />
-        )
-    },
-    'next-steps.addAppDockMac': {
-        factory: () => (
-            <NextStepsCard type="addAppDockMac" dismiss={() => {}}  />
-        )
-    },
-    'next-steps.addToDockWindows': {
-        factory: () => (
-            <NextStepsCard type="pinAppToTaskbar" dismiss={() => {}}  />,
+    // 'next-steps.bringStuff': {
+    //     factory: () => (
+    //         <NextStepsCard type="bringStuff" dismiss={() => {}} />
+    //     )
+    // },
+    // 'next-steps.duckPlayer': {
+    //     factory: () => (
+    //         <NextStepsCard type="duckPlayer" dismiss={() => {}}  />
+    //     )
+    // },
+    // 'next-steps.defaultApp': {
+    //     factory: () => (
+    //         <NextStepsCard type="defaultApp" dismiss={() => {}}  />
+    //     )
+    // },
+    // 'next-steps.emailProtection': {
+    //     factory: () => (
+    //         <NextStepsCard type="emailProtection" dismiss={() => {}}  />
+    //     )
+    // },
+    // 'next-steps.blockCookies': {
+    //     factory: () => (
+    //         <NextStepsCard type="blockCookies" dismiss={() => {}}  />
+    //     )
+    // },
+    // 'next-steps.addAppDockMac': {
+    //     factory: () => (
+    //         <NextStepsCard type="addAppDockMac" dismiss={() => {}}  />
+    //     )
+    // },
+    // 'next-steps.addToDockWindows': {
+    //     factory: () => (
+    //         <NextStepsCard type="pinAppToTaskbar" dismiss={() => {}}  />
+    //     )
+    // },
+    'next-steps.bubble': {
+        factory: () => <NextStepsBubbleHeader />,
     },
 };
 
