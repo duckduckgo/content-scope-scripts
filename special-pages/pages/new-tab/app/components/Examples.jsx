@@ -91,43 +91,55 @@ export const mainExamples = {
             />
         ),
     },
-    // 'next-steps.bringStuff': {
-    //     factory: () => (
-    //         <NextStepsCard type="bringStuff" dismiss={() => {}} />
-    //     )
-    // },
-    // 'next-steps.duckPlayer': {
-    //     factory: () => (
-    //         <NextStepsCard type="duckPlayer" dismiss={() => {}}  />
-    //     )
-    // },
-    // 'next-steps.defaultApp': {
-    //     factory: () => (
-    //         <NextStepsCard type="defaultApp" dismiss={() => {}}  />
-    //     )
-    // },
-    // 'next-steps.emailProtection': {
-    //     factory: () => (
-    //         <NextStepsCard type="emailProtection" dismiss={() => {}}  />
-    //     )
-    // },
-    // 'next-steps.blockCookies': {
-    //     factory: () => (
-    //         <NextStepsCard type="blockCookies" dismiss={() => {}}  />
-    //     )
-    // },
-    // 'next-steps.addAppDockMac': {
-    //     factory: () => (
-    //         <NextStepsCard type="addAppDockMac" dismiss={() => {}}  />
-    //     )
-    // },
-    // 'next-steps.addToDockWindows': {
-    //     factory: () => (
-    //         <NextStepsCard type="pinAppToTaskbar" dismiss={() => {}}  />
-    //     )
-    // },
+    'next-steps.bringStuff': {
+        factory: () => <NextStepsCard type="bringStuff" dismiss={() => {}} />,
+    },
+    'next-steps.duckPlayer': {
+        factory: () => <NextStepsCard type="duckPlayer" dismiss={() => {}} />,
+    },
+    'next-steps.defaultApp': {
+        factory: () => <NextStepsCard type="defaultApp" dismiss={() => {}} />,
+    },
+    'next-steps.emailProtection': {
+        factory: () => <NextStepsCard type="emailProtection" dismiss={() => {}} />,
+    },
+    'next-steps.blockCookies': {
+        factory: () => <NextStepsCard type="blockCookies" dismiss={() => {}} />,
+    },
+    'next-steps.addAppDockMac': {
+        factory: () => <NextStepsCard type="addAppDockMac" dismiss={() => {}} />,
+    },
+    'next-steps.addToDockWindows': {
+        factory: () => <NextStepsCard type="pinAppToTaskbar" dismiss={() => {}} />,
+    },
     'next-steps.bubble': {
         factory: () => <NextStepsBubbleHeader />,
+    },
+    'next-steps.cardGroup.all': {
+        factory: () => (
+            <NextStepsCardGroup
+                types={['bringStuff', 'defaultApp', 'blockCookies', 'emailProtection', 'duckPlayer', 'addAppDockMac', 'pinAppToTaskbar']}
+                expansion="collapsed"
+                toggle={() => {}}
+                animation="None"
+            />
+        ),
+    },
+    'next-steps.cardGroup.all-expanded': {
+        factory: () => (
+            <NextStepsCardGroup
+                types={['bringStuff', 'defaultApp', 'blockCookies', 'emailProtection', 'duckPlayer', 'addAppDockMac', 'pinAppToTaskbar']}
+                expansion="expanded"
+                toggle={() => {}}
+                animation="None"
+            />
+        ),
+    },
+    'next-steps.cardGroup.two': {
+        factory: () => <NextStepsCardGroup types={['bringStuff', 'defaultApp']} expansion="collapsed" toggle={() => {}} animation="None" />,
+    },
+    'next-steps.cardGroup.one': {
+        factory: () => <NextStepsCardGroup types={['bringStuff']} expansion="collapsed" toggle={() => {}} animation="None" />,
     },
 };
 

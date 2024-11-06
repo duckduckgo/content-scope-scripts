@@ -3,7 +3,7 @@
     border: 1px solid var(--ntp-surface-border-color);
     padding: var(--sp-2) var(--sp-4);
     border-radius: var(--sp-3);
-    width: 50%;
+    /* width: 50%; */
     position: relative;
     display: flex;
     flex-direction: column;
@@ -11,6 +11,7 @@
     align-items: center;
     text-align: center;
     gap: var(--sp-1);
+    max-width: 240px;
 
     @media screen and (prefers-color-scheme: dark) {
         border-color: var(--color-white-at-9);
@@ -44,7 +45,7 @@
 
 
     &:hover {
-        background-color: var(--color-black-at-9);
+        background-color: var(--color-black-at-6);
         cursor: pointer;
     }
 
@@ -75,12 +76,12 @@
         color: var(--color-blue-40);
 
         &:hover {
-            background-color: var(--color-white-at-18);
+            background-color: var(--color-black-at-9);
         }
 
         &:active {
             /* background-color: var(--color-white-at-24); */
-            background-color: var(--color-blue-40);
+            background-color: var(--color-blue-30);
 
         }
 
@@ -136,6 +137,18 @@
             color: var(--color-white-at-84);
         }
     }
+}
+
+.nextStepsCardGroup {
+    height: 100%;
+    width: 100%;
+}
+
+.nextStepsCardGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-6);
+
 }
 
 .nextStepsBubble {

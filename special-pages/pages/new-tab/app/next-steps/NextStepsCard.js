@@ -6,9 +6,19 @@ import { oldVariants } from './nextsteps.data';
 // import { useTypedTranslation } from "../types"
 // const {t} = useTypedTranslation()
 
+// NextStepType = "bringStuff" | "defaultApp" | "blockCookies" | "emailProtection" | "duckPlayer" | "addAppDockMac" | "pinAppToTaskbar"
+
+/*
+ * @param {object} props
+ * @param {string} props.type
+ * @param {(id) => void} props.dismiss
+ */
+
 export function NextStepsCard({ type, dismiss }) {
     // const message = variants[type]?.(t)
+    console.log({ type });
     const message = oldVariants[type];
+    console.log({ message });
     return (
         <div class={styles.root}>
             {/* <img src={`../../shared/assets/img/icons/${message.icon}-128.svg`} alt="" class={styles.icon}/> */}
@@ -23,3 +33,7 @@ export function NextStepsCard({ type, dismiss }) {
         </div>
     );
 }
+
+// export function NextStepsConsumer () {
+
+// }
