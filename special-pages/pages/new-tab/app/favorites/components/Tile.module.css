@@ -1,0 +1,154 @@
+.item {
+    display: grid;
+    grid-row-gap: 6px;
+    align-content: center;
+    justify-content: center;
+    position: relative;
+    text-decoration: none;
+    color: currentColor;
+    padding-inline: 12px;
+    outline: none;
+
+    &:focus-visible .icon {
+        outline: 1px dotted var(--ntp-focus-outline-color);
+    }
+}
+
+.icon {
+    display: grid;
+    align-content: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+}
+
+.draggable {
+    background-color: var(--color-black-at-3);
+
+    &:hover {
+        background-color: var(--color-black-at-9);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    @media screen and (prefers-color-scheme: dark) {
+        background-color: var(--color-white-at-9);
+        &:hover {
+            background-color: var(--color-white-at-12);
+        }
+    }
+}
+
+.favicon {
+    display: block;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s;
+
+    &[data-loaded] {
+        opacity: 1;
+    }
+
+    &[data-loaded][data-did-try-fallback] {
+        border-radius: 8px;
+    }
+
+    &[data-errored] {
+
+    }
+}
+
+.text {
+    text-align: center;
+    font-size: 10px;
+    line-height: 13px;
+    font-weight: 400;
+    min-height: 2.8em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+.preview {
+    padding: .5em;
+    border-radius: 5px;
+    background: white;
+}
+
+.placeholder {
+    background-color: transparent;
+    border: 1.5px dashed var(--color-black-at-9);
+
+    @media screen and (prefers-color-scheme: dark) {
+        border-color: var(--color-white-at-9);
+    }
+}
+
+.plus {
+    outline: none;
+    border-style: solid;
+    color: var(--color-black-at-90);
+
+    @media screen and (prefers-color-scheme: dark) {
+        color: var(--color-white-at-85);
+    }
+
+    &:hover {
+        background: var(--color-black-at-3);
+
+        @media screen and (prefers-color-scheme: dark) {
+            background: var(--color-white-at-9);
+        }
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &:focus-visible {
+        border-style: dotted;
+        border-color: var(--ntp-focus-outline-color);
+        border-width: 1px;
+    }
+}
+
+.dropper {
+    width: 2px;
+    height: 64px;
+    position: absolute;
+    top: 0;
+    background-color: var(--color-black-at-12);
+    @media screen and (prefers-color-scheme: dark) {
+        background-color: var(--color-white-at-12);
+    }
+}
+
+.dropper[data-edge="left"] {
+    left: -1px;
+}
+
+.dropper[data-edge="right"] {
+    right: -1px;
+}
+
+[data-item-state="idle"] {
+    &:hover {
+        border-color: #FFF;
+    }
+}
+
+[data-item-state="dragging"] {
+    opacity: 0.4;
+}
+
+[data-item-state="is-dragging-over"] {
+}
