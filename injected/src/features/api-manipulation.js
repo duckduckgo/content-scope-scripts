@@ -103,10 +103,10 @@ export default class ApiManipulation extends ContentFeature {
             const descriptor = {
                 get: () => processAttr(getterValue, undefined),
             };
-            if (change.enumerable) {
+            if ('enumerable' in change) {
                 descriptor.enumerable = change.enumerable;
             }
-            if (change.configurable) {
+            if ('configurable' in change) {
                 descriptor.configurable = change.configurable;
             }
             this.wrapProperty(api, key, descriptor);
