@@ -11,6 +11,7 @@ export const baseFeatures = /** @type {const} */ ([
     'navigatorInterface',
     'elementHiding',
     'exceptionHandler',
+    'apiManipulation',
 ]);
 
 const otherFeatures = /** @type {const} */ ([

@@ -259,7 +259,7 @@ function isAppleSilicon() {
  * If a value contains a criteria that is a match for this environment then return that value.
  * Otherwise return the first value that doesn't have a criteria.
  *
- * @param {*[]} configSetting - Config setting which should contain a list of possible values
+ * @param {ConfigSetting[]} configSetting - Config setting which should contain a list of possible values
  * @returns {*|undefined} - The value from the list that best matches the criteria in the config
  */
 function processAttrByCriteria(configSetting) {
@@ -290,8 +290,17 @@ const functionMap = {
 };
 
 /**
+ * @typedef {object} ConfigSetting
+ * @property {'undefined' | 'number' | 'string' | 'function' | 'boolean' | 'null' | 'array' | 'object'} type
+ * @property {string} [functionName]
+ * @property {boolean | string | number} value
+ * @property {object} [criteria]
+ * @property {string} criteria.arch
+ */
+
+/**
  * Processes a structured config setting and returns the value according to its type
- * @param {*} configSetting
+ * @param {ConfigSetting} configSetting
  * @param {*} [defaultValue]
  * @returns
  */
@@ -324,6 +333,7 @@ export function processAttr(configSetting, defaultValue) {
                 return undefined;
             }
 
+            // All JSON expressable types are handled here
             return configSetting.value;
         default:
             return defaultValue;
