@@ -33,6 +33,29 @@ function generateConfig() {
         featureSettings: {
             apiManipulation: {
                 apiChanges: {
+                    'Navigator.prototype.bloop': {
+                        type: 'descriptor',
+                        value: {
+                            type: 'function',
+                            functionName: 'debug'
+                        }
+                    },
+                    'Navigator.prototype.bloop2': {
+                        type: 'descriptor',
+                        define: true,
+                        value: {
+                            type: 'function',
+                            functionName: 'debug'
+                        }
+                    },
+                    'Navigator.prototype.bloop3': {
+                        type: 'descriptor',
+                        define: true,
+                        getterValue: {
+                            type: 'number',
+                            value: 1222
+                        }
+                    },
                     'Navigator.prototype.joinAdInterestGroup': {
                         type: 'remove',
                     },

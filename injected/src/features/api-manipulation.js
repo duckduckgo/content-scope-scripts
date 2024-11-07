@@ -43,7 +43,14 @@ export default class ApiManipulation extends ContentFeature {
             if (change.configurable && typeof change.configurable !== 'boolean') {
                 return false;
             }
-            return typeof change.getterValue !== 'undefined';
+            if (change.writable && typeof change.writable !== 'boolean') {
+                return false;
+            }
+            // Either getterValues or value must be undefined
+            if (change.getterValues && change.value) {
+                return false;
+            }
+            return typeof change.getterValue !== 'undefined' || typeof change.value !== 'undefined';
         }
         return false;
     }
@@ -52,9 +59,12 @@ export default class ApiManipulation extends ContentFeature {
     /**
      * @typedef {Object} APIChange
      * @property {"remove"|"descriptor"} type
+     * @property {import('../utils.js').ConfigSetting} [value] - The value returned by the descriptor.
      * @property {import('../utils.js').ConfigSetting} [getterValue] - The value returned from a getter.
+     * @property {boolean} [define=false] - Whether to define the property, defaults to checking presence.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
+     * @property {boolean} [writable] - Whether the property is writable
      */
 
     /**
@@ -64,6 +74,7 @@ export default class ApiManipulation extends ContentFeature {
      * @returns {void}
      */
     applyApiChange(scope, change) {
+        console.log('applyApiChange', scope, change);
         const response = this.getGlobalObject(scope);
         if (!response) {
             return;
@@ -72,7 +83,7 @@ export default class ApiManipulation extends ContentFeature {
         if (change.type === 'remove') {
             this.removeApiMethod(obj, key);
         } else if (change.type === 'descriptor') {
-            this.wrapApiDescriptor(obj, key, change);
+            this.defineApiDescriptor(obj, key, change);
         }
     }
 
@@ -95,11 +106,21 @@ export default class ApiManipulation extends ContentFeature {
      * @param {string} key
      * @param {APIChange} change
      */
-    wrapApiDescriptor(api, key, change) {
+    defineApiDescriptor(api, key, change) {
+        console.log('wrapApiDescriptor', api, key, change);
+        // It's unclear why TS wants the assignment here to narrow the type (but not for change.value)?!
         const getterValue = change.getterValue;
+        const defineMethod = change.define ? this.defineProperty.bind(this) : this.wrapProperty.bind(this);
         if (getterValue) {
-            this.wrapProperty(api, key, {
+            defineMethod(api, key, {
                 get: () => processAttr(getterValue, undefined),
+                enumerable: change.enumerable ?? true,
+                configurable: change.configurable ?? true,
+            });
+        } else if (change.value) {
+            defineMethod(api, key, {
+                value: processAttr(change.value, undefined),
+                writable: change.writable ?? true,
                 enumerable: change.enumerable ?? true,
                 configurable: change.configurable ?? true,
             });
