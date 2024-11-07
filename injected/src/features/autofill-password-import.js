@@ -394,6 +394,7 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     async handlePath(path) {
+        this.removeOverlayIfNeeded();
         if (this.isSupportedPath(path)) {
             try {
                 this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
@@ -401,8 +402,6 @@ export default class AutofillPasswordImport extends ContentFeature {
             } catch {
                 console.error('password-import: failed for path:', path);
             }
-        } else {
-            this.removeOverlayIfNeeded();
         }
     }
 
@@ -411,7 +410,6 @@ export default class AutofillPasswordImport extends ContentFeature {
      * If the element should be watched for removal, it sets up a mutation observer.
      */
     async animateOrTapElement() {
-        this.removeOverlayIfNeeded();
         const { element, animationStyle, shouldTap, shouldWatchForRemoval } = this.currentElementConfig ?? {};
         if (element != null && animationStyle != null) {
             if (shouldTap) {
