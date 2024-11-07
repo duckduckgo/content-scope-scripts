@@ -49,6 +49,8 @@ export default class ApiManipulation extends ContentFeature {
     }
 
     // TODO move this to schema definition imported from the privacy-config
+    // Additionally remove checkIsValidAPIChange when this change happens.
+    // See: https://app.asana.com/0/1201614831475344/1208715421518231/f
     /**
      * @typedef {Object} APIChange
      * @property {"remove"|"descriptor"} type
