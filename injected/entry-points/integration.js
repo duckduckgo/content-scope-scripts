@@ -28,61 +28,7 @@ function generateConfig() {
             domain: topLevelUrl.hostname,
             isBroken: false,
             allowlisted: false,
-            enabledFeatures: ['apiManipulation', 'fingerprintingCanvas', 'fingerprintingScreenSize', 'navigatorInterface', 'cookie'],
-        },
-        featureSettings: {
-            apiManipulation: {
-                apiChanges: {
-                    'Navigator.prototype.joinAdInterestGroup': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.leaveAdInterestGroup': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.clearOriginJoinedAdInterestGroups': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.updateAdInterestGroups': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.createAuctionNonce': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.runAdAuction': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.adAuctionComponents': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.deprecatedURNToURL': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.deprecatedReplaceInURN': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.getInterestGroupAdAuctionData': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.createAdRequest': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.finalizeAd': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.canLoadAdAuctionFencedFrame': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.deprecatedRunAdAuctionEnforcesKAnonymity': {
-                        type: 'remove',
-                    },
-                    'Navigator.prototype.protectedAudience': {
-                        type: 'descriptor',
-                        getterValue: {
-                            type: 'undefined',
-                        },
-                    },
-                },
-            },
+            enabledFeatures: ['fingerprintingCanvas', 'fingerprintingScreenSize', 'navigatorInterface', 'cookie'],
         },
         trackerLookup,
     };
