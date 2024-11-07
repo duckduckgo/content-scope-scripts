@@ -92,7 +92,7 @@ export const mainExamples = {
         ),
     },
     ...favoritesExamples,
-    ...nextStepsExamples
+    ...nextStepsExamples,
 };
 
 export const otherExamples = {

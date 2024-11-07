@@ -4,7 +4,6 @@ import { noop } from '../../utils.js';
 import { NextStepsCard } from './NextStepsCard.js';
 import { NextStepsCardGroup, NextStepsBubbleHeader } from './NextStepsGroup.js';
 
-
 export const nextStepsExamples = {
     'next-steps.cardGroup.all': {
         factory: () => (
@@ -97,5 +96,4 @@ export const otherNextStepsExamples = {
     'next-steps.bubble': {
         factory: () => <NextStepsBubbleHeader />,
     },
-    
 };

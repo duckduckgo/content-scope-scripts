@@ -22,9 +22,8 @@ export function NextStepsCard({ type, dismiss, action }) {
             <p class={styles.title}>{message.title}</p>
             <p class={styles.description}>{message.summary}</p>
             <button class={styles.btn} onClick={() => action(message.id)}>
-                {message.actionText} 
+                {message.actionText}
             </button>
-
 
             <button class={cn(styles.btn, styles.dismissBtn)} onClick={() => dismiss(message.id)} aria-label={otherText.dismiss(t)}>
                 <Cross />

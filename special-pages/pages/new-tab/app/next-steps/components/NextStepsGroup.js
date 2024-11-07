@@ -38,23 +38,23 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, 
             </div>
 
             <div
-                 className={cn({
-                     [styles.showhide]: true,
-                     [styles.showhideVisible]: types.length > 2
-                 })}
-             >
-            {types.length > 2 && (
-                <ShowHideButton
-                    buttonAttrs={{
-                        'aria-expanded': expansion === 'expanded',
-                        'aria-pressed': expansion === 'expanded',
-                        'aria-controls': WIDGET_ID,
-                        id: TOGGLE_ID,
-                    }}
-                    text={expansion === 'expanded' ? otherText.showLess(t) : otherText.showMore(t)}
-                    onClick={toggle}
-                />
-            )}
+                className={cn({
+                    [styles.showhide]: true,
+                    [styles.showhideVisible]: types.length > 2,
+                })}
+            >
+                {types.length > 2 && (
+                    <ShowHideButton
+                        buttonAttrs={{
+                            'aria-expanded': expansion === 'expanded',
+                            'aria-pressed': expansion === 'expanded',
+                            'aria-controls': WIDGET_ID,
+                            id: TOGGLE_ID,
+                        }}
+                        text={expansion === 'expanded' ? otherText.showLess(t) : otherText.showMore(t)}
+                        onClick={toggle}
+                    />
+                )}
             </div>
         </div>
     );
