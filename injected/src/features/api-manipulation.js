@@ -5,7 +5,7 @@
  * @module API manipulation
  */
 import ContentFeature from '../content-feature';
-import { processAttr } from '../utils';
+import { processAttr, getGlobalObject } from '../utils';
 
 /**
  * @internal
@@ -64,7 +64,7 @@ export default class ApiManipulation extends ContentFeature {
      * @returns {void}
      */
     applyApiChange(scope, change) {
-        const response = this.getGlobalObject(scope);
+        const response = getGlobalObject(scope);
         if (!response) {
             return;
         }
@@ -105,27 +105,5 @@ export default class ApiManipulation extends ContentFeature {
                 configurable: change.configurable,
             });
         }
-    }
-
-    /**
-     * Looks up a global object from a scope, e.g. 'Navigator.prototype'.
-     * @param {string} scope the scope of the object to get to.
-     * @returns {[object, string]|null} the object at the scope.
-     */
-    getGlobalObject(scope) {
-        const parts = scope.split('.');
-        // get the last part of the scope
-        const lastPart = parts.pop();
-        if (!lastPart) {
-            return null;
-        }
-        let obj = window;
-        for (const part of parts) {
-            obj = obj[part];
-            if (!obj) {
-                return null;
-            }
-        }
-        return [obj, lastPart];
     }
 }

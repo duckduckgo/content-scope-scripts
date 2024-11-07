@@ -1,9 +1,23 @@
-import { matchHostname, postDebugMessage, initStringExemptionLists, processConfig, satisfiesMinVersion } from '../src/utils.js';
+import { nodeModuleNameResolver } from 'typescript';
+import { matchHostname, postDebugMessage, initStringExemptionLists, processConfig, satisfiesMinVersion, getGlobalObject, setGlobal } from '../src/utils.js';
 import polyfillProcessGlobals from './helpers/pollyfil-for-process-globals.js';
 
+setGlobal(globalThis);
 polyfillProcessGlobals();
 
 describe('Helpers checks', () => {
+    describe('Validate getGlobalObject function', () => {
+        it('Expect results on getGlobalObject', () => {
+            //expect(getGlobalObject('window')).toEqual([globalThis, 'window']);
+            //const out = JSON.stringify(getGlobalObject('window'), null, 4);
+            //expect(out).toEqual(JSON.stringify([globalThis.document, 'document'], null, 4));
+            expect(getGlobalObject('document')).toEqual([globalThis.document, 'document']);
+            //expect(getGlobalObject('navigator')).toEqual([navigator, 'navigator']);
+            //expect(getGlobalObject('location')).toEqual([globalThis.document.location, 'location']);
+            //expect(getGlobalObject('document.location.ancestorOrigins')).toEqual([globalThis.document.location.ancestorOrigins, 'ancestorOrigins']);
+        });
+    });
+
     describe('matchHostname', () => {
         it('Expect results on matchHostnames', () => {
             expect(matchHostname('b.domain.com', 'domain.com')).toBeTrue();

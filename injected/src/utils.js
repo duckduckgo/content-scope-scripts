@@ -340,6 +340,28 @@ export function processAttr(configSetting, defaultValue) {
     }
 }
 
+/**
+ * Looks up a global object from a scope, e.g. 'Navigator.prototype'.
+ * @param {string} scope the scope of the object to get to.
+ * @returns {[object, string]|null} the object at the scope.
+ */
+export function getGlobalObject(scope) {
+    const parts = scope.split('.');
+    // get the last part of the scope
+    const lastPart = parts.pop();
+    if (!lastPart) {
+        return null;
+    }
+    let obj = globalObj;
+    for (const part of parts) {
+        obj = obj[part];
+        if (!obj) {
+            return null;
+        }
+    }
+    return [obj, lastPart];
+}
+
 export function getStack() {
     return new Error().stack;
 }
