@@ -27,7 +27,6 @@ export const variants = {
         icon: 'Bring-Stuff',
         title: t('nextSteps_bringStuff_title'),
         summary: t('nextSteps_bringStuff_summary'),
-        action: () => {},
         actionText: t('nextSteps_bringStuff_actionText'),
     }),
     // /**
@@ -38,7 +37,6 @@ export const variants = {
         icon: 'Default-App',
         title: t('nextSteps_defaultApp_title'),
         summary: t('nextSteps_defaultApp_summary'),
-        action: () => {},
         actionText: t('nextSteps_defaultApp_actionText'),
     }),
     // /**
@@ -49,7 +47,6 @@ export const variants = {
         icon: 'Cookie-Pops',
         title: t('nextSteps_blockCookies_title'),
         summary: t('nextSteps_blockCookies_summary'),
-        action: () => {},
         actionText: t('nextSteps_blockCookies_actionText'),
     }),
     // /**
@@ -60,7 +57,6 @@ export const variants = {
         icon: 'Email-Protection',
         title: t('nextSteps_emailProtection_title'),
         summary: t('nextSteps_emailProtection_summary'),
-        action: () => {},
         actionText: t('nextSteps_emailProtection_actionText'),
     }),
     // /**
@@ -71,7 +67,6 @@ export const variants = {
         icon: 'Tube-Clean',
         title: t('nextSteps_duckPlayer_title'),
         summary: t('nextSteps_duckPlayer_summary'),
-        action: () => {},
         actionText: t('nextSteps_duckPlayer_actionText'),
     }),
     // /**
@@ -82,17 +77,25 @@ export const variants = {
         icon: 'Dock-Add-Mac',
         title: t('nextSteps_addAppDockMac_title'),
         summary: t('nextSteps_addAppDockMac_summary'),
-        action: () => {},
         actionText: t('nextSteps_addAppDockMac_actionText'),
         confirmationText: t('nextSteps_addAppDockMac_actionText'),
     }),
+    // /**
+    //  * @param {import('./types').TranslationFn} t
+    //  */
     pinAppToTaskbarWindows: (t) => ({
         id: 'pinAppToTaskbarWindows',
         icon: 'Dock-Add-Windows',
         title: t('nextSteps_pinAppToTaskbarWindows_title'),
         summary: t('nextSteps_pinAppToTaskbarWindows_summary'),
-        action: () => {},
         actionText: t('nextSteps_pinAppToTaskbarWindows_actionText'),
         confirmationText: t('nextSteps_pinAppToTaskbarWindows_actionText'), // this is only available >= Windows 11 users
     }),
 };
+
+export const otherText = {
+    dismiss: (t) => (t('ntp_dismiss')),
+    showMore: (t) => t('ntp_showMore'),
+    showLess: (t) => t('ntp_showLess'),
+    nextSteps_sectionTitle: (t) => t('nextSteps_sectionTitle')
+}

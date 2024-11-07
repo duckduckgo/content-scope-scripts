@@ -2,22 +2,20 @@ import { h } from 'preact';
 import cn from 'classnames';
 import styles from './NextSteps.module.css';
 import { Cross } from '../components/Icons.js';
-import { oldVariants } from './oldnextsteps.data';
-import {variants} from "./nextsteps.data"
-import { useTypedTranslation } from "../types"
-
-// NextStepType = "bringStuff" | "defaultApp" | "blockCookies" | "emailProtection" | "duckplayer" | "addAppDockMac" | "pinAppToTaskbarWindows"
+import { variants,otherText } from './nextsteps.data';
+import { useTypedTranslation } from '../types';
 
 /*
-* @param {object} props
-* @param {string} props.type
-* @param {(id: string) => void} props.dismiss
-* @param {(id: string) => void} props.action
-*/
+ * @import { NextStepsCards } from "../../../../types/new-tab"
+ * @param {object} props
+ * @param {NextStepsCards} props.type
+ * @param {(id: string) => void} props.dismiss
+ * @param {(id: string) => void} props.action
+ */
 
 export function NextStepsCard({ type, dismiss, action }) {
-    const {t} = useTypedTranslation()
-    const message = variants[type]?.(t)
+    const { t } = useTypedTranslation();
+    const message = variants[type]?.(t);
 
     return (
         <div class={styles.root}>
@@ -26,14 +24,12 @@ export function NextStepsCard({ type, dismiss, action }) {
 
             <p class={styles.title}>{message.title}</p>
             <p class={styles.description}>{message.summary}</p>
-            <button class={styles.btn} onClick={() => action(message.id)}>{message.actionText}</button>
-            <button class={cn(styles.btn, styles.dismissBtn)} onClick={() => dismiss(message.id)} aria-label="Close">
+            <button class={styles.btn} onClick={() => action(message.id)}>
+                {message.actionText}
+            </button>
+            <button class={cn(styles.btn, styles.dismissBtn)} onClick={() => dismiss(message.id)} aria-label={otherText.dismiss(t)}>
                 <Cross />
             </button>
         </div>
     );
 }
-
-// export function NextStepsConsumer () {
-
-// }
