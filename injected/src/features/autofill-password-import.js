@@ -494,12 +494,22 @@ export default class AutofillPasswordImport extends ContentFeature {
         });
 
         this.#domLoaded = new Promise((resolve) => {
-            document.addEventListener('DOMContentLoaded', async () => {
+            if (document.readyState !== 'loading') {
                 // @ts-expect-error - caller doesn't expect a value here
                 resolve();
-                const path = window.location.pathname;
-                await handlePath(path);
-            });
+                return;
+            }
+
+            document.addEventListener(
+                'DOMContentLoaded',
+                async () => {
+                    // @ts-expect-error - caller doesn't expect a value here
+                    resolve();
+                    const path = window.location.pathname;
+                    await handlePath(path);
+                },
+                { once: true },
+            );
         });
     }
 }
