@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { NextStepsContext, NextStepsProvider } from './NextStepsProvider.js';
 import { useContext } from 'preact/hooks';
-import { NextStepsCardGroup } from './NextStepsGroup.js';
+import { NextStepsCardGroup } from './components/NextStepsGroup.js';
 
 /**
  * Use this when rendered within a widget list.

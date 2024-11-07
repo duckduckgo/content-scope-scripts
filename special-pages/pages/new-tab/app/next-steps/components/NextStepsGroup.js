@@ -1,15 +1,15 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './NextSteps.module.css';
-import { useTypedTranslation } from '../types';
+import { useTypedTranslation } from '../../types';
 import { NextStepsCard } from './NextStepsCard';
-import { otherText } from './nextsteps.data';
-import { ShowHideButton } from '../components/ShowHideButton';
+import { otherText } from '../nextsteps.data';
+import { ShowHideButton } from '../../components/ShowHideButton';
 import { useId } from 'preact/hooks';
 
 /**
- * @typedef {import('../../../../types/new-tab').Expansion} Expansion
- * @typedef {import('../../../../types/new-tab').Animation} Animation
+ * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
+ * @typedef {import('../../../../../types/new-tab').Animation} Animation
  */
 /*
  * @param {object} props

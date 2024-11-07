@@ -82,8 +82,7 @@ export const variants = {
         icon: 'Dock-Add-Mac',
         title: t('nextSteps_addAppDockMac_title'),
         summary: t('nextSteps_addAppDockMac_summary'),
-        actionText: t('nextSteps_addAppDockMac_actionText'),
-        confirmationText: t('nextSteps_addAppDockMac_actionText'),
+        actionText: t('nextSteps_addAppDockMac_actionText')
     }),
     // /**
     //  * @param {import('./types').TranslationFn} t
@@ -93,8 +92,7 @@ export const variants = {
         icon: 'Dock-Add-Windows',
         title: t('nextSteps_pinAppToTaskbarWindows_title'),
         summary: t('nextSteps_pinAppToTaskbarWindows_summary'),
-        actionText: t('nextSteps_pinAppToTaskbarWindows_actionText'),
-        confirmationText: t('nextSteps_pinAppToTaskbarWindows_actionText'), // this is only available >= Windows 11 users
+        actionText: t('nextSteps_pinAppToTaskbarWindows_actionText')
     }),
 };
 

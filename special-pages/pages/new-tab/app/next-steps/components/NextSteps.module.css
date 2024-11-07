@@ -10,6 +10,7 @@
     align-items: center;
     text-align: center;
     max-width: calc(240 * var(--px-in-rem));
+    min-height: calc(150 * var(--px-in-rem));
     font-size: var(--body-font-size);
 
 
@@ -24,12 +25,14 @@
     margin-bottom: var(--sp-1);
 }
 
+
+
 .title {
     font-weight: 590;
     line-height: var(--sp-4);
     letter-spacing: -0.08px;
     color: var(--color-black-at-84);
-    margin-bottom: var(--sp-0);
+    margin-bottom: var(--sp-1);
 
     @media screen and (prefers-color-scheme: dark) {
         color: var(--color-white-at-84);
@@ -113,12 +116,17 @@
     }
 }
 
-.btn .confirmation {
+.confirmation {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     gap: calc(6 * var(--px-in-rem));
+    font-size: calc(11 * var(--px-in-rem));
+color: var(--color-black-at-84);
 
+@media screen and (prefers-color-scheme: dark) {
+    color: var(--color-white-at-84);
+}
 }
 
 .dismissBtn {
@@ -219,6 +227,5 @@
         font-weight: 700;
         line-height: 20px;
         letter-spacing: normal;
-        margin-bottom: var(--sp-1);
     }
 }

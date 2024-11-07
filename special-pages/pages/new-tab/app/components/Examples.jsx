@@ -2,8 +2,7 @@ import { Fragment, h } from 'preact';
 import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMockProvider.js';
 import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js';
 import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js';
-import { NextStepsCard } from '../next-steps/NextStepsCard.js';
-import { NextStepsCardGroup, NextStepsBubbleHeader } from '../next-steps/NextStepsGroup.js';
+import { nextStepsExamples, otherNextStepsExamples } from '../next-steps/components/NextStepsExamples.js';
 import { stats } from '../privacy-stats/mocks/stats.js';
 import { noop } from '../utils.js';
 import { VisibilityMenu } from '../customizer/VisibilityMenu.js';
@@ -93,94 +92,7 @@ export const mainExamples = {
         ),
     },
     ...favoritesExamples,
-    'next-steps.bringStuff': {
-        factory: () => <NextStepsCard type="bringStuff" dismiss={noop('dismiss')} action={noop('action')} />,
-    },
-    'next-steps.duckplayer': {
-        factory: () => <NextStepsCard type="duckplayer" dismiss={noop('dismiss')} action={noop('action')} />,
-    },
-    'next-steps.defaultApp': {
-        factory: () => <NextStepsCard type="defaultApp" dismiss={noop('dismiss')} action={noop('action')} />,
-    },
-    'next-steps.emailProtection': {
-        factory: () => <NextStepsCard type="emailProtection" dismiss={noop('dismiss')} action={noop('action')} />,
-    },
-    'next-steps.blockCookies': {
-        factory: () => <NextStepsCard type="blockCookies" dismiss={noop('dismiss')} action={noop('action')} />,
-    },
-    'next-steps.addAppDockMac': {
-        factory: () => <NextStepsCard type="addAppDockMac" dismiss={noop('dismiss')} action={noop('action')} />,
-    },
-    'next-steps.pinToTaskbarWindows': {
-        factory: () => <NextStepsCard type="pinAppToTaskbarWindows" dismiss={noop('dismiss')} action={noop('action')} />,
-    },
-    'next-steps.bubble': {
-        factory: () => <NextStepsBubbleHeader />,
-    },
-    'next-steps.cardGroup.all': {
-        factory: () => (
-            <NextStepsCardGroup
-                types={[
-                    'bringStuff',
-                    'defaultApp',
-                    'blockCookies',
-                    'emailProtection',
-                    'duckplayer',
-                    'addAppDockMac',
-                    'pinAppToTaskbarWindows',
-                ]}
-                expansion="collapsed"
-                toggle={noop('toggle')}
-                dismiss={noop('dismiss')}
-                action={noop('action')}
-                animation="None"
-            />
-        ),
-    },
-    'next-steps.cardGroup.all-expanded': {
-        factory: () => (
-            <NextStepsCardGroup
-                types={[
-                    'bringStuff',
-                    'defaultApp',
-                    'blockCookies',
-                    'emailProtection',
-                    'duckplayer',
-                    'addAppDockMac',
-                    'pinAppToTaskbarWindows',
-                ]}
-                expansion="expanded"
-                toggle={noop('toggle')}
-                dismiss={noop('dismiss')}
-                action={noop('action')}
-                animation="None"
-            />
-        ),
-    },
-    'next-steps.cardGroup.two': {
-        factory: () => (
-            <NextStepsCardGroup
-                types={['bringStuff', 'defaultApp']}
-                expansion="collapsed"
-                toggle={noop('toggle')}
-                dismiss={noop('dismiss')}
-                action={noop('action')}
-                animation="None"
-            />
-        ),
-    },
-    'next-steps.cardGroup.one': {
-        factory: () => (
-            <NextStepsCardGroup
-                types={['bringStuff']}
-                expansion="collapsed"
-                toggle={noop('toggle')}
-                dismiss={noop('dismiss')}
-                action={noop('action')}
-                animation="None"
-            />
-        ),
-    },
+    ...nextStepsExamples
 };
 
 export const otherExamples = {
@@ -220,6 +132,7 @@ export const otherExamples = {
             />
         ),
     },
+    ...otherNextStepsExamples,
     'customizer-menu': {
         factory: () => (
             <Fragment>
