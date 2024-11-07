@@ -14,8 +14,9 @@ export function getCaptchaInfo(action, root = document) {
     const captchaDiv = getElement(root, action.selector);
 
     // if 'captchaDiv' was missing, cannot continue
-    if (!captchaDiv)
+    if (!captchaDiv) {
         return new ErrorResponse({ actionID: action.id, message: `could not find captchaDiv with selector ${action.selector}` });
+    }
 
     // try 2 different captures
     const captcha =
