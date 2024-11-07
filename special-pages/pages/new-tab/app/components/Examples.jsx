@@ -7,6 +7,7 @@ import { noop } from '../utils.js';
 import { VisibilityMenu } from '../customizer/VisibilityMenu.js';
 import { CustomizerButton } from '../customizer/Customizer.js';
 import { rmfDataExamples } from '../remote-messaging-framework/mocks/rmf.data.js';
+import { favoritesExamples } from '../favorites/components/FavoritesExamples.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -89,6 +90,7 @@ export const mainExamples = {
             />
         ),
     },
+    ...favoritesExamples,
 };
 
 export const otherExamples = {
