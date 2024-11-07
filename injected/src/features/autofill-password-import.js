@@ -9,6 +9,23 @@ export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
 
 /**
+ * @typedef ButtonAnimationStyle
+ * @property {Record<string, string>} transform
+ * @property {string} zIndex
+ * @property {string} borderRadius
+ * @property {number} offsetLeftEm
+ * @property {number} offsetTopEm
+ */
+
+/**
+ * @typedef ElementConfig
+ * @property {HTMLElement|Element|SVGElement} element
+ * @property {ButtonAnimationStyle} animationStyle
+ * @property {boolean} shouldTap
+ * @property {boolean} shouldWatchForRemoval
+ */
+
+/**
  * This feature is responsible for animating some buttons passwords.google.com,
  * during a password import flow. The overall approach is:
  * 1. Check if the path is supported,
@@ -17,14 +34,24 @@ export const DELAY_BEFORE_ANIMATION = 300;
  */
 export default class AutofillPasswordImport extends ContentFeature {
     #exportButtonSettings;
+
     #settingsButtonSettings;
+
     #signInButtonSettings;
+
+    /** @type {HTMLElement|Element|SVGElement|null} */
     #elementToCenterOn;
 
+    /** @type {HTMLElement|null} */
+    #currentOverlay;
+
+    /** @type {ElementConfig|null} */
+    #currentElementConfig;
+
     /**
-     * @returns {any}
+     * @returns {ButtonAnimationStyle}
      */
-    get settingsButtonStyle() {
+    get settingsButtonAnimationStyle() {
         return {
             transform: {
                 start: 'scale(0.90)',
@@ -38,9 +65,9 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     /**
-     * @returns {any}
+     * @returns {ButtonAnimationStyle}
      */
-    get exportButtonStyle() {
+    get exportButtonAnimationStyle() {
         return {
             transform: {
                 start: 'scale(1)',
@@ -54,9 +81,9 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     /**
-     * @returns {any}
+     * @returns {ButtonAnimationStyle}
      */
-    get signInButtonStyle() {
+    get signInButtonAnimationStyle() {
         return {
             transform: {
                 start: 'scale(1)',
@@ -70,16 +97,37 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     /**
+     * @param {HTMLElement|null} overlay
+     */
+    set currentOverlay(overlay) {
+        this.#currentOverlay = overlay;
+    }
+
+    /**
+     * @returns {HTMLElement|null}
+     */
+    get currentOverlay() {
+        return this.#currentOverlay ?? null;
+    }
+
+    /**
+     * @returns {ElementConfig|null}
+     */
+    get currentElementConfig() {
+        return this.#currentElementConfig;
+    }
+
+    /**
      * Takes a path and returns the element and style to animate.
      * @param {string} path
-     * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean, shouldWatchForRemoval: boolean}|null>}
+     * @returns {Promise<ElementConfig | null>}
      */
     async getElementAndStyleFromPath(path) {
         if (path === '/') {
             const element = await this.findSettingsElement();
             return element != null
                 ? {
-                      style: this.settingsButtonStyle,
+                      animationStyle: this.settingsButtonAnimationStyle,
                       element,
                       shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
                       shouldWatchForRemoval: false,
@@ -89,7 +137,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             const element = await this.findExportElement();
             return element != null
                 ? {
-                      style: this.exportButtonStyle,
+                      animationStyle: this.exportButtonAnimationStyle,
                       element,
                       shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
                       shouldWatchForRemoval: true,
@@ -99,7 +147,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             const element = await this.findSignInButton();
             return element != null
                 ? {
-                      style: this.signInButtonStyle,
+                      animationStyle: this.signInButtonAnimationStyle,
                       element,
                       shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
                       shouldWatchForRemoval: false,
@@ -114,54 +162,54 @@ export default class AutofillPasswordImport extends ContentFeature {
      * Removes the overlay if it exists.
      */
     removeOverlayIfNeeded() {
-        const existingOverlay = document.getElementById(OVERLAY_ID);
-        if (existingOverlay != null) {
-            existingOverlay.style.display = 'none';
-            existingOverlay.remove();
-            document.removeEventListener('scroll', this.updateOverlayPosition.bind(this));
+        if (this.currentOverlay != null) {
+            this.currentOverlay.style.display = 'none';
+            this.currentOverlay.remove();
+            this.currentOverlay = null;
+            document.removeEventListener('scroll', this);
         }
     }
 
     /**
      * Updates the position of the overlay based on the element to center on.
-     * @param {HTMLDivElement} overlay
-     * @param {any} style
      */
-    updateOverlayPosition(overlay, style) {
-        const animations = overlay.getAnimations();
-        animations.forEach((animation) => animation.pause());
-        const { top, left, width, height } = this.elementToCenterOn.getBoundingClientRect();
-        overlay.style.position = 'absolute';
+    updateOverlayPosition() {
+        if (this.currentOverlay != null && this.currentElementConfig?.animationStyle != null && this.elementToCenterOn != null) {
+            const animations = this.currentOverlay.getAnimations();
+            animations.forEach((animation) => animation.pause());
+            const { top, left, width, height } = this.elementToCenterOn.getBoundingClientRect();
+            this.currentOverlay.style.position = 'absolute';
 
-        const isRound = style.borderRadius === '100%';
+            const { animationStyle } = this.currentElementConfig;
+            const isRound = animationStyle.borderRadius === '100%';
 
-        const widthOffset = isRound ? width / 2 : 0;
-        const heightOffset = isRound ? height / 2 : 0;
+            const widthOffset = isRound ? width / 2 : 0;
+            const heightOffset = isRound ? height / 2 : 0;
 
-        overlay.style.top = `calc(${top}px + ${window.scrollY}px - ${widthOffset}px - 1px - ${style.offsetTopEm}em)`;
-        overlay.style.left = `calc(${left}px + ${window.scrollX}px - ${heightOffset}px - 1px - ${style.offsetLeftEm}em)`;
+            this.currentOverlay.style.top = `calc(${top}px + ${window.scrollY}px - ${widthOffset}px - 1px - ${animationStyle.offsetTopEm}em)`;
+            this.currentOverlay.style.left = `calc(${left}px + ${window.scrollX}px - ${heightOffset}px - 1px - ${animationStyle.offsetLeftEm}em)`;
 
-        // Ensure overlay is non-interactive
-        overlay.style.pointerEvents = 'none';
-        animations.forEach((animation) => animation.play());
+            // Ensure overlay is non-interactive
+            this.currentOverlay.style.pointerEvents = 'none';
+            animations.forEach((animation) => animation.play());
+        }
     }
 
     /**
-     * Inserts an overlay element to animate, by adding a div to the body
+     * Creates an overlay element to animate, by adding a div to the body
      * and styling it based on the found element.
      * @param {HTMLElement|Element} mainElement
      * @param {any} style
-     * @returns {HTMLElement|Element|null}
      */
-    insertOverlayElement(mainElement, style) {
+    createOverlayElement(mainElement, style) {
         this.removeOverlayIfNeeded();
 
         const overlay = document.createElement('div');
         overlay.setAttribute('id', OVERLAY_ID);
 
         if (this.elementToCenterOn != null) {
-            this.updateOverlayPosition(overlay, style);
-
+            this.currentOverlay = overlay;
+            this.updateOverlayPosition();
             const mainElementRect = mainElement.getBoundingClientRect();
             overlay.style.width = `${mainElementRect.width}px`;
             overlay.style.height = `${mainElementRect.height}px`;
@@ -170,15 +218,12 @@ export default class AutofillPasswordImport extends ContentFeature {
             // Ensure overlay is non-interactive
             overlay.style.pointerEvents = 'none';
 
-            document.addEventListener('scroll', () => {
-                requestAnimationFrame(() => this.updateOverlayPosition(overlay, style));
-            });
-
             // insert in document.body
             document.body.appendChild(overlay);
-            return overlay;
+
+            document.addEventListener('scroll', this, { passive: true });
         } else {
-            return null;
+            this.currentOverlay = null;
         }
     }
 
@@ -204,11 +249,19 @@ export default class AutofillPasswordImport extends ContentFeature {
         observer.observe(document.body, { childList: true, subtree: true });
     }
 
+    /**
+     *
+     * @param {HTMLElement|Element|SVGElement} element
+     * @param {ButtonAnimationStyle} style
+     */
     setElementToCenterOn(element, style) {
         const svgElement = element.parentNode?.querySelector('svg') ?? element.querySelector('svg');
         this.#elementToCenterOn = style.borderRadius === '100%' && svgElement != null ? svgElement : element;
     }
 
+    /**
+     * @returns {HTMLElement|Element|SVGElement|null}
+     */
     get elementToCenterOn() {
         return this.#elementToCenterOn;
     }
@@ -216,12 +269,12 @@ export default class AutofillPasswordImport extends ContentFeature {
     /**
      * Moves the element into view and animates it.
      * @param {HTMLElement|Element} element
-     * @param {any} style
+     * @param {ButtonAnimationStyle} style
      */
     animateElement(element, style) {
-        const overlay = this.insertOverlayElement(element, style);
-        if (overlay != null) {
-            overlay.scrollIntoView({
+        this.createOverlayElement(element, style);
+        if (this.currentOverlay != null) {
+            this.currentOverlay.scrollIntoView({
                 behavior: 'smooth',
                 block: 'center',
                 inline: 'center',
@@ -258,7 +311,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             };
 
             // Apply the animation to the element
-            overlay.animate(keyframes, options);
+            this.currentOverlay.animate(keyframes, options);
         }
     }
 
@@ -304,40 +357,73 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     /**
-     * Checks if the path is supported and animates/taps the element if it is.
-     * @param {string} path
+     * @param {Event} event
      */
-    async handleElementForPath(path) {
-        this.removeOverlayIfNeeded();
-        const supportedPaths = [this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path];
-        if (supportedPaths.includes(path)) {
+    handleEvent(event) {
+        if (event.type === 'scroll') {
+            requestAnimationFrame(() => this.updateOverlayPosition());
+        }
+    }
+
+    /**
+     * @param {ElementConfig|null} config
+     */
+    setCurrentElementConfig(config) {
+        if (config != null) {
+            this.#currentElementConfig = config;
+            this.setElementToCenterOn(config.element, config.animationStyle);
+        }
+    }
+
+    /**
+     * Checks if the path is supported for animation.
+     * @param {string} path
+     * @returns {boolean}
+     */
+    isSupportedPath(path) {
+        return [this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path].includes(path);
+    }
+
+    async handlePath(path) {
+        if (this.isSupportedPath(path)) {
             try {
-                const { element, style, shouldTap, shouldWatchForRemoval } = (await this.getElementAndStyleFromPath(path)) ?? {};
-                this.setElementToCenterOn(element, style);
-                if (element != null) {
-                    if (shouldTap) {
-                        this.autotapElement(element);
-                    } else {
-                        const domLoaded = new Promise((resolve) => {
-                            if (document.readyState === 'loading') {
-                                document.addEventListener('DOMContentLoaded', resolve);
-                            } else {
-                                // @ts-expect-error - caller doesn't expect a value here
-                                resolve();
-                            }
-                        });
-                        await domLoaded;
-                        this.animateElement(element, style);
-                    }
-                    if (shouldWatchForRemoval) {
-                        // Sometimes navigation events are not triggered, then we need to watch for removal
-                        this.observeElementRemoval(element, () => {
-                            this.removeOverlayIfNeeded();
-                        });
-                    }
-                }
+                this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
+                await this.animateOrTapElement();
             } catch {
-                console.error('password-import: handleElementForPath failed for path:', path);
+                console.error('password-import: failed for path:', path);
+            }
+        } else {
+            this.removeOverlayIfNeeded();
+        }
+    }
+
+    /**
+     * Based on the current element config, animates the element or taps it.
+     * If the element should be watched for removal, it sets up a mutation observer.
+     */
+    async animateOrTapElement() {
+        this.removeOverlayIfNeeded();
+        const { element, animationStyle, shouldTap, shouldWatchForRemoval } = this.currentElementConfig ?? {};
+        if (element != null && animationStyle != null) {
+            if (shouldTap) {
+                this.autotapElement(element);
+            } else {
+                const domLoaded = new Promise((resolve) => {
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', resolve, { once: true });
+                    } else {
+                        // @ts-expect-error - caller doesn't expect a value here
+                        resolve();
+                    }
+                });
+                await domLoaded;
+                this.animateElement(element, animationStyle);
+            }
+            if (shouldWatchForRemoval) {
+                // Sometimes navigation events are not triggered, then we need to watch for removal
+                this.observeElementRemoval(element, () => {
+                    this.removeOverlayIfNeeded();
+                });
             }
         }
     }
@@ -393,22 +479,24 @@ export default class AutofillPasswordImport extends ContentFeature {
     init() {
         this.setButtonSettings();
 
-        const handleElementForPath = this.handleElementForPath.bind(this);
+        const handlePath = this.handlePath.bind(this);
         const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
             async apply(target, thisArg, args) {
                 const path = args[1] === '' ? args[2].split('?')[0] : args[1];
-                await handleElementForPath(path);
+                await handlePath(path);
                 return DDGReflect.apply(target, thisArg, args);
             },
         });
         historyMethodProxy.overload();
         // listen for popstate events in order to run on back/forward navigations
         window.addEventListener('popstate', async () => {
-            await handleElementForPath(window.location.pathname);
+            const path = window.location.pathname;
+            await handlePath(path);
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
-            await handleElementForPath(window.location.pathname);
+            const path = window.location.pathname;
+            await handlePath(path);
         });
     }
 }
