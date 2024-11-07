@@ -113,6 +113,14 @@
     }
 }
 
+.btn .confirmation {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: calc(6 * var(--px-in-rem));
+
+}
+
 .dismissBtn {
     position: absolute;
     top: 0.5rem;
