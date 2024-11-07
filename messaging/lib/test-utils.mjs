@@ -20,10 +20,10 @@ export function mockWindowsMessaging(params) {
         mockResponses: params.responses,
         subscriptionEvents: [],
         mocks: {
-            outgoing: []
-        }
-    }
-    const listeners = []
+            outgoing: [],
+        },
+    };
+    const listeners = [];
     // @ts-expect-error mocking is intentional
     window.chrome = {};
     // @ts-expect-error mocking is intentional
@@ -31,13 +31,12 @@ export function mockWindowsMessaging(params) {
         /**
          * @param {AnyWindowsMessage} input
          */
-        postMessage (input) {
-
+        postMessage(input) {
             // subscription events come through here also
             if ('subscriptionName' in input) {
                 setTimeout(() => {
                     for (const listener of listeners) {
-                        listener({ origin: window.origin, data: input })
+                        listener({ origin: window.origin, data: input });
                     }
                 }, 0);
                 return;
@@ -56,28 +55,30 @@ export function mockWindowsMessaging(params) {
                 msg = {
                     ...msg,
                     id: input.Id,
-                }
+                };
             }
 
             // record the call
-            window.__playwright_01.mocks.outgoing.push(JSON.parse(JSON.stringify({
-                payload: msg
-            })))
+            window.__playwright_01.mocks.outgoing.push(
+                JSON.parse(
+                    JSON.stringify({
+                        payload: msg,
+                    }),
+                ),
+            );
 
             // if there's no 'id' field, we don't need to respond
             if (!('id' in msg)) return;
 
-
             // If we get here, it needed a response **and** we have a value for it
             setTimeout(() => {
-
                 // if the mocked response is absent, bail with an error
                 if (!(msg.method in window.__playwright_01.mockResponses)) {
-                    throw new Error('response not found for ' + msg.method)
+                    throw new Error('response not found for ' + msg.method);
                 }
 
                 // now access the response
-                const response = window.__playwright_01.mockResponses[msg.method]
+                const response = window.__playwright_01.mockResponses[msg.method];
 
                 for (const listener of listeners) {
                     listener({
@@ -89,22 +90,21 @@ export function mockWindowsMessaging(params) {
                             featureName: msg.featureName,
                             id: msg.id,
                         },
-                    })
+                    });
                 }
-            }, 0)
+            }, 0);
         },
-        removeEventListener (_name, _listener) {
-            const index = listeners.indexOf(_listener)
+        removeEventListener(_name, _listener) {
+            const index = listeners.indexOf(_listener);
             if (index > -1) {
-                listeners.splice(index, 1)
+                listeners.splice(index, 1);
             }
         },
-        addEventListener (_name, listener) {
-            listeners.push(listener)
-        }
-    }
+        addEventListener(_name, listener) {
+            listeners.push(listener);
+        },
+    };
 }
-
 
 /**
  * Install a mock interface for windows messaging
@@ -118,22 +118,26 @@ export function mockWebkitMessaging(params) {
         mockResponses: params.responses,
         subscriptionEvents: [],
         mocks: {
-            outgoing: []
-        }
-    }
+            outgoing: [],
+        },
+    };
     window.webkit = {
         messageHandlers: {
             [params.messagingContext.context]: {
                 /**
                  * @param {RequestMessage | NotificationMessage} msg
                  */
-                async postMessage (msg) {
-                    window.__playwright_01.mocks.outgoing.push(JSON.parse(JSON.stringify({
-                        payload: msg
-                    })))
+                async postMessage(msg) {
+                    window.__playwright_01.mocks.outgoing.push(
+                        JSON.parse(
+                            JSON.stringify({
+                                payload: msg,
+                            }),
+                        ),
+                    );
 
                     // force a 'tick' to allow tests to reset mocks before reading responses
-                    await new Promise(resolve => setTimeout(resolve, 0));
+                    await new Promise((resolve) => setTimeout(resolve, 0));
 
                     // if it's a notification, simulate the empty response and don't check for a response
                     if (!('id' in msg)) {
@@ -141,10 +145,10 @@ export function mockWebkitMessaging(params) {
                     }
 
                     if (!(msg.method in window.__playwright_01.mockResponses)) {
-                        throw new Error('response not found for ' + msg.method)
+                        throw new Error('response not found for ' + msg.method);
                     }
 
-                    const response = window.__playwright_01.mockResponses[msg.method]
+                    const response = window.__playwright_01.mockResponses[msg.method];
 
                     /** @type {Omit<MessageResponse, 'error'>} */
                     const r = {
@@ -152,13 +156,13 @@ export function mockWebkitMessaging(params) {
                         context: msg.context,
                         featureName: msg.featureName,
                         id: msg.id,
-                    }
+                    };
 
-                    return JSON.stringify(r)
-                }
-            }
-        }
-    }
+                    return JSON.stringify(r);
+                },
+            },
+        },
+    };
 }
 
 /**
@@ -174,9 +178,9 @@ export function mockAndroidMessaging(params) {
         mockResponses: params.responses,
         subscriptionEvents: [],
         mocks: {
-            outgoing: []
-        }
-    }
+            outgoing: [],
+        },
+    };
     window[params.messagingContext.context] = {
         /**
          * @param {string} jsonString
@@ -185,13 +189,16 @@ export function mockAndroidMessaging(params) {
          */
         // eslint-disable-next-line require-await
         process: async (jsonString, secret) => {
-
             /** @type {RequestMessage | NotificationMessage} */
             const msg = JSON.parse(jsonString);
 
-            window.__playwright_01.mocks.outgoing.push(JSON.parse(JSON.stringify({
-                payload: msg
-            })))
+            window.__playwright_01.mocks.outgoing.push(
+                JSON.parse(
+                    JSON.stringify({
+                        payload: msg,
+                    }),
+                ),
+            );
 
             // if it's a notification, simulate the empty response and don't check for a response
             if (!('id' in msg)) {
@@ -199,10 +206,10 @@ export function mockAndroidMessaging(params) {
             }
 
             if (!(msg.method in window.__playwright_01.mockResponses)) {
-                throw new Error('response not found for ' + msg.method)
+                throw new Error('response not found for ' + msg.method);
             }
 
-            const response = window.__playwright_01.mockResponses[msg.method]
+            const response = window.__playwright_01.mockResponses[msg.method];
 
             /** @type {Omit<MessageResponse, 'error'>} */
             const r = {
@@ -210,11 +217,11 @@ export function mockAndroidMessaging(params) {
                 context: msg.context,
                 featureName: msg.featureName,
                 id: msg.id,
-            }
+            };
 
             globalThis.messageCallback?.(secret, r);
-        }
-    }
+        },
+    };
 }
 
 /**
@@ -224,8 +231,8 @@ export function mockAndroidMessaging(params) {
 export function mockResponses(params) {
     window.__playwright_01.mockResponses = {
         ...window.__playwright_01.mockResponses,
-        ...params.responses
-    }
+        ...params.responses,
+    };
 }
 
 /**
@@ -234,14 +241,14 @@ export function mockResponses(params) {
  * @param {number} params.count
  */
 export function waitForCallCount(params) {
-    const outgoing = window.__playwright_01.mocks.outgoing
+    const outgoing = window.__playwright_01.mocks.outgoing;
     const filtered = outgoing.filter(({ payload }) => {
         if ('method' in payload) {
             return params.method === payload.method;
         }
-        return false
-    })
-    return filtered.length >= params.count
+        return false;
+    });
+    return filtered.length >= params.count;
 }
 
 /**
@@ -249,7 +256,7 @@ export function waitForCallCount(params) {
  * @return {any}
  */
 export function readOutgoingMessages() {
-    return window.__playwright_01.mocks.outgoing
+    return window.__playwright_01.mocks.outgoing;
 }
 
 /**
@@ -275,7 +282,7 @@ export function wrapWindowsScripts(js, replacements) {
                 console.error(e)
             }
         })();
-    `
+    `;
 }
 
 /**
@@ -303,21 +310,21 @@ export function simulateSubscriptionMessage(params) {
         featureName: params.messagingContext.featureName,
         subscriptionName: params.name,
         params: params.payload,
-    }
+    };
     switch (params.injectName) {
-    case "windows": {
-        // @ts-expect-error DDG custom global
-        const fn = window.chrome?.webview?.postMessage || window.windowsInteropPostMessage;
-        fn(subscriptionEvent)
-        break;
-    }
-    case "apple":
-    case "apple-isolated": {
-        if (!(params.name in window)) throw new Error('subscription fn not found for: ' + params.injectName);
-        window[params.name](subscriptionEvent);
-        break;
-    }
-    default: throw new Error('platform not supported yet: ' + params.injectName)
+        case 'windows': {
+            // @ts-expect-error DDG custom global
+            const fn = window.chrome?.webview?.postMessage || window.windowsInteropPostMessage;
+            fn(subscriptionEvent);
+            break;
+        }
+        case 'apple':
+        case 'apple-isolated': {
+            if (!(params.name in window)) throw new Error('subscription fn not found for: ' + params.injectName);
+            window[params.name](subscriptionEvent);
+            break;
+        }
+        default:
+            throw new Error('platform not supported yet: ' + params.injectName);
     }
 }
-

@@ -1,13 +1,13 @@
-import { h, Fragment } from 'preact'
-import { useReducer } from 'preact/hooks'
-import { Stack } from './Stack'
-import { Button, ButtonBar } from './Buttons'
-import { Play, Replay, SlideIn } from './Icons'
+import { h, Fragment } from 'preact';
+import { useReducer } from 'preact/hooks';
+import { Stack } from './Stack';
+import { Button, ButtonBar } from './Buttons';
+import { Play, Replay, SlideIn } from './Icons';
 
-import styles from './BeforeAfter.module.css'
-import { useAutoAnimate } from '@formkit/auto-animate/preact'
-import { useEnv } from '../../../../shared/components/EnvironmentProvider'
-import { useTypedTranslation } from '../types'
+import styles from './BeforeAfter.module.css';
+import { useAutoAnimate } from '@formkit/auto-animate/preact';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider';
+import { useTypedTranslation } from '../types';
 
 /**
  * A component that renders an image with a before and after effect.
@@ -18,21 +18,21 @@ import { useTypedTranslation } from '../types'
  * @param {string} props.btnAfter - The label for the button to show the after effect.
  * @param {(args: {state: 'initial' | 'before' | 'after', className: string}) => import("preact").ComponentChild} props.media - A function that returns the media to display
  */
-export function BeforeAfter ({ media, onDone, btnBefore, btnAfter }) {
-    const { t } = useTypedTranslation()
-    const { isReducedMotion } = useEnv()
-    const [imageParent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : undefined)
+export function BeforeAfter({ media, onDone, btnBefore, btnAfter }) {
+    const { t } = useTypedTranslation();
+    const { isReducedMotion } = useEnv();
+    const [imageParent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : undefined);
 
     // differentiate between initial states vs before/after
-    const [state, dispatch] = useReducer((/** @type {'initial' | 'before' | 'after'} */prev) => {
-        if (prev === 'initial') return 'after'
-        if (prev === 'before') return 'after'
-        if (prev === 'after') return 'before'
-        throw new Error('unreachable')
-    }, 'initial')
+    const [state, dispatch] = useReducer((/** @type {'initial' | 'before' | 'after'} */ prev) => {
+        if (prev === 'initial') return 'after';
+        if (prev === 'before') return 'after';
+        if (prev === 'after') return 'before';
+        throw new Error('unreachable');
+    }, 'initial');
 
     return (
-        <Stack gap='var(--sp-3)'>
+        <Stack gap="var(--sp-3)">
             <div className={styles.imgWrap} ref={imageParent}>
                 {media({ state, className: styles.media })}
             </div>
@@ -40,19 +40,23 @@ export function BeforeAfter ({ media, onDone, btnBefore, btnAfter }) {
                 <Button variant={'secondary'} onClick={() => dispatch('toggle')} style={{ minWidth: '210px' }}>
                     {state === 'after' && (
                         <>
-                            <Replay/>{btnAfter}
+                            <Replay />
+                            {btnAfter}
                         </>
                     )}
                     {(state === 'before' || state === 'initial') && (
                         <>
-                            <Play/>{btnBefore}
+                            <Play />
+                            {btnBefore}
                         </>
                     )}
                 </Button>
                 {state !== 'initial' && (
-                    <SlideIn delay="double"><Button onClick={onDone}>{t('gotIt')}</Button></SlideIn>
+                    <SlideIn delay="double">
+                        <Button onClick={onDone}>{t('gotIt')}</Button>
+                    </SlideIn>
                 )}
             </ButtonBar>
         </Stack>
-    )
+    );
 }

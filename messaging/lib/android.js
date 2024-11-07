@@ -6,8 +6,8 @@
  *
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport, MessageResponse, SubscriptionEvent } from '../index.js'
-import { isResponseFor, isSubscriptionEventFor } from '../schema.js'
+import { MessagingTransport, MessageResponse, SubscriptionEvent } from '../index.js';
+import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
 
 /**
  * @typedef {import('../index.js').Subscription} Subscription
@@ -29,19 +29,19 @@ export class AndroidMessagingTransport {
      * @param {MessagingContext} messagingContext
      * @internal
      */
-    constructor (config, messagingContext) {
-        this.messagingContext = messagingContext
-        this.config = config
+    constructor(config, messagingContext) {
+        this.messagingContext = messagingContext;
+        this.config = config;
     }
 
     /**
      * @param {NotificationMessage} msg
      */
-    notify (msg) {
+    notify(msg) {
         try {
-            this.config.sendMessageThrows?.(JSON.stringify(msg))
+            this.config.sendMessageThrows?.(JSON.stringify(msg));
         } catch (e) {
-            console.error('.notify failed', e)
+            console.error('.notify failed', e);
         }
     }
 
@@ -49,53 +49,53 @@ export class AndroidMessagingTransport {
      * @param {RequestMessage} msg
      * @return {Promise<any>}
      */
-    request (msg) {
+    request(msg) {
         return new Promise((resolve, reject) => {
             // subscribe early
-            const unsub = this.config.subscribe(msg.id, handler)
+            const unsub = this.config.subscribe(msg.id, handler);
 
             try {
-                this.config.sendMessageThrows?.(JSON.stringify(msg))
+                this.config.sendMessageThrows?.(JSON.stringify(msg));
             } catch (e) {
-                unsub()
-                reject(new Error('request failed to send: ' + e.message || 'unknown error'))
+                unsub();
+                reject(new Error('request failed to send: ' + e.message || 'unknown error'));
             }
 
-            function handler (data) {
+            function handler(data) {
                 if (isResponseFor(msg, data)) {
                     // success case, forward .result only
                     if (data.result) {
-                        resolve(data.result || {})
-                        return unsub()
+                        resolve(data.result || {});
+                        return unsub();
                     }
 
                     // error case, forward the error as a regular promise rejection
                     if (data.error) {
-                        reject(new Error(data.error.message))
-                        return unsub()
+                        reject(new Error(data.error.message));
+                        return unsub();
                     }
 
                     // getting here is undefined behavior
-                    unsub()
-                    throw new Error('unreachable: must have `result` or `error` key by this point')
+                    unsub();
+                    throw new Error('unreachable: must have `result` or `error` key by this point');
                 }
             }
-        })
+        });
     }
 
     /**
      * @param {Subscription} msg
      * @param {(value: unknown | undefined) => void} callback
      */
-    subscribe (msg, callback) {
+    subscribe(msg, callback) {
         const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
             if (isSubscriptionEventFor(msg, data)) {
-                callback(data.params || {})
+                callback(data.params || {});
             }
-        })
+        });
         return () => {
-            unsub()
-        }
+            unsub();
+        };
     }
 }
 
@@ -174,7 +174,7 @@ export class AndroidMessagingTransport {
  */
 export class AndroidMessagingConfig {
     /** @type {(json: string, secret: string) => void} */
-    _capturedHandler
+    _capturedHandler;
     /**
      * @param {object} params
      * @param {Record<string, any>} params.target
@@ -186,28 +186,28 @@ export class AndroidMessagingConfig {
      * @param {string} params.messageCallback - the name of the callback that the native
      * side will use to send messages back to the javascript side
      */
-    constructor (params) {
-        this.target = params.target
-        this.debug = params.debug
-        this.javascriptInterface = params.javascriptInterface
-        this.messageSecret = params.messageSecret
-        this.messageCallback = params.messageCallback
+    constructor(params) {
+        this.target = params.target;
+        this.debug = params.debug;
+        this.javascriptInterface = params.javascriptInterface;
+        this.messageSecret = params.messageSecret;
+        this.messageCallback = params.messageCallback;
 
         /**
          * @type {Map<string, (msg: MessageResponse | SubscriptionEvent) => void>}
          * @internal
          */
-        this.listeners = new globalThis.Map()
+        this.listeners = new globalThis.Map();
 
         /**
          * Capture the global handler and remove it from the global object.
          */
-        this._captureGlobalHandler()
+        this._captureGlobalHandler();
 
         /**
          * Assign the incoming handler method to the global object.
          */
-        this._assignHandlerMethod()
+        this._assignHandlerMethod();
     }
 
     /**
@@ -220,8 +220,8 @@ export class AndroidMessagingConfig {
      * @throws
      * @internal
      */
-    sendMessageThrows (json) {
-        this._capturedHandler(json, this.messageSecret)
+    sendMessageThrows(json) {
+        this._capturedHandler(json, this.messageSecret);
     }
 
     /**
@@ -237,11 +237,11 @@ export class AndroidMessagingConfig {
      * @returns {() => void}
      * @internal
      */
-    subscribe (id, callback) {
-        this.listeners.set(id, callback)
+    subscribe(id, callback) {
+        this.listeners.set(id, callback);
         return () => {
-            this.listeners.delete(id)
-        }
+            this.listeners.delete(id);
+        };
     }
 
     /**
@@ -253,26 +253,26 @@ export class AndroidMessagingConfig {
      * @param {MessageResponse | SubscriptionEvent} payload
      * @internal
      */
-    _dispatch (payload) {
+    _dispatch(payload) {
         // do nothing if the response is empty
         // this prevents the next `in` checks from throwing in test/debug scenarios
-        if (!payload) return this._log('no response')
+        if (!payload) return this._log('no response');
 
         // if the payload has an 'id' field, then it's a message response
         if ('id' in payload) {
             if (this.listeners.has(payload.id)) {
-                this._tryCatch(() => this.listeners.get(payload.id)?.(payload))
+                this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
             } else {
-                this._log('no listeners for ', payload)
+                this._log('no listeners for ', payload);
             }
         }
 
         // if the payload has an 'subscriptionName' field, then it's a push event
         if ('subscriptionName' in payload) {
             if (this.listeners.has(payload.subscriptionName)) {
-                this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload))
+                this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
             } else {
-                this._log('no subscription listeners for ', payload)
+                this._log('no subscription listeners for ', payload);
             }
         }
     }
@@ -282,13 +282,13 @@ export class AndroidMessagingConfig {
      * @param {(...args: any[]) => any} fn
      * @param {string} [context]
      */
-    _tryCatch (fn, context = 'none') {
+    _tryCatch(fn, context = 'none') {
         try {
-            return fn()
+            return fn();
         } catch (e) {
             if (this.debug) {
-                console.error('AndroidMessagingConfig error:', context)
-                console.error(e)
+                console.error('AndroidMessagingConfig error:', context);
+                console.error(e);
             }
         }
     }
@@ -296,25 +296,25 @@ export class AndroidMessagingConfig {
     /**
      * @param {...any} args
      */
-    _log (...args) {
+    _log(...args) {
         if (this.debug) {
-            console.log('AndroidMessagingConfig', ...args)
+            console.log('AndroidMessagingConfig', ...args);
         }
     }
 
     /**
      * Capture the global handler and remove it from the global object.
      */
-    _captureGlobalHandler () {
-        const { target, javascriptInterface } = this
+    _captureGlobalHandler() {
+        const { target, javascriptInterface } = this;
 
         if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
-            this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface])
-            delete target[javascriptInterface]
+            this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface]);
+            delete target[javascriptInterface];
         } else {
             this._capturedHandler = () => {
-                this._log('Android messaging interface not available', javascriptInterface)
-            }
+                this._log('Android messaging interface not available', javascriptInterface);
+            };
         }
     }
 
@@ -322,18 +322,18 @@ export class AndroidMessagingConfig {
      * Assign the incoming handler method to the global object.
      * This is the method that Android will call to deliver messages.
      */
-    _assignHandlerMethod () {
+    _assignHandlerMethod() {
         /**
          * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
          */
         const responseHandler = (providedSecret, response) => {
             if (providedSecret === this.messageSecret) {
-                this._dispatch(response)
+                this._dispatch(response);
             }
-        }
+        };
 
         Object.defineProperty(this.target, this.messageCallback, {
-            value: responseHandler
-        })
+            value: responseHandler,
+        });
     }
 }

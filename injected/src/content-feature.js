@@ -1,11 +1,11 @@
-import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
-import { immutableJSONPatch } from 'immutable-json-patch'
-import { PerformanceMonitor } from './performance.js'
-import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js'
+import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js';
+import { immutableJSONPatch } from 'immutable-json-patch';
+import { PerformanceMonitor } from './performance.js';
+import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js';
 // eslint-disable-next-line no-redeclare
-import { Proxy, Reflect } from './captured-globals.js'
-import { Messaging, MessagingContext } from '../../messaging/index.js'
-import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
+import { Proxy, Reflect } from './captured-globals.js';
+import { Messaging, MessagingContext } from '../../messaging/index.js';
+import { extensionConstructMessagingConfig } from './sendmessage-transport.js';
 
 /**
  * @typedef {object} AssetConfig
@@ -23,96 +23,94 @@ import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
 export default class ContentFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
-    #bundledConfig
+    #bundledConfig;
     /** @type {object | undefined} */
-    #trackerLookup
+    #trackerLookup;
     /** @type {boolean | undefined} */
-    #documentOriginIsTracker
+    #documentOriginIsTracker;
     /** @type {Record<string, unknown> | undefined} */
     // eslint-disable-next-line no-unused-private-class-members
-    #bundledfeatureSettings
+    #bundledfeatureSettings;
     /** @type {import('../../messaging').Messaging} */
     // eslint-disable-next-line no-unused-private-class-members
-    #messaging
+    #messaging;
     /** @type {boolean} */
-    #isDebugFlagSet = false
+    #isDebugFlagSet = false;
 
     /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
-    #args
+    #args;
 
-    constructor (featureName) {
-        this.name = featureName
-        this.#args = null
-        this.monitor = new PerformanceMonitor()
+    constructor(featureName) {
+        this.name = featureName;
+        this.#args = null;
+        this.monitor = new PerformanceMonitor();
     }
 
-    get isDebug () {
-        return this.#args?.debug || false
+    get isDebug() {
+        return this.#args?.debug || false;
     }
 
-    get desktopModeEnabled () {
-        return this.#args?.desktopModeEnabled || false
+    get desktopModeEnabled() {
+        return this.#args?.desktopModeEnabled || false;
     }
 
-    get forcedZoomEnabled () {
-        return this.#args?.forcedZoomEnabled || false
+    get forcedZoomEnabled() {
+        return this.#args?.forcedZoomEnabled || false;
     }
 
     /**
      * @param {import('./utils').Platform} platform
      */
-    set platform (platform) {
-        this._platform = platform
+    set platform(platform) {
+        this._platform = platform;
     }
 
-    get platform () {
+    get platform() {
         // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'
-        return this._platform
+        return this._platform;
     }
 
     /**
      * @type {AssetConfig | undefined}
      */
-    get assetConfig () {
-        return this.#args?.assets
+    get assetConfig() {
+        return this.#args?.assets;
     }
 
     /**
      * @returns {boolean}
      */
-    get documentOriginIsTracker () {
-        return !!this.#documentOriginIsTracker
+    get documentOriginIsTracker() {
+        return !!this.#documentOriginIsTracker;
     }
 
     /**
      * @returns {object}
      **/
-    get trackerLookup () {
-        return this.#trackerLookup || {}
+    get trackerLookup() {
+        return this.#trackerLookup || {};
     }
 
     /**
      * @returns {import('./utils.js').RemoteConfig | undefined}
      **/
-    get bundledConfig () {
-        return this.#bundledConfig
+    get bundledConfig() {
+        return this.#bundledConfig;
     }
 
     /**
      * @deprecated as we should make this internal to the class and not used externally
      * @return {MessagingContext}
      */
-    _createMessagingContext () {
-        const injectName = import.meta.injectName
-        const contextName = injectName === 'apple-isolated'
-            ? 'contentScopeScriptsIsolated'
-            : 'contentScopeScripts'
+    _createMessagingContext() {
+        const injectName = import.meta.injectName;
+        const contextName = injectName === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
 
         return new MessagingContext({
             context: contextName,
             env: this.isDebug ? 'development' : 'production',
-            featureName: this.name
-        })
+            featureName: this.name,
+        });
     }
 
     /**
@@ -120,16 +118,16 @@ export default class ContentFeature {
      *
      * @return {import('@duckduckgo/messaging').Messaging}
      */
-    get messaging () {
-        if (this._messaging) return this._messaging
-        const messagingContext = this._createMessagingContext()
-        let messagingConfig = this.#args?.messagingConfig
+    get messaging() {
+        if (this._messaging) return this._messaging;
+        const messagingContext = this._createMessagingContext();
+        let messagingConfig = this.#args?.messagingConfig;
         if (!messagingConfig) {
-            if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
-            messagingConfig = extensionConstructMessagingConfig()
+            if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in');
+            messagingConfig = extensionConstructMessagingConfig();
         }
-        this._messaging = new Messaging(messagingContext, messagingConfig)
-        return this._messaging
+        this._messaging = new Messaging(messagingContext, messagingConfig);
+        return this._messaging;
     }
 
     /**
@@ -141,9 +139,9 @@ export default class ContentFeature {
      * @param {any} defaultValue - The default value to use if the config setting is not set
      * @returns The value of the config setting or the default value
      */
-    getFeatureAttr (attrName, defaultValue) {
-        const configSetting = this.getFeatureSetting(attrName)
-        return processAttr(configSetting, defaultValue)
+    getFeatureAttr(attrName, defaultValue) {
+        const configSetting = this.getFeatureSetting(attrName);
+        return processAttr(configSetting, defaultValue);
     }
 
     /**
@@ -152,25 +150,25 @@ export default class ContentFeature {
      * @param {string} [featureName]
      * @returns {any}
      */
-    getFeatureSetting (featureKeyName, featureName) {
-        let result = this._getFeatureSettings(featureName)
+    getFeatureSetting(featureKeyName, featureName) {
+        let result = this._getFeatureSettings(featureName);
         if (featureKeyName === 'domains') {
-            throw new Error('domains is a reserved feature setting key name')
+            throw new Error('domains is a reserved feature setting key name');
         }
         const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {
-            return a.domain.length - b.domain.length
-        })
+            return a.domain.length - b.domain.length;
+        });
         for (const match of domainMatch) {
             if (match.patchSettings === undefined) {
-                continue
+                continue;
             }
             try {
-                result = immutableJSONPatch(result, match.patchSettings)
+                result = immutableJSONPatch(result, match.patchSettings);
             } catch (e) {
-                console.error('Error applying patch settings', e)
+                console.error('Error applying patch settings', e);
             }
         }
-        return result?.[featureKeyName]
+        return result?.[featureKeyName];
     }
 
     /**
@@ -178,9 +176,9 @@ export default class ContentFeature {
      * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
      * @returns {any}
      */
-    _getFeatureSettings (featureName) {
-        const camelFeatureName = featureName || camelcase(this.name)
-        return this.#args?.featureSettings?.[camelFeatureName]
+    _getFeatureSettings(featureName) {
+        const camelFeatureName = featureName || camelcase(this.name);
+        return this.#args?.featureSettings?.[camelFeatureName];
     }
 
     /**
@@ -190,12 +188,12 @@ export default class ContentFeature {
      * @param {string} [featureName]
      * @returns {boolean}
      */
-    getFeatureSettingEnabled (featureKeyName, featureName) {
-        const result = this.getFeatureSetting(featureKeyName, featureName)
+    getFeatureSettingEnabled(featureKeyName, featureName) {
+        const result = this.getFeatureSetting(featureKeyName, featureName);
         if (typeof result === 'object') {
-            return result.state === 'enabled'
+            return result.state === 'enabled';
         }
-        return result === 'enabled'
+        return result === 'enabled';
     }
 
     /**
@@ -203,36 +201,32 @@ export default class ContentFeature {
      * @param {string} featureKeyName
      * @return {any[]}
      */
-    matchDomainFeatureSetting (featureKeyName) {
-        const domain = this.#args?.site.domain
-        if (!domain) return []
-        const domains = this._getFeatureSettings()?.[featureKeyName] || []
+    matchDomainFeatureSetting(featureKeyName) {
+        const domain = this.#args?.site.domain;
+        if (!domain) return [];
+        const domains = this._getFeatureSettings()?.[featureKeyName] || [];
         return domains.filter((rule) => {
             if (Array.isArray(rule.domain)) {
                 return rule.domain.some((domainRule) => {
-                    return matchHostname(domain, domainRule)
-                })
+                    return matchHostname(domain, domainRule);
+                });
             }
-            return matchHostname(domain, rule.domain)
-        })
+            return matchHostname(domain, rule.domain);
+        });
     }
 
-     
-    init (args) {
+    init(args) {}
+
+    callInit(args) {
+        const mark = this.monitor.mark(this.name + 'CallInit');
+        this.#args = args;
+        this.platform = args.platform;
+        this.init(args);
+        mark.end();
+        this.measure();
     }
 
-    callInit (args) {
-        const mark = this.monitor.mark(this.name + 'CallInit')
-        this.#args = args
-        this.platform = args.platform
-        this.init(args)
-        mark.end()
-        this.measure()
-    }
-
-     
-    load (args) {
-    }
+    load(args) {}
 
     /**
      * This is a wrapper around `this.messaging.notify` that applies the
@@ -242,9 +236,9 @@ export default class ContentFeature {
      *
      * @type {import("@duckduckgo/messaging").Messaging['notify']}
      */
-    notify (...args) {
-        const [name, params] = args
-        this.messaging.notify(name, params)
+    notify(...args) {
+        const [name, params] = args;
+        this.messaging.notify(name, params);
     }
 
     /**
@@ -255,9 +249,9 @@ export default class ContentFeature {
      *
      * @type {import("@duckduckgo/messaging").Messaging['request']}
      */
-    request (...args) {
-        const [name, params] = args
-        return this.messaging.request(name, params)
+    request(...args) {
+        const [name, params] = args;
+        return this.messaging.request(name, params);
     }
 
     /**
@@ -268,50 +262,48 @@ export default class ContentFeature {
      *
      * @type {import("@duckduckgo/messaging").Messaging['subscribe']}
      */
-    subscribe (...args) {
-        const [name, cb] = args
-        return this.messaging.subscribe(name, cb)
+    subscribe(...args) {
+        const [name, cb] = args;
+        return this.messaging.subscribe(name, cb);
     }
 
     /**
      * @param {import('./content-scope-features.js').LoadArgs} args
      */
-    callLoad (args) {
-        const mark = this.monitor.mark(this.name + 'CallLoad')
-        this.#args = args
-        this.platform = args.platform
-        this.#bundledConfig = args.bundledConfig
+    callLoad(args) {
+        const mark = this.monitor.mark(this.name + 'CallLoad');
+        this.#args = args;
+        this.platform = args.platform;
+        this.#bundledConfig = args.bundledConfig;
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(args.bundledConfig, args.site.domain, this.platform.version)
-            this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures)
+            const enabledFeatures = computeEnabledFeatures(args.bundledConfig, args.site.domain, this.platform.version);
+            this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures);
         }
-        this.#trackerLookup = args.trackerLookup
-        this.#documentOriginIsTracker = args.documentOriginIsTracker
-        this.load(args)
-        mark.end()
+        this.#trackerLookup = args.trackerLookup;
+        this.#documentOriginIsTracker = args.documentOriginIsTracker;
+        this.load(args);
+        mark.end();
     }
 
-    measure () {
+    measure() {
         if (this.#args?.debug) {
-            this.monitor.measureAll()
+            this.monitor.measureAll();
         }
     }
 
-     
-    update () {
-    }
+    update() {}
 
     /**
      * Register a flag that will be added to page breakage reports
      */
-    addDebugFlag () {
-        if (this.#isDebugFlagSet) return
-        this.#isDebugFlagSet = true
+    addDebugFlag() {
+        if (this.#isDebugFlagSet) return;
+        this.#isDebugFlagSet = true;
         this.messaging?.notify('addDebugFlag', {
-            flag: this.name
-        })
+            flag: this.name,
+        });
     }
 
     /**
@@ -321,24 +313,24 @@ export default class ContentFeature {
      * @param {string} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
-    defineProperty (object, propertyName, descriptor) {
+    defineProperty(object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
         // NOTE: properties passing data in `value` would not be caught by this
         ['value', 'get', 'set'].forEach((k) => {
-            const descriptorProp = descriptor[k]
+            const descriptorProp = descriptor[k];
             if (typeof descriptorProp === 'function') {
-                const addDebugFlag = this.addDebugFlag.bind(this)
+                const addDebugFlag = this.addDebugFlag.bind(this);
                 const wrapper = new Proxy(descriptorProp, {
-                    apply (target, thisArg, argumentsList) {
-                        addDebugFlag()
-                        return Reflect.apply(descriptorProp, thisArg, argumentsList)
-                    }
-                })
-                descriptor[k] = wrapToString(wrapper, descriptorProp)
+                    apply(target, thisArg, argumentsList) {
+                        addDebugFlag();
+                        return Reflect.apply(descriptorProp, thisArg, argumentsList);
+                    },
+                });
+                descriptor[k] = wrapToString(wrapper, descriptorProp);
             }
-        })
+        });
 
-        return defineProperty(object, propertyName, descriptor)
+        return defineProperty(object, propertyName, descriptor);
     }
 
     /**
@@ -348,8 +340,8 @@ export default class ContentFeature {
      * @param {Partial<PropertyDescriptor>} descriptor
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
-    wrapProperty (object, propertyName, descriptor) {
-        return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this))
+    wrapProperty(object, propertyName, descriptor) {
+        return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this));
     }
 
     /**
@@ -359,8 +351,8 @@ export default class ContentFeature {
      * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
-    wrapMethod (object, propertyName, wrapperFn) {
-        return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this))
+    wrapMethod(object, propertyName, wrapperFn) {
+        return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this));
     }
 
     /**
@@ -369,12 +361,8 @@ export default class ContentFeature {
      * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
      * @param {import('./wrapper-utils').DefineInterfaceOptions} options
      */
-    shimInterface (
-        interfaceName,
-        ImplClass,
-        options
-    ) {
-        return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this))
+    shimInterface(interfaceName, ImplClass, options) {
+        return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this));
     }
 
     /**
@@ -388,7 +376,7 @@ export default class ContentFeature {
      * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
      * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
      */
-    shimProperty (instanceHost, instanceProp, implInstance, readOnly = false) {
-        return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this))
+    shimProperty(instanceHost, instanceProp, implInstance, readOnly = false) {
+        return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this));
     }
 }

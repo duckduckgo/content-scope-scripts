@@ -1,5 +1,5 @@
-import { transformUrl } from './build-url-transforms.js'
-import { ErrorResponse, SuccessResponse } from '../types.js'
+import { transformUrl } from './build-url-transforms.js';
+import { ErrorResponse, SuccessResponse } from '../types.js';
 
 /**
  * This builds the proper URL given the URL template and userData.
@@ -8,13 +8,13 @@ import { ErrorResponse, SuccessResponse } from '../types.js'
  * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */
-export function buildUrl (action, userData) {
-    const result = replaceTemplatedUrl(action, userData)
+export function buildUrl(action, userData) {
+    const result = replaceTemplatedUrl(action, userData);
     if ('error' in result) {
-        return new ErrorResponse({ actionID: action.id, message: result.error })
+        return new ErrorResponse({ actionID: action.id, message: result.error });
     }
 
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { url: result.url } })
+    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { url: result.url } });
 }
 
 /**
@@ -24,22 +24,22 @@ export function buildUrl (action, userData) {
  * @param userData
  * @return {{url: string} | {error: string}}
  */
-export function replaceTemplatedUrl (action, userData) {
-    const url = action?.url
+export function replaceTemplatedUrl(action, userData) {
+    const url = action?.url;
     if (!url) {
-        return { error: 'Error: No url provided.' }
+        return { error: 'Error: No url provided.' };
     }
 
     try {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const _ = new URL(action.url)
+        const _ = new URL(action.url);
     } catch (e) {
-        return { error: 'Error: Invalid URL provided.' }
+        return { error: 'Error: Invalid URL provided.' };
     }
 
     if (!userData) {
-        return { url }
+        return { url };
     }
 
-    return transformUrl(action, userData)
+    return transformUrl(action, userData);
 }

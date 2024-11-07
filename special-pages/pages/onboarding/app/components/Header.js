@@ -1,6 +1,6 @@
-import { h } from 'preact'
-import styles from './Header.module.css'
-import { Delay } from './Timeout'
+import { h } from 'preact';
+import styles from './Header.module.css';
+import { Delay } from './Timeout';
 
 /**
  * Renders a header component.
@@ -9,7 +9,7 @@ import { Delay } from './Timeout'
  * @param {import("preact").ComponentChild} props.children - The content to display on the side of the header.
  * @param {import("preact").ComponentChild} [props.aside=null] - The content to display on the side of the header.
  */
-export function Header ({ children, aside = null }) {
+export function Header({ children, aside = null }) {
     return (
         <header className={styles.header}>
             <div className={styles.logo}>
@@ -18,16 +18,10 @@ export function Header ({ children, aside = null }) {
 
             <div className={styles.titleContainer}>
                 <h1 className={styles.title}>
-                    <Delay ms={300}>
-                        {children}
-                    </Delay>
+                    <Delay ms={300}>{children}</Delay>
                 </h1>
             </div>
-            {aside && (
-                <div className={styles.aside}>
-                    {aside}
-                </div>
-            )}
+            {aside && <div className={styles.aside}>{aside}</div>}
         </header>
-    )
+    );
 }

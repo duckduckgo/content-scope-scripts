@@ -1,11 +1,11 @@
-import { h } from "preact"
-import { createContext } from "preact";
-import { Settings } from "../settings";
-import { useContext } from "preact/hooks";
-import { useMessaging } from "../types.js";
-import { EmbedSettings } from "../embed-settings";
+import { h } from 'preact';
+import { createContext } from 'preact';
+import { Settings } from '../settings';
+import { useContext } from 'preact/hooks';
+import { useMessaging } from '../types.js';
+import { EmbedSettings } from '../embed-settings';
 
-const SettingsContext = createContext(/** @type {{settings: Settings}} */({}))
+const SettingsContext = createContext(/** @type {{settings: Settings}} */ ({}));
 
 /**
  * @param {object} params
@@ -13,19 +13,15 @@ const SettingsContext = createContext(/** @type {{settings: Settings}} */({}))
  * @param {import("preact").ComponentChild} params.children
  */
 export function SettingsProvider({ settings, children }) {
-    return (
-        <SettingsContext.Provider value={{settings}}>
-            {children}
-        </SettingsContext.Provider>
-    )
+    return <SettingsContext.Provider value={{ settings }}>{children}</SettingsContext.Provider>;
 }
 
 export function usePlatformName() {
-    return useContext(SettingsContext).settings.platform.name
+    return useContext(SettingsContext).settings.platform.name;
 }
 
 export function useLayout() {
-    return useContext(SettingsContext).settings.layout
+    return useContext(SettingsContext).settings.layout;
 }
 
 /**
@@ -36,20 +32,20 @@ export function useOpenSettingsHandler() {
     const messaging = useMessaging();
     return () => {
         switch (settings.platform.name) {
-            case "ios":
-            case "android": {
-                messaging.openSettings()
-                break
+            case 'ios':
+            case 'android': {
+                messaging.openSettings();
+                break;
             }
             default: {
-                console.warn("unreachable!")
+                console.warn('unreachable!');
             }
         }
-    }
+    };
 }
 
 export function useSettingsUrl() {
-    return 'duck://settings/duckplayer'
+    return 'duck://settings/duckplayer';
 }
 
 export function useSettings() {
@@ -64,16 +60,16 @@ export function useOpenInfoHandler() {
     const messaging = useMessaging();
     return () => {
         switch (settings.platform.name) {
-            case "android":
-            case "ios": {
-                messaging.openInfo()
+            case 'android':
+            case 'ios': {
+                messaging.openInfo();
                 break;
             }
             default: {
-                console.warn("unreachable!")
+                console.warn('unreachable!');
             }
         }
-    }
+    };
 }
 
 /**
@@ -85,12 +81,12 @@ export function useOpenOnYoutubeHandler() {
      * @param {EmbedSettings} embed
      */
     return (embed) => {
-        if (!embed) return console.warn("unreachable, settings.embed must be present")
+        if (!embed) return console.warn('unreachable, settings.embed must be present');
         try {
             const base = new URL(settings.youtubeBase);
             window.location.href = embed.intoYoutubeUrl(base);
         } catch (e) {
-            console.error("could not form a URL to open in Youtube", e)
+            console.error('could not form a URL to open in Youtube', e);
         }
-    }
+    };
 }
