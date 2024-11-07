@@ -100,8 +100,9 @@ export default class ApiManipulation extends ContentFeature {
         if (getterValue) {
             this.wrapProperty(api, key, {
                 get: () => processAttr(getterValue, undefined),
-                enumerable: change.enumerable ?? true,
-                configurable: change.configurable ?? true,
+                // wrapProperty takes care of setting these values to the api[key] default values.
+                enumerable: change.enumerable,
+                configurable: change.configurable,
             });
         }
     }
