@@ -48,6 +48,8 @@ export default class AutofillPasswordImport extends ContentFeature {
     /** @type {ElementConfig|null} */
     #currentElementConfig;
 
+    #domLoaded;
+
     /**
      * @returns {ButtonAnimationStyle}
      */
@@ -115,6 +117,13 @@ export default class AutofillPasswordImport extends ContentFeature {
      */
     get currentElementConfig() {
         return this.#currentElementConfig;
+    }
+
+    /**
+     * @returns {Promise<void>}
+     */
+    get domLoaded() {
+        return this.#domLoaded;
     }
 
     /**
@@ -408,15 +417,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             if (shouldTap) {
                 this.autotapElement(element);
             } else {
-                const domLoaded = new Promise((resolve) => {
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', resolve, { once: true });
-                    } else {
-                        // @ts-expect-error - caller doesn't expect a value here
-                        resolve();
-                    }
-                });
-                await domLoaded;
+                await this.domLoaded;
                 this.animateElement(element, animationStyle);
             }
             if (shouldWatchForRemoval) {
@@ -494,9 +495,13 @@ export default class AutofillPasswordImport extends ContentFeature {
             await handlePath(path);
         });
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const path = window.location.pathname;
-            await handlePath(path);
+        this.#domLoaded = new Promise((resolve) => {
+            document.addEventListener('DOMContentLoaded', async () => {
+                // @ts-expect-error - caller doesn't expect a value here
+                resolve();
+                const path = window.location.pathname;
+                await handlePath(path);
+            });
         });
     }
 }
