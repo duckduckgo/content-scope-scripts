@@ -13,3 +13,4 @@ export const Proxy = globalThis.Proxy;
 export const functionToString = Function.prototype.toString;
 export const TypeError = globalThis.TypeError;
 export const Symbol = globalThis.Symbol;
+export const hasOwnProperty = Object.prototype.hasOwnProperty;
