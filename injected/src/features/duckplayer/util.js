@@ -61,8 +61,9 @@ export function appendImageAsBackground(parent, targetSelector, imageUrl) {
      */
     function append() {
         const targetElement = parent.querySelector(targetSelector);
-        if (!(targetElement instanceof HTMLElement))
+        if (!(targetElement instanceof HTMLElement)) {
             return console.warn('could not find child with selector', targetSelector, 'from', parent);
+        }
         parent.dataset.thumbLoaded = String(true);
         parent.dataset.thumbSrc = imageUrl;
         const img = new Image();

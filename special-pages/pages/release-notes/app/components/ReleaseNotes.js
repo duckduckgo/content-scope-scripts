@@ -92,11 +92,13 @@ function StatusTimestamp({ timestamp }) {
         date.getDate() === yesterday.getDate() &&
         date.getMonth() === yesterday.getMonth() &&
         date.getFullYear() === yesterday.getFullYear()
-    )
+    ) {
         dateString = t('yesterdayAt', { time: timeString });
+    }
 
-    if (date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear())
+    if (date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
         dateString = t('todayAt', { time: timeString });
+    }
 
     return (
         <Text variant="body" className={styles.statusTimestamp}>
