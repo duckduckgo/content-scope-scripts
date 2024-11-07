@@ -89,8 +89,9 @@ export class DDGVideoOverlayMobile extends HTMLElement {
         const cancelElement = containerElement.querySelector('.ddg-vpo-cancel');
         const watchInPlayer = containerElement.querySelector('.ddg-vpo-open');
 
-        if (!infoButton || !cancelElement || !watchInPlayer || !switchElem || !(remember instanceof HTMLInputElement))
+        if (!infoButton || !cancelElement || !watchInPlayer || !switchElem || !(remember instanceof HTMLInputElement)) {
             return console.warn('missing elements');
+        }
 
         infoButton.addEventListener('click', () => {
             this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO));
