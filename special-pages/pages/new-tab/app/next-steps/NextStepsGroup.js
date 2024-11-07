@@ -1,27 +1,27 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './NextSteps.module.css';
-import { useTypedTranslation } from "../types"
+import { useTypedTranslation } from '../types';
 import { NextStepsCard } from './NextStepsCard';
 import { otherText } from './nextsteps.data';
 
 /**
  * @typedef {import('../../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../../types/new-tab').Animation} Animation
-*/
+ */
 /*
-* @param {object} props
-* @param {string[]} props.types
-* @param {Expansion} props.expansion
-* @param {()=>void} props.toggle
-* @param {(id: string)=>void} props.action
-* @param {(id: string)=>void} props.dismiss
-* @param {Animation['kind']} [props.animation] - optionally configure animations
-*/
+ * @param {object} props
+ * @param {string[]} props.types
+ * @param {Expansion} props.expansion
+ * @param {()=>void} props.toggle
+ * @param {(id: string)=>void} props.action
+ * @param {(id: string)=>void} props.dismiss
+ * @param {Animation['kind']} [props.animation] - optionally configure animations
+ */
 
 export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, animation = 'none' }) {
     const shownCards = expansion === 'expanded' ? types : types.slice(0, 2);
-    
+
     console.log({ types, shownCards });
     return (
         <div class={cn(styles.nextStepsCardGroup)}>
@@ -38,8 +38,8 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, 
 }
 
 export function NextStepsBubbleHeader() {
-    const {t} = useTypedTranslation()
-    const text = otherText.nextSteps_sectionTitle(t)
+    const { t } = useTypedTranslation();
+    const text = otherText.nextSteps_sectionTitle(t);
     return (
         <div class={styles.nextStepsBubble}>
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="26" viewBox="0 0 12 26" fill="none">

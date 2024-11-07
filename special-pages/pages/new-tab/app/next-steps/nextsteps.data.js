@@ -94,8 +94,8 @@ export const variants = {
 };
 
 export const otherText = {
-    dismiss: (t) => (t('ntp_dismiss')),
+    dismiss: (t) => t('ntp_dismiss'),
     showMore: (t) => t('ntp_showMore'),
     showLess: (t) => t('ntp_showLess'),
-    nextSteps_sectionTitle: (t) => t('nextSteps_sectionTitle')
-}
+    nextSteps_sectionTitle: (t) => t('nextSteps_sectionTitle'),
+};

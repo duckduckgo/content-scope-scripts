@@ -2,7 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import styles from './NextSteps.module.css';
 import { Cross } from '../components/Icons.js';
-import { variants,otherText } from './nextsteps.data';
+import { variants, otherText } from './nextsteps.data';
 import { useTypedTranslation } from '../types';
 
 /*
