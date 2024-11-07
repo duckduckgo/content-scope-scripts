@@ -1,7 +1,7 @@
 /**
-  * @typedef {import("../../../../types/new-tab.js").NextStepsData} NextStepsData
-  * @typedef {import("../../../../types/new-tab.js").NextStepsConfig} NextStepsConfig
-  */
+ * @typedef {import("../../../../types/new-tab.js").NextStepsData} NextStepsData
+ * @typedef {import("../../../../types/new-tab.js").NextStepsConfig} NextStepsConfig
+ */
 import { Service } from '../service.js';
 
 export class NextStepsService {

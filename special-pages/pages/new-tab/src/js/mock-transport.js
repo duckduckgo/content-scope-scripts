@@ -12,8 +12,8 @@ import { variants as nextSteps } from '../../app/next-steps/nextsteps.data.js';
  * @typedef {import('../../../../types/new-tab').FavoritesConfig} FavoritesConfig
  * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
  * @typedef {import('../../../../types/new-tab').NextStepsConfig} NextStepsConfig
-  * @typedef {import('../../../../types/new-tab').NextStepsCards} NextStepsCards
-  * @typedef {import('../../../../types/new-tab').NextStepsData} NextStepsData
+ * @typedef {import('../../../../types/new-tab').NextStepsCards} NextStepsCards
+ * @typedef {import('../../../../types/new-tab').NextStepsData} NextStepsData
  * @typedef {import('../../../../types/new-tab').UpdateNotificationData} UpdateNotificationData
  * @typedef {import('../../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  */
@@ -315,11 +315,12 @@ export function mockTransport() {
                                     return true;
                                 })
                                 .map((id) => {
-                                    return { id: /** @type {any} */ (id) };   }),
-                                };
-                            }
-                            return Promise.resolve(data);
-                        }
+                                    return { id: /** @type {any} */ (id) };
+                                }),
+                        };
+                    }
+                    return Promise.resolve(data);
+                }
                 case 'rmf_getData': {
                     /** @type {import('../../../../types/new-tab.js').RMFData} */
                     let message = { content: undefined };
@@ -359,7 +360,7 @@ export function mockTransport() {
                 }
                 case 'initialSetup': {
                     const widgetsFromStorage = read('widgets') || [
-                        { id: 'nextSteps'},
+                        { id: 'nextSteps' },
                         { id: 'updateNotification' },
                         { id: 'rmf' },
                         { id: 'favorites' },
