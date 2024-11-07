@@ -1,0 +1,5 @@
+# .git-blame-ignore-revs
+# Switched to a shared DDG ESLint config https://github.com/duckduckgo/content-scope-scripts/pull/1185
+76bab4d80982ddab63265c694ab96c27a0fa5138
+# introduced Prettier https://github.com/duckduckgo/content-scope-scripts/pull/1198
+53818cc0152d4a814d170563145004b65f5d404d
