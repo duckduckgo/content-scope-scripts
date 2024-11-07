@@ -25,25 +25,25 @@
  *   - if the user previously clicked 'watch here + remember', just add the small dax
  *   - otherwise, stop the video playing + append our overlay
  */
-import { SideEffects, VideoParams } from './util.js'
-import { DDGVideoOverlay } from './components/ddg-video-overlay.js'
-import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js'
-import { IconOverlay } from './icon-overlay.js'
-import { mobileStrings } from './text.js'
-import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js'
+import { SideEffects, VideoParams } from './util.js';
+import { DDGVideoOverlay } from './components/ddg-video-overlay.js';
+import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
+import { IconOverlay } from './icon-overlay.js';
+import { mobileStrings } from './text.js';
+import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js';
 
 /**
  * Handle the switch between small & large overlays
  * + conduct any communications
  */
 export class VideoOverlay {
-    sideEffects = new SideEffects()
+    sideEffects = new SideEffects();
 
     /** @type {string | null} */
-    lastVideoId = null
+    lastVideoId = null;
 
     /** @type {boolean} */
-    didAllowFirstVideo = false
+    didAllowFirstVideo = false;
 
     /**
      * @param {object} options
@@ -53,37 +53,37 @@ export class VideoOverlay {
      * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} options.messages
      * @param {import("../duck-player.js").UISettings} options.ui
      */
-    constructor ({ userValues, settings, environment, messages, ui }) {
-        this.userValues = userValues
-        this.settings = settings
-        this.environment = environment
-        this.messages = messages
-        this.ui = ui
+    constructor({ userValues, settings, environment, messages, ui }) {
+        this.userValues = userValues;
+        this.settings = settings;
+        this.environment = environment;
+        this.messages = messages;
+        this.ui = ui;
     }
 
     /**
      * @param {'page-load' | 'preferences-changed' | 'href-changed'} trigger
      */
-    init (trigger) {
+    init(trigger) {
         if (trigger === 'page-load') {
-            this.handleFirstPageLoad()
+            this.handleFirstPageLoad();
         } else if (trigger === 'preferences-changed') {
-            this.watchForVideoBeingAdded({ via: 'user notification', ignoreCache: true })
+            this.watchForVideoBeingAdded({ via: 'user notification', ignoreCache: true });
         } else if (trigger === 'href-changed') {
-            this.watchForVideoBeingAdded({ via: 'href changed' })
+            this.watchForVideoBeingAdded({ via: 'href changed' });
         }
     }
 
     /**
      * Special handling of a first-page, an attempt to load our overlay as quickly as possible
      */
-    handleFirstPageLoad () {
+    handleFirstPageLoad() {
         // don't continue unless we're in 'alwaysAsk' mode
-        if ('disabled' in this.userValues.privatePlayerMode) return
+        if ('disabled' in this.userValues.privatePlayerMode) return;
 
         // don't continue if we can't derive valid video params
-        const validParams = VideoParams.forWatchPage(this.environment.getPlayerPageHref())
-        if (!validParams) return
+        const validParams = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
+        if (!validParams) return;
 
         /**
          * If we get here, we know the following:
@@ -96,60 +96,60 @@ export class VideoOverlay {
          * Later, when our overlay loads that CSS will be removed in the cleanup.
          */
         this.sideEffects.add('add css to head', () => {
-            const style = document.createElement('style')
-            style.innerText = this.settings.selectors.videoElementContainer + ' { opacity: 0!important }'
+            const style = document.createElement('style');
+            style.innerText = this.settings.selectors.videoElementContainer + ' { opacity: 0!important }';
             if (document.head) {
-                document.head.appendChild(style)
+                document.head.appendChild(style);
             }
             return () => {
                 if (style.isConnected) {
-                    document.head.removeChild(style)
+                    document.head.removeChild(style);
                 }
-            }
-        })
+            };
+        });
 
         /**
          * Keep trying to find the video element every 100 ms
          */
         this.sideEffects.add('wait for first video element', () => {
             const int = setInterval(() => {
-                this.watchForVideoBeingAdded({ via: 'first page load' })
-            }, 100)
+                this.watchForVideoBeingAdded({ via: 'first page load' });
+            }, 100);
             return () => {
-                clearInterval(int)
-            }
-        })
+                clearInterval(int);
+            };
+        });
     }
 
     /**
      * @param {import("./util").VideoParams} params
      */
-    addSmallDaxOverlay (params) {
-        const containerElement = document.querySelector(this.settings.selectors.videoElementContainer)
+    addSmallDaxOverlay(params) {
+        const containerElement = document.querySelector(this.settings.selectors.videoElementContainer);
         if (!containerElement || !(containerElement instanceof HTMLElement)) {
-            console.error('no container element')
-            return
+            console.error('no container element');
+            return;
         }
         this.sideEffects.add('adding small dax 🐥 icon overlay', () => {
-            const href = params.toPrivatePlayerUrl()
+            const href = params.toPrivatePlayerUrl();
 
-            const icon = new IconOverlay()
+            const icon = new IconOverlay();
 
             icon.appendSmallVideoOverlay(containerElement, href, (href) => {
-                this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }))
-            })
+                this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }));
+            });
 
             return () => {
-                icon.destroy()
-            }
-        })
+                icon.destroy();
+            };
+        });
     }
 
     /**
      * @param {{ignoreCache?: boolean, via?: string}} [opts]
      */
-    watchForVideoBeingAdded (opts = {}) {
-        const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref())
+    watchForVideoBeingAdded(opts = {}) {
+        const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
 
         if (!params) {
             /**
@@ -157,10 +157,10 @@ export class VideoOverlay {
              * it's likely a 'back' navigation by the user, so we should always try to remove all overlays
              */
             if (this.lastVideoId) {
-                this.destroy()
-                this.lastVideoId = null
+                this.destroy();
+                this.lastVideoId = null;
             }
-            return
+            return;
         }
 
         const conditions = [
@@ -169,55 +169,55 @@ export class VideoOverlay {
             // first visit
             !this.lastVideoId,
             // new video id
-            this.lastVideoId && this.lastVideoId !== params.id // different
-        ]
+            this.lastVideoId && this.lastVideoId !== params.id, // different
+        ];
 
         if (conditions.some(Boolean)) {
             /**
              * Don't continue until we've been able to find the HTML elements that we inject into
              */
-            const videoElement = document.querySelector(this.settings.selectors.videoElement)
-            const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer)
+            const videoElement = document.querySelector(this.settings.selectors.videoElement);
+            const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
             if (!videoElement || !playerContainer) {
-                return null
+                return null;
             }
 
             /**
              * If we get here, it's a valid situation
              */
-            const userValues = this.userValues
-            this.lastVideoId = params.id
+            const userValues = this.userValues;
+            this.lastVideoId = params.id;
 
             /**
              * always remove everything first, to prevent any lingering state
              */
-            this.destroy()
+            this.destroy();
 
             /**
              * When enabled, just show the small dax icon
              */
             if ('enabled' in userValues.privatePlayerMode) {
-                return this.addSmallDaxOverlay(params)
+                return this.addSmallDaxOverlay(params);
             }
 
             if ('alwaysAsk' in userValues.privatePlayerMode) {
                 // if there's a one-time-override (eg: a link from the serp), then do nothing
-                if (this.environment.hasOneTimeOverride()) return
+                if (this.environment.hasOneTimeOverride()) return;
 
                 // should the first video be allowed to play?
                 if (this.ui.allowFirstVideo === true && !this.didAllowFirstVideo) {
-                    this.didAllowFirstVideo = true
-                    return console.count('Allowing the first video')
+                    this.didAllowFirstVideo = true;
+                    return console.count('Allowing the first video');
                 }
 
                 // if the user previously clicked 'watch here + remember', just add the small dax
                 if (this.userValues.overlayInteracted) {
-                    return this.addSmallDaxOverlay(params)
+                    return this.addSmallDaxOverlay(params);
                 }
 
                 // if we get here, we're trying to prevent the video playing
-                this.stopVideoFromPlaying()
-                this.appendOverlayToPage(playerContainer, params)
+                this.stopVideoFromPlaying();
+                this.appendOverlayToPage(playerContainer, params);
             }
         }
     }
@@ -226,76 +226,74 @@ export class VideoOverlay {
      * @param {Element} targetElement
      * @param {import("./util").VideoParams} params
      */
-    appendOverlayToPage (targetElement, params) {
+    appendOverlayToPage(targetElement, params) {
         this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} or ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
-            this.messages.sendPixel(new Pixel({ name: 'overlay' }))
-            const controller = new AbortController()
-            const { environment } = this
+            this.messages.sendPixel(new Pixel({ name: 'overlay' }));
+            const controller = new AbortController();
+            const { environment } = this;
 
             if (this.environment.layout === 'mobile') {
-                const elem = /** @type {DDGVideoOverlayMobile} */(document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME))
-                elem.testMode = this.environment.isTestMode()
-                elem.text = mobileStrings(this.environment.strings)
-                elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo())
-                elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */e) => {
-                    return this.mobileOptOut(e.detail.remember)
-                        .catch(console.error)
-                })
-                elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */e) => {
-                    return this.mobileOptIn(e.detail.remember, params)
-                        .catch(console.error)
-                })
-                targetElement.appendChild(elem)
+                const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
+                elem.testMode = this.environment.isTestMode();
+                elem.text = mobileStrings(this.environment.strings);
+                elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo());
+                elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.mobileOptOut(e.detail.remember).catch(console.error);
+                });
+                elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.mobileOptIn(e.detail.remember, params).catch(console.error);
+                });
+                targetElement.appendChild(elem);
             } else {
                 const elem = new DDGVideoOverlay({
                     environment,
                     params,
                     ui: this.ui,
-                    manager: this
-                })
-                targetElement.appendChild(elem)
+                    manager: this,
+                });
+                targetElement.appendChild(elem);
             }
 
             /**
              * To cleanup just find and remove the element
              */
             return () => {
-                document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove()
-                document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove()
-                controller.abort()
-            }
-        })
+                document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
+                document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
+                controller.abort();
+            };
+        });
     }
 
     /**
      * Just brute-force calling video.pause() for as long as the user is seeing the overlay.
      */
-    stopVideoFromPlaying () {
+    stopVideoFromPlaying() {
         this.sideEffects.add(`pausing the <video> element with selector '${this.settings.selectors.videoElement}'`, () => {
             /**
              * Set up the interval - keep calling .pause() to prevent
              * the video from playing
              */
             const int = setInterval(() => {
-                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.settings.selectors.videoElement))
+                const video = /** @type {HTMLVideoElement} */ (document.querySelector(this.settings.selectors.videoElement));
                 if (video?.isConnected) {
-                    video.pause()
+                    video.pause();
                 }
-            }, 10)
+            }, 10);
 
             /**
              * To clean up, we need to stop the interval
              * and then call .play() on the original element, if it's still connected
              */
             return () => {
-                clearInterval(int)
+                clearInterval(int);
 
-                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.settings.selectors.videoElement))
+                const video = /** @type {HTMLVideoElement} */ (document.querySelector(this.settings.selectors.videoElement));
                 if (video?.isConnected) {
-                    video.play()
+                    video.play();
                 }
-            }
-        })
+            };
+        });
     }
 
     /**
@@ -308,35 +306,36 @@ export class VideoOverlay {
      * @param {boolean} remember
      * @param {VideoParams} params
      */
-    userOptIn (remember, params) {
+    userOptIn(remember, params) {
         /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
-        let privatePlayerMode = { alwaysAsk: {} }
+        let privatePlayerMode = { alwaysAsk: {} };
         if (remember) {
-            this.messages.sendPixel(new Pixel({ name: 'play.use', remember: '1' }))
-            privatePlayerMode = { enabled: {} }
+            this.messages.sendPixel(new Pixel({ name: 'play.use', remember: '1' }));
+            privatePlayerMode = { enabled: {} };
         } else {
-            this.messages.sendPixel(new Pixel({ name: 'play.use', remember: '0' }))
+            this.messages.sendPixel(new Pixel({ name: 'play.use', remember: '0' }));
             // do nothing. The checkbox was off meaning we don't want to save any choice
         }
         const outgoing = {
             overlayInteracted: false,
-            privatePlayerMode
-        }
-        this.messages.setUserValues(outgoing)
+            privatePlayerMode,
+        };
+        this.messages
+            .setUserValues(outgoing)
             .then(() => {
                 if (this.environment.opensVideoOverlayLinksViaMessage) {
-                    return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }))
+                    return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }));
                 }
-                return this.environment.setHref(params.toPrivatePlayerUrl())
+                return this.environment.setHref(params.toPrivatePlayerUrl());
             })
-            .catch(e => console.error('error setting user choice', e))
+            .catch((e) => console.error('error setting user choice', e));
     }
 
     /**
      * @param {boolean} remember
      * @param {import("./util").VideoParams} params
      */
-    userOptOut (remember, params) {
+    userOptOut(remember, params) {
         /**
          * If the checkbox was checked we send the 'interacted' flag to the backend
          * so that the next video can just see the Dax icon instead of the full overlay
@@ -345,22 +344,23 @@ export class VideoOverlay {
          * and instead we just swap the main overlay for Dax
          */
         if (remember) {
-            this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '1' }))
+            this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '1' }));
             /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
-            const privatePlayerMode = { alwaysAsk: {} }
-            this.messages.setUserValues({
-                privatePlayerMode,
-                overlayInteracted: true
-            })
-                .then(values => {
-                    this.userValues = values
+            const privatePlayerMode = { alwaysAsk: {} };
+            this.messages
+                .setUserValues({
+                    privatePlayerMode,
+                    overlayInteracted: true,
+                })
+                .then((values) => {
+                    this.userValues = values;
                 })
                 .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
-                .catch(e => console.error('could not set userChoice for opt-out', e))
+                .catch((e) => console.error('could not set userChoice for opt-out', e));
         } else {
-            this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '0' }))
-            this.destroy()
-            this.addSmallDaxOverlay(params)
+            this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '0' }));
+            this.destroy();
+            this.addSmallDaxOverlay(params);
         }
     }
 
@@ -368,70 +368,66 @@ export class VideoOverlay {
      * @param {boolean} remember
      * @param {import("./util").VideoParams} params
      */
-    async mobileOptIn (remember, params) {
-        const pixel = remember
-            ? new Pixel({ name: 'play.use', remember: '1' })
-            : new Pixel({ name: 'play.use', remember: '0' })
+    async mobileOptIn(remember, params) {
+        const pixel = remember ? new Pixel({ name: 'play.use', remember: '1' }) : new Pixel({ name: 'play.use', remember: '0' });
 
-        this.messages.sendPixel(pixel)
+        this.messages.sendPixel(pixel);
 
         /** @type {import("../duck-player.js").UserValues} */
         const outgoing = {
             overlayInteracted: false,
-            privatePlayerMode: remember
-                ? { enabled: {} }
-                : { alwaysAsk: {} }
-        }
+            privatePlayerMode: remember ? { enabled: {} } : { alwaysAsk: {} },
+        };
 
-        const result = await this.messages.setUserValues(outgoing)
+        const result = await this.messages.setUserValues(outgoing);
 
         if (this.environment.debug) {
-            console.log('did receive new values', result)
+            console.log('did receive new values', result);
         }
 
-        return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }))
+        return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }));
     }
 
     /**
      * @param {boolean} remember
      */
-    async mobileOptOut (remember) {
+    async mobileOptOut(remember) {
         const pixel = remember
             ? new Pixel({ name: 'play.do_not_use', remember: '1' })
-            : new Pixel({ name: 'play.do_not_use', remember: '0' })
+            : new Pixel({ name: 'play.do_not_use', remember: '0' });
 
-        this.messages.sendPixel(pixel)
+        this.messages.sendPixel(pixel);
 
         if (!remember) {
-            return this.destroy()
+            return this.destroy();
         }
 
         /** @type {import("../duck-player.js").UserValues} */
         const next = {
             privatePlayerMode: { disabled: {} },
-            overlayInteracted: false
-        }
+            overlayInteracted: false,
+        };
 
         if (this.environment.debug) {
-            console.log('sending user values:', next)
+            console.log('sending user values:', next);
         }
 
-        const updatedValues = await this.messages.setUserValues(next)
+        const updatedValues = await this.messages.setUserValues(next);
 
         // this is needed to ensure any future page navigations respect the new settings
-        this.userValues = updatedValues
+        this.userValues = updatedValues;
 
         if (this.environment.debug) {
-            console.log('user values response:', updatedValues)
+            console.log('user values response:', updatedValues);
         }
 
-        this.destroy()
+        this.destroy();
     }
 
     /**
      * Remove elements, event listeners etc
      */
-    destroy () {
-        this.sideEffects.destroy()
+    destroy() {
+        this.sideEffects.destroy();
     }
 }

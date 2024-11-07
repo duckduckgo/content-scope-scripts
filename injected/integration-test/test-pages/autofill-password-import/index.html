@@ -32,17 +32,21 @@
         <a aria-label="Sign in">Sign in</a>
     </div>
     <div id="home" class="page">
-        <a aria-label="Password options">Password options</a>
+        <a aria-label="Password options" style="border-radius: 100%;">PO</a>
     </div>
     <div id="options" class="page">
-        <button aria-label="Export">Export</button>
+        <button aria-label="Export" style="border-radius: 100%;">EP</button>
+    </div>
+    <div id="unsupported" class="page">
+        <button aria-label="Unsupported">Unsupported path</button>
     </div>
 
     <script>
         const routes = {
             '/intro': document.getElementById('intro'),
             '/': document.getElementById('home'),
-            '/options': document.getElementById('options')
+            '/options': document.getElementById('options'),
+            '/unsupported': document.getElementById('unsupported'),
         };
 
         function navigate(path) {
@@ -68,6 +72,7 @@
                 <button onclick="navigate('/intro')">Signin page</button>
                 <button onclick="navigate('/')">Home page</button>
                 <button onclick="navigate('/options')">Export page</button>
+                <button onclick="navigate('/unsupported')">Unsupported page</button>
             </nav>
         `);
     </script>

@@ -12,12 +12,13 @@
     const objectKeys = Object.keys;
     const objectEntries = Object.entries;
     const Proxy$1 = globalThis.Proxy;
+    const hasOwnProperty = Object.prototype.hasOwnProperty;
 
     /* eslint-disable no-redeclare, no-global-assign */
     /* global cloneInto, exportFunction, true */
 
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
-     
+
     let globalObj$1 = typeof window === 'undefined' ? globalThis : window;
     let Error$1 = globalObj$1.Error;
     let messageSecret$1;
@@ -25,15 +26,15 @@
     // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
     const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
     const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
-    function registerMessageSecret (secret) {
+    function registerMessageSecret(secret) {
         messageSecret$1 = secret;
     }
 
     /**
      * @returns {HTMLElement} the element to inject the script into
      */
-    function getInjectionElement () {
-        return document.head || document.documentElement
+    function getInjectionElement() {
+        return document.head || document.documentElement;
     }
 
     /**
@@ -41,7 +42,7 @@
      * @param {string} css
      * @returns {HTMLLinkElement | HTMLStyleElement}
      */
-    function createStyleElement (css) {
+    function createStyleElement(css) {
         let style;
         {
             style = document.createElement('link');
@@ -49,35 +50,35 @@
             style.setAttribute('rel', 'stylesheet');
             style.setAttribute('type', 'text/css');
         }
-        return style
+        return style;
     }
 
     /**
      * Injects a script into the page, avoiding CSP restrictions if possible.
      */
-    function injectGlobalStyles (css) {
+    function injectGlobalStyles(css) {
         const style = createStyleElement(css);
         getInjectionElement().appendChild(style);
     }
 
     // linear feedback shift register to find a random approximation
-    function nextRandom (v) {
-        return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)))
+    function nextRandom(v) {
+        return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
     }
 
     const exemptionLists = {};
-    function shouldExemptUrl (type, url) {
+    function shouldExemptUrl(type, url) {
         for (const regex of exemptionLists[type]) {
             if (regex.test(url)) {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     }
 
     let debug = false;
 
-    function initStringExemptionLists (args) {
+    function initStringExemptionLists(args) {
         const { stringExemptionLists } = args;
         debug = args.debug;
         for (const type in stringExemptionLists) {
@@ -92,34 +93,34 @@
      * Best guess effort if the document is being framed
      * @returns {boolean} if we infer the document is framed
      */
-    function isBeingFramed () {
+    function isBeingFramed() {
         if (globalThis.location && 'ancestorOrigins' in globalThis.location) {
-            return globalThis.location.ancestorOrigins.length > 0
+            return globalThis.location.ancestorOrigins.length > 0;
         }
-        return globalThis.top !== globalThis.window
+        return globalThis.top !== globalThis.window;
     }
 
     /**
      * Best guess effort if the document is third party
      * @returns {boolean} if we infer the document is third party
      */
-    function isThirdPartyFrame () {
+    function isThirdPartyFrame() {
         if (!isBeingFramed()) {
-            return false
+            return false;
         }
         const tabHostname = getTabHostname();
         // If we can't get the tab hostname, assume it's third party
         if (!tabHostname) {
-            return true
+            return true;
         }
-        return !matchHostname(globalThis.location.hostname, tabHostname)
+        return !matchHostname(globalThis.location.hostname, tabHostname);
     }
 
     /**
      * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
      * @returns {string|null} inferred tab hostname
      */
-    function getTabHostname () {
+    function getTabHostname() {
         let framingOrigin = null;
         try {
             // @ts-expect-error - globalThis.top is possibly 'null' here
@@ -140,7 +141,7 @@
         } catch {
             framingOrigin = null;
         }
-        return framingOrigin
+        return framingOrigin;
     }
 
     /**
@@ -149,12 +150,12 @@
      * @param {string} exceptionDomain
      * @returns {boolean}
      */
-    function matchHostname (hostname, exceptionDomain) {
-        return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
+    function matchHostname(hostname, exceptionDomain) {
+        return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`);
     }
 
     const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
-    function getStackTraceUrls (stack) {
+    function getStackTraceUrls(stack) {
         const urls = new Set$1();
         try {
             const errorLines = stack.split('\n');
@@ -168,36 +169,36 @@
         } catch (e) {
             // Fall through
         }
-        return urls
+        return urls;
     }
 
-    function getStackTraceOrigins (stack) {
+    function getStackTraceOrigins(stack) {
         const urls = getStackTraceUrls(stack);
         const origins = new Set$1();
         for (const url of urls) {
             origins.add(url.hostname);
         }
-        return origins
+        return origins;
     }
 
     // Checks the stack trace if there are known libraries that are broken.
-    function shouldExemptMethod (type) {
+    function shouldExemptMethod(type) {
         // Short circuit stack tracing if we don't have checks
         if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
-            return false
+            return false;
         }
         const stack = getStack();
         const errorFiles = getStackTraceUrls(stack);
         for (const path of errorFiles) {
             if (shouldExemptUrl(type, path.href)) {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     }
 
     // Iterate through the key, passing an item index and a byte to be modified
-    function iterateDataKey (key, callback) {
+    function iterateDataKey(key, callback) {
         let item = key.charCodeAt(0);
         for (const i in key) {
             let byte = key.charCodeAt(i);
@@ -205,7 +206,7 @@
                 const res = callback(item, byte);
                 // Exit early if callback returns null
                 if (res === null) {
-                    return
+                    return;
                 }
 
                 // find next item to perturb
@@ -217,27 +218,27 @@
         }
     }
 
-    function isFeatureBroken (args, feature) {
+    function isFeatureBroken(args, feature) {
         return isWindowsSpecificFeature(feature)
             ? !args.site.enabledFeatures.includes(feature)
-            : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
+            : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
     }
 
-    function camelcase (dashCaseText) {
+    function camelcase(dashCaseText) {
         return dashCaseText.replace(/-(.)/g, (match, letter) => {
-            return letter.toUpperCase()
-        })
+            return letter.toUpperCase();
+        });
     }
 
     // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
-    function isAppleSilicon () {
+    function isAppleSilicon() {
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl');
 
         // Best guess if the device is an Apple Silicon
         // https://stackoverflow.com/a/65412357
         // @ts-expect-error - Object is possibly 'null'
-        return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1
+        return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1;
     }
 
     /**
@@ -245,23 +246,23 @@
      * If a value contains a criteria that is a match for this environment then return that value.
      * Otherwise return the first value that doesn't have a criteria.
      *
-     * @param {*[]} configSetting - Config setting which should contain a list of possible values
+     * @param {ConfigSetting[]} configSetting - Config setting which should contain a list of possible values
      * @returns {*|undefined} - The value from the list that best matches the criteria in the config
      */
-    function processAttrByCriteria (configSetting) {
+    function processAttrByCriteria(configSetting) {
         let bestOption;
         for (const item of configSetting) {
             if (item.criteria) {
                 if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {
                     bestOption = item;
-                    break
+                    break;
                 }
             } else {
                 bestOption = item;
             }
         }
 
-        return bestOption
+        return bestOption;
     }
 
     const functionMap = {
@@ -269,76 +270,86 @@
         debug: (...args) => {
             console.log('debugger', ...args);
             // eslint-disable-next-line no-debugger
-            debugger
+            debugger;
         },
-         
-        noop: () => { }
+
+        noop: () => {},
     };
 
     /**
+     * @typedef {object} ConfigSetting
+     * @property {'undefined' | 'number' | 'string' | 'function' | 'boolean' | 'null' | 'array' | 'object'} type
+     * @property {string} [functionName]
+     * @property {boolean | string | number} value
+     * @property {object} [criteria]
+     * @property {string} criteria.arch
+     */
+
+    /**
      * Processes a structured config setting and returns the value according to its type
-     * @param {*} configSetting
+     * @param {ConfigSetting} configSetting
      * @param {*} [defaultValue]
      * @returns
      */
-    function processAttr (configSetting, defaultValue) {
+    function processAttr(configSetting, defaultValue) {
         if (configSetting === undefined) {
-            return defaultValue
+            return defaultValue;
         }
 
         const configSettingType = typeof configSetting;
         switch (configSettingType) {
-        case 'object':
-            if (Array.isArray(configSetting)) {
-                configSetting = processAttrByCriteria(configSetting);
-                if (configSetting === undefined) {
-                    return defaultValue
+            case 'object':
+                if (Array.isArray(configSetting)) {
+                    configSetting = processAttrByCriteria(configSetting);
+                    if (configSetting === undefined) {
+                        return defaultValue;
+                    }
                 }
-            }
 
-            if (!configSetting.type) {
-                return defaultValue
-            }
-
-            if (configSetting.type === 'function') {
-                if (configSetting.functionName && functionMap[configSetting.functionName]) {
-                    return functionMap[configSetting.functionName]
+                if (!configSetting.type) {
+                    return defaultValue;
                 }
-            }
 
-            if (configSetting.type === 'undefined') {
-                return undefined
-            }
+                if (configSetting.type === 'function') {
+                    if (configSetting.functionName && functionMap[configSetting.functionName]) {
+                        return functionMap[configSetting.functionName];
+                    }
+                }
 
-            return configSetting.value
-        default:
-            return defaultValue
+                if (configSetting.type === 'undefined') {
+                    return undefined;
+                }
+
+                // All JSON expressable types are handled here
+                return configSetting.value;
+            default:
+                return defaultValue;
         }
     }
 
-    function getStack () {
-        return new Error$1().stack
+    function getStack() {
+        return new Error$1().stack;
     }
 
     /**
      * @param {*[]} argsArray
      * @returns {string}
      */
-    function debugSerialize (argsArray) {
+    function debugSerialize(argsArray) {
         const maxSerializedSize = 1000;
         const serializedArgs = argsArray.map((arg) => {
             try {
                 const serializableOut = JSON.stringify(arg);
                 if (serializableOut.length > maxSerializedSize) {
-                    return `<truncated, length: ${serializableOut.length}, value: ${serializableOut.substring(0, maxSerializedSize)}...>`
+                    return `<truncated, length: ${serializableOut.length}, value: ${serializableOut.substring(0, maxSerializedSize)}...>`;
                 }
-                return serializableOut
+                return serializableOut;
             } catch (e) {
                 // Sometimes this happens when we can't serialize an object to string but we still wish to log it and make other args readable
-                return '<unserializable>'
+                return '<unserializable>';
             }
         });
-        return JSON.stringify(serializedArgs)
+        return JSON.stringify(serializedArgs);
     }
 
     /**
@@ -357,7 +368,7 @@
          * @param {string} property
          * @param {ProxyObject<P>} proxyObject
          */
-        constructor (feature, objectScope, property, proxyObject) {
+        constructor(feature, objectScope, property, proxyObject) {
             this.objectScope = objectScope;
             this.property = property;
             this.feature = feature;
@@ -374,14 +385,14 @@
                         kind: this.property,
                         documentUrl: document.location.href,
                         stack: getStack(),
-                        args: debugSerialize(args[2])
+                        args: debugSerialize(args[2]),
                     });
                 }
                 // The normal return value
                 if (isExempt) {
-                    return DDGReflect.apply(...args)
+                    return DDGReflect.apply(...args);
                 }
-                return proxyObject.apply(...args)
+                return proxyObject.apply(...args);
             };
             const getMethod = (target, prop, receiver) => {
                 this.feature.addDebugFlag();
@@ -389,11 +400,11 @@
                     const method = Reflect.get(target, prop, receiver).bind(target);
                     Object.defineProperty(method, 'toString', {
                         value: String.toString.bind(String.toString),
-                        enumerable: false
+                        enumerable: false,
                     });
-                    return method
+                    return method;
                 }
-                return DDGReflect.get(target, prop, receiver)
+                return DDGReflect.get(target, prop, receiver);
             };
             {
                 this._native = objectScope[property];
@@ -406,42 +417,42 @@
         }
 
         // Actually apply the proxy to the native property
-        overload () {
+        overload() {
             {
                 // @ts-expect-error wrappedJSObject is not a property of objectScope
                 exportFunction(this.internal, this.objectScope, { defineAs: this.property });
             }
         }
 
-        overloadDescriptor () {
+        overloadDescriptor() {
             // TODO: this is not always correct! Use wrap* or shim* methods instead
             this.feature.defineProperty(this.objectScope, this.property, {
                 value: this.internal,
                 writable: true,
                 enumerable: true,
-                configurable: true
+                configurable: true,
             });
         }
     }
 
     const maxCounter = new Map();
-    function numberOfTimesDebugged (feature) {
+    function numberOfTimesDebugged(feature) {
         if (!maxCounter.has(feature)) {
             maxCounter.set(feature, 1);
         } else {
             maxCounter.set(feature, maxCounter.get(feature) + 1);
         }
-        return maxCounter.get(feature)
+        return maxCounter.get(feature);
     }
 
     const DEBUG_MAX_TIMES = 5000;
 
-    function postDebugMessage (feature, message, allowNonDebug = false) {
+    function postDebugMessage(feature, message, allowNonDebug = false) {
         if (!debug && !allowNonDebug) {
-            return
+            return;
         }
         if (numberOfTimesDebugged(feature) > DEBUG_MAX_TIMES) {
-            return
+            return;
         }
         if (message.stack) {
             const scriptOrigins = [...getStackTraceOrigins(message.stack)];
@@ -449,7 +460,7 @@
         }
         globalObj$1.postMessage({
             action: feature,
-            message
+            message,
         });
     }
 
@@ -467,10 +478,10 @@
      * @param {object[]} featureList
      * @returns {boolean}
      */
-    function isUnprotectedDomain (topLevelHostname, featureList) {
+    function isUnprotectedDomain(topLevelHostname, featureList) {
         let unprotectedDomain = false;
         if (!topLevelHostname) {
-            return false
+            return false;
         }
         const domainParts = topLevelHostname.split('.');
 
@@ -478,12 +489,12 @@
         while (domainParts.length > 1 && !unprotectedDomain) {
             const partialDomain = domainParts.join('.');
 
-            unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;
+            unprotectedDomain = featureList.filter((domain) => domain.domain === partialDomain).length > 0;
 
             domainParts.shift();
         }
 
-        return unprotectedDomain
+        return unprotectedDomain;
     }
 
     /**
@@ -505,15 +516,15 @@
     /**
      * Used to inialize extension code in the load phase
      */
-    function computeLimitedSiteObject () {
+    function computeLimitedSiteObject() {
         const topLevelHostname = getTabHostname();
         return {
-            domain: topLevelHostname
-        }
+            domain: topLevelHostname,
+        };
     }
 
-    function parseVersionString (versionString) {
-        return versionString.split('.').map(Number)
+    function parseVersionString(versionString) {
+        return versionString.split('.').map(Number);
     }
 
     /**
@@ -521,7 +532,7 @@
      * @param {string} applicationVersionString
      * @returns {boolean}
      */
-    function satisfiesMinVersion (minVersionString, applicationVersionString) {
+    function satisfiesMinVersion(minVersionString, applicationVersionString) {
         const minVersions = parseVersionString(minVersionString);
         const currentVersions = parseVersionString(applicationVersionString);
         const maxLength = Math.max(minVersions.length, currentVersions.length);
@@ -529,13 +540,13 @@
             const minNumberPart = minVersions[i] || 0;
             const currentVersionPart = currentVersions[i] || 0;
             if (currentVersionPart > minNumberPart) {
-                return true
+                return true;
             }
             if (currentVersionPart < minNumberPart) {
-                return false
+                return false;
             }
         }
-        return true
+        return true;
     }
 
     /**
@@ -543,17 +554,17 @@
      * @param {string | number | undefined} currentVersion
      * @returns {boolean}
      */
-    function isSupportedVersion (minSupportedVersion, currentVersion) {
+    function isSupportedVersion(minSupportedVersion, currentVersion) {
         if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {
             if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {
-                return true
+                return true;
             }
         } else if (typeof currentVersion === 'number' && typeof minSupportedVersion === 'number') {
             if (minSupportedVersion <= currentVersion) {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     }
 
     /**
@@ -564,20 +575,24 @@
      * @param {string[]} platformSpecificFeatures
      * @returns {string[]}
      */
-    function computeEnabledFeatures (data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
+    function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
         const remoteFeatureNames = Object.keys(data.features);
-        const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
-        const enabledFeatures = remoteFeatureNames.filter((featureName) => {
-            const feature = data.features[featureName];
-            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
-            if (feature.minSupportedVersion && platformVersion) {
-                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
-                    return false
+        const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
+            (featureName) => !remoteFeatureNames.includes(featureName),
+        );
+        const enabledFeatures = remoteFeatureNames
+            .filter((featureName) => {
+                const feature = data.features[featureName];
+                // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+                if (feature.minSupportedVersion && platformVersion) {
+                    if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
+                        return false;
+                    }
                 }
-            }
-            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
-        }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
-        return enabledFeatures
+                return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
+            })
+            .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
+        return enabledFeatures;
     }
 
     /**
@@ -586,27 +601,27 @@
      * @param {string[]} enabledFeatures
      * @returns {Record<string, unknown>}
      */
-    function parseFeatureSettings (data, enabledFeatures) {
+    function parseFeatureSettings(data, enabledFeatures) {
         /** @type {Record<string, unknown>} */
         const featureSettings = {};
         const remoteFeatureNames = Object.keys(data.features);
         remoteFeatureNames.forEach((featureName) => {
             if (!enabledFeatures.includes(featureName)) {
-                return
+                return;
             }
 
             featureSettings[featureName] = data.features[featureName].settings;
         });
-        return featureSettings
+        return featureSettings;
     }
 
     const windowsSpecificFeatures = ['windowsPermissionUsage'];
 
-    function isWindowsSpecificFeature (featureName) {
-        return windowsSpecificFeatures.includes(featureName)
+    function isWindowsSpecificFeature(featureName) {
+        return windowsSpecificFeatures.includes(featureName);
     }
 
-    function createCustomEvent (eventName, eventDetail) {
+    function createCustomEvent(eventName, eventDetail) {
         // By default, Firefox protects the event detail Object from the page,
         // leading to "Permission denied to access property" errors.
         // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
@@ -615,17 +630,20 @@
         }
 
         // @ts-expect-error - possibly null
-        return new OriginalCustomEvent(eventName, eventDetail)
+        return new OriginalCustomEvent(eventName, eventDetail);
     }
 
     /** @deprecated */
-    function legacySendMessage (messageType, options) {
+    function legacySendMessage(messageType, options) {
         // FF & Chrome
-        return originalWindowDispatchEvent && originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret$1, { detail: { messageType, options } }))
+        return (
+            originalWindowDispatchEvent &&
+            originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret$1, { detail: { messageType, options } }))
+        );
         // TBD other platforms
     }
 
-    const baseFeatures = /** @type {const} */([
+    const baseFeatures = /** @type {const} */ ([
         'fingerprintingAudio',
         'fingerprintingBattery',
         'fingerprintingCanvas',
@@ -637,10 +655,11 @@
         'fingerprintingTemporaryStorage',
         'navigatorInterface',
         'elementHiding',
-        'exceptionHandler'
+        'exceptionHandler',
+        'apiManipulation',
     ]);
 
-    const otherFeatures = /** @type {const} */([
+    const otherFeatures = /** @type {const} */ ([
         'clickToLoad',
         'cookie',
         'duckPlayer',
@@ -650,66 +669,28 @@
         'brokerProtection',
         'performanceMetrics',
         'breakageReporting',
-        'autofillPasswordImport'
+        'autofillPasswordImport',
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
     /** @type {Record<string, FeatureName[]>} */
     const platformSupport = {
-        apple: [
-            'webCompat',
-            ...baseFeatures
-        ],
-        'apple-isolated': [
-            'duckPlayer',
-            'brokerProtection',
-            'performanceMetrics',
-            'clickToLoad'
-        ],
-        android: [
-            ...baseFeatures,
-            'webCompat',
-            'clickToLoad',
-            'breakageReporting',
-            'duckPlayer'
-        ],
-        'android-autofill-password-import': [
-            'autofillPasswordImport'
-        ],
-        windows: [
-            'cookie',
-            ...baseFeatures,
-            'windowsPermissionUsage',
-            'duckPlayer',
-            'brokerProtection',
-            'breakageReporting'
-        ],
-        firefox: [
-            'cookie',
-            ...baseFeatures,
-            'clickToLoad'
-        ],
-        chrome: [
-            'cookie',
-            ...baseFeatures,
-            'clickToLoad'
-        ],
-        'chrome-mv3': [
-            'cookie',
-            ...baseFeatures,
-            'clickToLoad'
-        ],
-        integration: [
-            ...baseFeatures,
-            ...otherFeatures
-        ]
+        apple: ['webCompat', ...baseFeatures],
+        'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad'],
+        android: [...baseFeatures, 'webCompat', 'clickToLoad', 'breakageReporting', 'duckPlayer'],
+        'android-autofill-password-import': ['autofillPasswordImport'],
+        windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
+        firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
+        chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
+        'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
+        integration: [...baseFeatures, ...otherFeatures],
     };
 
     /**
      * Performance monitor, holds reference to PerformanceMark instances.
      */
     class PerformanceMonitor {
-        constructor () {
+        constructor() {
             this.marks = [];
         }
 
@@ -718,16 +699,16 @@
          * @param {string} name
          * @returns {PerformanceMark}
          */
-        mark (name) {
+        mark(name) {
             const mark = new PerformanceMark(name);
             this.marks.push(mark);
-            return mark
+            return mark;
         }
 
         /**
          * Measure all performance markers
          */
-        measureAll () {
+        measureAll() {
             this.marks.forEach((mark) => {
                 mark.measure();
             });
@@ -742,27 +723,27 @@
         /**
          * @param {string} name
          */
-        constructor (name) {
+        constructor(name) {
             this.name = name;
             performance.mark(this.name + 'Start');
         }
 
-        end () {
+        end() {
             performance.mark(this.name + 'End');
         }
 
-        measure () {
+        measure() {
             performance.measure(this.name, this.name + 'Start', this.name + 'End');
         }
     }
 
     class Cookie {
-        constructor (cookieString) {
+        constructor(cookieString) {
             this.parts = cookieString.split(';');
             this.parse();
         }
 
-        parse () {
+        parse() {
             const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
             this.attrIdx = {};
             this.parts.forEach((part, index) => {
@@ -780,23 +761,23 @@
             });
         }
 
-        getExpiry () {
+        getExpiry() {
             // @ts-expect-error expires is not defined in the type definition
             if (!this.maxAge && !this.expires) {
-                return NaN
+                return NaN;
             }
             const expiry = this.maxAge
                 ? parseInt(this.maxAge)
-                // @ts-expect-error expires is not defined in the type definition
-                : (new Date(this.expires) - new Date()) / 1000;
-            return expiry
+                : // @ts-expect-error expires is not defined in the type definition
+                  (new Date(this.expires) - new Date()) / 1000;
+            return expiry;
         }
 
-        get maxAge () {
-            return this['max-age']
+        get maxAge() {
+            return this['max-age'];
         }
 
-        set maxAge (value) {
+        set maxAge(value) {
             // @ts-expect-error - Object is possibly 'undefined'.
             if (this.attrIdx['max-age'] > 0) {
                 // @ts-expect-error - Object is possibly 'undefined'.
@@ -807,8 +788,8 @@
             this.parse();
         }
 
-        toString () {
-            return this.parts.join(';')
+        toString() {
+            return this.parts.join(';');
         }
     }
 
@@ -1261,22 +1242,19 @@
      * @param {string} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
-    function defineProperty (object, propertyName, descriptor) {
+    function defineProperty(object, propertyName, descriptor) {
         {
             const usedObj = object.wrappedJSObject || object;
             const UsedObjectInterface = globalObj.wrappedJSObject.Object;
             const definedDescriptor = new UsedObjectInterface();
             ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
                 if (propertyName in descriptor) {
-                    definedDescriptor[propertyName] = cloneInto(
-                        descriptor[propertyName],
-                        definedDescriptor,
-                        { cloneFunctions: true }
-                    );
+                    definedDescriptor[propertyName] = cloneInto(descriptor[propertyName], definedDescriptor, { cloneFunctions: true });
                 }
             });
             ['get', 'set'].forEach((methodName) => {
-                if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') { // Firefox returns undefined for missing getters/setters
+                if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') {
+                    // Firefox returns undefined for missing getters/setters
                     exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName });
                 }
             });
@@ -1292,12 +1270,12 @@
      * @param {*} origFn
      * @param {string} [mockValue] - when provided, .toString() will return this value
      */
-    function wrapToString (newFn, origFn, mockValue) {
+    function wrapToString(newFn, origFn, mockValue) {
         if (typeof newFn !== 'function' || typeof origFn !== 'function') {
-            return newFn
+            return newFn;
         }
 
-        return new Proxy(newFn, { get: toStringGetTrap(origFn, mockValue) })
+        return new Proxy(newFn, { get: toStringGetTrap(origFn, mockValue) });
     }
 
     /**
@@ -1307,45 +1285,45 @@
      * @param {string} [mockValue] - when provided, .toString() will return this value
      * @returns { (target: any, prop: string, receiver: any) => any }
      */
-    function toStringGetTrap (targetFn, mockValue) {
+    function toStringGetTrap(targetFn, mockValue) {
         // We wrap two levels deep to handle toString.toString() calls
-        return function get (target, prop, receiver) {
+        return function get(target, prop, receiver) {
             if (prop === 'toString') {
                 const origToString = Reflect.get(targetFn, 'toString', targetFn);
                 const toStringProxy = new Proxy(origToString, {
-                    apply (target, thisArg, argumentsList) {
+                    apply(target, thisArg, argumentsList) {
                         // only mock toString() when called on the proxy itself. If the method is applied to some other object, it should behave as a normal toString()
                         if (thisArg === receiver) {
                             if (mockValue) {
-                                return mockValue
+                                return mockValue;
                             }
-                            return Reflect.apply(target, targetFn, argumentsList)
+                            return Reflect.apply(target, targetFn, argumentsList);
                         } else {
-                            return Reflect.apply(target, thisArg, argumentsList)
+                            return Reflect.apply(target, thisArg, argumentsList);
                         }
                     },
-                    get (target, prop, receiver) {
+                    get(target, prop, receiver) {
                         // handle toString.toString() result
                         if (prop === 'toString') {
                             const origToStringToString = Reflect.get(origToString, 'toString', origToString);
                             const toStringToStringProxy = new Proxy(origToStringToString, {
-                                apply (target, thisArg, argumentsList) {
+                                apply(target, thisArg, argumentsList) {
                                     if (thisArg === toStringProxy) {
-                                        return Reflect.apply(target, origToString, argumentsList)
+                                        return Reflect.apply(target, origToString, argumentsList);
                                     } else {
-                                        return Reflect.apply(target, thisArg, argumentsList)
+                                        return Reflect.apply(target, thisArg, argumentsList);
                                     }
-                                }
+                                },
                             });
-                            return toStringToStringProxy
+                            return toStringToStringProxy;
                         }
-                        return Reflect.get(target, prop, receiver)
-                    }
+                        return Reflect.get(target, prop, receiver);
+                    },
                 });
-                return toStringProxy
+                return toStringProxy;
             }
-            return Reflect.get(target, prop, receiver)
-        }
+            return Reflect.get(target, prop, receiver);
+        };
     }
 
     /**
@@ -1356,9 +1334,9 @@
      * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
-    function wrapProperty (object, propertyName, descriptor, definePropertyFn) {
+    function wrapProperty(object, propertyName, descriptor, definePropertyFn) {
         if (!object) {
-            return
+            return;
         }
         {
             object = object.wrappedJSObject || object;
@@ -1369,21 +1347,22 @@
         const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
         if (!origDescriptor) {
             // this happens if the property is not implemented in the browser
-            return
+            return;
         }
 
-        if (('value' in origDescriptor && 'value' in descriptor) ||
+        if (
+            ('value' in origDescriptor && 'value' in descriptor) ||
             ('get' in origDescriptor && 'get' in descriptor) ||
             ('set' in origDescriptor && 'set' in descriptor)
         ) {
             definePropertyFn(object, propertyName, {
                 ...origDescriptor,
-                ...descriptor
+                ...descriptor,
             });
-            return origDescriptor
+            return origDescriptor;
         } else {
             // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`);
         }
     }
 
@@ -1395,9 +1374,9 @@
      * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
-    function wrapMethod (object, propertyName, wrapperFn, definePropertyFn) {
+    function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
         if (!object) {
-            return
+            return;
         }
         {
             object = object.wrappedJSObject || object;
@@ -1408,25 +1387,25 @@
         const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
         if (!origDescriptor) {
             // this happens if the property is not implemented in the browser
-            return
+            return;
         }
 
         // @ts-expect-error - we check for undefined below
         const origFn = origDescriptor.value;
         if (!origFn || typeof origFn !== 'function') {
             // method properties are expected to be defined with a `value`
-            throw new Error(`Property ${propertyName} does not look like a method`)
+            throw new Error(`Property ${propertyName} does not look like a method`);
         }
 
         const newFn = wrapToString(function () {
-            return wrapperFn.call(this, origFn, ...arguments)
+            return wrapperFn.call(this, origFn, ...arguments);
         }, origFn);
 
         definePropertyFn(object, propertyName, {
             ...origDescriptor,
-            value: newFn
+            value: newFn,
         });
-        return origDescriptor
+        return origDescriptor;
     }
 
     /**
@@ -1436,25 +1415,20 @@
      * @param {DefineInterfaceOptions} options - options for defining the interface
      * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
      */
-    function shimInterface (
-        interfaceName,
-        ImplClass,
-        options,
-        definePropertyFn
-    ) {
+    function shimInterface(interfaceName, ImplClass, options, definePropertyFn) {
 
         /** @type {DefineInterfaceOptions} */
         const defaultOptions = {
             allowConstructorCall: false,
             disallowConstructor: false,
             constructorErrorMessage: 'Illegal constructor',
-            wrapToString: true
+            wrapToString: true,
         };
 
         const fullOptions = {
             interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
             ...defaultOptions,
-            ...options
+            ...options,
         };
 
         // In some cases we can get away without a full proxy, but in many cases below we need it.
@@ -1468,14 +1442,14 @@
         if (fullOptions.allowConstructorCall) {
             // make the constructor function callable without new
             proxyHandler.apply = function (target, thisArg, argumentsList) {
-                return Reflect.construct(target, argumentsList, target)
+                return Reflect.construct(target, argumentsList, target);
             };
         }
 
         // make the constructor function throw when called without new
         if (fullOptions.disallowConstructor) {
             proxyHandler.construct = function () {
-                throw new TypeError(fullOptions.constructorErrorMessage)
+                throw new TypeError(fullOptions.constructorErrorMessage);
             };
         }
 
@@ -1484,14 +1458,14 @@
             for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
                 if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
                     ImplClass.prototype[prop] = new Proxy(descriptor.value, {
-                        get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`)
+                        get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`),
                     });
                 }
             }
 
             // wrap toString on the constructor function itself
             Object.assign(proxyHandler, {
-                get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`)
+                get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`),
             });
         }
 
@@ -1515,15 +1489,11 @@
             value: interfaceName,
             configurable: true,
             enumerable: false,
-            writable: false
+            writable: false,
         });
 
         // interfaces are exposed directly on the global object, not on its prototype
-        definePropertyFn(
-            globalThis,
-            interfaceName,
-            { ...fullOptions.interfaceDescriptorOptions, value: Interface }
-        );
+        definePropertyFn(globalThis, interfaceName, { ...fullOptions.interfaceDescriptorOptions, value: Interface });
     }
 
     /**
@@ -1538,13 +1508,13 @@
      * @param {boolean} readOnly - whether the property should be read-only
      * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
      */
-    function shimProperty (baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
+    function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
         // @ts-expect-error - implInstance is a class instance
         const ImplClass = implInstance.constructor;
 
         // mask toString() and toString.toString() on the instance
         const proxiedInstance = new Proxy(implInstance, {
-            get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`)
+            get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`),
         });
 
         /** @type {StrictPropertyDescriptor} */
@@ -1554,21 +1524,23 @@
         // But there could be other cases, e.g. a property with both a getter and a setter. These could be defined with a raw defineProperty() call.
         // Important: make sure to cover each new shim with a test that verifies that all descriptors match the standard API.
         if (readOnly) {
-            const getter = function get () { return proxiedInstance };
+            const getter = function get() {
+                return proxiedInstance;
+            };
             const proxiedGetter = new Proxy(getter, {
-                get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`)
+                get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`),
             });
             descriptor = {
                 configurable: true,
                 enumerable: true,
-                get: proxiedGetter
+                get: proxiedGetter,
             };
         } else {
             descriptor = {
                 configurable: true,
                 enumerable: true,
                 writable: true,
-                value: proxiedInstance
+                value: proxiedInstance,
             };
         }
 
@@ -1642,7 +1614,7 @@
          * @param {import('../index.js').MessagingContext} messagingContext
          * @internal
          */
-        constructor (config, messagingContext) {
+        constructor(config, messagingContext) {
             this.messagingContext = messagingContext;
             this.config = config;
             this.globals = {
@@ -1651,11 +1623,11 @@
                 JSONstringify: window.JSON.stringify,
                 Promise: window.Promise,
                 Error: window.Error,
-                String: window.String
+                String: window.String,
             };
             for (const [methodName, fn] of Object.entries(this.config.methods)) {
                 if (typeof fn !== 'function') {
-                    throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName)
+                    throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName);
                 }
             }
         }
@@ -1663,7 +1635,7 @@
         /**
          * @param {import('../index.js').NotificationMessage} msg
          */
-        notify (msg) {
+        notify(msg) {
             const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
             const notification = WindowsNotification.fromNotification(msg, data);
             this.config.methods.postMessage(notification);
@@ -1674,7 +1646,7 @@
          * @param {{signal?: AbortSignal}} opts
          * @return {Promise<any>}
          */
-        request (msg, opts = {}) {
+        request(msg, opts = {}) {
             // convert the message to window-specific naming
             const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
             const outgoing = WindowsRequestMessage.fromRequest(msg, data);
@@ -1684,19 +1656,17 @@
 
             // compare incoming messages against the `msg.id`
             const comparator = (eventData) => {
-                return eventData.featureName === msg.featureName &&
-                    eventData.context === msg.context &&
-                    eventData.id === msg.id
+                return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
             };
 
             /**
              * @param data
              * @return {data is import('../index.js').MessageResponse}
              */
-            function isMessageResponse (data) {
-                if ('result' in data) return true
-                if ('error' in data) return true
-                return false
+            function isMessageResponse(data) {
+                if ('result' in data) return true;
+                if ('error' in data) return true;
+                return false;
             }
 
             // now wait for a matching message
@@ -1707,11 +1677,11 @@
 
                         if (!isMessageResponse(value)) {
                             console.warn('unknown response type', value);
-                            return reject(new this.globals.Error('unknown response'))
+                            return reject(new this.globals.Error('unknown response'));
                         }
 
                         if (value.result) {
-                            return resolve(value.result)
+                            return resolve(value.result);
                         }
 
                         const message = this.globals.String(value.error?.message || 'unknown error');
@@ -1720,28 +1690,30 @@
                 } catch (e) {
                     reject(e);
                 }
-            })
+            });
         }
 
         /**
          * @param {import('../index.js').Subscription} msg
          * @param {(value: unknown | undefined) => void} callback
          */
-        subscribe (msg, callback) {
+        subscribe(msg, callback) {
             // compare incoming messages against the `msg.subscriptionName`
             const comparator = (eventData) => {
-                return eventData.featureName === msg.featureName &&
+                return (
+                    eventData.featureName === msg.featureName &&
                     eventData.context === msg.context &&
                     eventData.subscriptionName === msg.subscriptionName
+                );
             };
 
             // only forward the 'params' from a SubscriptionEvent
             const cb = (eventData) => {
-                return callback(eventData.params)
+                return callback(eventData.params);
             };
 
             // now listen for matching incoming messages.
-            return this._subscribe(comparator, {}, cb)
+            return this._subscribe(comparator, {}, cb);
         }
 
         /**
@@ -1753,10 +1725,10 @@
          * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
          * @internal
          */
-        _subscribe (comparator, options, callback) {
+        _subscribe(comparator, options, callback) {
             // if already aborted, reject immediately
             if (options?.signal?.aborted) {
-                throw new DOMException('Aborted', 'AbortError')
+                throw new DOMException('Aborted', 'AbortError');
             }
             /** @type {(()=>void) | undefined} */
             // eslint-disable-next-line prefer-const
@@ -1769,15 +1741,15 @@
                 if (this.messagingContext.env === 'production') {
                     if (event.origin !== null && event.origin !== undefined) {
                         console.warn('ignoring because evt.origin is not `null` or `undefined`');
-                        return
+                        return;
                     }
                 }
                 if (!event.data) {
                     console.warn('data absent from message');
-                    return
+                    return;
                 }
                 if (comparator(event.data)) {
-                    if (!teardown) throw new Error('unreachable')
+                    if (!teardown) throw new Error('unreachable');
                     callback(event.data, teardown);
                 }
             };
@@ -1785,24 +1757,24 @@
             // what to do if this promise is aborted
             const abortHandler = () => {
                 teardown?.();
-                throw new DOMException('Aborted', 'AbortError')
+                throw new DOMException('Aborted', 'AbortError');
             };
 
             // console.log('DEBUG: handler setup', { config, comparator })
-             
+
             this.config.methods.addEventListener('message', idHandler);
             options?.signal?.addEventListener('abort', abortHandler);
 
             teardown = () => {
                 // console.log('DEBUG: handler teardown', { config, comparator })
-                 
+
                 this.config.methods.removeEventListener('message', idHandler);
                 options?.signal?.removeEventListener('abort', abortHandler);
             };
 
             return () => {
                 teardown?.();
-            }
+            };
         }
     }
 
@@ -1831,7 +1803,7 @@
          * @param {WindowsInteropMethods} params.methods
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * The methods required for communication
              */
@@ -1858,7 +1830,7 @@
          * @param {Record<string, any>} [params.Data]
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * Alias for: {@link NotificationMessage.context}
              */
@@ -1882,15 +1854,15 @@
          * @param {NotificationMessage} notification
          * @returns {WindowsNotification}
          */
-        static fromNotification (notification, data) {
+        static fromNotification(notification, data) {
             /** @type {WindowsNotification} */
             const output = {
                 Data: data,
                 Feature: notification.context,
                 SubFeatureName: notification.featureName,
-                Name: notification.method
+                Name: notification.method,
             };
-            return output
+            return output;
         }
     }
 
@@ -1909,7 +1881,7 @@
          * @param {string} [params.Id]
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             this.Feature = params.Feature;
             this.SubFeatureName = params.SubFeatureName;
             this.Name = params.Name;
@@ -1923,16 +1895,16 @@
          * @param {Record<string, any>} data
          * @returns {WindowsRequestMessage}
          */
-        static fromRequest (msg, data) {
+        static fromRequest(msg, data) {
             /** @type {WindowsRequestMessage} */
             const output = {
                 Data: data,
                 Feature: msg.context,
                 SubFeatureName: msg.featureName,
                 Name: msg.method,
-                Id: msg.id
+                Id: msg.id,
             };
-            return output
+            return output;
         }
     }
 
@@ -1968,7 +1940,7 @@
          * @param {Record<string, any>} [params.params]
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
              * @type {string}
@@ -2007,7 +1979,7 @@
          * @param {Record<string, any>} [params.params]
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
              */
@@ -2035,7 +2007,7 @@
          * @param {string} params.subscriptionName
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             this.context = params.context;
             this.featureName = params.featureName;
             this.subscriptionName = params.subscriptionName;
@@ -2047,18 +2019,16 @@
      * @param {Record<string, any>} data
      * @return {data is MessageResponse}
      */
-    function isResponseFor (request, data) {
+    function isResponseFor(request, data) {
         if ('result' in data) {
-            return data.featureName === request.featureName &&
-                data.context === request.context &&
-                data.id === request.id
+            return data.featureName === request.featureName && data.context === request.context && data.id === request.id;
         }
         if ('error' in data) {
             if ('message' in data.error) {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     }
 
     /**
@@ -2066,14 +2036,12 @@
      * @param {Record<string, any>} data
      * @return {data is SubscriptionEvent}
      */
-    function isSubscriptionEventFor (sub, data) {
+    function isSubscriptionEventFor(sub, data) {
         if ('subscriptionName' in data) {
-            return data.featureName === sub.featureName &&
-                data.context === sub.context &&
-                data.subscriptionName === sub.subscriptionName
+            return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName;
         }
 
-        return false
+        return false;
     }
 
     /**
@@ -2137,7 +2105,7 @@
          * @param {WebkitMessagingConfig} config
          * @param {import('../index.js').MessagingContext} messagingContext
          */
-        constructor (config, messagingContext) {
+        constructor(config, messagingContext) {
             this.messagingContext = messagingContext;
             this.config = config;
             this.globals = captureGlobals();
@@ -2152,25 +2120,25 @@
          * @param {*} data
          * @internal
          */
-        wkSend (handler, data = {}) {
+        wkSend(handler, data = {}) {
             if (!(handler in this.globals.window.webkit.messageHandlers)) {
-                throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler)
+                throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
             }
             if (!this.config.hasModernWebkitAPI) {
                 const outgoing = {
                     ...data,
                     messageHandling: {
                         ...data.messageHandling,
-                        secret: this.config.secret
-                    }
+                        secret: this.config.secret,
+                    },
                 };
                 if (!(handler in this.globals.capturedWebkitHandlers)) {
-                    throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler)
+                    throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
                 } else {
-                    return this.globals.capturedWebkitHandlers[handler](outgoing)
+                    return this.globals.capturedWebkitHandlers[handler](outgoing);
                 }
             }
-            return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data)
+            return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data);
         }
 
         /**
@@ -2180,10 +2148,10 @@
          * @returns {Promise<*>}
          * @internal
          */
-        async wkSendAndWait (handler, data) {
+        async wkSendAndWait(handler, data) {
             if (this.config.hasModernWebkitAPI) {
                 const response = await this.wkSend(handler, data);
-                return this.globals.JSONparse(response || '{}')
+                return this.globals.JSONparse(response || '{}');
             }
 
             try {
@@ -2191,10 +2159,7 @@
                 const key = await this.createRandKey();
                 const iv = this.createRandIv();
 
-                const {
-                    ciphertext,
-                    tag
-                } = await new this.globals.Promise((/** @type {any} */ resolve) => {
+                const { ciphertext, tag } = await new this.globals.Promise((/** @type {any} */ resolve) => {
                     this.generateRandomMethod(randMethodName, resolve);
 
                     // @ts-expect-error - this is a carve-out for catalina that will be removed soon
@@ -2202,22 +2167,22 @@
                         methodName: randMethodName,
                         secret: this.config.secret,
                         key: this.globals.Arrayfrom(key),
-                        iv: this.globals.Arrayfrom(iv)
+                        iv: this.globals.Arrayfrom(iv),
                     });
                     this.wkSend(handler, data);
                 });
 
                 const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
                 const decrypted = await this.decrypt(cipher, key, iv);
-                return this.globals.JSONparse(decrypted || '{}')
+                return this.globals.JSONparse(decrypted || '{}');
             } catch (e) {
                 // re-throw when the error is just a 'MissingHandler'
                 if (e instanceof MissingHandler) {
-                    throw e
+                    throw e;
                 } else {
                     console.error('decryption failed', e);
                     console.error(e);
-                    return { error: e }
+                    return { error: e };
                 }
             }
         }
@@ -2225,27 +2190,27 @@
         /**
          * @param {import('../index.js').NotificationMessage} msg
          */
-        notify (msg) {
+        notify(msg) {
             this.wkSend(msg.context, msg);
         }
 
         /**
          * @param {import('../index.js').RequestMessage} msg
          */
-        async request (msg) {
+        async request(msg) {
             const data = await this.wkSendAndWait(msg.context, msg);
 
             if (isResponseFor(msg, data)) {
                 if (data.result) {
-                    return data.result || {}
+                    return data.result || {};
                 }
                 // forward the error if one was given explicity
                 if (data.error) {
-                    throw new Error(data.error.message)
+                    throw new Error(data.error.message);
                 }
             }
 
-            throw new Error('an unknown error occurred')
+            throw new Error('an unknown error occurred');
         }
 
         /**
@@ -2255,7 +2220,7 @@
          * @param {Function} callback
          * @internal
          */
-        generateRandomMethod (randomMethodName, callback) {
+        generateRandomMethod(randomMethodName, callback) {
             this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
                 enumerable: false,
                 // configurable, To allow for deletion later
@@ -2265,10 +2230,9 @@
                  * @param {any[]} args
                  */
                 value: (...args) => {
-                     
                     callback(...args);
                     delete this.globals.window[randomMethodName];
-                }
+                },
             });
         }
 
@@ -2276,16 +2240,16 @@
          * @internal
          * @return {string}
          */
-        randomString () {
-            return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0]
+        randomString() {
+            return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
         }
 
         /**
          * @internal
          * @return {string}
          */
-        createRandMethodName () {
-            return '_' + this.randomString()
+        createRandMethodName() {
+            return '_' + this.randomString();
         }
 
         /**
@@ -2294,25 +2258,25 @@
          */
         algoObj = {
             name: 'AES-GCM',
-            length: 256
-        }
+            length: 256,
+        };
 
         /**
          * @returns {Promise<Uint8Array>}
          * @internal
          */
-        async createRandKey () {
+        async createRandKey() {
             const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
             const exportedKey = await this.globals.exportKey('raw', key);
-            return new this.globals.Uint8Array(exportedKey)
+            return new this.globals.Uint8Array(exportedKey);
         }
 
         /**
          * @returns {Uint8Array}
          * @internal
          */
-        createRandIv () {
-            return this.globals.getRandomValues(new this.globals.Uint8Array(12))
+        createRandIv() {
+            return this.globals.getRandomValues(new this.globals.Uint8Array(12));
         }
 
         /**
@@ -2322,17 +2286,17 @@
          * @returns {Promise<string>}
          * @internal
          */
-        async decrypt (ciphertext, key, iv) {
+        async decrypt(ciphertext, key, iv) {
             const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt']);
             const algo = {
                 name: 'AES-GCM',
-                iv
+                iv,
             };
 
             const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
 
             const dec = new this.globals.TextDecoder();
-            return dec.decode(decrypted)
+            return dec.decode(decrypted);
         }
 
         /**
@@ -2341,9 +2305,9 @@
          *
          * @param {string[]} handlerNames
          */
-        captureWebkitHandlers (handlerNames) {
+        captureWebkitHandlers(handlerNames) {
             const handlers = window.webkit.messageHandlers;
-            if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all')
+            if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all');
             for (const webkitMessageHandlerName of handlerNames) {
                 if (typeof handlers[webkitMessageHandlerName]?.postMessage === 'function') {
                     /**
@@ -2362,10 +2326,10 @@
          * @param {import('../index.js').Subscription} msg
          * @param {(value: unknown) => void} callback
          */
-        subscribe (msg, callback) {
+        subscribe(msg, callback) {
             // for now, bail if there's already a handler setup for this subscription
             if (msg.subscriptionName in this.globals.window) {
-                throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`)
+                throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
             }
             this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
                 enumerable: false,
@@ -2377,11 +2341,11 @@
                     } else {
                         console.warn('Received a message that did not match the subscription', data);
                     }
-                }
+                },
             });
             return () => {
                 this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
-            }
+            };
         }
     }
 
@@ -2402,7 +2366,7 @@
          * @param {string} params.secret
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * Whether or not the current WebKit Platform supports secure messaging
              * by default (eg: macOS 11+)
@@ -2444,7 +2408,7 @@
          * @param {number[]} params.key
          * @param {number[]} params.iv
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * The method that's been appended to `window` to be called later
              */
@@ -2468,7 +2432,7 @@
      * Capture some globals used for messaging handling to prevent page
      * scripts from tampering with this
      */
-    function captureGlobals () {
+    function captureGlobals() {
         // Create base with null prototype
         const globals = {
             window,
@@ -2487,7 +2451,7 @@
             ObjectDefineProperty: window.Object.defineProperty,
             addEventListener: window.addEventListener.bind(window),
             /** @type {Record<string, any>} */
-            capturedWebkitHandlers: {}
+            capturedWebkitHandlers: {},
         };
         if (isSecureContext) {
             // skip for HTTP content since window.crypto.subtle is unavailable
@@ -2497,7 +2461,7 @@
             globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
             globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
         }
-        return globals
+        return globals;
     }
 
     /**
@@ -2529,7 +2493,7 @@
          * @param {MessagingContext} messagingContext
          * @internal
          */
-        constructor (config, messagingContext) {
+        constructor(config, messagingContext) {
             this.messagingContext = messagingContext;
             this.config = config;
         }
@@ -2537,7 +2501,7 @@
         /**
          * @param {NotificationMessage} msg
          */
-        notify (msg) {
+        notify(msg) {
             try {
                 this.config.sendMessageThrows?.(JSON.stringify(msg));
             } catch (e) {
@@ -2549,7 +2513,7 @@
          * @param {RequestMessage} msg
          * @return {Promise<any>}
          */
-        request (msg) {
+        request(msg) {
             return new Promise((resolve, reject) => {
                 // subscribe early
                 const unsub = this.config.subscribe(msg.id, handler);
@@ -2561,33 +2525,33 @@
                     reject(new Error('request failed to send: ' + e.message || 'unknown error'));
                 }
 
-                function handler (data) {
+                function handler(data) {
                     if (isResponseFor(msg, data)) {
                         // success case, forward .result only
                         if (data.result) {
                             resolve(data.result || {});
-                            return unsub()
+                            return unsub();
                         }
 
                         // error case, forward the error as a regular promise rejection
                         if (data.error) {
                             reject(new Error(data.error.message));
-                            return unsub()
+                            return unsub();
                         }
 
                         // getting here is undefined behavior
                         unsub();
-                        throw new Error('unreachable: must have `result` or `error` key by this point')
+                        throw new Error('unreachable: must have `result` or `error` key by this point');
                     }
                 }
-            })
+            });
         }
 
         /**
          * @param {Subscription} msg
          * @param {(value: unknown | undefined) => void} callback
          */
-        subscribe (msg, callback) {
+        subscribe(msg, callback) {
             const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
                 if (isSubscriptionEventFor(msg, data)) {
                     callback(data.params || {});
@@ -2595,7 +2559,7 @@
             });
             return () => {
                 unsub();
-            }
+            };
         }
     }
 
@@ -2674,7 +2638,7 @@
      */
     class AndroidMessagingConfig {
         /** @type {(json: string, secret: string) => void} */
-        _capturedHandler
+        _capturedHandler;
         /**
          * @param {object} params
          * @param {Record<string, any>} params.target
@@ -2686,7 +2650,7 @@
          * @param {string} params.messageCallback - the name of the callback that the native
          * side will use to send messages back to the javascript side
          */
-        constructor (params) {
+        constructor(params) {
             this.target = params.target;
             this.debug = params.debug;
             this.javascriptInterface = params.javascriptInterface;
@@ -2720,7 +2684,7 @@
          * @throws
          * @internal
          */
-        sendMessageThrows (json) {
+        sendMessageThrows(json) {
             this._capturedHandler(json, this.messageSecret);
         }
 
@@ -2737,11 +2701,11 @@
          * @returns {() => void}
          * @internal
          */
-        subscribe (id, callback) {
+        subscribe(id, callback) {
             this.listeners.set(id, callback);
             return () => {
                 this.listeners.delete(id);
-            }
+            };
         }
 
         /**
@@ -2753,10 +2717,10 @@
          * @param {MessageResponse | SubscriptionEvent} payload
          * @internal
          */
-        _dispatch (payload) {
+        _dispatch(payload) {
             // do nothing if the response is empty
             // this prevents the next `in` checks from throwing in test/debug scenarios
-            if (!payload) return this._log('no response')
+            if (!payload) return this._log('no response');
 
             // if the payload has an 'id' field, then it's a message response
             if ('id' in payload) {
@@ -2782,9 +2746,9 @@
          * @param {(...args: any[]) => any} fn
          * @param {string} [context]
          */
-        _tryCatch (fn, context = 'none') {
+        _tryCatch(fn, context = 'none') {
             try {
-                return fn()
+                return fn();
             } catch (e) {
                 if (this.debug) {
                     console.error('AndroidMessagingConfig error:', context);
@@ -2796,7 +2760,7 @@
         /**
          * @param {...any} args
          */
-        _log (...args) {
+        _log(...args) {
             if (this.debug) {
                 console.log('AndroidMessagingConfig', ...args);
             }
@@ -2805,7 +2769,7 @@
         /**
          * Capture the global handler and remove it from the global object.
          */
-        _captureGlobalHandler () {
+        _captureGlobalHandler() {
             const { target, javascriptInterface } = this;
 
             if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
@@ -2822,7 +2786,7 @@
          * Assign the incoming handler method to the global object.
          * This is the method that Android will call to deliver messages.
          */
-        _assignHandlerMethod () {
+        _assignHandlerMethod() {
             /**
              * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
              */
@@ -2833,7 +2797,7 @@
             };
 
             Object.defineProperty(this.target, this.messageCallback, {
-                value: responseHandler
+                value: responseHandler,
             });
         }
     }
@@ -2872,7 +2836,7 @@
          * @param {"production" | "development"} params.env
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             this.context = params.context;
             this.featureName = params.featureName;
             this.env = params.env;
@@ -2891,7 +2855,7 @@
          * @param {MessagingContext} messagingContext
          * @param {MessagingConfig} config
          */
-        constructor (messagingContext, config) {
+        constructor(messagingContext, config) {
             this.messagingContext = messagingContext;
             this.transport = getTransport(config, this.messagingContext);
         }
@@ -2909,12 +2873,12 @@
          * @param {string} name
          * @param {Record<string, any>} [data]
          */
-        notify (name, data = {}) {
+        notify(name, data = {}) {
             const message = new NotificationMessage({
                 context: this.messagingContext.context,
                 featureName: this.messagingContext.featureName,
                 method: name,
-                params: data
+                params: data,
             });
             this.transport.notify(message);
         }
@@ -2933,16 +2897,16 @@
          * @param {Record<string, any>} [data]
          * @return {Promise<any>}
          */
-        request (name, data = {}) {
+        request(name, data = {}) {
             const id = globalThis?.crypto?.randomUUID?.() || name + '.response';
             const message = new RequestMessage({
                 context: this.messagingContext.context,
                 featureName: this.messagingContext.featureName,
                 method: name,
                 params: data,
-                id
+                id,
             });
-            return this.transport.request(message)
+            return this.transport.request(message);
         }
 
         /**
@@ -2950,13 +2914,13 @@
          * @param {(value: unknown) => void} callback
          * @return {() => void}
          */
-        subscribe (name, callback) {
+        subscribe(name, callback) {
             const msg = new Subscription({
                 context: this.messagingContext.context,
                 featureName: this.messagingContext.featureName,
-                subscriptionName: name
+                subscriptionName: name,
             });
-            return this.transport.subscribe(msg, callback)
+            return this.transport.subscribe(msg, callback);
         }
     }
 
@@ -2970,7 +2934,7 @@
         /**
          * @param {MessagingTransport} impl
          */
-        constructor (impl) {
+        constructor(impl) {
             this.impl = impl;
         }
     }
@@ -2983,21 +2947,21 @@
          * @param {TestTransportConfig} config
          * @param {MessagingContext} messagingContext
          */
-        constructor (config, messagingContext) {
+        constructor(config, messagingContext) {
             this.config = config;
             this.messagingContext = messagingContext;
         }
 
-        notify (msg) {
-            return this.config.impl.notify(msg)
+        notify(msg) {
+            return this.config.impl.notify(msg);
         }
 
-        request (msg) {
-            return this.config.impl.request(msg)
+        request(msg) {
+            return this.config.impl.request(msg);
         }
 
-        subscribe (msg, callback) {
-            return this.config.impl.subscribe(msg, callback)
+        subscribe(msg, callback) {
+            return this.config.impl.subscribe(msg, callback);
         }
     }
 
@@ -3006,20 +2970,20 @@
      * @param {MessagingContext} messagingContext
      * @returns {MessagingTransport}
      */
-    function getTransport (config, messagingContext) {
+    function getTransport(config, messagingContext) {
         if (config instanceof WebkitMessagingConfig) {
-            return new WebkitMessagingTransport(config, messagingContext)
+            return new WebkitMessagingTransport(config, messagingContext);
         }
         if (config instanceof WindowsMessagingConfig) {
-            return new WindowsMessagingTransport(config, messagingContext)
+            return new WindowsMessagingTransport(config, messagingContext);
         }
         if (config instanceof AndroidMessagingConfig) {
-            return new AndroidMessagingTransport(config, messagingContext)
+            return new AndroidMessagingTransport(config, messagingContext);
         }
         if (config instanceof TestTransportConfig) {
-            return new TestTransport(config, messagingContext)
+            return new TestTransport(config, messagingContext);
         }
-        throw new Error('unreachable')
+        throw new Error('unreachable');
     }
 
     /**
@@ -3030,7 +2994,7 @@
          * @param {string} message
          * @param {string} handlerName
          */
-        constructor (message, handlerName) {
+        constructor(message, handlerName) {
             super(message);
             this.handlerName = handlerName;
         }
@@ -3044,9 +3008,9 @@
     /**
      * @deprecated - A temporary constructor for the extension to make the messaging config
      */
-    function extensionConstructMessagingConfig () {
+    function extensionConstructMessagingConfig() {
         const messagingTransport = new SendMessageMessagingTransport();
-        return new TestTransportConfig(messagingTransport)
+        return new TestTransportConfig(messagingTransport);
     }
 
     /**
@@ -3062,9 +3026,9 @@
          * Queue of callbacks to be called with messages sent from the Platform.
          * This is used to connect requests with responses and to trigger subscriptions callbacks.
          */
-        _queue = new Set()
+        _queue = new Set();
 
-        constructor () {
+        constructor() {
             this.globals = {
                 window: globalThis,
                 globalThis,
@@ -3072,7 +3036,7 @@
                 JSONstringify: globalThis.JSON.stringify,
                 Promise: globalThis.Promise,
                 Error: globalThis.Error,
-                String: globalThis.String
+                String: globalThis.String,
             };
         }
 
@@ -3081,14 +3045,14 @@
          * with callback functions in the _queue.
          * @param {any} response
          */
-        onResponse (response) {
+        onResponse(response) {
             this._queue.forEach((subscription) => subscription(response));
         }
 
         /**
          * @param {import('@duckduckgo/messaging').NotificationMessage} msg
          */
-        notify (msg) {
+        notify(msg) {
             let params = msg.params;
 
             // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
@@ -3109,9 +3073,9 @@
          * @param {import('@duckduckgo/messaging').RequestMessage} req
          * @return {Promise<any>}
          */
-        request (req) {
+        request(req) {
             let comparator = (eventData) => {
-                return eventData.responseMessageType === req.method
+                return eventData.responseMessageType === req.method;
             };
             let params = req.params;
 
@@ -3124,7 +3088,7 @@
                         eventData.responseMessageType === req.method &&
                         eventData.response &&
                         eventData.response.videoURL === req.params?.videoURL
-                    )
+                    );
                 };
                 params = req.params?.videoURL;
             }
@@ -3135,29 +3099,26 @@
                 this._subscribe(comparator, (msgRes, unsubscribe) => {
                     unsubscribe();
 
-                    return resolve(msgRes.response)
+                    return resolve(msgRes.response);
                 });
-            })
+            });
         }
 
         /**
          * @param {import('@duckduckgo/messaging').Subscription} msg
          * @param {(value: unknown | undefined) => void} callback
          */
-        subscribe (msg, callback) {
+        subscribe(msg, callback) {
             const comparator = (eventData) => {
-                return (
-                    eventData.messageType === msg.subscriptionName ||
-                    eventData.responseMessageType === msg.subscriptionName
-                )
+                return eventData.messageType === msg.subscriptionName || eventData.responseMessageType === msg.subscriptionName;
             };
 
             // only forward the 'params' ('response' in current format), to match expected
             // callback from a SubscriptionEvent
             const cb = (eventData) => {
-                return callback(eventData.response)
+                return callback(eventData.response);
             };
-            return this._subscribe(comparator, cb)
+            return this._subscribe(comparator, cb);
         }
 
         /**
@@ -3165,7 +3126,7 @@
          * @param {(value: any, unsubscribe: (()=>void)) => void} callback
          * @internal
          */
-        _subscribe (comparator, callback) {
+        _subscribe(comparator, callback) {
             /** @type {(()=>void) | undefined} */
             // eslint-disable-next-line prefer-const
             let teardown;
@@ -3176,10 +3137,10 @@
             const idHandler = (event) => {
                 if (!event) {
                     console.warn('no message available');
-                    return
+                    return;
                 }
                 if (comparator(event)) {
-                    if (!teardown) throw new this.globals.Error('unreachable')
+                    if (!teardown) throw new this.globals.Error('unreachable');
                     callback(event, teardown);
                 }
             };
@@ -3191,7 +3152,7 @@
 
             return () => {
                 teardown?.();
-            }
+            };
         }
     }
 
@@ -3211,93 +3172,93 @@
 
     class ContentFeature {
         /** @type {import('./utils.js').RemoteConfig | undefined} */
-        #bundledConfig
+        #bundledConfig;
         /** @type {object | undefined} */
-        #trackerLookup
+        #trackerLookup;
         /** @type {boolean | undefined} */
-        #documentOriginIsTracker
+        #documentOriginIsTracker;
         /** @type {Record<string, unknown> | undefined} */
         // eslint-disable-next-line no-unused-private-class-members
-        #bundledfeatureSettings
+        #bundledfeatureSettings;
         /** @type {import('../../messaging').Messaging} */
         // eslint-disable-next-line no-unused-private-class-members
-        #messaging
+        #messaging;
         /** @type {boolean} */
-        #isDebugFlagSet = false
+        #isDebugFlagSet = false;
 
         /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
-        #args
+        #args;
 
-        constructor (featureName) {
+        constructor(featureName) {
             this.name = featureName;
             this.#args = null;
             this.monitor = new PerformanceMonitor();
         }
 
-        get isDebug () {
-            return this.#args?.debug || false
+        get isDebug() {
+            return this.#args?.debug || false;
         }
 
-        get desktopModeEnabled () {
-            return this.#args?.desktopModeEnabled || false
+        get desktopModeEnabled() {
+            return this.#args?.desktopModeEnabled || false;
         }
 
-        get forcedZoomEnabled () {
-            return this.#args?.forcedZoomEnabled || false
+        get forcedZoomEnabled() {
+            return this.#args?.forcedZoomEnabled || false;
         }
 
         /**
          * @param {import('./utils').Platform} platform
          */
-        set platform (platform) {
+        set platform(platform) {
             this._platform = platform;
         }
 
-        get platform () {
+        get platform() {
             // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'
-            return this._platform
+            return this._platform;
         }
 
         /**
          * @type {AssetConfig | undefined}
          */
-        get assetConfig () {
-            return this.#args?.assets
+        get assetConfig() {
+            return this.#args?.assets;
         }
 
         /**
          * @returns {boolean}
          */
-        get documentOriginIsTracker () {
-            return !!this.#documentOriginIsTracker
+        get documentOriginIsTracker() {
+            return !!this.#documentOriginIsTracker;
         }
 
         /**
          * @returns {object}
          **/
-        get trackerLookup () {
-            return this.#trackerLookup || {}
+        get trackerLookup() {
+            return this.#trackerLookup || {};
         }
 
         /**
          * @returns {import('./utils.js').RemoteConfig | undefined}
          **/
-        get bundledConfig () {
-            return this.#bundledConfig
+        get bundledConfig() {
+            return this.#bundledConfig;
         }
 
         /**
          * @deprecated as we should make this internal to the class and not used externally
          * @return {MessagingContext}
          */
-        _createMessagingContext () {
+        _createMessagingContext() {
             const contextName = 'contentScopeScripts';
 
             return new MessagingContext({
                 context: contextName,
                 env: this.isDebug ? 'development' : 'production',
-                featureName: this.name
-            })
+                featureName: this.name,
+            });
         }
 
         /**
@@ -3305,16 +3266,16 @@
          *
          * @return {import('@duckduckgo/messaging').Messaging}
          */
-        get messaging () {
-            if (this._messaging) return this._messaging
+        get messaging() {
+            if (this._messaging) return this._messaging;
             const messagingContext = this._createMessagingContext();
             let messagingConfig = this.#args?.messagingConfig;
             if (!messagingConfig) {
-                if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
+                if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in');
                 messagingConfig = extensionConstructMessagingConfig();
             }
             this._messaging = new Messaging(messagingContext, messagingConfig);
-            return this._messaging
+            return this._messaging;
         }
 
         /**
@@ -3326,9 +3287,9 @@
          * @param {any} defaultValue - The default value to use if the config setting is not set
          * @returns The value of the config setting or the default value
          */
-        getFeatureAttr (attrName, defaultValue) {
+        getFeatureAttr(attrName, defaultValue) {
             const configSetting = this.getFeatureSetting(attrName);
-            return processAttr(configSetting, defaultValue)
+            return processAttr(configSetting, defaultValue);
         }
 
         /**
@@ -3337,17 +3298,17 @@
          * @param {string} [featureName]
          * @returns {any}
          */
-        getFeatureSetting (featureKeyName, featureName) {
+        getFeatureSetting(featureKeyName, featureName) {
             let result = this._getFeatureSettings(featureName);
             if (featureKeyName === 'domains') {
-                throw new Error('domains is a reserved feature setting key name')
+                throw new Error('domains is a reserved feature setting key name');
             }
             const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {
-                return a.domain.length - b.domain.length
+                return a.domain.length - b.domain.length;
             });
             for (const match of domainMatch) {
                 if (match.patchSettings === undefined) {
-                    continue
+                    continue;
                 }
                 try {
                     result = immutableJSONPatch(result, match.patchSettings);
@@ -3355,7 +3316,7 @@
                     console.error('Error applying patch settings', e);
                 }
             }
-            return result?.[featureKeyName]
+            return result?.[featureKeyName];
         }
 
         /**
@@ -3363,9 +3324,9 @@
          * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
          * @returns {any}
          */
-        _getFeatureSettings (featureName) {
+        _getFeatureSettings(featureName) {
             const camelFeatureName = featureName || camelcase(this.name);
-            return this.#args?.featureSettings?.[camelFeatureName]
+            return this.#args?.featureSettings?.[camelFeatureName];
         }
 
         /**
@@ -3375,12 +3336,12 @@
          * @param {string} [featureName]
          * @returns {boolean}
          */
-        getFeatureSettingEnabled (featureKeyName, featureName) {
+        getFeatureSettingEnabled(featureKeyName, featureName) {
             const result = this.getFeatureSetting(featureKeyName, featureName);
             if (typeof result === 'object') {
-                return result.state === 'enabled'
+                return result.state === 'enabled';
             }
-            return result === 'enabled'
+            return result === 'enabled';
         }
 
         /**
@@ -3388,25 +3349,23 @@
          * @param {string} featureKeyName
          * @return {any[]}
          */
-        matchDomainFeatureSetting (featureKeyName) {
+        matchDomainFeatureSetting(featureKeyName) {
             const domain = this.#args?.site.domain;
-            if (!domain) return []
+            if (!domain) return [];
             const domains = this._getFeatureSettings()?.[featureKeyName] || [];
             return domains.filter((rule) => {
                 if (Array.isArray(rule.domain)) {
                     return rule.domain.some((domainRule) => {
-                        return matchHostname(domain, domainRule)
-                    })
+                        return matchHostname(domain, domainRule);
+                    });
                 }
-                return matchHostname(domain, rule.domain)
-            })
+                return matchHostname(domain, rule.domain);
+            });
         }
 
-         
-        init (args) {
-        }
+        init(args) {}
 
-        callInit (args) {
+        callInit(args) {
             const mark = this.monitor.mark(this.name + 'CallInit');
             this.#args = args;
             this.platform = args.platform;
@@ -3415,9 +3374,7 @@
             this.measure();
         }
 
-         
-        load (args) {
-        }
+        load(args) {}
 
         /**
          * This is a wrapper around `this.messaging.notify` that applies the
@@ -3427,7 +3384,7 @@
          *
          * @type {import("@duckduckgo/messaging").Messaging['notify']}
          */
-        notify (...args) {
+        notify(...args) {
             const [name, params] = args;
             this.messaging.notify(name, params);
         }
@@ -3440,9 +3397,9 @@
          *
          * @type {import("@duckduckgo/messaging").Messaging['request']}
          */
-        request (...args) {
+        request(...args) {
             const [name, params] = args;
-            return this.messaging.request(name, params)
+            return this.messaging.request(name, params);
         }
 
         /**
@@ -3453,15 +3410,15 @@
          *
          * @type {import("@duckduckgo/messaging").Messaging['subscribe']}
          */
-        subscribe (...args) {
+        subscribe(...args) {
             const [name, cb] = args;
-            return this.messaging.subscribe(name, cb)
+            return this.messaging.subscribe(name, cb);
         }
 
         /**
          * @param {import('./content-scope-features.js').LoadArgs} args
          */
-        callLoad (args) {
+        callLoad(args) {
             const mark = this.monitor.mark(this.name + 'CallLoad');
             this.#args = args;
             this.platform = args.platform;
@@ -3478,24 +3435,22 @@
             mark.end();
         }
 
-        measure () {
+        measure() {
             if (this.#args?.debug) {
                 this.monitor.measureAll();
             }
         }
 
-         
-        update () {
-        }
+        update() {}
 
         /**
          * Register a flag that will be added to page breakage reports
          */
-        addDebugFlag () {
-            if (this.#isDebugFlagSet) return
+        addDebugFlag() {
+            if (this.#isDebugFlagSet) return;
             this.#isDebugFlagSet = true;
             this.messaging?.notify('addDebugFlag', {
-                flag: this.name
+                flag: this.name,
             });
         }
 
@@ -3506,7 +3461,7 @@
          * @param {string} propertyName
          * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
          */
-        defineProperty (object, propertyName, descriptor) {
+        defineProperty(object, propertyName, descriptor) {
             // make sure to send a debug flag when the property is used
             // NOTE: properties passing data in `value` would not be caught by this
             ['value', 'get', 'set'].forEach((k) => {
@@ -3514,16 +3469,16 @@
                 if (typeof descriptorProp === 'function') {
                     const addDebugFlag = this.addDebugFlag.bind(this);
                     const wrapper = new Proxy$1(descriptorProp, {
-                        apply (target, thisArg, argumentsList) {
+                        apply(target, thisArg, argumentsList) {
                             addDebugFlag();
-                            return Reflect$1.apply(descriptorProp, thisArg, argumentsList)
-                        }
+                            return Reflect$1.apply(descriptorProp, thisArg, argumentsList);
+                        },
                     });
                     descriptor[k] = wrapToString(wrapper, descriptorProp);
                 }
             });
 
-            return defineProperty(object, propertyName, descriptor)
+            return defineProperty(object, propertyName, descriptor);
         }
 
         /**
@@ -3533,8 +3488,8 @@
          * @param {Partial<PropertyDescriptor>} descriptor
          * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
          */
-        wrapProperty (object, propertyName, descriptor) {
-            return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this))
+        wrapProperty(object, propertyName, descriptor) {
+            return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this));
         }
 
         /**
@@ -3544,8 +3499,8 @@
          * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
          * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
          */
-        wrapMethod (object, propertyName, wrapperFn) {
-            return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this))
+        wrapMethod(object, propertyName, wrapperFn) {
+            return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this));
         }
 
         /**
@@ -3554,12 +3509,8 @@
          * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
          * @param {import('./wrapper-utils').DefineInterfaceOptions} options
          */
-        shimInterface (
-            interfaceName,
-            ImplClass,
-            options
-        ) {
-            return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this))
+        shimInterface(interfaceName, ImplClass, options) {
+            return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this));
         }
 
         /**
@@ -3573,8 +3524,8 @@
          * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
          * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
          */
-        shimProperty (instanceHost, instanceProp, implInstance, readOnly = false) {
-            return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this))
+        shimProperty(instanceHost, instanceProp, implInstance, readOnly = false) {
+            return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this));
         }
     }
 
@@ -3583,19 +3534,19 @@
      * @param {object} trackerLookup Trie lookup of tracker domains
      * @returns {boolean} True iff the origin is a tracker.
      */
-    function isTrackerOrigin (trackerLookup, originHostname = document.location.hostname) {
+    function isTrackerOrigin(trackerLookup, originHostname = document.location.hostname) {
         const parts = originHostname.split('.').reverse();
         let node = trackerLookup;
         for (const sub of parts) {
             if (node[sub] === 1) {
-                return true
+                return true;
             } else if (node[sub]) {
                 node = node[sub];
             } else {
-                return false
+                return false;
             }
         }
-        return false
+        return false;
     }
 
     /**
@@ -3606,9 +3557,9 @@
      * @property {boolean} isThirdPartyFrame
      */
 
-    function initialShouldBlockTrackerCookie () {
+    function initialShouldBlockTrackerCookie() {
         const injectName = "firefox";
-        return injectName === 'firefox'
+        return injectName === 'firefox';
     }
 
     // Initial cookie policy pre init
@@ -3622,13 +3573,13 @@
         isThirdPartyFrame: isThirdPartyFrame(),
         policy: {
             threshold: 604800, // 7 days
-            maxAge: 604800 // 7 days
+            maxAge: 604800, // 7 days
         },
         trackerPolicy: {
             threshold: 86400, // 1 day
-            maxAge: 86400 // 1 day
+            maxAge: 86400, // 1 day
         },
-        allowlist: /** @type {{ host: string }[]} */([])
+        allowlist: /** @type {{ host: string }[]} */ ([]),
     };
     let trackerLookup = {};
 
@@ -3639,58 +3590,59 @@
      * @param {string} reason
      * @param {any} ctx
      */
-    function debugHelper (action, reason, ctx) {
+    function debugHelper(action, reason, ctx) {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        cookiePolicy.debug && postDebugMessage('jscookie', {
-            action,
-            reason,
-            stack: ctx.stack,
-            documentUrl: globalThis.document.location.href,
-            value: ctx.value
-        });
+        cookiePolicy.debug &&
+            postDebugMessage('jscookie', {
+                action,
+                reason,
+                stack: ctx.stack,
+                documentUrl: globalThis.document.location.href,
+                value: ctx.value,
+            });
     }
 
     /**
      * @returns {boolean}
      */
-    function shouldBlockTrackingCookie () {
-        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
+    function shouldBlockTrackingCookie() {
+        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie();
     }
 
-    function shouldBlockNonTrackingCookie () {
-        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
+    function shouldBlockNonTrackingCookie() {
+        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie();
     }
 
     /**
      * @param {Set<string>} scriptOrigins
      * @returns {boolean}
      */
-    function isFirstPartyTrackerScript (scriptOrigins) {
+    function isFirstPartyTrackerScript(scriptOrigins) {
         let matched = false;
         for (const scriptOrigin of scriptOrigins) {
             if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
-                return false
+                return false;
             }
             if (isTrackerOrigin(trackerLookup, scriptOrigin)) {
                 matched = true;
             }
         }
-        return matched
+        return matched;
     }
 
     /**
      * @returns {boolean}
      */
-    function isTrackingCookie () {
-        return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
+    function isTrackingCookie() {
+        return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame;
     }
 
-    function isNonTrackingCookie () {
-        return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
+    function isNonTrackingCookie() {
+        return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame;
     }
 
     class CookieFeature extends ContentFeature {
-        load () {
+        load() {
             if (this.documentOriginIsTracker) {
                 cookiePolicy.isTracker = true;
             }
@@ -3705,11 +3657,11 @@
 
                 if (tabHostname != null) {
                     tabExempted = exceptions.some((exception) => {
-                        return matchHostname(tabHostname, exception.domain)
+                        return matchHostname(tabHostname, exception.domain);
                     });
                 }
                 const frameExempted = settings.excludedCookieDomains.some((exception) => {
-                    return matchHostname(globalThis.location.hostname, exception.domain)
+                    return matchHostname(globalThis.location.hostname, exception.domain);
                 });
                 cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
                 cookiePolicy.policy = settings.firstPartyCookiePolicy;
@@ -3734,47 +3686,47 @@
             // this call.
             const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
 
-            function getCookiePolicy () {
+            function getCookiePolicy() {
                 let getCookieContext = null;
                 if (cookiePolicy.debug) {
                     const stack = getStack();
                     getCookieContext = {
                         stack,
-                        value: 'getter'
+                        value: 'getter',
                     };
                 }
 
                 if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
                     debugHelper('block', '3p frame', getCookieContext);
-                    return ''
+                    return '';
                 } else if (isTrackingCookie() || isNonTrackingCookie()) {
                     debugHelper('ignore', '3p frame', getCookieContext);
                 }
                 // @ts-expect-error - error TS18048: 'cookieGetter' is possibly 'undefined'.
-                return cookieGetter.call(this)
+                return cookieGetter.call(this);
             }
 
             /**
              * @param {any} argValue
              */
-            function setCookiePolicy (argValue) {
+            function setCookiePolicy(argValue) {
                 let setCookieContext = null;
                 if (!argValue?.toString || typeof argValue.toString() !== 'string') {
                     // not a string, or string-like
-                    return
+                    return;
                 }
                 const value = argValue.toString();
                 if (cookiePolicy.debug) {
                     const stack = getStack();
                     setCookieContext = {
                         stack,
-                        value
+                        value,
                     };
                 }
 
                 if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
                     debugHelper('block', '3p frame', setCookieContext);
-                    return
+                    return;
                 } else if (isTrackingCookie() || isNonTrackingCookie()) {
                     debugHelper('ignore', '3p frame', setCookieContext);
                 }
@@ -3793,14 +3745,14 @@
                         const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
                         if (!shouldBlock) {
                             debugHelper('ignore', 'disabled', setCookieContext);
-                            return
+                            return;
                         }
                         // extract cookie expiry from cookie string
                         const cookie = new Cookie(value);
                         // apply cookie policy
                         if (cookie.getExpiry() > chosenPolicy.threshold) {
                             // check if the cookie still exists
-                            if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+                            if (document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
                                 cookie.maxAge = chosenPolicy.maxAge;
 
                                 debugHelper('restrict', 'expiry', setCookieContext);
@@ -3823,29 +3775,29 @@
 
             this.wrapProperty(globalThis.Document.prototype, 'cookie', {
                 set: setCookiePolicy,
-                get: getCookiePolicy
+                get: getCookiePolicy,
             });
         }
 
-        init (args) {
+        init(args) {
             const restOfPolicy = {
                 debug: this.isDebug,
                 shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
                 shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
                 allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
                 policy: this.getFeatureSetting('firstPartyCookiePolicy'),
-                trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy')
+                trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy'),
             };
             // The extension provides some additional info about the cookie policy, let's use that over our guesses
             if (args.cookie) {
-                const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */(args.cookie);
+                const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */ (args.cookie);
                 cookiePolicy = {
                     ...extensionCookiePolicy,
-                    ...restOfPolicy
+                    ...restOfPolicy,
                 };
             } else {
                 // copy non-null entries from restOfPolicy to cookiePolicy
-                Object.keys(restOfPolicy).forEach(key => {
+                Object.keys(restOfPolicy).forEach((key) => {
                     if (restOfPolicy[key]) {
                         cookiePolicy[key] = restOfPolicy[key];
                     }
@@ -3857,508 +3809,545 @@
     }
 
     // @ts-nocheck
-        const sjcl = (() => {
-    /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
-    /*global document, window, escape, unescape, module, require, Uint32Array */
-
-    /**
-     * The Stanford Javascript Crypto Library, top-level namespace.
-     * @namespace
-     */
-    var sjcl = {
-      /**
-       * Symmetric ciphers.
-       * @namespace
-       */
-      cipher: {},
-
-      /**
-       * Hash functions.  Right now only SHA256 is implemented.
-       * @namespace
-       */
-      hash: {},
-
-      /**
-       * Key exchange functions.  Right now only SRP is implemented.
-       * @namespace
-       */
-      keyexchange: {},
-      
-      /**
-       * Cipher modes of operation.
-       * @namespace
-       */
-      mode: {},
-
-      /**
-       * Miscellaneous.  HMAC and PBKDF2.
-       * @namespace
-       */
-      misc: {},
-      
-      /**
-       * Bit array encoders and decoders.
-       * @namespace
-       *
-       * @description
-       * The members of this namespace are functions which translate between
-       * SJCL's bitArrays and other objects (usually strings).  Because it
-       * isn't always clear which direction is encoding and which is decoding,
-       * the method names are "fromBits" and "toBits".
-       */
-      codec: {},
-      
-      /**
-       * Exceptions.
-       * @namespace
-       */
-      exception: {
-        /**
-         * Ciphertext is corrupt.
-         * @constructor
-         */
-        corrupt: function(message) {
-          this.toString = function() { return "CORRUPT: "+this.message; };
-          this.message = message;
-        },
-        
-        /**
-         * Invalid parameter.
-         * @constructor
-         */
-        invalid: function(message) {
-          this.toString = function() { return "INVALID: "+this.message; };
-          this.message = message;
-        },
-        
-        /**
-         * Bug or missing feature in SJCL.
-         * @constructor
-         */
-        bug: function(message) {
-          this.toString = function() { return "BUG: "+this.message; };
-          this.message = message;
-        },
+    const sjcl = (() => {
+        /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
+        /*global document, window, escape, unescape, module, require, Uint32Array */
 
         /**
-         * Something isn't ready.
+         * The Stanford Javascript Crypto Library, top-level namespace.
+         * @namespace
+         */
+        var sjcl = {
+            /**
+             * Symmetric ciphers.
+             * @namespace
+             */
+            cipher: {},
+
+            /**
+             * Hash functions.  Right now only SHA256 is implemented.
+             * @namespace
+             */
+            hash: {},
+
+            /**
+             * Key exchange functions.  Right now only SRP is implemented.
+             * @namespace
+             */
+            keyexchange: {},
+
+            /**
+             * Cipher modes of operation.
+             * @namespace
+             */
+            mode: {},
+
+            /**
+             * Miscellaneous.  HMAC and PBKDF2.
+             * @namespace
+             */
+            misc: {},
+
+            /**
+             * Bit array encoders and decoders.
+             * @namespace
+             *
+             * @description
+             * The members of this namespace are functions which translate between
+             * SJCL's bitArrays and other objects (usually strings).  Because it
+             * isn't always clear which direction is encoding and which is decoding,
+             * the method names are "fromBits" and "toBits".
+             */
+            codec: {},
+
+            /**
+             * Exceptions.
+             * @namespace
+             */
+            exception: {
+                /**
+                 * Ciphertext is corrupt.
+                 * @constructor
+                 */
+                corrupt: function (message) {
+                    this.toString = function () {
+                        return 'CORRUPT: ' + this.message;
+                    };
+                    this.message = message;
+                },
+
+                /**
+                 * Invalid parameter.
+                 * @constructor
+                 */
+                invalid: function (message) {
+                    this.toString = function () {
+                        return 'INVALID: ' + this.message;
+                    };
+                    this.message = message;
+                },
+
+                /**
+                 * Bug or missing feature in SJCL.
+                 * @constructor
+                 */
+                bug: function (message) {
+                    this.toString = function () {
+                        return 'BUG: ' + this.message;
+                    };
+                    this.message = message;
+                },
+
+                /**
+                 * Something isn't ready.
+                 * @constructor
+                 */
+                notReady: function (message) {
+                    this.toString = function () {
+                        return 'NOT READY: ' + this.message;
+                    };
+                    this.message = message;
+                },
+            },
+        };
+        /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * Arrays of bits, encoded as arrays of Numbers.
+         * @namespace
+         * @description
+         * <p>
+         * These objects are the currency accepted by SJCL's crypto functions.
+         * </p>
+         *
+         * <p>
+         * Most of our crypto primitives operate on arrays of 4-byte words internally,
+         * but many of them can take arguments that are not a multiple of 4 bytes.
+         * This library encodes arrays of bits (whose size need not be a multiple of 8
+         * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
+         * array of words, 32 bits at a time.  Since the words are double-precision
+         * floating point numbers, they fit some extra data.  We use this (in a private,
+         * possibly-changing manner) to encode the number of bits actually  present
+         * in the last word of the array.
+         * </p>
+         *
+         * <p>
+         * Because bitwise ops clear this out-of-band data, these arrays can be passed
+         * to ciphers like AES which want arrays of words.
+         * </p>
+         */
+        sjcl.bitArray = {
+            /**
+             * Array slices in units of bits.
+             * @param {bitArray} a The array to slice.
+             * @param {Number} bstart The offset to the start of the slice, in bits.
+             * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
+             * slice until the end of the array.
+             * @return {bitArray} The requested slice.
+             */
+            bitSlice: function (a, bstart, bend) {
+                a = sjcl.bitArray._shiftRight(a.slice(bstart / 32), 32 - (bstart & 31)).slice(1);
+                return bend === undefined ? a : sjcl.bitArray.clamp(a, bend - bstart);
+            },
+
+            /**
+             * Extract a number packed into a bit array.
+             * @param {bitArray} a The array to slice.
+             * @param {Number} bstart The offset to the start of the slice, in bits.
+             * @param {Number} blength The length of the number to extract.
+             * @return {Number} The requested slice.
+             */
+            extract: function (a, bstart, blength) {
+                // FIXME: this Math.floor is not necessary at all, but for some reason
+                // seems to suppress a bug in the Chromium JIT.
+                var x,
+                    sh = Math.floor((-bstart - blength) & 31);
+                if (((bstart + blength - 1) ^ bstart) & -32) {
+                    // it crosses a boundary
+                    x = (a[(bstart / 32) | 0] << (32 - sh)) ^ (a[(bstart / 32 + 1) | 0] >>> sh);
+                } else {
+                    // within a single word
+                    x = a[(bstart / 32) | 0] >>> sh;
+                }
+                return x & ((1 << blength) - 1);
+            },
+
+            /**
+             * Concatenate two bit arrays.
+             * @param {bitArray} a1 The first array.
+             * @param {bitArray} a2 The second array.
+             * @return {bitArray} The concatenation of a1 and a2.
+             */
+            concat: function (a1, a2) {
+                if (a1.length === 0 || a2.length === 0) {
+                    return a1.concat(a2);
+                }
+
+                var last = a1[a1.length - 1],
+                    shift = sjcl.bitArray.getPartial(last);
+                if (shift === 32) {
+                    return a1.concat(a2);
+                } else {
+                    return sjcl.bitArray._shiftRight(a2, shift, last | 0, a1.slice(0, a1.length - 1));
+                }
+            },
+
+            /**
+             * Find the length of an array of bits.
+             * @param {bitArray} a The array.
+             * @return {Number} The length of a, in bits.
+             */
+            bitLength: function (a) {
+                var l = a.length,
+                    x;
+                if (l === 0) {
+                    return 0;
+                }
+                x = a[l - 1];
+                return (l - 1) * 32 + sjcl.bitArray.getPartial(x);
+            },
+
+            /**
+             * Truncate an array.
+             * @param {bitArray} a The array.
+             * @param {Number} len The length to truncate to, in bits.
+             * @return {bitArray} A new array, truncated to len bits.
+             */
+            clamp: function (a, len) {
+                if (a.length * 32 < len) {
+                    return a;
+                }
+                a = a.slice(0, Math.ceil(len / 32));
+                var l = a.length;
+                len = len & 31;
+                if (l > 0 && len) {
+                    a[l - 1] = sjcl.bitArray.partial(len, a[l - 1] & (0x80000000 >> (len - 1)), 1);
+                }
+                return a;
+            },
+
+            /**
+             * Make a partial word for a bit array.
+             * @param {Number} len The number of bits in the word.
+             * @param {Number} x The bits.
+             * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
+             * @return {Number} The partial word.
+             */
+            partial: function (len, x, _end) {
+                if (len === 32) {
+                    return x;
+                }
+                return (_end ? x | 0 : x << (32 - len)) + len * 0x10000000000;
+            },
+
+            /**
+             * Get the number of bits used by a partial word.
+             * @param {Number} x The partial word.
+             * @return {Number} The number of bits used by the partial word.
+             */
+            getPartial: function (x) {
+                return Math.round(x / 0x10000000000) || 32;
+            },
+
+            /**
+             * Compare two arrays for equality in a predictable amount of time.
+             * @param {bitArray} a The first array.
+             * @param {bitArray} b The second array.
+             * @return {boolean} true if a == b; false otherwise.
+             */
+            equal: function (a, b) {
+                if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
+                    return false;
+                }
+                var x = 0,
+                    i;
+                for (i = 0; i < a.length; i++) {
+                    x |= a[i] ^ b[i];
+                }
+                return x === 0;
+            },
+
+            /** Shift an array right.
+             * @param {bitArray} a The array to shift.
+             * @param {Number} shift The number of bits to shift.
+             * @param {Number} [carry=0] A byte to carry in
+             * @param {bitArray} [out=[]] An array to prepend to the output.
+             * @private
+             */
+            _shiftRight: function (a, shift, carry, out) {
+                var i,
+                    last2 = 0,
+                    shift2;
+                if (out === undefined) {
+                    out = [];
+                }
+
+                for (; shift >= 32; shift -= 32) {
+                    out.push(carry);
+                    carry = 0;
+                }
+                if (shift === 0) {
+                    return out.concat(a);
+                }
+
+                for (i = 0; i < a.length; i++) {
+                    out.push(carry | (a[i] >>> shift));
+                    carry = a[i] << (32 - shift);
+                }
+                last2 = a.length ? a[a.length - 1] : 0;
+                shift2 = sjcl.bitArray.getPartial(last2);
+                out.push(sjcl.bitArray.partial((shift + shift2) & 31, shift + shift2 > 32 ? carry : out.pop(), 1));
+                return out;
+            },
+
+            /** xor a block of 4 words together.
+             * @private
+             */
+            _xor4: function (x, y) {
+                return [x[0] ^ y[0], x[1] ^ y[1], x[2] ^ y[2], x[3] ^ y[3]];
+            },
+
+            /** byteswap a word array inplace.
+             * (does not handle partial words)
+             * @param {sjcl.bitArray} a word array
+             * @return {sjcl.bitArray} byteswapped array
+             */
+            byteswapM: function (a) {
+                var i,
+                    v,
+                    m = 0xff00;
+                for (i = 0; i < a.length; ++i) {
+                    v = a[i];
+                    a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
+                }
+                return a;
+            },
+        };
+        /** @fileOverview Bit array codec implementations.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * UTF-8 strings
+         * @namespace
+         */
+        sjcl.codec.utf8String = {
+            /** Convert from a bitArray to a UTF-8 string. */
+            fromBits: function (arr) {
+                var out = '',
+                    bl = sjcl.bitArray.bitLength(arr),
+                    i,
+                    tmp;
+                for (i = 0; i < bl / 8; i++) {
+                    if ((i & 3) === 0) {
+                        tmp = arr[i / 4];
+                    }
+                    out += String.fromCharCode(((tmp >>> 8) >>> 8) >>> 8);
+                    tmp <<= 8;
+                }
+                return decodeURIComponent(escape(out));
+            },
+
+            /** Convert from a UTF-8 string to a bitArray. */
+            toBits: function (str) {
+                str = unescape(encodeURIComponent(str));
+                var out = [],
+                    i,
+                    tmp = 0;
+                for (i = 0; i < str.length; i++) {
+                    tmp = (tmp << 8) | str.charCodeAt(i);
+                    if ((i & 3) === 3) {
+                        out.push(tmp);
+                        tmp = 0;
+                    }
+                }
+                if (i & 3) {
+                    out.push(sjcl.bitArray.partial(8 * (i & 3), tmp));
+                }
+                return out;
+            },
+        };
+        /** @fileOverview Bit array codec implementations.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * Hexadecimal
+         * @namespace
+         */
+        sjcl.codec.hex = {
+            /** Convert from a bitArray to a hex string. */
+            fromBits: function (arr) {
+                var out = '',
+                    i;
+                for (i = 0; i < arr.length; i++) {
+                    out += ((arr[i] | 0) + 0xf00000000000).toString(16).substr(4);
+                }
+                return out.substr(0, sjcl.bitArray.bitLength(arr) / 4); //.replace(/(.{8})/g, "$1 ");
+            },
+            /** Convert from a hex string to a bitArray. */
+            toBits: function (str) {
+                var i,
+                    out = [],
+                    len;
+                str = str.replace(/\s|0x/g, '');
+                len = str.length;
+                str = str + '00000000';
+                for (i = 0; i < str.length; i += 8) {
+                    out.push(parseInt(str.substr(i, 8), 16) ^ 0);
+                }
+                return sjcl.bitArray.clamp(out, len * 4);
+            },
+        };
+
+        /** @fileOverview Javascript SHA-256 implementation.
+         *
+         * An older version of this implementation is available in the public
+         * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
+         * Stanford University 2008-2010 and BSD-licensed for liability
+         * reasons.
+         *
+         * Special thanks to Aldo Cortesi for pointing out several bugs in
+         * this code.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * Context for a SHA-256 operation in progress.
          * @constructor
          */
-        notReady: function(message) {
-          this.toString = function() { return "NOT READY: "+this.message; };
-          this.message = message;
-        }
-      }
-    };
-    /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
+        sjcl.hash.sha256 = function (hash) {
+            if (!this._key[0]) {
+                this._precompute();
+            }
+            if (hash) {
+                this._h = hash._h.slice(0);
+                this._buffer = hash._buffer.slice(0);
+                this._length = hash._length;
+            } else {
+                this.reset();
+            }
+        };
 
-    /**
-     * Arrays of bits, encoded as arrays of Numbers.
-     * @namespace
-     * @description
-     * <p>
-     * These objects are the currency accepted by SJCL's crypto functions.
-     * </p>
-     *
-     * <p>
-     * Most of our crypto primitives operate on arrays of 4-byte words internally,
-     * but many of them can take arguments that are not a multiple of 4 bytes.
-     * This library encodes arrays of bits (whose size need not be a multiple of 8
-     * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
-     * array of words, 32 bits at a time.  Since the words are double-precision
-     * floating point numbers, they fit some extra data.  We use this (in a private,
-     * possibly-changing manner) to encode the number of bits actually  present
-     * in the last word of the array.
-     * </p>
-     *
-     * <p>
-     * Because bitwise ops clear this out-of-band data, these arrays can be passed
-     * to ciphers like AES which want arrays of words.
-     * </p>
-     */
-    sjcl.bitArray = {
-      /**
-       * Array slices in units of bits.
-       * @param {bitArray} a The array to slice.
-       * @param {Number} bstart The offset to the start of the slice, in bits.
-       * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
-       * slice until the end of the array.
-       * @return {bitArray} The requested slice.
-       */
-      bitSlice: function (a, bstart, bend) {
-        a = sjcl.bitArray._shiftRight(a.slice(bstart/32), 32 - (bstart & 31)).slice(1);
-        return (bend === undefined) ? a : sjcl.bitArray.clamp(a, bend-bstart);
-      },
+        /**
+         * Hash a string or an array of words.
+         * @static
+         * @param {bitArray|String} data the data to hash.
+         * @return {bitArray} The hash value, an array of 16 big-endian words.
+         */
+        sjcl.hash.sha256.hash = function (data) {
+            return new sjcl.hash.sha256().update(data).finalize();
+        };
 
-      /**
-       * Extract a number packed into a bit array.
-       * @param {bitArray} a The array to slice.
-       * @param {Number} bstart The offset to the start of the slice, in bits.
-       * @param {Number} blength The length of the number to extract.
-       * @return {Number} The requested slice.
-       */
-      extract: function(a, bstart, blength) {
-        // FIXME: this Math.floor is not necessary at all, but for some reason
-        // seems to suppress a bug in the Chromium JIT.
-        var x, sh = Math.floor((-bstart-blength) & 31);
-        if ((bstart + blength - 1 ^ bstart) & -32) {
-          // it crosses a boundary
-          x = (a[bstart/32|0] << (32 - sh)) ^ (a[bstart/32+1|0] >>> sh);
-        } else {
-          // within a single word
-          x = a[bstart/32|0] >>> sh;
-        }
-        return x & ((1<<blength) - 1);
-      },
+        sjcl.hash.sha256.prototype = {
+            /**
+             * The hash's block size, in bits.
+             * @constant
+             */
+            blockSize: 512,
 
-      /**
-       * Concatenate two bit arrays.
-       * @param {bitArray} a1 The first array.
-       * @param {bitArray} a2 The second array.
-       * @return {bitArray} The concatenation of a1 and a2.
-       */
-      concat: function (a1, a2) {
-        if (a1.length === 0 || a2.length === 0) {
-          return a1.concat(a2);
-        }
-        
-        var last = a1[a1.length-1], shift = sjcl.bitArray.getPartial(last);
-        if (shift === 32) {
-          return a1.concat(a2);
-        } else {
-          return sjcl.bitArray._shiftRight(a2, shift, last|0, a1.slice(0,a1.length-1));
-        }
-      },
+            /**
+             * Reset the hash state.
+             * @return this
+             */
+            reset: function () {
+                this._h = this._init.slice(0);
+                this._buffer = [];
+                this._length = 0;
+                return this;
+            },
 
-      /**
-       * Find the length of an array of bits.
-       * @param {bitArray} a The array.
-       * @return {Number} The length of a, in bits.
-       */
-      bitLength: function (a) {
-        var l = a.length, x;
-        if (l === 0) { return 0; }
-        x = a[l - 1];
-        return (l-1) * 32 + sjcl.bitArray.getPartial(x);
-      },
+            /**
+             * Input several words to the hash.
+             * @param {bitArray|String} data the data to hash.
+             * @return this
+             */
+            update: function (data) {
+                if (typeof data === 'string') {
+                    data = sjcl.codec.utf8String.toBits(data);
+                }
+                var i,
+                    b = (this._buffer = sjcl.bitArray.concat(this._buffer, data)),
+                    ol = this._length,
+                    nl = (this._length = ol + sjcl.bitArray.bitLength(data));
+                if (nl > 9007199254740991) {
+                    throw new sjcl.exception.invalid('Cannot hash more than 2^53 - 1 bits');
+                }
 
-      /**
-       * Truncate an array.
-       * @param {bitArray} a The array.
-       * @param {Number} len The length to truncate to, in bits.
-       * @return {bitArray} A new array, truncated to len bits.
-       */
-      clamp: function (a, len) {
-        if (a.length * 32 < len) { return a; }
-        a = a.slice(0, Math.ceil(len / 32));
-        var l = a.length;
-        len = len & 31;
-        if (l > 0 && len) {
-          a[l-1] = sjcl.bitArray.partial(len, a[l-1] & 0x80000000 >> (len-1), 1);
-        }
-        return a;
-      },
+                if (typeof Uint32Array !== 'undefined') {
+                    var c = new Uint32Array(b);
+                    var j = 0;
+                    for (i = 512 + ol - ((512 + ol) & 511); i <= nl; i += 512) {
+                        this._block(c.subarray(16 * j, 16 * (j + 1)));
+                        j += 1;
+                    }
+                    b.splice(0, 16 * j);
+                } else {
+                    for (i = 512 + ol - ((512 + ol) & 511); i <= nl; i += 512) {
+                        this._block(b.splice(0, 16));
+                    }
+                }
+                return this;
+            },
 
-      /**
-       * Make a partial word for a bit array.
-       * @param {Number} len The number of bits in the word.
-       * @param {Number} x The bits.
-       * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
-       * @return {Number} The partial word.
-       */
-      partial: function (len, x, _end) {
-        if (len === 32) { return x; }
-        return (_end ? x|0 : x << (32-len)) + len * 0x10000000000;
-      },
+            /**
+             * Complete hashing and output the hash value.
+             * @return {bitArray} The hash value, an array of 8 big-endian words.
+             */
+            finalize: function () {
+                var i,
+                    b = this._buffer,
+                    h = this._h;
 
-      /**
-       * Get the number of bits used by a partial word.
-       * @param {Number} x The partial word.
-       * @return {Number} The number of bits used by the partial word.
-       */
-      getPartial: function (x) {
-        return Math.round(x/0x10000000000) || 32;
-      },
+                // Round out and push the buffer
+                b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]);
 
-      /**
-       * Compare two arrays for equality in a predictable amount of time.
-       * @param {bitArray} a The first array.
-       * @param {bitArray} b The second array.
-       * @return {boolean} true if a == b; false otherwise.
-       */
-      equal: function (a, b) {
-        if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
-          return false;
-        }
-        var x = 0, i;
-        for (i=0; i<a.length; i++) {
-          x |= a[i]^b[i];
-        }
-        return (x === 0);
-      },
+                // Round out the buffer to a multiple of 16 words, less the 2 length words.
+                for (i = b.length + 2; i & 15; i++) {
+                    b.push(0);
+                }
 
-      /** Shift an array right.
-       * @param {bitArray} a The array to shift.
-       * @param {Number} shift The number of bits to shift.
-       * @param {Number} [carry=0] A byte to carry in
-       * @param {bitArray} [out=[]] An array to prepend to the output.
-       * @private
-       */
-      _shiftRight: function (a, shift, carry, out) {
-        var i, last2=0, shift2;
-        if (out === undefined) { out = []; }
-        
-        for (; shift >= 32; shift -= 32) {
-          out.push(carry);
-          carry = 0;
-        }
-        if (shift === 0) {
-          return out.concat(a);
-        }
-        
-        for (i=0; i<a.length; i++) {
-          out.push(carry | a[i]>>>shift);
-          carry = a[i] << (32-shift);
-        }
-        last2 = a.length ? a[a.length-1] : 0;
-        shift2 = sjcl.bitArray.getPartial(last2);
-        out.push(sjcl.bitArray.partial(shift+shift2 & 31, (shift + shift2 > 32) ? carry : out.pop(),1));
-        return out;
-      },
-      
-      /** xor a block of 4 words together.
-       * @private
-       */
-      _xor4: function(x,y) {
-        return [x[0]^y[0],x[1]^y[1],x[2]^y[2],x[3]^y[3]];
-      },
+                // append the length
+                b.push(Math.floor(this._length / 0x100000000));
+                b.push(this._length | 0);
 
-      /** byteswap a word array inplace.
-       * (does not handle partial words)
-       * @param {sjcl.bitArray} a word array
-       * @return {sjcl.bitArray} byteswapped array
-       */
-      byteswapM: function(a) {
-        var i, v, m = 0xff00;
-        for (i = 0; i < a.length; ++i) {
-          v = a[i];
-          a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
-        }
-        return a;
-      }
-    };
-    /** @fileOverview Bit array codec implementations.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
+                while (b.length) {
+                    this._block(b.splice(0, 16));
+                }
 
-    /**
-     * UTF-8 strings
-     * @namespace
-     */
-    sjcl.codec.utf8String = {
-      /** Convert from a bitArray to a UTF-8 string. */
-      fromBits: function (arr) {
-        var out = "", bl = sjcl.bitArray.bitLength(arr), i, tmp;
-        for (i=0; i<bl/8; i++) {
-          if ((i&3) === 0) {
-            tmp = arr[i/4];
-          }
-          out += String.fromCharCode(tmp >>> 8 >>> 8 >>> 8);
-          tmp <<= 8;
-        }
-        return decodeURIComponent(escape(out));
-      },
+                this.reset();
+                return h;
+            },
 
-      /** Convert from a UTF-8 string to a bitArray. */
-      toBits: function (str) {
-        str = unescape(encodeURIComponent(str));
-        var out = [], i, tmp=0;
-        for (i=0; i<str.length; i++) {
-          tmp = tmp << 8 | str.charCodeAt(i);
-          if ((i&3) === 3) {
-            out.push(tmp);
-            tmp = 0;
-          }
-        }
-        if (i&3) {
-          out.push(sjcl.bitArray.partial(8*(i&3), tmp));
-        }
-        return out;
-      }
-    };
-    /** @fileOverview Bit array codec implementations.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
-
-    /**
-     * Hexadecimal
-     * @namespace
-     */
-    sjcl.codec.hex = {
-      /** Convert from a bitArray to a hex string. */
-      fromBits: function (arr) {
-        var out = "", i;
-        for (i=0; i<arr.length; i++) {
-          out += ((arr[i]|0)+0xF00000000000).toString(16).substr(4);
-        }
-        return out.substr(0, sjcl.bitArray.bitLength(arr)/4);//.replace(/(.{8})/g, "$1 ");
-      },
-      /** Convert from a hex string to a bitArray. */
-      toBits: function (str) {
-        var i, out=[], len;
-        str = str.replace(/\s|0x/g, "");
-        len = str.length;
-        str = str + "00000000";
-        for (i=0; i<str.length; i+=8) {
-          out.push(parseInt(str.substr(i,8),16)^0);
-        }
-        return sjcl.bitArray.clamp(out, len*4);
-      }
-    };
-
-    /** @fileOverview Javascript SHA-256 implementation.
-     *
-     * An older version of this implementation is available in the public
-     * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
-     * Stanford University 2008-2010 and BSD-licensed for liability
-     * reasons.
-     *
-     * Special thanks to Aldo Cortesi for pointing out several bugs in
-     * this code.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
-
-    /**
-     * Context for a SHA-256 operation in progress.
-     * @constructor
-     */
-    sjcl.hash.sha256 = function (hash) {
-      if (!this._key[0]) { this._precompute(); }
-      if (hash) {
-        this._h = hash._h.slice(0);
-        this._buffer = hash._buffer.slice(0);
-        this._length = hash._length;
-      } else {
-        this.reset();
-      }
-    };
-
-    /**
-     * Hash a string or an array of words.
-     * @static
-     * @param {bitArray|String} data the data to hash.
-     * @return {bitArray} The hash value, an array of 16 big-endian words.
-     */
-    sjcl.hash.sha256.hash = function (data) {
-      return (new sjcl.hash.sha256()).update(data).finalize();
-    };
-
-    sjcl.hash.sha256.prototype = {
-      /**
-       * The hash's block size, in bits.
-       * @constant
-       */
-      blockSize: 512,
-       
-      /**
-       * Reset the hash state.
-       * @return this
-       */
-      reset:function () {
-        this._h = this._init.slice(0);
-        this._buffer = [];
-        this._length = 0;
-        return this;
-      },
-      
-      /**
-       * Input several words to the hash.
-       * @param {bitArray|String} data the data to hash.
-       * @return this
-       */
-      update: function (data) {
-        if (typeof data === "string") {
-          data = sjcl.codec.utf8String.toBits(data);
-        }
-        var i, b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
-            ol = this._length,
-            nl = this._length = ol + sjcl.bitArray.bitLength(data);
-        if (nl > 9007199254740991){
-          throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
-        }
-
-        if (typeof Uint32Array !== 'undefined') {
-    	var c = new Uint32Array(b);
-        	var j = 0;
-        	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
-          	    this._block(c.subarray(16 * j, 16 * (j+1)));
-          	    j += 1;
-        	}
-        	b.splice(0, 16 * j);
-        } else {
-    	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
-          	    this._block(b.splice(0,16));
-          	}
-        }
-        return this;
-      },
-      
-      /**
-       * Complete hashing and output the hash value.
-       * @return {bitArray} The hash value, an array of 8 big-endian words.
-       */
-      finalize:function () {
-        var i, b = this._buffer, h = this._h;
-
-        // Round out and push the buffer
-        b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1,1)]);
-        
-        // Round out the buffer to a multiple of 16 words, less the 2 length words.
-        for (i = b.length + 2; i & 15; i++) {
-          b.push(0);
-        }
-        
-        // append the length
-        b.push(Math.floor(this._length / 0x100000000));
-        b.push(this._length | 0);
-
-        while (b.length) {
-          this._block(b.splice(0,16));
-        }
-
-        this.reset();
-        return h;
-      },
-
-      /**
-       * The SHA-256 initialization vector, to be precomputed.
-       * @private
-       */
-      _init:[],
-      /*
+            /**
+             * The SHA-256 initialization vector, to be precomputed.
+             * @private
+             */
+            _init: [],
+            /*
       _init:[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],
       */
-      
-      /**
-       * The SHA-256 hash key, to be precomputed.
-       * @private
-       */
-      _key:[],
-      /*
+
+            /**
+             * The SHA-256 hash key, to be precomputed.
+             * @private
+             */
+            _key: [],
+            /*
       _key:
         [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
          0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -4370,171 +4359,201 @@
          0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
       */
 
+            /**
+             * Function to precompute _init and _key.
+             * @private
+             */
+            _precompute: function () {
+                var i = 0,
+                    prime = 2,
+                    factor,
+                    isPrime;
 
-      /**
-       * Function to precompute _init and _key.
-       * @private
-       */
-      _precompute: function () {
-        var i = 0, prime = 2, factor, isPrime;
+                function frac(x) {
+                    return ((x - Math.floor(x)) * 0x100000000) | 0;
+                }
 
-        function frac(x) { return (x-Math.floor(x)) * 0x100000000 | 0; }
+                for (; i < 64; prime++) {
+                    isPrime = true;
+                    for (factor = 2; factor * factor <= prime; factor++) {
+                        if (prime % factor === 0) {
+                            isPrime = false;
+                            break;
+                        }
+                    }
+                    if (isPrime) {
+                        if (i < 8) {
+                            this._init[i] = frac(Math.pow(prime, 1 / 2));
+                        }
+                        this._key[i] = frac(Math.pow(prime, 1 / 3));
+                        i++;
+                    }
+                }
+            },
 
-        for (; i<64; prime++) {
-          isPrime = true;
-          for (factor=2; factor*factor <= prime; factor++) {
-            if (prime % factor === 0) {
-              isPrime = false;
-              break;
-            }
-          }
-          if (isPrime) {
-            if (i<8) {
-              this._init[i] = frac(Math.pow(prime, 1/2));
-            }
-            this._key[i] = frac(Math.pow(prime, 1/3));
-            i++;
-          }
-        }
-      },
-      
-      /**
-       * Perform one cycle of SHA-256.
-       * @param {Uint32Array|bitArray} w one block of words.
-       * @private
-       */
-      _block:function (w) {  
-        var i, tmp, a, b,
-          h = this._h,
-          k = this._key,
-          h0 = h[0], h1 = h[1], h2 = h[2], h3 = h[3],
-          h4 = h[4], h5 = h[5], h6 = h[6], h7 = h[7];
+            /**
+             * Perform one cycle of SHA-256.
+             * @param {Uint32Array|bitArray} w one block of words.
+             * @private
+             */
+            _block: function (w) {
+                var i,
+                    tmp,
+                    a,
+                    b,
+                    h = this._h,
+                    k = this._key,
+                    h0 = h[0],
+                    h1 = h[1],
+                    h2 = h[2],
+                    h3 = h[3],
+                    h4 = h[4],
+                    h5 = h[5],
+                    h6 = h[6],
+                    h7 = h[7];
 
-        /* Rationale for placement of |0 :
-         * If a value can overflow is original 32 bits by a factor of more than a few
-         * million (2^23 ish), there is a possibility that it might overflow the
-         * 53-bit mantissa and lose precision.
+                /* Rationale for placement of |0 :
+                 * If a value can overflow is original 32 bits by a factor of more than a few
+                 * million (2^23 ish), there is a possibility that it might overflow the
+                 * 53-bit mantissa and lose precision.
+                 *
+                 * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
+                 * propagates around the loop, and on the hash state h[].  I don't believe
+                 * that the clamps on h4 and on h0 are strictly necessary, but it's close
+                 * (for h4 anyway), and better safe than sorry.
+                 *
+                 * The clamps on h[] are necessary for the output to be correct even in the
+                 * common case and for short inputs.
+                 */
+                for (i = 0; i < 64; i++) {
+                    // load up the input word for this round
+                    if (i < 16) {
+                        tmp = w[i];
+                    } else {
+                        a = w[(i + 1) & 15];
+                        b = w[(i + 14) & 15];
+                        tmp = w[i & 15] =
+                            (((a >>> 7) ^ (a >>> 18) ^ (a >>> 3) ^ (a << 25) ^ (a << 14)) +
+                                ((b >>> 17) ^ (b >>> 19) ^ (b >>> 10) ^ (b << 15) ^ (b << 13)) +
+                                w[i & 15] +
+                                w[(i + 9) & 15]) |
+                            0;
+                    }
+
+                    tmp =
+                        tmp +
+                        h7 +
+                        ((h4 >>> 6) ^ (h4 >>> 11) ^ (h4 >>> 25) ^ (h4 << 26) ^ (h4 << 21) ^ (h4 << 7)) +
+                        (h6 ^ (h4 & (h5 ^ h6))) +
+                        k[i]; // | 0;
+
+                    // shift register
+                    h7 = h6;
+                    h6 = h5;
+                    h5 = h4;
+                    h4 = (h3 + tmp) | 0;
+                    h3 = h2;
+                    h2 = h1;
+                    h1 = h0;
+
+                    h0 =
+                        (tmp +
+                            ((h1 & h2) ^ (h3 & (h1 ^ h2))) +
+                            ((h1 >>> 2) ^ (h1 >>> 13) ^ (h1 >>> 22) ^ (h1 << 30) ^ (h1 << 19) ^ (h1 << 10))) |
+                        0;
+                }
+
+                h[0] = (h[0] + h0) | 0;
+                h[1] = (h[1] + h1) | 0;
+                h[2] = (h[2] + h2) | 0;
+                h[3] = (h[3] + h3) | 0;
+                h[4] = (h[4] + h4) | 0;
+                h[5] = (h[5] + h5) | 0;
+                h[6] = (h[6] + h6) | 0;
+                h[7] = (h[7] + h7) | 0;
+            },
+        };
+
+        /** @fileOverview HMAC implementation.
          *
-         * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
-         * propagates around the loop, and on the hash state h[].  I don't believe
-         * that the clamps on h4 and on h0 are strictly necessary, but it's close
-         * (for h4 anyway), and better safe than sorry.
-         *
-         * The clamps on h[] are necessary for the output to be correct even in the
-         * common case and for short inputs.
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
          */
-        for (i=0; i<64; i++) {
-          // load up the input word for this round
-          if (i<16) {
-            tmp = w[i];
-          } else {
-            a   = w[(i+1 ) & 15];
-            b   = w[(i+14) & 15];
-            tmp = w[i&15] = ((a>>>7  ^ a>>>18 ^ a>>>3  ^ a<<25 ^ a<<14) + 
-                             (b>>>17 ^ b>>>19 ^ b>>>10 ^ b<<15 ^ b<<13) +
-                             w[i&15] + w[(i+9) & 15]) | 0;
-          }
-          
-          tmp = (tmp + h7 + (h4>>>6 ^ h4>>>11 ^ h4>>>25 ^ h4<<26 ^ h4<<21 ^ h4<<7) +  (h6 ^ h4&(h5^h6)) + k[i]); // | 0;
-          
-          // shift register
-          h7 = h6; h6 = h5; h5 = h4;
-          h4 = h3 + tmp | 0;
-          h3 = h2; h2 = h1; h1 = h0;
 
-          h0 = (tmp +  ((h1&h2) ^ (h3&(h1^h2))) + (h1>>>2 ^ h1>>>13 ^ h1>>>22 ^ h1<<30 ^ h1<<19 ^ h1<<10)) | 0;
-        }
+        /** HMAC with the specified hash function.
+         * @constructor
+         * @param {bitArray} key the key for HMAC.
+         * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
+         */
+        sjcl.misc.hmac = function (key, Hash) {
+            this._hash = Hash = Hash || sjcl.hash.sha256;
+            var exKey = [[], []],
+                i,
+                bs = Hash.prototype.blockSize / 32;
+            this._baseHash = [new Hash(), new Hash()];
 
-        h[0] = h[0]+h0 | 0;
-        h[1] = h[1]+h1 | 0;
-        h[2] = h[2]+h2 | 0;
-        h[3] = h[3]+h3 | 0;
-        h[4] = h[4]+h4 | 0;
-        h[5] = h[5]+h5 | 0;
-        h[6] = h[6]+h6 | 0;
-        h[7] = h[7]+h7 | 0;
-      }
-    };
+            if (key.length > bs) {
+                key = Hash.hash(key);
+            }
 
+            for (i = 0; i < bs; i++) {
+                exKey[0][i] = key[i] ^ 0x36363636;
+                exKey[1][i] = key[i] ^ 0x5c5c5c5c;
+            }
 
-    /** @fileOverview HMAC implementation.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
+            this._baseHash[0].update(exKey[0]);
+            this._baseHash[1].update(exKey[1]);
+            this._resultHash = new Hash(this._baseHash[0]);
+        };
 
-    /** HMAC with the specified hash function.
-     * @constructor
-     * @param {bitArray} key the key for HMAC.
-     * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
-     */
-    sjcl.misc.hmac = function (key, Hash) {
-      this._hash = Hash = Hash || sjcl.hash.sha256;
-      var exKey = [[],[]], i,
-          bs = Hash.prototype.blockSize / 32;
-      this._baseHash = [new Hash(), new Hash()];
+        /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
+         * @param {bitArray|String} data The data to mac.
+         */
+        sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
+            if (!this._updated) {
+                this.update(data);
+                return this.digest(data);
+            } else {
+                throw new sjcl.exception.invalid('encrypt on already updated hmac called!');
+            }
+        };
 
-      if (key.length > bs) {
-        key = Hash.hash(key);
-      }
-      
-      for (i=0; i<bs; i++) {
-        exKey[0][i] = key[i]^0x36363636;
-        exKey[1][i] = key[i]^0x5C5C5C5C;
-      }
-      
-      this._baseHash[0].update(exKey[0]);
-      this._baseHash[1].update(exKey[1]);
-      this._resultHash = new Hash(this._baseHash[0]);
-    };
+        sjcl.misc.hmac.prototype.reset = function () {
+            this._resultHash = new this._hash(this._baseHash[0]);
+            this._updated = false;
+        };
 
-    /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
-     * @param {bitArray|String} data The data to mac.
-     */
-    sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
-      if (!this._updated) {
-        this.update(data);
-        return this.digest(data);
-      } else {
-        throw new sjcl.exception.invalid("encrypt on already updated hmac called!");
-      }
-    };
+        sjcl.misc.hmac.prototype.update = function (data) {
+            this._updated = true;
+            this._resultHash.update(data);
+        };
 
-    sjcl.misc.hmac.prototype.reset = function () {
-      this._resultHash = new this._hash(this._baseHash[0]);
-      this._updated = false;
-    };
+        sjcl.misc.hmac.prototype.digest = function () {
+            var w = this._resultHash.finalize(),
+                result = new this._hash(this._baseHash[1]).update(w).finalize();
 
-    sjcl.misc.hmac.prototype.update = function (data) {
-      this._updated = true;
-      this._resultHash.update(data);
-    };
+            this.reset();
 
-    sjcl.misc.hmac.prototype.digest = function () {
-      var w = this._resultHash.finalize(), result = new (this._hash)(this._baseHash[1]).update(w).finalize();
-
-      this.reset();
-
-      return result;
-    };
+            return result;
+        };
 
         return sjcl;
-      })();
+    })();
 
-    function getDataKeySync (sessionKey, domainKey, inputData) {
+    function getDataKeySync(sessionKey, domainKey, inputData) {
         // eslint-disable-next-line new-cap
         const hmac = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey + domainKey), sjcl.hash.sha256);
-        return sjcl.codec.hex.fromBits(hmac.encrypt(inputData))
+        return sjcl.codec.hex.fromBits(hmac.encrypt(inputData));
     }
 
     class FingerprintingAudio extends ContentFeature {
-        init (args) {
+        init(args) {
             const { sessionKey, site } = args;
             const domainKey = site.domain;
 
             // In place modify array data to remove fingerprinting
-            function transformArrayData (channelData, domainKey, sessionKey, thisArg) {
+            function transformArrayData(channelData, domainKey, sessionKey, thisArg) {
                 let { audioKey } = getCachedResponse(thisArg, args);
                 if (!audioKey) {
                     let cdSum = 0;
@@ -4543,7 +4562,7 @@
                     }
                     // If the buffer is blank, skip adding data
                     if (cdSum === 0) {
-                        return
+                        return;
                     }
                     audioKey = getDataKeySync(sessionKey, domainKey, cdSum);
                     setCache(thisArg, args, audioKey);
@@ -4560,77 +4579,78 @@
             }
 
             const copyFromChannelProxy = new DDGProxy(this, AudioBuffer.prototype, 'copyFromChannel', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     const [source, channelNumber, startInChannel] = args;
                     // This is implemented in a different way to canvas purely because calling the function copied the original value, which is not ideal
-                    if (// If channelNumber is longer than arrayBuffer number of channels then call the default method to throw
+                    if (
+                        // If channelNumber is longer than arrayBuffer number of channels then call the default method to throw
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         channelNumber > thisArg.numberOfChannels ||
                         // If startInChannel is longer than the arrayBuffer length then call the default method to throw
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
-                        startInChannel > thisArg.length) {
+                        startInChannel > thisArg.length
+                    ) {
                         // The normal return value
-                        return DDGReflect.apply(target, thisArg, args)
+                        return DDGReflect.apply(target, thisArg, args);
                     }
                     try {
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         // Call the protected getChannelData we implement, slice from the startInChannel value and assign to the source array
-                        thisArg.getChannelData(channelNumber).slice(startInChannel).forEach((val, index) => {
-                            source[index] = val;
-                        });
+                        thisArg
+                            .getChannelData(channelNumber)
+                            .slice(startInChannel)
+                            .forEach((val, index) => {
+                                source[index] = val;
+                            });
                     } catch {
-                        return DDGReflect.apply(target, thisArg, args)
+                        return DDGReflect.apply(target, thisArg, args);
                     }
-                }
+                },
             });
             copyFromChannelProxy.overload();
 
             const cacheExpiry = 60;
             const cacheData = new WeakMap();
-            function getCachedResponse (thisArg, args) {
+            function getCachedResponse(thisArg, args) {
                 const data = cacheData.get(thisArg);
                 const timeNow = Date.now();
-                if (data &&
-                    data.args === JSON.stringify(args) &&
-                    data.expires > timeNow) {
+                if (data && data.args === JSON.stringify(args) && data.expires > timeNow) {
                     data.expires = timeNow + cacheExpiry;
                     cacheData.set(thisArg, data);
-                    return data
+                    return data;
                 }
-                return { audioKey: null }
+                return { audioKey: null };
             }
 
-            function setCache (thisArg, args, audioKey) {
+            function setCache(thisArg, args, audioKey) {
                 cacheData.set(thisArg, { args: JSON.stringify(args), expires: Date.now() + cacheExpiry, audioKey });
             }
 
             const getChannelDataProxy = new DDGProxy(this, AudioBuffer.prototype, 'getChannelData', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     // The normal return value
                     const channelData = DDGReflect.apply(target, thisArg, args);
                     // Anything we do here should be caught and ignored silently
                     try {
                         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                         transformArrayData(channelData, domainKey, sessionKey, thisArg, args);
-                    } catch {
-                    }
-                    return channelData
-                }
+                    } catch {}
+                    return channelData;
+                },
             });
             getChannelDataProxy.overload();
 
             const audioMethods = ['getByteTimeDomainData', 'getFloatTimeDomainData', 'getByteFrequencyData', 'getFloatFrequencyData'];
             for (const methodName of audioMethods) {
                 const proxy = new DDGProxy(this, AnalyserNode.prototype, methodName, {
-                    apply (target, thisArg, args) {
+                    apply(target, thisArg, args) {
                         DDGReflect.apply(target, thisArg, args);
                         // Anything we do here should be caught and ignored silently
                         try {
                             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                             transformArrayData(args[0], domainKey, sessionKey, thisArg, args);
-                        } catch {
-                        }
-                    }
+                        } catch {}
+                    },
                 });
                 proxy.overload();
             }
@@ -4643,7 +4663,7 @@
      * as well as prevent any script from listening to events.
      */
     class FingerprintingBattery extends ContentFeature {
-        init () {
+        init() {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             if (globalThis.navigator.getBattery) {
                 const BatteryManager = globalThis.BatteryManager;
@@ -4652,7 +4672,7 @@
                     charging: true,
                     chargingTime: 0,
                     dischargingTime: Infinity,
-                    level: 1
+                    level: 1,
                 };
                 const eventProperties = ['onchargingchange', 'onchargingtimechange', 'ondischargingtimechange', 'onlevelchange'];
 
@@ -4662,22 +4682,22 @@
                             enumerable: true,
                             configurable: true,
                             get: () => {
-                                return val
-                            }
+                                return val;
+                            },
                         });
-                    } catch (e) { }
+                    } catch (e) {}
                 }
                 for (const eventProp of eventProperties) {
                     try {
                         this.defineProperty(BatteryManager.prototype, eventProp, {
                             enumerable: true,
                             configurable: true,
-                            set: x => x, // noop
+                            set: (x) => x, // noop
                             get: () => {
-                                return null
-                            }
+                                return null;
+                            },
                         });
-                    } catch (e) { }
+                    } catch (e) {}
                 }
             }
         }
@@ -5705,7 +5725,7 @@
      * @param {any} getImageDataProxy
      * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
      */
-    function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+    function computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
         if (!ctx) {
             // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
             ctx = canvas.getContext('2d');
@@ -5739,7 +5759,7 @@
         // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
         offScreenCtx.putImageData(imageData, 0, 0);
 
-        return { offScreenCanvas, offScreenCtx }
+        return { offScreenCanvas, offScreenCtx };
     }
 
     /**
@@ -5747,7 +5767,7 @@
      *
      * @param {CanvasRenderingContext2D} canvasContext
      */
-    function clearCanvas (canvasContext) {
+    function clearCanvas(canvasContext) {
         // Save state and clean the pixels from the canvas
         canvasContext.save();
         canvasContext.globalCompositeOperation = 'destination-out';
@@ -5762,7 +5782,7 @@
      * @param {string} domainKey
      * @param {number} width
      */
-    function modifyPixelData (imageData, domainKey, sessionKey, width) {
+    function modifyPixelData(imageData, domainKey, sessionKey, width) {
         const d = imageData.data;
         const length = d.length / 4;
         let checkSum = 0;
@@ -5785,7 +5805,7 @@
             d[pixelCanvasIndex] = d[pixelCanvasIndex] ^ (byte & 0x1);
         }
 
-        return imageData
+        return imageData;
     }
 
     /**
@@ -5795,7 +5815,7 @@
      * @param {number} index
      * @param {number} width
      */
-    function adjacentSame (imageData, index, width) {
+    function adjacentSame(imageData, index, width) {
         const widthPixel = width * 4;
         const x = index % widthPixel;
         const maxLength = imageData.length;
@@ -5804,15 +5824,15 @@
         if (x < widthPixel) {
             const right = index + 4;
             if (!pixelsSame(imageData, index, right)) {
-                return false
+                return false;
             }
             const diagonalRightUp = right - widthPixel;
             if (diagonalRightUp > 0 && !pixelsSame(imageData, index, diagonalRightUp)) {
-                return false
+                return false;
             }
             const diagonalRightDown = right + widthPixel;
             if (diagonalRightDown < maxLength && !pixelsSame(imageData, index, diagonalRightDown)) {
-                return false
+                return false;
             }
         }
 
@@ -5820,29 +5840,29 @@
         if (x > 0) {
             const left = index - 4;
             if (!pixelsSame(imageData, index, left)) {
-                return false
+                return false;
             }
             const diagonalLeftUp = left - widthPixel;
             if (diagonalLeftUp > 0 && !pixelsSame(imageData, index, diagonalLeftUp)) {
-                return false
+                return false;
             }
             const diagonalLeftDown = left + widthPixel;
             if (diagonalLeftDown < maxLength && !pixelsSame(imageData, index, diagonalLeftDown)) {
-                return false
+                return false;
             }
         }
 
         const up = index - widthPixel;
         if (up > 0 && !pixelsSame(imageData, index, up)) {
-            return false
+            return false;
         }
 
         const down = index + widthPixel;
         if (down < maxLength && !pixelsSame(imageData, index, down)) {
-            return false
+            return false;
         }
 
-        return true
+        return true;
     }
 
     /**
@@ -5851,11 +5871,13 @@
      * @param {number} index
      * @param {number} index2
      */
-    function pixelsSame (imageData, index, index2) {
-        return imageData[index] === imageData[index2] &&
-               imageData[index + 1] === imageData[index2 + 1] &&
-               imageData[index + 2] === imageData[index2 + 2] &&
-               imageData[index + 3] === imageData[index2 + 3]
+    function pixelsSame(imageData, index, index2) {
+        return (
+            imageData[index] === imageData[index2] &&
+            imageData[index + 1] === imageData[index2 + 1] &&
+            imageData[index + 2] === imageData[index2 + 2] &&
+            imageData[index + 3] === imageData[index2 + 3]
+        );
     }
 
     /**
@@ -5864,16 +5886,16 @@
      * @param {number} index
      * @returns {boolean}
      */
-    function shouldIgnorePixel (imageData, index) {
+    function shouldIgnorePixel(imageData, index) {
         // Transparent pixels
         if (imageData[index + 3] === 0) {
-            return true
+            return true;
         }
-        return false
+        return false;
     }
 
     class FingerprintingCanvas extends ContentFeature {
-        init (args) {
+        init(args) {
             const { sessionKey, site } = args;
             const domainKey = site.domain;
             const supportsWebGl = this.getFeatureSettingEnabled('webGl');
@@ -5886,28 +5908,27 @@
              * Clear cache as canvas has changed
              * @param {OffscreenCanvas | HTMLCanvasElement} canvas
              */
-            function clearCache (canvas) {
+            function clearCache(canvas) {
                 canvasCache.delete(canvas);
             }
 
             /**
              * @param {OffscreenCanvas | HTMLCanvasElement} canvas
              */
-            function treatAsUnsafe (canvas) {
+            function treatAsUnsafe(canvas) {
                 unsafeCanvases.add(canvas);
                 clearCache(canvas);
             }
 
             const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, 'getContext', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     const context = DDGReflect.apply(target, thisArg, args);
                     try {
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'.
                         canvasContexts.set(thisArg, context);
-                    } catch {
-                    }
-                    return context
-                }
+                    } catch {}
+                    return context;
+                },
             });
             proxy.overload();
 
@@ -5915,7 +5936,7 @@
             const safeMethods = ['putImageData', 'drawImage'];
             for (const methodName of safeMethods) {
                 const safeMethodProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
-                    apply (target, thisArg, args) {
+                    apply(target, thisArg, args) {
                         // Don't apply escape hatch for canvases
                         if (methodName === 'drawImage' && args[0] && args[0] instanceof HTMLCanvasElement) {
                             treatAsUnsafe(args[0]);
@@ -5923,8 +5944,8 @@
                             // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                             clearCache(thisArg.canvas);
                         }
-                        return DDGReflect.apply(target, thisArg, args)
-                    }
+                        return DDGReflect.apply(target, thisArg, args);
+                    },
                 });
                 safeMethodProxy.overload();
             }
@@ -5948,17 +5969,17 @@
                 'createConicGradient',
                 'createLinearGradient',
                 'createRadialGradient',
-                'createPattern'
+                'createPattern',
             ];
             for (const methodName of unsafeMethods) {
                 // Some methods are browser specific
                 if (methodName in CanvasRenderingContext2D.prototype) {
                     const unsafeProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
-                        apply (target, thisArg, args) {
+                        apply(target, thisArg, args) {
                             // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                             treatAsUnsafe(thisArg.canvas);
-                            return DDGReflect.apply(target, thisArg, args)
-                        }
+                            return DDGReflect.apply(target, thisArg, args);
+                        },
                     });
                     unsafeProxy.overload();
                 }
@@ -5973,11 +5994,9 @@
                     'createProgram',
                     'linkProgram',
                     'drawElements',
-                    'drawArrays'
+                    'drawArrays',
                 ];
-                const glContexts = [
-                    WebGLRenderingContext
-                ];
+                const glContexts = [WebGLRenderingContext];
                 if ('WebGL2RenderingContext' in globalThis) {
                     glContexts.push(WebGL2RenderingContext);
                 }
@@ -5986,11 +6005,11 @@
                         // Some methods are browser specific
                         if (methodName in context.prototype) {
                             const unsafeProxy = new DDGProxy(this, context.prototype, methodName, {
-                                apply (target, thisArg, args) {
+                                apply(target, thisArg, args) {
                                     // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                                     treatAsUnsafe(thisArg.canvas);
-                                    return DDGReflect.apply(target, thisArg, args)
-                                }
+                                    return DDGReflect.apply(target, thisArg, args);
+                                },
                             });
                             unsafeProxy.overload();
                         }
@@ -6000,22 +6019,21 @@
 
             // Using proxies here to swallow calls to toString etc
             const getImageDataProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, 'getImageData', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                     if (!unsafeCanvases.has(thisArg.canvas)) {
-                        return DDGReflect.apply(target, thisArg, args)
+                        return DDGReflect.apply(target, thisArg, args);
                     }
                     // Anything we do here should be caught and ignored silently
                     try {
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         const { offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey);
                         // Call the original method on the modified off-screen canvas
-                        return DDGReflect.apply(target, offScreenCtx, args)
-                    } catch {
-                    }
+                        return DDGReflect.apply(target, offScreenCtx, args);
+                    } catch {}
 
-                    return DDGReflect.apply(target, thisArg, args)
-                }
+                    return DDGReflect.apply(target, thisArg, args);
+                },
             });
             getImageDataProxy.overload();
 
@@ -6026,7 +6044,7 @@
              * @param {string} domainKey
              * @param {string} sessionKey
              */
-            function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey) {
+            function getCachedOffScreenCanvasOrCompute(canvas, domainKey, sessionKey) {
                 let result;
                 if (canvasCache.has(canvas)) {
                     result = canvasCache.get(canvas);
@@ -6035,28 +6053,28 @@
                     result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx);
                     canvasCache.set(canvas, result);
                 }
-                return result
+                return result;
             }
 
             const canvasMethods = ['toDataURL', 'toBlob'];
             for (const methodName of canvasMethods) {
                 const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, methodName, {
-                    apply (target, thisArg, args) {
+                    apply(target, thisArg, args) {
                         // Short circuit for low risk canvas calls
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         if (!unsafeCanvases.has(thisArg)) {
-                            return DDGReflect.apply(target, thisArg, args)
+                            return DDGReflect.apply(target, thisArg, args);
                         }
                         try {
                             // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                             const { offScreenCanvas } = getCachedOffScreenCanvasOrCompute(thisArg, domainKey, sessionKey);
                             // Call the original method on the modified off-screen canvas
-                            return DDGReflect.apply(target, offScreenCanvas, args)
+                            return DDGReflect.apply(target, offScreenCanvas, args);
                         } catch {
                             // Something we did caused an exception, fall back to the native
-                            return DDGReflect.apply(target, thisArg, args)
+                            return DDGReflect.apply(target, thisArg, args);
                         }
-                    }
+                    },
                 });
                 proxy.overload();
             }
@@ -6064,7 +6082,7 @@
     }
 
     class GoogleRejected extends ContentFeature {
-        init () {
+        init() {
             try {
                 if ('browsingTopics' in Document.prototype) {
                     delete Document.prototype.browsingTopics;
@@ -6092,26 +6110,26 @@
 
     // Set Global Privacy Control property on DOM
     class GlobalPrivacyControl extends ContentFeature {
-        init (args) {
+        init(args) {
             try {
                 // If GPC on, set DOM property prototype to true if not already true
                 if (args.globalPrivacyControlValue) {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    if (navigator.globalPrivacyControl) return
+                    if (navigator.globalPrivacyControl) return;
                     this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                         get: () => true,
                         configurable: true,
-                        enumerable: true
+                        enumerable: true,
                     });
                 } else {
                     // If GPC off & unsupported by browser, set DOM property prototype to false
                     // this may be overwritten by the user agent or other extensions
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    if (typeof navigator.globalPrivacyControl !== 'undefined') return
+                    if (typeof navigator.globalPrivacyControl !== 'undefined') return;
                     this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                         get: () => false,
                         configurable: true,
-                        enumerable: true
+                        enumerable: true,
                     });
                 }
             } catch {
@@ -6121,77 +6139,77 @@
     }
 
     class FingerprintingHardware extends ContentFeature {
-        init () {
+        init() {
             this.wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
                 get: () => {
                     // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
-                    return this.getFeatureAttr('keyboard')
-                }
+                    return this.getFeatureAttr('keyboard');
+                },
             });
 
             this.wrapProperty(globalThis.Navigator.prototype, 'hardwareConcurrency', {
                 get: () => {
-                    return this.getFeatureAttr('hardwareConcurrency', 2)
-                }
+                    return this.getFeatureAttr('hardwareConcurrency', 2);
+                },
             });
 
             this.wrapProperty(globalThis.Navigator.prototype, 'deviceMemory', {
                 get: () => {
-                    return this.getFeatureAttr('deviceMemory', 8)
-                }
+                    return this.getFeatureAttr('deviceMemory', 8);
+                },
             });
         }
     }
 
     class Referrer extends ContentFeature {
-        init () {
+        init() {
             // If the referer is a different host to the current one, trim it.
             if (document.referrer && new URL(document.URL).hostname !== new URL(document.referrer).hostname) {
                 // trim referrer to origin.
                 const trimmedReferer = new URL(document.referrer).origin + '/';
                 this.wrapProperty(Document.prototype, 'referrer', {
-                    get: () => trimmedReferer
+                    get: () => trimmedReferer,
                 });
             }
         }
     }
 
     class FingerprintingScreenSize extends ContentFeature {
-        origPropertyValues = {}
+        origPropertyValues = {};
 
-        init () {
+        init() {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.origPropertyValues.availTop = globalThis.screen.availTop;
             this.wrapProperty(globalThis.Screen.prototype, 'availTop', {
-                get: () => this.getFeatureAttr('availTop', 0)
+                get: () => this.getFeatureAttr('availTop', 0),
             });
 
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.origPropertyValues.availLeft = globalThis.screen.availLeft;
             this.wrapProperty(globalThis.Screen.prototype, 'availLeft', {
-                get: () => this.getFeatureAttr('availLeft', 0)
+                get: () => this.getFeatureAttr('availLeft', 0),
             });
 
             this.origPropertyValues.availWidth = globalThis.screen.availWidth;
             const forcedAvailWidthValue = globalThis.screen.width;
             this.wrapProperty(globalThis.Screen.prototype, 'availWidth', {
-                get: () => forcedAvailWidthValue
+                get: () => forcedAvailWidthValue,
             });
 
             this.origPropertyValues.availHeight = globalThis.screen.availHeight;
             const forcedAvailHeightValue = globalThis.screen.height;
             this.wrapProperty(globalThis.Screen.prototype, 'availHeight', {
-                get: () => forcedAvailHeightValue
+                get: () => forcedAvailHeightValue,
             });
 
             this.origPropertyValues.colorDepth = globalThis.screen.colorDepth;
             this.wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
-                get: () => this.getFeatureAttr('colorDepth', 24)
+                get: () => this.getFeatureAttr('colorDepth', 24),
             });
 
             this.origPropertyValues.pixelDepth = globalThis.screen.pixelDepth;
             this.wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
-                get: () => this.getFeatureAttr('pixelDepth', 24)
+                get: () => this.getFeatureAttr('pixelDepth', 24),
             });
 
             globalThis.window.addEventListener('resize', () => {
@@ -6206,25 +6224,25 @@
          * can mean second or more monitors have very large or negative values. This function maps a given
          * given coordinate value to the proper place on the main screen.
          */
-        normalizeWindowDimension (value, targetDimension) {
+        normalizeWindowDimension(value, targetDimension) {
             if (value > targetDimension) {
-                return value % targetDimension
+                return value % targetDimension;
             }
             if (value < 0) {
-                return targetDimension + value
+                return targetDimension + value;
             }
-            return value
+            return value;
         }
 
-        setWindowPropertyValue (property, value) {
+        setWindowPropertyValue(property, value) {
             // Here we don't update the prototype getter because the values are updated dynamically
             try {
                 this.defineProperty(globalThis, property, {
                     get: () => value,
-                     
+
                     set: () => {},
                     configurable: true,
-                    enumerable: true
+                    enumerable: true,
                 });
             } catch (e) {}
         }
@@ -6235,7 +6253,7 @@
          * ensuring that no information is leaked as the dimensions change, but also that the
          * values change correctly for valid use cases.
          */
-        setWindowDimensions () {
+        setWindowDimensions() {
             try {
                 const window = globalThis;
                 const top = globalThis.top;
@@ -6290,7 +6308,7 @@
     }
 
     class FingerprintingTemporaryStorage extends ContentFeature {
-        init () {
+        init() {
             const navigator = globalThis.navigator;
             const Navigator = globalThis.Navigator;
 
@@ -6306,7 +6324,7 @@
                     const org = navigator.webkitTemporaryStorage.queryUsageAndQuota;
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     const tStorage = navigator.webkitTemporaryStorage;
-                    tStorage.queryUsageAndQuota = function queryUsageAndQuota (callback, err) {
+                    tStorage.queryUsageAndQuota = function queryUsageAndQuota(callback, err) {
                         const modifiedCallback = function (usedBytes, grantedBytes) {
                             const maxBytesGranted = 4 * 1024 * 1024 * 1024;
                             const spoofedGrantedBytes = Math.min(grantedBytes, maxBytesGranted);
@@ -6318,7 +6336,7 @@
                     this.defineProperty(Navigator.prototype, 'webkitTemporaryStorage', {
                         get: () => tStorage,
                         enumerable: true,
-                        configurable: true
+                        configurable: true,
                     });
                 } catch (e) {}
             }
@@ -6326,35 +6344,35 @@
     }
 
     class NavigatorInterface extends ContentFeature {
-        load (args) {
+        load(args) {
             if (this.matchDomainFeatureSetting('privilegedDomains').length) {
                 this.injectNavigatorInterface(args);
             }
         }
 
-        init (args) {
+        init(args) {
             this.injectNavigatorInterface(args);
         }
 
-        injectNavigatorInterface (args) {
+        injectNavigatorInterface(args) {
             try {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 if (navigator.duckduckgo) {
-                    return
+                    return;
                 }
                 if (!args.platform || !args.platform.name) {
-                    return
+                    return;
                 }
                 this.defineProperty(Navigator.prototype, 'duckduckgo', {
                     value: {
                         platform: args.platform.name,
-                        isDuckDuckGo () {
-                            return DDGPromise.resolve(true)
-                        }
+                        isDuckDuckGo() {
+                            return DDGPromise.resolve(true);
+                        },
                     },
                     enumerable: true,
                     configurable: false,
-                    writable: false
+                    writable: false,
                 });
             } catch {
                 // todo: Just ignore this exception?
@@ -6381,44 +6399,44 @@
      * @param {Object} rule
      * @param {HTMLElement} [previousElement]
      */
-    function collapseDomNode (element, rule, previousElement) {
+    function collapseDomNode(element, rule, previousElement) {
         if (!element) {
-            return
+            return;
         }
         const type = rule.type;
         const alreadyHidden = hiddenElements.has(element);
         const alreadyModified = modifiedElements.has(element) && modifiedElements.get(element) === rule.type;
         // return if the element has already been hidden, or modified by the same rule type
         if (alreadyHidden || alreadyModified) {
-            return
+            return;
         }
 
         switch (type) {
-        case 'hide':
-            hideNode(element);
-            break
-        case 'hide-empty':
-            if (isDomNodeEmpty(element)) {
+            case 'hide':
                 hideNode(element);
-                appliedRules.add(rule);
-            }
-            break
-        case 'closest-empty':
-            // hide the outermost empty node so that we may unhide if ad loads
-            if (isDomNodeEmpty(element)) {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                collapseDomNode(element.parentNode, rule, element);
-            } else if (previousElement) {
-                hideNode(previousElement);
-                appliedRules.add(rule);
-            }
-            break
-        case 'modify-attr':
-            modifyAttribute(element, rule.values);
-            break
-        case 'modify-style':
-            modifyStyle(element, rule.values);
-            break
+                break;
+            case 'hide-empty':
+                if (isDomNodeEmpty(element)) {
+                    hideNode(element);
+                    appliedRules.add(rule);
+                }
+                break;
+            case 'closest-empty':
+                // hide the outermost empty node so that we may unhide if ad loads
+                if (isDomNodeEmpty(element)) {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    collapseDomNode(element.parentNode, rule, element);
+                } else if (previousElement) {
+                    hideNode(previousElement);
+                    appliedRules.add(rule);
+                }
+                break;
+            case 'modify-attr':
+                modifyAttribute(element, rule.values);
+                break;
+            case 'modify-style':
+                modifyStyle(element, rule.values);
+                break;
         }
     }
 
@@ -6427,29 +6445,29 @@
      * @param {HTMLElement} element
      * @param {Object} rule
      */
-    function expandNonEmptyDomNode (element, rule) {
+    function expandNonEmptyDomNode(element, rule) {
         if (!element) {
-            return
+            return;
         }
         const type = rule.type;
 
         const alreadyHidden = hiddenElements.has(element);
 
         switch (type) {
-        case 'hide':
-            // only care about rule types that specifically apply to empty elements
-            break
-        case 'hide-empty':
-        case 'closest-empty':
-            if (alreadyHidden && !isDomNodeEmpty(element)) {
-                unhideNode(element);
-            } else if (type === 'closest-empty') {
-                // iterate upwards from matching DOM elements until we arrive at previously
-                // hidden element. Unhide element if it contains visible content.
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                expandNonEmptyDomNode(element.parentNode, rule);
-            }
-            break
+            case 'hide':
+                // only care about rule types that specifically apply to empty elements
+                break;
+            case 'hide-empty':
+            case 'closest-empty':
+                if (alreadyHidden && !isDomNodeEmpty(element)) {
+                    unhideNode(element);
+                } else if (type === 'closest-empty') {
+                    // iterate upwards from matching DOM elements until we arrive at previously
+                    // hidden element. Unhide element if it contains visible content.
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    expandNonEmptyDomNode(element.parentNode, rule);
+                }
+                break;
         }
     }
 
@@ -6457,13 +6475,13 @@
      * Hide DOM element
      * @param {HTMLElement} element
      */
-    function hideNode (element) {
+    function hideNode(element) {
         // maintain a reference to each hidden element along with the properties
         // that are being overwritten
         const cachedDisplayProperties = {
             display: element.style.display,
             'min-height': element.style.minHeight,
-            height: element.style.height
+            height: element.style.height,
         };
         hiddenElements.set(element, cachedDisplayProperties);
 
@@ -6480,10 +6498,10 @@
      * Show previously hidden DOM element
      * @param {HTMLElement} element
      */
-    function unhideNode (element) {
+    function unhideNode(element) {
         const cachedDisplayProperties = hiddenElements.get(element);
         if (!cachedDisplayProperties) {
-            return
+            return;
         }
 
         for (const prop in cachedDisplayProperties) {
@@ -6497,10 +6515,10 @@
      * Check if DOM element contains visible content
      * @param {HTMLElement} node
      */
-    function isDomNodeEmpty (node) {
+    function isDomNodeEmpty(node) {
         // no sense wasting cycles checking if the page's body element is empty
         if (node.tagName === 'BODY') {
-            return false
+            return false;
         }
         // use a DOMParser to remove all metadata elements before checking if
         // the node is empty.
@@ -6519,19 +6537,23 @@
         // - node doesn't contain any iframes
         // - node contains iframes, all of which are hidden or have src='about:blank'
         const noFramesWithContent = frameElements.every((frame) => {
-            return (frame.hidden || frame.src === 'about:blank')
+            return frame.hidden || frame.src === 'about:blank';
         });
         // ad containers often contain tracking pixels and other small images (eg adchoices logo).
         // these should be treated as empty and hidden, but real images should not.
         const visibleImages = imageElements.some((image) => {
-            return (image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20)
+            return image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20;
         });
 
-        if ((visibleText === '' || adLabelStrings.includes(visibleText)) &&
-            mediaAndFormContent === null && noFramesWithContent && !visibleImages) {
-            return true
+        if (
+            (visibleText === '' || adLabelStrings.includes(visibleText)) &&
+            mediaAndFormContent === null &&
+            noFramesWithContent &&
+            !visibleImages
+        ) {
+            return true;
         }
-        return false
+        return false;
     }
 
     /**
@@ -6541,7 +6563,7 @@
      * @param {string} values[].property
      * @param {string} values[].value
      */
-    function modifyAttribute (element, values) {
+    function modifyAttribute(element, values) {
         values.forEach((item) => {
             element.setAttribute(item.property, item.value);
         });
@@ -6555,7 +6577,7 @@
      * @param {string} values[].property
      * @param {string} values[].value
      */
-    function modifyStyle (element, values) {
+    function modifyStyle(element, values) {
         values.forEach((item) => {
             element.style.setProperty(item.property, item.value, 'important');
         });
@@ -6568,9 +6590,9 @@
      * @param {string} rules[].selector
      * @param {string} rules[].type
      */
-    function extractTimeoutRules (rules) {
+    function extractTimeoutRules(rules) {
         if (!shouldInjectStyleTag) {
-            return rules
+            return rules;
         }
 
         const strictHideRules = [];
@@ -6585,7 +6607,7 @@
         });
 
         injectStyleTag(strictHideRules);
-        return timeoutRules
+        return timeoutRules;
     }
 
     /**
@@ -6594,7 +6616,7 @@
      * @param {string} rules[].selector
      * @param {string} rules[].type
      */
-    function injectStyleTag (rules) {
+    function injectStyleTag(rules) {
         // wrap selector list in :is(...) to make it a forgiving selector list. this enables
         // us to use selectors not supported in all browsers, eg :has in Firefox
         let selector = '';
@@ -6618,7 +6640,7 @@
      * @param {string} rules[].selector
      * @param {string} rules[].type
      */
-    function hideAdNodes (rules) {
+    function hideAdNodes(rules) {
         const document = globalThis.document;
 
         rules.forEach((rule) => {
@@ -6634,7 +6656,7 @@
     /**
      * Iterate over previously hidden elements, unhiding if content has loaded into them
      */
-    function unhideLoadedAds () {
+    function unhideLoadedAds() {
         const document = globalThis.document;
 
         appliedRules.forEach((rule) => {
@@ -6650,17 +6672,17 @@
     /**
      * Wrap selector(s) in :is(..) to make them forgiving
      */
-    function forgivingSelector (selector) {
-        return `:is(${selector})`
+    function forgivingSelector(selector) {
+        return `:is(${selector})`;
     }
 
     class ElementHiding extends ContentFeature {
-        init () {
+        init() {
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             featureInstance = this;
 
             if (isBeingFramed()) {
-                return
+                return;
             }
 
             let activeRules;
@@ -6680,17 +6702,17 @@
             const activeDomainRules = this.matchDomainFeatureSetting('domains').flatMap((item) => item.rules);
 
             const overrideRules = activeDomainRules.filter((rule) => {
-                return rule.type === 'override'
+                return rule.type === 'override';
             });
 
             const disableDefault = activeDomainRules.some((rule) => {
-                return rule.type === 'disable-default'
+                return rule.type === 'disable-default';
             });
 
             // if rule with type 'disable-default' is present, ignore all global rules
             if (disableDefault) {
                 activeRules = activeDomainRules.filter((rule) => {
-                    return rule.type !== 'disable-default'
+                    return rule.type !== 'disable-default';
                 });
             } else {
                 activeRules = activeDomainRules.concat(globalRules);
@@ -6699,7 +6721,7 @@
             // remove overrides and rules that match overrides from array of rules to be applied to page
             overrideRules.forEach((override) => {
                 activeRules = activeRules.filter((rule) => {
-                    return rule.selector !== override.selector
+                    return rule.selector !== override.selector;
                 });
             });
 
@@ -6716,10 +6738,10 @@
             // single page applications don't have a DOMContentLoaded event on navigations, so
             // we use proxy/reflect on history.pushState to call applyRules on page navigations
             const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     applyRules(activeRules);
-                    return DDGReflect.apply(target, thisArg, args)
-                }
+                    return DDGReflect.apply(target, thisArg, args);
+                },
             });
             historyMethodProxy.overload();
             // listen for popstate events in order to run on back/forward navigations
@@ -6734,7 +6756,7 @@
          * @param {string} rules[].selector
          * @param {string} rules[].type
          */
-        applyRules (rules) {
+        applyRules(rules) {
             const timeoutRules = extractTimeoutRules(rules);
             const clearCacheTimer = unhideTimeouts.concat(hideTimeouts).reduce((a, b) => Math.max(a, b), 0) + 100;
 
@@ -6766,36 +6788,185 @@
     }
 
     class ExceptionHandler extends ContentFeature {
-        init () {
+        init() {
             // Report to the debugger panel if an uncaught exception occurs
             const handleUncaughtException = (e) => {
-                postDebugMessage('jsException', {
-                    documentUrl: document.location.href,
-                    message: e.message,
-                    filename: e.filename,
-                    lineno: e.lineno,
-                    colno: e.colno,
-                    stack: e.error?.stack
-                }, true);
+                postDebugMessage(
+                    'jsException',
+                    {
+                        documentUrl: document.location.href,
+                        message: e.message,
+                        filename: e.filename,
+                        lineno: e.lineno,
+                        colno: e.colno,
+                        stack: e.error?.stack,
+                    },
+                    true,
+                );
                 this.addDebugFlag();
             };
             globalThis.addEventListener('error', handleUncaughtException);
         }
     }
 
-    const logoImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAABUCAYAAAAcaxDBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAABNTSURBVHgBzV0LcFPXmf6PJFt+gkEY8wrYMSEbgst7m02ywZnOZiEJCQlJC+QB25lNs7OzlEJ2ptmZLGayfUy3EEhmW5rM7gCZBtjJgzxmSTvTRSST9IF5pCE0TUosmmBjHIKNZFmWLN2e78hHPvfqXuleSdfONyNLV7q6uve7//uc85vRlwAda25oTFK8lZGn0UPaLI2okUhrTH/KGnU7M+olTevlL0KaeM3e01LaKa/PE2p64dgpGmMwGgN0rGqtS1Ve2cB/fhk/gVbSqI5KAU4wvxlBTdNe9VJ5sOnAb0I0yhg1QiWJTGN3E0gcHQRTpO0dTXJdJ7RjzZJWflHrGaNVdiTRN2kalTfOIU9VLfnqp5ruM9TTxR+dlIqGKX7uI7IDLrl7PFS2zW1iXSMURGqkbaUc0uiprqWqxa1UOXcxVcxdxAmcRoUApMZDH9HAmeMU+8NxQbYV3Ca25ITCwaRY4immcYk0AUgcv3wtJ3CxeLgBEBw++jpF249akusWsSUltGPNoq0aY5vMVLviusU04b5HbJMoVLo/ItRaBUyBp7rGtjTHuNSGj75BkbdeN/2ckdbWdODENioRSkIopFLThl4hpi0wflZzy0pO5D9aEiDsIFfXQagtf4CAXCqronzWHHFc3CQ/f53rZuGYl198zorYEKOyW0shrUUT2rFu8bc1jdqMUplLIkFi9NhRCvOLA4mp/jCVAjAn+N2qJa1UvXSZkGYjQOylfTu4OQjqPxAhl7atef+JnVQEiiK0Y+2ipzSNq7gCXFT9o1vFRRkB6evnFxJ5642SkWgF4fD4OUxYba4dEW4GLr/0bJY2FGsCCiIUMaVWEX6FDB4cF1D/T1uzJANE4uTxPBaoWbbSlNgcZiDIYsl7mg6d6iWHcEyolb0MPLyFxq1Yq9sXqg31ihx9nb4MsCK298VnxQ3XQaNTjJXd49SuOiJUkEmJIyRy7TSgWg2bf5xlK/sO76defpJuq7ZTgMy61Y9Q7bI7de/Dlndvf8xoAhw7K9uECjX3R46okomTm/rEbt0dh1TixIzqDeI9lSPZD/ZDWDT0uT2PXmqYSSvI7HryUT2pkNTB5K121d82oZ+sWQzJbJXbZmRa3GWBces2UuXX7qOKigryeDy6z0A+wqbosaDIdEYLZtdgSiq3qVcfOH6rnWPaIlQE7MTacp1ImHvuL/Ztz63iE+qpZtN2qp8z13IX6Siix4OjYi7gQCdy+6+aADNSecKys3l/+3fyHc+bb4d0nMl+KLfNyIS9vPTfPyAtEbc8jvjevz5F45r/inIBpqF6aSvV/M1twiTYLX4UCpwzYlIRw17TMnIOS5aJ8E5eE5e8Gza2TO17+nTXb3IdLyehaSeUOsBfVsj3pv77z6hsWmNmH5AJycwFQeb3nqfBqvHU399P4XBYPMfjcWK8DOXz+bK+I4mFCo2GGRh479dZpFbMbhGkSvBzvWHTvFkHd53+zNKe5lR5bjc7SPHoE7h3rOPZjwTU/POftlE+4ORS5ZVEly+OvDm1UTw0bldRsmtoaCC/32/6/SvQgDw3rVSY9GibTv2zfps7qasPHl9o9X1LCYXd5HxnKkbIyQPrt2Q+h325uOOxnGqeOQfsE+vXvxnhN7krROzd/6PUlJkU9nOJrK4mrzf7lPxcaiCt0IxE57msgkkpAQdZNf9G8tYFMr8Ns5PoDKV3YDRl47zp7OnTnUGz75tK6HC82SG3jXbTwhM6Q0U1sZvvFERVz77e1PtbwSptLBVwndN/+PNMxocb+OnGu0acJM/7mVa20Cw+Nb2CFCW2qtsIhFUndPml5wq/mAmTiT2yjep2HKKZ/7CF6r+ylKqqqmyTCdRwlcQNRmXfDeDaEP5JgFjUJzLghSDUfM2+m3UVkE4uthvkNvJz1aZAOgpNJbWv3U/jnnyeZi5bQRMmTHBEohFprfmZa6RC9eFwJcCDmg2igI5RCeP3sq7IKJ2BhzdnXosY0Zjz2gHUm0vltAe/TYFAoCgiVUByQGqhQyf5gBxftddwyiqGh3j056RuGKUTjqhoVR8mc8bf/r2wk6VGmtTdIpIoNWRxRwISCk4UtBqlVEeoUTpRaZcAkYWoOtQ8MG+xaaxZKuCmj1u+ltwArlmtS6icABjRVbczhNqRTqfQFvGM57avU21t6aXnvTOd9PKb79O+l9rpnfYOGn/7WlekFFDNnBxykcDweMeqBZnRigyhmAqjHsSY2xbkiLh0Tpw4MbMZiQ5yAo7T1h2/oG89/iL9aHeQLvQ4jynfaQ8JEqsry6lhUi2dPXeJdr/4vmtSCgnVSalqS+HxK30b5GZGD73E1mvyTcNdKEg6m3hsOeWqjKqDuMf+43VOQA09vHoJNTcGqKbKL0h2ipuWNIqHEaloC115c78rRRUM3UhO8Cyyv+HfYZqG2TBiLEpIaDqQHynNVfHCwMhJhrMHtOzguqUi85GAet52y7W0/Ym7aP7caYJMQD6XAnBQmDjhBhAuqh7foA2tUu0FoVnqrngyjE4WdMeb5upy83uXt3DJdGdigwpjJb5UAJn9nAuJSsMIhVR7QejwBC4BqLsaLPcXIp0Az7vLy8szm1Pq3XEYRoh5US45J3UwT6q9BFf7VjynCfWMqDvGtVUUVDrjhWRx8BIF8FaQTk46OGxD7TEBwg1gQoaq9jrzwkjYSU/H/UsXqJMUVGcEz1aIumt1k/OSibDnP3cfoZ/se7cgTw/8ZN+vRdjUzb+/ekUL/fJouhjtFqFylouETu05h/BFnqQv1ah+ya+czKBL1XKQsIV7/F+89VFGygrx9t09V8RzJBrnEnpEhFOAf9a15BZUTjBjUEWSkq0ebj914+uq/SxmYkIqlbL87J3joczrmqp0Ovpue4icAtGCBGJRue1WwQRQJdRYQ2CkNfpI0+bLqqhRVYod4gWpZqof6R8pSr/85u/F880mcWU+IJ6Fs4NkNs8KZKIIT1UNuQWjTwGpsr6B9QE+D6M6GdAbp9Cod8MJWO9FzL+0JHT1innC/kmAlBsLIBRAbIuHCjte3sMVo2o2FyLuP+N8ZCbyAdmCsTgEIZTv8ZHhRp8mVlukRdQ4Pl0wBqLiCYNwZkWRe5d/RQT0cEwNnMx7V7RQKWE26068P0xi7fXc/l2l/8wuoQC4kVzpfwsqz1gdDYuoOqc9FY1QwcD4USxKiUTCchczySoVZGjjG8clqIGTN4M7qsnZJErEPiVHwPA2pSPDrHUAPquFBEXnw5zUoaEhKhpJfh69PEMZ5BoT78q/L394+H6z/oVLj42sNsWDi543yRFyDBI2ulek5KOEA5OnU8EY4Pb7Uz58Gy4s0rBLZtdBrsJ9VDK4R+jlnsIl9NIbRKE2chNQc0hmKckE3CP0Qkh4eTgmNafPi3ina2RCIsOnecHnT87tpl1wQrVQ1npKoqILDKzjA+HrBgYGnBHamb/2CmLiF7Pf940f/jyW3gfSl+DJ1BB/xP6cfi4FrKIIjNfrJBQr1Ea+VGRwzFUenn5w0OFxon/M+XHPYWchjhvAsh4JlTMuQb08rmchua16r5IMzXZ1UCwWc/adpHW4BiLHmkxAF6/rskkW8nC1PCc3jVMHiya185xwTI6cU611ETrp8N64AWN6rg+htD5O6IiEGrMjY23UMTrOiCfYUdsIWFfcx/PTKZ9MYwqjkKnpOefyFCc0FVJ3UEkttmoDxyR+NJ5/hl4GkNDASsuPpz/Mk5QVY0esWi82ajQv3Z3yeSkV1JRZjQNnTvBxmfRd8BdbqEUKygP8ft9sMQXHNq7azE+EO6eoeXGm5vr0A148zn3f4MW0V0+ZlFSRfiLILxufjgJkwA+v7zRDAlROsopHzBPyNR04Ffpk7eJemYKiBioHuuT4TFFpKFf7IT6+ZFV5MoWXhyXXvcBvxrPcsVnPpfINk4SCh2MUsOQN4ZIqoQNqKY+HTGjRIa5QS1FQvq8OGZdkfIYH+ACmgDvGtEeIWl7LaQIKQR/n4dIRcgzjWixdAV4jMSSaFhkPy4yPwmupO9beUtzFsDPHxLMjO6qinJufxq1pYhvbKOUp7AbDHIBI5O5fHEkH/06hrl+F/VT9Da/WH8KzCOw9/qE9WsybmUCKzgjyblRhVe/zRag97GhvD7ejPmd21AhO7BAfVTn/X9sxeCMKw3BM/vqRDEkFCEOWBBuLrMoss3ICaCtWOEuEs6YmpYL4Kwht2nOqt2PN4qCcPYKJ+hOGFyfgQDW33CneKxgfHKOhm253ZkdNgAmw8sYiF3crHzcDpFNNOdEtYgQsCF+EV5mrSzH2aua1Qe2rTZZqO0IxdlSBKOyOEdRpjMYmCYxSe+XrDKFQe9FkahjqFL5i+4MUbUfHGMapnWFl7VIaaXUHMoRC7bmnykip8S4Yp0M7grSjRUqom8PDuZBr4jGPvvZIdQd0Bo0XSvao2+o0RpPp0M4AO+o0rzfAqo+TEVE/o8MLy+hHd1fQQHlxXUDyTzxO6ro/6AhtOtAe5D8flNvG6dCB9ZsLr5MO5/XFSGmlDbMTvN5H2+73c0J99FmAie1CASKdSCdg4nKZjnHVlsLLFar6Mq93XM5TYMxUVFyqZfTMCj+9/NUynVT+9pq864MtYVyfpS5gSCOZ1Zsk69d2ne4MbWqZhuk5YtkwCqh+brvkglks1Ut378ozAmnEUEJMwk1yUurq9AOtF/o76YVP/ofe7v5/ev/ySUqk+LCJ10/Vvuzi9Nnuk/Re8iy9P8tLA34PNfSlhBTubS2n7rps+QC5X/04RZVxjZwg3R5pRHgw4bbvtT2Z7bR0ntxr/J7F0sQFjRrznpT5PSTjqmde0y3VO//dBxxPhtBu30DE49GpU6dSZWVl5v21h2+niC87cbi69hq6a+b91DJxIb392a/of//8PEWTepMBovq9Gnm81vHtA28nOKn2bbedpZiMkk1GdQdMzwI7ahrbJbdBYM9PR6QbxDZs+bFzezpsR41qf2HA/MZ8Ev6Ydn7wfXrglytp95mdWWQCkMBYbIA0zVoCv6ix75hwTcZ+AMb1Wbzuuc2MTPF9skDzgfY2fhsyDU5RNFGX6qFoEnhoMzmBtKNqwRnqXiwY81Aibj1LxQmhgYe2GMh81rgCJiS4sUDOPJBpyXvUYB+NBlSvj0YoaC9kG4hHOamQUDndcUr1NF7tym/ftBzTI7EkPJkjHBuwOeiKa6lR5uijAILliRlgFTIlc/YeyUmoUP2UpvNkxiYt6NXkiNTO9BCWGj5VeXOPjKLrg1bE53ZiUWPfKeOKZCCXqkvkrVQ0HzyxU2Oks6dGA40TwfJnOzaV/SGdhqpqP6V6ak4bCAlM8LTVah9I+1AiwR/mUjoxYn3sdGu5tiwys5q4cDKb97fn7Ytnq/TTvP/4JjXgN/tBqP/0H/w8/0hpV0iM10ej0cxbC+qXWpIhfo+rM8iMRvqFrcQjPhinAX6MSDhMc88O0sLzTLy+0ttHUS79g7FBcUyQXTFobi7kEvGaPB1xUE3KZTdV2I56Ny1peJWSnuX85RRspxeEHRXdY6Rkym4yObvZIB6dM5+0unqxOrmsrIy+iH1O73QeobLyMt2uIDHGJXmiN0Dfv/lp6rzyKSUScQqU1dOc2rnU0j+RVh3ppjs/9tEN5710z4c+uraH0cRwWmL7tDhFEjF6sJ1R3aBe7TGii4Y0+RthsVNscGjFrg8v2MpIHLZq4/EpeXWt2nBCaNVmLFzkamOh3XgH0R3rafz48aLoHEmE6Y5DN9G4upFKMSQQZK6evY6+Oe+fqaYs25zgpp3/7jpyAtx0ZHvGPn1wtt07HjMW0kNwQvnspgpHedmu0xd6N83jkso8raRIavhXL4lbo+baINhKWhk88l//HSWTSUEqsqKTF39H3dEu7q2TQpUDvkn0vZt20arZ3xCfm558XcBR1obsZ8rjT5v26et55t/0DWkgmSy5wgmZ4tqoAHRsWFBHMe8rmqHdpZO2ktoTe7jeVdGMGTPEZLKPL39IG498U5zQfXMepK9f+5CpVBoByep68ls597FqDisTluy1rCzIYkOj0+5Sxdk1S9qYoU2EVfdDQG3Dlly2WqSh6D2CBwDVt0OiEecfX5c1Rg7VxtBNtaFXiARI7Nm9LWusjJvtXc0Hj2+iAlF0y+Cz31i0iXnYVuPUcozBoF+JmdcXDu2zEEXG1YsYEk2wioHsbgYSy2fO4TdzZXpw0WTaoWVzWNEy2F5olAslamqd7awkrMxAKSGXDMp/KGCGdAOa58wbKQh7yVXcob00Q0kIlTAzARIgtparoFu9662Qs10xpJIXgezGmHZQUkKBYWlt4y/Xm30OSUWDA0ygcLPnEqbJXDls3d2BW5pDpCW/Uwqp1B2XXEI+YgHZigNeGJOwCiUY6hw7c0KQCGeTe1IGwzDPNgz3kAtwjVAJO8SqQFkQzgVk+yZZ/HOVz7sEacbpMJYQveq4RBLb6xaRIz81SgCxSfK0esmzXqN09wP3waWRpV6lgdSeQmLKgn6RxgAZcpnnbkFuCf9BFR8KD3K/f3Q0SdSfwpcAHevQVSLVmNLYAg+j+SBYLOrlNQ0TskP4k15swUIp0s5hFvZY/YcvI/4CeAZjCToTSnsAAAAASUVORK5CYII=';
+    /**
+     * This feature allows remote configuration of APIs that exist within the DOM.
+     * We support removal of APIs and returning different values from getters.
+     *
+     * @module API manipulation
+     */
+
+    /**
+     * @internal
+     */
+    class ApiManipulation extends ContentFeature {
+        init() {
+            const apiChanges = this.getFeatureSetting('apiChanges');
+            if (apiChanges) {
+                for (const scope in apiChanges) {
+                    const change = apiChanges[scope];
+                    if (!this.checkIsValidAPIChange(change)) {
+                        continue;
+                    }
+                    this.applyApiChange(scope, change);
+                }
+            }
+        }
+
+        /**
+         * Checks if the config API change is valid.
+         * @param {any} change
+         * @returns {change is APIChange}
+         */
+        checkIsValidAPIChange(change) {
+            if (typeof change !== 'object') {
+                return false;
+            }
+            if (change.type === 'remove') {
+                return true;
+            }
+            if (change.type === 'descriptor') {
+                if (change.enumerable && typeof change.enumerable !== 'boolean') {
+                    return false;
+                }
+                if (change.configurable && typeof change.configurable !== 'boolean') {
+                    return false;
+                }
+                return typeof change.getterValue !== 'undefined';
+            }
+            return false;
+        }
+
+        // TODO move this to schema definition imported from the privacy-config
+        // Additionally remove checkIsValidAPIChange when this change happens.
+        // See: https://app.asana.com/0/1201614831475344/1208715421518231/f
+        /**
+         * @typedef {Object} APIChange
+         * @property {"remove"|"descriptor"} type
+         * @property {import('../utils.js').ConfigSetting} [getterValue] - The value returned from a getter.
+         * @property {boolean} [enumerable] - Whether the property is enumerable.
+         * @property {boolean} [configurable] - Whether the property is configurable.
+         */
+
+        /**
+         * Applies a change to DOM APIs.
+         * @param {string} scope
+         * @param {APIChange} change
+         * @returns {void}
+         */
+        applyApiChange(scope, change) {
+            const response = this.getGlobalObject(scope);
+            if (!response) {
+                return;
+            }
+            const [obj, key] = response;
+            if (change.type === 'remove') {
+                this.removeApiMethod(obj, key);
+            } else if (change.type === 'descriptor') {
+                this.wrapApiDescriptor(obj, key, change);
+            }
+        }
+
+        /**
+         * Removes a method from an API.
+         * @param {object} api
+         * @param {string} key
+         */
+        removeApiMethod(api, key) {
+            try {
+                if (hasOwnProperty.call(api, key)) {
+                    delete api[key];
+                }
+            } catch (e) {}
+        }
+
+        /**
+         * Wraps a property with descriptor.
+         * @param {object} api
+         * @param {string} key
+         * @param {APIChange} change
+         */
+        wrapApiDescriptor(api, key, change) {
+            const getterValue = change.getterValue;
+            if (getterValue) {
+                const descriptor = {
+                    get: () => processAttr(getterValue, undefined),
+                };
+                if ('enumerable' in change) {
+                    descriptor.enumerable = change.enumerable;
+                }
+                if ('configurable' in change) {
+                    descriptor.configurable = change.configurable;
+                }
+                this.wrapProperty(api, key, descriptor);
+            }
+        }
+
+        /**
+         * Looks up a global object from a scope, e.g. 'Navigator.prototype'.
+         * @param {string} scope the scope of the object to get to.
+         * @returns {[object, string]|null} the object at the scope.
+         */
+        getGlobalObject(scope) {
+            const parts = scope.split('.');
+            // get the last part of the scope
+            const lastPart = parts.pop();
+            if (!lastPart) {
+                return null;
+            }
+            let obj = window;
+            for (const part of parts) {
+                obj = obj[part];
+                if (!obj) {
+                    return null;
+                }
+            }
+            return [obj, lastPart];
+        }
+    }
+
+    const logoImg =
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAABUCAYAAAAcaxDBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAABNTSURBVHgBzV0LcFPXmf6PJFt+gkEY8wrYMSEbgst7m02ywZnOZiEJCQlJC+QB25lNs7OzlEJ2ptmZLGayfUy3EEhmW5rM7gCZBtjJgzxmSTvTRSST9IF5pCE0TUosmmBjHIKNZFmWLN2e78hHPvfqXuleSdfONyNLV7q6uve7//uc85vRlwAda25oTFK8lZGn0UPaLI2okUhrTH/KGnU7M+olTevlL0KaeM3e01LaKa/PE2p64dgpGmMwGgN0rGqtS1Ve2cB/fhk/gVbSqI5KAU4wvxlBTdNe9VJ5sOnAb0I0yhg1QiWJTGN3E0gcHQRTpO0dTXJdJ7RjzZJWflHrGaNVdiTRN2kalTfOIU9VLfnqp5ruM9TTxR+dlIqGKX7uI7IDLrl7PFS2zW1iXSMURGqkbaUc0uiprqWqxa1UOXcxVcxdxAmcRoUApMZDH9HAmeMU+8NxQbYV3Ca25ITCwaRY4immcYk0AUgcv3wtJ3CxeLgBEBw++jpF249akusWsSUltGPNoq0aY5vMVLviusU04b5HbJMoVLo/ItRaBUyBp7rGtjTHuNSGj75BkbdeN/2ckdbWdODENioRSkIopFLThl4hpi0wflZzy0pO5D9aEiDsIFfXQagtf4CAXCqronzWHHFc3CQ/f53rZuGYl198zorYEKOyW0shrUUT2rFu8bc1jdqMUplLIkFi9NhRCvOLA4mp/jCVAjAn+N2qJa1UvXSZkGYjQOylfTu4OQjqPxAhl7atef+JnVQEiiK0Y+2ipzSNq7gCXFT9o1vFRRkB6evnFxJ5642SkWgF4fD4OUxYba4dEW4GLr/0bJY2FGsCCiIUMaVWEX6FDB4cF1D/T1uzJANE4uTxPBaoWbbSlNgcZiDIYsl7mg6d6iWHcEyolb0MPLyFxq1Yq9sXqg31ihx9nb4MsCK298VnxQ3XQaNTjJXd49SuOiJUkEmJIyRy7TSgWg2bf5xlK/sO76defpJuq7ZTgMy61Y9Q7bI7de/Dlndvf8xoAhw7K9uECjX3R46okomTm/rEbt0dh1TixIzqDeI9lSPZD/ZDWDT0uT2PXmqYSSvI7HryUT2pkNTB5K121d82oZ+sWQzJbJXbZmRa3GWBces2UuXX7qOKigryeDy6z0A+wqbosaDIdEYLZtdgSiq3qVcfOH6rnWPaIlQE7MTacp1ImHvuL/Ztz63iE+qpZtN2qp8z13IX6Siix4OjYi7gQCdy+6+aADNSecKys3l/+3fyHc+bb4d0nMl+KLfNyIS9vPTfPyAtEbc8jvjevz5F45r/inIBpqF6aSvV/M1twiTYLX4UCpwzYlIRw17TMnIOS5aJ8E5eE5e8Gza2TO17+nTXb3IdLyehaSeUOsBfVsj3pv77z6hsWmNmH5AJycwFQeb3nqfBqvHU399P4XBYPMfjcWK8DOXz+bK+I4mFCo2GGRh479dZpFbMbhGkSvBzvWHTvFkHd53+zNKe5lR5bjc7SPHoE7h3rOPZjwTU/POftlE+4ORS5ZVEly+OvDm1UTw0bldRsmtoaCC/32/6/SvQgDw3rVSY9GibTv2zfps7qasPHl9o9X1LCYXd5HxnKkbIyQPrt2Q+h325uOOxnGqeOQfsE+vXvxnhN7krROzd/6PUlJkU9nOJrK4mrzf7lPxcaiCt0IxE57msgkkpAQdZNf9G8tYFMr8Ns5PoDKV3YDRl47zp7OnTnUGz75tK6HC82SG3jXbTwhM6Q0U1sZvvFERVz77e1PtbwSptLBVwndN/+PNMxocb+OnGu0acJM/7mVa20Cw+Nb2CFCW2qtsIhFUndPml5wq/mAmTiT2yjep2HKKZ/7CF6r+ylKqqqmyTCdRwlcQNRmXfDeDaEP5JgFjUJzLghSDUfM2+m3UVkE4uthvkNvJz1aZAOgpNJbWv3U/jnnyeZi5bQRMmTHBEohFprfmZa6RC9eFwJcCDmg2igI5RCeP3sq7IKJ2BhzdnXosY0Zjz2gHUm0vltAe/TYFAoCgiVUByQGqhQyf5gBxftddwyiqGh3j056RuGKUTjqhoVR8mc8bf/r2wk6VGmtTdIpIoNWRxRwISCk4UtBqlVEeoUTpRaZcAkYWoOtQ8MG+xaaxZKuCmj1u+ltwArlmtS6icABjRVbczhNqRTqfQFvGM57avU21t6aXnvTOd9PKb79O+l9rpnfYOGn/7WlekFFDNnBxykcDweMeqBZnRigyhmAqjHsSY2xbkiLh0Tpw4MbMZiQ5yAo7T1h2/oG89/iL9aHeQLvQ4jynfaQ8JEqsry6lhUi2dPXeJdr/4vmtSCgnVSalqS+HxK30b5GZGD73E1mvyTcNdKEg6m3hsOeWqjKqDuMf+43VOQA09vHoJNTcGqKbKL0h2ipuWNIqHEaloC115c78rRRUM3UhO8Cyyv+HfYZqG2TBiLEpIaDqQHynNVfHCwMhJhrMHtOzguqUi85GAet52y7W0/Ym7aP7caYJMQD6XAnBQmDjhBhAuqh7foA2tUu0FoVnqrngyjE4WdMeb5upy83uXt3DJdGdigwpjJb5UAJn9nAuJSsMIhVR7QejwBC4BqLsaLPcXIp0Az7vLy8szm1Pq3XEYRoh5US45J3UwT6q9BFf7VjynCfWMqDvGtVUUVDrjhWRx8BIF8FaQTk46OGxD7TEBwg1gQoaq9jrzwkjYSU/H/UsXqJMUVGcEz1aIumt1k/OSibDnP3cfoZ/se7cgTw/8ZN+vRdjUzb+/ekUL/fJouhjtFqFylouETu05h/BFnqQv1ah+ya+czKBL1XKQsIV7/F+89VFGygrx9t09V8RzJBrnEnpEhFOAf9a15BZUTjBjUEWSkq0ebj914+uq/SxmYkIqlbL87J3joczrmqp0Ovpue4icAtGCBGJRue1WwQRQJdRYQ2CkNfpI0+bLqqhRVYod4gWpZqof6R8pSr/85u/F880mcWU+IJ6Fs4NkNs8KZKIIT1UNuQWjTwGpsr6B9QE+D6M6GdAbp9Cod8MJWO9FzL+0JHT1innC/kmAlBsLIBRAbIuHCjte3sMVo2o2FyLuP+N8ZCbyAdmCsTgEIZTv8ZHhRp8mVlukRdQ4Pl0wBqLiCYNwZkWRe5d/RQT0cEwNnMx7V7RQKWE26068P0xi7fXc/l2l/8wuoQC4kVzpfwsqz1gdDYuoOqc9FY1QwcD4USxKiUTCchczySoVZGjjG8clqIGTN4M7qsnZJErEPiVHwPA2pSPDrHUAPquFBEXnw5zUoaEhKhpJfh69PEMZ5BoT78q/L394+H6z/oVLj42sNsWDi543yRFyDBI2ulek5KOEA5OnU8EY4Pb7Uz58Gy4s0rBLZtdBrsJ9VDK4R+jlnsIl9NIbRKE2chNQc0hmKckE3CP0Qkh4eTgmNafPi3ina2RCIsOnecHnT87tpl1wQrVQ1npKoqILDKzjA+HrBgYGnBHamb/2CmLiF7Pf940f/jyW3gfSl+DJ1BB/xP6cfi4FrKIIjNfrJBQr1Ea+VGRwzFUenn5w0OFxon/M+XHPYWchjhvAsh4JlTMuQb08rmchua16r5IMzXZ1UCwWc/adpHW4BiLHmkxAF6/rskkW8nC1PCc3jVMHiya185xwTI6cU611ETrp8N64AWN6rg+htD5O6IiEGrMjY23UMTrOiCfYUdsIWFfcx/PTKZ9MYwqjkKnpOefyFCc0FVJ3UEkttmoDxyR+NJ5/hl4GkNDASsuPpz/Mk5QVY0esWi82ajQv3Z3yeSkV1JRZjQNnTvBxmfRd8BdbqEUKygP8ft9sMQXHNq7azE+EO6eoeXGm5vr0A148zn3f4MW0V0+ZlFSRfiLILxufjgJkwA+v7zRDAlROsopHzBPyNR04Ffpk7eJemYKiBioHuuT4TFFpKFf7IT6+ZFV5MoWXhyXXvcBvxrPcsVnPpfINk4SCh2MUsOQN4ZIqoQNqKY+HTGjRIa5QS1FQvq8OGZdkfIYH+ACmgDvGtEeIWl7LaQIKQR/n4dIRcgzjWixdAV4jMSSaFhkPy4yPwmupO9beUtzFsDPHxLMjO6qinJufxq1pYhvbKOUp7AbDHIBI5O5fHEkH/06hrl+F/VT9Da/WH8KzCOw9/qE9WsybmUCKzgjyblRhVe/zRag97GhvD7ejPmd21AhO7BAfVTn/X9sxeCMKw3BM/vqRDEkFCEOWBBuLrMoss3ICaCtWOEuEs6YmpYL4Kwht2nOqt2PN4qCcPYKJ+hOGFyfgQDW33CneKxgfHKOhm253ZkdNgAmw8sYiF3crHzcDpFNNOdEtYgQsCF+EV5mrSzH2aua1Qe2rTZZqO0IxdlSBKOyOEdRpjMYmCYxSe+XrDKFQe9FkahjqFL5i+4MUbUfHGMapnWFl7VIaaXUHMoRC7bmnykip8S4Yp0M7grSjRUqom8PDuZBr4jGPvvZIdQd0Bo0XSvao2+o0RpPp0M4AO+o0rzfAqo+TEVE/o8MLy+hHd1fQQHlxXUDyTzxO6ro/6AhtOtAe5D8flNvG6dCB9ZsLr5MO5/XFSGmlDbMTvN5H2+73c0J99FmAie1CASKdSCdg4nKZjnHVlsLLFar6Mq93XM5TYMxUVFyqZfTMCj+9/NUynVT+9pq864MtYVyfpS5gSCOZ1Zsk69d2ne4MbWqZhuk5YtkwCqh+brvkglks1Ut378ozAmnEUEJMwk1yUurq9AOtF/o76YVP/ofe7v5/ev/ySUqk+LCJ10/Vvuzi9Nnuk/Re8iy9P8tLA34PNfSlhBTubS2n7rps+QC5X/04RZVxjZwg3R5pRHgw4bbvtT2Z7bR0ntxr/J7F0sQFjRrznpT5PSTjqmde0y3VO//dBxxPhtBu30DE49GpU6dSZWVl5v21h2+niC87cbi69hq6a+b91DJxIb392a/of//8PEWTepMBovq9Gnm81vHtA28nOKn2bbedpZiMkk1GdQdMzwI7ahrbJbdBYM9PR6QbxDZs+bFzezpsR41qf2HA/MZ8Ev6Ydn7wfXrglytp95mdWWQCkMBYbIA0zVoCv6ix75hwTcZ+AMb1Wbzuuc2MTPF9skDzgfY2fhsyDU5RNFGX6qFoEnhoMzmBtKNqwRnqXiwY81Aibj1LxQmhgYe2GMh81rgCJiS4sUDOPJBpyXvUYB+NBlSvj0YoaC9kG4hHOamQUDndcUr1NF7tym/ftBzTI7EkPJkjHBuwOeiKa6lR5uijAILliRlgFTIlc/YeyUmoUP2UpvNkxiYt6NXkiNTO9BCWGj5VeXOPjKLrg1bE53ZiUWPfKeOKZCCXqkvkrVQ0HzyxU2Oks6dGA40TwfJnOzaV/SGdhqpqP6V6ak4bCAlM8LTVah9I+1AiwR/mUjoxYn3sdGu5tiwys5q4cDKb97fn7Ytnq/TTvP/4JjXgN/tBqP/0H/w8/0hpV0iM10ej0cxbC+qXWpIhfo+rM8iMRvqFrcQjPhinAX6MSDhMc88O0sLzTLy+0ttHUS79g7FBcUyQXTFobi7kEvGaPB1xUE3KZTdV2I56Ny1peJWSnuX85RRspxeEHRXdY6Rkym4yObvZIB6dM5+0unqxOrmsrIy+iH1O73QeobLyMt2uIDHGJXmiN0Dfv/lp6rzyKSUScQqU1dOc2rnU0j+RVh3ppjs/9tEN5710z4c+uraH0cRwWmL7tDhFEjF6sJ1R3aBe7TGii4Y0+RthsVNscGjFrg8v2MpIHLZq4/EpeXWt2nBCaNVmLFzkamOh3XgH0R3rafz48aLoHEmE6Y5DN9G4upFKMSQQZK6evY6+Oe+fqaYs25zgpp3/7jpyAtx0ZHvGPn1wtt07HjMW0kNwQvnspgpHedmu0xd6N83jkso8raRIavhXL4lbo+baINhKWhk88l//HSWTSUEqsqKTF39H3dEu7q2TQpUDvkn0vZt20arZ3xCfm558XcBR1obsZ8rjT5v26et55t/0DWkgmSy5wgmZ4tqoAHRsWFBHMe8rmqHdpZO2ktoTe7jeVdGMGTPEZLKPL39IG498U5zQfXMepK9f+5CpVBoByep68ls597FqDisTluy1rCzIYkOj0+5Sxdk1S9qYoU2EVfdDQG3Dlly2WqSh6D2CBwDVt0OiEecfX5c1Rg7VxtBNtaFXiARI7Nm9LWusjJvtXc0Hj2+iAlF0y+Cz31i0iXnYVuPUcozBoF+JmdcXDu2zEEXG1YsYEk2wioHsbgYSy2fO4TdzZXpw0WTaoWVzWNEy2F5olAslamqd7awkrMxAKSGXDMp/KGCGdAOa58wbKQh7yVXcob00Q0kIlTAzARIgtparoFu9662Qs10xpJIXgezGmHZQUkKBYWlt4y/Xm30OSUWDA0ygcLPnEqbJXDls3d2BW5pDpCW/Uwqp1B2XXEI+YgHZigNeGJOwCiUY6hw7c0KQCGeTe1IGwzDPNgz3kAtwjVAJO8SqQFkQzgVk+yZZ/HOVz7sEacbpMJYQveq4RBLb6xaRIz81SgCxSfK0esmzXqN09wP3waWRpV6lgdSeQmLKgn6RxgAZcpnnbkFuCf9BFR8KD3K/f3Q0SdSfwpcAHevQVSLVmNLYAg+j+SBYLOrlNQ0TskP4k15swUIp0s5hFvZY/YcvI/4CeAZjCToTSnsAAAAASUVORK5CYII=';
     const loadingImages = {
-        darkMode: 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%40keyframes%20rotate%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20from%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%280deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28359deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%20%20%20%20%3Cg%20style%3D%22transform-origin%3A%2050%25%2050%25%3B%20animation%3A%20rotate%201s%20infinite%20reverse%20linear%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2218.0968%22%20y%3D%2216.0861%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%2018.0968%2016.0861%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2219.9976%22%20y%3D%228.37451%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%2019.9976%208.37451%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2216.1727%22%20y%3D%221.9917%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%2016.1727%201.9917%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.91309%22%20y%3D%226.88501%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%208.91309%206.88501%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%226.79602%22%20y%3D%2210.996%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%206.79602%2010.996%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%227%22%20y%3D%228.62549%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%207%208.62549%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20y%3D%2213%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fsvg%3E',
-        lightMode: 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%40keyframes%20rotate%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20from%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%280deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28359deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%20%20%20%20%3Cg%20style%3D%22transform-origin%3A%2050%25%2050%25%3B%20animation%3A%20rotate%201s%20infinite%20reverse%20linear%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2218.0968%22%20y%3D%2216.0861%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%2018.0968%2016.0861%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2219.9976%22%20y%3D%228.37451%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%2019.9976%208.37451%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2216.1727%22%20y%3D%221.9917%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%2016.1727%201.9917%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.91309%22%20y%3D%226.88501%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%208.91309%206.88501%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%226.79602%22%20y%3D%2210.996%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%206.79602%2010.996%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%227%22%20y%3D%228.62549%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%207%208.62549%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20y%3D%2213%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fsvg%3E' // 'data:application/octet-stream;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KCTxzdHlsZT4KCQlAa2V5ZnJhbWVzIHJvdGF0ZSB7CgkJCWZyb20gewoJCQkJdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7CgkJCX0KCQkJdG8gewoJCQkJdHJhbnNmb3JtOiByb3RhdGUoMzU5ZGVnKTsKCQkJfQoJCX0KCTwvc3R5bGU+Cgk8ZyBzdHlsZT0idHJhbnNmb3JtLW9yaWdpbjogNTAlIDUwJTsgYW5pbWF0aW9uOiByb3RhdGUgMXMgaW5maW5pdGUgcmV2ZXJzZSBsaW5lYXI7Ij4KCQk8cmVjdCB4PSIxOC4wOTY4IiB5PSIxNi4wODYxIiB3aWR0aD0iMyIgaGVpZ2h0PSI3IiByeD0iMS41IiB0cmFuc2Zvcm09InJvdGF0ZSgxMzYuMTYxIDE4LjA5NjggMTYuMDg2MSkiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIi8+CQoJCTxyZWN0IHg9IjguNDk4NzgiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ii8+CgkJPHJlY3QgeD0iMTkuOTk3NiIgeT0iOC4zNzQ1MSIgd2lkdGg9IjMiIGhlaWdodD0iNyIgcng9IjEuNSIgdHJhbnNmb3JtPSJyb3RhdGUoOTAgMTkuOTk3NiA4LjM3NDUxKSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjIiLz4KCQk8cmVjdCB4PSIxNi4xNzI3IiB5PSIxLjk5MTciIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDQ2LjE2MDcgMTYuMTcyNyAxLjk5MTcpIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMyIvPgoJCTxyZWN0IHg9IjguOTEzMDkiIHk9IjYuODg1MDEiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDEzNi4xNjEgOC45MTMwOSA2Ljg4NTAxKSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjYiLz4KCQk8cmVjdCB4PSI2Ljc5NjAyIiB5PSIxMC45OTYiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDQ2LjE2MDcgNi43OTYwMiAxMC45OTYpIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuNyIvPgoJCTxyZWN0IHg9IjciIHk9IjguNjI1NDkiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDkwIDcgOC42MjU0OSkiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CQkKCQk8cmVjdCB4PSI4LjQ5ODc4IiB5PSIxMyIgd2lkdGg9IjMiIGhlaWdodD0iNyIgcng9IjEuNSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjkiLz4KCTwvZz4KPC9zdmc+Cg=='
+        darkMode:
+            'data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%40keyframes%20rotate%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20from%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%280deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28359deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%20%20%20%20%3Cg%20style%3D%22transform-origin%3A%2050%25%2050%25%3B%20animation%3A%20rotate%201s%20infinite%20reverse%20linear%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2218.0968%22%20y%3D%2216.0861%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%2018.0968%2016.0861%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2219.9976%22%20y%3D%228.37451%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%2019.9976%208.37451%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2216.1727%22%20y%3D%221.9917%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%2016.1727%201.9917%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.91309%22%20y%3D%226.88501%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%208.91309%206.88501%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%226.79602%22%20y%3D%2210.996%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%206.79602%2010.996%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%227%22%20y%3D%228.62549%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%207%208.62549%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20y%3D%2213%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fsvg%3E',
+        lightMode:
+            'data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%40keyframes%20rotate%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20from%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%280deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28359deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%20%20%20%20%3Cg%20style%3D%22transform-origin%3A%2050%25%2050%25%3B%20animation%3A%20rotate%201s%20infinite%20reverse%20linear%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2218.0968%22%20y%3D%2216.0861%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%2018.0968%2016.0861%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2219.9976%22%20y%3D%228.37451%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%2019.9976%208.37451%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2216.1727%22%20y%3D%221.9917%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%2016.1727%201.9917%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.91309%22%20y%3D%226.88501%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%208.91309%206.88501%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%226.79602%22%20y%3D%2210.996%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%206.79602%2010.996%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%227%22%20y%3D%228.62549%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%207%208.62549%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20y%3D%2213%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fsvg%3E', // 'data:application/octet-stream;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KCTxzdHlsZT4KCQlAa2V5ZnJhbWVzIHJvdGF0ZSB7CgkJCWZyb20gewoJCQkJdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7CgkJCX0KCQkJdG8gewoJCQkJdHJhbnNmb3JtOiByb3RhdGUoMzU5ZGVnKTsKCQkJfQoJCX0KCTwvc3R5bGU+Cgk8ZyBzdHlsZT0idHJhbnNmb3JtLW9yaWdpbjogNTAlIDUwJTsgYW5pbWF0aW9uOiByb3RhdGUgMXMgaW5maW5pdGUgcmV2ZXJzZSBsaW5lYXI7Ij4KCQk8cmVjdCB4PSIxOC4wOTY4IiB5PSIxNi4wODYxIiB3aWR0aD0iMyIgaGVpZ2h0PSI3IiByeD0iMS41IiB0cmFuc2Zvcm09InJvdGF0ZSgxMzYuMTYxIDE4LjA5NjggMTYuMDg2MSkiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIi8+CQoJCTxyZWN0IHg9IjguNDk4NzgiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ii8+CgkJPHJlY3QgeD0iMTkuOTk3NiIgeT0iOC4zNzQ1MSIgd2lkdGg9IjMiIGhlaWdodD0iNyIgcng9IjEuNSIgdHJhbnNmb3JtPSJyb3RhdGUoOTAgMTkuOTk3NiA4LjM3NDUxKSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjIiLz4KCQk8cmVjdCB4PSIxNi4xNzI3IiB5PSIxLjk5MTciIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDQ2LjE2MDcgMTYuMTcyNyAxLjk5MTcpIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMyIvPgoJCTxyZWN0IHg9IjguOTEzMDkiIHk9IjYuODg1MDEiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDEzNi4xNjEgOC45MTMwOSA2Ljg4NTAxKSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjYiLz4KCQk8cmVjdCB4PSI2Ljc5NjAyIiB5PSIxMC45OTYiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDQ2LjE2MDcgNi43OTYwMiAxMC45OTYpIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuNyIvPgoJCTxyZWN0IHg9IjciIHk9IjguNjI1NDkiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDkwIDcgOC42MjU0OSkiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CQkKCQk8cmVjdCB4PSI4LjQ5ODc4IiB5PSIxMyIgd2lkdGg9IjMiIGhlaWdodD0iNyIgcng9IjEuNSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjkiLz4KCTwvZz4KPC9zdmc+Cg=='
     };
-    const closeIcon = 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M5.99998%204.58578L10.2426%200.34314C10.6331%20-0.0473839%2011.2663%20-0.0473839%2011.6568%200.34314C12.0474%200.733665%2012.0474%201.36683%2011.6568%201.75735L7.41419%205.99999L11.6568%2010.2426C12.0474%2010.6332%2012.0474%2011.2663%2011.6568%2011.6568C11.2663%2012.0474%2010.6331%2012.0474%2010.2426%2011.6568L5.99998%207.41421L1.75734%2011.6568C1.36681%2012.0474%200.733649%2012.0474%200.343125%2011.6568C-0.0473991%2011.2663%20-0.0473991%2010.6332%200.343125%2010.2426L4.58577%205.99999L0.343125%201.75735C-0.0473991%201.36683%20-0.0473991%200.733665%200.343125%200.34314C0.733649%20-0.0473839%201.36681%20-0.0473839%201.75734%200.34314L5.99998%204.58578Z%22%20fill%3D%22%23222222%22%2F%3E%0A%3C%2Fsvg%3E';
+    const closeIcon =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M5.99998%204.58578L10.2426%200.34314C10.6331%20-0.0473839%2011.2663%20-0.0473839%2011.6568%200.34314C12.0474%200.733665%2012.0474%201.36683%2011.6568%201.75735L7.41419%205.99999L11.6568%2010.2426C12.0474%2010.6332%2012.0474%2011.2663%2011.6568%2011.6568C11.2663%2012.0474%2010.6331%2012.0474%2010.2426%2011.6568L5.99998%207.41421L1.75734%2011.6568C1.36681%2012.0474%200.733649%2012.0474%200.343125%2011.6568C-0.0473991%2011.2663%20-0.0473991%2010.6332%200.343125%2010.2426L4.58577%205.99999L0.343125%201.75735C-0.0473991%201.36683%20-0.0473991%200.733665%200.343125%200.34314C0.733649%20-0.0473839%201.36681%20-0.0473839%201.75734%200.34314L5.99998%204.58578Z%22%20fill%3D%22%23222222%22%2F%3E%0A%3C%2Fsvg%3E';
 
-    const blockedFBLogo = 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2240%22%20fill%3D%22white%22%2F%3E%0A%3Cg%20clip-path%3D%22url%28%23clip0%29%22%3E%0A%3Cpath%20d%3D%22M73.8457%2039.974C73.8457%2021.284%2058.7158%206.15405%2040.0258%206.15405C21.3358%206.15405%206.15344%2021.284%206.15344%2039.974C6.15344%2056.884%2018.5611%2070.8622%2034.7381%2073.4275V49.764H26.0999V39.974H34.7381V32.5399C34.7381%2024.0587%2039.764%2019.347%2047.5122%2019.347C51.2293%2019.347%2055.0511%2020.0799%2055.0511%2020.0799V28.3517H50.8105C46.6222%2028.3517%2045.2611%2030.9693%2045.2611%2033.6393V39.974H54.6846L53.1664%2049.764H45.2611V73.4275C61.4381%2070.9146%2073.8457%2056.884%2073.8457%2039.974Z%22%20fill%3D%22%231877F2%22%2F%3E%0A%3C%2Fg%3E%0A%3Crect%20x%3D%223.01295%22%20y%3D%2211.7158%22%20width%3D%2212.3077%22%20height%3D%2292.3077%22%20rx%3D%226.15385%22%20transform%3D%22rotate%28-45%203.01295%2011.7158%29%22%20fill%3D%22%23666666%22%20stroke%3D%22white%22%20stroke-width%3D%226.15385%22%2F%3E%0A%3Cdefs%3E%0A%3CclipPath%20id%3D%22clip0%22%3E%0A%3Crect%20width%3D%2267.6923%22%20height%3D%2267.6923%22%20fill%3D%22white%22%20transform%3D%22translate%286.15344%206.15405%29%22%2F%3E%0A%3C%2FclipPath%3E%0A%3C%2Fdefs%3E%0A%3C%2Fsvg%3E';
-    const facebookLogo = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMSAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTguODUgMTkuOUM0LjEgMTkuMDUgMC41IDE0Ljk1IDAuNSAxMEMwLjUgNC41IDUgMCAxMC41IDBDMTYgMCAyMC41IDQuNSAyMC41IDEwQzIwLjUgMTQuOTUgMTYuOSAxOS4wNSAxMi4xNSAxOS45TDExLjYgMTkuNDVIOS40TDguODUgMTkuOVoiIGZpbGw9IiMxODc3RjIiLz4KPHBhdGggZD0iTTE0LjQgMTIuOEwxNC44NSAxMEgxMi4yVjguMDVDMTIuMiA3LjI1IDEyLjUgNi42NSAxMy43IDYuNjVIMTVWNC4xQzE0LjMgNCAxMy41IDMuOSAxMi44IDMuOUMxMC41IDMuOSA4LjkgNS4zIDguOSA3LjhWMTBINi40VjEyLjhIOC45VjE5Ljg1QzkuNDUgMTkuOTUgMTAgMjAgMTAuNTUgMjBDMTEuMSAyMCAxMS42NSAxOS45NSAxMi4yIDE5Ljg1VjEyLjhIMTQuNFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=';
+    const blockedFBLogo =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2240%22%20fill%3D%22white%22%2F%3E%0A%3Cg%20clip-path%3D%22url%28%23clip0%29%22%3E%0A%3Cpath%20d%3D%22M73.8457%2039.974C73.8457%2021.284%2058.7158%206.15405%2040.0258%206.15405C21.3358%206.15405%206.15344%2021.284%206.15344%2039.974C6.15344%2056.884%2018.5611%2070.8622%2034.7381%2073.4275V49.764H26.0999V39.974H34.7381V32.5399C34.7381%2024.0587%2039.764%2019.347%2047.5122%2019.347C51.2293%2019.347%2055.0511%2020.0799%2055.0511%2020.0799V28.3517H50.8105C46.6222%2028.3517%2045.2611%2030.9693%2045.2611%2033.6393V39.974H54.6846L53.1664%2049.764H45.2611V73.4275C61.4381%2070.9146%2073.8457%2056.884%2073.8457%2039.974Z%22%20fill%3D%22%231877F2%22%2F%3E%0A%3C%2Fg%3E%0A%3Crect%20x%3D%223.01295%22%20y%3D%2211.7158%22%20width%3D%2212.3077%22%20height%3D%2292.3077%22%20rx%3D%226.15385%22%20transform%3D%22rotate%28-45%203.01295%2011.7158%29%22%20fill%3D%22%23666666%22%20stroke%3D%22white%22%20stroke-width%3D%226.15385%22%2F%3E%0A%3Cdefs%3E%0A%3CclipPath%20id%3D%22clip0%22%3E%0A%3Crect%20width%3D%2267.6923%22%20height%3D%2267.6923%22%20fill%3D%22white%22%20transform%3D%22translate%286.15344%206.15405%29%22%2F%3E%0A%3C%2FclipPath%3E%0A%3C%2Fdefs%3E%0A%3C%2Fsvg%3E';
+    const facebookLogo =
+        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMSAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTguODUgMTkuOUM0LjEgMTkuMDUgMC41IDE0Ljk1IDAuNSAxMEMwLjUgNC41IDUgMCAxMC41IDBDMTYgMCAyMC41IDQuNSAyMC41IDEwQzIwLjUgMTQuOTUgMTYuOSAxOS4wNSAxMi4xNSAxOS45TDExLjYgMTkuNDVIOS40TDguODUgMTkuOVoiIGZpbGw9IiMxODc3RjIiLz4KPHBhdGggZD0iTTE0LjQgMTIuOEwxNC44NSAxMEgxMi4yVjguMDVDMTIuMiA3LjI1IDEyLjUgNi42NSAxMy43IDYuNjVIMTVWNC4xQzE0LjMgNCAxMy41IDMuOSAxMi44IDMuOUMxMC41IDMuOSA4LjkgNS4zIDguOSA3LjhWMTBINi40VjEyLjhIOC45VjE5Ljg1QzkuNDUgMTkuOTUgMTAgMjAgMTAuNTUgMjBDMTEuMSAyMCAxMS42NSAxOS45NSAxMi4yIDE5Ljg1VjEyLjhIMTQuNFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=';
 
-    const blockedYTVideo = 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2275%22%20height%3D%2275%22%20viewBox%3D%220%200%2075%2075%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Crect%20x%3D%226.75%22%20y%3D%2215.75%22%20width%3D%2256.25%22%20height%3D%2239%22%20rx%3D%2213.5%22%20fill%3D%22%23DE5833%22%2F%3E%0A%20%20%3Cmask%20id%3D%22path-2-outside-1_885_11045%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%2223.75%22%20y%3D%2222.5%22%20width%3D%2224%22%20height%3D%2226%22%20fill%3D%22black%22%3E%0A%20%20%3Crect%20fill%3D%22white%22%20x%3D%2223.75%22%20y%3D%2222.5%22%20width%3D%2224%22%20height%3D%2226%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M41.9425%2037.5279C43.6677%2036.492%2043.6677%2033.9914%2041.9425%2032.9555L31.0394%2026.4088C29.262%2025.3416%2027%2026.6218%2027%2028.695L27%2041.7884C27%2043.8615%2029.262%2045.1418%2031.0394%2044.0746L41.9425%2037.5279Z%22%2F%3E%0A%20%20%3C%2Fmask%3E%0A%20%20%3Cpath%20d%3D%22M41.9425%2037.5279C43.6677%2036.492%2043.6677%2033.9914%2041.9425%2032.9555L31.0394%2026.4088C29.262%2025.3416%2027%2026.6218%2027%2028.695L27%2041.7884C27%2043.8615%2029.262%2045.1418%2031.0394%2044.0746L41.9425%2037.5279Z%22%20fill%3D%22white%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M30.0296%2044.6809L31.5739%2047.2529L30.0296%2044.6809ZM30.0296%2025.8024L31.5739%2023.2304L30.0296%2025.8024ZM42.8944%2036.9563L44.4387%2039.5283L42.8944%2036.9563ZM41.35%2036.099L28.4852%2028.3744L31.5739%2023.2304L44.4387%2030.955L41.35%2036.099ZM30%2027.5171L30%2042.9663L24%2042.9663L24%2027.5171L30%2027.5171ZM28.4852%2042.1089L41.35%2034.3843L44.4387%2039.5283L31.5739%2047.2529L28.4852%2042.1089ZM30%2042.9663C30%2042.1888%2029.1517%2041.7087%2028.4852%2042.1089L31.5739%2047.2529C28.2413%2049.2539%2024%2046.8535%2024%2042.9663L30%2042.9663ZM28.4852%2028.3744C29.1517%2028.7746%2030%2028.2945%2030%2027.5171L24%2027.5171C24%2023.6299%2028.2413%2021.2294%2031.5739%2023.2304L28.4852%2028.3744ZM44.4387%2030.955C47.6735%2032.8974%2047.6735%2037.586%2044.4387%2039.5283L41.35%2034.3843C40.7031%2034.7728%2040.7031%2035.7105%2041.35%2036.099L44.4387%2030.955Z%22%20fill%3D%22%23BC4726%22%20mask%3D%22url(%23path-2-outside-1_885_11045)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%2257.75%22%20cy%3D%2252.5%22%20r%3D%2213.5%22%20fill%3D%22%23E0E0E0%22%2F%3E%0A%20%20%3Crect%20x%3D%2248.75%22%20y%3D%2250.25%22%20width%3D%2218%22%20height%3D%224.5%22%20rx%3D%221.5%22%20fill%3D%22%23666666%22%2F%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M57.9853%2015.8781C58.2046%2016.1015%2058.5052%2016.2262%2058.8181%2016.2238C59.1311%2016.2262%2059.4316%2016.1015%2059.6509%2015.8781L62.9821%2012.5469C63.2974%2012.2532%2063.4272%2011.8107%2063.3206%2011.3931C63.2139%2010.9756%2062.8879%2010.6495%2062.4703%2010.5429C62.0528%2010.4363%2061.6103%2010.5661%2061.3165%2010.8813L57.9853%2014.2125C57.7627%2014.4325%2057.6374%2014.7324%2057.6374%2015.0453C57.6374%2015.3583%2057.7627%2015.6582%2057.9853%2015.8781ZM61.3598%2018.8363C61.388%2019.4872%2061.9385%2019.9919%2062.5893%2019.9637L62.6915%2019.9559L66.7769%2019.6023C67.4278%2019.5459%2067.9097%2018.9726%2067.8533%2018.3217C67.7968%2017.6708%2067.2235%2017.1889%2066.5726%2017.2453L62.4872%2017.6067C61.8363%2017.6349%2061.3316%2018.1854%2061.3598%2018.8363Z%22%20fill%3D%22%23AAAAAA%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10.6535%2015.8781C10.4342%2016.1015%2010.1336%2016.2262%209.82067%2016.2238C9.5077%2016.2262%209.20717%2016.1015%208.98787%2015.8781L5.65667%2012.5469C5.34138%2012.2532%205.2116%2011.8107%205.31823%2011.3931C5.42487%2010.9756%205.75092%2010.6495%206.16847%2010.5429C6.58602%2010.4363%207.02848%2010.5661%207.32227%2010.8813L10.6535%2014.2125C10.8761%2014.4325%2011.0014%2014.7324%2011.0014%2015.0453C11.0014%2015.3583%2010.8761%2015.6582%2010.6535%2015.8781ZM7.2791%2018.8362C7.25089%2019.4871%206.7004%2019.9919%206.04954%2019.9637L5.9474%2019.9558L1.86197%2019.6023C1.44093%2019.5658%201.07135%2019.3074%200.892432%2018.9246C0.713515%2018.5417%200.752449%2018.0924%200.994567%2017.7461C1.23669%2017.3997%201.6452%2017.2088%202.06624%2017.2453L6.15167%2017.6067C6.80254%2017.6349%207.3073%2018.1854%207.2791%2018.8362Z%22%20fill%3D%22%23AAAAAA%22%20fill-opacity%3D%220.6%22%2F%3E%0A%3C%2Fsvg%3E%0A';
-    const videoPlayDark = 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23222222%22%2F%3E%0A%3C%2Fsvg%3E%0A';
-    const videoPlayLight = 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23FFFFFF%22%2F%3E%0A%3C%2Fsvg%3E';
+    const blockedYTVideo =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2275%22%20height%3D%2275%22%20viewBox%3D%220%200%2075%2075%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Crect%20x%3D%226.75%22%20y%3D%2215.75%22%20width%3D%2256.25%22%20height%3D%2239%22%20rx%3D%2213.5%22%20fill%3D%22%23DE5833%22%2F%3E%0A%20%20%3Cmask%20id%3D%22path-2-outside-1_885_11045%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%2223.75%22%20y%3D%2222.5%22%20width%3D%2224%22%20height%3D%2226%22%20fill%3D%22black%22%3E%0A%20%20%3Crect%20fill%3D%22white%22%20x%3D%2223.75%22%20y%3D%2222.5%22%20width%3D%2224%22%20height%3D%2226%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M41.9425%2037.5279C43.6677%2036.492%2043.6677%2033.9914%2041.9425%2032.9555L31.0394%2026.4088C29.262%2025.3416%2027%2026.6218%2027%2028.695L27%2041.7884C27%2043.8615%2029.262%2045.1418%2031.0394%2044.0746L41.9425%2037.5279Z%22%2F%3E%0A%20%20%3C%2Fmask%3E%0A%20%20%3Cpath%20d%3D%22M41.9425%2037.5279C43.6677%2036.492%2043.6677%2033.9914%2041.9425%2032.9555L31.0394%2026.4088C29.262%2025.3416%2027%2026.6218%2027%2028.695L27%2041.7884C27%2043.8615%2029.262%2045.1418%2031.0394%2044.0746L41.9425%2037.5279Z%22%20fill%3D%22white%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M30.0296%2044.6809L31.5739%2047.2529L30.0296%2044.6809ZM30.0296%2025.8024L31.5739%2023.2304L30.0296%2025.8024ZM42.8944%2036.9563L44.4387%2039.5283L42.8944%2036.9563ZM41.35%2036.099L28.4852%2028.3744L31.5739%2023.2304L44.4387%2030.955L41.35%2036.099ZM30%2027.5171L30%2042.9663L24%2042.9663L24%2027.5171L30%2027.5171ZM28.4852%2042.1089L41.35%2034.3843L44.4387%2039.5283L31.5739%2047.2529L28.4852%2042.1089ZM30%2042.9663C30%2042.1888%2029.1517%2041.7087%2028.4852%2042.1089L31.5739%2047.2529C28.2413%2049.2539%2024%2046.8535%2024%2042.9663L30%2042.9663ZM28.4852%2028.3744C29.1517%2028.7746%2030%2028.2945%2030%2027.5171L24%2027.5171C24%2023.6299%2028.2413%2021.2294%2031.5739%2023.2304L28.4852%2028.3744ZM44.4387%2030.955C47.6735%2032.8974%2047.6735%2037.586%2044.4387%2039.5283L41.35%2034.3843C40.7031%2034.7728%2040.7031%2035.7105%2041.35%2036.099L44.4387%2030.955Z%22%20fill%3D%22%23BC4726%22%20mask%3D%22url(%23path-2-outside-1_885_11045)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%2257.75%22%20cy%3D%2252.5%22%20r%3D%2213.5%22%20fill%3D%22%23E0E0E0%22%2F%3E%0A%20%20%3Crect%20x%3D%2248.75%22%20y%3D%2250.25%22%20width%3D%2218%22%20height%3D%224.5%22%20rx%3D%221.5%22%20fill%3D%22%23666666%22%2F%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M57.9853%2015.8781C58.2046%2016.1015%2058.5052%2016.2262%2058.8181%2016.2238C59.1311%2016.2262%2059.4316%2016.1015%2059.6509%2015.8781L62.9821%2012.5469C63.2974%2012.2532%2063.4272%2011.8107%2063.3206%2011.3931C63.2139%2010.9756%2062.8879%2010.6495%2062.4703%2010.5429C62.0528%2010.4363%2061.6103%2010.5661%2061.3165%2010.8813L57.9853%2014.2125C57.7627%2014.4325%2057.6374%2014.7324%2057.6374%2015.0453C57.6374%2015.3583%2057.7627%2015.6582%2057.9853%2015.8781ZM61.3598%2018.8363C61.388%2019.4872%2061.9385%2019.9919%2062.5893%2019.9637L62.6915%2019.9559L66.7769%2019.6023C67.4278%2019.5459%2067.9097%2018.9726%2067.8533%2018.3217C67.7968%2017.6708%2067.2235%2017.1889%2066.5726%2017.2453L62.4872%2017.6067C61.8363%2017.6349%2061.3316%2018.1854%2061.3598%2018.8363Z%22%20fill%3D%22%23AAAAAA%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10.6535%2015.8781C10.4342%2016.1015%2010.1336%2016.2262%209.82067%2016.2238C9.5077%2016.2262%209.20717%2016.1015%208.98787%2015.8781L5.65667%2012.5469C5.34138%2012.2532%205.2116%2011.8107%205.31823%2011.3931C5.42487%2010.9756%205.75092%2010.6495%206.16847%2010.5429C6.58602%2010.4363%207.02848%2010.5661%207.32227%2010.8813L10.6535%2014.2125C10.8761%2014.4325%2011.0014%2014.7324%2011.0014%2015.0453C11.0014%2015.3583%2010.8761%2015.6582%2010.6535%2015.8781ZM7.2791%2018.8362C7.25089%2019.4871%206.7004%2019.9919%206.04954%2019.9637L5.9474%2019.9558L1.86197%2019.6023C1.44093%2019.5658%201.07135%2019.3074%200.892432%2018.9246C0.713515%2018.5417%200.752449%2018.0924%200.994567%2017.7461C1.23669%2017.3997%201.6452%2017.2088%202.06624%2017.2453L6.15167%2017.6067C6.80254%2017.6349%207.3073%2018.1854%207.2791%2018.8362Z%22%20fill%3D%22%23AAAAAA%22%20fill-opacity%3D%220.6%22%2F%3E%0A%3C%2Fsvg%3E%0A';
+    const videoPlayDark =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23222222%22%2F%3E%0A%3C%2Fsvg%3E%0A';
+    const videoPlayLight =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23FFFFFF%22%2F%3E%0A%3C%2Fsvg%3E';
 
     var localesJSON = `{"bg":{"facebook.json":{"informationalModalMessageTitle":"При влизане разрешавате на Facebook да Ви проследява","informationalModalMessageBody":"След като влезете, DuckDuckGo не може да блокира проследяването от Facebook в съдържанието на този сайт.","informationalModalConfirmButtonText":"Вход","informationalModalRejectButtonText":"Назад","loginButtonText":"Вход във Facebook","loginBodyText":"Facebook проследява Вашата активност в съответния сайт, когато го използвате за вход.","buttonTextUnblockContent":"Разблокиране на съдържание от Facebook","buttonTextUnblockComment":"Разблокиране на коментар във Facebook","buttonTextUnblockComments":"Разблокиране на коментари във Facebook","buttonTextUnblockPost":"Разблокиране на публикация от Facebook","buttonTextUnblockVideo":"Разблокиране на видео от Facebook","buttonTextUnblockLogin":"Разблокиране на вход с Facebook","infoTitleUnblockContent":"DuckDuckGo блокира това съдържание, за да предотврати проследяване от Facebook","infoTitleUnblockComment":"DuckDuckGo блокира този коментар, за да предотврати проследяване от Facebook","infoTitleUnblockComments":"DuckDuckGo блокира тези коментари, за да предотврати проследяване от Facebook","infoTitleUnblockPost":"DuckDuckGo блокира тази публикация, за да предотврати проследяване от Facebook","infoTitleUnblockVideo":"DuckDuckGo блокира това видео, за да предотврати проследяване от Facebook","infoTextUnblockContent":"Блокирахме проследяването от Facebook при зареждане на страницата. Ако разблокирате това съдържание, Facebook ще следи Вашата активност."},"shared.json":{"learnMore":"Научете повече","readAbout":"Прочетете за тази защита на поверителността","shareFeedback":"Споделяне на отзив"},"youtube.json":{"informationalModalMessageTitle":"Активиране на всички прегледи в YouTube?","informationalModalMessageBody":"Показването на преглед позволява на Google (собственик на YouTube) да види част от информацията за Вашето устройство, но все пак осигурява повече поверителност отколкото при възпроизвеждане на видеоклипа.","informationalModalConfirmButtonText":"Активиране на всички прегледи","informationalModalRejectButtonText":"Не, благодаря","buttonTextUnblockVideo":"Разблокиране на видео от YouTube","infoTitleUnblockVideo":"DuckDuckGo блокира този видеоклип в YouTube, за да предотврати проследяване от Google","infoTextUnblockVideo":"Блокирахме проследяването от Google (собственик на YouTube) при зареждане на страницата. Ако разблокирате този видеоклип, Google ще следи Вашата активност.","infoPreviewToggleText":"Прегледите са деактивирани за осигуряване на допълнителна поверителност","infoPreviewToggleEnabledText":"Прегледите са активирани","infoPreviewToggleEnabledDuckDuckGoText":"Визуализациите от YouTube са активирани в DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Научете повече</a> за вградената защита от социални медии на DuckDuckGo"}},"cs":{"facebook.json":{"informationalModalMessageTitle":"Když se přihlásíš přes Facebook, bude tě moct sledovat","informationalModalMessageBody":"Po přihlášení už DuckDuckGo nemůže bránit Facebooku, aby tě na téhle stránce sledoval.","informationalModalConfirmButtonText":"Přihlásit se","informationalModalRejectButtonText":"Zpět","loginButtonText":"Přihlásit se pomocí Facebooku","loginBodyText":"Facebook sleduje tvou aktivitu na webu, když se přihlásíš jeho prostřednictvím.","buttonTextUnblockContent":"Odblokovat obsah na Facebooku","buttonTextUnblockComment":"Odblokovat komentář na Facebooku","buttonTextUnblockComments":"Odblokovat komentáře na Facebooku","buttonTextUnblockPost":"Odblokovat příspěvek na Facebooku","buttonTextUnblockVideo":"Odblokovat video na Facebooku","buttonTextUnblockLogin":"Odblokovat přihlášení k Facebooku","infoTitleUnblockContent":"DuckDuckGo zablokoval tenhle obsah, aby Facebooku zabránil tě sledovat","infoTitleUnblockComment":"Služba DuckDuckGo zablokovala tento komentář, aby Facebooku zabránila ve tvém sledování","infoTitleUnblockComments":"Služba DuckDuckGo zablokovala tyto komentáře, aby Facebooku zabránila ve tvém sledování","infoTitleUnblockPost":"DuckDuckGo zablokoval tenhle příspěvek, aby Facebooku zabránil tě sledovat","infoTitleUnblockVideo":"DuckDuckGo zablokoval tohle video, aby Facebooku zabránil tě sledovat","infoTextUnblockContent":"Při načítání stránky jsme Facebooku zabránili, aby tě sledoval. Když tenhle obsah odblokuješ, Facebook bude mít přístup ke tvé aktivitě."},"shared.json":{"learnMore":"Více informací","readAbout":"Přečti si o téhle ochraně soukromí","shareFeedback":"Podělte se o zpětnou vazbu"},"youtube.json":{"informationalModalMessageTitle":"Zapnout všechny náhledy YouTube?","informationalModalMessageBody":"Zobrazování náhledů umožní společnosti Google (která vlastní YouTube) zobrazit některé informace o tvém zařízení, ale pořád jde o diskrétnější volbu, než je přehrávání videa.","informationalModalConfirmButtonText":"Zapnout všechny náhledy","informationalModalRejectButtonText":"Ne, děkuji","buttonTextUnblockVideo":"Odblokovat video na YouTube","infoTitleUnblockVideo":"DuckDuckGo zablokoval tohle video z YouTube, aby Googlu zabránil tě sledovat","infoTextUnblockVideo":"Zabránili jsme společnosti Google (která vlastní YouTube), aby tě při načítání stránky sledovala. Pokud toto video odblokuješ, Google získá přístup ke tvé aktivitě.","infoPreviewToggleText":"Náhledy jsou pro větší soukromí vypnuté","infoPreviewToggleEnabledText":"Náhledy jsou zapnuté","infoPreviewToggleEnabledDuckDuckGoText":"Náhledy YouTube jsou v DuckDuckGo povolené.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Další informace</a> o ochraně DuckDuckGo před sledováním prostřednictvím vloženého obsahu ze sociálních médií"}},"da":{"facebook.json":{"informationalModalMessageTitle":"Når du logger ind med Facebook, kan de spore dig","informationalModalMessageBody":"Når du er logget ind, kan DuckDuckGo ikke blokere for, at indhold fra Facebook sporer dig på dette websted.","informationalModalConfirmButtonText":"Log på","informationalModalRejectButtonText":"Gå tilbage","loginButtonText":"Log ind med Facebook","loginBodyText":"Facebook sporer din aktivitet på et websted, når du bruger dem til at logge ind.","buttonTextUnblockContent":"Bloker ikke Facebook-indhold","buttonTextUnblockComment":"Bloker ikke Facebook-kommentar","buttonTextUnblockComments":"Bloker ikke Facebook-kommentarer","buttonTextUnblockPost":"Bloker ikke Facebook-opslag","buttonTextUnblockVideo":"Bloker ikke Facebook-video","buttonTextUnblockLogin":"Bloker ikke Facebook-login","infoTitleUnblockContent":"DuckDuckGo har blokeret dette indhold for at forhindre Facebook i at spore dig","infoTitleUnblockComment":"DuckDuckGo har blokeret denne kommentar for at forhindre Facebook i at spore dig","infoTitleUnblockComments":"DuckDuckGo har blokeret disse kommentarer for at forhindre Facebook i at spore dig","infoTitleUnblockPost":"DuckDuckGo blokerede dette indlæg for at forhindre Facebook i at spore dig","infoTitleUnblockVideo":"DuckDuckGo har blokeret denne video for at forhindre Facebook i at spore dig","infoTextUnblockContent":"Vi blokerede for, at Facebook sporede dig, da siden blev indlæst. Hvis du ophæver blokeringen af dette indhold, vil Facebook kende din aktivitet."},"shared.json":{"learnMore":"Mere info","readAbout":"Læs om denne beskyttelse af privatlivet","shareFeedback":"Del feedback"},"youtube.json":{"informationalModalMessageTitle":"Vil du aktivere alle YouTube-forhåndsvisninger?","informationalModalMessageBody":"Med forhåndsvisninger kan Google (som ejer YouTube) se nogle af enhedens oplysninger, men det er stadig mere privat end at afspille videoen.","informationalModalConfirmButtonText":"Aktivér alle forhåndsvisninger","informationalModalRejectButtonText":"Nej tak.","buttonTextUnblockVideo":"Bloker ikke YouTube-video","infoTitleUnblockVideo":"DuckDuckGo har blokeret denne YouTube-video for at forhindre Google i at spore dig","infoTextUnblockVideo":"Vi blokerede Google (som ejer YouTube) fra at spore dig, da siden blev indlæst. Hvis du fjerner blokeringen af denne video, vil Google få kendskab til din aktivitet.","infoPreviewToggleText":"Forhåndsvisninger er deaktiveret for at give yderligere privatliv","infoPreviewToggleEnabledText":"Forhåndsvisninger er deaktiveret","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-forhåndsvisninger er aktiveret i DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Få mere at vide på</a> om DuckDuckGos indbyggede beskyttelse på sociale medier"}},"de":{"facebook.json":{"informationalModalMessageTitle":"Wenn du dich bei Facebook anmeldest, kann Facebook dich tracken","informationalModalMessageBody":"Sobald du angemeldet bist, kann DuckDuckGo nicht mehr verhindern, dass Facebook-Inhalte dich auf dieser Website tracken.","informationalModalConfirmButtonText":"Anmelden","informationalModalRejectButtonText":"Zurück","loginButtonText":"Mit Facebook anmelden","loginBodyText":"Facebook trackt deine Aktivität auf einer Website, wenn du dich über Facebook dort anmeldest.","buttonTextUnblockContent":"Facebook-Inhalt entsperren","buttonTextUnblockComment":"Facebook-Kommentar entsperren","buttonTextUnblockComments":"Facebook-Kommentare entsperren","buttonTextUnblockPost":"Facebook-Beitrag entsperren","buttonTextUnblockVideo":"Facebook-Video entsperren","buttonTextUnblockLogin":"Facebook-Anmeldung entsperren","infoTitleUnblockContent":"DuckDuckGo hat diesen Inhalt blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockComment":"DuckDuckGo hat diesen Kommentar blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockComments":"DuckDuckGo hat diese Kommentare blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockPost":"DuckDuckGo hat diesen Beitrag blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockVideo":"DuckDuckGo hat dieses Video blockiert, um zu verhindern, dass Facebook dich trackt","infoTextUnblockContent":"Wir haben Facebook daran gehindert, dich zu tracken, als die Seite geladen wurde. Wenn du die Blockierung für diesen Inhalt aufhebst, kennt Facebook deine Aktivitäten."},"shared.json":{"learnMore":"Mehr erfahren","readAbout":"Weitere Informationen über diesen Datenschutz","shareFeedback":"Feedback teilen"},"youtube.json":{"informationalModalMessageTitle":"Alle YouTube-Vorschauen aktivieren?","informationalModalMessageBody":"Durch das Anzeigen von Vorschauen kann Google (dem YouTube gehört) einige Informationen zu deinem Gerät sehen. Dies ist aber immer noch privater als das Abspielen des Videos.","informationalModalConfirmButtonText":"Alle Vorschauen aktivieren","informationalModalRejectButtonText":"Nein, danke","buttonTextUnblockVideo":"YouTube-Video entsperren","infoTitleUnblockVideo":"DuckDuckGo hat dieses YouTube-Video blockiert, um zu verhindern, dass Google dich trackt.","infoTextUnblockVideo":"Wir haben Google (dem YouTube gehört) daran gehindert, dich beim Laden der Seite zu tracken. Wenn du die Blockierung für dieses Video aufhebst, kennt Google deine Aktivitäten.","infoPreviewToggleText":"Vorschau für mehr Privatsphäre deaktiviert","infoPreviewToggleEnabledText":"Vorschau aktiviert","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-Vorschauen sind in DuckDuckGo aktiviert.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Erfahre mehr</a> über den DuckDuckGo-Schutz vor eingebetteten Social Media-Inhalten"}},"el":{"facebook.json":{"informationalModalMessageTitle":"Η σύνδεση μέσω Facebook τους επιτρέπει να σας παρακολουθούν","informationalModalMessageBody":"Μόλις συνδεθείτε, το DuckDuckGo δεν μπορεί να εμποδίσει το περιεχόμενο του Facebook από το να σας παρακολουθεί σε αυτόν τον ιστότοπο.","informationalModalConfirmButtonText":"Σύνδεση","informationalModalRejectButtonText":"Επιστροφή","loginButtonText":"Σύνδεση μέσω Facebook","loginBodyText":"Το Facebook παρακολουθεί τη δραστηριότητά σας σε έναν ιστότοπο όταν τον χρησιμοποιείτε για να συνδεθείτε.","buttonTextUnblockContent":"Άρση αποκλεισμού περιεχομένου στο Facebook","buttonTextUnblockComment":"Άρση αποκλεισμού σχόλιου στο Facebook","buttonTextUnblockComments":"Άρση αποκλεισμού σχολίων στο Facebook","buttonTextUnblockPost":"Άρση αποκλεισμού ανάρτησης στο Facebook","buttonTextUnblockVideo":"Άρση αποκλεισμού βίντεο στο Facebook","buttonTextUnblockLogin":"Άρση αποκλεισμού σύνδεσης στο Facebook","infoTitleUnblockContent":"Το DuckDuckGo απέκλεισε το περιεχόμενο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockComment":"Το DuckDuckGo απέκλεισε το σχόλιο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockComments":"Το DuckDuckGo απέκλεισε τα σχόλια αυτά για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockPost":"Το DuckDuckGo απέκλεισε την ανάρτηση αυτή για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockVideo":"Το DuckDuckGo απέκλεισε το βίντεο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTextUnblockContent":"Αποκλείσαμε το Facebook από το να σας παρακολουθεί όταν φορτώθηκε η σελίδα. Εάν κάνετε άρση αποκλεισμού γι' αυτό το περιεχόμενο, το Facebook θα γνωρίζει τη δραστηριότητά σας."},"shared.json":{"learnMore":"Μάθετε περισσότερα","readAbout":"Διαβάστε σχετικά με την παρούσα προστασίας προσωπικών δεδομένων","shareFeedback":"Κοινοποίηση σχολίου"},"youtube.json":{"informationalModalMessageTitle":"Ενεργοποίηση όλων των προεπισκοπήσεων του YouTube;","informationalModalMessageBody":"Η προβολή των προεπισκοπήσεων θα επιτρέψει στην Google (στην οποία ανήκει το YouTube) να βλέπει ορισμένες από τις πληροφορίες της συσκευής σας, ωστόσο εξακολουθεί να είναι πιο ιδιωτική από την αναπαραγωγή του βίντεο.","informationalModalConfirmButtonText":"Ενεργοποίηση όλων των προεπισκοπήσεων","informationalModalRejectButtonText":"Όχι, ευχαριστώ","buttonTextUnblockVideo":"Άρση αποκλεισμού βίντεο YouTube","infoTitleUnblockVideo":"Το DuckDuckGo απέκλεισε το βίντεο αυτό στο YouTube για να εμποδίσει την Google από το να σας παρακολουθεί","infoTextUnblockVideo":"Αποκλείσαμε την Google (στην οποία ανήκει το YouTube) από το να σας παρακολουθεί όταν φορτώθηκε η σελίδα. Εάν κάνετε άρση αποκλεισμού γι' αυτό το βίντεο, η Google θα γνωρίζει τη δραστηριότητά σας.","infoPreviewToggleText":"Οι προεπισκοπήσεις απενεργοποιήθηκαν για πρόσθετη προστασία των προσωπικών δεδομένων","infoPreviewToggleEnabledText":"Οι προεπισκοπήσεις ενεργοποιήθηκαν","infoPreviewToggleEnabledDuckDuckGoText":"Οι προεπισκοπήσεις YouTube ενεργοποιήθηκαν στο DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Μάθετε περισσότερα</a> για την ενσωματωμένη προστασία κοινωνικών μέσων DuckDuckGo"}},"en":{"facebook.json":{"informationalModalMessageTitle":"Logging in with Facebook lets them track you","informationalModalMessageBody":"Once you're logged in, DuckDuckGo can't block Facebook content from tracking you on this site.","informationalModalConfirmButtonText":"Log In","informationalModalRejectButtonText":"Go back","loginButtonText":"Log in with Facebook","loginBodyText":"Facebook tracks your activity on a site when you use them to login.","buttonTextUnblockContent":"Unblock Facebook Content","buttonTextUnblockComment":"Unblock Facebook Comment","buttonTextUnblockComments":"Unblock Facebook Comments","buttonTextUnblockPost":"Unblock Facebook Post","buttonTextUnblockVideo":"Unblock Facebook Video","buttonTextUnblockLogin":"Unblock Facebook Login","infoTitleUnblockContent":"DuckDuckGo blocked this content to prevent Facebook from tracking you","infoTitleUnblockComment":"DuckDuckGo blocked this comment to prevent Facebook from tracking you","infoTitleUnblockComments":"DuckDuckGo blocked these comments to prevent Facebook from tracking you","infoTitleUnblockPost":"DuckDuckGo blocked this post to prevent Facebook from tracking you","infoTitleUnblockVideo":"DuckDuckGo blocked this video to prevent Facebook from tracking you","infoTextUnblockContent":"We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."},"shared.json":{"learnMore":"Learn More","readAbout":"Read about this privacy protection","shareFeedback":"Share Feedback"},"youtube.json":{"informationalModalMessageTitle":"Enable all YouTube previews?","informationalModalMessageBody":"Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.","informationalModalConfirmButtonText":"Enable All Previews","informationalModalRejectButtonText":"No Thanks","buttonTextUnblockVideo":"Unblock YouTube Video","infoTitleUnblockVideo":"DuckDuckGo blocked this YouTube video to prevent Google from tracking you","infoTextUnblockVideo":"We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.","infoPreviewToggleText":"Previews disabled for additional privacy","infoPreviewToggleEnabledText":"Previews enabled","infoPreviewToggleEnabledDuckDuckGoText":"YouTube previews enabled in DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Learn more</a> about DuckDuckGo Embedded Social Media Protection"}},"es":{"facebook.json":{"informationalModalMessageTitle":"Al iniciar sesión en Facebook, les permites que te rastreen","informationalModalMessageBody":"Una vez que hayas iniciado sesión, DuckDuckGo no puede bloquear el contenido de Facebook para que no te rastree en este sitio.","informationalModalConfirmButtonText":"Iniciar sesión","informationalModalRejectButtonText":"Volver atrás","loginButtonText":"Iniciar sesión con Facebook","loginBodyText":"Facebook rastrea tu actividad en un sitio web cuando lo usas para iniciar sesión.","buttonTextUnblockContent":"Desbloquear contenido de Facebook","buttonTextUnblockComment":"Desbloquear comentario de Facebook","buttonTextUnblockComments":"Desbloquear comentarios de Facebook","buttonTextUnblockPost":"Desbloquear publicación de Facebook","buttonTextUnblockVideo":"Desbloquear vídeo de Facebook","buttonTextUnblockLogin":"Desbloquear inicio de sesión de Facebook","infoTitleUnblockContent":"DuckDuckGo ha bloqueado este contenido para evitar que Facebook te rastree","infoTitleUnblockComment":"DuckDuckGo ha bloqueado este comentario para evitar que Facebook te rastree","infoTitleUnblockComments":"DuckDuckGo ha bloqueado estos comentarios para evitar que Facebook te rastree","infoTitleUnblockPost":"DuckDuckGo ha bloqueado esta publicación para evitar que Facebook te rastree","infoTitleUnblockVideo":"DuckDuckGo ha bloqueado este vídeo para evitar que Facebook te rastree","infoTextUnblockContent":"Hemos bloqueado el rastreo de Facebook cuando se ha cargado la página. Si desbloqueas este contenido, Facebook tendrá conocimiento de tu actividad."},"shared.json":{"learnMore":"Más información","readAbout":"Lee acerca de esta protección de privacidad","shareFeedback":"Compartir opiniones"},"youtube.json":{"informationalModalMessageTitle":"¿Habilitar todas las vistas previas de YouTube?","informationalModalMessageBody":"Mostrar vistas previas permitirá a Google (que es el propietario de YouTube) ver parte de la información de tu dispositivo, pero sigue siendo más privado que reproducir el vídeo.","informationalModalConfirmButtonText":"Habilitar todas las vistas previas","informationalModalRejectButtonText":"No, gracias","buttonTextUnblockVideo":"Desbloquear vídeo de YouTube","infoTitleUnblockVideo":"DuckDuckGo ha bloqueado este vídeo de YouTube para evitar que Google te rastree","infoTextUnblockVideo":"Hemos bloqueado el rastreo de Google (que es el propietario de YouTube) al cargarse la página. Si desbloqueas este vídeo, Goggle tendrá conocimiento de tu actividad.","infoPreviewToggleText":"Vistas previas desactivadas para mayor privacidad","infoPreviewToggleEnabledText":"Vistas previas activadas","infoPreviewToggleEnabledDuckDuckGoText":"Vistas previas de YouTube habilitadas en DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Más información</a> sobre la protección integrada de redes sociales DuckDuckGo"}},"et":{"facebook.json":{"informationalModalMessageTitle":"Kui logid Facebookiga sisse, saab Facebook sind jälgida","informationalModalMessageBody":"Kui oled sisse logitud, ei saa DuckDuckGo blokeerida Facebooki sisu sind jälgimast.","informationalModalConfirmButtonText":"Logi sisse","informationalModalRejectButtonText":"Mine tagasi","loginButtonText":"Logi sisse Facebookiga","loginBodyText":"Kui logid sisse Facebookiga, saab Facebook sinu tegevust saidil jälgida.","buttonTextUnblockContent":"Deblokeeri Facebooki sisu","buttonTextUnblockComment":"Deblokeeri Facebooki kommentaar","buttonTextUnblockComments":"Deblokeeri Facebooki kommentaarid","buttonTextUnblockPost":"Deblokeeri Facebooki postitus","buttonTextUnblockVideo":"Deblokeeri Facebooki video","buttonTextUnblockLogin":"Deblokeeri Facebooki sisselogimine","infoTitleUnblockContent":"DuckDuckGo blokeeris selle sisu, et Facebook ei saaks sind jälgida","infoTitleUnblockComment":"DuckDuckGo blokeeris selle kommentaari, et Facebook ei saaks sind jälgida","infoTitleUnblockComments":"DuckDuckGo blokeeris need kommentaarid, et Facebook ei saaks sind jälgida","infoTitleUnblockPost":"DuckDuckGo blokeeris selle postituse, et Facebook ei saaks sind jälgida","infoTitleUnblockVideo":"DuckDuckGo blokeeris selle video, et Facebook ei saaks sind jälgida","infoTextUnblockContent":"Blokeerisime lehe laadimise ajal Facebooki jaoks sinu jälgimise. Kui sa selle sisu deblokeerid, saab Facebook sinu tegevust jälgida."},"shared.json":{"learnMore":"Loe edasi","readAbout":"Loe selle privaatsuskaitse kohta","shareFeedback":"Jaga tagasisidet"},"youtube.json":{"informationalModalMessageTitle":"Kas lubada kõik YouTube’i eelvaated?","informationalModalMessageBody":"Eelvaate näitamine võimaldab Google’il (kellele YouTube kuulub) näha osa sinu seadme teabest, kuid see on siiski privaatsem kui video esitamine.","informationalModalConfirmButtonText":"Luba kõik eelvaated","informationalModalRejectButtonText":"Ei aitäh","buttonTextUnblockVideo":"Deblokeeri YouTube’i video","infoTitleUnblockVideo":"DuckDuckGo blokeeris selle YouTube’i video, et takistada Google’it sind jälgimast","infoTextUnblockVideo":"Me blokeerisime lehe laadimise ajal Google’i (kellele YouTube kuulub) jälgimise. Kui sa selle video deblokeerid, saab Google sinu tegevusest teada.","infoPreviewToggleText":"Eelvaated on täiendava privaatsuse tagamiseks keelatud","infoPreviewToggleEnabledText":"Eelvaated on lubatud","infoPreviewToggleEnabledDuckDuckGoText":"YouTube’i eelvaated on DuckDuckGos lubatud.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Lisateave</a> DuckDuckGo sisseehitatud sotsiaalmeediakaitse kohta"}},"fi":{"facebook.json":{"informationalModalMessageTitle":"Kun kirjaudut sisään Facebook-tunnuksilla, Facebook voi seurata sinua","informationalModalMessageBody":"Kun olet kirjautunut sisään, DuckDuckGo ei voi estää Facebook-sisältöä seuraamasta sinua tällä sivustolla.","informationalModalConfirmButtonText":"Kirjaudu sisään","informationalModalRejectButtonText":"Edellinen","loginButtonText":"Kirjaudu sisään Facebook-tunnuksilla","loginBodyText":"Facebook seuraa toimintaasi sivustolla, kun kirjaudut sisään sen kautta.","buttonTextUnblockContent":"Poista Facebook-sisällön esto","buttonTextUnblockComment":"Poista Facebook-kommentin esto","buttonTextUnblockComments":"Poista Facebook-kommenttien esto","buttonTextUnblockPost":"Poista Facebook-julkaisun esto","buttonTextUnblockVideo":"Poista Facebook-videon esto","buttonTextUnblockLogin":"Poista Facebook-kirjautumisen esto","infoTitleUnblockContent":"DuckDuckGo esti tämän sisällön estääkseen Facebookia seuraamasta sinua","infoTitleUnblockComment":"DuckDuckGo esti tämän kommentin estääkseen Facebookia seuraamasta sinua","infoTitleUnblockComments":"DuckDuckGo esti nämä kommentit estääkseen Facebookia seuraamasta sinua","infoTitleUnblockPost":"DuckDuckGo esti tämän julkaisun estääkseen Facebookia seuraamasta sinua","infoTitleUnblockVideo":"DuckDuckGo esti tämän videon estääkseen Facebookia seuraamasta sinua","infoTextUnblockContent":"Estimme Facebookia seuraamasta sinua, kun sivua ladattiin. Jos poistat tämän sisällön eston, Facebook saa tietää toimintasi."},"shared.json":{"learnMore":"Lue lisää","readAbout":"Lue tästä yksityisyydensuojasta","shareFeedback":"Jaa palaute"},"youtube.json":{"informationalModalMessageTitle":"Otetaanko käyttöön kaikki YouTube-esikatselut?","informationalModalMessageBody":"Kun sallit esikatselun, Google (joka omistaa YouTuben) voi nähdä joitakin laitteesi tietoja, mutta se on silti yksityisempää kuin videon toistaminen.","informationalModalConfirmButtonText":"Ota käyttöön kaikki esikatselut","informationalModalRejectButtonText":"Ei kiitos","buttonTextUnblockVideo":"Poista YouTube-videon esto","infoTitleUnblockVideo":"DuckDuckGo esti tämän YouTube-videon, jotta Google ei voi seurata sinua","infoTextUnblockVideo":"Estimme Googlea (joka omistaa YouTuben) seuraamasta sinua, kun sivua ladattiin. Jos poistat tämän videon eston, Google tietää toimintasi.","infoPreviewToggleText":"Esikatselut on poistettu käytöstä yksityisyyden lisäämiseksi","infoPreviewToggleEnabledText":"Esikatselut käytössä","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-esikatselut käytössä DuckDuckGossa.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Lue lisää</a> DuckDuckGon upotetusta sosiaalisen median suojauksesta"}},"fr":{"facebook.json":{"informationalModalMessageTitle":"L'identification via Facebook leur permet de vous pister","informationalModalMessageBody":"Une fois que vous êtes connecté(e), DuckDuckGo ne peut pas empêcher le contenu Facebook de vous pister sur ce site.","informationalModalConfirmButtonText":"Connexion","informationalModalRejectButtonText":"Revenir en arrière","loginButtonText":"S'identifier avec Facebook","loginBodyText":"Facebook piste votre activité sur un site lorsque vous l'utilisez pour vous identifier.","buttonTextUnblockContent":"Débloquer le contenu Facebook","buttonTextUnblockComment":"Débloquer le commentaire Facebook","buttonTextUnblockComments":"Débloquer les commentaires Facebook","buttonTextUnblockPost":"Débloquer la publication Facebook","buttonTextUnblockVideo":"Débloquer la vidéo Facebook","buttonTextUnblockLogin":"Débloquer la connexion Facebook","infoTitleUnblockContent":"DuckDuckGo a bloqué ce contenu pour empêcher Facebook de vous suivre","infoTitleUnblockComment":"DuckDuckGo a bloqué ce commentaire pour empêcher Facebook de vous suivre","infoTitleUnblockComments":"DuckDuckGo a bloqué ces commentaires pour empêcher Facebook de vous suivre","infoTitleUnblockPost":"DuckDuckGo a bloqué cette publication pour empêcher Facebook de vous pister","infoTitleUnblockVideo":"DuckDuckGo a bloqué cette vidéo pour empêcher Facebook de vous pister","infoTextUnblockContent":"Nous avons empêché Facebook de vous pister lors du chargement de la page. Si vous débloquez ce contenu, Facebook connaîtra votre activité."},"shared.json":{"learnMore":"En savoir plus","readAbout":"En savoir plus sur cette protection de la confidentialité","shareFeedback":"Partagez vos commentaires"},"youtube.json":{"informationalModalMessageTitle":"Activer tous les aperçus YouTube ?","informationalModalMessageBody":"L'affichage des aperçus permettra à Google (propriétaire de YouTube) de voir certaines informations de votre appareil, mais cela reste davantage confidentiel qu'en lisant la vidéo.","informationalModalConfirmButtonText":"Activer tous les aperçus","informationalModalRejectButtonText":"Non merci","buttonTextUnblockVideo":"Débloquer la vidéo YouTube","infoTitleUnblockVideo":"DuckDuckGo a bloqué cette vidéo YouTube pour empêcher Google de vous pister","infoTextUnblockVideo":"Nous avons empêché Google (propriétaire de YouTube) de vous pister lors du chargement de la page. Si vous débloquez cette vidéo, Google connaîtra votre activité.","infoPreviewToggleText":"Aperçus désactivés pour plus de confidentialité","infoPreviewToggleEnabledText":"Aperçus activés","infoPreviewToggleEnabledDuckDuckGoText":"Les aperçus YouTube sont activés dans DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">En savoir plus</a> sur la protection intégrée DuckDuckGo des réseaux sociaux"}},"hr":{"facebook.json":{"informationalModalMessageTitle":"Prijava putem Facebooka omogućuje im da te prate","informationalModalMessageBody":"Nakon što se prijaviš, DuckDuckGo ne može blokirati Facebookov sadržaj da te prati na Facebooku.","informationalModalConfirmButtonText":"Prijavljivanje","informationalModalRejectButtonText":"Vrati se","loginButtonText":"Prijavi se putem Facebooka","loginBodyText":"Facebook prati tvoju aktivnost na toj web lokaciji kad je koristiš za prijavu.","buttonTextUnblockContent":"Deblokiraj sadržaj na Facebooku","buttonTextUnblockComment":"Deblokiraj komentar na Facebooku","buttonTextUnblockComments":"Deblokiraj komentare na Facebooku","buttonTextUnblockPost":"Deblokiraj objavu na Facebooku","buttonTextUnblockVideo":"Deblokiraj videozapis na Facebooku","buttonTextUnblockLogin":"Deblokiraj prijavu na Facebook","infoTitleUnblockContent":"DuckDuckGo je blokirao ovaj sadržaj kako bi spriječio Facebook da te prati","infoTitleUnblockComment":"DuckDuckGo je blokirao ovaj komentar kako bi spriječio Facebook da te prati","infoTitleUnblockComments":"DuckDuckGo je blokirao ove komentare kako bi spriječio Facebook da te prati","infoTitleUnblockPost":"DuckDuckGo je blokirao ovu objavu kako bi spriječio Facebook da te prati","infoTitleUnblockVideo":"DuckDuckGo je blokirao ovaj video kako bi spriječio Facebook da te prati","infoTextUnblockContent":"Blokirali smo Facebook da te prati kad se stranica učita. Ako deblokiraš ovaj sadržaj, Facebook će znati tvoju aktivnost."},"shared.json":{"learnMore":"Saznajte više","readAbout":"Pročitaj više o ovoj zaštiti privatnosti","shareFeedback":"Podijeli povratne informacije"},"youtube.json":{"informationalModalMessageTitle":"Omogućiti sve YouTube pretpreglede?","informationalModalMessageBody":"Prikazivanje pretpregleda omogućit će Googleu (u čijem je vlasništvu YouTube) da vidi neke podatke o tvom uređaju, ali je i dalje privatnija opcija od reprodukcije videozapisa.","informationalModalConfirmButtonText":"Omogući sve pretpreglede","informationalModalRejectButtonText":"Ne, hvala","buttonTextUnblockVideo":"Deblokiraj YouTube videozapis","infoTitleUnblockVideo":"DuckDuckGo je blokirao ovaj YouTube videozapis kako bi spriječio Google da te prati","infoTextUnblockVideo":"Blokirali smo Google (u čijem je vlasništvu YouTube) da te prati kad se stranica učita. Ako deblokiraš ovaj videozapis, Google će znati tvoju aktivnost.","infoPreviewToggleText":"Pretpregledi su onemogućeni radi dodatne privatnosti","infoPreviewToggleEnabledText":"Pretpregledi su omogućeni","infoPreviewToggleEnabledDuckDuckGoText":"YouTube pretpregledi omogućeni su u DuckDuckGou.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Saznaj više</a> o uključenoj DuckDuckGo zaštiti od društvenih medija"}},"hu":{"facebook.json":{"informationalModalMessageTitle":"A Facebookkal való bejelentkezéskor a Facebook nyomon követhet","informationalModalMessageBody":"Miután bejelentkezel, a DuckDuckGo nem fogja tudni blokkolni a Facebook-tartalmat, amely nyomon követ ezen az oldalon.","informationalModalConfirmButtonText":"Bejelentkezés","informationalModalRejectButtonText":"Visszalépés","loginButtonText":"Bejelentkezés Facebookkal","loginBodyText":"Ha a Facebookkal jelentkezel be, nyomon követik a webhelyen végzett tevékenységedet.","buttonTextUnblockContent":"Facebook-tartalom feloldása","buttonTextUnblockComment":"Facebook-hozzászólás feloldása","buttonTextUnblockComments":"Facebook-hozzászólások feloldása","buttonTextUnblockPost":"Facebook-bejegyzés feloldása","buttonTextUnblockVideo":"Facebook-videó feloldása","buttonTextUnblockLogin":"Facebook-bejelentkezés feloldása","infoTitleUnblockContent":"A DuckDuckGo blokkolta ezt a tartalmat, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockComment":"A DuckDuckGo blokkolta ezt a hozzászólást, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockComments":"A DuckDuckGo blokkolta ezeket a hozzászólásokat, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockPost":"A DuckDuckGo blokkolta ezt a bejegyzést, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockVideo":"A DuckDuckGo blokkolta ezt a videót, hogy megakadályozza a Facebookot a nyomon követésedben","infoTextUnblockContent":"Az oldal betöltésekor blokkoltuk a Facebookot a nyomon követésedben. Ha feloldod ezt a tartalmat, a Facebook tudni fogja, hogy milyen tevékenységet végzel."},"shared.json":{"learnMore":"További részletek","readAbout":"Tudj meg többet erről az adatvédelemről","shareFeedback":"Visszajelzés megosztása"},"youtube.json":{"informationalModalMessageTitle":"Engedélyezed minden YouTube-videó előnézetét?","informationalModalMessageBody":"Az előnézetek megjelenítésével a Google (a YouTube tulajdonosa) láthatja a készülék néhány adatát, de ez adatvédelmi szempontból még mindig előnyösebb, mint a videó lejátszása.","informationalModalConfirmButtonText":"Minden előnézet engedélyezése","informationalModalRejectButtonText":"Nem, köszönöm","buttonTextUnblockVideo":"YouTube-videó feloldása","infoTitleUnblockVideo":"A DuckDuckGo blokkolta a YouTube-videót, hogy a Google ne követhessen nyomon","infoTextUnblockVideo":"Blokkoltuk, hogy a Google (a YouTube tulajdonosa) nyomon követhessen az oldal betöltésekor. Ha feloldod a videó blokkolását, a Google tudni fogja, hogy milyen tevékenységet végzel.","infoPreviewToggleText":"Az előnézetek a fokozott adatvédelem érdekében letiltva","infoPreviewToggleEnabledText":"Az előnézetek engedélyezve","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-előnézetek engedélyezve a DuckDuckGo-ban.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">További tudnivalók</a> a DuckDuckGo beágyazott közösségi média elleni védelméről"}},"it":{"facebook.json":{"informationalModalMessageTitle":"L'accesso con Facebook consente di tracciarti","informationalModalMessageBody":"Dopo aver effettuato l'accesso, DuckDuckGo non può bloccare il tracciamento dei contenuti di Facebook su questo sito.","informationalModalConfirmButtonText":"Accedi","informationalModalRejectButtonText":"Torna indietro","loginButtonText":"Accedi con Facebook","loginBodyText":"Facebook tiene traccia della tua attività su un sito quando lo usi per accedere.","buttonTextUnblockContent":"Sblocca i contenuti di Facebook","buttonTextUnblockComment":"Sblocca il commento di Facebook","buttonTextUnblockComments":"Sblocca i commenti di Facebook","buttonTextUnblockPost":"Sblocca post di Facebook","buttonTextUnblockVideo":"Sblocca video di Facebook","buttonTextUnblockLogin":"Sblocca l'accesso a Facebook","infoTitleUnblockContent":"DuckDuckGo ha bloccato questo contenuto per impedire a Facebook di tracciarti","infoTitleUnblockComment":"DuckDuckGo ha bloccato questo commento per impedire a Facebook di tracciarti","infoTitleUnblockComments":"DuckDuckGo ha bloccato questi commenti per impedire a Facebook di tracciarti","infoTitleUnblockPost":"DuckDuckGo ha bloccato questo post per impedire a Facebook di tracciarti","infoTitleUnblockVideo":"DuckDuckGo ha bloccato questo video per impedire a Facebook di tracciarti","infoTextUnblockContent":"Abbiamo impedito a Facebook di tracciarti al caricamento della pagina. Se sblocchi questo contenuto, Facebook conoscerà la tua attività."},"shared.json":{"learnMore":"Ulteriori informazioni","readAbout":"Leggi di più su questa protezione della privacy","shareFeedback":"Condividi feedback"},"youtube.json":{"informationalModalMessageTitle":"Abilitare tutte le anteprime di YouTube?","informationalModalMessageBody":"La visualizzazione delle anteprime consentirà a Google (che possiede YouTube) di vedere alcune delle informazioni del tuo dispositivo, ma è comunque più privato rispetto alla riproduzione del video.","informationalModalConfirmButtonText":"Abilita tutte le anteprime","informationalModalRejectButtonText":"No, grazie","buttonTextUnblockVideo":"Sblocca video YouTube","infoTitleUnblockVideo":"DuckDuckGo ha bloccato questo video di YouTube per impedire a Google di tracciarti","infoTextUnblockVideo":"Abbiamo impedito a Google (che possiede YouTube) di tracciarti quando la pagina è stata caricata. Se sblocchi questo video, Google conoscerà la tua attività.","infoPreviewToggleText":"Anteprime disabilitate per una maggiore privacy","infoPreviewToggleEnabledText":"Anteprime abilitate","infoPreviewToggleEnabledDuckDuckGoText":"Anteprime YouTube abilitate in DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Scopri di più</a> sulla protezione dai social media integrata di DuckDuckGo"}},"lt":{"facebook.json":{"informationalModalMessageTitle":"Prisijungę prie „Facebook“ galite būti sekami","informationalModalMessageBody":"Kai esate prisijungę, „DuckDuckGo“ negali užblokuoti „Facebook“ turinio, todėl esate sekami šioje svetainėje.","informationalModalConfirmButtonText":"Prisijungti","informationalModalRejectButtonText":"Grįžti atgal","loginButtonText":"Prisijunkite su „Facebook“","loginBodyText":"„Facebook“ seka jūsų veiklą svetainėje, kai prisijungiate su šia svetaine.","buttonTextUnblockContent":"Atblokuoti „Facebook“ turinį","buttonTextUnblockComment":"Atblokuoti „Facebook“ komentarą","buttonTextUnblockComments":"Atblokuoti „Facebook“ komentarus","buttonTextUnblockPost":"Atblokuoti „Facebook“ įrašą","buttonTextUnblockVideo":"Atblokuoti „Facebook“ vaizdo įrašą","buttonTextUnblockLogin":"Atblokuoti „Facebook“ prisijungimą","infoTitleUnblockContent":"„DuckDuckGo“ užblokavo šį turinį, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockComment":"„DuckDuckGo“ užblokavo šį komentarą, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockComments":"„DuckDuckGo“ užblokavo šiuos komentarus, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockPost":"„DuckDuckGo“ užblokavo šį įrašą, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockVideo":"„DuckDuckGo“ užblokavo šį vaizdo įrašą, kad „Facebook“ negalėtų jūsų sekti","infoTextUnblockContent":"Užblokavome „Facebook“, kad negalėtų jūsų sekti, kai puslapis buvo įkeltas. Jei atblokuosite šį turinį, „Facebook“ žinos apie jūsų veiklą."},"shared.json":{"learnMore":"Sužinoti daugiau","readAbout":"Skaitykite apie šią privatumo apsaugą","shareFeedback":"Bendrinti atsiliepimą"},"youtube.json":{"informationalModalMessageTitle":"Įjungti visas „YouTube“ peržiūras?","informationalModalMessageBody":"Peržiūrų rodymas leis „Google“ (kuriai priklauso „YouTube“) matyti tam tikrą jūsų įrenginio informaciją, tačiau ji vis tiek bus privatesnė nei leidžiant vaizdo įrašą.","informationalModalConfirmButtonText":"Įjungti visas peržiūras","informationalModalRejectButtonText":"Ne, dėkoju","buttonTextUnblockVideo":"Atblokuoti „YouTube“ vaizdo įrašą","infoTitleUnblockVideo":"„DuckDuckGo“ užblokavo šį „YouTube“ vaizdo įrašą, kad „Google“ negalėtų jūsų sekti","infoTextUnblockVideo":"Užblokavome „Google“ (kuriai priklauso „YouTube“) galimybę sekti jus, kai puslapis buvo įkeltas. Jei atblokuosite šį vaizdo įrašą, „Google“ sužinos apie jūsų veiklą.","infoPreviewToggleText":"Peržiūros išjungtos dėl papildomo privatumo","infoPreviewToggleEnabledText":"Peržiūros įjungtos","infoPreviewToggleEnabledDuckDuckGoText":"„YouTube“ peržiūros įjungtos „DuckDuckGo“.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Sužinokite daugiau</a> apie „DuckDuckGo“ įdėtąją socialinės žiniasklaidos apsaugą"}},"lv":{"facebook.json":{"informationalModalMessageTitle":"Ja pieteiksies ar Facebook, viņi varēs tevi izsekot","informationalModalMessageBody":"Kad tu piesakies, DuckDuckGo nevar novērst, ka Facebook saturs tevi izseko šajā vietnē.","informationalModalConfirmButtonText":"Pieteikties","informationalModalRejectButtonText":"Atgriezties","loginButtonText":"Pieteikties ar Facebook","loginBodyText":"Facebook izseko tavas aktivitātes vietnē, kad esi pieteicies ar Facebook.","buttonTextUnblockContent":"Atbloķēt Facebook saturu","buttonTextUnblockComment":"Atbloķēt Facebook komentāru","buttonTextUnblockComments":"Atbloķēt Facebook komentārus","buttonTextUnblockPost":"Atbloķēt Facebook ziņu","buttonTextUnblockVideo":"Atbloķēt Facebook video","buttonTextUnblockLogin":"Atbloķēt Facebook pieteikšanos","infoTitleUnblockContent":"DuckDuckGo bloķēja šo saturu, lai neļautu Facebook tevi izsekot","infoTitleUnblockComment":"DuckDuckGo bloķēja šo komentāru, lai neļautu Facebook tevi izsekot","infoTitleUnblockComments":"DuckDuckGo bloķēja šos komentārus, lai neļautu Facebook tevi izsekot","infoTitleUnblockPost":"DuckDuckGo bloķēja šo ziņu, lai neļautu Facebook tevi izsekot","infoTitleUnblockVideo":"DuckDuckGo bloķēja šo videoklipu, lai neļautu Facebook tevi izsekot","infoTextUnblockContent":"Mēs bloķējām Facebook iespēju tevi izsekot, ielādējot lapu. Ja atbloķēsi šo saturu, Facebook redzēs, ko tu dari."},"shared.json":{"learnMore":"Uzzināt vairāk","readAbout":"Lasi par šo privātuma aizsardzību","shareFeedback":"Kopīgot atsauksmi"},"youtube.json":{"informationalModalMessageTitle":"Vai iespējot visus YouTube priekšskatījumus?","informationalModalMessageBody":"Priekšskatījumu rādīšana ļaus Google (kam pieder YouTube) redzēt daļu tavas ierīces informācijas, taču tas tāpat ir privātāk par videoklipa atskaņošanu.","informationalModalConfirmButtonText":"Iespējot visus priekšskatījumus","informationalModalRejectButtonText":"Nē, paldies","buttonTextUnblockVideo":"Atbloķēt YouTube videoklipu","infoTitleUnblockVideo":"DuckDuckGo bloķēja šo YouTube videoklipu, lai neļautu Google tevi izsekot","infoTextUnblockVideo":"Mēs neļāvām Google (kam pieder YouTube) tevi izsekot, kad lapa tika ielādēta. Ja atbloķēsi šo videoklipu, Google zinās, ko tu dari.","infoPreviewToggleText":"Priekšskatījumi ir atspējoti, lai nodrošinātu papildu konfidencialitāti","infoPreviewToggleEnabledText":"Priekšskatījumi ir iespējoti","infoPreviewToggleEnabledDuckDuckGoText":"DuckDuckGo iespējoti YouTube priekšskatījumi.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Uzzini vairāk</a> par DuckDuckGo iegulto sociālo mediju aizsardzību"}},"nb":{"facebook.json":{"informationalModalMessageTitle":"Når du logger på med Facebook, kan de spore deg","informationalModalMessageBody":"Når du er logget på, kan ikke DuckDuckGo hindre Facebook-innhold i å spore deg på dette nettstedet.","informationalModalConfirmButtonText":"Logg inn","informationalModalRejectButtonText":"Gå tilbake","loginButtonText":"Logg på med Facebook","loginBodyText":"Når du logger på med Facebook, sporer de aktiviteten din på nettstedet.","buttonTextUnblockContent":"Fjern blokkering av Facebook-innhold","buttonTextUnblockComment":"Fjern blokkering av Facebook-kommentar","buttonTextUnblockComments":"Fjern blokkering av Facebook-kommentarer","buttonTextUnblockPost":"Fjern blokkering av Facebook-innlegg","buttonTextUnblockVideo":"Fjern blokkering av Facebook-video","buttonTextUnblockLogin":"Fjern blokkering av Facebook-pålogging","infoTitleUnblockContent":"DuckDuckGo blokkerte dette innholdet for å hindre Facebook i å spore deg","infoTitleUnblockComment":"DuckDuckGo blokkerte denne kommentaren for å hindre Facebook i å spore deg","infoTitleUnblockComments":"DuckDuckGo blokkerte disse kommentarene for å hindre Facebook i å spore deg","infoTitleUnblockPost":"DuckDuckGo blokkerte dette innlegget for å hindre Facebook i å spore deg","infoTitleUnblockVideo":"DuckDuckGo blokkerte denne videoen for å hindre Facebook i å spore deg","infoTextUnblockContent":"Vi hindret Facebook i å spore deg da siden ble lastet. Hvis du opphever blokkeringen av dette innholdet, får Facebook vite om aktiviteten din."},"shared.json":{"learnMore":"Finn ut mer","readAbout":"Les om denne personvernfunksjonen","shareFeedback":"Del tilbakemelding"},"youtube.json":{"informationalModalMessageTitle":"Vil du aktivere alle YouTube-forhåndsvisninger?","informationalModalMessageBody":"Forhåndsvisninger gjør det mulig for Google (som eier YouTube) å se enkelte opplysninger om enheten din, men det er likevel mer privat enn å spille av videoen.","informationalModalConfirmButtonText":"Aktiver alle forhåndsvisninger","informationalModalRejectButtonText":"Nei takk","buttonTextUnblockVideo":"Fjern blokkering av YouTube-video","infoTitleUnblockVideo":"DuckDuckGo blokkerte denne YouTube-videoen for å hindre Google i å spore deg","infoTextUnblockVideo":"Vi blokkerte Google (som eier YouTube) mot å spore deg da siden ble lastet. Hvis du opphever blokkeringen av denne videoen, får Google vite om aktiviteten din.","infoPreviewToggleText":"Forhåndsvisninger er deaktivert for å gi deg ekstra personvern","infoPreviewToggleEnabledText":"Forhåndsvisninger er aktivert","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-forhåndsvisninger er aktivert i DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Finn ut mer</a> om DuckDuckGos innebygde beskyttelse for sosiale medier"}},"nl":{"facebook.json":{"informationalModalMessageTitle":"Als je inlogt met Facebook, kunnen zij je volgen","informationalModalMessageBody":"Als je eenmaal bent ingelogd, kan DuckDuckGo niet voorkomen dat Facebook je op deze site volgt.","informationalModalConfirmButtonText":"Inloggen","informationalModalRejectButtonText":"Terug","loginButtonText":"Inloggen met Facebook","loginBodyText":"Facebook volgt je activiteit op een site als je Facebook gebruikt om in te loggen.","buttonTextUnblockContent":"Facebook-inhoud deblokkeren","buttonTextUnblockComment":"Facebook-opmerkingen deblokkeren","buttonTextUnblockComments":"Facebook-opmerkingen deblokkeren","buttonTextUnblockPost":"Facebook-bericht deblokkeren","buttonTextUnblockVideo":"Facebook-video deblokkeren","buttonTextUnblockLogin":"Facebook-aanmelding deblokkeren","infoTitleUnblockContent":"DuckDuckGo heeft deze inhoud geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockComment":"DuckDuckGo heeft deze opmerking geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockComments":"DuckDuckGo heeft deze opmerkingen geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockPost":"DuckDuckGo heeft dit bericht geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockVideo":"DuckDuckGo heeft deze video geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTextUnblockContent":"We hebben voorkomen dat Facebook je volgde toen de pagina werd geladen. Als je deze inhoud deblokkeert, kan Facebook je activiteit zien."},"shared.json":{"learnMore":"Meer informatie","readAbout":"Lees meer over deze privacybescherming","shareFeedback":"Feedback delen"},"youtube.json":{"informationalModalMessageTitle":"Alle YouTube-voorbeelden inschakelen?","informationalModalMessageBody":"Bij het tonen van voorbeelden kan Google (eigenaar van YouTube) een deel van de informatie over je apparaat zien, maar blijft je privacy beter beschermd dan als je de video zou afspelen.","informationalModalConfirmButtonText":"Alle voorbeelden inschakelen","informationalModalRejectButtonText":"Nee, bedankt","buttonTextUnblockVideo":"YouTube-video deblokkeren","infoTitleUnblockVideo":"DuckDuckGo heeft deze YouTube-video geblokkeerd om te voorkomen dat Google je kan volgen","infoTextUnblockVideo":"We hebben voorkomen dat Google (eigenaar van YouTube) je volgde toen de pagina werd geladen. Als je deze video deblokkeert, kan Google je activiteit zien.","infoPreviewToggleText":"Voorbeelden uitgeschakeld voor extra privacy","infoPreviewToggleEnabledText":"Voorbeelden ingeschakeld","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-voorbeelden ingeschakeld in DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Meer informatie</a> over DuckDuckGo's bescherming tegen ingesloten social media"}},"pl":{"facebook.json":{"informationalModalMessageTitle":"Jeśli zalogujesz się za pośrednictwem Facebooka, będzie on mógł śledzić Twoją aktywność","informationalModalMessageBody":"Po zalogowaniu się DuckDuckGo nie może zablokować możliwości śledzenia Cię przez Facebooka na tej stronie.","informationalModalConfirmButtonText":"Zaloguj się","informationalModalRejectButtonText":"Wróć","loginButtonText":"Zaloguj się za pośrednictwem Facebooka","loginBodyText":"Facebook śledzi Twoją aktywność na stronie, gdy logujesz się za jego pośrednictwem.","buttonTextUnblockContent":"Odblokuj treść na Facebooku","buttonTextUnblockComment":"Odblokuj komentarz na Facebooku","buttonTextUnblockComments":"Odblokuj komentarze na Facebooku","buttonTextUnblockPost":"Odblokuj post na Facebooku","buttonTextUnblockVideo":"Odblokuj wideo na Facebooku","buttonTextUnblockLogin":"Odblokuj logowanie na Facebooku","infoTitleUnblockContent":"DuckDuckGo zablokował tę treść, aby Facebook nie mógł Cię śledzić","infoTitleUnblockComment":"DuckDuckGo zablokował ten komentarz, aby Facebook nie mógł Cię śledzić","infoTitleUnblockComments":"DuckDuckGo zablokował te komentarze, aby Facebook nie mógł Cię śledzić","infoTitleUnblockPost":"DuckDuckGo zablokował ten post, aby Facebook nie mógł Cię śledzić","infoTitleUnblockVideo":"DuckDuckGo zablokował tę treść wideo, aby Facebook nie mógł Cię śledzić.","infoTextUnblockContent":"Zablokowaliśmy Facebookowi możliwość śledzenia Cię podczas ładowania strony. Jeśli odblokujesz tę treść, Facebook uzyska informacje o Twojej aktywności."},"shared.json":{"learnMore":"Dowiedz się więcej","readAbout":"Dowiedz się więcej o tej ochronie prywatności","shareFeedback":"Podziel się opinią"},"youtube.json":{"informationalModalMessageTitle":"Włączyć wszystkie podglądy w YouTube?","informationalModalMessageBody":"Wyświetlanie podglądu pozwala Google (który jest właścicielem YouTube) zobaczyć niektóre informacje o Twoim urządzeniu, ale nadal jest to bardziej prywatne niż odtwarzanie filmu.","informationalModalConfirmButtonText":"Włącz wszystkie podglądy","informationalModalRejectButtonText":"Nie, dziękuję","buttonTextUnblockVideo":"Odblokuj wideo w YouTube","infoTitleUnblockVideo":"DuckDuckGo zablokował ten film w YouTube, aby uniemożliwić Google śledzenie Twojej aktywności","infoTextUnblockVideo":"Zablokowaliśmy możliwość śledzenia Cię przez Google (właściciela YouTube) podczas ładowania strony. Jeśli odblokujesz ten film, Google zobaczy Twoją aktywność.","infoPreviewToggleText":"Podglądy zostały wyłączone, aby zapewnić większą ptywatność","infoPreviewToggleEnabledText":"Podglądy włączone","infoPreviewToggleEnabledDuckDuckGoText":"Podglądy YouTube włączone w DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Dowiedz się więcej</a> o zabezpieczeniu osadzonych treści społecznościowych DuckDuckGo"}},"pt":{"facebook.json":{"informationalModalMessageTitle":"Iniciar sessão no Facebook permite que este te rastreie","informationalModalMessageBody":"Depois de iniciares sessão, o DuckDuckGo não poderá bloquear o rastreio por parte do conteúdo do Facebook neste site.","informationalModalConfirmButtonText":"Iniciar sessão","informationalModalRejectButtonText":"Retroceder","loginButtonText":"Iniciar sessão com o Facebook","loginBodyText":"O Facebook rastreia a tua atividade num site quando o usas para iniciares sessão.","buttonTextUnblockContent":"Desbloquear Conteúdo do Facebook","buttonTextUnblockComment":"Desbloquear Comentário do Facebook","buttonTextUnblockComments":"Desbloquear Comentários do Facebook","buttonTextUnblockPost":"Desbloquear Publicação no Facebook","buttonTextUnblockVideo":"Desbloquear Vídeo do Facebook","buttonTextUnblockLogin":"Desbloquear Início de Sessão no Facebook","infoTitleUnblockContent":"O DuckDuckGo bloqueou este conteúdo para evitar que o Facebook te rastreie","infoTitleUnblockComment":"O DuckDuckGo bloqueou este comentário para evitar que o Facebook te rastreie","infoTitleUnblockComments":"O DuckDuckGo bloqueou estes comentários para evitar que o Facebook te rastreie","infoTitleUnblockPost":"O DuckDuckGo bloqueou esta publicação para evitar que o Facebook te rastreie","infoTitleUnblockVideo":"O DuckDuckGo bloqueou este vídeo para evitar que o Facebook te rastreie","infoTextUnblockContent":"Bloqueámos o rastreio por parte do Facebook quando a página foi carregada. Se desbloqueares este conteúdo, o Facebook fica a saber a tua atividade."},"shared.json":{"learnMore":"Saiba mais","readAbout":"Ler mais sobre esta proteção de privacidade","shareFeedback":"Partilhar comentários"},"youtube.json":{"informationalModalMessageTitle":"Ativar todas as pré-visualizações do YouTube?","informationalModalMessageBody":"Mostrar visualizações permite à Google (que detém o YouTube) ver algumas das informações do teu dispositivo, mas ainda é mais privado do que reproduzir o vídeo.","informationalModalConfirmButtonText":"Ativar todas as pré-visualizações","informationalModalRejectButtonText":"Não, obrigado","buttonTextUnblockVideo":"Desbloquear Vídeo do YouTube","infoTitleUnblockVideo":"O DuckDuckGo bloqueou este vídeo do YouTube para impedir que a Google te rastreie","infoTextUnblockVideo":"Bloqueámos o rastreio por parte da Google (que detém o YouTube) quando a página foi carregada. Se desbloqueares este vídeo, a Google fica a saber a tua atividade.","infoPreviewToggleText":"Pré-visualizações desativadas para privacidade adicional","infoPreviewToggleEnabledText":"Pré-visualizações ativadas","infoPreviewToggleEnabledDuckDuckGoText":"Pré-visualizações do YouTube ativadas no DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Saiba mais</a> sobre a Proteção contra conteúdos de redes sociais incorporados do DuckDuckGo"}},"ro":{"facebook.json":{"informationalModalMessageTitle":"Conectarea cu Facebook îi permite să te urmărească","informationalModalMessageBody":"Odată ce te-ai conectat, DuckDuckGo nu poate împiedica conținutul Facebook să te urmărească pe acest site.","informationalModalConfirmButtonText":"Autentificare","informationalModalRejectButtonText":"Înapoi","loginButtonText":"Conectează-te cu Facebook","loginBodyText":"Facebook urmărește activitatea ta pe un site atunci când îl utilizezi pentru a te conecta.","buttonTextUnblockContent":"Deblochează conținutul Facebook","buttonTextUnblockComment":"Deblochează comentariul de pe Facebook","buttonTextUnblockComments":"Deblochează comentariile de pe Facebook","buttonTextUnblockPost":"Deblochează postarea de pe Facebook","buttonTextUnblockVideo":"Deblochează videoclipul de pe Facebook","buttonTextUnblockLogin":"Deblochează conectarea cu Facebook","infoTitleUnblockContent":"DuckDuckGo a blocat acest conținut pentru a împiedica Facebook să te urmărească","infoTitleUnblockComment":"DuckDuckGo a blocat acest comentariu pentru a împiedica Facebook să te urmărească","infoTitleUnblockComments":"DuckDuckGo a blocat aceste comentarii pentru a împiedica Facebook să te urmărească","infoTitleUnblockPost":"DuckDuckGo a blocat această postare pentru a împiedica Facebook să te urmărească","infoTitleUnblockVideo":"DuckDuckGo a blocat acest videoclip pentru a împiedica Facebook să te urmărească","infoTextUnblockContent":"Am împiedicat Facebook să te urmărească atunci când pagina a fost încărcată. Dacă deblochezi acest conținut, Facebook îți va cunoaște activitatea."},"shared.json":{"learnMore":"Află mai multe","readAbout":"Citește despre această protecție a confidențialității","shareFeedback":"Partajează feedback"},"youtube.json":{"informationalModalMessageTitle":"Activezi toate previzualizările YouTube?","informationalModalMessageBody":"Afișarea previzualizărilor va permite ca Google (care deține YouTube) să vadă unele dintre informațiile despre dispozitivul tău, dar este totuși mai privată decât redarea videoclipului.","informationalModalConfirmButtonText":"Activează toate previzualizările","informationalModalRejectButtonText":"Nu, mulțumesc","buttonTextUnblockVideo":"Deblochează videoclipul de pe YouTube","infoTitleUnblockVideo":"DuckDuckGo a blocat acest videoclip de pe YouTube pentru a împiedica Google să te urmărească","infoTextUnblockVideo":"Am împiedicat Google (care deține YouTube) să te urmărească atunci când s-a încărcat pagina. Dacă deblochezi acest videoclip, Google va cunoaște activitatea ta.","infoPreviewToggleText":"Previzualizările au fost dezactivate pentru o confidențialitate suplimentară","infoPreviewToggleEnabledText":"Previzualizări activate","infoPreviewToggleEnabledDuckDuckGoText":"Previzualizările YouTube sunt activate în DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Află mai multe</a> despre Protecția integrată DuckDuckGo pentru rețelele sociale"}},"ru":{"facebook.json":{"informationalModalMessageTitle":"Вход через Facebook позволяет этой социальной сети отслеживать вас","informationalModalMessageBody":"После входа DuckDuckGo не сможет блокировать отслеживание ваших действий с контентом на Facebook.","informationalModalConfirmButtonText":"Войти","informationalModalRejectButtonText":"Вернуться","loginButtonText":"Войти через Facebook","loginBodyText":"При использовании учётной записи Facebook для входа на сайты эта социальная сеть сможет отслеживать на них ваши действия.","buttonTextUnblockContent":"Разблокировать контент из Facebook","buttonTextUnblockComment":"Разблокировать комментарий из Facebook","buttonTextUnblockComments":"Разблокировать комментарии из Facebook","buttonTextUnblockPost":"Разблокировать публикацию из Facebook","buttonTextUnblockVideo":"Разблокировать видео из Facebook","buttonTextUnblockLogin":"Разблокировать окно входа в Facebook","infoTitleUnblockContent":"DuckDuckGo заблокировал этот контент, чтобы вас не отслеживал Facebook","infoTitleUnblockComment":"DuckDuckGo заблокировал этот комментарий, чтобы вас не отслеживал Facebook","infoTitleUnblockComments":"DuckDuckGo заблокировал эти комментарии, чтобы вас не отслеживал Facebook","infoTitleUnblockPost":"DuckDuckGo заблокировал эту публикацию, чтобы вас не отслеживал Facebook","infoTitleUnblockVideo":"DuckDuckGo заблокировал это видео, чтобы вас не отслеживал Facebook","infoTextUnblockContent":"Во время загрузки страницы мы помешали Facebook отследить ваши действия. Если разблокировать этот контент, Facebook сможет фиксировать вашу активность."},"shared.json":{"learnMore":"Узнать больше","readAbout":"Подробнее об этом виде защиты конфиденциальности","shareFeedback":"Оставьте нам отзыв"},"youtube.json":{"informationalModalMessageTitle":"Включить предпросмотр видео из YouTube?","informationalModalMessageBody":"Включение предварительного просмотра позволит Google (владельцу YouTube) получить некоторые сведения о вашем устройстве, однако это более безопасный вариант, чем воспроизведение видео целиком.","informationalModalConfirmButtonText":"Включить предпросмотр","informationalModalRejectButtonText":"Нет, спасибо","buttonTextUnblockVideo":"Разблокировать видео из YouTube","infoTitleUnblockVideo":"DuckDuckGo заблокировал это видео из YouTube, чтобы вас не отслеживал Google","infoTextUnblockVideo":"Во время загрузки страницы мы помешали Google (владельцу YouTube) отследить ваши действия. Если разблокировать видео, Google сможет фиксировать вашу активность.","infoPreviewToggleText":"Предварительный просмотр отключён для дополнительной защиты конфиденциальности","infoPreviewToggleEnabledText":"Предварительный просмотр включён","infoPreviewToggleEnabledDuckDuckGoText":"В DuckDuckGo включён предпросмотр видео из YouTube.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Подробнее</a> о защите DuckDuckGo от внедрённого контента соцсетей"}},"sk":{"facebook.json":{"informationalModalMessageTitle":"Prihlásenie cez Facebook mu umožní sledovať vás","informationalModalMessageBody":"DuckDuckGo po prihlásení nemôže na tejto lokalite zablokovať sledovanie vašej osoby obsahom Facebooku.","informationalModalConfirmButtonText":"Prihlásiť sa","informationalModalRejectButtonText":"Prejsť späť","loginButtonText":"Prihláste sa pomocou služby Facebook","loginBodyText":"Keď použijete prihlasovanie cez Facebook, Facebook bude na lokalite sledovať vašu aktivitu.","buttonTextUnblockContent":"Odblokovať obsah Facebooku","buttonTextUnblockComment":"Odblokovať komentár na Facebooku","buttonTextUnblockComments":"Odblokovať komentáre na Facebooku","buttonTextUnblockPost":"Odblokovať príspevok na Facebooku","buttonTextUnblockVideo":"Odblokovanie videa na Facebooku","buttonTextUnblockLogin":"Odblokovať prihlásenie na Facebook","infoTitleUnblockContent":"DuckDuckGo zablokoval tento obsah, aby vás Facebook nesledoval","infoTitleUnblockComment":"DuckDuckGo zablokoval tento komentár, aby zabránil sledovaniu zo strany Facebooku","infoTitleUnblockComments":"DuckDuckGo zablokoval tieto komentáre, aby vás Facebook nesledoval","infoTitleUnblockPost":"DuckDuckGo zablokoval tento príspevok, aby vás Facebook nesledoval","infoTitleUnblockVideo":"DuckDuckGo zablokoval toto video, aby vás Facebook nesledoval","infoTextUnblockContent":"Pri načítaní stránky sme zablokovali Facebook, aby vás nesledoval. Ak tento obsah odblokujete, Facebook bude vedieť o vašej aktivite."},"shared.json":{"learnMore":"Zistite viac","readAbout":"Prečítajte si o tejto ochrane súkromia","shareFeedback":"Zdieľať spätnú väzbu"},"youtube.json":{"informationalModalMessageTitle":"Chcete povoliť všetky ukážky zo služby YouTube?","informationalModalMessageBody":"Zobrazenie ukážok umožní spoločnosti Google (ktorá vlastní YouTube) vidieť niektoré informácie o vašom zariadení, ale stále je to súkromnejšie ako prehrávanie videa.","informationalModalConfirmButtonText":"Povoliť všetky ukážky","informationalModalRejectButtonText":"Nie, ďakujem","buttonTextUnblockVideo":"Odblokovať YouTube video","infoTitleUnblockVideo":"DuckDuckGo toto video v službe YouTube zablokoval s cieľom predísť tomu, aby vás spoločnosť Google mohla sledovať","infoTextUnblockVideo":"Zablokovali sme pre spoločnosť Google (ktorá vlastní YouTube), aby vás nemohla sledovať, keď sa stránka načíta. Ak toto video odblokujete, Google bude poznať vašu aktivitu.","infoPreviewToggleText":"Ukážky sú zakázané s cieľom zvýšiť ochranu súkromia","infoPreviewToggleEnabledText":"Ukážky sú povolené","infoPreviewToggleEnabledDuckDuckGoText":"Ukážky YouTube sú v DuckDuckGo povolené.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Získajte viac informácií</a> o DuckDuckGo, vloženej ochrane sociálnych médií"}},"sl":{"facebook.json":{"informationalModalMessageTitle":"Če se prijavite s Facebookom, vam Facebook lahko sledi","informationalModalMessageBody":"Ko ste enkrat prijavljeni, DuckDuckGo ne more blokirati Facebookove vsebine, da bi vam sledila na tem spletnem mestu.","informationalModalConfirmButtonText":"Prijava","informationalModalRejectButtonText":"Pojdi nazaj","loginButtonText":"Prijavite se s Facebookom","loginBodyText":"Če se prijavite s Facebookom, bo nato spremljal vaša dejanja na spletnem mestu.","buttonTextUnblockContent":"Odblokiraj vsebino na Facebooku","buttonTextUnblockComment":"Odblokiraj komentar na Facebooku","buttonTextUnblockComments":"Odblokiraj komentarje na Facebooku","buttonTextUnblockPost":"Odblokiraj objavo na Facebooku","buttonTextUnblockVideo":"Odblokiraj videoposnetek na Facebooku","buttonTextUnblockLogin":"Odblokiraj prijavo na Facebooku","infoTitleUnblockContent":"DuckDuckGo je blokiral to vsebino, da bi Facebooku preprečil sledenje","infoTitleUnblockComment":"DuckDuckGo je blokiral ta komentar, da bi Facebooku preprečil sledenje","infoTitleUnblockComments":"DuckDuckGo je blokiral te komentarje, da bi Facebooku preprečil sledenje","infoTitleUnblockPost":"DuckDuckGo je blokiral to objavo, da bi Facebooku preprečil sledenje","infoTitleUnblockVideo":"DuckDuckGo je blokiral ta videoposnetek, da bi Facebooku preprečil sledenje","infoTextUnblockContent":"Ko se je stran naložila, smo Facebooku preprečili, da bi vam sledil. Če to vsebino odblokirate, bo Facebook izvedel za vaša dejanja."},"shared.json":{"learnMore":"Več","readAbout":"Preberite več o tej zaščiti zasebnosti","shareFeedback":"Deli povratne informacije"},"youtube.json":{"informationalModalMessageTitle":"Želite omogočiti vse YouTubove predoglede?","informationalModalMessageBody":"Prikaz predogledov omogoča Googlu (ki je lastnik YouTuba) vpogled v nekatere podatke o napravi, vendar je še vedno bolj zasebno kot predvajanje videoposnetka.","informationalModalConfirmButtonText":"Omogoči vse predoglede","informationalModalRejectButtonText":"Ne, hvala","buttonTextUnblockVideo":"Odblokiraj videoposnetek na YouTubu","infoTitleUnblockVideo":"DuckDuckGo je blokiral ta videoposnetek v YouTubu, da bi Googlu preprečil sledenje","infoTextUnblockVideo":"Googlu (ki je lastnik YouTuba) smo preprečili, da bi vam sledil, ko se je stran naložila. Če odblokirate ta videoposnetek, bo Google izvedel za vašo dejavnost.","infoPreviewToggleText":"Predogledi so zaradi dodatne zasebnosti onemogočeni","infoPreviewToggleEnabledText":"Predogledi so omogočeni","infoPreviewToggleEnabledDuckDuckGoText":"YouTubovi predogledi so omogočeni v DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Več</a> o vgrajeni zaščiti družbenih medijev DuckDuckGo"}},"sv":{"facebook.json":{"informationalModalMessageTitle":"Om du loggar in med Facebook kan de spåra dig","informationalModalMessageBody":"När du väl är inloggad kan DuckDuckGo inte hindra Facebooks innehåll från att spåra dig på den här webbplatsen.","informationalModalConfirmButtonText":"Logga in","informationalModalRejectButtonText":"Gå tillbaka","loginButtonText":"Logga in med Facebook","loginBodyText":"Facebook spårar din aktivitet på en webbplats om du använder det för att logga in.","buttonTextUnblockContent":"Avblockera Facebook-innehåll","buttonTextUnblockComment":"Avblockera Facebook-kommentar","buttonTextUnblockComments":"Avblockera Facebook-kommentarer","buttonTextUnblockPost":"Avblockera Facebook-inlägg","buttonTextUnblockVideo":"Avblockera Facebook-video","buttonTextUnblockLogin":"Avblockera Facebook-inloggning","infoTitleUnblockContent":"DuckDuckGo blockerade det här innehållet för att förhindra att Facebook spårar dig","infoTitleUnblockComment":"DuckDuckGo blockerade den här kommentaren för att förhindra att Facebook spårar dig","infoTitleUnblockComments":"DuckDuckGo blockerade de här kommentarerna för att förhindra att Facebook spårar dig","infoTitleUnblockPost":"DuckDuckGo blockerade det här inlägget för att förhindra att Facebook spårar dig","infoTitleUnblockVideo":"DuckDuckGo blockerade den här videon för att förhindra att Facebook spårar dig","infoTextUnblockContent":"Vi hindrade Facebook från att spåra dig när sidan lästes in. Om du avblockerar det här innehållet kommer Facebook att känna till din aktivitet."},"shared.json":{"learnMore":"Läs mer","readAbout":"Läs mer om detta integritetsskydd","shareFeedback":"Berätta vad du tycker"},"youtube.json":{"informationalModalMessageTitle":"Aktivera alla förhandsvisningar för YouTube?","informationalModalMessageBody":"Genom att visa förhandsvisningar kan Google (som äger YouTube) se en del av enhetens information, men det är ändå mer privat än att spela upp videon.","informationalModalConfirmButtonText":"Aktivera alla förhandsvisningar","informationalModalRejectButtonText":"Nej tack","buttonTextUnblockVideo":"Avblockera YouTube-video","infoTitleUnblockVideo":"DuckDuckGo blockerade den här YouTube-videon för att förhindra att Google spårar dig","infoTextUnblockVideo":"Vi hindrade Google (som äger YouTube) från att spåra dig när sidan laddades. Om du tar bort blockeringen av videon kommer Google att känna till din aktivitet.","infoPreviewToggleText":"Förhandsvisningar har inaktiverats för ytterligare integritet","infoPreviewToggleEnabledText":"Förhandsvisningar aktiverade","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-förhandsvisningar aktiverade i DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Läs mer</a> om DuckDuckGos skydd mot inbäddade sociala medier"}},"tr":{"facebook.json":{"informationalModalMessageTitle":"Facebook ile giriş yapmak, sizi takip etmelerini sağlar","informationalModalMessageBody":"Giriş yaptıktan sonra, DuckDuckGo Facebook içeriğinin sizi bu sitede izlemesini engelleyemez.","informationalModalConfirmButtonText":"Oturum Aç","informationalModalRejectButtonText":"Geri dön","loginButtonText":"Facebook ile giriş yapın","loginBodyText":"Facebook, giriş yapmak için kullandığınızda bir sitedeki etkinliğinizi izler.","buttonTextUnblockContent":"Facebook İçeriğinin Engelini Kaldır","buttonTextUnblockComment":"Facebook Yorumunun Engelini Kaldır","buttonTextUnblockComments":"Facebook Yorumlarının Engelini Kaldır","buttonTextUnblockPost":"Facebook Gönderisinin Engelini Kaldır","buttonTextUnblockVideo":"Facebook Videosunun Engelini Kaldır","buttonTextUnblockLogin":"Facebook Girişinin Engelini Kaldır","infoTitleUnblockContent":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu içeriği engelledi","infoTitleUnblockComment":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu yorumu engelledi","infoTitleUnblockComments":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu yorumları engelledi","infoTitleUnblockPost":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu gönderiyi engelledi","infoTitleUnblockVideo":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu videoyu engelledi","infoTextUnblockContent":"Sayfa yüklendiğinde Facebook'un sizi izlemesini engelledik. Bu içeriğin engelini kaldırırsanız Facebook etkinliğinizi öğrenecektir."},"shared.json":{"learnMore":"Daha Fazla Bilgi","readAbout":"Bu gizlilik koruması hakkında bilgi edinin","shareFeedback":"Geri Bildirim Paylaş"},"youtube.json":{"informationalModalMessageTitle":"Tüm YouTube önizlemeleri etkinleştirilsin mi?","informationalModalMessageBody":"Önizlemelerin gösterilmesi Google'ın (YouTube'un sahibi) cihazınızın bazı bilgilerini görmesine izin verir, ancak yine de videoyu oynatmaktan daha özeldir.","informationalModalConfirmButtonText":"Tüm Önizlemeleri Etkinleştir","informationalModalRejectButtonText":"Hayır Teşekkürler","buttonTextUnblockVideo":"YouTube Videosunun Engelini Kaldır","infoTitleUnblockVideo":"DuckDuckGo, Google'ın sizi izlemesini önlemek için bu YouTube videosunu engelledi","infoTextUnblockVideo":"Sayfa yüklendiğinde Google'ın (YouTube'un sahibi) sizi izlemesini engelledik. Bu videonun engelini kaldırırsanız, Google etkinliğinizi öğrenecektir.","infoPreviewToggleText":"Ek gizlilik için önizlemeler devre dışı bırakıldı","infoPreviewToggleEnabledText":"Önizlemeler etkinleştirildi","infoPreviewToggleEnabledDuckDuckGoText":"DuckDuckGo'da YouTube önizlemeleri etkinleştirildi.","infoPreviewInfoText":"DuckDuckGo Yerleşik Sosyal Medya Koruması hakkında <a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">daha fazla bilgi edinin</a>"}}}`;
 
@@ -6807,9 +6978,10 @@
      * (e.g. fonts.)
      * @param {import('../../content-feature.js').AssetConfig} [assets]
      */
-    function getStyles (assets) {
+    function getStyles(assets) {
         let fontStyle = '';
-        let regularFontFamily = "system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'";
+        let regularFontFamily =
+            "system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'";
         let boldFontFamily = regularFontFamily;
         if (assets?.regularFontUrl && assets?.boldFontUrl) {
             fontStyle = `
@@ -6859,8 +7031,8 @@
             `,
                     inactive: `
                 background-color: #666666;
-            `
-                }
+            `,
+                },
             },
             lightMode: {
                 background: `
@@ -6893,8 +7065,8 @@
             `,
                     inactive: `
                 background-color: #666666;
-            `
-                }
+            `,
+                },
             },
             loginMode: {
                 buttonBackground: `
@@ -6902,7 +7074,7 @@
         `,
                 buttonFont: `
             color: #FFFFFF;
-        `
+        `,
             },
             cancelMode: {
                 buttonBackground: `
@@ -6916,7 +7088,7 @@
         `,
                 buttonBackgroundPress: `
             background: rgba(0, 0, 0, 0.18);
-        `
+        `,
             },
             button: `
         border-radius: 8px;
@@ -7301,7 +7473,7 @@
         `,
                 inactive: `
             left: 1px;
-        `
+        `,
             },
             placeholderWrapperDiv: `
         position: relative;
@@ -7407,14 +7579,14 @@
     `,
             youTubePreviewInfoText: `
         color: #ABABAB;
-    `
-        }
+    `,
+        };
     }
 
     /**
      * @param {string} locale UI locale
      */
-    function getConfig (locale) {
+    function getConfig(locale) {
         const allLocales = JSON.parse(localesJSON);
         const localeStrings = allLocales[locale] || allLocales.en;
 
@@ -7429,199 +7601,187 @@
                     messageTitle: fbStrings.informationalModalMessageTitle,
                     messageBody: fbStrings.informationalModalMessageBody,
                     confirmButtonText: fbStrings.informationalModalConfirmButtonText,
-                    rejectButtonText: fbStrings.informationalModalRejectButtonText
+                    rejectButtonText: fbStrings.informationalModalRejectButtonText,
                 },
                 elementData: {
                     'FB Like Button': {
-                        selectors: [
-                            '.fb-like'
-                        ],
+                        selectors: ['.fb-like'],
                         replaceSettings: {
-                            type: 'blank'
-                        }
+                            type: 'blank',
+                        },
                     },
                     'FB Button iFrames': {
                         selectors: [
                             "iframe[src*='//www.facebook.com/plugins/like.php']",
                             "iframe[src*='//www.facebook.com/v2.0/plugins/like.php']",
                             "iframe[src*='//www.facebook.com/plugins/share_button.php']",
-                            "iframe[src*='//www.facebook.com/v2.0/plugins/share_button.php']"
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/share_button.php']",
                         ],
                         replaceSettings: {
-                            type: 'blank'
-                        }
+                            type: 'blank',
+                        },
                     },
                     'FB Save Button': {
-                        selectors: [
-                            '.fb-save'
-                        ],
+                        selectors: ['.fb-save'],
                         replaceSettings: {
-                            type: 'blank'
-                        }
+                            type: 'blank',
+                        },
                     },
                     'FB Share Button': {
-                        selectors: [
-                            '.fb-share-button'
-                        ],
+                        selectors: ['.fb-share-button'],
                         replaceSettings: {
-                            type: 'blank'
-                        }
+                            type: 'blank',
+                        },
                     },
                     'FB Page iFrames': {
                         selectors: [
                             "iframe[src*='//www.facebook.com/plugins/page.php']",
-                            "iframe[src*='//www.facebook.com/v2.0/plugins/page.php']"
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/page.php']",
                         ],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockContent,
                             infoTitle: fbStrings.infoTitleUnblockContent,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
-                            type: 'originalElement'
-                        }
+                            type: 'originalElement',
+                        },
                     },
                     'FB Page Div': {
-                        selectors: [
-                            '.fb-page'
-                        ],
+                        selectors: ['.fb-page'],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockContent,
                             infoTitle: fbStrings.infoTitleUnblockContent,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
                             type: 'iFrame',
-                            targetURL: 'https://www.facebook.com/plugins/page.php?href=data-href&tabs=data-tabs&width=data-width&height=data-height',
+                            targetURL:
+                                'https://www.facebook.com/plugins/page.php?href=data-href&tabs=data-tabs&width=data-width&height=data-height',
                             urlDataAttributesToPreserve: {
                                 'data-href': {
                                     default: '',
-                                    required: true
+                                    required: true,
                                 },
                                 'data-tabs': {
-                                    default: 'timeline'
+                                    default: 'timeline',
                                 },
                                 'data-height': {
-                                    default: '500'
+                                    default: '500',
                                 },
                                 'data-width': {
-                                    default: '500'
-                                }
+                                    default: '500',
+                                },
                             },
                             styleDataAttributes: {
                                 width: {
                                     name: 'data-width',
-                                    unit: 'px'
+                                    unit: 'px',
                                 },
                                 height: {
                                     name: 'data-height',
-                                    unit: 'px'
-                                }
-                            }
-                        }
+                                    unit: 'px',
+                                },
+                            },
+                        },
                     },
                     'FB Comment iFrames': {
                         selectors: [
                             "iframe[src*='//www.facebook.com/plugins/comment_embed.php']",
-                            "iframe[src*='//www.facebook.com/v2.0/plugins/comment_embed.php']"
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/comment_embed.php']",
                         ],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockComment,
                             infoTitle: fbStrings.infoTitleUnblockComment,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
-                            type: 'originalElement'
-                        }
+                            type: 'originalElement',
+                        },
                     },
                     'FB Comments': {
-                        selectors: [
-                            '.fb-comments',
-                            'fb\\:comments'
-                        ],
+                        selectors: ['.fb-comments', 'fb\\:comments'],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockComments,
                             infoTitle: fbStrings.infoTitleUnblockComments,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
                             type: 'allowFull',
-                            targetURL: 'https://www.facebook.com/v9.0/plugins/comments.php?href=data-href&numposts=data-numposts&sdk=joey&version=v9.0&width=data-width',
+                            targetURL:
+                                'https://www.facebook.com/v9.0/plugins/comments.php?href=data-href&numposts=data-numposts&sdk=joey&version=v9.0&width=data-width',
                             urlDataAttributesToPreserve: {
                                 'data-href': {
                                     default: '',
-                                    required: true
+                                    required: true,
                                 },
                                 'data-numposts': {
-                                    default: 10
+                                    default: 10,
                                 },
                                 'data-width': {
-                                    default: '500'
-                                }
-                            }
-                        }
+                                    default: '500',
+                                },
+                            },
+                        },
                     },
                     'FB Embedded Comment Div': {
-                        selectors: [
-                            '.fb-comment-embed'
-                        ],
+                        selectors: ['.fb-comment-embed'],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockComment,
                             infoTitle: fbStrings.infoTitleUnblockComment,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
                             type: 'iFrame',
-                            targetURL: 'https://www.facebook.com/v9.0/plugins/comment_embed.php?href=data-href&sdk=joey&width=data-width&include_parent=data-include-parent',
+                            targetURL:
+                                'https://www.facebook.com/v9.0/plugins/comment_embed.php?href=data-href&sdk=joey&width=data-width&include_parent=data-include-parent',
                             urlDataAttributesToPreserve: {
                                 'data-href': {
                                     default: '',
-                                    required: true
+                                    required: true,
                                 },
                                 'data-width': {
-                                    default: '500'
+                                    default: '500',
                                 },
                                 'data-include-parent': {
-                                    default: 'false'
-                                }
+                                    default: 'false',
+                                },
                             },
                             styleDataAttributes: {
                                 width: {
                                     name: 'data-width',
-                                    unit: 'px'
-                                }
-                            }
-                        }
+                                    unit: 'px',
+                                },
+                            },
+                        },
                     },
                     'FB Post iFrames': {
                         selectors: [
                             "iframe[src*='//www.facebook.com/plugins/post.php']",
-                            "iframe[src*='//www.facebook.com/v2.0/plugins/post.php']"
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/post.php']",
                         ],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockPost,
                             infoTitle: fbStrings.infoTitleUnblockPost,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
-                            type: 'originalElement'
-                        }
+                            type: 'originalElement',
+                        },
                     },
                     'FB Posts Div': {
-                        selectors: [
-                            '.fb-post'
-                        ],
+                        selectors: ['.fb-post'],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockPost,
                             infoTitle: fbStrings.infoTitleUnblockPost,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
                             type: 'allowFull',
@@ -7629,49 +7789,47 @@
                             urlDataAttributesToPreserve: {
                                 'data-href': {
                                     default: '',
-                                    required: true
+                                    required: true,
                                 },
                                 'data-width': {
-                                    default: '500'
-                                }
+                                    default: '500',
+                                },
                             },
                             styleDataAttributes: {
                                 width: {
                                     name: 'data-width',
-                                    unit: 'px'
+                                    unit: 'px',
                                 },
                                 height: {
                                     name: 'data-height',
                                     unit: 'px',
-                                    fallbackAttribute: 'data-width'
-                                }
-                            }
-                        }
+                                    fallbackAttribute: 'data-width',
+                                },
+                            },
+                        },
                     },
                     'FB Video iFrames': {
                         selectors: [
                             "iframe[src*='//www.facebook.com/plugins/video.php']",
-                            "iframe[src*='//www.facebook.com/v2.0/plugins/video.php']"
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/video.php']",
                         ],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockVideo,
                             infoTitle: fbStrings.infoTitleUnblockVideo,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
-                            type: 'originalElement'
-                        }
+                            type: 'originalElement',
+                        },
                     },
                     'FB Video': {
-                        selectors: [
-                            '.fb-video'
-                        ],
+                        selectors: ['.fb-video'],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockVideo,
                             infoTitle: fbStrings.infoTitleUnblockVideo,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
                             type: 'iFrame',
@@ -7679,49 +7837,47 @@
                             urlDataAttributesToPreserve: {
                                 'data-href': {
                                     default: '',
-                                    required: true
+                                    required: true,
                                 },
                                 'data-width': {
-                                    default: '500'
-                                }
+                                    default: '500',
+                                },
                             },
                             styleDataAttributes: {
                                 width: {
                                     name: 'data-width',
-                                    unit: 'px'
+                                    unit: 'px',
                                 },
                                 height: {
                                     name: 'data-height',
                                     unit: 'px',
-                                    fallbackAttribute: 'data-width'
-                                }
-                            }
-                        }
+                                    fallbackAttribute: 'data-width',
+                                },
+                            },
+                        },
                     },
                     'FB Group iFrames': {
                         selectors: [
                             "iframe[src*='//www.facebook.com/plugins/group.php']",
-                            "iframe[src*='//www.facebook.com/v2.0/plugins/group.php']"
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/group.php']",
                         ],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockContent,
                             infoTitle: fbStrings.infoTitleUnblockContent,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
-                            type: 'originalElement'
-                        }
+                            type: 'originalElement',
+                        },
                     },
                     'FB Group': {
-                        selectors: [
-                            '.fb-group'
-                        ],
+                        selectors: ['.fb-group'],
                         replaceSettings: {
                             type: 'dialog',
                             buttonText: fbStrings.buttonTextUnblockContent,
                             infoTitle: fbStrings.infoTitleUnblockContent,
-                            infoText: fbStrings.infoTextUnblockContent
+                            infoText: fbStrings.infoTextUnblockContent,
                         },
                         clickAction: {
                             type: 'iFrame',
@@ -7729,49 +7885,48 @@
                             urlDataAttributesToPreserve: {
                                 'data-href': {
                                     default: '',
-                                    required: true
+                                    required: true,
                                 },
                                 'data-width': {
-                                    default: '500'
-                                }
+                                    default: '500',
+                                },
                             },
                             styleDataAttributes: {
                                 width: {
                                     name: 'data-width',
-                                    unit: 'px'
-                                }
-                            }
-                        }
+                                    unit: 'px',
+                                },
+                            },
+                        },
                     },
                     'FB Login Button': {
-                        selectors: [
-                            '.fb-login-button'
-                        ],
+                        selectors: ['.fb-login-button'],
                         replaceSettings: {
                             type: 'loginButton',
                             icon: blockedFBLogo,
                             buttonText: fbStrings.loginButtonText,
                             buttonTextUnblockLogin: fbStrings.buttonTextUnblockLogin,
-                            popupBodyText: fbStrings.loginBodyText
+                            popupBodyText: fbStrings.loginBodyText,
                         },
                         clickAction: {
                             type: 'allowFull',
-                            targetURL: 'https://www.facebook.com/v9.0/plugins/login_button.php?app_id=app_id_replace&auto_logout_link=false&button_type=continue_with&sdk=joey&size=large&use_continue_as=false&width=',
+                            targetURL:
+                                'https://www.facebook.com/v9.0/plugins/login_button.php?app_id=app_id_replace&auto_logout_link=false&button_type=continue_with&sdk=joey&size=large&use_continue_as=false&width=',
                             urlDataAttributesToPreserve: {
                                 'data-href': {
                                     default: '',
-                                    required: true
+                                    required: true,
                                 },
                                 'data-width': {
-                                    default: '500'
+                                    default: '500',
                                 },
                                 app_id_replace: {
-                                    default: 'null'
-                                }
-                            }
-                        }
-                    }
-                }
+                                    default: 'null',
+                                },
+                            },
+                        },
+                    },
+                },
             },
             Youtube: {
                 informationalModal: {
@@ -7779,7 +7934,7 @@
                     messageTitle: ytStrings.informationalModalMessageTitle,
                     messageBody: ytStrings.informationalModalMessageBody,
                     confirmButtonText: ytStrings.informationalModalConfirmButtonText,
-                    rejectButtonText: ytStrings.informationalModalRejectButtonText
+                    rejectButtonText: ytStrings.informationalModalRejectButtonText,
                 },
                 elementData: {
                     'YouTube embedded video': {
@@ -7791,7 +7946,7 @@
                             "iframe[data-src*='//youtube.com/embed']",
                             "iframe[data-src*='//youtube-nocookie.com/embed']",
                             "iframe[data-src*='//www.youtube.com/embed']",
-                            "iframe[data-src*='//www.youtube-nocookie.com/embed']"
+                            "iframe[data-src*='//www.youtube-nocookie.com/embed']",
                         ],
                         replaceSettings: {
                             type: 'youtube-video',
@@ -7805,13 +7960,13 @@
                                 previewToggleEnabledDuckDuckGoText: ytStrings.infoPreviewToggleEnabledText,
                                 videoPlayIcon: {
                                     lightMode: videoPlayLight,
-                                    darkMode: videoPlayDark
-                                }
-                            }
+                                    darkMode: videoPlayDark,
+                                },
+                            },
                         },
                         clickAction: {
-                            type: 'youtube-video'
-                        }
+                            type: 'youtube-video',
+                        },
                     },
                     'YouTube embedded subscription button': {
                         selectors: [
@@ -7822,24 +7977,24 @@
                             "iframe[data-src*='//youtube.com/subscribe_embed']",
                             "iframe[data-src*='//youtube-nocookie.com/subscribe_embed']",
                             "iframe[data-src*='//www.youtube.com/subscribe_embed']",
-                            "iframe[data-src*='//www.youtube-nocookie.com/subscribe_embed']"
+                            "iframe[data-src*='//www.youtube-nocookie.com/subscribe_embed']",
                         ],
                         replaceSettings: {
-                            type: 'blank'
-                        }
-                    }
-                }
-            }
+                            type: 'blank',
+                        },
+                    },
+                },
+            },
         };
 
-        return { config, sharedStrings }
+        return { config, sharedStrings };
     }
 
     /**
      * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
      */
     class Template {
-        constructor (strings, values) {
+        constructor(strings, values) {
             this.values = values;
             this.strings = strings;
         }
@@ -7851,35 +8006,35 @@
          *        The string to escape.
          * @return {string} The escaped string.
          */
-        escapeXML (str) {
+        escapeXML(str) {
             const replacements = {
                 '&': '&amp;',
                 '"': '&quot;',
                 "'": '&apos;',
                 '<': '&lt;',
                 '>': '&gt;',
-                '/': '&#x2F;'
+                '/': '&#x2F;',
             };
-            return String(str).replace(/[&"'<>/]/g, m => replacements[m])
+            return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
         }
 
-        potentiallyEscape (value) {
+        potentiallyEscape(value) {
             if (typeof value === 'object') {
                 if (value instanceof Array) {
-                    return value.map(val => this.potentiallyEscape(val)).join('')
+                    return value.map((val) => this.potentiallyEscape(val)).join('');
                 }
 
                 // If we are an escaped template let join call toString on it
                 if (value instanceof Template) {
-                    return value
+                    return value;
                 }
 
-                throw new Error('Unknown object to escape')
+                throw new Error('Unknown object to escape');
             }
-            return this.escapeXML(value)
+            return this.escapeXML(value);
         }
 
-        toString () {
+        toString() {
             const result = [];
 
             for (const [i, string] of this.strings.entries()) {
@@ -7888,12 +8043,12 @@
                     result.push(this.potentiallyEscape(this.values[i]));
                 }
             }
-            return result.join('')
+            return result.join('');
         }
     }
 
-    function html (strings, ...values) {
-        return new Template(strings, values)
+    function html(strings, ...values) {
+        return new Template(strings, values);
     }
 
     var cssVars = ":host {\n    /* Color palette */\n    --ddg-shade-06: rgba(0, 0, 0, 0.06);\n    --ddg-shade-12: rgba(0, 0, 0, 0.12);\n    --ddg-shade-18: rgba(0, 0, 0, 0.18);\n    --ddg-shade-36: rgba(0, 0, 0, 0.36);\n    --ddg-shade-84: rgba(0, 0, 0, 0.84);\n    --ddg-tint-12: rgba(255, 255, 255, 0.12);\n    --ddg-tint-18: rgba(255, 255, 255, 0.18);\n    --ddg-tint-24: rgba(255, 255, 255, 0.24);\n    --ddg-tint-84: rgba(255, 255, 255, 0.84);\n    /* Tokens */\n    --ddg-color-primary: #3969ef;\n    --ddg-color-bg-01: #ffffff;\n    --ddg-color-bg-02: #ababab;\n    --ddg-color-border: var(--ddg-shade-12);\n    --ddg-color-txt: var(--ddg-shade-84);\n    --ddg-color-txt-link-02: #ababab;\n}\n@media (prefers-color-scheme: dark) {\n    :host {\n        --ddg-color-primary: #7295f6;\n        --ddg-color-bg-01: #222222;\n        --ddg-color-bg-02: #444444;\n        --ddg-color-border: var(--ddg-tint-12);\n        --ddg-color-txt: var(--ddg-tint-84);\n    }\n}\n\n/* SHARED STYLES */\n/* Text Link */\n.ddg-text-link {\n    line-height: 1.4;\n    font-size: 14px;\n    font-weight: 700;\n    cursor: pointer;\n    text-decoration: none;\n    color: var(--ddg-color-primary);\n}\n\n/* Button */\n.DuckDuckGoButton {\n    border-radius: 8px;\n    padding: 8px 16px;\n    border-color: var(--ddg-color-primary);\n    border: none;\n    min-height: 36px;\n\n    position: relative;\n    cursor: pointer;\n    box-shadow: none;\n    z-index: 2147483646;\n}\n.DuckDuckGoButton > div {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    border: none;\n    padding: 0;\n    margin: 0;\n}\n.DuckDuckGoButton,\n.DuckDuckGoButton > div {\n    font-size: 14px;\n    font-family: DuckDuckGoPrivacyEssentialsBold;\n    font-weight: 600;\n}\n.DuckDuckGoButton.tertiary {\n    color: var(--ddg-color-txt);\n    background-color: transparent;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    border: 1px solid var(--ddg-color-border);\n    border-radius: 8px;\n}\n.DuckDuckGoButton.tertiary:hover {\n    background: var(--ddg-shade-06);\n    border-color: var(--ddg-shade-18);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:hover {\n        background: var(--ddg-tint-18);\n        border-color: var(--ddg-tint-24);\n    }\n}\n.DuckDuckGoButton.tertiary:active {\n    background: var(--ddg-shade-12);\n    border-color: var(--ddg-shade-36);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:active {\n        background: var(--ddg-tint-24);\n        border-color: var(--ddg-tint-24);\n    }\n}\n";
@@ -7931,26 +8086,26 @@
      * This is currently only used in our Mobile Apps, but can be expanded in the future.
      */
     class DDGCtlPlaceholderBlockedElement extends HTMLElement {
-        static CUSTOM_TAG_NAME = 'ddg-ctl-placeholder-blocked'
+        static CUSTOM_TAG_NAME = 'ddg-ctl-placeholder-blocked';
         /**
          * Min height that the placeholder needs to have in order to
          * have enough room to display content.
          */
-        static MIN_CONTENT_HEIGHT = 110
-        static MAX_CONTENT_WIDTH_SMALL = 480
-        static MAX_CONTENT_WIDTH_MEDIUM = 650
+        static MIN_CONTENT_HEIGHT = 110;
+        static MAX_CONTENT_WIDTH_SMALL = 480;
+        static MAX_CONTENT_WIDTH_MEDIUM = 650;
         /**
          * Set observed attributes that will trigger attributeChangedCallback()
          */
-        static get observedAttributes () {
-            return ['style']
+        static get observedAttributes() {
+            return ['style'];
         }
 
         /**
          * Placeholder element for blocked content
          * @type {HTMLDivElement}
          */
-        placeholderBlocked
+        placeholderBlocked;
 
         /**
          * Size variant of the latest calculated size of the placeholder.
@@ -7958,7 +8113,7 @@
          * and adapt the layout for each size.
          * @type {placeholderSize}
          */
-        size = null
+        size = null;
 
         /**
          * @param {object} params - Params for building a custom element
@@ -7974,7 +8129,7 @@
          * @param {WithFeedbackParams=} params.withFeedback - Shows feedback link on tablet and desktop sizes,
          * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onButtonClick
          */
-        constructor (params) {
+        constructor(params) {
             super();
             this.params = params;
             /**
@@ -7982,7 +8137,7 @@
              * @type {ShadowRoot}
              */
             const shadow = this.attachShadow({
-                mode: this.params.devMode ? 'open' : 'closed'
+                mode: this.params.devMode ? 'open' : 'closed',
             });
 
             /**
@@ -8030,15 +8185,13 @@
             container.classList.add('DuckDuckGoSocialContainer');
             const cardClassNames = [
                 ['slim-card', !!useSlimCard],
-                ['with-feedback-link', !!withFeedback]
+                ['with-feedback-link', !!withFeedback],
             ]
                 .map(([className, active]) => (active ? className : ''))
                 .join(' ');
 
             // Only add a card footer if we have the toggle button to display
-            const cardFooterSection = withToggle
-                ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> `
-                : '';
+            const cardFooterSection = withToggle ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> ` : '';
             const learnMoreLink = this.createLearnMoreLink();
 
             container.innerHTML = html`
@@ -8057,8 +8210,8 @@
             </div>
         `.toString();
 
-            return container
-        }
+            return container;
+        };
 
         /**
          * Creates a template string for Learn More link.
@@ -8072,8 +8225,8 @@
             href="https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/"
             target="_blank"
             >${learnMore.learnMore}</a
-        >`
-        }
+        >`;
+        };
 
         /**
          * Creates a Feedback Link container row
@@ -8089,15 +8242,15 @@
             <button class="ddg-ctl-feedback-link" type="button">${withFeedback?.label || 'Share Feedback'}</button>
         `.toString();
 
-            return container
-        }
+            return container;
+        };
 
         /**
          * Creates a template string for a toggle button with text.
          */
         createToggleButton = () => {
             const { withToggle } = this.params;
-            if (!withToggle) return
+            if (!withToggle) return;
 
             const { isActive, dataKey, label, size: toggleSize = 'md' } = withToggle;
 
@@ -8115,8 +8268,8 @@
                 <div class="ddg-toggle-button-label">${label}</div>
             </div>
         `;
-            return toggleButton
-        }
+            return toggleButton;
+        };
 
         /**
          *
@@ -8126,19 +8279,15 @@
         setupEventListeners = (containerElement, feedbackLink) => {
             const { withToggle, withFeedback, originalElement, onButtonClick } = this.params;
 
-            containerElement
-                .querySelector('button.ddg-ctl-unblock-btn')
-                ?.addEventListener('click', onButtonClick(originalElement, this));
+            containerElement.querySelector('button.ddg-ctl-unblock-btn')?.addEventListener('click', onButtonClick(originalElement, this));
 
             if (withToggle) {
-                containerElement
-                    .querySelector('.ddg-toggle-button-container')
-                    ?.addEventListener('click', withToggle.onClick);
+                containerElement.querySelector('.ddg-toggle-button-container')?.addEventListener('click', withToggle.onClick);
             }
             if (withFeedback && feedbackLink) {
                 feedbackLink.querySelector('.ddg-ctl-feedback-link')?.addEventListener('click', withFeedback.onClick);
             }
-        }
+        };
 
         /**
          * Use JS to calculate the width and height of the root element placeholder. We could use a CSS Container Query, but full
@@ -8169,14 +8318,14 @@
                 this.placeholderBlocked.classList.add(newSize);
                 this.size = newSize;
             }
-        }
+        };
 
         /**
          * Web Component lifecycle function.
          * When element is first added to the DOM, trigger this callback and
          * update the element CSS size class.
          */
-        connectedCallback () {
+        connectedCallback() {
             this.updatePlaceholderSize();
         }
 
@@ -8189,7 +8338,7 @@
          * @param {*} _ Attribute old value, ignored
          * @param {*} newValue Attribute new value
          */
-        attributeChangedCallback (attr, _, newValue) {
+        attributeChangedCallback(attr, _, newValue) {
             if (attr === 'style') {
                 this.placeholderBlocked[attr].cssText = newValue;
                 this.updatePlaceholderSize();
@@ -8216,7 +8365,7 @@
          * Placeholder container element for blocked login button
          * @type {HTMLDivElement}
          */
-        #element
+        #element;
 
         /**
          * @param {object} params - Params for building a custom element with
@@ -8230,7 +8379,7 @@
          * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
          * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onClick
          */
-        constructor (params) {
+        constructor(params) {
             this.params = params;
 
             /**
@@ -8244,7 +8393,7 @@
              * @type {ShadowRoot}
              */
             const shadow = this.element.attachShadow({
-                mode: this.params.devMode ? 'open' : 'closed'
+                mode: this.params.devMode ? 'open' : 'closed',
             });
 
             /**
@@ -8275,14 +8424,14 @@
         /**
          * @returns {HTMLDivElement}
          */
-        get element () {
-            return this.#element
+        get element() {
+            return this.#element;
         }
 
         /**
          * @param {HTMLDivElement} el - New placeholder element
          */
-        set element (el) {
+        set element(el) {
             this.#element = el;
         }
 
@@ -8292,7 +8441,7 @@
          * proceed.
          * @returns {HTMLDivElement}
          */
-        _createLoginButton () {
+        _createLoginButton() {
             const { label, hoverText, logoIcon, learnMore } = this.params;
 
             const { popoverStyle, arrowStyle } = this._calculatePopoverPosition();
@@ -8336,7 +8485,7 @@
             </div>
         `.toString();
 
-            return container
+            return container;
         }
 
         /**
@@ -8349,7 +8498,7 @@
          *  arrowStyle: string,   // CSS styles to be applied in the Popover arrow
          * }}
          */
-        _calculatePopoverPosition () {
+        _calculatePopoverPosition() {
             const { originalElement } = this.params;
             const rect = originalElement.getBoundingClientRect();
             const textBubbleWidth = 360; // Should match the width rule in .ddg-popover
@@ -8376,19 +8525,17 @@
                 arrowStyle = `left: ${arrowDefaultLocationPercent}%;`;
             }
 
-            return { popoverStyle, arrowStyle }
+            return { popoverStyle, arrowStyle };
         }
 
         /**
          *
          * @param {HTMLElement} loginButton
          */
-        _setupEventListeners (loginButton) {
+        _setupEventListeners(loginButton) {
             const { originalElement, onClick } = this.params;
 
-            loginButton
-                .querySelector('.ddg-ctl-fb-login-btn')
-                ?.addEventListener('click', onClick(originalElement, this.element));
+            loginButton.querySelector('.ddg-ctl-fb-login-btn')?.addEventListener('click', onClick(originalElement, this.element));
         }
     }
 
@@ -8396,7 +8543,7 @@
      * Register custom elements in this wrapper function to be called only when we need to
      * and also to allow remote-config later if needed.
      */
-    function registerCustomElements () {
+    function registerCustomElements() {
         if (!customElements.get(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME)) {
             customElements.define(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME, DDGCtlPlaceholderBlockedElement);
         }
@@ -8452,7 +8599,7 @@
     // finished its work, enough that it's now safe to replace elements with
     // placeholders.
     let readyToDisplayPlaceholdersResolver;
-    const readyToDisplayPlaceholders = new Promise(resolve => {
+    const readyToDisplayPlaceholders = new Promise((resolve) => {
         readyToDisplayPlaceholdersResolver = resolve;
     });
 
@@ -8460,7 +8607,9 @@
     // readyToDisplayPlaceholders has resolved). Wait for this before sending
     // essential messages to surrogate scripts.
     let afterPageLoadResolver;
-    const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve; });
+    const afterPageLoad = new Promise((resolve) => {
+        afterPageLoadResolver = resolve;
+    });
 
     // Messaging layer for Click to Load. The messaging instance is initialized in
     // ClickToLoad.init() and updated here to be used outside ClickToLoad class
@@ -8473,15 +8622,15 @@
         /**
          * @return {import("@duckduckgo/messaging").Messaging}
          */
-        get messaging () {
-            if (!_messagingModuleScope) throw new Error('Messaging not initialized')
-            return _messagingModuleScope
+        get messaging() {
+            if (!_messagingModuleScope) throw new Error('Messaging not initialized');
+            return _messagingModuleScope;
         },
 
-        addDebugFlag () {
-            if (!_addDebugFlag) throw new Error('addDebugFlag not initialized')
-            return _addDebugFlag()
-        }
+        addDebugFlag() {
+            if (!_addDebugFlag) throw new Error('addDebugFlag not initialized');
+            return _addDebugFlag();
+        },
     };
 
     /*********************************************************
@@ -8498,7 +8647,7 @@
          * @param {import('../utils').Platform} platform
          *   The platform where Click to Load and the Duck Widget is running on (ie Extension, Android App, etc)
          */
-        constructor (widgetData, originalElement, entity, platform) {
+        constructor(widgetData, originalElement, entity, platform) {
             this.clickAction = { ...widgetData.clickAction }; // shallow copy
             this.replaceSettings = widgetData.replaceSettings;
             this.originalElement = originalElement;
@@ -8519,17 +8668,15 @@
          * @param {EventTarget} eventTarget
          * @param {string} eventName
          */
-        dispatchEvent (eventTarget, eventName) {
+        dispatchEvent(eventTarget, eventName) {
             eventTarget.dispatchEvent(
-                createCustomEvent(
-                    eventName, {
-                        detail: {
-                            entity: this.entity,
-                            replaceSettings: this.replaceSettings,
-                            widgetID: this.widgetID
-                        }
-                    }
-                )
+                createCustomEvent(eventName, {
+                    detail: {
+                        entity: this.entity,
+                        replaceSettings: this.replaceSettings,
+                        widgetID: this.widgetID,
+                    },
+                }),
             );
         }
 
@@ -8538,9 +8685,9 @@
          * clickAction.urlDataAttributesToPreserve) and store those in
          * this.dataElement.
          */
-        gatherDataElements () {
+        gatherDataElements() {
             if (!this.clickAction.urlDataAttributesToPreserve) {
-                return
+                return;
             }
             for (const [attrName, attrSettings] of Object.entries(this.clickAction.urlDataAttributesToPreserve)) {
                 let value = this.originalElement.getAttribute(attrName);
@@ -8555,16 +8702,15 @@
                     if (attrName === 'data-width') {
                         const windowWidth = window.innerWidth;
                         const { parentElement } = this.originalElement;
-                        const parentStyles = parentElement
-                            ? window.getComputedStyle(parentElement)
-                            : null;
+                        const parentStyles = parentElement ? window.getComputedStyle(parentElement) : null;
                         let parentInnerWidth = null;
 
                         // We want to calculate the inner width of the parent element as the iframe, when added back,
                         // should not be bigger than the space available in the parent element. There is no straightforward way of
                         // doing this. We need to get the parent's .clientWidth and remove the paddings size from it.
                         if (parentElement && parentStyles && parentStyles.display !== 'inline') {
-                            parentInnerWidth = parentElement.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight);
+                            parentInnerWidth =
+                                parentElement.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight);
                         }
 
                         if (parentInnerWidth && parentInnerWidth < windowWidth) {
@@ -8587,26 +8733,26 @@
          * Load placeholder has been clicked by the user.
          * @returns {string}
          */
-        getTargetURL () {
+        getTargetURL() {
             // Copying over data fields should be done lazily, since some required data may not be
             // captured until after page scripts run.
             this.copySocialDataFields();
-            return this.clickAction.targetURL
+            return this.clickAction.targetURL;
         }
 
         /**
          * Determines which display mode the placeholder element should render in.
          * @returns {displayMode}
          */
-        getMode () {
+        getMode() {
             // Login buttons are always the login style types
             if (this.replaceSettings.type === 'loginButton') {
-                return 'loginMode'
+                return 'loginMode';
             }
             if (window?.matchMedia('(prefers-color-scheme: dark)')?.matches) {
-                return 'darkMode'
+                return 'darkMode';
             }
-            return 'lightMode'
+            return 'lightMode';
         }
 
         /**
@@ -8615,7 +8761,7 @@
          *
          * @returns {string}
          */
-        getStyle () {
+        getStyle() {
             let styleString = 'border: none;';
 
             if (this.clickAction.styleDataAttributes) {
@@ -8637,7 +8783,7 @@
                 }
             }
 
-            return styleString
+            return styleString;
         }
 
         /**
@@ -8645,9 +8791,9 @@
          * placeholder element styling, and when restoring the original tracking
          * element.
          */
-        copySocialDataFields () {
+        copySocialDataFields() {
             if (!this.clickAction.urlDataAttributesToPreserve) {
-                return
+                return;
             }
 
             // App ID may be set by client scripts, and is required for some elements.
@@ -8659,7 +8805,7 @@
                 let attrValue = this.dataElements[key];
 
                 if (!attrValue) {
-                    continue
+                    continue;
                 }
 
                 // The URL for Facebook videos are specified as the data-href
@@ -8670,10 +8816,7 @@
                     attrValue = window.location.protocol + attrValue;
                 }
 
-                this.clickAction.targetURL =
-                    this.clickAction.targetURL.replace(
-                        key, encodeURIComponent(attrValue)
-                    );
+                this.clickAction.targetURL = this.clickAction.targetURL.replace(key, encodeURIComponent(attrValue));
             }
         }
 
@@ -8682,13 +8825,13 @@
          *
          * @returns {HTMLIFrameElement}
          */
-        createFBIFrame () {
+        createFBIFrame() {
             const frame = document.createElement('iframe');
 
             frame.setAttribute('src', this.getTargetURL());
             frame.setAttribute('style', this.getStyle());
 
-            return frame
+            return frame;
         }
 
         /**
@@ -8699,11 +8842,11 @@
          * @returns {EventListener?} onError
          *   Function to be called if the video fails to load.
          */
-        adjustYouTubeVideoElement (videoElement) {
+        adjustYouTubeVideoElement(videoElement) {
             let onError = null;
 
             if (!videoElement.src) {
-                return onError
+                return onError;
             }
             const url = new URL(videoElement.src);
             const { hostname: originalHostname } = url;
@@ -8726,7 +8869,7 @@
             // Configure auto-play correctly depending on if the video's preview
             // loaded, otherwise it doesn't allow autoplay.
             let allowString = videoElement.getAttribute('allow') || '';
-            const allowed = new Set(allowString.split(';').map(s => s.trim()));
+            const allowed = new Set(allowString.split(';').map((s) => s.trim()));
             if (this.autoplay) {
                 allowed.add('autoplay');
                 url.searchParams.set('autoplay', '1');
@@ -8738,7 +8881,7 @@
             videoElement.setAttribute('allow', allowString);
 
             videoElement.src = url.href;
-            return onError
+            return onError;
         }
 
         /**
@@ -8752,8 +8895,8 @@
          * @returns {Promise<void>}
          *    Promise that resolves when the fade in/out is complete.
          */
-        fadeElement (element, interval, fadeIn) {
-            return new Promise(resolve => {
+        fadeElement(element, interval, fadeIn) {
+            return new Promise((resolve) => {
                 let opacity = fadeIn ? 0 : 1;
                 const originStyle = element.style.cssText;
                 const fadeOut = setInterval(function () {
@@ -8764,7 +8907,7 @@
                         resolve();
                     }
                 }, interval);
-            })
+            });
         }
 
         /**
@@ -8774,8 +8917,8 @@
          * @returns {Promise<void>}
          *    Promise that resolves when the fade out is complete.
          */
-        fadeOutElement (element) {
-            return this.fadeElement(element, 10, false)
+        fadeOutElement(element) {
+            return this.fadeElement(element, 10, false);
         }
 
         /**
@@ -8785,8 +8928,8 @@
          * @returns {Promise<void>}
          *    Promise that resolves when the fade in is complete.
          */
-        fadeInElement (element) {
-            return this.fadeElement(element, 10, true)
+        fadeInElement(element) {
+            return this.fadeElement(element, 10, true);
         }
 
         /**
@@ -8798,9 +8941,9 @@
          * @param {HTMLElement} replacementElement
          *   The placeholder element.
          */
-        clickFunction (originalElement, replacementElement) {
+        clickFunction(originalElement, replacementElement) {
             let clicked = false;
-            const handleClick = e => {
+            const handleClick = (e) => {
                 // Ensure that the click is created by a user event & prevent double clicks from adding more animations
                 if (e.isTrusted && !clicked) {
                     e.stopPropagation();
@@ -8818,21 +8961,21 @@
                     unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then((response) => {
                         // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
                         if (response && response.type === 'ddg-ctp-user-cancel') {
-                            return abortSurrogateConfirmation(this.entity)
+                            return abortSurrogateConfirmation(this.entity);
                         }
 
                         const parent = replacementElement.parentNode;
 
                         // The placeholder was removed from the DOM while we loaded
                         // the original content, give up.
-                        if (!parent) return
+                        if (!parent) return;
 
                         // If we allow everything when this element is clicked,
                         // notify surrogate to enable SDK and replace original element.
                         if (this.clickAction.type === 'allowFull') {
                             parent.replaceChild(originalElement, replacementElement);
                             this.dispatchEvent(window, 'ddg-ctp-load-sdk');
-                            return
+                            return;
                         }
                         // Create a container for the new FB element
                         const fbContainer = document.createElement('div');
@@ -8867,16 +9010,16 @@
                         let fbElement;
                         let onError = null;
                         switch (this.clickAction.type) {
-                        case 'iFrame':
-                            fbElement = this.createFBIFrame();
-                            break
-                        case 'youtube-video':
-                            onError = this.adjustYouTubeVideoElement(originalElement);
-                            fbElement = originalElement;
-                            break
-                        default:
-                            fbElement = originalElement;
-                            break
+                            case 'iFrame':
+                                fbElement = this.createFBIFrame();
+                                break;
+                            case 'youtube-video':
+                                onError = this.adjustYouTubeVideoElement(originalElement);
+                                fbElement = originalElement;
+                                break;
+                            default:
+                                fbElement = originalElement;
+                                break;
                         }
 
                         // Modify the overlay to include a Facebook iFrame, which
@@ -8885,14 +9028,18 @@
                         parent.replaceChild(fbContainer, replacementElement);
                         fbContainer.appendChild(replacementElement);
                         fadeIn.appendChild(fbElement);
-                        fbElement.addEventListener('load', async () => {
-                            await this.fadeOutElement(replacementElement);
-                            fbContainer.replaceWith(fbElement);
-                            this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked');
-                            await this.fadeInElement(fadeIn);
-                            // Focus on new element for screen readers.
-                            fbElement.focus();
-                        }, { once: true });
+                        fbElement.addEventListener(
+                            'load',
+                            async () => {
+                                await this.fadeOutElement(replacementElement);
+                                fbContainer.replaceWith(fbElement);
+                                this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked');
+                                await this.fadeInElement(fadeIn);
+                                // Focus on new element for screen readers.
+                                fbElement.focus();
+                            },
+                            { once: true },
+                        );
                         // Note: This event only fires on Firefox, on Chrome the frame's
                         //       load event will always fire.
                         if (onError) {
@@ -8903,19 +9050,17 @@
             };
             // If this is a login button, show modal if needed
             if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
-                return e => {
+                return (e) => {
                     // Even if the user cancels the login attempt, consider Facebook Click to
                     // Load to have been active on the page if the user reports the page as broken.
                     if (this.entity === 'Facebook, Inc.') {
                         notifyFacebookLogin();
                     }
 
-                    handleUnblockConfirmation(
-                        this.platform.name, this.entity, handleClick, e
-                    );
-                }
+                    handleUnblockConfirmation(this.platform.name, this.entity, handleClick, e);
+                };
             }
-            return handleClick
+            return handleClick;
         }
 
         /**
@@ -8923,8 +9068,8 @@
          * return if the new layout using Web Components is supported or not.
          * @returns {boolean}
          */
-        shouldUseCustomElement () {
-            return platformsWithWebComponentsEnabled.includes(this.platform.name)
+        shouldUseCustomElement() {
+            return platformsWithWebComponentsEnabled.includes(this.platform.name);
         }
 
         /**
@@ -8933,8 +9078,8 @@
          * define which layout to use between Mobile and Desktop Platforms variations.
          * @returns {boolean}
          */
-        isMobilePlatform () {
-            return mobilePlatforms.includes(this.platform.name)
+        isMobilePlatform() {
+            return mobilePlatforms.includes(this.platform.name);
         }
     }
 
@@ -8968,7 +9113,7 @@
      * @param {HTMLElement} placeholderElement
      *   The placeholder element that should be shown instead.
      */
-    function replaceTrackingElement (widget, trackingElement, placeholderElement) {
+    function replaceTrackingElement(widget, trackingElement, placeholderElement) {
         // In some situations (e.g. YouTube Click to Load previews are
         // enabled/disabled), a second placeholder will be shown for a tracking
         // element.
@@ -8980,16 +9125,11 @@
 
         // First hide the element, since we need to keep it in the DOM until the
         // events have been dispatched.
-        const originalDisplay = [
-            elementToReplace.style.getPropertyValue('display'),
-            elementToReplace.style.getPropertyPriority('display')
-        ];
+        const originalDisplay = [elementToReplace.style.getPropertyValue('display'), elementToReplace.style.getPropertyPriority('display')];
         elementToReplace.style.setProperty('display', 'none', 'important');
 
         // Add the placeholder element to the page.
-        elementToReplace.parentElement.insertBefore(
-            placeholderElement, elementToReplace
-        );
+        elementToReplace.parentElement.insertBefore(placeholderElement, elementToReplace);
 
         // While the placeholder is shown (and original element hidden)
         // synchronously, the events are dispatched (and original element removed
@@ -9016,7 +9156,7 @@
      * @param {HTMLIFrameElement} trackingElement
      *   The tracking element on the page that should be replaced with a placeholder.
      */
-    function createPlaceholderElementAndReplace (widget, trackingElement) {
+    function createPlaceholderElementAndReplace(widget, trackingElement) {
         if (widget.replaceSettings.type === 'blank') {
             replaceTrackingElement(widget, trackingElement, document.createElement('div'));
         }
@@ -9031,19 +9171,23 @@
                     hoverText: widget.replaceSettings.popupBodyText,
                     logoIcon: facebookLogo,
                     originalElement: trackingElement,
-                    learnMore: { // Localized strings for "Learn More" link.
+                    learnMore: {
+                        // Localized strings for "Learn More" link.
                         readAbout: sharedStrings.readAbout,
-                        learnMore: sharedStrings.learnMore
+                        learnMore: sharedStrings.learnMore,
                     },
-                    onClick: widget.clickFunction.bind(widget)
+                    onClick: widget.clickFunction.bind(widget),
                 }).element;
                 facebookLoginButton.classList.add('fb-login-button', 'FacebookLogin__button');
                 facebookLoginButton.appendChild(makeFontFaceStyleElement());
                 replaceTrackingElement(widget, trackingElement, facebookLoginButton);
             } else {
                 const { button, container } = makeLoginButton(
-                    widget.replaceSettings.buttonText, widget.getMode(),
-                    widget.replaceSettings.popupBodyText, icon, trackingElement
+                    widget.replaceSettings.buttonText,
+                    widget.getMode(),
+                    widget.replaceSettings.popupBodyText,
+                    icon,
+                    trackingElement,
                 );
                 button.addEventListener('click', widget.clickFunction(trackingElement, container));
                 replaceTrackingElement(widget, trackingElement, container);
@@ -9067,11 +9211,12 @@
                     unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
                     useSlimCard: false, // Flag for using less padding on card (ie YT CTL on mobile)
                     originalElement: trackingElement, // The original element this placeholder is replacing.
-                    learnMore: { // Localized strings for "Learn More" link.
+                    learnMore: {
+                        // Localized strings for "Learn More" link.
                         readAbout: sharedStrings.readAbout,
-                        learnMore: sharedStrings.learnMore
+                        learnMore: sharedStrings.learnMore,
                     },
-                    onButtonClick: widget.clickFunction.bind(widget)
+                    onButtonClick: widget.clickFunction.bind(widget),
                 });
                 mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement());
 
@@ -9081,9 +9226,7 @@
                 const icon = widget.replaceSettings.icon;
                 const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
                 const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
-                const { contentBlock, shadowRoot } = createContentBlock(
-                    widget, button, textButton, icon
-                );
+                const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, icon);
                 button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
                 textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
 
@@ -9100,13 +9243,10 @@
 
             // Subscribe to changes to youtubePreviewsEnabled setting
             // and update the CTL state
-            ctl.messaging.subscribe(
-                'setYoutubePreviewsEnabled',
-                ({ value }) => {
-                    isYoutubePreviewsEnabled = value;
-                    replaceYouTubeCTL(trackingElement, widget);
-                }
-            );
+            ctl.messaging.subscribe('setYoutubePreviewsEnabled', ({ value }) => {
+                isYoutubePreviewsEnabled = value;
+                replaceYouTubeCTL(trackingElement, widget);
+            });
         }
     }
 
@@ -9116,10 +9256,10 @@
      * @param {DuckWidget} widget
      *   The CTL 'widget' associated with the tracking element.
      */
-    function replaceYouTubeCTL (trackingElement, widget) {
+    function replaceYouTubeCTL(trackingElement, widget) {
         // Skip replacing tracking element if it has already been unblocked
         if (widget.isUnblocked) {
-            return
+            return;
         }
 
         if (isYoutubePreviewsEnabled === true) {
@@ -9147,22 +9287,24 @@
                     unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
                     useSlimCard: true, // Flag for using less padding on card (ie YT CTL on mobile)
                     originalElement: trackingElement, // The original element this placeholder is replacing.
-                    learnMore: { // Localized strings for "Learn More" link.
+                    learnMore: {
+                        // Localized strings for "Learn More" link.
                         readAbout: sharedStrings.readAbout,
-                        learnMore: sharedStrings.learnMore
+                        learnMore: sharedStrings.learnMore,
                     },
-                    withToggle: { // Toggle config to be displayed in the bottom of the placeholder
+                    withToggle: {
+                        // Toggle config to be displayed in the bottom of the placeholder
                         isActive: false, // Toggle state
                         dataKey: 'yt-preview-toggle', // data-key attribute for button
                         label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
                         size: widget.isMobilePlatform() ? 'lg' : 'md',
-                        onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }) // Toggle click callback
+                        onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), // Toggle click callback
                     },
                     withFeedback: {
                         label: sharedStrings.shareFeedback,
-                        onClick: () => openShareFeedbackPage()
+                        onClick: () => openShareFeedbackPage(),
                     },
-                    onButtonClick: widget.clickFunction.bind(widget)
+                    onButtonClick: widget.clickFunction.bind(widget),
                 });
                 mobileBlockedPlaceholderElement.appendChild(makeFontFaceStyleElement());
                 mobileBlockedPlaceholderElement.id = trackingElement.id;
@@ -9187,9 +9329,9 @@
      * @param {ShadowRoot?} shadowRoot
      * @param {HTMLElement} placeholder Placeholder for tracking element
      */
-    function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
+    function showExtraUnblockIfShortPlaceholder(shadowRoot, placeholder) {
         if (!placeholder.parentElement) {
-            return
+            return;
         }
         const parentStyles = window.getComputedStyle(placeholder.parentElement);
         // Inline elements, like span or p, don't have a height value that we can use because they're
@@ -9197,15 +9339,12 @@
         // parents, it might be necessary to traverse up the DOM tree until we find the nearest non
         // "inline" parent to get a reliable height for this check.
         if (parentStyles.display === 'inline') {
-            return
+            return;
         }
         const { height: placeholderHeight } = placeholder.getBoundingClientRect();
         const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect();
 
-        if (
-            (placeholderHeight > 0 && placeholderHeight <= 200) ||
-            (parentHeight > 0 && parentHeight <= 230)
-        ) {
+        if ((placeholderHeight > 0 && placeholderHeight <= 200) || (parentHeight > 0 && parentHeight <= 230)) {
             if (shadowRoot) {
                 /** @type {HTMLElement?} */
                 const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`);
@@ -9234,11 +9373,10 @@
      *    Maximum placeholder width (in pixels) for the placeholder to be considered
      *    narrow.
      */
-    function hideInfoTextIfNarrowPlaceholder (shadowRoot, placeholder, narrowWidth) {
+    function hideInfoTextIfNarrowPlaceholder(shadowRoot, placeholder, narrowWidth) {
         const { width: placeholderWidth } = placeholder.getBoundingClientRect();
         if (placeholderWidth > 0 && placeholderWidth <= narrowWidth) {
-            const buttonContainer =
-                  shadowRoot.querySelector('.DuckDuckGoButton.primary')?.parentElement;
+            const buttonContainer = shadowRoot.querySelector('.DuckDuckGoButton.primary')?.parentElement;
             const contentTitle = shadowRoot.getElementById('contentTitle');
             const infoText = shadowRoot.getElementById('infoText');
             /** @type {HTMLElement?} */
@@ -9246,7 +9384,7 @@
 
             // These elements will exist, but this check keeps TypeScript happy.
             if (!buttonContainer || !contentTitle || !infoText || !learnMoreLink) {
-                return
+                return;
             }
 
             // Remove the information text.
@@ -9290,8 +9428,8 @@
      * @see {@link ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
      * @returns {Promise<any>}
      */
-    function unblockClickToLoadContent (message) {
-        return ctl.messaging.request('unblockClickToLoadContent', message)
+    function unblockClickToLoadContent(message) {
+        return ctl.messaging.request('unblockClickToLoadContent', message);
     }
 
     /**
@@ -9308,14 +9446,14 @@
      * @param {...any} acceptFunctionParams
      *   The parameters passed to acceptFunction when it is called.
      */
-    function handleUnblockConfirmation (platformName, entity, acceptFunction, ...acceptFunctionParams) {
+    function handleUnblockConfirmation(platformName, entity, acceptFunction, ...acceptFunctionParams) {
         // In our mobile platforms, we want to show a native UI to request user unblock
         // confirmation. In these cases we send directly the unblock request to the platform
         // and the platform chooses how to best handle it.
         if (platformsWithNativeModalSupport.includes(platformName)) {
             acceptFunction(...acceptFunctionParams);
-        // By default, for other platforms (ie Extension), we show a web modal with a
-        // confirmation request to the user before we proceed to unblock the content.
+            // By default, for other platforms (ie Extension), we show a web modal with a
+            // confirmation request to the user before we proceed to unblock the content.
         } else {
             makeModal(entity, acceptFunction, ...acceptFunctionParams);
         }
@@ -9326,7 +9464,7 @@
      * Facebook Click to Load login flow had started if the user should then report
      * the website as broken.
      */
-    function notifyFacebookLogin () {
+    function notifyFacebookLogin() {
         ctl.addDebugFlag();
         ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookLogin: true });
     }
@@ -9337,7 +9475,7 @@
      * shown.
      * @param {string} entity
      */
-    async function runLogin (entity) {
+    async function runLogin(entity) {
         if (entity === 'Facebook, Inc.') {
             notifyFacebookLogin();
         }
@@ -9346,15 +9484,15 @@
         const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true });
         // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
         if (response && response.type === 'ddg-ctp-user-cancel') {
-            return abortSurrogateConfirmation(this.entity)
+            return abortSurrogateConfirmation(this.entity);
         }
         // Communicate with surrogate to run login
         originalWindowDispatchEvent(
             createCustomEvent('ddg-ctp-run-login', {
                 detail: {
-                    entity
-                }
-            })
+                    entity,
+                },
+            }),
         );
     }
 
@@ -9363,17 +9501,17 @@
      * Called after the user cancel from a warning dialog.
      * @param {string} entity
      */
-    function abortSurrogateConfirmation (entity) {
+    function abortSurrogateConfirmation(entity) {
         originalWindowDispatchEvent(
             createCustomEvent('ddg-ctp-cancel-modal', {
                 detail: {
-                    entity
-                }
-            })
+                    entity,
+                },
+            }),
         );
     }
 
-    function openShareFeedbackPage () {
+    function openShareFeedbackPage() {
         ctl.messaging.notify('openShareFeedbackPage');
     }
 
@@ -9386,7 +9524,7 @@
      * @param {displayMode} [mode='lightMode']
      * @returns {HTMLAnchorElement}
      */
-    function getLearnMoreLink (mode = 'lightMode') {
+    function getLearnMoreLink(mode = 'lightMode') {
         const linkElement = document.createElement('a');
         linkElement.style.cssText = styles.generalLink + styles[mode].linkFont;
         linkElement.ariaLabel = sharedStrings.readAbout;
@@ -9394,7 +9532,7 @@
         linkElement.target = '_blank';
         linkElement.textContent = sharedStrings.learnMore;
         linkElement.id = 'learnMoreLink';
-        return linkElement
+        return linkElement;
     }
 
     /**
@@ -9402,10 +9540,9 @@
      * @param {HTMLElement} sourceElement
      * @param {HTMLElement} targetElement
      */
-    function resizeElementToMatch (sourceElement, targetElement) {
+    function resizeElementToMatch(sourceElement, targetElement) {
         const computedStyle = window.getComputedStyle(sourceElement);
-        const stylesToCopy = ['position', 'top', 'bottom', 'left', 'right',
-            'transform', 'margin'];
+        const stylesToCopy = ['position', 'top', 'bottom', 'left', 'right', 'transform', 'margin'];
 
         // It's apparently preferable to use the source element's size relative to
         // the current viewport, when resizing the target element. However, the
@@ -9442,13 +9579,13 @@
      * to be attached to DDG wrapper elements
      * @returns HTMLStyleElement
      */
-    function makeFontFaceStyleElement () {
+    function makeFontFaceStyleElement() {
         // Put our custom font-faces inside the wrapper element, since
         // @font-face does not work inside a shadowRoot.
         // See https://github.com/mdn/interactive-examples/issues/887.
         const fontFaceStyleElement = document.createElement('style');
         fontFaceStyleElement.textContent = styles.fontStyle;
-        return fontFaceStyleElement
+        return fontFaceStyleElement;
     }
 
     /**
@@ -9458,7 +9595,7 @@
      * @param {displayMode} [mode='lightMode']
      * @returns {{wrapperClass: string, styleElement: HTMLStyleElement; }}
      */
-    function makeBaseStyleElement (mode = 'lightMode') {
+    function makeBaseStyleElement(mode = 'lightMode') {
         // Style element includes our font & overwrites page styles
         const styleElement = document.createElement('style');
         const wrapperClass = 'DuckDuckGoSocialContainer';
@@ -9502,7 +9639,7 @@
            ${styles.cancelMode.buttonBackgroundPress}
         }
     `;
-        return { wrapperClass, styleElement }
+        return { wrapperClass, styleElement };
     }
 
     /**
@@ -9512,11 +9649,11 @@
      * @param {displayMode} mode
      * @returns {HTMLAnchorElement}
      */
-    function makeTextButton (linkText, mode = 'lightMode') {
+    function makeTextButton(linkText, mode = 'lightMode') {
         const linkElement = document.createElement('a');
         linkElement.style.cssText = styles.headerLink + styles[mode].linkFont;
         linkElement.textContent = linkText;
-        return linkElement
+        return linkElement;
     }
 
     /**
@@ -9529,7 +9666,7 @@
      *   action.
      * @returns {HTMLButtonElement} Button element
      */
-    function makeButton (buttonText, mode = 'lightMode') {
+    function makeButton(buttonText, mode = 'lightMode') {
         const button = document.createElement('button');
         button.classList.add('DuckDuckGoButton');
         button.classList.add(mode === 'cancelMode' ? 'secondary' : 'primary');
@@ -9538,7 +9675,7 @@
             textContainer.textContent = buttonText;
             button.appendChild(textContainer);
         }
-        return button
+        return button;
     }
 
     /**
@@ -9552,7 +9689,7 @@
      *   Value to assign to the button's 'data-key' attribute.
      * @returns {HTMLButtonElement}
      */
-    function makeToggleButton (mode, isActive = false, classNames = '', dataKey = '') {
+    function makeToggleButton(mode, isActive = false, classNames = '', dataKey = '') {
         const toggleButton = document.createElement('button');
         toggleButton.className = classNames;
         toggleButton.style.cssText = styles.toggleButton;
@@ -9563,17 +9700,15 @@
         const activeKey = isActive ? 'active' : 'inactive';
 
         const toggleBg = document.createElement('div');
-        toggleBg.style.cssText =
-            styles.toggleButtonBg + styles[mode].toggleButtonBgState[activeKey];
+        toggleBg.style.cssText = styles.toggleButtonBg + styles[mode].toggleButtonBgState[activeKey];
 
         const toggleKnob = document.createElement('div');
-        toggleKnob.style.cssText =
-            styles.toggleButtonKnob + styles.toggleButtonKnobState[activeKey];
+        toggleKnob.style.cssText = styles.toggleButtonKnob + styles.toggleButtonKnobState[activeKey];
 
         toggleButton.appendChild(toggleBg);
         toggleButton.appendChild(toggleKnob);
 
-        return toggleButton
+        return toggleButton;
     }
 
     /**
@@ -9592,7 +9727,7 @@
      *   Value to assign to the button's 'data-key' attribute.
      * @returns {HTMLDivElement}
      */
-    function makeToggleButtonWithText (text, mode, isActive = false, toggleClassNames = '', textCssStyles = '', dataKey = '') {
+    function makeToggleButtonWithText(text, mode, isActive = false, toggleClassNames = '', textCssStyles = '', dataKey = '') {
         const wrapper = document.createElement('div');
         wrapper.style.cssText = styles.toggleButtonWrapper;
 
@@ -9604,27 +9739,27 @@
 
         wrapper.appendChild(toggleButton);
         wrapper.appendChild(textDiv);
-        return wrapper
+        return wrapper;
     }
 
     /**
      * Create the default block symbol, for when the image isn't available.
      * @returns {HTMLDivElement}
      */
-    function makeDefaultBlockIcon () {
+    function makeDefaultBlockIcon() {
         const blockedIcon = document.createElement('div');
         const dash = document.createElement('div');
         blockedIcon.appendChild(dash);
         blockedIcon.style.cssText = styles.circle;
         dash.style.cssText = styles.rectangle;
-        return blockedIcon
+        return blockedIcon;
     }
 
     /**
      * Creates a share feedback link element.
      * @returns {HTMLAnchorElement}
      */
-    function makeShareFeedbackLink () {
+    function makeShareFeedbackLink() {
         const feedbackLink = document.createElement('a');
         feedbackLink.style.cssText = styles.feedbackLink;
         feedbackLink.target = '_blank';
@@ -9636,21 +9771,21 @@
             openShareFeedbackPage();
         });
 
-        return feedbackLink
+        return feedbackLink;
     }
 
     /**
      * Creates a share feedback link element, wrapped in a styled div.
      * @returns {HTMLDivElement}
      */
-    function makeShareFeedbackRow () {
+    function makeShareFeedbackRow() {
         const feedbackRow = document.createElement('div');
         feedbackRow.style.cssText = styles.feedbackRow;
 
         const feedbackLink = makeShareFeedbackLink();
         feedbackRow.appendChild(feedbackLink);
 
-        return feedbackRow
+        return feedbackRow;
     }
 
     /**
@@ -9670,7 +9805,7 @@
      *         expected to do that.
      * @returns {{ container: HTMLDivElement, button: HTMLButtonElement }}
      */
-    function makeLoginButton (buttonText, mode, hoverTextBody, icon, originalElement) {
+    function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement) {
         const container = document.createElement('div');
         container.style.cssText = 'position: relative;';
         container.appendChild(makeFontFaceStyleElement());
@@ -9734,14 +9869,14 @@
         if (rect.left < styles.textBubbleLeftShift) {
             const leftShift = -rect.left + 10; // 10px away from edge of the screen
             hoverBox.style.cssText += `left: ${leftShift}px;`;
-            const change = (1 - (rect.left / styles.textBubbleLeftShift)) * (100 - styles.arrowDefaultLocationPercent);
+            const change = (1 - rect.left / styles.textBubbleLeftShift) * (100 - styles.arrowDefaultLocationPercent);
             arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent - change)}%;`;
         } else if (rect.left + styles.textBubbleWidth - styles.textBubbleLeftShift > window.innerWidth) {
             const rightShift = rect.left + styles.textBubbleWidth - styles.textBubbleLeftShift;
             const diff = Math.min(rightShift - window.innerWidth, styles.textBubbleLeftShift);
             const rightMargin = 20; // Add some margin to the page, so scrollbar doesn't overlap.
             hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift + diff + rightMargin}px;`;
-            const change = ((diff / styles.textBubbleLeftShift)) * (100 - styles.arrowDefaultLocationPercent);
+            const change = (diff / styles.textBubbleLeftShift) * (100 - styles.arrowDefaultLocationPercent);
             arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent + change)}%;`;
         } else {
             hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift}px;`;
@@ -9750,8 +9885,8 @@
 
         return {
             button,
-            container
-        }
+            container,
+        };
     }
 
     /**
@@ -9766,7 +9901,7 @@
      *   The parameters passed to acceptFunction when it is called.
      *   TODO: Have the caller bind these arguments to the function instead.
      */
-    function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
+    function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
         const icon = entityData[entity].modalIcon;
 
         const modalContainer = document.createElement('div');
@@ -9824,7 +9959,7 @@
         const allowButton = makeButton(entityData[entity].modalAcceptText, 'lightMode');
         allowButton.style.cssText += styles.modalButton + 'margin-bottom: 8px;';
         allowButton.setAttribute('data-key', 'allow');
-        allowButton.addEventListener('click', function doLogin () {
+        allowButton.addEventListener('click', function doLogin() {
             acceptFunction(...acceptFunctionParams);
             document.body.removeChild(modalContainer);
         });
@@ -9855,7 +9990,7 @@
      *   If provided, a close button is added that calls this function when clicked.
      * @returns {HTMLDivElement}
      */
-    function createTitleRow (message, textButton, closeBtnFn) {
+    function createTitleRow(message, textButton, closeBtnFn) {
         // Create row container
         const row = document.createElement('div');
         row.style.cssText = styles.titleBox;
@@ -9896,7 +10031,7 @@
             row.appendChild(textButton);
         }
 
-        return row
+        return row;
     }
 
     /**
@@ -9915,7 +10050,7 @@
      *   Bottom row to append to the placeholder, if any.
      * @returns {{ contentBlock: HTMLDivElement, shadowRoot: ShadowRoot }}
      */
-    function createContentBlock (widget, button, textButton, img, bottomRow) {
+    function createContentBlock(widget, button, textButton, img, bottomRow) {
         const contentBlock = document.createElement('div');
         contentBlock.style.cssText = styles.wrapperDiv;
 
@@ -9990,7 +10125,7 @@
             shadowRoot.appendChild(feedbackRow);
         }
 
-        return { contentBlock, shadowRoot }
+        return { contentBlock, shadowRoot };
     }
 
     /**
@@ -9999,7 +10134,7 @@
      * @param {DuckWidget} widget
      * @returns {{ blockingDialog: HTMLElement, shadowRoot: ShadowRoot }}
      */
-    function createYouTubeBlockingDialog (trackingElement, widget) {
+    function createYouTubeBlockingDialog(trackingElement, widget) {
         const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
         const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
 
@@ -10011,17 +10146,14 @@
             false,
             '',
             '',
-            'yt-preview-toggle'
+            'yt-preview-toggle',
         );
-        previewToggle.addEventListener(
-            'click',
-            () => makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), widget.entity)
+        previewToggle.addEventListener('click', () =>
+            makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), widget.entity),
         );
         bottomRow.appendChild(previewToggle);
 
-        const { contentBlock, shadowRoot } = createContentBlock(
-            widget, button, textButton, null, bottomRow
-        );
+        const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, null, bottomRow);
         contentBlock.id = trackingElement.id;
         contentBlock.style.cssText += styles.wrapperDiv + styles.youTubeWrapperDiv;
 
@@ -10030,8 +10162,8 @@
 
         return {
             blockingDialog: contentBlock,
-            shadowRoot
-        }
+            shadowRoot,
+        };
     }
 
     /**
@@ -10045,7 +10177,7 @@
      * @returns {{ youTubePreview: HTMLElement, shadowRoot: ShadowRoot }}
      *   Object containing the YouTube Preview element and its shadowRoot.
      */
-    function createYouTubePreview (originalElement, widget) {
+    function createYouTubePreview(originalElement, widget) {
         const youTubePreview = document.createElement('div');
         youTubePreview.id = originalElement.id;
         youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv;
@@ -10093,10 +10225,7 @@
         const textButton = makeTextButton(widget.replaceSettings.buttonText, 'darkMode');
         textButton.id = titleID + 'TextButton';
 
-        textButton.addEventListener(
-            'click',
-            widget.clickFunction(originalElement, youTubePreview)
-        );
+        textButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview));
         topSection.appendChild(textButton);
 
         /** Play Button */
@@ -10111,10 +10240,7 @@
         videoPlayImg.setAttribute('src', videoPlayIcon);
         playButton.appendChild(videoPlayImg);
 
-        playButton.addEventListener(
-            'click',
-            widget.clickFunction(originalElement, youTubePreview)
-        );
+        playButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview));
         playButtonRow.appendChild(playButton);
         innerDiv.appendChild(playButtonRow);
 
@@ -10130,12 +10256,9 @@
             true,
             '',
             styles.youTubePreviewToggleText,
-            'yt-preview-toggle'
+            'yt-preview-toggle',
         );
-        previewToggle.addEventListener(
-            'click',
-            () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: false })
-        );
+        previewToggle.addEventListener('click', () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: false }));
 
         /** Preview Info Text */
         const previewText = document.createElement('div');
@@ -10147,9 +10270,7 @@
         //          Ideally, the translation system would allow only certain element
         //          types to be included, and would avoid the URLs for links being
         //          included in the translations.
-        previewText.insertAdjacentHTML(
-            'beforeend', widget.replaceSettings.placeholder.previewInfoText
-        );
+        previewText.insertAdjacentHTML('beforeend', widget.replaceSettings.placeholder.previewInfoText);
         const previewTextLink = previewText.querySelector('a');
         if (previewTextLink) {
             const newPreviewTextLink = getLearnMoreLink(widget.getMode());
@@ -10166,10 +10287,13 @@
         // We use .then() instead of await here to show the placeholder right away
         // while the YouTube endpoint takes it time to respond.
         const videoURL = originalElement.src || originalElement.getAttribute('data-src');
-        ctl.messaging.request('getYouTubeVideoDetails', { videoURL })
+        ctl.messaging
+            .request('getYouTubeVideoDetails', { videoURL })
             // eslint-disable-next-line promise/prefer-await-to-then
             .then(({ videoURL: videoURLResp, status, title, previewImage }) => {
-                if (!status || videoURLResp !== videoURL) { return }
+                if (!status || videoURLResp !== videoURL) {
+                    return;
+                }
                 if (status === 'success') {
                     titleElement.innerText = title;
                     titleElement.title = title;
@@ -10184,7 +10308,7 @@
         const feedbackRow = makeShareFeedbackRow();
         shadowRoot.appendChild(feedbackRow);
 
-        return { youTubePreview, shadowRoot }
+        return { youTubePreview, shadowRoot };
     }
 
     /**
@@ -10193,15 +10317,15 @@
 
     class ClickToLoad extends ContentFeature {
         /** @type {MessagingContext} */
-        #messagingContext
+        #messagingContext;
 
-        async init (args) {
+        async init(args) {
             /**
              * Bail if no messaging backend - this is a debugging feature to ensure we don't
              * accidentally enabled this
              */
             if (!this.messaging) {
-                throw new Error('Cannot operate click to load without a messaging backend')
+                throw new Error('Cannot operate click to load without a messaging backend');
             }
             _messagingModuleScope = this.messaging;
             _addDebugFlag = this.addDebugFlag.bind(this);
@@ -10225,11 +10349,9 @@
             for (const entity of Object.keys(config)) {
                 // Strip config entities that are first-party, or aren't enabled in the
                 // extension's clickToLoad settings.
-                if ((websiteOwner && entity === websiteOwner) ||
-                    !settings[entity] ||
-                    settings[entity].state !== 'enabled') {
+                if ((websiteOwner && entity === websiteOwner) || !settings[entity] || settings[entity].state !== 'enabled') {
                     delete config[entity];
-                    continue
+                    continue;
                 }
 
                 // Populate the entities and entityData data structures.
@@ -10254,12 +10376,12 @@
 
             // Listen for window events from "surrogate" scripts.
             window.addEventListener('ddg-ctp', (/** @type {CustomEvent} */ event) => {
-                if (!('detail' in event)) return
+                if (!('detail' in event)) return;
 
                 const entity = event.detail?.entity;
                 if (!entities.includes(entity)) {
                     // Unknown entity, reject
-                    return
+                    return;
                 }
                 if (event.detail?.appID) {
                     appID = JSON.stringify(event.detail.appID).replace(/"/g, '');
@@ -10281,13 +10403,13 @@
             });
             // Listen to message from Platform letting CTL know that we're ready to
             // replace elements in the page
-             
+
             this.messaging.subscribe(
                 'displayClickToLoadPlaceholders',
                 // TODO: Pass `message.options.ruleAction` through, that way only
                 //       content corresponding to the entity for that ruleAction need to
                 //       be replaced with a placeholder.
-                () => this.replaceClickToLoadElements()
+                () => this.replaceClickToLoadElements(),
             );
 
             // Request the current state of Click to Load from the platform.
@@ -10309,11 +10431,9 @@
             // dispatched too early, before the listener is ready to receive it.
             // To counter that, catch "ddg-ctp-surrogate-load" events dispatched
             // _after_ page, so the "ddg-ctp-ready" event can be dispatched again.
-            window.addEventListener(
-                'ddg-ctp-surrogate-load', () => {
-                    originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
-                }
-            );
+            window.addEventListener('ddg-ctp-surrogate-load', () => {
+                originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+            });
 
             // Then wait for any in-progress element replacements, before letting
             // the surrogate scripts know to start.
@@ -10328,21 +10448,21 @@
          * SendMessageMessagingTransport that wraps this communication.
          * This can be removed once they have their own Messaging integration.
          */
-        update (message) {
+        update(message) {
             // TODO: Once all Click to Load messages include the feature property, drop
             //       messages that don't include the feature property too.
-            if (message?.feature && message?.feature !== 'clickToLoad') return
+            if (message?.feature && message?.feature !== 'clickToLoad') return;
 
             const messageType = message?.messageType;
-            if (!messageType) return
+            if (!messageType) return;
 
             if (!this._clickToLoadMessagingTransport) {
-                throw new Error('_clickToLoadMessagingTransport not ready. Cannot operate click to load without a messaging backend')
+                throw new Error('_clickToLoadMessagingTransport not ready. Cannot operate click to load without a messaging backend');
             }
 
             // Send to Messaging layer the response or subscription message received
             // from the Platform.
-            return this._clickToLoadMessagingTransport.onResponse(message)
+            return this._clickToLoadMessagingTransport.onResponse(message);
         }
 
         /**
@@ -10351,7 +10471,7 @@
          * @param {boolean} state.devMode Developer or Production environment
          * @param {boolean} state.youtubePreviewsEnabled YouTube Click to Load - YT Previews enabled flag
          */
-        onClickToLoadState (state) {
+        onClickToLoadState(state) {
             devMode = state.devMode;
             isYoutubePreviewsEnabled = state.youtubePreviewsEnabled;
 
@@ -10367,7 +10487,7 @@
          *   one of the expected CSS selectors). If omitted, all matching elements
          *   in the document will be replaced instead.
          */
-        async replaceClickToLoadElements (targetElement) {
+        async replaceClickToLoadElements(targetElement) {
             await readyToDisplayPlaceholders;
 
             for (const entity of Object.keys(config)) {
@@ -10383,16 +10503,18 @@
                         trackingElements = Array.from(document.querySelectorAll(selector));
                     }
 
-                    await Promise.all(trackingElements.map(trackingElement => {
-                        if (knownTrackingElements.has(trackingElement)) {
-                            return Promise.resolve()
-                        }
+                    await Promise.all(
+                        trackingElements.map((trackingElement) => {
+                            if (knownTrackingElements.has(trackingElement)) {
+                                return Promise.resolve();
+                            }
 
-                        knownTrackingElements.add(trackingElement);
+                            knownTrackingElements.add(trackingElement);
 
-                        const widget = new DuckWidget(widgetData, trackingElement, entity, this.platform);
-                        return createPlaceholderElementAndReplace(widget, trackingElement)
-                    }));
+                            const widget = new DuckWidget(widgetData, trackingElement, entity, this.platform);
+                            return createPlaceholderElementAndReplace(widget, trackingElement);
+                        }),
+                    );
                 }
             }
         }
@@ -10400,31 +10522,31 @@
         /**
          * @returns {MessagingContext}
          */
-        get messagingContext () {
-            if (this.#messagingContext) return this.#messagingContext
+        get messagingContext() {
+            if (this.#messagingContext) return this.#messagingContext;
             this.#messagingContext = this._createMessagingContext();
-            return this.#messagingContext
+            return this.#messagingContext;
         }
 
         // Messaging layer between Click to Load and the Platform
-        get messaging () {
-            if (this._messaging) return this._messaging
+        get messaging() {
+            if (this._messaging) return this._messaging;
 
             if (this.platform.name === 'android' || this.platform.name === 'extension') {
                 this._clickToLoadMessagingTransport = new SendMessageMessagingTransport();
                 const config = new TestTransportConfig(this._clickToLoadMessagingTransport);
                 this._messaging = new Messaging(this.messagingContext, config);
-                return this._messaging
+                return this._messaging;
             } else if (this.platform.name === 'ios' || this.platform.name === 'macos') {
                 const config = new WebkitMessagingConfig({
                     secret: '',
                     hasModernWebkitAPI: true,
-                    webkitMessageHandlerNames: ['contentScopeScriptsIsolated']
+                    webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
                 });
                 this._messaging = new Messaging(this.messagingContext, config);
-                return this._messaging
+                return this._messaging;
             } else {
-                throw new Error('Messaging not supported yet on platform: ' + this.name)
+                throw new Error('Messaging not supported yet on platform: ' + this.name);
             }
         }
     }
@@ -10443,6 +10565,7 @@
         ddg_feature_navigatorInterface: NavigatorInterface,
         ddg_feature_elementHiding: ElementHiding,
         ddg_feature_exceptionHandler: ExceptionHandler,
+        ddg_feature_apiManipulation: ApiManipulation,
         ddg_feature_clickToLoad: ClickToLoad
     };
 
@@ -10458,12 +10581,8 @@
     // checks by altering document.__proto__. In the future, it might be worth
     // running the checks even earlier (and in the "isolated world" for the Chrome
     // extension), to further reduce that risk.
-    const isHTMLDocument = (
-        document instanceof HTMLDocument || (
-            document instanceof XMLDocument &&
-                document.createElement('div') instanceof HTMLDivElement
-        )
-    );
+    const isHTMLDocument =
+        document instanceof HTMLDocument || (document instanceof XMLDocument && document.createElement('div') instanceof HTMLDivElement);
 
     /**
      * @typedef {object} LoadArgs
@@ -10479,14 +10598,13 @@
     /**
      * @param {LoadArgs} args
      */
-    function load (args) {
+    function load(args) {
         const mark = performanceMonitor.mark('load');
         if (!isHTMLDocument) {
-            return
+            return;
         }
 
-        const featureNames = platformSupport["firefox"]
-            ;
+        const featureNames = platformSupport["firefox"] ;
 
         for (const featureName of featureNames) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
@@ -10497,11 +10615,11 @@
         mark.end();
     }
 
-    async function init (args) {
+    async function init(args) {
         const mark = performanceMonitor.mark('init');
         initArgs = args;
         if (!isHTMLDocument) {
-            return
+            return;
         }
         registerMessageSecret(args.messageSecret);
         initStringExemptionLists(args);
@@ -10522,22 +10640,22 @@
         }
     }
 
-    function update (args) {
+    function update(args) {
         if (!isHTMLDocument) {
-            return
+            return;
         }
         if (initArgs === null) {
             updates.push(args);
-            return
+            return;
         }
         updateFeaturesInner(args);
     }
 
-    function alwaysInitExtensionFeatures (args, featureName) {
-        return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName)
+    function alwaysInitExtensionFeatures(args, featureName) {
+        return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
     }
 
-    async function updateFeaturesInner (args) {
+    async function updateFeaturesInner(args) {
         const resolvedFeatures = await Promise.all(features);
         resolvedFeatures.forEach(({ featureInstance, featureName }) => {
             if (!isFeatureBroken(initArgs, featureName) && featureInstance.update) {
@@ -10558,52 +10676,54 @@
         'setYoutubePreviewsEnabled',
         'unblockClickToLoadContent',
         'updateYouTubeCTLAddedFlag',
-        'updateFacebookCTLBreakageFlags'
+        'updateFacebookCTLBreakageFlags',
     ];
     const messageSecret = randomString();
 
-    function randomString () {
+    function randomString() {
         const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
-        return num.toString().replace('0.', '')
+        return num.toString().replace('0.', '');
     }
 
-    function initCode () {
+    function initCode() {
         const trackerLookup = $TRACKER_LOOKUP$;
         load({
             platform: {
-                name: 'extension'
+                name: 'extension',
             },
             trackerLookup,
             documentOriginIsTracker: isTrackerOrigin(trackerLookup),
             site: computeLimitedSiteObject(),
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            bundledConfig: $BUNDLED_CONFIG$
+            bundledConfig: $BUNDLED_CONFIG$,
         });
 
-        chrome.runtime.sendMessage({
-            messageType: 'registeredContentScript',
-            options: {
-                documentUrl: window.location.href
-            }
-        },
-        (message) => {
-            // Background has disabled features
-            if (!message) {
-                return
-            }
-            if (message.debug) {
-                window.addEventListener('message', (m) => {
-                    if (m.data.action && m.data.message) {
-                        chrome.runtime.sendMessage({
-                            messageType: 'debuggerMessage',
-                            options: m.data
-                        });
-                    }
-                });
-            }
-            message.messageSecret = messageSecret;
-            init(message);
-        });
+        chrome.runtime.sendMessage(
+            {
+                messageType: 'registeredContentScript',
+                options: {
+                    documentUrl: window.location.href,
+                },
+            },
+            (message) => {
+                // Background has disabled features
+                if (!message) {
+                    return;
+                }
+                if (message.debug) {
+                    window.addEventListener('message', (m) => {
+                        if (m.data.action && m.data.message) {
+                            chrome.runtime.sendMessage({
+                                messageType: 'debuggerMessage',
+                                options: m.data,
+                            });
+                        }
+                    });
+                }
+                message.messageSecret = messageSecret;
+                init(message);
+            },
+        );
 
         chrome.runtime.onMessage.addListener((message) => {
             // forward update messages to the embedded script
@@ -10612,23 +10732,23 @@
             }
         });
 
-        window.addEventListener('sendMessageProxy' + messageSecret, event => {
+        window.addEventListener('sendMessageProxy' + messageSecret, (event) => {
             event.stopImmediatePropagation();
 
             if (!(event instanceof CustomEvent) || !event?.detail) {
-                return console.warn('no details in sendMessage proxy', event)
+                return console.warn('no details in sendMessage proxy', event);
             }
 
             const messageType = event.detail?.messageType;
             if (!allowedMessages.includes(messageType)) {
-                return console.warn('Ignoring invalid sendMessage messageType', messageType)
+                return console.warn('Ignoring invalid sendMessage messageType', messageType);
             }
 
-            chrome.runtime.sendMessage(event.detail, response => {
+            chrome.runtime.sendMessage(event.detail, (response) => {
                 const message = {
                     messageType: 'response',
                     responseMessageType: messageType,
-                    response
+                    response,
                 };
 
                 update(message);

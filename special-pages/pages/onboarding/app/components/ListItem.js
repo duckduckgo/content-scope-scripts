@@ -1,9 +1,8 @@
-import { h } from 'preact'
-import cn from 'classnames'
-import styles from './ListItem.module.css'
-import { Check } from './Icons'
+import { h } from 'preact';
+import cn from 'classnames';
+import styles from './ListItem.module.css';
+import { Check } from './Icons';
 
- 
 export const availableIcons = /** @type {const} */ ([
     'bookmarks.png',
     'browsing.png',
@@ -21,10 +20,10 @@ export const availableIcons = /** @type {const} */ ([
     'v3/favorite.svg',
     'v3/home.svg',
     'v3/import.svg',
-    'v3/session-restore.svg'
-])
+    'v3/session-restore.svg',
+]);
 
-const prefix = 'assets/img/steps/'
+const prefix = 'assets/img/steps/';
 
 /**
  * ListItem component is used to display an item in a list.
@@ -37,8 +36,8 @@ const prefix = 'assets/img/steps/'
  * @param {import("preact").ComponentChild} [props.secondaryText] - The text for the secondary line
  * @param {boolean} [props.animate=true] - The text for the secondary line
  */
-export function ListItem ({ animate = false, ...props }) {
-    const path = prefix + props.icon
+export function ListItem({ animate = false, ...props }) {
+    const path = prefix + props.icon;
     return (
         <li className={cn(styles.step, animate ? styles.slideIn : undefined)} data-testid="ListItem" data-index={String(props.index)}>
             <div className={cn(styles.inner)}>
@@ -46,23 +45,19 @@ export function ListItem ({ animate = false, ...props }) {
                 <div className={styles.contentWrapper}>
                     <div className={styles.content}>
                         <p className={styles.title}>{props.title}</p>
-                        {props.secondaryText && (
-                            <p className={styles.secondaryText}>{props.secondaryText}</p>
-                        )}
+                        {props.secondaryText && <p className={styles.secondaryText}>{props.secondaryText}</p>}
                     </div>
-                    <div className={styles.inlineAction}>
-                        {props.inline}
-                    </div>
+                    <div className={styles.inlineAction}>{props.inline}</div>
                 </div>
             </div>
             <div className={styles.children}>{props.children}</div>
         </li>
-    )
+    );
 }
 
 ListItem.Indent = function ({ children }) {
-    return <div className={styles.indentChild}>{children}</div>
-}
+    return <div className={styles.indentChild}>{children}</div>;
+};
 
 /**
  * ListItem component is used to display an item in a list.
@@ -70,8 +65,8 @@ ListItem.Indent = function ({ children }) {
  * @param {availableIcons[number]} props.icon - The icon for the ListItem.
  * @param {import("preact").ComponentChild} props.title - The text for the title
  */
-export function ListItemPlain (props) {
-    const path = prefix + props.icon
+export function ListItemPlain(props) {
+    const path = prefix + props.icon;
     return (
         <li className={styles.plain} data-testid="ListItem">
             <Check />
@@ -80,5 +75,5 @@ export function ListItemPlain (props) {
                 <p className={styles.title}>{props.title}</p>
             </div>
         </li>
-    )
+    );
 }

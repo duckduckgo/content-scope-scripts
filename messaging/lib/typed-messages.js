@@ -11,7 +11,7 @@
  * @param {import("@duckduckgo/messaging").Messaging} messaging
  * @returns {BaseClass}
  */
-export function createTypedMessages (base, messaging) {
-    const asAny = /** @type {any} */(messaging)
-    return /** @type {BaseClass} */(asAny)
+export function createTypedMessages(base, messaging) {
+    const asAny = /** @type {any} */ (messaging);
+    return /** @type {BaseClass} */ (asAny);
 }

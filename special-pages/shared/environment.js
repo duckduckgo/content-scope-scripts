@@ -13,7 +13,7 @@ export class Environment {
      * @param {string} [params.locale] - for applications strings
      * @param {number} [params.textLength] - what ratio of text should be used. Set a number higher than 1 to have longer strings for testing
      */
-    constructor ({
+    constructor({
         env = 'production',
         urlParams = new URLSearchParams(location.search),
         injectName = 'windows',
@@ -21,88 +21,88 @@ export class Environment {
         debugState = urlParams.has('debugState'),
         display = 'app',
         locale = 'en',
-        textLength = 1
+        textLength = 1,
     } = {}) {
-        this.display = display
-        this.urlParams = urlParams
-        this.injectName = injectName
-        this.willThrow = willThrow
-        this.debugState = debugState
-        this.env = env
-        this.locale = locale
-        this.textLength = textLength
+        this.display = display;
+        this.urlParams = urlParams;
+        this.injectName = injectName;
+        this.willThrow = willThrow;
+        this.debugState = debugState;
+        this.env = env;
+        this.locale = locale;
+        this.textLength = textLength;
     }
 
     /**
      * @param {string|null|undefined} injectName
      * @returns {Environment}
      */
-    withInjectName (injectName) {
-        if (!injectName) return this
-        if (!isInjectName(injectName)) return this
+    withInjectName(injectName) {
+        if (!injectName) return this;
+        if (!isInjectName(injectName)) return this;
         return new Environment({
             ...this,
-            injectName
-        })
+            injectName,
+        });
     }
 
     /**
      * @param {string|null|undefined} env
      * @returns {Environment}
      */
-    withEnv (env) {
-        if (!env) return this
-        if (env !== 'production' && env !== 'development') return this
+    withEnv(env) {
+        if (!env) return this;
+        if (env !== 'production' && env !== 'development') return this;
 
         return new Environment({
             ...this,
-            env
-        })
+            env,
+        });
     }
 
     /**
      * @param {string|null|undefined} display
      * @returns {Environment}
      */
-    withDisplay (display) {
-        if (!display) return this
-        if (display !== 'app' && display !== 'components') return this
+    withDisplay(display) {
+        if (!display) return this;
+        if (display !== 'app' && display !== 'components') return this;
 
         return new Environment({
             ...this,
-            display
-        })
+            display,
+        });
     }
 
     /**
      * @param {string|null|undefined} locale
      * @returns {Environment}
      */
-    withLocale (locale) {
-        if (!locale) return this
-        if (typeof locale !== 'string') return this
-        if (locale.length !== 2) return this
+    withLocale(locale) {
+        if (!locale) return this;
+        if (typeof locale !== 'string') return this;
+        if (locale.length !== 2) return this;
 
         return new Environment({
             ...this,
-            locale
-        })
+            locale,
+        });
     }
 
     /**
      * @param {string|number|null|undefined} length
      * @returns {Environment}
      */
-    withTextLength (length) {
-        if (!length) return this
-        const num = Number(length)
+    withTextLength(length) {
+        if (!length) return this;
+        const num = Number(length);
         if (num >= 1 && num <= 2) {
             return new Environment({
                 ...this,
-                textLength: num
-            })
+                textLength: num,
+            });
         }
-        return this
+        return this;
     }
 }
 
@@ -110,8 +110,8 @@ export class Environment {
  * @param {any} input
  * @returns {input is ImportMeta['injectName']}
  */
-function isInjectName (input) {
+function isInjectName(input) {
     /** @type {ImportMeta['injectName'][]} */
-    const allowed = ['windows', 'apple', 'integration', 'android']
-    return allowed.includes(input)
+    const allowed = ['windows', 'apple', 'integration', 'android'];
+    return allowed.includes(input);
 }

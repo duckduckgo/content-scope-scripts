@@ -1,6 +1,6 @@
-import {h} from "preact"
-import cn from "classnames"
-import styles from "./Button.module.css";
+import { h } from 'preact';
+import cn from 'classnames';
+import styles from './Button.module.css';
 
 /**
  *
@@ -12,30 +12,19 @@ import styles from "./Button.module.css";
  * @param {boolean} [props.highlight]
  * @param {import("preact").ComponentProps<"button">} [props.buttonProps]
  */
-export function Button({
-       children,
-       formfactor = "mobile",
-       icon = false,
-       fill = false,
-       highlight = false,
-       buttonProps = {}
-   }) {
+export function Button({ children, formfactor = 'mobile', icon = false, fill = false, highlight = false, buttonProps = {} }) {
     const classes = cn({
         [styles.button]: true,
-        [styles.desktop]: formfactor === "desktop",
+        [styles.desktop]: formfactor === 'desktop',
         [styles.highlight]: highlight === true,
         [styles.fill]: fill === true,
         [styles.iconOnly]: icon === true,
-    })
+    });
     return (
-        <button
-            class={classes}
-            type="button"
-            {...buttonProps}
-        >
+        <button class={classes} type="button" {...buttonProps}>
             {children}
         </button>
-    )
+    );
 }
 
 /**
@@ -47,36 +36,25 @@ export function Button({
  * @param {boolean} [props.highlight]
  * @param {import("preact").ComponentProps<"a">} [props.anchorProps]
  */
-export function ButtonLink({
-       children,
-       formfactor = "mobile",
-       icon = false,
-       fill = false,
-       highlight = false,
-       anchorProps = {}
-   }) {
+export function ButtonLink({ children, formfactor = 'mobile', icon = false, fill = false, highlight = false, anchorProps = {} }) {
     const classes = cn({
         [styles.button]: true,
-        [styles.desktop]: formfactor === "desktop",
+        [styles.desktop]: formfactor === 'desktop',
         [styles.highlight]: highlight === true,
         [styles.fill]: fill === true,
         [styles.iconOnly]: icon === true,
-    })
+    });
     return (
-        <a
-            class={classes}
-            type="button"
-            {...anchorProps}
-        >
+        <a class={classes} type="button" {...anchorProps}>
             {children}
         </a>
-    )
+    );
 }
 
 export function Icon({ src }) {
     return (
         <span class={styles.icon}>
-            <img src={src} alt=""/>
+            <img src={src} alt="" />
         </span>
-    )
+    );
 }

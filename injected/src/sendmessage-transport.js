@@ -1,5 +1,5 @@
-import { legacySendMessage } from './utils.js'
-import { TestTransportConfig } from '../../messaging/index.js'
+import { legacySendMessage } from './utils.js';
+import { TestTransportConfig } from '../../messaging/index.js';
 
 /**
  * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
@@ -9,9 +9,9 @@ import { TestTransportConfig } from '../../messaging/index.js'
 /**
  * @deprecated - A temporary constructor for the extension to make the messaging config
  */
-export function extensionConstructMessagingConfig () {
-    const messagingTransport = new SendMessageMessagingTransport()
-    return new TestTransportConfig(messagingTransport)
+export function extensionConstructMessagingConfig() {
+    const messagingTransport = new SendMessageMessagingTransport();
+    return new TestTransportConfig(messagingTransport);
 }
 
 /**
@@ -27,9 +27,9 @@ export class SendMessageMessagingTransport {
      * Queue of callbacks to be called with messages sent from the Platform.
      * This is used to connect requests with responses and to trigger subscriptions callbacks.
      */
-    _queue = new Set()
+    _queue = new Set();
 
-    constructor () {
+    constructor() {
         this.globals = {
             window: globalThis,
             globalThis,
@@ -37,8 +37,8 @@ export class SendMessageMessagingTransport {
             JSONstringify: globalThis.JSON.stringify,
             Promise: globalThis.Promise,
             Error: globalThis.Error,
-            String: globalThis.String
-        }
+            String: globalThis.String,
+        };
     }
 
     /**
@@ -46,39 +46,39 @@ export class SendMessageMessagingTransport {
      * with callback functions in the _queue.
      * @param {any} response
      */
-    onResponse (response) {
-        this._queue.forEach((subscription) => subscription(response))
+    onResponse(response) {
+        this._queue.forEach((subscription) => subscription(response));
     }
 
     /**
      * @param {import('@duckduckgo/messaging').NotificationMessage} msg
      */
-    notify (msg) {
-        let params = msg.params
+    notify(msg) {
+        let params = msg.params;
 
         // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
         // for sendMessage()
         if (msg.method === 'setYoutubePreviewsEnabled') {
-            params = msg.params?.youtubePreviewsEnabled
+            params = msg.params?.youtubePreviewsEnabled;
         }
         // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
         // for sendMessage()
         if (msg.method === 'updateYouTubeCTLAddedFlag') {
-            params = msg.params?.youTubeCTLAddedFlag
+            params = msg.params?.youTubeCTLAddedFlag;
         }
 
-        legacySendMessage(msg.method, params)
+        legacySendMessage(msg.method, params);
     }
 
     /**
      * @param {import('@duckduckgo/messaging').RequestMessage} req
      * @return {Promise<any>}
      */
-    request (req) {
+    request(req) {
         let comparator = (eventData) => {
-            return eventData.responseMessageType === req.method
-        }
-        let params = req.params
+            return eventData.responseMessageType === req.method;
+        };
+        let params = req.params;
 
         // Adapts request for 'getYouTubeVideoDetails' by identifying the correct
         // response for each request and updating params to expect current
@@ -89,40 +89,37 @@ export class SendMessageMessagingTransport {
                     eventData.responseMessageType === req.method &&
                     eventData.response &&
                     eventData.response.videoURL === req.params?.videoURL
-                )
-            }
-            params = req.params?.videoURL
+                );
+            };
+            params = req.params?.videoURL;
         }
 
-        legacySendMessage(req.method, params)
+        legacySendMessage(req.method, params);
 
         return new this.globals.Promise((resolve) => {
             this._subscribe(comparator, (msgRes, unsubscribe) => {
-                unsubscribe()
+                unsubscribe();
 
-                return resolve(msgRes.response)
-            })
-        })
+                return resolve(msgRes.response);
+            });
+        });
     }
 
     /**
      * @param {import('@duckduckgo/messaging').Subscription} msg
      * @param {(value: unknown | undefined) => void} callback
      */
-    subscribe (msg, callback) {
+    subscribe(msg, callback) {
         const comparator = (eventData) => {
-            return (
-                eventData.messageType === msg.subscriptionName ||
-                eventData.responseMessageType === msg.subscriptionName
-            )
-        }
+            return eventData.messageType === msg.subscriptionName || eventData.responseMessageType === msg.subscriptionName;
+        };
 
         // only forward the 'params' ('response' in current format), to match expected
         // callback from a SubscriptionEvent
         const cb = (eventData) => {
-            return callback(eventData.response)
-        }
-        return this._subscribe(comparator, cb)
+            return callback(eventData.response);
+        };
+        return this._subscribe(comparator, cb);
     }
 
     /**
@@ -130,32 +127,32 @@ export class SendMessageMessagingTransport {
      * @param {(value: any, unsubscribe: (()=>void)) => void} callback
      * @internal
      */
-    _subscribe (comparator, callback) {
+    _subscribe(comparator, callback) {
         /** @type {(()=>void) | undefined} */
         // eslint-disable-next-line prefer-const
-        let teardown
+        let teardown;
 
         /**
          * @param {MessageEvent} event
          */
         const idHandler = (event) => {
             if (!event) {
-                console.warn('no message available')
-                return
+                console.warn('no message available');
+                return;
             }
             if (comparator(event)) {
-                if (!teardown) throw new this.globals.Error('unreachable')
-                callback(event, teardown)
+                if (!teardown) throw new this.globals.Error('unreachable');
+                callback(event, teardown);
             }
-        }
-        this._queue.add(idHandler)
+        };
+        this._queue.add(idHandler);
 
         teardown = () => {
-            this._queue.delete(idHandler)
-        }
+            this._queue.delete(idHandler);
+        };
 
         return () => {
-            teardown?.()
-        }
+            teardown?.();
+        };
     }
 }

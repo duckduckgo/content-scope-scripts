@@ -325,10 +325,7 @@
         const randMethodName = this.createRandMethodName();
         const key = await this.createRandKey();
         const iv = this.createRandIv();
-        const {
-          ciphertext,
-          tag
-        } = await new this.globals.Promise((resolve) => {
+        const { ciphertext, tag } = await new this.globals.Promise((resolve) => {
           this.generateRandomMethod(randMethodName, resolve);
           data.messageHandling = new SecureMessagingParams({
             methodName: randMethodName,
@@ -1503,13 +1500,7 @@
   });
   var THEME_QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function EnvironmentProvider({
-    children,
-    debugState,
-    env = "production",
-    willThrow = false,
-    injectName = "windows"
-  }) {
+  function EnvironmentProvider({ children, debugState, env = "production", willThrow = false, injectName = "windows" }) {
     const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     y2(() => {
@@ -1532,14 +1523,20 @@
       });
       return () => mediaQueryList.removeEventListener("change", listener);
     }, []);
-    return /* @__PURE__ */ _(EnvironmentContext.Provider, { value: {
-      isReducedMotion,
-      debugState,
-      isDarkMode: theme === "dark",
-      injectName,
-      willThrow,
-      env
-    } }, children);
+    return /* @__PURE__ */ _(
+      EnvironmentContext.Provider,
+      {
+        value: {
+          isReducedMotion,
+          debugState,
+          isDarkMode: theme === "dark",
+          injectName,
+          willThrow,
+          env
+        }
+      },
+      children
+    );
   }
   function UpdateEnvironment({ search }) {
     y2(() => {
@@ -1672,16 +1669,7 @@
     if (!root) throw new Error("could not render, root element missing");
     if (environment.display === "app") {
       B(
-        /* @__PURE__ */ _(
-          EnvironmentProvider,
-          {
-            debugState: environment.debugState,
-            injectName: environment.injectName,
-            willThrow: environment.willThrow
-          },
-          /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }),
-          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: example_default, textLength: environment.textLength }, /* @__PURE__ */ _(App, null))
-        ),
+        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: example_default, textLength: environment.textLength }, /* @__PURE__ */ _(App, null))),
         root
       );
     } else if (environment.display === "components") {

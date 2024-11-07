@@ -13,12 +13,13 @@
     const objectEntries = Object.entries;
     const objectDefineProperty = Object.defineProperty;
     const Proxy$1 = globalThis.Proxy;
+    const hasOwnProperty = Object.prototype.hasOwnProperty;
 
     /* eslint-disable no-redeclare, no-global-assign */
     /* global cloneInto, exportFunction, false */
 
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
-     
+
     let globalObj = typeof window === 'undefined' ? globalThis : window;
     let Error$1 = globalObj.Error;
     let messageSecret;
@@ -26,15 +27,15 @@
     // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
     const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
     const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
-    function registerMessageSecret (secret) {
+    function registerMessageSecret(secret) {
         messageSecret = secret;
     }
 
     /**
      * @returns {HTMLElement} the element to inject the script into
      */
-    function getInjectionElement () {
-        return document.head || document.documentElement
+    function getInjectionElement() {
+        return document.head || document.documentElement;
     }
 
     /**
@@ -42,41 +43,41 @@
      * @param {string} css
      * @returns {HTMLLinkElement | HTMLStyleElement}
      */
-    function createStyleElement (css) {
+    function createStyleElement(css) {
         let style;
         {
             style = document.createElement('style');
             style.innerText = css;
         }
-        return style
+        return style;
     }
 
     /**
      * Injects a script into the page, avoiding CSP restrictions if possible.
      */
-    function injectGlobalStyles (css) {
+    function injectGlobalStyles(css) {
         const style = createStyleElement(css);
         getInjectionElement().appendChild(style);
     }
 
     // linear feedback shift register to find a random approximation
-    function nextRandom (v) {
-        return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)))
+    function nextRandom(v) {
+        return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
     }
 
     const exemptionLists = {};
-    function shouldExemptUrl (type, url) {
+    function shouldExemptUrl(type, url) {
         for (const regex of exemptionLists[type]) {
             if (regex.test(url)) {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     }
 
     let debug = false;
 
-    function initStringExemptionLists (args) {
+    function initStringExemptionLists(args) {
         const { stringExemptionLists } = args;
         debug = args.debug;
         for (const type in stringExemptionLists) {
@@ -91,34 +92,34 @@
      * Best guess effort if the document is being framed
      * @returns {boolean} if we infer the document is framed
      */
-    function isBeingFramed () {
+    function isBeingFramed() {
         if (globalThis.location && 'ancestorOrigins' in globalThis.location) {
-            return globalThis.location.ancestorOrigins.length > 0
+            return globalThis.location.ancestorOrigins.length > 0;
         }
-        return globalThis.top !== globalThis.window
+        return globalThis.top !== globalThis.window;
     }
 
     /**
      * Best guess effort if the document is third party
      * @returns {boolean} if we infer the document is third party
      */
-    function isThirdPartyFrame () {
+    function isThirdPartyFrame() {
         if (!isBeingFramed()) {
-            return false
+            return false;
         }
         const tabHostname = getTabHostname();
         // If we can't get the tab hostname, assume it's third party
         if (!tabHostname) {
-            return true
+            return true;
         }
-        return !matchHostname(globalThis.location.hostname, tabHostname)
+        return !matchHostname(globalThis.location.hostname, tabHostname);
     }
 
     /**
      * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
      * @returns {string|null} inferred tab hostname
      */
-    function getTabHostname () {
+    function getTabHostname() {
         let framingOrigin = null;
         try {
             // @ts-expect-error - globalThis.top is possibly 'null' here
@@ -139,7 +140,7 @@
         } catch {
             framingOrigin = null;
         }
-        return framingOrigin
+        return framingOrigin;
     }
 
     /**
@@ -148,12 +149,12 @@
      * @param {string} exceptionDomain
      * @returns {boolean}
      */
-    function matchHostname (hostname, exceptionDomain) {
-        return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
+    function matchHostname(hostname, exceptionDomain) {
+        return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`);
     }
 
     const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
-    function getStackTraceUrls (stack) {
+    function getStackTraceUrls(stack) {
         const urls = new Set$1();
         try {
             const errorLines = stack.split('\n');
@@ -167,36 +168,36 @@
         } catch (e) {
             // Fall through
         }
-        return urls
+        return urls;
     }
 
-    function getStackTraceOrigins (stack) {
+    function getStackTraceOrigins(stack) {
         const urls = getStackTraceUrls(stack);
         const origins = new Set$1();
         for (const url of urls) {
             origins.add(url.hostname);
         }
-        return origins
+        return origins;
     }
 
     // Checks the stack trace if there are known libraries that are broken.
-    function shouldExemptMethod (type) {
+    function shouldExemptMethod(type) {
         // Short circuit stack tracing if we don't have checks
         if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
-            return false
+            return false;
         }
         const stack = getStack();
         const errorFiles = getStackTraceUrls(stack);
         for (const path of errorFiles) {
             if (shouldExemptUrl(type, path.href)) {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     }
 
     // Iterate through the key, passing an item index and a byte to be modified
-    function iterateDataKey (key, callback) {
+    function iterateDataKey(key, callback) {
         let item = key.charCodeAt(0);
         for (const i in key) {
             let byte = key.charCodeAt(i);
@@ -204,7 +205,7 @@
                 const res = callback(item, byte);
                 // Exit early if callback returns null
                 if (res === null) {
-                    return
+                    return;
                 }
 
                 // find next item to perturb
@@ -216,27 +217,27 @@
         }
     }
 
-    function isFeatureBroken (args, feature) {
+    function isFeatureBroken(args, feature) {
         return isWindowsSpecificFeature(feature)
             ? !args.site.enabledFeatures.includes(feature)
-            : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
+            : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
     }
 
-    function camelcase (dashCaseText) {
+    function camelcase(dashCaseText) {
         return dashCaseText.replace(/-(.)/g, (match, letter) => {
-            return letter.toUpperCase()
-        })
+            return letter.toUpperCase();
+        });
     }
 
     // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
-    function isAppleSilicon () {
+    function isAppleSilicon() {
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl');
 
         // Best guess if the device is an Apple Silicon
         // https://stackoverflow.com/a/65412357
         // @ts-expect-error - Object is possibly 'null'
-        return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1
+        return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1;
     }
 
     /**
@@ -244,23 +245,23 @@
      * If a value contains a criteria that is a match for this environment then return that value.
      * Otherwise return the first value that doesn't have a criteria.
      *
-     * @param {*[]} configSetting - Config setting which should contain a list of possible values
+     * @param {ConfigSetting[]} configSetting - Config setting which should contain a list of possible values
      * @returns {*|undefined} - The value from the list that best matches the criteria in the config
      */
-    function processAttrByCriteria (configSetting) {
+    function processAttrByCriteria(configSetting) {
         let bestOption;
         for (const item of configSetting) {
             if (item.criteria) {
                 if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {
                     bestOption = item;
-                    break
+                    break;
                 }
             } else {
                 bestOption = item;
             }
         }
 
-        return bestOption
+        return bestOption;
     }
 
     const functionMap = {
@@ -268,76 +269,86 @@
         debug: (...args) => {
             console.log('debugger', ...args);
             // eslint-disable-next-line no-debugger
-            debugger
+            debugger;
         },
-         
-        noop: () => { }
+
+        noop: () => {},
     };
 
     /**
+     * @typedef {object} ConfigSetting
+     * @property {'undefined' | 'number' | 'string' | 'function' | 'boolean' | 'null' | 'array' | 'object'} type
+     * @property {string} [functionName]
+     * @property {boolean | string | number} value
+     * @property {object} [criteria]
+     * @property {string} criteria.arch
+     */
+
+    /**
      * Processes a structured config setting and returns the value according to its type
-     * @param {*} configSetting
+     * @param {ConfigSetting} configSetting
      * @param {*} [defaultValue]
      * @returns
      */
-    function processAttr (configSetting, defaultValue) {
+    function processAttr(configSetting, defaultValue) {
         if (configSetting === undefined) {
-            return defaultValue
+            return defaultValue;
         }
 
         const configSettingType = typeof configSetting;
         switch (configSettingType) {
-        case 'object':
-            if (Array.isArray(configSetting)) {
-                configSetting = processAttrByCriteria(configSetting);
-                if (configSetting === undefined) {
-                    return defaultValue
+            case 'object':
+                if (Array.isArray(configSetting)) {
+                    configSetting = processAttrByCriteria(configSetting);
+                    if (configSetting === undefined) {
+                        return defaultValue;
+                    }
                 }
-            }
 
-            if (!configSetting.type) {
-                return defaultValue
-            }
-
-            if (configSetting.type === 'function') {
-                if (configSetting.functionName && functionMap[configSetting.functionName]) {
-                    return functionMap[configSetting.functionName]
+                if (!configSetting.type) {
+                    return defaultValue;
                 }
-            }
 
-            if (configSetting.type === 'undefined') {
-                return undefined
-            }
+                if (configSetting.type === 'function') {
+                    if (configSetting.functionName && functionMap[configSetting.functionName]) {
+                        return functionMap[configSetting.functionName];
+                    }
+                }
 
-            return configSetting.value
-        default:
-            return defaultValue
+                if (configSetting.type === 'undefined') {
+                    return undefined;
+                }
+
+                // All JSON expressable types are handled here
+                return configSetting.value;
+            default:
+                return defaultValue;
         }
     }
 
-    function getStack () {
-        return new Error$1().stack
+    function getStack() {
+        return new Error$1().stack;
     }
 
     /**
      * @param {*[]} argsArray
      * @returns {string}
      */
-    function debugSerialize (argsArray) {
+    function debugSerialize(argsArray) {
         const maxSerializedSize = 1000;
         const serializedArgs = argsArray.map((arg) => {
             try {
                 const serializableOut = JSON.stringify(arg);
                 if (serializableOut.length > maxSerializedSize) {
-                    return `<truncated, length: ${serializableOut.length}, value: ${serializableOut.substring(0, maxSerializedSize)}...>`
+                    return `<truncated, length: ${serializableOut.length}, value: ${serializableOut.substring(0, maxSerializedSize)}...>`;
                 }
-                return serializableOut
+                return serializableOut;
             } catch (e) {
                 // Sometimes this happens when we can't serialize an object to string but we still wish to log it and make other args readable
-                return '<unserializable>'
+                return '<unserializable>';
             }
         });
-        return JSON.stringify(serializedArgs)
+        return JSON.stringify(serializedArgs);
     }
 
     /**
@@ -356,7 +367,7 @@
          * @param {string} property
          * @param {ProxyObject<P>} proxyObject
          */
-        constructor (feature, objectScope, property, proxyObject) {
+        constructor(feature, objectScope, property, proxyObject) {
             this.objectScope = objectScope;
             this.property = property;
             this.feature = feature;
@@ -373,14 +384,14 @@
                         kind: this.property,
                         documentUrl: document.location.href,
                         stack: getStack(),
-                        args: debugSerialize(args[2])
+                        args: debugSerialize(args[2]),
                     });
                 }
                 // The normal return value
                 if (isExempt) {
-                    return DDGReflect.apply(...args)
+                    return DDGReflect.apply(...args);
                 }
-                return proxyObject.apply(...args)
+                return proxyObject.apply(...args);
             };
             const getMethod = (target, prop, receiver) => {
                 this.feature.addDebugFlag();
@@ -388,11 +399,11 @@
                     const method = Reflect.get(target, prop, receiver).bind(target);
                     Object.defineProperty(method, 'toString', {
                         value: String.toString.bind(String.toString),
-                        enumerable: false
+                        enumerable: false,
                     });
-                    return method
+                    return method;
                 }
-                return DDGReflect.get(target, prop, receiver)
+                return DDGReflect.get(target, prop, receiver);
             };
             {
                 this._native = objectScope[property];
@@ -404,41 +415,41 @@
         }
 
         // Actually apply the proxy to the native property
-        overload () {
+        overload() {
             {
                 this.objectScope[this.property] = this.internal;
             }
         }
 
-        overloadDescriptor () {
+        overloadDescriptor() {
             // TODO: this is not always correct! Use wrap* or shim* methods instead
             this.feature.defineProperty(this.objectScope, this.property, {
                 value: this.internal,
                 writable: true,
                 enumerable: true,
-                configurable: true
+                configurable: true,
             });
         }
     }
 
     const maxCounter = new Map();
-    function numberOfTimesDebugged (feature) {
+    function numberOfTimesDebugged(feature) {
         if (!maxCounter.has(feature)) {
             maxCounter.set(feature, 1);
         } else {
             maxCounter.set(feature, maxCounter.get(feature) + 1);
         }
-        return maxCounter.get(feature)
+        return maxCounter.get(feature);
     }
 
     const DEBUG_MAX_TIMES = 5000;
 
-    function postDebugMessage (feature, message, allowNonDebug = false) {
+    function postDebugMessage(feature, message, allowNonDebug = false) {
         if (!debug && !allowNonDebug) {
-            return
+            return;
         }
         if (numberOfTimesDebugged(feature) > DEBUG_MAX_TIMES) {
-            return
+            return;
         }
         if (message.stack) {
             const scriptOrigins = [...getStackTraceOrigins(message.stack)];
@@ -446,7 +457,7 @@
         }
         globalObj.postMessage({
             action: feature,
-            message
+            message,
         });
     }
 
@@ -464,10 +475,10 @@
      * @param {object[]} featureList
      * @returns {boolean}
      */
-    function isUnprotectedDomain (topLevelHostname, featureList) {
+    function isUnprotectedDomain(topLevelHostname, featureList) {
         let unprotectedDomain = false;
         if (!topLevelHostname) {
-            return false
+            return false;
         }
         const domainParts = topLevelHostname.split('.');
 
@@ -475,12 +486,12 @@
         while (domainParts.length > 1 && !unprotectedDomain) {
             const partialDomain = domainParts.join('.');
 
-            unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;
+            unprotectedDomain = featureList.filter((domain) => domain.domain === partialDomain).length > 0;
 
             domainParts.shift();
         }
 
-        return unprotectedDomain
+        return unprotectedDomain;
     }
 
     /**
@@ -502,11 +513,11 @@
     /**
      * Used to inialize extension code in the load phase
      */
-    function computeLimitedSiteObject () {
+    function computeLimitedSiteObject() {
         const topLevelHostname = getTabHostname();
         return {
-            domain: topLevelHostname
-        }
+            domain: topLevelHostname,
+        };
     }
 
     /**
@@ -514,18 +525,18 @@
      * @param {UserPreferences} preferences
      * @returns {string | number | undefined}
      */
-    function getPlatformVersion (preferences) {
+    function getPlatformVersion(preferences) {
         if (preferences.versionNumber) {
-            return preferences.versionNumber
+            return preferences.versionNumber;
         }
         if (preferences.versionString) {
-            return preferences.versionString
+            return preferences.versionString;
         }
-        return undefined
+        return undefined;
     }
 
-    function parseVersionString (versionString) {
-        return versionString.split('.').map(Number)
+    function parseVersionString(versionString) {
+        return versionString.split('.').map(Number);
     }
 
     /**
@@ -533,7 +544,7 @@
      * @param {string} applicationVersionString
      * @returns {boolean}
      */
-    function satisfiesMinVersion (minVersionString, applicationVersionString) {
+    function satisfiesMinVersion(minVersionString, applicationVersionString) {
         const minVersions = parseVersionString(minVersionString);
         const currentVersions = parseVersionString(applicationVersionString);
         const maxLength = Math.max(minVersions.length, currentVersions.length);
@@ -541,13 +552,13 @@
             const minNumberPart = minVersions[i] || 0;
             const currentVersionPart = currentVersions[i] || 0;
             if (currentVersionPart > minNumberPart) {
-                return true
+                return true;
             }
             if (currentVersionPart < minNumberPart) {
-                return false
+                return false;
             }
         }
-        return true
+        return true;
     }
 
     /**
@@ -555,17 +566,17 @@
      * @param {string | number | undefined} currentVersion
      * @returns {boolean}
      */
-    function isSupportedVersion (minSupportedVersion, currentVersion) {
+    function isSupportedVersion(minSupportedVersion, currentVersion) {
         if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {
             if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {
-                return true
+                return true;
             }
         } else if (typeof currentVersion === 'number' && typeof minSupportedVersion === 'number') {
             if (minSupportedVersion <= currentVersion) {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     }
 
     /**
@@ -580,10 +591,10 @@
      * @param {UserPreferences} preferences
      * @param {string[]} platformSpecificFeatures
      */
-    function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
+    function processConfig(data, userList, preferences, platformSpecificFeatures = []) {
         const topLevelHostname = getTabHostname();
         const site = computeLimitedSiteObject();
-        const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0;
+        const allowlisted = userList.filter((domain) => domain === topLevelHostname).length > 0;
         /** @type {Record<string, any>} */
         const output = { ...preferences };
         if (output.platform) {
@@ -597,7 +608,7 @@
         output.site = Object.assign(site, {
             isBroken,
             allowlisted,
-            enabledFeatures
+            enabledFeatures,
         });
 
         // Copy feature settings from remote config to preferences object
@@ -605,7 +616,7 @@
         output.trackerLookup = {"org":{"cdn77":{"rsc":{"1558334541":1}},"adsrvr":1,"ampproject":1,"browser-update":1,"flowplayer":1,"privacy-center":1,"webvisor":1,"framasoft":1,"do-not-tracker":1,"trackersimulator":1},"io":{"1dmp":1,"1rx":1,"4dex":1,"adnami":1,"aidata":1,"arcspire":1,"bidr":1,"branch":1,"center":1,"cloudimg":1,"concert":1,"connectad":1,"cordial":1,"dcmn":1,"extole":1,"getblue":1,"hbrd":1,"instana":1,"karte":1,"leadsmonitor":1,"litix":1,"lytics":1,"marchex":1,"mediago":1,"mrf":1,"narrative":1,"ntv":1,"optad360":1,"oracleinfinity":1,"oribi":1,"p-n":1,"personalizer":1,"pghub":1,"piano":1,"powr":1,"pzz":1,"searchspring":1,"segment":1,"siteimproveanalytics":1,"sspinc":1,"t13":1,"webgains":1,"wovn":1,"yellowblue":1,"zprk":1,"axept":1,"akstat":1,"clarium":1,"hotjar":1},"com":{"2020mustang":1,"33across":1,"360yield":1,"3lift":1,"4dsply":1,"4strokemedia":1,"8353e36c2a":1,"a-mx":1,"a2z":1,"aamsitecertifier":1,"absorbingband":1,"abstractedauthority":1,"abtasty":1,"acexedge":1,"acidpigs":1,"acsbapp":1,"acuityplatform":1,"ad-score":1,"ad-stir":1,"adalyser":1,"adapf":1,"adara":1,"adblade":1,"addthis":1,"addtoany":1,"adelixir":1,"adentifi":1,"adextrem":1,"adgrx":1,"adhese":1,"adition":1,"adkernel":1,"adlightning":1,"adlooxtracking":1,"admanmedia":1,"admedo":1,"adnium":1,"adnxs-simple":1,"adnxs":1,"adobedtm":1,"adotmob":1,"adpone":1,"adpushup":1,"adroll":1,"adrta":1,"ads-twitter":1,"ads3-adnow":1,"adsafeprotected":1,"adstanding":1,"adswizz":1,"adtdp":1,"adtechus":1,"adtelligent":1,"adthrive":1,"adtlgc":1,"adtng":1,"adultfriendfinder":1,"advangelists":1,"adventive":1,"adventori":1,"advertising":1,"aegpresents":1,"affinity":1,"affirm":1,"agilone":1,"agkn":1,"aimbase":1,"albacross":1,"alcmpn":1,"alexametrics":1,"alicdn":1,"alikeaddition":1,"aliveachiever":1,"aliyuncs":1,"alluringbucket":1,"aloofvest":1,"amazon-adsystem":1,"amazon":1,"ambiguousafternoon":1,"amplitude":1,"analytics-egain":1,"aniview":1,"annoyedairport":1,"annoyingclover":1,"anyclip":1,"anymind360":1,"app-us1":1,"appboycdn":1,"appdynamics":1,"appsflyer":1,"aralego":1,"aspiringattempt":1,"aswpsdkus":1,"atemda":1,"att":1,"attentivemobile":1,"attractionbanana":1,"audioeye":1,"audrte":1,"automaticside":1,"avanser":1,"avmws":1,"aweber":1,"aweprt":1,"azure":1,"b0e8":1,"badgevolcano":1,"bagbeam":1,"ballsbanana":1,"bandborder":1,"batch":1,"bawdybalance":1,"bc0a":1,"bdstatic":1,"bedsberry":1,"beginnerpancake":1,"benchmarkemail":1,"betweendigital":1,"bfmio":1,"bidtheatre":1,"billowybelief":1,"bimbolive":1,"bing":1,"bizographics":1,"bizrate":1,"bkrtx":1,"blismedia":1,"blogherads":1,"bluecava":1,"bluekai":1,"blushingbread":1,"boatwizard":1,"boilingcredit":1,"boldchat":1,"booking":1,"borderfree":1,"bounceexchange":1,"brainlyads":1,"brand-display":1,"brandmetrics":1,"brealtime":1,"brightfunnel":1,"brightspotcdn":1,"btloader":1,"btstatic":1,"bttrack":1,"btttag":1,"bumlam":1,"butterbulb":1,"buttonladybug":1,"buzzfeed":1,"buzzoola":1,"byside":1,"c3tag":1,"cabnnr":1,"calculatorstatement":1,"callrail":1,"calltracks":1,"capablecup":1,"captcha-delivery":1,"carpentercomparison":1,"cartstack":1,"carvecakes":1,"casalemedia":1,"cattlecommittee":1,"cdninstagram":1,"cdnwidget":1,"channeladvisor":1,"chargecracker":1,"chartbeat":1,"chatango":1,"chaturbate":1,"cheqzone":1,"cherriescare":1,"chickensstation":1,"childlikecrowd":1,"childlikeform":1,"chocolateplatform":1,"cintnetworks":1,"circlelevel":1,"ck-ie":1,"clcktrax":1,"cleanhaircut":1,"clearbit":1,"clearbitjs":1,"clickagy":1,"clickcease":1,"clickcertain":1,"clicktripz":1,"clientgear":1,"cloudflare":1,"cloudflareinsights":1,"cloudflarestream":1,"cobaltgroup":1,"cobrowser":1,"cognitivlabs":1,"colossusssp":1,"combativecar":1,"comm100":1,"googleapis":{"commondatastorage":1,"imasdk":1,"storage":1,"fonts":1,"maps":1,"www":1},"company-target":1,"condenastdigital":1,"confusedcart":1,"connatix":1,"contextweb":1,"conversionruler":1,"convertkit":1,"convertlanguage":1,"cootlogix":1,"coveo":1,"cpmstar":1,"cquotient":1,"crabbychin":1,"cratecamera":1,"crazyegg":1,"creative-serving":1,"creativecdn":1,"criteo":1,"crowdedmass":1,"crowdriff":1,"crownpeak":1,"crsspxl":1,"ctnsnet":1,"cudasvc":1,"cuddlethehyena":1,"cumbersomecarpenter":1,"curalate":1,"curvedhoney":1,"cushiondrum":1,"cutechin":1,"cxense":1,"d28dc30335":1,"dailymotion":1,"damdoor":1,"dampdock":1,"dapperfloor":1,"datadoghq-browser-agent":1,"decisivebase":1,"deepintent":1,"defybrick":1,"delivra":1,"demandbase":1,"detectdiscovery":1,"devilishdinner":1,"dimelochat":1,"disagreeabledrop":1,"discreetfield":1,"disqus":1,"dmpxs":1,"dockdigestion":1,"dotomi":1,"doubleverify":1,"drainpaste":1,"dramaticdirection":1,"driftt":1,"dtscdn":1,"dtscout":1,"dwin1":1,"dynamics":1,"dynamicyield":1,"dynatrace":1,"ebaystatic":1,"ecal":1,"eccmp":1,"elfsight":1,"elitrack":1,"eloqua":1,"en25":1,"encouragingthread":1,"enormousearth":1,"ensighten":1,"enviousshape":1,"eqads":1,"ero-advertising":1,"esputnik":1,"evergage":1,"evgnet":1,"exdynsrv":1,"exelator":1,"exoclick":1,"exosrv":1,"expansioneggnog":1,"expedia":1,"expertrec":1,"exponea":1,"exponential":1,"extole":1,"ezodn":1,"ezoic":1,"ezoiccdn":1,"facebook":1,"facil-iti":1,"fadewaves":1,"fallaciousfifth":1,"farmergoldfish":1,"fastly-insights":1,"fearlessfaucet":1,"fiftyt":1,"financefear":1,"fitanalytics":1,"five9":1,"fixedfold":1,"fksnk":1,"flashtalking":1,"flipp":1,"flowerstreatment":1,"floweryflavor":1,"flutteringfireman":1,"flux-cdn":1,"foresee":1,"fortunatemark":1,"fouanalytics":1,"fox":1,"fqtag":1,"frailfruit":1,"freezingbuilding":1,"fronttoad":1,"fullstory":1,"functionalfeather":1,"fuzzybasketball":1,"gammamaximum":1,"gbqofs":1,"geetest":1,"geistm":1,"geniusmonkey":1,"geoip-js":1,"getbread":1,"getcandid":1,"getclicky":1,"getdrip":1,"getelevar":1,"getrockerbox":1,"getshogun":1,"getsitecontrol":1,"giraffepiano":1,"glassdoor":1,"gloriousbeef":1,"godpvqnszo":1,"google-analytics":1,"google":1,"googleadservices":1,"googlehosted":1,"googleoptimize":1,"googlesyndication":1,"googletagmanager":1,"googletagservices":1,"gorgeousedge":1,"govx":1,"grainmass":1,"greasysquare":1,"greylabeldelivery":1,"groovehq":1,"growsumo":1,"gstatic":1,"guarantee-cdn":1,"guiltlessbasketball":1,"gumgum":1,"haltingbadge":1,"hammerhearing":1,"handsomelyhealth":1,"harborcaption":1,"hawksearch":1,"amazonaws":{"us-east-2":{"s3":{"hb-obv2":1}}},"heapanalytics":1,"hellobar":1,"hhbypdoecp":1,"hiconversion":1,"highwebmedia":1,"histats":1,"hlserve":1,"hocgeese":1,"hollowafterthought":1,"honorableland":1,"hotjar":1,"hp":1,"hs-banner":1,"htlbid":1,"htplayground":1,"hubspot":1,"ib-ibi":1,"id5-sync":1,"igodigital":1,"iheart":1,"iljmp":1,"illiweb":1,"impactcdn":1,"impactradius-event":1,"impressionmonster":1,"improvedcontactform":1,"improvedigital":1,"imrworldwide":1,"indexww":1,"infolinks":1,"infusionsoft":1,"inmobi":1,"inq":1,"inside-graph":1,"instagram":1,"intentiq":1,"intergient":1,"investingchannel":1,"invocacdn":1,"iperceptions":1,"iplsc":1,"ipredictive":1,"iteratehq":1,"ivitrack":1,"j93557g":1,"jaavnacsdw":1,"jimstatic":1,"journity":1,"js7k":1,"jscache":1,"juiceadv":1,"juicyads":1,"justanswer":1,"justpremium":1,"jwpcdn":1,"kakao":1,"kampyle":1,"kargo":1,"kissmetrics":1,"klarnaservices":1,"klaviyo":1,"knottyswing":1,"krushmedia":1,"ktkjmp":1,"kxcdn":1,"laboredlocket":1,"ladesk":1,"ladsp":1,"laughablelizards":1,"leadsrx":1,"lendingtree":1,"levexis":1,"liadm":1,"licdn":1,"lightboxcdn":1,"lijit":1,"linkedin":1,"linksynergy":1,"list-manage":1,"listrakbi":1,"livechatinc":1,"livejasmin":1,"localytics":1,"loggly":1,"loop11":1,"looseloaf":1,"lovelydrum":1,"lunchroomlock":1,"lwonclbench":1,"macromill":1,"maddeningpowder":1,"mailchimp":1,"mailchimpapp":1,"mailerlite":1,"maillist-manage":1,"marinsm":1,"marketiq":1,"marketo":1,"marphezis":1,"marriedbelief":1,"materialparcel":1,"matheranalytics":1,"mathtag":1,"maxmind":1,"mczbf":1,"measlymiddle":1,"medallia":1,"meddleplant":1,"media6degrees":1,"mediacategory":1,"mediavine":1,"mediawallahscript":1,"medtargetsystem":1,"megpxs":1,"memberful":1,"memorizematch":1,"mentorsticks":1,"metaffiliation":1,"metricode":1,"metricswpsh":1,"mfadsrvr":1,"mgid":1,"micpn":1,"microadinc":1,"minutemedia-prebid":1,"minutemediaservices":1,"mixpo":1,"mkt932":1,"mktoresp":1,"mktoweb":1,"ml314":1,"moatads":1,"mobtrakk":1,"monsido":1,"mookie1":1,"motionflowers":1,"mountain":1,"mouseflow":1,"mpeasylink":1,"mql5":1,"mrtnsvr":1,"murdoog":1,"mxpnl":1,"mybestpro":1,"myregistry":1,"nappyattack":1,"navistechnologies":1,"neodatagroup":1,"nervoussummer":1,"netmng":1,"newrelic":1,"newscgp":1,"nextdoor":1,"ninthdecimal":1,"nitropay":1,"noibu":1,"nondescriptnote":1,"nosto":1,"npttech":1,"ntvpwpush":1,"nuance":1,"nutritiousbean":1,"nxsttv":1,"omappapi":1,"omnisnippet1":1,"omnisrc":1,"omnitagjs":1,"ondemand":1,"oneall":1,"onesignal":1,"onetag-sys":1,"oo-syringe":1,"ooyala":1,"opecloud":1,"opentext":1,"opera":1,"opmnstr":1,"opti-digital":1,"optimicdn":1,"optimizely":1,"optinmonster":1,"optmnstr":1,"optmstr":1,"optnmnstr":1,"optnmstr":1,"osano":1,"otm-r":1,"outbrain":1,"overconfidentfood":1,"ownlocal":1,"pailpatch":1,"panickypancake":1,"panoramicplane":1,"parastorage":1,"pardot":1,"parsely":1,"partplanes":1,"patreon":1,"paypal":1,"pbstck":1,"pcmag":1,"peerius":1,"perfdrive":1,"perfectmarket":1,"permutive":1,"picreel":1,"pinterest":1,"pippio":1,"piwikpro":1,"pixlee":1,"placidperson":1,"pleasantpump":1,"plotrabbit":1,"pluckypocket":1,"pocketfaucet":1,"possibleboats":1,"postaffiliatepro":1,"postrelease":1,"potatoinvention":1,"powerfulcopper":1,"predictplate":1,"prepareplanes":1,"pricespider":1,"priceypies":1,"pricklydebt":1,"profusesupport":1,"proofpoint":1,"protoawe":1,"providesupport":1,"pswec":1,"psychedelicarithmetic":1,"psyma":1,"ptengine":1,"publir":1,"pubmatic":1,"pubmine":1,"pubnation":1,"qualaroo":1,"qualtrics":1,"quantcast":1,"quantserve":1,"quantummetric":1,"quietknowledge":1,"quizzicalpartner":1,"quizzicalzephyr":1,"quora":1,"r42tag":1,"radiateprose":1,"railwayreason":1,"rakuten":1,"rambunctiousflock":1,"rangeplayground":1,"rating-widget":1,"realsrv":1,"rebelswing":1,"reconditerake":1,"reconditerespect":1,"recruitics":1,"reddit":1,"redditstatic":1,"rehabilitatereason":1,"repeatsweater":1,"reson8":1,"resonantrock":1,"resonate":1,"responsiveads":1,"restrainstorm":1,"restructureinvention":1,"retargetly":1,"revcontent":1,"rezync":1,"rfihub":1,"rhetoricalloss":1,"richaudience":1,"righteouscrayon":1,"rightfulfall":1,"riotgames":1,"riskified":1,"rkdms":1,"rlcdn":1,"rmtag":1,"rogersmedia":1,"rokt":1,"route":1,"rtbsystem":1,"rubiconproject":1,"ruralrobin":1,"s-onetag":1,"saambaa":1,"sablesong":1,"sail-horizon":1,"salesforceliveagent":1,"samestretch":1,"sascdn":1,"satisfycork":1,"savoryorange":1,"scarabresearch":1,"scaredsnakes":1,"scaredsong":1,"scaredstomach":1,"scarfsmash":1,"scene7":1,"scholarlyiq":1,"scintillatingsilver":1,"scorecardresearch":1,"screechingstove":1,"screenpopper":1,"scribblestring":1,"sddan":1,"seatsmoke":1,"securedvisit":1,"seedtag":1,"sefsdvc":1,"segment":1,"sekindo":1,"selectivesummer":1,"selfishsnake":1,"servebom":1,"servedbyadbutler":1,"servenobid":1,"serverbid":1,"serving-sys":1,"shakegoldfish":1,"shamerain":1,"shapecomb":1,"shappify":1,"shareaholic":1,"sharethis":1,"sharethrough":1,"shopifyapps":1,"shopperapproved":1,"shrillspoon":1,"sibautomation":1,"sicksmash":1,"signifyd":1,"singroot":1,"site":1,"siteimprove":1,"siteimproveanalytics":1,"sitescout":1,"sixauthority":1,"skillfuldrop":1,"skimresources":1,"skisofa":1,"sli-spark":1,"slickstream":1,"slopesoap":1,"smadex":1,"smartadserver":1,"smashquartz":1,"smashsurprise":1,"smg":1,"smilewanted":1,"smoggysnakes":1,"snapchat":1,"snapkit":1,"snigelweb":1,"socdm":1,"sojern":1,"songsterritory":1,"sonobi":1,"soundstocking":1,"spectacularstamp":1,"speedcurve":1,"sphereup":1,"spiceworks":1,"spookyexchange":1,"spookyskate":1,"spookysleet":1,"sportradarserving":1,"sportslocalmedia":1,"spotxchange":1,"springserve":1,"srvmath":1,"ssl-images-amazon":1,"stackadapt":1,"stakingsmile":1,"statcounter":1,"steadfastseat":1,"steadfastsound":1,"steadfastsystem":1,"steelhousemedia":1,"steepsquirrel":1,"stereotypedsugar":1,"stickyadstv":1,"stiffgame":1,"stingycrush":1,"straightnest":1,"stripchat":1,"strivesquirrel":1,"strokesystem":1,"stupendoussleet":1,"stupendoussnow":1,"stupidscene":1,"sulkycook":1,"sumo":1,"sumologic":1,"sundaysky":1,"superficialeyes":1,"superficialsquare":1,"surveymonkey":1,"survicate":1,"svonm":1,"swankysquare":1,"symantec":1,"taboola":1,"tailtarget":1,"talkable":1,"tamgrt":1,"tangycover":1,"taobao":1,"tapad":1,"tapioni":1,"taptapnetworks":1,"taskanalytics":1,"tealiumiq":1,"techlab-cdn":1,"technoratimedia":1,"techtarget":1,"tediousticket":1,"teenytinyshirt":1,"tendertest":1,"the-ozone-project":1,"theadex":1,"themoneytizer":1,"theplatform":1,"thestar":1,"thinkitten":1,"threetruck":1,"thrtle":1,"tidaltv":1,"tidiochat":1,"tiktok":1,"tinypass":1,"tiqcdn":1,"tiresomethunder":1,"trackjs":1,"traffichaus":1,"trafficjunky":1,"trafmag":1,"travelaudience":1,"treasuredata":1,"tremorhub":1,"trendemon":1,"tribalfusion":1,"trovit":1,"trueleadid":1,"truoptik":1,"truste":1,"trustpilot":1,"trvdp":1,"tsyndicate":1,"tubemogul":1,"turn":1,"tvpixel":1,"tvsquared":1,"tweakwise":1,"twitter":1,"tynt":1,"typicalteeth":1,"u5e":1,"ubembed":1,"uidapi":1,"ultraoranges":1,"unbecominglamp":1,"unbxdapi":1,"undertone":1,"uninterestedquarter":1,"unpkg":1,"unrulymedia":1,"unwieldyhealth":1,"unwieldyplastic":1,"upsellit":1,"urbanairship":1,"usabilla":1,"usbrowserspeed":1,"usemessages":1,"userreport":1,"uservoice":1,"valuecommerce":1,"vengefulgrass":1,"vidazoo":1,"videoplayerhub":1,"vidoomy":1,"viglink":1,"visualwebsiteoptimizer":1,"vivaclix":1,"vk":1,"vlitag":1,"voicefive":1,"volatilevessel":1,"voraciousgrip":1,"voxmedia":1,"vrtcal":1,"w3counter":1,"walkme":1,"warmafterthought":1,"warmquiver":1,"webcontentassessor":1,"webengage":1,"webeyez":1,"webtraxs":1,"webtrends-optimize":1,"webtrends":1,"wgplayer":1,"woosmap":1,"worldoftulo":1,"wpadmngr":1,"wpshsdk":1,"wpushsdk":1,"wsod":1,"wt-safetag":1,"wysistat":1,"xg4ken":1,"xiti":1,"xlirdr":1,"xlivrdr":1,"xnxx-cdn":1,"y-track":1,"yahoo":1,"yandex":1,"yieldmo":1,"yieldoptimizer":1,"yimg":1,"yotpo":1,"yottaa":1,"youtube-nocookie":1,"youtube":1,"zemanta":1,"zendesk":1,"zeotap":1,"zestycrime":1,"zonos":1,"zoominfo":1,"zopim":1,"createsend1":1,"veoxa":1,"parchedsofa":1,"sooqr":1,"adtraction":1,"addthisedge":1,"adsymptotic":1,"bootstrapcdn":1,"bugsnag":1,"dmxleo":1,"dtssrv":1,"fontawesome":1,"hs-scripts":1,"jwpltx":1,"nereserv":1,"onaudience":1,"outbrainimg":1,"quantcount":1,"rtactivate":1,"shopifysvc":1,"stripe":1,"twimg":1,"vimeo":1,"vimeocdn":1,"wp":1,"2znp09oa":1,"4jnzhl0d0":1,"6ldu6qa":1,"82o9v830":1,"abilityscale":1,"aboardamusement":1,"aboardlevel":1,"abovechat":1,"abruptroad":1,"absentairport":1,"absorbingcorn":1,"absorbingprison":1,"abstractedamount":1,"absurdapple":1,"abundantcoin":1,"acceptableauthority":1,"accurateanimal":1,"accuratecoal":1,"achieverknee":1,"acidicstraw":1,"acridangle":1,"acridtwist":1,"actoramusement":1,"actuallysheep":1,"actuallysnake":1,"actuallything":1,"adamantsnail":1,"addictedattention":1,"adorableanger":1,"adorableattention":1,"adventurousamount":1,"afraidlanguage":1,"aftermathbrother":1,"agilebreeze":1,"agreeablearch":1,"agreeabletouch":1,"aheadday":1,"aheadgrow":1,"aheadmachine":1,"ak0gsh40":1,"alertarithmetic":1,"aliasanvil":1,"alleythecat":1,"aloofmetal":1,"alpineactor":1,"ambientdusk":1,"ambientlagoon":1,"ambiguousanger":1,"ambiguousdinosaurs":1,"ambiguousincome":1,"ambrosialsummit":1,"amethystzenith":1,"amuckafternoon":1,"amusedbucket":1,"analogwonder":1,"analyzecorona":1,"ancientact":1,"annoyingacoustics":1,"anxiousapples":1,"aquaticowl":1,"ar1nvz5":1,"archswimming":1,"aromamirror":1,"arrivegrowth":1,"artthevoid":1,"aspiringapples":1,"aspiringtoy":1,"astonishingfood":1,"astralhustle":1,"astrallullaby":1,"attendchase":1,"attractivecap":1,"audioarctic":1,"automaticturkey":1,"availablerest":1,"avalonalbum":1,"averageactivity":1,"awarealley":1,"awesomeagreement":1,"awzbijw":1,"axiomaticalley":1,"axiomaticanger":1,"azuremystique":1,"backupcat":1,"badgeboat":1,"badgerabbit":1,"baitbaseball":1,"balloonbelieve":1,"bananabarrel":1,"barbarousbase":1,"basilfish":1,"basketballbelieve":1,"baskettexture":1,"bawdybeast":1,"beamvolcano":1,"beancontrol":1,"bearmoonlodge":1,"beetleend":1,"begintrain":1,"berserkhydrant":1,"bespokesandals":1,"bestboundary":1,"bewilderedbattle":1,"bewilderedblade":1,"bhcumsc":1,"bikepaws":1,"bikesboard":1,"billowybead":1,"binspiredtees":1,"birthdaybelief":1,"blackbrake":1,"bleachbubble":1,"bleachscarecrow":1,"bleedlight":1,"blesspizzas":1,"blissfulcrescendo":1,"blissfullagoon":1,"blueeyedblow":1,"blushingbeast":1,"boatsvest":1,"boilingbeetle":1,"boostbehavior":1,"boredcrown":1,"bouncyproperty":1,"boundarybusiness":1,"boundlessargument":1,"boundlessbrake":1,"boundlessveil":1,"brainybasin":1,"brainynut":1,"branchborder":1,"brandsfive":1,"brandybison":1,"bravebone":1,"bravecalculator":1,"breadbalance":1,"breakableinsurance":1,"breakfastboat":1,"breezygrove":1,"brianwould":1,"brighttoe":1,"briskstorm":1,"broadborder":1,"broadboundary":1,"broadcastbed":1,"broaddoor":1,"brotherslocket":1,"bruisebaseball":1,"brunchforher":1,"buildingknife":1,"bulbbait":1,"burgersalt":1,"burlywhistle":1,"burnbubble":1,"bushesbag":1,"bustlingbath":1,"bustlingbook":1,"butterburst":1,"cakesdrum":1,"calculatingcircle":1,"calculatingtoothbrush":1,"callousbrake":1,"calmcactus":1,"calypsocapsule":1,"cannonchange":1,"capablecows":1,"capriciouscorn":1,"captivatingcanyon":1,"captivatingillusion":1,"captivatingpanorama":1,"captivatingperformance":1,"carefuldolls":1,"caringcast":1,"caringzinc":1,"carloforward":1,"carscannon":1,"cartkitten":1,"catalogcake":1,"catschickens":1,"causecherry":1,"cautiouscamera":1,"cautiouscherries":1,"cautiouscrate":1,"cautiouscredit":1,"cavecurtain":1,"ceciliavenus":1,"celestialeuphony":1,"celestialquasar":1,"celestialspectra":1,"chaireggnog":1,"chairscrack":1,"chairsdonkey":1,"chalkoil":1,"changeablecats":1,"channelcamp":1,"charmingplate":1,"charscroll":1,"cheerycraze":1,"chessbranch":1,"chesscolor":1,"chesscrowd":1,"childlikeexample":1,"chilledliquid":1,"chingovernment":1,"chinsnakes":1,"chipperisle":1,"chivalrouscord":1,"chubbycreature":1,"chunkycactus":1,"cicdserver":1,"cinemabonus":1,"clammychicken":1,"cloisteredcord":1,"cloisteredcurve":1,"closedcows":1,"closefriction":1,"cloudhustles":1,"cloudjumbo":1,"clovercabbage":1,"clumsycar":1,"coatfood":1,"cobaltoverture":1,"coffeesidehustle":1,"coldbalance":1,"coldcreatives":1,"colorfulafterthought":1,"colossalclouds":1,"colossalcoat":1,"colossalcry":1,"combativedetail":1,"combbit":1,"combcattle":1,"combcompetition":1,"cometquote":1,"comfortablecheese":1,"comfygoodness":1,"companyparcel":1,"comparereaction":1,"compiledoctor":1,"concernedchange":1,"concernedchickens":1,"condemnedcomb":1,"conditionchange":1,"conditioncrush":1,"confesschairs":1,"configchain":1,"connectashelf":1,"consciouschairs":1,"consciouscheese":1,"consciousdirt":1,"consumerzero":1,"controlcola":1,"controlhall":1,"convertbatch":1,"cooingcoal":1,"coordinatedbedroom":1,"coordinatedcoat":1,"copycarpenter":1,"copyrightaccesscontrols":1,"coralreverie":1,"corgibeachday":1,"cosmicsculptor":1,"cosmosjackson":1,"courageousbaby":1,"coverapparatus":1,"coverlayer":1,"cozydusk":1,"cozyhillside":1,"cozytryst":1,"crackedsafe":1,"crafthenry":1,"crashchance":1,"craterbox":1,"creatorcherry":1,"creatorpassenger":1,"creaturecabbage":1,"crimsonmeadow":1,"critictruck":1,"crookedcreature":1,"cruisetourist":1,"cryptvalue":1,"crystalboulevard":1,"crystalstatus":1,"cubchannel":1,"cubepins":1,"cuddlycake":1,"cuddlylunchroom":1,"culturedcamera":1,"culturedfeather":1,"cumbersomecar":1,"cumbersomecloud":1,"curiouschalk":1,"curioussuccess":1,"curlycannon":1,"currentcollar":1,"curtaincows":1,"curvycord":1,"curvycry":1,"cushionpig":1,"cutcurrent":1,"cyclopsdial":1,"dailydivision":1,"damagedadvice":1,"damageddistance":1,"dancemistake":1,"dandydune":1,"dandyglow":1,"dapperdiscussion":1,"datastoried":1,"daughterstone":1,"daymodern":1,"dazzlingbook":1,"deafeningdock":1,"deafeningdowntown":1,"debonairdust":1,"debonairtree":1,"debugentity":1,"decidedrum":1,"decisivedrawer":1,"decisiveducks":1,"decoycreation":1,"deerbeginner":1,"defeatedbadge":1,"defensevest":1,"degreechariot":1,"delegatediscussion":1,"delicatecascade":1,"deliciousducks":1,"deltafault":1,"deluxecrate":1,"dependenttrip":1,"desirebucket":1,"desiredirt":1,"detailedgovernment":1,"detailedkitten":1,"detectdinner":1,"detourgame":1,"deviceseal":1,"deviceworkshop":1,"dewdroplagoon":1,"difficultfog":1,"digestiondrawer":1,"dinnerquartz":1,"diplomahawaii":1,"direfuldesk":1,"discreetquarter":1,"distributionneck":1,"distributionpocket":1,"distributiontomatoes":1,"disturbedquiet":1,"divehope":1,"dk4ywix":1,"dogsonclouds":1,"dollardelta":1,"doubledefend":1,"doubtdrawer":1,"dq95d35":1,"dreamycanyon":1,"driftpizza":1,"drollwharf":1,"drydrum":1,"dustydime":1,"dustyhammer":1,"eagereden":1,"eagerflame":1,"eagerknight":1,"earthyfarm":1,"eatablesquare":1,"echochief":1,"echoinghaven":1,"effervescentcoral":1,"effervescentvista":1,"effulgentnook":1,"effulgenttempest":1,"ejyymghi":1,"elasticchange":1,"elderlybean":1,"elderlytown":1,"elephantqueue":1,"elusivebreeze":1,"elusivecascade":1,"elysiantraverse":1,"embellishedmeadow":1,"embermosaic":1,"emberwhisper":1,"eminentbubble":1,"eminentend":1,"emptyescort":1,"enchantedskyline":1,"enchantingdiscovery":1,"enchantingenchantment":1,"enchantingmystique":1,"enchantingtundra":1,"enchantingvalley":1,"encourageshock":1,"endlesstrust":1,"endurablebulb":1,"energeticexample":1,"energeticladybug":1,"engineergrape":1,"engineertrick":1,"enigmaticblossom":1,"enigmaticcanyon":1,"enigmaticvoyage":1,"enormousfoot":1,"enterdrama":1,"entertainskin":1,"enthusiastictemper":1,"enviousthread":1,"equablekettle":1,"etherealbamboo":1,"ethereallagoon":1,"etherealpinnacle":1,"etherealquasar":1,"etherealripple":1,"evanescentedge":1,"evasivejar":1,"eventexistence":1,"exampleshake":1,"excitingtub":1,"exclusivebrass":1,"executeknowledge":1,"exhibitsneeze":1,"exquisiteartisanship":1,"extractobservation":1,"extralocker":1,"extramonies":1,"exuberantedge":1,"facilitatebreakfast":1,"fadechildren":1,"fadedsnow":1,"fairfeeling":1,"fairiesbranch":1,"fairytaleflame":1,"falseframe":1,"familiarrod":1,"fancyactivity":1,"fancydune":1,"fancygrove":1,"fangfeeling":1,"fantastictone":1,"farethief":1,"farshake":1,"farsnails":1,"fastenfather":1,"fasterfineart":1,"fasterjson":1,"fatcoil":1,"faucetfoot":1,"faultycanvas":1,"fearfulfish":1,"fearfulmint":1,"fearlesstramp":1,"featherstage":1,"feeblestamp":1,"feignedfaucet":1,"fernwaycloud":1,"fertilefeeling":1,"fewjuice":1,"fewkittens":1,"finalizeforce":1,"finestpiece":1,"finitecube":1,"firecatfilms":1,"fireworkcamp":1,"firstendpoint":1,"firstfrogs":1,"firsttexture":1,"fitmessage":1,"fivesidedsquare":1,"flakyfeast":1,"flameuncle":1,"flimsycircle":1,"flimsythought":1,"flippedfunnel":1,"floodprincipal":1,"flourishingcollaboration":1,"flourishingendeavor":1,"flourishinginnovation":1,"flourishingpartnership":1,"flowersornament":1,"flowerycreature":1,"floweryfact":1,"floweryoperation":1,"foambench":1,"followborder":1,"forecasttiger":1,"foretellfifth":1,"forevergears":1,"forgetfulflowers":1,"forgetfulsnail":1,"fractalcoast":1,"framebanana":1,"franticroof":1,"frantictrail":1,"frazzleart":1,"freakyglass":1,"frequentflesh":1,"friendlycrayon":1,"friendlyfold":1,"friendwool":1,"frightenedpotato":1,"frogator":1,"frogtray":1,"frugalfiestas":1,"fumblingform":1,"functionalcrown":1,"funoverbored":1,"funoverflow":1,"furnstudio":1,"furryfork":1,"furryhorses":1,"futuristicapparatus":1,"futuristicfairies":1,"futuristicfifth":1,"futuristicframe":1,"fuzzyaudio":1,"fuzzyerror":1,"gardenovens":1,"gaudyairplane":1,"geekactive":1,"generalprose":1,"generateoffice":1,"giantsvessel":1,"giddycoat":1,"gitcrumbs":1,"givevacation":1,"gladglen":1,"gladysway":1,"glamhawk":1,"gleamingcow":1,"gleaminghaven":1,"glisteningguide":1,"glisteningsign":1,"glitteringbrook":1,"glowingmeadow":1,"gluedpixel":1,"goldfishgrowth":1,"gondolagnome":1,"goodbark":1,"gracefulmilk":1,"grandfatherguitar":1,"gravitygive":1,"gravitykick":1,"grayoranges":1,"grayreceipt":1,"greyinstrument":1,"gripcorn":1,"groovyornament":1,"grouchybrothers":1,"grouchypush":1,"grumpydime":1,"grumpydrawer":1,"guardeddirection":1,"guardedschool":1,"guessdetail":1,"guidecent":1,"guildalpha":1,"gulliblegrip":1,"gustocooking":1,"gustygrandmother":1,"habitualhumor":1,"halcyoncanyon":1,"halcyonsculpture":1,"hallowedinvention":1,"haltingdivision":1,"haltinggold":1,"handleteeth":1,"handnorth":1,"handsomehose":1,"handsomeindustry":1,"handsomelythumb":1,"handsomeyam":1,"handyfield":1,"handyfireman":1,"handyincrease":1,"haplesshydrant":1,"haplessland":1,"happysponge":1,"harborcub":1,"harmonicbamboo":1,"harmonywing":1,"hatefulrequest":1,"headydegree":1,"headyhook":1,"healflowers":1,"hearinglizards":1,"heartbreakingmind":1,"hearthorn":1,"heavydetail":1,"heavyplayground":1,"helpcollar":1,"helpflame":1,"hfc195b":1,"highfalutinbox":1,"highfalutinhoney":1,"hilariouszinc":1,"historicalbeam":1,"homelycrown":1,"honeybulb":1,"honeywhipped":1,"honorablehydrant":1,"horsenectar":1,"hospitablehall":1,"hospitablehat":1,"howdyinbox":1,"humdrumhobbies":1,"humdrumtouch":1,"hurtgrape":1,"hypnoticwound":1,"hystericalcloth":1,"hystericalfinger":1,"idolscene":1,"idyllicjazz":1,"illinvention":1,"illustriousoatmeal":1,"immensehoney":1,"imminentshake":1,"importantmeat":1,"importedincrease":1,"importedinsect":1,"importlocate":1,"impossibleexpansion":1,"impossiblemove":1,"impulsejewel":1,"impulselumber":1,"incomehippo":1,"incompetentjoke":1,"inconclusiveaction":1,"infamousstream":1,"innocentlamp":1,"innocentwax":1,"inputicicle":1,"inquisitiveice":1,"inquisitiveinvention":1,"intelligentscissors":1,"intentlens":1,"interestdust":1,"internalcondition":1,"internalsink":1,"iotapool":1,"irritatingfog":1,"itemslice":1,"ivykiosk":1,"jadeitite":1,"jaderooster":1,"jailbulb":1,"joblessdrum":1,"jollylens":1,"joyfulkeen":1,"joyoussurprise":1,"jubilantaura":1,"jubilantcanyon":1,"jubilantcascade":1,"jubilantglimmer":1,"jubilanttempest":1,"jubilantwhisper":1,"justicejudo":1,"kaputquill":1,"keenquill":1,"kindhush":1,"kitesquirrel":1,"knitstamp":1,"laboredlight":1,"lameletters":1,"lamplow":1,"largebrass":1,"lasttaco":1,"leaplunchroom":1,"leftliquid":1,"lemonpackage":1,"lemonsandjoy":1,"liftedknowledge":1,"lightenafterthought":1,"lighttalon":1,"livelumber":1,"livelylaugh":1,"livelyreward":1,"livingsleet":1,"lizardslaugh":1,"loadsurprise":1,"lonelyflavor":1,"longingtrees":1,"lorenzourban":1,"losslace":1,"loudlunch":1,"loveseashore":1,"lp3tdqle":1,"ludicrousarch":1,"lumberamount":1,"luminousboulevard":1,"luminouscatalyst":1,"luminoussculptor":1,"lumpygnome":1,"lumpylumber":1,"lustroushaven":1,"lyricshook":1,"madebyintent":1,"magicaljoin":1,"magnetairport":1,"majesticmountainrange":1,"majesticwaterscape":1,"majesticwilderness":1,"maliciousmusic":1,"managedpush":1,"mantrafox":1,"marblediscussion":1,"markahouse":1,"markedmeasure":1,"marketspiders":1,"marriedmailbox":1,"marriedvalue":1,"massivemark":1,"materialisticmoon":1,"materialmilk":1,"materialplayground":1,"meadowlullaby":1,"meatydime":1,"mediatescarf":1,"mediumshort":1,"mellowhush":1,"mellowmailbox":1,"melodiouschorus":1,"melodiouscomposition":1,"meltmilk":1,"memopilot":1,"memorizeneck":1,"meremark":1,"merequartz":1,"merryopal":1,"merryvault":1,"messagenovice":1,"messyoranges":1,"mightyspiders":1,"mimosamajor":1,"mindfulgem":1,"minorcattle":1,"minusmental":1,"minuteburst":1,"miscreantmoon":1,"mistyhorizon":1,"mittencattle":1,"mixedreading":1,"modularmental":1,"monacobeatles":1,"moorshoes":1,"motionlessbag":1,"motionlessbelief":1,"motionlessmeeting":1,"movemeal":1,"muddledaftermath":1,"muddledmemory":1,"mundanenail":1,"mundanepollution":1,"mushywaste":1,"muteknife":1,"mutemailbox":1,"mysticalagoon":1,"naivestatement":1,"nappyneck":1,"neatshade":1,"nebulacrescent":1,"nebulajubilee":1,"nebulousamusement":1,"nebulousgarden":1,"nebulousquasar":1,"nebulousripple":1,"needlessnorth":1,"needyneedle":1,"neighborlywatch":1,"niftygraphs":1,"niftyhospital":1,"niftyjelly":1,"nightwound":1,"nimbleplot":1,"nocturnalloom":1,"nocturnalmystique":1,"noiselessplough":1,"nonchalantnerve":1,"nondescriptcrowd":1,"nondescriptstocking":1,"nostalgicknot":1,"nostalgicneed":1,"notifyglass":1,"nudgeduck":1,"nullnorth":1,"numberlessring":1,"numerousnest":1,"nuttyorganization":1,"oafishchance":1,"oafishobservation":1,"obscenesidewalk":1,"observantice":1,"oldfashionedoffer":1,"omgthink":1,"omniscientfeeling":1,"onlywoofs":1,"opalquill":1,"operationchicken":1,"operationnail":1,"oppositeoperation":1,"optimallimit":1,"opulentsylvan":1,"orientedargument":1,"orionember":1,"ourblogthing":1,"outgoinggiraffe":1,"outsidevibe":1,"outstandingincome":1,"outstandingsnails":1,"overkick":1,"overratedchalk":1,"oxygenfuse":1,"pailcrime":1,"painstakingpickle":1,"paintpear":1,"paleleaf":1,"pamelarandom":1,"panickycurtain":1,"parallelbulb":1,"pardonpopular":1,"parentpicture":1,"parsimoniouspolice":1,"passivepolo":1,"pastoralroad":1,"pawsnug":1,"peacefullimit":1,"pedromister":1,"pedropanther":1,"perceivequarter":1,"perkyjade":1,"petiteumbrella":1,"philippinch":1,"photographpan":1,"piespower":1,"piquantgrove":1,"piquantmeadow":1,"piquantpigs":1,"piquantprice":1,"piquantvortex":1,"pixeledhub":1,"pizzasnut":1,"placeframe":1,"placidactivity":1,"planebasin":1,"plantdigestion":1,"playfulriver":1,"plotparent":1,"pluckyzone":1,"poeticpackage":1,"pointdigestion":1,"pointlesshour":1,"pointlesspocket":1,"pointlessprofit":1,"pointlessrifle":1,"polarismagnet":1,"polishedcrescent":1,"polishedfolly":1,"politeplanes":1,"politicalflip":1,"politicalporter":1,"popplantation":1,"possiblepencil":1,"powderjourney":1,"powerfulblends":1,"preciousplanes":1,"prefixpatriot":1,"presetrabbits":1,"previousplayground":1,"previouspotato":1,"pricklypollution":1,"pristinegale":1,"probablepartner":1,"processplantation":1,"producepickle":1,"productsurfer":1,"profitrumour":1,"promiseair":1,"proofconvert":1,"propertypotato":1,"protestcopy":1,"psychedelicchess":1,"publicsofa":1,"puffyloss":1,"puffypaste":1,"puffypull":1,"puffypurpose":1,"pulsatingmeadow":1,"pumpedpancake":1,"pumpedpurpose":1,"punyplant":1,"puppytooth":1,"purposepipe":1,"quacksquirrel":1,"quaintcan":1,"quaintlake":1,"quantumlagoon":1,"quantumshine":1,"queenskart":1,"quillkick":1,"quirkybliss":1,"quirkysugar":1,"quixoticnebula":1,"rabbitbreath":1,"rabbitrifle":1,"radiantcanopy":1,"radiantlullaby":1,"railwaygiraffe":1,"raintwig":1,"rainyhand":1,"rainyrule":1,"rangecake":1,"raresummer":1,"reactjspdf":1,"readingguilt":1,"readymoon":1,"readysnails":1,"realizedoor":1,"realizerecess":1,"rebelclover":1,"rebelhen":1,"rebelsubway":1,"receiptcent":1,"receptiveink":1,"receptivereaction":1,"recessrain":1,"reconditeprison":1,"reflectivestatement":1,"refundradar":1,"regularplants":1,"regulatesleet":1,"relationrest":1,"reloadphoto":1,"rememberdiscussion":1,"rentinfinity":1,"replaceroute":1,"resonantbrush":1,"respectrain":1,"resplendentecho":1,"retrievemint":1,"rhetoricalactivity":1,"rhetoricalveil":1,"rhymezebra":1,"rhythmrule":1,"richstring":1,"rigidrobin":1,"rigidveil":1,"rigorlab":1,"ringplant":1,"ringsrecord":1,"ritzykey":1,"ritzyrepresentative":1,"ritzyveil":1,"rockpebbles":1,"rollconnection":1,"roofrelation":1,"roseincome":1,"rottenray":1,"rusticprice":1,"ruthlessdegree":1,"ruthlessmilk":1,"sableloss":1,"sablesmile":1,"sadloaf":1,"saffronrefuge":1,"sagargift":1,"saltsacademy":1,"samesticks":1,"samplesamba":1,"scarcecard":1,"scarceshock":1,"scarcesign":1,"scarcestructure":1,"scarcesurprise":1,"scaredcomfort":1,"scaredsidewalk":1,"scaredslip":1,"scaredsnake":1,"scaredswing":1,"scarefowl":1,"scatteredheat":1,"scatteredquiver":1,"scatteredstream":1,"scenicapparel":1,"scientificshirt":1,"scintillatingscissors":1,"scissorsstatement":1,"scrapesleep":1,"scratchsofa":1,"screechingfurniture":1,"screechingstocking":1,"scribbleson":1,"scrollservice":1,"scrubswim":1,"seashoresociety":1,"secondhandfall":1,"secretivesheep":1,"secretspiders":1,"secretturtle":1,"seedscissors":1,"seemlysuggestion":1,"selfishsea":1,"sendingspire":1,"sensorsmile":1,"separatesort":1,"seraphichorizon":1,"seraphicjubilee":1,"serendipityecho":1,"serenecascade":1,"serenepebble":1,"serenesurf":1,"serioussuit":1,"serpentshampoo":1,"settleshoes":1,"shadeship":1,"shaggytank":1,"shakyseat":1,"shakysurprise":1,"shakytaste":1,"shallowblade":1,"sharkskids":1,"sheargovernor":1,"shesubscriptions":1,"shinypond":1,"shirtsidewalk":1,"shiveringspot":1,"shiverscissors":1,"shockinggrass":1,"shockingship":1,"shredquiz":1,"shydinosaurs":1,"sierrakermit":1,"signaturepod":1,"siliconslow":1,"sillyscrew":1,"simplesidewalk":1,"simulateswing":1,"sincerebuffalo":1,"sincerepelican":1,"sinceresubstance":1,"sinkbooks":1,"sixscissors":1,"sizzlingsmoke":1,"slaysweater":1,"slimyscarf":1,"slinksuggestion":1,"smallershops":1,"smashshoe":1,"smilewound":1,"smilingcattle":1,"smilingswim":1,"smilingwaves":1,"smoggysongs":1,"smoggystation":1,"snacktoken":1,"snakemineral":1,"snakeslang":1,"sneakwind":1,"sneakystew":1,"snoresmile":1,"snowmentor":1,"soggysponge":1,"soggyzoo":1,"solarislabyrinth":1,"somberscarecrow":1,"sombersea":1,"sombersquirrel":1,"sombersticks":1,"sombersurprise":1,"soothingglade":1,"sophisticatedstove":1,"sordidsmile":1,"soresidewalk":1,"soresneeze":1,"sorethunder":1,"soretrain":1,"sortsail":1,"sortsummer":1,"sowlettuce":1,"spadelocket":1,"sparkgoal":1,"sparklingshelf":1,"specialscissors":1,"spellmist":1,"spellsalsa":1,"spiffymachine":1,"spirebaboon":1,"spookystitch":1,"spoonsilk":1,"spotlessstamp":1,"spottednoise":1,"springolive":1,"springsister":1,"springsnails":1,"sproutingbag":1,"sprydelta":1,"sprysummit":1,"spuriousair":1,"spuriousbase":1,"spurioussquirrel":1,"spuriousstranger":1,"spysubstance":1,"squalidscrew":1,"squeakzinc":1,"squealingturn":1,"stakingbasket":1,"stakingshock":1,"staleshow":1,"stalesummer":1,"starkscale":1,"startingcars":1,"statshunt":1,"statuesqueship":1,"stayaction":1,"steadycopper":1,"stealsteel":1,"steepscale":1,"steepsister":1,"stepcattle":1,"stepplane":1,"stepwisevideo":1,"stereoproxy":1,"stewspiders":1,"stiffstem":1,"stimulatingsneeze":1,"stingsquirrel":1,"stingyshoe":1,"stingyspoon":1,"stockingsleet":1,"stockingsneeze":1,"stomachscience":1,"stonechin":1,"stopstomach":1,"stormyachiever":1,"stormyfold":1,"strangeclocks":1,"strangersponge":1,"strangesink":1,"streetsort":1,"stretchsister":1,"stretchsneeze":1,"stretchsquirrel":1,"stripedbat":1,"strivesidewalk":1,"sturdysnail":1,"subletyoke":1,"sublimequartz":1,"subsequentswim":1,"substantialcarpenter":1,"substantialgrade":1,"succeedscene":1,"successfulscent":1,"suddensoda":1,"sugarfriction":1,"suggestionbridge":1,"summerobject":1,"sunshinegates":1,"superchichair":1,"superficialspring":1,"superviseshoes":1,"supportwaves":1,"suspectmark":1,"swellstocking":1,"swelteringsleep":1,"swingslip":1,"swordgoose":1,"syllablesight":1,"synonymousrule":1,"synonymoussticks":1,"synthesizescarecrow":1,"tackytrains":1,"tacojournal":1,"talltouch":1,"tangibleteam":1,"tangyamount":1,"tastelesstrees":1,"tastelesstrucks":1,"tastesnake":1,"tawdryson":1,"tearfulglass":1,"techconverter":1,"tediousbear":1,"tedioustooth":1,"teenytinycellar":1,"teenytinytongue":1,"telephoneapparatus":1,"tempertrick":1,"tempttalk":1,"temptteam":1,"terriblethumb":1,"terrifictooth":1,"testadmiral":1,"texturetrick":1,"therapeuticcars":1,"thickticket":1,"thicktrucks":1,"thingsafterthought":1,"thingstaste":1,"thinkitwice":1,"thirdrespect":1,"thirstytwig":1,"thomastorch":1,"thoughtlessknot":1,"thrivingmarketplace":1,"ticketaunt":1,"ticklesign":1,"tidymitten":1,"tightpowder":1,"tinyswans":1,"tinytendency":1,"tiredthroat":1,"toolcapital":1,"toomanyalts":1,"torpidtongue":1,"trackcaddie":1,"tradetooth":1,"trafficviews":1,"tranquilamulet":1,"tranquilarchipelago":1,"tranquilcan":1,"tranquilcanyon":1,"tranquilplume":1,"tranquilside":1,"tranquilveil":1,"tranquilveranda":1,"trappush":1,"treadbun":1,"tremendousearthquake":1,"tremendousplastic":1,"tremendoustime":1,"tritebadge":1,"tritethunder":1,"tritetongue":1,"troubledtail":1,"troubleshade":1,"truckstomatoes":1,"truculentrate":1,"tumbleicicle":1,"tuneupcoffee":1,"twistloss":1,"twistsweater":1,"typicalairplane":1,"ubiquitoussea":1,"ubiquitousyard":1,"ultravalid":1,"unablehope":1,"unaccountablecreator":1,"unaccountablepie":1,"unarmedindustry":1,"unbecominghall":1,"uncoveredexpert":1,"understoodocean":1,"unequalbrake":1,"unequaltrail":1,"unknowncontrol":1,"unknowncrate":1,"unknowntray":1,"untidyquestion":1,"untidyrice":1,"unusedstone":1,"unusualtitle":1,"unwieldyimpulse":1,"uppitytime":1,"uselesslumber":1,"validmemo":1,"vanfireworks":1,"vanishmemory":1,"velvetnova":1,"velvetquasar":1,"venomousvessel":1,"venusgloria":1,"verdantanswer":1,"verdantlabyrinth":1,"verdantloom":1,"verdantsculpture":1,"verseballs":1,"vibrantcelebration":1,"vibrantgale":1,"vibranthaven":1,"vibrantpact":1,"vibrantsundown":1,"vibranttalisman":1,"vibrantvale":1,"victoriousrequest":1,"virtualvincent":1,"vividcanopy":1,"vividfrost":1,"vividmeadow":1,"vividplume":1,"voicelessvein":1,"voidgoo":1,"volatileprofit":1,"waitingnumber":1,"wantingwindow":1,"warnwing":1,"washbanana":1,"wateryvan":1,"waterywave":1,"waterywrist":1,"wearbasin":1,"websitesdude":1,"wellgroomedapparel":1,"wellgroomedhydrant":1,"wellmadefrog":1,"westpalmweb":1,"whimsicalcanyon":1,"whimsicalgrove":1,"whineattempt":1,"whirlwealth":1,"whiskyqueue":1,"whisperingcascade":1,"whisperingcrib":1,"whisperingquasar":1,"whisperingsummit":1,"whispermeeting":1,"wildcommittee":1,"wirecomic":1,"wiredforcoffee":1,"wirypaste":1,"wistfulwaste":1,"wittypopcorn":1,"wittyshack":1,"workoperation":1,"worldlever":1,"worriednumber":1,"worriedwine":1,"wretchedfloor":1,"wrongpotato":1,"wrongwound":1,"wtaccesscontrol":1,"xovq5nemr":1,"yieldingwoman":1,"zbwp6ghm":1,"zephyrcatalyst":1,"zephyrlabyrinth":1,"zestyhorizon":1,"zestyrover":1,"zestywire":1,"zipperxray":1,"zonewedgeshaft":1},"net":{"2mdn":1,"2o7":1,"3gl":1,"a-mo":1,"acint":1,"adform":1,"adhigh":1,"admixer":1,"adobedc":1,"adspeed":1,"adverticum":1,"apicit":1,"appier":1,"akamaized":{"assets-momentum":1},"aticdn":1,"edgekey":{"au":1,"ca":1,"ch":1,"cn":1,"com-v1":1,"es":1,"ihg":1,"in":1,"io":1,"it":1,"jp":1,"net":1,"org":1,"com":{"scene7":1},"uk-v1":1,"uk":1},"azure":1,"azurefd":1,"bannerflow":1,"bf-tools":1,"bidswitch":1,"bitsngo":1,"blueconic":1,"boldapps":1,"buysellads":1,"cachefly":1,"cedexis":1,"certona":1,"confiant-integrations":1,"contentsquare":1,"criteo":1,"crwdcntrl":1,"cloudfront":{"d1af033869koo7":1,"d1cr9zxt7u0sgu":1,"d1s87id6169zda":1,"d1vg5xiq7qffdj":1,"d1y068gyog18cq":1,"d214hhm15p4t1d":1,"d21gpk1vhmjuf5":1,"d2zah9y47r7bi2":1,"d38b8me95wjkbc":1,"d38xvr37kwwhcm":1,"d3fv2pqyjay52z":1,"d3i4yxtzktqr9n":1,"d3odp2r1osuwn0":1,"d5yoctgpv4cpx":1,"d6tizftlrpuof":1,"dbukjj6eu5tsf":1,"dn0qt3r0xannq":1,"dsh7ky7308k4b":1,"d2g3ekl4mwm40k":1},"demdex":1,"dotmetrics":1,"doubleclick":1,"durationmedia":1,"e-planning":1,"edgecastcdn":1,"emsecure":1,"episerver":1,"esm1":1,"eulerian":1,"everestjs":1,"everesttech":1,"eyeota":1,"ezoic":1,"fastly":{"global":{"shared":{"f2":1},"sni":{"j":1}},"map":{"prisa-us-eu":1,"scribd":1},"ssl":{"global":{"qognvtzku-x":1}}},"facebook":1,"fastclick":1,"fonts":1,"azureedge":{"fp-cdn":1,"sdtagging":1},"fuseplatform":1,"fwmrm":1,"go-mpulse":1,"hadronid":1,"hs-analytics":1,"hsleadflows":1,"im-apps":1,"impervadns":1,"iocnt":1,"iprom":1,"jsdelivr":1,"kanade-ad":1,"krxd":1,"line-scdn":1,"listhub":1,"livecom":1,"livedoor":1,"liveperson":1,"lkqd":1,"llnwd":1,"lpsnmedia":1,"magnetmail":1,"marketo":1,"maxymiser":1,"media":1,"microad":1,"mobon":1,"monetate":1,"mxptint":1,"myfonts":1,"myvisualiq":1,"naver":1,"nr-data":1,"ojrq":1,"omtrdc":1,"onecount":1,"openx":1,"openxcdn":1,"opta":1,"owneriq":1,"pages02":1,"pages03":1,"pages04":1,"pages05":1,"pages06":1,"pages08":1,"pingdom":1,"pmdstatic":1,"popads":1,"popcash":1,"primecaster":1,"pro-market":1,"akamaihd":{"pxlclnmdecom-a":1},"rfihub":1,"sancdn":1,"sc-static":1,"semasio":1,"sensic":1,"sexad":1,"smaato":1,"spreadshirts":1,"storygize":1,"tfaforms":1,"trackcmp":1,"trackedlink":1,"tradetracker":1,"truste-svc":1,"uuidksinc":1,"viafoura":1,"visilabs":1,"visx":1,"w55c":1,"wdsvc":1,"witglobal":1,"yandex":1,"yastatic":1,"yieldlab":1,"zencdn":1,"zucks":1,"opencmp":1,"azurewebsites":{"app-fnsp-matomo-analytics-prod":1},"ad-delivery":1,"chartbeat":1,"msecnd":1,"cloudfunctions":{"us-central1-adaptive-growth":1},"eviltracker":1},"co":{"6sc":1,"ayads":1,"getlasso":1,"idio":1,"increasingly":1,"jads":1,"nanorep":1,"nc0":1,"pcdn":1,"prmutv":1,"resetdigital":1,"t":1,"tctm":1,"zip":1},"gt":{"ad":1},"ru":{"adfox":1,"adriver":1,"digitaltarget":1,"mail":1,"mindbox":1,"rambler":1,"rutarget":1,"sape":1,"smi2":1,"tns-counter":1,"top100":1,"ulogin":1,"yandex":1,"yadro":1},"jp":{"adingo":1,"admatrix":1,"auone":1,"co":{"dmm":1,"i-mobile":1,"rakuten":1,"yahoo":1},"fout":1,"genieesspv":1,"gmossp-sp":1,"gsspat":1,"gssprt":1,"ne":{"hatena":1},"i2i":1,"impact-ad":1,"microad":1,"nakanohito":1,"r10s":1,"reemo-ad":1,"rtoaster":1,"shinobi":1,"team-rec":1,"uncn":1,"yimg":1,"yjtag":1},"pl":{"adocean":1,"gemius":1,"nsaudience":1,"onet":1,"salesmanago":1,"wp":1},"pro":{"adpartner":1,"piwik":1,"usocial":1},"de":{"adscale":1,"auswaertiges-amt":1,"fiduciagad":1,"ioam":1,"itzbund":1,"vgwort":1,"werk21system":1},"re":{"adsco":1},"info":{"adxbid":1,"bitrix":1,"navistechnologies":1,"usergram":1,"webantenna":1},"tv":{"affec":1,"attn":1,"iris":1,"ispot":1,"samba":1,"teads":1,"twitch":1,"videohub":1},"dev":{"amazon":1},"us":{"amung":1,"samplicio":1,"slgnt":1,"trkn":1,"owlsr":1},"media":{"andbeyond":1,"nextday":1,"townsquare":1,"underdog":1},"link":{"app":1},"cloud":{"avct":1,"egain":1,"matomo":1},"delivery":{"ay":1,"monu":1},"ly":{"bit":1},"br":{"com":{"btg360":1,"clearsale":1,"jsuol":1,"shopconvert":1,"shoptarget":1,"soclminer":1},"org":{"ivcbrasil":1}},"ch":{"ch":1,"da-services":1,"google":1},"me":{"channel":1,"contentexchange":1,"grow":1,"line":1,"loopme":1,"t":1},"ms":{"clarity":1},"my":{"cnt":1},"se":{"codigo":1},"to":{"cpx":1,"tawk":1},"chat":{"crisp":1,"gorgias":1},"fr":{"d-bi":1,"open-system":1,"weborama":1},"uk":{"co":{"dailymail":1,"hsbc":1}},"gov":{"dhs":1},"ai":{"e-volution":1,"hybrid":1,"m2":1,"nrich":1,"wknd":1},"be":{"geoedge":1},"au":{"com":{"google":1,"news":1,"nine":1,"zipmoney":1,"telstra":1}},"stream":{"ibclick":1},"cz":{"imedia":1,"seznam":1,"trackad":1},"app":{"infusionsoft":1,"permutive":1,"shop":1},"tech":{"ingage":1,"primis":1},"eu":{"kameleoon":1,"medallia":1,"media01":1,"ocdn":1,"rqtrk":1,"slgnt":1},"fi":{"kesko":1,"simpli":1},"live":{"lura":1},"services":{"marketingautomation":1},"sg":{"mediacorp":1},"bi":{"newsroom":1},"fm":{"pdst":1},"ad":{"pixel":1},"xyz":{"playground":1},"it":{"plug":1,"repstatic":1},"cc":{"popin":1},"network":{"pub":1},"nl":{"rijksoverheid":1},"fyi":{"sda":1},"es":{"socy":1},"im":{"spot":1},"market":{"spotim":1},"am":{"tru":1},"no":{"uio":1,"medietall":1},"at":{"waust":1},"pe":{"shop":1},"ca":{"bc":{"gov":1}},"gg":{"clean":1},"example":{"ad-company":1},"site":{"ad-company":1,"third-party":{"bad":1,"broken":1}},"pw":{"5mcwl":1,"fvl1f":1,"h78xb":1,"i9w8p":1,"k54nw":1,"tdzvm":1,"tzwaw":1,"vq1qi":1,"zlp6s":1},"pub":{"admiral":1}};
         output.bundledConfig = data;
 
-        return output
+        return output;
     }
 
     /**
@@ -616,20 +627,24 @@
      * @param {string[]} platformSpecificFeatures
      * @returns {string[]}
      */
-    function computeEnabledFeatures (data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
+    function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
         const remoteFeatureNames = Object.keys(data.features);
-        const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
-        const enabledFeatures = remoteFeatureNames.filter((featureName) => {
-            const feature = data.features[featureName];
-            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
-            if (feature.minSupportedVersion && platformVersion) {
-                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
-                    return false
+        const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
+            (featureName) => !remoteFeatureNames.includes(featureName),
+        );
+        const enabledFeatures = remoteFeatureNames
+            .filter((featureName) => {
+                const feature = data.features[featureName];
+                // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+                if (feature.minSupportedVersion && platformVersion) {
+                    if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
+                        return false;
+                    }
                 }
-            }
-            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
-        }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
-        return enabledFeatures
+                return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
+            })
+            .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
+        return enabledFeatures;
     }
 
     /**
@@ -638,44 +653,47 @@
      * @param {string[]} enabledFeatures
      * @returns {Record<string, unknown>}
      */
-    function parseFeatureSettings (data, enabledFeatures) {
+    function parseFeatureSettings(data, enabledFeatures) {
         /** @type {Record<string, unknown>} */
         const featureSettings = {};
         const remoteFeatureNames = Object.keys(data.features);
         remoteFeatureNames.forEach((featureName) => {
             if (!enabledFeatures.includes(featureName)) {
-                return
+                return;
             }
 
             featureSettings[featureName] = data.features[featureName].settings;
         });
-        return featureSettings
+        return featureSettings;
     }
 
-    function isGloballyDisabled (args) {
-        return args.site.allowlisted || args.site.isBroken
+    function isGloballyDisabled(args) {
+        return args.site.allowlisted || args.site.isBroken;
     }
 
     const windowsSpecificFeatures = ['windowsPermissionUsage'];
 
-    function isWindowsSpecificFeature (featureName) {
-        return windowsSpecificFeatures.includes(featureName)
+    function isWindowsSpecificFeature(featureName) {
+        return windowsSpecificFeatures.includes(featureName);
     }
 
-    function createCustomEvent (eventName, eventDetail) {
+    function createCustomEvent(eventName, eventDetail) {
 
         // @ts-expect-error - possibly null
-        return new OriginalCustomEvent(eventName, eventDetail)
+        return new OriginalCustomEvent(eventName, eventDetail);
     }
 
     /** @deprecated */
-    function legacySendMessage (messageType, options) {
+    function legacySendMessage(messageType, options) {
         // FF & Chrome
-        return originalWindowDispatchEvent && originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+        return (
+            originalWindowDispatchEvent &&
+            originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+        );
         // TBD other platforms
     }
 
-    const baseFeatures = /** @type {const} */([
+    const baseFeatures = /** @type {const} */ ([
         'fingerprintingAudio',
         'fingerprintingBattery',
         'fingerprintingCanvas',
@@ -687,10 +705,11 @@
         'fingerprintingTemporaryStorage',
         'navigatorInterface',
         'elementHiding',
-        'exceptionHandler'
+        'exceptionHandler',
+        'apiManipulation',
     ]);
 
-    const otherFeatures = /** @type {const} */([
+    const otherFeatures = /** @type {const} */ ([
         'clickToLoad',
         'cookie',
         'duckPlayer',
@@ -700,66 +719,28 @@
         'brokerProtection',
         'performanceMetrics',
         'breakageReporting',
-        'autofillPasswordImport'
+        'autofillPasswordImport',
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
     /** @type {Record<string, FeatureName[]>} */
     const platformSupport = {
-        apple: [
-            'webCompat',
-            ...baseFeatures
-        ],
-        'apple-isolated': [
-            'duckPlayer',
-            'brokerProtection',
-            'performanceMetrics',
-            'clickToLoad'
-        ],
-        android: [
-            ...baseFeatures,
-            'webCompat',
-            'clickToLoad',
-            'breakageReporting',
-            'duckPlayer'
-        ],
-        'android-autofill-password-import': [
-            'autofillPasswordImport'
-        ],
-        windows: [
-            'cookie',
-            ...baseFeatures,
-            'windowsPermissionUsage',
-            'duckPlayer',
-            'brokerProtection',
-            'breakageReporting'
-        ],
-        firefox: [
-            'cookie',
-            ...baseFeatures,
-            'clickToLoad'
-        ],
-        chrome: [
-            'cookie',
-            ...baseFeatures,
-            'clickToLoad'
-        ],
-        'chrome-mv3': [
-            'cookie',
-            ...baseFeatures,
-            'clickToLoad'
-        ],
-        integration: [
-            ...baseFeatures,
-            ...otherFeatures
-        ]
+        apple: ['webCompat', ...baseFeatures],
+        'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad'],
+        android: [...baseFeatures, 'webCompat', 'clickToLoad', 'breakageReporting', 'duckPlayer'],
+        'android-autofill-password-import': ['autofillPasswordImport'],
+        windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
+        firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
+        chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
+        'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
+        integration: [...baseFeatures, ...otherFeatures],
     };
 
     /**
      * Performance monitor, holds reference to PerformanceMark instances.
      */
     class PerformanceMonitor {
-        constructor () {
+        constructor() {
             this.marks = [];
         }
 
@@ -768,16 +749,16 @@
          * @param {string} name
          * @returns {PerformanceMark}
          */
-        mark (name) {
+        mark(name) {
             const mark = new PerformanceMark(name);
             this.marks.push(mark);
-            return mark
+            return mark;
         }
 
         /**
          * Measure all performance markers
          */
-        measureAll () {
+        measureAll() {
             this.marks.forEach((mark) => {
                 mark.measure();
             });
@@ -792,27 +773,27 @@
         /**
          * @param {string} name
          */
-        constructor (name) {
+        constructor(name) {
             this.name = name;
             performance.mark(this.name + 'Start');
         }
 
-        end () {
+        end() {
             performance.mark(this.name + 'End');
         }
 
-        measure () {
+        measure() {
             performance.measure(this.name, this.name + 'Start', this.name + 'End');
         }
     }
 
     class Cookie {
-        constructor (cookieString) {
+        constructor(cookieString) {
             this.parts = cookieString.split(';');
             this.parse();
         }
 
-        parse () {
+        parse() {
             const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
             this.attrIdx = {};
             this.parts.forEach((part, index) => {
@@ -830,23 +811,23 @@
             });
         }
 
-        getExpiry () {
+        getExpiry() {
             // @ts-expect-error expires is not defined in the type definition
             if (!this.maxAge && !this.expires) {
-                return NaN
+                return NaN;
             }
             const expiry = this.maxAge
                 ? parseInt(this.maxAge)
-                // @ts-expect-error expires is not defined in the type definition
-                : (new Date(this.expires) - new Date()) / 1000;
-            return expiry
+                : // @ts-expect-error expires is not defined in the type definition
+                  (new Date(this.expires) - new Date()) / 1000;
+            return expiry;
         }
 
-        get maxAge () {
-            return this['max-age']
+        get maxAge() {
+            return this['max-age'];
         }
 
-        set maxAge (value) {
+        set maxAge(value) {
             // @ts-expect-error - Object is possibly 'undefined'.
             if (this.attrIdx['max-age'] > 0) {
                 // @ts-expect-error - Object is possibly 'undefined'.
@@ -857,8 +838,8 @@
             this.parse();
         }
 
-        toString () {
-            return this.parts.join(';')
+        toString() {
+            return this.parts.join(';');
         }
     }
 
@@ -1309,7 +1290,7 @@
      * @param {string} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
-    function defineProperty (object, propertyName, descriptor) {
+    function defineProperty(object, propertyName, descriptor) {
         {
             objectDefineProperty(object, propertyName, descriptor);
         }
@@ -1323,12 +1304,12 @@
      * @param {*} origFn
      * @param {string} [mockValue] - when provided, .toString() will return this value
      */
-    function wrapToString (newFn, origFn, mockValue) {
+    function wrapToString(newFn, origFn, mockValue) {
         if (typeof newFn !== 'function' || typeof origFn !== 'function') {
-            return newFn
+            return newFn;
         }
 
-        return new Proxy(newFn, { get: toStringGetTrap(origFn, mockValue) })
+        return new Proxy(newFn, { get: toStringGetTrap(origFn, mockValue) });
     }
 
     /**
@@ -1338,45 +1319,45 @@
      * @param {string} [mockValue] - when provided, .toString() will return this value
      * @returns { (target: any, prop: string, receiver: any) => any }
      */
-    function toStringGetTrap (targetFn, mockValue) {
+    function toStringGetTrap(targetFn, mockValue) {
         // We wrap two levels deep to handle toString.toString() calls
-        return function get (target, prop, receiver) {
+        return function get(target, prop, receiver) {
             if (prop === 'toString') {
                 const origToString = Reflect.get(targetFn, 'toString', targetFn);
                 const toStringProxy = new Proxy(origToString, {
-                    apply (target, thisArg, argumentsList) {
+                    apply(target, thisArg, argumentsList) {
                         // only mock toString() when called on the proxy itself. If the method is applied to some other object, it should behave as a normal toString()
                         if (thisArg === receiver) {
                             if (mockValue) {
-                                return mockValue
+                                return mockValue;
                             }
-                            return Reflect.apply(target, targetFn, argumentsList)
+                            return Reflect.apply(target, targetFn, argumentsList);
                         } else {
-                            return Reflect.apply(target, thisArg, argumentsList)
+                            return Reflect.apply(target, thisArg, argumentsList);
                         }
                     },
-                    get (target, prop, receiver) {
+                    get(target, prop, receiver) {
                         // handle toString.toString() result
                         if (prop === 'toString') {
                             const origToStringToString = Reflect.get(origToString, 'toString', origToString);
                             const toStringToStringProxy = new Proxy(origToStringToString, {
-                                apply (target, thisArg, argumentsList) {
+                                apply(target, thisArg, argumentsList) {
                                     if (thisArg === toStringProxy) {
-                                        return Reflect.apply(target, origToString, argumentsList)
+                                        return Reflect.apply(target, origToString, argumentsList);
                                     } else {
-                                        return Reflect.apply(target, thisArg, argumentsList)
+                                        return Reflect.apply(target, thisArg, argumentsList);
                                     }
-                                }
+                                },
                             });
-                            return toStringToStringProxy
+                            return toStringToStringProxy;
                         }
-                        return Reflect.get(target, prop, receiver)
-                    }
+                        return Reflect.get(target, prop, receiver);
+                    },
                 });
-                return toStringProxy
+                return toStringProxy;
             }
-            return Reflect.get(target, prop, receiver)
-        }
+            return Reflect.get(target, prop, receiver);
+        };
     }
 
     /**
@@ -1387,9 +1368,9 @@
      * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
-    function wrapProperty (object, propertyName, descriptor, definePropertyFn) {
+    function wrapProperty(object, propertyName, descriptor, definePropertyFn) {
         if (!object) {
-            return
+            return;
         }
 
         /** @type {StrictPropertyDescriptor} */
@@ -1397,21 +1378,22 @@
         const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
         if (!origDescriptor) {
             // this happens if the property is not implemented in the browser
-            return
+            return;
         }
 
-        if (('value' in origDescriptor && 'value' in descriptor) ||
+        if (
+            ('value' in origDescriptor && 'value' in descriptor) ||
             ('get' in origDescriptor && 'get' in descriptor) ||
             ('set' in origDescriptor && 'set' in descriptor)
         ) {
             definePropertyFn(object, propertyName, {
                 ...origDescriptor,
-                ...descriptor
+                ...descriptor,
             });
-            return origDescriptor
+            return origDescriptor;
         } else {
             // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`);
         }
     }
 
@@ -1423,9 +1405,9 @@
      * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
-    function wrapMethod (object, propertyName, wrapperFn, definePropertyFn) {
+    function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
         if (!object) {
-            return
+            return;
         }
 
         /** @type {StrictPropertyDescriptor} */
@@ -1433,25 +1415,25 @@
         const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
         if (!origDescriptor) {
             // this happens if the property is not implemented in the browser
-            return
+            return;
         }
 
         // @ts-expect-error - we check for undefined below
         const origFn = origDescriptor.value;
         if (!origFn || typeof origFn !== 'function') {
             // method properties are expected to be defined with a `value`
-            throw new Error(`Property ${propertyName} does not look like a method`)
+            throw new Error(`Property ${propertyName} does not look like a method`);
         }
 
         const newFn = wrapToString(function () {
-            return wrapperFn.call(this, origFn, ...arguments)
+            return wrapperFn.call(this, origFn, ...arguments);
         }, origFn);
 
         definePropertyFn(object, propertyName, {
             ...origDescriptor,
-            value: newFn
+            value: newFn,
         });
-        return origDescriptor
+        return origDescriptor;
     }
 
     /**
@@ -1461,25 +1443,20 @@
      * @param {DefineInterfaceOptions} options - options for defining the interface
      * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
      */
-    function shimInterface (
-        interfaceName,
-        ImplClass,
-        options,
-        definePropertyFn
-    ) {
+    function shimInterface(interfaceName, ImplClass, options, definePropertyFn) {
 
         /** @type {DefineInterfaceOptions} */
         const defaultOptions = {
             allowConstructorCall: false,
             disallowConstructor: false,
             constructorErrorMessage: 'Illegal constructor',
-            wrapToString: true
+            wrapToString: true,
         };
 
         const fullOptions = {
             interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
             ...defaultOptions,
-            ...options
+            ...options,
         };
 
         // In some cases we can get away without a full proxy, but in many cases below we need it.
@@ -1493,14 +1470,14 @@
         if (fullOptions.allowConstructorCall) {
             // make the constructor function callable without new
             proxyHandler.apply = function (target, thisArg, argumentsList) {
-                return Reflect.construct(target, argumentsList, target)
+                return Reflect.construct(target, argumentsList, target);
             };
         }
 
         // make the constructor function throw when called without new
         if (fullOptions.disallowConstructor) {
             proxyHandler.construct = function () {
-                throw new TypeError(fullOptions.constructorErrorMessage)
+                throw new TypeError(fullOptions.constructorErrorMessage);
             };
         }
 
@@ -1509,14 +1486,14 @@
             for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
                 if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
                     ImplClass.prototype[prop] = new Proxy(descriptor.value, {
-                        get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`)
+                        get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`),
                     });
                 }
             }
 
             // wrap toString on the constructor function itself
             Object.assign(proxyHandler, {
-                get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`)
+                get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`),
             });
         }
 
@@ -1540,15 +1517,11 @@
             value: interfaceName,
             configurable: true,
             enumerable: false,
-            writable: false
+            writable: false,
         });
 
         // interfaces are exposed directly on the global object, not on its prototype
-        definePropertyFn(
-            globalThis,
-            interfaceName,
-            { ...fullOptions.interfaceDescriptorOptions, value: Interface }
-        );
+        definePropertyFn(globalThis, interfaceName, { ...fullOptions.interfaceDescriptorOptions, value: Interface });
     }
 
     /**
@@ -1563,13 +1536,13 @@
      * @param {boolean} readOnly - whether the property should be read-only
      * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
      */
-    function shimProperty (baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
+    function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
         // @ts-expect-error - implInstance is a class instance
         const ImplClass = implInstance.constructor;
 
         // mask toString() and toString.toString() on the instance
         const proxiedInstance = new Proxy(implInstance, {
-            get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`)
+            get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`),
         });
 
         /** @type {StrictPropertyDescriptor} */
@@ -1579,21 +1552,23 @@
         // But there could be other cases, e.g. a property with both a getter and a setter. These could be defined with a raw defineProperty() call.
         // Important: make sure to cover each new shim with a test that verifies that all descriptors match the standard API.
         if (readOnly) {
-            const getter = function get () { return proxiedInstance };
+            const getter = function get() {
+                return proxiedInstance;
+            };
             const proxiedGetter = new Proxy(getter, {
-                get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`)
+                get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`),
             });
             descriptor = {
                 configurable: true,
                 enumerable: true,
-                get: proxiedGetter
+                get: proxiedGetter,
             };
         } else {
             descriptor = {
                 configurable: true,
                 enumerable: true,
                 writable: true,
-                value: proxiedInstance
+                value: proxiedInstance,
             };
         }
 
@@ -1667,7 +1642,7 @@
          * @param {import('../index.js').MessagingContext} messagingContext
          * @internal
          */
-        constructor (config, messagingContext) {
+        constructor(config, messagingContext) {
             this.messagingContext = messagingContext;
             this.config = config;
             this.globals = {
@@ -1676,11 +1651,11 @@
                 JSONstringify: window.JSON.stringify,
                 Promise: window.Promise,
                 Error: window.Error,
-                String: window.String
+                String: window.String,
             };
             for (const [methodName, fn] of Object.entries(this.config.methods)) {
                 if (typeof fn !== 'function') {
-                    throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName)
+                    throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName);
                 }
             }
         }
@@ -1688,7 +1663,7 @@
         /**
          * @param {import('../index.js').NotificationMessage} msg
          */
-        notify (msg) {
+        notify(msg) {
             const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
             const notification = WindowsNotification.fromNotification(msg, data);
             this.config.methods.postMessage(notification);
@@ -1699,7 +1674,7 @@
          * @param {{signal?: AbortSignal}} opts
          * @return {Promise<any>}
          */
-        request (msg, opts = {}) {
+        request(msg, opts = {}) {
             // convert the message to window-specific naming
             const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
             const outgoing = WindowsRequestMessage.fromRequest(msg, data);
@@ -1709,19 +1684,17 @@
 
             // compare incoming messages against the `msg.id`
             const comparator = (eventData) => {
-                return eventData.featureName === msg.featureName &&
-                    eventData.context === msg.context &&
-                    eventData.id === msg.id
+                return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
             };
 
             /**
              * @param data
              * @return {data is import('../index.js').MessageResponse}
              */
-            function isMessageResponse (data) {
-                if ('result' in data) return true
-                if ('error' in data) return true
-                return false
+            function isMessageResponse(data) {
+                if ('result' in data) return true;
+                if ('error' in data) return true;
+                return false;
             }
 
             // now wait for a matching message
@@ -1732,11 +1705,11 @@
 
                         if (!isMessageResponse(value)) {
                             console.warn('unknown response type', value);
-                            return reject(new this.globals.Error('unknown response'))
+                            return reject(new this.globals.Error('unknown response'));
                         }
 
                         if (value.result) {
-                            return resolve(value.result)
+                            return resolve(value.result);
                         }
 
                         const message = this.globals.String(value.error?.message || 'unknown error');
@@ -1745,28 +1718,30 @@
                 } catch (e) {
                     reject(e);
                 }
-            })
+            });
         }
 
         /**
          * @param {import('../index.js').Subscription} msg
          * @param {(value: unknown | undefined) => void} callback
          */
-        subscribe (msg, callback) {
+        subscribe(msg, callback) {
             // compare incoming messages against the `msg.subscriptionName`
             const comparator = (eventData) => {
-                return eventData.featureName === msg.featureName &&
+                return (
+                    eventData.featureName === msg.featureName &&
                     eventData.context === msg.context &&
                     eventData.subscriptionName === msg.subscriptionName
+                );
             };
 
             // only forward the 'params' from a SubscriptionEvent
             const cb = (eventData) => {
-                return callback(eventData.params)
+                return callback(eventData.params);
             };
 
             // now listen for matching incoming messages.
-            return this._subscribe(comparator, {}, cb)
+            return this._subscribe(comparator, {}, cb);
         }
 
         /**
@@ -1778,10 +1753,10 @@
          * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
          * @internal
          */
-        _subscribe (comparator, options, callback) {
+        _subscribe(comparator, options, callback) {
             // if already aborted, reject immediately
             if (options?.signal?.aborted) {
-                throw new DOMException('Aborted', 'AbortError')
+                throw new DOMException('Aborted', 'AbortError');
             }
             /** @type {(()=>void) | undefined} */
             // eslint-disable-next-line prefer-const
@@ -1794,15 +1769,15 @@
                 if (this.messagingContext.env === 'production') {
                     if (event.origin !== null && event.origin !== undefined) {
                         console.warn('ignoring because evt.origin is not `null` or `undefined`');
-                        return
+                        return;
                     }
                 }
                 if (!event.data) {
                     console.warn('data absent from message');
-                    return
+                    return;
                 }
                 if (comparator(event.data)) {
-                    if (!teardown) throw new Error('unreachable')
+                    if (!teardown) throw new Error('unreachable');
                     callback(event.data, teardown);
                 }
             };
@@ -1810,24 +1785,24 @@
             // what to do if this promise is aborted
             const abortHandler = () => {
                 teardown?.();
-                throw new DOMException('Aborted', 'AbortError')
+                throw new DOMException('Aborted', 'AbortError');
             };
 
             // console.log('DEBUG: handler setup', { config, comparator })
-             
+
             this.config.methods.addEventListener('message', idHandler);
             options?.signal?.addEventListener('abort', abortHandler);
 
             teardown = () => {
                 // console.log('DEBUG: handler teardown', { config, comparator })
-                 
+
                 this.config.methods.removeEventListener('message', idHandler);
                 options?.signal?.removeEventListener('abort', abortHandler);
             };
 
             return () => {
                 teardown?.();
-            }
+            };
         }
     }
 
@@ -1856,7 +1831,7 @@
          * @param {WindowsInteropMethods} params.methods
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * The methods required for communication
              */
@@ -1883,7 +1858,7 @@
          * @param {Record<string, any>} [params.Data]
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * Alias for: {@link NotificationMessage.context}
              */
@@ -1907,15 +1882,15 @@
          * @param {NotificationMessage} notification
          * @returns {WindowsNotification}
          */
-        static fromNotification (notification, data) {
+        static fromNotification(notification, data) {
             /** @type {WindowsNotification} */
             const output = {
                 Data: data,
                 Feature: notification.context,
                 SubFeatureName: notification.featureName,
-                Name: notification.method
+                Name: notification.method,
             };
-            return output
+            return output;
         }
     }
 
@@ -1934,7 +1909,7 @@
          * @param {string} [params.Id]
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             this.Feature = params.Feature;
             this.SubFeatureName = params.SubFeatureName;
             this.Name = params.Name;
@@ -1948,16 +1923,16 @@
          * @param {Record<string, any>} data
          * @returns {WindowsRequestMessage}
          */
-        static fromRequest (msg, data) {
+        static fromRequest(msg, data) {
             /** @type {WindowsRequestMessage} */
             const output = {
                 Data: data,
                 Feature: msg.context,
                 SubFeatureName: msg.featureName,
                 Name: msg.method,
-                Id: msg.id
+                Id: msg.id,
             };
-            return output
+            return output;
         }
     }
 
@@ -1993,7 +1968,7 @@
          * @param {Record<string, any>} [params.params]
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
              * @type {string}
@@ -2032,7 +2007,7 @@
          * @param {Record<string, any>} [params.params]
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
              */
@@ -2060,7 +2035,7 @@
          * @param {string} params.subscriptionName
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             this.context = params.context;
             this.featureName = params.featureName;
             this.subscriptionName = params.subscriptionName;
@@ -2072,18 +2047,16 @@
      * @param {Record<string, any>} data
      * @return {data is MessageResponse}
      */
-    function isResponseFor (request, data) {
+    function isResponseFor(request, data) {
         if ('result' in data) {
-            return data.featureName === request.featureName &&
-                data.context === request.context &&
-                data.id === request.id
+            return data.featureName === request.featureName && data.context === request.context && data.id === request.id;
         }
         if ('error' in data) {
             if ('message' in data.error) {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     }
 
     /**
@@ -2091,14 +2064,12 @@
      * @param {Record<string, any>} data
      * @return {data is SubscriptionEvent}
      */
-    function isSubscriptionEventFor (sub, data) {
+    function isSubscriptionEventFor(sub, data) {
         if ('subscriptionName' in data) {
-            return data.featureName === sub.featureName &&
-                data.context === sub.context &&
-                data.subscriptionName === sub.subscriptionName
+            return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName;
         }
 
-        return false
+        return false;
     }
 
     /**
@@ -2162,7 +2133,7 @@
          * @param {WebkitMessagingConfig} config
          * @param {import('../index.js').MessagingContext} messagingContext
          */
-        constructor (config, messagingContext) {
+        constructor(config, messagingContext) {
             this.messagingContext = messagingContext;
             this.config = config;
             this.globals = captureGlobals();
@@ -2177,25 +2148,25 @@
          * @param {*} data
          * @internal
          */
-        wkSend (handler, data = {}) {
+        wkSend(handler, data = {}) {
             if (!(handler in this.globals.window.webkit.messageHandlers)) {
-                throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler)
+                throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
             }
             if (!this.config.hasModernWebkitAPI) {
                 const outgoing = {
                     ...data,
                     messageHandling: {
                         ...data.messageHandling,
-                        secret: this.config.secret
-                    }
+                        secret: this.config.secret,
+                    },
                 };
                 if (!(handler in this.globals.capturedWebkitHandlers)) {
-                    throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler)
+                    throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
                 } else {
-                    return this.globals.capturedWebkitHandlers[handler](outgoing)
+                    return this.globals.capturedWebkitHandlers[handler](outgoing);
                 }
             }
-            return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data)
+            return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data);
         }
 
         /**
@@ -2205,10 +2176,10 @@
          * @returns {Promise<*>}
          * @internal
          */
-        async wkSendAndWait (handler, data) {
+        async wkSendAndWait(handler, data) {
             if (this.config.hasModernWebkitAPI) {
                 const response = await this.wkSend(handler, data);
-                return this.globals.JSONparse(response || '{}')
+                return this.globals.JSONparse(response || '{}');
             }
 
             try {
@@ -2216,10 +2187,7 @@
                 const key = await this.createRandKey();
                 const iv = this.createRandIv();
 
-                const {
-                    ciphertext,
-                    tag
-                } = await new this.globals.Promise((/** @type {any} */ resolve) => {
+                const { ciphertext, tag } = await new this.globals.Promise((/** @type {any} */ resolve) => {
                     this.generateRandomMethod(randMethodName, resolve);
 
                     // @ts-expect-error - this is a carve-out for catalina that will be removed soon
@@ -2227,22 +2195,22 @@
                         methodName: randMethodName,
                         secret: this.config.secret,
                         key: this.globals.Arrayfrom(key),
-                        iv: this.globals.Arrayfrom(iv)
+                        iv: this.globals.Arrayfrom(iv),
                     });
                     this.wkSend(handler, data);
                 });
 
                 const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
                 const decrypted = await this.decrypt(cipher, key, iv);
-                return this.globals.JSONparse(decrypted || '{}')
+                return this.globals.JSONparse(decrypted || '{}');
             } catch (e) {
                 // re-throw when the error is just a 'MissingHandler'
                 if (e instanceof MissingHandler) {
-                    throw e
+                    throw e;
                 } else {
                     console.error('decryption failed', e);
                     console.error(e);
-                    return { error: e }
+                    return { error: e };
                 }
             }
         }
@@ -2250,27 +2218,27 @@
         /**
          * @param {import('../index.js').NotificationMessage} msg
          */
-        notify (msg) {
+        notify(msg) {
             this.wkSend(msg.context, msg);
         }
 
         /**
          * @param {import('../index.js').RequestMessage} msg
          */
-        async request (msg) {
+        async request(msg) {
             const data = await this.wkSendAndWait(msg.context, msg);
 
             if (isResponseFor(msg, data)) {
                 if (data.result) {
-                    return data.result || {}
+                    return data.result || {};
                 }
                 // forward the error if one was given explicity
                 if (data.error) {
-                    throw new Error(data.error.message)
+                    throw new Error(data.error.message);
                 }
             }
 
-            throw new Error('an unknown error occurred')
+            throw new Error('an unknown error occurred');
         }
 
         /**
@@ -2280,7 +2248,7 @@
          * @param {Function} callback
          * @internal
          */
-        generateRandomMethod (randomMethodName, callback) {
+        generateRandomMethod(randomMethodName, callback) {
             this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
                 enumerable: false,
                 // configurable, To allow for deletion later
@@ -2290,10 +2258,9 @@
                  * @param {any[]} args
                  */
                 value: (...args) => {
-                     
                     callback(...args);
                     delete this.globals.window[randomMethodName];
-                }
+                },
             });
         }
 
@@ -2301,16 +2268,16 @@
          * @internal
          * @return {string}
          */
-        randomString () {
-            return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0]
+        randomString() {
+            return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
         }
 
         /**
          * @internal
          * @return {string}
          */
-        createRandMethodName () {
-            return '_' + this.randomString()
+        createRandMethodName() {
+            return '_' + this.randomString();
         }
 
         /**
@@ -2319,25 +2286,25 @@
          */
         algoObj = {
             name: 'AES-GCM',
-            length: 256
-        }
+            length: 256,
+        };
 
         /**
          * @returns {Promise<Uint8Array>}
          * @internal
          */
-        async createRandKey () {
+        async createRandKey() {
             const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
             const exportedKey = await this.globals.exportKey('raw', key);
-            return new this.globals.Uint8Array(exportedKey)
+            return new this.globals.Uint8Array(exportedKey);
         }
 
         /**
          * @returns {Uint8Array}
          * @internal
          */
-        createRandIv () {
-            return this.globals.getRandomValues(new this.globals.Uint8Array(12))
+        createRandIv() {
+            return this.globals.getRandomValues(new this.globals.Uint8Array(12));
         }
 
         /**
@@ -2347,17 +2314,17 @@
          * @returns {Promise<string>}
          * @internal
          */
-        async decrypt (ciphertext, key, iv) {
+        async decrypt(ciphertext, key, iv) {
             const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt']);
             const algo = {
                 name: 'AES-GCM',
-                iv
+                iv,
             };
 
             const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
 
             const dec = new this.globals.TextDecoder();
-            return dec.decode(decrypted)
+            return dec.decode(decrypted);
         }
 
         /**
@@ -2366,9 +2333,9 @@
          *
          * @param {string[]} handlerNames
          */
-        captureWebkitHandlers (handlerNames) {
+        captureWebkitHandlers(handlerNames) {
             const handlers = window.webkit.messageHandlers;
-            if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all')
+            if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all');
             for (const webkitMessageHandlerName of handlerNames) {
                 if (typeof handlers[webkitMessageHandlerName]?.postMessage === 'function') {
                     /**
@@ -2387,10 +2354,10 @@
          * @param {import('../index.js').Subscription} msg
          * @param {(value: unknown) => void} callback
          */
-        subscribe (msg, callback) {
+        subscribe(msg, callback) {
             // for now, bail if there's already a handler setup for this subscription
             if (msg.subscriptionName in this.globals.window) {
-                throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`)
+                throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
             }
             this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
                 enumerable: false,
@@ -2402,11 +2369,11 @@
                     } else {
                         console.warn('Received a message that did not match the subscription', data);
                     }
-                }
+                },
             });
             return () => {
                 this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
-            }
+            };
         }
     }
 
@@ -2427,7 +2394,7 @@
          * @param {string} params.secret
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * Whether or not the current WebKit Platform supports secure messaging
              * by default (eg: macOS 11+)
@@ -2469,7 +2436,7 @@
          * @param {number[]} params.key
          * @param {number[]} params.iv
          */
-        constructor (params) {
+        constructor(params) {
             /**
              * The method that's been appended to `window` to be called later
              */
@@ -2493,7 +2460,7 @@
      * Capture some globals used for messaging handling to prevent page
      * scripts from tampering with this
      */
-    function captureGlobals () {
+    function captureGlobals() {
         // Create base with null prototype
         const globals = {
             window,
@@ -2512,7 +2479,7 @@
             ObjectDefineProperty: window.Object.defineProperty,
             addEventListener: window.addEventListener.bind(window),
             /** @type {Record<string, any>} */
-            capturedWebkitHandlers: {}
+            capturedWebkitHandlers: {},
         };
         if (isSecureContext) {
             // skip for HTTP content since window.crypto.subtle is unavailable
@@ -2522,7 +2489,7 @@
             globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
             globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
         }
-        return globals
+        return globals;
     }
 
     /**
@@ -2554,7 +2521,7 @@
          * @param {MessagingContext} messagingContext
          * @internal
          */
-        constructor (config, messagingContext) {
+        constructor(config, messagingContext) {
             this.messagingContext = messagingContext;
             this.config = config;
         }
@@ -2562,7 +2529,7 @@
         /**
          * @param {NotificationMessage} msg
          */
-        notify (msg) {
+        notify(msg) {
             try {
                 this.config.sendMessageThrows?.(JSON.stringify(msg));
             } catch (e) {
@@ -2574,7 +2541,7 @@
          * @param {RequestMessage} msg
          * @return {Promise<any>}
          */
-        request (msg) {
+        request(msg) {
             return new Promise((resolve, reject) => {
                 // subscribe early
                 const unsub = this.config.subscribe(msg.id, handler);
@@ -2586,33 +2553,33 @@
                     reject(new Error('request failed to send: ' + e.message || 'unknown error'));
                 }
 
-                function handler (data) {
+                function handler(data) {
                     if (isResponseFor(msg, data)) {
                         // success case, forward .result only
                         if (data.result) {
                             resolve(data.result || {});
-                            return unsub()
+                            return unsub();
                         }
 
                         // error case, forward the error as a regular promise rejection
                         if (data.error) {
                             reject(new Error(data.error.message));
-                            return unsub()
+                            return unsub();
                         }
 
                         // getting here is undefined behavior
                         unsub();
-                        throw new Error('unreachable: must have `result` or `error` key by this point')
+                        throw new Error('unreachable: must have `result` or `error` key by this point');
                     }
                 }
-            })
+            });
         }
 
         /**
          * @param {Subscription} msg
          * @param {(value: unknown | undefined) => void} callback
          */
-        subscribe (msg, callback) {
+        subscribe(msg, callback) {
             const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
                 if (isSubscriptionEventFor(msg, data)) {
                     callback(data.params || {});
@@ -2620,7 +2587,7 @@
             });
             return () => {
                 unsub();
-            }
+            };
         }
     }
 
@@ -2699,7 +2666,7 @@
      */
     class AndroidMessagingConfig {
         /** @type {(json: string, secret: string) => void} */
-        _capturedHandler
+        _capturedHandler;
         /**
          * @param {object} params
          * @param {Record<string, any>} params.target
@@ -2711,7 +2678,7 @@
          * @param {string} params.messageCallback - the name of the callback that the native
          * side will use to send messages back to the javascript side
          */
-        constructor (params) {
+        constructor(params) {
             this.target = params.target;
             this.debug = params.debug;
             this.javascriptInterface = params.javascriptInterface;
@@ -2745,7 +2712,7 @@
          * @throws
          * @internal
          */
-        sendMessageThrows (json) {
+        sendMessageThrows(json) {
             this._capturedHandler(json, this.messageSecret);
         }
 
@@ -2762,11 +2729,11 @@
          * @returns {() => void}
          * @internal
          */
-        subscribe (id, callback) {
+        subscribe(id, callback) {
             this.listeners.set(id, callback);
             return () => {
                 this.listeners.delete(id);
-            }
+            };
         }
 
         /**
@@ -2778,10 +2745,10 @@
          * @param {MessageResponse | SubscriptionEvent} payload
          * @internal
          */
-        _dispatch (payload) {
+        _dispatch(payload) {
             // do nothing if the response is empty
             // this prevents the next `in` checks from throwing in test/debug scenarios
-            if (!payload) return this._log('no response')
+            if (!payload) return this._log('no response');
 
             // if the payload has an 'id' field, then it's a message response
             if ('id' in payload) {
@@ -2807,9 +2774,9 @@
          * @param {(...args: any[]) => any} fn
          * @param {string} [context]
          */
-        _tryCatch (fn, context = 'none') {
+        _tryCatch(fn, context = 'none') {
             try {
-                return fn()
+                return fn();
             } catch (e) {
                 if (this.debug) {
                     console.error('AndroidMessagingConfig error:', context);
@@ -2821,7 +2788,7 @@
         /**
          * @param {...any} args
          */
-        _log (...args) {
+        _log(...args) {
             if (this.debug) {
                 console.log('AndroidMessagingConfig', ...args);
             }
@@ -2830,7 +2797,7 @@
         /**
          * Capture the global handler and remove it from the global object.
          */
-        _captureGlobalHandler () {
+        _captureGlobalHandler() {
             const { target, javascriptInterface } = this;
 
             if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
@@ -2847,7 +2814,7 @@
          * Assign the incoming handler method to the global object.
          * This is the method that Android will call to deliver messages.
          */
-        _assignHandlerMethod () {
+        _assignHandlerMethod() {
             /**
              * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
              */
@@ -2858,7 +2825,7 @@
             };
 
             Object.defineProperty(this.target, this.messageCallback, {
-                value: responseHandler
+                value: responseHandler,
             });
         }
     }
@@ -2897,7 +2864,7 @@
          * @param {"production" | "development"} params.env
          * @internal
          */
-        constructor (params) {
+        constructor(params) {
             this.context = params.context;
             this.featureName = params.featureName;
             this.env = params.env;
@@ -2916,7 +2883,7 @@
          * @param {MessagingContext} messagingContext
          * @param {MessagingConfig} config
          */
-        constructor (messagingContext, config) {
+        constructor(messagingContext, config) {
             this.messagingContext = messagingContext;
             this.transport = getTransport(config, this.messagingContext);
         }
@@ -2934,12 +2901,12 @@
          * @param {string} name
          * @param {Record<string, any>} [data]
          */
-        notify (name, data = {}) {
+        notify(name, data = {}) {
             const message = new NotificationMessage({
                 context: this.messagingContext.context,
                 featureName: this.messagingContext.featureName,
                 method: name,
-                params: data
+                params: data,
             });
             this.transport.notify(message);
         }
@@ -2958,16 +2925,16 @@
          * @param {Record<string, any>} [data]
          * @return {Promise<any>}
          */
-        request (name, data = {}) {
+        request(name, data = {}) {
             const id = globalThis?.crypto?.randomUUID?.() || name + '.response';
             const message = new RequestMessage({
                 context: this.messagingContext.context,
                 featureName: this.messagingContext.featureName,
                 method: name,
                 params: data,
-                id
+                id,
             });
-            return this.transport.request(message)
+            return this.transport.request(message);
         }
 
         /**
@@ -2975,13 +2942,13 @@
          * @param {(value: unknown) => void} callback
          * @return {() => void}
          */
-        subscribe (name, callback) {
+        subscribe(name, callback) {
             const msg = new Subscription({
                 context: this.messagingContext.context,
                 featureName: this.messagingContext.featureName,
-                subscriptionName: name
+                subscriptionName: name,
             });
-            return this.transport.subscribe(msg, callback)
+            return this.transport.subscribe(msg, callback);
         }
     }
 
@@ -2995,7 +2962,7 @@
         /**
          * @param {MessagingTransport} impl
          */
-        constructor (impl) {
+        constructor(impl) {
             this.impl = impl;
         }
     }
@@ -3008,21 +2975,21 @@
          * @param {TestTransportConfig} config
          * @param {MessagingContext} messagingContext
          */
-        constructor (config, messagingContext) {
+        constructor(config, messagingContext) {
             this.config = config;
             this.messagingContext = messagingContext;
         }
 
-        notify (msg) {
-            return this.config.impl.notify(msg)
+        notify(msg) {
+            return this.config.impl.notify(msg);
         }
 
-        request (msg) {
-            return this.config.impl.request(msg)
+        request(msg) {
+            return this.config.impl.request(msg);
         }
 
-        subscribe (msg, callback) {
-            return this.config.impl.subscribe(msg, callback)
+        subscribe(msg, callback) {
+            return this.config.impl.subscribe(msg, callback);
         }
     }
 
@@ -3031,20 +2998,20 @@
      * @param {MessagingContext} messagingContext
      * @returns {MessagingTransport}
      */
-    function getTransport (config, messagingContext) {
+    function getTransport(config, messagingContext) {
         if (config instanceof WebkitMessagingConfig) {
-            return new WebkitMessagingTransport(config, messagingContext)
+            return new WebkitMessagingTransport(config, messagingContext);
         }
         if (config instanceof WindowsMessagingConfig) {
-            return new WindowsMessagingTransport(config, messagingContext)
+            return new WindowsMessagingTransport(config, messagingContext);
         }
         if (config instanceof AndroidMessagingConfig) {
-            return new AndroidMessagingTransport(config, messagingContext)
+            return new AndroidMessagingTransport(config, messagingContext);
         }
         if (config instanceof TestTransportConfig) {
-            return new TestTransport(config, messagingContext)
+            return new TestTransport(config, messagingContext);
         }
-        throw new Error('unreachable')
+        throw new Error('unreachable');
     }
 
     /**
@@ -3055,7 +3022,7 @@
          * @param {string} message
          * @param {string} handlerName
          */
-        constructor (message, handlerName) {
+        constructor(message, handlerName) {
             super(message);
             this.handlerName = handlerName;
         }
@@ -3069,9 +3036,9 @@
     /**
      * @deprecated - A temporary constructor for the extension to make the messaging config
      */
-    function extensionConstructMessagingConfig () {
+    function extensionConstructMessagingConfig() {
         const messagingTransport = new SendMessageMessagingTransport();
-        return new TestTransportConfig(messagingTransport)
+        return new TestTransportConfig(messagingTransport);
     }
 
     /**
@@ -3087,9 +3054,9 @@
          * Queue of callbacks to be called with messages sent from the Platform.
          * This is used to connect requests with responses and to trigger subscriptions callbacks.
          */
-        _queue = new Set()
+        _queue = new Set();
 
-        constructor () {
+        constructor() {
             this.globals = {
                 window: globalThis,
                 globalThis,
@@ -3097,7 +3064,7 @@
                 JSONstringify: globalThis.JSON.stringify,
                 Promise: globalThis.Promise,
                 Error: globalThis.Error,
-                String: globalThis.String
+                String: globalThis.String,
             };
         }
 
@@ -3106,14 +3073,14 @@
          * with callback functions in the _queue.
          * @param {any} response
          */
-        onResponse (response) {
+        onResponse(response) {
             this._queue.forEach((subscription) => subscription(response));
         }
 
         /**
          * @param {import('@duckduckgo/messaging').NotificationMessage} msg
          */
-        notify (msg) {
+        notify(msg) {
             let params = msg.params;
 
             // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
@@ -3134,9 +3101,9 @@
          * @param {import('@duckduckgo/messaging').RequestMessage} req
          * @return {Promise<any>}
          */
-        request (req) {
+        request(req) {
             let comparator = (eventData) => {
-                return eventData.responseMessageType === req.method
+                return eventData.responseMessageType === req.method;
             };
             let params = req.params;
 
@@ -3149,7 +3116,7 @@
                         eventData.responseMessageType === req.method &&
                         eventData.response &&
                         eventData.response.videoURL === req.params?.videoURL
-                    )
+                    );
                 };
                 params = req.params?.videoURL;
             }
@@ -3160,29 +3127,26 @@
                 this._subscribe(comparator, (msgRes, unsubscribe) => {
                     unsubscribe();
 
-                    return resolve(msgRes.response)
+                    return resolve(msgRes.response);
                 });
-            })
+            });
         }
 
         /**
          * @param {import('@duckduckgo/messaging').Subscription} msg
          * @param {(value: unknown | undefined) => void} callback
          */
-        subscribe (msg, callback) {
+        subscribe(msg, callback) {
             const comparator = (eventData) => {
-                return (
-                    eventData.messageType === msg.subscriptionName ||
-                    eventData.responseMessageType === msg.subscriptionName
-                )
+                return eventData.messageType === msg.subscriptionName || eventData.responseMessageType === msg.subscriptionName;
             };
 
             // only forward the 'params' ('response' in current format), to match expected
             // callback from a SubscriptionEvent
             const cb = (eventData) => {
-                return callback(eventData.response)
+                return callback(eventData.response);
             };
-            return this._subscribe(comparator, cb)
+            return this._subscribe(comparator, cb);
         }
 
         /**
@@ -3190,7 +3154,7 @@
          * @param {(value: any, unsubscribe: (()=>void)) => void} callback
          * @internal
          */
-        _subscribe (comparator, callback) {
+        _subscribe(comparator, callback) {
             /** @type {(()=>void) | undefined} */
             // eslint-disable-next-line prefer-const
             let teardown;
@@ -3201,10 +3165,10 @@
             const idHandler = (event) => {
                 if (!event) {
                     console.warn('no message available');
-                    return
+                    return;
                 }
                 if (comparator(event)) {
-                    if (!teardown) throw new this.globals.Error('unreachable')
+                    if (!teardown) throw new this.globals.Error('unreachable');
                     callback(event, teardown);
                 }
             };
@@ -3216,7 +3180,7 @@
 
             return () => {
                 teardown?.();
-            }
+            };
         }
     }
 
@@ -3236,93 +3200,93 @@
 
     class ContentFeature {
         /** @type {import('./utils.js').RemoteConfig | undefined} */
-        #bundledConfig
+        #bundledConfig;
         /** @type {object | undefined} */
-        #trackerLookup
+        #trackerLookup;
         /** @type {boolean | undefined} */
-        #documentOriginIsTracker
+        #documentOriginIsTracker;
         /** @type {Record<string, unknown> | undefined} */
         // eslint-disable-next-line no-unused-private-class-members
-        #bundledfeatureSettings
+        #bundledfeatureSettings;
         /** @type {import('../../messaging').Messaging} */
         // eslint-disable-next-line no-unused-private-class-members
-        #messaging
+        #messaging;
         /** @type {boolean} */
-        #isDebugFlagSet = false
+        #isDebugFlagSet = false;
 
         /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
-        #args
+        #args;
 
-        constructor (featureName) {
+        constructor(featureName) {
             this.name = featureName;
             this.#args = null;
             this.monitor = new PerformanceMonitor();
         }
 
-        get isDebug () {
-            return this.#args?.debug || false
+        get isDebug() {
+            return this.#args?.debug || false;
         }
 
-        get desktopModeEnabled () {
-            return this.#args?.desktopModeEnabled || false
+        get desktopModeEnabled() {
+            return this.#args?.desktopModeEnabled || false;
         }
 
-        get forcedZoomEnabled () {
-            return this.#args?.forcedZoomEnabled || false
+        get forcedZoomEnabled() {
+            return this.#args?.forcedZoomEnabled || false;
         }
 
         /**
          * @param {import('./utils').Platform} platform
          */
-        set platform (platform) {
+        set platform(platform) {
             this._platform = platform;
         }
 
-        get platform () {
+        get platform() {
             // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'
-            return this._platform
+            return this._platform;
         }
 
         /**
          * @type {AssetConfig | undefined}
          */
-        get assetConfig () {
-            return this.#args?.assets
+        get assetConfig() {
+            return this.#args?.assets;
         }
 
         /**
          * @returns {boolean}
          */
-        get documentOriginIsTracker () {
-            return !!this.#documentOriginIsTracker
+        get documentOriginIsTracker() {
+            return !!this.#documentOriginIsTracker;
         }
 
         /**
          * @returns {object}
          **/
-        get trackerLookup () {
-            return this.#trackerLookup || {}
+        get trackerLookup() {
+            return this.#trackerLookup || {};
         }
 
         /**
          * @returns {import('./utils.js').RemoteConfig | undefined}
          **/
-        get bundledConfig () {
-            return this.#bundledConfig
+        get bundledConfig() {
+            return this.#bundledConfig;
         }
 
         /**
          * @deprecated as we should make this internal to the class and not used externally
          * @return {MessagingContext}
          */
-        _createMessagingContext () {
+        _createMessagingContext() {
             const contextName = 'contentScopeScripts';
 
             return new MessagingContext({
                 context: contextName,
                 env: this.isDebug ? 'development' : 'production',
-                featureName: this.name
-            })
+                featureName: this.name,
+            });
         }
 
         /**
@@ -3330,16 +3294,16 @@
          *
          * @return {import('@duckduckgo/messaging').Messaging}
          */
-        get messaging () {
-            if (this._messaging) return this._messaging
+        get messaging() {
+            if (this._messaging) return this._messaging;
             const messagingContext = this._createMessagingContext();
             let messagingConfig = this.#args?.messagingConfig;
             if (!messagingConfig) {
-                if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
+                if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in');
                 messagingConfig = extensionConstructMessagingConfig();
             }
             this._messaging = new Messaging(messagingContext, messagingConfig);
-            return this._messaging
+            return this._messaging;
         }
 
         /**
@@ -3351,9 +3315,9 @@
          * @param {any} defaultValue - The default value to use if the config setting is not set
          * @returns The value of the config setting or the default value
          */
-        getFeatureAttr (attrName, defaultValue) {
+        getFeatureAttr(attrName, defaultValue) {
             const configSetting = this.getFeatureSetting(attrName);
-            return processAttr(configSetting, defaultValue)
+            return processAttr(configSetting, defaultValue);
         }
 
         /**
@@ -3362,17 +3326,17 @@
          * @param {string} [featureName]
          * @returns {any}
          */
-        getFeatureSetting (featureKeyName, featureName) {
+        getFeatureSetting(featureKeyName, featureName) {
             let result = this._getFeatureSettings(featureName);
             if (featureKeyName === 'domains') {
-                throw new Error('domains is a reserved feature setting key name')
+                throw new Error('domains is a reserved feature setting key name');
             }
             const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {
-                return a.domain.length - b.domain.length
+                return a.domain.length - b.domain.length;
             });
             for (const match of domainMatch) {
                 if (match.patchSettings === undefined) {
-                    continue
+                    continue;
                 }
                 try {
                     result = immutableJSONPatch(result, match.patchSettings);
@@ -3380,7 +3344,7 @@
                     console.error('Error applying patch settings', e);
                 }
             }
-            return result?.[featureKeyName]
+            return result?.[featureKeyName];
         }
 
         /**
@@ -3388,9 +3352,9 @@
          * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
          * @returns {any}
          */
-        _getFeatureSettings (featureName) {
+        _getFeatureSettings(featureName) {
             const camelFeatureName = featureName || camelcase(this.name);
-            return this.#args?.featureSettings?.[camelFeatureName]
+            return this.#args?.featureSettings?.[camelFeatureName];
         }
 
         /**
@@ -3400,12 +3364,12 @@
          * @param {string} [featureName]
          * @returns {boolean}
          */
-        getFeatureSettingEnabled (featureKeyName, featureName) {
+        getFeatureSettingEnabled(featureKeyName, featureName) {
             const result = this.getFeatureSetting(featureKeyName, featureName);
             if (typeof result === 'object') {
-                return result.state === 'enabled'
+                return result.state === 'enabled';
             }
-            return result === 'enabled'
+            return result === 'enabled';
         }
 
         /**
@@ -3413,25 +3377,23 @@
          * @param {string} featureKeyName
          * @return {any[]}
          */
-        matchDomainFeatureSetting (featureKeyName) {
+        matchDomainFeatureSetting(featureKeyName) {
             const domain = this.#args?.site.domain;
-            if (!domain) return []
+            if (!domain) return [];
             const domains = this._getFeatureSettings()?.[featureKeyName] || [];
             return domains.filter((rule) => {
                 if (Array.isArray(rule.domain)) {
                     return rule.domain.some((domainRule) => {
-                        return matchHostname(domain, domainRule)
-                    })
+                        return matchHostname(domain, domainRule);
+                    });
                 }
-                return matchHostname(domain, rule.domain)
-            })
+                return matchHostname(domain, rule.domain);
+            });
         }
 
-         
-        init (args) {
-        }
+        init(args) {}
 
-        callInit (args) {
+        callInit(args) {
             const mark = this.monitor.mark(this.name + 'CallInit');
             this.#args = args;
             this.platform = args.platform;
@@ -3440,9 +3402,7 @@
             this.measure();
         }
 
-         
-        load (args) {
-        }
+        load(args) {}
 
         /**
          * This is a wrapper around `this.messaging.notify` that applies the
@@ -3452,7 +3412,7 @@
          *
          * @type {import("@duckduckgo/messaging").Messaging['notify']}
          */
-        notify (...args) {
+        notify(...args) {
             const [name, params] = args;
             this.messaging.notify(name, params);
         }
@@ -3465,9 +3425,9 @@
          *
          * @type {import("@duckduckgo/messaging").Messaging['request']}
          */
-        request (...args) {
+        request(...args) {
             const [name, params] = args;
-            return this.messaging.request(name, params)
+            return this.messaging.request(name, params);
         }
 
         /**
@@ -3478,15 +3438,15 @@
          *
          * @type {import("@duckduckgo/messaging").Messaging['subscribe']}
          */
-        subscribe (...args) {
+        subscribe(...args) {
             const [name, cb] = args;
-            return this.messaging.subscribe(name, cb)
+            return this.messaging.subscribe(name, cb);
         }
 
         /**
          * @param {import('./content-scope-features.js').LoadArgs} args
          */
-        callLoad (args) {
+        callLoad(args) {
             const mark = this.monitor.mark(this.name + 'CallLoad');
             this.#args = args;
             this.platform = args.platform;
@@ -3503,24 +3463,22 @@
             mark.end();
         }
 
-        measure () {
+        measure() {
             if (this.#args?.debug) {
                 this.monitor.measureAll();
             }
         }
 
-         
-        update () {
-        }
+        update() {}
 
         /**
          * Register a flag that will be added to page breakage reports
          */
-        addDebugFlag () {
-            if (this.#isDebugFlagSet) return
+        addDebugFlag() {
+            if (this.#isDebugFlagSet) return;
             this.#isDebugFlagSet = true;
             this.messaging?.notify('addDebugFlag', {
-                flag: this.name
+                flag: this.name,
             });
         }
 
@@ -3531,7 +3489,7 @@
          * @param {string} propertyName
          * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
          */
-        defineProperty (object, propertyName, descriptor) {
+        defineProperty(object, propertyName, descriptor) {
             // make sure to send a debug flag when the property is used
             // NOTE: properties passing data in `value` would not be caught by this
             ['value', 'get', 'set'].forEach((k) => {
@@ -3539,16 +3497,16 @@
                 if (typeof descriptorProp === 'function') {
                     const addDebugFlag = this.addDebugFlag.bind(this);
                     const wrapper = new Proxy$1(descriptorProp, {
-                        apply (target, thisArg, argumentsList) {
+                        apply(target, thisArg, argumentsList) {
                             addDebugFlag();
-                            return Reflect$1.apply(descriptorProp, thisArg, argumentsList)
-                        }
+                            return Reflect$1.apply(descriptorProp, thisArg, argumentsList);
+                        },
                     });
                     descriptor[k] = wrapToString(wrapper, descriptorProp);
                 }
             });
 
-            return defineProperty(object, propertyName, descriptor)
+            return defineProperty(object, propertyName, descriptor);
         }
 
         /**
@@ -3558,8 +3516,8 @@
          * @param {Partial<PropertyDescriptor>} descriptor
          * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
          */
-        wrapProperty (object, propertyName, descriptor) {
-            return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this))
+        wrapProperty(object, propertyName, descriptor) {
+            return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this));
         }
 
         /**
@@ -3569,8 +3527,8 @@
          * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
          * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
          */
-        wrapMethod (object, propertyName, wrapperFn) {
-            return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this))
+        wrapMethod(object, propertyName, wrapperFn) {
+            return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this));
         }
 
         /**
@@ -3579,12 +3537,8 @@
          * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
          * @param {import('./wrapper-utils').DefineInterfaceOptions} options
          */
-        shimInterface (
-            interfaceName,
-            ImplClass,
-            options
-        ) {
-            return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this))
+        shimInterface(interfaceName, ImplClass, options) {
+            return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this));
         }
 
         /**
@@ -3598,8 +3552,8 @@
          * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
          * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
          */
-        shimProperty (instanceHost, instanceProp, implInstance, readOnly = false) {
-            return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this))
+        shimProperty(instanceHost, instanceProp, implInstance, readOnly = false) {
+            return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this));
         }
     }
 
@@ -3608,19 +3562,19 @@
      * @param {object} trackerLookup Trie lookup of tracker domains
      * @returns {boolean} True iff the origin is a tracker.
      */
-    function isTrackerOrigin (trackerLookup, originHostname = document.location.hostname) {
+    function isTrackerOrigin(trackerLookup, originHostname = document.location.hostname) {
         const parts = originHostname.split('.').reverse();
         let node = trackerLookup;
         for (const sub of parts) {
             if (node[sub] === 1) {
-                return true
+                return true;
             } else if (node[sub]) {
                 node = node[sub];
             } else {
-                return false
+                return false;
             }
         }
-        return false
+        return false;
     }
 
     /**
@@ -3631,9 +3585,9 @@
      * @property {boolean} isThirdPartyFrame
      */
 
-    function initialShouldBlockTrackerCookie () {
+    function initialShouldBlockTrackerCookie() {
         const injectName = "windows";
-        return injectName === 'windows'
+        return injectName === 'windows';
     }
 
     // Initial cookie policy pre init
@@ -3647,13 +3601,13 @@
         isThirdPartyFrame: isThirdPartyFrame(),
         policy: {
             threshold: 604800, // 7 days
-            maxAge: 604800 // 7 days
+            maxAge: 604800, // 7 days
         },
         trackerPolicy: {
             threshold: 86400, // 1 day
-            maxAge: 86400 // 1 day
+            maxAge: 86400, // 1 day
         },
-        allowlist: /** @type {{ host: string }[]} */([])
+        allowlist: /** @type {{ host: string }[]} */ ([]),
     };
     let trackerLookup = {};
 
@@ -3664,58 +3618,59 @@
      * @param {string} reason
      * @param {any} ctx
      */
-    function debugHelper (action, reason, ctx) {
+    function debugHelper(action, reason, ctx) {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        cookiePolicy.debug && postDebugMessage('jscookie', {
-            action,
-            reason,
-            stack: ctx.stack,
-            documentUrl: globalThis.document.location.href,
-            value: ctx.value
-        });
+        cookiePolicy.debug &&
+            postDebugMessage('jscookie', {
+                action,
+                reason,
+                stack: ctx.stack,
+                documentUrl: globalThis.document.location.href,
+                value: ctx.value,
+            });
     }
 
     /**
      * @returns {boolean}
      */
-    function shouldBlockTrackingCookie () {
-        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
+    function shouldBlockTrackingCookie() {
+        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie();
     }
 
-    function shouldBlockNonTrackingCookie () {
-        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
+    function shouldBlockNonTrackingCookie() {
+        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie();
     }
 
     /**
      * @param {Set<string>} scriptOrigins
      * @returns {boolean}
      */
-    function isFirstPartyTrackerScript (scriptOrigins) {
+    function isFirstPartyTrackerScript(scriptOrigins) {
         let matched = false;
         for (const scriptOrigin of scriptOrigins) {
             if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
-                return false
+                return false;
             }
             if (isTrackerOrigin(trackerLookup, scriptOrigin)) {
                 matched = true;
             }
         }
-        return matched
+        return matched;
     }
 
     /**
      * @returns {boolean}
      */
-    function isTrackingCookie () {
-        return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
+    function isTrackingCookie() {
+        return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame;
     }
 
-    function isNonTrackingCookie () {
-        return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
+    function isNonTrackingCookie() {
+        return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame;
     }
 
     class CookieFeature extends ContentFeature {
-        load () {
+        load() {
             if (this.documentOriginIsTracker) {
                 cookiePolicy.isTracker = true;
             }
@@ -3730,11 +3685,11 @@
 
                 if (tabHostname != null) {
                     tabExempted = exceptions.some((exception) => {
-                        return matchHostname(tabHostname, exception.domain)
+                        return matchHostname(tabHostname, exception.domain);
                     });
                 }
                 const frameExempted = settings.excludedCookieDomains.some((exception) => {
-                    return matchHostname(globalThis.location.hostname, exception.domain)
+                    return matchHostname(globalThis.location.hostname, exception.domain);
                 });
                 cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
                 cookiePolicy.policy = settings.firstPartyCookiePolicy;
@@ -3759,47 +3714,47 @@
             // this call.
             const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
 
-            function getCookiePolicy () {
+            function getCookiePolicy() {
                 let getCookieContext = null;
                 if (cookiePolicy.debug) {
                     const stack = getStack();
                     getCookieContext = {
                         stack,
-                        value: 'getter'
+                        value: 'getter',
                     };
                 }
 
                 if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
                     debugHelper('block', '3p frame', getCookieContext);
-                    return ''
+                    return '';
                 } else if (isTrackingCookie() || isNonTrackingCookie()) {
                     debugHelper('ignore', '3p frame', getCookieContext);
                 }
                 // @ts-expect-error - error TS18048: 'cookieGetter' is possibly 'undefined'.
-                return cookieGetter.call(this)
+                return cookieGetter.call(this);
             }
 
             /**
              * @param {any} argValue
              */
-            function setCookiePolicy (argValue) {
+            function setCookiePolicy(argValue) {
                 let setCookieContext = null;
                 if (!argValue?.toString || typeof argValue.toString() !== 'string') {
                     // not a string, or string-like
-                    return
+                    return;
                 }
                 const value = argValue.toString();
                 if (cookiePolicy.debug) {
                     const stack = getStack();
                     setCookieContext = {
                         stack,
-                        value
+                        value,
                     };
                 }
 
                 if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
                     debugHelper('block', '3p frame', setCookieContext);
-                    return
+                    return;
                 } else if (isTrackingCookie() || isNonTrackingCookie()) {
                     debugHelper('ignore', '3p frame', setCookieContext);
                 }
@@ -3818,14 +3773,14 @@
                         const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
                         if (!shouldBlock) {
                             debugHelper('ignore', 'disabled', setCookieContext);
-                            return
+                            return;
                         }
                         // extract cookie expiry from cookie string
                         const cookie = new Cookie(value);
                         // apply cookie policy
                         if (cookie.getExpiry() > chosenPolicy.threshold) {
                             // check if the cookie still exists
-                            if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+                            if (document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
                                 cookie.maxAge = chosenPolicy.maxAge;
 
                                 debugHelper('restrict', 'expiry', setCookieContext);
@@ -3848,29 +3803,29 @@
 
             this.wrapProperty(globalThis.Document.prototype, 'cookie', {
                 set: setCookiePolicy,
-                get: getCookiePolicy
+                get: getCookiePolicy,
             });
         }
 
-        init (args) {
+        init(args) {
             const restOfPolicy = {
                 debug: this.isDebug,
                 shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
                 shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
                 allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
                 policy: this.getFeatureSetting('firstPartyCookiePolicy'),
-                trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy')
+                trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy'),
             };
             // The extension provides some additional info about the cookie policy, let's use that over our guesses
             if (args.cookie) {
-                const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */(args.cookie);
+                const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */ (args.cookie);
                 cookiePolicy = {
                     ...extensionCookiePolicy,
-                    ...restOfPolicy
+                    ...restOfPolicy,
                 };
             } else {
                 // copy non-null entries from restOfPolicy to cookiePolicy
-                Object.keys(restOfPolicy).forEach(key => {
+                Object.keys(restOfPolicy).forEach((key) => {
                     if (restOfPolicy[key]) {
                         cookiePolicy[key] = restOfPolicy[key];
                     }
@@ -3882,508 +3837,545 @@
     }
 
     // @ts-nocheck
-        const sjcl = (() => {
-    /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
-    /*global document, window, escape, unescape, module, require, Uint32Array */
-
-    /**
-     * The Stanford Javascript Crypto Library, top-level namespace.
-     * @namespace
-     */
-    var sjcl = {
-      /**
-       * Symmetric ciphers.
-       * @namespace
-       */
-      cipher: {},
-
-      /**
-       * Hash functions.  Right now only SHA256 is implemented.
-       * @namespace
-       */
-      hash: {},
-
-      /**
-       * Key exchange functions.  Right now only SRP is implemented.
-       * @namespace
-       */
-      keyexchange: {},
-      
-      /**
-       * Cipher modes of operation.
-       * @namespace
-       */
-      mode: {},
-
-      /**
-       * Miscellaneous.  HMAC and PBKDF2.
-       * @namespace
-       */
-      misc: {},
-      
-      /**
-       * Bit array encoders and decoders.
-       * @namespace
-       *
-       * @description
-       * The members of this namespace are functions which translate between
-       * SJCL's bitArrays and other objects (usually strings).  Because it
-       * isn't always clear which direction is encoding and which is decoding,
-       * the method names are "fromBits" and "toBits".
-       */
-      codec: {},
-      
-      /**
-       * Exceptions.
-       * @namespace
-       */
-      exception: {
-        /**
-         * Ciphertext is corrupt.
-         * @constructor
-         */
-        corrupt: function(message) {
-          this.toString = function() { return "CORRUPT: "+this.message; };
-          this.message = message;
-        },
-        
-        /**
-         * Invalid parameter.
-         * @constructor
-         */
-        invalid: function(message) {
-          this.toString = function() { return "INVALID: "+this.message; };
-          this.message = message;
-        },
-        
-        /**
-         * Bug or missing feature in SJCL.
-         * @constructor
-         */
-        bug: function(message) {
-          this.toString = function() { return "BUG: "+this.message; };
-          this.message = message;
-        },
+    const sjcl = (() => {
+        /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
+        /*global document, window, escape, unescape, module, require, Uint32Array */
 
         /**
-         * Something isn't ready.
+         * The Stanford Javascript Crypto Library, top-level namespace.
+         * @namespace
+         */
+        var sjcl = {
+            /**
+             * Symmetric ciphers.
+             * @namespace
+             */
+            cipher: {},
+
+            /**
+             * Hash functions.  Right now only SHA256 is implemented.
+             * @namespace
+             */
+            hash: {},
+
+            /**
+             * Key exchange functions.  Right now only SRP is implemented.
+             * @namespace
+             */
+            keyexchange: {},
+
+            /**
+             * Cipher modes of operation.
+             * @namespace
+             */
+            mode: {},
+
+            /**
+             * Miscellaneous.  HMAC and PBKDF2.
+             * @namespace
+             */
+            misc: {},
+
+            /**
+             * Bit array encoders and decoders.
+             * @namespace
+             *
+             * @description
+             * The members of this namespace are functions which translate between
+             * SJCL's bitArrays and other objects (usually strings).  Because it
+             * isn't always clear which direction is encoding and which is decoding,
+             * the method names are "fromBits" and "toBits".
+             */
+            codec: {},
+
+            /**
+             * Exceptions.
+             * @namespace
+             */
+            exception: {
+                /**
+                 * Ciphertext is corrupt.
+                 * @constructor
+                 */
+                corrupt: function (message) {
+                    this.toString = function () {
+                        return 'CORRUPT: ' + this.message;
+                    };
+                    this.message = message;
+                },
+
+                /**
+                 * Invalid parameter.
+                 * @constructor
+                 */
+                invalid: function (message) {
+                    this.toString = function () {
+                        return 'INVALID: ' + this.message;
+                    };
+                    this.message = message;
+                },
+
+                /**
+                 * Bug or missing feature in SJCL.
+                 * @constructor
+                 */
+                bug: function (message) {
+                    this.toString = function () {
+                        return 'BUG: ' + this.message;
+                    };
+                    this.message = message;
+                },
+
+                /**
+                 * Something isn't ready.
+                 * @constructor
+                 */
+                notReady: function (message) {
+                    this.toString = function () {
+                        return 'NOT READY: ' + this.message;
+                    };
+                    this.message = message;
+                },
+            },
+        };
+        /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * Arrays of bits, encoded as arrays of Numbers.
+         * @namespace
+         * @description
+         * <p>
+         * These objects are the currency accepted by SJCL's crypto functions.
+         * </p>
+         *
+         * <p>
+         * Most of our crypto primitives operate on arrays of 4-byte words internally,
+         * but many of them can take arguments that are not a multiple of 4 bytes.
+         * This library encodes arrays of bits (whose size need not be a multiple of 8
+         * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
+         * array of words, 32 bits at a time.  Since the words are double-precision
+         * floating point numbers, they fit some extra data.  We use this (in a private,
+         * possibly-changing manner) to encode the number of bits actually  present
+         * in the last word of the array.
+         * </p>
+         *
+         * <p>
+         * Because bitwise ops clear this out-of-band data, these arrays can be passed
+         * to ciphers like AES which want arrays of words.
+         * </p>
+         */
+        sjcl.bitArray = {
+            /**
+             * Array slices in units of bits.
+             * @param {bitArray} a The array to slice.
+             * @param {Number} bstart The offset to the start of the slice, in bits.
+             * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
+             * slice until the end of the array.
+             * @return {bitArray} The requested slice.
+             */
+            bitSlice: function (a, bstart, bend) {
+                a = sjcl.bitArray._shiftRight(a.slice(bstart / 32), 32 - (bstart & 31)).slice(1);
+                return bend === undefined ? a : sjcl.bitArray.clamp(a, bend - bstart);
+            },
+
+            /**
+             * Extract a number packed into a bit array.
+             * @param {bitArray} a The array to slice.
+             * @param {Number} bstart The offset to the start of the slice, in bits.
+             * @param {Number} blength The length of the number to extract.
+             * @return {Number} The requested slice.
+             */
+            extract: function (a, bstart, blength) {
+                // FIXME: this Math.floor is not necessary at all, but for some reason
+                // seems to suppress a bug in the Chromium JIT.
+                var x,
+                    sh = Math.floor((-bstart - blength) & 31);
+                if (((bstart + blength - 1) ^ bstart) & -32) {
+                    // it crosses a boundary
+                    x = (a[(bstart / 32) | 0] << (32 - sh)) ^ (a[(bstart / 32 + 1) | 0] >>> sh);
+                } else {
+                    // within a single word
+                    x = a[(bstart / 32) | 0] >>> sh;
+                }
+                return x & ((1 << blength) - 1);
+            },
+
+            /**
+             * Concatenate two bit arrays.
+             * @param {bitArray} a1 The first array.
+             * @param {bitArray} a2 The second array.
+             * @return {bitArray} The concatenation of a1 and a2.
+             */
+            concat: function (a1, a2) {
+                if (a1.length === 0 || a2.length === 0) {
+                    return a1.concat(a2);
+                }
+
+                var last = a1[a1.length - 1],
+                    shift = sjcl.bitArray.getPartial(last);
+                if (shift === 32) {
+                    return a1.concat(a2);
+                } else {
+                    return sjcl.bitArray._shiftRight(a2, shift, last | 0, a1.slice(0, a1.length - 1));
+                }
+            },
+
+            /**
+             * Find the length of an array of bits.
+             * @param {bitArray} a The array.
+             * @return {Number} The length of a, in bits.
+             */
+            bitLength: function (a) {
+                var l = a.length,
+                    x;
+                if (l === 0) {
+                    return 0;
+                }
+                x = a[l - 1];
+                return (l - 1) * 32 + sjcl.bitArray.getPartial(x);
+            },
+
+            /**
+             * Truncate an array.
+             * @param {bitArray} a The array.
+             * @param {Number} len The length to truncate to, in bits.
+             * @return {bitArray} A new array, truncated to len bits.
+             */
+            clamp: function (a, len) {
+                if (a.length * 32 < len) {
+                    return a;
+                }
+                a = a.slice(0, Math.ceil(len / 32));
+                var l = a.length;
+                len = len & 31;
+                if (l > 0 && len) {
+                    a[l - 1] = sjcl.bitArray.partial(len, a[l - 1] & (0x80000000 >> (len - 1)), 1);
+                }
+                return a;
+            },
+
+            /**
+             * Make a partial word for a bit array.
+             * @param {Number} len The number of bits in the word.
+             * @param {Number} x The bits.
+             * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
+             * @return {Number} The partial word.
+             */
+            partial: function (len, x, _end) {
+                if (len === 32) {
+                    return x;
+                }
+                return (_end ? x | 0 : x << (32 - len)) + len * 0x10000000000;
+            },
+
+            /**
+             * Get the number of bits used by a partial word.
+             * @param {Number} x The partial word.
+             * @return {Number} The number of bits used by the partial word.
+             */
+            getPartial: function (x) {
+                return Math.round(x / 0x10000000000) || 32;
+            },
+
+            /**
+             * Compare two arrays for equality in a predictable amount of time.
+             * @param {bitArray} a The first array.
+             * @param {bitArray} b The second array.
+             * @return {boolean} true if a == b; false otherwise.
+             */
+            equal: function (a, b) {
+                if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
+                    return false;
+                }
+                var x = 0,
+                    i;
+                for (i = 0; i < a.length; i++) {
+                    x |= a[i] ^ b[i];
+                }
+                return x === 0;
+            },
+
+            /** Shift an array right.
+             * @param {bitArray} a The array to shift.
+             * @param {Number} shift The number of bits to shift.
+             * @param {Number} [carry=0] A byte to carry in
+             * @param {bitArray} [out=[]] An array to prepend to the output.
+             * @private
+             */
+            _shiftRight: function (a, shift, carry, out) {
+                var i,
+                    last2 = 0,
+                    shift2;
+                if (out === undefined) {
+                    out = [];
+                }
+
+                for (; shift >= 32; shift -= 32) {
+                    out.push(carry);
+                    carry = 0;
+                }
+                if (shift === 0) {
+                    return out.concat(a);
+                }
+
+                for (i = 0; i < a.length; i++) {
+                    out.push(carry | (a[i] >>> shift));
+                    carry = a[i] << (32 - shift);
+                }
+                last2 = a.length ? a[a.length - 1] : 0;
+                shift2 = sjcl.bitArray.getPartial(last2);
+                out.push(sjcl.bitArray.partial((shift + shift2) & 31, shift + shift2 > 32 ? carry : out.pop(), 1));
+                return out;
+            },
+
+            /** xor a block of 4 words together.
+             * @private
+             */
+            _xor4: function (x, y) {
+                return [x[0] ^ y[0], x[1] ^ y[1], x[2] ^ y[2], x[3] ^ y[3]];
+            },
+
+            /** byteswap a word array inplace.
+             * (does not handle partial words)
+             * @param {sjcl.bitArray} a word array
+             * @return {sjcl.bitArray} byteswapped array
+             */
+            byteswapM: function (a) {
+                var i,
+                    v,
+                    m = 0xff00;
+                for (i = 0; i < a.length; ++i) {
+                    v = a[i];
+                    a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
+                }
+                return a;
+            },
+        };
+        /** @fileOverview Bit array codec implementations.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * UTF-8 strings
+         * @namespace
+         */
+        sjcl.codec.utf8String = {
+            /** Convert from a bitArray to a UTF-8 string. */
+            fromBits: function (arr) {
+                var out = '',
+                    bl = sjcl.bitArray.bitLength(arr),
+                    i,
+                    tmp;
+                for (i = 0; i < bl / 8; i++) {
+                    if ((i & 3) === 0) {
+                        tmp = arr[i / 4];
+                    }
+                    out += String.fromCharCode(((tmp >>> 8) >>> 8) >>> 8);
+                    tmp <<= 8;
+                }
+                return decodeURIComponent(escape(out));
+            },
+
+            /** Convert from a UTF-8 string to a bitArray. */
+            toBits: function (str) {
+                str = unescape(encodeURIComponent(str));
+                var out = [],
+                    i,
+                    tmp = 0;
+                for (i = 0; i < str.length; i++) {
+                    tmp = (tmp << 8) | str.charCodeAt(i);
+                    if ((i & 3) === 3) {
+                        out.push(tmp);
+                        tmp = 0;
+                    }
+                }
+                if (i & 3) {
+                    out.push(sjcl.bitArray.partial(8 * (i & 3), tmp));
+                }
+                return out;
+            },
+        };
+        /** @fileOverview Bit array codec implementations.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * Hexadecimal
+         * @namespace
+         */
+        sjcl.codec.hex = {
+            /** Convert from a bitArray to a hex string. */
+            fromBits: function (arr) {
+                var out = '',
+                    i;
+                for (i = 0; i < arr.length; i++) {
+                    out += ((arr[i] | 0) + 0xf00000000000).toString(16).substr(4);
+                }
+                return out.substr(0, sjcl.bitArray.bitLength(arr) / 4); //.replace(/(.{8})/g, "$1 ");
+            },
+            /** Convert from a hex string to a bitArray. */
+            toBits: function (str) {
+                var i,
+                    out = [],
+                    len;
+                str = str.replace(/\s|0x/g, '');
+                len = str.length;
+                str = str + '00000000';
+                for (i = 0; i < str.length; i += 8) {
+                    out.push(parseInt(str.substr(i, 8), 16) ^ 0);
+                }
+                return sjcl.bitArray.clamp(out, len * 4);
+            },
+        };
+
+        /** @fileOverview Javascript SHA-256 implementation.
+         *
+         * An older version of this implementation is available in the public
+         * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
+         * Stanford University 2008-2010 and BSD-licensed for liability
+         * reasons.
+         *
+         * Special thanks to Aldo Cortesi for pointing out several bugs in
+         * this code.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * Context for a SHA-256 operation in progress.
          * @constructor
          */
-        notReady: function(message) {
-          this.toString = function() { return "NOT READY: "+this.message; };
-          this.message = message;
-        }
-      }
-    };
-    /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
+        sjcl.hash.sha256 = function (hash) {
+            if (!this._key[0]) {
+                this._precompute();
+            }
+            if (hash) {
+                this._h = hash._h.slice(0);
+                this._buffer = hash._buffer.slice(0);
+                this._length = hash._length;
+            } else {
+                this.reset();
+            }
+        };
 
-    /**
-     * Arrays of bits, encoded as arrays of Numbers.
-     * @namespace
-     * @description
-     * <p>
-     * These objects are the currency accepted by SJCL's crypto functions.
-     * </p>
-     *
-     * <p>
-     * Most of our crypto primitives operate on arrays of 4-byte words internally,
-     * but many of them can take arguments that are not a multiple of 4 bytes.
-     * This library encodes arrays of bits (whose size need not be a multiple of 8
-     * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
-     * array of words, 32 bits at a time.  Since the words are double-precision
-     * floating point numbers, they fit some extra data.  We use this (in a private,
-     * possibly-changing manner) to encode the number of bits actually  present
-     * in the last word of the array.
-     * </p>
-     *
-     * <p>
-     * Because bitwise ops clear this out-of-band data, these arrays can be passed
-     * to ciphers like AES which want arrays of words.
-     * </p>
-     */
-    sjcl.bitArray = {
-      /**
-       * Array slices in units of bits.
-       * @param {bitArray} a The array to slice.
-       * @param {Number} bstart The offset to the start of the slice, in bits.
-       * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
-       * slice until the end of the array.
-       * @return {bitArray} The requested slice.
-       */
-      bitSlice: function (a, bstart, bend) {
-        a = sjcl.bitArray._shiftRight(a.slice(bstart/32), 32 - (bstart & 31)).slice(1);
-        return (bend === undefined) ? a : sjcl.bitArray.clamp(a, bend-bstart);
-      },
+        /**
+         * Hash a string or an array of words.
+         * @static
+         * @param {bitArray|String} data the data to hash.
+         * @return {bitArray} The hash value, an array of 16 big-endian words.
+         */
+        sjcl.hash.sha256.hash = function (data) {
+            return new sjcl.hash.sha256().update(data).finalize();
+        };
 
-      /**
-       * Extract a number packed into a bit array.
-       * @param {bitArray} a The array to slice.
-       * @param {Number} bstart The offset to the start of the slice, in bits.
-       * @param {Number} blength The length of the number to extract.
-       * @return {Number} The requested slice.
-       */
-      extract: function(a, bstart, blength) {
-        // FIXME: this Math.floor is not necessary at all, but for some reason
-        // seems to suppress a bug in the Chromium JIT.
-        var x, sh = Math.floor((-bstart-blength) & 31);
-        if ((bstart + blength - 1 ^ bstart) & -32) {
-          // it crosses a boundary
-          x = (a[bstart/32|0] << (32 - sh)) ^ (a[bstart/32+1|0] >>> sh);
-        } else {
-          // within a single word
-          x = a[bstart/32|0] >>> sh;
-        }
-        return x & ((1<<blength) - 1);
-      },
+        sjcl.hash.sha256.prototype = {
+            /**
+             * The hash's block size, in bits.
+             * @constant
+             */
+            blockSize: 512,
 
-      /**
-       * Concatenate two bit arrays.
-       * @param {bitArray} a1 The first array.
-       * @param {bitArray} a2 The second array.
-       * @return {bitArray} The concatenation of a1 and a2.
-       */
-      concat: function (a1, a2) {
-        if (a1.length === 0 || a2.length === 0) {
-          return a1.concat(a2);
-        }
-        
-        var last = a1[a1.length-1], shift = sjcl.bitArray.getPartial(last);
-        if (shift === 32) {
-          return a1.concat(a2);
-        } else {
-          return sjcl.bitArray._shiftRight(a2, shift, last|0, a1.slice(0,a1.length-1));
-        }
-      },
+            /**
+             * Reset the hash state.
+             * @return this
+             */
+            reset: function () {
+                this._h = this._init.slice(0);
+                this._buffer = [];
+                this._length = 0;
+                return this;
+            },
 
-      /**
-       * Find the length of an array of bits.
-       * @param {bitArray} a The array.
-       * @return {Number} The length of a, in bits.
-       */
-      bitLength: function (a) {
-        var l = a.length, x;
-        if (l === 0) { return 0; }
-        x = a[l - 1];
-        return (l-1) * 32 + sjcl.bitArray.getPartial(x);
-      },
+            /**
+             * Input several words to the hash.
+             * @param {bitArray|String} data the data to hash.
+             * @return this
+             */
+            update: function (data) {
+                if (typeof data === 'string') {
+                    data = sjcl.codec.utf8String.toBits(data);
+                }
+                var i,
+                    b = (this._buffer = sjcl.bitArray.concat(this._buffer, data)),
+                    ol = this._length,
+                    nl = (this._length = ol + sjcl.bitArray.bitLength(data));
+                if (nl > 9007199254740991) {
+                    throw new sjcl.exception.invalid('Cannot hash more than 2^53 - 1 bits');
+                }
 
-      /**
-       * Truncate an array.
-       * @param {bitArray} a The array.
-       * @param {Number} len The length to truncate to, in bits.
-       * @return {bitArray} A new array, truncated to len bits.
-       */
-      clamp: function (a, len) {
-        if (a.length * 32 < len) { return a; }
-        a = a.slice(0, Math.ceil(len / 32));
-        var l = a.length;
-        len = len & 31;
-        if (l > 0 && len) {
-          a[l-1] = sjcl.bitArray.partial(len, a[l-1] & 0x80000000 >> (len-1), 1);
-        }
-        return a;
-      },
+                if (typeof Uint32Array !== 'undefined') {
+                    var c = new Uint32Array(b);
+                    var j = 0;
+                    for (i = 512 + ol - ((512 + ol) & 511); i <= nl; i += 512) {
+                        this._block(c.subarray(16 * j, 16 * (j + 1)));
+                        j += 1;
+                    }
+                    b.splice(0, 16 * j);
+                } else {
+                    for (i = 512 + ol - ((512 + ol) & 511); i <= nl; i += 512) {
+                        this._block(b.splice(0, 16));
+                    }
+                }
+                return this;
+            },
 
-      /**
-       * Make a partial word for a bit array.
-       * @param {Number} len The number of bits in the word.
-       * @param {Number} x The bits.
-       * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
-       * @return {Number} The partial word.
-       */
-      partial: function (len, x, _end) {
-        if (len === 32) { return x; }
-        return (_end ? x|0 : x << (32-len)) + len * 0x10000000000;
-      },
+            /**
+             * Complete hashing and output the hash value.
+             * @return {bitArray} The hash value, an array of 8 big-endian words.
+             */
+            finalize: function () {
+                var i,
+                    b = this._buffer,
+                    h = this._h;
 
-      /**
-       * Get the number of bits used by a partial word.
-       * @param {Number} x The partial word.
-       * @return {Number} The number of bits used by the partial word.
-       */
-      getPartial: function (x) {
-        return Math.round(x/0x10000000000) || 32;
-      },
+                // Round out and push the buffer
+                b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]);
 
-      /**
-       * Compare two arrays for equality in a predictable amount of time.
-       * @param {bitArray} a The first array.
-       * @param {bitArray} b The second array.
-       * @return {boolean} true if a == b; false otherwise.
-       */
-      equal: function (a, b) {
-        if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
-          return false;
-        }
-        var x = 0, i;
-        for (i=0; i<a.length; i++) {
-          x |= a[i]^b[i];
-        }
-        return (x === 0);
-      },
+                // Round out the buffer to a multiple of 16 words, less the 2 length words.
+                for (i = b.length + 2; i & 15; i++) {
+                    b.push(0);
+                }
 
-      /** Shift an array right.
-       * @param {bitArray} a The array to shift.
-       * @param {Number} shift The number of bits to shift.
-       * @param {Number} [carry=0] A byte to carry in
-       * @param {bitArray} [out=[]] An array to prepend to the output.
-       * @private
-       */
-      _shiftRight: function (a, shift, carry, out) {
-        var i, last2=0, shift2;
-        if (out === undefined) { out = []; }
-        
-        for (; shift >= 32; shift -= 32) {
-          out.push(carry);
-          carry = 0;
-        }
-        if (shift === 0) {
-          return out.concat(a);
-        }
-        
-        for (i=0; i<a.length; i++) {
-          out.push(carry | a[i]>>>shift);
-          carry = a[i] << (32-shift);
-        }
-        last2 = a.length ? a[a.length-1] : 0;
-        shift2 = sjcl.bitArray.getPartial(last2);
-        out.push(sjcl.bitArray.partial(shift+shift2 & 31, (shift + shift2 > 32) ? carry : out.pop(),1));
-        return out;
-      },
-      
-      /** xor a block of 4 words together.
-       * @private
-       */
-      _xor4: function(x,y) {
-        return [x[0]^y[0],x[1]^y[1],x[2]^y[2],x[3]^y[3]];
-      },
+                // append the length
+                b.push(Math.floor(this._length / 0x100000000));
+                b.push(this._length | 0);
 
-      /** byteswap a word array inplace.
-       * (does not handle partial words)
-       * @param {sjcl.bitArray} a word array
-       * @return {sjcl.bitArray} byteswapped array
-       */
-      byteswapM: function(a) {
-        var i, v, m = 0xff00;
-        for (i = 0; i < a.length; ++i) {
-          v = a[i];
-          a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
-        }
-        return a;
-      }
-    };
-    /** @fileOverview Bit array codec implementations.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
+                while (b.length) {
+                    this._block(b.splice(0, 16));
+                }
 
-    /**
-     * UTF-8 strings
-     * @namespace
-     */
-    sjcl.codec.utf8String = {
-      /** Convert from a bitArray to a UTF-8 string. */
-      fromBits: function (arr) {
-        var out = "", bl = sjcl.bitArray.bitLength(arr), i, tmp;
-        for (i=0; i<bl/8; i++) {
-          if ((i&3) === 0) {
-            tmp = arr[i/4];
-          }
-          out += String.fromCharCode(tmp >>> 8 >>> 8 >>> 8);
-          tmp <<= 8;
-        }
-        return decodeURIComponent(escape(out));
-      },
+                this.reset();
+                return h;
+            },
 
-      /** Convert from a UTF-8 string to a bitArray. */
-      toBits: function (str) {
-        str = unescape(encodeURIComponent(str));
-        var out = [], i, tmp=0;
-        for (i=0; i<str.length; i++) {
-          tmp = tmp << 8 | str.charCodeAt(i);
-          if ((i&3) === 3) {
-            out.push(tmp);
-            tmp = 0;
-          }
-        }
-        if (i&3) {
-          out.push(sjcl.bitArray.partial(8*(i&3), tmp));
-        }
-        return out;
-      }
-    };
-    /** @fileOverview Bit array codec implementations.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
-
-    /**
-     * Hexadecimal
-     * @namespace
-     */
-    sjcl.codec.hex = {
-      /** Convert from a bitArray to a hex string. */
-      fromBits: function (arr) {
-        var out = "", i;
-        for (i=0; i<arr.length; i++) {
-          out += ((arr[i]|0)+0xF00000000000).toString(16).substr(4);
-        }
-        return out.substr(0, sjcl.bitArray.bitLength(arr)/4);//.replace(/(.{8})/g, "$1 ");
-      },
-      /** Convert from a hex string to a bitArray. */
-      toBits: function (str) {
-        var i, out=[], len;
-        str = str.replace(/\s|0x/g, "");
-        len = str.length;
-        str = str + "00000000";
-        for (i=0; i<str.length; i+=8) {
-          out.push(parseInt(str.substr(i,8),16)^0);
-        }
-        return sjcl.bitArray.clamp(out, len*4);
-      }
-    };
-
-    /** @fileOverview Javascript SHA-256 implementation.
-     *
-     * An older version of this implementation is available in the public
-     * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
-     * Stanford University 2008-2010 and BSD-licensed for liability
-     * reasons.
-     *
-     * Special thanks to Aldo Cortesi for pointing out several bugs in
-     * this code.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
-
-    /**
-     * Context for a SHA-256 operation in progress.
-     * @constructor
-     */
-    sjcl.hash.sha256 = function (hash) {
-      if (!this._key[0]) { this._precompute(); }
-      if (hash) {
-        this._h = hash._h.slice(0);
-        this._buffer = hash._buffer.slice(0);
-        this._length = hash._length;
-      } else {
-        this.reset();
-      }
-    };
-
-    /**
-     * Hash a string or an array of words.
-     * @static
-     * @param {bitArray|String} data the data to hash.
-     * @return {bitArray} The hash value, an array of 16 big-endian words.
-     */
-    sjcl.hash.sha256.hash = function (data) {
-      return (new sjcl.hash.sha256()).update(data).finalize();
-    };
-
-    sjcl.hash.sha256.prototype = {
-      /**
-       * The hash's block size, in bits.
-       * @constant
-       */
-      blockSize: 512,
-       
-      /**
-       * Reset the hash state.
-       * @return this
-       */
-      reset:function () {
-        this._h = this._init.slice(0);
-        this._buffer = [];
-        this._length = 0;
-        return this;
-      },
-      
-      /**
-       * Input several words to the hash.
-       * @param {bitArray|String} data the data to hash.
-       * @return this
-       */
-      update: function (data) {
-        if (typeof data === "string") {
-          data = sjcl.codec.utf8String.toBits(data);
-        }
-        var i, b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
-            ol = this._length,
-            nl = this._length = ol + sjcl.bitArray.bitLength(data);
-        if (nl > 9007199254740991){
-          throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
-        }
-
-        if (typeof Uint32Array !== 'undefined') {
-    	var c = new Uint32Array(b);
-        	var j = 0;
-        	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
-          	    this._block(c.subarray(16 * j, 16 * (j+1)));
-          	    j += 1;
-        	}
-        	b.splice(0, 16 * j);
-        } else {
-    	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
-          	    this._block(b.splice(0,16));
-          	}
-        }
-        return this;
-      },
-      
-      /**
-       * Complete hashing and output the hash value.
-       * @return {bitArray} The hash value, an array of 8 big-endian words.
-       */
-      finalize:function () {
-        var i, b = this._buffer, h = this._h;
-
-        // Round out and push the buffer
-        b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1,1)]);
-        
-        // Round out the buffer to a multiple of 16 words, less the 2 length words.
-        for (i = b.length + 2; i & 15; i++) {
-          b.push(0);
-        }
-        
-        // append the length
-        b.push(Math.floor(this._length / 0x100000000));
-        b.push(this._length | 0);
-
-        while (b.length) {
-          this._block(b.splice(0,16));
-        }
-
-        this.reset();
-        return h;
-      },
-
-      /**
-       * The SHA-256 initialization vector, to be precomputed.
-       * @private
-       */
-      _init:[],
-      /*
+            /**
+             * The SHA-256 initialization vector, to be precomputed.
+             * @private
+             */
+            _init: [],
+            /*
       _init:[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],
       */
-      
-      /**
-       * The SHA-256 hash key, to be precomputed.
-       * @private
-       */
-      _key:[],
-      /*
+
+            /**
+             * The SHA-256 hash key, to be precomputed.
+             * @private
+             */
+            _key: [],
+            /*
       _key:
         [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
          0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -4395,171 +4387,201 @@
          0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
       */
 
+            /**
+             * Function to precompute _init and _key.
+             * @private
+             */
+            _precompute: function () {
+                var i = 0,
+                    prime = 2,
+                    factor,
+                    isPrime;
 
-      /**
-       * Function to precompute _init and _key.
-       * @private
-       */
-      _precompute: function () {
-        var i = 0, prime = 2, factor, isPrime;
+                function frac(x) {
+                    return ((x - Math.floor(x)) * 0x100000000) | 0;
+                }
 
-        function frac(x) { return (x-Math.floor(x)) * 0x100000000 | 0; }
+                for (; i < 64; prime++) {
+                    isPrime = true;
+                    for (factor = 2; factor * factor <= prime; factor++) {
+                        if (prime % factor === 0) {
+                            isPrime = false;
+                            break;
+                        }
+                    }
+                    if (isPrime) {
+                        if (i < 8) {
+                            this._init[i] = frac(Math.pow(prime, 1 / 2));
+                        }
+                        this._key[i] = frac(Math.pow(prime, 1 / 3));
+                        i++;
+                    }
+                }
+            },
 
-        for (; i<64; prime++) {
-          isPrime = true;
-          for (factor=2; factor*factor <= prime; factor++) {
-            if (prime % factor === 0) {
-              isPrime = false;
-              break;
-            }
-          }
-          if (isPrime) {
-            if (i<8) {
-              this._init[i] = frac(Math.pow(prime, 1/2));
-            }
-            this._key[i] = frac(Math.pow(prime, 1/3));
-            i++;
-          }
-        }
-      },
-      
-      /**
-       * Perform one cycle of SHA-256.
-       * @param {Uint32Array|bitArray} w one block of words.
-       * @private
-       */
-      _block:function (w) {  
-        var i, tmp, a, b,
-          h = this._h,
-          k = this._key,
-          h0 = h[0], h1 = h[1], h2 = h[2], h3 = h[3],
-          h4 = h[4], h5 = h[5], h6 = h[6], h7 = h[7];
+            /**
+             * Perform one cycle of SHA-256.
+             * @param {Uint32Array|bitArray} w one block of words.
+             * @private
+             */
+            _block: function (w) {
+                var i,
+                    tmp,
+                    a,
+                    b,
+                    h = this._h,
+                    k = this._key,
+                    h0 = h[0],
+                    h1 = h[1],
+                    h2 = h[2],
+                    h3 = h[3],
+                    h4 = h[4],
+                    h5 = h[5],
+                    h6 = h[6],
+                    h7 = h[7];
 
-        /* Rationale for placement of |0 :
-         * If a value can overflow is original 32 bits by a factor of more than a few
-         * million (2^23 ish), there is a possibility that it might overflow the
-         * 53-bit mantissa and lose precision.
+                /* Rationale for placement of |0 :
+                 * If a value can overflow is original 32 bits by a factor of more than a few
+                 * million (2^23 ish), there is a possibility that it might overflow the
+                 * 53-bit mantissa and lose precision.
+                 *
+                 * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
+                 * propagates around the loop, and on the hash state h[].  I don't believe
+                 * that the clamps on h4 and on h0 are strictly necessary, but it's close
+                 * (for h4 anyway), and better safe than sorry.
+                 *
+                 * The clamps on h[] are necessary for the output to be correct even in the
+                 * common case and for short inputs.
+                 */
+                for (i = 0; i < 64; i++) {
+                    // load up the input word for this round
+                    if (i < 16) {
+                        tmp = w[i];
+                    } else {
+                        a = w[(i + 1) & 15];
+                        b = w[(i + 14) & 15];
+                        tmp = w[i & 15] =
+                            (((a >>> 7) ^ (a >>> 18) ^ (a >>> 3) ^ (a << 25) ^ (a << 14)) +
+                                ((b >>> 17) ^ (b >>> 19) ^ (b >>> 10) ^ (b << 15) ^ (b << 13)) +
+                                w[i & 15] +
+                                w[(i + 9) & 15]) |
+                            0;
+                    }
+
+                    tmp =
+                        tmp +
+                        h7 +
+                        ((h4 >>> 6) ^ (h4 >>> 11) ^ (h4 >>> 25) ^ (h4 << 26) ^ (h4 << 21) ^ (h4 << 7)) +
+                        (h6 ^ (h4 & (h5 ^ h6))) +
+                        k[i]; // | 0;
+
+                    // shift register
+                    h7 = h6;
+                    h6 = h5;
+                    h5 = h4;
+                    h4 = (h3 + tmp) | 0;
+                    h3 = h2;
+                    h2 = h1;
+                    h1 = h0;
+
+                    h0 =
+                        (tmp +
+                            ((h1 & h2) ^ (h3 & (h1 ^ h2))) +
+                            ((h1 >>> 2) ^ (h1 >>> 13) ^ (h1 >>> 22) ^ (h1 << 30) ^ (h1 << 19) ^ (h1 << 10))) |
+                        0;
+                }
+
+                h[0] = (h[0] + h0) | 0;
+                h[1] = (h[1] + h1) | 0;
+                h[2] = (h[2] + h2) | 0;
+                h[3] = (h[3] + h3) | 0;
+                h[4] = (h[4] + h4) | 0;
+                h[5] = (h[5] + h5) | 0;
+                h[6] = (h[6] + h6) | 0;
+                h[7] = (h[7] + h7) | 0;
+            },
+        };
+
+        /** @fileOverview HMAC implementation.
          *
-         * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
-         * propagates around the loop, and on the hash state h[].  I don't believe
-         * that the clamps on h4 and on h0 are strictly necessary, but it's close
-         * (for h4 anyway), and better safe than sorry.
-         *
-         * The clamps on h[] are necessary for the output to be correct even in the
-         * common case and for short inputs.
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
          */
-        for (i=0; i<64; i++) {
-          // load up the input word for this round
-          if (i<16) {
-            tmp = w[i];
-          } else {
-            a   = w[(i+1 ) & 15];
-            b   = w[(i+14) & 15];
-            tmp = w[i&15] = ((a>>>7  ^ a>>>18 ^ a>>>3  ^ a<<25 ^ a<<14) + 
-                             (b>>>17 ^ b>>>19 ^ b>>>10 ^ b<<15 ^ b<<13) +
-                             w[i&15] + w[(i+9) & 15]) | 0;
-          }
-          
-          tmp = (tmp + h7 + (h4>>>6 ^ h4>>>11 ^ h4>>>25 ^ h4<<26 ^ h4<<21 ^ h4<<7) +  (h6 ^ h4&(h5^h6)) + k[i]); // | 0;
-          
-          // shift register
-          h7 = h6; h6 = h5; h5 = h4;
-          h4 = h3 + tmp | 0;
-          h3 = h2; h2 = h1; h1 = h0;
 
-          h0 = (tmp +  ((h1&h2) ^ (h3&(h1^h2))) + (h1>>>2 ^ h1>>>13 ^ h1>>>22 ^ h1<<30 ^ h1<<19 ^ h1<<10)) | 0;
-        }
+        /** HMAC with the specified hash function.
+         * @constructor
+         * @param {bitArray} key the key for HMAC.
+         * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
+         */
+        sjcl.misc.hmac = function (key, Hash) {
+            this._hash = Hash = Hash || sjcl.hash.sha256;
+            var exKey = [[], []],
+                i,
+                bs = Hash.prototype.blockSize / 32;
+            this._baseHash = [new Hash(), new Hash()];
 
-        h[0] = h[0]+h0 | 0;
-        h[1] = h[1]+h1 | 0;
-        h[2] = h[2]+h2 | 0;
-        h[3] = h[3]+h3 | 0;
-        h[4] = h[4]+h4 | 0;
-        h[5] = h[5]+h5 | 0;
-        h[6] = h[6]+h6 | 0;
-        h[7] = h[7]+h7 | 0;
-      }
-    };
+            if (key.length > bs) {
+                key = Hash.hash(key);
+            }
 
+            for (i = 0; i < bs; i++) {
+                exKey[0][i] = key[i] ^ 0x36363636;
+                exKey[1][i] = key[i] ^ 0x5c5c5c5c;
+            }
 
-    /** @fileOverview HMAC implementation.
-     *
-     * @author Emily Stark
-     * @author Mike Hamburg
-     * @author Dan Boneh
-     */
+            this._baseHash[0].update(exKey[0]);
+            this._baseHash[1].update(exKey[1]);
+            this._resultHash = new Hash(this._baseHash[0]);
+        };
 
-    /** HMAC with the specified hash function.
-     * @constructor
-     * @param {bitArray} key the key for HMAC.
-     * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
-     */
-    sjcl.misc.hmac = function (key, Hash) {
-      this._hash = Hash = Hash || sjcl.hash.sha256;
-      var exKey = [[],[]], i,
-          bs = Hash.prototype.blockSize / 32;
-      this._baseHash = [new Hash(), new Hash()];
+        /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
+         * @param {bitArray|String} data The data to mac.
+         */
+        sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
+            if (!this._updated) {
+                this.update(data);
+                return this.digest(data);
+            } else {
+                throw new sjcl.exception.invalid('encrypt on already updated hmac called!');
+            }
+        };
 
-      if (key.length > bs) {
-        key = Hash.hash(key);
-      }
-      
-      for (i=0; i<bs; i++) {
-        exKey[0][i] = key[i]^0x36363636;
-        exKey[1][i] = key[i]^0x5C5C5C5C;
-      }
-      
-      this._baseHash[0].update(exKey[0]);
-      this._baseHash[1].update(exKey[1]);
-      this._resultHash = new Hash(this._baseHash[0]);
-    };
+        sjcl.misc.hmac.prototype.reset = function () {
+            this._resultHash = new this._hash(this._baseHash[0]);
+            this._updated = false;
+        };
 
-    /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
-     * @param {bitArray|String} data The data to mac.
-     */
-    sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
-      if (!this._updated) {
-        this.update(data);
-        return this.digest(data);
-      } else {
-        throw new sjcl.exception.invalid("encrypt on already updated hmac called!");
-      }
-    };
+        sjcl.misc.hmac.prototype.update = function (data) {
+            this._updated = true;
+            this._resultHash.update(data);
+        };
 
-    sjcl.misc.hmac.prototype.reset = function () {
-      this._resultHash = new this._hash(this._baseHash[0]);
-      this._updated = false;
-    };
+        sjcl.misc.hmac.prototype.digest = function () {
+            var w = this._resultHash.finalize(),
+                result = new this._hash(this._baseHash[1]).update(w).finalize();
 
-    sjcl.misc.hmac.prototype.update = function (data) {
-      this._updated = true;
-      this._resultHash.update(data);
-    };
+            this.reset();
 
-    sjcl.misc.hmac.prototype.digest = function () {
-      var w = this._resultHash.finalize(), result = new (this._hash)(this._baseHash[1]).update(w).finalize();
-
-      this.reset();
-
-      return result;
-    };
+            return result;
+        };
 
         return sjcl;
-      })();
+    })();
 
-    function getDataKeySync (sessionKey, domainKey, inputData) {
+    function getDataKeySync(sessionKey, domainKey, inputData) {
         // eslint-disable-next-line new-cap
         const hmac = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey + domainKey), sjcl.hash.sha256);
-        return sjcl.codec.hex.fromBits(hmac.encrypt(inputData))
+        return sjcl.codec.hex.fromBits(hmac.encrypt(inputData));
     }
 
     class FingerprintingAudio extends ContentFeature {
-        init (args) {
+        init(args) {
             const { sessionKey, site } = args;
             const domainKey = site.domain;
 
             // In place modify array data to remove fingerprinting
-            function transformArrayData (channelData, domainKey, sessionKey, thisArg) {
+            function transformArrayData(channelData, domainKey, sessionKey, thisArg) {
                 let { audioKey } = getCachedResponse(thisArg, args);
                 if (!audioKey) {
                     let cdSum = 0;
@@ -4568,7 +4590,7 @@
                     }
                     // If the buffer is blank, skip adding data
                     if (cdSum === 0) {
-                        return
+                        return;
                     }
                     audioKey = getDataKeySync(sessionKey, domainKey, cdSum);
                     setCache(thisArg, args, audioKey);
@@ -4585,77 +4607,78 @@
             }
 
             const copyFromChannelProxy = new DDGProxy(this, AudioBuffer.prototype, 'copyFromChannel', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     const [source, channelNumber, startInChannel] = args;
                     // This is implemented in a different way to canvas purely because calling the function copied the original value, which is not ideal
-                    if (// If channelNumber is longer than arrayBuffer number of channels then call the default method to throw
+                    if (
+                        // If channelNumber is longer than arrayBuffer number of channels then call the default method to throw
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         channelNumber > thisArg.numberOfChannels ||
                         // If startInChannel is longer than the arrayBuffer length then call the default method to throw
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
-                        startInChannel > thisArg.length) {
+                        startInChannel > thisArg.length
+                    ) {
                         // The normal return value
-                        return DDGReflect.apply(target, thisArg, args)
+                        return DDGReflect.apply(target, thisArg, args);
                     }
                     try {
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         // Call the protected getChannelData we implement, slice from the startInChannel value and assign to the source array
-                        thisArg.getChannelData(channelNumber).slice(startInChannel).forEach((val, index) => {
-                            source[index] = val;
-                        });
+                        thisArg
+                            .getChannelData(channelNumber)
+                            .slice(startInChannel)
+                            .forEach((val, index) => {
+                                source[index] = val;
+                            });
                     } catch {
-                        return DDGReflect.apply(target, thisArg, args)
+                        return DDGReflect.apply(target, thisArg, args);
                     }
-                }
+                },
             });
             copyFromChannelProxy.overload();
 
             const cacheExpiry = 60;
             const cacheData = new WeakMap();
-            function getCachedResponse (thisArg, args) {
+            function getCachedResponse(thisArg, args) {
                 const data = cacheData.get(thisArg);
                 const timeNow = Date.now();
-                if (data &&
-                    data.args === JSON.stringify(args) &&
-                    data.expires > timeNow) {
+                if (data && data.args === JSON.stringify(args) && data.expires > timeNow) {
                     data.expires = timeNow + cacheExpiry;
                     cacheData.set(thisArg, data);
-                    return data
+                    return data;
                 }
-                return { audioKey: null }
+                return { audioKey: null };
             }
 
-            function setCache (thisArg, args, audioKey) {
+            function setCache(thisArg, args, audioKey) {
                 cacheData.set(thisArg, { args: JSON.stringify(args), expires: Date.now() + cacheExpiry, audioKey });
             }
 
             const getChannelDataProxy = new DDGProxy(this, AudioBuffer.prototype, 'getChannelData', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     // The normal return value
                     const channelData = DDGReflect.apply(target, thisArg, args);
                     // Anything we do here should be caught and ignored silently
                     try {
                         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                         transformArrayData(channelData, domainKey, sessionKey, thisArg, args);
-                    } catch {
-                    }
-                    return channelData
-                }
+                    } catch {}
+                    return channelData;
+                },
             });
             getChannelDataProxy.overload();
 
             const audioMethods = ['getByteTimeDomainData', 'getFloatTimeDomainData', 'getByteFrequencyData', 'getFloatFrequencyData'];
             for (const methodName of audioMethods) {
                 const proxy = new DDGProxy(this, AnalyserNode.prototype, methodName, {
-                    apply (target, thisArg, args) {
+                    apply(target, thisArg, args) {
                         DDGReflect.apply(target, thisArg, args);
                         // Anything we do here should be caught and ignored silently
                         try {
                             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                             transformArrayData(args[0], domainKey, sessionKey, thisArg, args);
-                        } catch {
-                        }
-                    }
+                        } catch {}
+                    },
                 });
                 proxy.overload();
             }
@@ -4668,7 +4691,7 @@
      * as well as prevent any script from listening to events.
      */
     class FingerprintingBattery extends ContentFeature {
-        init () {
+        init() {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             if (globalThis.navigator.getBattery) {
                 const BatteryManager = globalThis.BatteryManager;
@@ -4677,7 +4700,7 @@
                     charging: true,
                     chargingTime: 0,
                     dischargingTime: Infinity,
-                    level: 1
+                    level: 1,
                 };
                 const eventProperties = ['onchargingchange', 'onchargingtimechange', 'ondischargingtimechange', 'onlevelchange'];
 
@@ -4687,22 +4710,22 @@
                             enumerable: true,
                             configurable: true,
                             get: () => {
-                                return val
-                            }
+                                return val;
+                            },
                         });
-                    } catch (e) { }
+                    } catch (e) {}
                 }
                 for (const eventProp of eventProperties) {
                     try {
                         this.defineProperty(BatteryManager.prototype, eventProp, {
                             enumerable: true,
                             configurable: true,
-                            set: x => x, // noop
+                            set: (x) => x, // noop
                             get: () => {
-                                return null
-                            }
+                                return null;
+                            },
                         });
-                    } catch (e) { }
+                    } catch (e) {}
                 }
             }
         }
@@ -5730,7 +5753,7 @@
      * @param {any} getImageDataProxy
      * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
      */
-    function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+    function computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
         if (!ctx) {
             // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
             ctx = canvas.getContext('2d');
@@ -5764,7 +5787,7 @@
         // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
         offScreenCtx.putImageData(imageData, 0, 0);
 
-        return { offScreenCanvas, offScreenCtx }
+        return { offScreenCanvas, offScreenCtx };
     }
 
     /**
@@ -5772,7 +5795,7 @@
      *
      * @param {CanvasRenderingContext2D} canvasContext
      */
-    function clearCanvas (canvasContext) {
+    function clearCanvas(canvasContext) {
         // Save state and clean the pixels from the canvas
         canvasContext.save();
         canvasContext.globalCompositeOperation = 'destination-out';
@@ -5787,7 +5810,7 @@
      * @param {string} domainKey
      * @param {number} width
      */
-    function modifyPixelData (imageData, domainKey, sessionKey, width) {
+    function modifyPixelData(imageData, domainKey, sessionKey, width) {
         const d = imageData.data;
         const length = d.length / 4;
         let checkSum = 0;
@@ -5810,7 +5833,7 @@
             d[pixelCanvasIndex] = d[pixelCanvasIndex] ^ (byte & 0x1);
         }
 
-        return imageData
+        return imageData;
     }
 
     /**
@@ -5820,7 +5843,7 @@
      * @param {number} index
      * @param {number} width
      */
-    function adjacentSame (imageData, index, width) {
+    function adjacentSame(imageData, index, width) {
         const widthPixel = width * 4;
         const x = index % widthPixel;
         const maxLength = imageData.length;
@@ -5829,15 +5852,15 @@
         if (x < widthPixel) {
             const right = index + 4;
             if (!pixelsSame(imageData, index, right)) {
-                return false
+                return false;
             }
             const diagonalRightUp = right - widthPixel;
             if (diagonalRightUp > 0 && !pixelsSame(imageData, index, diagonalRightUp)) {
-                return false
+                return false;
             }
             const diagonalRightDown = right + widthPixel;
             if (diagonalRightDown < maxLength && !pixelsSame(imageData, index, diagonalRightDown)) {
-                return false
+                return false;
             }
         }
 
@@ -5845,29 +5868,29 @@
         if (x > 0) {
             const left = index - 4;
             if (!pixelsSame(imageData, index, left)) {
-                return false
+                return false;
             }
             const diagonalLeftUp = left - widthPixel;
             if (diagonalLeftUp > 0 && !pixelsSame(imageData, index, diagonalLeftUp)) {
-                return false
+                return false;
             }
             const diagonalLeftDown = left + widthPixel;
             if (diagonalLeftDown < maxLength && !pixelsSame(imageData, index, diagonalLeftDown)) {
-                return false
+                return false;
             }
         }
 
         const up = index - widthPixel;
         if (up > 0 && !pixelsSame(imageData, index, up)) {
-            return false
+            return false;
         }
 
         const down = index + widthPixel;
         if (down < maxLength && !pixelsSame(imageData, index, down)) {
-            return false
+            return false;
         }
 
-        return true
+        return true;
     }
 
     /**
@@ -5876,11 +5899,13 @@
      * @param {number} index
      * @param {number} index2
      */
-    function pixelsSame (imageData, index, index2) {
-        return imageData[index] === imageData[index2] &&
-               imageData[index + 1] === imageData[index2 + 1] &&
-               imageData[index + 2] === imageData[index2 + 2] &&
-               imageData[index + 3] === imageData[index2 + 3]
+    function pixelsSame(imageData, index, index2) {
+        return (
+            imageData[index] === imageData[index2] &&
+            imageData[index + 1] === imageData[index2 + 1] &&
+            imageData[index + 2] === imageData[index2 + 2] &&
+            imageData[index + 3] === imageData[index2 + 3]
+        );
     }
 
     /**
@@ -5889,16 +5914,16 @@
      * @param {number} index
      * @returns {boolean}
      */
-    function shouldIgnorePixel (imageData, index) {
+    function shouldIgnorePixel(imageData, index) {
         // Transparent pixels
         if (imageData[index + 3] === 0) {
-            return true
+            return true;
         }
-        return false
+        return false;
     }
 
     class FingerprintingCanvas extends ContentFeature {
-        init (args) {
+        init(args) {
             const { sessionKey, site } = args;
             const domainKey = site.domain;
             const supportsWebGl = this.getFeatureSettingEnabled('webGl');
@@ -5911,28 +5936,27 @@
              * Clear cache as canvas has changed
              * @param {OffscreenCanvas | HTMLCanvasElement} canvas
              */
-            function clearCache (canvas) {
+            function clearCache(canvas) {
                 canvasCache.delete(canvas);
             }
 
             /**
              * @param {OffscreenCanvas | HTMLCanvasElement} canvas
              */
-            function treatAsUnsafe (canvas) {
+            function treatAsUnsafe(canvas) {
                 unsafeCanvases.add(canvas);
                 clearCache(canvas);
             }
 
             const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, 'getContext', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     const context = DDGReflect.apply(target, thisArg, args);
                     try {
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'.
                         canvasContexts.set(thisArg, context);
-                    } catch {
-                    }
-                    return context
-                }
+                    } catch {}
+                    return context;
+                },
             });
             proxy.overload();
 
@@ -5940,7 +5964,7 @@
             const safeMethods = ['putImageData', 'drawImage'];
             for (const methodName of safeMethods) {
                 const safeMethodProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
-                    apply (target, thisArg, args) {
+                    apply(target, thisArg, args) {
                         // Don't apply escape hatch for canvases
                         if (methodName === 'drawImage' && args[0] && args[0] instanceof HTMLCanvasElement) {
                             treatAsUnsafe(args[0]);
@@ -5948,8 +5972,8 @@
                             // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                             clearCache(thisArg.canvas);
                         }
-                        return DDGReflect.apply(target, thisArg, args)
-                    }
+                        return DDGReflect.apply(target, thisArg, args);
+                    },
                 });
                 safeMethodProxy.overload();
             }
@@ -5973,17 +5997,17 @@
                 'createConicGradient',
                 'createLinearGradient',
                 'createRadialGradient',
-                'createPattern'
+                'createPattern',
             ];
             for (const methodName of unsafeMethods) {
                 // Some methods are browser specific
                 if (methodName in CanvasRenderingContext2D.prototype) {
                     const unsafeProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
-                        apply (target, thisArg, args) {
+                        apply(target, thisArg, args) {
                             // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                             treatAsUnsafe(thisArg.canvas);
-                            return DDGReflect.apply(target, thisArg, args)
-                        }
+                            return DDGReflect.apply(target, thisArg, args);
+                        },
                     });
                     unsafeProxy.overload();
                 }
@@ -5998,11 +6022,9 @@
                     'createProgram',
                     'linkProgram',
                     'drawElements',
-                    'drawArrays'
+                    'drawArrays',
                 ];
-                const glContexts = [
-                    WebGLRenderingContext
-                ];
+                const glContexts = [WebGLRenderingContext];
                 if ('WebGL2RenderingContext' in globalThis) {
                     glContexts.push(WebGL2RenderingContext);
                 }
@@ -6011,11 +6033,11 @@
                         // Some methods are browser specific
                         if (methodName in context.prototype) {
                             const unsafeProxy = new DDGProxy(this, context.prototype, methodName, {
-                                apply (target, thisArg, args) {
+                                apply(target, thisArg, args) {
                                     // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                                     treatAsUnsafe(thisArg.canvas);
-                                    return DDGReflect.apply(target, thisArg, args)
-                                }
+                                    return DDGReflect.apply(target, thisArg, args);
+                                },
                             });
                             unsafeProxy.overload();
                         }
@@ -6025,22 +6047,21 @@
 
             // Using proxies here to swallow calls to toString etc
             const getImageDataProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, 'getImageData', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                     if (!unsafeCanvases.has(thisArg.canvas)) {
-                        return DDGReflect.apply(target, thisArg, args)
+                        return DDGReflect.apply(target, thisArg, args);
                     }
                     // Anything we do here should be caught and ignored silently
                     try {
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         const { offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey);
                         // Call the original method on the modified off-screen canvas
-                        return DDGReflect.apply(target, offScreenCtx, args)
-                    } catch {
-                    }
+                        return DDGReflect.apply(target, offScreenCtx, args);
+                    } catch {}
 
-                    return DDGReflect.apply(target, thisArg, args)
-                }
+                    return DDGReflect.apply(target, thisArg, args);
+                },
             });
             getImageDataProxy.overload();
 
@@ -6051,7 +6072,7 @@
              * @param {string} domainKey
              * @param {string} sessionKey
              */
-            function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey) {
+            function getCachedOffScreenCanvasOrCompute(canvas, domainKey, sessionKey) {
                 let result;
                 if (canvasCache.has(canvas)) {
                     result = canvasCache.get(canvas);
@@ -6060,28 +6081,28 @@
                     result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx);
                     canvasCache.set(canvas, result);
                 }
-                return result
+                return result;
             }
 
             const canvasMethods = ['toDataURL', 'toBlob'];
             for (const methodName of canvasMethods) {
                 const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, methodName, {
-                    apply (target, thisArg, args) {
+                    apply(target, thisArg, args) {
                         // Short circuit for low risk canvas calls
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         if (!unsafeCanvases.has(thisArg)) {
-                            return DDGReflect.apply(target, thisArg, args)
+                            return DDGReflect.apply(target, thisArg, args);
                         }
                         try {
                             // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                             const { offScreenCanvas } = getCachedOffScreenCanvasOrCompute(thisArg, domainKey, sessionKey);
                             // Call the original method on the modified off-screen canvas
-                            return DDGReflect.apply(target, offScreenCanvas, args)
+                            return DDGReflect.apply(target, offScreenCanvas, args);
                         } catch {
                             // Something we did caused an exception, fall back to the native
-                            return DDGReflect.apply(target, thisArg, args)
+                            return DDGReflect.apply(target, thisArg, args);
                         }
-                    }
+                    },
                 });
                 proxy.overload();
             }
@@ -6089,7 +6110,7 @@
     }
 
     class GoogleRejected extends ContentFeature {
-        init () {
+        init() {
             try {
                 if ('browsingTopics' in Document.prototype) {
                     delete Document.prototype.browsingTopics;
@@ -6117,26 +6138,26 @@
 
     // Set Global Privacy Control property on DOM
     class GlobalPrivacyControl extends ContentFeature {
-        init (args) {
+        init(args) {
             try {
                 // If GPC on, set DOM property prototype to true if not already true
                 if (args.globalPrivacyControlValue) {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    if (navigator.globalPrivacyControl) return
+                    if (navigator.globalPrivacyControl) return;
                     this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                         get: () => true,
                         configurable: true,
-                        enumerable: true
+                        enumerable: true,
                     });
                 } else {
                     // If GPC off & unsupported by browser, set DOM property prototype to false
                     // this may be overwritten by the user agent or other extensions
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    if (typeof navigator.globalPrivacyControl !== 'undefined') return
+                    if (typeof navigator.globalPrivacyControl !== 'undefined') return;
                     this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                         get: () => false,
                         configurable: true,
-                        enumerable: true
+                        enumerable: true,
                     });
                 }
             } catch {
@@ -6146,77 +6167,77 @@
     }
 
     class FingerprintingHardware extends ContentFeature {
-        init () {
+        init() {
             this.wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
                 get: () => {
                     // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
-                    return this.getFeatureAttr('keyboard')
-                }
+                    return this.getFeatureAttr('keyboard');
+                },
             });
 
             this.wrapProperty(globalThis.Navigator.prototype, 'hardwareConcurrency', {
                 get: () => {
-                    return this.getFeatureAttr('hardwareConcurrency', 2)
-                }
+                    return this.getFeatureAttr('hardwareConcurrency', 2);
+                },
             });
 
             this.wrapProperty(globalThis.Navigator.prototype, 'deviceMemory', {
                 get: () => {
-                    return this.getFeatureAttr('deviceMemory', 8)
-                }
+                    return this.getFeatureAttr('deviceMemory', 8);
+                },
             });
         }
     }
 
     class Referrer extends ContentFeature {
-        init () {
+        init() {
             // If the referer is a different host to the current one, trim it.
             if (document.referrer && new URL(document.URL).hostname !== new URL(document.referrer).hostname) {
                 // trim referrer to origin.
                 const trimmedReferer = new URL(document.referrer).origin + '/';
                 this.wrapProperty(Document.prototype, 'referrer', {
-                    get: () => trimmedReferer
+                    get: () => trimmedReferer,
                 });
             }
         }
     }
 
     class FingerprintingScreenSize extends ContentFeature {
-        origPropertyValues = {}
+        origPropertyValues = {};
 
-        init () {
+        init() {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.origPropertyValues.availTop = globalThis.screen.availTop;
             this.wrapProperty(globalThis.Screen.prototype, 'availTop', {
-                get: () => this.getFeatureAttr('availTop', 0)
+                get: () => this.getFeatureAttr('availTop', 0),
             });
 
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.origPropertyValues.availLeft = globalThis.screen.availLeft;
             this.wrapProperty(globalThis.Screen.prototype, 'availLeft', {
-                get: () => this.getFeatureAttr('availLeft', 0)
+                get: () => this.getFeatureAttr('availLeft', 0),
             });
 
             this.origPropertyValues.availWidth = globalThis.screen.availWidth;
             const forcedAvailWidthValue = globalThis.screen.width;
             this.wrapProperty(globalThis.Screen.prototype, 'availWidth', {
-                get: () => forcedAvailWidthValue
+                get: () => forcedAvailWidthValue,
             });
 
             this.origPropertyValues.availHeight = globalThis.screen.availHeight;
             const forcedAvailHeightValue = globalThis.screen.height;
             this.wrapProperty(globalThis.Screen.prototype, 'availHeight', {
-                get: () => forcedAvailHeightValue
+                get: () => forcedAvailHeightValue,
             });
 
             this.origPropertyValues.colorDepth = globalThis.screen.colorDepth;
             this.wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
-                get: () => this.getFeatureAttr('colorDepth', 24)
+                get: () => this.getFeatureAttr('colorDepth', 24),
             });
 
             this.origPropertyValues.pixelDepth = globalThis.screen.pixelDepth;
             this.wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
-                get: () => this.getFeatureAttr('pixelDepth', 24)
+                get: () => this.getFeatureAttr('pixelDepth', 24),
             });
 
             globalThis.window.addEventListener('resize', () => {
@@ -6231,25 +6252,25 @@
          * can mean second or more monitors have very large or negative values. This function maps a given
          * given coordinate value to the proper place on the main screen.
          */
-        normalizeWindowDimension (value, targetDimension) {
+        normalizeWindowDimension(value, targetDimension) {
             if (value > targetDimension) {
-                return value % targetDimension
+                return value % targetDimension;
             }
             if (value < 0) {
-                return targetDimension + value
+                return targetDimension + value;
             }
-            return value
+            return value;
         }
 
-        setWindowPropertyValue (property, value) {
+        setWindowPropertyValue(property, value) {
             // Here we don't update the prototype getter because the values are updated dynamically
             try {
                 this.defineProperty(globalThis, property, {
                     get: () => value,
-                     
+
                     set: () => {},
                     configurable: true,
-                    enumerable: true
+                    enumerable: true,
                 });
             } catch (e) {}
         }
@@ -6260,7 +6281,7 @@
          * ensuring that no information is leaked as the dimensions change, but also that the
          * values change correctly for valid use cases.
          */
-        setWindowDimensions () {
+        setWindowDimensions() {
             try {
                 const window = globalThis;
                 const top = globalThis.top;
@@ -6315,7 +6336,7 @@
     }
 
     class FingerprintingTemporaryStorage extends ContentFeature {
-        init () {
+        init() {
             const navigator = globalThis.navigator;
             const Navigator = globalThis.Navigator;
 
@@ -6331,7 +6352,7 @@
                     const org = navigator.webkitTemporaryStorage.queryUsageAndQuota;
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     const tStorage = navigator.webkitTemporaryStorage;
-                    tStorage.queryUsageAndQuota = function queryUsageAndQuota (callback, err) {
+                    tStorage.queryUsageAndQuota = function queryUsageAndQuota(callback, err) {
                         const modifiedCallback = function (usedBytes, grantedBytes) {
                             const maxBytesGranted = 4 * 1024 * 1024 * 1024;
                             const spoofedGrantedBytes = Math.min(grantedBytes, maxBytesGranted);
@@ -6343,7 +6364,7 @@
                     this.defineProperty(Navigator.prototype, 'webkitTemporaryStorage', {
                         get: () => tStorage,
                         enumerable: true,
-                        configurable: true
+                        configurable: true,
                     });
                 } catch (e) {}
             }
@@ -6351,35 +6372,35 @@
     }
 
     class NavigatorInterface extends ContentFeature {
-        load (args) {
+        load(args) {
             if (this.matchDomainFeatureSetting('privilegedDomains').length) {
                 this.injectNavigatorInterface(args);
             }
         }
 
-        init (args) {
+        init(args) {
             this.injectNavigatorInterface(args);
         }
 
-        injectNavigatorInterface (args) {
+        injectNavigatorInterface(args) {
             try {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 if (navigator.duckduckgo) {
-                    return
+                    return;
                 }
                 if (!args.platform || !args.platform.name) {
-                    return
+                    return;
                 }
                 this.defineProperty(Navigator.prototype, 'duckduckgo', {
                     value: {
                         platform: args.platform.name,
-                        isDuckDuckGo () {
-                            return DDGPromise.resolve(true)
-                        }
+                        isDuckDuckGo() {
+                            return DDGPromise.resolve(true);
+                        },
                     },
                     enumerable: true,
                     configurable: false,
-                    writable: false
+                    writable: false,
                 });
             } catch {
                 // todo: Just ignore this exception?
@@ -6406,44 +6427,44 @@
      * @param {Object} rule
      * @param {HTMLElement} [previousElement]
      */
-    function collapseDomNode (element, rule, previousElement) {
+    function collapseDomNode(element, rule, previousElement) {
         if (!element) {
-            return
+            return;
         }
         const type = rule.type;
         const alreadyHidden = hiddenElements.has(element);
         const alreadyModified = modifiedElements.has(element) && modifiedElements.get(element) === rule.type;
         // return if the element has already been hidden, or modified by the same rule type
         if (alreadyHidden || alreadyModified) {
-            return
+            return;
         }
 
         switch (type) {
-        case 'hide':
-            hideNode(element);
-            break
-        case 'hide-empty':
-            if (isDomNodeEmpty(element)) {
+            case 'hide':
                 hideNode(element);
-                appliedRules.add(rule);
-            }
-            break
-        case 'closest-empty':
-            // hide the outermost empty node so that we may unhide if ad loads
-            if (isDomNodeEmpty(element)) {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                collapseDomNode(element.parentNode, rule, element);
-            } else if (previousElement) {
-                hideNode(previousElement);
-                appliedRules.add(rule);
-            }
-            break
-        case 'modify-attr':
-            modifyAttribute(element, rule.values);
-            break
-        case 'modify-style':
-            modifyStyle(element, rule.values);
-            break
+                break;
+            case 'hide-empty':
+                if (isDomNodeEmpty(element)) {
+                    hideNode(element);
+                    appliedRules.add(rule);
+                }
+                break;
+            case 'closest-empty':
+                // hide the outermost empty node so that we may unhide if ad loads
+                if (isDomNodeEmpty(element)) {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    collapseDomNode(element.parentNode, rule, element);
+                } else if (previousElement) {
+                    hideNode(previousElement);
+                    appliedRules.add(rule);
+                }
+                break;
+            case 'modify-attr':
+                modifyAttribute(element, rule.values);
+                break;
+            case 'modify-style':
+                modifyStyle(element, rule.values);
+                break;
         }
     }
 
@@ -6452,29 +6473,29 @@
      * @param {HTMLElement} element
      * @param {Object} rule
      */
-    function expandNonEmptyDomNode (element, rule) {
+    function expandNonEmptyDomNode(element, rule) {
         if (!element) {
-            return
+            return;
         }
         const type = rule.type;
 
         const alreadyHidden = hiddenElements.has(element);
 
         switch (type) {
-        case 'hide':
-            // only care about rule types that specifically apply to empty elements
-            break
-        case 'hide-empty':
-        case 'closest-empty':
-            if (alreadyHidden && !isDomNodeEmpty(element)) {
-                unhideNode(element);
-            } else if (type === 'closest-empty') {
-                // iterate upwards from matching DOM elements until we arrive at previously
-                // hidden element. Unhide element if it contains visible content.
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                expandNonEmptyDomNode(element.parentNode, rule);
-            }
-            break
+            case 'hide':
+                // only care about rule types that specifically apply to empty elements
+                break;
+            case 'hide-empty':
+            case 'closest-empty':
+                if (alreadyHidden && !isDomNodeEmpty(element)) {
+                    unhideNode(element);
+                } else if (type === 'closest-empty') {
+                    // iterate upwards from matching DOM elements until we arrive at previously
+                    // hidden element. Unhide element if it contains visible content.
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    expandNonEmptyDomNode(element.parentNode, rule);
+                }
+                break;
         }
     }
 
@@ -6482,13 +6503,13 @@
      * Hide DOM element
      * @param {HTMLElement} element
      */
-    function hideNode (element) {
+    function hideNode(element) {
         // maintain a reference to each hidden element along with the properties
         // that are being overwritten
         const cachedDisplayProperties = {
             display: element.style.display,
             'min-height': element.style.minHeight,
-            height: element.style.height
+            height: element.style.height,
         };
         hiddenElements.set(element, cachedDisplayProperties);
 
@@ -6505,10 +6526,10 @@
      * Show previously hidden DOM element
      * @param {HTMLElement} element
      */
-    function unhideNode (element) {
+    function unhideNode(element) {
         const cachedDisplayProperties = hiddenElements.get(element);
         if (!cachedDisplayProperties) {
-            return
+            return;
         }
 
         for (const prop in cachedDisplayProperties) {
@@ -6522,10 +6543,10 @@
      * Check if DOM element contains visible content
      * @param {HTMLElement} node
      */
-    function isDomNodeEmpty (node) {
+    function isDomNodeEmpty(node) {
         // no sense wasting cycles checking if the page's body element is empty
         if (node.tagName === 'BODY') {
-            return false
+            return false;
         }
         // use a DOMParser to remove all metadata elements before checking if
         // the node is empty.
@@ -6544,19 +6565,23 @@
         // - node doesn't contain any iframes
         // - node contains iframes, all of which are hidden or have src='about:blank'
         const noFramesWithContent = frameElements.every((frame) => {
-            return (frame.hidden || frame.src === 'about:blank')
+            return frame.hidden || frame.src === 'about:blank';
         });
         // ad containers often contain tracking pixels and other small images (eg adchoices logo).
         // these should be treated as empty and hidden, but real images should not.
         const visibleImages = imageElements.some((image) => {
-            return (image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20)
+            return image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20;
         });
 
-        if ((visibleText === '' || adLabelStrings.includes(visibleText)) &&
-            mediaAndFormContent === null && noFramesWithContent && !visibleImages) {
-            return true
+        if (
+            (visibleText === '' || adLabelStrings.includes(visibleText)) &&
+            mediaAndFormContent === null &&
+            noFramesWithContent &&
+            !visibleImages
+        ) {
+            return true;
         }
-        return false
+        return false;
     }
 
     /**
@@ -6566,7 +6591,7 @@
      * @param {string} values[].property
      * @param {string} values[].value
      */
-    function modifyAttribute (element, values) {
+    function modifyAttribute(element, values) {
         values.forEach((item) => {
             element.setAttribute(item.property, item.value);
         });
@@ -6580,7 +6605,7 @@
      * @param {string} values[].property
      * @param {string} values[].value
      */
-    function modifyStyle (element, values) {
+    function modifyStyle(element, values) {
         values.forEach((item) => {
             element.style.setProperty(item.property, item.value, 'important');
         });
@@ -6593,9 +6618,9 @@
      * @param {string} rules[].selector
      * @param {string} rules[].type
      */
-    function extractTimeoutRules (rules) {
+    function extractTimeoutRules(rules) {
         if (!shouldInjectStyleTag) {
-            return rules
+            return rules;
         }
 
         const strictHideRules = [];
@@ -6610,7 +6635,7 @@
         });
 
         injectStyleTag(strictHideRules);
-        return timeoutRules
+        return timeoutRules;
     }
 
     /**
@@ -6619,7 +6644,7 @@
      * @param {string} rules[].selector
      * @param {string} rules[].type
      */
-    function injectStyleTag (rules) {
+    function injectStyleTag(rules) {
         // wrap selector list in :is(...) to make it a forgiving selector list. this enables
         // us to use selectors not supported in all browsers, eg :has in Firefox
         let selector = '';
@@ -6643,7 +6668,7 @@
      * @param {string} rules[].selector
      * @param {string} rules[].type
      */
-    function hideAdNodes (rules) {
+    function hideAdNodes(rules) {
         const document = globalThis.document;
 
         rules.forEach((rule) => {
@@ -6659,7 +6684,7 @@
     /**
      * Iterate over previously hidden elements, unhiding if content has loaded into them
      */
-    function unhideLoadedAds () {
+    function unhideLoadedAds() {
         const document = globalThis.document;
 
         appliedRules.forEach((rule) => {
@@ -6675,17 +6700,17 @@
     /**
      * Wrap selector(s) in :is(..) to make them forgiving
      */
-    function forgivingSelector (selector) {
-        return `:is(${selector})`
+    function forgivingSelector(selector) {
+        return `:is(${selector})`;
     }
 
     class ElementHiding extends ContentFeature {
-        init () {
+        init() {
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             featureInstance = this;
 
             if (isBeingFramed()) {
-                return
+                return;
             }
 
             let activeRules;
@@ -6705,17 +6730,17 @@
             const activeDomainRules = this.matchDomainFeatureSetting('domains').flatMap((item) => item.rules);
 
             const overrideRules = activeDomainRules.filter((rule) => {
-                return rule.type === 'override'
+                return rule.type === 'override';
             });
 
             const disableDefault = activeDomainRules.some((rule) => {
-                return rule.type === 'disable-default'
+                return rule.type === 'disable-default';
             });
 
             // if rule with type 'disable-default' is present, ignore all global rules
             if (disableDefault) {
                 activeRules = activeDomainRules.filter((rule) => {
-                    return rule.type !== 'disable-default'
+                    return rule.type !== 'disable-default';
                 });
             } else {
                 activeRules = activeDomainRules.concat(globalRules);
@@ -6724,7 +6749,7 @@
             // remove overrides and rules that match overrides from array of rules to be applied to page
             overrideRules.forEach((override) => {
                 activeRules = activeRules.filter((rule) => {
-                    return rule.selector !== override.selector
+                    return rule.selector !== override.selector;
                 });
             });
 
@@ -6741,10 +6766,10 @@
             // single page applications don't have a DOMContentLoaded event on navigations, so
             // we use proxy/reflect on history.pushState to call applyRules on page navigations
             const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     applyRules(activeRules);
-                    return DDGReflect.apply(target, thisArg, args)
-                }
+                    return DDGReflect.apply(target, thisArg, args);
+                },
             });
             historyMethodProxy.overload();
             // listen for popstate events in order to run on back/forward navigations
@@ -6759,7 +6784,7 @@
          * @param {string} rules[].selector
          * @param {string} rules[].type
          */
-        applyRules (rules) {
+        applyRules(rules) {
             const timeoutRules = extractTimeoutRules(rules);
             const clearCacheTimer = unhideTimeouts.concat(hideTimeouts).reduce((a, b) => Math.max(a, b), 0) + 100;
 
@@ -6791,52 +6816,192 @@
     }
 
     class ExceptionHandler extends ContentFeature {
-        init () {
+        init() {
             // Report to the debugger panel if an uncaught exception occurs
             const handleUncaughtException = (e) => {
-                postDebugMessage('jsException', {
-                    documentUrl: document.location.href,
-                    message: e.message,
-                    filename: e.filename,
-                    lineno: e.lineno,
-                    colno: e.colno,
-                    stack: e.error?.stack
-                }, true);
+                postDebugMessage(
+                    'jsException',
+                    {
+                        documentUrl: document.location.href,
+                        message: e.message,
+                        filename: e.filename,
+                        lineno: e.lineno,
+                        colno: e.colno,
+                        stack: e.error?.stack,
+                    },
+                    true,
+                );
                 this.addDebugFlag();
             };
             globalThis.addEventListener('error', handleUncaughtException);
         }
     }
 
+    /**
+     * This feature allows remote configuration of APIs that exist within the DOM.
+     * We support removal of APIs and returning different values from getters.
+     *
+     * @module API manipulation
+     */
+
+    /**
+     * @internal
+     */
+    class ApiManipulation extends ContentFeature {
+        init() {
+            const apiChanges = this.getFeatureSetting('apiChanges');
+            if (apiChanges) {
+                for (const scope in apiChanges) {
+                    const change = apiChanges[scope];
+                    if (!this.checkIsValidAPIChange(change)) {
+                        continue;
+                    }
+                    this.applyApiChange(scope, change);
+                }
+            }
+        }
+
+        /**
+         * Checks if the config API change is valid.
+         * @param {any} change
+         * @returns {change is APIChange}
+         */
+        checkIsValidAPIChange(change) {
+            if (typeof change !== 'object') {
+                return false;
+            }
+            if (change.type === 'remove') {
+                return true;
+            }
+            if (change.type === 'descriptor') {
+                if (change.enumerable && typeof change.enumerable !== 'boolean') {
+                    return false;
+                }
+                if (change.configurable && typeof change.configurable !== 'boolean') {
+                    return false;
+                }
+                return typeof change.getterValue !== 'undefined';
+            }
+            return false;
+        }
+
+        // TODO move this to schema definition imported from the privacy-config
+        // Additionally remove checkIsValidAPIChange when this change happens.
+        // See: https://app.asana.com/0/1201614831475344/1208715421518231/f
+        /**
+         * @typedef {Object} APIChange
+         * @property {"remove"|"descriptor"} type
+         * @property {import('../utils.js').ConfigSetting} [getterValue] - The value returned from a getter.
+         * @property {boolean} [enumerable] - Whether the property is enumerable.
+         * @property {boolean} [configurable] - Whether the property is configurable.
+         */
+
+        /**
+         * Applies a change to DOM APIs.
+         * @param {string} scope
+         * @param {APIChange} change
+         * @returns {void}
+         */
+        applyApiChange(scope, change) {
+            const response = this.getGlobalObject(scope);
+            if (!response) {
+                return;
+            }
+            const [obj, key] = response;
+            if (change.type === 'remove') {
+                this.removeApiMethod(obj, key);
+            } else if (change.type === 'descriptor') {
+                this.wrapApiDescriptor(obj, key, change);
+            }
+        }
+
+        /**
+         * Removes a method from an API.
+         * @param {object} api
+         * @param {string} key
+         */
+        removeApiMethod(api, key) {
+            try {
+                if (hasOwnProperty.call(api, key)) {
+                    delete api[key];
+                }
+            } catch (e) {}
+        }
+
+        /**
+         * Wraps a property with descriptor.
+         * @param {object} api
+         * @param {string} key
+         * @param {APIChange} change
+         */
+        wrapApiDescriptor(api, key, change) {
+            const getterValue = change.getterValue;
+            if (getterValue) {
+                const descriptor = {
+                    get: () => processAttr(getterValue, undefined),
+                };
+                if ('enumerable' in change) {
+                    descriptor.enumerable = change.enumerable;
+                }
+                if ('configurable' in change) {
+                    descriptor.configurable = change.configurable;
+                }
+                this.wrapProperty(api, key, descriptor);
+            }
+        }
+
+        /**
+         * Looks up a global object from a scope, e.g. 'Navigator.prototype'.
+         * @param {string} scope the scope of the object to get to.
+         * @returns {[object, string]|null} the object at the scope.
+         */
+        getGlobalObject(scope) {
+            const parts = scope.split('.');
+            // get the last part of the scope
+            const lastPart = parts.pop();
+            if (!lastPart) {
+                return null;
+            }
+            let obj = window;
+            for (const part of parts) {
+                obj = obj[part];
+                if (!obj) {
+                    return null;
+                }
+            }
+            return [obj, lastPart];
+        }
+    }
+
     /* global Bluetooth, Geolocation, HID, Serial, USB */
 
     class WindowsPermissionUsage extends ContentFeature {
-        init () {
+        init() {
             const Permission = {
                 Geolocation: 'geolocation',
                 Camera: 'camera',
-                Microphone: 'microphone'
+                Microphone: 'microphone',
             };
 
             const Status = {
                 Inactive: 'inactive',
                 Accessed: 'accessed',
                 Active: 'active',
-                Paused: 'paused'
+                Paused: 'paused',
             };
 
             const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top;
 
-            function windowsPostMessage (name, data) {
+            function windowsPostMessage(name, data) {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 windowsInteropPostMessage({
                     Feature: 'Permissions',
                     Name: name,
-                    Data: data
+                    Data: data,
                 });
             }
 
-            function signalPermissionStatus (permission, status) {
+            function signalPermissionStatus(permission, status) {
                 windowsPostMessage('PermissionStatusMessage', { permission, status });
                 console.debug(`Permission '${permission}' is ${status}`);
             }
@@ -6845,10 +7010,10 @@
             const watchedPositions = new Set();
             // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
             const watchPositionProxy = new DDGProxy(this, Geolocation.prototype, 'watchPosition', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     if (isFrameInsideFrame) {
                         // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
-                        throw new DOMException('Permission denied')
+                        throw new DOMException('Permission denied');
                     }
 
                     const successHandler = args[0];
@@ -6862,32 +7027,32 @@
                     };
                     const id = DDGReflect.apply(target, thisArg, args);
                     watchedPositions.add(id);
-                    return id
-                }
+                    return id;
+                },
             });
             watchPositionProxy.overload();
 
             // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
             const clearWatchProxy = new DDGProxy(this, Geolocation.prototype, 'clearWatch', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     DDGReflect.apply(target, thisArg, args);
                     if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
                         signalPermissionStatus(Permission.Geolocation, Status.Inactive);
                     }
-                }
+                },
             });
             clearWatchProxy.overload();
 
             // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
             const getCurrentPositionProxy = new DDGProxy(this, Geolocation.prototype, 'getCurrentPosition', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     const successHandler = args[0];
                     args[0] = function (position) {
                         signalPermissionStatus(Permission.Geolocation, Status.Accessed);
                         successHandler?.(position);
                     };
-                    return DDGReflect.apply(target, thisArg, args)
-                }
+                    return DDGReflect.apply(target, thisArg, args);
+                },
             });
             getCurrentPositionProxy.overload();
 
@@ -6896,74 +7061,74 @@
             const audioTracks = new Set();
 
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            function getTracks (permission) {
+            function getTracks(permission) {
                 switch (permission) {
-                case Permission.Camera:
-                    return videoTracks
-                case Permission.Microphone:
-                    return audioTracks
+                    case Permission.Camera:
+                        return videoTracks;
+                    case Permission.Microphone:
+                        return audioTracks;
                 }
             }
 
-            function stopTracks (streamTracks) {
-                streamTracks?.forEach(track => track.stop());
+            function stopTracks(streamTracks) {
+                streamTracks?.forEach((track) => track.stop());
             }
 
-            function clearAllGeolocationWatch () {
-                watchedPositions.forEach(id => navigator.geolocation.clearWatch(id));
+            function clearAllGeolocationWatch() {
+                watchedPositions.forEach((id) => navigator.geolocation.clearWatch(id));
             }
 
-            function pause (permission) {
+            function pause(permission) {
                 switch (permission) {
-                case Permission.Camera:
-                case Permission.Microphone: {
-                    const streamTracks = getTracks(permission);
-                    streamTracks?.forEach(track => {
-                        track.enabled = false;
-                    });
-                    break
-                }
-                case Permission.Geolocation:
-                    pauseWatchedPositions = true;
-                    signalPermissionStatus(Permission.Geolocation, Status.Paused);
-                    break
+                    case Permission.Camera:
+                    case Permission.Microphone: {
+                        const streamTracks = getTracks(permission);
+                        streamTracks?.forEach((track) => {
+                            track.enabled = false;
+                        });
+                        break;
+                    }
+                    case Permission.Geolocation:
+                        pauseWatchedPositions = true;
+                        signalPermissionStatus(Permission.Geolocation, Status.Paused);
+                        break;
                 }
             }
 
-            function resume (permission) {
+            function resume(permission) {
                 switch (permission) {
-                case Permission.Camera:
-                case Permission.Microphone: {
-                    const streamTracks = getTracks(permission);
-                    streamTracks?.forEach(track => {
-                        track.enabled = true;
-                    });
-                    break
-                }
-                case Permission.Geolocation:
-                    pauseWatchedPositions = false;
-                    signalPermissionStatus(Permission.Geolocation, Status.Active);
-                    break
+                    case Permission.Camera:
+                    case Permission.Microphone: {
+                        const streamTracks = getTracks(permission);
+                        streamTracks?.forEach((track) => {
+                            track.enabled = true;
+                        });
+                        break;
+                    }
+                    case Permission.Geolocation:
+                        pauseWatchedPositions = false;
+                        signalPermissionStatus(Permission.Geolocation, Status.Active);
+                        break;
                 }
             }
 
-            function stop (permission) {
+            function stop(permission) {
                 switch (permission) {
-                case Permission.Camera:
-                    stopTracks(videoTracks);
-                    break
-                case Permission.Microphone:
-                    stopTracks(audioTracks);
-                    break
-                case Permission.Geolocation:
-                    pauseWatchedPositions = false;
-                    clearAllGeolocationWatch();
-                    break
+                    case Permission.Camera:
+                        stopTracks(videoTracks);
+                        break;
+                    case Permission.Microphone:
+                        stopTracks(audioTracks);
+                        break;
+                    case Permission.Geolocation:
+                        pauseWatchedPositions = false;
+                        clearAllGeolocationWatch();
+                        break;
                 }
             }
 
-            function monitorTrack (track) {
-                if (track.readyState === 'ended') return
+            function monitorTrack(track) {
+                if (track.readyState === 'ended') return;
 
                 if (track.kind === 'video' && !videoTracks.has(track)) {
                     console.debug(`New video stream track ${track.id}`);
@@ -6980,7 +7145,7 @@
                 }
             }
 
-            function handleTrackEnded (track) {
+            function handleTrackEnded(track) {
                 if (track.kind === 'video' && videoTracks.has(track)) {
                     console.debug(`Video stream track ${track.id} ended`);
                     track.removeEventListener('ended', videoTrackEnded);
@@ -6998,27 +7163,27 @@
                 }
             }
 
-            function videoTrackEnded (e) {
+            function videoTrackEnded(e) {
                 handleTrackEnded(e.target);
             }
 
-            function audioTrackEnded (e) {
+            function audioTrackEnded(e) {
                 handleTrackEnded(e.target);
             }
 
-            function signalTracksState (permission) {
+            function signalTracksState(permission) {
                 const tracks = getTracks(permission);
-                if (!tracks) return
+                if (!tracks) return;
 
                 const allTrackCount = tracks.size;
                 if (allTrackCount === 0) {
                     signalPermissionStatus(permission, Status.Inactive);
-                    return
+                    return;
                 }
 
                 let mutedTrackCount = 0;
-                tracks.forEach(track => {
-                    mutedTrackCount += ((!track.enabled || track.muted) ? 1 : 0);
+                tracks.forEach((track) => {
+                    mutedTrackCount += !track.enabled || track.muted ? 1 : 0;
                 });
                 if (mutedTrackCount === allTrackCount) {
                     signalPermissionStatus(permission, Status.Paused);
@@ -7031,37 +7196,37 @@
             }
 
             let signalVideoTracksStateTimer;
-            function signalVideoTracksState () {
+            function signalVideoTracksState() {
                 clearTimeout(signalVideoTracksStateTimer);
                 signalVideoTracksStateTimer = setTimeout(() => signalTracksState(Permission.Camera), 100);
             }
 
             let signalAudioTracksStateTimer;
-            function signalAudioTracksState () {
+            function signalAudioTracksState() {
                 clearTimeout(signalAudioTracksStateTimer);
                 signalAudioTracksStateTimer = setTimeout(() => signalTracksState(Permission.Microphone), 100);
             }
 
             // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
             const stopTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'stop', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     handleTrackEnded(thisArg);
-                    return DDGReflect.apply(target, thisArg, args)
-                }
+                    return DDGReflect.apply(target, thisArg, args);
+                },
             });
             stopTrackProxy.overload();
 
             // proxy for track.clone -> monitor the cloned track
             const cloneTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'clone', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     const clonedTrack = DDGReflect.apply(target, thisArg, args);
                     if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
                         // @ts-expect-error - thisArg is possibly undefined
                         console.debug(`Media stream track ${thisArg.id} has been cloned to track ${clonedTrack.id}`);
                         monitorTrack(clonedTrack);
                     }
-                    return clonedTrack
-                }
+                    return clonedTrack;
+                },
             });
             cloneTrackProxy.overload();
 
@@ -7074,7 +7239,7 @@
                 enumerable: trackEnabledPropertyDescriptor.enumerable,
                 get: function () {
                     // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
-                    return trackEnabledPropertyDescriptor.get.bind(this)()
+                    return trackEnabledPropertyDescriptor.get.bind(this)();
                 },
                 set: function () {
                     // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
@@ -7084,46 +7249,46 @@
                     } else if (audioTracks.has(this)) {
                         signalAudioTracksState();
                     }
-                    return result
-                }
+                    return result;
+                },
             });
 
             // proxy for get*Tracks methods -> needed to monitor tracks returned by saved media stream coming for MediaDevices.getUserMedia
             const getTracksMethodNames = ['getTracks', 'getAudioTracks', 'getVideoTracks'];
             for (const methodName of getTracksMethodNames) {
                 const getTracksProxy = new DDGProxy(this, MediaStream.prototype, methodName, {
-                    apply (target, thisArg, args) {
+                    apply(target, thisArg, args) {
                         const tracks = DDGReflect.apply(target, thisArg, args);
                         if (userMediaStreams.has(thisArg)) {
                             tracks.forEach(monitorTrack);
                         }
-                        return tracks
-                    }
+                        return tracks;
+                    },
                 });
                 getTracksProxy.overload();
             }
 
             // proxy for MediaStream.clone -> needed to monitor cloned MediaDevices.getUserMedia streams
             const cloneMediaStreamProxy = new DDGProxy(this, MediaStream.prototype, 'clone', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     const clonedStream = DDGReflect.apply(target, thisArg, args);
                     if (userMediaStreams.has(thisArg)) {
                         // @ts-expect-error - thisArg is possibly 'undefined' here
                         console.debug(`User stream ${thisArg.id} has been cloned to stream ${clonedStream.id}`);
                         userMediaStreams.add(clonedStream);
                     }
-                    return clonedStream
-                }
+                    return clonedStream;
+                },
             });
             cloneMediaStreamProxy.overload();
 
             // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
             if (window.MediaDevices) {
                 const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, 'getUserMedia', {
-                    apply (target, thisArg, args) {
+                    apply(target, thisArg, args) {
                         if (isFrameInsideFrame) {
                             // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
-                            return Promise.reject(new DOMException('Permission denied'))
+                            return Promise.reject(new DOMException('Permission denied'));
                         }
 
                         const videoRequested = args[0]?.video;
@@ -7131,7 +7296,7 @@
 
                         if (videoRequested && (videoRequested.pan || videoRequested.tilt || videoRequested.zoom)) {
                             // WebView2 doesn't support acquiring pan-tilt-zoom from its API at the moment
-                            return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'))
+                            return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'));
                         }
 
                         // eslint-disable-next-line promise/prefer-await-to-then
@@ -7153,25 +7318,25 @@
                                 }
                                 newAudioTracks.forEach(monitorTrack);
                             }
-                            return stream
-                        })
-                    }
+                            return stream;
+                        });
+                    },
                 });
                 getUserMediaProxy.overload();
             }
 
-            function performAction (action, permission) {
+            function performAction(action, permission) {
                 if (action && permission) {
                     switch (action) {
-                    case 'pause':
-                        pause(permission);
-                        break
-                    case 'resume':
-                        resume(permission);
-                        break
-                    case 'stop':
-                        stop(permission);
-                        break
+                        case 'pause':
+                            pause(permission);
+                            break;
+                        case 'resume':
+                            resume(permission);
+                            break;
+                        case 'stop':
+                            stop(permission);
+                            break;
                     }
                 }
             }
@@ -7195,18 +7360,18 @@
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 { name: 'HID', prototype: () => HID.prototype, method: 'requestDevice', isPromise: true },
                 { name: 'Protocol handler', prototype: () => Navigator.prototype, method: 'registerProtocolHandler', isPromise: false },
-                { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true }
+                { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true },
             ];
             for (const { name, prototype, method, isPromise } of permissionsToDisable) {
                 try {
                     const proxy = new DDGProxy(this, prototype(), method, {
-                        apply () {
+                        apply() {
                             if (isPromise) {
-                                return Promise.reject(new DOMException('Permission denied'))
+                                return Promise.reject(new DOMException('Permission denied'));
                             } else {
-                                throw new DOMException('Permission denied')
+                                throw new DOMException('Permission denied');
                             }
-                        }
+                        },
                     });
                     proxy.overload();
                 } catch (error) {
@@ -7219,7 +7384,7 @@
                 { name: 'Idle detection', permission: 'IdleDetector' },
                 { name: 'NFC', permission: 'NDEFReader' },
                 { name: 'Orientation', permission: 'ondeviceorientation' },
-                { name: 'Motion', permission: 'ondevicemotion' }
+                { name: 'Motion', permission: 'ondevicemotion' },
             ];
             for (const { permission } of permissionsToDelete) {
                 if (permission in window) {
@@ -7256,7 +7421,7 @@
          * @param {import('./overlays.js').Environment} environment
          * @internal
          */
-        constructor (messaging, environment) {
+        constructor(messaging, environment) {
             /**
              * @internal
              */
@@ -7267,17 +7432,17 @@
         /**
          * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
          */
-        initialSetup () {
+        initialSetup() {
             if (this.environment.isIntegrationMode()) {
                 return Promise.resolve({
                     userValues: {
                         overlayInteracted: false,
-                        privatePlayerMode: { alwaysAsk: {} }
+                        privatePlayerMode: { alwaysAsk: {} },
                     },
-                    ui: {}
-                })
+                    ui: {},
+                });
             }
-            return this.messaging.request(MSG_NAME_INITIAL_SETUP)
+            return this.messaging.request(MSG_NAME_INITIAL_SETUP);
         }
 
         /**
@@ -7285,24 +7450,24 @@
          * @param {import("../duck-player.js").UserValues} userValues
          * @returns {Promise<import("../duck-player.js").UserValues>}
          */
-        setUserValues (userValues) {
-            return this.messaging.request(MSG_NAME_SET_VALUES, userValues)
+        setUserValues(userValues) {
+            return this.messaging.request(MSG_NAME_SET_VALUES, userValues);
         }
 
         /**
          * @returns {Promise<import("../duck-player.js").UserValues>}
          */
-        getUserValues () {
-            return this.messaging.request(MSG_NAME_READ_VALUES, {})
+        getUserValues() {
+            return this.messaging.request(MSG_NAME_READ_VALUES, {});
         }
 
         /**
          * @param {Pixel} pixel
          */
-        sendPixel (pixel) {
+        sendPixel(pixel) {
             this.messaging.notify(MSG_NAME_PIXEL, {
                 pixelName: pixel.name(),
-                params: pixel.params()
+                params: pixel.params(),
             });
         }
 
@@ -7311,43 +7476,45 @@
          * See {@link OpenInDuckPlayerMsg} for params
          * @param {OpenInDuckPlayerMsg} params
          */
-        openDuckPlayer (params) {
-            return this.messaging.notify(MSG_NAME_OPEN_PLAYER, params)
+        openDuckPlayer(params) {
+            return this.messaging.notify(MSG_NAME_OPEN_PLAYER, params);
         }
 
         /**
          * This is sent when the user wants to open Duck Player.
          */
-        openInfo () {
-            return this.messaging.notify(MSG_NAME_OPEN_INFO)
+        openInfo() {
+            return this.messaging.notify(MSG_NAME_OPEN_INFO);
         }
 
         /**
          * Get notification when preferences/state changed
          * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
          */
-        onUserValuesChanged (cb) {
-            return this.messaging.subscribe('onUserValuesChanged', cb)
+        onUserValuesChanged(cb) {
+            return this.messaging.subscribe('onUserValuesChanged', cb);
         }
 
         /**
          * Get notification when ui settings changed
          * @param {(userValues: import("../duck-player.js").UISettings) => void} cb
          */
-        onUIValuesChanged (cb) {
-            return this.messaging.subscribe('onUIValuesChanged', cb)
+        onUIValuesChanged(cb) {
+            return this.messaging.subscribe('onUIValuesChanged', cb);
         }
 
         /**
          * This allows our SERP to interact with Duck Player settings.
          */
-        serpProxy () {
-            function respond (kind, data) {
-                window.dispatchEvent(new CustomEvent(MSG_NAME_PROXY_RESPONSE, {
-                    detail: { kind, data },
-                    composed: true,
-                    bubbles: true
-                }));
+        serpProxy() {
+            function respond(kind, data) {
+                window.dispatchEvent(
+                    new CustomEvent(MSG_NAME_PROXY_RESPONSE, {
+                        detail: { kind, data },
+                        composed: true,
+                        bubbles: true,
+                    }),
+                );
             }
 
             // listen for setting and forward to the SERP window
@@ -7361,16 +7528,16 @@
                     assertCustomEvent(evt);
                     if (evt.detail.kind === MSG_NAME_SET_VALUES) {
                         return this.setUserValues(evt.detail.data)
-                            .then(updated => respond(MSG_NAME_PUSH_DATA, updated))
-                            .catch(console.error)
+                            .then((updated) => respond(MSG_NAME_PUSH_DATA, updated))
+                            .catch(console.error);
                     }
                     if (evt.detail.kind === MSG_NAME_READ_VALUES_SERP) {
                         return this.getUserValues()
-                            .then(updated => respond(MSG_NAME_PUSH_DATA, updated))
-                            .catch(console.error)
+                            .then((updated) => respond(MSG_NAME_PUSH_DATA, updated))
+                            .catch(console.error);
                     }
                     if (evt.detail.kind === MSG_NAME_OPEN_INFO) {
-                        return this.openInfo()
+                        return this.openInfo();
                     }
                     console.warn('unhandled event', evt);
                 } catch (e) {
@@ -7384,9 +7551,9 @@
      * @param {any} event
      * @returns {asserts event is CustomEvent<{kind: string, data: any}>}
      */
-    function assertCustomEvent (event) {
-        if (!('detail' in event)) throw new Error('none-custom event')
-        if (typeof event.detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string')
+    function assertCustomEvent(event) {
+        if (!('detail' in event)) throw new Error('none-custom event');
+        if (typeof event.detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string');
     }
 
     class Pixel {
@@ -7397,23 +7564,26 @@
          *   | {name: "play.use.thumbnail"}
          *   | {name: "play.do_not_use", remember: "0" | "1"}} input
          */
-        constructor (input) {
+        constructor(input) {
             this.input = input;
         }
 
-        name () {
-            return this.input.name
+        name() {
+            return this.input.name;
         }
 
-        params () {
+        params() {
             switch (this.input.name) {
-            case 'overlay': return {}
-            case 'play.use.thumbnail': return {}
-            case 'play.use':
-            case 'play.do_not_use': {
-                return { remember: this.input.remember }
-            }
-            default: throw new Error('unreachable')
+                case 'overlay':
+                    return {};
+                case 'play.use.thumbnail':
+                    return {};
+                case 'play.use':
+                case 'play.do_not_use': {
+                    return { remember: this.input.remember };
+                }
+                default:
+                    throw new Error('unreachable');
             }
         }
     }
@@ -7423,7 +7593,7 @@
          * @param {object} params
          * @param {string} params.href
          */
-        constructor (params) {
+        constructor(params) {
             this.href = params.href;
         }
     }
@@ -7443,7 +7613,7 @@
      * @param {string} targetSelector
      * @param {string} imageUrl
      */
-    function appendImageAsBackground (parent, targetSelector, imageUrl) {
+    function appendImageAsBackground(parent, targetSelector, imageUrl) {
 
         /**
          * Make a HEAD request to see what the status of this image is, without
@@ -7452,23 +7622,25 @@
          * This is needed because YouTube returns a 404 + valid image file when there's no
          * thumbnail and you can't tell the difference through the 'onload' event alone
          */
-        fetch(imageUrl, { method: 'HEAD' }).then(x => {
-            const status = String(x.status);
-            if (status.startsWith('2')) {
-                {
-                    append();
+        fetch(imageUrl, { method: 'HEAD' })
+            .then((x) => {
+                const status = String(x.status);
+                if (status.startsWith('2')) {
+                    {
+                        append();
+                    }
+                } else {
+                    markError();
                 }
-            } else {
-                markError();
-            }
-        }).catch(() => {
-            console.error('e from fetch');
-        });
+            })
+            .catch(() => {
+                console.error('e from fetch');
+            });
 
         /**
          * If loading fails, mark the parent with data-attributes
          */
-        function markError () {
+        function markError() {
             parent.dataset.thumbLoaded = String(false);
             parent.dataset.error = String(true);
         }
@@ -7476,9 +7648,11 @@
         /**
          * If loading succeeds, try to append the image
          */
-        function append () {
+        function append() {
             const targetElement = parent.querySelector(targetSelector);
-            if (!(targetElement instanceof HTMLElement)) return console.warn('could not find child with selector', targetSelector, 'from', parent)
+            if (!(targetElement instanceof HTMLElement)) {
+                return console.warn('could not find child with selector', targetSelector, 'from', parent);
+            }
             parent.dataset.thumbLoaded = String(true);
             parent.dataset.thumbSrc = imageUrl;
             const img = new Image();
@@ -7490,7 +7664,7 @@
             img.onerror = function () {
                 markError();
                 const targetElement = parent.querySelector(targetSelector);
-                if (!(targetElement instanceof HTMLElement)) return
+                if (!(targetElement instanceof HTMLElement)) return;
                 targetElement.style.backgroundImage = '';
             };
         }
@@ -7501,19 +7675,19 @@
          * @param {object} params
          * @param {boolean} [params.debug]
          */
-        constructor ({ debug = false } = { }) {
+        constructor({ debug = false } = {}) {
             this.debug = debug;
         }
 
         /** @type {{fn: () => void, name: string}[]} */
-        _cleanups = []
+        _cleanups = [];
         /**
          * Wrap a side-effecting operation for easier debugging
          * and teardown/release of resources
          * @param {string} name
          * @param {() => () => void} fn
          */
-        add (name, fn) {
+        add(name, fn) {
             try {
                 if (this.debug) {
                     console.log('☢️', name);
@@ -7530,7 +7704,7 @@
         /**
          * Remove elements, event listeners etc
          */
-        destroy () {
+        destroy() {
             for (const cleanup of this._cleanups) {
                 if (typeof cleanup.fn === 'function') {
                     try {
@@ -7542,7 +7716,7 @@
                         console.error(`cleanup ${cleanup.name} threw`, e);
                     }
                 } else {
-                    throw new Error('invalid cleanup')
+                    throw new Error('invalid cleanup');
                 }
             }
             this._cleanups = [];
@@ -7569,18 +7743,18 @@
          * @param {string} id - the YouTube video ID
          * @param {string|null|undefined} time - an optional time
          */
-        constructor (id, time) {
+        constructor(id, time) {
             this.id = id;
             this.time = time;
         }
 
-        static validVideoId = /^[a-zA-Z0-9-_]+$/
-        static validTimestamp = /^[0-9hms]+$/
+        static validVideoId = /^[a-zA-Z0-9-_]+$/;
+        static validTimestamp = /^[0-9hms]+$/;
 
         /**
          * @returns {string}
          */
-        toPrivatePlayerUrl () {
+        toPrivatePlayerUrl() {
             // no try/catch because we already validated the ID
             // in Microsoft WebView2 v118+ changing from special protocol (https) to non-special one (duck) is forbidden
             // so we need to construct duck player this way
@@ -7589,7 +7763,7 @@
             if (this.time) {
                 duckUrl.searchParams.set('t', this.time);
             }
-            return duckUrl.href
+            return duckUrl.href;
         }
 
         /**
@@ -7598,17 +7772,17 @@
          * @param {string} href
          * @returns {VideoParams|null}
          */
-        static forWatchPage (href) {
+        static forWatchPage(href) {
             let url;
             try {
                 url = new URL(href);
             } catch (e) {
-                return null
+                return null;
             }
             if (!url.pathname.startsWith('/watch')) {
-                return null
+                return null;
             }
-            return VideoParams.fromHref(url.href)
+            return VideoParams.fromHref(url.href);
         }
 
         /**
@@ -7617,14 +7791,14 @@
          * @param pathname
          * @returns {VideoParams|null}
          */
-        static fromPathname (pathname) {
+        static fromPathname(pathname) {
             let url;
             try {
                 url = new URL(pathname, window.location.origin);
             } catch (e) {
-                return null
+                return null;
             }
-            return VideoParams.fromHref(url.href)
+            return VideoParams.fromHref(url.href);
         }
 
         /**
@@ -7634,12 +7808,12 @@
          * @param href
          * @returns {VideoParams|null}
          */
-        static fromHref (href) {
+        static fromHref(href) {
             let url;
             try {
                 url = new URL(href);
             } catch (e) {
-                return null
+                return null;
             }
 
             let id = null;
@@ -7652,7 +7826,7 @@
             //   valid: '/watch?v=321&list=123&index=1234'
             // invalid: '/watch?v=321&list=123' <- index absent
             if (url.searchParams.has('list') && !url.searchParams.has('index')) {
-                return null
+                return null;
             }
 
             let time = null;
@@ -7662,7 +7836,7 @@
                 id = vParam;
             } else {
                 // if the video ID is invalid, we cannot produce an instance of VideoParams
-                return null
+                return null;
             }
 
             // ensure timestamp is good, if set
@@ -7670,7 +7844,7 @@
                 time = tParam;
             }
 
-            return new VideoParams(id, time)
+            return new VideoParams(id, time);
         }
     }
 
@@ -7681,17 +7855,17 @@
      * if the DOM is already loaded.
      */
     class DomState {
-        loaded = false
-        loadedCallbacks = []
-        constructor () {
+        loaded = false;
+        loadedCallbacks = [];
+        constructor() {
             window.addEventListener('DOMContentLoaded', () => {
                 this.loaded = true;
-                this.loadedCallbacks.forEach(cb => cb());
+                this.loadedCallbacks.forEach((cb) => cb());
             });
         }
 
-        onLoaded (loadedCallback) {
-            if (this.loaded) return loadedCallback()
+        onLoaded(loadedCallback) {
+            if (this.loaded) return loadedCallback();
             this.loadedCallbacks.push(loadedCallback);
         }
     }
@@ -7704,7 +7878,7 @@
      * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
      */
     class Template {
-        constructor (strings, values) {
+        constructor(strings, values) {
             this.values = values;
             this.strings = strings;
         }
@@ -7716,35 +7890,35 @@
          *        The string to escape.
          * @return {string} The escaped string.
          */
-        escapeXML (str) {
+        escapeXML(str) {
             const replacements = {
                 '&': '&amp;',
                 '"': '&quot;',
                 "'": '&apos;',
                 '<': '&lt;',
                 '>': '&gt;',
-                '/': '&#x2F;'
+                '/': '&#x2F;',
             };
-            return String(str).replace(/[&"'<>/]/g, m => replacements[m])
+            return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
         }
 
-        potentiallyEscape (value) {
+        potentiallyEscape(value) {
             if (typeof value === 'object') {
                 if (value instanceof Array) {
-                    return value.map(val => this.potentiallyEscape(val)).join('')
+                    return value.map((val) => this.potentiallyEscape(val)).join('');
                 }
 
                 // If we are an escaped template let join call toString on it
                 if (value instanceof Template) {
-                    return value
+                    return value;
                 }
 
-                throw new Error('Unknown object to escape')
+                throw new Error('Unknown object to escape');
             }
-            return this.escapeXML(value)
+            return this.escapeXML(value);
         }
 
-        toString () {
+        toString() {
             const result = [];
 
             for (const [i, string] of this.strings.entries()) {
@@ -7753,33 +7927,33 @@
                     result.push(this.potentiallyEscape(this.values[i]));
                 }
             }
-            return result.join('')
+            return result.join('');
         }
     }
 
-    function html (strings, ...values) {
-        return new Template(strings, values)
+    function html(strings, ...values) {
+        return new Template(strings, values);
     }
 
     /**
      * @param {string} string
      * @return {Template}
      */
-    function trustedUnsafe (string) {
-        return html([string])
+    function trustedUnsafe(string) {
+        return html([string]);
     }
 
     /**
      * Use a policy if trustedTypes is available
      * @return {{createHTML: (s: string) => any}}
      */
-    function createPolicy () {
+    function createPolicy() {
         if (globalThis.trustedTypes) {
-            return globalThis.trustedTypes?.createPolicy?.('ddg-default', { createHTML: (s) => s })
+            return globalThis.trustedTypes?.createPolicy?.('ddg-default', { createHTML: (s) => s });
         }
         return {
-            createHTML: (s) => s
-        }
+            createHTML: (s) => s,
+        };
     }
 
     /**
@@ -7787,56 +7961,56 @@
      */
     const text = {
         playText: {
-            title: 'Duck Player'
+            title: 'Duck Player',
         },
         videoOverlayTitle: {
-            title: 'Tired of targeted YouTube ads and recommendations?'
+            title: 'Tired of targeted YouTube ads and recommendations?',
         },
         videoOverlayTitle2: {
-            title: 'Turn on Duck Player to watch without targeted ads'
+            title: 'Turn on Duck Player to watch without targeted ads',
         },
         videoOverlayTitle3: {
-            title: 'Drowning in ads on YouTube? {newline} Turn on Duck Player.'
+            title: 'Drowning in ads on YouTube? {newline} Turn on Duck Player.',
         },
         videoOverlaySubtitle: {
-            title: 'provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.'
+            title: 'provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.',
         },
         videoOverlaySubtitle2: {
-            title: 'What you watch in DuckDuckGo won’t influence your recommendations on YouTube.'
+            title: 'What you watch in DuckDuckGo won’t influence your recommendations on YouTube.',
         },
         videoButtonOpen: {
-            title: 'Watch in Duck Player'
+            title: 'Watch in Duck Player',
         },
         videoButtonOpen2: {
-            title: 'Turn On Duck Player'
+            title: 'Turn On Duck Player',
         },
         videoButtonOptOut: {
-            title: 'Watch Here'
+            title: 'Watch Here',
         },
         videoButtonOptOut2: {
-            title: 'No Thanks'
+            title: 'No Thanks',
         },
         rememberLabel: {
-            title: 'Remember my choice'
-        }
+            title: 'Remember my choice',
+        },
     };
 
     const i18n = {
         /**
          * @param {keyof text} name
          */
-        t (name) {
+        t(name) {
             // eslint-disable-next-line no-prototype-builtins
             if (!text.hasOwnProperty(name)) {
                 console.error(`missing key ${name}`);
-                return 'missing'
+                return 'missing';
             }
             const match = text[name];
             if (!match.title) {
-                return 'missing'
+                return 'missing';
             }
-            return match.title
-        }
+            return match.title;
+        },
     };
 
     /**
@@ -7861,8 +8035,8 @@
             subtitle: i18n.t('videoOverlaySubtitle2'),
             buttonOptOut: i18n.t('videoButtonOptOut2'),
             buttonOpen: i18n.t('videoButtonOpen2'),
-            rememberLabel: i18n.t('rememberLabel')
-        }
+            rememberLabel: i18n.t('rememberLabel'),
+        },
     };
 
     /**
@@ -7875,29 +8049,29 @@
             subtitle: lookup.videoOverlaySubtitle2,
             buttonOptOut: lookup.videoButtonOptOut2,
             buttonOpen: lookup.videoButtonOpen2,
-            rememberLabel: lookup.rememberLabel
-        }
+            rememberLabel: lookup.rememberLabel,
+        };
     };
 
     class IconOverlay {
-        sideEffects = new SideEffects()
-        policy = createPolicy()
+        sideEffects = new SideEffects();
+        policy = createPolicy();
 
         /** @type {HTMLElement | null} */
-        element = null
+        element = null;
         /**
          * Special class used for the overlay hover. For hovering, we use a
          * single element and move it around to the hovered video element.
          */
-        HOVER_CLASS = 'ddg-overlay-hover'
-        OVERLAY_CLASS = 'ddg-overlay'
+        HOVER_CLASS = 'ddg-overlay-hover';
+        OVERLAY_CLASS = 'ddg-overlay';
 
-        CSS_OVERLAY_MARGIN_TOP = 5
-        CSS_OVERLAY_HEIGHT = 32
+        CSS_OVERLAY_MARGIN_TOP = 5;
+        CSS_OVERLAY_HEIGHT = 32;
 
         /** @type {HTMLElement | null} */
-        currentVideoElement = null
-        hoverOverlayVisible = false
+        currentVideoElement = null;
+        hoverOverlayVisible = false;
 
         /**
          * Creates an Icon Overlay.
@@ -7906,55 +8080,49 @@
          * @param {string} [extraClass] - whether to add any extra classes, such as hover
          * @returns {HTMLElement}
          */
-        create (size, href, extraClass) {
+        create(size, href, extraClass) {
             const overlayElement = document.createElement('div');
 
             overlayElement.setAttribute('class', 'ddg-overlay' + (extraClass ? ' ' + extraClass : ''));
             overlayElement.setAttribute('data-size', size);
             const svgIcon = trustedUnsafe(dax);
-            const safeString = html`
-                <a class="ddg-play-privately" href="#">
-                    <div class="ddg-dax">
-                    ${svgIcon}
-                    </div>
-                    <div class="ddg-play-text-container">
-                        <div class="ddg-play-text">
-                            ${i18n.t('playText')}
-                        </div>
-                    </div>
-                </a>`.toString();
+            const safeString = html` <a class="ddg-play-privately" href="#">
+            <div class="ddg-dax">${svgIcon}</div>
+            <div class="ddg-play-text-container">
+                <div class="ddg-play-text">${i18n.t('playText')}</div>
+            </div>
+        </a>`.toString();
 
             overlayElement.innerHTML = this.policy.createHTML(safeString);
 
             overlayElement.querySelector('a.ddg-play-privately')?.setAttribute('href', href);
-            return overlayElement
+            return overlayElement;
         }
 
         /**
          * Util to return the hover overlay
          * @returns {HTMLElement | null}
          */
-        getHoverOverlay () {
-            return document.querySelector('.' + this.HOVER_CLASS)
+        getHoverOverlay() {
+            return document.querySelector('.' + this.HOVER_CLASS);
         }
 
         /**
          * Moves the hover overlay to a specified videoElement
          * @param {HTMLElement} videoElement - which element to move it to
          */
-        moveHoverOverlayToVideoElement (videoElement) {
+        moveHoverOverlayToVideoElement(videoElement) {
             const overlay = this.getHoverOverlay();
 
             if (overlay === null || this.videoScrolledOutOfViewInPlaylist(videoElement)) {
-                return
+                return;
             }
 
             const videoElementOffset = this.getElementOffset(videoElement);
 
-            overlay.setAttribute('style', '' +
-                'top: ' + videoElementOffset.top + 'px;' +
-                'left: ' + videoElementOffset.left + 'px;' +
-                'display:block;'
+            overlay.setAttribute(
+                'style',
+                '' + 'top: ' + videoElementOffset.top + 'px;' + 'left: ' + videoElementOffset.left + 'px;' + 'display:block;',
             );
 
             overlay.setAttribute('data-size', 'fixed ' + this.getThumbnailSize(videoElement));
@@ -7978,22 +8146,22 @@
          * @param {HTMLElement} videoElement
          * @returns {boolean}
          */
-        videoScrolledOutOfViewInPlaylist (videoElement) {
+        videoScrolledOutOfViewInPlaylist(videoElement) {
             const inPlaylist = videoElement.closest('#items.playlist-items');
 
             if (inPlaylist) {
                 const video = videoElement.getBoundingClientRect();
                 const playlist = inPlaylist.getBoundingClientRect();
 
-                const videoOutsideTop = (video.top + this.CSS_OVERLAY_MARGIN_TOP) < playlist.top;
-                const videoOutsideBottom = ((video.top + this.CSS_OVERLAY_HEIGHT + this.CSS_OVERLAY_MARGIN_TOP) > playlist.bottom);
+                const videoOutsideTop = video.top + this.CSS_OVERLAY_MARGIN_TOP < playlist.top;
+                const videoOutsideBottom = video.top + this.CSS_OVERLAY_HEIGHT + this.CSS_OVERLAY_MARGIN_TOP > playlist.bottom;
 
                 if (videoOutsideTop || videoOutsideBottom) {
-                    return true
+                    return true;
                 }
             }
 
-            return false
+            return false;
         }
 
         /**
@@ -8001,19 +8169,19 @@
          * @param {HTMLElement} el
          * @returns {Object}
          */
-        getElementOffset (el) {
+        getElementOffset(el) {
             const box = el.getBoundingClientRect();
             const docElem = document.documentElement;
             return {
                 top: box.top + window.pageYOffset - docElem.clientTop,
-                left: box.left + window.pageXOffset - docElem.clientLeft
-            }
+                left: box.left + window.pageXOffset - docElem.clientLeft,
+            };
         }
 
         /**
          * Hides the hover overlay element, but only if mouse pointer is outside of the hover overlay element
          */
-        hideHoverOverlay (event, force) {
+        hideHoverOverlay(event, force) {
             const overlay = this.getHoverOverlay();
 
             const toElement = event.toElement;
@@ -8022,7 +8190,7 @@
                 // Prevent hiding overlay if mouseleave is triggered by user is actually hovering it and that
                 // triggered the mouseleave event
                 if (toElement === overlay || overlay.contains(toElement) || force) {
-                    return
+                    return;
                 }
 
                 this.hideOverlay(overlay);
@@ -8034,7 +8202,7 @@
          * Util for hiding an overlay
          * @param {HTMLElement} overlay
          */
-        hideOverlay (overlay) {
+        hideOverlay(overlay) {
             overlay.setAttribute('style', 'display:none;');
         }
 
@@ -8045,7 +8213,7 @@
          * inside a video thumbnail when hovering the overlay. Nice.
          * @param {(href: string) => void} onClick
          */
-        appendHoverOverlay (onClick) {
+        appendHoverOverlay(onClick) {
             this.sideEffects.add('Adding the re-usable overlay to the page ', () => {
                 // add the CSS to the head
                 const cleanUpCSS = this.loadCSS();
@@ -8059,11 +8227,11 @@
                 return () => {
                     element.remove();
                     cleanUpCSS();
-                }
+                };
             });
         }
 
-        loadCSS () {
+        loadCSS() {
             // add the CSS to the head
             const id = '__ddg__icon';
             const style = document.head.querySelector(`#${id}`);
@@ -8078,7 +8246,7 @@
                 if (style) {
                     document.head.removeChild(style);
                 }
-            }
+            };
         }
 
         /**
@@ -8086,7 +8254,7 @@
          * @param {string} href
          * @param {(href: string) => void} onClick
          */
-        appendSmallVideoOverlay (container, href, onClick) {
+        appendSmallVideoOverlay(container, href, onClick) {
             this.sideEffects.add('Adding a small overlay for the video player', () => {
                 // add the CSS to the head
                 const cleanUpCSS = this.loadCSS();
@@ -8101,30 +8269,31 @@
                 return () => {
                     element?.remove();
                     cleanUpCSS();
-                }
+                };
             });
         }
 
-        getThumbnailSize (videoElement) {
+        getThumbnailSize(videoElement) {
             const imagesByArea = {};
 
-            Array.from(videoElement.querySelectorAll('img')).forEach(image => {
-                imagesByArea[(image.offsetWidth * image.offsetHeight)] = image;
+            Array.from(videoElement.querySelectorAll('img')).forEach((image) => {
+                imagesByArea[image.offsetWidth * image.offsetHeight] = image;
             });
 
             const largestImage = Math.max.apply(this, Object.keys(imagesByArea).map(Number));
 
             const getSizeType = (width, height) => {
-                if (width < (123 + 10)) { // match CSS: width of expanded overlay + twice the left margin.
-                    return 'small'
+                if (width < 123 + 10) {
+                    // match CSS: width of expanded overlay + twice the left margin.
+                    return 'small';
                 } else if (width < 300 && height < 175) {
-                    return 'medium'
+                    return 'medium';
                 } else {
-                    return 'large'
+                    return 'large';
                 }
             };
 
-            return getSizeType(imagesByArea[largestImage].offsetWidth, imagesByArea[largestImage].offsetHeight)
+            return getSizeType(imagesByArea[largestImage].offsetWidth, imagesByArea[largestImage].offsetHeight);
         }
 
         /**
@@ -8134,11 +8303,11 @@
          * @param {HTMLElement} element - the wrapping div
          * @param {(href: string) => void} callback - the function to execute following a click
          */
-        addClickHandler (element, callback) {
+        addClickHandler(element, callback) {
             element.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopImmediatePropagation();
-                const link = /** @type {HTMLElement} */(event.target).closest('a');
+                const link = /** @type {HTMLElement} */ (event.target).closest('a');
                 const href = link?.getAttribute('href');
                 if (href) {
                     callback(href);
@@ -8146,7 +8315,7 @@
             });
         }
 
-        destroy () {
+        destroy() {
             this.sideEffects.destroy();
         }
     }
@@ -8217,11 +8386,11 @@
      * This features covers the implementation
      */
     class Thumbnails {
-        sideEffects = new SideEffects()
+        sideEffects = new SideEffects();
         /**
          * @param {ThumbnailParams} params
          */
-        constructor (params) {
+        constructor(params) {
             this.settings = params.settings;
             this.messages = params.messages;
             this.environment = params.environment;
@@ -8230,7 +8399,7 @@
         /**
          * Perform side effects
          */
-        init () {
+        init() {
             this.sideEffects.add('showing overlays on hover', () => {
                 const { selectors } = this.settings;
                 const parentNode = document.documentElement || document.body;
@@ -8281,33 +8450,33 @@
 
                 // detect hovers and decide to show hover icon, or not
                 const mouseOverHandler = (e) => {
-                    if (clicked) return
+                    if (clicked) return;
                     const hoverElement = findElementFromEvent(selectors.thumbLink, selectors.hoverExcluded, e);
                     const validLink = isValidLink(hoverElement, selectors.excludedRegions);
 
                     // if it's not an element we care about, bail early and remove the overlay
                     if (!hoverElement || !validLink) {
-                        return removeOverlay()
+                        return removeOverlay();
                     }
 
                     // ensure it doesn't contain sub-links
                     if (hoverElement.querySelector('a[href]')) {
-                        return removeOverlay()
+                        return removeOverlay();
                     }
 
                     // only add Dax when this link also contained an img
                     if (!hoverElement.querySelector('img')) {
-                        return removeOverlay()
+                        return removeOverlay();
                     }
 
                     // if the hover target is the match, or contains the match, all good
                     if (e.target === hoverElement || hoverElement?.contains(e.target)) {
-                        return appendOverlay(hoverElement)
+                        return appendOverlay(hoverElement);
                     }
 
                     // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
                     // that we know to be a thumbnail overlay, like a preview
-                    const matched = selectors.allowedEventTargets.find(css => e.target.matches(css));
+                    const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css));
                     if (matched) {
                         appendOverlay(hoverElement);
                     }
@@ -8319,21 +8488,21 @@
                     parentNode.removeEventListener('mouseover', mouseOverHandler, true);
                     parentNode.removeEventListener('click', clickHandler, true);
                     icon.destroy();
-                }
+                };
             });
         }
 
-        destroy () {
+        destroy() {
             this.sideEffects.destroy();
         }
     }
 
     class ClickInterception {
-        sideEffects = new SideEffects()
+        sideEffects = new SideEffects();
         /**
          * @param {ThumbnailParams} params
          */
-        constructor (params) {
+        constructor(params) {
             this.settings = params.settings;
             this.messages = params.messages;
             this.environment = params.environment;
@@ -8342,7 +8511,7 @@
         /**
          * Perform side effects
          */
-        init () {
+        init() {
             this.sideEffects.add('intercepting clicks', () => {
                 const { selectors } = this.settings;
                 const parentNode = document.documentElement || document.body;
@@ -8359,17 +8528,17 @@
 
                     // if there's no match, return early
                     if (!validLink) {
-                        return
+                        return;
                     }
 
                     // if the hover target is the match, or contains the match, all good
                     if (e.target === elementInStack || elementInStack?.contains(e.target)) {
-                        return block(validLink)
+                        return block(validLink);
                     }
 
                     // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
                     // that we know to be a thumbnail overlay, like a preview
-                    const matched = selectors.allowedEventTargets.find(css => e.target.matches(css));
+                    const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css));
                     if (matched) {
                         block(validLink);
                     }
@@ -8379,11 +8548,11 @@
 
                 return () => {
                     parentNode.removeEventListener('click', clickHandler, true);
-                }
+                };
             });
         }
 
-        destroy () {
+        destroy() {
             this.sideEffects.destroy();
         }
     }
@@ -8394,7 +8563,7 @@
      * @param {MouseEvent} e
      * @return {HTMLElement|null}
      */
-    function findElementFromEvent (selector, excludedSelectors, e) {
+    function findElementFromEvent(selector, excludedSelectors, e) {
         /** @type {HTMLElement | null} */
         let matched = null;
 
@@ -8402,8 +8571,8 @@
 
         for (const element of document.elementsFromPoint(e.clientX, e.clientY)) {
             // bail early if this item was excluded anywhere in the element stack
-            if (excludedSelectors.some(ex => element.matches(ex))) {
-                return null
+            if (excludedSelectors.some((ex) => element.matches(ex))) {
+                return null;
             }
 
             // we cannot return this immediately, because another element in the stack
@@ -8411,11 +8580,11 @@
             if (element.matches(selector)) {
                 // in lots of cases we can just return the element as soon as it's found, to prevent
                 // checking the entire stack
-                matched = /** @type {HTMLElement} */(element);
-                if (fastPath) return matched
+                matched = /** @type {HTMLElement} */ (element);
+                if (fastPath) return matched;
             }
         }
-        return matched
+        return matched;
     }
 
     /**
@@ -8423,36 +8592,36 @@
      * @param {string[]} excludedRegions
      * @return {string | null | undefined}
      */
-    function isValidLink (element, excludedRegions) {
-        if (!element) return null
+    function isValidLink(element, excludedRegions) {
+        if (!element) return null;
 
         /**
          * Does this element exist inside an excluded region?
          */
-        const existsInExcludedParent = excludedRegions.some(selector => {
+        const existsInExcludedParent = excludedRegions.some((selector) => {
             for (const parent of document.querySelectorAll(selector)) {
-                if (parent.contains(element)) return true
+                if (parent.contains(element)) return true;
             }
-            return false
+            return false;
         });
 
         /**
          * Does this element exist inside an excluded region?
          * If so, bail
          */
-        if (existsInExcludedParent) return null
+        if (existsInExcludedParent) return null;
 
         /**
          * We shouldn't be able to get here, but this keeps Typescript happy
          * and is a good check regardless
          */
-        if (!('href' in element)) return null
+        if (!('href' in element)) return null;
 
         /**
          * If we get here, we're trying to convert the `element.href`
          * into a valid Duck Player URL
          */
-        return VideoParams.fromHref(element.href)?.toPrivatePlayerUrl()
+        return VideoParams.fromHref(element.href)?.toPrivatePlayerUrl();
     }
 
     var css = "/* -- VIDEO PLAYER OVERLAY */\n:host {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n}\n:host * {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";\n}\n.ddg-video-player-overlay {\n    font-size: 13px;\n    font-weight: 400;\n    line-height: 16px;\n    text-align: center;\n\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n}\n\n.ddg-eyeball svg {\n    width: 60px;\n    height: 60px;\n}\n\n.ddg-vpo-bg {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    text-align: center;\n    background: black;\n}\n\n.ddg-vpo-bg:after {\n    content: \" \";\n    position: absolute;\n    display: block;\n    width: 100%;\n    height: 100%;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: rgba(0,0,0,1); /* this gets overriden if the background image can be found */\n    color: white;\n    text-align: center;\n}\n\n.ddg-video-player-overlay[data-thumb-loaded=\"true\"] .ddg-vpo-bg:after {\n    background: rgba(0,0,0,0.75);\n}\n\n.ddg-vpo-content {\n    position: relative;\n    top: 50%;\n    transform: translate(-50%, -50%);\n    left: 50%;\n    max-width: 90%;\n}\n\n.ddg-vpo-eyeball {\n    margin-bottom: 18px;\n}\n\n.ddg-vpo-title {\n    font-size: 22px;\n    font-weight: 400;\n    line-height: 26px;\n    margin-top: 25px;\n}\n\n.ddg-vpo-text {\n    margin-top: 16px;\n    width: 496px;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.ddg-vpo-text b {\n    font-weight: 600;\n}\n\n.ddg-vpo-buttons {\n    margin-top: 25px;\n}\n.ddg-vpo-buttons > * {\n    display: inline-block;\n    margin: 0;\n    padding: 0;\n}\n\n.ddg-vpo-button {\n    color: white;\n    padding: 9px 16px;\n    font-size: 13px;\n    border-radius: 8px;\n    font-weight: 600;\n    display: inline-block;\n    text-decoration: none;\n}\n\n.ddg-vpo-button + .ddg-vpo-button {\n    margin-left: 10px;\n}\n\n.ddg-vpo-cancel {\n    background: #585b58;\n    border: 0.5px solid rgba(40, 145, 255, 0.05);\n    box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.1), 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 1px rgba(0, 0, 0, 0.2), inset 0px 0.5px 0px rgba(255, 255, 255, 0.2), inset 0px 1px 0px rgba(255, 255, 255, 0.05);\n}\n\n.ddg-vpo-open {\n    background: #3969EF;\n    border: 0.5px solid rgba(40, 145, 255, 0.05);\n    box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.1), 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 1px rgba(0, 0, 0, 0.2), inset 0px 0.5px 0px rgba(255, 255, 255, 0.2), inset 0px 1px 0px rgba(255, 255, 255, 0.05);\n}\n\n.ddg-vpo-open:hover {\n    background: #1d51e2;\n}\n.ddg-vpo-cancel:hover {\n    cursor: pointer;\n    background: #2f2f2f;\n}\n\n.ddg-vpo-remember {\n}\n.ddg-vpo-remember label {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    margin-top: 25px;\n    cursor: pointer;\n}\n.ddg-vpo-remember input {\n    margin-right: 6px;\n}\n";
@@ -8462,9 +8631,9 @@
      * over the YouTube player
      */
     class DDGVideoOverlay extends HTMLElement {
-        policy = createPolicy()
+        policy = createPolicy();
 
-        static CUSTOM_TAG_NAME = 'ddg-video-overlay'
+        static CUSTOM_TAG_NAME = 'ddg-video-overlay';
         /**
          * @param {object} options
          * @param {import("../overlays.js").Environment} options.environment
@@ -8472,9 +8641,9 @@
          * @param {import("../../duck-player.js").UISettings} options.ui
          * @param {VideoOverlay} options.manager
          */
-        constructor ({ environment, params, ui, manager }) {
+        constructor({ environment, params, ui, manager }) {
             super();
-            if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments')
+            if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments');
             this.environment = environment;
             this.ui = ui;
             this.params = params;
@@ -8509,7 +8678,7 @@
         /**
          * @returns {HTMLDivElement}
          */
-        createOverlay () {
+        createOverlay() {
             const overlayCopy = overlayCopyVariants.default;
             const overlayElement = document.createElement('div');
             overlayElement.classList.add('ddg-video-player-overlay');
@@ -8519,20 +8688,16 @@
             <div class="ddg-vpo-content">
                 <div class="ddg-eyeball">${svgIcon}</div>
                 <div class="ddg-vpo-title">${overlayCopy.title}</div>
-                <div class="ddg-vpo-text">
-                    ${overlayCopy.subtitle}
-                </div>
+                <div class="ddg-vpo-text">${overlayCopy.subtitle}</div>
                 <div class="ddg-vpo-buttons">
                     <button class="ddg-vpo-button ddg-vpo-cancel" type="button">${overlayCopy.buttonOptOut}</button>
                     <a class="ddg-vpo-button ddg-vpo-open" href="#">${overlayCopy.buttonOpen}</a>
                 </div>
                 <div class="ddg-vpo-remember">
-                    <label for="remember">
-                        <input id="remember" type="checkbox" name="ddg-remember"> ${overlayCopy.rememberLabel}
-                    </label>
+                    <label for="remember"> <input id="remember" type="checkbox" name="ddg-remember" /> ${overlayCopy.rememberLabel} </label>
                 </div>
             </div>
-            `.toString();
+        `.toString();
 
             overlayElement.innerHTML = this.policy.createHTML(safeString);
 
@@ -8553,14 +8718,14 @@
              */
             this.setupButtonsInsideOverlay(overlayElement, this.params);
 
-            return overlayElement
+            return overlayElement;
         }
 
         /**
          * @param {HTMLElement} overlayElement
          * @param {string} videoId
          */
-        appendThumbnail (overlayElement, videoId) {
+        appendThumbnail(overlayElement, videoId) {
             const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
             appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
         }
@@ -8569,15 +8734,15 @@
          * @param {HTMLElement} containerElement
          * @param {import("../util").VideoParams} params
          */
-        setupButtonsInsideOverlay (containerElement, params) {
+        setupButtonsInsideOverlay(containerElement, params) {
             const cancelElement = containerElement.querySelector('.ddg-vpo-cancel');
             const watchInPlayer = containerElement.querySelector('.ddg-vpo-open');
-            if (!cancelElement) return console.warn('Could not access .ddg-vpo-cancel')
-            if (!watchInPlayer) return console.warn('Could not access .ddg-vpo-open')
+            if (!cancelElement) return console.warn('Could not access .ddg-vpo-cancel');
+            if (!watchInPlayer) return console.warn('Could not access .ddg-vpo-open');
             const optOutHandler = (e) => {
                 if (e.isTrusted) {
                     const remember = containerElement.querySelector('input[name="ddg-remember"]');
-                    if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input')
+                    if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input');
                     this.manager.userOptOut(remember.checked, params);
                 }
             };
@@ -8585,7 +8750,7 @@
                 if (e.isTrusted) {
                     e.preventDefault();
                     const remember = containerElement.querySelector('input[name="ddg-remember"]');
-                    if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input')
+                    if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input');
                     this.manager.userOptIn(remember.checked, params);
                 }
             };
@@ -8608,22 +8773,22 @@
      * over the YouTube player
      */
     class DDGVideoOverlayMobile extends HTMLElement {
-        static CUSTOM_TAG_NAME = 'ddg-video-overlay-mobile'
-        static OPEN_INFO = 'open-info'
-        static OPT_IN = 'opt-in'
-        static OPT_OUT = 'opt-out'
+        static CUSTOM_TAG_NAME = 'ddg-video-overlay-mobile';
+        static OPEN_INFO = 'open-info';
+        static OPT_IN = 'opt-in';
+        static OPT_OUT = 'opt-out';
 
-        policy = createPolicy()
+        policy = createPolicy();
         /** @type {boolean} */
-        testMode = false
+        testMode = false;
         /** @type {Text | null} */
-        text = null
+        text = null;
 
-        connectedCallback () {
+        connectedCallback() {
             this.createMarkupAndStyles();
         }
 
-        createMarkupAndStyles () {
+        createMarkupAndStyles() {
             const shadow = this.attachShadow({ mode: this.testMode ? 'open' : 'closed' });
             const style = document.createElement('style');
             style.innerText = mobilecss;
@@ -8637,10 +8802,10 @@
         /**
          * @returns {string}
          */
-        mobileHtml () {
+        mobileHtml() {
             if (!this.text) {
                 console.warn('missing `text`. Please assign before rendering');
-                return ''
+                return '';
             }
             const svgIcon = trustedUnsafe(dax);
             const infoIcon = trustedUnsafe(info);
@@ -8651,24 +8816,18 @@
                     <div class="logo">${svgIcon}</div>
                     <div class="title">${this.text.title}</div>
                     <div class="info">
-                        <button class="button button--info" type="button" aria-label="Open Information Modal">
-                            ${infoIcon}
-                        </button>
+                        <button class="button button--info" type="button" aria-label="Open Information Modal">${infoIcon}</button>
                     </div>
-                    <div class="text">
-                        ${this.text.subtitle}
-                    </div>
+                    <div class="text">${this.text.subtitle}</div>
                     <div class="buttons">
                         <button class="button cancel ddg-vpo-cancel" type="button">${this.text.buttonOptOut}</button>
                         <a class="button open ddg-vpo-open" href="#">${this.text.buttonOpen}</a>
                     </div>
                     <div class="remember">
                         <div class="remember-label">
-                            <span class="remember-text">
-                                ${this.text.rememberLabel} 
-                            </span>
+                            <span class="remember-text"> ${this.text.rememberLabel} </span>
                             <span class="remember-checkbox">
-                                <input id="remember" type="checkbox" name="ddg-remember" hidden> 
+                                <input id="remember" type="checkbox" name="ddg-remember" hidden />
                                 <button role="switch" aria-checked="false" class="switch ios-switch">
                                     <span class="thumb"></span>
                                 </button>
@@ -8677,24 +8836,22 @@
                     </div>
                 </div>
             </div>
-            `.toString()
+        `.toString();
         }
 
         /**
          * @param {HTMLElement} containerElement
          */
-        setupEventHandlers (containerElement) {
+        setupEventHandlers(containerElement) {
             const switchElem = containerElement.querySelector('[role=switch]');
             const infoButton = containerElement.querySelector('.button--info');
             const remember = containerElement.querySelector('input[name="ddg-remember"]');
             const cancelElement = containerElement.querySelector('.ddg-vpo-cancel');
             const watchInPlayer = containerElement.querySelector('.ddg-vpo-open');
 
-            if (!infoButton ||
-                !cancelElement ||
-                !watchInPlayer ||
-                !switchElem ||
-                !(remember instanceof HTMLInputElement)) return console.warn('missing elements')
+            if (!infoButton || !cancelElement || !watchInPlayer || !switchElem || !(remember instanceof HTMLInputElement)) {
+                return console.warn('missing elements');
+            }
 
             infoButton.addEventListener('click', () => {
                 this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO));
@@ -8712,14 +8869,14 @@
             });
 
             cancelElement.addEventListener('click', (e) => {
-                if (!e.isTrusted) return
+                if (!e.isTrusted) return;
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 this.dispatchEvent(new CustomEvent(DDGVideoOverlayMobile.OPT_OUT, { detail: { remember: remember.checked } }));
             });
 
             watchInPlayer.addEventListener('click', (e) => {
-                if (!e.isTrusted) return
+                if (!e.isTrusted) return;
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 this.dispatchEvent(new CustomEvent(DDGVideoOverlayMobile.OPT_IN, { detail: { remember: remember.checked } }));
@@ -8760,13 +8917,13 @@
      * + conduct any communications
      */
     class VideoOverlay {
-        sideEffects = new SideEffects()
+        sideEffects = new SideEffects();
 
         /** @type {string | null} */
-        lastVideoId = null
+        lastVideoId = null;
 
         /** @type {boolean} */
-        didAllowFirstVideo = false
+        didAllowFirstVideo = false;
 
         /**
          * @param {object} options
@@ -8776,7 +8933,7 @@
          * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} options.messages
          * @param {import("../duck-player.js").UISettings} options.ui
          */
-        constructor ({ userValues, settings, environment, messages, ui }) {
+        constructor({ userValues, settings, environment, messages, ui }) {
             this.userValues = userValues;
             this.settings = settings;
             this.environment = environment;
@@ -8787,7 +8944,7 @@
         /**
          * @param {'page-load' | 'preferences-changed' | 'href-changed'} trigger
          */
-        init (trigger) {
+        init(trigger) {
             if (trigger === 'page-load') {
                 this.handleFirstPageLoad();
             } else if (trigger === 'preferences-changed') {
@@ -8800,13 +8957,13 @@
         /**
          * Special handling of a first-page, an attempt to load our overlay as quickly as possible
          */
-        handleFirstPageLoad () {
+        handleFirstPageLoad() {
             // don't continue unless we're in 'alwaysAsk' mode
-            if ('disabled' in this.userValues.privatePlayerMode) return
+            if ('disabled' in this.userValues.privatePlayerMode) return;
 
             // don't continue if we can't derive valid video params
             const validParams = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
-            if (!validParams) return
+            if (!validParams) return;
 
             /**
              * If we get here, we know the following:
@@ -8828,7 +8985,7 @@
                     if (style.isConnected) {
                         document.head.removeChild(style);
                     }
-                }
+                };
             });
 
             /**
@@ -8840,18 +8997,18 @@
                 }, 100);
                 return () => {
                     clearInterval(int);
-                }
+                };
             });
         }
 
         /**
          * @param {import("./util").VideoParams} params
          */
-        addSmallDaxOverlay (params) {
+        addSmallDaxOverlay(params) {
             const containerElement = document.querySelector(this.settings.selectors.videoElementContainer);
             if (!containerElement || !(containerElement instanceof HTMLElement)) {
                 console.error('no container element');
-                return
+                return;
             }
             this.sideEffects.add('adding small dax 🐥 icon overlay', () => {
                 const href = params.toPrivatePlayerUrl();
@@ -8864,14 +9021,14 @@
 
                 return () => {
                     icon.destroy();
-                }
+                };
             });
         }
 
         /**
          * @param {{ignoreCache?: boolean, via?: string}} [opts]
          */
-        watchForVideoBeingAdded (opts = {}) {
+        watchForVideoBeingAdded(opts = {}) {
             const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
 
             if (!params) {
@@ -8883,7 +9040,7 @@
                     this.destroy();
                     this.lastVideoId = null;
                 }
-                return
+                return;
             }
 
             const conditions = [
@@ -8892,7 +9049,7 @@
                 // first visit
                 !this.lastVideoId,
                 // new video id
-                this.lastVideoId && this.lastVideoId !== params.id // different
+                this.lastVideoId && this.lastVideoId !== params.id, // different
             ];
 
             if (conditions.some(Boolean)) {
@@ -8902,7 +9059,7 @@
                 const videoElement = document.querySelector(this.settings.selectors.videoElement);
                 const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
                 if (!videoElement || !playerContainer) {
-                    return null
+                    return null;
                 }
 
                 /**
@@ -8920,22 +9077,22 @@
                  * When enabled, just show the small dax icon
                  */
                 if ('enabled' in userValues.privatePlayerMode) {
-                    return this.addSmallDaxOverlay(params)
+                    return this.addSmallDaxOverlay(params);
                 }
 
                 if ('alwaysAsk' in userValues.privatePlayerMode) {
                     // if there's a one-time-override (eg: a link from the serp), then do nothing
-                    if (this.environment.hasOneTimeOverride()) return
+                    if (this.environment.hasOneTimeOverride()) return;
 
                     // should the first video be allowed to play?
                     if (this.ui.allowFirstVideo === true && !this.didAllowFirstVideo) {
                         this.didAllowFirstVideo = true;
-                        return console.count('Allowing the first video')
+                        return console.count('Allowing the first video');
                     }
 
                     // if the user previously clicked 'watch here + remember', just add the small dax
                     if (this.userValues.overlayInteracted) {
-                        return this.addSmallDaxOverlay(params)
+                        return this.addSmallDaxOverlay(params);
                     }
 
                     // if we get here, we're trying to prevent the video playing
@@ -8949,24 +9106,22 @@
          * @param {Element} targetElement
          * @param {import("./util").VideoParams} params
          */
-        appendOverlayToPage (targetElement, params) {
+        appendOverlayToPage(targetElement, params) {
             this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} or ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
                 this.messages.sendPixel(new Pixel({ name: 'overlay' }));
                 const controller = new AbortController();
                 const { environment } = this;
 
                 if (this.environment.layout === 'mobile') {
-                    const elem = /** @type {DDGVideoOverlayMobile} */(document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
+                    const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
                     elem.testMode = this.environment.isTestMode();
                     elem.text = mobileStrings(this.environment.strings);
                     elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo());
-                    elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */e) => {
-                        return this.mobileOptOut(e.detail.remember)
-                            .catch(console.error)
+                    elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                        return this.mobileOptOut(e.detail.remember).catch(console.error);
                     });
-                    elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */e) => {
-                        return this.mobileOptIn(e.detail.remember, params)
-                            .catch(console.error)
+                    elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                        return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                     });
                     targetElement.appendChild(elem);
                 } else {
@@ -8974,7 +9129,7 @@
                         environment,
                         params,
                         ui: this.ui,
-                        manager: this
+                        manager: this,
                     });
                     targetElement.appendChild(elem);
                 }
@@ -8986,21 +9141,21 @@
                     document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                     document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
                     controller.abort();
-                }
+                };
             });
         }
 
         /**
          * Just brute-force calling video.pause() for as long as the user is seeing the overlay.
          */
-        stopVideoFromPlaying () {
+        stopVideoFromPlaying() {
             this.sideEffects.add(`pausing the <video> element with selector '${this.settings.selectors.videoElement}'`, () => {
                 /**
                  * Set up the interval - keep calling .pause() to prevent
                  * the video from playing
                  */
                 const int = setInterval(() => {
-                    const video = /** @type {HTMLVideoElement} */(document.querySelector(this.settings.selectors.videoElement));
+                    const video = /** @type {HTMLVideoElement} */ (document.querySelector(this.settings.selectors.videoElement));
                     if (video?.isConnected) {
                         video.pause();
                     }
@@ -9013,11 +9168,11 @@
                 return () => {
                     clearInterval(int);
 
-                    const video = /** @type {HTMLVideoElement} */(document.querySelector(this.settings.selectors.videoElement));
+                    const video = /** @type {HTMLVideoElement} */ (document.querySelector(this.settings.selectors.videoElement));
                     if (video?.isConnected) {
                         video.play();
                     }
-                }
+                };
             });
         }
 
@@ -9031,7 +9186,7 @@
          * @param {boolean} remember
          * @param {VideoParams} params
          */
-        userOptIn (remember, params) {
+        userOptIn(remember, params) {
             /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
             let privatePlayerMode = { alwaysAsk: {} };
             if (remember) {
@@ -9043,23 +9198,24 @@
             }
             const outgoing = {
                 overlayInteracted: false,
-                privatePlayerMode
+                privatePlayerMode,
             };
-            this.messages.setUserValues(outgoing)
+            this.messages
+                .setUserValues(outgoing)
                 .then(() => {
                     if (this.environment.opensVideoOverlayLinksViaMessage) {
-                        return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }))
+                        return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }));
                     }
-                    return this.environment.setHref(params.toPrivatePlayerUrl())
+                    return this.environment.setHref(params.toPrivatePlayerUrl());
                 })
-                .catch(e => console.error('error setting user choice', e));
+                .catch((e) => console.error('error setting user choice', e));
         }
 
         /**
          * @param {boolean} remember
          * @param {import("./util").VideoParams} params
          */
-        userOptOut (remember, params) {
+        userOptOut(remember, params) {
             /**
              * If the checkbox was checked we send the 'interacted' flag to the backend
              * so that the next video can just see the Dax icon instead of the full overlay
@@ -9071,15 +9227,16 @@
                 this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '1' }));
                 /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
                 const privatePlayerMode = { alwaysAsk: {} };
-                this.messages.setUserValues({
-                    privatePlayerMode,
-                    overlayInteracted: true
-                })
-                    .then(values => {
+                this.messages
+                    .setUserValues({
+                        privatePlayerMode,
+                        overlayInteracted: true,
+                    })
+                    .then((values) => {
                         this.userValues = values;
                     })
                     .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
-                    .catch(e => console.error('could not set userChoice for opt-out', e));
+                    .catch((e) => console.error('could not set userChoice for opt-out', e));
             } else {
                 this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '0' }));
                 this.destroy();
@@ -9091,19 +9248,15 @@
          * @param {boolean} remember
          * @param {import("./util").VideoParams} params
          */
-        async mobileOptIn (remember, params) {
-            const pixel = remember
-                ? new Pixel({ name: 'play.use', remember: '1' })
-                : new Pixel({ name: 'play.use', remember: '0' });
+        async mobileOptIn(remember, params) {
+            const pixel = remember ? new Pixel({ name: 'play.use', remember: '1' }) : new Pixel({ name: 'play.use', remember: '0' });
 
             this.messages.sendPixel(pixel);
 
             /** @type {import("../duck-player.js").UserValues} */
             const outgoing = {
                 overlayInteracted: false,
-                privatePlayerMode: remember
-                    ? { enabled: {} }
-                    : { alwaysAsk: {} }
+                privatePlayerMode: remember ? { enabled: {} } : { alwaysAsk: {} },
             };
 
             const result = await this.messages.setUserValues(outgoing);
@@ -9112,13 +9265,13 @@
                 console.log('did receive new values', result);
             }
 
-            return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }))
+            return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }));
         }
 
         /**
          * @param {boolean} remember
          */
-        async mobileOptOut (remember) {
+        async mobileOptOut(remember) {
             const pixel = remember
                 ? new Pixel({ name: 'play.do_not_use', remember: '1' })
                 : new Pixel({ name: 'play.do_not_use', remember: '0' });
@@ -9126,13 +9279,13 @@
             this.messages.sendPixel(pixel);
 
             if (!remember) {
-                return this.destroy()
+                return this.destroy();
             }
 
             /** @type {import("../duck-player.js").UserValues} */
             const next = {
                 privatePlayerMode: { disabled: {} },
-                overlayInteracted: false
+                overlayInteracted: false,
             };
 
             if (this.environment.debug) {
@@ -9154,7 +9307,7 @@
         /**
          * Remove elements, event listeners etc
          */
-        destroy () {
+        destroy() {
             this.sideEffects.destroy();
         }
     }
@@ -9164,7 +9317,7 @@
      * and also to allow remote-config later if needed.
      *
      */
-    function registerCustomElements () {
+    function registerCustomElements() {
         if (!customElementsGet(DDGVideoOverlay.CUSTOM_TAG_NAME)) {
             customElementsDefine(DDGVideoOverlay.CUSTOM_TAG_NAME, DDGVideoOverlay);
         }
@@ -9189,7 +9342,7 @@
      * @param {import("./overlays.js").Environment} environment - methods to read environment-sensitive things like the current URL etc
      * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} messages - methods to communicate with a native backend
      */
-    async function initOverlays (settings, environment, messages) {
+    async function initOverlays(settings, environment, messages) {
         // bind early to attach all listeners
         const domState = new DomState();
 
@@ -9199,12 +9352,12 @@
             initialSetup = await messages.initialSetup();
         } catch (e) {
             console.error(e);
-            return
+            return;
         }
 
         if (!initialSetup) {
             console.error('cannot continue without user settings');
-            return
+            return;
         }
 
         let { userValues, ui } = initialSetup;
@@ -9239,7 +9392,7 @@
             });
         }
 
-        function update () {
+        function update() {
             thumbnails?.destroy();
             videoOverlays?.destroy();
 
@@ -9255,7 +9408,7 @@
         /**
          * Continue to listen for updated preferences and try to re-initiate
          */
-        messages.onUserValuesChanged(_userValues => {
+        messages.onUserValuesChanged((_userValues) => {
             userValues = _userValues;
             update();
         });
@@ -9263,7 +9416,7 @@
         /**
          * Continue to listen for updated UI settings and try to re-initiate
          */
-        messages.onUIValuesChanged(_ui => {
+        messages.onUIValuesChanged((_ui) => {
             ui = _ui;
             update();
         });
@@ -9273,17 +9426,17 @@
      * @param {OverlayOptions} options
      * @returns {Thumbnails | ClickInterception | null}
      */
-    function thumbnailsFeatureFromOptions (options) {
-        return thumbnailOverlays(options) || clickInterceptions(options)
+    function thumbnailsFeatureFromOptions(options) {
+        return thumbnailOverlays(options) || clickInterceptions(options);
     }
 
     /**
      * @param {OverlayOptions} options
      * @return {Thumbnails | null}
      */
-    function thumbnailOverlays ({ userValues, settings, messages, environment, ui }) {
+    function thumbnailOverlays({ userValues, settings, messages, environment, ui }) {
         // bail if not enabled remotely
-        if (settings.thumbnailOverlays.state !== 'enabled') return null
+        if (settings.thumbnailOverlays.state !== 'enabled') return null;
 
         const conditions = [
             // must be in 'always ask' mode
@@ -9291,57 +9444,57 @@
             // must not be set to play in DuckPlayer
             ui?.playInDuckPlayer !== true,
             // must be a desktop layout
-            environment.layout === 'desktop'
+            environment.layout === 'desktop',
         ];
 
         // Only show thumbnails if ALL conditions above are met
-        if (!conditions.every(Boolean)) return null
+        if (!conditions.every(Boolean)) return null;
 
         return new Thumbnails({
             environment,
             settings,
-            messages
-        })
+            messages,
+        });
     }
 
     /**
      * @param {OverlayOptions} options
      * @return {ClickInterception | null}
      */
-    function clickInterceptions ({ userValues, settings, messages, environment, ui }) {
+    function clickInterceptions({ userValues, settings, messages, environment, ui }) {
         // bail if not enabled remotely
-        if (settings.clickInterception.state !== 'enabled') return null
+        if (settings.clickInterception.state !== 'enabled') return null;
 
         const conditions = [
             // either enabled via prefs
             'enabled' in userValues.privatePlayerMode,
             // or has a one-time override
-            ui?.playInDuckPlayer === true
+            ui?.playInDuckPlayer === true,
         ];
 
         // Intercept clicks if ANY of the conditions above are met
-        if (!conditions.some(Boolean)) return null
+        if (!conditions.some(Boolean)) return null;
 
         return new ClickInterception({
             environment,
             settings,
-            messages
-        })
+            messages,
+        });
     }
 
     /**
      * @param {OverlayOptions} options
      * @returns {VideoOverlay | undefined}
      */
-    function videoOverlaysFeatureFromSettings ({ userValues, settings, messages, environment, ui }) {
-        if (settings.videoOverlays.state !== 'enabled') return undefined
+    function videoOverlaysFeatureFromSettings({ userValues, settings, messages, environment, ui }) {
+        if (settings.videoOverlays.state !== 'enabled') return undefined;
 
-        return new VideoOverlay({ userValues, settings, environment, messages, ui })
+        return new VideoOverlay({ userValues, settings, environment, messages, ui });
     }
 
     class Environment {
-        allowedProxyOrigins = ['duckduckgo.com']
-        _strings = JSON.parse(strings)
+        allowedProxyOrigins = ['duckduckgo.com'];
+        _strings = JSON.parse(strings);
 
         /**
          * @param {object} params
@@ -9350,17 +9503,17 @@
          * @param {ImportMeta['injectName']} params.injectName
          * @param {string} params.locale
          */
-        constructor (params) {
+        constructor(params) {
             this.debug = Boolean(params.debug);
             this.injectName = params.injectName;
             this.platform = params.platform;
             this.locale = params.locale;
         }
 
-        get strings () {
+        get strings() {
             const matched = this._strings[this.locale];
-            if (matched) return matched['overlays.json']
-            return this._strings.en['overlays.json']
+            if (matched) return matched['overlays.json'];
+            return this._strings.en['overlays.json'];
         }
 
         /**
@@ -9368,84 +9521,84 @@
          * It's abstracted so that we can mock it in tests
          * @return {string}
          */
-        getPlayerPageHref () {
+        getPlayerPageHref() {
             if (this.debug) {
                 const url = new URL(window.location.href);
-                if (url.hostname === 'www.youtube.com') return window.location.href
+                if (url.hostname === 'www.youtube.com') return window.location.href;
 
                 // reflect certain query params, this is useful for testing
                 if (url.searchParams.has('v')) {
                     const base = new URL('/watch', 'https://youtube.com');
                     base.searchParams.set('v', url.searchParams.get('v') || '');
-                    return base.toString()
+                    return base.toString();
                 }
 
-                return 'https://youtube.com/watch?v=123'
+                return 'https://youtube.com/watch?v=123';
             }
-            return window.location.href
+            return window.location.href;
         }
 
-        getLargeThumbnailSrc (videoId) {
+        getLargeThumbnailSrc(videoId) {
             const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, 'https://i.ytimg.com');
-            return url.href
+            return url.href;
         }
 
-        setHref (href) {
+        setHref(href) {
             window.location.href = href;
         }
 
-        hasOneTimeOverride () {
+        hasOneTimeOverride() {
             try {
                 // #ddg-play is a hard requirement, regardless of referrer
-                if (window.location.hash !== '#ddg-play') return false
+                if (window.location.hash !== '#ddg-play') return false;
 
                 // double-check that we have something that might be a parseable URL
-                if (typeof document.referrer !== 'string') return false
-                if (document.referrer.length === 0) return false // can be empty!
+                if (typeof document.referrer !== 'string') return false;
+                if (document.referrer.length === 0) return false; // can be empty!
 
                 const { hostname } = new URL(document.referrer);
                 const isAllowed = this.allowedProxyOrigins.includes(hostname);
-                return isAllowed
+                return isAllowed;
             } catch (e) {
                 console.error(e);
             }
-            return false
+            return false;
         }
 
-        isIntegrationMode () {
-            return this.debug === true && this.injectName === 'integration'
+        isIntegrationMode() {
+            return this.debug === true && this.injectName === 'integration';
         }
 
-        isTestMode () {
-            return this.debug === true
+        isTestMode() {
+            return this.debug === true;
         }
 
-        get opensVideoOverlayLinksViaMessage () {
-            return this.platform.name !== 'windows'
-        }
-
-        /**
-         * @return {boolean}
-         */
-        get isMobile () {
-            return this.platform.name === 'ios' || this.platform.name === 'android'
+        get opensVideoOverlayLinksViaMessage() {
+            return this.platform.name !== 'windows';
         }
 
         /**
          * @return {boolean}
          */
-        get isDesktop () {
-            return !this.isMobile
+        get isMobile() {
+            return this.platform.name === 'ios' || this.platform.name === 'android';
+        }
+
+        /**
+         * @return {boolean}
+         */
+        get isDesktop() {
+            return !this.isMobile;
         }
 
         /**
          * @return {'desktop' | 'mobile'}
          */
-        get layout () {
+        get layout() {
             if (this.platform.name === 'ios' || this.platform.name === 'android') {
-                return 'mobile'
+                return 'mobile';
             }
-            return 'desktop'
+            return 'desktop';
         }
     }
 
@@ -9505,12 +9658,11 @@
      * @internal
      */
     class DuckPlayerFeature extends ContentFeature {
-         
-        init (args) {
+        init(args) {
             /**
              * This feature never operates in a frame
              */
-            if (isBeingFramed()) return
+            if (isBeingFramed()) return;
 
             /**
              * Just the 'overlays' part of the settings object.
@@ -9528,7 +9680,7 @@
              * Bail if no features are enabled
              */
             if (!overlaysEnabled && !serpProxyEnabled) {
-                return
+                return;
             }
 
             /**
@@ -9536,7 +9688,7 @@
              * accidentally enabled this
              */
             if (!this.messaging) {
-                throw new Error('cannot operate duck player without a messaging backend')
+                throw new Error('cannot operate duck player without a messaging backend');
             }
 
             const locale = args?.locale || args?.language || 'en';
@@ -9544,7 +9696,7 @@
                 debug: args.debug,
                 injectName: "windows",
                 platform: this.platform,
-                locale
+                locale,
             });
             const comms = new DuckPlayerOverlayMessages(this.messaging, env);
 
@@ -9555,7 +9707,7 @@
             }
         }
 
-        load (args) {
+        load(args) {
             super.load(args);
         }
     }
@@ -9569,8 +9721,8 @@
          * when hoisted by bundlers
          * @return {Record<string, string[]>}
          */
-        get nicknames () {
-            if (this._memo !== null) return this._memo
+        get nicknames() {
+            if (this._memo !== null) return this._memo;
             this._memo = {
                 aaron: ['erin', 'ronnie', 'ron'],
                 abbigail: ['nabby', 'abby', 'gail', 'abbe', 'abbi', 'abbey', 'abbie'],
@@ -9774,17 +9926,7 @@
                 carmellia: ['mellia'],
                 carmelo: ['melo'],
                 carmon: ['charm', 'cammie', 'carm'],
-                carol: [
-                    'lynn',
-                    'carrie',
-                    'carolann',
-                    'cassie',
-                    'caroline',
-                    'carole',
-                    'carri',
-                    'kari',
-                    'kara'
-                ],
+                carol: ['lynn', 'carrie', 'carolann', 'cassie', 'caroline', 'carole', 'carri', 'kari', 'kara'],
                 carolann: ['carol', 'carole'],
                 caroline: ['lynn', 'carol', 'carrie', 'cassie', 'carole'],
                 carolyn: ['lynn', 'carrie', 'cassie'],
@@ -9795,30 +9937,8 @@
                 cassandra: ['sandy', 'cassie', 'sandra'],
                 cassidy: ['cassie', 'cass'],
                 caswell: ['cass'],
-                catherine: [
-                    'kathy',
-                    'katy',
-                    'lena',
-                    'kittie',
-                    'kit',
-                    'trina',
-                    'cathy',
-                    'kay',
-                    'cassie',
-                    'casey'
-                ],
-                cathleen: [
-                    'kathy',
-                    'katy',
-                    'lena',
-                    'kittie',
-                    'kit',
-                    'trina',
-                    'cathy',
-                    'kay',
-                    'cassie',
-                    'casey'
-                ],
+                catherine: ['kathy', 'katy', 'lena', 'kittie', 'kit', 'trina', 'cathy', 'kay', 'cassie', 'casey'],
+                cathleen: ['kathy', 'katy', 'lena', 'kittie', 'kit', 'trina', 'cathy', 'kay', 'cassie', 'casey'],
                 cathy: ['kathy', 'cathleen', 'catherine'],
                 cecilia: ['cissy', 'celia'],
                 cedric: ['ced', 'rick', 'ricky'],
@@ -9841,24 +9961,8 @@
                 christian: ['chris', 'kit'],
                 christiana: ['kris', 'kristy', 'ann', 'tina', 'christy', 'chris', 'crissy'],
                 christiano: ['chris'],
-                christina: [
-                    'kris',
-                    'kristy',
-                    'tina',
-                    'christy',
-                    'chris',
-                    'crissy',
-                    'chrissy'
-                ],
-                christine: [
-                    'kris',
-                    'kristy',
-                    'chrissy',
-                    'tina',
-                    'chris',
-                    'crissy',
-                    'christy'
-                ],
+                christina: ['kris', 'kristy', 'tina', 'christy', 'chris', 'crissy', 'chrissy'],
+                christine: ['kris', 'kristy', 'chrissy', 'tina', 'chris', 'crissy', 'christy'],
                 christoph: ['chris'],
                 christopher: ['chris', 'kit'],
                 christy: ['crissy'],
@@ -9984,21 +10088,7 @@
                 elisa: ['lisa'],
                 elisha: ['lish', 'eli'],
                 eliza: ['elizabeth'],
-                elizabeth: [
-                    'libby',
-                    'lisa',
-                    'lib',
-                    'lizzy',
-                    'lizzie',
-                    'eliza',
-                    'betsy',
-                    'liza',
-                    'betty',
-                    'bessie',
-                    'bess',
-                    'beth',
-                    'liz'
-                ],
+                elizabeth: ['libby', 'lisa', 'lib', 'lizzy', 'lizzie', 'eliza', 'betsy', 'liza', 'betty', 'bessie', 'bess', 'beth', 'liz'],
                 ella: ['ellen', 'el'],
                 ellen: ['nellie', 'nell', 'helen'],
                 ellender: ['nellie', 'ellen', 'helen'],
@@ -10049,16 +10139,7 @@
                 ezideen: ['ez'],
                 ezra: ['ez'],
                 faith: ['fay'],
-                fallon: [
-                    'falon',
-                    'fal',
-                    'fall',
-                    'fallie',
-                    'fally',
-                    'falcon',
-                    'lon',
-                    'lonnie'
-                ],
+                fallon: ['falon', 'fal', 'fall', 'fallie', 'fally', 'falcon', 'lon', 'lonnie'],
                 felicia: ['fel', 'felix', 'feli'],
                 felicity: ['flick', 'tick'],
                 feltie: ['felty'],
@@ -10070,17 +10151,7 @@
                 florence: ['flossy', 'flora', 'flo'],
                 floyd: ['lloyd'],
                 fran: ['frannie'],
-                frances: [
-                    'sis',
-                    'cissy',
-                    'frankie',
-                    'franniey',
-                    'fran',
-                    'francie',
-                    'frannie',
-                    'fanny',
-                    'franny'
-                ],
+                frances: ['sis', 'cissy', 'frankie', 'franniey', 'fran', 'francie', 'frannie', 'fanny', 'franny'],
                 francie: ['francine'],
                 francine: ['franniey', 'fran', 'frannie', 'francie', 'franny'],
                 francis: ['fran', 'frankie', 'frank'],
@@ -10089,32 +10160,14 @@
                 franklind: ['fran', 'frank'],
                 freda: ['frieda'],
                 frederica: ['frederick', 'freddy', 'erika', 'erica', 'rickey'],
-                frederick: [
-                    'freddie',
-                    'freddy',
-                    'fritz',
-                    'fred',
-                    'erick',
-                    'ricky',
-                    'derick',
-                    'rick'
-                ],
+                frederick: ['freddie', 'freddy', 'fritz', 'fred', 'erick', 'ricky', 'derick', 'rick'],
                 fredericka: ['freddy', 'ricka', 'freda', 'frieda', 'ericka', 'rickey'],
                 frieda: ['freddie', 'freddy', 'fred'],
                 gabriel: ['gabe', 'gabby'],
                 gabriella: ['ella', 'gabby'],
                 gabrielle: ['ella', 'gabby'],
                 gareth: ['gary', 'gare'],
-                garrett: [
-                    'gare',
-                    'gary',
-                    'garry',
-                    'rhett',
-                    'garratt',
-                    'garret',
-                    'barrett',
-                    'jerry'
-                ],
+                garrett: ['gare', 'gary', 'garry', 'rhett', 'garratt', 'garret', 'barrett', 'jerry'],
                 garrick: ['garri'],
                 genevieve: ['jean', 'eve', 'jenny'],
                 geoffrey: ['geoff', 'jeff'],
@@ -10153,16 +10206,7 @@
                 hayley: ['hailey', 'haylee'],
                 heather: ['hetty'],
                 helen: ['lena', 'ella', 'ellen', 'ellie'],
-                helena: [
-                    'eileen',
-                    'lena',
-                    'nell',
-                    'nellie',
-                    'eleanor',
-                    'elaine',
-                    'ellen',
-                    'aileen'
-                ],
+                helena: ['eileen', 'lena', 'nell', 'nellie', 'eleanor', 'elaine', 'ellen', 'aileen'],
                 helene: ['lena', 'ella', 'ellen', 'ellie'],
                 heloise: ['lois', 'eloise', 'elouise'],
                 henrietta: ['hank', 'etta', 'etty', 'retta', 'nettie', 'henny'],
@@ -10211,21 +10255,7 @@
                 jacqueline: ['jackie', 'jack', 'jacqui'],
                 jahoda: ['hody', 'hodie', 'hoda'],
                 jakob: ['jake'],
-                jalen: [
-                    'jay',
-                    'jaye',
-                    'len',
-                    'lenny',
-                    'lennie',
-                    'jaylin',
-                    'alen',
-                    'al',
-                    'haylen',
-                    'jaelin',
-                    'jaelyn',
-                    'jailyn',
-                    'jaylyn'
-                ],
+                jalen: ['jay', 'jaye', 'len', 'lenny', 'lennie', 'jaylin', 'alen', 'al', 'haylen', 'jaelin', 'jaelyn', 'jailyn', 'jaylyn'],
                 james: ['jimmy', 'jim', 'jamie', 'jimmie', 'jem'],
                 jamey: ['james', 'jamie'],
                 jamie: ['james'],
@@ -10271,49 +10301,11 @@
                 johannah: ['hannah', 'jody', 'joan', 'nonie', 'jo'],
                 johannes: ['jonathan', 'john', 'johnny'],
                 john: ['jon', 'johnny', 'jonny', 'jonnie', 'jack', 'jock', 'ian'],
-                johnathan: [
-                    'johnathon',
-                    'jonathan',
-                    'jonathon',
-                    'jon',
-                    'jonny',
-                    'john',
-                    'johny',
-                    'jonnie',
-                    'nathan'
-                ],
-                johnathon: [
-                    'johnathan',
-                    'jonathon',
-                    'jonathan',
-                    'jon',
-                    'jonny',
-                    'john',
-                    'johny',
-                    'jonnie'
-                ],
+                johnathan: ['johnathon', 'jonathan', 'jonathon', 'jon', 'jonny', 'john', 'johny', 'jonnie', 'nathan'],
+                johnathon: ['johnathan', 'jonathon', 'jonathan', 'jon', 'jonny', 'john', 'johny', 'jonnie'],
                 jon: ['john', 'johnny', 'jonny', 'jonnie'],
-                jonathan: [
-                    'johnathan',
-                    'johnathon',
-                    'jonathon',
-                    'jon',
-                    'jonny',
-                    'john',
-                    'johny',
-                    'jonnie',
-                    'nathan'
-                ],
-                jonathon: [
-                    'johnathan',
-                    'johnathon',
-                    'jonathan',
-                    'jon',
-                    'jonny',
-                    'john',
-                    'johny',
-                    'jonnie'
-                ],
+                jonathan: ['johnathan', 'johnathon', 'jonathon', 'jon', 'jonny', 'john', 'johny', 'jonnie', 'nathan'],
+                jonathon: ['johnathan', 'johnathon', 'jonathan', 'jon', 'jonny', 'john', 'johny', 'jonnie'],
                 joseph: ['jody', 'jos', 'joe', 'joey'],
                 josephine: ['fina', 'jody', 'jo', 'josey', 'joey', 'josie'],
                 josetta: ['jettie'],
@@ -10345,30 +10337,8 @@
                 kate: ['kay'],
                 katelin: ['kay', 'kate', 'kaye'],
                 katelyn: ['kay', 'kate', 'kaye'],
-                katherine: [
-                    'kathy',
-                    'katy',
-                    'lena',
-                    'kittie',
-                    'kaye',
-                    'kit',
-                    'trina',
-                    'cathy',
-                    'kay',
-                    'kate',
-                    'cassie'
-                ],
-                kathleen: [
-                    'kathy',
-                    'katy',
-                    'lena',
-                    'kittie',
-                    'kit',
-                    'trina',
-                    'cathy',
-                    'kay',
-                    'cassie'
-                ],
+                katherine: ['kathy', 'katy', 'lena', 'kittie', 'kaye', 'kit', 'trina', 'cathy', 'kay', 'kate', 'cassie'],
+                kathleen: ['kathy', 'katy', 'lena', 'kittie', 'kit', 'trina', 'cathy', 'kay', 'cassie'],
                 kathryn: ['kathy', 'katie', 'kate'],
                 katia: ['kate', 'katie'],
                 katy: ['kathy', 'katie', 'kate'],
@@ -10480,17 +10450,7 @@
                 mackenzie: ['kenzy', 'mac', 'mack'],
                 maddison: ['maddie', 'maddi'],
                 maddy: ['madelyn', 'madeline', 'madge'],
-                madeline: [
-                    'maggie',
-                    'lena',
-                    'magda',
-                    'maddy',
-                    'madge',
-                    'maddie',
-                    'maddi',
-                    'madie',
-                    'maud'
-                ],
+                madeline: ['maggie', 'lena', 'magda', 'maddy', 'madge', 'maddie', 'maddi', 'madie', 'maud'],
                 madelyn: ['maddy', 'madie'],
                 madie: ['madeline', 'madelyn'],
                 madison: ['mattie', 'maddy'],
@@ -10525,22 +10485,9 @@
                     'daisy',
                     'margery',
                     'gretta',
-                    'rita'
+                    'rita',
                 ],
-                margaretta: [
-                    'maggie',
-                    'meg',
-                    'peg',
-                    'midge',
-                    'margie',
-                    'madge',
-                    'peggy',
-                    'marge',
-                    'daisy',
-                    'margery',
-                    'gretta',
-                    'rita'
-                ],
+                margaretta: ['maggie', 'meg', 'peg', 'midge', 'margie', 'madge', 'peggy', 'marge', 'daisy', 'margery', 'gretta', 'rita'],
                 margarita: [
                     'maggie',
                     'meg',
@@ -10554,7 +10501,7 @@
                     'daisy',
                     'peggie',
                     'rita',
-                    'margo'
+                    'margo',
                 ],
                 marge: ['margery', 'margaret', 'margaretta'],
                 margie: ['marjorie'],
@@ -10577,7 +10524,7 @@
                     'marie',
                     'mamie',
                     'mary',
-                    'maria'
+                    'maria',
                 ],
                 marilyn: ['mary'],
                 marion: ['mary'],
@@ -10631,18 +10578,7 @@
                 micheal: ['mike', 'miky', 'mikey'],
                 michelle: ['mickey', 'shelley', 'shely', 'chelle', 'shellie', 'shelly'],
                 mick: ['micky'],
-                miguel: [
-                    'miguell',
-                    'miguael',
-                    'miguaell',
-                    'miguail',
-                    'miguaill',
-                    'miguayl',
-                    'miguayll',
-                    'michael',
-                    'mike',
-                    'miggy'
-                ],
+                miguel: ['miguell', 'miguael', 'miguaell', 'miguail', 'miguaill', 'miguayl', 'miguayll', 'michael', 'mike', 'miggy'],
                 mike: ['micky', 'mick', 'michael'],
                 mildred: ['milly'],
                 millicent: ['missy', 'milly'],
@@ -10679,15 +10615,7 @@
                 newt: ['newton'],
                 newton: ['newt'],
                 nicholas: ['nick', 'claes', 'claas', 'nic', 'nicky', 'nico', 'nickie'],
-                nicholette: [
-                    'nickey',
-                    'nikki',
-                    'cole',
-                    'nicki',
-                    'nicky',
-                    'nichole',
-                    'nicole'
-                ],
+                nicholette: ['nickey', 'nikki', 'cole', 'nicki', 'nicky', 'nichole', 'nicole'],
                 nicodemus: ['nick', 'nic', 'nicky', 'nico', 'nickie'],
                 nicole: ['nole', 'nikki', 'cole', 'nicki', 'nicky'],
                 nikolas: ['nick', 'claes', 'nic', 'nicky', 'nico', 'nickie'],
@@ -10778,30 +10706,10 @@
                 rhyna: ['rhynie'],
                 ricardo: ['rick', 'ricky'],
                 rich: ['dick', 'rick'],
-                richard: [
-                    'dick',
-                    'dickon',
-                    'dickie',
-                    'dicky',
-                    'rick',
-                    'rich',
-                    'ricky',
-                    'richie'
-                ],
+                richard: ['dick', 'dickon', 'dickie', 'dicky', 'rick', 'rich', 'ricky', 'richie'],
                 rick: ['ricky'],
                 ricky: ['dick', 'rich'],
-                robert: [
-                    'hob',
-                    'hobkin',
-                    'dob',
-                    'rob',
-                    'bobby',
-                    'dobbin',
-                    'bob',
-                    'bill',
-                    'billy',
-                    'robby'
-                ],
+                robert: ['hob', 'hobkin', 'dob', 'rob', 'bobby', 'dobbin', 'bob', 'bill', 'billy', 'robby'],
                 roberta: ['robbie', 'bert', 'bobbie', 'birdie', 'bertie', 'roby', 'birtie'],
                 roberto: ['rob'],
                 roderick: ['rod', 'erick', 'rickie', 'roddy'],
@@ -10885,17 +10793,7 @@
                 stacie: ['stacy', 'stacey', 'staci'],
                 stacy: ['staci'],
                 stephan: ['steve'],
-                stephanie: [
-                    'stephie',
-                    'annie',
-                    'steph',
-                    'stevie',
-                    'stephine',
-                    'stephany',
-                    'stephani',
-                    'steffi',
-                    'steffie'
-                ],
+                stephanie: ['stephie', 'annie', 'steph', 'stevie', 'stephine', 'stephany', 'stephani', 'steffi', 'steffie'],
                 stephen: ['steve', 'steph'],
                 steven: ['steve', 'steph', 'stevie'],
                 stuart: ['stu'],
@@ -10932,17 +10830,7 @@
                 theodosia: ['theo', 'dosia', 'theodosius'],
                 theophilus: ['ophi'],
                 theotha: ['otha'],
-                theresa: [
-                    'tessie',
-                    'thirza',
-                    'tessa',
-                    'terry',
-                    'tracy',
-                    'tess',
-                    'thursa',
-                    'traci',
-                    'tracie'
-                ],
+                theresa: ['tessie', 'thirza', 'tessa', 'terry', 'tracy', 'tess', 'thursa', 'traci', 'tracie'],
                 thom: ['thomas', 'tommy', 'tom'],
                 thomas: ['thom', 'tommy', 'tom'],
                 thomasa: ['tamzine'],
@@ -10971,30 +10859,11 @@
                 vandalia: ['vannie'],
                 vanessa: ['essa', 'vanna', 'nessa'],
                 vernisee: ['nicey'],
-                veronica: [
-                    'vonnie',
-                    'ron',
-                    'ronna',
-                    'ronie',
-                    'frony',
-                    'franky',
-                    'ronnie',
-                    'ronny'
-                ],
+                veronica: ['vonnie', 'ron', 'ronna', 'ronie', 'frony', 'franky', 'ronnie', 'ronny'],
                 vic: ['vicki', 'vickie', 'vicky', 'victor'],
                 vicki: ['vickie', 'vicky', 'victoria'],
                 victor: ['vic'],
-                victoria: [
-                    'torie',
-                    'vic',
-                    'vicki',
-                    'tory',
-                    'vicky',
-                    'tori',
-                    'torri',
-                    'torrie',
-                    'vickie'
-                ],
+                victoria: ['torie', 'vic', 'vicki', 'tory', 'vicky', 'tori', 'torri', 'torrie', 'vickie'],
                 vijay: ['vij'],
                 vincent: ['vic', 'vince', 'vinnie', 'vin', 'vinny'],
                 vincenzo: ['vic', 'vinnie', 'vin', 'vinny', 'vince'],
@@ -11042,10 +10911,10 @@
                 zack: ['zach', 'zak'],
                 zebedee: ['zeb'],
                 zedediah: ['dyer', 'zed', 'diah'],
-                zephaniah: ['zeph']
+                zephaniah: ['zeph'],
             };
-            return this._memo
-        }
+            return this._memo;
+        },
     };
 
     const states = {
@@ -11099,7 +10968,7 @@
         WA: 'Washington',
         WV: 'West Virginia',
         WI: 'Wisconsin',
-        WY: 'Wyoming'
+        WY: 'Wyoming',
     };
 
     /**
@@ -11109,12 +10978,12 @@
      * @param {string} selector
      * @return {HTMLElement | null}
      */
-    function getElement (doc = document, selector) {
+    function getElement(doc = document, selector) {
         if (isXpath(selector)) {
-            return safeQuerySelectorXPath(doc, selector)
+            return safeQuerySelectorXPath(doc, selector);
         }
 
-        return safeQuerySelector(doc, selector)
+        return safeQuerySelector(doc, selector);
     }
 
     /**
@@ -11124,12 +10993,12 @@
      * @param {string} selector
      * @return {HTMLElement[] | null}
      */
-    function getElements (doc = document, selector) {
+    function getElements(doc = document, selector) {
         if (isXpath(selector)) {
-            return safeQuerySelectorAllXpath(doc, selector)
+            return safeQuerySelectorAllXpath(doc, selector);
         }
 
-        return safeQuerySelectorAll(doc, selector)
+        return safeQuerySelectorAll(doc, selector);
     }
 
     /**
@@ -11138,16 +11007,16 @@
      * @param {HTMLElement} element
      * @param {string} selector
      */
-    function getElementMatches (element, selector) {
+    function getElementMatches(element, selector) {
         try {
             if (isXpath(selector)) {
-                return matchesXPath(element, selector) ? element : null
+                return matchesXPath(element, selector) ? element : null;
             } else {
-                return element.matches(selector) ? element : null
+                return element.matches(selector) ? element : null;
             }
         } catch (e) {
             console.error('getElementMatches threw: ', e);
-            return null
+            return null;
         }
     }
 
@@ -11157,29 +11026,23 @@
      * @param {string} selector
      * @return {boolean}
      */
-    function matchesXPath (element, selector) {
-        const xpathResult = document.evaluate(
-            selector,
-            element,
-            null,
-            XPathResult.BOOLEAN_TYPE,
-            null
-        );
+    function matchesXPath(element, selector) {
+        const xpathResult = document.evaluate(selector, element, null, XPathResult.BOOLEAN_TYPE, null);
 
-        return xpathResult.booleanValue
+        return xpathResult.booleanValue;
     }
 
     /**
      * @param {unknown} selector
      * @returns {boolean}
      */
-    function isXpath (selector) {
-        if (!(typeof selector === 'string')) return false
+    function isXpath(selector) {
+        if (!(typeof selector === 'string')) return false;
 
         // see: https://www.w3.org/TR/xpath20/
         // "When the context item is a node, it can also be referred to as the context node. The context item is returned by an expression consisting of a single dot"
-        if (selector === '.') return true
-        return selector.startsWith('//') || selector.startsWith('./') || selector.startsWith('(')
+        if (selector === '.') return true;
+        return selector.startsWith('//') || selector.startsWith('./') || selector.startsWith('(');
     }
 
     /**
@@ -11187,14 +11050,14 @@
      * @param selector
      * @returns {HTMLElement[] | null}
      */
-    function safeQuerySelectorAll (element, selector) {
+    function safeQuerySelectorAll(element, selector) {
         try {
             if (element && 'querySelectorAll' in element) {
-                return Array.from(element?.querySelectorAll?.(selector))
+                return Array.from(element?.querySelectorAll?.(selector));
             }
-            return null
+            return null;
         } catch (e) {
-            return null
+            return null;
         }
     }
     /**
@@ -11202,14 +11065,14 @@
      * @param selector
      * @returns {HTMLElement | null}
      */
-    function safeQuerySelector (element, selector) {
+    function safeQuerySelector(element, selector) {
         try {
             if (element && 'querySelector' in element) {
-                return element?.querySelector?.(selector)
+                return element?.querySelector?.(selector);
             }
-            return null
+            return null;
         } catch (e) {
-            return null
+            return null;
         }
     }
 
@@ -11218,17 +11081,17 @@
      * @param selector
      * @returns {HTMLElement | null}
      */
-    function safeQuerySelectorXPath (element, selector) {
+    function safeQuerySelectorXPath(element, selector) {
         try {
             const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
             const single = match?.singleNodeValue;
             if (single) {
-                return /** @type {HTMLElement} */(single)
+                return /** @type {HTMLElement} */ (single);
             }
-            return null
+            return null;
         } catch (e) {
             console.log('safeQuerySelectorXPath threw', e);
-            return null
+            return null;
         }
     }
 
@@ -11237,7 +11100,7 @@
      * @param selector
      * @returns {HTMLElement[] | null}
      */
-    function safeQuerySelectorAllXpath (element, selector) {
+    function safeQuerySelectorAllXpath(element, selector) {
         try {
             // gets all elements matching the xpath query
             const xpathResult = document.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -11246,14 +11109,14 @@
                 const matchedNodes = [];
                 for (let i = 0; i < xpathResult.snapshotLength; i++) {
                     const item = xpathResult.snapshotItem(i);
-                    if (item) matchedNodes.push(/** @type {HTMLElement} */(item));
+                    if (item) matchedNodes.push(/** @type {HTMLElement} */ (item));
                 }
-                return /** @type {HTMLElement[]} */(matchedNodes)
+                return /** @type {HTMLElement[]} */ (matchedNodes);
             }
-            return null
+            return null;
         } catch (e) {
             console.log('safeQuerySelectorAllXpath threw', e);
-            return null
+            return null;
         }
     }
 
@@ -11262,8 +11125,8 @@
      * @param {number} max
      * @returns {number}
      */
-    function generateRandomInt (min, max) {
-        return Math.floor(Math.random() * (max - min + 1) + min)
+    function generateRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
     /**
@@ -11274,27 +11137,27 @@
      * @param {NonNullable<T>[]} prev
      * @return {NonNullable<T>[]} - The cleaned array.
      */
-    function cleanArray (input, prev = []) {
+    function cleanArray(input, prev = []) {
         if (!Array.isArray(input)) {
-            if (input === null) return prev
-            if (input === undefined) return prev
+            if (input === null) return prev;
+            if (input === undefined) return prev;
             // special case for empty strings
             if (typeof input === 'string') {
                 const trimmed = input.trim();
                 if (trimmed.length > 0) {
-                    prev.push(/** @type {NonNullable<T>} */(trimmed));
+                    prev.push(/** @type {NonNullable<T>} */ (trimmed));
                 }
             } else {
                 prev.push(input);
             }
-            return prev
+            return prev;
         }
 
         for (const item of input) {
             prev.push(...cleanArray(item));
         }
 
-        return prev
+        return prev;
     }
 
     /**
@@ -11303,9 +11166,9 @@
      * @param {any} [input] - The input to be checked.
      * @return {boolean} - True if the input is a non-empty string, false otherwise.
      */
-    function nonEmptyString (input) {
-        if (typeof input !== 'string') return false
-        return input.trim().length > 0
+    function nonEmptyString(input) {
+        if (typeof input !== 'string') return false;
+        return input.trim().length > 0;
     }
 
     /**
@@ -11315,10 +11178,10 @@
      * @param {any} b - The second string to compare.
      * @return {boolean} - Returns true if the strings are a matching pair, false otherwise.
      */
-    function matchingPair (a, b) {
-        if (!nonEmptyString(a)) return false
-        if (!nonEmptyString(b)) return false
-        return a.toLowerCase().trim() === b.toLowerCase().trim()
+    function matchingPair(a, b) {
+        if (!nonEmptyString(a)) return false;
+        if (!nonEmptyString(b)) return false;
+        return a.toLowerCase().trim() === b.toLowerCase().trim();
     }
 
     /**
@@ -11327,24 +11190,28 @@
      * @param {any} addresses
      * @return {Array}
      */
-    function sortAddressesByStateAndCity (addresses) {
+    function sortAddressesByStateAndCity(addresses) {
         return addresses.sort((a, b) => {
-            if (a.state < b.state) { return -1 }
-            if (a.state > b.state) { return 1 }
-            return a.city.localeCompare(b.city)
-        })
+            if (a.state < b.state) {
+                return -1;
+            }
+            if (a.state > b.state) {
+                return 1;
+            }
+            return a.city.localeCompare(b.city);
+        });
     }
 
     /**
      * Returns a SHA-1 hash of the profile
      */
-    async function hashObject (profile) {
+    async function hashObject(profile) {
         const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)); // encode as (utf-8)
         const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8); // hash the message
         const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+        const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
 
-        return hashHex
+        return hashHex;
     }
 
     /**
@@ -11352,20 +11219,22 @@
      * @param {{city: string; state: string | null}[]} foundAddresses
      * @return {boolean}
      */
-    function addressMatch (userAddresses, foundAddresses) {
+    function addressMatch(userAddresses, foundAddresses) {
         return userAddresses.some((user) => {
-            return foundAddresses.some(found => {
-                return matchingPair(user.city, found.city) && matchingPair(user.state, found.state)
-            })
-        })
+            return foundAddresses.some((found) => {
+                return matchingPair(user.city, found.city) && matchingPair(user.state, found.state);
+            });
+        });
     }
 
-    function getStateFromAbbreviation (stateAbbreviation) {
-        if (stateAbbreviation == null || stateAbbreviation.trim() === '') { return null }
+    function getStateFromAbbreviation(stateAbbreviation) {
+        if (stateAbbreviation == null || stateAbbreviation.trim() === '') {
+            return null;
+        }
 
         const state = stateAbbreviation.toUpperCase();
 
-        return states[state] || null
+        return states[state] || null;
     }
 
     /**
@@ -11381,7 +11250,7 @@
      * @param {Record<string, string|number>} userData
      * @return {{ url: string } | { error: string }}
      */
-    function transformUrl (action, userData) {
+    function transformUrl(action, userData) {
         const url = new URL(action.url);
 
         /**
@@ -11393,7 +11262,7 @@
         /**
          * Finally, convert back to a full URL
          */
-        return { url: url.toString() }
+        return { url: url.toString() };
     }
 
     /**
@@ -11406,7 +11275,7 @@
         ['lastName', (value) => capitalize(value)],
         ['state', (value) => value.toLowerCase()],
         ['city', (value) => capitalize(value)],
-        ['age', (value) => value.toString()]
+        ['age', (value) => value.toString()],
     ]);
 
     /**
@@ -11426,17 +11295,19 @@
         ['snakecase', (value) => value.split(' ').join('_')],
         ['stateFull', (value) => getStateFromAbbreviation(value)],
         ['defaultIfEmpty', (value, argument) => value || argument || ''],
-        ['ageRange', (value, argument, action) => {
-            if (!action.ageRange) return value
-            const ageNumber = Number(value);
-            // find matching age range
-            const ageRange = action.ageRange.find((range) => {
-                const [min, max] = range.split('-');
-                return ageNumber >= Number(min) && ageNumber <= Number(max)
-            });
-            return ageRange || value
-        }
-        ]
+        [
+            'ageRange',
+            (value, argument, action) => {
+                if (!action.ageRange) return value;
+                const ageNumber = Number(value);
+                // find matching age range
+                const ageRange = action.ageRange.find((range) => {
+                    const [min, max] = range.split('-');
+                    return ageNumber >= Number(min) && ageNumber <= Number(max);
+                });
+                return ageRange || value;
+            },
+        ],
     ]);
 
     /**
@@ -11448,17 +11319,17 @@
      * @param {Record<string, string|number>} userData
      * @return {URLSearchParams}
      */
-    function processSearchParams (searchParams, action, userData) {
+    function processSearchParams(searchParams, action, userData) {
         /**
          * For each key/value pair in the URL Search params, process the value
          * part *only*.
          */
         const updatedPairs = [...searchParams].map(([key, value]) => {
             const processedValue = processTemplateStringWithUserData(value, action, userData);
-            return [key, processedValue]
+            return [key, processedValue];
         });
 
-        return new URLSearchParams(updatedPairs)
+        return new URLSearchParams(updatedPairs);
     }
 
     /**
@@ -11466,12 +11337,12 @@
      * @param {BuildUrlAction} action
      * @param {Record<string, string|number>} userData
      */
-    function processPathname (pathname, action, userData) {
+    function processPathname(pathname, action, userData) {
         return pathname
             .split('/')
             .filter(Boolean)
-            .map(segment => processTemplateStringWithUserData(segment, action, userData))
-            .join('/')
+            .map((segment) => processTemplateStringWithUserData(segment, action, userData))
+            .join('/');
     }
 
     /**
@@ -11502,7 +11373,7 @@
      * @param {BuildUrlAction} action
      * @param {Record<string, string|number>} userData
      */
-    function processTemplateStringWithUserData (input, action, userData) {
+    function processTemplateStringWithUserData(input, action, userData) {
         /**
          * Note: this regex covers both pathname + query params.
          * This is why we're handling both encoded and un-encoded.
@@ -11511,8 +11382,8 @@
             const comparison = encodedValue ?? plainValue;
             const [dataKey, ...transforms] = comparison.split(/\||%7C/);
             const data = userData[dataKey];
-            return applyTransforms(dataKey, data, transforms, action)
-        })
+            return applyTransforms(dataKey, data, transforms, action);
+        });
     }
 
     /**
@@ -11521,14 +11392,12 @@
      * @param {string[]} transformNames
      * @param {BuildUrlAction} action
      */
-    function applyTransforms (dataKey, value, transformNames, action) {
+    function applyTransforms(dataKey, value, transformNames, action) {
         const subject = String(value || '');
         const baseTransform = baseTransforms.get(dataKey);
 
         // apply base transform to the incoming string
-        let outputString = baseTransform
-            ? baseTransform(subject)
-            : subject;
+        let outputString = baseTransform ? baseTransform(subject) : subject;
 
         for (const transformName of transformNames) {
             const [name, argument] = transformName.split(':');
@@ -11538,13 +11407,13 @@
             }
         }
 
-        return outputString
+        return outputString;
     }
 
-    function capitalize (s) {
+    function capitalize(s) {
         const words = s.split(' ');
-        const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
-        return capitalizedWords.join(' ')
+        const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+        return capitalizedWords.join(' ');
     }
 
     /**
@@ -11558,11 +11427,11 @@
      */
     class ErrorResponse {
         /**
-        * @param {object} params
-        * @param {string} params.actionID
-        * @param {string} params.message
-        */
-        constructor (params) {
+         * @param {object} params
+         * @param {string} params.actionID
+         * @param {string} params.message
+         */
+        constructor(params) {
             this.error = params;
         }
     }
@@ -11572,13 +11441,13 @@
      */
     class SuccessResponse {
         /**
-        * @param {object} params
-        * @param {string} params.actionID
-        * @param {string} params.actionType
-        * @param {any} params.response
-       * @param {Record<string, any>} [params.meta] - optional meta data
-        */
-        constructor (params) {
+         * @param {object} params
+         * @param {string} params.actionID
+         * @param {string} params.actionType
+         * @param {any} params.response
+         * @param {Record<string, any>} [params.meta] - optional meta data
+         */
+        constructor(params) {
             this.success = params;
         }
     }
@@ -11596,7 +11465,7 @@
          * @param {HTMLElement} [params.element] - the parent element that was matched. Not present in JSON
          * @param {Record<string, any>} params.scrapedData
          */
-        constructor (params) {
+        constructor(params) {
             this.scrapedData = params.scrapedData;
             this.result = params.result;
             this.score = params.score;
@@ -11608,13 +11477,13 @@
          * Convert this structure into a format that can be sent between JS contexts/native
          * @return {{result: boolean, score: number, matchedFields: string[], scrapedData: Record<string, any>}}
          */
-        asData () {
+        asData() {
             return {
                 scrapedData: this.scrapedData,
                 result: this.result,
                 score: this.score,
-                matchedFields: this.matchedFields
-            }
+                matchedFields: this.matchedFields,
+            };
         }
     }
 
@@ -11625,13 +11494,13 @@
      * @param {Record<string, any>} userData
      * @return {import('../types.js').ActionResponse}
      */
-    function buildUrl (action, userData) {
+    function buildUrl(action, userData) {
         const result = replaceTemplatedUrl(action, userData);
         if ('error' in result) {
-            return new ErrorResponse({ actionID: action.id, message: result.error })
+            return new ErrorResponse({ actionID: action.id, message: result.error });
         }
 
-        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { url: result.url } })
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { url: result.url } });
     }
 
     /**
@@ -11641,24 +11510,24 @@
      * @param userData
      * @return {{url: string} | {error: string}}
      */
-    function replaceTemplatedUrl (action, userData) {
+    function replaceTemplatedUrl(action, userData) {
         const url = action?.url;
         if (!url) {
-            return { error: 'Error: No url provided.' }
+            return { error: 'Error: No url provided.' };
         }
 
         try {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const _ = new URL(action.url);
         } catch (e) {
-            return { error: 'Error: Invalid URL provided.' }
+            return { error: 'Error: Invalid URL provided.' };
         }
 
         if (!userData) {
-            return { url }
+            return { url };
         }
 
-        return transformUrl(action, userData)
+        return transformUrl(action, userData);
     }
 
     /**
@@ -11666,21 +11535,21 @@
      * @param ageFound
      * @return {boolean}
      */
-    function isSameAge (userAge, ageFound) {
+    function isSameAge(userAge, ageFound) {
         // variance allows for +/- 1 on the data broker and +/- 1 based on the only having a birth year
         const ageVariance = 2;
         userAge = parseInt(userAge);
         ageFound = parseInt(ageFound);
 
         if (isNaN(ageFound)) {
-            return false
+            return false;
         }
 
         if (Math.abs(userAge - ageFound) < ageVariance) {
-            return true
+            return true;
         }
 
-        return false
+        return false;
     }
 
     /**
@@ -11691,14 +11560,14 @@
      * @param {string | null} [userSuffix]
      * @return {boolean}
      */
-    function isSameName (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) {
+    function isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) {
         // If there's no name on the website, then there's no way we can match it
         if (!fullNameExtracted) {
-            return false
+            return false;
         }
 
         // these fields should never be absent. If they are we cannot continue
-        if (!userFirstName || !userLastName) return false
+        if (!userFirstName || !userLastName) return false;
 
         fullNameExtracted = fullNameExtracted.toLowerCase().trim().replace('.', '');
         userFirstName = userFirstName.toLowerCase();
@@ -11710,21 +11579,22 @@
         const names = getNames(userFirstName);
 
         for (const firstName of names) {
-        // Let's check if the name matches right off the bat
+            // Let's check if the name matches right off the bat
             const nameCombo1 = `${firstName} ${userLastName}`;
             if (fullNameExtracted === nameCombo1) {
-                return true
+                return true;
             }
 
             // If the user didn't supply a middle name, then try to match names extracted names that
             // might include a middle name.
             if (!userMiddleName) {
                 const combinedLength = firstName.length + userLastName.length;
-                const matchesFirstAndLast = fullNameExtracted.startsWith(firstName) &&
+                const matchesFirstAndLast =
+                    fullNameExtracted.startsWith(firstName) &&
                     fullNameExtracted.endsWith(userLastName) &&
                     fullNameExtracted.length > combinedLength;
                 if (matchesFirstAndLast) {
-                    return true
+                    return true;
                 }
             }
 
@@ -11732,7 +11602,7 @@
             if (userSuffix) {
                 const nameCombo1WithSuffix = `${firstName} ${userLastName} ${userSuffix}`;
                 if (fullNameExtracted === nameCombo1WithSuffix) {
-                    return true
+                    return true;
                 }
             }
 
@@ -11746,11 +11616,11 @@
                 const comparisons = [
                     `${firstName} ${userLastNameOption2}`,
                     `${firstName} ${userLastNameOption3}`,
-                    `${firstName} ${userLastNameOption4}`
+                    `${firstName} ${userLastNameOption4}`,
                 ];
 
                 if (comparisons.includes(fullNameExtracted)) {
-                    return true
+                    return true;
                 }
             }
 
@@ -11763,11 +11633,11 @@
                 const comparisons = [
                     `${userFirstNameOption2} ${userLastName}`,
                     `${userFirstNameOption3} ${userLastName}`,
-                    `${userFirstNameOption4} ${userLastName}`
+                    `${userFirstNameOption4} ${userLastName}`,
                 ];
 
                 if (comparisons.includes(fullNameExtracted)) {
-                    return true
+                    return true;
                 }
             }
 
@@ -11780,11 +11650,11 @@
                     `${firstName} ${userMiddleName[0]} ${userLastName}`,
                     `${firstName} ${userMiddleName[0]} ${userLastName} ${userSuffix}`,
                     `${firstName} ${userMiddleName}${userLastName}`,
-                    `${firstName} ${userMiddleName}${userLastName} ${userSuffix}`
+                    `${firstName} ${userMiddleName}${userLastName} ${userSuffix}`,
                 ];
 
                 if (comparisons.includes(fullNameExtracted)) {
-                    return true
+                    return true;
                 }
 
                 // If it's a hyphenated last name, we have more to try
@@ -11798,11 +11668,11 @@
                         `${firstName} ${userMiddleName} ${userLastNameOption4}`,
                         `${firstName} ${userMiddleName[0]} ${userLastNameOption2}`,
                         `${firstName} ${userMiddleName[0]} ${userLastNameOption3}`,
-                        `${firstName} ${userMiddleName[0]} ${userLastNameOption4}`
+                        `${firstName} ${userMiddleName[0]} ${userLastNameOption4}`,
                     ];
 
                     if (comparisons.includes(fullNameExtracted)) {
-                        return true
+                        return true;
                     }
                 }
 
@@ -11818,17 +11688,17 @@
                         `${userFirstNameOption4} ${userMiddleName} ${userLastName}`,
                         `${userFirstNameOption2} ${userMiddleName[0]} ${userLastName}`,
                         `${userFirstNameOption3} ${userMiddleName[0]} ${userLastName}`,
-                        `${userFirstNameOption4} ${userMiddleName[0]} ${userLastName}`
+                        `${userFirstNameOption4} ${userMiddleName[0]} ${userLastName}`,
                     ];
 
                     if (comparisons.includes(fullNameExtracted)) {
-                        return true
+                        return true;
                     }
                 }
             }
         }
 
-        return false
+        return false;
     }
 
     /**
@@ -11837,13 +11707,15 @@
      * @param {string | null} name
      * @return {Set<string>}
      */
-    function getNames (name) {
-        if (!noneEmptyString(name)) { return new Set() }
+    function getNames(name) {
+        if (!noneEmptyString(name)) {
+            return new Set();
+        }
 
         name = name.toLowerCase();
         const nicknames = names.nicknames;
 
-        return new Set([name, ...getNicknames(name, nicknames), ...getFullNames(name, nicknames)])
+        return new Set([name, ...getNicknames(name, nicknames), ...getFullNames(name, nicknames)]);
     }
 
     /**
@@ -11853,18 +11725,20 @@
      * @param {Record<string, string[]>} nicknames
      * @return {Set<string>}
      */
-    function getNicknames (name, nicknames) {
+    function getNicknames(name, nicknames) {
         const emptySet = new Set();
 
-        if (!noneEmptyString(name)) { return emptySet }
+        if (!noneEmptyString(name)) {
+            return emptySet;
+        }
 
         name = name.toLowerCase();
 
         if (Object.prototype.hasOwnProperty.call(nicknames, name)) {
-            return new Set(nicknames[name])
+            return new Set(nicknames[name]);
         }
 
-        return emptySet
+        return emptySet;
     }
 
     /**
@@ -11874,10 +11748,12 @@
      * @param {Record<string, string[]>} nicknames
      * @return {Set<string>}
      */
-    function getFullNames (name, nicknames) {
+    function getFullNames(name, nicknames) {
         const fullNames = new Set();
 
-        if (!noneEmptyString(name)) { return fullNames }
+        if (!noneEmptyString(name)) {
+            return fullNames;
+        }
 
         name = name.toLowerCase();
 
@@ -11887,7 +11763,7 @@
             }
         }
 
-        return fullNames
+        return fullNames;
     }
 
     /**
@@ -11895,9 +11771,9 @@
      * @param {any} [input]
      * @return {input is string}
      */
-    function noneEmptyString (input) {
-        if (typeof input !== 'string') return false
-        return input.trim().length > 0
+    function noneEmptyString(input) {
+        if (typeof input !== 'string') return false;
+        return input.trim().length > 0;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -11910,10 +11786,10 @@
          * @param {string[]} strs
          * @param {import('../actions/extract.js').ExtractorParams} _extractorParams
          */
-         
-        extract (strs, _extractorParams) {
-            if (!strs[0]) return null
-            return strs[0].match(/\d+/)?.[0] ?? null
+
+        extract(strs, _extractorParams) {
+            if (!strs[0]) return null;
+            return strs[0].match(/\d+/)?.[0] ?? null;
         }
     }
 
@@ -11927,10 +11803,10 @@
          * @param {string[]} strs
          * @param {import('../actions/extract.js').ExtractorParams} _extractorParams
          */
-         
-        extract (strs, _extractorParams) {
-            if (!strs[0]) return null
-            return strs[0].replace(/\n/g, ' ').trim()
+
+        extract(strs, _extractorParams) {
+            if (!strs[0]) return null;
+            return strs[0].replace(/\n/g, ' ').trim();
         }
     }
 
@@ -11943,8 +11819,8 @@
          * @param {import('../actions/extract.js').ExtractorParams} extractorParams
          * @returns {string[]}
          */
-        extract (strs, extractorParams) {
-            return strs.map(x => stringToList(x, extractorParams.separator)).flat()
+        extract(strs, extractorParams) {
+            return strs.map((x) => stringToList(x, extractorParams.separator)).flat();
         }
     }
 
@@ -14646,9 +14522,9 @@
          * @param {string[]} strs
          * @param {import('../actions/extract.js').ExtractorParams} extractorParams
          */
-        extract (strs, extractorParams) {
-            const cityStateList = strs.map(str => stringToList(str, extractorParams.separator)).flat();
-            return getCityStateCombos(cityStateList)
+        extract(strs, extractorParams) {
+            const cityStateList = strs.map((str) => stringToList(str, extractorParams.separator)).flat();
+            return getCityStateCombos(cityStateList);
         }
     }
 
@@ -14660,17 +14536,19 @@
          * @param {string[]} strs
          * @param {import('../actions/extract.js').ExtractorParams} extractorParams
          */
-        extract (strs, extractorParams) {
-            return strs
-                .map((str) => str.replace('\n', ' '))
-                .map((str) => stringToList(str, extractorParams.separator))
-                .flat()
-                .map((str) => parseAddress.parseLocation(str) || {})
-                // at least 'city' is required.
-                .filter((parsed) => Boolean(parsed?.city))
-                .map((addr) => {
-                    return { city: addr.city, state: addr.state || null }
-                })
+        extract(strs, extractorParams) {
+            return (
+                strs
+                    .map((str) => str.replace('\n', ' '))
+                    .map((str) => stringToList(str, extractorParams.separator))
+                    .flat()
+                    .map((str) => parseAddress.parseLocation(str) || {})
+                    // at least 'city' is required.
+                    .filter((parsed) => Boolean(parsed?.city))
+                    .map((addr) => {
+                        return { city: addr.city, state: addr.state || null };
+                    })
+            );
         }
     }
 
@@ -14678,7 +14556,7 @@
      * @param {string[]} inputList
      * @return {{ city: string, state: string|null }[] }
      */
-    function getCityStateCombos (inputList) {
+    function getCityStateCombos(inputList) {
         const output = [];
         for (let item of inputList) {
             let words;
@@ -14686,24 +14564,26 @@
             item = item.replace(/,?\s*\d{5}(-\d{4})?/, '');
 
             if (item.includes(',')) {
-                words = item.split(',').map(item => item.trim());
+                words = item.split(',').map((item) => item.trim());
             } else {
-                words = item.split(' ').map(item => item.trim());
+                words = item.split(' ').map((item) => item.trim());
             }
             // we are removing this partial city/state combos at the end (i.e. Chi...)
-            if (words.length === 1) { continue }
+            if (words.length === 1) {
+                continue;
+            }
 
             const state = words.pop();
             const city = words.join(' ');
 
             // exclude invalid states
             if (state && !Object.keys(states).includes(state.toUpperCase())) {
-                continue
+                continue;
             }
 
             output.push({ city, state: state || null });
         }
-        return output
+        return output;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -14716,10 +14596,11 @@
          * @param {string[]} strs
          * @param {import('../actions/extract.js').ExtractorParams} extractorParams
          */
-        extract (strs, extractorParams) {
-            return strs.map(str => stringToList(str, extractorParams.separator))
+        extract(strs, extractorParams) {
+            return strs
+                .map((str) => stringToList(str, extractorParams.separator))
                 .flat()
-                .map(str => str.replace(/\D/g, ''))
+                .map((str) => str.replace(/\D/g, ''));
         }
     }
 
@@ -14733,11 +14614,15 @@
          * @param {string[]} strs
          * @param {import('../actions/extract.js').ExtractorParams} extractorParams
          */
-        extract (strs, extractorParams) {
-            return strs.map(x => stringToList(x, extractorParams.separator)).flat()
-                // for relatives, remove anything following a comma (usually 'age')
-                // eg: 'John Smith, 39' -> 'John Smith'
-                .map(x => x.split(',')[0])
+        extract(strs, extractorParams) {
+            return (
+                strs
+                    .map((x) => stringToList(x, extractorParams.separator))
+                    .flat()
+                    // for relatives, remove anything following a comma (usually 'age')
+                    // eg: 'John Smith, 39' -> 'John Smith'
+                    .map((x) => x.split(',')[0])
+            );
         }
     }
 
@@ -14751,20 +14636,20 @@
          * @param {string[]} strs
          * @param {import('../actions/extract.js').ExtractorParams} extractorParams
          */
-        extract (strs, extractorParams) {
-            if (strs.length === 0) return null
+        extract(strs, extractorParams) {
+            if (strs.length === 0) return null;
             const profile = {
                 profileUrl: strs[0],
-                identifier: strs[0]
+                identifier: strs[0],
             };
 
             if (!extractorParams.identifierType || !extractorParams.identifier) {
-                return profile
+                return profile;
             }
 
             const profileUrl = strs[0];
             profile.identifier = this.getIdFromProfileUrl(profileUrl, extractorParams.identifierType, extractorParams.identifier);
-            return profile
+            return profile;
         }
 
         /**
@@ -14774,18 +14659,18 @@
          * @param {string} identifier
          * @return {string}
          */
-        getIdFromProfileUrl (profileUrl, identifierType, identifier) {
+        getIdFromProfileUrl(profileUrl, identifierType, identifier) {
             const parsedUrl = new URL(profileUrl);
             const urlParams = parsedUrl.searchParams;
 
             // Attempt to parse out an id from the search parameters
             if (identifierType === 'param' && urlParams.has(identifier)) {
                 const profileId = urlParams.get(identifier);
-                return profileId || profileUrl
+                return profileId || profileUrl;
             }
 
-            return profileUrl
-        };
+            return profileUrl;
+        }
     }
 
     /**
@@ -14800,15 +14685,15 @@
          * @param {Record<string, any> } params
          * @return {Promise<Record<string, any>>}
          */
-        async transform (profile, params) {
+        async transform(profile, params) {
             if (params?.profileUrl?.identifierType !== 'hash') {
-                return profile
+                return profile;
             }
 
             return {
                 ...profile,
-                identifier: await hashObject(profile)
-            }
+                identifier: await hashObject(profile),
+            };
         }
     }
 
@@ -14840,22 +14725,22 @@
      * @param {Document | HTMLElement} root
      * @return {Promise<import('../types.js').ActionResponse>}
      */
-    async function extract (action, userData, root = document) {
+    async function extract(action, userData, root = document) {
         const extractResult = extractProfiles(action, userData, root);
 
         if ('error' in extractResult) {
-            return new ErrorResponse({ actionID: action.id, message: extractResult.error })
+            return new ErrorResponse({ actionID: action.id, message: extractResult.error });
         }
 
         const filteredPromises = extractResult.results
-            .filter(x => x.result === true)
-            .map(x => aggregateFields(x.scrapedData))
-            .map(profile => applyPostTransforms(profile, action.profile));
+            .filter((x) => x.result === true)
+            .map((x) => aggregateFields(x.scrapedData))
+            .map((profile) => applyPostTransforms(profile, action.profile));
 
         const filtered = await Promise.all(filteredPromises);
 
         // omit the DOM node from data transfer
-         
+
         const debugResults = extractResult.results.map((result) => result.asData());
 
         return new SuccessResponse({
@@ -14864,9 +14749,9 @@
             response: filtered,
             meta: {
                 userData,
-                extractResults: debugResults
-            }
-        })
+                extractResults: debugResults,
+            },
+        });
     }
 
     /**
@@ -14875,19 +14760,19 @@
      * @param {Element | Document} [root]
      * @return {{error: string} | {results: ProfileResult[]}}
      */
-    function extractProfiles (action, userData, root = document) {
+    function extractProfiles(action, userData, root = document) {
         const profilesElementList = getElements(root, action.selector) ?? [];
 
         if (profilesElementList.length === 0) {
             if (!action.noResultsSelector) {
-                return { error: 'no root elements found for ' + action.selector }
+                return { error: 'no root elements found for ' + action.selector };
             }
 
             // Look for the Results Not Found element
             const foundNoResultsElement = getElement(root, action.noResultsSelector);
 
             if (!foundNoResultsElement) {
-                return { error: 'no results found for ' + action.selector + ' or the no results selector ' + action.noResultsSelector }
+                return { error: 'no results found for ' + action.selector + ' or the no results selector ' + action.noResultsSelector };
             }
         }
 
@@ -14896,7 +14781,7 @@
                 const elementFactory = (key, value) => {
                     return value?.findElements
                         ? cleanArray(getElements(element, value.selector))
-                        : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector))
+                        : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector));
                 };
                 const scrapedData = createProfile(elementFactory, action.profile);
                 const { result, score, matchedFields } = scrapedDataMatchesUserData(userData, scrapedData);
@@ -14905,10 +14790,10 @@
                     result,
                     score,
                     element,
-                    matchedFields
-                })
-            })
-        }
+                    matchedFields,
+                });
+            }),
+        };
     }
 
     /**
@@ -14936,7 +14821,7 @@
      * @param {Record<string, ExtractProfileProperty>} extractData
      * @return {Record<string, any>}
      */
-    function createProfile (elementFactory, extractData) {
+    function createProfile(elementFactory, extractData) {
         const output = {};
         for (const [key, value] of Object.entries(extractData)) {
             if (!value?.selector) {
@@ -14958,7 +14843,7 @@
                 output[key] = extractedValue || null;
             }
         }
-        return output
+        return output;
     }
 
     /**
@@ -14967,8 +14852,8 @@
      * @param {ExtractProfileProperty} extractField
      * @return {string[]}
      */
-    function stringValuesFromElements (elements, key, extractField) {
-        return elements.map(element => {
+    function stringValuesFromElements(elements, key, extractField) {
+        return elements.map((element) => {
             // todo: should we use textContent here?
             let elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
 
@@ -14982,8 +14867,8 @@
 
             elementValue = removeCommonSuffixesAndPrefixes(elementValue);
 
-            return elementValue
-        })
+            return elementValue;
+        });
     }
 
     /**
@@ -14992,14 +14877,14 @@
      * @param {Record<string, any>} scrapedData
      * @return {{score: number, matchedFields: string[], result: boolean}}
      */
-    function scrapedDataMatchesUserData (userData, scrapedData) {
+    function scrapedDataMatchesUserData(userData, scrapedData) {
         const matchedFields = [];
 
         // the name matching is always a *requirement*
         if (isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) {
             matchedFields.push('name');
         } else {
-            return { matchedFields, score: matchedFields.length, result: false }
+            return { matchedFields, score: matchedFields.length, result: false };
         }
 
         // if the age field was present in the scraped data, then we consider this check a *requirement*
@@ -15007,22 +14892,17 @@
             if (isSameAge(scrapedData.age, userData.age)) {
                 matchedFields.push('age');
             } else {
-                return { matchedFields, score: matchedFields.length, result: false }
+                return { matchedFields, score: matchedFields.length, result: false };
             }
         }
 
-        const addressFields = [
-            'addressCityState',
-            'addressCityStateList',
-            'addressFull',
-            'addressFullList'
-        ];
+        const addressFields = ['addressCityState', 'addressCityStateList', 'addressFull', 'addressFullList'];
 
         for (const addressField of addressFields) {
             if (addressField in scrapedData) {
                 if (addressMatch(userData.addresses, scrapedData[addressField])) {
                     matchedFields.push(addressField);
-                    return { matchedFields, score: matchedFields.length, result: true }
+                    return { matchedFields, score: matchedFields.length, result: true };
                 }
             }
         }
@@ -15030,26 +14910,26 @@
         if (scrapedData.phone) {
             if (userData.phone === scrapedData.phone) {
                 matchedFields.push('phone');
-                return { matchedFields, score: matchedFields.length, result: true }
+                return { matchedFields, score: matchedFields.length, result: true };
             }
         }
 
         // if we get here we didn't consider it a match
-        return { matchedFields, score: matchedFields.length, result: false }
+        return { matchedFields, score: matchedFields.length, result: false };
     }
 
     /**
      * @param {Record<string, any>} profile
      */
-    function aggregateFields (profile) {
+    function aggregateFields(profile) {
         // addresses
         const combinedAddresses = [
-            ...profile.addressCityState || [],
-            ...profile.addressCityStateList || [],
-            ...profile.addressFullList || [],
-            ...profile.addressFull || []
+            ...(profile.addressCityState || []),
+            ...(profile.addressCityStateList || []),
+            ...(profile.addressFullList || []),
+            ...(profile.addressFull || []),
         ];
-        const addressMap = new Map(combinedAddresses.map(addr => [`${addr.city},${addr.state}`, addr]));
+        const addressMap = new Map(combinedAddresses.map((addr) => [`${addr.city},${addr.state}`, addr]));
         const addresses = sortAddressesByStateAndCity([...addressMap.values()]);
 
         // phone
@@ -15070,8 +14950,8 @@
             addresses,
             phoneNumbers,
             relatives,
-            ...profile.profileUrl
-        }
+            ...profile.profileUrl,
+        };
     }
 
     /**
@@ -15092,27 +14972,32 @@
      * @param {string[]} elementValues
      * @return {any}
      */
-    function extractValue (outputFieldKey, extractorParams, elementValues) {
+    function extractValue(outputFieldKey, extractorParams, elementValues) {
         switch (outputFieldKey) {
-        case 'age': return new AgeExtractor().extract(elementValues, extractorParams)
-        case 'name': return new NameExtractor().extract(elementValues, extractorParams)
+            case 'age':
+                return new AgeExtractor().extract(elementValues, extractorParams);
+            case 'name':
+                return new NameExtractor().extract(elementValues, extractorParams);
 
-        // all addresses are processed the same way
-        case 'addressFull':
-        case 'addressFullList':
-            return new AddressFullExtractor().extract(elementValues, extractorParams)
-        case 'addressCityState':
-        case 'addressCityStateList':
-            return new CityStateExtractor().extract(elementValues, extractorParams)
+            // all addresses are processed the same way
+            case 'addressFull':
+            case 'addressFullList':
+                return new AddressFullExtractor().extract(elementValues, extractorParams);
+            case 'addressCityState':
+            case 'addressCityStateList':
+                return new CityStateExtractor().extract(elementValues, extractorParams);
 
-        case 'alternativeNamesList': return new AlternativeNamesExtractor().extract(elementValues, extractorParams)
-        case 'relativesList': return new RelativesExtractor().extract(elementValues, extractorParams)
-        case 'phone':
-        case 'phoneList':
-            return new PhoneExtractor().extract(elementValues, extractorParams)
-        case 'profileUrl': return new ProfileUrlExtractor().extract(elementValues, extractorParams)
+            case 'alternativeNamesList':
+                return new AlternativeNamesExtractor().extract(elementValues, extractorParams);
+            case 'relativesList':
+                return new RelativesExtractor().extract(elementValues, extractorParams);
+            case 'phone':
+            case 'phoneList':
+                return new PhoneExtractor().extract(elementValues, extractorParams);
+            case 'profileUrl':
+                return new ProfileUrlExtractor().extract(elementValues, extractorParams);
         }
-        return null
+        return null;
     }
 
     /**
@@ -15122,11 +15007,11 @@
      * @param {Record<string, ExtractProfileProperty>} params
      * @return {Promise<Record<string, any>>}
      */
-    async function applyPostTransforms (profile, params) {
+    async function applyPostTransforms(profile, params) {
         /** @type {import("../types.js").AsyncProfileTransform[]} */
         const transforms = [
             // creates a hash if needed
-            new ProfileHashTransformer()
+            new ProfileHashTransformer(),
         ];
 
         let output = profile;
@@ -15134,7 +15019,7 @@
             output = await knownTransform.transform(output, params);
         }
 
-        return output
+        return output;
     }
 
     /**
@@ -15142,16 +15027,16 @@
      * @param {string} [separator]
      * @return {string[]}
      */
-    function stringToList (inputList, separator) {
+    function stringToList(inputList, separator) {
         const defaultSeparator = /[|\n•·]/;
-        return cleanArray(inputList.split(separator || defaultSeparator))
+        return cleanArray(inputList.split(separator || defaultSeparator));
     }
 
     // For extraction
     const rules = {
         profileUrl: function (link) {
-            return link?.href ?? null
-        }
+            return link?.href ?? null;
+        },
     };
 
     /**
@@ -15164,10 +15049,10 @@
      * @param {string} elementValue
      * @return {string}
      */
-    function removeCommonSuffixesAndPrefixes (elementValue) {
+    function removeCommonSuffixesAndPrefixes(elementValue) {
         const regexes = [
             // match text such as +3 more when it appears at the end of a string
-            /\+\s*\d+.*$/
+            /\+\s*\d+.*$/,
         ];
         // strings that are always safe to remove from the start
         const startsWith = [
@@ -15181,14 +15066,11 @@
             'Lives in:',
             'Related to:',
             'No other aliases.',
-            'RESIDES IN'
+            'RESIDES IN',
         ];
 
         // strings that are always safe to remove from the end
-        const endsWith = [
-            ' -',
-            'years old'
-        ];
+        const endsWith = [' -', 'years old'];
 
         for (const regex of regexes) {
             elementValue = elementValue.replace(regex, '').trim();
@@ -15200,14 +15082,14 @@
         }
         for (const suffix of endsWith) {
             if (elementValue.endsWith(suffix)) {
-                elementValue = elementValue.slice(0, 0 - (suffix.length)).trim();
+                elementValue = elementValue.slice(0, 0 - suffix.length).trim();
             }
         }
 
-        return elementValue
+        return elementValue;
     }
 
-    function generatePhoneNumber () {
+    function generatePhoneNumber() {
         /**
          * 3 digits, 2-8, last two digits technically can't end in two 1s, but we'll ignore that requirement
          * Source: https://math.stackexchange.com/questions/920972/how-many-different-phone-numbers-are-possible-within-an-area-code/1115411#1115411
@@ -15218,23 +15100,41 @@
         const exchangeCode = '555';
         const lineNumber = generateRandomInt(100, 199).toString().padStart(4, '0');
 
-        return `${areaCode}${exchangeCode}${lineNumber}`
+        return `${areaCode}${exchangeCode}${lineNumber}`;
     }
 
-    function generateZipCode () {
+    function generateZipCode() {
         const zipCode = generateRandomInt(10000, 99999).toString();
-        return zipCode
+        return zipCode;
     }
 
-    function generateStreetAddress () {
+    function generateStreetAddress() {
         const streetDigits = generateRandomInt(1, 5);
         const streetNumber = generateRandomInt(2, streetDigits * 1000);
-        const streetNames = ['Main', 'Elm', 'Maple', 'Oak', 'Pine', 'Cedar', 'Hill', 'Lake', 'Sunset', 'Washington', 'Lincoln', 'Marshall', 'Spring', 'Ridge', 'Valley', 'Meadow', 'Forest'];
+        const streetNames = [
+            'Main',
+            'Elm',
+            'Maple',
+            'Oak',
+            'Pine',
+            'Cedar',
+            'Hill',
+            'Lake',
+            'Sunset',
+            'Washington',
+            'Lincoln',
+            'Marshall',
+            'Spring',
+            'Ridge',
+            'Valley',
+            'Meadow',
+            'Forest',
+        ];
         const streetName = streetNames[generateRandomInt(0, streetNames.length - 1)];
         const suffixes = ['', 'St', 'Ave', 'Blvd', 'Rd', 'Ct', 'Dr', 'Ln', 'Pkwy', 'Pl', 'Ter', 'Way'];
         const suffix = suffixes[generateRandomInt(0, suffixes.length - 1)];
 
-        return `${streetNumber} ${streetName}${suffix ? ' ' + suffix : ''}`
+        return `${streetNumber} ${streetName}${suffix ? ' ' + suffix : ''}`;
     }
 
     /**
@@ -15243,26 +15143,28 @@
      * @param {Document | HTMLElement} root
      * @return {import('../types.js').ActionResponse}
      */
-    function fillForm (action, userData, root = document) {
+    function fillForm(action, userData, root = document) {
         const form = getElement(root, action.selector);
-        if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
-        if (!userData) return new ErrorResponse({ actionID: action.id, message: 'user data was absent' })
+        if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' });
+        if (!userData) return new ErrorResponse({ actionID: action.id, message: 'user data was absent' });
 
         // ensure the element is in the current viewport
         form.scrollIntoView?.();
 
         const results = fillMany(form, action.elements, userData);
 
-        const errors = results.filter(x => x.result === false).map(x => {
-            if ('error' in x) return x.error
-            return 'unknown error'
-        });
+        const errors = results
+            .filter((x) => x.result === false)
+            .map((x) => {
+                if ('error' in x) return x.error;
+                return 'unknown error';
+            });
 
         if (errors.length > 0) {
-            return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
+            return new ErrorResponse({ actionID: action.id, message: errors.join(', ') });
         }
 
-        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
     }
 
     /**
@@ -15272,14 +15174,14 @@
      * @param {Record<string, any>} data
      * @return {({result: true} | {result: false; error: string})[]}
      */
-    function fillMany (root, elements, data) {
+    function fillMany(root, elements, data) {
         const results = [];
 
         for (const element of elements) {
             const inputElem = getElement(root, element.selector);
             if (!inputElem) {
                 results.push({ result: false, error: `element not found for selector: "${element.selector}"` });
-                continue
+                continue;
             }
 
             if (element.type === '$file_id$') {
@@ -15290,42 +15192,57 @@
                 results.push(setValueForInput(inputElem, generateZipCode()));
             } else if (element.type === '$generated_random_number$') {
                 if (!element.min || !element.max) {
-                    results.push({ result: false, error: `element found with selector '${element.selector}', but missing min and/or max values` });
-                    continue
+                    results.push({
+                        result: false,
+                        error: `element found with selector '${element.selector}', but missing min and/or max values`,
+                    });
+                    continue;
                 }
                 const minInt = parseInt(element?.min);
                 const maxInt = parseInt(element?.max);
 
                 if (isNaN(minInt) || isNaN(maxInt)) {
-                    results.push({ result: false, error: `element found with selector '${element.selector}', but min or max was not a number` });
-                    continue
+                    results.push({
+                        result: false,
+                        error: `element found with selector '${element.selector}', but min or max was not a number`,
+                    });
+                    continue;
                 }
 
                 results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()));
             } else if (element.type === '$generated_street_address$') {
                 results.push(setValueForInput(inputElem, generateStreetAddress()));
 
-            // This is a composite of existing (but separate) city and state fields
+                // This is a composite of existing (but separate) city and state fields
             } else if (element.type === 'cityState') {
                 if (!Object.prototype.hasOwnProperty.call(data, 'city') || !Object.prototype.hasOwnProperty.call(data, 'state')) {
-                    results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'` });
-                    continue
+                    results.push({
+                        result: false,
+                        error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'`,
+                    });
+                    continue;
                 }
                 results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
             } else {
                 if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
-                    results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` });
-                    continue
+                    results.push({
+                        result: false,
+                        error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`,
+                    });
+                    continue;
                 }
                 if (!data[element.type]) {
-                    results.push({ result: false, error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}` });
-                    continue
+                    results.push({
+                        result: false,
+                        error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}`,
+                    });
+                    continue;
                 }
                 results.push(setValueForInput(inputElem, data[element.type]));
             }
         }
 
-        return results
+        return results;
     }
 
     /**
@@ -15337,7 +15254,7 @@
      * @param {string} val
      * @return {{result: true} | {result: false; error: string}}
      */
-    function setValueForInput (el, val) {
+    function setValueForInput(el, val) {
         // Access the original setters
         // originally needed to bypass React's implementation on mobile
         let target;
@@ -15346,14 +15263,14 @@
 
         // Bail early if we cannot fill this element
         if (!target) {
-            return { result: false, error: `input type was not supported: ${el.tagName}` }
+            return { result: false, error: `input type was not supported: ${el.tagName}` };
         }
 
         const originalSet = Object.getOwnPropertyDescriptor(target.prototype, 'value')?.set;
 
         // ensure it's a callable method
         if (!originalSet || typeof originalSet.call !== 'function') {
-            return { result: false, error: 'cannot access original value setter' }
+            return { result: false, error: 'cannot access original value setter' };
         }
 
         try {
@@ -15365,7 +15282,7 @@
                 const events = [
                     new Event('input', { bubbles: true }),
                     new Event('keyup', { bubbles: true }),
-                    new Event('change', { bubbles: true })
+                    new Event('change', { bubbles: true }),
                 ];
                 events.forEach((ev) => el.dispatchEvent(ev));
                 originalSet.call(el, val);
@@ -15378,16 +15295,16 @@
                     new Event('mousedown', { bubbles: true }),
                     new Event('mouseup', { bubbles: true }),
                     new Event('click', { bubbles: true }),
-                    new Event('change', { bubbles: true })
+                    new Event('change', { bubbles: true }),
                 ];
                 events.forEach((ev) => el.dispatchEvent(ev));
                 events.forEach((ev) => el.dispatchEvent(ev));
                 el.blur();
             }
 
-            return { result: true }
+            return { result: true };
         } catch (e) {
-            return { result: false, error: `setValueForInput exception: ${e}` }
+            return { result: false, error: `setValueForInput exception: ${e}` };
         }
     }
 
@@ -15395,7 +15312,7 @@
      * @param element
      * @return {{result: true}|{result: false, error: string}}
      */
-    function setImageUpload (element) {
+    function setImageUpload(element) {
         const base64PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/B8AAusB9VF9PmUAAAAASUVORK5CYII=';
         try {
             // Convert the Base64 string to a Blob
@@ -15416,11 +15333,12 @@
             dataTransfer.items.add(new File([blob], 'id.png', { type: 'image/png' }));
 
             // Step 4: Assign the Blob to the Input Element
-            /** @type {any} */(element).files = dataTransfer.files;
-            return { result: true }
+            /** @type {any} */
+            element.files = dataTransfer.files;
+            return { result: true };
         } catch (e) {
             // failed
-            return { result: false, error: e.toString() }
+            return { result: false, error: e.toString() };
         }
     }
 
@@ -15428,12 +15346,12 @@
      * @param {object} args
      * @param {string} args.token
      */
-    function captchaCallback (args) {
+    function captchaCallback(args) {
         const clients = findRecaptchaClients(globalThis);
 
         // if a client was found, check there was a function
         if (clients.length === 0) {
-            return console.log('cannot find clients')
+            return console.log('cannot find clients');
         }
 
         if (typeof clients[0].function === 'function') {
@@ -15449,28 +15367,30 @@
          * Try to find a callback in a path such as ['___grecaptcha_cfg', 'clients', '0', 'U', 'U', 'callback']
          * @param {Record<string, any>} target
          */
-        function findRecaptchaClients (target) {
-            if (typeof (target.___grecaptcha_cfg) === 'undefined') {
+        function findRecaptchaClients(target) {
+            if (typeof target.___grecaptcha_cfg === 'undefined') {
                 console.log('target.___grecaptcha_cfg not found in ', location.href);
-                return []
+                return [];
             }
             return Object.entries(target.___grecaptcha_cfg.clients || {}).map(([cid, client]) => {
                 const cidNumber = parseInt(cid, 10);
                 const data = {
                     id: cid,
-                    version: cidNumber >= 10000 ? 'V3' : 'V2'
+                    version: cidNumber >= 10000 ? 'V3' : 'V2',
                 };
                 const objects = Object.entries(client).filter(([, value]) => value && typeof value === 'object');
 
                 objects.forEach(([toplevelKey, toplevel]) => {
-                    const found = Object.entries(toplevel).find(([, value]) => (
-                        value && typeof value === 'object' && 'sitekey' in value && 'size' in value
-                    ));
+                    const found = Object.entries(toplevel).find(
+                        ([, value]) => value && typeof value === 'object' && 'sitekey' in value && 'size' in value,
+                    );
 
-                    if (typeof toplevel === 'object' &&
+                    if (
+                        typeof toplevel === 'object' &&
                         typeof HTMLElement !== 'undefined' &&
                         toplevel instanceof HTMLElement &&
-                        toplevel.tagName === 'DIV') {
+                        toplevel.tagName === 'DIV'
+                    ) {
                         data.pageurl = toplevel.baseURI;
                     }
 
@@ -15489,8 +15409,8 @@
                         }
                     }
                 });
-                return data
-            })
+                return data;
+            });
         }
     }
 
@@ -15501,20 +15421,23 @@
      * @param {Document | HTMLElement} root
      * @return {import('../types.js').ActionResponse}
      */
-    function getCaptchaInfo (action, root = document) {
+    function getCaptchaInfo(action, root = document) {
         const pageUrl = window.location.href;
         const captchaDiv = getElement(root, action.selector);
 
         // if 'captchaDiv' was missing, cannot continue
-        if (!captchaDiv) return new ErrorResponse({ actionID: action.id, message: `could not find captchaDiv with selector ${action.selector}` })
+        if (!captchaDiv) {
+            return new ErrorResponse({ actionID: action.id, message: `could not find captchaDiv with selector ${action.selector}` });
+        }
 
         // try 2 different captures
-        const captcha = getElement(captchaDiv, '[src^="https://www.google.com/recaptcha"]') ||
+        const captcha =
+            getElement(captchaDiv, '[src^="https://www.google.com/recaptcha"]') ||
             getElement(captchaDiv, '[src^="https://newassets.hcaptcha.com/captcha"');
 
         // ensure we have the elements
-        if (!captcha) return new ErrorResponse({ actionID: action.id, message: 'could not find captcha' })
-        if (!('src' in captcha)) return new ErrorResponse({ actionID: action.id, message: 'missing src attribute' })
+        if (!captcha) return new ErrorResponse({ actionID: action.id, message: 'could not find captcha' });
+        if (!('src' in captcha)) return new ErrorResponse({ actionID: action.id, message: 'missing src attribute' });
 
         const captchaUrl = String(captcha.src);
         let captchaType;
@@ -15551,10 +15474,10 @@
         }
 
         if (!captchaType) {
-            return new ErrorResponse({ actionID: action.id, message: 'Could not extract captchaType.' })
+            return new ErrorResponse({ actionID: action.id, message: 'Could not extract captchaType.' });
         }
         if (!siteKey) {
-            return new ErrorResponse({ actionID: action.id, message: 'Could not extract siteKey.' })
+            return new ErrorResponse({ actionID: action.id, message: 'Could not extract siteKey.' });
         }
 
         // Remove query params (which may include PII)
@@ -15563,21 +15486,21 @@
         const responseData = {
             siteKey,
             url: pageUrlWithoutParams,
-            type: captchaType
+            type: captchaType,
         };
 
-        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: responseData })
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: responseData });
     }
 
     /**
-    * Takes the solved captcha token and injects it into the page to solve the captcha
-    *
-    * @param action
-    * @param {string} token
-    * @param {Document} root
-    * @return {import('../types.js').ActionResponse}
-    */
-    function solveCaptcha (action, token, root = document) {
+     * Takes the solved captcha token and injects it into the page to solve the captcha
+     *
+     * @param action
+     * @param {string} token
+     * @param {Document} root
+     * @return {import('../types.js').ActionResponse}
+     */
+    function solveCaptcha(action, token, root = document) {
         const selectors = ['h-captcha-response', 'g-recaptcha-response'];
         let solved = false;
 
@@ -15586,7 +15509,7 @@
             if (match) {
                 match.innerHTML = token;
                 solved = true;
-                break
+                break;
             }
         }
 
@@ -15601,11 +15524,11 @@
             return new SuccessResponse({
                 actionID: action.id,
                 actionType: action.actionType,
-                response: { callback: { eval: javascript } }
-            })
+                response: { callback: { eval: javascript } },
+            });
         }
 
-        return new ErrorResponse({ actionID: action.id, message: 'could not solve captcha' })
+        return new ErrorResponse({ actionID: action.id, message: 'could not solve captcha' });
     }
 
     /**
@@ -15614,14 +15537,17 @@
      * @param {Document | HTMLElement} root
      * @return {import('../types.js').ActionResponse}
      */
-    function click (action, userData, root = document) {
+    function click(action, userData, root = document) {
         // there can be multiple elements provided by the action
         for (const element of action.elements) {
             const rootElement = selectRootElement(element, userData, root);
             const elements = getElements(rootElement, element.selector);
 
             if (!elements?.length) {
-                return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
+                return new ErrorResponse({
+                    actionID: action.id,
+                    message: `could not find element to click with selector '${element.selector}'!`,
+                });
             }
 
             const loopLength = element.multiple && element.multiple === true ? elements.length : 1;
@@ -15631,7 +15557,7 @@
 
                 if ('disabled' in elem) {
                     if (elem.disabled) {
-                        return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` })
+                        return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` });
                     }
                 }
                 if ('click' in elem && typeof elem.click === 'function') {
@@ -15640,7 +15566,7 @@
             }
         }
 
-        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
     }
 
     /**
@@ -15649,25 +15575,23 @@
      * @param {Document | HTMLElement} root
      * @return {Node}
      */
-    function selectRootElement (clickElement, userData, root = document) {
+    function selectRootElement(clickElement, userData, root = document) {
         // if there's no 'parent' field, just use the document
-        if (!clickElement.parent) return root
+        if (!clickElement.parent) return root;
 
         // if the 'parent' field contains 'profileMatch', try to match it
         if (clickElement.parent.profileMatch) {
             const extraction = extractProfiles(clickElement.parent.profileMatch, userData, root);
             if ('results' in extraction) {
-                const sorted = extraction.results
-                    .filter(x => x.result === true)
-                    .sort((a, b) => b.score - a.score);
+                const sorted = extraction.results.filter((x) => x.result === true).sort((a, b) => b.score - a.score);
                 const first = sorted[0];
                 if (first && first.element) {
-                    return first.element
+                    return first.element;
                 }
             }
         }
 
-        throw new Error('`parent` was present on the element, but the configuration is not supported')
+        throw new Error('`parent` was present on the element, but the configuration is not supported');
     }
 
     /**
@@ -15676,25 +15600,26 @@
      * @param {Document} root
      * @return {Promise<import('../types.js').ActionResponse>}
      */
-    async function expectation (action, userData, root = document) {
+    async function expectation(action, userData, root = document) {
         const results = expectMany(action.expectations, root);
 
         // filter out good results + silent failures, leaving only fatal errors
         const errors = results
             .filter((x, index) => {
-                if (x.result === true) return false
-                if (action.expectations[index].failSilently) return false
-                return true
-            }).map((x) => {
-                return 'error' in x ? x.error : 'unknown error'
+                if (x.result === true) return false;
+                if (action.expectations[index].failSilently) return false;
+                return true;
+            })
+            .map((x) => {
+                return 'error' in x ? x.error : 'unknown error';
             });
 
         if (errors.length > 0) {
-            return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
+            return new ErrorResponse({ actionID: action.id, message: errors.join(', ') });
         }
 
         // only run later actions if every expectation was met
-        const runActions = results.every(x => x.result === true);
+        const runActions = results.every((x) => x.result === true);
         const secondaryErrors = [];
 
         if (action.actions?.length && runActions) {
@@ -15707,11 +15632,11 @@
             }
 
             if (secondaryErrors.length > 0) {
-                return new ErrorResponse({ actionID: action.id, message: secondaryErrors.join(', ') })
+                return new ErrorResponse({ actionID: action.id, message: secondaryErrors.join(', ') });
             }
         }
 
-        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
     }
 
     /**
@@ -15721,20 +15646,23 @@
      * @param {Document | HTMLElement} root
      * @return {import("../types").BooleanResult[]}
      */
-    function expectMany (expectations, root) {
-        return expectations.map(expectation => {
+    function expectMany(expectations, root) {
+        return expectations.map((expectation) => {
             switch (expectation.type) {
-            case 'element': return elementExpectation(expectation, root)
-            case 'text': return textExpectation(expectation, root)
-            case 'url': return urlExpectation(expectation)
-            default: {
-                return {
-                    result: false,
-                    error: `unknown expectation type: ${expectation.type}`
+                case 'element':
+                    return elementExpectation(expectation, root);
+                case 'text':
+                    return textExpectation(expectation, root);
+                case 'url':
+                    return urlExpectation(expectation);
+                default: {
+                    return {
+                        result: false,
+                        error: `unknown expectation type: ${expectation.type}`,
+                    };
                 }
             }
-            }
-        })
+        });
     }
 
     /**
@@ -15745,14 +15673,14 @@
      * @param {Document | HTMLElement} root
      * @return {import("../types").BooleanResult}
      */
-    function elementExpectation (expectation, root) {
+    function elementExpectation(expectation, root) {
         if (expectation.parent) {
             const parent = getElement(root, expectation.parent);
             if (!parent) {
                 return {
                     result: false,
-                    error: `parent element not found with selector: ${expectation.parent}`
-                }
+                    error: `parent element not found with selector: ${expectation.parent}`,
+                };
             }
             parent.scrollIntoView();
         }
@@ -15762,10 +15690,10 @@
         if (!elementExists) {
             return {
                 result: false,
-                error: `element with selector ${expectation.selector} not found.`
-            }
+                error: `element with selector ${expectation.selector} not found.`,
+            };
         }
-        return { result: true }
+        return { result: true };
     }
 
     /**
@@ -15775,22 +15703,22 @@
      * @param {Document | HTMLElement} root
      * @return {import("../types").BooleanResult}
      */
-    function textExpectation (expectation, root) {
+    function textExpectation(expectation, root) {
         // get the target element first
         const elem = getElement(root, expectation.selector);
         if (!elem) {
             return {
                 result: false,
-                error: `element with selector ${expectation.selector} not found.`
-            }
+                error: `element with selector ${expectation.selector} not found.`,
+            };
         }
 
         // todo: remove once we have stronger types
         if (!expectation.expect) {
             return {
                 result: false,
-                error: 'missing key: \'expect\''
-            }
+                error: "missing key: 'expect'",
+            };
         }
 
         // todo: is this too strict a match? we may also want to try innerText
@@ -15799,11 +15727,11 @@
         if (!textExists) {
             return {
                 result: false,
-                error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`
-            }
+                error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`,
+            };
         }
 
-        return { result: true }
+        return { result: true };
     }
 
     /**
@@ -15812,25 +15740,25 @@
      * @param {import("../types").Expectation} expectation
      * @return {import("../types").BooleanResult}
      */
-    function urlExpectation (expectation) {
+    function urlExpectation(expectation) {
         const url = window.location.href;
 
         // todo: remove once we have stronger types
         if (!expectation.expect) {
             return {
                 result: false,
-                error: 'missing key: \'expect\''
-            }
+                error: "missing key: 'expect'",
+            };
         }
 
         if (!url.includes(expectation.expect)) {
             return {
                 result: false,
-                error: `expected URL to include ${expectation.expect}, but it didn't`
-            }
+                error: `expected URL to include ${expectation.expect}, but it didn't`,
+            };
         }
 
-        return { result: true }
+        return { result: true };
     }
 
     /**
@@ -15842,36 +15770,36 @@
      * @param {Document} [root] - optional root element
      * @return {Promise<import('./types.js').ActionResponse>}
      */
-    async function execute (action, inputData, root = document) {
+    async function execute(action, inputData, root = document) {
         try {
             switch (action.actionType) {
-            case 'navigate':
-                return buildUrl(action, data(action, inputData, 'userProfile'))
-            case 'extract':
-                return await extract(action, data(action, inputData, 'userProfile'), root)
-            case 'click':
-                return click(action, data(action, inputData, 'userProfile'), root)
-            case 'expectation':
-                return await expectation(action, data(action, inputData, 'userProfile'), root)
-            case 'fillForm':
-                return fillForm(action, data(action, inputData, 'extractedProfile'), root)
-            case 'getCaptchaInfo':
-                return getCaptchaInfo(action, root)
-            case 'solveCaptcha':
-                return solveCaptcha(action, data(action, inputData, 'token'), root)
-            default: {
-                return new ErrorResponse({
-                    actionID: action.id,
-                    message: `unimplemented actionType: ${action.actionType}`
-                })
-            }
+                case 'navigate':
+                    return buildUrl(action, data(action, inputData, 'userProfile'));
+                case 'extract':
+                    return await extract(action, data(action, inputData, 'userProfile'), root);
+                case 'click':
+                    return click(action, data(action, inputData, 'userProfile'), root);
+                case 'expectation':
+                    return await expectation(action, data(action, inputData, 'userProfile'), root);
+                case 'fillForm':
+                    return fillForm(action, data(action, inputData, 'extractedProfile'), root);
+                case 'getCaptchaInfo':
+                    return getCaptchaInfo(action, root);
+                case 'solveCaptcha':
+                    return solveCaptcha(action, data(action, inputData, 'token'), root);
+                default: {
+                    return new ErrorResponse({
+                        actionID: action.id,
+                        message: `unimplemented actionType: ${action.actionType}`,
+                    });
+                }
             }
         } catch (e) {
             console.log('unhandled exception: ', e);
             return new ErrorResponse({
                 actionID: action.id,
-                message: `unhandled exception: ${e.message}`
-            })
+                message: `unhandled exception: ${e.message}`,
+            });
         }
     }
 
@@ -15880,18 +15808,18 @@
      * @param {Record<string, any>} data
      * @param {string} defaultSource
      */
-    function data (action, data, defaultSource) {
-        if (!data) return null
+    function data(action, data, defaultSource) {
+        if (!data) return null;
         const source = action.dataSource || defaultSource;
         if (Object.prototype.hasOwnProperty.call(data, source)) {
-            return data[source]
+            return data[source];
         }
-        return null
+        return null;
     }
 
     const DEFAULT_RETRY_CONFIG = {
         interval: { ms: 0 },
-        maxAttempts: 1
+        maxAttempts: 1,
     };
 
     /**
@@ -15904,7 +15832,7 @@
      * @param {typeof DEFAULT_RETRY_CONFIG} [config]
      * @return {Promise<{ result: FnReturn | undefined, exceptions: string[] }>}
      */
-    async function retry (fn, config = DEFAULT_RETRY_CONFIG) {
+    async function retry(fn, config = DEFAULT_RETRY_CONFIG) {
         let lastResult;
         const exceptions = [];
         for (let i = 0; i < config.maxAttempts; i++) {
@@ -15916,15 +15844,15 @@
 
             // stop when there's a good result to return
             // since fn() returns either { success: <value> } or { error: ... }
-            if (lastResult && 'success' in lastResult) break
+            if (lastResult && 'success' in lastResult) break;
 
             // don't pause on the last item
-            if (i === config.maxAttempts - 1) break
+            if (i === config.maxAttempts - 1) break;
 
-            await new Promise(resolve => setTimeout(resolve, config.interval.ms));
+            await new Promise((resolve) => setTimeout(resolve, config.interval.ms));
         }
 
-        return { result: lastResult, exceptions }
+        return { result: lastResult, exceptions };
     }
 
     /**
@@ -15932,23 +15860,21 @@
      */
 
     class BrokerProtection extends ContentFeature {
-        init () {
-            this.messaging.subscribe('onActionReceived', async (/** @type {any} */params) => {
+        init() {
+            this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
                 try {
                     const action = params.state.action;
                     const data = params.state.data;
 
                     if (!action) {
-                        return this.messaging.notify('actionError', { error: 'No action found.' })
+                        return this.messaging.notify('actionError', { error: 'No action found.' });
                     }
 
                     /**
                      * Note: We're not currently guarding against concurrent actions here
                      * since the native side contains the scheduling logic to prevent it.
                      */
-                    let retryConfig = action.retry?.environment === 'web'
-                        ? action.retry
-                        : undefined;
+                    let retryConfig = action.retry?.environment === 'web' ? action.retry : undefined;
 
                     /**
                      * Special case for the exact action
@@ -15956,7 +15882,7 @@
                     if (!retryConfig && action.actionType === 'extract') {
                         retryConfig = {
                             interval: { ms: 1000 },
-                            maxAttempts: 30
+                            maxAttempts: 30,
                         };
                     }
 
@@ -15964,10 +15890,10 @@
                      * Special case for when expectation contains a check for an element, retry it
                      */
                     if (!retryConfig && action.actionType === 'expectation') {
-                        if (action.expectations.some(x => x.type === 'element')) {
+                        if (action.expectations.some((x) => x.type === 'element')) {
                             retryConfig = {
                                 interval: { ms: 1000 },
-                                maxAttempts: 30
+                                maxAttempts: 30,
                             };
                         }
                     }
@@ -15990,21 +15916,21 @@
     /**
      * @returns array of performance metrics
      */
-    function getJsPerformanceMetrics () {
+    function getJsPerformanceMetrics() {
         const paintResources = performance.getEntriesByType('paint');
         const firstPaint = paintResources.find((entry) => entry.name === 'first-contentful-paint');
-        return firstPaint ? [firstPaint.startTime] : []
+        return firstPaint ? [firstPaint.startTime] : [];
     }
 
     class BreakageReporting extends ContentFeature {
-        init () {
+        init() {
             this.messaging.subscribe('getBreakageReportValues', () => {
                 const jsPerformance = getJsPerformanceMetrics();
                 const referrer = document.referrer;
 
                 this.messaging.notify('breakageReportResult', {
                     jsPerformance,
-                    referrer
+                    referrer,
                 });
             });
         }
@@ -16024,6 +15950,7 @@
         ddg_feature_navigatorInterface: NavigatorInterface,
         ddg_feature_elementHiding: ElementHiding,
         ddg_feature_exceptionHandler: ExceptionHandler,
+        ddg_feature_apiManipulation: ApiManipulation,
         ddg_feature_windowsPermissionUsage: WindowsPermissionUsage,
         ddg_feature_duckPlayer: DuckPlayerFeature,
         ddg_feature_brokerProtection: BrokerProtection,
@@ -16042,12 +15969,8 @@
     // checks by altering document.__proto__. In the future, it might be worth
     // running the checks even earlier (and in the "isolated world" for the Chrome
     // extension), to further reduce that risk.
-    const isHTMLDocument = (
-        document instanceof HTMLDocument || (
-            document instanceof XMLDocument &&
-                document.createElement('div') instanceof HTMLDivElement
-        )
-    );
+    const isHTMLDocument =
+        document instanceof HTMLDocument || (document instanceof XMLDocument && document.createElement('div') instanceof HTMLDivElement);
 
     /**
      * @typedef {object} LoadArgs
@@ -16063,14 +15986,13 @@
     /**
      * @param {LoadArgs} args
      */
-    function load (args) {
+    function load(args) {
         const mark = performanceMonitor.mark('load');
         if (!isHTMLDocument) {
-            return
+            return;
         }
 
-        const featureNames = platformSupport["windows"]
-            ;
+        const featureNames = platformSupport["windows"] ;
 
         for (const featureName of featureNames) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
@@ -16081,11 +16003,11 @@
         mark.end();
     }
 
-    async function init (args) {
+    async function init(args) {
         const mark = performanceMonitor.mark('init');
         initArgs = args;
         if (!isHTMLDocument) {
-            return
+            return;
         }
         registerMessageSecret(args.messageSecret);
         initStringExemptionLists(args);
@@ -16106,11 +16028,11 @@
         }
     }
 
-    function alwaysInitExtensionFeatures (args, featureName) {
-        return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName)
+    function alwaysInitExtensionFeatures(args, featureName) {
+        return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
     }
 
-    async function updateFeaturesInner (args) {
+    async function updateFeaturesInner(args) {
         const resolvedFeatures = await Promise.all(features);
         resolvedFeatures.forEach(({ featureInstance, featureName }) => {
             if (!isFeatureBroken(initArgs, featureName) && featureInstance.update) {
@@ -16123,11 +16045,11 @@
      * @module Windows integration
      */
 
-    function initCode () {
+    function initCode() {
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$, windowsSpecificFeatures);
         if (isGloballyDisabled(processedConfig)) {
-            return
+            return;
         }
         processedConfig.messagingConfig = new WindowsMessagingConfig({
             methods: {
@@ -16136,8 +16058,8 @@
                 // @ts-expect-error - Type 'unknown' is not assignable to type...
                 addEventListener: windowsInteropAddEventListener,
                 // @ts-expect-error - Type 'unknown' is not assignable to type...
-                removeEventListener: windowsInteropRemoveEventListener
-            }
+                removeEventListener: windowsInteropRemoveEventListener,
+            },
         });
 
         load({
@@ -16146,7 +16068,7 @@
             documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
             site: processedConfig.site,
             bundledConfig: processedConfig.bundledConfig,
-            messagingConfig: processedConfig.messagingConfig
+            messagingConfig: processedConfig.messagingConfig,
         });
 
         init(processedConfig);

@@ -7182,13 +7182,7 @@
   });
   var THEME_QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function EnvironmentProvider({
-    children,
-    debugState,
-    env = "production",
-    willThrow = false,
-    injectName = "windows"
-  }) {
+  function EnvironmentProvider({ children, debugState, env = "production", willThrow = false, injectName = "windows" }) {
     const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     y2(() => {
@@ -7211,14 +7205,20 @@
       });
       return () => mediaQueryList.removeEventListener("change", listener);
     }, []);
-    return /* @__PURE__ */ _(EnvironmentContext.Provider, { value: {
-      isReducedMotion,
-      debugState,
-      isDarkMode: theme === "dark",
-      injectName,
-      willThrow,
-      env
-    } }, children);
+    return /* @__PURE__ */ _(
+      EnvironmentContext.Provider,
+      {
+        value: {
+          isReducedMotion,
+          debugState,
+          isDarkMode: theme === "dark",
+          injectName,
+          willThrow,
+          env
+        }
+      },
+      children
+    );
   }
   function UpdateEnvironment({ search }) {
     y2(() => {
@@ -7300,14 +7300,26 @@
     ));
   }
   function Replay({ direction = "backward" }) {
-    return /* @__PURE__ */ _("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg", style: direction === "forward" ? { transform: "scale(-1,1)" } : {} }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_10021_2837)" }, /* @__PURE__ */ _(
-      "path",
+    return /* @__PURE__ */ _(
+      "svg",
       {
-        d: "M7.11485 1.37611C6.05231 1.12541 4.93573 1.25089 3.95534 1.73116C3.06198 2.1688 2.33208 2.87636 1.86665 3.75003H3.9837C4.32888 3.75003 4.6087 4.02985 4.6087 4.37503C4.6087 4.7202 4.32888 5.00003 3.9837 5.00003H0.625013C0.279836 5.00003 1.33514e-05 4.7202 1.33514e-05 4.37503V0.651184C1.33514e-05 0.306006 0.279836 0.0261841 0.625013 0.0261841C0.970191 0.0261841 1.25001 0.306006 1.25001 0.651184V2.39582C1.81304 1.64241 2.54999 1.02768 3.40543 0.608623C4.64552 0.00112504 6.05789 -0.157593 7.40189 0.159513C8.74589 0.476619 9.93836 1.24993 10.7761 2.34768C11.6139 3.44543 12.0451 4.7997 11.9963 6.17974C11.9475 7.55977 11.4216 8.88019 10.5084 9.91601C9.59521 10.9518 8.35109 11.639 6.98804 11.8603C5.625 12.0817 4.22737 11.8236 3.03329 11.13C1.83922 10.4364 0.922573 9.35022 0.43955 8.05655C0.318811 7.73318 0.483079 7.37316 0.806451 7.25242C1.12982 7.13168 1.48985 7.29595 1.61059 7.61932C1.99245 8.64206 2.71713 9.50076 3.66114 10.0491C4.60514 10.5974 5.71008 10.8015 6.78767 10.6265C7.86526 10.4515 8.84883 9.90826 9.5708 9.08936C10.2928 8.27047 10.7085 7.22658 10.747 6.13555C10.7856 5.04453 10.4447 3.97387 9.78243 3.10602C9.12012 2.23816 8.17738 1.6268 7.11485 1.37611Z",
-        fill: "currentColor",
-        "fill-opacity": "0.84"
-      }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_10021_2837" }, /* @__PURE__ */ _("rect", { width: "12", height: "12", fill: "white" }))));
+        width: "12",
+        height: "12",
+        viewBox: "0 0 12 12",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg",
+        style: direction === "forward" ? { transform: "scale(-1,1)" } : {}
+      },
+      /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_10021_2837)" }, /* @__PURE__ */ _(
+        "path",
+        {
+          d: "M7.11485 1.37611C6.05231 1.12541 4.93573 1.25089 3.95534 1.73116C3.06198 2.1688 2.33208 2.87636 1.86665 3.75003H3.9837C4.32888 3.75003 4.6087 4.02985 4.6087 4.37503C4.6087 4.7202 4.32888 5.00003 3.9837 5.00003H0.625013C0.279836 5.00003 1.33514e-05 4.7202 1.33514e-05 4.37503V0.651184C1.33514e-05 0.306006 0.279836 0.0261841 0.625013 0.0261841C0.970191 0.0261841 1.25001 0.306006 1.25001 0.651184V2.39582C1.81304 1.64241 2.54999 1.02768 3.40543 0.608623C4.64552 0.00112504 6.05789 -0.157593 7.40189 0.159513C8.74589 0.476619 9.93836 1.24993 10.7761 2.34768C11.6139 3.44543 12.0451 4.7997 11.9963 6.17974C11.9475 7.55977 11.4216 8.88019 10.5084 9.91601C9.59521 10.9518 8.35109 11.639 6.98804 11.8603C5.625 12.0817 4.22737 11.8236 3.03329 11.13C1.83922 10.4364 0.922573 9.35022 0.43955 8.05655C0.318811 7.73318 0.483079 7.37316 0.806451 7.25242C1.12982 7.13168 1.48985 7.29595 1.61059 7.61932C1.99245 8.64206 2.71713 9.50076 3.66114 10.0491C4.60514 10.5974 5.71008 10.8015 6.78767 10.6265C7.86526 10.4515 8.84883 9.90826 9.5708 9.08936C10.2928 8.27047 10.7085 7.22658 10.747 6.13555C10.7856 5.04453 10.4447 3.97387 9.78243 3.10602C9.12012 2.23816 8.17738 1.6268 7.11485 1.37611Z",
+          fill: "currentColor",
+          "fill-opacity": "0.84"
+        }
+      )),
+      /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_10021_2837" }, /* @__PURE__ */ _("rect", { width: "12", height: "12", fill: "white" })))
+    );
   }
   function Launch() {
     return /* @__PURE__ */ _("svg", { width: "17", height: "16", viewBox: "0 0 17 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_3098_23365)" }, /* @__PURE__ */ _(
@@ -8131,15 +8143,7 @@
     "makeDefaultSingle",
     "duckPlayerSingle"
   ];
-  var DEFAULT_ORDER = [
-    "welcome",
-    "getStarted",
-    "privateByDefault",
-    "cleanerBrowsing",
-    "systemSettings",
-    "customize",
-    "summary"
-  ];
+  var DEFAULT_ORDER = ["welcome", "getStarted", "privateByDefault", "cleanerBrowsing", "systemSettings", "customize", "summary"];
   var ALT_ORDER = [
     "welcome",
     "getStarted",
@@ -8151,14 +8155,7 @@
     "customize",
     "summary"
   ];
-  var ORDER_V3 = [
-    "welcome",
-    "getStarted",
-    "makeDefaultSingle",
-    "systemSettings",
-    "duckPlayerSingle",
-    "customize"
-  ];
+  var ORDER_V3 = ["welcome", "getStarted", "makeDefaultSingle", "systemSettings", "duckPlayerSingle", "customize"];
   function useTypedTranslation() {
     return {
       t: x2(TranslationContext).t
@@ -8323,18 +8320,21 @@
         "home-shortcut": "idle"
       }
     });
-    const proxy = q2((msg) => {
-      dispatch(msg);
-      if (msg.kind === "advance") {
-        messaging2.stepCompleted({ id: state.activeStep });
-      }
-      if (msg.kind === "dismiss-to-settings") {
-        messaging2.dismissToSettings();
-      }
-      if (msg.kind === "dismiss") {
-        messaging2.dismissToAddressBar();
-      }
-    }, [state, messaging2]);
+    const proxy = q2(
+      (msg) => {
+        dispatch(msg);
+        if (msg.kind === "advance") {
+          messaging2.stepCompleted({ id: state.activeStep });
+        }
+        if (msg.kind === "dismiss-to-settings") {
+          messaging2.dismissToSettings();
+        }
+        if (msg.kind === "dismiss") {
+          messaging2.dismissToAddressBar();
+        }
+      },
+      [state, messaging2]
+    );
     y2(() => {
       if (state.status.kind !== "fatal") return;
       const { error } = state.status.action;
@@ -8489,11 +8489,7 @@
   // pages/onboarding/app/pages/PrivacyDefault.js
   function PrivacyDefault({ onNextPage }) {
     const { t: t3 } = useTypedTranslation();
-    const rows = [
-      noneSettingsRowItems.search(t3),
-      noneSettingsRowItems.trackingProtection(t3),
-      noneSettingsRowItems.cookieManagement(t3)
-    ];
+    const rows = [noneSettingsRowItems.search(t3), noneSettingsRowItems.trackingProtection(t3), noneSettingsRowItems.cookieManagement(t3)];
     const { state } = useRollin([0, 1e3, 1e3, 800]);
     const check = /* @__PURE__ */ _(BounceIn, { delay: "double" }, /* @__PURE__ */ _(Check, null));
     return /* @__PURE__ */ _(Stack, null, state.current > 0 && /* @__PURE__ */ _(SlideUp, null, /* @__PURE__ */ _(List, null, rows.slice(0, state.current).map((row, index) => {
@@ -8632,10 +8628,7 @@
   // pages/onboarding/app/pages/CleanBrowsing.js
   function CleanBrowsing({ onNextPage }) {
     const { t: t3 } = useTypedTranslation();
-    const rows = [
-      noneSettingsRowItems.fewerAds(t3),
-      noneSettingsRowItems.duckPlayer(t3)
-    ];
+    const rows = [noneSettingsRowItems.fewerAds(t3), noneSettingsRowItems.duckPlayer(t3)];
     const frames = new Array(rows.length).fill("start-trigger");
     const { state, advance } = useRollin([300, ...frames]);
     return /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(Stack, { animate: true }, state.current > 0 && /* @__PURE__ */ _(List, { animate: true }, rows.slice(0, state.current).map((row, index) => {
@@ -8702,7 +8695,18 @@
         onUnchecked();
       }
     }
-    return /* @__PURE__ */ _("label", { className: Switch_default.toggleSwitch, "data-variant": platform }, /* @__PURE__ */ _("input", { disabled: pending, type: "checkbox", role: "switch", "aria-label": ariaLabel, className: Switch_default.input, checked, onChange: change }), /* @__PURE__ */ _("span", { className: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
+    return /* @__PURE__ */ _("label", { className: Switch_default.toggleSwitch, "data-variant": platform }, /* @__PURE__ */ _(
+      "input",
+      {
+        disabled: pending,
+        type: "checkbox",
+        role: "switch",
+        "aria-label": ariaLabel,
+        className: Switch_default.input,
+        checked,
+        onChange: change
+      }
+    ), /* @__PURE__ */ _("span", { className: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
   }
 
   // pages/onboarding/app/pages/SettingsStep.js
@@ -8794,15 +8798,7 @@
         index
       },
       item.current && display.kind === "button-bar" && /* @__PURE__ */ _(ListItem.Indent, null, /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText))),
-      item.current && display.kind === "animation" && /* @__PURE__ */ _(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ _(
-        RiveAnimation,
-        {
-          animation: display.path,
-          state: "before",
-          isDarkMode,
-          stateMachine: "State Machine 1"
-        }
-      ), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText)))
+      item.current && display.kind === "animation" && /* @__PURE__ */ _(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ _(RiveAnimation, { animation: display.path, state: "before", isDarkMode, stateMachine: "State Machine 1" }), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText)))
     );
   }
 
@@ -8839,18 +8835,7 @@
       }
       pre.current = text;
     }, [activeStep, text]);
-    return /* @__PURE__ */ _(
-      TypedInner,
-      {
-        key: text,
-        text,
-        onComplete,
-        paused,
-        delay,
-        ...rest
-      },
-      children
-    );
+    return /* @__PURE__ */ _(TypedInner, { key: text, text, onComplete, paused, delay, ...rest }, children);
   }
   function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
     const { isReducedMotion } = useEnv();
@@ -8891,24 +8876,28 @@
       };
       const controller = new AbortController();
       let enabled2 = true;
-      document.body.addEventListener("pointerdown", (e3) => {
-        let clickedElement = (
-          /** @type {HTMLElement|null} */
-          e3.target
-        );
-        let level = 0;
-        const maxLevels = 3;
-        while (clickedElement && level < maxLevels) {
-          if (clickedElement.matches("button")) {
-            return;
+      document.body.addEventListener(
+        "pointerdown",
+        (e3) => {
+          let clickedElement = (
+            /** @type {HTMLElement|null} */
+            e3.target
+          );
+          let level = 0;
+          const maxLevels = 3;
+          while (clickedElement && level < maxLevels) {
+            if (clickedElement.matches("button")) {
+              return;
+            }
+            clickedElement = clickedElement.parentElement;
+            level += 1;
           }
-          clickedElement = clickedElement.parentElement;
-          level += 1;
-        }
-        setCurrentText(text);
-        setCurrentIndex(text.length);
-        enabled2 = false;
-      }, { signal: controller.signal });
+          setCurrentText(text);
+          setCurrentIndex(text.length);
+          enabled2 = false;
+        },
+        { signal: controller.signal }
+      );
       if (currentIndex < text.length) {
         const timeout = setTimeout(
           () => {
@@ -8953,31 +8942,22 @@
       const update = setInterval(() => updatePlacement(), 50);
       return () => clearInterval(update);
     }, []);
-    return /* @__PURE__ */ _(
-      "div",
+    return /* @__PURE__ */ _("div", { style: { position: "relative", width: "100%", whiteSpace: "pre-line" }, "aria-label": text, ...rest }, /* @__PURE__ */ _("span", { style: { visibility: "hidden", paddingRight: "10px" }, ref: actual }, text), /* @__PURE__ */ _(
+      "span",
       {
-        style: { position: "relative", width: "100%", whiteSpace: "pre-line" },
-        "aria-label": text,
-        ...rest
+        ref: overlay,
+        "aria-hidden": false,
+        style: {
+          position: "absolute",
+          top: 0,
+          left: coords2.left,
+          width: coords2.width,
+          whiteSpace: "pre-line"
+        }
       },
-      /* @__PURE__ */ _("span", { style: { visibility: "hidden", paddingRight: "10px" }, ref: actual }, text),
-      /* @__PURE__ */ _(
-        "span",
-        {
-          ref: overlay,
-          "aria-hidden": false,
-          style: {
-            position: "absolute",
-            top: 0,
-            left: coords2.left,
-            width: coords2.width,
-            whiteSpace: "pre-line"
-          }
-        },
-        currentText,
-        children && /* @__PURE__ */ _("span", { hidden: !complete }, children)
-      )
-    );
+      currentText,
+      children && /* @__PURE__ */ _("span", { hidden: !complete }, children)
+    ));
   }
 
   // pages/onboarding/app/components/Content.module.css
@@ -9091,14 +9071,7 @@
       getStarted: () => /* @__PURE__ */ _(GetStarted, { onNextPage: enqueueNext }),
       privateByDefault: () => /* @__PURE__ */ _(PrivacyDefault, { onNextPage: enqueueNext }),
       cleanerBrowsing: () => /* @__PURE__ */ _(CleanBrowsing, { onNextPage: enqueueNext }),
-      summary: () => /* @__PURE__ */ _(
-        Summary,
-        {
-          values: globalState.values,
-          onDismiss: dismiss,
-          onSettings: dismissToSettings
-        }
-      )
+      summary: () => /* @__PURE__ */ _(Summary, { values: globalState.values, onDismiss: dismiss, onSettings: dismissToSettings })
     };
     const progress = order.slice(2, -1);
     const showProgress = progress.includes(activeStep);
@@ -9145,10 +9118,18 @@
     return /* @__PURE__ */ _("div", { style: { display: "flex", gap: "10px", position: "fixed", bottom: "1rem", justifyContent: "center", width: "100%" } }, Object.keys(globalState.stepDefinitions).slice(1).map((pageId) => {
       const next = new URL(window.location.href);
       next.searchParams.set("page", pageId);
-      return /* @__PURE__ */ _("a", { href: next.toString(), key: pageId, style: {
-        textDecoration: current === pageId ? "none" : "underline",
-        color: current === pageId ? "black" : void 0
-      } }, pageId);
+      return /* @__PURE__ */ _(
+        "a",
+        {
+          href: next.toString(),
+          key: pageId,
+          style: {
+            textDecoration: current === pageId ? "none" : "underline",
+            color: current === pageId ? "black" : void 0
+          }
+        },
+        pageId
+      );
     }), /* @__PURE__ */ _("a", { href: exceptionUrl.toString() }, "Exception"));
   }
   function WillThrow() {
@@ -9412,9 +9393,12 @@
     const timer = A2(null);
     y2(() => {
       if (canPlay && !timer.current) {
-        timer.current = setTimeout(() => {
-          setStep("duckPlayerSingle", "after");
-        }, isReducedMotion ? 100 : 0);
+        timer.current = setTimeout(
+          () => {
+            setStep("duckPlayerSingle", "after");
+          },
+          isReducedMotion ? 100 : 0
+        );
       }
       return () => {
         if (timer.current) clearTimeout(timer.current);
@@ -9836,15 +9820,7 @@
       return null;
     }
     const titleArray = Array.isArray(title) ? title : [title];
-    return /* @__PURE__ */ _("header", { className: Heading_default.heading }, /* @__PURE__ */ _("div", { className: Heading_default.logo }, /* @__PURE__ */ _("img", { className: Heading_default.svg, src: "assets/img/dax.svg", alt: "DuckDuckGo Logo" })), /* @__PURE__ */ _(
-      HeadingComponent,
-      {
-        title: titleArray,
-        subtitle,
-        onComplete
-      },
-      children
-    ));
+    return /* @__PURE__ */ _("header", { className: Heading_default.heading }, /* @__PURE__ */ _("div", { className: Heading_default.logo }, /* @__PURE__ */ _("img", { className: Heading_default.svg, src: "assets/img/dax.svg", alt: "DuckDuckGo Logo" })), /* @__PURE__ */ _(HeadingComponent, { title: titleArray, subtitle, onComplete }, children));
   }
   function PlainHeading({ title, subtitle, onComplete, children }) {
     const [typingDone, setTypingDone] = h2(false);
@@ -9869,7 +9845,9 @@
     const [animationState, setAnimationState] = h2(initialState);
     const calculateMaximumWidth = (element) => {
       const { height } = element.getBoundingClientRect();
-      const widths = Array.from(element.querySelectorAll(".bubbleTitle span, .bubbleSubtitle, .bubbleChildren > *")).map((e3) => e3.getBoundingClientRect().width);
+      const widths = Array.from(element.querySelectorAll(".bubbleTitle span, .bubbleSubtitle, .bubbleChildren > *")).map(
+        (e3) => e3.getBoundingClientRect().width
+      );
       const width = Math.max(...widths);
       return { width, height };
     };
@@ -9928,7 +9906,14 @@
       [Heading_default.additionalContent]: true,
       [Heading_default.hidden]: animationState !== "typing-done"
     });
-    return /* @__PURE__ */ _("div", { className: Heading_default.speechBubble }, /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleCallout }), /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleContainer }, /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleBackground, style: { width: `${dimensions.width}px`, height: `${dimensions.height}px` }, onTransitionEnd }), /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleContents, ref: bubbleContents }, /* @__PURE__ */ _("h1", { className: titleClass }, /* @__PURE__ */ _(TypedTitle, { title, paused: animationState === "animating", onComplete: onTypingComplete })), subtitle && /* @__PURE__ */ _("h2", { className: subtitleClass }, subtitle), children && animationState === "typing-done" && /* @__PURE__ */ _("div", { className: childrenClass }, children))));
+    return /* @__PURE__ */ _("div", { className: Heading_default.speechBubble }, /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleCallout }), /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleContainer }, /* @__PURE__ */ _(
+      "div",
+      {
+        className: Heading_default.speechBubbleBackground,
+        style: { width: `${dimensions.width}px`, height: `${dimensions.height}px` },
+        onTransitionEnd
+      }
+    ), /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleContents, ref: bubbleContents }, /* @__PURE__ */ _("h1", { className: titleClass }, /* @__PURE__ */ _(TypedTitle, { title, paused: animationState === "animating", onComplete: onTypingComplete })), subtitle && /* @__PURE__ */ _("h2", { className: subtitleClass }, subtitle), children && animationState === "typing-done" && /* @__PURE__ */ _("div", { className: childrenClass }, children))));
   }
   function TypedTitle({ title, paused = true, onComplete }) {
     const [textIndex, setTextIndex] = h2(0);
@@ -10019,7 +10004,19 @@
         advance();
       }
     };
-    return /* @__PURE__ */ _("main", { className: App2_default.main, "data-platform-name": platformName || "macos", "data-app-version": "2" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _("div", { className: App2_default.container, "data-current": activeStep, "data-exiting": String(exiting), "data-step-visible": activeStepVisible, ref: didRender, onAnimationEnd: animationDidFinish }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(BeforeAfterProvider, null, /* @__PURE__ */ _(SingleStep, null))), children), (step.id === "welcome" || step.id === "getStarted") && /* @__PURE__ */ _(Hiker, null));
+    return /* @__PURE__ */ _("main", { className: App2_default.main, "data-platform-name": platformName || "macos", "data-app-version": "2" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _(
+      "div",
+      {
+        className: App2_default.container,
+        "data-current": activeStep,
+        "data-exiting": String(exiting),
+        "data-step-visible": activeStepVisible,
+        ref: didRender,
+        onAnimationEnd: animationDidFinish
+      },
+      /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(BeforeAfterProvider, null, /* @__PURE__ */ _(SingleStep, null))),
+      children
+    ), (step.id === "welcome" || step.id === "getStarted") && /* @__PURE__ */ _(Hiker, null));
   }
   function Debug2(props) {
     const { order, step, exiting, activeStep, nextStep } = props.state;
@@ -10182,14 +10179,7 @@
           secondaryText: settingsRowItems[key](t3).secondaryText
         }
       );
-    })))), /* @__PURE__ */ _("div", { style: { width: "480px" } }, /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(List, null, /* @__PURE__ */ _(ListItem, { icon: "browsing.png", title: "While browsing the web", inline: /* @__PURE__ */ _(Check, null) }), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "duckplayer.png",
-        title: "While watching YouTube",
-        inline: /* @__PURE__ */ _(Check, null)
-      }
-    )), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { onClick: noop("next page"), size: "large" }, "Next")))), /* @__PURE__ */ _(
+    })))), /* @__PURE__ */ _("div", { style: { width: "480px" } }, /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(List, null, /* @__PURE__ */ _(ListItem, { icon: "browsing.png", title: "While browsing the web", inline: /* @__PURE__ */ _(Check, null) }), /* @__PURE__ */ _(ListItem, { icon: "duckplayer.png", title: "While watching YouTube", inline: /* @__PURE__ */ _(Check, null) })), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { onClick: noop("next page"), size: "large" }, "Next")))), /* @__PURE__ */ _(
       Summary,
       {
         onDismiss: noop("onDismiss"),
@@ -10629,10 +10619,7 @@
         const randMethodName = this.createRandMethodName();
         const key = await this.createRandKey();
         const iv = this.createRandIv();
-        const {
-          ciphertext,
-          tag
-        } = await new this.globals.Promise((resolve) => {
+        const { ciphertext, tag } = await new this.globals.Promise((resolve) => {
           this.generateRandomMethod(randMethodName, resolve);
           data.messageHandling = new SecureMessagingParams({
             methodName: randMethodName,
@@ -11465,25 +11452,16 @@
     if (!root2) throw new Error("could not render, root element missing");
     if (environment.display === "app") {
       B(
-        /* @__PURE__ */ _(
-          EnvironmentProvider,
+        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: onboarding_default, textLength: environment.textLength }, /* @__PURE__ */ _(SettingsProvider, { platform: settings.platform }, /* @__PURE__ */ _(
+          GlobalProvider,
           {
-            debugState: environment.debugState,
-            injectName: environment.injectName,
-            willThrow: environment.willThrow
+            messaging: onboarding,
+            order: settings.order,
+            stepDefinitions: settings.stepDefinitions,
+            firstPage: settings.first
           },
-          /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }),
-          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: onboarding_default, textLength: environment.textLength }, /* @__PURE__ */ _(SettingsProvider, { platform: settings.platform }, /* @__PURE__ */ _(
-            GlobalProvider,
-            {
-              messaging: onboarding,
-              order: settings.order,
-              stepDefinitions: settings.stepDefinitions,
-              firstPage: settings.first
-            },
-            /* @__PURE__ */ _(AppComponent, null, environment.env === "development" && /* @__PURE__ */ _(SkipLink, null))
-          )))
-        ),
+          /* @__PURE__ */ _(AppComponent, null, environment.env === "development" && /* @__PURE__ */ _(SkipLink, null))
+        )))),
         root2
       );
     }

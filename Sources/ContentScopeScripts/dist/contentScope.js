@@ -24,6 +24,7 @@
     const objectDefineProperty = Object.defineProperty;
     const URL$1 = globalThis.URL;
     const Proxy$1 = globalThis.Proxy;
+    const hasOwnProperty = Object.prototype.hasOwnProperty;
     let globalObj = typeof window === "undefined" ? globalThis : window;
     let Error$1 = globalObj.Error;
     let messageSecret;
@@ -411,7 +412,9 @@
     }
     function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
       const remoteFeatureNames = Object.keys(data.features);
-      const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
+      const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
+        (featureName) => !remoteFeatureNames.includes(featureName)
+      );
       const enabledFeatures = remoteFeatureNames.filter((featureName) => {
         const feature = data.features[featureName];
         if (feature.minSupportedVersion && platformVersion) {
@@ -461,7 +464,8 @@
         "fingerprintingTemporaryStorage",
         "navigatorInterface",
         "elementHiding",
-        "exceptionHandler"
+        "exceptionHandler",
+        "apiManipulation"
       ]
     );
     const otherFeatures = (
@@ -480,53 +484,15 @@
       ]
     );
     const platformSupport = {
-      apple: [
-        "webCompat",
-        ...baseFeatures
-      ],
-      "apple-isolated": [
-        "duckPlayer",
-        "brokerProtection",
-        "performanceMetrics",
-        "clickToLoad"
-      ],
-      android: [
-        ...baseFeatures,
-        "webCompat",
-        "clickToLoad",
-        "breakageReporting",
-        "duckPlayer"
-      ],
-      "android-autofill-password-import": [
-        "autofillPasswordImport"
-      ],
-      windows: [
-        "cookie",
-        ...baseFeatures,
-        "windowsPermissionUsage",
-        "duckPlayer",
-        "brokerProtection",
-        "breakageReporting"
-      ],
-      firefox: [
-        "cookie",
-        ...baseFeatures,
-        "clickToLoad"
-      ],
-      chrome: [
-        "cookie",
-        ...baseFeatures,
-        "clickToLoad"
-      ],
-      "chrome-mv3": [
-        "cookie",
-        ...baseFeatures,
-        "clickToLoad"
-      ],
-      integration: [
-        ...baseFeatures,
-        ...otherFeatures
-      ]
+      apple: ["webCompat", ...baseFeatures],
+      "apple-isolated": ["duckPlayer", "brokerProtection", "performanceMetrics", "clickToLoad"],
+      android: [...baseFeatures, "webCompat", "clickToLoad", "breakageReporting", "duckPlayer"],
+      "android-autofill-password-import": ["autofillPasswordImport"],
+      windows: ["cookie", ...baseFeatures, "windowsPermissionUsage", "duckPlayer", "brokerProtection", "breakageReporting"],
+      firefox: ["cookie", ...baseFeatures, "clickToLoad"],
+      chrome: ["cookie", ...baseFeatures, "clickToLoad"],
+      "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad"],
+      integration: [...baseFeatures, ...otherFeatures]
     };
     class PerformanceMonitor {
       constructor() {
@@ -953,11 +919,7 @@
         enumerable: false,
         writable: false
       });
-      definePropertyFn(
-        globalThis,
-        interfaceName,
-        { ...fullOptions.interfaceDescriptorOptions, value: Interface }
-      );
+      definePropertyFn(globalThis, interfaceName, { ...fullOptions.interfaceDescriptorOptions, value: Interface });
     }
     function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
       const ImplClass = implInstance.constructor;
@@ -1315,10 +1277,7 @@
           const randMethodName = this.createRandMethodName();
           const key = await this.createRandKey();
           const iv = this.createRandIv();
-          const {
-            ciphertext,
-            tag
-          } = await new this.globals.Promise((resolve) => {
+          const { ciphertext, tag } = await new this.globals.Promise((resolve) => {
             this.generateRandomMethod(randMethodName, resolve);
             data.messageHandling = new SecureMessagingParams({
               methodName: randMethodName,
@@ -2523,33 +2482,40 @@
             this.onchange = null;
           }
         }
-        permissions.query = new Proxy(async (query) => {
-          this.addDebugFlag();
-          if (!query) {
-            throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.");
-          }
-          if (!query.name) {
-            throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.");
-          }
-          if (!settings.supportedPermissions || !(query.name in settings.supportedPermissions)) {
-            throw new TypeError(`Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`);
-          }
-          const permSetting = settings.supportedPermissions[query.name];
-          const returnName = permSetting.name || query.name;
-          let returnStatus = settings.permissionResponse || "prompt";
-          if (permSetting.native) {
-            try {
-              const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
-              returnStatus = response.state || "prompt";
-            } catch (err) {
+        permissions.query = new Proxy(
+          async (query) => {
+            this.addDebugFlag();
+            if (!query) {
+              throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.");
+            }
+            if (!query.name) {
+              throw new TypeError(
+                "Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined."
+              );
+            }
+            if (!settings.supportedPermissions || !(query.name in settings.supportedPermissions)) {
+              throw new TypeError(
+                `Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`
+              );
+            }
+            const permSetting = settings.supportedPermissions[query.name];
+            const returnName = permSetting.name || query.name;
+            let returnStatus = settings.permissionResponse || "prompt";
+            if (permSetting.native) {
+              try {
+                const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
+                returnStatus = response.state || "prompt";
+              } catch (err) {
+              }
+            }
+            return Promise.resolve(new PermissionStatus(returnName, returnStatus));
+          },
+          {
+            get(target, name) {
+              return Reflect.get(target, name);
             }
           }
-          return Promise.resolve(new PermissionStatus(returnName, returnStatus));
-        }, {
-          get(target, name) {
-            return Reflect.get(target, name);
-          }
-        });
+        );
         window.navigator.permissions = permissions;
       }
       /**
@@ -2570,10 +2536,16 @@
         this.wrapProperty(globalThis.ScreenOrientation.prototype, "lock", {
           value: async (requestedOrientation) => {
             if (!requestedOrientation) {
-              return Promise.reject(new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present."));
+              return Promise.reject(
+                new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present.")
+              );
             }
             if (!validOrientations.includes(requestedOrientation)) {
-              return Promise.reject(new TypeError(`Failed to execute 'lock' on 'ScreenOrientation': The provided value '${requestedOrientation}' is not a valid enum value of type OrientationLockType.`));
+              return Promise.reject(
+                new TypeError(
+                  `Failed to execute 'lock' on 'ScreenOrientation': The provided value '${requestedOrientation}' is not a valid enum value of type OrientationLockType.`
+                )
+              );
             }
             if (__privateGet(this, _activeScreenLockRequest)) {
               return Promise.reject(new DOMException("Screen lock already in progress", "AbortError"));
@@ -2705,18 +2677,22 @@
             wrapToString: true
           });
           this.shimProperty(Navigator.prototype, "mediaSession", new MyMediaSession(), true);
-          this.shimInterface("MediaMetadata", class {
-            constructor(metadata = {}) {
-              this.title = metadata.title;
-              this.artist = metadata.artist;
-              this.album = metadata.album;
-              this.artwork = metadata.artwork;
+          this.shimInterface(
+            "MediaMetadata",
+            class {
+              constructor(metadata = {}) {
+                this.title = metadata.title;
+                this.artist = metadata.artist;
+                this.album = metadata.album;
+                this.artwork = metadata.artwork;
+              }
+            },
+            {
+              disallowConstructor: false,
+              allowConstructorCall: false,
+              wrapToString: true
             }
-          }, {
-            disallowConstructor: false,
-            allowConstructorCall: false,
-            wrapToString: true
-          });
+          );
         } catch {
         }
       }
@@ -2738,20 +2714,30 @@
             allowConstructorCall: false,
             wrapToString: true
           });
-          this.shimInterface("PresentationAvailability", class {
-            // class definition is empty because there's no way to get an instance of it anyways
-          }, {
-            disallowConstructor: true,
-            allowConstructorCall: false,
-            wrapToString: true
-          });
-          this.shimInterface("PresentationRequest", class {
-            // class definition is empty because there's no way to get an instance of it anyways
-          }, {
-            disallowConstructor: true,
-            allowConstructorCall: false,
-            wrapToString: true
-          });
+          this.shimInterface(
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            "PresentationAvailability",
+            class {
+              // class definition is empty because there's no way to get an instance of it anyways
+            },
+            {
+              disallowConstructor: true,
+              allowConstructorCall: false,
+              wrapToString: true
+            }
+          );
+          this.shimInterface(
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            "PresentationRequest",
+            class {
+              // class definition is empty because there's no way to get an instance of it anyways
+            },
+            {
+              disallowConstructor: true,
+              allowConstructorCall: false,
+              wrapToString: true
+            }
+          );
           this.shimProperty(Navigator.prototype, "presentation", new MyPresentation(), true);
         } catch {
         }
@@ -4369,9 +4355,7 @@
             "drawElements",
             "drawArrays"
           ];
-          const glContexts = [
-            WebGLRenderingContext
-          ];
+          const glContexts = [WebGLRenderingContext];
           if ("WebGL2RenderingContext" in globalThis) {
             glContexts.push(WebGL2RenderingContext);
           }
@@ -4936,17 +4920,140 @@
     class ExceptionHandler extends ContentFeature {
       init() {
         const handleUncaughtException = (e) => {
-          postDebugMessage("jsException", {
-            documentUrl: document.location.href,
-            message: e.message,
-            filename: e.filename,
-            lineno: e.lineno,
-            colno: e.colno,
-            stack: e.error?.stack
-          }, true);
+          postDebugMessage(
+            "jsException",
+            {
+              documentUrl: document.location.href,
+              message: e.message,
+              filename: e.filename,
+              lineno: e.lineno,
+              colno: e.colno,
+              stack: e.error?.stack
+            },
+            true
+          );
           this.addDebugFlag();
         };
         globalThis.addEventListener("error", handleUncaughtException);
+      }
+    }
+    class ApiManipulation extends ContentFeature {
+      init() {
+        const apiChanges = this.getFeatureSetting("apiChanges");
+        if (apiChanges) {
+          for (const scope in apiChanges) {
+            const change = apiChanges[scope];
+            if (!this.checkIsValidAPIChange(change)) {
+              continue;
+            }
+            this.applyApiChange(scope, change);
+          }
+        }
+      }
+      /**
+       * Checks if the config API change is valid.
+       * @param {any} change
+       * @returns {change is APIChange}
+       */
+      checkIsValidAPIChange(change) {
+        if (typeof change !== "object") {
+          return false;
+        }
+        if (change.type === "remove") {
+          return true;
+        }
+        if (change.type === "descriptor") {
+          if (change.enumerable && typeof change.enumerable !== "boolean") {
+            return false;
+          }
+          if (change.configurable && typeof change.configurable !== "boolean") {
+            return false;
+          }
+          return typeof change.getterValue !== "undefined";
+        }
+        return false;
+      }
+      // TODO move this to schema definition imported from the privacy-config
+      // Additionally remove checkIsValidAPIChange when this change happens.
+      // See: https://app.asana.com/0/1201614831475344/1208715421518231/f
+      /**
+       * @typedef {Object} APIChange
+       * @property {"remove"|"descriptor"} type
+       * @property {import('../utils.js').ConfigSetting} [getterValue] - The value returned from a getter.
+       * @property {boolean} [enumerable] - Whether the property is enumerable.
+       * @property {boolean} [configurable] - Whether the property is configurable.
+       */
+      /**
+       * Applies a change to DOM APIs.
+       * @param {string} scope
+       * @param {APIChange} change
+       * @returns {void}
+       */
+      applyApiChange(scope, change) {
+        const response = this.getGlobalObject(scope);
+        if (!response) {
+          return;
+        }
+        const [obj, key] = response;
+        if (change.type === "remove") {
+          this.removeApiMethod(obj, key);
+        } else if (change.type === "descriptor") {
+          this.wrapApiDescriptor(obj, key, change);
+        }
+      }
+      /**
+       * Removes a method from an API.
+       * @param {object} api
+       * @param {string} key
+       */
+      removeApiMethod(api, key) {
+        try {
+          if (hasOwnProperty.call(api, key)) {
+            delete api[key];
+          }
+        } catch (e) {
+        }
+      }
+      /**
+       * Wraps a property with descriptor.
+       * @param {object} api
+       * @param {string} key
+       * @param {APIChange} change
+       */
+      wrapApiDescriptor(api, key, change) {
+        const getterValue = change.getterValue;
+        if (getterValue) {
+          const descriptor = {
+            get: () => processAttr(getterValue, void 0)
+          };
+          if ("enumerable" in change) {
+            descriptor.enumerable = change.enumerable;
+          }
+          if ("configurable" in change) {
+            descriptor.configurable = change.configurable;
+          }
+          this.wrapProperty(api, key, descriptor);
+        }
+      }
+      /**
+       * Looks up a global object from a scope, e.g. 'Navigator.prototype'.
+       * @param {string} scope the scope of the object to get to.
+       * @returns {[object, string]|null} the object at the scope.
+       */
+      getGlobalObject(scope) {
+        const parts = scope.split(".");
+        const lastPart = parts.pop();
+        if (!lastPart) {
+          return null;
+        }
+        let obj = window;
+        for (const part of parts) {
+          obj = obj[part];
+          if (!obj) {
+            return null;
+          }
+        }
+        return [obj, lastPart];
       }
     }
     var platformFeatures = {
@@ -4962,7 +5069,8 @@
       ddg_feature_fingerprintingTemporaryStorage: FingerprintingTemporaryStorage,
       ddg_feature_navigatorInterface: NavigatorInterface,
       ddg_feature_elementHiding: ElementHiding,
-      ddg_feature_exceptionHandler: ExceptionHandler
+      ddg_feature_exceptionHandler: ExceptionHandler,
+      ddg_feature_apiManipulation: ApiManipulation
     };
     let initArgs = null;
     const updates = [];

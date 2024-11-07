@@ -585,13 +585,7 @@
   });
   var THEME_QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function EnvironmentProvider({
-    children,
-    debugState,
-    env = "production",
-    willThrow = false,
-    injectName = "windows"
-  }) {
+  function EnvironmentProvider({ children, debugState, env = "production", willThrow = false, injectName = "windows" }) {
     const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     y2(() => {
@@ -614,14 +608,20 @@
       });
       return () => mediaQueryList.removeEventListener("change", listener);
     }, []);
-    return /* @__PURE__ */ _(EnvironmentContext.Provider, { value: {
-      isReducedMotion,
-      debugState,
-      isDarkMode: theme === "dark",
-      injectName,
-      willThrow,
-      env
-    } }, children);
+    return /* @__PURE__ */ _(
+      EnvironmentContext.Provider,
+      {
+        value: {
+          isReducedMotion,
+          debugState,
+          isDarkMode: theme === "dark",
+          injectName,
+          willThrow,
+          env
+        }
+      },
+      children
+    );
   }
   function useEnv() {
     return x2(EnvironmentContext);
@@ -791,8 +791,12 @@
     const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1e3);
     const timeString = date.toLocaleTimeString("en", { timeStyle: "short" });
     let dateString = `${date.toLocaleDateString("en", { dateStyle: "full" })} ${timeString}`;
-    if (date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear()) dateString = t3("yesterdayAt", { time: timeString });
-    if (date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) dateString = t3("todayAt", { time: timeString });
+    if (date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear()) {
+      dateString = t3("yesterdayAt", { time: timeString });
+    }
+    if (date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
+      dateString = t3("todayAt", { time: timeString });
+    }
     return /* @__PURE__ */ _(Text, { variant: "body", className: ReleaseNotes_default.statusTimestamp }, t3("lastChecked", { date: dateString }));
   }
   function UpdateStatus({ status, timestamp, version, progress }) {
@@ -833,19 +837,11 @@
         notes: [
           ...releaseNotesPrivacyPro,
           /* The following should only get translated when the contents of the Release Notes update message are localized */
-          /* @__PURE__ */ _("span", null, "Not subscribed? Find out more at ", /* @__PURE__ */ _("a", { href: "https://duckduckgo.com/pro", target: "_blank" }, "duckduckgo.com/pro"))
+          /* @__PURE__ */ _("span", null, "Not subscribed? Find out more at", " ", /* @__PURE__ */ _("a", { href: "https://duckduckgo.com/pro", target: "_blank" }, "duckduckgo.com/pro"))
         ]
       });
     }
-    return /* @__PURE__ */ _(
-      ReleaseNotesContent,
-      {
-        title: releaseTitle,
-        currentVersion,
-        latestVersion,
-        notes
-      }
-    );
+    return /* @__PURE__ */ _(ReleaseNotesContent, { title: releaseTitle, currentVersion, latestVersion, notes });
   }
   function UpdateButton({ releaseData }) {
     const { t: t3 } = useTypedTranslation();
@@ -1030,10 +1026,18 @@
         ]
       }
     ];
-    return /* @__PURE__ */ _("main", { className: Components_default.main }, /* @__PURE__ */ _("h1", null, "Release Notes Components"), /* @__PURE__ */ _("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ _(DuckDuckGoLogo, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Page Title"), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Status"), /* @__PURE__ */ _(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "criticalUpdateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateError", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateDownloading", version: "1.2.0", timestamp: todayInMilliseconds, progress: 0.35 }), /* @__PURE__ */ _(UpdateStatus, { status: "updatePreparing", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Buttons"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("restartToUpdate"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("updateBrowser"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("retryUpdate"))), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder"), /* @__PURE__ */ _(ContentPlaceholder, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Heading"), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Subheading"), /* @__PURE__ */ _(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ _(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes List"), /* @__PURE__ */ _(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ContentPlaceholder, null)), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ReleaseNotesContent, { title: "May 10 2024", currentVersion: "1.0.1", latestVersion: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateDownloading })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updatePreparing })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.criticalUpdateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: (
-      /** @type {import('../../../types/release-notes').UpdateMessage} */
-      { ...sampleData.updateReady, automaticUpdate: false }
-    ) })));
+    return /* @__PURE__ */ _("main", { className: Components_default.main }, /* @__PURE__ */ _("h1", null, "Release Notes Components"), /* @__PURE__ */ _("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ _(DuckDuckGoLogo, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Page Title"), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Status"), /* @__PURE__ */ _(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "criticalUpdateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateError", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateDownloading", version: "1.2.0", timestamp: todayInMilliseconds, progress: 0.35 }), /* @__PURE__ */ _(UpdateStatus, { status: "updatePreparing", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Buttons"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("restartToUpdate"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("updateBrowser"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("retryUpdate"))), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder"), /* @__PURE__ */ _(ContentPlaceholder, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Heading"), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Subheading"), /* @__PURE__ */ _(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ _(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes List"), /* @__PURE__ */ _(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ContentPlaceholder, null)), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ReleaseNotesContent, { title: "May 10 2024", currentVersion: "1.0.1", latestVersion: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateDownloading })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updatePreparing })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.criticalUpdateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(
+      ReleaseNotes,
+      {
+        releaseData: (
+          /** @type {import('../../../types/release-notes').UpdateMessage} */
+          {
+            ...sampleData.updateReady,
+            automaticUpdate: false
+          }
+        )
+      }
+    )));
   }
   function LoadingThen({ children }) {
     const [ready, setReady] = h2(false);
@@ -1171,29 +1175,13 @@
     if (!root) throw new Error("could not render, root element missing");
     if (environment.display === "app") {
       B(
-        /* @__PURE__ */ _(
-          EnvironmentProvider,
-          {
-            debugState: environment.debugState,
-            injectName: environment.injectName,
-            willThrow: environment.willThrow
-          },
-          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(App, null)))
-        ),
+        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(App, null)))),
         root
       );
     }
     if (environment.display === "components") {
       B(
-        /* @__PURE__ */ _(
-          EnvironmentProvider,
-          {
-            debugState: environment.debugState,
-            injectName: environment.injectName,
-            willThrow: environment.willThrow
-          },
-          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(Components, null)))
-        ),
+        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(Components, null)))),
         root
       );
     }
@@ -1524,10 +1512,7 @@
         const randMethodName = this.createRandMethodName();
         const key = await this.createRandKey();
         const iv = this.createRandIv();
-        const {
-          ciphertext,
-          tag
-        } = await new this.globals.Promise((resolve) => {
+        const { ciphertext, tag } = await new this.globals.Promise((resolve) => {
           this.generateRandomMethod(randMethodName, resolve);
           data.messageHandling = new SecureMessagingParams({
             methodName: randMethodName,

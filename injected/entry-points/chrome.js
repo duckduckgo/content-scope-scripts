@@ -1,8 +1,8 @@
 /**
  * @module Chrome integration
  */
-import { isTrackerOrigin } from '../src/trackers'
-import { computeLimitedSiteObject } from '../src/utils'
+import { isTrackerOrigin } from '../src/trackers';
+import { computeLimitedSiteObject } from '../src/utils';
 
 /**
  * Inject all the overwrites into the page.
@@ -16,39 +16,38 @@ const allowedMessages = [
     'setYoutubePreviewsEnabled',
     'unblockClickToLoadContent',
     'updateYouTubeCTLAddedFlag',
-    'updateFacebookCTLBreakageFlags'
-]
-const messageSecret = randomString()
+    'updateFacebookCTLBreakageFlags',
+];
+const messageSecret = randomString();
 
-function inject (code) {
-    const elem = document.head || document.documentElement
+function inject(code) {
+    const elem = document.head || document.documentElement;
     // Inject into main page
     try {
-        const e = document.createElement('script')
+        const e = document.createElement('script');
         e.textContent = `(() => {
             ${code}
-        })();`
-        elem.appendChild(e)
-        e.remove()
-    } catch (e) {
-    }
+        })();`;
+        elem.appendChild(e);
+        e.remove();
+    } catch (e) {}
 }
 
-function randomString () {
-    const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
-    return num.toString().replace('0.', '')
+function randomString() {
+    const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+    return num.toString().replace('0.', '');
 }
 
-function init () {
-    const trackerLookup = import.meta.trackerLookup
-    const documentOriginIsTracker = isTrackerOrigin(trackerLookup)
+function init() {
+    const trackerLookup = import.meta.trackerLookup;
+    const documentOriginIsTracker = isTrackerOrigin(trackerLookup);
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const bundledConfig = $BUNDLED_CONFIG$
-    const randomMethodName = '_d' + randomString()
-    const randomPassword = '_p' + randomString()
-    const reusableMethodName = '_rm' + randomString()
-    const reusableSecret = '_r' + randomString()
-    const siteObject = computeLimitedSiteObject()
+    const bundledConfig = $BUNDLED_CONFIG$;
+    const randomMethodName = '_d' + randomString();
+    const randomPassword = '_p' + randomString();
+    const reusableMethodName = '_rm' + randomString();
+    const reusableSecret = '_r' + randomString();
+    const siteObject = computeLimitedSiteObject();
     const initialScript = `
       /* global contentScopeFeatures */
       contentScopeFeatures.load({
@@ -97,72 +96,74 @@ function init () {
               }
           })
       });
-    `
-    inject(initialScript)
+    `;
+    inject(initialScript);
 
-    chrome.runtime.sendMessage({
-        messageType: 'registeredContentScript',
-        options: {
-            documentUrl: window.location.href
-        }
-    },
-    (message) => {
-        if (!message) {
-            // Remove injected function only as background has disabled feature
-            inject(`delete window.${randomMethodName}`)
-            return
-        }
-        if (message.debug) {
-            window.addEventListener('message', (m) => {
-                if (m.data.action && m.data.message) {
-                    chrome.runtime.sendMessage({ messageType: 'debuggerMessage', options: m.data })
-                }
-            })
-        }
-        message.messageSecret = messageSecret
-        const stringifiedArgs = JSON.stringify(message)
-        const callRandomFunction = `
+    chrome.runtime.sendMessage(
+        {
+            messageType: 'registeredContentScript',
+            options: {
+                documentUrl: window.location.href,
+            },
+        },
+        (message) => {
+            if (!message) {
+                // Remove injected function only as background has disabled feature
+                inject(`delete window.${randomMethodName}`);
+                return;
+            }
+            if (message.debug) {
+                window.addEventListener('message', (m) => {
+                    if (m.data.action && m.data.message) {
+                        chrome.runtime.sendMessage({ messageType: 'debuggerMessage', options: m.data });
+                    }
+                });
+            }
+            message.messageSecret = messageSecret;
+            const stringifiedArgs = JSON.stringify(message);
+            const callRandomFunction = `
                 window.${randomMethodName}('${randomPassword}', ${stringifiedArgs});
-            `
-        inject(callRandomFunction)
-    })
+            `;
+            inject(callRandomFunction);
+        },
+    );
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
         if (message && message.type === 'update') {
-            const stringifiedArgs = JSON.stringify(message)
+            const stringifiedArgs = JSON.stringify(message);
             const callRandomUpdateFunction = `
                 window.${reusableMethodName}('${reusableSecret}', ${stringifiedArgs});
-            `
-            inject(callRandomUpdateFunction)
+            `;
+            inject(callRandomUpdateFunction);
         }
-    })
+    });
 
-    window.addEventListener('sendMessageProxy' + messageSecret, event => {
-        event.stopImmediatePropagation()
+    window.addEventListener('sendMessageProxy' + messageSecret, (event) => {
+        event.stopImmediatePropagation();
 
         if (!(event instanceof CustomEvent) || !event?.detail) {
-            return console.warn('no details in sendMessage proxy', event)
+            return console.warn('no details in sendMessage proxy', event);
         }
 
-        const messageType = event.detail?.messageType
+        const messageType = event.detail?.messageType;
         if (!allowedMessages.includes(messageType)) {
-            return console.warn('Ignoring invalid sendMessage messageType', messageType)
+            return console.warn('Ignoring invalid sendMessage messageType', messageType);
         }
 
-        chrome.runtime.sendMessage(event.detail, response => {
+        chrome.runtime.sendMessage(event.detail, (response) => {
             const message = {
                 messageType: 'response',
                 responseMessageType: messageType,
-                response
-            }
-            const stringifiedArgs = JSON.stringify(message)
+                response,
+            };
+            const stringifiedArgs = JSON.stringify(message);
             const callRandomUpdateFunction = `
                 window.${reusableMethodName}('${reusableSecret}', ${stringifiedArgs});
-            `
-            inject(callRandomUpdateFunction)
-        })
-    })
+            `;
+            inject(callRandomUpdateFunction);
+        });
+    });
 }
 
-init()
+init();

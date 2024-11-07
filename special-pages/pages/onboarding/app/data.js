@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { availableIcons } from './components/ListItem'
-import pinningAnimation from './animations/taskbar_pinning.riv'
-import importAnimation from './animations/import.riv'
-import defaultAnimation from './animations/set_default.riv'
+import { availableIcons } from './components/ListItem';
+import pinningAnimation from './animations/taskbar_pinning.riv';
+import importAnimation from './animations/import.riv';
+import defaultAnimation from './animations/set_default.riv';
 
 /**
  * @typedef {object} RowData
@@ -35,82 +35,81 @@ import defaultAnimation from './animations/set_default.riv'
 export const stepDefinitions = {
     welcome: {
         id: 'welcome',
-        kind: 'info'
+        kind: 'info',
     },
     getStarted: {
         id: 'getStarted',
-        kind: 'info'
+        kind: 'info',
     },
     privateByDefault: {
         id: 'privateByDefault',
-        kind: 'info'
+        kind: 'info',
     },
     cleanerBrowsing: {
         id: 'cleanerBrowsing',
-        kind: 'info'
+        kind: 'info',
     },
     systemSettings: {
         id: 'systemSettings',
         kind: 'settings',
-        rows: ['import', 'default-browser']
+        rows: ['import', 'default-browser'],
     },
     dockSingle: {
         id: 'dockSingle',
         kind: 'settings',
-        rows: ['dock']
+        rows: ['dock'],
     },
     importSingle: {
         id: 'importSingle',
         kind: 'settings',
-        rows: ['import']
+        rows: ['import'],
     },
     makeDefaultSingle: {
         id: 'makeDefaultSingle',
         kind: 'settings',
-        rows: ['default-browser']
+        rows: ['default-browser'],
     },
     customize: {
         id: 'customize',
         kind: 'settings',
-        rows: ['bookmarks', 'session-restore', 'home-shortcut']
+        rows: ['bookmarks', 'session-restore', 'home-shortcut'],
     },
     summary: {
         id: 'summary',
-        kind: 'info'
+        kind: 'info',
     },
     duckPlayerSingle: {
         id: 'duckPlayerSingle',
-        kind: 'info'
-    }
-}
+        kind: 'info',
+    },
+};
 
-export const stepMeta = /** @type {const} */({
+export const stepMeta = /** @type {const} */ ({
     dockSingle: {
         rows: {
             dock: {
                 kind: 'animation',
-                path: pinningAnimation
-            }
-        }
+                path: pinningAnimation,
+            },
+        },
     },
     importSingle: {
         rows: {
             import: {
                 kind: 'animation',
-                path: importAnimation
-            }
-        }
+                path: importAnimation,
+            },
+        },
     },
     makeDefaultSingle: {
         rows: {
             'default-browser': {
                 kind: 'animation',
-                path: defaultAnimation
-            }
-        }
-    }
-}
-)
+                path: defaultAnimation,
+            },
+        },
+    },
+});
 /**
  * Row items that do not cause system settings to be altered
  * @type {Record<string, (t: import('./types').TranslationFn) => Omit<RowData, "id" | "acceptText"> & { id: string }>}
@@ -122,7 +121,7 @@ export const noneSettingsRowItems = {
         icon: 'search.png',
         title: t('row_search_title'),
         secondaryText: t('row_search_desc'),
-        kind: 'one-time'
+        kind: 'one-time',
     }),
     trackingProtection: (t) => ({
         id: 'trackingProtection',
@@ -130,7 +129,7 @@ export const noneSettingsRowItems = {
         icon: 'shield.png',
         title: t('row_trackingProtection_title'),
         secondaryText: t('row_trackingProtection_desc'),
-        kind: 'one-time'
+        kind: 'one-time',
     }),
     cookieManagement: (t) => ({
         id: 'cookieManagement',
@@ -138,7 +137,7 @@ export const noneSettingsRowItems = {
         icon: 'cookie.png',
         title: t('row_cookieManagement_title'),
         secondaryText: t('row_cookieManagement_desc'),
-        kind: 'one-time'
+        kind: 'one-time',
     }),
     fewerAds: (t) => ({
         id: 'fewerAds',
@@ -146,7 +145,7 @@ export const noneSettingsRowItems = {
         icon: 'browsing.png',
         title: t('row_fewerAds_title'),
         secondaryText: t('row_fewerAds_desc'),
-        kind: 'one-time'
+        kind: 'one-time',
     }),
     duckPlayer: (t) => ({
         id: 'duckPlayer',
@@ -154,15 +153,15 @@ export const noneSettingsRowItems = {
         icon: 'duckplayer.png',
         title: t('row_duckPlayer_title'),
         secondaryText: t('row_duckPlayer_desc'),
-        kind: 'one-time'
-    })
-}
+        kind: 'one-time',
+    }),
+};
 
 /** @type {Record<import('./types').SystemValueId, (t: import('./types').TranslationFn, platform: ImportMeta['injectName']) => RowData>} */
 export const settingsRowItems = {
     dock: (t, platform) => {
-        const title = platform === 'apple' ? t('row_dock_macos_title') : t('row_dock_title')
-        const acceptText = platform === 'apple' ? t('row_dock_macos_accept') : t('row_dock_accept')
+        const title = platform === 'apple' ? t('row_dock_macos_title') : t('row_dock_title');
+        const acceptText = platform === 'apple' ? t('row_dock_macos_accept') : t('row_dock_accept');
         return {
             id: 'dock',
             icon: 'dock.png',
@@ -170,8 +169,8 @@ export const settingsRowItems = {
             secondaryText: t('row_dock_desc'),
             summary: t('row_dock_summary'),
             kind: 'one-time',
-            acceptText
-        }
+            acceptText,
+        };
     },
     import: (t) => ({
         id: 'import',
@@ -180,7 +179,7 @@ export const settingsRowItems = {
         secondaryText: t('row_import_desc'),
         summary: t('row_import_summary'),
         kind: 'one-time',
-        acceptText: t('row_import_accept')
+        acceptText: t('row_import_accept'),
     }),
     'default-browser': (t) => ({
         id: 'default-browser',
@@ -189,7 +188,7 @@ export const settingsRowItems = {
         secondaryText: t('row_default-browser_desc'),
         summary: t('row_default-browser_summary'),
         kind: 'one-time',
-        acceptText: t('row_default-browser_accept')
+        acceptText: t('row_default-browser_accept'),
     }),
     bookmarks: (t) => ({
         id: 'bookmarks',
@@ -198,7 +197,7 @@ export const settingsRowItems = {
         secondaryText: t('row_bookmarks_desc'),
         summary: t('row_bookmarks_summary'),
         kind: 'toggle',
-        acceptText: t('row_bookmarks_accept')
+        acceptText: t('row_bookmarks_accept'),
     }),
     'session-restore': (t) => ({
         id: 'session-restore',
@@ -207,7 +206,7 @@ export const settingsRowItems = {
         secondaryText: t('row_session-restore_desc'),
         summary: t('row_session-restore_summary'),
         kind: 'toggle',
-        acceptText: t('row_session-restore_accept')
+        acceptText: t('row_session-restore_accept'),
     }),
     'home-shortcut': (t) => ({
         id: 'home-shortcut',
@@ -216,9 +215,9 @@ export const settingsRowItems = {
         secondaryText: t('row_home-shortcut_desc'),
         summary: t('row_home-shortcut_summary'),
         kind: 'toggle',
-        acceptText: t('row_home-shortcut_accept')
-    })
-}
+        acceptText: t('row_home-shortcut_accept'),
+    }),
+};
 
 /**
  * @typedef {Object} BeforeAfter
@@ -240,7 +239,7 @@ export const beforeAfterMeta = {
         btnAfterText: t('beforeAfter_fewerAds_hide'),
         artboard: 'Ad Blocking',
         inputName: 'DDG?',
-        stateMachine: 'State Machine 2'
+        stateMachine: 'State Machine 2',
     }),
     /**
      * @param {import('./types').TranslationFn} t
@@ -250,6 +249,6 @@ export const beforeAfterMeta = {
         btnAfterText: t('beforeAfter_duckPlayer_hide'),
         artboard: 'Duck Player',
         inputName: 'Duck Player?',
-        stateMachine: 'State Machine 2'
-    })
-}
+        stateMachine: 'State Machine 2',
+    }),
+};

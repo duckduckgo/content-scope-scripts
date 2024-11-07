@@ -1,4 +1,4 @@
-import { OptionDefaults } from 'typedoc'
+import { OptionDefaults } from 'typedoc';
 
 /** @type {Partial<import('typedoc').TypeDocOptions>} */
 const config = {
@@ -10,6 +10,7 @@ const config = {
         'injected/entry-points/mozilla.js',
         'injected/entry-points/windows.js',
         'injected/src/types/*.ts',
+        'injected/src/features/api-manipulation.js',
         'injected/src/features/duck-player.js',
         'injected/src/features/duckplayer/thumbnails.js',
         'injected/src/features/duckplayer/video-overlay.js',
@@ -27,13 +28,9 @@ const config = {
         'special-pages/pages/special-error/src/js/index.js',
         'special-pages/pages/special-error/app/types.js',
         'special-pages/pages/new-tab/app/docs.js',
-        'special-pages/types/*'
+        'special-pages/types/*',
     ],
-    categoryOrder: [
-        'Special Pages',
-        'Content Scope Scripts Integrations',
-        'Other'
-    ],
+    categoryOrder: ['Special Pages', 'Content Scope Scripts Integrations', 'Other'],
     out: 'docs',
     excludeExternals: true,
     excludeInternal: true,
@@ -41,7 +38,7 @@ const config = {
     treatWarningsAsErrors: true,
     searchInComments: true,
     modifierTags: [...OptionDefaults.modifierTags, '@implements'],
-    highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid']
-}
+    highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid'],
+};
 
-export default config
+export default config;

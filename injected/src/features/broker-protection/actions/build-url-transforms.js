@@ -1,4 +1,4 @@
-import { getStateFromAbbreviation } from '../comparisons/address.js'
+import { getStateFromAbbreviation } from '../comparisons/address.js';
 
 /**
  * @typedef {{url: string} & Record<string, any>} BuildUrlAction
@@ -13,19 +13,19 @@ import { getStateFromAbbreviation } from '../comparisons/address.js'
  * @param {Record<string, string|number>} userData
  * @return {{ url: string } | { error: string }}
  */
-export function transformUrl (action, userData) {
-    const url = new URL(action.url)
+export function transformUrl(action, userData) {
+    const url = new URL(action.url);
 
     /**
      * assign the updated pathname + search params
      */
-    url.search = processSearchParams(url.searchParams, action, userData).toString()
-    url.pathname = processPathname(url.pathname, action, userData)
+    url.search = processSearchParams(url.searchParams, action, userData).toString();
+    url.pathname = processPathname(url.pathname, action, userData);
 
     /**
      * Finally, convert back to a full URL
      */
-    return { url: url.toString() }
+    return { url: url.toString() };
 }
 
 /**
@@ -38,8 +38,8 @@ const baseTransforms = new Map([
     ['lastName', (value) => capitalize(value)],
     ['state', (value) => value.toLowerCase()],
     ['city', (value) => capitalize(value)],
-    ['age', (value) => value.toString()]
-])
+    ['age', (value) => value.toString()],
+]);
 
 /**
  * These are optional transforms, will be applied when key is found in the
@@ -58,18 +58,20 @@ const optionalTransforms = new Map([
     ['snakecase', (value) => value.split(' ').join('_')],
     ['stateFull', (value) => getStateFromAbbreviation(value)],
     ['defaultIfEmpty', (value, argument) => value || argument || ''],
-    ['ageRange', (value, argument, action) => {
-        if (!action.ageRange) return value
-        const ageNumber = Number(value)
-        // find matching age range
-        const ageRange = action.ageRange.find((range) => {
-            const [min, max] = range.split('-')
-            return ageNumber >= Number(min) && ageNumber <= Number(max)
-        })
-        return ageRange || value
-    }
-    ]
-])
+    [
+        'ageRange',
+        (value, argument, action) => {
+            if (!action.ageRange) return value;
+            const ageNumber = Number(value);
+            // find matching age range
+            const ageRange = action.ageRange.find((range) => {
+                const [min, max] = range.split('-');
+                return ageNumber >= Number(min) && ageNumber <= Number(max);
+            });
+            return ageRange || value;
+        },
+    ],
+]);
 
 /**
  * Take an instance of URLSearchParams and produce a new one, with each variable
@@ -80,17 +82,17 @@ const optionalTransforms = new Map([
  * @param {Record<string, string|number>} userData
  * @return {URLSearchParams}
  */
-function processSearchParams (searchParams, action, userData) {
+function processSearchParams(searchParams, action, userData) {
     /**
      * For each key/value pair in the URL Search params, process the value
      * part *only*.
      */
     const updatedPairs = [...searchParams].map(([key, value]) => {
-        const processedValue = processTemplateStringWithUserData(value, action, userData)
-        return [key, processedValue]
-    })
+        const processedValue = processTemplateStringWithUserData(value, action, userData);
+        return [key, processedValue];
+    });
 
-    return new URLSearchParams(updatedPairs)
+    return new URLSearchParams(updatedPairs);
 }
 
 /**
@@ -98,12 +100,12 @@ function processSearchParams (searchParams, action, userData) {
  * @param {BuildUrlAction} action
  * @param {Record<string, string|number>} userData
  */
-function processPathname (pathname, action, userData) {
+function processPathname(pathname, action, userData) {
     return pathname
         .split('/')
         .filter(Boolean)
-        .map(segment => processTemplateStringWithUserData(segment, action, userData))
-        .join('/')
+        .map((segment) => processTemplateStringWithUserData(segment, action, userData))
+        .join('/');
 }
 
 /**
@@ -134,17 +136,17 @@ function processPathname (pathname, action, userData) {
  * @param {BuildUrlAction} action
  * @param {Record<string, string|number>} userData
  */
-export function processTemplateStringWithUserData (input, action, userData) {
+export function processTemplateStringWithUserData(input, action, userData) {
     /**
      * Note: this regex covers both pathname + query params.
      * This is why we're handling both encoded and un-encoded.
      */
     return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (match, encodedValue, plainValue) => {
-        const comparison = encodedValue ?? plainValue
-        const [dataKey, ...transforms] = comparison.split(/\||%7C/)
-        const data = userData[dataKey]
-        return applyTransforms(dataKey, data, transforms, action)
-    })
+        const comparison = encodedValue ?? plainValue;
+        const [dataKey, ...transforms] = comparison.split(/\||%7C/);
+        const data = userData[dataKey];
+        return applyTransforms(dataKey, data, transforms, action);
+    });
 }
 
 /**
@@ -153,28 +155,26 @@ export function processTemplateStringWithUserData (input, action, userData) {
  * @param {string[]} transformNames
  * @param {BuildUrlAction} action
  */
-function applyTransforms (dataKey, value, transformNames, action) {
-    const subject = String(value || '')
-    const baseTransform = baseTransforms.get(dataKey)
+function applyTransforms(dataKey, value, transformNames, action) {
+    const subject = String(value || '');
+    const baseTransform = baseTransforms.get(dataKey);
 
     // apply base transform to the incoming string
-    let outputString = baseTransform
-        ? baseTransform(subject)
-        : subject
+    let outputString = baseTransform ? baseTransform(subject) : subject;
 
     for (const transformName of transformNames) {
-        const [name, argument] = transformName.split(':')
-        const transform = optionalTransforms.get(name)
+        const [name, argument] = transformName.split(':');
+        const transform = optionalTransforms.get(name);
         if (transform) {
-            outputString = transform(outputString, argument, action)
+            outputString = transform(outputString, argument, action);
         }
     }
 
-    return outputString
+    return outputString;
 }
 
-function capitalize (s) {
-    const words = s.split(' ')
-    const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    return capitalizedWords.join(' ')
+function capitalize(s) {
+    const words = s.split(' ');
+    const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+    return capitalizedWords.join(' ');
 }
