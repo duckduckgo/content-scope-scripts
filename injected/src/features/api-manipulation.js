@@ -5,6 +5,8 @@
  * @module API manipulation
  */
 import ContentFeature from '../content-feature';
+// eslint-disable-next-line no-redeclare
+import { hasOwnProperty } from '../captured-globals';
 import { processAttr } from '../utils';
 
 /**
@@ -85,7 +87,7 @@ export default class ApiManipulation extends ContentFeature {
      */
     removeApiMethod(api, key) {
         try {
-            if (Object.prototype.hasOwnProperty.call(api, key)) {
+            if (hasOwnProperty.call(api, key)) {
                 delete api[key];
             }
         } catch (e) {}
