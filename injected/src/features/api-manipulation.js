@@ -85,7 +85,7 @@ export default class ApiManipulation extends ContentFeature {
      */
     removeApiMethod(api, key) {
         try {
-            if (key in api) {
+            if (Object.prototype.hasOwnProperty.call(api, key)) {
                 delete api[key];
             }
         } catch (e) {}
