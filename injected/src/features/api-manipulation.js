@@ -98,12 +98,16 @@ export default class ApiManipulation extends ContentFeature {
     wrapApiDescriptor(api, key, change) {
         const getterValue = change.getterValue;
         if (getterValue) {
-            this.wrapProperty(api, key, {
+            const descriptor = {
                 get: () => processAttr(getterValue, undefined),
-                // wrapProperty takes care of setting these values to the api[key] default values.
-                enumerable: change.enumerable,
-                configurable: change.configurable,
-            });
+            };
+            if (change.enumerable) {
+                descriptor.enumerable = change.enumerable;
+            }
+            if (change.configurable) {
+                descriptor.configurable = change.configurable;
+            }
+            this.wrapProperty(api, key, descriptor);
         }
     }
 
