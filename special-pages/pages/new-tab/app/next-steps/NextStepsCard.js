@@ -18,7 +18,6 @@ export function NextStepsCard({ type, dismiss, action }) {
     const message = variants[type]?.(t);
     return (
         <div class={styles.nextStepsCard}>
-            {/* <img src={`../../shared/assets/img/icons/${message.icon}-128.svg`} alt="" class={styles.icon}/> */}
             <img src={`./icons/${message.icon}-128.svg`} alt="" class={styles.icon} />
 
             <p class={styles.title}>{message.title}</p>

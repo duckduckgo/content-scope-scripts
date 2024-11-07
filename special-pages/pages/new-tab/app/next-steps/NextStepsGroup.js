@@ -4,6 +4,8 @@ import styles from './NextSteps.module.css';
 import { useTypedTranslation } from '../types';
 import { NextStepsCard } from './NextStepsCard';
 import { otherText } from './nextsteps.data';
+import { ShowHideButton } from '../components/ShowHideButton';
+import { useId } from 'preact/hooks';
 
 /**
  * @typedef {import('../../../../types/new-tab').Expansion} Expansion
@@ -20,6 +22,9 @@ import { otherText } from './nextsteps.data';
  */
 
 export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, animation = 'none' }) {
+    const { t } = useTypedTranslation();
+    const WIDGET_ID = useId();
+    const TOGGLE_ID = useId();
     const shownCards = expansion === 'expanded' ? types : types.slice(0, 2);
 
     console.log({ types, shownCards });
@@ -32,7 +37,25 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, 
                 ))}
             </div>
 
-            {types.length > 2 && <button onClick={toggle}>{expansion === 'expanded' ? 'Show Less' : 'Show More'}</button>}
+            <div
+                 className={cn({
+                     [styles.showhide]: true,
+                     [styles.showhideVisible]: types.length > 2
+                 })}
+             >
+            {types.length > 2 && (
+                <ShowHideButton
+                    buttonAttrs={{
+                        'aria-expanded': expansion === 'expanded',
+                        'aria-pressed': expansion === 'expanded',
+                        'aria-controls': WIDGET_ID,
+                        id: TOGGLE_ID,
+                    }}
+                    text={expansion === 'expanded' ? otherText.showLess(t) : otherText.showMore(t)}
+                    onClick={toggle}
+                />
+            )}
+            </div>
         </div>
     );
 }
