@@ -18,6 +18,11 @@
 
 //  * @type {Record<string, (t: import('../types').TranslationFn) => Omit<RowData, "id" | "acceptText"> & { id: string }>}
 //  */
+
+// type variant {
+// id: string,
+
+// }
 export const variants = {
     // /**
     //  * @param {import('../types').TranslationFn} t
@@ -62,7 +67,7 @@ export const variants = {
     // /**
     //  * @param {import('./types').TranslationFn} t
     //  */
-    duckPlayer: (t) => ({
+    duckplayer: (t) => ({
         id: 'duckplayer',
         icon: 'Tube-Clean',
         title: t('nextSteps_duckPlayer_title'),

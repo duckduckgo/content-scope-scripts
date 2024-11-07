@@ -1,17 +1,17 @@
-.root {
-    background: var(--ntp-surface-background-color);
+.nextStepsCard {
+    background-color: var(--ntp-surface-background-color);
     border: 1px solid var(--ntp-surface-border-color);
     padding: var(--sp-2) var(--sp-4);
     border-radius: var(--sp-3);
-    /* width: 50%; */
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
     text-align: center;
-    gap: var(--sp-1);
-    max-width: 240px;
+    max-width: calc(240 * var(--px-in-rem));
+    font-size: var(--body-font-size);
+
 
     @media screen and (prefers-color-scheme: dark) {
         border-color: var(--color-white-at-9);
@@ -21,26 +21,44 @@
 .icon {
     height: 3rem;
     width: 4rem;
-    /* margin: 0 auto var(--sp-1); */
+    margin-bottom: var(--sp-1);
 }
 
 .title {
-    font-weight: var(--title-2-font-weight);
-    line-height: normal;
-    /* margin-bottom: var(--sp-2); */
+    font-weight: 590;
+    line-height: var(--sp-4);
+    letter-spacing: -0.08px;
+    color: var(--color-black-at-84);
+    margin-bottom: var(--sp-0);
+
+    @media screen and (prefers-color-scheme: dark) {
+        color: var(--color-white-at-84);
+    }
 }
 
 .description {
-    line-height: 1.25rem;
+    font-size: calc(11 * var(--px-in-rem));
+    line-height: calc(14 * var(--px-in-rem));
+    letter-spacing: 0.06px;
+    flex-grow: 1;
+    color: var(--color-black-at-60);
+    margin-bottom: var(--sp-1);
+
+
+    @media screen and (prefers-color-scheme: dark) {
+        color: var(--color-white-at-60);
+    }
 }
 
 .btn {
     padding: calc(6 * var(--px-in-rem)) var(--sp-3);
     background-color: transparent;
     border-width: 0;
-    border-radius: 6px;
+    border-radius: calc(6 * var(--px-in-rem));
     text-wrap: nowrap;
-    font-weight: var(--title-2-font-weight);
+    font-weight: 600;
+    font-size: calc(11 * var(--px-in-rem));
+    line-height: calc(11 * var(--px-in-rem));
     color: var(--ddg-color-primary);
 
 
@@ -51,7 +69,7 @@
 
     &:active {
         background-color: var(--ddg-color-primary);
-        color: var(--color-white);
+        color: var(--color-white-at-84);
     }
 
     &:disabled {
@@ -64,15 +82,10 @@
     }
 
     &:focus-visible {
-        /* box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-blue-50); */
         box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     }
 
     @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-84);
-        /* background-color: var(--color-white-at-12);
-         */
-        background-color: transparent;
         color: var(--color-blue-40);
 
         &:hover {
@@ -80,9 +93,8 @@
         }
 
         &:active {
-            /* background-color: var(--color-white-at-24); */
             background-color: var(--color-blue-30);
-
+            color: var(--color-black-at-84);
         }
 
         &:disabled {
@@ -96,7 +108,6 @@
         }
 
         &:focus-visible {
-            /* box-shadow: 0px 0px 0px 1px var(--color-blue-90), 0px 0px 0px 3px var(--color-white); */
             box-shadow: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
         }
     }
@@ -110,7 +121,6 @@
     width: 1rem;
     padding: 0;
     line-height: 1;
-    font-size: 12px;
     background-color: transparent;
     color: var(--color-black-at-60);
     border: none;
@@ -148,7 +158,6 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--sp-6);
-
 }
 
 .nextStepsBubble {
@@ -158,9 +167,11 @@
 
     p {
         background-color: var(--ddg-color-primary);
+        padding: calc(3 * var(--px-in-rem)) 0 var(--sp-1);
+        font-size: calc(11 * var(--px-in-rem));
         line-height: normal;
-        padding: 2px 0 3px;
         font-weight: 600;
+        letter-spacing: 0.06px;
         color: var(--color-white-at-84);
     }
 
@@ -173,5 +184,14 @@
             background-color: var(--color-blue-30);
             color: var(--color-blue-90);
         }
+    }
+}
+
+:root:has(body[data-platform-name="windows"]) {
+    .nextStepsCard .title {
+        font-weight: 700;
+        line-height: 20px;
+        letter-spacing: normal;
+        margin-bottom: var(--sp-1);
     }
 }
