@@ -62,7 +62,7 @@ test.describe('Test integration pages', () => {
         }
     }
 
-    test.only('Test manipulating APIs', async ({ page }) => {
+    test('Test manipulating APIs', async ({ page }) => {
         await testPage(
             page,
             'api-manipulation/pages/apis.html',

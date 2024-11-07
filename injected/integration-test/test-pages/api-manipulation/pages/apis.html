@@ -13,12 +13,46 @@
     <p>This page verifies that APIs get modified</p>
 
     <script>
-        test('Test APIs modified', async () => {
+        test('API removal', async () => {
             return [
+                {
+                    name: "APIs removal",
+                    result: navigator.userAgent,
+                    expected: undefined
+                },
+                {
+                    name: "New API definition deletion does nothing",
+                    result: navigator.thisDoesNotExist,
+                    expected: undefined
+                },
+            ];
+        });
+        test('Existing API modified', async () => {
+            return [
+                {
+                    name: "New API definition doesn't work",
+                    result: navigator.newAPI,
+                    expected: undefined
+                },
                 {
                     name: "APIs modified",
                     result: navigator.hardwareConcurrency,
                     expected: 222
+                },
+                {
+                    name: "Returns expected value",
+                    result: window.name,
+                    expected: "newName"
+                },
+                {
+                    name: "Defaults to configurable",
+                    result: Object.getOwnPropertyDescriptor(window, 'name').configurable,
+                    expected: true
+                },
+                {
+                    name: "Defaults to enumerable",
+                    result: Object.getOwnPropertyDescriptor(window, 'name').enumerable,
+                    expected: true
                 }
             ]
         });

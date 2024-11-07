@@ -10,6 +10,26 @@
                             "type": "number",
                             "value": 222
                         }
+                    },
+                    "Navigator.prototype.userAgent": {
+                        "type": "remove"
+                    },
+                    "Navigator.prototype.thisDoesNotExist": {
+                        "type": "remove"
+                    },
+                    "Navigator.prototype.newAPI": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "number",
+                            "value": 222
+                        }
+                    },
+                    "window.name": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "string",
+                            "value": "newName"
+                        }
                     }
                 }
             }
