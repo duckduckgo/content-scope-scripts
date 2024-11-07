@@ -4,7 +4,6 @@ import styles from './NextSteps.module.css';
 import { Cross } from '../../components/Icons.js';
 import { variants, otherText } from '../nextsteps.data';
 import { useTypedTranslation } from '../../types';
-import { Check } from '../../../../onboarding/app/components/Icons';
 
 /*
  * @import { NextStepsCards } from "../../../../types/new-tab"
