@@ -2,6 +2,7 @@ import { OptionDefaults } from 'typedoc';
 
 /** @type {Partial<import('typedoc').TypeDocOptions>} */
 const config = {
+    projectDocuments: ['special-pages/pages/new-tab/app/new-tab.md'],
     entryPoints: [
         'injected/entry-points/android.js',
         'injected/entry-points/apple.js',
@@ -27,7 +28,7 @@ const config = {
         'special-pages/pages/release-notes/app/types.js',
         'special-pages/pages/special-error/src/js/index.js',
         'special-pages/pages/special-error/app/types.js',
-        'special-pages/pages/new-tab/app/docs.js',
+        'special-pages/pages/new-tab/app/favorites/constants.js',
         'special-pages/types/*',
     ],
     categoryOrder: ['Special Pages', 'Content Scope Scripts Integrations', 'Other'],

@@ -1,10 +1,11 @@
 import { h } from 'preact';
 import cn from 'classnames';
-import { useEffect, useId, useRef, useState } from 'preact/hooks';
+import { useEffect, useId, useState } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import styles from './Tile.module.css';
 import { urlToColor } from '../color.js';
 import { DDG_DEFAULT_ICON_SIZE, DDG_FALLBACK_ICON } from '../constants.js';
+import { useItemState } from './PragmaticDND.js';
 
 /**
  * @import {Favorite} from '../../../../../types/new-tab'
@@ -186,14 +187,3 @@ export function PlusIcon({ onClick }) {
 }
 
 export const PlusIconMemo = memo(PlusIcon);
-
-/**
- * Placeholder hook to be replaced with DND later.
- * @param url
- * @param id
- * @returns {{ref: import("preact").RefObject<any>, state: { type: string, closestEdge?: string }}}
- */
-function useItemState(url, id) {
-    const ref = useRef(null);
-    return { ref, state: { type: 'idle' } };
-}

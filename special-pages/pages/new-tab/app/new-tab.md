@@ -1,5 +1,11 @@
 ---
 title: New Tab Page
+children: 
+  - ./widget-list/widget-config.md
+  - ./remote-messaging-framework/rmf.md
+  - ./update-notification/update-notification.md
+  - ./privacy-stats/privacy-stats.md
+  - ./favorites/favorites.md
 ---
 
 ## Requests
