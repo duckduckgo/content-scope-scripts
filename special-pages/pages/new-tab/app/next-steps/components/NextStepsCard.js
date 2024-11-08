@@ -1,8 +1,7 @@
 import { h } from 'preact';
-import cn from 'classnames';
 import styles from './NextSteps.module.css';
-import { Cross } from '../../components/Icons.js';
-import { variants, otherText } from '../nextsteps.data';
+import { DismissButton } from '../../components/DismissButton';
+import { variants } from '../nextsteps.data';
 import { useTypedTranslation } from '../../types';
 
 /*
@@ -17,7 +16,7 @@ export function NextStepsCard({ type, dismiss, action }) {
     const { t } = useTypedTranslation();
     const message = variants[type]?.(t);
     return (
-        <div class={styles.nextStepsCard}>
+        <div class={styles.card}>
             <img src={`./icons/${message.icon}-128.svg`} alt="" class={styles.icon} />
             <p class={styles.title}>{message.title}</p>
             <p class={styles.description}>{message.summary}</p>
@@ -25,9 +24,7 @@ export function NextStepsCard({ type, dismiss, action }) {
                 {message.actionText}
             </button>
 
-            <button class={cn(styles.btn, styles.dismissBtn)} onClick={() => dismiss(message.id)} aria-label={otherText.dismiss(t)}>
-                <Cross />
-            </button>
+            <DismissButton className={styles.dismissBtn} onClick={() => dismiss(message.id)} />
         </div>
     );
 }
