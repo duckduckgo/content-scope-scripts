@@ -10,7 +10,6 @@ const config = {
         'injected/entry-points/chrome-mv3.js',
         'injected/entry-points/mozilla.js',
         'injected/entry-points/windows.js',
-
         'injected/src/types/*.ts',
         'injected/src/features/api-manipulation.js',
         'injected/src/features/duck-player.js',
@@ -20,7 +19,6 @@ const config = {
         'messaging',
         'messaging/schema.js',
         'messaging/native.js',
-
         'special-pages',
         'special-pages/pages/example/src/js/index.js',
         'special-pages/pages/duckplayer/src/js/index.js',
