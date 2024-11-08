@@ -55,17 +55,17 @@ export class NewtabPage {
      * @param {Object} [params] - Optional parameters for opening the page.
      * @param {'debug' | 'production'} [params.mode] - Optional parameters for opening the page.
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
-     * @param {number} [params.favoritesCount] - Optional flag to preload a list of favorites
+     * @param {string|number} [params.favorites] - Optional flag to preload a list of favorites
      * @param {string} [params.rmf] - Optional flag to point to display=components view with certain rmf example visible
      * @param {string} [params.updateNotification] - Optional flag to point to display=components view with certain rmf example visible
      * @param {string} [params.platformName] - Optional parameters for opening the page.
      */
-    async openPage({ mode = 'debug', platformName, willThrow = false, favoritesCount, rmf, updateNotification } = {}) {
+    async openPage({ mode = 'debug', platformName, willThrow = false, favorites, rmf, updateNotification } = {}) {
         await this.mocks.install();
         const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) });
 
-        if (favoritesCount !== undefined) {
-            searchParams.set('favorites', String(favoritesCount));
+        if (favorites !== undefined) {
+            searchParams.set('favorites', String(favorites));
         }
 
         if (rmf !== undefined) {
