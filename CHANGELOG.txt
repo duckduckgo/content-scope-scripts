@@ -1,5 +1,1 @@
-- Add API manipulation feature (#1207)
-- [Autofill password import] Misc fixes (#1184)
-- ntp: favorites components (#1208)
-- Ignore lint PRs in git-blame (#1205)
-- Introduce Prettier (#1198)
+- Waiting for import status on macOS (#1180)

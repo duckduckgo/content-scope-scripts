@@ -6132,15 +6132,6 @@
      * @returns {Promise<InitResponse>}
      */
     async init() {
-      if (this.injectName === "integration") {
-        return {
-          stepDefinitions: {},
-          exclude: [],
-          order: "v3",
-          locale: "en",
-          env: "development"
-        };
-      }
       return await this.messaging.request("init");
     }
     /**
@@ -8205,6 +8196,18 @@
     )));
   }
 
+  // pages/onboarding/app/components/SettingsProvider.js
+  var SettingsContext = G(
+    /** @type {{platform: {name: ImportMeta['platform']}|undefined}} */
+    {}
+  );
+  function SettingsProvider({ platform, children }) {
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { platform } }, children);
+  }
+  function usePlatformName() {
+    return x2(SettingsContext).platform?.name;
+  }
+
   // pages/onboarding/app/global.js
   var GlobalContext = G(
     /** @type {GlobalState} */
@@ -8320,6 +8323,7 @@
         "home-shortcut": "idle"
       }
     });
+    const platform = usePlatformName();
     const proxy = q2(
       (msg) => {
         dispatch(msg);
@@ -8344,7 +8348,7 @@
       if (state.status.kind !== "executing") return;
       if (state.status.action.kind !== "update-system-value") throw new Error("only update-system-value is currently supported");
       const action = state.status.action;
-      handleSystemSettingUpdate(action, messaging2).then((payload) => {
+      handleSystemSettingUpdate(action, messaging2, platform).then((payload) => {
         dispatch({
           kind: "exec-complete",
           id: action.id,
@@ -8357,7 +8361,7 @@
     }, [state.status.kind, messaging2]);
     return /* @__PURE__ */ _(GlobalContext.Provider, { value: state }, /* @__PURE__ */ _(GlobalDispatch.Provider, { value: proxy }, children));
   }
-  async function handleSystemSettingUpdate(action, messaging2) {
+  async function handleSystemSettingUpdate(action, messaging2, platform) {
     const { id, payload, current } = action;
     switch (id) {
       case "bookmarks": {
@@ -8399,6 +8403,9 @@
       }
       case "import": {
         if (payload.enabled) {
+          if (platform === "macos") {
+            return await messaging2.requestImport();
+          }
           await messaging2.requestImport();
           return { enabled: true };
         }
@@ -9149,18 +9156,6 @@
       }
     };
     return /* @__PURE__ */ _("div", { style: "position: fixed; bottom: 0; left: 0; width: 50px; height: 50px", onClick: handler, "data-testid": "skip" });
-  }
-
-  // pages/onboarding/app/components/SettingsProvider.js
-  var SettingsContext = G(
-    /** @type {{platform: {name: ImportMeta['platform']}|undefined}} */
-    {}
-  );
-  function SettingsProvider({ platform, children }) {
-    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { platform } }, children);
-  }
-  function usePlatformName() {
-    return x2(SettingsContext).platform?.name;
   }
 
   // pages/onboarding/app/components/v3/Background.module.css
@@ -11427,12 +11422,69 @@
     return { error: "Unreachable: value not retrieved" };
   }
 
+  // pages/onboarding/src/js/mock-transport.js
+  function mockTransport() {
+    return new TestTransportConfig({
+      notify(_msg) {
+        window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+        const msg = (
+          /** @type {any} */
+          _msg
+        );
+        switch (msg.method) {
+          default: {
+            console.warn("unhandled notification", msg);
+          }
+        }
+      },
+      request(_msg) {
+        window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+        const msg = (
+          /** @type {any} */
+          _msg
+        );
+        switch (msg.method) {
+          case "init": {
+            return Promise.resolve({
+              stepDefinitions: {},
+              exclude: [],
+              order: "v3",
+              locale: "en",
+              env: "development"
+            });
+          }
+          case "requestImport":
+          case "requestSetAsDefault":
+          case "requestDockOptIn": {
+            return Promise.resolve({
+              enabled: true
+            });
+          }
+          default:
+            return Promise.resolve(null);
+        }
+      },
+      subscribe(_msg, callback) {
+        window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+        callback(null);
+        return () => {
+        };
+      }
+    });
+  }
+
   // pages/onboarding/app/index.js
   var baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv("production");
   var messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
-    pageName: "onboarding"
+    pageName: "onboarding",
+    mockTransport: () => {
+      if (baseEnvironment.injectName !== "integration") return null;
+      let mock = null;
+      mock = mockTransport();
+      return mock;
+    }
   });
   var onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName);
   async function init() {

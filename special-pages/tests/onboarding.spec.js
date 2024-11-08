@@ -230,6 +230,25 @@ test.describe('onboarding', () => {
                 // ▶️ Then I can choose to import afterwards
                 await onboarding.importUserData();
             });
+            test('When the import step has failed on macOS', async ({ page }, workerInfo) => {
+                test.skip(workerInfo.project.name !== 'macos');
+
+                const onboarding = OnboardingPage.create(page, workerInfo);
+                onboarding.withMockData({
+                    init: {
+                        stepDefinitions: null,
+                        order: 'v3',
+                    },
+                    requestImport: { enabled: false },
+                });
+
+                await onboarding.reducedMotion();
+                await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+                await onboarding.skippedCurrent();
+
+                // ▶️ Then I can still see the import button
+                await onboarding.importUserDataFailedGracefully();
+            });
         });
         test.describe('Given I am on the customize step', () => {
             test('Then I can see additional information about the steps', async ({ page }, workerInfo) => {

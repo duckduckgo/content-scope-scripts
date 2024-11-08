@@ -27,7 +27,7 @@ export class OnboardingPage {
         this.defaultResponses = {
             requestSetAsDefault: {},
             requestDockOptIn: {},
-            requestImport: {},
+            requestImport: { enabled: true },
             stepCompleted: {},
             reportPageException: {},
             init: {
@@ -48,6 +48,13 @@ export class OnboardingPage {
         this.mocks.defaultResponses({
             ...this.defaultResponses,
             init: data,
+        });
+    }
+
+    withMockData(data) {
+        this.mocks.defaultResponses({
+            ...this.defaultResponses,
+            ...data,
         });
     }
 
@@ -173,6 +180,23 @@ export class OnboardingPage {
         const { page } = this;
         await page.getByRole('button', { name: 'Import' }).click();
         await page.getByRole('img', { name: 'Completed Action' }).waitFor();
+        const calls = await this.mocks.outgoing({ names: ['requestImport'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'requestImport',
+                    params: {},
+                },
+            },
+        ]);
+    }
+
+    async importUserDataFailedGracefully() {
+        const { page } = this;
+        await page.getByRole('button', { name: 'Import Now', exact: true }).click();
+        await page.getByRole('button', { name: 'Import', exact: true }).waitFor();
         const calls = await this.mocks.outgoing({ names: ['requestImport'] });
         expect(calls).toMatchObject([
             {
