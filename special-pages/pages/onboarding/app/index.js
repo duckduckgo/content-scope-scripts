@@ -14,6 +14,7 @@ import { TranslationProvider } from '../../../shared/components/TranslationsProv
 import { SettingsProvider } from './components/SettingsProvider';
 import enStrings from '../src/locales/en/onboarding.json';
 import { stepDefinitions as stepDefinitionsV3 } from './components/v3/data';
+import { mockTransport } from '../src/js/mock-transport';
 
 const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
 
@@ -22,6 +23,14 @@ const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
     pageName: 'onboarding',
+    mockTransport: () => {
+        // only in integration environments
+        if (baseEnvironment.injectName !== 'integration') return null;
+        let mock = null;
+
+        mock = mockTransport();
+        return mock;
+    },
 });
 
 const onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName);
