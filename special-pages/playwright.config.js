@@ -14,7 +14,14 @@ export default defineConfig({
         },
         {
             name: 'integration',
-            testMatch: ['privacy-stats.spec.js', 'rmf.spec.js', 'new-tab.spec.js', 'update-notification.spec.js'],
+            // prettier-ignore
+            testMatch: [
+                'privacy-stats.spec.js',
+                'rmf.spec.js',
+                'new-tab.spec.js',
+                'favorites.spec.js',
+                'update-notification.spec.js'
+            ],
             use: {
                 ...devices['Desktop Chrome'],
                 injectName: 'integration',

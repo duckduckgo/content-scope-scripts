@@ -2,6 +2,7 @@ import { OptionDefaults } from 'typedoc';
 
 /** @type {Partial<import('typedoc').TypeDocOptions>} */
 const config = {
+    projectDocuments: ['special-pages/pages/new-tab/app/new-tab.md'],
     entryPoints: [
         'injected/entry-points/android.js',
         'injected/entry-points/apple.js',
@@ -9,6 +10,7 @@ const config = {
         'injected/entry-points/chrome-mv3.js',
         'injected/entry-points/mozilla.js',
         'injected/entry-points/windows.js',
+
         'injected/src/types/*.ts',
         'injected/src/features/api-manipulation.js',
         'injected/src/features/duck-player.js',
@@ -18,6 +20,7 @@ const config = {
         'messaging',
         'messaging/schema.js',
         'messaging/native.js',
+
         'special-pages',
         'special-pages/pages/example/src/js/index.js',
         'special-pages/pages/duckplayer/src/js/index.js',
@@ -27,7 +30,7 @@ const config = {
         'special-pages/pages/release-notes/app/types.js',
         'special-pages/pages/special-error/src/js/index.js',
         'special-pages/pages/special-error/app/types.js',
-        'special-pages/pages/new-tab/app/docs.js',
+        'special-pages/pages/new-tab/app/favorites/constants.js',
         'special-pages/types/*',
     ],
     categoryOrder: ['Special Pages', 'Content Scope Scripts Integrations', 'Other'],

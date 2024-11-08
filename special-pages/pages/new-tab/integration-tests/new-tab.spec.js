@@ -84,6 +84,10 @@ test.describe('newtab widgets', () => {
             params: {
                 visibilityMenuItems: [
                     {
+                        id: 'favorites',
+                        title: 'Favorites',
+                    },
+                    {
                         id: 'privacyStats',
                         title: 'Privacy Stats',
                     },
