@@ -14,7 +14,7 @@ const dismissText = (_t) => _t('ntp_dismiss');
 export function DismissButton({ className, onClick }) {
     const { t } = useTypedTranslation();
     return (
-        <button class={cn(styles.btn, className)} onClick={onClick} aria-label={dismissText(t)}>
+        <button class={cn(styles.btn, className)} onClick={onClick} aria-label={dismissText(t)} data-testid="dismissBtn">
             <Cross />
         </button>
     );
