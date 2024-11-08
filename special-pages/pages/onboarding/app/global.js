@@ -1,5 +1,6 @@
 import { createContext, h } from 'preact';
 import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
+import { usePlatformName } from './components/SettingsProvider.js';
 
 /**
  * @typedef {import("./types.js").GlobalState} GlobalState
@@ -145,6 +146,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         },
     });
 
+    const platform = usePlatformName();
     const proxy = useCallback(
         (/** @type {GlobalEvents} */ msg) => {
             /**
@@ -183,7 +185,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         /** @type {import('./types').UpdateSystemValueEvent} */
         const action = state.status.action;
 
-        handleSystemSettingUpdate(action, messaging)
+        handleSystemSettingUpdate(action, messaging, platform)
             // eslint-disable-next-line promise/prefer-await-to-then
             .then((/** @type {import('./types').SystemValue} */ payload) => {
                 dispatch({
@@ -211,8 +213,9 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
  *
  * @param {import('./types').UpdateSystemValueEvent} action
  * @param {import("./messages").OnboardingMessages} messaging
+ * @param {ImportMeta['platform']} platform
  */
-async function handleSystemSettingUpdate(action, messaging) {
+async function handleSystemSettingUpdate(action, messaging, platform) {
     const { id, payload, current } = action;
     switch (id) {
         case 'bookmarks': {
@@ -255,9 +258,13 @@ async function handleSystemSettingUpdate(action, messaging) {
         }
         case 'import': {
             if (payload.enabled) {
-                await messaging.requestImport();
+                if (platform === 'macos') {
+                    return await messaging.requestImport();
+                }
+
                 // enabled means we've launched a native UI, not that imports actually occurred
                 // todo: can we support both? if a user presses cancel, should we detect and allow them to try again?
+                await messaging.requestImport();
                 return { enabled: true };
             }
             break;
