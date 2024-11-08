@@ -2,9 +2,13 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 
 import { stats } from '../../app/privacy-stats/mocks/stats.js';
 import { rmfDataExamples } from '../../app/remote-messaging-framework/mocks/rmf.data.js';
+import { favorites, gen } from '../../app/favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from '../../app/update-notification/mocks/update-notification.data.js';
 
 /**
+ * @typedef {import('../../../../types/new-tab').Favorite} Favorite
+ * @typedef {import('../../../../types/new-tab').FavoritesData} FavoritesData
+ * @typedef {import('../../../../types/new-tab').FavoritesConfig} FavoritesConfig
  * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
  * @typedef {import('../../../../types/new-tab').UpdateNotificationData} UpdateNotificationData
  * @typedef {import('../../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
@@ -109,6 +113,36 @@ export function mockTransport() {
                     clearRmf();
                     return;
                 }
+                case 'favorites_setConfig': {
+                    if (!msg.params) throw new Error('unreachable');
+
+                    const { animation, ...rest } = msg.params;
+                    write('favorites_config', rest);
+                    broadcast('favorites_config');
+                    return;
+                }
+                case 'favorites_move': {
+                    if (!msg.params) throw new Error('unreachable');
+                    const { id, targetIndex } = msg.params;
+                    const data = read('favorites_data');
+
+                    if (Array.isArray(data?.favorites)) {
+                        const favorites = reorderArray(data.favorites, id, targetIndex);
+                        write('favorites_data', { favorites });
+                        broadcast('favorites_data');
+                    }
+
+                    return;
+                }
+                case 'favorites_openContextMenu': {
+                    if (!msg.params) throw new Error('unreachable');
+                    console.log('mock: ignoring favorites_openContextMenu', msg.params);
+                    return;
+                }
+                case 'favorites_add': {
+                    console.log('mock: ignoring favorites_add');
+                    return;
+                }
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -182,6 +216,55 @@ export function mockTransport() {
                         }, ms);
                         return () => clearTimeout(timeout);
                     }
+                    return () => {};
+                }
+                case 'favorites_onDataUpdate': {
+                    const controller = new AbortController();
+                    channel.addEventListener(
+                        'message',
+                        (msg) => {
+                            if (msg.data.change === 'favorites_data') {
+                                const values = read('favorites_data');
+                                if (values) {
+                                    cb(values);
+                                }
+                            }
+                        },
+                        { signal: controller.signal },
+                    );
+
+                    // setTimeout(() => {
+                    //     const next = favorites.many.favorites.map(item => {
+                    //         if (item.id === 'id-many-2') {
+                    //             return {
+                    //                 ...item,
+                    //                 favicon: {
+                    //                     src: './company-icons/adform.svg', maxAvailableSize: 32
+                    //                 }
+                    //             }
+                    //         }
+                    //         return item
+                    //     });
+                    //     cb({favorites: next})
+                    // }, 2000)
+
+                    return () => controller.abort();
+                }
+                case 'favorites_onConfigUpdate': {
+                    const controller = new AbortController();
+                    channel.addEventListener(
+                        'message',
+                        (msg) => {
+                            if (msg.data.change === 'favorites_config') {
+                                const values = read('favorites_config');
+                                if (values) {
+                                    cb(values);
+                                }
+                            }
+                        },
+                        { signal: controller.signal },
+                    );
+                    return () => controller.abort();
                 }
             }
             return () => {};
@@ -221,6 +304,28 @@ export function mockTransport() {
                     }
 
                     return Promise.resolve(message);
+                }
+                case 'favorites_getData': {
+                    const param = url.searchParams.get('favorites');
+                    let data;
+                    if (param && param in favorites) {
+                        data = favorites[param];
+                    } else {
+                        data = param ? gen(Number(url.searchParams.get('favorites'))) : read('favorites_data') || favorites.many;
+                    }
+
+                    write('favorites_data', data);
+                    // return new Promise((resolve) => setTimeout(() => resolve(dataToWrite), 1000))
+                    return Promise.resolve(data);
+                }
+                case 'favorites_getConfig': {
+                    /** @type {FavoritesConfig} */
+                    const defaultConfig = { expansion: 'collapsed', animation: { kind: 'none' } };
+                    const fromStorage = read('favorites_config') || defaultConfig;
+                    if (url.searchParams.get('animation') === 'view-transitions') {
+                        fromStorage.animation = { kind: 'view-transitions' };
+                    }
+                    return Promise.resolve(fromStorage);
                 }
                 case 'initialSetup': {
                     const widgetsFromStorage = read('widgets') || [
@@ -264,4 +369,18 @@ export function mockTransport() {
             }
         },
     });
+}
+
+/**
+ * @template {{id: string}} T
+ * @param {T[]} array
+ * @param {string} id
+ * @param {number} toIndex
+ * @return {T[]}
+ */
+function reorderArray(array, id, toIndex) {
+    const fromIndex = array.findIndex((item) => item.id === id);
+    const element = array.splice(fromIndex, 1)[0]; // Remove the element from the original position
+    array.splice(toIndex, 0, element); // Insert the element at the new position
+    return array;
 }

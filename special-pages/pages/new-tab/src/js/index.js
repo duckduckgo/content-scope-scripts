@@ -72,6 +72,7 @@ const messaging = createSpecialPageMessaging({
 });
 
 const newTabMessaging = new NewTabPage(messaging, import.meta.injectName);
+
 init(newTabMessaging, baseEnvironment).catch((e) => {
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';

@@ -1,1 +1,1 @@
-- Waiting for import status on macOS (#1180)
+- ntp: favorites drag and drop (#1150)

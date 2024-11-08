@@ -473,6 +473,26 @@
     }
   });
 
+  // pages/new-tab/app/settings.provider.js
+  function SettingsProvider({ settings, children }) {
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
+  }
+  function usePlatformName() {
+    return x2(SettingsContext).settings.platform.name;
+  }
+  var SettingsContext;
+  var init_settings_provider = __esm({
+    "pages/new-tab/app/settings.provider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      SettingsContext = G(
+        /** @type {{settings: import("./settings.js").Settings}} */
+        {}
+      );
+    }
+  });
+
   // pages/new-tab/app/widget-list/widget-config.provider.js
   function WidgetConfigProvider(props) {
     const [data, setData] = h2(props.widgetConfigs);
@@ -1097,54 +1117,6 @@
     }
   });
 
-  // pages/new-tab/app/entry-points/favorites.js
-  var favorites_exports = {};
-  __export(favorites_exports, {
-    factory: () => factory
-  });
-  function factory() {
-    return /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _("p", null, "Favorites coming soon..."));
-  }
-  var init_favorites = __esm({
-    "pages/new-tab/app/entry-points/favorites.js"() {
-      "use strict";
-      init_preact_module();
-      init_Layout();
-    }
-  });
-
-  // pages/new-tab/app/privacy-stats/PrivacyStats.module.css
-  var PrivacyStats_default;
-  var init_PrivacyStats = __esm({
-    "pages/new-tab/app/privacy-stats/PrivacyStats.module.css"() {
-      PrivacyStats_default = {
-        root: "PrivacyStats_root",
-        collapsed: "PrivacyStats_collapsed",
-        expanded: "PrivacyStats_expanded",
-        heading: "PrivacyStats_heading",
-        headingIcon: "PrivacyStats_headingIcon",
-        title: "PrivacyStats_title",
-        expander: "PrivacyStats_expander",
-        subtitle: "PrivacyStats_subtitle",
-        list: "PrivacyStats_list",
-        entering: "PrivacyStats_entering",
-        "fade-in": "PrivacyStats_fade-in",
-        entered: "PrivacyStats_entered",
-        exiting: "PrivacyStats_exiting",
-        "fade-out": "PrivacyStats_fade-out",
-        row: "PrivacyStats_row",
-        company: "PrivacyStats_company",
-        icon: "PrivacyStats_icon",
-        companyImgIcon: "PrivacyStats_companyImgIcon",
-        other: "PrivacyStats_other",
-        name: "PrivacyStats_name",
-        bar: "PrivacyStats_bar",
-        fill: "PrivacyStats_fill",
-        count: "PrivacyStats_count"
-      };
-    }
-  });
-
   // pages/new-tab/app/service.js
   var Service;
   var init_service = __esm({
@@ -1281,30 +1253,31 @@
     }
   });
 
-  // pages/new-tab/app/privacy-stats/privacy-stats.service.js
-  var PrivacyStatsService;
-  var init_privacy_stats_service = __esm({
-    "pages/new-tab/app/privacy-stats/privacy-stats.service.js"() {
+  // pages/new-tab/app/favorites/favorites.service.js
+  var FavoritesService;
+  var init_favorites_service = __esm({
+    "pages/new-tab/app/favorites/favorites.service.js"() {
       "use strict";
       init_service();
-      PrivacyStatsService = class {
+      FavoritesService = class {
         /**
          * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
          * @internal
          */
         constructor(ntp) {
+          this.ntp = ntp;
           this.dataService = new Service({
-            initial: () => ntp.messaging.request("stats_getData"),
-            subscribe: (cb) => ntp.messaging.subscribe("stats_onDataUpdate", cb)
+            initial: () => ntp.messaging.request("favorites_getData"),
+            subscribe: (cb) => ntp.messaging.subscribe("favorites_onDataUpdate", cb)
           });
           this.configService = new Service({
-            initial: () => ntp.messaging.request("stats_getConfig"),
-            subscribe: (cb) => ntp.messaging.subscribe("stats_onConfigUpdate", cb),
-            persist: (data) => ntp.messaging.notify("stats_setConfig", data)
+            initial: () => ntp.messaging.request("favorites_getConfig"),
+            subscribe: (cb) => ntp.messaging.subscribe("favorites_onConfigUpdate", cb),
+            persist: (data) => ntp.messaging.notify("favorites_setConfig", data)
           });
         }
         /**
-         * @returns {Promise<{data: PrivacyStatsData; config: StatsConfig}>}
+         * @returns {Promise<{data: FavoritesData; config: FavoritesConfig}>}
          * @internal
          */
         async getInitial() {
@@ -1321,14 +1294,14 @@
           this.dataService.destroy();
         }
         /**
-         * @param {(evt: {data: PrivacyStatsData, source: 'manual' | 'subscription'}) => void} cb
+         * @param {(evt: {data: FavoritesData, source: 'manual' | 'subscription'}) => void} cb
          * @internal
          */
         onData(cb) {
           return this.dataService.onData(cb);
         }
         /**
-         * @param {(evt: {data: StatsConfig, source: 'manual' | 'subscription'}) => void} cb
+         * @param {(evt: {data: FavoritesConfig, source: 'manual' | 'subscription'}) => void} cb
          * @internal
          */
         onConfig(cb) {
@@ -1353,6 +1326,42 @@
               ) };
             }
           });
+        }
+        /**
+         * @param {FavoritesData} data
+         * @param {string} id - entity id to move
+         * @param {number} targetIndex - target index
+         * @internal
+         */
+        setFavoritesOrder(data, id, targetIndex) {
+          this.dataService.update((_old) => {
+            return data;
+          });
+          this.ntp.messaging.notify("favorites_move", {
+            id,
+            targetIndex
+          });
+        }
+        /**
+         * @param {string} id - entity id
+         * @internal
+         */
+        openContextMenu(id) {
+          this.ntp.messaging.notify("favorites_openContextMenu", { id });
+        }
+        /**
+         * @param {string} id - entity id
+         * @param {FavoritesOpenAction['target']} target
+         * @internal
+         */
+        openFavorite(id, target2) {
+          this.ntp.messaging.notify("favorites_open", { id, target: target2 });
+        }
+        /**
+         * @internal
+         */
+        add() {
+          this.ntp.messaging.notify("favorites_add");
         }
       };
     }
@@ -1490,6 +1499,3365 @@
     }
   });
 
+  // pages/new-tab/app/favorites/components/FavoritesProvider.js
+  function FavoritesProvider({ children }) {
+    const initial = (
+      /** @type {State} */
+      {
+        status: (
+          /** @type {const} */
+          "idle"
+        ),
+        data: null,
+        config: null
+      }
+    );
+    const [state, dispatch] = p2(reducer, initial);
+    const service = useService();
+    useInitialDataAndConfig({ dispatch, service });
+    useDataSubscription({ dispatch, service });
+    const { toggle } = useConfigSubscription({ dispatch, service });
+    const favoritesDidReOrder = q2(
+      (favorites2, id, targetIndex) => {
+        if (!service.current) return;
+        service.current.setFavoritesOrder({ favorites: favorites2 }, id, targetIndex);
+      },
+      [service]
+    );
+    const openContextMenu = q2(
+      (id) => {
+        if (!service.current) return;
+        service.current.openContextMenu(id);
+      },
+      [service]
+    );
+    const openFavorite = q2(
+      (id, target2) => {
+        if (!service.current) return;
+        service.current.openFavorite(id, target2);
+      },
+      [service]
+    );
+    const add2 = q2(() => {
+      if (!service.current) return;
+      service.current.add();
+    }, [service]);
+    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2 } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
+  }
+  function useService() {
+    const service = A2(
+      /** @type {FavoritesService | null} */
+      null
+    );
+    const ntp = useMessaging();
+    y2(() => {
+      const stats2 = new FavoritesService(ntp);
+      service.current = stats2;
+      return () => {
+        stats2.destroy();
+      };
+    }, [ntp]);
+    return service;
+  }
+  var FavoritesContext, FavoritesDispatchContext;
+  var init_FavoritesProvider = __esm({
+    "pages/new-tab/app/favorites/components/FavoritesProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_favorites_service();
+      init_types();
+      init_service_hooks();
+      FavoritesContext = G({
+        /** @type {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} */
+        state: { status: "idle", data: null, config: null },
+        /** @type {() => void} */
+        toggle: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(list: Favorite[], id: string, targetIndex: number) => void} */
+        favoritesDidReOrder: (list2, id, targetIndex) => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string) => void} */
+        openContextMenu: (id) => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string, target: OpenTarget) => void} */
+        openFavorite: (id, target2) => {
+          throw new Error("must implement");
+        },
+        /** @type {() => void} */
+        add: () => {
+          throw new Error("must implement add");
+        }
+      });
+      FavoritesDispatchContext = G(
+        /** @type {import("preact/hooks").Dispatch<Events>} */
+        {}
+      );
+    }
+  });
+
+  // ../node_modules/preact/compat/dist/compat.module.js
+  function g3(n2, t3) {
+    for (var e3 in n2) if ("__source" !== e3 && !(e3 in t3)) return true;
+    for (var r3 in t3) if ("__source" !== r3 && n2[r3] !== t3[r3]) return true;
+    return false;
+  }
+  function E2(n2, t3) {
+    this.props = n2, this.context = t3;
+  }
+  function C3(n2, e3) {
+    function r3(n3) {
+      var t3 = this.props.ref, r4 = t3 == n3.ref;
+      return !r4 && t3 && (t3.call ? t3(null) : t3.current = null), e3 ? !e3(this.props, n3) || !r4 : g3(this.props, n3);
+    }
+    function u3(e4) {
+      return this.shouldComponentUpdate = r3, _(n2, e4);
+    }
+    return u3.displayName = "Memo(" + (n2.displayName || n2.name) + ")", u3.prototype.isReactComponent = true, u3.__f = true, u3;
+  }
+  function T3(n2, t3, e3) {
+    return n2 && (n2.__c && n2.__c.__H && (n2.__c.__H.__.forEach(function(n3) {
+      "function" == typeof n3.__c && n3.__c();
+    }), n2.__c.__H = null), null != (n2 = function(n3, t4) {
+      for (var e4 in t4) n3[e4] = t4[e4];
+      return n3;
+    }({}, n2)).__c && (n2.__c.__P === e3 && (n2.__c.__P = t3), n2.__c = null), n2.__k = n2.__k && n2.__k.map(function(n3) {
+      return T3(n3, t3, e3);
+    })), n2;
+  }
+  function A3(n2, t3, e3) {
+    return n2 && e3 && (n2.__v = null, n2.__k = n2.__k && n2.__k.map(function(n3) {
+      return A3(n3, t3, e3);
+    }), n2.__c && n2.__c.__P === t3 && (n2.__e && e3.appendChild(n2.__e), n2.__c.__e = true, n2.__c.__P = e3)), n2;
+  }
+  function D3() {
+    this.__u = 0, this.t = null, this.__b = null;
+  }
+  function L2(n2) {
+    var t3 = n2.__.__c;
+    return t3 && t3.__a && t3.__a(n2);
+  }
+  function F3() {
+    this.u = null, this.o = null;
+  }
+  function J() {
+  }
+  function K() {
+    return this.cancelBubble;
+  }
+  function Q() {
+    return this.defaultPrevented;
+  }
+  var x3, R, N2, M2, U, j3, z3, B3, H2, Z, Y, G2, X, nn, tn, en, rn, pn;
+  var init_compat_module = __esm({
+    "../node_modules/preact/compat/dist/compat.module.js"() {
+      init_preact_module();
+      init_preact_module();
+      init_hooks_module();
+      init_hooks_module();
+      (E2.prototype = new k()).isPureReactComponent = true, E2.prototype.shouldComponentUpdate = function(n2, t3) {
+        return g3(this.props, n2) || g3(this.state, t3);
+      };
+      x3 = l.__b;
+      l.__b = function(n2) {
+        n2.type && n2.type.__f && n2.ref && (n2.props.ref = n2.ref, n2.ref = null), x3 && x3(n2);
+      };
+      R = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.forward_ref") || 3911;
+      N2 = l.__e;
+      l.__e = function(n2, t3, e3, r3) {
+        if (n2.then) {
+          for (var u3, o3 = t3; o3 = o3.__; ) if ((u3 = o3.__c) && u3.__c) return null == t3.__e && (t3.__e = e3.__e, t3.__k = e3.__k), u3.__c(n2, t3);
+        }
+        N2(n2, t3, e3, r3);
+      };
+      M2 = l.unmount;
+      l.unmount = function(n2) {
+        var t3 = n2.__c;
+        t3 && t3.__R && t3.__R(), t3 && 32 & n2.__u && (n2.type = null), M2 && M2(n2);
+      }, (D3.prototype = new k()).__c = function(n2, t3) {
+        var e3 = t3.__c, r3 = this;
+        null == r3.t && (r3.t = []), r3.t.push(e3);
+        var u3 = L2(r3.__v), o3 = false, i4 = function() {
+          o3 || (o3 = true, e3.__R = null, u3 ? u3(c3) : c3());
+        };
+        e3.__R = i4;
+        var c3 = function() {
+          if (!--r3.__u) {
+            if (r3.state.__a) {
+              var n3 = r3.state.__a;
+              r3.__v.__k[0] = A3(n3, n3.__c.__P, n3.__c.__O);
+            }
+            var t4;
+            for (r3.setState({ __a: r3.__b = null }); t4 = r3.t.pop(); ) t4.forceUpdate();
+          }
+        };
+        r3.__u++ || 32 & t3.__u || r3.setState({ __a: r3.__b = r3.__v.__k[0] }), n2.then(i4, i4);
+      }, D3.prototype.componentWillUnmount = function() {
+        this.t = [];
+      }, D3.prototype.render = function(n2, e3) {
+        if (this.__b) {
+          if (this.__v.__k) {
+            var r3 = document.createElement("div"), o3 = this.__v.__k[0].__c;
+            this.__v.__k[0] = T3(this.__b, r3, o3.__O = o3.__P);
+          }
+          this.__b = null;
+        }
+        var i4 = e3.__a && _(b, null, n2.fallback);
+        return i4 && (i4.__u &= -33), [_(b, null, e3.__a ? null : n2.children), i4];
+      };
+      U = function(n2, t3, e3) {
+        if (++e3[1] === e3[0] && n2.o.delete(t3), n2.props.revealOrder && ("t" !== n2.props.revealOrder[0] || !n2.o.size)) for (e3 = n2.u; e3; ) {
+          for (; e3.length > 3; ) e3.pop()();
+          if (e3[1] < e3[0]) break;
+          n2.u = e3 = e3[2];
+        }
+      };
+      (F3.prototype = new k()).__a = function(n2) {
+        var t3 = this, e3 = L2(t3.__v), r3 = t3.o.get(n2);
+        return r3[0]++, function(u3) {
+          var o3 = function() {
+            t3.props.revealOrder ? (r3.push(u3), U(t3, n2, r3)) : u3();
+          };
+          e3 ? e3(o3) : o3();
+        };
+      }, F3.prototype.render = function(n2) {
+        this.u = null, this.o = /* @__PURE__ */ new Map();
+        var t3 = H(n2.children);
+        n2.revealOrder && "b" === n2.revealOrder[0] && t3.reverse();
+        for (var e3 = t3.length; e3--; ) this.o.set(t3[e3], this.u = [1, 0, this.u]);
+        return n2.children;
+      }, F3.prototype.componentDidUpdate = F3.prototype.componentDidMount = function() {
+        var n2 = this;
+        this.o.forEach(function(t3, e3) {
+          U(n2, e3, t3);
+        });
+      };
+      j3 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
+      z3 = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;
+      B3 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
+      H2 = /[A-Z0-9]/g;
+      Z = "undefined" != typeof document;
+      Y = function(n2) {
+        return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n2);
+      };
+      k.prototype.isReactComponent = {}, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t3) {
+        Object.defineProperty(k.prototype, t3, { configurable: true, get: function() {
+          return this["UNSAFE_" + t3];
+        }, set: function(n2) {
+          Object.defineProperty(this, t3, { configurable: true, writable: true, value: n2 });
+        } });
+      });
+      G2 = l.event;
+      l.event = function(n2) {
+        return G2 && (n2 = G2(n2)), n2.persist = J, n2.isPropagationStopped = K, n2.isDefaultPrevented = Q, n2.nativeEvent = n2;
+      };
+      nn = { enumerable: false, configurable: true, get: function() {
+        return this.class;
+      } };
+      tn = l.vnode;
+      l.vnode = function(n2) {
+        "string" == typeof n2.type && function(n3) {
+          var t3 = n3.props, e3 = n3.type, u3 = {}, o3 = -1 === e3.indexOf("-");
+          for (var i4 in t3) {
+            var c3 = t3[i4];
+            if (!("value" === i4 && "defaultValue" in t3 && null == c3 || Z && "children" === i4 && "noscript" === e3 || "class" === i4 || "className" === i4)) {
+              var f3 = i4.toLowerCase();
+              "defaultValue" === i4 && "value" in t3 && null == t3.value ? i4 = "value" : "download" === i4 && true === c3 ? c3 = "" : "translate" === f3 && "no" === c3 ? c3 = false : "o" === f3[0] && "n" === f3[1] ? "ondoubleclick" === f3 ? i4 = "ondblclick" : "onchange" !== f3 || "input" !== e3 && "textarea" !== e3 || Y(t3.type) ? "onfocus" === f3 ? i4 = "onfocusin" : "onblur" === f3 ? i4 = "onfocusout" : B3.test(i4) && (i4 = f3) : f3 = i4 = "oninput" : o3 && z3.test(i4) ? i4 = i4.replace(H2, "-$&").toLowerCase() : null === c3 && (c3 = void 0), "oninput" === f3 && u3[i4 = f3] && (i4 = "oninputCapture"), u3[i4] = c3;
+            }
+          }
+          "select" == e3 && u3.multiple && Array.isArray(u3.value) && (u3.value = H(t3.children).forEach(function(n4) {
+            n4.props.selected = -1 != u3.value.indexOf(n4.props.value);
+          })), "select" == e3 && null != u3.defaultValue && (u3.value = H(t3.children).forEach(function(n4) {
+            n4.props.selected = u3.multiple ? -1 != u3.defaultValue.indexOf(n4.props.value) : u3.defaultValue == n4.props.value;
+          })), t3.class && !t3.className ? (u3.class = t3.class, Object.defineProperty(u3, "className", nn)) : (t3.className && !t3.class || t3.class && t3.className) && (u3.class = u3.className = t3.className), n3.props = u3;
+        }(n2), n2.$$typeof = j3, tn && tn(n2);
+      };
+      en = l.__r;
+      l.__r = function(n2) {
+        en && en(n2), X = n2.__c;
+      };
+      rn = l.diffed;
+      l.diffed = function(n2) {
+        rn && rn(n2);
+        var t3 = n2.props, e3 = n2.__e;
+        null != e3 && "textarea" === n2.type && "value" in t3 && t3.value !== e3.value && (e3.value = null == t3.value ? "" : t3.value), X = null;
+      };
+      pn = function(n2, t3) {
+        return n2(t3);
+      };
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js
+  function _arrayWithHoles(r3) {
+    if (Array.isArray(r3)) return r3;
+  }
+  var init_arrayWithHoles = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js
+  function _iterableToArrayLimit(r3, l3) {
+    var t3 = null == r3 ? null : "undefined" != typeof Symbol && r3[Symbol.iterator] || r3["@@iterator"];
+    if (null != t3) {
+      var e3, n2, i4, u3, a3 = [], f3 = true, o3 = false;
+      try {
+        if (i4 = (t3 = t3.call(r3)).next, 0 === l3) {
+          if (Object(t3) !== t3) return;
+          f3 = false;
+        } else for (; !(f3 = (e3 = i4.call(t3)).done) && (a3.push(e3.value), a3.length !== l3); f3 = true) ;
+      } catch (r4) {
+        o3 = true, n2 = r4;
+      } finally {
+        try {
+          if (!f3 && null != t3["return"] && (u3 = t3["return"](), Object(u3) !== u3)) return;
+        } finally {
+          if (o3) throw n2;
+        }
+      }
+      return a3;
+    }
+  }
+  var init_iterableToArrayLimit = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js
+  function _arrayLikeToArray(r3, a3) {
+    (null == a3 || a3 > r3.length) && (a3 = r3.length);
+    for (var e3 = 0, n2 = Array(a3); e3 < a3; e3++) n2[e3] = r3[e3];
+    return n2;
+  }
+  var init_arrayLikeToArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js
+  function _unsupportedIterableToArray(r3, a3) {
+    if (r3) {
+      if ("string" == typeof r3) return _arrayLikeToArray(r3, a3);
+      var t3 = {}.toString.call(r3).slice(8, -1);
+      return "Object" === t3 && r3.constructor && (t3 = r3.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r3) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray(r3, a3) : void 0;
+    }
+  }
+  var init_unsupportedIterableToArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js"() {
+      init_arrayLikeToArray();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/nonIterableRest.js
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  var init_nonIterableRest = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/nonIterableRest.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/slicedToArray.js
+  function _slicedToArray(r3, e3) {
+    return _arrayWithHoles(r3) || _iterableToArrayLimit(r3, e3) || _unsupportedIterableToArray(r3, e3) || _nonIterableRest();
+  }
+  var init_slicedToArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"() {
+      init_arrayWithHoles();
+      init_iterableToArrayLimit();
+      init_unsupportedIterableToArray();
+      init_nonIterableRest();
+    }
+  });
+
+  // ../node_modules/bind-event-listener/dist/bind.js
+  var require_bind = __commonJS({
+    "../node_modules/bind-event-listener/dist/bind.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.bind = void 0;
+      function bind4(target2, _a) {
+        var type = _a.type, listener = _a.listener, options2 = _a.options;
+        target2.addEventListener(type, listener, options2);
+        return function unbind() {
+          target2.removeEventListener(type, listener, options2);
+        };
+      }
+      exports.bind = bind4;
+    }
+  });
+
+  // ../node_modules/bind-event-listener/dist/bind-all.js
+  var require_bind_all = __commonJS({
+    "../node_modules/bind-event-listener/dist/bind-all.js"(exports) {
+      "use strict";
+      var __assign = exports && exports.__assign || function() {
+        __assign = Object.assign || function(t3) {
+          for (var s3, i4 = 1, n2 = arguments.length; i4 < n2; i4++) {
+            s3 = arguments[i4];
+            for (var p3 in s3) if (Object.prototype.hasOwnProperty.call(s3, p3))
+              t3[p3] = s3[p3];
+          }
+          return t3;
+        };
+        return __assign.apply(this, arguments);
+      };
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.bindAll = void 0;
+      var bind_1 = require_bind();
+      function toOptions(value) {
+        if (typeof value === "undefined") {
+          return void 0;
+        }
+        if (typeof value === "boolean") {
+          return {
+            capture: value
+          };
+        }
+        return value;
+      }
+      function getBinding(original, sharedOptions) {
+        if (sharedOptions == null) {
+          return original;
+        }
+        var binding = __assign(__assign({}, original), { options: __assign(__assign({}, toOptions(sharedOptions)), toOptions(original.options)) });
+        return binding;
+      }
+      function bindAll5(target2, bindings, sharedOptions) {
+        var unbinds = bindings.map(function(original) {
+          var binding = getBinding(original, sharedOptions);
+          return (0, bind_1.bind)(target2, binding);
+        });
+        return function unbindAll() {
+          unbinds.forEach(function(unbind) {
+            return unbind();
+          });
+        };
+      }
+      exports.bindAll = bindAll5;
+    }
+  });
+
+  // ../node_modules/bind-event-listener/dist/index.js
+  var require_dist = __commonJS({
+    "../node_modules/bind-event-listener/dist/index.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.bindAll = exports.bind = void 0;
+      var bind_1 = require_bind();
+      Object.defineProperty(exports, "bind", { enumerable: true, get: function() {
+        return bind_1.bind;
+      } });
+      var bind_all_1 = require_bind_all();
+      Object.defineProperty(exports, "bindAll", { enumerable: true, get: function() {
+        return bind_all_1.bindAll;
+      } });
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/honey-pot-data-attribute.js
+  var honeyPotDataAttribute;
+  var init_honey_pot_data_attribute = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/honey-pot-data-attribute.js"() {
+      honeyPotDataAttribute = "data-pdnd-honey-pot";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/is-honey-pot-element.js
+  function isHoneyPotElement(target2) {
+    return target2 instanceof Element && target2.hasAttribute(honeyPotDataAttribute);
+  }
+  var init_is_honey_pot_element = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/is-honey-pot-element.js"() {
+      init_honey_pot_data_attribute();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/get-element-from-point-without-honey-pot.js
+  function getElementFromPointWithoutHoneypot(client) {
+    var _document$elementsFro = document.elementsFromPoint(client.x, client.y), _document$elementsFro2 = _slicedToArray(_document$elementsFro, 2), top2 = _document$elementsFro2[0], second = _document$elementsFro2[1];
+    if (!top2) {
+      return null;
+    }
+    if (isHoneyPotElement(top2)) {
+      return second !== null && second !== void 0 ? second : null;
+    }
+    return top2;
+  }
+  var init_get_element_from_point_without_honey_pot = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/get-element-from-point-without-honey-pot.js"() {
+      init_slicedToArray();
+      init_is_honey_pot_element();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/typeof.js
+  function _typeof(o3) {
+    "@babel/helpers - typeof";
+    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o4) {
+      return typeof o4;
+    } : function(o4) {
+      return o4 && "function" == typeof Symbol && o4.constructor === Symbol && o4 !== Symbol.prototype ? "symbol" : typeof o4;
+    }, _typeof(o3);
+  }
+  var init_typeof = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/typeof.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/toPrimitive.js
+  function toPrimitive(t3, r3) {
+    if ("object" != _typeof(t3) || !t3) return t3;
+    var e3 = t3[Symbol.toPrimitive];
+    if (void 0 !== e3) {
+      var i4 = e3.call(t3, r3 || "default");
+      if ("object" != _typeof(i4)) return i4;
+      throw new TypeError("@@toPrimitive must return a primitive value.");
+    }
+    return ("string" === r3 ? String : Number)(t3);
+  }
+  var init_toPrimitive = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/toPrimitive.js"() {
+      init_typeof();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/toPropertyKey.js
+  function toPropertyKey(t3) {
+    var i4 = toPrimitive(t3, "string");
+    return "symbol" == _typeof(i4) ? i4 : i4 + "";
+  }
+  var init_toPropertyKey = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/toPropertyKey.js"() {
+      init_typeof();
+      init_toPrimitive();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/defineProperty.js
+  function _defineProperty(e3, r3, t3) {
+    return (r3 = toPropertyKey(r3)) in e3 ? Object.defineProperty(e3, r3, {
+      value: t3,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    }) : e3[r3] = t3, e3;
+  }
+  var init_defineProperty = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/defineProperty.js"() {
+      init_toPropertyKey();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/max-z-index.js
+  var maxZIndex;
+  var init_max_z_index = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/max-z-index.js"() {
+      maxZIndex = 2147483647;
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/make-honey-pot-fix.js
+  function ownKeys(e3, r3) {
+    var t3 = Object.keys(e3);
+    if (Object.getOwnPropertySymbols) {
+      var o3 = Object.getOwnPropertySymbols(e3);
+      r3 && (o3 = o3.filter(function(r4) {
+        return Object.getOwnPropertyDescriptor(e3, r4).enumerable;
+      })), t3.push.apply(t3, o3);
+    }
+    return t3;
+  }
+  function _objectSpread(e3) {
+    for (var r3 = 1; r3 < arguments.length; r3++) {
+      var t3 = null != arguments[r3] ? arguments[r3] : {};
+      r3 % 2 ? ownKeys(Object(t3), true).forEach(function(r4) {
+        _defineProperty(e3, r4, t3[r4]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e3, Object.getOwnPropertyDescriptors(t3)) : ownKeys(Object(t3)).forEach(function(r4) {
+        Object.defineProperty(e3, r4, Object.getOwnPropertyDescriptor(t3, r4));
+      });
+    }
+    return e3;
+  }
+  function floorToClosestPixel(point) {
+    return {
+      x: Math.floor(point.x),
+      y: Math.floor(point.y)
+    };
+  }
+  function pullBackByHalfHoneyPotSize(point) {
+    return {
+      x: point.x - halfHoneyPotSize,
+      y: point.y - halfHoneyPotSize
+    };
+  }
+  function preventGoingBackwardsOffScreen(point) {
+    return {
+      x: Math.max(point.x, 0),
+      y: Math.max(point.y, 0)
+    };
+  }
+  function preventGoingForwardsOffScreen(point) {
+    return {
+      x: Math.min(point.x, window.innerWidth - honeyPotSize),
+      y: Math.min(point.y, window.innerHeight - honeyPotSize)
+    };
+  }
+  function getHoneyPotRectFor(_ref) {
+    var client = _ref.client;
+    var point = preventGoingForwardsOffScreen(preventGoingBackwardsOffScreen(pullBackByHalfHoneyPotSize(floorToClosestPixel(client))));
+    return DOMRect.fromRect({
+      x: point.x,
+      y: point.y,
+      width: honeyPotSize,
+      height: honeyPotSize
+    });
+  }
+  function getRectStyles(_ref2) {
+    var clientRect = _ref2.clientRect;
+    return {
+      left: "".concat(clientRect.left, "px"),
+      top: "".concat(clientRect.top, "px"),
+      width: "".concat(clientRect.width, "px"),
+      height: "".concat(clientRect.height, "px")
+    };
+  }
+  function isWithin(_ref3) {
+    var client = _ref3.client, clientRect = _ref3.clientRect;
+    return (
+      // is within horizontal bounds
+      client.x >= clientRect.x && client.x <= clientRect.x + clientRect.width && // is within vertical bounds
+      client.y >= clientRect.y && client.y <= clientRect.y + clientRect.height
+    );
+  }
+  function mountHoneyPot(_ref4) {
+    var initial = _ref4.initial;
+    var element = document.createElement("div");
+    element.setAttribute(honeyPotDataAttribute, "true");
+    var clientRect = getHoneyPotRectFor({
+      client: initial
+    });
+    Object.assign(element.style, _objectSpread(_objectSpread({
+      // Setting a background color explicitly to avoid any inherited styles.
+      // Looks like this could be `opacity: 0`, but worried that _might_
+      // cause the element to be ignored on some platforms.
+      // When debugging, set backgroundColor to something like "red".
+      backgroundColor: "transparent",
+      position: "fixed",
+      // Being explicit to avoid inheriting styles
+      padding: 0,
+      margin: 0,
+      boxSizing: "border-box"
+    }, getRectStyles({
+      clientRect
+    })), {}, {
+      // We want this element to absorb pointer events,
+      // it's kind of the whole point 😉
+      pointerEvents: "auto",
+      // Want to make sure the honey pot is top of everything else.
+      // Don't need to worry about native drag previews, as they will
+      // have been rendered (and removed) before the honey pot is rendered
+      zIndex: maxZIndex
+    }));
+    document.body.appendChild(element);
+    var unbindPointerMove = (0, import_bind_event_listener.bind)(window, {
+      type: "pointermove",
+      listener: function listener(event) {
+        var client = {
+          x: event.clientX,
+          y: event.clientY
+        };
+        clientRect = getHoneyPotRectFor({
+          client
+        });
+        Object.assign(element.style, getRectStyles({
+          clientRect
+        }));
+      },
+      // using capture so we are less likely to be impacted by event stopping
+      options: {
+        capture: true
+      }
+    });
+    return function finish(_ref5) {
+      var current = _ref5.current;
+      unbindPointerMove();
+      if (isWithin({
+        client: current,
+        clientRect
+      })) {
+        element.remove();
+        return;
+      }
+      function cleanup() {
+        unbindPostDragEvents();
+        element.remove();
+      }
+      var unbindPostDragEvents = (0, import_bind_event_listener.bindAll)(window, [
+        {
+          type: "pointerdown",
+          listener: cleanup
+        },
+        {
+          type: "pointermove",
+          listener: cleanup
+        },
+        {
+          type: "focusin",
+          listener: cleanup
+        },
+        {
+          type: "focusout",
+          listener: cleanup
+        },
+        // a 'pointerdown' should happen before 'dragstart', but just being super safe
+        {
+          type: "dragstart",
+          listener: cleanup
+        },
+        // if the user has dragged something out of the window
+        // and then is dragging something back into the window
+        // the first events we will see are "dragenter" (and then "dragover").
+        // So if we see any of these we need to clear the post drag fix.
+        {
+          type: "dragenter",
+          listener: cleanup
+        },
+        {
+          type: "dragover",
+          listener: cleanup
+        }
+        // Not adding a "wheel" event listener, as "wheel" by itself does not
+        // resolve the bug.
+      ], {
+        // Using `capture` so less likely to be impacted by other code stopping events
+        capture: true
+      });
+    };
+  }
+  function makeHoneyPotFix() {
+    var latestPointerMove = null;
+    function bindEvents() {
+      latestPointerMove = null;
+      return (0, import_bind_event_listener.bind)(window, {
+        type: "pointermove",
+        listener: function listener(event) {
+          latestPointerMove = {
+            x: event.clientX,
+            y: event.clientY
+          };
+        },
+        // listening for pointer move in capture phase
+        // so we are less likely to be impacted by events being stopped.
+        options: {
+          capture: true
+        }
+      });
+    }
+    function getOnPostDispatch() {
+      var finish = null;
+      return function onPostEvent(_ref6) {
+        var eventName = _ref6.eventName, payload = _ref6.payload;
+        if (eventName === "onDragStart") {
+          var _latestPointerMove;
+          var input = payload.location.initial.input;
+          var initial = (_latestPointerMove = latestPointerMove) !== null && _latestPointerMove !== void 0 ? _latestPointerMove : {
+            x: input.clientX,
+            y: input.clientY
+          };
+          finish = mountHoneyPot({
+            initial
+          });
+        }
+        if (eventName === "onDrop") {
+          var _finish;
+          var _input = payload.location.current.input;
+          (_finish = finish) === null || _finish === void 0 || _finish({
+            current: {
+              x: _input.clientX,
+              y: _input.clientY
+            }
+          });
+          finish = null;
+          latestPointerMove = null;
+        }
+      };
+    }
+    return {
+      bindEvents,
+      getOnPostDispatch
+    };
+  }
+  var import_bind_event_listener, honeyPotSize, halfHoneyPotSize;
+  var init_make_honey_pot_fix = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/make-honey-pot-fix.js"() {
+      init_defineProperty();
+      import_bind_event_listener = __toESM(require_dist());
+      init_max_z_index();
+      init_honey_pot_data_attribute();
+      honeyPotSize = 2;
+      halfHoneyPotSize = honeyPotSize / 2;
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js
+  function _arrayWithoutHoles(r3) {
+    if (Array.isArray(r3)) return _arrayLikeToArray(r3);
+  }
+  var init_arrayWithoutHoles = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js"() {
+      init_arrayLikeToArray();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/iterableToArray.js
+  function _iterableToArray(r3) {
+    if ("undefined" != typeof Symbol && null != r3[Symbol.iterator] || null != r3["@@iterator"]) return Array.from(r3);
+  }
+  var init_iterableToArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/iterableToArray.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  var init_nonIterableSpread = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js
+  function _toConsumableArray(r3) {
+    return _arrayWithoutHoles(r3) || _iterableToArray(r3) || _unsupportedIterableToArray(r3) || _nonIterableSpread();
+  }
+  var init_toConsumableArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"() {
+      init_arrayWithoutHoles();
+      init_iterableToArray();
+      init_unsupportedIterableToArray();
+      init_nonIterableSpread();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js
+  function once(fn) {
+    var cache = null;
+    return function wrapped() {
+      if (!cache) {
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+        var result = fn.apply(this, args);
+        cache = {
+          result
+        };
+      }
+      return cache.result;
+    };
+  }
+  var init_once = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-firefox.js
+  var isFirefox;
+  var init_is_firefox = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-firefox.js"() {
+      init_once();
+      isFirefox = once(function isFirefox2() {
+        if (false) {
+          return false;
+        }
+        return navigator.userAgent.includes("Firefox");
+      });
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-safari.js
+  var isSafari;
+  var init_is_safari = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-safari.js"() {
+      init_once();
+      isSafari = once(function isSafari2() {
+        if (false) {
+          return false;
+        }
+        var _navigator = navigator, userAgent = _navigator.userAgent;
+        return userAgent.includes("AppleWebKit") && !userAgent.includes("Chrome");
+      });
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/count-events-for-safari.js
+  function isEnteringWindowInSafari(_ref) {
+    var dragEnter = _ref.dragEnter;
+    if (!isSafari()) {
+      return false;
+    }
+    return dragEnter.hasOwnProperty(symbols.isEnteringWindow);
+  }
+  function isLeavingWindowInSafari(_ref2) {
+    var dragLeave = _ref2.dragLeave;
+    if (!isSafari()) {
+      return false;
+    }
+    return dragLeave.hasOwnProperty(symbols.isLeavingWindow);
+  }
+  var import_bind_event_listener2, symbols;
+  var init_count_events_for_safari = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/count-events-for-safari.js"() {
+      import_bind_event_listener2 = __toESM(require_dist());
+      init_is_safari();
+      symbols = {
+        isLeavingWindow: Symbol("leaving"),
+        isEnteringWindow: Symbol("entering")
+      };
+      (function fixSafari() {
+        if (typeof window === "undefined") {
+          return;
+        }
+        if (false) {
+          return;
+        }
+        if (!isSafari()) {
+          return;
+        }
+        function getInitialState() {
+          return {
+            enterCount: 0,
+            isOverWindow: false
+          };
+        }
+        var state = getInitialState();
+        function resetState() {
+          state = getInitialState();
+        }
+        (0, import_bind_event_listener2.bindAll)(
+          window,
+          [{
+            type: "dragstart",
+            listener: function listener() {
+              state.enterCount = 0;
+              state.isOverWindow = true;
+            }
+          }, {
+            type: "drop",
+            listener: resetState
+          }, {
+            type: "dragend",
+            listener: resetState
+          }, {
+            type: "dragenter",
+            listener: function listener(event) {
+              if (!state.isOverWindow && state.enterCount === 0) {
+                event[symbols.isEnteringWindow] = true;
+              }
+              state.isOverWindow = true;
+              state.enterCount++;
+            }
+          }, {
+            type: "dragleave",
+            listener: function listener(event) {
+              state.enterCount--;
+              if (state.isOverWindow && state.enterCount === 0) {
+                event[symbols.isLeavingWindow] = true;
+                state.isOverWindow = false;
+              }
+            }
+          }],
+          // using `capture: true` so that adding event listeners
+          // in bubble phase will have the correct symbols
+          {
+            capture: true
+          }
+        );
+      })();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js
+  function isNodeLike(target2) {
+    return "nodeName" in target2;
+  }
+  function isFromAnotherWindow(eventTarget) {
+    return isNodeLike(eventTarget) && eventTarget.ownerDocument !== document;
+  }
+  var init_is_from_another_window = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-leaving-window.js
+  function isLeavingWindow(_ref) {
+    var dragLeave = _ref.dragLeave;
+    var type = dragLeave.type, relatedTarget = dragLeave.relatedTarget;
+    if (type !== "dragleave") {
+      return false;
+    }
+    if (isSafari()) {
+      return isLeavingWindowInSafari({
+        dragLeave
+      });
+    }
+    if (relatedTarget == null) {
+      return true;
+    }
+    if (isFirefox()) {
+      return isFromAnotherWindow(relatedTarget);
+    }
+    return relatedTarget instanceof HTMLIFrameElement;
+  }
+  var init_is_leaving_window = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-leaving-window.js"() {
+      init_is_firefox();
+      init_is_safari();
+      init_count_events_for_safari();
+      init_is_from_another_window();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/detect-broken-drag.js
+  function getBindingsForBrokenDrags(_ref) {
+    var onDragEnd = _ref.onDragEnd;
+    return [
+      // ## Detecting drag ending for removed draggables
+      //
+      // If a draggable element is removed during a drag and the user drops:
+      // 1. if over a valid drop target: we get a "drop" event to know the drag is finished
+      // 2. if not over a valid drop target (or cancelled): we get nothing
+      // The "dragend" event will not fire on the source draggable if it has been
+      // removed from the DOM.
+      // So we need to figure out if a drag operation has finished by looking at other events
+      // We can do this by looking at other events
+      // ### First detection: "pointermove" events
+      // 1. "pointermove" events cannot fire during a drag and drop operation
+      // according to the spec. So if we get a "pointermove" it means that
+      // the drag and drop operations has finished. So if we get a "pointermove"
+      // we know that the drag is over
+      // 2. 🦊😤 Drag and drop operations are _supposed_ to suppress
+      // other pointer events. However, firefox will allow a few
+      // pointer event to get through after a drag starts.
+      // The most I've seen is 3
+      {
+        type: "pointermove",
+        listener: /* @__PURE__ */ function() {
+          var callCount = 0;
+          return function listener() {
+            if (callCount < 20) {
+              callCount++;
+              return;
+            }
+            onDragEnd();
+          };
+        }()
+      },
+      // ### Second detection: "pointerdown" events
+      // If we receive this event then we know that a drag operation has finished
+      // and potentially another one is about to start.
+      // Note: `pointerdown` fires on all browsers / platforms before "dragstart"
+      {
+        type: "pointerdown",
+        listener: onDragEnd
+      }
+    ];
+  }
+  var init_detect_broken_drag = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/detect-broken-drag.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/get-input.js
+  function getInput(event) {
+    return {
+      altKey: event.altKey,
+      button: event.button,
+      buttons: event.buttons,
+      ctrlKey: event.ctrlKey,
+      metaKey: event.metaKey,
+      shiftKey: event.shiftKey,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      pageX: event.pageX,
+      pageY: event.pageY
+    };
+  }
+  var init_get_input = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/get-input.js"() {
+    }
+  });
+
+  // ../node_modules/raf-schd/dist/raf-schd.esm.js
+  var rafSchd, raf_schd_esm_default;
+  var init_raf_schd_esm = __esm({
+    "../node_modules/raf-schd/dist/raf-schd.esm.js"() {
+      rafSchd = function rafSchd2(fn) {
+        var lastArgs = [];
+        var frameId = null;
+        var wrapperFn = function wrapperFn2() {
+          for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+          lastArgs = args;
+          if (frameId) {
+            return;
+          }
+          frameId = requestAnimationFrame(function() {
+            frameId = null;
+            fn.apply(void 0, lastArgs);
+          });
+        };
+        wrapperFn.cancel = function() {
+          if (!frameId) {
+            return;
+          }
+          cancelAnimationFrame(frameId);
+          frameId = null;
+        };
+        return wrapperFn;
+      };
+      raf_schd_esm_default = rafSchd;
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/dispatch-consumer-event.js
+  function makeDispatch(_ref) {
+    var source = _ref.source, initial = _ref.initial, dispatchEvent = _ref.dispatchEvent;
+    var previous = {
+      dropTargets: []
+    };
+    function safeDispatch(args) {
+      dispatchEvent(args);
+      previous = {
+        dropTargets: args.payload.location.current.dropTargets
+      };
+    }
+    var dispatch = {
+      start: function start2(_ref2) {
+        var nativeSetDragImage = _ref2.nativeSetDragImage;
+        var location2 = {
+          current: initial,
+          previous,
+          initial
+        };
+        safeDispatch({
+          eventName: "onGenerateDragPreview",
+          payload: {
+            source,
+            location: location2,
+            nativeSetDragImage
+          }
+        });
+        dragStart.schedule(function() {
+          safeDispatch({
+            eventName: "onDragStart",
+            payload: {
+              source,
+              location: location2
+            }
+          });
+        });
+      },
+      dragUpdate: function dragUpdate(_ref3) {
+        var current = _ref3.current;
+        dragStart.flush();
+        scheduleOnDrag.cancel();
+        safeDispatch({
+          eventName: "onDropTargetChange",
+          payload: {
+            source,
+            location: {
+              initial,
+              previous,
+              current
+            }
+          }
+        });
+      },
+      drag: function drag(_ref4) {
+        var current = _ref4.current;
+        scheduleOnDrag(function() {
+          dragStart.flush();
+          var location2 = {
+            initial,
+            previous,
+            current
+          };
+          safeDispatch({
+            eventName: "onDrag",
+            payload: {
+              source,
+              location: location2
+            }
+          });
+        });
+      },
+      drop: function drop(_ref5) {
+        var current = _ref5.current, updatedSourcePayload = _ref5.updatedSourcePayload;
+        dragStart.flush();
+        scheduleOnDrag.cancel();
+        safeDispatch({
+          eventName: "onDrop",
+          payload: {
+            source: updatedSourcePayload !== null && updatedSourcePayload !== void 0 ? updatedSourcePayload : source,
+            location: {
+              current,
+              previous,
+              initial
+            }
+          }
+        });
+      }
+    };
+    return dispatch;
+  }
+  var scheduleOnDrag, dragStart;
+  var init_dispatch_consumer_event = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/dispatch-consumer-event.js"() {
+      init_raf_schd_esm();
+      scheduleOnDrag = raf_schd_esm_default(function(fn) {
+        return fn();
+      });
+      dragStart = /* @__PURE__ */ function() {
+        var scheduled = null;
+        function schedule(fn) {
+          var frameId = requestAnimationFrame(function() {
+            scheduled = null;
+            fn();
+          });
+          scheduled = {
+            frameId,
+            fn
+          };
+        }
+        function flush() {
+          if (scheduled) {
+            cancelAnimationFrame(scheduled.frameId);
+            scheduled.fn();
+            scheduled = null;
+          }
+        }
+        return {
+          schedule,
+          flush
+        };
+      }();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/lifecycle-manager.js
+  function canStart() {
+    return !globalState.isActive;
+  }
+  function getNativeSetDragImage(event) {
+    if (event.dataTransfer) {
+      return event.dataTransfer.setDragImage.bind(event.dataTransfer);
+    }
+    return null;
+  }
+  function hasHierarchyChanged(_ref) {
+    var current = _ref.current, next = _ref.next;
+    if (current.length !== next.length) {
+      return true;
+    }
+    for (var i4 = 0; i4 < current.length; i4++) {
+      if (current[i4].element !== next[i4].element) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function start(_ref2) {
+    var event = _ref2.event, dragType = _ref2.dragType, getDropTargetsOver = _ref2.getDropTargetsOver, dispatchEvent = _ref2.dispatchEvent;
+    if (!canStart()) {
+      return;
+    }
+    var initial = getStartLocation({
+      event,
+      dragType,
+      getDropTargetsOver
+    });
+    globalState.isActive = true;
+    var state = {
+      current: initial
+    };
+    setDropEffectOnEvent({
+      event,
+      current: initial.dropTargets
+    });
+    var dispatch = makeDispatch({
+      source: dragType.payload,
+      dispatchEvent,
+      initial
+    });
+    function updateState(next) {
+      var hasChanged = hasHierarchyChanged({
+        current: state.current.dropTargets,
+        next: next.dropTargets
+      });
+      state.current = next;
+      if (hasChanged) {
+        dispatch.dragUpdate({
+          current: state.current
+        });
+      }
+    }
+    function onUpdateEvent(event2) {
+      var input = getInput(event2);
+      var target2 = isHoneyPotElement(event2.target) ? getElementFromPointWithoutHoneypot({
+        x: input.clientX,
+        y: input.clientY
+      }) : event2.target;
+      var nextDropTargets = getDropTargetsOver({
+        target: target2,
+        input,
+        source: dragType.payload,
+        current: state.current.dropTargets
+      });
+      if (nextDropTargets.length) {
+        event2.preventDefault();
+        setDropEffectOnEvent({
+          event: event2,
+          current: nextDropTargets
+        });
+      }
+      updateState({
+        dropTargets: nextDropTargets,
+        input
+      });
+    }
+    function cancel() {
+      if (state.current.dropTargets.length) {
+        updateState({
+          dropTargets: [],
+          input: state.current.input
+        });
+      }
+      dispatch.drop({
+        current: state.current,
+        updatedSourcePayload: null
+      });
+      finish();
+    }
+    function finish() {
+      globalState.isActive = false;
+      unbindEvents();
+    }
+    var unbindEvents = (0, import_bind_event_listener3.bindAll)(
+      window,
+      [{
+        // 👋 Note: we are repurposing the `dragover` event as our `drag` event
+        // this is because firefox does not publish pointer coordinates during
+        // a `drag` event, but does for every other type of drag event
+        // `dragover` fires on all elements that are being dragged over
+        // Because we are binding to `window` - our `dragover` is effectively the same as a `drag`
+        // 🦊😤
+        type: "dragover",
+        listener: function listener(event2) {
+          onUpdateEvent(event2);
+          dispatch.drag({
+            current: state.current
+          });
+        }
+      }, {
+        type: "dragenter",
+        listener: onUpdateEvent
+      }, {
+        type: "dragleave",
+        listener: function listener(event2) {
+          if (!isLeavingWindow({
+            dragLeave: event2
+          })) {
+            return;
+          }
+          updateState({
+            input: state.current.input,
+            dropTargets: []
+          });
+          if (dragType.startedFrom === "external") {
+            cancel();
+          }
+        }
+      }, {
+        // A "drop" can only happen if the browser allowed the drop
+        type: "drop",
+        listener: function listener(event2) {
+          state.current = {
+            dropTargets: state.current.dropTargets,
+            input: getInput(event2)
+          };
+          if (!state.current.dropTargets.length) {
+            cancel();
+            return;
+          }
+          event2.preventDefault();
+          setDropEffectOnEvent({
+            event: event2,
+            current: state.current.dropTargets
+          });
+          dispatch.drop({
+            current: state.current,
+            // When dropping something native, we need to extract the latest
+            // `.items` from the "drop" event as it is now accessible
+            updatedSourcePayload: dragType.type === "external" ? dragType.getDropPayload(event2) : null
+          });
+          finish();
+        }
+      }, {
+        // "dragend" fires when on the drag source (eg a draggable element)
+        // when the drag is finished.
+        // "dragend" will fire after "drop" (if there was a successful drop)
+        // "dragend" does not fire if the draggable source has been removed during the drag
+        // or for external drag sources (eg files)
+        // This "dragend" listener will not fire if there was a successful drop
+        // as we will have already removed the event listener
+        type: "dragend",
+        listener: function listener(event2) {
+          state.current = {
+            dropTargets: state.current.dropTargets,
+            input: getInput(event2)
+          };
+          cancel();
+        }
+      }].concat(_toConsumableArray(getBindingsForBrokenDrags({
+        onDragEnd: cancel
+      }))),
+      // Once we have started a managed drag operation it is important that we see / own all drag events
+      // We got one adoption bug pop up where some code was stopping (`event.stopPropagation()`)
+      // all "drop" events in the bubble phase on the `document.body`.
+      // This meant that we never saw the "drop" event.
+      {
+        capture: true
+      }
+    );
+    dispatch.start({
+      nativeSetDragImage: getNativeSetDragImage(event)
+    });
+  }
+  function setDropEffectOnEvent(_ref3) {
+    var _current$;
+    var event = _ref3.event, current = _ref3.current;
+    var innerMost = (_current$ = current[0]) === null || _current$ === void 0 ? void 0 : _current$.dropEffect;
+    if (innerMost != null && event.dataTransfer) {
+      event.dataTransfer.dropEffect = innerMost;
+    }
+  }
+  function getStartLocation(_ref4) {
+    var event = _ref4.event, dragType = _ref4.dragType, getDropTargetsOver = _ref4.getDropTargetsOver;
+    var input = getInput(event);
+    if (dragType.startedFrom === "external") {
+      return {
+        input,
+        dropTargets: []
+      };
+    }
+    var dropTargets = getDropTargetsOver({
+      input,
+      source: dragType.payload,
+      target: event.target,
+      current: []
+    });
+    return {
+      input,
+      dropTargets
+    };
+  }
+  var import_bind_event_listener3, globalState, lifecycle;
+  var init_lifecycle_manager = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/lifecycle-manager.js"() {
+      init_toConsumableArray();
+      import_bind_event_listener3 = __toESM(require_dist());
+      init_get_element_from_point_without_honey_pot();
+      init_is_honey_pot_element();
+      init_is_leaving_window();
+      init_detect_broken_drag();
+      init_get_input();
+      init_dispatch_consumer_event();
+      globalState = {
+        isActive: false
+      };
+      lifecycle = {
+        canStart,
+        start
+      };
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/usage-ledger.js
+  function registerUsage(_ref) {
+    var typeKey = _ref.typeKey, mount3 = _ref.mount;
+    var entry = ledger.get(typeKey);
+    if (entry) {
+      entry.usageCount++;
+      return entry;
+    }
+    var initial = {
+      typeKey,
+      unmount: mount3(),
+      usageCount: 1
+    };
+    ledger.set(typeKey, initial);
+    return initial;
+  }
+  function register(args) {
+    var entry = registerUsage(args);
+    return function unregister() {
+      entry.usageCount--;
+      if (entry.usageCount > 0) {
+        return;
+      }
+      entry.unmount();
+      ledger.delete(args.typeKey);
+    };
+  }
+  var ledger;
+  var init_usage_ledger = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/usage-ledger.js"() {
+      ledger = /* @__PURE__ */ new Map();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/combine.js
+  function combine() {
+    for (var _len = arguments.length, fns = new Array(_len), _key = 0; _key < _len; _key++) {
+      fns[_key] = arguments[_key];
+    }
+    return function cleanup() {
+      fns.forEach(function(fn) {
+        return fn();
+      });
+    };
+  }
+  var init_combine = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/combine.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/add-attribute.js
+  function addAttribute(element, _ref) {
+    var attribute = _ref.attribute, value = _ref.value;
+    element.setAttribute(attribute, value);
+    return function() {
+      return element.removeAttribute(attribute);
+    };
+  }
+  var init_add_attribute = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/add-attribute.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-drop-target.js
+  function ownKeys2(e3, r3) {
+    var t3 = Object.keys(e3);
+    if (Object.getOwnPropertySymbols) {
+      var o3 = Object.getOwnPropertySymbols(e3);
+      r3 && (o3 = o3.filter(function(r4) {
+        return Object.getOwnPropertyDescriptor(e3, r4).enumerable;
+      })), t3.push.apply(t3, o3);
+    }
+    return t3;
+  }
+  function _objectSpread2(e3) {
+    for (var r3 = 1; r3 < arguments.length; r3++) {
+      var t3 = null != arguments[r3] ? arguments[r3] : {};
+      r3 % 2 ? ownKeys2(Object(t3), true).forEach(function(r4) {
+        _defineProperty(e3, r4, t3[r4]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e3, Object.getOwnPropertyDescriptors(t3)) : ownKeys2(Object(t3)).forEach(function(r4) {
+        Object.defineProperty(e3, r4, Object.getOwnPropertyDescriptor(t3, r4));
+      });
+    }
+    return e3;
+  }
+  function _createForOfIteratorHelper(r3, e3) {
+    var t3 = "undefined" != typeof Symbol && r3[Symbol.iterator] || r3["@@iterator"];
+    if (!t3) {
+      if (Array.isArray(r3) || (t3 = _unsupportedIterableToArray2(r3)) || e3 && r3 && "number" == typeof r3.length) {
+        t3 && (r3 = t3);
+        var _n = 0, F4 = function F5() {
+        };
+        return { s: F4, n: function n2() {
+          return _n >= r3.length ? { done: true } : { done: false, value: r3[_n++] };
+        }, e: function e4(r4) {
+          throw r4;
+        }, f: F4 };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var o3, a3 = true, u3 = false;
+    return { s: function s3() {
+      t3 = t3.call(r3);
+    }, n: function n2() {
+      var r4 = t3.next();
+      return a3 = r4.done, r4;
+    }, e: function e4(r4) {
+      u3 = true, o3 = r4;
+    }, f: function f3() {
+      try {
+        a3 || null == t3.return || t3.return();
+      } finally {
+        if (u3) throw o3;
+      }
+    } };
+  }
+  function _unsupportedIterableToArray2(r3, a3) {
+    if (r3) {
+      if ("string" == typeof r3) return _arrayLikeToArray2(r3, a3);
+      var t3 = {}.toString.call(r3).slice(8, -1);
+      return "Object" === t3 && r3.constructor && (t3 = r3.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r3) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray2(r3, a3) : void 0;
+    }
+  }
+  function _arrayLikeToArray2(r3, a3) {
+    (null == a3 || a3 > r3.length) && (a3 = r3.length);
+    for (var e3 = 0, n2 = Array(a3); e3 < a3; e3++) n2[e3] = r3[e3];
+    return n2;
+  }
+  function copyReverse(array) {
+    return array.slice(0).reverse();
+  }
+  function makeDropTarget(_ref) {
+    var typeKey = _ref.typeKey, defaultDropEffect = _ref.defaultDropEffect;
+    var registry = /* @__PURE__ */ new WeakMap();
+    var dropTargetDataAtt = "data-drop-target-for-".concat(typeKey);
+    var dropTargetSelector = "[".concat(dropTargetDataAtt, "]");
+    function addToRegistry2(args) {
+      registry.set(args.element, args);
+      return function() {
+        return registry.delete(args.element);
+      };
+    }
+    function dropTargetForConsumers(args) {
+      if (true) {
+        var existing = registry.get(args.element);
+        if (existing) {
+          console.warn("You have already registered a [".concat(typeKey, "] dropTarget on the same element"), {
+            existing,
+            proposed: args
+          });
+        }
+        if (args.element instanceof HTMLIFrameElement) {
+          console.warn("\n            We recommend not registering <iframe> elements as drop targets\n            as it can result in some strange browser event ordering.\n          ".replace(/\s{2,}/g, " ").trim());
+        }
+      }
+      return combine(addAttribute(args.element, {
+        attribute: dropTargetDataAtt,
+        value: "true"
+      }), addToRegistry2(args));
+    }
+    function getActualDropTargets(_ref2) {
+      var _args$getData, _args$getData2, _args$getDropEffect, _args$getDropEffect2;
+      var source = _ref2.source, target2 = _ref2.target, input = _ref2.input, _ref2$result = _ref2.result, result = _ref2$result === void 0 ? [] : _ref2$result;
+      if (target2 == null) {
+        return result;
+      }
+      if (!(target2 instanceof Element)) {
+        if (target2 instanceof Node) {
+          return getActualDropTargets({
+            source,
+            target: target2.parentElement,
+            input,
+            result
+          });
+        }
+        return result;
+      }
+      var closest = target2.closest(dropTargetSelector);
+      if (closest == null) {
+        return result;
+      }
+      var args = registry.get(closest);
+      if (args == null) {
+        return result;
+      }
+      var feedback = {
+        input,
+        source,
+        element: args.element
+      };
+      if (args.canDrop && !args.canDrop(feedback)) {
+        return getActualDropTargets({
+          source,
+          target: args.element.parentElement,
+          input,
+          result
+        });
+      }
+      var data = (_args$getData = (_args$getData2 = args.getData) === null || _args$getData2 === void 0 ? void 0 : _args$getData2.call(args, feedback)) !== null && _args$getData !== void 0 ? _args$getData : {};
+      var dropEffect = (_args$getDropEffect = (_args$getDropEffect2 = args.getDropEffect) === null || _args$getDropEffect2 === void 0 ? void 0 : _args$getDropEffect2.call(args, feedback)) !== null && _args$getDropEffect !== void 0 ? _args$getDropEffect : defaultDropEffect;
+      var record = {
+        data,
+        element: args.element,
+        dropEffect,
+        // we are collecting _actual_ drop targets, so these are
+        // being applied _not_ due to stickiness
+        isActiveDueToStickiness: false
+      };
+      return getActualDropTargets({
+        source,
+        target: args.element.parentElement,
+        input,
+        // Using bubble ordering. Same ordering as `event.getPath()`
+        result: [].concat(_toConsumableArray(result), [record])
+      });
+    }
+    function notifyCurrent(_ref3) {
+      var eventName = _ref3.eventName, payload = _ref3.payload;
+      var _iterator = _createForOfIteratorHelper(payload.location.current.dropTargets), _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+          var _entry$eventName;
+          var record = _step.value;
+          var entry = registry.get(record.element);
+          var args = _objectSpread2(_objectSpread2({}, payload), {}, {
+            self: record
+          });
+          entry === null || entry === void 0 || (_entry$eventName = entry[eventName]) === null || _entry$eventName === void 0 || _entry$eventName.call(
+            entry,
+            // I cannot seem to get the types right here.
+            // TS doesn't seem to like that one event can need `nativeSetDragImage`
+            // @ts-expect-error
+            args
+          );
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+    var actions = {
+      onGenerateDragPreview: notifyCurrent,
+      onDrag: notifyCurrent,
+      onDragStart: notifyCurrent,
+      onDrop: notifyCurrent,
+      onDropTargetChange: function onDropTargetChange(_ref4) {
+        var payload = _ref4.payload;
+        var isCurrent = new Set(payload.location.current.dropTargets.map(function(record2) {
+          return record2.element;
+        }));
+        var visited = /* @__PURE__ */ new Set();
+        var _iterator2 = _createForOfIteratorHelper(payload.location.previous.dropTargets), _step2;
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done; ) {
+            var _entry$onDropTargetCh;
+            var record = _step2.value;
+            visited.add(record.element);
+            var entry = registry.get(record.element);
+            var isOver = isCurrent.has(record.element);
+            var args = _objectSpread2(_objectSpread2({}, payload), {}, {
+              self: record
+            });
+            entry === null || entry === void 0 || (_entry$onDropTargetCh = entry.onDropTargetChange) === null || _entry$onDropTargetCh === void 0 || _entry$onDropTargetCh.call(entry, args);
+            if (!isOver) {
+              var _entry$onDragLeave;
+              entry === null || entry === void 0 || (_entry$onDragLeave = entry.onDragLeave) === null || _entry$onDragLeave === void 0 || _entry$onDragLeave.call(entry, args);
+            }
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+        var _iterator3 = _createForOfIteratorHelper(payload.location.current.dropTargets), _step3;
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done; ) {
+            var _entry$onDropTargetCh2, _entry$onDragEnter;
+            var _record = _step3.value;
+            if (visited.has(_record.element)) {
+              continue;
+            }
+            var _args = _objectSpread2(_objectSpread2({}, payload), {}, {
+              self: _record
+            });
+            var _entry = registry.get(_record.element);
+            _entry === null || _entry === void 0 || (_entry$onDropTargetCh2 = _entry.onDropTargetChange) === null || _entry$onDropTargetCh2 === void 0 || _entry$onDropTargetCh2.call(_entry, _args);
+            _entry === null || _entry === void 0 || (_entry$onDragEnter = _entry.onDragEnter) === null || _entry$onDragEnter === void 0 || _entry$onDragEnter.call(_entry, _args);
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+      }
+    };
+    function dispatchEvent(args) {
+      actions[args.eventName](args);
+    }
+    function getIsOver(_ref5) {
+      var source = _ref5.source, target2 = _ref5.target, input = _ref5.input, current = _ref5.current;
+      var actual = getActualDropTargets({
+        source,
+        target: target2,
+        input
+      });
+      if (actual.length >= current.length) {
+        return actual;
+      }
+      var lastCaptureOrdered = copyReverse(current);
+      var actualCaptureOrdered = copyReverse(actual);
+      var resultCaptureOrdered = [];
+      for (var index = 0; index < lastCaptureOrdered.length; index++) {
+        var _argsForLast$getIsSti;
+        var last = lastCaptureOrdered[index];
+        var fresh = actualCaptureOrdered[index];
+        if (fresh != null) {
+          resultCaptureOrdered.push(fresh);
+          continue;
+        }
+        var parent = resultCaptureOrdered[index - 1];
+        var lastParent = lastCaptureOrdered[index - 1];
+        if ((parent === null || parent === void 0 ? void 0 : parent.element) !== (lastParent === null || lastParent === void 0 ? void 0 : lastParent.element)) {
+          break;
+        }
+        var argsForLast = registry.get(last.element);
+        if (!argsForLast) {
+          break;
+        }
+        var feedback = {
+          input,
+          source,
+          element: argsForLast.element
+        };
+        if (argsForLast.canDrop && !argsForLast.canDrop(feedback)) {
+          break;
+        }
+        if (!((_argsForLast$getIsSti = argsForLast.getIsSticky) !== null && _argsForLast$getIsSti !== void 0 && _argsForLast$getIsSti.call(argsForLast, feedback))) {
+          break;
+        }
+        resultCaptureOrdered.push(_objectSpread2(_objectSpread2({}, last), {}, {
+          // making it clear to consumers this drop target is active due to stickiness
+          isActiveDueToStickiness: true
+        }));
+      }
+      return copyReverse(resultCaptureOrdered);
+    }
+    return {
+      dropTargetForConsumers,
+      getIsOver,
+      dispatchEvent
+    };
+  }
+  var init_make_drop_target = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-drop-target.js"() {
+      init_defineProperty();
+      init_toConsumableArray();
+      init_combine();
+      init_add_attribute();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-monitor.js
+  function _createForOfIteratorHelper2(r3, e3) {
+    var t3 = "undefined" != typeof Symbol && r3[Symbol.iterator] || r3["@@iterator"];
+    if (!t3) {
+      if (Array.isArray(r3) || (t3 = _unsupportedIterableToArray3(r3)) || e3 && r3 && "number" == typeof r3.length) {
+        t3 && (r3 = t3);
+        var _n = 0, F4 = function F5() {
+        };
+        return { s: F4, n: function n2() {
+          return _n >= r3.length ? { done: true } : { done: false, value: r3[_n++] };
+        }, e: function e4(r4) {
+          throw r4;
+        }, f: F4 };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var o3, a3 = true, u3 = false;
+    return { s: function s3() {
+      t3 = t3.call(r3);
+    }, n: function n2() {
+      var r4 = t3.next();
+      return a3 = r4.done, r4;
+    }, e: function e4(r4) {
+      u3 = true, o3 = r4;
+    }, f: function f3() {
+      try {
+        a3 || null == t3.return || t3.return();
+      } finally {
+        if (u3) throw o3;
+      }
+    } };
+  }
+  function _unsupportedIterableToArray3(r3, a3) {
+    if (r3) {
+      if ("string" == typeof r3) return _arrayLikeToArray3(r3, a3);
+      var t3 = {}.toString.call(r3).slice(8, -1);
+      return "Object" === t3 && r3.constructor && (t3 = r3.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r3) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray3(r3, a3) : void 0;
+    }
+  }
+  function _arrayLikeToArray3(r3, a3) {
+    (null == a3 || a3 > r3.length) && (a3 = r3.length);
+    for (var e3 = 0, n2 = Array(a3); e3 < a3; e3++) n2[e3] = r3[e3];
+    return n2;
+  }
+  function ownKeys3(e3, r3) {
+    var t3 = Object.keys(e3);
+    if (Object.getOwnPropertySymbols) {
+      var o3 = Object.getOwnPropertySymbols(e3);
+      r3 && (o3 = o3.filter(function(r4) {
+        return Object.getOwnPropertyDescriptor(e3, r4).enumerable;
+      })), t3.push.apply(t3, o3);
+    }
+    return t3;
+  }
+  function _objectSpread3(e3) {
+    for (var r3 = 1; r3 < arguments.length; r3++) {
+      var t3 = null != arguments[r3] ? arguments[r3] : {};
+      r3 % 2 ? ownKeys3(Object(t3), true).forEach(function(r4) {
+        _defineProperty(e3, r4, t3[r4]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e3, Object.getOwnPropertyDescriptors(t3)) : ownKeys3(Object(t3)).forEach(function(r4) {
+        Object.defineProperty(e3, r4, Object.getOwnPropertyDescriptor(t3, r4));
+      });
+    }
+    return e3;
+  }
+  function makeMonitor() {
+    var registry = /* @__PURE__ */ new Set();
+    var dragging = null;
+    function tryAddToActive(monitor) {
+      if (!dragging) {
+        return;
+      }
+      if (!monitor.canMonitor || monitor.canMonitor(dragging.canMonitorArgs)) {
+        dragging.active.add(monitor);
+      }
+    }
+    function monitorForConsumers(args) {
+      var entry = _objectSpread3({}, args);
+      registry.add(entry);
+      tryAddToActive(entry);
+      return function cleanup() {
+        registry.delete(entry);
+        if (dragging) {
+          dragging.active.delete(entry);
+        }
+      };
+    }
+    function dispatchEvent(_ref) {
+      var eventName = _ref.eventName, payload = _ref.payload;
+      if (eventName === "onGenerateDragPreview") {
+        dragging = {
+          canMonitorArgs: {
+            initial: payload.location.initial,
+            source: payload.source
+          },
+          active: /* @__PURE__ */ new Set()
+        };
+        var _iterator = _createForOfIteratorHelper2(registry), _step;
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+            var monitor = _step.value;
+            tryAddToActive(monitor);
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+      }
+      if (!dragging) {
+        return;
+      }
+      var active = Array.from(dragging.active);
+      for (var _i = 0, _active = active; _i < _active.length; _i++) {
+        var _monitor = _active[_i];
+        if (dragging.active.has(_monitor)) {
+          var _monitor$eventName;
+          (_monitor$eventName = _monitor[eventName]) === null || _monitor$eventName === void 0 || _monitor$eventName.call(_monitor, payload);
+        }
+      }
+      if (eventName === "onDrop") {
+        dragging.active.clear();
+        dragging = null;
+      }
+    }
+    return {
+      dispatchEvent,
+      monitorForConsumers
+    };
+  }
+  var init_make_monitor = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-monitor.js"() {
+      init_defineProperty();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-adapter.js
+  function makeAdapter(_ref) {
+    var typeKey = _ref.typeKey, mount3 = _ref.mount, dispatchEventToSource2 = _ref.dispatchEventToSource, onPostDispatch = _ref.onPostDispatch, defaultDropEffect = _ref.defaultDropEffect;
+    var monitorAPI = makeMonitor();
+    var dropTargetAPI = makeDropTarget({
+      typeKey,
+      defaultDropEffect
+    });
+    function dispatchEvent(args) {
+      dispatchEventToSource2 === null || dispatchEventToSource2 === void 0 || dispatchEventToSource2(args);
+      dropTargetAPI.dispatchEvent(args);
+      monitorAPI.dispatchEvent(args);
+      onPostDispatch === null || onPostDispatch === void 0 || onPostDispatch(args);
+    }
+    function start2(_ref2) {
+      var event = _ref2.event, dragType = _ref2.dragType;
+      lifecycle.start({
+        event,
+        dragType,
+        getDropTargetsOver: dropTargetAPI.getIsOver,
+        dispatchEvent
+      });
+    }
+    function registerUsage2() {
+      function mountAdapter() {
+        var api = {
+          canStart: lifecycle.canStart,
+          start: start2
+        };
+        return mount3(api);
+      }
+      return register({
+        typeKey,
+        mount: mountAdapter
+      });
+    }
+    return {
+      registerUsage: registerUsage2,
+      dropTarget: dropTargetAPI.dropTargetForConsumers,
+      monitor: monitorAPI.monitorForConsumers
+    };
+  }
+  var init_make_adapter = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-adapter.js"() {
+      init_lifecycle_manager();
+      init_usage_ledger();
+      init_make_drop_target();
+      init_make_monitor();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/android.js
+  var isAndroid, androidFallbackText;
+  var init_android = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/android.js"() {
+      init_once();
+      isAndroid = once(function isAndroid2() {
+        return navigator.userAgent.toLocaleLowerCase().includes("android");
+      });
+      androidFallbackText = "pdnd:android-fallback";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/text-media-type.js
+  var textMediaType;
+  var init_text_media_type = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/text-media-type.js"() {
+      textMediaType = "text/plain";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/url-media-type.js
+  var URLMediaType;
+  var init_url_media_type = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/url-media-type.js"() {
+      URLMediaType = "text/uri-list";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter-native-data-key.js
+  var elementAdapterNativeDataKey;
+  var init_element_adapter_native_data_key = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter-native-data-key.js"() {
+      elementAdapterNativeDataKey = "application/vnd.pdnd";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter.js
+  function addToRegistry(args) {
+    draggableRegistry.set(args.element, args);
+    return function cleanup() {
+      draggableRegistry.delete(args.element);
+    };
+  }
+  function draggable(args) {
+    if (true) {
+      if (args.dragHandle && !args.element.contains(args.dragHandle)) {
+        console.warn("Drag handle element must be contained in draggable element", {
+          element: args.element,
+          dragHandle: args.dragHandle
+        });
+      }
+    }
+    if (true) {
+      var existing = draggableRegistry.get(args.element);
+      if (existing) {
+        console.warn("You have already registered a `draggable` on the same element", {
+          existing,
+          proposed: args
+        });
+      }
+    }
+    return combine(
+      // making the draggable register the adapter rather than drop targets
+      // this is because you *must* have a draggable element to start a drag
+      // but you _might_ not have any drop targets immediately
+      // (You might create drop targets async)
+      adapter.registerUsage(),
+      addToRegistry(args),
+      addAttribute(args.element, {
+        attribute: "draggable",
+        value: "true"
+      })
+    );
+  }
+  var import_bind_event_listener4, draggableRegistry, honeyPotFix, adapter, dropTargetForElements, monitorForElements;
+  var init_element_adapter = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter.js"() {
+      init_slicedToArray();
+      import_bind_event_listener4 = __toESM(require_dist());
+      init_get_element_from_point_without_honey_pot();
+      init_make_honey_pot_fix();
+      init_make_adapter();
+      init_combine();
+      init_add_attribute();
+      init_android();
+      init_get_input();
+      init_text_media_type();
+      init_url_media_type();
+      init_element_adapter_native_data_key();
+      draggableRegistry = /* @__PURE__ */ new WeakMap();
+      honeyPotFix = makeHoneyPotFix();
+      adapter = makeAdapter({
+        typeKey: "element",
+        defaultDropEffect: "move",
+        mount: function mount(api) {
+          return combine(honeyPotFix.bindEvents(), (0, import_bind_event_listener4.bind)(document, {
+            type: "dragstart",
+            listener: function listener(event) {
+              var _entry$dragHandle, _entry$getInitialData, _entry$getInitialData2, _entry$dragHandle2, _entry$getInitialData3, _entry$getInitialData4;
+              if (!api.canStart(event)) {
+                return;
+              }
+              if (event.defaultPrevented) {
+                return;
+              }
+              if (!event.dataTransfer) {
+                if (true) {
+                  console.warn("\n              It appears as though you have are not testing DragEvents correctly.\n\n              - If you are unit testing, ensure you have polyfilled DragEvent.\n              - If you are browser testing, ensure you are dispatching drag events correctly.\n\n              Please see our testing guides for more information:\n              https://atlassian.design/components/pragmatic-drag-and-drop/core-package/testing\n            ".replace(/ {2}/g, ""));
+                }
+                return;
+              }
+              var target2 = event.target;
+              if (!(target2 instanceof HTMLElement)) {
+                return null;
+              }
+              var entry = draggableRegistry.get(target2);
+              if (!entry) {
+                return null;
+              }
+              var input = getInput(event);
+              var feedback = {
+                element: entry.element,
+                dragHandle: (_entry$dragHandle = entry.dragHandle) !== null && _entry$dragHandle !== void 0 ? _entry$dragHandle : null,
+                input
+              };
+              if (entry.canDrag && !entry.canDrag(feedback)) {
+                event.preventDefault();
+                return null;
+              }
+              if (entry.dragHandle) {
+                var over = getElementFromPointWithoutHoneypot({
+                  x: input.clientX,
+                  y: input.clientY
+                });
+                if (!entry.dragHandle.contains(over)) {
+                  event.preventDefault();
+                  return null;
+                }
+              }
+              var nativeData = (_entry$getInitialData = (_entry$getInitialData2 = entry.getInitialDataForExternal) === null || _entry$getInitialData2 === void 0 ? void 0 : _entry$getInitialData2.call(entry, feedback)) !== null && _entry$getInitialData !== void 0 ? _entry$getInitialData : null;
+              if (nativeData) {
+                for (var _i = 0, _Object$entries = Object.entries(nativeData); _i < _Object$entries.length; _i++) {
+                  var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2), key = _Object$entries$_i[0], data = _Object$entries$_i[1];
+                  event.dataTransfer.setData(key, data !== null && data !== void 0 ? data : "");
+                }
+              }
+              if (isAndroid() && !event.dataTransfer.types.includes(textMediaType) && !event.dataTransfer.types.includes(URLMediaType)) {
+                event.dataTransfer.setData(textMediaType, androidFallbackText);
+              }
+              event.dataTransfer.setData(elementAdapterNativeDataKey, "");
+              var payload = {
+                element: entry.element,
+                dragHandle: (_entry$dragHandle2 = entry.dragHandle) !== null && _entry$dragHandle2 !== void 0 ? _entry$dragHandle2 : null,
+                data: (_entry$getInitialData3 = (_entry$getInitialData4 = entry.getInitialData) === null || _entry$getInitialData4 === void 0 ? void 0 : _entry$getInitialData4.call(entry, feedback)) !== null && _entry$getInitialData3 !== void 0 ? _entry$getInitialData3 : {}
+              };
+              var dragType = {
+                type: "element",
+                payload,
+                startedFrom: "internal"
+              };
+              api.start({
+                event,
+                dragType
+              });
+            }
+          }));
+        },
+        dispatchEventToSource: function dispatchEventToSource(_ref) {
+          var _draggableRegistry$ge, _draggableRegistry$ge2;
+          var eventName = _ref.eventName, payload = _ref.payload;
+          (_draggableRegistry$ge = draggableRegistry.get(payload.source.element)) === null || _draggableRegistry$ge === void 0 || (_draggableRegistry$ge2 = _draggableRegistry$ge[eventName]) === null || _draggableRegistry$ge2 === void 0 || _draggableRegistry$ge2.call(
+            _draggableRegistry$ge,
+            // I cannot seem to get the types right here.
+            // TS doesn't seem to like that one event can need `nativeSetDragImage`
+            // @ts-expect-error
+            payload
+          );
+        },
+        onPostDispatch: honeyPotFix.getOnPostDispatch()
+      });
+      dropTargetForElements = adapter.dropTarget;
+      monitorForElements = adapter.monitor;
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/adapter.js
+  var init_adapter = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/adapter.js"() {
+      init_element_adapter();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js
+  function ownKeys4(e3, r3) {
+    var t3 = Object.keys(e3);
+    if (Object.getOwnPropertySymbols) {
+      var o3 = Object.getOwnPropertySymbols(e3);
+      r3 && (o3 = o3.filter(function(r4) {
+        return Object.getOwnPropertyDescriptor(e3, r4).enumerable;
+      })), t3.push.apply(t3, o3);
+    }
+    return t3;
+  }
+  function _objectSpread4(e3) {
+    for (var r3 = 1; r3 < arguments.length; r3++) {
+      var t3 = null != arguments[r3] ? arguments[r3] : {};
+      r3 % 2 ? ownKeys4(Object(t3), true).forEach(function(r4) {
+        _defineProperty(e3, r4, t3[r4]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e3, Object.getOwnPropertyDescriptors(t3)) : ownKeys4(Object(t3)).forEach(function(r4) {
+        Object.defineProperty(e3, r4, Object.getOwnPropertyDescriptor(t3, r4));
+      });
+    }
+    return e3;
+  }
+  function attachClosestEdge(userData, _ref) {
+    var _entries$sort$0$edge, _entries$sort$;
+    var element = _ref.element, input = _ref.input, allowedEdges = _ref.allowedEdges;
+    var client = {
+      x: input.clientX,
+      y: input.clientY
+    };
+    var rect = element.getBoundingClientRect();
+    var entries2 = allowedEdges.map(function(edge) {
+      return {
+        edge,
+        value: getDistanceToEdge[edge](rect, client)
+      };
+    });
+    var addClosestEdge = (_entries$sort$0$edge = (_entries$sort$ = entries2.sort(function(a3, b2) {
+      return a3.value - b2.value;
+    })[0]) === null || _entries$sort$ === void 0 ? void 0 : _entries$sort$.edge) !== null && _entries$sort$0$edge !== void 0 ? _entries$sort$0$edge : null;
+    return _objectSpread4(_objectSpread4({}, userData), {}, _defineProperty({}, uniqueKey, addClosestEdge));
+  }
+  function extractClosestEdge(userData) {
+    var _ref2;
+    return (_ref2 = userData[uniqueKey]) !== null && _ref2 !== void 0 ? _ref2 : null;
+  }
+  var getDistanceToEdge, uniqueKey;
+  var init_closest_edge = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js"() {
+      init_defineProperty();
+      getDistanceToEdge = {
+        top: function top(rect, client) {
+          return Math.abs(client.y - rect.top);
+        },
+        right: function right(rect, client) {
+          return Math.abs(rect.right - client.x);
+        },
+        bottom: function bottom(rect, client) {
+          return Math.abs(rect.bottom - client.y);
+        },
+        left: function left(rect, client) {
+          return Math.abs(client.x - rect.left);
+        }
+      };
+      uniqueKey = Symbol("closestEdge");
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/reorder.js
+  function reorder(_ref) {
+    var list2 = _ref.list, startIndex = _ref.startIndex, finishIndex = _ref.finishIndex;
+    if (startIndex === -1 || finishIndex === -1) {
+      return list2;
+    }
+    var result = Array.from(list2);
+    var _result$splice = result.splice(startIndex, 1), _result$splice2 = _slicedToArray(_result$splice, 1), removed = _result$splice2[0];
+    result.splice(finishIndex, 0, removed);
+    return result;
+  }
+  var init_reorder = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/reorder.js"() {
+      init_slicedToArray();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/reorder.js
+  var init_reorder2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/reorder.js"() {
+      init_reorder();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/get-reorder-destination-index.js
+  function getReorderDestinationIndex(_ref) {
+    var startIndex = _ref.startIndex, closestEdgeOfTarget = _ref.closestEdgeOfTarget, indexOfTarget = _ref.indexOfTarget, axis = _ref.axis;
+    if (startIndex === -1 || indexOfTarget === -1) {
+      return startIndex;
+    }
+    if (startIndex === indexOfTarget) {
+      return startIndex;
+    }
+    if (closestEdgeOfTarget == null) {
+      return indexOfTarget;
+    }
+    var isGoingAfter = axis === "vertical" && closestEdgeOfTarget === "bottom" || axis === "horizontal" && closestEdgeOfTarget === "right";
+    var isMovingForward = startIndex < indexOfTarget;
+    if (isMovingForward) {
+      return isGoingAfter ? indexOfTarget : indexOfTarget - 1;
+    }
+    return isGoingAfter ? indexOfTarget + 1 : indexOfTarget;
+  }
+  var init_get_reorder_destination_index = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/get-reorder-destination-index.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/reorder-with-edge.js
+  function reorderWithEdge(_ref) {
+    var list2 = _ref.list, startIndex = _ref.startIndex, closestEdgeOfTarget = _ref.closestEdgeOfTarget, indexOfTarget = _ref.indexOfTarget, axis = _ref.axis;
+    return reorder({
+      list: list2,
+      startIndex,
+      finishIndex: getReorderDestinationIndex({
+        closestEdgeOfTarget,
+        startIndex,
+        indexOfTarget,
+        axis
+      })
+    });
+  }
+  var init_reorder_with_edge = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/reorder-with-edge.js"() {
+      init_reorder2();
+      init_get_reorder_destination_index();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window.js
+  function isEnteringWindow(_ref) {
+    var dragEnter = _ref.dragEnter;
+    var type = dragEnter.type, relatedTarget = dragEnter.relatedTarget;
+    if (type !== "dragenter") {
+      return false;
+    }
+    if (isSafari()) {
+      return isEnteringWindowInSafari({
+        dragEnter
+      });
+    }
+    if (relatedTarget == null) {
+      return true;
+    }
+    if (isFirefox()) {
+      return isFromAnotherWindow(relatedTarget);
+    }
+    return relatedTarget instanceof HTMLIFrameElement;
+  }
+  var init_is_entering_window = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window.js"() {
+      init_is_firefox();
+      init_is_safari();
+      init_count_events_for_safari();
+      init_is_from_another_window();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/external-adapter.js
+  function isAnAvailableType(_ref) {
+    var type = _ref.type, value = _ref.value;
+    if (type === elementAdapterNativeDataKey) {
+      return false;
+    }
+    if (type === textMediaType && value === androidFallbackText) {
+      return false;
+    }
+    return true;
+  }
+  function getAvailableTypes(transfer) {
+    return Array.from(transfer.types).filter(function(type) {
+      return isAnAvailableType({
+        type,
+        value: transfer.getData(type)
+      });
+    });
+  }
+  function getAvailableItems(dataTransfer) {
+    return Array.from(dataTransfer.items).filter(function(item) {
+      return item.kind === "file" || isAnAvailableType({
+        type: item.type,
+        value: dataTransfer.getData(item.type)
+      });
+    });
+  }
+  function dropTargetForExternal(args) {
+    return adapter2.dropTarget(args);
+  }
+  function monitorForExternal(args) {
+    return adapter2.monitor(args);
+  }
+  var import_bind_event_listener5, didDragStartLocally, adapter2;
+  var init_external_adapter = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/external-adapter.js"() {
+      init_toConsumableArray();
+      import_bind_event_listener5 = __toESM(require_dist());
+      init_make_adapter();
+      init_android();
+      init_is_entering_window();
+      init_detect_broken_drag();
+      init_text_media_type();
+      init_element_adapter_native_data_key();
+      didDragStartLocally = false;
+      adapter2 = makeAdapter({
+        typeKey: "external",
+        // for external drags, we are generally making a copy of something that is being dragged
+        defaultDropEffect: "copy",
+        mount: function mount2(api) {
+          return (0, import_bind_event_listener5.bind)(window, {
+            type: "dragenter",
+            listener: function listener(event) {
+              if (didDragStartLocally) {
+                return;
+              }
+              if (!event.dataTransfer) {
+                if (true) {
+                  console.warn("\n              It appears as though you have are not testing DragEvents correctly.\n\n              - If you are unit testing, ensure you have polyfilled DragEvent.\n              - If you are browser testing, ensure you are dispatching drag events correctly.\n\n              Please see our testing guides for more information:\n              https://atlassian.design/components/pragmatic-drag-and-drop/core-package/testing\n            ".replace(/ {2}/g, ""));
+                }
+                return;
+              }
+              if (!api.canStart(event)) {
+                return;
+              }
+              if (!isEnteringWindow({
+                dragEnter: event
+              })) {
+                return;
+              }
+              var types = getAvailableTypes(event.dataTransfer);
+              if (!types.length) {
+                return;
+              }
+              var locked = {
+                types,
+                items: [],
+                getStringData: function getStringData() {
+                  return null;
+                }
+              };
+              api.start({
+                event,
+                dragType: {
+                  type: "external",
+                  startedFrom: "external",
+                  payload: locked,
+                  getDropPayload: function getDropPayload(event2) {
+                    if (!event2.dataTransfer) {
+                      return locked;
+                    }
+                    var items = getAvailableItems(event2.dataTransfer);
+                    var nativeGetData = event2.dataTransfer.getData.bind(event2.dataTransfer);
+                    return {
+                      types,
+                      items,
+                      // return `null` if there is no result, otherwise string
+                      getStringData: function getStringData(mediaType) {
+                        if (!types.includes(mediaType)) {
+                          return null;
+                        }
+                        var value = nativeGetData(mediaType);
+                        if (!isAnAvailableType({
+                          type: mediaType,
+                          value
+                        })) {
+                          return null;
+                        }
+                        return value;
+                      }
+                    };
+                  }
+                }
+              });
+            }
+          });
+        }
+      });
+      (function startup() {
+        if (typeof window === "undefined") {
+          return;
+        }
+        adapter2.registerUsage();
+        var idle = {
+          type: "idle"
+        };
+        var state = idle;
+        function clear() {
+          if (state.type !== "dragging") {
+            return;
+          }
+          didDragStartLocally = false;
+          state.cleanup();
+          state = idle;
+        }
+        function bindEndEvents() {
+          return (0, import_bind_event_listener5.bindAll)(
+            window,
+            [{
+              type: "dragend",
+              listener: clear
+            }].concat(_toConsumableArray(getBindingsForBrokenDrags({
+              onDragEnd: clear
+            }))),
+            // we want to make sure we get all the events,
+            // and this helps avoid not seeing events when folks stop
+            // them later on the event path
+            {
+              capture: true
+            }
+          );
+        }
+        (0, import_bind_event_listener5.bind)(window, {
+          type: "dragstart",
+          listener: function listener() {
+            if (state.type !== "idle") {
+              return;
+            }
+            didDragStartLocally = true;
+            state = {
+              type: "dragging",
+              cleanup: bindEndEvents()
+            };
+          },
+          // binding in the capture phase so these listeners are called
+          // before our listeners in the adapters `mount` function
+          options: {
+            capture: true
+          }
+        });
+      })();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/adapter.js
+  var init_adapter2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/adapter.js"() {
+      init_external_adapter();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/combine.js
+  var init_combine2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/combine.js"() {
+      init_combine();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/html-media-type.js
+  var HTMLMediaType;
+  var init_html_media_type = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/html-media-type.js"() {
+      HTMLMediaType = "text/html";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/html.js
+  function getHTML(_ref2) {
+    var source = _ref2.source;
+    return source.getStringData(HTMLMediaType);
+  }
+  var init_html = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/html.js"() {
+      init_html_media_type();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/html.js
+  var init_html2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/html.js"() {
+      init_html();
+    }
+  });
+
+  // pages/new-tab/app/favorites/constants.js
+  var DDG_MIME_TYPE, DDG_FALLBACK_ICON, DDG_DEFAULT_ICON_SIZE;
+  var init_constants = __esm({
+    "pages/new-tab/app/favorites/constants.js"() {
+      "use strict";
+      DDG_MIME_TYPE = "application/vnd.duckduckgo.bookmark-by-id";
+      DDG_FALLBACK_ICON = "./company-icons/other.svg";
+      DDG_DEFAULT_ICON_SIZE = 64;
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/PragmaticDND.js
+  function PragmaticDND({ children, items, itemsDidReOrder }) {
+    const [instanceId] = h2(getInstanceId);
+    useGridState(items, itemsDidReOrder, instanceId);
+    return /* @__PURE__ */ _(InstanceIdContext.Provider, { value: instanceId }, children);
+  }
+  function useGridState(favorites2, itemsDidReOrder, instanceId) {
+    y2(() => {
+      return combine(
+        monitorForExternal({
+          onDrop(payload) {
+            const data = getHTML(payload);
+            if (!data) return console.warn("missing text/html payload");
+            const fragment = document.createRange().createContextualFragment(data);
+            const node = fragment.firstElementChild;
+            if (!node) return console.warn("missing first element");
+            if (node.getAttribute("name") !== DDG_MIME_TYPE) return console.warn(`attribute name was not ${DDG_MIME_TYPE}`);
+            const id = node.getAttribute("content");
+            if (!id) return console.warn("id missing from `content` attribute");
+            const location2 = payload.location;
+            const target2 = location2.current.dropTargets[0];
+            if (!target2 || !target2.data || typeof target2.data.url !== "string") {
+              return console.warn("missing data from target");
+            }
+            const closestEdgeOfTarget = extractClosestEdge(target2.data);
+            const destinationSrc = target2.data.url;
+            let indexOfTarget = favorites2.findIndex((item) => item.url === destinationSrc);
+            if (indexOfTarget === -1 && destinationSrc.includes("PLACEHOLDER-URL")) {
+              indexOfTarget = favorites2.length;
+            }
+            const targetIndex = getReorderDestinationIndex({
+              closestEdgeOfTarget,
+              startIndex: favorites2.length,
+              indexOfTarget,
+              axis: "horizontal"
+            });
+            itemsDidReOrder(favorites2, id, targetIndex);
+          }
+        }),
+        monitorForElements({
+          canMonitor({ source }) {
+            return source.data.instanceId === instanceId;
+          },
+          onDrop({ source, location: location2 }) {
+            const target2 = location2.current.dropTargets[0];
+            if (!target2) {
+              return;
+            }
+            const destinationSrc = target2.data.url;
+            const startSrc = source.data.url;
+            const startId = source.data.id;
+            if (typeof startId !== "string") {
+              return console.warn("could not access the id");
+            }
+            if (typeof destinationSrc !== "string") {
+              return console.warn("could not access the destinationSrc");
+            }
+            if (typeof startSrc !== "string") {
+              return console.warn("could not access the startSrc");
+            }
+            const startIndex = favorites2.findIndex((item) => item.url === startSrc);
+            let indexOfTarget = favorites2.findIndex((item) => item.url === destinationSrc);
+            if (indexOfTarget === -1 && destinationSrc.includes("PLACEHOLDER-URL")) {
+              indexOfTarget = favorites2.length;
+            }
+            const closestEdgeOfTarget = extractClosestEdge(target2.data);
+            const targetIndex = getReorderDestinationIndex({
+              closestEdgeOfTarget,
+              startIndex,
+              indexOfTarget,
+              axis: "horizontal"
+            });
+            const reorderedList = reorderWithEdge({
+              list: favorites2,
+              startIndex,
+              indexOfTarget,
+              closestEdgeOfTarget,
+              axis: "horizontal"
+            });
+            pn(() => {
+              try {
+                itemsDidReOrder(reorderedList, startId, targetIndex);
+              } catch (e3) {
+                console.error("did catch", e3);
+              }
+            });
+            const htmlElem = source.element;
+            const pulseAnimation = htmlElem.animate(
+              [{ transform: "scale(1)" }, { transform: "scale(1.1)" }, { transform: "scale(1)" }],
+              {
+                duration: 500,
+                // duration in milliseconds
+                iterations: 1,
+                // run the animation once
+                easing: "ease-in-out"
+                // easing function
+              }
+            );
+            pulseAnimation.onfinish = () => {
+            };
+          }
+        })
+      );
+    }, [instanceId, favorites2]);
+  }
+  function useItemState(url3, id) {
+    const instanceId = x2(InstanceIdContext);
+    const ref = A2(null);
+    const [state, setState] = h2(
+      /** @type {DNDState} */
+      { type: "idle" }
+    );
+    y2(() => {
+      const el = ref.current;
+      if (!el) throw new Error("unreachable");
+      return combine(
+        draggable({
+          element: el,
+          getInitialData: () => ({ type: "grid-item", url: url3, id, instanceId }),
+          getInitialDataForExternal: () => ({
+            "text/plain": url3,
+            [DDG_MIME_TYPE]: id
+          }),
+          onDragStart: () => setState({ type: "dragging" }),
+          onDrop: () => setState({ type: "idle" })
+        }),
+        dropTargetForExternal({
+          element: el,
+          canDrop: ({ source }) => {
+            return source.types.some((type) => type === "text/html");
+          },
+          getData: ({ input }) => {
+            return attachClosestEdge(
+              { url: url3, id },
+              {
+                element: el,
+                input,
+                allowedEdges: ["left", "right"]
+              }
+            );
+          },
+          onDrop: () => {
+            setState({ type: "idle" });
+          },
+          onDragLeave: () => setState({ type: "idle" }),
+          onDrag: ({ self }) => {
+            const closestEdge = extractClosestEdge(self.data);
+            setState((current) => {
+              if (current.type === "is-dragging-over" && current.closestEdge === closestEdge) {
+                return current;
+              }
+              return { type: "is-dragging-over", closestEdge };
+            });
+          }
+        }),
+        dropTargetForElements({
+          element: el,
+          getData: ({ input }) => {
+            return attachClosestEdge(
+              { url: url3, id },
+              {
+                element: el,
+                input,
+                allowedEdges: ["left", "right"]
+              }
+            );
+          },
+          getIsSticky: () => true,
+          canDrop: ({ source }) => {
+            return source.data.instanceId === instanceId && source.data.type === "grid-item" && source.data.id !== id;
+          },
+          onDragEnter: ({ self }) => {
+            const closestEdge = extractClosestEdge(self.data);
+            setState({ type: "is-dragging-over", closestEdge });
+          },
+          onDrag({ self }) {
+            const closestEdge = extractClosestEdge(self.data);
+            setState((current) => {
+              if (current.type === "is-dragging-over" && current.closestEdge === closestEdge) {
+                return current;
+              }
+              return { type: "is-dragging-over", closestEdge };
+            });
+          },
+          onDragLeave: () => setState({ type: "idle" }),
+          onDrop: () => setState({ type: "idle" })
+        })
+      );
+    }, [instanceId, url3, id]);
+    return { ref, state };
+  }
+  function getInstanceId() {
+    return Symbol("instance-id");
+  }
+  var InstanceIdContext;
+  var init_PragmaticDND = __esm({
+    "pages/new-tab/app/favorites/components/PragmaticDND.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_compat_module();
+      init_adapter();
+      init_closest_edge();
+      init_reorder_with_edge();
+      init_get_reorder_destination_index();
+      init_adapter2();
+      init_combine2();
+      init_html2();
+      init_constants();
+      InstanceIdContext = G(getInstanceId());
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/Favorites.module.css
+  var Favorites_default;
+  var init_Favorites = __esm({
+    "pages/new-tab/app/favorites/components/Favorites.module.css"() {
+      Favorites_default = {
+        root: "Favorites_root",
+        showhide: "Favorites_showhide",
+        showhideVisible: "Favorites_showhideVisible",
+        hr: "Favorites_hr",
+        grid: "Favorites_grid"
+      };
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/Tile.module.css
+  var Tile_default;
+  var init_Tile = __esm({
+    "pages/new-tab/app/favorites/components/Tile.module.css"() {
+      Tile_default = {
+        item: "Tile_item",
+        icon: "Tile_icon",
+        draggable: "Tile_draggable",
+        favicon: "Tile_favicon",
+        text: "Tile_text",
+        preview: "Tile_preview",
+        placeholder: "Tile_placeholder",
+        plus: "Tile_plus",
+        dropper: "Tile_dropper"
+      };
+    }
+  });
+
+  // pages/new-tab/app/favorites/color.js
+  function urlToColor(url3) {
+    const host = getHost(url3);
+    const index = Math.abs(getDJBHash(host) % EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
+    return EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index];
+  }
+  function getDJBHash(str) {
+    let hash = 5381;
+    for (let i4 = 0; i4 < str.length; i4++) {
+      hash = (hash << 5) + hash + str.charCodeAt(i4);
+    }
+    return hash;
+  }
+  function getHost(url3) {
+    try {
+      const urlObj = new URL(url3);
+      return urlObj.hostname.replace(/^www\./, "");
+    } catch (e3) {
+      return "?";
+    }
+  }
+  var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES;
+  var init_color = __esm({
+    "pages/new-tab/app/favorites/color.js"() {
+      "use strict";
+      EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES = [
+        "#94B3AF",
+        "#727998",
+        "#645468",
+        "#4D5F7F",
+        "#855DB6",
+        "#5E5ADB",
+        "#678FFF",
+        "#6BB4EF",
+        "#4A9BAE",
+        "#66C4C6",
+        "#55D388",
+        "#99DB7A",
+        "#ECCC7B",
+        "#E7A538",
+        "#DD6B4C",
+        "#D65D62"
+      ];
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/Tile.js
+  function Tile({ url: url3, faviconSrc, faviconMax, index, title, id }) {
+    const { state, ref } = useItemState(url3, id);
+    const [visible, setVisible] = h2(true);
+    y2(() => {
+      if (!ref) return;
+      if (state.type !== "idle") return;
+      let elem = ref.current;
+      if (!elem) return;
+      let o3 = new IntersectionObserver(
+        (entries2) => {
+          const last = entries2[entries2.length - 1];
+          requestAnimationFrame(() => {
+            setVisible(last.isIntersecting);
+          });
+        },
+        { threshold: [0] }
+      );
+      o3.observe(elem);
+      return () => {
+        if (elem) {
+          o3?.unobserve(elem);
+        }
+        o3 = null;
+        elem = null;
+      };
+    }, [id, state.type]);
+    return /* @__PURE__ */ _(
+      "a",
+      {
+        class: Tile_default.item,
+        tabindex: 0,
+        role: "button",
+        href: url3,
+        "data-id": id,
+        "data-index": index,
+        "data-edge": "closestEdge" in state && state.closestEdge,
+        ref
+      },
+      /* @__PURE__ */ _("div", { class: (0, import_classnames2.default)(Tile_default.icon, Tile_default.draggable) }, visible && /* @__PURE__ */ _(
+        ImageLoader,
+        {
+          faviconSrc: faviconSrc || "n/a",
+          faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE,
+          title,
+          url: url3
+        }
+      )),
+      /* @__PURE__ */ _("div", { class: Tile_default.text }, title),
+      state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
+    );
+  }
+  function ImageLoader({ faviconSrc, faviconMax, title, url: url3 }) {
+    const imgError = (e3) => {
+      if (!e3.target) return;
+      if (!(e3.target instanceof HTMLImageElement)) return;
+      if (e3.target.src === e3.target.dataset.fallback) return console.warn("refusing to load same fallback");
+      if (e3.target.dataset.didTryFallback) {
+        e3.target.dataset.errored = String(true);
+        return;
+      }
+      e3.target.dataset.didTryFallback = String(true);
+      e3.target.src = e3.target.dataset.fallback;
+    };
+    const imgLoaded = (e3) => {
+      if (!e3.target) return;
+      if (!(e3.target instanceof HTMLImageElement)) return;
+      e3.target.dataset.loaded = String(true);
+      if (e3.target.src.endsWith("other.svg")) {
+        return;
+      }
+      if (e3.target.dataset.didTryFallback) {
+        e3.target.style.background = urlToColor(url3);
+      }
+    };
+    const size = Math.min(faviconMax, DDG_DEFAULT_ICON_SIZE);
+    const src = faviconSrc + "?preferredSize=" + size;
+    return /* @__PURE__ */ _(
+      "img",
+      {
+        src,
+        loading: "lazy",
+        className: Tile_default.favicon,
+        alt: `favicon for ${title}`,
+        onLoad: imgLoaded,
+        onError: imgError,
+        "data-src": faviconSrc,
+        "data-fallback": fallbackSrcFor(url3) || DDG_FALLBACK_ICON,
+        style: size !== DDG_DEFAULT_ICON_SIZE ? { width: size, height: size } : void 0
+      }
+    );
+  }
+  function fallbackSrcFor(url3) {
+    if (!url3) return null;
+    try {
+      const parsed = new URL(url3);
+      const char1 = parsed.hostname.match(/[a-z]/i)?.[0];
+      if (char1) {
+        return `./letters/${char1}.svg`;
+      }
+    } catch (e3) {
+    }
+    return null;
+  }
+  function Placeholder() {
+    const id = g2();
+    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
+    return /* @__PURE__ */ _("div", { className: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { className: (0, import_classnames2.default)(Tile_default.icon, Tile_default.placeholder) }), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+  }
+  function PlusIcon({ onClick }) {
+    const id = g2();
+    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames2.default)(Tile_default.icon, Tile_default.placeholder, Tile_default.plus), "aria-labelledby": id, onClick }, /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M8.25 0.5C8.66421 0.5 9 0.835786 9 1.25V7H14.75C15.1642 7 15.5 7.33579 15.5 7.75C15.5 8.16421 15.1642 8.5 14.75 8.5H9V14.25C9 14.6642 8.66421 15 8.25 15C7.83579 15 7.5 14.6642 7.5 14.25V8.5H1.75C1.33579 8.5 1 8.16421 1 7.75C1 7.33579 1.33579 7 1.75 7H7.5V1.25C7.5 0.835786 7.83579 0.5 8.25 0.5Z",
+        fill: "currentColor"
+      }
+    ))), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, "Add Favorite"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+  }
+  var import_classnames2, TileMemo, PlusIconMemo;
+  var init_Tile2 = __esm({
+    "pages/new-tab/app/favorites/components/Tile.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames2 = __toESM(require_classnames(), 1);
+      init_hooks_module();
+      init_compat_module();
+      init_Tile();
+      init_color();
+      init_constants();
+      init_PragmaticDND();
+      TileMemo = C3(Tile);
+      PlusIconMemo = C3(PlusIcon);
+    }
+  });
+
+  // pages/new-tab/app/components/ShowHide.module.css
+  var ShowHide_default;
+  var init_ShowHide = __esm({
+    "pages/new-tab/app/components/ShowHide.module.css"() {
+      ShowHide_default = {
+        button: "ShowHide_button"
+      };
+    }
+  });
+
+  // pages/new-tab/app/components/ShowHideButton.jsx
+  function ShowHideButton({ text, onClick, buttonAttrs = {} }) {
+    return /* @__PURE__ */ _("button", { ...buttonAttrs, class: ShowHide_default.button, "aria-label": text, onClick }, /* @__PURE__ */ _(ChevronButton, null));
+  }
+  var init_ShowHideButton = __esm({
+    "pages/new-tab/app/components/ShowHideButton.jsx"() {
+      "use strict";
+      init_ShowHide();
+      init_Icons2();
+      init_preact_module();
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/Favorites.js
+  function Favorites({ gridRef, favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add: add2 }) {
+    const platformName = usePlatformName();
+    const { t: t3 } = useTypedTranslation();
+    const ROW_CAPACITY = 6;
+    const WIDGET_ID = g2();
+    const TOGGLE_ID = g2();
+    const ITEM_PREFIX = g2();
+    const placeholders = calculatePlaceholders(favorites2.length, ROW_CAPACITY);
+    const hiddenCount = expansion === "collapsed" ? favorites2.length - ROW_CAPACITY : 0;
+    const items = T2(() => {
+      return favorites2.map((item, index) => {
+        return /* @__PURE__ */ _(
+          TileMemo,
+          {
+            url: item.url,
+            faviconSrc: item.favicon?.src,
+            faviconMax: item.favicon?.maxAvailableSize,
+            title: item.title,
+            key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize,
+            id: item.id,
+            index
+          }
+        );
+      }).concat(
+        Array.from({ length: placeholders }).map((_3, index) => {
+          if (index === 0) {
+            return /* @__PURE__ */ _(PlusIconMemo, { key: "placeholder-plus", onClick: add2 });
+          }
+          return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${index}` });
+        })
+      );
+    }, [favorites2, placeholders, ITEM_PREFIX, add2]);
+    function onContextMenu(event) {
+      let target2 = (
+        /** @type {HTMLElement|null} */
+        event.target
+      );
+      while (target2 && target2 !== event.currentTarget) {
+        if (typeof target2.dataset.id === "string") {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return openContextMenu(target2.dataset.id);
+        } else {
+          target2 = target2.parentElement;
+        }
+      }
+    }
+    function onClick(event) {
+      let target2 = (
+        /** @type {HTMLElement|null} */
+        event.target
+      );
+      while (target2 && target2 !== event.currentTarget) {
+        if (typeof target2.dataset.id === "string") {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
+          if (isControlClick) {
+            return openFavorite(target2.dataset.id, "new-tab");
+          } else if (event.shiftKey) {
+            return openFavorite(target2.dataset.id, "new-window");
+          }
+          return openFavorite(target2.dataset.id, "same-tab");
+        } else {
+          target2 = target2.parentElement;
+        }
+      }
+    }
+    const canToggleExpansion = items.length > ROW_CAPACITY;
+    return /* @__PURE__ */ _("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured" }, /* @__PURE__ */ _("div", { class: Favorites_default.grid, id: WIDGET_ID, ref: gridRef, onContextMenu, onClick }, items.slice(0, expansion === "expanded" ? void 0 : ROW_CAPACITY)), /* @__PURE__ */ _(
+      "div",
+      {
+        className: (0, import_classnames3.default)({
+          [Favorites_default.showhide]: true,
+          [Favorites_default.showhideVisible]: canToggleExpansion
+        })
+      },
+      canToggleExpansion && /* @__PURE__ */ _(
+        ShowHideButton,
+        {
+          buttonAttrs: {
+            "aria-expanded": expansion === "expanded",
+            "aria-pressed": expansion === "expanded",
+            "aria-controls": WIDGET_ID,
+            id: TOGGLE_ID
+          },
+          text: expansion === "expanded" ? t3("favorites_show_less") : t3("favorites_show_more", { count: String(hiddenCount) }),
+          onClick: toggle
+        }
+      )
+    ));
+  }
+  function calculatePlaceholders(totalItems, itemsPerRow) {
+    if (totalItems === 0) return itemsPerRow;
+    if (totalItems === itemsPerRow) return 1;
+    const itemsInLastRow = totalItems % itemsPerRow;
+    const placeholders = itemsInLastRow > 0 ? itemsPerRow - itemsInLastRow : 1;
+    return placeholders;
+  }
+  var import_classnames3, FavoritesMemo;
+  var init_Favorites2 = __esm({
+    "pages/new-tab/app/favorites/components/Favorites.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_compat_module();
+      import_classnames3 = __toESM(require_classnames(), 1);
+      init_Favorites();
+      init_Tile2();
+      init_ShowHideButton();
+      init_types();
+      init_settings_provider();
+      FavoritesMemo = C3(Favorites);
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/FavoritesCustomized.js
+  function FavoritesConsumer() {
+    const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2 } = x2(FavoritesContext);
+    if (state.status === "ready") {
+      return /* @__PURE__ */ _(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: favoritesDidReOrder }, /* @__PURE__ */ _(
+        FavoritesMemo,
+        {
+          favorites: state.data.favorites,
+          expansion: state.config.expansion,
+          openContextMenu,
+          openFavorite,
+          add: add2,
+          toggle
+        }
+      ));
+    }
+    return null;
+  }
+  function FavoritesCustomized() {
+    const { t: t3 } = useTypedTranslation();
+    const { id, visibility, toggle, index } = useVisibility();
+    const title = t3("favorites_menu_title");
+    useCustomizer({ title, id, icon: "star", toggle, visibility, index });
+    if (visibility === "hidden") {
+      return null;
+    }
+    return /* @__PURE__ */ _(FavoritesProvider, null, /* @__PURE__ */ _(FavoritesConsumer, null));
+  }
+  var init_FavoritesCustomized = __esm({
+    "pages/new-tab/app/favorites/components/FavoritesCustomized.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_widget_config_provider();
+      init_Customizer2();
+      init_FavoritesProvider();
+      init_PragmaticDND();
+      init_Favorites2();
+    }
+  });
+
+  // pages/new-tab/app/entry-points/favorites.js
+  var favorites_exports = {};
+  __export(favorites_exports, {
+    factory: () => factory
+  });
+  function factory() {
+    return /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _(FavoritesCustomized, null));
+  }
+  var init_favorites = __esm({
+    "pages/new-tab/app/entry-points/favorites.js"() {
+      "use strict";
+      init_preact_module();
+      init_Layout();
+      init_FavoritesCustomized();
+    }
+  });
+
+  // pages/new-tab/app/privacy-stats/PrivacyStats.module.css
+  var PrivacyStats_default;
+  var init_PrivacyStats = __esm({
+    "pages/new-tab/app/privacy-stats/PrivacyStats.module.css"() {
+      PrivacyStats_default = {
+        root: "PrivacyStats_root",
+        collapsed: "PrivacyStats_collapsed",
+        expanded: "PrivacyStats_expanded",
+        heading: "PrivacyStats_heading",
+        headingIcon: "PrivacyStats_headingIcon",
+        title: "PrivacyStats_title",
+        expander: "PrivacyStats_expander",
+        subtitle: "PrivacyStats_subtitle",
+        list: "PrivacyStats_list",
+        entering: "PrivacyStats_entering",
+        "fade-in": "PrivacyStats_fade-in",
+        entered: "PrivacyStats_entered",
+        exiting: "PrivacyStats_exiting",
+        "fade-out": "PrivacyStats_fade-out",
+        row: "PrivacyStats_row",
+        company: "PrivacyStats_company",
+        icon: "PrivacyStats_icon",
+        companyImgIcon: "PrivacyStats_companyImgIcon",
+        other: "PrivacyStats_other",
+        name: "PrivacyStats_name",
+        bar: "PrivacyStats_bar",
+        fill: "PrivacyStats_fill",
+        count: "PrivacyStats_count"
+      };
+    }
+  });
+
+  // pages/new-tab/app/privacy-stats/privacy-stats.service.js
+  var PrivacyStatsService;
+  var init_privacy_stats_service = __esm({
+    "pages/new-tab/app/privacy-stats/privacy-stats.service.js"() {
+      "use strict";
+      init_service();
+      PrivacyStatsService = class {
+        /**
+         * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @internal
+         */
+        constructor(ntp) {
+          this.dataService = new Service({
+            initial: () => ntp.messaging.request("stats_getData"),
+            subscribe: (cb) => ntp.messaging.subscribe("stats_onDataUpdate", cb)
+          });
+          this.configService = new Service({
+            initial: () => ntp.messaging.request("stats_getConfig"),
+            subscribe: (cb) => ntp.messaging.subscribe("stats_onConfigUpdate", cb),
+            persist: (data) => ntp.messaging.notify("stats_setConfig", data)
+          });
+        }
+        /**
+         * @returns {Promise<{data: PrivacyStatsData; config: StatsConfig}>}
+         * @internal
+         */
+        async getInitial() {
+          const p1 = this.configService.fetchInitial();
+          const p22 = this.dataService.fetchInitial();
+          const [config, data] = await Promise.all([p1, p22]);
+          return { config, data };
+        }
+        /**
+         * @internal
+         */
+        destroy() {
+          this.configService.destroy();
+          this.dataService.destroy();
+        }
+        /**
+         * @param {(evt: {data: PrivacyStatsData, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onData(cb) {
+          return this.dataService.onData(cb);
+        }
+        /**
+         * @param {(evt: {data: StatsConfig, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onConfig(cb) {
+          return this.configService.onData(cb);
+        }
+        /**
+         * Update the in-memory data immediate and persist.
+         * Any state changes will be broadcast to consumers synchronously
+         * @internal
+         */
+        toggleExpansion() {
+          this.configService.update((old) => {
+            if (old.expansion === "expanded") {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "collapsed"
+              ) };
+            } else {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "expanded"
+              ) };
+            }
+          });
+        }
+      };
+    }
+  });
+
   // pages/new-tab/app/privacy-stats/PrivacyStatsProvider.js
   function PrivacyStatsProvider(props) {
     const initial = (
@@ -1501,13 +4869,13 @@
       }
     );
     const [state, dispatch] = p2(reducer, initial);
-    const service = useService();
+    const service = useService2();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const { toggle } = useConfigSubscription({ dispatch, service });
     return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService() {
+  function useService2() {
     const service = A2(
       /** @type {PrivacyStatsService|null} */
       null
@@ -1561,29 +4929,6 @@
   var init_utils = __esm({
     "pages/new-tab/app/utils.js"() {
       "use strict";
-    }
-  });
-
-  // pages/new-tab/app/components/ShowHide.module.css
-  var ShowHide_default;
-  var init_ShowHide = __esm({
-    "pages/new-tab/app/components/ShowHide.module.css"() {
-      ShowHide_default = {
-        button: "ShowHide_button"
-      };
-    }
-  });
-
-  // pages/new-tab/app/components/ShowHideButton.jsx
-  function ShowHideButton({ text, onClick, buttonAttrs = {} }) {
-    return /* @__PURE__ */ _("button", { ...buttonAttrs, class: ShowHide_default.button, "aria-label": text, onClick }, /* @__PURE__ */ _(ChevronButton, null));
-  }
-  var init_ShowHideButton = __esm({
-    "pages/new-tab/app/components/ShowHideButton.jsx"() {
-      "use strict";
-      init_ShowHide();
-      init_Icons2();
-      init_preact_module();
     }
   });
 
@@ -1835,7 +5180,7 @@
       }
     );
     const [state, dispatch] = p2(reducer, initial);
-    const service = useService2();
+    const service = useService3();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const dismiss = q2(
@@ -1860,7 +5205,7 @@
     );
     return /* @__PURE__ */ _(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ _(RMFDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService2() {
+  function useService3() {
     const service = A2(
       /** @type {RMFService|null} */
       null
@@ -1910,7 +5255,7 @@
   // pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.js
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames2.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames2.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.primary), onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames2.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.secondary), onClick: () => secondaryAction(id) }, message.secondaryActionText))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _("button", { class: (0, import_classnames2.default)(RemoteMessagingFramework_default.btn), onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _("button", { className: (0, import_classnames2.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.dismissBtn), onClick: () => dismiss(id), "aria-label": "Close" }, /* @__PURE__ */ _(Cross, null)));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames4.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.primary), onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.secondary), onClick: () => secondaryAction(id) }, message.secondaryActionText))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(RemoteMessagingFramework_default.btn), onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _("button", { className: (0, import_classnames4.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.dismissBtn), onClick: () => dismiss(id), "aria-label": "Close" }, /* @__PURE__ */ _(Cross, null)));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -1927,12 +5272,12 @@
     }
     return null;
   }
-  var import_classnames2;
+  var import_classnames4;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames2 = __toESM(require_classnames(), 1);
+      import_classnames4 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -2042,14 +5387,14 @@
       }
     );
     const [state, dispatch] = p2(reducer, initial);
-    const service = useService3(updateNotification);
+    const service = useService4(updateNotification);
     useDataSubscription({ dispatch, service });
     const dismiss = q2(() => {
       service.current?.dismiss();
     }, [service]);
     return /* @__PURE__ */ _(UpdateNotificationContext.Provider, { value: { state, dismiss } }, /* @__PURE__ */ _(UpdateNotificationDispatchContext.Provider, { value: dispatch }, children));
   }
-  function useService3(initial) {
+  function useService4(initial) {
     const service = A2(
       /** @type {UpdateNotificationService|null} */
       null
@@ -2091,7 +5436,7 @@
   // pages/new-tab/app/update-notification/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
     const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames3.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 && /* @__PURE__ */ _(WithNotes, { notes, version }), notes.length === 0 && /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _("div", { class: UpdateNotification_default.dismiss }, /* @__PURE__ */ _("button", { onClick: dismiss, class: UpdateNotification_default.dismissBtn }, /* @__PURE__ */ _("span", { class: "sr-only" }, t3("updateNotification_dismiss_btn")), /* @__PURE__ */ _(Cross, null))));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 && /* @__PURE__ */ _(WithNotes, { notes, version }), notes.length === 0 && /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _("div", { class: UpdateNotification_default.dismiss }, /* @__PURE__ */ _("button", { onClick: dismiss, class: UpdateNotification_default.dismissBtn }, /* @__PURE__ */ _("span", { class: "sr-only" }, t3("updateNotification_dismiss_btn")), /* @__PURE__ */ _(Cross, null))));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -2132,12 +5477,12 @@
     }
     return null;
   }
-  var import_classnames3;
+  var import_classnames5;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames3 = __toESM(require_classnames(), 1);
+      import_classnames5 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -2180,19 +5525,8 @@
     layout: "App_layout"
   };
 
-  // pages/new-tab/app/settings.provider.js
-  init_preact_module();
-  init_hooks_module();
-  var SettingsContext = G(
-    /** @type {{settings: import("./settings.js").Settings}} */
-    {}
-  );
-  function SettingsProvider({ settings, children }) {
-    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
-  }
-  function usePlatformName() {
-    return x2(SettingsContext).settings.platform.name;
-  }
+  // pages/new-tab/app/components/App.js
+  init_settings_provider();
 
   // pages/new-tab/app/widget-list/WidgetList.js
   init_preact_module();
@@ -2469,21 +5803,21 @@
       const deltaX = oldCoords.left - newCoords.left;
       const deltaY = oldCoords.top - newCoords.top;
       const [widthFrom, widthTo, heightFrom, heightTo] = getTransitionSizes(el, oldCoords, newCoords);
-      const start = {
+      const start2 = {
         transform: `translate(${deltaX}px, ${deltaY}px)`
       };
       const end = {
         transform: `translate(0, 0)`
       };
       if (widthFrom !== widthTo) {
-        start.width = `${widthFrom}px`;
+        start2.width = `${widthFrom}px`;
         end.width = `${widthTo}px`;
       }
       if (heightFrom !== heightTo) {
-        start.height = `${heightFrom}px`;
+        start2.height = `${heightFrom}px`;
         end.height = `${heightTo}px`;
       }
-      animation = el.animate([start, end], {
+      animation = el.animate([start2, end], {
         duration: pluginOrOptions.duration,
         easing: pluginOrOptions.easing
       });
@@ -2557,7 +5891,7 @@
     }
     if (!isEnabled(el))
       return cleanUp(el);
-    const [top, left, width, height] = deletePosition(el);
+    const [top2, left2, width, height] = deletePosition(el);
     const optionsOrPlugin = getOptions(el);
     const oldCoords = coords.get(el);
     if (finalX !== scrollX || finalY !== scrollY) {
@@ -2566,8 +5900,8 @@
     let animation;
     let styleReset = {
       position: "absolute",
-      top: `${top}px`,
-      left: `${left}px`,
+      top: `${top2}px`,
+      left: `${left2}px`,
       width: `${width}px`,
       height: `${height}px`,
       margin: "0",
@@ -2646,9 +5980,9 @@
       offsetParent = document.body;
     const parentStyles = getComputedStyle(offsetParent);
     const parentCoords = coords.get(offsetParent) || getCoords(offsetParent);
-    const top = Math.round(oldCoords.top - parentCoords.top) - raw(parentStyles.borderTopWidth);
-    const left = Math.round(oldCoords.left - parentCoords.left) - raw(parentStyles.borderLeftWidth);
-    return [top, left, width, height];
+    const top2 = Math.round(oldCoords.top - parentCoords.top) - raw(parentStyles.borderTopWidth);
+    const left2 = Math.round(oldCoords.left - parentCoords.left) - raw(parentStyles.borderLeftWidth);
+    return [top2, left2, width, height];
   }
   function autoAnimate(el, config = {}) {
     if (mutations && resize) {
@@ -2869,6 +6203,7 @@
   };
 
   // pages/new-tab/app/index.js
+  init_settings_provider();
   init_types();
   init_TranslationsProvider();
 
@@ -3212,503 +6547,51 @@
     }
   };
 
-  // pages/new-tab/app/favorites/components/Favorites.js
+  // pages/new-tab/app/favorites/mocks/MockFavoritesProvider.js
   init_preact_module();
+  init_FavoritesProvider();
   init_hooks_module();
-
-  // ../node_modules/preact/compat/dist/compat.module.js
-  init_preact_module();
-  init_preact_module();
-  init_hooks_module();
-  init_hooks_module();
-  function g3(n2, t3) {
-    for (var e3 in n2) if ("__source" !== e3 && !(e3 in t3)) return true;
-    for (var r3 in t3) if ("__source" !== r3 && n2[r3] !== t3[r3]) return true;
-    return false;
-  }
-  function E2(n2, t3) {
-    this.props = n2, this.context = t3;
-  }
-  function C3(n2, e3) {
-    function r3(n3) {
-      var t3 = this.props.ref, r4 = t3 == n3.ref;
-      return !r4 && t3 && (t3.call ? t3(null) : t3.current = null), e3 ? !e3(this.props, n3) || !r4 : g3(this.props, n3);
-    }
-    function u3(e4) {
-      return this.shouldComponentUpdate = r3, _(n2, e4);
-    }
-    return u3.displayName = "Memo(" + (n2.displayName || n2.name) + ")", u3.prototype.isReactComponent = true, u3.__f = true, u3;
-  }
-  (E2.prototype = new k()).isPureReactComponent = true, E2.prototype.shouldComponentUpdate = function(n2, t3) {
-    return g3(this.props, n2) || g3(this.state, t3);
+  init_service_hooks();
+  var DEFAULT_CONFIG = {
+    expansion: "expanded"
   };
-  var x3 = l.__b;
-  l.__b = function(n2) {
-    n2.type && n2.type.__f && n2.ref && (n2.props.ref = n2.ref, n2.ref = null), x3 && x3(n2);
-  };
-  var R = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.forward_ref") || 3911;
-  var N2 = l.__e;
-  l.__e = function(n2, t3, e3, r3) {
-    if (n2.then) {
-      for (var u3, o3 = t3; o3 = o3.__; ) if ((u3 = o3.__c) && u3.__c) return null == t3.__e && (t3.__e = e3.__e, t3.__k = e3.__k), u3.__c(n2, t3);
-    }
-    N2(n2, t3, e3, r3);
-  };
-  var M2 = l.unmount;
-  function T3(n2, t3, e3) {
-    return n2 && (n2.__c && n2.__c.__H && (n2.__c.__H.__.forEach(function(n3) {
-      "function" == typeof n3.__c && n3.__c();
-    }), n2.__c.__H = null), null != (n2 = function(n3, t4) {
-      for (var e4 in t4) n3[e4] = t4[e4];
-      return n3;
-    }({}, n2)).__c && (n2.__c.__P === e3 && (n2.__c.__P = t3), n2.__c = null), n2.__k = n2.__k && n2.__k.map(function(n3) {
-      return T3(n3, t3, e3);
-    })), n2;
-  }
-  function A3(n2, t3, e3) {
-    return n2 && e3 && (n2.__v = null, n2.__k = n2.__k && n2.__k.map(function(n3) {
-      return A3(n3, t3, e3);
-    }), n2.__c && n2.__c.__P === t3 && (n2.__e && e3.appendChild(n2.__e), n2.__c.__e = true, n2.__c.__P = e3)), n2;
-  }
-  function D3() {
-    this.__u = 0, this.t = null, this.__b = null;
-  }
-  function L2(n2) {
-    var t3 = n2.__.__c;
-    return t3 && t3.__a && t3.__a(n2);
-  }
-  function F3() {
-    this.u = null, this.o = null;
-  }
-  l.unmount = function(n2) {
-    var t3 = n2.__c;
-    t3 && t3.__R && t3.__R(), t3 && 32 & n2.__u && (n2.type = null), M2 && M2(n2);
-  }, (D3.prototype = new k()).__c = function(n2, t3) {
-    var e3 = t3.__c, r3 = this;
-    null == r3.t && (r3.t = []), r3.t.push(e3);
-    var u3 = L2(r3.__v), o3 = false, i4 = function() {
-      o3 || (o3 = true, e3.__R = null, u3 ? u3(c3) : c3());
-    };
-    e3.__R = i4;
-    var c3 = function() {
-      if (!--r3.__u) {
-        if (r3.state.__a) {
-          var n3 = r3.state.__a;
-          r3.__v.__k[0] = A3(n3, n3.__c.__P, n3.__c.__O);
-        }
-        var t4;
-        for (r3.setState({ __a: r3.__b = null }); t4 = r3.t.pop(); ) t4.forceUpdate();
-      }
-    };
-    r3.__u++ || 32 & t3.__u || r3.setState({ __a: r3.__b = r3.__v.__k[0] }), n2.then(i4, i4);
-  }, D3.prototype.componentWillUnmount = function() {
-    this.t = [];
-  }, D3.prototype.render = function(n2, e3) {
-    if (this.__b) {
-      if (this.__v.__k) {
-        var r3 = document.createElement("div"), o3 = this.__v.__k[0].__c;
-        this.__v.__k[0] = T3(this.__b, r3, o3.__O = o3.__P);
-      }
-      this.__b = null;
-    }
-    var i4 = e3.__a && _(b, null, n2.fallback);
-    return i4 && (i4.__u &= -33), [_(b, null, e3.__a ? null : n2.children), i4];
-  };
-  var U = function(n2, t3, e3) {
-    if (++e3[1] === e3[0] && n2.o.delete(t3), n2.props.revealOrder && ("t" !== n2.props.revealOrder[0] || !n2.o.size)) for (e3 = n2.u; e3; ) {
-      for (; e3.length > 3; ) e3.pop()();
-      if (e3[1] < e3[0]) break;
-      n2.u = e3 = e3[2];
-    }
-  };
-  (F3.prototype = new k()).__a = function(n2) {
-    var t3 = this, e3 = L2(t3.__v), r3 = t3.o.get(n2);
-    return r3[0]++, function(u3) {
-      var o3 = function() {
-        t3.props.revealOrder ? (r3.push(u3), U(t3, n2, r3)) : u3();
-      };
-      e3 ? e3(o3) : o3();
-    };
-  }, F3.prototype.render = function(n2) {
-    this.u = null, this.o = /* @__PURE__ */ new Map();
-    var t3 = H(n2.children);
-    n2.revealOrder && "b" === n2.revealOrder[0] && t3.reverse();
-    for (var e3 = t3.length; e3--; ) this.o.set(t3[e3], this.u = [1, 0, this.u]);
-    return n2.children;
-  }, F3.prototype.componentDidUpdate = F3.prototype.componentDidMount = function() {
-    var n2 = this;
-    this.o.forEach(function(t3, e3) {
-      U(n2, e3, t3);
-    });
-  };
-  var j3 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
-  var z3 = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;
-  var B3 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
-  var H2 = /[A-Z0-9]/g;
-  var Z = "undefined" != typeof document;
-  var Y = function(n2) {
-    return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n2);
-  };
-  k.prototype.isReactComponent = {}, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t3) {
-    Object.defineProperty(k.prototype, t3, { configurable: true, get: function() {
-      return this["UNSAFE_" + t3];
-    }, set: function(n2) {
-      Object.defineProperty(this, t3, { configurable: true, writable: true, value: n2 });
-    } });
-  });
-  var G2 = l.event;
-  function J() {
-  }
-  function K() {
-    return this.cancelBubble;
-  }
-  function Q() {
-    return this.defaultPrevented;
-  }
-  l.event = function(n2) {
-    return G2 && (n2 = G2(n2)), n2.persist = J, n2.isPropagationStopped = K, n2.isDefaultPrevented = Q, n2.nativeEvent = n2;
-  };
-  var X;
-  var nn = { enumerable: false, configurable: true, get: function() {
-    return this.class;
-  } };
-  var tn = l.vnode;
-  l.vnode = function(n2) {
-    "string" == typeof n2.type && function(n3) {
-      var t3 = n3.props, e3 = n3.type, u3 = {}, o3 = -1 === e3.indexOf("-");
-      for (var i4 in t3) {
-        var c3 = t3[i4];
-        if (!("value" === i4 && "defaultValue" in t3 && null == c3 || Z && "children" === i4 && "noscript" === e3 || "class" === i4 || "className" === i4)) {
-          var f3 = i4.toLowerCase();
-          "defaultValue" === i4 && "value" in t3 && null == t3.value ? i4 = "value" : "download" === i4 && true === c3 ? c3 = "" : "translate" === f3 && "no" === c3 ? c3 = false : "o" === f3[0] && "n" === f3[1] ? "ondoubleclick" === f3 ? i4 = "ondblclick" : "onchange" !== f3 || "input" !== e3 && "textarea" !== e3 || Y(t3.type) ? "onfocus" === f3 ? i4 = "onfocusin" : "onblur" === f3 ? i4 = "onfocusout" : B3.test(i4) && (i4 = f3) : f3 = i4 = "oninput" : o3 && z3.test(i4) ? i4 = i4.replace(H2, "-$&").toLowerCase() : null === c3 && (c3 = void 0), "oninput" === f3 && u3[i4 = f3] && (i4 = "oninputCapture"), u3[i4] = c3;
-        }
-      }
-      "select" == e3 && u3.multiple && Array.isArray(u3.value) && (u3.value = H(t3.children).forEach(function(n4) {
-        n4.props.selected = -1 != u3.value.indexOf(n4.props.value);
-      })), "select" == e3 && null != u3.defaultValue && (u3.value = H(t3.children).forEach(function(n4) {
-        n4.props.selected = u3.multiple ? -1 != u3.defaultValue.indexOf(n4.props.value) : u3.defaultValue == n4.props.value;
-      })), t3.class && !t3.className ? (u3.class = t3.class, Object.defineProperty(u3, "className", nn)) : (t3.className && !t3.class || t3.class && t3.className) && (u3.class = u3.className = t3.className), n3.props = u3;
-    }(n2), n2.$$typeof = j3, tn && tn(n2);
-  };
-  var en = l.__r;
-  l.__r = function(n2) {
-    en && en(n2), X = n2.__c;
-  };
-  var rn = l.diffed;
-  l.diffed = function(n2) {
-    rn && rn(n2);
-    var t3 = n2.props, e3 = n2.__e;
-    null != e3 && "textarea" === n2.type && "value" in t3 && t3.value !== e3.value && (e3.value = null == t3.value ? "" : t3.value), X = null;
-  };
-
-  // pages/new-tab/app/favorites/components/Favorites.js
-  var import_classnames5 = __toESM(require_classnames(), 1);
-
-  // pages/new-tab/app/favorites/components/Favorites.module.css
-  var Favorites_default = {
-    root: "Favorites_root",
-    showhide: "Favorites_showhide",
-    showhideVisible: "Favorites_showhideVisible",
-    hr: "Favorites_hr",
-    grid: "Favorites_grid"
-  };
-
-  // pages/new-tab/app/favorites/components/Tile.js
-  init_preact_module();
-  var import_classnames4 = __toESM(require_classnames(), 1);
-  init_hooks_module();
-
-  // pages/new-tab/app/favorites/components/Tile.module.css
-  var Tile_default = {
-    item: "Tile_item",
-    icon: "Tile_icon",
-    draggable: "Tile_draggable",
-    favicon: "Tile_favicon",
-    text: "Tile_text",
-    preview: "Tile_preview",
-    placeholder: "Tile_placeholder",
-    plus: "Tile_plus",
-    dropper: "Tile_dropper"
-  };
-
-  // pages/new-tab/app/favorites/color.js
-  var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES = [
-    "#94B3AF",
-    "#727998",
-    "#645468",
-    "#4D5F7F",
-    "#855DB6",
-    "#5E5ADB",
-    "#678FFF",
-    "#6BB4EF",
-    "#4A9BAE",
-    "#66C4C6",
-    "#55D388",
-    "#99DB7A",
-    "#ECCC7B",
-    "#E7A538",
-    "#DD6B4C",
-    "#D65D62"
-  ];
-  function urlToColor(url3) {
-    const host = getHost(url3);
-    const index = Math.abs(getDJBHash(host) % EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
-    return EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index];
-  }
-  function getDJBHash(str) {
-    let hash = 5381;
-    for (let i4 = 0; i4 < str.length; i4++) {
-      hash = (hash << 5) + hash + str.charCodeAt(i4);
-    }
-    return hash;
-  }
-  function getHost(url3) {
-    try {
-      const urlObj = new URL(url3);
-      return urlObj.hostname.replace(/^www\./, "");
-    } catch (e3) {
-      return "?";
-    }
-  }
-
-  // pages/new-tab/app/favorites/constants.js
-  var DDG_FALLBACK_ICON = "./company-icons/other.svg";
-  var DDG_DEFAULT_ICON_SIZE = 64;
-
-  // pages/new-tab/app/favorites/components/Tile.js
-  function Tile({ url: url3, faviconSrc, faviconMax, index, title, id }) {
-    const { state, ref } = useItemState(url3, id);
-    const [visible, setVisible] = h2(true);
-    y2(() => {
-      if (!ref) return;
-      if (state.type !== "idle") return;
-      let elem = ref.current;
-      if (!elem) return;
-      let o3 = new IntersectionObserver(
-        (entries2) => {
-          const last = entries2[entries2.length - 1];
-          requestAnimationFrame(() => {
-            setVisible(last.isIntersecting);
-          });
-        },
-        { threshold: [0] }
-      );
-      o3.observe(elem);
-      return () => {
-        if (elem) {
-          o3?.unobserve(elem);
-        }
-        o3 = null;
-        elem = null;
-      };
-    }, [id, state.type]);
-    return /* @__PURE__ */ _(
-      "a",
+  function MockFavoritesProvider({ data = favorites.many, config = DEFAULT_CONFIG, children }) {
+    const { isReducedMotion } = useEnv();
+    const initial = (
+      /** @type {State} */
       {
-        class: Tile_default.item,
-        tabindex: 0,
-        role: "button",
-        href: url3,
-        "data-id": id,
-        "data-index": index,
-        "data-edge": "closestEdge" in state && state.closestEdge,
-        ref
-      },
-      /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(Tile_default.icon, Tile_default.draggable) }, visible && /* @__PURE__ */ _(
-        ImageLoader,
-        {
-          faviconSrc: faviconSrc || "n/a",
-          faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE,
-          title,
-          url: url3
-        }
-      )),
-      /* @__PURE__ */ _("div", { class: Tile_default.text }, title),
-      state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
-    );
-  }
-  var TileMemo = C3(Tile);
-  function ImageLoader({ faviconSrc, faviconMax, title, url: url3 }) {
-    const imgError = (e3) => {
-      if (!e3.target) return;
-      if (!(e3.target instanceof HTMLImageElement)) return;
-      if (e3.target.src === e3.target.dataset.fallback) return console.warn("refusing to load same fallback");
-      if (e3.target.dataset.didTryFallback) {
-        e3.target.dataset.errored = String(true);
-        return;
-      }
-      e3.target.dataset.didTryFallback = String(true);
-      e3.target.src = e3.target.dataset.fallback;
-    };
-    const imgLoaded = (e3) => {
-      if (!e3.target) return;
-      if (!(e3.target instanceof HTMLImageElement)) return;
-      e3.target.dataset.loaded = String(true);
-      if (e3.target.src.endsWith("other.svg")) {
-        return;
-      }
-      if (e3.target.dataset.didTryFallback) {
-        e3.target.style.background = urlToColor(url3);
-      }
-    };
-    const size = Math.min(faviconMax, DDG_DEFAULT_ICON_SIZE);
-    const src = faviconSrc + "?preferredSize=" + size;
-    return /* @__PURE__ */ _(
-      "img",
-      {
-        src,
-        loading: "lazy",
-        className: Tile_default.favicon,
-        alt: `favicon for ${title}`,
-        onLoad: imgLoaded,
-        onError: imgError,
-        "data-src": faviconSrc,
-        "data-fallback": fallbackSrcFor(url3) || DDG_FALLBACK_ICON,
-        style: size !== DDG_DEFAULT_ICON_SIZE ? { width: size, height: size } : void 0
+        status: "ready",
+        data,
+        config
       }
     );
-  }
-  function fallbackSrcFor(url3) {
-    if (!url3) return null;
-    try {
-      const parsed = new URL(url3);
-      const char1 = parsed.hostname.match(/[a-z]/i)?.[0];
-      if (char1) {
-        return `./letters/${char1}.svg`;
+    const [state, dispatch] = p2(reducer, initial);
+    const toggle = q2(() => {
+      if (state.status !== "ready") return;
+      if (state.config.expansion === "expanded") {
+        dispatch({ kind: "config", config: { ...state.config, expansion: "collapsed" } });
+      } else {
+        dispatch({ kind: "config", config: { ...state.config, expansion: "expanded" } });
       }
-    } catch (e3) {
-    }
-    return null;
-  }
-  function Placeholder() {
-    const id = g2();
-    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
-    return /* @__PURE__ */ _("div", { className: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Tile_default.icon, Tile_default.placeholder) }), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
-  }
-  function PlusIcon({ onClick }) {
-    const id = g2();
-    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(Tile_default.icon, Tile_default.placeholder, Tile_default.plus), "aria-labelledby": id, onClick }, /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M8.25 0.5C8.66421 0.5 9 0.835786 9 1.25V7H14.75C15.1642 7 15.5 7.33579 15.5 7.75C15.5 8.16421 15.1642 8.5 14.75 8.5H9V14.25C9 14.6642 8.66421 15 8.25 15C7.83579 15 7.5 14.6642 7.5 14.25V8.5H1.75C1.33579 8.5 1 8.16421 1 7.75C1 7.33579 1.33579 7 1.75 7H7.5V1.25C7.5 0.835786 7.83579 0.5 8.25 0.5Z",
-        fill: "currentColor"
-      }
-    ))), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, "Add Favorite"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
-  }
-  var PlusIconMemo = C3(PlusIcon);
-  function useItemState(url3, id) {
-    const ref = A2(null);
-    return { ref, state: { type: "idle" } };
-  }
-
-  // pages/new-tab/app/favorites/components/Favorites.js
-  init_ShowHideButton();
-  init_types();
-  var FavoritesMemo = C3(Favorites);
-  function Favorites({ gridRef, favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add: add2 }) {
-    const platformName = usePlatformName();
-    const { t: t3 } = useTypedTranslation();
-    const ROW_CAPACITY = 6;
-    const WIDGET_ID = g2();
-    const TOGGLE_ID = g2();
-    const ITEM_PREFIX = g2();
-    const placeholders = calculatePlaceholders(favorites2.length, ROW_CAPACITY);
-    const hiddenCount = expansion === "collapsed" ? favorites2.length - ROW_CAPACITY : 0;
-    const items = T2(() => {
-      return favorites2.map((item, index) => {
-        return /* @__PURE__ */ _(
-          TileMemo,
-          {
-            url: item.url,
-            faviconSrc: item.favicon?.src,
-            faviconMax: item.favicon?.maxAvailableSize,
-            title: item.title,
-            key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize,
-            id: item.id,
-            index
-          }
-        );
-      }).concat(
-        Array.from({ length: placeholders }).map((_3, index) => {
-          if (index === 0) {
-            return /* @__PURE__ */ _(PlusIconMemo, { key: "placeholder-plus", onClick: add2 });
-          }
-          return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${index}` });
-        })
-      );
-    }, [favorites2, placeholders, ITEM_PREFIX, add2]);
-    function onContextMenu(event) {
-      let target2 = (
-        /** @type {HTMLElement|null} */
-        event.target
-      );
-      while (target2 && target2 !== event.currentTarget) {
-        if (typeof target2.dataset.id === "string") {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          return openContextMenu(target2.dataset.id);
-        } else {
-          target2 = target2.parentElement;
-        }
-      }
-    }
-    function onClick(event) {
-      let target2 = (
-        /** @type {HTMLElement|null} */
-        event.target
-      );
-      while (target2 && target2 !== event.currentTarget) {
-        if (typeof target2.dataset.id === "string") {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
-          if (isControlClick) {
-            return openFavorite(target2.dataset.id, "new-tab");
-          } else if (event.shiftKey) {
-            return openFavorite(target2.dataset.id, "new-window");
-          }
-          return openFavorite(target2.dataset.id, "same-tab");
-        } else {
-          target2 = target2.parentElement;
-        }
-      }
-    }
-    const canToggleExpansion = items.length > ROW_CAPACITY;
-    return /* @__PURE__ */ _("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured" }, /* @__PURE__ */ _("div", { class: Favorites_default.grid, id: WIDGET_ID, ref: gridRef, onContextMenu, onClick }, items.slice(0, expansion === "expanded" ? void 0 : ROW_CAPACITY)), /* @__PURE__ */ _(
-      "div",
-      {
-        className: (0, import_classnames5.default)({
-          [Favorites_default.showhide]: true,
-          [Favorites_default.showhideVisible]: canToggleExpansion
-        })
-      },
-      canToggleExpansion && /* @__PURE__ */ _(
-        ShowHideButton,
-        {
-          buttonAttrs: {
-            "aria-expanded": expansion === "expanded",
-            "aria-pressed": expansion === "expanded",
-            "aria-controls": WIDGET_ID,
-            id: TOGGLE_ID
-          },
-          text: expansion === "expanded" ? t3("favorites_show_less") : t3("favorites_show_more", { count: String(hiddenCount) }),
-          onClick: toggle
-        }
-      )
-    ));
-  }
-  function calculatePlaceholders(totalItems, itemsPerRow) {
-    if (totalItems === 0) return itemsPerRow;
-    if (totalItems === itemsPerRow) return 1;
-    const itemsInLastRow = totalItems % itemsPerRow;
-    const placeholders = itemsInLastRow > 0 ? itemsPerRow - itemsInLastRow : 1;
-    return placeholders;
+    }, [state.status, state.config?.expansion, isReducedMotion]);
+    const favoritesDidReOrder = q2((newList) => {
+      dispatch({ kind: "data", data: { favorites: newList } });
+    }, []);
+    const openContextMenu = (...args) => {
+      console.log("noop openContextMenu", ...args);
+    };
+    const openFavorite = (...args) => {
+      console.log("noop openFavorite", ...args);
+    };
+    const add2 = (...args) => {
+      console.log("noop add", ...args);
+    };
+    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2 } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
   }
 
   // pages/new-tab/app/favorites/components/FavoritesExamples.js
+  init_Favorites2();
+  init_FavoritesCustomized();
   var favoritesExamples = {
     "favorites.no-dnd": {
       factory: () => /* @__PURE__ */ _(
@@ -3722,6 +6605,37 @@
           openContextMenu: noop("openContextMenu")
         }
       )
+    },
+    "favorites.dnd": {
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ _(FavoritesConsumer, null))
+    },
+    "favorites.few.7": {
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 7) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
+    },
+    "favorites.few.7.no-animation": {
+      factory: () => /* @__PURE__ */ _(
+        MockFavoritesProvider,
+        {
+          data: { favorites: favorites.many.favorites.slice(0, 7) },
+          config: { expansion: "expanded", animation: { kind: "none" } }
+        },
+        /* @__PURE__ */ _(FavoritesConsumer, null)
+      )
+    },
+    "favorites.few.6": {
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 6) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
+    },
+    "favorites.few.12": {
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 12) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
+    },
+    "favorites.multi": {
+      factory: () => /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.two }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ _(FavoritesConsumer, null)))
+    },
+    "favorites.single": {
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ _(FavoritesConsumer, null))
+    },
+    "favorites.none": {
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ _(FavoritesConsumer, null))
     }
   };
 
