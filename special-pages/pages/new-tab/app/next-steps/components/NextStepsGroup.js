@@ -4,7 +4,7 @@ import styles from './NextSteps.module.css';
 import { useTypedTranslation } from '../../types';
 import { NextStepsCard } from './NextStepsCard';
 import { otherText } from '../nextsteps.data';
-import { ShowHideButton } from '../../components/ShowHideButton';
+import { ShowHideButtonWithText } from './ShowHideButtonWithText';
 import { useId } from 'preact/hooks';
 
 /**
@@ -29,9 +29,9 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, 
 
     console.log({ types, shownCards });
     return (
-        <div class={cn(styles.nextStepsCardGroup)}>
+        <div class={cn(styles.cardGroup)}>
             <NextStepsBubbleHeader />
-            <div class={styles.nextStepsCardGrid}>
+            <div class={styles.cardGrid}>
                 {shownCards.map((type) => (
                     <NextStepsCard key={type} type={type} dismiss={dismiss} action={action} />
                 ))}
@@ -44,7 +44,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, 
                 })}
             >
                 {types.length > 2 && (
-                    <ShowHideButton
+                    <ShowHideButtonWithText
                         buttonAttrs={{
                             'aria-expanded': expansion === 'expanded',
                             'aria-pressed': expansion === 'expanded',
@@ -64,7 +64,7 @@ export function NextStepsBubbleHeader() {
     const { t } = useTypedTranslation();
     const text = otherText.nextSteps_sectionTitle(t);
     return (
-        <div class={styles.nextStepsBubble}>
+        <div class={styles.bubble}>
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="26" viewBox="0 0 12 26" fill="none">
                 <path
                     fill-rule="evenodd"

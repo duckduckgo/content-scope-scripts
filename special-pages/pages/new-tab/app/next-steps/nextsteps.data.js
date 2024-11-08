@@ -28,7 +28,7 @@ export const variants = {
     //  * @param {import('../types').TranslationFn} t
     //  */
     bringStuff: (t) => ({
-        id: 'bring-stuff',
+        id: 'bringStuff',
         icon: 'Bring-Stuff',
         title: t('nextSteps_bringStuff_title'),
         summary: t('nextSteps_bringStuff_summary'),
@@ -97,8 +97,7 @@ export const variants = {
 };
 
 export const otherText = {
-    dismiss: (t) => t('ntp_dismiss'),
-    showMore: (t) => t('ntp_showMore'),
-    showLess: (t) => t('ntp_showLess'),
+    showMore: (t) => t('ntp_show_more'),
+    showLess: (t) => t('ntp_show_less'),
     nextSteps_sectionTitle: (t) => t('nextSteps_sectionTitle'),
 };
