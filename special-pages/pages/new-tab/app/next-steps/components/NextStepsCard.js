@@ -4,10 +4,9 @@ import { DismissButton } from '../../components/DismissButton';
 import { variants } from '../nextsteps.data';
 import { useTypedTranslation } from '../../types';
 
-/*
- * @import { NextStepsCards } from "../../../../types/new-tab"
+/**
  * @param {object} props
- * @param {NextStepsCards} props.type
+ * @param {string} props.type
  * @param {(id: string) => void} props.dismiss
  * @param {(id: string) => void} props.action
  */
