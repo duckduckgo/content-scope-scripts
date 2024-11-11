@@ -1,11 +1,11 @@
 .button {
-    cursor: pointer;
     background: none;
     border: none;
     outline: none;
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
     color: var(--color-black-at-60);
     height: var(--sp-8);
     width: 100%;
@@ -20,6 +20,10 @@
         height: 50%;
         border-bottom: 1px solid var(--ntp-surface-border-color);
         margin-bottom: auto;
+    }
+
+    &:hover {
+        cursor: pointer;
     }
 
     &[aria-pressed=true] svg {
