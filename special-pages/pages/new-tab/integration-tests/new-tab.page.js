@@ -57,7 +57,7 @@ export class NewtabPage {
      * @param {'debug' | 'production'} [params.mode] - Optional parameters for opening the page.
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {string|number} [params.favorites] - Optional flag to preload a list of favorites
-     * @param {string} [params.nextSteps] - Optional flag to load Next Steps cards
+     * @param {string|string[]} [params.nextSteps] - Optional flag to load Next Steps cards
      * @param {string} [params.rmf] - Optional flag to add certain rmf example
      * @param {string} [params.updateNotification] - Optional flag to point to display=components view with certain rmf example visible
      * @param {string} [params.platformName] - Optional parameters for opening the page.
@@ -75,7 +75,12 @@ export class NewtabPage {
         }
 
         if (nextSteps !== undefined) {
-            searchParams.set('next-steps', nextSteps);
+            if (typeof nextSteps === 'string') {
+                searchParams.set('next-steps', nextSteps);
+            } else if (Array.isArray(nextSteps)) {
+                searchParams.set('next-steps', nextSteps[0]);
+                nextSteps.slice(1).forEach((step) => searchParams.append('next-steps', step));
+            }
         }
 
         if (platformName !== undefined) {
