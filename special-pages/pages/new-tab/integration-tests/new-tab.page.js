@@ -78,7 +78,7 @@ export class NewtabPage {
             if (typeof nextSteps === 'string') {
                 searchParams.set('next-steps', nextSteps);
             } else if (Array.isArray(nextSteps)) {
-                for (let step of nextSteps) {
+                for (const step of nextSteps) {
                     searchParams.append('next-steps', step);
                 }
             }

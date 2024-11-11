@@ -33,15 +33,29 @@ test.describe('newtab NextSteps cards', () => {
         await ntp.mocks.waitForCallCount({ method: 'nextSteps_action', count: 1 });
     });
 
-    test('renders multiple', async ({ page }, workerInfo) => {
+    test('renders multiple, shows 2 when collapsed', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ nextSteps: ['bringStuff', 'defaultApp', 'blockCookies', 'duckplayer'] });
+        // renders the first two
+        await expect(page.getByText('Bring Your Stuff')).toBeVisible();
+        await expect(page.getByText('Set as Default Browser')).toBeVisible();
+        // does not render the 4th one
+        await expect(page.getByRole('button', { name: 'Try DuckPlayer' })).not.toBeVisible();
+    });
 
-        console.log(page.url());
-        await page.getByText('Bring Your Stuff').waitFor();
-        await page.getByText('Block Cookie Pop-ups').waitFor();
-        await page.getByText('Set as Default Browser').waitFor();
-        await page.getByText('YouTube Without Creepy Ads').waitFor();
+    test('renders multiple, shows all when expanded', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ nextSteps: ['bringStuff', 'defaultApp', 'blockCookies', 'duckplayer'] });
+        // while collapsed, 4th item action button unavailable
+        await expect(page.getByRole('button', { name: 'Try DuckPlayer' })).not.toBeVisible();
+
+        // expand the section
+        await page.getByLabel('Show more', { exact: true }).click();
+
+        await expect(page.locator('p').filter({ hasText: 'Block Cookie Pop-ups' })).toBeVisible();
+        await page.getByRole('button', { name: 'Try DuckPlayer' }).click();
+        await ntp.mocks.waitForCallCount({ method: 'nextSteps_action', count: 1 });
     });
 });
