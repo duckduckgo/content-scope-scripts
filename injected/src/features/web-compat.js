@@ -571,7 +571,7 @@ export class WebCompat extends ContentFeature {
      * Support for modifying localStorage entries
      */
     modifyLocalStorage() {
-        /** @type {import('../types//webcompat-settings').WebCompatSettings['modifyLocalStorage']} */
+        /** @type {import('@duckduckgo/privacy-configuration/schema/features/webcompat').WebCompatSettings['modifyLocalStorage']} */
         const settings = this.getFeatureSetting('modifyLocalStorage');
 
         if (!settings || !settings.changes) return;
@@ -587,7 +587,7 @@ export class WebCompat extends ContentFeature {
      * Support for proxying `window.webkit.messageHandlers`
      */
     messageHandlersFix() {
-        /** @type {import('../types//webcompat-settings').WebCompatSettings['messageHandlers']} */
+        /** @type {import('@duckduckgo/privacy-configuration/schema/features/webcompat').WebCompatSettings['messageHandlers']} */
         const settings = this.getFeatureSetting('messageHandlers');
 
         // Do nothing if `messageHandlers` is absent
