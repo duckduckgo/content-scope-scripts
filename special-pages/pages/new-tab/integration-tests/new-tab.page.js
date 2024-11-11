@@ -78,8 +78,7 @@ export class NewtabPage {
             if (typeof nextSteps === 'string') {
                 searchParams.set('next-steps', nextSteps);
             } else if (Array.isArray(nextSteps)) {
-                searchParams.set('next-steps', nextSteps[0]);
-                nextSteps.slice(1).forEach((step) => searchParams.append('next-steps', step));
+                nextSteps.forEach((step) => searchParams.append('next-steps', step));
             }
         }
 
