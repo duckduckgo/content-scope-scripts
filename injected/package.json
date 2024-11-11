@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#main",
     "@fingerprintjs/fingerprintjs": "^4.5.1",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
@@ -46,7 +47,6 @@
     "@types/jasmine": "^5.1.4",
     "@types/node": "^22.8.7",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1729260354597",
     "fast-check": "^3.23.1",
     "jasmine": "^5.4.0",
     "minimist": "^1.2.8",
