@@ -32,4 +32,16 @@ test.describe('newtab NextSteps cards', () => {
         await page.getByRole('button', { name: 'Make Default Browser' }).click();
         await ntp.mocks.waitForCallCount({ method: 'nextSteps_action', count: 1 });
     });
+
+    test('renders multiple', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ nextSteps: ['bringStuff', 'defaultApp', 'blockCookies', 'duckplayer'] });
+
+        console.log(page.url());
+        await page.getByText('Bring Your Stuff').waitFor();
+        await page.getByText('Block Cookie Pop-ups').waitFor();
+        await page.getByText('Set as Default Browser').waitFor();
+        await page.getByText('YouTube Without Creepy Ads').waitFor();
+    });
 });
