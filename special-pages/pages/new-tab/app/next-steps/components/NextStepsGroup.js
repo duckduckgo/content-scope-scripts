@@ -29,7 +29,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, 
 
     console.log({ types, shownCards });
     return (
-        <div class={cn(styles.cardGroup)}>
+        <div class={cn(styles.cardGroup)} id={WIDGET_ID}>
             <NextStepsBubbleHeader />
             <div class={styles.cardGrid}>
                 {shownCards.map((type) => (

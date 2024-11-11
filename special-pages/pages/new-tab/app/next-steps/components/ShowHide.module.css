@@ -1,6 +1,4 @@
 .button {
-    opacity: 0;
-    transition: opacity 0.3s;
     cursor: pointer;
     background: none;
     border: none;
@@ -12,10 +10,11 @@
     height: var(--sp-8);
     width: 100%;
     line-height: var(--sp-8);
-    gap: 6px;
+    gap: calc(6 * var(--px-in-rem));
     padding: 0;
-    font-size: 11px;
+    font-size: calc(11 * var(--px-in-rem));
 
+    /* these are the horizontal lines on either side of the text */
     span {
         flex-grow: 1;
         height: 50%;
@@ -28,7 +27,6 @@
     }
 
     &:focus-visible {
-        opacity: 1;
         outline: 1px dotted var(--ntp-focus-outline-color);
     }
 
