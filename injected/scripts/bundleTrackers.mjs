@@ -4,6 +4,10 @@ import { parseArgs, write } from '../../scripts/script-utils.js';
 
 const tdsUrl = 'https://staticcdn.duckduckgo.com/trackerblocking/v4/tds.json';
 const resp = await fetch(tdsUrl);
+/**
+ * Ignore 'unknown' type for now.
+ * @type any
+ */
 const tds = await resp.json();
 
 // Build a trie of tracker domains, starting with the broadest subdomain. Leaves are set to 1 to indicate success
