@@ -1,5 +1,6 @@
 import { DDGPromise } from '../utils';
 import ContentFeature from '../content-feature';
+import { createPageWorldBridge } from './message-bridge/create-page-world-bridge.js';
 
 export default class NavigatorInterface extends ContentFeature {
     load(args) {
@@ -27,6 +28,13 @@ export default class NavigatorInterface extends ContentFeature {
                     platform: args.platform.name,
                     isDuckDuckGo() {
                         return DDGPromise.resolve(true);
+                    },
+                    /**
+                     * @param {string} featureName
+                     * @return {Pick<import("@duckduckgo/messaging").Messaging, "notify"|"subscribe"|"request">}
+                     */
+                    createMessageBridge(featureName) {
+                        return createPageWorldBridge(featureName, args.messageSecret);
                     },
                 },
                 enumerable: true,

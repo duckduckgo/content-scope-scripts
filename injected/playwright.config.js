@@ -12,6 +12,7 @@ export default defineConfig({
                 'integration-test/windows-permissions.spec.js',
                 'integration-test/broker-protection.spec.js',
                 'integration-test/breakage-reporting.spec.js',
+                'integration-test/message-bridge-windows.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
@@ -26,7 +27,11 @@ export default defineConfig({
         },
         {
             name: 'apple',
-            testMatch: ['integration-test/webcompat.spec.js'],
+            // prettier-ignore
+            testMatch: [
+                'integration-test/webcompat.spec.js',
+                'integration-test/message-bridge-apple.spec.js'
+            ],
             use: { injectName: 'apple', platform: 'macos' },
         },
         {
