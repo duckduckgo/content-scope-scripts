@@ -15,6 +15,19 @@ export function ChevronButton() {
     );
 }
 
+export function Chevron({ className }) {
+    return (
+        <svg fill="none" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class={className}>
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M3.293 7.793a1 1 0 0 0 0 1.414l8 8a1 1 0 0 0 1.414 0l8-8a1 1 0 0 0-1.414-1.414L12 15.086 4.707 7.793a1 1 0 0 0-1.414 0Z"
+                clip-rule="evenodd"
+            />
+        </svg>
+    );
+}
+
 export function CustomizeIcon() {
     return (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class={styles.customize}>

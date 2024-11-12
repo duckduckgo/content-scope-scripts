@@ -26,7 +26,7 @@
         cursor: pointer;
     }
 
-    &[aria-pressed=true] svg {
+    &[aria-pressed=true] .icon {
         transform: rotate(180deg);
     }
 

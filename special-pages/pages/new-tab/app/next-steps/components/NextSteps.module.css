@@ -97,6 +97,17 @@
     }
 }
 
+&:hover {
+    .showhideVisible [aria-controls] {
+        opacity: 1;
+    }
+}
+&:focus-within {
+    .showhideVisible [aria-controls] {
+        opacity: 1;
+    }
+}
+
 .dismissBtn {
     position: absolute;
     top: 0.5rem;
@@ -124,14 +135,18 @@
         fill: var(--ntp-color-primary);
     }
 
-    p {
+    div {
         background-color: var(--ntp-color-primary);
-        padding: calc(3 * var(--px-in-rem)) 0 var(--sp-1);
         font-size: calc(11 * var(--px-in-rem));
+
+        height: 20px;
         line-height: normal;
         font-weight: 600;
         letter-spacing: 0.06px;
         color: var(--ntp-text-on-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     @media screen and (prefers-color-scheme: dark) {
@@ -139,7 +154,7 @@
             fill: var(--color-blue-40);
         }
 
-        p {
+        div {
             background-color: var(--color-blue-40);
         }
     }

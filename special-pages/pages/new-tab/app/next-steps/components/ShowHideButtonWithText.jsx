@@ -1,5 +1,5 @@
 import styles from './ShowHide.module.css';
-import { ChevronButton } from '../../components/Icons';
+import { Chevron } from '../../components/Icons';
 import { h } from 'preact';
 
 /**
@@ -15,7 +15,7 @@ export function ShowHideButtonWithText({ text, onClick, buttonAttrs = {} }) {
         <button {...buttonAttrs} class={styles.button} aria-label={text} onClick={onClick}>
             <span></span>
             {text}
-            <ChevronButton />
+            <Chevron className={styles.icon} />
             <span></span>
         </button>
     );
