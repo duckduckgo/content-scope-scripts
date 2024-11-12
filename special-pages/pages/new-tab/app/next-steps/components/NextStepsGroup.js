@@ -26,14 +26,14 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, 
     const { t } = useTypedTranslation();
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
-    const shownCards = expansion === 'expanded' ? types : types.slice(0, 2);
 
+    const shownCards = expansion === 'expanded' ? types : types.slice(0, 2);
     return (
         <div class={cn(styles.cardGroup)} id={WIDGET_ID}>
             <NextStepsBubbleHeader />
             <div class={styles.cardGrid}>
                 {shownCards.map((/** @type {import("../../../../../types/new-tab").NextStepsCards} */ type) => (
-                    <NextStepsCard key={type} type={type} dismiss={dismiss} action={action} />
+                    <NextStepsCard key={type} type={`${type}`} dismiss={dismiss} action={action} />
                 ))}
             </div>
 

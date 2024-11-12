@@ -5,7 +5,6 @@ import { variants } from '../nextsteps.data';
 import { useTypedTranslation } from '../../types';
 
 /**
-//  * @typedef {import('../../../../../types/new-tab').NextStepsCards} NextStepsCards
  * @param {object} props
  * @param {string} props.type
  * @param {(id: string) => void} props.dismiss
