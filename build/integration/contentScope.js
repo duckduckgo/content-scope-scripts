@@ -12797,7 +12797,7 @@
 
             /**
              * Just the 'overlays' part of the settings object.
-             * @type {import("../types/duckplayer-settings.js").DuckPlayerSettings['overlays']}
+             * @type {import("@duckduckgo/privacy-configuration/schema/features/duckplayer").DuckPlayerSettings['overlays']}
              */
             const overlaySettings = this.getFeatureSetting('overlays');
             const overlaysEnabled = overlaySettings?.youtube?.state === 'enabled';
@@ -13870,7 +13870,7 @@
          * Support for modifying localStorage entries
          */
         modifyLocalStorage() {
-            /** @type {import('../types//webcompat-settings').WebCompatSettings['modifyLocalStorage']} */
+            /** @type {import('@duckduckgo/privacy-configuration/schema/features/webcompat').WebCompatSettings['modifyLocalStorage']} */
             const settings = this.getFeatureSetting('modifyLocalStorage');
 
             if (!settings || !settings.changes) return;
@@ -13886,7 +13886,7 @@
          * Support for proxying `window.webkit.messageHandlers`
          */
         messageHandlersFix() {
-            /** @type {import('../types//webcompat-settings').WebCompatSettings['messageHandlers']} */
+            /** @type {import('@duckduckgo/privacy-configuration/schema/features/webcompat').WebCompatSettings['messageHandlers']} */
             const settings = this.getFeatureSetting('messageHandlers');
 
             // Do nothing if `messageHandlers` is absent

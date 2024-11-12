@@ -9666,7 +9666,7 @@
 
             /**
              * Just the 'overlays' part of the settings object.
-             * @type {import("../types/duckplayer-settings.js").DuckPlayerSettings['overlays']}
+             * @type {import("@duckduckgo/privacy-configuration/schema/features/duckplayer").DuckPlayerSettings['overlays']}
              */
             const overlaySettings = this.getFeatureSetting('overlays');
             const overlaysEnabled = overlaySettings?.youtube?.state === 'enabled';

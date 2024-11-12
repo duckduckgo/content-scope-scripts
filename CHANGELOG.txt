@@ -1,1 +1,2 @@
-- ntp: favorites drag and drop (#1150)
+- Fixed typos in Onboarding (#1215)
+- Switch to using ts direct from privacy config (#1211)

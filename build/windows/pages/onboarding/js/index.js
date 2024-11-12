@@ -8047,7 +8047,7 @@
       note: "Title for importing user data (bookmarks, passwords) to DuckDuckGo from other browsers."
     },
     row_import_summary_v3: {
-      title: "On device encryption keeps your passwords secure.",
+      title: "On-device encryption keeps your passwords secure.",
       note: "Explanation of additional security benefits of importing user's passwords into DuckDuckGo."
     },
     row_import_accept_v3: {
@@ -8079,7 +8079,7 @@
       note: "The description of a browser privacy feature in the comparison table."
     },
     comparison_blockCookies: {
-      title: "Block cookie requests & popups",
+      title: "Block cookie requests & pop-ups",
       note: "The description of a browser privacy feature in the comparison table."
     },
     comparison_blockAds: {
