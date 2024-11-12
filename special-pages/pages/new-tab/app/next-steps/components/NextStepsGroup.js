@@ -10,10 +10,11 @@ import { useId } from 'preact/hooks';
 /**
  * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../../../types/new-tab').Animation} Animation
+ * @typedef {import('../../../../../types/new-tab').NextStepsCards} NextStepsCards
  */
 /*
  * @param {object} props
- * @param {string[]} props.types
+ * @param {NextStepsCards[]} props.types
  * @param {Expansion} props.expansion
  * @param {()=>void} props.toggle
  * @param {(id: string)=>void} props.action
@@ -27,12 +28,11 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, 
     const TOGGLE_ID = useId();
     const shownCards = expansion === 'expanded' ? types : types.slice(0, 2);
 
-    console.log({ types, shownCards });
     return (
         <div class={cn(styles.cardGroup)} id={WIDGET_ID}>
             <NextStepsBubbleHeader />
             <div class={styles.cardGrid}>
-                {shownCards.map((type) => (
+                {shownCards.map((/** @type {import("../../../../../types/new-tab").NextStepsCards} */ type) => (
                     <NextStepsCard key={type} type={type} dismiss={dismiss} action={action} />
                 ))}
             </div>
