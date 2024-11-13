@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 import { ResultsCollector } from './page-objects/results-collector.js';
 import { readOutgoingMessages } from '@duckduckgo/messaging/lib/test-utils.mjs';
 
-const ENABLED_CONFIG = 'integration-test/test-pages/message-bridge/message-bridge-enabled.json';
-const DISABLED_CONFIG = 'integration-test/test-pages/message-bridge/message-bridge-disabled.json';
+const ENABLED_CONFIG = 'integration-test/test-pages/message-bridge/config/message-bridge-enabled.json';
+const DISABLED_CONFIG = 'integration-test/test-pages/message-bridge/config/message-bridge-disabled.json';
 const ENABLED_HTML = '/message-bridge/pages/enabled.html';
 const DISABLED_HTML = '/message-bridge/pages/disabled.html';
 
