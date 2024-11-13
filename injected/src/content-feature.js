@@ -148,7 +148,7 @@ export default class ContentFeature {
      * Return a specific setting from the feature settings
      * If the "settings" key within the config has a "domains" key, it will be used to override the settings.
      * This uses JSONPatch to apply the patches to settings before getting the setting value.
-     * For example.conm getFeatureSettings('val') will return 1:
+     * For example.com getFeatureSettings('val') will return 1:
      * ```json
      *  {
      *      "settings": {
