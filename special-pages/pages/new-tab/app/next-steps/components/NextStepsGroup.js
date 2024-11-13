@@ -12,17 +12,16 @@ import { useId } from 'preact/hooks';
  * @typedef {import('../../../../../types/new-tab').Animation} Animation
  * @typedef {import('../../../../../types/new-tab').NextStepsCards} NextStepsCards
  */
-/*
+
+/**
  * @param {object} props
- * @param {NextStepsCards[]} props.types
+ * @param {string[]} props.types
  * @param {Expansion} props.expansion
  * @param {()=>void} props.toggle
  * @param {(id: string)=>void} props.action
  * @param {(id: string)=>void} props.dismiss
- * @param {Animation['kind']} [props.animation] - optionally configure animations
  */
-
-export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, animation = 'none' }) {
+export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }) {
     const { t } = useTypedTranslation();
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
@@ -32,8 +31,8 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss, 
         <div class={cn(styles.cardGroup)} id={WIDGET_ID}>
             <NextStepsBubbleHeader />
             <div class={styles.cardGrid}>
-                {shownCards.map((/** @type {import("../../../../../types/new-tab").NextStepsCards} */ type) => (
-                    <NextStepsCard key={type} type={`${type}`} dismiss={dismiss} action={action} />
+                {shownCards.map((type) => (
+                    <NextStepsCard key={type} type={type} dismiss={dismiss} action={action} />
                 ))}
             </div>
 

@@ -21,7 +21,6 @@ export const nextStepsExamples = {
                 toggle={noop('toggle')}
                 dismiss={noop('dismiss')}
                 action={noop('action')}
-                animation="None"
             />
         ),
     },
@@ -41,7 +40,6 @@ export const nextStepsExamples = {
                 toggle={noop('toggle')}
                 dismiss={noop('dismiss')}
                 action={noop('action')}
-                animation="None"
             />
         ),
     },
@@ -53,7 +51,6 @@ export const nextStepsExamples = {
                 toggle={noop('toggle')}
                 dismiss={noop('dismiss')}
                 action={noop('action')}
-                animation="None"
             />
         ),
     },
@@ -65,7 +62,6 @@ export const nextStepsExamples = {
                 toggle={noop('toggle')}
                 dismiss={noop('dismiss')}
                 action={noop('action')}
-                animation="None"
             />
         ),
     },
