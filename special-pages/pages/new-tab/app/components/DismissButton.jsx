@@ -11,8 +11,9 @@ import styles from './DismissButton.module.css';
  */
 export function DismissButton({ className, onClick }) {
     const { t } = useTypedTranslation();
+
     return (
-        <button class={cn(styles.btn, className)} onClick={onClick} aria-label={() => t('ntp_dismiss')} data-testid="dismissBtn">
+        <button class={cn(styles.btn, className)} onClick={onClick} aria-label={t('ntp_dismiss')} data-testid="dismissBtn">
             <Cross />
         </button>
     );
