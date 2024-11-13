@@ -16,6 +16,7 @@ export default defineConfig({
             name: 'integration',
             // prettier-ignore
             testMatch: [
+                'next-steps.spec.js',
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
                 'new-tab.spec.js',
