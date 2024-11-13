@@ -20,7 +20,7 @@ test.describe('newtab remote messaging framework rmf', () => {
         await ntp.openPage({ rmf: 'small' });
 
         await page.getByText('Search services limited').waitFor();
-        await page.getByLabel('Close').click();
+        await page.getByTestId('dismissBtn').click();
         await ntp.mocks.waitForCallCount({ method: 'rmf_dismiss', count: 1 });
     });
 

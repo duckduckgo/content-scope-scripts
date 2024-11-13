@@ -3,7 +3,7 @@ import cn from 'classnames';
 import styles from './RemoteMessagingFramework.module.css';
 import { useContext } from 'preact/hooks';
 import { RMFContext } from './RMFProvider.js';
-import { Cross } from '../components/Icons.js';
+import { DismissButton } from '../components/DismissButton';
 
 /**
  * @import { RMFMessage } from "../../../../types/new-tab"
@@ -48,9 +48,7 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
                     </button>
                 </div>
             )}
-            <button className={cn(styles.btn, styles.dismissBtn)} onClick={() => dismiss(id)} aria-label="Close">
-                <Cross />
-            </button>
+            <DismissButton className={styles.dismissBtn} onClick={() => dismiss(id)} />
         </div>
     );
 }
