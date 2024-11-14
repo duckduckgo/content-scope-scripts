@@ -10009,9 +10009,8 @@
         ref: didRender,
         onAnimationEnd: animationDidFinish
       },
-      /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(BeforeAfterProvider, null, /* @__PURE__ */ _(SingleStep, null))),
-      children
-    ), (step.id === "welcome" || step.id === "getStarted") && /* @__PURE__ */ _(Hiker, null));
+      /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(BeforeAfterProvider, null, /* @__PURE__ */ _(SingleStep, null)))
+    ), (step.id === "welcome" || step.id === "getStarted") && /* @__PURE__ */ _(Hiker, null), children);
   }
   function Debug2(props) {
     const { order, step, exiting, activeStep, nextStep } = props.state;
