@@ -3,6 +3,7 @@ import ContentFeature from '../content-feature';
 
 export default class NavigatorInterface extends ContentFeature {
     load(args) {
+        // @ts-expect-error: Accessing private method
         if (this.matchDomainFeatureSetting('privilegedDomains').length) {
             this.injectNavigatorInterface(args);
         }
