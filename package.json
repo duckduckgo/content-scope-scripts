@@ -2,9 +2,11 @@
   "name": "@duckduckgo/content-scope-scripts",
   "license": "Apache-2.0",
   "files": [
-    "**/*",
-    "build/",
-    "Sources/ContentScopeScripts/dist/"
+    "injected",
+    "special-pages",
+    "messaging",
+    "build",
+    "Sources/ContentScopeScripts/dist"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
