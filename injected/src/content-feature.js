@@ -146,6 +146,26 @@ export default class ContentFeature {
 
     /**
      * Return a specific setting from the feature settings
+     * If the "settings" key within the config has a "domains" key, it will be used to override the settings.
+     * This uses JSONPatch to apply the patches to settings before getting the setting value.
+     * For example.com getFeatureSettings('val') will return 1:
+     * ```json
+     *  {
+     *      "settings": {
+     *         "domains": [
+     *             {
+     *                "domain": "example.com",
+     *                "patchSettings": [
+     *                    { "op": "replace", "path": "/val", "value": 1 }
+     *                ]
+     *             }
+     *         ]
+     *      }
+     *  }
+     * ```
+     * "domain" can either be a string or an array of strings.
+
+     * For boolean states you should consider using getFeatureSettingEnabled.
      * @param {string} featureKeyName
      * @param {string} [featureName]
      * @returns {any}
@@ -184,6 +204,23 @@ export default class ContentFeature {
     /**
      * For simple boolean settings, return true if the setting is 'enabled'
      * For objects, verify the 'state' field is 'enabled'.
+     * This allows for future forwards compatibility with more complex settings if required.
+     * For example:
+     * ```json
+     * {
+     *    "toggle": "enabled"
+     * }
+     * ```
+     * Could become later (without breaking changes):
+     * ```json
+     * {
+     *   "toggle": {
+     *       "state": "enabled",
+     *       "someOtherKey": 1
+     *   }
+     * }
+     * ```
+     * This also supports domain overrides as per `getFeatureSetting`.
      * @param {string} featureKeyName
      * @param {string} [featureName]
      * @returns {boolean}
@@ -198,8 +235,10 @@ export default class ContentFeature {
 
     /**
      * Given a config key, interpret the value as a list of domain overrides, and return the elements that match the current page
+     * Consider using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
      * @return {any[]}
+     * @private
      */
     matchDomainFeatureSetting(featureKeyName) {
         const domain = this.#args?.site.domain;
