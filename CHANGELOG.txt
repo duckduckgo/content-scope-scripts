@@ -1,1 +1,0 @@
-- Fixes skip link position when debugging (#1224)
