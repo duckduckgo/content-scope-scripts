@@ -1,5 +1,4 @@
 import { Messaging } from '@duckduckgo/messaging';
-import * as capturedGlobals from '../captured-globals.js';
 import ContentFeature from '../content-feature';
 import {
     InstallProxy,
@@ -10,6 +9,8 @@ import {
     SubscriptionResponse,
     SubscriptionUnsubscribe,
 } from './message-bridge/schema.js';
+import * as capturedGlobals from '../captured-globals.js';
+import { isBeingFramed } from '../utils.js';
 
 /**
  * @typedef {Pick<import("../captured-globals.js"),
@@ -31,13 +32,23 @@ export class MessageBridge extends ContentFeature {
      * @param {Parameters<console['log']>} args
      */
     log(...args) {
-        if (this.isDebug) {
-            console.log('[isolated]', ...args);
-        }
+        // if (this.isDebug) {
+        console.log('[isolated]', ...args);
+        // }
     }
 
     load(args) {
-        this.log(`will install bridge with ${args.messageSecret}`);
+        /**
+         * This feature never operates in a frame
+         */
+        if (isBeingFramed()) return;
+        /**
+         * This feature never operates in insecure contexts
+         */
+        if (!isSecureContext) return;
+
+        this.log(`bridge is present...`);
+
         const { captured } = this;
         /**
          * @param {string} eventName
