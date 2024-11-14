@@ -67,9 +67,9 @@ export function App2({ children }) {
                         <SingleStep />
                     </BeforeAfterProvider>
                 </ErrorBoundary>
-                {children}
             </div>
             {(step.id === 'welcome' || step.id === 'getStarted') && <Hiker />}
+            {children}
         </main>
     );
 }
