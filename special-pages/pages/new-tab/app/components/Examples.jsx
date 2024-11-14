@@ -2,6 +2,7 @@ import { Fragment, h } from 'preact';
 import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMockProvider.js';
 import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js';
 import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js';
+import { nextStepsExamples, otherNextStepsExamples } from '../next-steps/components/NextStepsExamples.js';
 import { stats } from '../privacy-stats/mocks/stats.js';
 import { noop } from '../utils.js';
 import { VisibilityMenu } from '../customizer/VisibilityMenu.js';
@@ -91,6 +92,7 @@ export const mainExamples = {
         ),
     },
     ...favoritesExamples,
+    ...nextStepsExamples,
 };
 
 export const otherExamples = {
@@ -130,6 +132,7 @@ export const otherExamples = {
             />
         ),
     },
+    ...otherNextStepsExamples,
     'customizer-menu': {
         factory: () => (
             <Fragment>

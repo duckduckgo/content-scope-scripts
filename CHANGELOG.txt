@@ -1,2 +1,3 @@
-- Fixed typos in Onboarding (#1215)
-- Switch to using ts direct from privacy config (#1211)
+- Rebuild package.lock and move dependency immutable-json-patch into the route (#1222)
+- feat: NTP Next Steps Cards FE (#1199)
+- Bump typescript-eslint from 8.12.2 to 8.14.0 (#1214)

@@ -212,6 +212,9 @@ li {
   --ntp-surface-background-color: white;
   --ntp-surface-border-color: var(--color-black-at-6);
   --ntp-text-normal: var(--color-black-at-84);
+  --ntp-text-muted: var(--color-black-at-60);
+  --ntp-text-on-primary: var(--color-white-at-84);
+  --ntp-color-primary: var(--ddg-color-primary);
   --body-font-size: 13px;
   --body-font-weight: 400;
   --body-line-height: 16px;
@@ -225,8 +228,11 @@ li {
   @media (prefers-color-scheme: dark) {
     --ntp-background-color: var(--color-gray-85);
     --ntp-surface-background-color: #2a2a2a;
-    --ntp-surface-border-color: var(--color-black-at-6);
-    --ntp-text-normal: white;
+    --ntp-surface-border-color: var(--color-white-at-6);
+    --ntp-text-normal: var(--color-white-at-84);
+    --ntp-text-muted: var(--color-white-at-60);
+    --ntp-color-primary: var(--color-blue-30);
+    --ntp-text-on-primary: var(--color-black-at-84);
     --ntp-focus-outline-color: white;
   }
 }
@@ -703,6 +709,261 @@ body:has([data-reset-layout=true]) .App_layout {
   }
 }
 
+/* pages/new-tab/app/next-steps/components/NextSteps.module.css */
+.NextSteps_card {
+  background-color: var(--ntp-surface-background-color);
+  border: 1px solid var(--ntp-surface-border-color);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--sp-3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  max-width: calc(240 * var(--px-in-rem));
+  min-height: calc(150 * var(--px-in-rem));
+  font-size: var(--body-font-size);
+}
+.NextSteps_icon {
+  height: 3rem;
+  width: 4rem;
+  margin-bottom: var(--sp-1);
+}
+.NextSteps_title {
+  font-weight: 590;
+  line-height: var(--sp-4);
+  letter-spacing: -0.08px;
+  color: var(--ntp-text-normal);
+  margin-bottom: var(--sp-1);
+}
+.NextSteps_description {
+  font-size: calc(11 * var(--px-in-rem));
+  line-height: calc(14 * var(--px-in-rem));
+  letter-spacing: 0.06px;
+  flex-grow: 1;
+  color: var(--ntp-text-muted);
+  margin-bottom: var(--sp-1);
+}
+.NextSteps_btn {
+  padding: calc(6 * var(--px-in-rem)) var(--sp-3);
+  background-color: transparent;
+  border-width: 0;
+  border-radius: calc(6 * var(--px-in-rem));
+  text-wrap: nowrap;
+  font-weight: 600;
+  font-size: calc(11 * var(--px-in-rem));
+  line-height: calc(11 * var(--px-in-rem));
+  color: var(--ntp-color-primary);
+  &:hover {
+    background-color: var(--color-black-at-6);
+    cursor: pointer;
+  }
+  &:active {
+    background-color: var(--ntp-color-primary);
+    color: var(--ntp-text-on-primary);
+  }
+  &:disabled {
+    color: var(--color-black-at-84);
+  }
+  &:disabled:hover {
+    cursor: not-allowed;
+    background-color: var(--color-white-at-6);
+  }
+  &:focus-visible {
+    box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
+  }
+  @media screen and (prefers-color-scheme: dark) {
+    color: var(--color-blue-40);
+    &:hover:not(:active) {
+      background-color: var(--color-black-at-9);
+    }
+    &:disabled {
+      color: var(--color-white-at-12);
+      opacity: 0.8;
+    }
+    &:disabled:hover {
+      cursor: not-allowed;
+      background-color: var(--color-white-at-12);
+    }
+    &:focus-visible {
+      box-shadow: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
+    }
+  }
+}
+&:hover {
+  .NextSteps_showhideVisible [aria-controls] {
+    opacity: 1;
+  }
+}
+&:focus-within {
+  .NextSteps_showhideVisible [aria-controls] {
+    opacity: 1;
+  }
+}
+.NextSteps_dismissBtn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+.NextSteps_cardGroup {
+  height: 100%;
+  width: 100%;
+}
+.NextSteps_cardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-6);
+  margin-bottom: 1px;
+}
+.NextSteps_bubble {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  svg path {
+    fill: var(--ntp-color-primary);
+  }
+  div {
+    background-color: var(--ntp-color-primary);
+    font-size: calc(11 * var(--px-in-rem));
+    height: 20px;
+    line-height: normal;
+    font-weight: 600;
+    letter-spacing: 0.06px;
+    color: var(--ntp-text-on-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @media screen and (prefers-color-scheme: dark) {
+    svg path {
+      fill: var(--color-blue-40);
+    }
+    div {
+      background-color: var(--color-blue-40);
+    }
+  }
+}
+.NextSteps_showhide {
+  grid-area: showhide;
+  height: 32px;
+  display: grid;
+  justify-items: center;
+  &:hover {
+    &.NextSteps_showhideVisible [aria-controls] {
+      opacity: 1;
+    }
+  }
+  &:focus-within {
+    &.NextSteps_showhideVisible [aria-controls] {
+      opacity: 1;
+    }
+  }
+}
+:root:has(body[data-platform-name=windows]) {
+  .NextSteps_nextStepsCard .NextSteps_title {
+    font-weight: 700;
+    line-height: 20px;
+    letter-spacing: normal;
+  }
+}
+
+/* pages/new-tab/app/components/DismissButton.module.css */
+.DismissButton_btn {
+  border-width: 0;
+  text-wrap: nowrap;
+  font-weight: 600;
+  font-size: calc(11 * var(--px-in-rem));
+  line-height: calc(11 * var(--px-in-rem));
+  color: var(--ntp-color-primary);
+  height: 1rem;
+  width: 1rem;
+  padding: 0;
+  line-height: 1;
+  background-color: transparent;
+  color: var(--color-black-at-60);
+  border: none;
+  border-radius: 50%;
+  &:hover {
+    background-color: var(--color-black-at-9);
+    cursor: pointer;
+  }
+  &:active {
+    background-color: var(--color-black-at-18);
+    color: var(--color-black-at-84);
+  }
+  &:disabled {
+    color: var(--color-black-at-84);
+  }
+  &:disabled:hover {
+    cursor: not-allowed;
+    background-color: var(--color-white-at-6);
+  }
+  &:focus-visible {
+    box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
+  }
+  @media screen and (prefers-color-scheme: dark) {
+    color: var(--color-white-at-60);
+    &:hover {
+      background-color: var(--color-black-at-9);
+    }
+    &:active {
+      background-color: var(--color-white-at-18);
+      color: var(--color-white-at-84);
+    }
+    &:disabled {
+      color: var(--color-white-at-12);
+      opacity: 0.8;
+    }
+    &:disabled:hover {
+      cursor: not-allowed;
+      background-color: var(--color-white-at-12);
+    }
+    &:focus-visible {
+      box-shadow: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
+    }
+  }
+}
+
+/* pages/new-tab/app/next-steps/components/ShowHide.module.css */
+.ShowHide_button2 {
+  background: none;
+  border: none;
+  outline: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: var(--color-black-at-60);
+  height: var(--sp-8);
+  width: 100%;
+  line-height: var(--sp-8);
+  gap: calc(6 * var(--px-in-rem));
+  padding: 0;
+  font-size: calc(11 * var(--px-in-rem));
+  span {
+    flex-grow: 1;
+    height: 50%;
+    border-bottom: 1px solid var(--ntp-surface-border-color);
+    margin-bottom: auto;
+  }
+  &:hover {
+    cursor: pointer;
+  }
+  &[aria-pressed=true] .ShowHide_icon {
+    transform: rotate(180deg);
+  }
+  &:focus-visible {
+    outline: 1px dotted var(--ntp-focus-outline-color);
+  }
+  @media screen and (prefers-color-scheme: dark) {
+    color: var(--color-white-at-60);
+    span {
+      border-bottom-color: var(--color-white-at-24);
+    }
+  }
+}
+
 /* pages/new-tab/app/privacy-stats/PrivacyStats.module.css */
 .PrivacyStats_root {
   background: var(--ntp-surface-background-color);
@@ -1015,32 +1276,6 @@ body:has([data-reset-layout=true]) .App_layout {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  height: 1rem;
-  width: 1rem;
-  padding: 0;
-  line-height: 1;
-  font-size: 12px;
-  background-color: transparent;
-  color: var(--color-black-at-60);
-  border: none;
-  border-radius: 50%;
-  &:active {
-    background-color: var(--color-black-at-18);
-    color: var(--color-black-at-84);
-  }
-  &:hover {
-    background-color: var(--color-black-at-9);
-  }
-  @media screen and (prefers-color-scheme: dark) {
-    color: var(--color-white-at-60);
-    &:hover {
-      background-color: var(--color-white-at-9);
-    }
-    &:active {
-      background-color: var(--color-white-at-18);
-      color: var(--color-white-at-84);
-    }
-  }
 }
 
 /* pages/new-tab/app/update-notification/UpdateNotification.module.css */

@@ -26,6 +26,16 @@ export type WidgetConfigs = WidgetConfigItem[];
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
+export type NextStepsCards = {
+  id:
+    | "bringStuff"
+    | "defaultApp"
+    | "blockCookies"
+    | "emailProtection"
+    | "duckplayer"
+    | "addAppToDockMac"
+    | "pinAppToTaskbarWindows";
+}[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
 
@@ -40,6 +50,9 @@ export interface NewTabMessages {
     | FavoritesOpenNotification
     | FavoritesOpenContextMenuNotification
     | FavoritesSetConfigNotification
+    | NextStepsActionNotification
+    | NextStepsDismissNotification
+    | NextStepsSetConfigNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | RmfDismissNotification
@@ -52,12 +65,16 @@ export interface NewTabMessages {
     | FavoritesGetConfigRequest
     | FavoritesGetDataRequest
     | InitialSetupRequest
+    | NextStepsGetConfigRequest
+    | NextStepsGetDataRequest
     | RmfGetDataRequest
     | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
+    | NextStepsOnConfigUpdateSubscription
+    | NextStepsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
     | StatsOnConfigUpdateSubscription
     | StatsOnDataUpdateSubscription
@@ -156,6 +173,37 @@ export interface ViewTransitions {
  */
 export interface Auto {
   kind: "auto-animate";
+}
+/**
+ * Generated from @see "../messages/new-tab/nextSteps_action.notify.json"
+ */
+export interface NextStepsActionNotification {
+  method: "nextSteps_action";
+  params: NextStepsActionNotify;
+}
+export interface NextStepsActionNotify {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/new-tab/nextSteps_dismiss.notify.json"
+ */
+export interface NextStepsDismissNotification {
+  method: "nextSteps_dismiss";
+  params: NextStepsDismissNotify;
+}
+export interface NextStepsDismissNotify {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/new-tab/nextSteps_setConfig.notify.json"
+ */
+export interface NextStepsSetConfigNotification {
+  method: "nextSteps_setConfig";
+  params: NextStepsConfig;
+}
+export interface NextStepsConfig {
+  expansion: Expansion;
+  animation?: Animation;
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"
@@ -296,6 +344,23 @@ export interface UpdateNotification {
   notes: string[];
 }
 /**
+ * Generated from @see "../messages/new-tab/nextSteps_getConfig.request.json"
+ */
+export interface NextStepsGetConfigRequest {
+  method: "nextSteps_getConfig";
+  result: NextStepsConfig;
+}
+/**
+ * Generated from @see "../messages/new-tab/nextSteps_getData.request.json"
+ */
+export interface NextStepsGetDataRequest {
+  method: "nextSteps_getData";
+  result: NextStepsData;
+}
+export interface NextStepsData {
+  content: null | NextStepsCards;
+}
+/**
  * Generated from @see "../messages/new-tab/rmf_getData.request.json"
  */
 export interface RmfGetDataRequest {
@@ -376,6 +441,20 @@ export interface FavoritesOnConfigUpdateSubscription {
 export interface FavoritesOnDataUpdateSubscription {
   subscriptionEvent: "favorites_onDataUpdate";
   params: FavoritesData;
+}
+/**
+ * Generated from @see "../messages/new-tab/nextSteps_onConfigUpdate.subscribe.json"
+ */
+export interface NextStepsOnConfigUpdateSubscription {
+  subscriptionEvent: "nextSteps_onConfigUpdate";
+  params: NextStepsConfig;
+}
+/**
+ * Generated from @see "../messages/new-tab/nextSteps_onDataUpdate.subscribe.json"
+ */
+export interface NextStepsOnDataUpdateSubscription {
+  subscriptionEvent: "nextSteps_onDataUpdate";
+  params: NextStepsData;
 }
 /**
  * Generated from @see "../messages/new-tab/rmf_onDataUpdate.subscribe.json"

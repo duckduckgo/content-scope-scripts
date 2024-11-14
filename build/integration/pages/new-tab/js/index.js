@@ -615,6 +615,17 @@
       }
     ));
   }
+  function Chevron({ className }) {
+    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", class: className }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        d: "M3.293 7.793a1 1 0 0 0 0 1.414l8 8a1 1 0 0 0 1.414 0l8-8a1 1 0 0 0-1.414-1.414L12 15.086 4.707 7.793a1 1 0 0 0-1.414 0Z",
+        "clip-rule": "evenodd"
+      }
+    ));
+  }
   function CustomizeIcon() {
     return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: Icons_default.customize }, /* @__PURE__ */ _(
       "path",
@@ -775,6 +786,18 @@
             }
           ]
         },
+        ntp_show_less: {
+          title: "Show less",
+          note: "Text for the Expansion of a section on NTP"
+        },
+        ntp_show_more: {
+          title: "Show more",
+          note: "Text for the Expansion of a section on NTP"
+        },
+        ntp_dismiss: {
+          title: "Dismiss",
+          note: "Text for all dismiss buttons on NTP"
+        },
         widgets_visibility_menu_title: {
           title: "Customize New Tab Page",
           note: "Heading text describing that there's a list of toggles for customizing the page layout."
@@ -838,6 +861,102 @@
         updateNotification_dismiss_btn: {
           title: "Dismiss",
           note: "Button label text for an action that removes the widget from the screen."
+        },
+        nextSteps_sectionTitle: {
+          title: "Next Steps",
+          note: "Text that goes in the Next Steps bubble above the first card"
+        },
+        nextSteps_bringStuff_title: {
+          title: "Bring Your Stuff",
+          note: "Title of the Next Steps card for importing bookmarks and favorites"
+        },
+        nextSteps_bringStuff_summary: {
+          title: "Import bookmarks, favorites, and passwords for a smooth transition from your old browser.",
+          note: "Summary of the Next Steps card for importing bookmarks and favorites"
+        },
+        nextSteps_bringStuff_actionText: {
+          title: "Import Now",
+          note: "Button text of the Next Steps card for importing bookmarks and favorites"
+        },
+        nextSteps_defaultApp_title: {
+          title: "Set as Default Browser",
+          note: "Title of the Next Steps card for making DDG the user's default browser"
+        },
+        nextSteps_defaultApp_summary: {
+          title: "We automatically block trackers as you browse. It\u2019s privacy, simplified.",
+          note: "Summary of the Next Steps card for making DDG the user's default browser"
+        },
+        nextSteps_defaultApp_actionText: {
+          title: "Make Default Browser",
+          note: "Button text of the Next Steps card for making DDG the user's default browser"
+        },
+        nextSteps_blockCookies_title: {
+          title: "Block Cookie Pop-ups",
+          note: "Title of the Next Steps card for blocking cookie pop-ups"
+        },
+        nextSteps_blockCookies_summary: {
+          title: "We need your permission to say no to cookies on your behalf. Easy choice.",
+          note: "Summary of the Next Steps card for blocking cookie pop-ups"
+        },
+        nextSteps_blockCookies_actionText: {
+          title: "Block Cookie Pop-ups",
+          note: "Button text of the Next Steps card for blocking cookie pop-ups"
+        },
+        nextSteps_emailProtection_title: {
+          title: "Protect Your Inbox",
+          note: "Title of the Next Steps card for email protection"
+        },
+        nextSteps_emailProtection_summary: {
+          title: "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
+          note: "Summary of the Next Steps card for email protection"
+        },
+        nextSteps_emailProtection_actionText: {
+          title: "Get Email Protection",
+          note: "Button text of the Next Steps card for email protection"
+        },
+        nextSteps_duckPlayer_title: {
+          title: "YouTube Without Creepy Ads",
+          note: "Title of the Next Steps card for adopting DuckPlayer"
+        },
+        nextSteps_duckPlayer_summary: {
+          title: "Enjoy a clean viewing experience without personalized ads.",
+          note: "Summary of the Next Steps card for adopting DuckPlayer"
+        },
+        nextSteps_duckPlayer_actionText: {
+          title: "Try DuckPlayer",
+          note: "Button text of the Next Steps card for adopting DuckPlayer"
+        },
+        nextSteps_addAppDockMac_title: {
+          title: "Add App to the Dock",
+          note: "Title of the Next Steps card for adding DDG app to OS dock"
+        },
+        nextSteps_addAppDockMac_summary: {
+          title: "Access DuckDuckGo faster by adding it to the Dock.",
+          note: "Summary of the Next Steps card for adding DDG app to OS dock"
+        },
+        nextSteps_addAppDockMac_actionText: {
+          title: "Add to Dock",
+          note: "Initial button text of the Next Steps card for adding DDG app to OS dock"
+        },
+        nextSteps_addAppDockMac_confirmationText: {
+          title: "Added to Dock!",
+          note: "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+        },
+        nextSteps_pinAppToTaskbarWindows_title: {
+          title: "Pin App to the Taskbar",
+          note: "Title of the Next Steps card for adding DDG app to OS dock"
+        },
+        nextSteps_pinAppToTaskbarWindows_summary: {
+          title: "Access DuckDuckGo faster by pinning it to the Taskbar.",
+          note: "Summary of the Next Steps card for adding DDG app to OS dock"
+        },
+        nextSteps_pinAppToTaskbarWindows_actionText: {
+          title: "Pin to Taskbar",
+          note: "Initial button text of the Next Steps card for adding DDG app to OS dock"
+        },
+        nextSteps_pinAppToTaskbarWindows_confirmationText: {
+          title: "Pinned to Taskbar!",
+          note: "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
         }
       };
     }
@@ -4749,6 +4868,440 @@
     }
   });
 
+  // pages/new-tab/app/next-steps/next-steps.service.js
+  var NextStepsService;
+  var init_next_steps_service = __esm({
+    "pages/new-tab/app/next-steps/next-steps.service.js"() {
+      "use strict";
+      init_service();
+      NextStepsService = class {
+        /**
+         * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @internal
+         */
+        constructor(ntp) {
+          this.ntp = ntp;
+          this.dataService = new Service({
+            initial: () => ntp.messaging.request("nextSteps_getData"),
+            subscribe: (cb) => ntp.messaging.subscribe("nextSteps_onDataUpdate", cb)
+          });
+          this.configService = new Service({
+            initial: () => ntp.messaging.request("nextSteps_getConfig"),
+            subscribe: (cb) => ntp.messaging.subscribe("nextSteps_onConfigUpdate", cb),
+            persist: (data) => ntp.messaging.notify("nextSteps_setConfig", data)
+          });
+        }
+        /**
+         * @returns {Promise<{data: NextStepsData; config: NextStepsConfig}>}
+         * @internal
+         */
+        async getInitial() {
+          const p1 = this.configService.fetchInitial();
+          const p22 = this.dataService.fetchInitial();
+          const [config, data] = await Promise.all([p1, p22]);
+          return { config, data };
+        }
+        /**
+         * @internal
+         */
+        destroy() {
+          this.configService.destroy();
+          this.dataService.destroy();
+        }
+        /**
+         * @param {(evt: {data: NextStepsData, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onData(cb) {
+          return this.dataService.onData(cb);
+        }
+        /**
+         * @param {(evt: {data: NextStepsConfig, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onConfig(cb) {
+          return this.configService.onData(cb);
+        }
+        /**
+         * Update the in-memory data immediate and persist.
+         * Any state changes will be broadcast to consumers synchronously
+         * @internal
+         */
+        toggleExpansion() {
+          this.configService.update((old) => {
+            if (old.expansion === "expanded") {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "collapsed"
+              ) };
+            } else {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "expanded"
+              ) };
+            }
+          });
+        }
+        /**
+         * Dismiss a particular card
+         * @param {string} id
+         */
+        dismiss(id) {
+          this.ntp.messaging.notify("nextSteps_dismiss", { id });
+        }
+        /**
+         * Perform a primary action on a card
+         * @param {string} id
+         */
+        action(id) {
+          this.ntp.messaging.notify("nextSteps_action", { id });
+        }
+      };
+    }
+  });
+
+  // pages/new-tab/app/next-steps/NextStepsProvider.js
+  function NextStepsProvider(props) {
+    const initial = (
+      /** @type {State} */
+      {
+        status: "idle",
+        data: null,
+        config: null
+      }
+    );
+    const [state, dispatch] = p2(reducer, initial);
+    const service = useService2();
+    useInitialDataAndConfig({ dispatch, service });
+    useDataSubscription({ dispatch, service });
+    const { toggle } = useConfigSubscription({ dispatch, service });
+    const action = q2(
+      (id) => {
+        service.current?.action(id);
+      },
+      [service]
+    );
+    const dismiss = q2(
+      (id) => {
+        service.current?.dismiss(id);
+      },
+      [service]
+    );
+    return /* @__PURE__ */ _(NextStepsContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ _(NextStepsDispatchContext.Provider, { value: dispatch }, props.children));
+  }
+  function useService2() {
+    const service = A2(
+      /** @type {NextStepsService|null} */
+      null
+    );
+    const ntp = useMessaging();
+    y2(() => {
+      const stats2 = new NextStepsService(ntp);
+      service.current = stats2;
+      return () => {
+        stats2.destroy();
+      };
+    }, [ntp]);
+    return service;
+  }
+  var NextStepsContext, NextStepsDispatchContext;
+  var init_NextStepsProvider = __esm({
+    "pages/new-tab/app/next-steps/NextStepsProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_next_steps_service();
+      init_service_hooks();
+      NextStepsContext = G({
+        /** @type {State} */
+        state: { status: "idle", data: null, config: null },
+        /** @type {() => void} */
+        toggle: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string) => void} */
+        dismiss: (_id) => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string) => void} */
+        action: (_id) => {
+          throw new Error("must implement");
+        }
+      });
+      NextStepsDispatchContext = G(
+        /** @type {import("preact/hooks").Dispatch<Events>} */
+        {}
+      );
+    }
+  });
+
+  // pages/new-tab/app/next-steps/components/NextSteps.module.css
+  var NextSteps_default;
+  var init_NextSteps = __esm({
+    "pages/new-tab/app/next-steps/components/NextSteps.module.css"() {
+      NextSteps_default = {
+        card: "NextSteps_card",
+        icon: "NextSteps_icon",
+        title: "NextSteps_title",
+        description: "NextSteps_description",
+        btn: "NextSteps_btn",
+        showhideVisible: "NextSteps_showhideVisible",
+        dismissBtn: "NextSteps_dismissBtn",
+        cardGroup: "NextSteps_cardGroup",
+        cardGrid: "NextSteps_cardGrid",
+        bubble: "NextSteps_bubble",
+        showhide: "NextSteps_showhide",
+        nextStepsCard: "NextSteps_nextStepsCard"
+      };
+    }
+  });
+
+  // pages/new-tab/app/components/DismissButton.module.css
+  var DismissButton_default;
+  var init_DismissButton = __esm({
+    "pages/new-tab/app/components/DismissButton.module.css"() {
+      DismissButton_default = {
+        btn: "DismissButton_btn"
+      };
+    }
+  });
+
+  // pages/new-tab/app/components/DismissButton.jsx
+  function DismissButton({ className, onClick }) {
+    const { t: t3 } = useTypedTranslation();
+    return /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(DismissButton_default.btn, className), onClick, "aria-label": t3("ntp_dismiss"), "data-testid": "dismissBtn" }, /* @__PURE__ */ _(Cross, null));
+  }
+  var import_classnames4;
+  var init_DismissButton2 = __esm({
+    "pages/new-tab/app/components/DismissButton.jsx"() {
+      "use strict";
+      init_preact_module();
+      import_classnames4 = __toESM(require_classnames(), 1);
+      init_Icons2();
+      init_types();
+      init_DismissButton();
+    }
+  });
+
+  // pages/new-tab/app/next-steps/nextsteps.data.js
+  var variants, otherText;
+  var init_nextsteps_data = __esm({
+    "pages/new-tab/app/next-steps/nextsteps.data.js"() {
+      "use strict";
+      variants = {
+        /** @param {(translationId: string) => string} t */
+        bringStuff: (t3) => ({
+          id: "bringStuff",
+          icon: "Bring-Stuff",
+          title: t3("nextSteps_bringStuff_title"),
+          summary: t3("nextSteps_bringStuff_summary"),
+          actionText: t3("nextSteps_bringStuff_actionText")
+        }),
+        /** @param {(translationId: string) => string} t */
+        defaultApp: (t3) => ({
+          id: "defaultApp",
+          icon: "Default-App",
+          title: t3("nextSteps_defaultApp_title"),
+          summary: t3("nextSteps_defaultApp_summary"),
+          actionText: t3("nextSteps_defaultApp_actionText")
+        }),
+        /** @param {(translationId: string) => string} t */
+        blockCookies: (t3) => ({
+          id: "blockCookies",
+          icon: "Cookie-Pops",
+          title: t3("nextSteps_blockCookies_title"),
+          summary: t3("nextSteps_blockCookies_summary"),
+          actionText: t3("nextSteps_blockCookies_actionText")
+        }),
+        /** @param {(translationId: string) => string} t */
+        emailProtection: (t3) => ({
+          id: "emailProtection",
+          icon: "Email-Protection",
+          title: t3("nextSteps_emailProtection_title"),
+          summary: t3("nextSteps_emailProtection_summary"),
+          actionText: t3("nextSteps_emailProtection_actionText")
+        }),
+        /** @param {(translationId: string) => string} t */
+        duckplayer: (t3) => ({
+          id: "duckplayer",
+          icon: "Tube-Clean",
+          title: t3("nextSteps_duckPlayer_title"),
+          summary: t3("nextSteps_duckPlayer_summary"),
+          actionText: t3("nextSteps_duckPlayer_actionText")
+        }),
+        /** @param {(translationId: string) => string} t */
+        addAppDockMac: (t3) => ({
+          id: "addAppToDockMac",
+          icon: "Dock-Add-Mac",
+          title: t3("nextSteps_addAppDockMac_title"),
+          summary: t3("nextSteps_addAppDockMac_summary"),
+          actionText: t3("nextSteps_addAppDockMac_actionText")
+        }),
+        /** @param {(translationId: string) => string} t */
+        pinAppToTaskbarWindows: (t3) => ({
+          id: "pinAppToTaskbarWindows",
+          icon: "Dock-Add-Windows",
+          title: t3("nextSteps_pinAppToTaskbarWindows_title"),
+          summary: t3("nextSteps_pinAppToTaskbarWindows_summary"),
+          actionText: t3("nextSteps_pinAppToTaskbarWindows_actionText")
+        })
+      };
+      otherText = {
+        /** @param {(translationId: string) => string} t */
+        showMore: (t3) => t3("ntp_show_more"),
+        /** @param {(translationId: string) => string} t */
+        showLess: (t3) => t3("ntp_show_less"),
+        /** @param {(translationId: string) => string} t */
+        nextSteps_sectionTitle: (t3) => t3("nextSteps_sectionTitle")
+      };
+    }
+  });
+
+  // pages/new-tab/app/next-steps/components/NextStepsCard.js
+  function NextStepsCard({ type, dismiss, action }) {
+    const { t: t3 } = useTypedTranslation();
+    const message = variants[type]?.(t3);
+    return /* @__PURE__ */ _("div", { class: NextSteps_default.card }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ _("p", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ _("p", { class: NextSteps_default.description }, message.summary), /* @__PURE__ */ _("button", { class: NextSteps_default.btn, onClick: () => action(message.id) }, message.actionText), /* @__PURE__ */ _(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
+  }
+  var init_NextStepsCard = __esm({
+    "pages/new-tab/app/next-steps/components/NextStepsCard.js"() {
+      "use strict";
+      init_preact_module();
+      init_NextSteps();
+      init_DismissButton2();
+      init_nextsteps_data();
+      init_types();
+    }
+  });
+
+  // pages/new-tab/app/next-steps/components/ShowHide.module.css
+  var ShowHide_default2;
+  var init_ShowHide2 = __esm({
+    "pages/new-tab/app/next-steps/components/ShowHide.module.css"() {
+      ShowHide_default2 = {
+        button: "ShowHide_button2",
+        icon: "ShowHide_icon"
+      };
+    }
+  });
+
+  // pages/new-tab/app/next-steps/components/ShowHideButtonWithText.jsx
+  function ShowHideButtonWithText({ text, onClick, buttonAttrs = {} }) {
+    return /* @__PURE__ */ _("button", { ...buttonAttrs, class: ShowHide_default2.button, "aria-label": text, onClick }, /* @__PURE__ */ _("span", null), text, /* @__PURE__ */ _(Chevron, { className: ShowHide_default2.icon }), /* @__PURE__ */ _("span", null));
+  }
+  var init_ShowHideButtonWithText = __esm({
+    "pages/new-tab/app/next-steps/components/ShowHideButtonWithText.jsx"() {
+      "use strict";
+      init_ShowHide2();
+      init_Icons2();
+      init_preact_module();
+    }
+  });
+
+  // pages/new-tab/app/next-steps/components/NextStepsGroup.js
+  function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }) {
+    const { t: t3 } = useTypedTranslation();
+    const WIDGET_ID = g2();
+    const TOGGLE_ID = g2();
+    const shownCards = expansion === "expanded" ? types : types.slice(0, 2);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)(NextSteps_default.cardGroup), id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, shownCards.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), /* @__PURE__ */ _(
+      "div",
+      {
+        className: (0, import_classnames5.default)({
+          [NextSteps_default.showhide]: true,
+          [NextSteps_default.showhideVisible]: types.length > 2
+        })
+      },
+      types.length > 2 && /* @__PURE__ */ _(
+        ShowHideButtonWithText,
+        {
+          buttonAttrs: {
+            "aria-expanded": expansion === "expanded",
+            "aria-pressed": expansion === "expanded",
+            "aria-controls": WIDGET_ID,
+            id: TOGGLE_ID
+          },
+          text: expansion === "expanded" ? otherText.showLess(t3) : otherText.showMore(t3),
+          onClick: toggle
+        }
+      )
+    ));
+  }
+  function NextStepsBubbleHeader() {
+    const { t: t3 } = useTypedTranslation();
+    const text = otherText.nextSteps_sectionTitle(t3);
+    return /* @__PURE__ */ _("div", { class: NextSteps_default.bubble }, /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M12 0C5.37258 0 0 5.37258 0 12V25.3388C2.56367 22.0873 6.53807 20 11 20H12V0Z",
+        fill: "#3969EF"
+      }
+    )), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("p", null, text)), /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "10", height: "20", viewBox: "0 0 10 20", fill: "none" }, /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M3.8147e-06 0C1.31322 1.566e-08 2.61358 0.258658 3.82684 0.761205C5.04009 1.26375 6.14249 2.00035 7.07107 2.92893C7.99966 3.85752 8.73625 4.95991 9.2388 6.17317C9.74135 7.38642 10 8.68678 10 10C10 11.3132 9.74135 12.6136 9.2388 13.8268C8.73625 15.0401 7.99966 16.1425 7.07107 17.0711C6.14248 17.9997 5.04009 18.7362 3.82684 19.2388C2.61358 19.7413 1.31322 20 0 20L3.8147e-06 10V0Z",
+        fill: "#3969EF"
+      }
+    )));
+  }
+  var import_classnames5;
+  var init_NextStepsGroup = __esm({
+    "pages/new-tab/app/next-steps/components/NextStepsGroup.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames5 = __toESM(require_classnames(), 1);
+      init_NextSteps();
+      init_types();
+      init_NextStepsCard();
+      init_nextsteps_data();
+      init_ShowHideButtonWithText();
+      init_hooks_module();
+    }
+  });
+
+  // pages/new-tab/app/next-steps/NextSteps.js
+  function NextStepsCustomized() {
+    return /* @__PURE__ */ _(NextStepsProvider, null, /* @__PURE__ */ _(NextStepsConsumer, null));
+  }
+  function NextStepsConsumer() {
+    const { state, toggle } = x2(NextStepsContext);
+    if (state.status === "ready" && state.data.content) {
+      const ids = state.data.content.map((x4) => x4.id);
+      const { action, dismiss } = x2(NextStepsContext);
+      return /* @__PURE__ */ _(NextStepsCardGroup, { types: ids, toggle, expansion: state.config.expansion, action, dismiss });
+    }
+    return null;
+  }
+  var init_NextSteps2 = __esm({
+    "pages/new-tab/app/next-steps/NextSteps.js"() {
+      "use strict";
+      init_preact_module();
+      init_NextStepsProvider();
+      init_hooks_module();
+      init_NextStepsGroup();
+    }
+  });
+
+  // pages/new-tab/app/entry-points/nextSteps.js
+  var nextSteps_exports = {};
+  __export(nextSteps_exports, {
+    factory: () => factory2
+  });
+  function factory2() {
+    return /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _(NextStepsCustomized, null));
+  }
+  var init_nextSteps = __esm({
+    "pages/new-tab/app/entry-points/nextSteps.js"() {
+      "use strict";
+      init_preact_module();
+      init_Layout();
+      init_NextSteps2();
+    }
+  });
+
   // pages/new-tab/app/privacy-stats/PrivacyStats.module.css
   var PrivacyStats_default;
   var init_PrivacyStats = __esm({
@@ -4869,13 +5422,13 @@
       }
     );
     const [state, dispatch] = p2(reducer, initial);
-    const service = useService2();
+    const service = useService3();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const { toggle } = useConfigSubscription({ dispatch, service });
     return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService2() {
+  function useService3() {
     const service = A2(
       /** @type {PrivacyStatsService|null} */
       null
@@ -5074,9 +5627,9 @@
   // pages/new-tab/app/entry-points/privacyStats.js
   var privacyStats_exports = {};
   __export(privacyStats_exports, {
-    factory: () => factory2
+    factory: () => factory3
   });
-  function factory2() {
+  function factory3() {
     return /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _(PrivacyStatsCustomized, null));
   }
   var init_privacyStats = __esm({
@@ -5180,7 +5733,7 @@
       }
     );
     const [state, dispatch] = p2(reducer, initial);
-    const service = useService3();
+    const service = useService4();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const dismiss = q2(
@@ -5205,7 +5758,7 @@
     );
     return /* @__PURE__ */ _(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ _(RMFDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService3() {
+  function useService4() {
     const service = A2(
       /** @type {RMFService|null} */
       null
@@ -5255,7 +5808,7 @@
   // pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.js
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames4.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.primary), onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.secondary), onClick: () => secondaryAction(id) }, message.secondaryActionText))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(RemoteMessagingFramework_default.btn), onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _("button", { className: (0, import_classnames4.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.dismissBtn), onClick: () => dismiss(id), "aria-label": "Close" }, /* @__PURE__ */ _(Cross, null)));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames6.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames6.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.primary), onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames6.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.secondary), onClick: () => secondaryAction(id) }, message.secondaryActionText))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _("button", { class: (0, import_classnames6.default)(RemoteMessagingFramework_default.btn), onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -5272,25 +5825,25 @@
     }
     return null;
   }
-  var import_classnames4;
+  var import_classnames6;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames4 = __toESM(require_classnames(), 1);
+      import_classnames6 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
-      init_Icons2();
+      init_DismissButton2();
     }
   });
 
   // pages/new-tab/app/entry-points/rmf.js
   var rmf_exports = {};
   __export(rmf_exports, {
-    factory: () => factory3
+    factory: () => factory4
   });
-  function factory3() {
+  function factory4() {
     return /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _(RMFProvider, null, /* @__PURE__ */ _(RMFConsumer, null)));
   }
   var init_rmf = __esm({
@@ -5387,14 +5940,14 @@
       }
     );
     const [state, dispatch] = p2(reducer, initial);
-    const service = useService4(updateNotification);
+    const service = useService5(updateNotification);
     useDataSubscription({ dispatch, service });
     const dismiss = q2(() => {
       service.current?.dismiss();
     }, [service]);
     return /* @__PURE__ */ _(UpdateNotificationContext.Provider, { value: { state, dismiss } }, /* @__PURE__ */ _(UpdateNotificationDispatchContext.Provider, { value: dispatch }, children));
   }
-  function useService4(initial) {
+  function useService5(initial) {
     const service = A2(
       /** @type {UpdateNotificationService|null} */
       null
@@ -5436,7 +5989,7 @@
   // pages/new-tab/app/update-notification/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
     const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 && /* @__PURE__ */ _(WithNotes, { notes, version }), notes.length === 0 && /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _("div", { class: UpdateNotification_default.dismiss }, /* @__PURE__ */ _("button", { onClick: dismiss, class: UpdateNotification_default.dismissBtn }, /* @__PURE__ */ _("span", { class: "sr-only" }, t3("updateNotification_dismiss_btn")), /* @__PURE__ */ _(Cross, null))));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames7.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 && /* @__PURE__ */ _(WithNotes, { notes, version }), notes.length === 0 && /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _("div", { class: UpdateNotification_default.dismiss }, /* @__PURE__ */ _("button", { onClick: dismiss, class: UpdateNotification_default.dismissBtn }, /* @__PURE__ */ _("span", { class: "sr-only" }, t3("updateNotification_dismiss_btn")), /* @__PURE__ */ _(Cross, null))));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -5477,12 +6030,12 @@
     }
     return null;
   }
-  var import_classnames5;
+  var import_classnames7;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames5 = __toESM(require_classnames(), 1);
+      import_classnames7 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -5495,9 +6048,9 @@
   // pages/new-tab/app/entry-points/updateNotification.js
   var updateNotification_exports = {};
   __export(updateNotification_exports, {
-    factory: () => factory4
+    factory: () => factory5
   });
-  function factory4() {
+  function factory5() {
     return /* @__PURE__ */ _(UpdateNotificationProvider, null, /* @__PURE__ */ _(UpdateNotificationConsumer, null));
   }
   var init_updateNotification = __esm({
@@ -6119,6 +6672,7 @@
   // import("../entry-points/**/*.js") in pages/new-tab/app/widget-list/WidgetList.js
   var globImport_entry_points_js = __glob({
     "../entry-points/favorites.js": () => Promise.resolve().then(() => (init_favorites(), favorites_exports)),
+    "../entry-points/nextSteps.js": () => Promise.resolve().then(() => (init_nextSteps(), nextSteps_exports)),
     "../entry-points/privacyStats.js": () => Promise.resolve().then(() => (init_privacyStats(), privacyStats_exports)),
     "../entry-points/rmf.js": () => Promise.resolve().then(() => (init_rmf(), rmf_exports)),
     "../entry-points/updateNotification.js": () => Promise.resolve().then(() => (init_updateNotification(), updateNotification_exports))
@@ -6409,6 +6963,106 @@
   // pages/new-tab/app/components/Examples.jsx
   init_PrivacyStats2();
   init_RemoteMessagingFramework2();
+
+  // pages/new-tab/app/next-steps/components/NextStepsExamples.js
+  init_preact_module();
+  init_utils();
+  init_NextStepsCard();
+  init_NextStepsGroup();
+  var nextStepsExamples = {
+    "next-steps.cardGroup.all": {
+      factory: () => /* @__PURE__ */ _(
+        NextStepsCardGroup,
+        {
+          types: [
+            "bringStuff",
+            "defaultApp",
+            "blockCookies",
+            "emailProtection",
+            "duckplayer",
+            "addAppDockMac",
+            "pinAppToTaskbarWindows"
+          ],
+          expansion: "collapsed",
+          toggle: noop("toggle"),
+          dismiss: noop("dismiss"),
+          action: noop("action")
+        }
+      )
+    },
+    "next-steps.cardGroup.all-expanded": {
+      factory: () => /* @__PURE__ */ _(
+        NextStepsCardGroup,
+        {
+          types: [
+            "bringStuff",
+            "defaultApp",
+            "blockCookies",
+            "emailProtection",
+            "duckplayer",
+            "addAppDockMac",
+            "pinAppToTaskbarWindows"
+          ],
+          expansion: "expanded",
+          toggle: noop("toggle"),
+          dismiss: noop("dismiss"),
+          action: noop("action")
+        }
+      )
+    },
+    "next-steps.cardGroup.two": {
+      factory: () => /* @__PURE__ */ _(
+        NextStepsCardGroup,
+        {
+          types: ["bringStuff", "defaultApp"],
+          expansion: "collapsed",
+          toggle: noop("toggle"),
+          dismiss: noop("dismiss"),
+          action: noop("action")
+        }
+      )
+    },
+    "next-steps.cardGroup.one": {
+      factory: () => /* @__PURE__ */ _(
+        NextStepsCardGroup,
+        {
+          types: ["bringStuff"],
+          expansion: "collapsed",
+          toggle: noop("toggle"),
+          dismiss: noop("dismiss"),
+          action: noop("action")
+        }
+      )
+    }
+  };
+  var otherNextStepsExamples = {
+    "next-steps.bringStuff": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "bringStuff", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.duckplayer": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "duckplayer", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.defaultApp": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "defaultApp", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.emailProtection": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "emailProtection", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.blockCookies": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "blockCookies", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.addAppDockMac": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "addAppDockMac", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.pinToTaskbarWindows": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "pinAppToTaskbarWindows", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.bubble": {
+      factory: () => /* @__PURE__ */ _(NextStepsBubbleHeader, null)
+    }
+  };
+
+  // pages/new-tab/app/components/Examples.jsx
   init_utils();
   init_VisibilityMenu2();
   init_Customizer2();
@@ -6856,7 +7510,8 @@
         }
       )
     },
-    ...favoritesExamples
+    ...favoritesExamples,
+    ...nextStepsExamples
   };
   var otherExamples = {
     "stats.without-animation": {
@@ -6899,6 +7554,7 @@
         }
       )
     },
+    ...otherNextStepsExamples,
     "customizer-menu": {
       factory: () => /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true })), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(
         VisibilityMenu,
@@ -8224,6 +8880,7 @@
   };
 
   // pages/new-tab/src/js/mock-transport.js
+  init_nextsteps_data();
   var VERSION_PREFIX = "__ntp_27__.";
   var url2 = new URL(window.location.href);
   function mockTransport() {
@@ -8465,6 +9122,31 @@
             }
             return Promise.resolve(fromStorage);
           }
+          case "nextSteps_getConfig": {
+            const config = { expansion: "collapsed" };
+            return Promise.resolve(config);
+          }
+          case "nextSteps_getData": {
+            let data = { content: null };
+            const ids = url2.searchParams.getAll("next-steps");
+            if (ids.length) {
+              data = {
+                content: ids.filter((id) => {
+                  if (!(id in variants)) {
+                    console.warn(`${id} missing in nextSteps data`);
+                    return false;
+                  }
+                  return true;
+                }).map((id) => {
+                  return { id: (
+                    /** @type {any} */
+                    id
+                  ) };
+                })
+              };
+            }
+            return Promise.resolve(data);
+          }
           case "rmf_getData": {
             let message = { content: void 0 };
             const rmfParam = url2.searchParams.get("rmf");
@@ -8496,6 +9178,7 @@
           }
           case "initialSetup": {
             const widgetsFromStorage = read("widgets") || [
+              { id: "nextSteps" },
               { id: "updateNotification" },
               { id: "rmf" },
               { id: "favorites" },
