@@ -232,7 +232,7 @@ export function iterateDataKey(key, callback) {
 }
 
 export function isFeatureBroken(args, feature) {
-    return isAlwaysEnabledFeature(feature)
+    return isPlatformSpecificFeature(feature)
         ? !args.site.enabledFeatures.includes(feature)
         : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
 }
@@ -739,10 +739,10 @@ export function isGloballyDisabled(args) {
  * @import {FeatureName} from "./features";
  * @type {FeatureName[]}
  */
-export const alwaysEnabledFeatures = ['windowsPermissionUsage', 'messageBridge'];
+export const platformSpecificFeatures = ['windowsPermissionUsage', 'messageBridge'];
 
-export function isAlwaysEnabledFeature(featureName) {
-    return alwaysEnabledFeatures.includes(featureName);
+export function isPlatformSpecificFeature(featureName) {
+    return platformSpecificFeatures.includes(featureName);
 }
 
 export function createCustomEvent(eventName, eventDetail) {

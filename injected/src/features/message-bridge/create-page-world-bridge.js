@@ -97,7 +97,8 @@ export function createPageWorldBridge(featureName, token) {
  * We are executing exclusively in secure contexts, so this should never fail
  */
 function random() {
-    return captured.randomUUID?.() || 'n/a';
+    if (typeof captured.randomUUID !== 'function') throw new Error('unreachable');
+    return captured.randomUUID();
 }
 
 /**
