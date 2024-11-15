@@ -46,7 +46,7 @@ export default class NavigatorInterface extends ContentFeature {
                         /**
                          * This feature never operates without messageSecret
                          */
-                        if (!args.messageSecret) noopMessagingInterface();
+                        if (!args.messageSecret) return noopMessagingInterface();
 
                         return createPageWorldBridge(featureName, args.messageSecret);
                     },
