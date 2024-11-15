@@ -101,7 +101,7 @@ test('message bridge when disabled (apple)', async ({ page }, testInfo) => {
 
     // get all results
     const results = await pageWorld.runTests();
-    expect(results['Creating the bridge, but it is disabled']).toStrictEqual([
+    expect(results['Creating the bridge, but it is unavailable']).toStrictEqual([
         { name: 'error', result: 'Did not install Message Bridge', expected: 'Did not install Message Bridge' },
     ]);
 });
