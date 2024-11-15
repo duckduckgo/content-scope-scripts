@@ -9,6 +9,7 @@ import {
     SubscriptionResponse,
     SubscriptionUnsubscribe,
 } from './schema.js';
+import { isBeingFramed } from '../../utils.js';
 
 /**
  * @import { MessagingInterface } from "./schema.js"
@@ -19,8 +20,12 @@ import {
 /** @type {Captured} */
 const captured = capturedGlobals;
 
+export const ERROR_MSG = 'Did not install Message Bridge';
+
 /**
- * This part can be called from any script.
+ * Try to create a message bridge.
+ *
+ * Note: This will throw an exception if the bridge cannot be established.
  *
  * @param {string} featureName
  * @param {string} [token]
@@ -28,6 +33,23 @@ const captured = capturedGlobals;
  * @throws {Error}
  */
 export function createPageWorldBridge(featureName, token) {
+    /**
+     * This feature never operates without a featureName or token
+     */
+    if (typeof featureName !== 'string' || !token) {
+        throw new captured.Error(ERROR_MSG);
+    }
+    /**
+     * This feature never operates in a frame or insecure context
+     */
+    if (isBeingFramed() || !isSecureContext) {
+        throw new captured.Error(ERROR_MSG);
+    }
+
+    /**
+     * @param {string} eventName
+     * @return {`${string}-${string}`}
+     */
     const appendToken = (eventName) => {
         return `${eventName}-${token}`;
     };
@@ -61,26 +83,14 @@ export function createPageWorldBridge(featureName, token) {
     };
 
     captured.addEventListener(evtName, didInstall);
-
     send(evt);
 
     if (!installed) {
         // leaving this as a generic message for now
-        throw new captured.Error('Did not install Message Bridge');
+        throw new captured.Error(ERROR_MSG);
     }
 
     return createMessagingInterface(featureName, send, appendToken);
-}
-
-/**
- * @return {MessagingInterface}
- */
-export function noopMessagingInterface() {
-    return {
-        notify: () => {},
-        request: () => Promise.resolve(null),
-        subscribe: () => () => {},
-    };
 }
 
 /**

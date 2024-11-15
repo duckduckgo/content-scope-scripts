@@ -1,6 +1,6 @@
-import { DDGPromise, isBeingFramed } from '../utils';
+import { DDGPromise } from '../utils';
 import ContentFeature from '../content-feature';
-import { createPageWorldBridge, noopMessagingInterface } from './message-bridge/create-page-world-bridge.js';
+import { createPageWorldBridge } from './message-bridge/create-page-world-bridge.js';
 
 export default class NavigatorInterface extends ContentFeature {
     load(args) {
@@ -36,15 +36,6 @@ export default class NavigatorInterface extends ContentFeature {
                      * @throws {Error}
                      */
                     createMessageBridge(featureName) {
-                        /**
-                         * This feature never operates in a frame or insecure context
-                         */
-                        if (isBeingFramed() || !isSecureContext) return noopMessagingInterface();
-                        /**
-                         * This feature never operates without messageSecret
-                         */
-                        if (!args.messageSecret) return noopMessagingInterface();
-
                         return createPageWorldBridge(featureName, args.messageSecret);
                     },
                 },
