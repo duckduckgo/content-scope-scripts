@@ -81,7 +81,7 @@ async function renderResults() {
     }
     // @ts-expect-error - ongoingTests is not defined in the type definition
     for (const test of window.ongoingTests) {
-        const result = await test.test();
+        const result = await test.test().catch((e) => console.error(`${test.name} threw`, e));
         results[test.name] = result;
     }
     // @ts-expect-error - buildResultTable is not defined in the type definition
