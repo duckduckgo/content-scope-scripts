@@ -117,6 +117,7 @@
 .cardGroup {
     height: 100%;
     width: 100%;
+    position: relative;
 }
 
 .cardGrid {
@@ -130,6 +131,9 @@
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
+    position: absolute;
+    top: calc(-26 * var(--px-in-rem));
+    left: 0;
 
     svg path {
         fill: var(--ntp-color-primary);
