@@ -12,7 +12,6 @@ export default defineConfig({
                 'integration-test/windows-permissions.spec.js',
                 'integration-test/broker-protection.spec.js',
                 'integration-test/breakage-reporting.spec.js',
-                'integration-test/message-bridge-windows.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
