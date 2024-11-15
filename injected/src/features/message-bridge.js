@@ -52,13 +52,9 @@ export class MessageBridge extends ContentFeature {
          */
         if (this.installed === true) return;
         /**
-         * This feature never operates in a frame
+         * This feature never operates in a frame or insecure context
          */
-        if (isBeingFramed()) return;
-        /**
-         * This feature never operates in insecure contexts
-         */
-        if (!isSecureContext) return;
+        if (isBeingFramed() || !isSecureContext) return;
         /**
          * This feature never operates without messageSecret
          */

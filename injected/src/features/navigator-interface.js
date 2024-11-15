@@ -36,13 +36,9 @@ export default class NavigatorInterface extends ContentFeature {
                      */
                     createMessageBridge(featureName) {
                         /**
-                         * This feature never operates in a frame
+                         * This feature never operates in a frame or insecure context
                          */
-                        if (isBeingFramed()) return noopMessagingInterface();
-                        /**
-                         * This feature never operates in insecure contexts
-                         */
-                        if (!isSecureContext) return noopMessagingInterface();
+                        if (isBeingFramed() || !isSecureContext) return noopMessagingInterface();
                         /**
                          * This feature never operates without messageSecret
                          */
