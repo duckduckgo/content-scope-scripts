@@ -29,6 +29,7 @@ function setupBothContexts(page, testInfo) {
 }
 
 test('message bridge when enabled (apple)', async ({ page }, testInfo) => {
+    // page.on('console', (msg) => console.log(msg.text()));
     const { pageWorld, isolated } = setupBothContexts(page, testInfo);
 
     // seed the request->re
@@ -85,6 +86,7 @@ test('message bridge when enabled (apple)', async ({ page }, testInfo) => {
 });
 
 test('message bridge when disabled (apple)', async ({ page }, testInfo) => {
+    // page.on('console', (msg) => console.log(msg.text()));
     const { pageWorld, isolated } = setupBothContexts(page, testInfo);
 
     // inject the scripts into the isolated world (with a different messaging context)
@@ -100,9 +102,6 @@ test('message bridge when disabled (apple)', async ({ page }, testInfo) => {
     // get all results
     const results = await pageWorld.runTests();
     expect(results['Creating the bridge, but it is disabled']).toStrictEqual([
-        { name: 'bridge.notify', result: 'function', expected: 'function' },
-        { name: 'bridge.request', result: 'function', expected: 'function' },
-        { name: 'bridge.subscribe', result: 'function', expected: 'function' },
-        { name: 'request', result: 'timed-out', expected: 'timed-out' },
+        { name: 'error', result: 'Did not install Message Bridge', expected: 'Did not install Message Bridge' },
     ]);
 });

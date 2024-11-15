@@ -17,9 +17,11 @@ export class InstallProxy {
     /**
      * @param {object} params
      * @param {string} params.featureName
+     * @param {string} params.id
      */
     constructor(params) {
         this.featureName = params.featureName;
+        this.id = params.id;
     }
 
     /**
@@ -28,7 +30,31 @@ export class InstallProxy {
     static create(params) {
         if (!isObject(params)) return null;
         if (!isString(params.featureName)) return null;
-        return new InstallProxy({ featureName: params.featureName });
+        if (!isString(params.id)) return null;
+        return new InstallProxy({ featureName: params.featureName, id: params.id });
+    }
+}
+
+export class DidInstall {
+    static NAME = 'DID_INSTALL';
+    get name() {
+        return DidInstall.NAME;
+    }
+    /**
+     * @param {object} params
+     * @param {string} params.id
+     */
+    constructor(params) {
+        this.id = params.id;
+    }
+
+    /**
+     * @param {unknown} params
+     */
+    static create(params) {
+        if (!isObject(params)) return null;
+        if (!isString(params.id)) return null;
+        return new DidInstall({ id: params.id });
     }
 }
 

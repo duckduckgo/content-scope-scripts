@@ -1,5 +1,6 @@
 import * as capturedGlobals from '../../captured-globals.js';
 import {
+    DidInstall,
     InstallProxy,
     ProxyNotification,
     ProxyRequest,
@@ -12,7 +13,7 @@ import {
 /**
  * @import { MessagingInterface } from "./schema.js"
  * @typedef {Pick<import("../../captured-globals.js"),
- *    "dispatchEvent" | "addEventListener" | "removeEventListener" | "CustomEvent" | "String" | "mathRandom">
+ *    "dispatchEvent" | "addEventListener" | "removeEventListener" | "CustomEvent" | "String" | "Error" | "randomUUID">
  * } Captured
  */
 /** @type {Captured} */
@@ -24,6 +25,7 @@ const captured = capturedGlobals;
  * @param {string} featureName
  * @param {string} [token]
  * @return {MessagingInterface}
+ * @throws {Error}
  */
 export function createPageWorldBridge(featureName, token) {
     const appendToken = (eventName) => {
@@ -41,7 +43,31 @@ export function createPageWorldBridge(featureName, token) {
         captured.dispatchEvent(event);
     };
 
-    send(new InstallProxy({ featureName }));
+    /**
+     * Events are synchronous (even across contexts), so we can figure out
+     * the result of installing the proxy before we return and give a
+     * better experience for consumers
+     */
+    let installed = false;
+    const id = random();
+    const evt = new InstallProxy({ featureName, id });
+    const evtName = appendToken(DidInstall.NAME + '-' + id);
+    const didInstall = (/** @type {CustomEvent<unknown>} */ e) => {
+        const result = DidInstall.create(e.detail);
+        if (result && result.id === id) {
+            installed = true;
+        }
+        captured.removeEventListener(evtName, didInstall);
+    };
+
+    captured.addEventListener(evtName, didInstall);
+
+    send(evt);
+
+    if (!installed) {
+        // leaving this as a generic message for now
+        throw new captured.Error('Did not install Message Bridge');
+    }
 
     return createMessagingInterface(featureName, send, appendToken);
 }
@@ -57,8 +83,11 @@ export function noopMessagingInterface() {
     };
 }
 
+/**
+ * We are executing exclusively in secure contexts, so this should never fail
+ */
 function random() {
-    return captured.String(captured.mathRandom());
+    return captured.randomUUID?.() || 'n/a';
 }
 
 /**

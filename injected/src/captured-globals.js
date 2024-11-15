@@ -22,4 +22,5 @@ export const CustomEvent = globalThis.CustomEvent;
 export const Promise = globalThis.Promise;
 export const String = globalThis.String;
 export const Map = globalThis.Map;
-export const mathRandom = globalThis.Math.random.bind(globalThis.Math);
+export const Error = globalThis.Error;
+export const randomUUID = globalThis.crypto?.randomUUID.bind(globalThis.crypto);

@@ -33,6 +33,7 @@ export default class NavigatorInterface extends ContentFeature {
                      * @import { MessagingInterface } from "./message-bridge/schema.js"
                      * @param {string} featureName
                      * @return {MessagingInterface}
+                     * @throws {Error}
                      */
                     createMessageBridge(featureName) {
                         /**

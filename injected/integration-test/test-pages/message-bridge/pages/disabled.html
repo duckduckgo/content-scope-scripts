@@ -13,26 +13,15 @@
 <p>Message Bridge (when disabled)</p>
 
 <script>
-    test('Creating the bridge, but it is disabled', async () => {
-        const bridge = navigator.duckduckgo?.createMessageBridge?.('exampleFeature');
-        if (!bridge) {
-            return [
-                { name: 'bridge.notify', result: "undefined", expected: 'function' },
-                { name: 'bridge.request', result: "undefined", expected: 'function' },
-                { name: 'bridge.subscribe', result: "undefined", expected: 'function' },
-                { name: 'request', result: "undefined", expected: "timed-out" }
-            ];
+    test('Creating the bridge, but it is unavailable', async () => {
+        let error;
+        try {
+            navigator.duckduckgo.createMessageBridge('exampleFeature')
+        } catch (e) {
+            error = e;
         }
-
-        const timer = new Promise(resolve => setTimeout(() => resolve("timed-out"), 500));
-        const request = bridge.request('sampleData');
-        const raced = await Promise.race([timer, request]);
-
         return [
-            { name: 'bridge.notify', result: typeof bridge.notify, expected: 'function' },
-            { name: 'bridge.request', result: typeof bridge.request, expected: 'function' },
-            { name: 'bridge.subscribe', result: typeof bridge.subscribe, expected: 'function' },
-            { name: 'request', result: raced, expected: "timed-out" }
+            { name: 'error', result: error.message, expected: "Did not install Message Bridge" }
         ];
     })
 

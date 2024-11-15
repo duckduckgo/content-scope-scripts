@@ -2,6 +2,7 @@ import { Messaging } from '@duckduckgo/messaging';
 import ContentFeature from '../content-feature';
 import {
     InstallProxy,
+    DidInstall,
     ProxyNotification,
     ProxyRequest,
     ProxyResponse,
@@ -58,8 +59,6 @@ export class MessageBridge extends ContentFeature {
          */
         if (!args.messageSecret) return;
 
-        this.log(`bridge is installing...`);
-
         const { captured } = this;
 
         /**
@@ -73,7 +72,7 @@ export class MessageBridge extends ContentFeature {
         /**
          * @param {{name: string; id: string} & Record<string, any>} incoming
          */
-        const send = (incoming) => {
+        const reply = (incoming) => {
             if (!args.messageSecret) return this.log('ignoring because args.messageSecret was absent');
             const eventName = appendToken(incoming.name + '-' + incoming.id);
             const event = new captured.CustomEvent(eventName, { detail: incoming });
@@ -100,23 +99,26 @@ export class MessageBridge extends ContentFeature {
         /**
          * These are all the messages we accept from the page-world.
          */
+        this.log(`bridge is installing...`);
         accept(InstallProxy, (install) => {
-            this.installProxyFor(install.featureName, args.messagingConfig);
-            accept(ProxyNotification, (notification) => this.proxyNotification(notification));
-            accept(ProxyRequest, (request) => this.proxyRequest(request, send));
-            accept(SubscriptionRequest, (subscription) => this.proxySubscription(subscription, send));
-            accept(SubscriptionUnsubscribe, (unsubscribe) => this.removeSubscription(unsubscribe.id));
+            this.installProxyFor(install, args.messagingConfig, reply);
         });
+        accept(ProxyNotification, (notification) => this.proxyNotification(notification));
+        accept(ProxyRequest, (request) => this.proxyRequest(request, reply));
+        accept(SubscriptionRequest, (subscription) => this.proxySubscription(subscription, reply));
+        accept(SubscriptionUnsubscribe, (unsubscribe) => this.removeSubscription(unsubscribe.id));
     }
 
     /**
      * Installing a feature proxy is the act of creating a fresh instance of 'Messaging', but
      * using the same underlying transport
      *
-     * @param {string} featureName
+     * @param {InstallProxy} install
      * @param {import('@duckduckgo/messaging').MessagingConfig} config
+     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
      */
-    installProxyFor(featureName, config) {
+    installProxyFor(install, config, reply) {
+        const { id, featureName } = install;
         if (this.proxies.has(featureName)) return this.log('ignoring `installProxyFor` because it exists', featureName);
         const allowed = this.getFeatureSettingEnabled(featureName);
         if (!allowed) {
@@ -128,13 +130,14 @@ export class MessageBridge extends ContentFeature {
         this.proxies.set(featureName, messaging);
 
         this.log('did install proxy for ', featureName);
+        reply(new DidInstall({ id }));
     }
 
     /**
      * @param {ProxyRequest} request
-     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} send
+     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
      */
-    async proxyRequest(request, send) {
+    async proxyRequest(request, reply) {
         const { id, featureName, method, params } = request;
 
         const proxy = this.proxies.get(featureName);
@@ -150,7 +153,7 @@ export class MessageBridge extends ContentFeature {
                 result,
                 id,
             });
-            send(responseEvent);
+            reply(responseEvent);
         } catch (e) {
             const errorResponseEvent = new ProxyResponse({
                 method,
@@ -158,15 +161,15 @@ export class MessageBridge extends ContentFeature {
                 error: { message: e.message },
                 id,
             });
-            send(errorResponseEvent);
+            reply(errorResponseEvent);
         }
     }
 
     /**
      * @param {SubscriptionRequest} subscription
-     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} send
+     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
      */
-    proxySubscription(subscription, send) {
+    proxySubscription(subscription, reply) {
         const { id, featureName, subscriptionName } = subscription;
         const proxy = this.proxies.get(subscription.featureName);
         if (!proxy) return this.log('proxy was not installed for', featureName);
@@ -186,7 +189,7 @@ export class MessageBridge extends ContentFeature {
                 params: data,
                 id,
             });
-            send(responseEvent);
+            reply(responseEvent);
         });
 
         this.subscriptions.set(id, unsubscribe);
