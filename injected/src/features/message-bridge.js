@@ -46,10 +46,6 @@ export class MessageBridge extends ContentFeature {
     installed = false;
 
     init(args) {
-        this.acceptEvents(args);
-    }
-
-    acceptEvents(args) {
         /**
          * This feature never operates in a frame or insecure context
          */
