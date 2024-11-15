@@ -46,6 +46,17 @@ export function createPageWorldBridge(featureName, token) {
     return createMessagingInterface(featureName, send, appendToken);
 }
 
+/**
+ * @return {MessagingInterface}
+ */
+export function noopMessagingInterface() {
+    return {
+        notify: () => {},
+        request: () => Promise.resolve(null),
+        subscribe: () => () => {},
+    };
+}
+
 function random() {
     return captured.String(captured.mathRandom());
 }

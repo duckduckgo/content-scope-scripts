@@ -27,17 +27,30 @@ export class MessageBridge extends ContentFeature {
 
     /** @type {Captured} */
     captured = capturedGlobals;
+    installed = false;
 
     /**
      * @param {Parameters<console['log']>} args
      */
     log(...args) {
-        // if (this.isDebug) {
-        console.log('[isolated]', ...args);
-        // }
+        if (this.isDebug) {
+            console.log('[isolated]', ...args);
+        }
     }
 
     load(args) {
+        this.acceptEvents(args);
+    }
+
+    init(args) {
+        this.acceptEvents(args);
+    }
+
+    acceptEvents(args) {
+        /**
+         * Allow this to be called at various times
+         */
+        if (this.installed === true) return;
         /**
          * This feature never operates in a frame
          */
@@ -46,10 +59,19 @@ export class MessageBridge extends ContentFeature {
          * This feature never operates in insecure contexts
          */
         if (!isSecureContext) return;
+        /**
+         * This feature never operates without messageSecret
+         */
+        if (!args.messageSecret) return;
+        /**
+         * Mark as installed, so that it's not called more than once
+         */
+        this.installed = true;
 
-        this.log(`bridge is present...`);
+        this.log(`bridge is installing...`);
 
         const { captured } = this;
+
         /**
          * @param {string} eventName
          * @return {`${string}-${string}`}
@@ -88,14 +110,14 @@ export class MessageBridge extends ContentFeature {
         /**
          * These are all the messages we accept from the page-world.
          */
-        accept(InstallProxy, (install) => this.installProxyFor(install.featureName, args.messagingConfig));
-        accept(ProxyNotification, (notification) => this.proxyNotification(notification));
-        accept(ProxyRequest, (request) => this.proxyRequest(request, send));
-        accept(SubscriptionRequest, (subscription) => this.proxySubscription(subscription, send));
-        accept(SubscriptionUnsubscribe, (unsubscribe) => this.removeSubscription(unsubscribe.id));
+        accept(InstallProxy, (install) => {
+            this.installProxyFor(install.featureName, args.messagingConfig);
+            accept(ProxyNotification, (notification) => this.proxyNotification(notification));
+            accept(ProxyRequest, (request) => this.proxyRequest(request, send));
+            accept(SubscriptionRequest, (subscription) => this.proxySubscription(subscription, send));
+            accept(SubscriptionUnsubscribe, (unsubscribe) => this.removeSubscription(unsubscribe.id));
+        });
     }
-
-    init(args) {}
 
     /**
      * Installing a feature proxy is the act of creating a fresh instance of 'Messaging', but

@@ -1,6 +1,6 @@
-import { DDGPromise } from '../utils';
+import { DDGPromise, isBeingFramed } from '../utils';
 import ContentFeature from '../content-feature';
-import { createPageWorldBridge } from './message-bridge/create-page-world-bridge.js';
+import { createPageWorldBridge, noopMessagingInterface } from './message-bridge/create-page-world-bridge.js';
 
 export default class NavigatorInterface extends ContentFeature {
     load(args) {
@@ -30,10 +30,24 @@ export default class NavigatorInterface extends ContentFeature {
                         return DDGPromise.resolve(true);
                     },
                     /**
+                     * @import { MessagingInterface } from "./message-bridge/schema.js"
                      * @param {string} featureName
-                     * @return {Pick<import("@duckduckgo/messaging").Messaging, "notify"|"subscribe"|"request">}
+                     * @return {MessagingInterface}
                      */
                     createMessageBridge(featureName) {
+                        /**
+                         * This feature never operates in a frame
+                         */
+                        if (isBeingFramed()) return noopMessagingInterface();
+                        /**
+                         * This feature never operates in insecure contexts
+                         */
+                        if (!isSecureContext) return noopMessagingInterface();
+                        /**
+                         * This feature never operates without messageSecret
+                         */
+                        if (!args.messageSecret) noopMessagingInterface();
+
                         return createPageWorldBridge(featureName, args.messageSecret);
                     },
                 },
