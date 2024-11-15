@@ -1,0 +1,16 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "navigatorInterface": {
+      "state": "enabled",
+      "exceptions": []
+    },
+    "messageBridge": {
+      "exceptions": [],
+      "state": "enabled",
+      "settings": {
+        "exampleFeature": "disabled"
+      }
+    }
+  }
+}

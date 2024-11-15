@@ -16,13 +16,15 @@
  * }} params
  */
 export function mockWindowsMessaging(params) {
-    window.__playwright_01 = {
-        mockResponses: params.responses,
-        subscriptionEvents: [],
-        mocks: {
-            outgoing: [],
-        },
-    };
+    if (!window.__playwright_01) {
+        window.__playwright_01 = {
+            mockResponses: params.responses,
+            subscriptionEvents: [],
+            mocks: {
+                outgoing: [],
+            },
+        };
+    }
     const listeners = [];
     // @ts-expect-error mocking is intentional
     window.chrome = {};
@@ -114,15 +116,18 @@ export function mockWindowsMessaging(params) {
  * }} params
  */
 export function mockWebkitMessaging(params) {
-    window.__playwright_01 = {
-        mockResponses: params.responses,
-        subscriptionEvents: [],
-        mocks: {
-            outgoing: [],
-        },
-    };
+    if (!window.__playwright_01) {
+        window.__playwright_01 = {
+            mockResponses: params.responses,
+            subscriptionEvents: [],
+            mocks: {
+                outgoing: [],
+            },
+        };
+    }
     window.webkit = {
         messageHandlers: {
+            ...window.webkit?.messageHandlers,
             [params.messagingContext.context]: {
                 /**
                  * @param {RequestMessage | NotificationMessage} msg
