@@ -44,19 +44,11 @@ export class MessageBridge extends ContentFeature {
      */
     installed = false;
 
-    load(args) {
-        this.acceptEvents(args);
-    }
-
     init(args) {
         this.acceptEvents(args);
     }
 
     acceptEvents(args) {
-        /**
-         * Allow this to be called at various times
-         */
-        if (this.installed === true) return;
         /**
          * This feature never operates in a frame or insecure context
          */
@@ -65,10 +57,6 @@ export class MessageBridge extends ContentFeature {
          * This feature never operates without messageSecret
          */
         if (!args.messageSecret) return;
-        /**
-         * Mark as installed, so that it's not called more than once
-         */
-        this.installed = true;
 
         this.log(`bridge is installing...`);
 
@@ -233,6 +221,8 @@ export class MessageBridge extends ContentFeature {
             console.log('[isolated]', ...args);
         }
     }
+
+    load(args) {}
 }
 
 export default MessageBridge;

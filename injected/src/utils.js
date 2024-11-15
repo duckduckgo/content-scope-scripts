@@ -232,7 +232,7 @@ export function iterateDataKey(key, callback) {
 }
 
 export function isFeatureBroken(args, feature) {
-    return isWindowsSpecificFeature(feature)
+    return isAlwaysEnabledFeature(feature)
         ? !args.site.enabledFeatures.includes(feature)
         : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
 }
@@ -735,10 +735,14 @@ export function isGloballyDisabled(args) {
     return args.site.allowlisted || args.site.isBroken;
 }
 
-export const windowsSpecificFeatures = ['windowsPermissionUsage'];
+/**
+ * @import {FeatureName} from "./features";
+ * @type {FeatureName[]}
+ */
+export const alwaysEnabledFeatures = ['windowsPermissionUsage', 'messageBridge'];
 
-export function isWindowsSpecificFeature(featureName) {
-    return windowsSpecificFeatures.includes(featureName);
+export function isAlwaysEnabledFeature(featureName) {
+    return alwaysEnabledFeatures.includes(featureName);
 }
 
 export function createCustomEvent(eventName, eventDetail) {
