@@ -22,21 +22,27 @@ import { isBeingFramed } from '../utils.js';
  * This part has access to messaging handlers
  */
 export class MessageBridge extends ContentFeature {
-    proxies = new capturedGlobals.Map();
-    subscriptions = new capturedGlobals.Map();
-
     /** @type {Captured} */
     captured = capturedGlobals;
-    installed = false;
+    /**
+     * A mapping of feature names to instances of `Messaging`.
+     * This allows the bridge to handle more than 1 feature at a time.
+     * @type {Map<string, Messaging>}
+     */
+    proxies = new capturedGlobals.Map();
 
     /**
-     * @param {Parameters<console['log']>} args
+     * If any subscriptions are created, we store the cleanup functions
+     * for later use.
+     * @type {Map<string, () => void>}
      */
-    log(...args) {
-        if (this.isDebug) {
-            console.log('[isolated]', ...args);
-        }
-    }
+    subscriptions = new capturedGlobals.Map();
+
+    /**
+     * This side of the bridge can only be instantiated once,
+     * so we use this flag to ensure we can handle multiple invocations
+     */
+    installed = false;
 
     load(args) {
         this.acceptEvents(args);
@@ -185,7 +191,7 @@ export class MessageBridge extends ContentFeature {
             this.removeSubscription(id);
         }
 
-        const unsubscribe = proxy.subscribe(subscriptionName, (data) => {
+        const unsubscribe = proxy.subscribe(subscriptionName, (/** @type {Record<string, any>} */ data) => {
             const responseEvent = new SubscriptionResponse({
                 subscriptionName,
                 featureName,
@@ -217,6 +223,15 @@ export class MessageBridge extends ContentFeature {
 
         this.log('will proxy notification', notification);
         proxy.notify(notification.method, notification.params);
+    }
+
+    /**
+     * @param {Parameters<console['log']>} args
+     */
+    log(...args) {
+        if (this.isDebug) {
+            console.log('[isolated]', ...args);
+        }
     }
 }
 
