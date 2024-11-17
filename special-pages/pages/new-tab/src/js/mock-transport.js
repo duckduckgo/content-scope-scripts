@@ -18,7 +18,7 @@ import { variants as nextSteps } from '../../app/next-steps/nextsteps.data.js';
  * @typedef {import('../../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  */
 
-const VERSION_PREFIX = '__ntp_27__.';
+const VERSION_PREFIX = '__ntp_28__.';
 const url = new URL(window.location.href);
 
 export function mockTransport() {
@@ -363,8 +363,11 @@ export function mockTransport() {
 
                     if (rmfParam && rmfParam in rmfDataExamples) {
                         message = rmfDataExamples[rmfParam];
+                    } else {
+                        message = rmfDataExamples.big_single_action;
                     }
 
+                    write('rmf_data', message);
                     return Promise.resolve(message);
                 }
                 case 'favorites_getData': {
@@ -391,14 +394,16 @@ export function mockTransport() {
                 }
                 case 'initialSetup': {
                     const widgetsFromStorage = read('widgets') || [
-                        { id: 'nextSteps' },
                         { id: 'updateNotification' },
                         { id: 'rmf' },
+                        { id: 'nextSteps' },
                         { id: 'favorites' },
                         { id: 'privacyStats' },
                     ];
 
                     const widgetConfigFromStorage = read('widget_config') || [
+                        { id: 'rmf', visibility: 'visible' },
+                        { id: 'nextSteps', visibility: 'visible' },
                         { id: 'favorites', visibility: 'visible' },
                         { id: 'privacyStats', visibility: 'visible' },
                     ];

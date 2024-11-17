@@ -38,7 +38,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
 
             <div
                 className={cn({
-                    [styles.showhide]: true,
+                    [styles.showhide]: types.length > 2,
                     [styles.showhideVisible]: types.length > 2,
                 })}
             >
