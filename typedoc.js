@@ -2,7 +2,11 @@ import { OptionDefaults } from 'typedoc';
 
 /** @type {Partial<import('typedoc').TypeDocOptions>} */
 const config = {
-    projectDocuments: ['special-pages/pages/new-tab/app/new-tab.md'],
+    // prettier-ignore
+    projectDocuments: [
+        'special-pages/pages/new-tab/app/new-tab.md',
+        'injected/docs/*.md',
+    ],
     entryPoints: [
         'injected/entry-points/android.js',
         'injected/entry-points/apple.js',
