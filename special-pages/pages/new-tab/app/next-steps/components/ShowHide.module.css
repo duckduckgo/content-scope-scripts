@@ -14,6 +14,10 @@
     padding: 0;
     font-size: calc(11 * var(--px-in-rem));
 
+    .icon {
+        transition: transform .3s;
+    }
+
     /* these are the horizontal lines on either side of the text */
     span {
         flex-grow: 1;

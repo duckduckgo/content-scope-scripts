@@ -39,7 +39,7 @@
         }
         &:focus-visible {
             outline: 1px dotted var(--ntp-focus-outline-color);
-            border-radius: 4px;
+            border-radius: var(--border-radius-xs);
             text-decoration: none;
         }
     }

@@ -2,7 +2,7 @@
     background: var(--ntp-surface-background-color);
     border: 1px solid var(--ntp-surface-border-color);
     padding: var(--sp-6);
-    border-radius: var(--sp-3);
+    border-radius: var(--border-radius-lg);
     display: grid;
     align-items: start;
     grid-template-columns: auto;
@@ -14,8 +14,6 @@
     }
 }
 
-.collapsed {}
-.expanded {}
 .heading {
     display: grid;
     grid-template-columns: 24px auto 32px;
@@ -168,9 +166,7 @@
     opacity: 1;
 }
 
-.other {
-    /*color: */
-}
+
 
 .name {
     font-size: var(--title-3-em-font-size);

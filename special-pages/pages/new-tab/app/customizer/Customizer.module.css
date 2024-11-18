@@ -23,7 +23,7 @@
 .customizeButton {
     background-color: transparent;
     border: 1px solid var(--color-black-at-9);
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     padding: 8px 12px;
     cursor: pointer;
     display: flex;

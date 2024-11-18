@@ -23,6 +23,10 @@
     --title-3-em-line-height: 20px;
 
     --ntp-focus-outline-color: black;
+    --border-radius-lg: 12px;
+    --border-radius-md: 8px;
+    --border-radius-sm: 6px;
+    --border-radius-xs: 4px;
 
 
     @media (prefers-color-scheme: dark) {

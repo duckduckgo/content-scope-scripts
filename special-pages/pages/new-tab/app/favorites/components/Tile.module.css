@@ -6,7 +6,7 @@
     position: relative;
     text-decoration: none;
     color: currentColor;
-    padding-inline: 12px;
+    padding-inline: var(--sp-3);
     outline: none;
 
     &:focus-visible .icon {
@@ -18,9 +18,9 @@
     display: grid;
     align-content: center;
     justify-content: center;
-    width: 64px;
-    height: 64px;
-    border-radius: 12px;
+    width: var(--sp-16);
+    height: var(--sp-16);
+    border-radius: var(--border-radius-lg);
 }
 
 .draggable {
@@ -35,7 +35,7 @@
     }
 
     @media screen and (prefers-color-scheme: dark) {
-        background-color: var(--color-white-at-9);
+        background-color: var(--color-white-at-6);
         &:hover {
             background-color: var(--color-white-at-12);
         }
@@ -46,7 +46,7 @@
     display: block;
     width: 32px;
     height: 32px;
-    border-radius: 8px;
+    border-radius: var(--border-radius-md);
     background-repeat: no-repeat;
     background-size: contain;
     pointer-events: none;
@@ -58,7 +58,7 @@
     }
 
     &[data-loaded][data-did-try-fallback] {
-        border-radius: 8px;
+        border-radius: var(--border-radius-md);
     }
 
     &[data-errored] {
@@ -74,15 +74,12 @@
     min-height: 2.8em;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     display: -webkit-box;
     -webkit-box-orient: vertical;
 }
-.preview {
-    padding: .5em;
-    border-radius: 5px;
-    background: white;
-}
+
 
 .placeholder {
     background-color: transparent;

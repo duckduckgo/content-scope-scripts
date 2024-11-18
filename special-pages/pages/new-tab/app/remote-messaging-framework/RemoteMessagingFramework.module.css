@@ -2,7 +2,7 @@
     --ntp-rmf-surface-background-color: rgba(0, 0, 0, .06);
     background: var(--ntp-rmf-surface-background-color);
     padding: 14px var(--sp-8) 14px var(--sp-4);
-    border-radius: var(--sp-3);
+    border-radius: var(--border-radius-lg);
     position: relative;
     display: flex;
     justify-content: flex-start;
@@ -10,6 +10,8 @@
     font-family: system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto;
     color: var(--color-black);
     width: 100%;
+    animation: animate-fade .2s cubic-bezier(0.55, 0.055, 0.666, 0.19);
+
 
     &.icon {
         padding-left: var(--sp-2);
@@ -20,6 +22,8 @@
         color: var(--color-white-at-84);
     }
 }
+
+
 
 .iconBlock {
     margin-right: var(--sp-2);
@@ -60,7 +64,7 @@
     height: var(--sp-8);
     background-color: var(--color-black-at-6);
     border-width: 0;
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     text-wrap: nowrap;
 
     &:hover {
@@ -82,7 +86,6 @@
     }
 
     &:focus-visible {
-        /* box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-blue-50); */
         box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     }
 
@@ -109,7 +112,6 @@
         }
 
         &:focus-visible {
-            /* box-shadow: 0px 0px 0px 1px var(--color-blue-90), 0px 0px 0px 3px var(--color-white); */
             box-shadow: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
         }
     }
@@ -162,3 +164,15 @@
     top: 0.5rem;
     right: 0.5rem;
 }
+
+
+@keyframes animate-fade {
+    0% { 
+        opacity: 0; 
+        scale: 0.95; 
+    }
+    100% { 
+        opacity: 1; 
+        scale: 1;
+    }
+  }
