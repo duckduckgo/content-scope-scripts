@@ -22,7 +22,7 @@ export class NewtabPage {
             env: 'development',
         });
         this.page.on('console', console.log);
-        // default mocks - just enough to render the first page without error
+        if (this.platform.name === 'extension') throw new Error('unreachable - not supported in extension platform');
         this.mocks.defaultResponses({
             requestSetAsDefault: {},
             requestImport: {},

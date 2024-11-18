@@ -12,7 +12,8 @@
  * Install a mock interface for windows messaging
  * @param {{
  *  messagingContext: import('../index.js').MessagingContext,
- *  responses: Record<string, any>
+ *  responses: Record<string, any>,
+ *  messageCallback: 'messageCallback',
  * }} params
  */
 export function mockWindowsMessaging(params) {
@@ -113,6 +114,7 @@ export function mockWindowsMessaging(params) {
  * @param {{
  *  messagingContext: import('../index.js').MessagingContext,
  *  responses: Record<string, any>
+ *  messageCallback: string,
  * }} params
  */
 export function mockWebkitMessaging(params) {

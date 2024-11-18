@@ -72,7 +72,17 @@ export class Build {
      */
     static supported(name) {
         /** @type {ImportMeta['injectName'][]} */
-        const items = ['apple', 'apple-isolated', 'windows', 'integration', 'android', 'android-autofill-password-import'];
+        const items = [
+            'apple',
+            'apple-isolated',
+            'windows',
+            'integration',
+            'android',
+            'android-autofill-password-import',
+            'chrome-mv3',
+            'chrome',
+            'firefox',
+        ];
         if (items.includes(name)) {
             return name;
         }
@@ -81,11 +91,14 @@ export class Build {
 }
 
 export class PlatformInfo {
+    /** @type {NonNullable<ImportMeta['platform']>} */
+    name;
     /**
      * @param {object} params
      * @param {ImportMeta['platform']} params.name
      */
     constructor(params) {
+        if (!params.name) throw new Error('unreachable - must provide .name');
         this.name = params.name;
     }
 
@@ -95,7 +108,7 @@ export class PlatformInfo {
      */
     static supported(name) {
         /** @type {ImportMeta['platform'][]} */
-        const items = ['macos', 'ios', 'windows', 'android'];
+        const items = ['macos', 'ios', 'windows', 'android', 'extension'];
         if (items.includes(name)) {
             return name;
         }
@@ -113,6 +126,7 @@ export class PlatformInfo {
 export function perPlatform(config) {
     // Read the configuration object to determine which platform we're testing against
     if (!('injectName' in config) || typeof config.injectName !== 'string') {
+        // Read the configuration object to determine which platform we're testing against
         throw new Error('unsupported project - missing `use.injectName`');
     }
 
