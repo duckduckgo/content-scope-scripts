@@ -1,60 +1,26 @@
 /**
- *  Tests for shared pages
+ *  Tests for shared pages.
+ *  Note: these only run in the extension setup for now.
  */
-import * as fs from 'fs';
 import { test as base, expect } from '@playwright/test';
-import { processConfig } from '../src/utils.js';
-import polyfillProcessGlobals from '../unit-test/helpers/pollyfil-for-process-globals.js';
-import { gotoAndWait, testContextForExtension } from './helpers/harness.js';
+import { testContextForExtension } from './helpers/harness.js';
+import { ResultsCollector } from './page-objects/results-collector.js';
 
 const test = testContextForExtension(base);
 
 test.describe('Test integration pages', () => {
     /**
      * @param {import("@playwright/test").Page} page
-     * @param {string} pageName
-     * @param {string} configPath
-     * @param {string} [evalBeforeInit]
+     * @param {import("@playwright/test").TestInfo} testInfo
+     * @param {string} html
+     * @param {string} config
      */
-    async function testPage(page, pageName, configPath, evalBeforeInit) {
-        const res = fs.readFileSync(configPath, 'utf8');
-        const config = JSON.parse(res.toString());
-        polyfillProcessGlobals();
-
-        /** @type {import('../src/utils.js').UserPreferences} */
-        const userPreferences = {
-            platform: {
-                name: 'extension',
-            },
-            sessionKey: 'test',
-        };
-        const processedConfig = processConfig(
-            config,
-            /* userList */ [],
-            /* preferences */ userPreferences /*, platformSpecificFeatures = [] */,
-        );
-
-        await gotoAndWait(page, `/${pageName}?automation=true`, processedConfig, evalBeforeInit);
-        // Check page results
-        const pageResults = await page.evaluate(() => {
-            let res;
-            const promise = new Promise((resolve) => {
-                res = resolve;
-            });
-            // @ts-expect-error - results is not defined in the type definition
-            if (window.results) {
-                // @ts-expect-error - results is not defined in the type definition
-                res(window.results);
-            } else {
-                window.addEventListener('results-ready', (e) => {
-                    // @ts-expect-error - e.detail is not defined in the type definition
-                    res(e.detail);
-                });
-            }
-            return promise;
-        });
-        for (const key in pageResults) {
-            for (const result of pageResults[key]) {
+    async function testPage(page, testInfo, html, config) {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(html, config);
+        const results = await collector.results();
+        for (const key in results) {
+            for (const result of results[key]) {
                 await test.step(`${key}:\n ${result.name}`, () => {
                     expect(result.result).toEqual(result.expected);
                 });
@@ -62,23 +28,32 @@ test.describe('Test integration pages', () => {
         }
     }
 
-    test('Test manipulating APIs', async ({ page }) => {
+    test('Test manipulating APIs', async ({ page }, testInfo) => {
         await testPage(
             page,
-            'api-manipulation/pages/apis.html',
-            `${process.cwd()}/integration-test/test-pages/api-manipulation/config/apis.json`,
+            testInfo,
+            '/api-manipulation/pages/apis.html',
+            './integration-test/test-pages/api-manipulation/config/apis.json',
         );
     });
 
-    test('Web compat shims correctness', async ({ page }) => {
-        await testPage(page, 'webcompat/pages/shims.html', `${process.cwd()}/integration-test/test-pages/webcompat/config/shims.json`);
-    });
-
-    test('Properly modifies localStorage entries', async ({ page }) => {
+    test('Web compat shims correctness', async ({ page }, testInfo) => {
+        // prettier-ignore
         await testPage(
             page,
+            testInfo,
+            'webcompat/pages/shims.html',
+            `./integration-test/test-pages/webcompat/config/shims.json`,
+        );
+    });
+
+    test('Properly modifies localStorage entries', async ({ page }, testInfo) => {
+        // prettier-ignore
+        await testPage(
+            page,
+            testInfo,
             'webcompat/pages/modify-localstorage.html',
-            `${process.cwd()}/integration-test/test-pages/webcompat/config/modify-localstorage.json`,
+            `./integration-test/test-pages/webcompat/config/modify-localstorage.json`,
         );
     });
 });

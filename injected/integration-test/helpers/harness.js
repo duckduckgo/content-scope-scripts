@@ -4,6 +4,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { chromium, firefox } from '@playwright/test';
 import { fork } from 'node:child_process';
+import { polyfillProcessGlobals } from '../../unit-test/helpers/polyfill-process-globals.js';
 
 const DATA_DIR_PREFIX = 'ddg-temp-';
 
@@ -17,6 +18,7 @@ export function testContextForExtension(test) {
             const tmpDirPrefix = join(tmpdir(), DATA_DIR_PREFIX);
             const dataDir = mkdtempSync(tmpDirPrefix);
             const browserTypes = { chromium, firefox };
+            const cleanupGlobals = polyfillProcessGlobals();
 
             const launchOptions = {
                 devtools: true,
@@ -32,6 +34,9 @@ export function testContextForExtension(test) {
 
             // actually run the tests
             await use(context);
+
+            // clean up globals
+            cleanupGlobals();
 
             // clean up
             await context.close();

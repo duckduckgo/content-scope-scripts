@@ -49,7 +49,7 @@ test('message bridge when enabled (apple)', async ({ page }, testInfo) => {
     await isolated.simulateSubscriptionMessage('exampleFeature', 'onUpdate', { abc: 'def' });
 
     // get all results
-    const results = await pageWorld.runTests();
+    const results = await pageWorld.results();
     expect(results['Creating the bridge']).toStrictEqual([
         { name: 'bridge.notify', result: 'function', expected: 'function' },
         { name: 'bridge.request', result: 'function', expected: 'function' },
@@ -100,7 +100,7 @@ test('message bridge when disabled (apple)', async ({ page }, testInfo) => {
     expect(calls).toHaveLength(0);
 
     // get all results
-    const results = await pageWorld.runTests();
+    const results = await pageWorld.results();
     expect(results['Creating the bridge, but it is unavailable']).toStrictEqual([
         { name: 'error', result: 'Did not install Message Bridge', expected: 'Did not install Message Bridge' },
     ]);
