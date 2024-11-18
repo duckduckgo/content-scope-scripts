@@ -1,0 +1,4 @@
+- messaging: page-world bridge (#1213)
+- Bump the typescript group across 1 directory with 2 updates (#1227)
+- Bump @duckduckgo/privacy-configuration from `76b1873` to `aae55a2` (#1225)
+- Document settings methods (#1219)

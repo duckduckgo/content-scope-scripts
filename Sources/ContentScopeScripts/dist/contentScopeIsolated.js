@@ -3,15 +3,60 @@
     'use strict';
 
     /* eslint-disable no-redeclare */
+    const Set$1 = globalThis.Set;
     const Reflect$1 = globalThis.Reflect;
     const customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
     const customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
     const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
     const getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
+    const toString = Object.prototype.toString;
     const objectKeys = Object.keys;
     const objectEntries = Object.entries;
     const objectDefineProperty = Object.defineProperty;
+    const URL$1 = globalThis.URL;
     const Proxy$1 = globalThis.Proxy;
+    const functionToString = Function.prototype.toString;
+    const TypeError$1 = globalThis.TypeError;
+    const Symbol = globalThis.Symbol;
+    const hasOwnProperty = Object.prototype.hasOwnProperty;
+    const dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+    const addEventListener = globalThis.addEventListener?.bind(globalThis);
+    const removeEventListener = globalThis.removeEventListener?.bind(globalThis);
+    const CustomEvent$1 = globalThis.CustomEvent;
+    const Promise$1 = globalThis.Promise;
+    const String$1 = globalThis.String;
+    const Map$1 = globalThis.Map;
+    const Error$1 = globalThis.Error;
+    const randomUUID = globalThis.crypto?.randomUUID.bind(globalThis.crypto);
+
+    var capturedGlobals = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        CustomEvent: CustomEvent$1,
+        Error: Error$1,
+        Map: Map$1,
+        Promise: Promise$1,
+        Proxy: Proxy$1,
+        Reflect: Reflect$1,
+        Set: Set$1,
+        String: String$1,
+        Symbol: Symbol,
+        TypeError: TypeError$1,
+        URL: URL$1,
+        addEventListener: addEventListener,
+        customElementsDefine: customElementsDefine,
+        customElementsGet: customElementsGet,
+        dispatchEvent: dispatchEvent,
+        functionToString: functionToString,
+        getOwnPropertyDescriptor: getOwnPropertyDescriptor,
+        getOwnPropertyDescriptors: getOwnPropertyDescriptors,
+        hasOwnProperty: hasOwnProperty,
+        objectDefineProperty: objectDefineProperty,
+        objectEntries: objectEntries,
+        objectKeys: objectKeys,
+        randomUUID: randomUUID,
+        removeEventListener: removeEventListener,
+        toString: toString
+    });
 
     /* eslint-disable no-redeclare, no-global-assign */
     /* global cloneInto, exportFunction, false */
@@ -87,7 +132,7 @@
     }
 
     function isFeatureBroken(args, feature) {
-        return isWindowsSpecificFeature(feature)
+        return isPlatformSpecificFeature(feature)
             ? !args.site.enabledFeatures.includes(feature)
             : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
     }
@@ -396,10 +441,14 @@
         return args.site.allowlisted || args.site.isBroken;
     }
 
-    const windowsSpecificFeatures = ['windowsPermissionUsage'];
+    /**
+     * @import {FeatureName} from "./features";
+     * @type {FeatureName[]}
+     */
+    const platformSpecificFeatures = ['windowsPermissionUsage', 'messageBridge'];
 
-    function isWindowsSpecificFeature(featureName) {
-        return windowsSpecificFeatures.includes(featureName);
+    function isPlatformSpecificFeature(featureName) {
+        return platformSpecificFeatures.includes(featureName);
     }
 
     function createCustomEvent(eventName, eventDetail) {
@@ -437,6 +486,7 @@
     const otherFeatures = /** @type {const} */ ([
         'clickToLoad',
         'cookie',
+        'messageBridge',
         'duckPlayer',
         'harmfulApis',
         'webCompat',
@@ -451,7 +501,7 @@
     /** @type {Record<string, FeatureName[]>} */
     const platformSupport = {
         apple: ['webCompat', ...baseFeatures],
-        'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad'],
+        'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
         android: [...baseFeatures, 'webCompat', 'clickToLoad', 'breakageReporting', 'duckPlayer'],
         'android-autofill-password-import': ['autofillPasswordImport'],
         windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
@@ -2991,6 +3041,26 @@
 
         /**
          * Return a specific setting from the feature settings
+         * If the "settings" key within the config has a "domains" key, it will be used to override the settings.
+         * This uses JSONPatch to apply the patches to settings before getting the setting value.
+         * For example.com getFeatureSettings('val') will return 1:
+         * ```json
+         *  {
+         *      "settings": {
+         *         "domains": [
+         *             {
+         *                "domain": "example.com",
+         *                "patchSettings": [
+         *                    { "op": "replace", "path": "/val", "value": 1 }
+         *                ]
+         *             }
+         *         ]
+         *      }
+         *  }
+         * ```
+         * "domain" can either be a string or an array of strings.
+
+         * For boolean states you should consider using getFeatureSettingEnabled.
          * @param {string} featureKeyName
          * @param {string} [featureName]
          * @returns {any}
@@ -3029,6 +3099,23 @@
         /**
          * For simple boolean settings, return true if the setting is 'enabled'
          * For objects, verify the 'state' field is 'enabled'.
+         * This allows for future forwards compatibility with more complex settings if required.
+         * For example:
+         * ```json
+         * {
+         *    "toggle": "enabled"
+         * }
+         * ```
+         * Could become later (without breaking changes):
+         * ```json
+         * {
+         *   "toggle": {
+         *       "state": "enabled",
+         *       "someOtherKey": 1
+         *   }
+         * }
+         * ```
+         * This also supports domain overrides as per `getFeatureSetting`.
          * @param {string} featureKeyName
          * @param {string} [featureName]
          * @returns {boolean}
@@ -3043,8 +3130,10 @@
 
         /**
          * Given a config key, interpret the value as a list of domain overrides, and return the elements that match the current page
+         * Consider using patchSettings instead as per `getFeatureSetting`.
          * @param {string} featureKeyName
          * @return {any[]}
+         * @private
          */
         matchDomainFeatureSetting(featureKeyName) {
             const domain = this.#args?.site.domain;
@@ -15312,11 +15401,500 @@
         }
     }
 
+    /**
+     * @param {unknown} input
+     * @return {input is Object}
+     */
+    function isObject(input) {
+        return toString.call(input) === '[object Object]';
+    }
+
+    /**
+     * @param {unknown} input
+     * @return {input is string}
+     */
+    function isString(input) {
+        return typeof input === 'string';
+    }
+
+    /**
+     * @import { Messaging } from "@duckduckgo/messaging";
+     * @typedef {Pick<Messaging, 'notify' | 'request' | 'subscribe'>} MessagingInterface
+     */
+
+    /**
+     * Sending this event
+     */
+    class InstallProxy {
+        static NAME = 'INSTALL_BRIDGE';
+        get name() {
+            return InstallProxy.NAME;
+        }
+
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.id
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.id = params.id;
+        }
+
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.id)) return null;
+            return new InstallProxy({ featureName: params.featureName, id: params.id });
+        }
+    }
+
+    class DidInstall {
+        static NAME = 'DID_INSTALL';
+        get name() {
+            return DidInstall.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.id
+         */
+        constructor(params) {
+            this.id = params.id;
+        }
+
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.id)) return null;
+            return new DidInstall({ id: params.id });
+        }
+    }
+
+    class ProxyRequest {
+        static NAME = 'PROXY_REQUEST';
+        get name() {
+            return ProxyRequest.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.params]
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.method = params.method;
+            this.params = params.params;
+            this.id = params.id;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.method)) return null;
+            if (!isString(params.id)) return null;
+            if (params.params && !isObject(params.params)) return null;
+            return new ProxyRequest({
+                featureName: params.featureName,
+                method: params.method,
+                params: params.params,
+                id: params.id,
+            });
+        }
+    }
+
+    class ProxyResponse {
+        static NAME = 'PROXY_RESPONSE';
+        get name() {
+            return ProxyResponse.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.result]
+         * @param {import("@duckduckgo/messaging").MessageError} [params.error]
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.method = params.method;
+            this.result = params.result;
+            this.error = params.error;
+            this.id = params.id;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.method)) return null;
+            if (!isString(params.id)) return null;
+            if (params.result && !isObject(params.result)) return null;
+            if (params.error && !isObject(params.error)) return null;
+            return new ProxyResponse({
+                featureName: params.featureName,
+                method: params.method,
+                result: params.result,
+                error: params.error,
+                id: params.id,
+            });
+        }
+    }
+
+    /**
+     */
+    class ProxyNotification {
+        static NAME = 'PROXY_NOTIFICATION';
+        get name() {
+            return ProxyNotification.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {Record<string, any>} [params.params]
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.method = params.method;
+            this.params = params.params;
+        }
+
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.method)) return null;
+            if (params.params && !isObject(params.params)) return null;
+            return new ProxyNotification({
+                featureName: params.featureName,
+                method: params.method,
+                params: params.params,
+            });
+        }
+    }
+
+    class SubscriptionRequest {
+        static NAME = 'SUBSCRIPTION_REQUEST';
+        get name() {
+            return SubscriptionRequest.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.subscriptionName
+         * @param {string} params.id
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.subscriptionName = params.subscriptionName;
+            this.id = params.id;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.subscriptionName)) return null;
+            if (!isString(params.id)) return null;
+            return new SubscriptionRequest({
+                featureName: params.featureName,
+                subscriptionName: params.subscriptionName,
+                id: params.id,
+            });
+        }
+    }
+
+    class SubscriptionResponse {
+        static NAME = 'SUBSCRIPTION_RESPONSE';
+        get name() {
+            return SubscriptionResponse.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.subscriptionName
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.params]
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.subscriptionName = params.subscriptionName;
+            this.id = params.id;
+            this.params = params.params;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.subscriptionName)) return null;
+            if (!isString(params.id)) return null;
+            if (params.params && !isObject(params.params)) return null;
+            return new SubscriptionResponse({
+                featureName: params.featureName,
+                subscriptionName: params.subscriptionName,
+                params: params.params,
+                id: params.id,
+            });
+        }
+    }
+
+    class SubscriptionUnsubscribe {
+        static NAME = 'SUBSCRIPTION_UNSUBSCRIBE';
+        get name() {
+            return SubscriptionUnsubscribe.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.id
+         */
+        constructor(params) {
+            this.id = params.id;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.id)) return null;
+            return new SubscriptionUnsubscribe({
+                id: params.id,
+            });
+        }
+    }
+
+    /**
+     * @typedef {Pick<import("../captured-globals.js"),
+     *    "dispatchEvent" | "addEventListener" | "CustomEvent">
+     * } Captured
+     */
+
+    /**
+     * This part has access to messaging handlers
+     */
+    class MessageBridge extends ContentFeature {
+        /** @type {Captured} */
+        captured = capturedGlobals;
+        /**
+         * A mapping of feature names to instances of `Messaging`.
+         * This allows the bridge to handle more than 1 feature at a time.
+         * @type {Map<string, Messaging>}
+         */
+        proxies = new Map$1();
+
+        /**
+         * If any subscriptions are created, we store the cleanup functions
+         * for later use.
+         * @type {Map<string, () => void>}
+         */
+        subscriptions = new Map$1();
+
+        /**
+         * This side of the bridge can only be instantiated once,
+         * so we use this flag to ensure we can handle multiple invocations
+         */
+        installed = false;
+
+        init(args) {
+            /**
+             * This feature never operates in a frame or insecure context
+             */
+            if (isBeingFramed() || !isSecureContext) return;
+            /**
+             * This feature never operates without messageSecret
+             */
+            if (!args.messageSecret) return;
+
+            const { captured } = this;
+
+            /**
+             * @param {string} eventName
+             * @return {`${string}-${string}`}
+             */
+            function appendToken(eventName) {
+                return `${eventName}-${args.messageSecret}`;
+            }
+
+            /**
+             * @param {{name: string; id: string} & Record<string, any>} incoming
+             */
+            const reply = (incoming) => {
+                if (!args.messageSecret) return this.log('ignoring because args.messageSecret was absent');
+                const eventName = appendToken(incoming.name + '-' + incoming.id);
+                const event = new captured.CustomEvent(eventName, { detail: incoming });
+                captured.dispatchEvent(event);
+            };
+
+            /**
+             * @template T
+             * @param {{ create: (params: any) => T | null, NAME: string }} ClassType - A class with a `create` static method.
+             * @param {(instance: T) => void} callback - A callback that receives an instance of the class.
+             */
+            const accept = (ClassType, callback) => {
+                captured.addEventListener(appendToken(ClassType.NAME), (/** @type {CustomEvent<unknown>} */ e) => {
+                    this.log(`${ClassType.NAME}`, JSON.stringify(e.detail));
+                    const instance = ClassType.create(e.detail);
+                    if (instance) {
+                        callback(instance);
+                    } else {
+                        this.log('Failed to create an instance');
+                    }
+                });
+            };
+
+            /**
+             * These are all the messages we accept from the page-world.
+             */
+            this.log(`bridge is installing...`);
+            accept(InstallProxy, (install) => {
+                this.installProxyFor(install, args.messagingConfig, reply);
+            });
+            accept(ProxyNotification, (notification) => this.proxyNotification(notification));
+            accept(ProxyRequest, (request) => this.proxyRequest(request, reply));
+            accept(SubscriptionRequest, (subscription) => this.proxySubscription(subscription, reply));
+            accept(SubscriptionUnsubscribe, (unsubscribe) => this.removeSubscription(unsubscribe.id));
+        }
+
+        /**
+         * Installing a feature proxy is the act of creating a fresh instance of 'Messaging', but
+         * using the same underlying transport
+         *
+         * @param {InstallProxy} install
+         * @param {import('@duckduckgo/messaging').MessagingConfig} config
+         * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
+         */
+        installProxyFor(install, config, reply) {
+            const { id, featureName } = install;
+            if (this.proxies.has(featureName)) return this.log('ignoring `installProxyFor` because it exists', featureName);
+            const allowed = this.getFeatureSettingEnabled(featureName);
+            if (!allowed) {
+                return this.log('not installing proxy, because', featureName, 'was not enabled');
+            }
+
+            const ctx = { ...this.messaging.messagingContext, featureName };
+            const messaging = new Messaging(ctx, config);
+            this.proxies.set(featureName, messaging);
+
+            this.log('did install proxy for ', featureName);
+            reply(new DidInstall({ id }));
+        }
+
+        /**
+         * @param {ProxyRequest} request
+         * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
+         */
+        async proxyRequest(request, reply) {
+            const { id, featureName, method, params } = request;
+
+            const proxy = this.proxies.get(featureName);
+            if (!proxy) return this.log('proxy was not installed for ', featureName);
+
+            this.log('will proxy', request);
+
+            try {
+                const result = await proxy.request(method, params);
+                const responseEvent = new ProxyResponse({
+                    method,
+                    featureName,
+                    result,
+                    id,
+                });
+                reply(responseEvent);
+            } catch (e) {
+                const errorResponseEvent = new ProxyResponse({
+                    method,
+                    featureName,
+                    error: { message: e.message },
+                    id,
+                });
+                reply(errorResponseEvent);
+            }
+        }
+
+        /**
+         * @param {SubscriptionRequest} subscription
+         * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
+         */
+        proxySubscription(subscription, reply) {
+            const { id, featureName, subscriptionName } = subscription;
+            const proxy = this.proxies.get(subscription.featureName);
+            if (!proxy) return this.log('proxy was not installed for', featureName);
+
+            this.log('will setup subscription', subscription);
+
+            // cleanup existing subscriptions first
+            const prev = this.subscriptions.get(id);
+            if (prev) {
+                this.removeSubscription(id);
+            }
+
+            const unsubscribe = proxy.subscribe(subscriptionName, (/** @type {Record<string, any>} */ data) => {
+                const responseEvent = new SubscriptionResponse({
+                    subscriptionName,
+                    featureName,
+                    params: data,
+                    id,
+                });
+                reply(responseEvent);
+            });
+
+            this.subscriptions.set(id, unsubscribe);
+        }
+
+        /**
+         * @param {string} id
+         */
+        removeSubscription(id) {
+            const unsubscribe = this.subscriptions.get(id);
+            this.log(`will remove subscription`, id);
+            unsubscribe?.();
+            this.subscriptions.delete(id);
+        }
+
+        /**
+         * @param {ProxyNotification} notification
+         */
+        proxyNotification(notification) {
+            const proxy = this.proxies.get(notification.featureName);
+            if (!proxy) return this.log('proxy was not installed for', notification.featureName);
+
+            this.log('will proxy notification', notification);
+            proxy.notify(notification.method, notification.params);
+        }
+
+        /**
+         * @param {Parameters<console['log']>} args
+         */
+        log(...args) {
+            if (this.isDebug) {
+                console.log('[isolated]', ...args);
+            }
+        }
+
+        load(args) {}
+    }
+
     var platformFeatures = {
         ddg_feature_duckPlayer: DuckPlayerFeature,
         ddg_feature_brokerProtection: BrokerProtection,
         ddg_feature_performanceMetrics: PerformanceMetrics,
-        ddg_feature_clickToLoad: ClickToLoad
+        ddg_feature_clickToLoad: ClickToLoad,
+        ddg_feature_messageBridge: MessageBridge
     };
 
     let initArgs = null;
@@ -15429,7 +16007,14 @@
 
     function initCode() {
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
+        const config = $CONTENT_SCOPE$;
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        const userPreferences = $USER_PREFERENCES$;
+
+        const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
+
         if (isGloballyDisabled(processedConfig)) {
             return;
         }

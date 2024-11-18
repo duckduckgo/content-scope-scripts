@@ -15,16 +15,57 @@
     var _bundledConfig, _trackerLookup, _documentOriginIsTracker, _bundledfeatureSettings, _messaging, _isDebugFlagSet, _args, _activeShareRequest, _activeScreenLockRequest;
     const Set$1 = globalThis.Set;
     const Reflect$1 = globalThis.Reflect;
-    globalThis.customElements?.get.bind(globalThis.customElements);
-    globalThis.customElements?.define.bind(globalThis.customElements);
+    const customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
+    const customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
     const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
     const getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
+    const toString = Object.prototype.toString;
     const objectKeys = Object.keys;
     const objectEntries = Object.entries;
     const objectDefineProperty = Object.defineProperty;
     const URL$1 = globalThis.URL;
     const Proxy$1 = globalThis.Proxy;
+    const functionToString = Function.prototype.toString;
+    const TypeError$1 = globalThis.TypeError;
+    const Symbol2 = globalThis.Symbol;
     const hasOwnProperty = Object.prototype.hasOwnProperty;
+    const dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+    const addEventListener = globalThis.addEventListener?.bind(globalThis);
+    const removeEventListener = globalThis.removeEventListener?.bind(globalThis);
+    const CustomEvent$1 = globalThis.CustomEvent;
+    const Promise$1 = globalThis.Promise;
+    const String$1 = globalThis.String;
+    const Map$1 = globalThis.Map;
+    const Error$2 = globalThis.Error;
+    const randomUUID = globalThis.crypto?.randomUUID.bind(globalThis.crypto);
+    var capturedGlobals = /* @__PURE__ */ Object.freeze({
+      __proto__: null,
+      CustomEvent: CustomEvent$1,
+      Error: Error$2,
+      Map: Map$1,
+      Promise: Promise$1,
+      Proxy: Proxy$1,
+      Reflect: Reflect$1,
+      Set: Set$1,
+      String: String$1,
+      Symbol: Symbol2,
+      TypeError: TypeError$1,
+      URL: URL$1,
+      addEventListener,
+      customElementsDefine,
+      customElementsGet,
+      dispatchEvent,
+      functionToString,
+      getOwnPropertyDescriptor,
+      getOwnPropertyDescriptors,
+      hasOwnProperty,
+      objectDefineProperty,
+      objectEntries,
+      objectKeys,
+      randomUUID,
+      removeEventListener,
+      toString
+    });
     let globalObj = typeof window === "undefined" ? globalThis : window;
     let Error$1 = globalObj.Error;
     let messageSecret;
@@ -148,7 +189,7 @@
       }
     }
     function isFeatureBroken(args, feature) {
-      return isWindowsSpecificFeature(feature) ? !args.site.enabledFeatures.includes(feature) : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
+      return isPlatformSpecificFeature(feature) ? !args.site.enabledFeatures.includes(feature) : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
     }
     function camelcase(dashCaseText) {
       return dashCaseText.replace(/-(.)/g, (match, letter) => {
@@ -387,7 +428,7 @@
       }
       return false;
     }
-    function processConfig(data, userList, preferences, platformSpecificFeatures = []) {
+    function processConfig(data, userList, preferences, platformSpecificFeatures2 = []) {
       const topLevelHostname = getTabHostname();
       const site = computeLimitedSiteObject();
       const allowlisted = userList.filter((domain) => domain === topLevelHostname).length > 0;
@@ -398,7 +439,7 @@
           output.platform.version = version;
         }
       }
-      const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform?.version, platformSpecificFeatures);
+      const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform?.version, platformSpecificFeatures2);
       const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary);
       output.site = Object.assign(site, {
         isBroken,
@@ -410,9 +451,9 @@
       output.bundledConfig = data;
       return output;
     }
-    function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
+    function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures2 = []) {
       const remoteFeatureNames = Object.keys(data.features);
-      const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
+      const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures2.filter(
         (featureName) => !remoteFeatureNames.includes(featureName)
       );
       const enabledFeatures = remoteFeatureNames.filter((featureName) => {
@@ -440,9 +481,9 @@
     function isGloballyDisabled(args) {
       return args.site.allowlisted || args.site.isBroken;
     }
-    const windowsSpecificFeatures = ["windowsPermissionUsage"];
-    function isWindowsSpecificFeature(featureName) {
-      return windowsSpecificFeatures.includes(featureName);
+    const platformSpecificFeatures = ["windowsPermissionUsage", "messageBridge"];
+    function isPlatformSpecificFeature(featureName) {
+      return platformSpecificFeatures.includes(featureName);
     }
     function createCustomEvent(eventName, eventDetail) {
       return new OriginalCustomEvent(eventName, eventDetail);
@@ -473,6 +514,7 @@
       [
         "clickToLoad",
         "cookie",
+        "messageBridge",
         "duckPlayer",
         "harmfulApis",
         "webCompat",
@@ -485,7 +527,7 @@
     );
     const platformSupport = {
       apple: ["webCompat", ...baseFeatures],
-      "apple-isolated": ["duckPlayer", "brokerProtection", "performanceMetrics", "clickToLoad"],
+      "apple-isolated": ["duckPlayer", "brokerProtection", "performanceMetrics", "clickToLoad", "messageBridge"],
       android: [...baseFeatures, "webCompat", "clickToLoad", "breakageReporting", "duckPlayer"],
       "android-autofill-password-import": ["autofillPasswordImport"],
       windows: ["cookie", ...baseFeatures, "windowsPermissionUsage", "duckPlayer", "brokerProtection", "breakageReporting"],
@@ -2035,11 +2077,31 @@
         return processAttr(configSetting, defaultValue);
       }
       /**
-       * Return a specific setting from the feature settings
-       * @param {string} featureKeyName
-       * @param {string} [featureName]
-       * @returns {any}
-       */
+               * Return a specific setting from the feature settings
+               * If the "settings" key within the config has a "domains" key, it will be used to override the settings.
+               * This uses JSONPatch to apply the patches to settings before getting the setting value.
+               * For example.com getFeatureSettings('val') will return 1:
+               * ```json
+               *  {
+               *      "settings": {
+               *         "domains": [
+               *             {
+               *                "domain": "example.com",
+               *                "patchSettings": [
+               *                    { "op": "replace", "path": "/val", "value": 1 }
+               *                ]
+               *             }
+               *         ]
+               *      }
+               *  }
+               * ```
+               * "domain" can either be a string or an array of strings.
+      
+               * For boolean states you should consider using getFeatureSettingEnabled.
+               * @param {string} featureKeyName
+               * @param {string} [featureName]
+               * @returns {any}
+               */
       getFeatureSetting(featureKeyName, featureName) {
         let result = this._getFeatureSettings(featureName);
         if (featureKeyName === "domains") {
@@ -2072,6 +2134,23 @@
       /**
        * For simple boolean settings, return true if the setting is 'enabled'
        * For objects, verify the 'state' field is 'enabled'.
+       * This allows for future forwards compatibility with more complex settings if required.
+       * For example:
+       * ```json
+       * {
+       *    "toggle": "enabled"
+       * }
+       * ```
+       * Could become later (without breaking changes):
+       * ```json
+       * {
+       *   "toggle": {
+       *       "state": "enabled",
+       *       "someOtherKey": 1
+       *   }
+       * }
+       * ```
+       * This also supports domain overrides as per `getFeatureSetting`.
        * @param {string} featureKeyName
        * @param {string} [featureName]
        * @returns {boolean}
@@ -2085,8 +2164,10 @@
       }
       /**
        * Given a config key, interpret the value as a list of domain overrides, and return the elements that match the current page
+       * Consider using patchSettings instead as per `getFeatureSetting`.
        * @param {string} featureKeyName
        * @return {any[]}
+       * @private
        */
       matchDomainFeatureSetting(featureKeyName) {
         const domain = __privateGet(this, _args)?.site.domain;
@@ -4629,6 +4710,377 @@
         }
       }
     }
+    function isObject(input) {
+      return toString.call(input) === "[object Object]";
+    }
+    function isString(input) {
+      return typeof input === "string";
+    }
+    const _InstallProxy = class _InstallProxy {
+      get name() {
+        return _InstallProxy.NAME;
+      }
+      /**
+       * @param {object} params
+       * @param {string} params.featureName
+       * @param {string} params.id
+       */
+      constructor(params) {
+        this.featureName = params.featureName;
+        this.id = params.id;
+      }
+      /**
+       * @param {unknown} params
+       */
+      static create(params) {
+        if (!isObject(params)) return null;
+        if (!isString(params.featureName)) return null;
+        if (!isString(params.id)) return null;
+        return new _InstallProxy({ featureName: params.featureName, id: params.id });
+      }
+    };
+    __publicField(_InstallProxy, "NAME", "INSTALL_BRIDGE");
+    let InstallProxy = _InstallProxy;
+    const _DidInstall = class _DidInstall {
+      get name() {
+        return _DidInstall.NAME;
+      }
+      /**
+       * @param {object} params
+       * @param {string} params.id
+       */
+      constructor(params) {
+        this.id = params.id;
+      }
+      /**
+       * @param {unknown} params
+       */
+      static create(params) {
+        if (!isObject(params)) return null;
+        if (!isString(params.id)) return null;
+        return new _DidInstall({ id: params.id });
+      }
+    };
+    __publicField(_DidInstall, "NAME", "DID_INSTALL");
+    let DidInstall = _DidInstall;
+    const _ProxyRequest = class _ProxyRequest {
+      get name() {
+        return _ProxyRequest.NAME;
+      }
+      /**
+       * @param {object} params
+       * @param {string} params.featureName
+       * @param {string} params.method
+       * @param {string} params.id
+       * @param {Record<string, any>} [params.params]
+       */
+      constructor(params) {
+        this.featureName = params.featureName;
+        this.method = params.method;
+        this.params = params.params;
+        this.id = params.id;
+      }
+      /**
+       * @param {unknown} params
+       */
+      static create(params) {
+        if (!isObject(params)) return null;
+        if (!isString(params.featureName)) return null;
+        if (!isString(params.method)) return null;
+        if (!isString(params.id)) return null;
+        if (params.params && !isObject(params.params)) return null;
+        return new _ProxyRequest({
+          featureName: params.featureName,
+          method: params.method,
+          params: params.params,
+          id: params.id
+        });
+      }
+    };
+    __publicField(_ProxyRequest, "NAME", "PROXY_REQUEST");
+    let ProxyRequest = _ProxyRequest;
+    const _ProxyResponse = class _ProxyResponse {
+      get name() {
+        return _ProxyResponse.NAME;
+      }
+      /**
+       * @param {object} params
+       * @param {string} params.featureName
+       * @param {string} params.method
+       * @param {string} params.id
+       * @param {Record<string, any>} [params.result]
+       * @param {import("@duckduckgo/messaging").MessageError} [params.error]
+       */
+      constructor(params) {
+        this.featureName = params.featureName;
+        this.method = params.method;
+        this.result = params.result;
+        this.error = params.error;
+        this.id = params.id;
+      }
+      /**
+       * @param {unknown} params
+       */
+      static create(params) {
+        if (!isObject(params)) return null;
+        if (!isString(params.featureName)) return null;
+        if (!isString(params.method)) return null;
+        if (!isString(params.id)) return null;
+        if (params.result && !isObject(params.result)) return null;
+        if (params.error && !isObject(params.error)) return null;
+        return new _ProxyResponse({
+          featureName: params.featureName,
+          method: params.method,
+          result: params.result,
+          error: params.error,
+          id: params.id
+        });
+      }
+    };
+    __publicField(_ProxyResponse, "NAME", "PROXY_RESPONSE");
+    let ProxyResponse = _ProxyResponse;
+    const _ProxyNotification = class _ProxyNotification {
+      get name() {
+        return _ProxyNotification.NAME;
+      }
+      /**
+       * @param {object} params
+       * @param {string} params.featureName
+       * @param {string} params.method
+       * @param {Record<string, any>} [params.params]
+       */
+      constructor(params) {
+        this.featureName = params.featureName;
+        this.method = params.method;
+        this.params = params.params;
+      }
+      /**
+       * @param {unknown} params
+       */
+      static create(params) {
+        if (!isObject(params)) return null;
+        if (!isString(params.featureName)) return null;
+        if (!isString(params.method)) return null;
+        if (params.params && !isObject(params.params)) return null;
+        return new _ProxyNotification({
+          featureName: params.featureName,
+          method: params.method,
+          params: params.params
+        });
+      }
+    };
+    __publicField(_ProxyNotification, "NAME", "PROXY_NOTIFICATION");
+    let ProxyNotification = _ProxyNotification;
+    const _SubscriptionRequest = class _SubscriptionRequest {
+      get name() {
+        return _SubscriptionRequest.NAME;
+      }
+      /**
+       * @param {object} params
+       * @param {string} params.featureName
+       * @param {string} params.subscriptionName
+       * @param {string} params.id
+       */
+      constructor(params) {
+        this.featureName = params.featureName;
+        this.subscriptionName = params.subscriptionName;
+        this.id = params.id;
+      }
+      /**
+       * @param {unknown} params
+       */
+      static create(params) {
+        if (!isObject(params)) return null;
+        if (!isString(params.featureName)) return null;
+        if (!isString(params.subscriptionName)) return null;
+        if (!isString(params.id)) return null;
+        return new _SubscriptionRequest({
+          featureName: params.featureName,
+          subscriptionName: params.subscriptionName,
+          id: params.id
+        });
+      }
+    };
+    __publicField(_SubscriptionRequest, "NAME", "SUBSCRIPTION_REQUEST");
+    let SubscriptionRequest = _SubscriptionRequest;
+    const _SubscriptionResponse = class _SubscriptionResponse {
+      get name() {
+        return _SubscriptionResponse.NAME;
+      }
+      /**
+       * @param {object} params
+       * @param {string} params.featureName
+       * @param {string} params.subscriptionName
+       * @param {string} params.id
+       * @param {Record<string, any>} [params.params]
+       */
+      constructor(params) {
+        this.featureName = params.featureName;
+        this.subscriptionName = params.subscriptionName;
+        this.id = params.id;
+        this.params = params.params;
+      }
+      /**
+       * @param {unknown} params
+       */
+      static create(params) {
+        if (!isObject(params)) return null;
+        if (!isString(params.featureName)) return null;
+        if (!isString(params.subscriptionName)) return null;
+        if (!isString(params.id)) return null;
+        if (params.params && !isObject(params.params)) return null;
+        return new _SubscriptionResponse({
+          featureName: params.featureName,
+          subscriptionName: params.subscriptionName,
+          params: params.params,
+          id: params.id
+        });
+      }
+    };
+    __publicField(_SubscriptionResponse, "NAME", "SUBSCRIPTION_RESPONSE");
+    let SubscriptionResponse = _SubscriptionResponse;
+    const _SubscriptionUnsubscribe = class _SubscriptionUnsubscribe {
+      get name() {
+        return _SubscriptionUnsubscribe.NAME;
+      }
+      /**
+       * @param {object} params
+       * @param {string} params.id
+       */
+      constructor(params) {
+        this.id = params.id;
+      }
+      /**
+       * @param {unknown} params
+       */
+      static create(params) {
+        if (!isObject(params)) return null;
+        if (!isString(params.id)) return null;
+        return new _SubscriptionUnsubscribe({
+          id: params.id
+        });
+      }
+    };
+    __publicField(_SubscriptionUnsubscribe, "NAME", "SUBSCRIPTION_UNSUBSCRIBE");
+    let SubscriptionUnsubscribe = _SubscriptionUnsubscribe;
+    const captured = capturedGlobals;
+    const ERROR_MSG = "Did not install Message Bridge";
+    function createPageWorldBridge(featureName, token) {
+      if (typeof featureName !== "string" || !token) {
+        throw new captured.Error(ERROR_MSG);
+      }
+      if (isBeingFramed() || !isSecureContext) {
+        throw new captured.Error(ERROR_MSG);
+      }
+      const appendToken = (eventName) => {
+        return `${eventName}-${token}`;
+      };
+      const send = (incoming) => {
+        if (!token) return;
+        const event = new captured.CustomEvent(appendToken(incoming.name), { detail: incoming });
+        captured.dispatchEvent(event);
+      };
+      let installed = false;
+      const id = random();
+      const evt = new InstallProxy({ featureName, id });
+      const evtName = appendToken(DidInstall.NAME + "-" + id);
+      const didInstall = (e) => {
+        const result = DidInstall.create(e.detail);
+        if (result && result.id === id) {
+          installed = true;
+        }
+        captured.removeEventListener(evtName, didInstall);
+      };
+      captured.addEventListener(evtName, didInstall);
+      send(evt);
+      if (!installed) {
+        throw new captured.Error(ERROR_MSG);
+      }
+      return createMessagingInterface(featureName, send, appendToken);
+    }
+    function random() {
+      if (typeof captured.randomUUID !== "function") throw new Error("unreachable");
+      return captured.randomUUID();
+    }
+    function createMessagingInterface(featureName, send, appendToken) {
+      return {
+        /**
+         * @param {string} method
+         * @param {Record<string, any>} params
+         */
+        notify(method, params) {
+          send(
+            new ProxyNotification({
+              method,
+              params,
+              featureName
+            })
+          );
+        },
+        /**
+         * @param {string} method
+         * @param {Record<string, any>} params
+         * @returns {Promise<any>}
+         */
+        request(method, params) {
+          const id = random();
+          send(
+            new ProxyRequest({
+              method,
+              params,
+              featureName,
+              id
+            })
+          );
+          return new Promise((resolve, reject) => {
+            const responseName = appendToken(ProxyResponse.NAME + "-" + id);
+            const handler = (e) => {
+              const response = ProxyResponse.create(e.detail);
+              if (response && response.id === id) {
+                if ("error" in response && response.error) {
+                  reject(new Error(response.error.message));
+                } else if ("result" in response) {
+                  resolve(response.result);
+                }
+                captured.removeEventListener(responseName, handler);
+              }
+            };
+            captured.addEventListener(responseName, handler);
+          });
+        },
+        /**
+         * @param {string} name
+         * @param {(d: any) => void} callback
+         * @returns {() => void}
+         */
+        subscribe(name, callback) {
+          const id = random();
+          send(
+            new SubscriptionRequest({
+              subscriptionName: name,
+              featureName,
+              id
+            })
+          );
+          const handler = (e) => {
+            const subscriptionEvent = SubscriptionResponse.create(e.detail);
+            if (subscriptionEvent) {
+              const { id: eventId, params } = subscriptionEvent;
+              if (eventId === id) {
+                callback(params);
+              }
+            }
+          };
+          const type = appendToken(SubscriptionResponse.NAME + "-" + id);
+          captured.addEventListener(type, handler);
+          return () => {
+            captured.removeEventListener(type, handler);
+            const evt = new SubscriptionUnsubscribe({ id });
+            send(evt);
+          };
+        }
+      };
+    }
     class NavigatorInterface extends ContentFeature {
       load(args) {
         if (this.matchDomainFeatureSetting("privilegedDomains").length) {
@@ -4651,6 +5103,15 @@
               platform: args.platform.name,
               isDuckDuckGo() {
                 return DDGPromise.resolve(true);
+              },
+              /**
+               * @import { MessagingInterface } from "./message-bridge/schema.js"
+               * @param {string} featureName
+               * @return {MessagingInterface}
+               * @throws {Error}
+               */
+              createMessageBridge(featureName) {
+                return createPageWorldBridge(featureName, args.messageSecret);
               }
             },
             enumerable: true,
@@ -5141,7 +5602,10 @@
       return false;
     }
     function initCode() {
-      const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
+      const config = $CONTENT_SCOPE$;
+      const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
+      const userPreferences = $USER_PREFERENCES$;
+      const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
       if (isGloballyDisabled(processedConfig)) {
         return;
       }

@@ -26,7 +26,11 @@ export default defineConfig({
         },
         {
             name: 'apple',
-            testMatch: ['integration-test/webcompat.spec.js'],
+            // prettier-ignore
+            testMatch: [
+                'integration-test/webcompat.spec.js',
+                'integration-test/message-bridge-apple.spec.js'
+            ],
             use: { injectName: 'apple', platform: 'macos' },
         },
         {

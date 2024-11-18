@@ -1,8 +1,10 @@
 import { DDGPromise } from '../utils';
 import ContentFeature from '../content-feature';
+import { createPageWorldBridge } from './message-bridge/create-page-world-bridge.js';
 
 export default class NavigatorInterface extends ContentFeature {
     load(args) {
+        // @ts-expect-error: Accessing private method
         if (this.matchDomainFeatureSetting('privilegedDomains').length) {
             this.injectNavigatorInterface(args);
         }
@@ -26,6 +28,15 @@ export default class NavigatorInterface extends ContentFeature {
                     platform: args.platform.name,
                     isDuckDuckGo() {
                         return DDGPromise.resolve(true);
+                    },
+                    /**
+                     * @import { MessagingInterface } from "./message-bridge/schema.js"
+                     * @param {string} featureName
+                     * @return {MessagingInterface}
+                     * @throws {Error}
+                     */
+                    createMessageBridge(featureName) {
+                        return createPageWorldBridge(featureName, args.messageSecret);
                     },
                 },
                 enumerable: true,
