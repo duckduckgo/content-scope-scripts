@@ -8,6 +8,7 @@ Message Bridge creates a communication between a website and a browser. It sends
 to our Messaging standard (eg: it's not a new format!)
 
 - Related Privacy Configuration [feature file](https://github.com/duckduckgo/privacy-configuration/blob/main/features/message-bridge.json)
+- Message formats: {@link "Messaging Schema"}
 
 
 ## Integration guide
@@ -66,6 +67,27 @@ in the relevant platform file. This is how the per-domain restrictions are enfor
 
 **NOTE:** Native platforms should continue to verify the sending domain when any messages are received.  
 
+## Example
 
+In a domain where the bridge is enabled, the following API becomes available to the page.
+
+```javascript
+const bridge = navigator.duckduckgo?.createMessageBridge?.('exampleFeature');
+bridge.notify('pixel');
+```
+
+That `notify` ^ call will result in a {@link "Messaging Schema".NotificationMessage "NotificationMessage"} being sent 
+to the 'native' layer.
+
+```json
+{
+  "context": "contentScopeScriptsIsolated",
+  "featureName": "exampleFeature",
+  "method": "pixel"
+}
+```
+
+Likewise with `Requests` and `Subscriptions` - as far as the 'native' side is concerned, they are handled with the same
+Messaging Schema types.
 
 
