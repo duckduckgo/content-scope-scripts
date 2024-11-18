@@ -1,5 +1,5 @@
 import { matchHostname, postDebugMessage, initStringExemptionLists, processConfig, satisfiesMinVersion } from '../src/utils.js';
-import polyfillProcessGlobals from './helpers/pollyfil-for-process-globals.js';
+import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
 polyfillProcessGlobals();
 

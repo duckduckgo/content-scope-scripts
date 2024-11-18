@@ -1,13 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { readFileSync } from 'fs';
-import { mockAndroidMessaging, wrapWebkitScripts } from '@duckduckgo/messaging/lib/test-utils.mjs';
-import { perPlatform } from './type-helpers.mjs';
 import { OVERLAY_ID } from '../src/features/autofill-password-import';
+import { ResultsCollector } from './page-objects/results-collector.js';
+
+const HTML = '/autofill-password-import/index.html';
+const CONFIG = './integration-test/test-pages/autofill-password-import/config/config.json';
 
 test('Password import feature', async ({ page }, testInfo) => {
-    const passwordImportFeature = AutofillPasswordImportSpec.create(page, testInfo);
-    await passwordImportFeature.enabled();
-    await passwordImportFeature.navigate();
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    const passwordImportFeature = new AutofillPasswordImportSpec(page);
     await passwordImportFeature.clickOnElement('Home page');
     await passwordImportFeature.waitForAnimation();
 
@@ -23,73 +25,12 @@ test('Password import feature', async ({ page }, testInfo) => {
     await expect(overlay).not.toBeVisible();
 });
 
-export class AutofillPasswordImportSpec {
-    htmlPage = '/autofill-password-import/index.html';
-    config = './integration-test/test-pages/autofill-password-import/config/config.json';
+class AutofillPasswordImportSpec {
     /**
      * @param {import("@playwright/test").Page} page
-     * @param {import("./type-helpers.mjs").Build} build
-     * @param {import("./type-helpers.mjs").PlatformInfo} platform
      */
-    constructor(page, build, platform) {
+    constructor(page) {
         this.page = page;
-        this.build = build;
-        this.platform = platform;
-    }
-
-    async enabled() {
-        const config = JSON.parse(readFileSync(this.config, 'utf8'));
-        await this.setup({ config });
-    }
-
-    async navigate() {
-        await this.page.goto(this.htmlPage);
-    }
-
-    /**
-     * @param {object} params
-     * @param {Record<string, any>} params.config
-     * @return {Promise<void>}
-     */
-    async setup(params) {
-        const { config } = params;
-
-        // read the built file from disk and do replacements
-        const injectedJS = wrapWebkitScripts(this.build.artifact, {
-            $CONTENT_SCOPE$: config,
-            $USER_UNPROTECTED_DOMAINS$: [],
-            $USER_PREFERENCES$: {
-                platform: { name: 'android' },
-                debug: true,
-                javascriptInterface: '',
-                messageCallback: '',
-                sessionKey: '',
-            },
-        });
-
-        await this.page.addInitScript(mockAndroidMessaging, {
-            messagingContext: {
-                env: 'development',
-                context: 'contentScopeScripts',
-                featureName: 'n/a',
-            },
-            responses: {},
-            messageCallback: '',
-        });
-
-        // attach the JS
-        await this.page.addInitScript(injectedJS);
-    }
-
-    /**
-     * Helper for creating an instance per platform
-     * @param {import("@playwright/test").Page} page
-     * @param {import("@playwright/test").TestInfo} testInfo
-     */
-    static create(page, testInfo) {
-        // Read the configuration object to determine which platform we're testing against
-        const { platformInfo, build } = perPlatform(testInfo.project.use);
-        return new AutofillPasswordImportSpec(page, build, platformInfo);
     }
 
     /**
