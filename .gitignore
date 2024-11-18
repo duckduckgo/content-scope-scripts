@@ -4,7 +4,7 @@ node_modules/
 .env
 .build/
 build/
-docs/
+/docs
 /screens
 test-results/
 playwright-report/
