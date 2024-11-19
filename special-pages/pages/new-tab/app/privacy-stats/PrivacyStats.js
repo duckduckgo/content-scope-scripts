@@ -7,6 +7,8 @@ import { useVisibility } from '../widget-list/widget-config.provider.js';
 import { viewTransition } from '../utils.js';
 import { ShowHideButton } from '../components/ShowHideButton.jsx';
 import { useCustomizer } from '../customizer/Customizer.js';
+import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from './constants.js';
+import { sortStatsForDisplay } from './privacy-stats.utils.js';
 
 /**
  * @typedef {import('../../../../types/new-tab').TrackerCompany} TrackerCompany
@@ -135,23 +137,29 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
 // eslint-disable-next-line no-redeclare
 export function Body({ trackerCompanies, listAttrs = {} }) {
     const max = trackerCompanies[0]?.count ?? 0;
+    const { t } = useTypedTranslation();
     const [formatter] = useState(() => new Intl.NumberFormat());
+    const sorted = sortStatsForDisplay(trackerCompanies);
 
     return (
         <ul {...listAttrs} class={styles.list} data-testid="CompanyList">
-            {trackerCompanies.map((company) => {
+            {sorted.map((company) => {
                 const percentage = Math.min((company.count * 100) / max, 100);
                 const valueOrMin = Math.max(percentage, 10);
                 const inlineStyles = {
                     width: `${valueOrMin}%`,
                 };
                 const countText = formatter.format(company.count);
+                // prettier-ignore
+                const displayName = company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER
+                        ? t('trackerStatsOtherCompanyName')
+                        : company.displayName;
                 return (
                     <li key={company.displayName}>
                         <div class={styles.row}>
                             <div class={styles.company}>
-                                <CompanyIcon company={company} />
-                                <span class={styles.name}>{company.displayName}</span>
+                                <CompanyIcon displayName={company.displayName} />
+                                <span class={styles.name}>{displayName}</span>
                             </div>
                             <span class={styles.count}>{countText}</span>
                             <span class={styles.bar}></span>
@@ -210,15 +218,19 @@ export function PrivacyStatsConsumer() {
     return null;
 }
 
-function CompanyIcon({ company }) {
-    const icon = company.displayName.toLowerCase().split('.')[0];
+/**
+ * @param {object} props
+ * @param {string} props.displayName
+ */
+function CompanyIcon({ displayName }) {
+    const icon = displayName.toLowerCase().split('.')[0];
     const cleaned = icon.replace(/ /g, '-');
     const firstChar = icon[0];
 
     return (
         <span className={styles.icon}>
-            {icon === 'other' && <Other />}
-            {icon !== 'other' && (
+            {icon === DDG_STATS_OTHER_COMPANY_IDENTIFIER && <Other />}
+            {icon !== DDG_STATS_OTHER_COMPANY_IDENTIFIER && (
                 <img
                     src={`./company-icons/${cleaned}.svg`}
                     alt={icon + ' icon'}

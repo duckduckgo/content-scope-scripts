@@ -1,3 +1,5 @@
+import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
+
 /**
  * @import { PrivacyStatsData } from "../../../../../types/new-tab";
  * @type {Record<string, PrivacyStatsData>}
@@ -15,16 +17,16 @@ export const stats = {
                 count: 279,
             },
             {
+                displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+                count: 210,
+            },
+            {
                 displayName: 'Amazon',
                 count: 67,
             },
             {
                 displayName: 'Google Ads',
                 count: 2,
-            },
-            {
-                displayName: 'Other',
-                count: 210,
             },
         ],
     },
