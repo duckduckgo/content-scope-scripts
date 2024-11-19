@@ -400,7 +400,7 @@ test.describe('Broker Protection communications', () => {
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-hard-coded-success.json')
-            const response = await dbp.waitForMessage('actionCompleted')
+            const response = await dbp.collector.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
             await page.waitForURL(url => url.hash === '#yes', { timeout: 2000 })
@@ -411,7 +411,7 @@ test.describe('Broker Protection communications', () => {
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-hard-coded-default.json')
-            const response = await dbp.waitForMessage('actionCompleted')
+            const response = await dbp.collector.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
             await page.waitForURL(url => url.hash === '#no', { timeout: 2000 })
@@ -422,7 +422,7 @@ test.describe('Broker Protection communications', () => {
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-hard-coded-null-default.json')
-            const response = await dbp.waitForMessage('actionCompleted')
+            const response = await dbp.collector.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
         })
@@ -432,7 +432,7 @@ test.describe('Broker Protection communications', () => {
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-hard-coded-undefined-default.json')
-            const response = await dbp.waitForMessage('actionCompleted')
+            const response = await dbp.collector.waitForMessage('actionCompleted')
 
             dbp.isErrorMessage(response)
         })
@@ -442,7 +442,7 @@ test.describe('Broker Protection communications', () => {
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-interpolated-success.json')
-            const response = await dbp.waitForMessage('actionCompleted')
+            const response = await dbp.collector.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
             await page.waitForURL(url => url.hash === '#yes', { timeout: 2000 })
@@ -453,7 +453,7 @@ test.describe('Broker Protection communications', () => {
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-interpolated-default.json')
-            const response = await dbp.waitForMessage('actionCompleted')
+            const response = await dbp.collector.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
             await page.waitForURL(url => url.hash === '#no', { timeout: 2000 })
