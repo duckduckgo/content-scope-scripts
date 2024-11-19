@@ -75,7 +75,7 @@
     }
 
     @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-blue-40);
+        color: var(--color-blue-30);
 
         &:hover:not(:active) {
             background-color: var(--color-black-at-9);
@@ -145,11 +145,11 @@
 
     @media screen and (prefers-color-scheme: dark) {
         svg path {
-            fill: var(--color-blue-40);
+            fill: var(--color-blue-30);
         }
 
         div {
-            background-color: var(--color-blue-40);
+            background-color: var(--color-blue-30);
         }
     }
 }

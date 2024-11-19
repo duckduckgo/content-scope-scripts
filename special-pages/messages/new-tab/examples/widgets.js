@@ -30,7 +30,7 @@ const widgetConfig = {
  * @type {import("../../../types/new-tab").InitialSetupResponse}
  */
 const initialSetupResponse = {
-    widgets: [{ id: 'updateNotification' }, { id: 'rmf' }, { id: 'nextSteps' }, { id: 'favorites' }, { id: 'privacyStats' }],
+    widgets: [{ id: 'updateNotification' }, { id: 'rmf' }, { id: 'favorites' }, { id: 'privacyStats' }],
     widgetConfigs: [
         { id: 'rmf', visibility: 'visible' },
         { id: 'nextSteps', visibility: 'visible' },

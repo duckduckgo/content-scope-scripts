@@ -363,11 +363,8 @@ export function mockTransport() {
 
                     if (rmfParam && rmfParam in rmfDataExamples) {
                         message = rmfDataExamples[rmfParam];
-                    } else {
-                        message = rmfDataExamples.big_single_action;
                     }
 
-                    write('rmf_data', message);
                     return Promise.resolve(message);
                 }
                 case 'favorites_getData': {
@@ -402,8 +399,6 @@ export function mockTransport() {
                     ];
 
                     const widgetConfigFromStorage = read('widget_config') || [
-                        { id: 'rmf', visibility: 'visible' },
-                        { id: 'nextSteps', visibility: 'visible' },
                         { id: 'favorites', visibility: 'visible' },
                         { id: 'privacyStats', visibility: 'visible' },
                     ];
