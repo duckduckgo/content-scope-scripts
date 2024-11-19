@@ -1,17 +1,20 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Fragment, h } from 'preact'
-import { useMessaging } from '../index'
-import classNames from 'classnames'
-import { useTypedTranslation } from '../types'
-import { Text } from '../../../../shared/components/Text/Text'
-import { Card } from '../../../../shared/components/Card/Card'
-import { Button } from '../../../../shared/components/Button/Button'
-import { ContentPlaceholder } from './ContentPlaceholder'
+import { Fragment, h } from 'preact';
+import { useMessaging } from '../index';
+import classNames from 'classnames';
+import { useTypedTranslation } from '../types';
+// eslint-disable-next-line no-redeclare
+import { Text } from '../../../../shared/components/Text/Text';
+import { Card } from '../../../../shared/components/Card/Card';
+import { Button } from '../../../../shared/components/Button/Button';
+import { ContentPlaceholder } from './ContentPlaceholder';
 
-import styles from './ReleaseNotes.module.css'
+import styles from './ReleaseNotes.module.css';
 
 /**
  * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ * @typedef {import('../../../../types/release-notes').UpdateErrorState} UpdateErrorState
+ * @typedef {import('../../../../types/release-notes').UpdateReadyState} UpdateReadyState
+ * @typedef {import('../../../../types/release-notes').ReleaseNotesLoadedState} ReleaseNotesLoadedState
  * @typedef {import('../types.js').Notes} Notes
  */
 
@@ -19,31 +22,36 @@ import styles from './ReleaseNotes.module.css'
  * @param {object} props
  * @param {string} props.title
  */
-export function PageTitle ({ title }) {
-    return (
-        <h1 className={styles.title}>{title}</h1>
-    )
+export function PageTitle({ title }) {
+    return <h1 className={styles.title}>{title}</h1>;
 }
 
 /**
  * @param {object} props
  * @param {UpdateMessage['status']} props.status
  * @param {string} props.version
+ * @param {number} [props.progress] - download progress as a number from 0 to 1
  */
-function StatusText ({ status, version }) {
-    const { t } = useTypedTranslation()
+function StatusText({ status, version, progress = 0 }) {
+    const { t } = useTypedTranslation();
+    const progressPercentage = (progress * 100).toFixed(0);
 
+    /** @type {Record<UpdateMessage['status'],string>} */
     const statusTexts = {
         loaded: t('browserUpToDate'),
         loading: t('checkingForUpdate'),
-        updateReady: t('newVersionAvailable')
-    }
+        updateReady: t('newVersionAvailable'),
+        updateError: t('updateError'),
+        criticalUpdateReady: t('criticallyOutOfDate'),
+        updateDownloading: t('updateDownloading', { progress: progressPercentage }),
+        updatePreparing: t('updatePreparing'),
+    };
 
     return (
         <Text variant="title-2" className={styles.statusText}>
             {t('versionNumber', { version: `${version}` })} — {statusTexts[status]}
         </Text>
-    )
+    );
 }
 
 /**
@@ -51,43 +59,52 @@ function StatusText ({ status, version }) {
  * @param {UpdateMessage['status']} props.status
  * @param {string} [props.className]
  */
-function StatusIcon ({ status, className }) {
+function StatusIcon({ status, className }) {
+    /** @type {Record<UpdateMessage['status'],string>} */
     const iconClasses = {
         loaded: styles.checkIcon,
         loading: styles.spinnerIcon,
-        updateReady: styles.alertIcon
-    }
+        updateReady: styles.alertIcon,
+        criticalUpdateReady: styles.warningIcon,
+        updateError: styles.warningIcon,
+        updatePreparing: styles.spinnerIcon,
+        updateDownloading: styles.spinnerIcon,
+    };
 
-    return <div className={classNames(styles.statusIcon, iconClasses[status], className)} />
+    return <div className={classNames(styles.statusIcon, iconClasses[status], className)} />;
 }
 
 /**
  * @param {object} props
  * @param {number} props.timestamp - in milliseconds
  */
-function StatusTimestamp ({ timestamp }) {
-    const { t } = useTypedTranslation()
+function StatusTimestamp({ timestamp }) {
+    const { t } = useTypedTranslation();
 
-    const date = new Date(timestamp)
-    const today = new Date()
-    const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000))
+    const date = new Date(timestamp);
+    const today = new Date();
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 
-    const timeString = date.toLocaleTimeString('en', { timeStyle: 'short' })
-    let dateString = `${date.toLocaleDateString('en', { dateStyle: 'full' })} ${timeString}`
+    const timeString = date.toLocaleTimeString('en', { timeStyle: 'short' });
+    let dateString = `${date.toLocaleDateString('en', { dateStyle: 'full' })} ${timeString}`;
 
     if (
         date.getDate() === yesterday.getDate() &&
         date.getMonth() === yesterday.getMonth() &&
         date.getFullYear() === yesterday.getFullYear()
-    ) dateString = t('yesterdayAt', { time: timeString })
+    ) {
+        dateString = t('yesterdayAt', { time: timeString });
+    }
 
-    if (
-        date.getDate() === today.getDate() &&
-        date.getMonth() === today.getMonth() &&
-        date.getFullYear() === today.getFullYear()
-    ) dateString = t('todayAt', { time: timeString })
+    if (date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
+        dateString = t('todayAt', { time: timeString });
+    }
 
-    return <Text variant="body" className={styles.statusTimestamp}>{t('lastChecked', { date: dateString })}</Text>
+    return (
+        <Text variant="body" className={styles.statusTimestamp}>
+            {t('lastChecked', { date: dateString })}
+        </Text>
+    );
 }
 
 /**
@@ -95,15 +112,16 @@ function StatusTimestamp ({ timestamp }) {
  * @param {UpdateMessage['status']} props.status
  * @param {number} props.timestamp - in milliseconds
  * @param {string} props.version
+ * @param {number} [props.progress] - download progress as a number from 0 to 1
  */
-export function UpdateStatus ({ status, timestamp, version }) {
+export function UpdateStatus({ status, timestamp, version, progress }) {
     return (
         <div className={styles.statusContainer}>
-            <StatusIcon status={status} className={styles.gridIcon}/>
-            <StatusText status={status} version={version} />
+            <StatusIcon status={status} className={styles.gridIcon} />
+            <StatusText status={status} version={version} progress={progress} />
             <StatusTimestamp timestamp={timestamp} />
         </div>
-    )
+    );
 }
 
 /**
@@ -112,8 +130,8 @@ export function UpdateStatus ({ status, timestamp, version }) {
  * @param {string} props.version
  * @param {boolean} [props.showNewTag]
  */
-export function ReleaseNotesHeading ({ title, version, showNewTag = false }) {
-    const { t } = useTypedTranslation()
+export function ReleaseNotesHeading({ title, version, showNewTag = false }) {
+    const { t } = useTypedTranslation();
 
     return (
         <header className={styles.notesHeading}>
@@ -125,46 +143,54 @@ export function ReleaseNotesHeading ({ title, version, showNewTag = false }) {
                 {t('versionNumber', { version: `${version}` })}
             </Text>
         </header>
-    )
+    );
 }
 
 /**
  * @param {Omit<Notes, 'notes'>} props
  */
-export function ReleaseNotesSubheading ({ icon, title }) {
+export function ReleaseNotesSubheading({ icon, title }) {
     return (
         <div className={styles.notesSubheading}>
-            { icon && <span className={classNames(styles.notesIcon, styles[`notesIcon${icon}`])} />}
-            <Text as="h3" variant="headline">{title}</Text>
+            {icon && <span className={classNames(styles.notesIcon, styles[`notesIcon${icon}`])} />}
+            <Text as="h3" variant="headline">
+                {title}
+            </Text>
         </div>
-    )
+    );
 }
 
 /**
  * @param {Object} props
  * @param {import("preact").ComponentChild[]} props.notes
  */
-export function ReleaseNotesList ({ notes }) {
+export function ReleaseNotesList({ notes }) {
     return (
         <ul className={styles.list}>
-            {notes.map(note => (<Text as="li" variant="body" className={styles.listItem}>{note}</Text>))}
+            {notes.map((note) => (
+                <Text as="li" variant="body" className={styles.listItem}>
+                    {note}
+                </Text>
+            ))}
         </ul>
-    )
+    );
 }
 
 /**
  * @param {Object} props
- * @param {UpdateMessage['status']} props.status
  * @param {string} [props.title]
- * @param {string} props.version
+ * @param {string} props.currentVersion
+ * @param {string} [props.latestVersion]
  * @param {Notes[]} props.notes
  */
-export function ReleaseNotesContent ({ status, title: releaseTitle, version: releaseVersion, notes: releaseNotes }) {
-    if (!releaseTitle || !releaseNotes.length) return null
+export function ReleaseNotesContent({ title: releaseTitle, currentVersion, latestVersion, notes: releaseNotes }) {
+    if (!releaseTitle || !releaseNotes.length) return null;
+    const version = latestVersion || currentVersion;
+    const showNewTag = !!latestVersion && currentVersion !== latestVersion;
 
     return (
         <Fragment>
-            <ReleaseNotesHeading title={releaseTitle} version={releaseVersion} showNewTag={status === 'updateReady'}/>
+            <ReleaseNotesHeading title={releaseTitle} version={version} showNewTag={showNewTag} />
             <div className={styles.listGrid}>
                 {releaseNotes.map(({ icon, title, notes }) => (
                     <div class={styles.listContainer}>
@@ -174,31 +200,33 @@ export function ReleaseNotesContent ({ status, title: releaseTitle, version: rel
                 ))}
             </div>
         </Fragment>
-    )
+    );
 }
 
 /**
+ * Parses release notes data and shows either the loading placeholder or a Release Notes card
+ *
  * @param {object} props
  * @param {UpdateMessage} props.releaseData
  */
-export function ReleaseNotes ({ releaseData }) {
-    const { t } = useTypedTranslation()
-    const { messages } = useMessaging()
+export function CardContents({ releaseData }) {
+    const { t } = useTypedTranslation();
+    const { status } = releaseData;
+    const isLoading = status === 'loading' || status === 'updateDownloading' || status === 'updatePreparing';
 
-    const onRestartButtonClick = () => {
-        messages?.browserRestart()
+    if (isLoading) {
+        return <ContentPlaceholder />;
     }
-
-    const { status, currentVersion, lastUpdate, latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
-    const timestampInMilliseconds = lastUpdate * 1000
 
     /**
      * @type {Notes[]}
      */
-    const notes = []
+    const notes = [];
+
+    const { currentVersion, latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData;
 
     if (releaseNotes?.length) {
-        notes.push({ notes: releaseNotes })
+        notes.push({ notes: releaseNotes });
     }
 
     if (releaseNotesPrivacyPro?.length) {
@@ -207,31 +235,80 @@ export function ReleaseNotes ({ releaseData }) {
             title: t('forPrivacyProSubscribers'),
             notes: [
                 ...releaseNotesPrivacyPro,
-                /* The following should only get translated when the full Release Notes are localized */
-                <span>Not subscribed? Find out more at <a href="https://duckduckgo.com/pro" target="_blank">duckduckgo.com/pro</a></span>
-            ]
-        })
+                /* The following should only get translated when the contents of the Release Notes update message are localized */
+                <span>
+                    Not subscribed? Find out more at{' '}
+                    <a href="https://duckduckgo.com/pro" target="_blank">
+                        duckduckgo.com/pro
+                    </a>
+                </span>,
+            ],
+        });
     }
+
+    return <ReleaseNotesContent title={releaseTitle} currentVersion={currentVersion} latestVersion={latestVersion} notes={notes} />;
+}
+
+/**
+ * @param {object} props
+ * @param {UpdateReadyState|UpdateErrorState} props.releaseData
+ */
+export function UpdateButton({ releaseData }) {
+    const { t } = useTypedTranslation();
+    const { messages } = useMessaging();
+
+    const { status } = releaseData;
+    let button;
+
+    if (status === 'updateError') {
+        button = <Button onClick={() => messages?.retryUpdate()}>{t('retryUpdate')}</Button>;
+    }
+
+    if (status === 'updateReady' || status === 'criticalUpdateReady') {
+        const { automaticUpdate } = releaseData;
+        const buttonText = automaticUpdate ? t('restartToUpdate') : t('updateBrowser');
+
+        button = <Button onClick={() => messages?.browserRestart()}>{buttonText}</Button>;
+    }
+
+    if (!button) return null;
+
+    return <div className={styles.buttonContainer}>{button}</div>;
+}
+
+/**
+ * @param {object} props
+ * @param {UpdateMessage} props.releaseData
+ */
+export function ReleaseNotes({ releaseData }) {
+    const { t } = useTypedTranslation();
+
+    const { status, currentVersion, lastUpdate } = releaseData;
+    const timestampInMilliseconds = lastUpdate * 1000;
+
+    let progress = 0;
+    if (status === 'updateDownloading') {
+        const { downloadProgress } = releaseData;
+
+        if (downloadProgress && !Number.isNaN(downloadProgress)) {
+            progress = downloadProgress;
+        } else {
+            console.warn('Invalid download progress value in data');
+        }
+    }
+
+    const shouldShowButton = status === 'updateReady' || status === 'criticalUpdateReady' || status === 'updateError';
 
     return (
         <article className={styles.article}>
             <header className={styles.heading}>
-                <PageTitle title={t('browserReleaseNotes')}/>
-                <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion}/>
-                {status === 'updateReady' &&
-                    <div className={styles.buttonContainer}>
-                        <Button onClick={onRestartButtonClick}>{t('restartToUpdate')}</Button>
-                    </div>}
+                <PageTitle title={t('browserReleaseNotes')} />
+                <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion} progress={progress} />
+                {shouldShowButton && <UpdateButton releaseData={releaseData} />}
             </header>
             <Card className={styles.card}>
-                {status === 'loading'
-                    ? <ContentPlaceholder />
-                    : <ReleaseNotesContent
-                        status={status}
-                        title={releaseTitle}
-                        version={latestVersion || currentVersion}
-                        notes={notes}/>}
+                <CardContents releaseData={releaseData} />
             </Card>
         </article>
-    )
+    );
 }

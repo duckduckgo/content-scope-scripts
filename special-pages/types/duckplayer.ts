@@ -25,7 +25,8 @@ export interface DuckplayerMessages {
     | OpenInfoNotification
     | OpenSettingsNotification
     | ReportInitExceptionNotification
-    | ReportPageExceptionNotification;
+    | ReportPageExceptionNotification
+    | TelemetryEventNotification;
   requests: GetUserValuesRequest | InitialSetupRequest | SetUserValuesRequest;
   subscriptions: OnUserValuesChangedSubscription;
 }
@@ -60,6 +61,20 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/duckplayer/telemetryEvent.notify.json"
+ */
+export interface TelemetryEventNotification {
+  method: "telemetryEvent";
+  params: TelemetryEvent;
+}
+export interface TelemetryEvent {
+  attributes: Impression;
+}
+export interface Impression {
+  name: "impression";
+  value: "landscape-layout";
 }
 /**
  * Generated from @see "../messages/duckplayer/getUserValues.request.json"

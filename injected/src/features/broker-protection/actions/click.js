@@ -51,26 +51,29 @@ export function click (action, userData, root = document) {
         const elements = getElements(rootElement, element.selector)
 
         if (!elements?.length) {
-            return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
+            return new ErrorResponse({
+                actionID: action.id,
+                message: `could not find element to click with selector '${element.selector}'!`,
+            });
         }
 
-        const loopLength = element.multiple && element.multiple === true ? elements.length : 1
+        const loopLength = element.multiple && element.multiple === true ? elements.length : 1;
 
         for (let i = 0; i < loopLength; i++) {
-            const elem = elements[i]
+            const elem = elements[i];
 
             if ('disabled' in elem) {
                 if (elem.disabled) {
-                    return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` })
+                    return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` });
                 }
             }
             if ('click' in elem && typeof elem.click === 'function') {
-                elem.click()
+                elem.click();
             }
         }
     }
 
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
 }
 
 /**
@@ -79,25 +82,23 @@ export function click (action, userData, root = document) {
  * @param {Document | HTMLElement} root
  * @return {Node}
  */
-function selectRootElement (clickElement, userData, root = document) {
+function selectRootElement(clickElement, userData, root = document) {
     // if there's no 'parent' field, just use the document
-    if (!clickElement.parent) return root
+    if (!clickElement.parent) return root;
 
     // if the 'parent' field contains 'profileMatch', try to match it
     if (clickElement.parent.profileMatch) {
-        const extraction = extractProfiles(clickElement.parent.profileMatch, userData, root)
+        const extraction = extractProfiles(clickElement.parent.profileMatch, userData, root);
         if ('results' in extraction) {
-            const sorted = extraction.results
-                .filter(x => x.result === true)
-                .sort((a, b) => b.score - a.score)
-            const first = sorted[0]
+            const sorted = extraction.results.filter((x) => x.result === true).sort((a, b) => b.score - a.score);
+            const first = sorted[0];
             if (first && first.element) {
-                return first.element
+                return first.element;
             }
         }
     }
 
-    throw new Error('`parent` was present on the element, but the configuration is not supported')
+    throw new Error('`parent` was present on the element, but the configuration is not supported');
 }
 
 /**

@@ -1,33 +1,34 @@
-import './index.css'
-import { callWithRetry } from '../../../shared/call-with-retry.js'
-import { h, render } from 'preact'
-import { EnvironmentProvider, UpdateEnvironment, WillThrow } from '../../../shared/components/EnvironmentProvider.js'
-import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
-import { ErrorBoundary } from '../../../shared/components/ErrorBoundary.js'
-import { EmbedSettings } from './embed-settings.js'
-import enStrings from '../src/locales/en/duckplayer.json'
-import { Settings } from './settings.js'
-import { SettingsProvider } from './providers/SettingsProvider.jsx'
-import { MessagingContext } from './types.js'
-import { UserValuesProvider } from './providers/UserValuesProvider.jsx'
-import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx'
-import { Components } from './components/Components.jsx'
-import { MobileApp } from './components/MobileApp.jsx'
-import { DesktopApp } from './components/DesktopApp.jsx'
+import './index.css';
+import { callWithRetry } from '../../../shared/call-with-retry.js';
+import { h, render } from 'preact';
+import { EnvironmentProvider, UpdateEnvironment, WillThrow } from '../../../shared/components/EnvironmentProvider.js';
+import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
+import { ErrorBoundary } from '../../../shared/components/ErrorBoundary.js';
+import { EmbedSettings } from './embed-settings.js';
+import enStrings from '../src/locales/en/duckplayer.json';
+import { Settings } from './settings.js';
+import { SettingsProvider } from './providers/SettingsProvider.jsx';
+import { MessagingContext, TelemetryContext } from './types.js';
+import { UserValuesProvider } from './providers/UserValuesProvider.jsx';
+import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx';
+import { Components } from './components/Components.jsx';
+import { MobileApp } from './components/MobileApp.jsx';
+import { DesktopApp } from './components/DesktopApp.jsx';
 
 /**
  * @param {import("../src/js/index.js").DuckplayerPage} messaging
+ * @param {import("../src/js/index.js").Telemetry} telemetry
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  * @return {Promise<void>}
  */
-export async function init (messaging, baseEnvironment) {
-    const result = await callWithRetry(() => messaging.initialSetup())
+export async function init(messaging, telemetry, baseEnvironment) {
+    const result = await callWithRetry(() => messaging.initialSetup());
     if ('error' in result) {
-        throw new Error(result.error)
+        throw new Error(result.error);
     }
 
-    const init = result.value
-    console.log('INITIAL DATA', init)
+    const init = result.value;
+    console.log('INITIAL DATA', init);
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -35,16 +36,17 @@ export async function init (messaging, baseEnvironment) {
         .withLocale(init.locale)
         .withLocale(baseEnvironment.urlParams.get('locale'))
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
-        .withDisplay(baseEnvironment.urlParams.get('display'))
+        .withDisplay(baseEnvironment.urlParams.get('display'));
 
-    console.log('environment:', environment)
-    console.log('locale:', environment.locale)
+    console.log('environment:', environment);
+    console.log('locale:', environment.locale);
 
-    document.body.dataset.display = environment.display
+    document.body.dataset.display = environment.display;
 
-    const strings = environment.locale === 'en'
-        ? enStrings
-        : await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale) || enStrings
+    const strings =
+        environment.locale === 'en'
+            ? enStrings
+            : (await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale)) || enStrings;
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -53,50 +55,58 @@ export async function init (messaging, baseEnvironment) {
         .withFeatureState('pip', init.settings.pip)
         .withFeatureState('autoplay', init.settings.autoplay)
         .withFeatureState('focusMode', init.settings.focusMode)
-        .withDisabledFocusMode(baseEnvironment.urlParams.get('focusMode'))
+        .withDisabledFocusMode(baseEnvironment.urlParams.get('focusMode'));
 
-    console.log(settings)
+    console.log(settings);
 
-    const embed = createEmbedSettings(window.location.href, settings)
+    const embed = createEmbedSettings(window.location.href, settings);
 
     const didCatch = (error) => {
-        const message = error?.message || 'unknown'
-        messaging.reportPageException({ message })
-    }
+        const message = error?.message || 'unknown';
+        messaging.reportPageException({ message });
+    };
 
-    document.body.dataset.layout = settings.layout
+    document.body.dataset.layout = settings.layout;
 
-    const root = document.querySelector('body')
-    if (!root) throw new Error('could not render, root element missing')
+    const root = document.querySelector('body');
+    if (!root) throw new Error('could not render, root element missing');
 
     if (environment.display === 'app') {
         render(
-            <EnvironmentProvider
-                debugState={environment.debugState}
-                injectName={environment.injectName}
-                willThrow={environment.willThrow}>
-                <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
-                    <UpdateEnvironment search={window.location.search}/>
-                    <MessagingContext.Provider value={messaging}>
-                        <SettingsProvider settings={settings}>
-                            <UserValuesProvider initial={init.userValues}>
-                                {settings.layout === 'desktop' && (
-                                    <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
-                                        <DesktopApp embed={embed} />
-                                    </TranslationProvider>
-                                )}
-                                {settings.layout === 'mobile' && (
-                                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                                        <MobileApp embed={embed} />
-                                    </TranslationProvider>
-                                )}
-                                <WillThrow />
-                            </UserValuesProvider>
-                        </SettingsProvider>
-                    </MessagingContext.Provider>
+            <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
+                <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'} />}>
+                    <UpdateEnvironment search={window.location.search} />
+                    <TelemetryContext.Provider value={telemetry}>
+                        <MessagingContext.Provider value={messaging}>
+                            <SettingsProvider settings={settings}>
+                                <UserValuesProvider initial={init.userValues}>
+                                    {settings.layout === 'desktop' && (
+                                        <TranslationProvider
+                                            translationObject={enStrings}
+                                            fallback={enStrings}
+                                            textLength={environment.textLength}
+                                        >
+                                            <DesktopApp embed={embed} />
+                                        </TranslationProvider>
+                                    )}
+                                    {settings.layout === 'mobile' && (
+                                        <TranslationProvider
+                                            translationObject={strings}
+                                            fallback={enStrings}
+                                            textLength={environment.textLength}
+                                        >
+                                            <MobileApp embed={embed} />
+                                        </TranslationProvider>
+                                    )}
+                                    <WillThrow />
+                                </UserValuesProvider>
+                            </SettingsProvider>
+                        </MessagingContext.Provider>
+                    </TelemetryContext.Provider>
                 </ErrorBoundary>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root,
+        );
     } else if (environment.display === 'components') {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
@@ -105,8 +115,9 @@ export async function init (messaging, baseEnvironment) {
                         <Components />
                     </TranslationProvider>
                 </MessagingContext.Provider>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root,
+        );
     }
 }
 
@@ -115,13 +126,11 @@ export async function init (messaging, baseEnvironment) {
  * @param {import("./settings.js").Settings} settings
  * @return {EmbedSettings|null}
  */
-function createEmbedSettings (href, settings) {
-    const embed = EmbedSettings.fromHref(href)
-    if (!embed) return null
+function createEmbedSettings(href, settings) {
+    const embed = EmbedSettings.fromHref(href);
+    if (!embed) return null;
 
-    return embed
-        .withAutoplay(settings.autoplay.state === 'enabled')
-        .withMuted(settings.platform.name === 'ios')
+    return embed.withAutoplay(settings.autoplay.state === 'enabled').withMuted(settings.platform.name === 'ios');
 }
 
 /**
@@ -129,7 +138,7 @@ function createEmbedSettings (href, settings) {
  * @param {string} locale
  * @return {Promise<Record<string, any> | null>}
  */
-async function getTranslationsFromStringOrLoadDynamically (stringInput, locale) {
+async function getTranslationsFromStringOrLoadDynamically(stringInput, locale) {
     /**
      * This is a special situation - the native side (iOS/macOS at the time) wanted to
      * use a single HTML file for the error pages. This created an issues since special pages
@@ -139,22 +148,22 @@ async function getTranslationsFromStringOrLoadDynamically (stringInput, locale) 
      */
     if (stringInput) {
         try {
-            return JSON.parse(stringInput)
+            return JSON.parse(stringInput);
         } catch (e) {
-            console.warn('String could not be parsed. Falling back to fetch...')
+            console.warn('String could not be parsed. Falling back to fetch...');
         }
     }
 
     // If parsing failed or stringInput was null/undefined, proceed with fetch
     try {
-        const response = await fetch(`./locales/${locale}/duckplayer.json`)
+        const response = await fetch(`./locales/${locale}/duckplayer.json`);
         if (!response.ok) {
-            console.error('Network response was not ok')
-            return null
+            console.error('Network response was not ok');
+            return null;
         }
-        return await response.json()
+        return await response.json();
     } catch (e) {
-        console.error('Failed to fetch or parse JSON from the network:', e)
-        return null
+        console.error('Failed to fetch or parse JSON from the network:', e);
+        return null;
     }
 }

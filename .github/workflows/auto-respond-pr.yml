@@ -2,81 +2,83 @@ name: Auto Respond to PR
 
 on:
     pull_request:
-      types: [opened, synchronize, closed, ready_for_review]
+        types: [opened, synchronize, closed, ready_for_review]
 
 jobs:
-  auto_respond:
-    if: github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    auto_respond:
+        if: github.actor != 'dependabot[bot]'
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout base branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.base.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          path: base
+        steps:
+            - name: Checkout base branch
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.pull_request.base.ref }}
+                  repository: ${{ github.event.pull_request.head.repo.full_name }}
+                  path: base
 
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          path: pr
-          fetch-depth: 0
+            - name: Checkout PR branch
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.pull_request.head.ref }}
+                  repository: ${{ github.event.pull_request.head.repo.full_name }}
+                  path: pr
+                  fetch-depth: 0
 
-      - name: Run build script on base branch
-        run: |
-          cd base
-          npm install
-          npm run build
-          cd ..
+            - name: Run build script on base branch
+              run: |
+                  cd base
+                  npm install
+                  npm run build
+                  cd ..
 
-      - name: Run build script on PR branch
-        run: |
-          cd pr
-          git config --global user.email "dax@duck.com"
-          git config --global user.name "dax"
-          git rebase origin/${{ github.event.pull_request.base.ref }}
-          npm install
-          npm run build
-          cd ..
+            - name: Run build script on PR branch
+              run: |
+                  cd pr
+                  git config --global user.email "dax@duck.com"
+                  git config --global user.name "dax"
+                  echo ${{ github.event.pull_request.base.ref }}
+                  git fetch origin ${{ github.event.pull_request.base.ref }}
+                  git rebase -X theirs origin/${{ github.event.pull_request.base.ref }}
+                  npm install
+                  npm run build
+                  cd ..
 
-      - name: Create diff of file outputs
-        run: |
-          node pr/.github/scripts/diff-directories.js base pr > diff.txt
+            - name: Create diff of file outputs
+              run: |
+                  node pr/.github/scripts/diff-directories.js base pr > diff.txt
 
-      - name: Find Previous Comment
-        uses: peter-evans/find-comment@v3
-        id: find_comment
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: 'Generated file diff'
-          direction: last
+            - name: Find Previous Comment
+              uses: peter-evans/find-comment@v3
+              id: find_comment
+              with:
+                  issue-number: ${{ github.event.pull_request.number }}
+                  comment-author: 'github-actions[bot]'
+                  body-includes: 'Generated file diff'
+                  direction: last
 
-      - name: Create Comment Body
-        uses: actions/github-script@v7
-        id: create_body
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs');
-            const prNumber = context.issue.number;
-            const diffOut = fs.readFileSync('diff.txt', 'utf8');
-            const commentBody = `
-            ### *[Beta]* Generated file diff
-            *Time updated:* ${new Date().toUTCString()}
+            - name: Create Comment Body
+              uses: actions/github-script@v7
+              id: create_body
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const fs = require('fs');
+                      const prNumber = context.issue.number;
+                      const diffOut = fs.readFileSync('diff.txt', 'utf8');
+                      const commentBody = `
+                      ### *[Beta]* Generated file diff
+                      *Time updated:* ${new Date().toUTCString()}
 
-            ${diffOut}
-                `;
-            core.setOutput('comment_body', commentBody);
-            core.setOutput('pr_number', prNumber);
+                      ${diffOut}
+                          `;
+                      core.setOutput('comment_body', commentBody);
+                      core.setOutput('pr_number', prNumber);
 
-      - name: Create, or Update the Comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-id: ${{ steps.find_comment.outputs.comment-id }}
-          body: ${{ steps.create_body.outputs.comment_body }}
-          edit-mode: replace
+            - name: Create, or Update the Comment
+              uses: peter-evans/create-or-update-comment@v4
+              with:
+                  issue-number: ${{ github.event.pull_request.number }}
+                  comment-id: ${{ steps.find_comment.outputs.comment-id }}
+                  body: ${{ steps.create_body.outputs.comment_body }}
+                  edit-mode: replace

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { NotificationMessage, RequestMessage, MessageResponse, SubscriptionEvent } from '../../index.js'
+import { NotificationMessage, RequestMessage, MessageResponse, SubscriptionEvent } from '../../index.js';
 
 /**
  * This is the payload sent for a notification
@@ -9,8 +9,8 @@ const notification = {
     context: 'contentScopeScripts',
     featureName: 'duckPlayerOverlays',
     method: 'setUserValues',
-    params: {}
-}
+    params: {},
+};
 
 /**
  * This is the payload sent for a Request.
@@ -21,8 +21,8 @@ const request = {
     featureName: 'duckPlayerOverlays',
     method: 'setUserValues',
     params: {},
-    id: 'setUserValues.response'
-}
+    id: 'setUserValues.response',
+};
 
 /**
  * This is the payload for a response
@@ -33,8 +33,8 @@ const messageResponse = {
     featureName: 'duckPlayerOverlays',
     result: {},
     id: 'setUserValues.response',
-    error: undefined
-}
+    error: undefined,
+};
 
 /**
  * This is the payload response for an error
@@ -45,16 +45,16 @@ const messageResponseError = {
     featureName: 'duckPlayerOverlays',
     result: undefined,
     id: 'setUserValues.response',
-    error: { message: '' }
-}
+    error: { message: '' },
+};
 
 /**
  * This is the payload response for a subscriptionEvent
  * @type {SubscriptionEvent}
  */
-const event = {
+const myEvent = {
     context: 'contentScopeScripts',
     featureName: 'duckPlayerOverlays',
     subscriptionName: 'setUserValues',
-    params: {}
-}
+    params: {},
+};

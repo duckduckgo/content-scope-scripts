@@ -38,6 +38,45 @@
     }
 }
 
+.plainListContainer {
+    overflow: hidden;
+    height: 0;
+    transition: height 300ms ease-in-out;
+    min-height: calc(116 * var(--px-in-rem));
+}
+
+.plainList {
+    border-radius: var(--sp-3);
+    display: grid;
+    gap: var(--sp-8);
+    margin: 0;
+    padding: var(--sp-7) var(--sp-14);
+    width: 100%;
+
+    > li {
+        position: relative;
+    }
+}
+
+.borderedList {
+    gap: var(--sp-14);
+
+    > li + li:after {
+        background: var(--color-black-at-9);
+        content: " ";
+        height: 1px;
+        position: absolute;
+        top: calc(-1 * var(--sp-7));
+        width: 100%;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        > li + li:after {
+            background: var(--color-white-at-12);
+        }
+    }
+}
+
 .summaryList {
     display: flex;
     flex-direction: column;

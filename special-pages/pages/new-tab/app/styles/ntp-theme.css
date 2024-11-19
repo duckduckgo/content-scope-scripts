@@ -3,6 +3,9 @@
     --ntp-surface-background-color: white;
     --ntp-surface-border-color: var(--color-black-at-6);
     --ntp-text-normal: var(--color-black-at-84);
+    --ntp-text-muted: var(--color-black-at-60);
+    --ntp-text-on-primary: var(--color-white-at-84);
+    --ntp-color-primary: var(--ddg-color-primary);
 
     /* Mac/System/Body */
     --body-font-size: 13px;
@@ -25,8 +28,11 @@
     @media (prefers-color-scheme: dark) {
         --ntp-background-color: var(--color-gray-85);
         --ntp-surface-background-color: #2a2a2a;
-        --ntp-surface-border-color: var(--color-black-at-6);
-        --ntp-text-normal: white;
+        --ntp-surface-border-color: var(--color-white-at-6);
+        --ntp-text-normal: var(--color-white-at-84);
+        --ntp-text-muted: var(--color-white-at-60);
+        --ntp-color-primary: var(--color-blue-30);
+        --ntp-text-on-primary: var(--color-black-at-84);
         --ntp-focus-outline-color: white;
     }
 }

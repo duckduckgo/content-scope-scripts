@@ -1,7 +1,7 @@
-import { html } from '../../../dom-utils'
-import cssVars from '../assets/shared.css'
-import css from '../assets/ctl-placeholder-block.css'
-import { logoImg as daxImg } from '../ctl-assets'
+import { html } from '../../../dom-utils';
+import cssVars from '../assets/shared.css';
+import css from '../assets/ctl-placeholder-block.css';
+import { logoImg as daxImg } from '../ctl-assets';
 
 /**
  * Size keys for a placeholder
@@ -34,26 +34,26 @@ import { logoImg as daxImg } from '../ctl-assets'
  * This is currently only used in our Mobile Apps, but can be expanded in the future.
  */
 export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
-    static CUSTOM_TAG_NAME = 'ddg-ctl-placeholder-blocked'
+    static CUSTOM_TAG_NAME = 'ddg-ctl-placeholder-blocked';
     /**
      * Min height that the placeholder needs to have in order to
      * have enough room to display content.
      */
-    static MIN_CONTENT_HEIGHT = 110
-    static MAX_CONTENT_WIDTH_SMALL = 480
-    static MAX_CONTENT_WIDTH_MEDIUM = 650
+    static MIN_CONTENT_HEIGHT = 110;
+    static MAX_CONTENT_WIDTH_SMALL = 480;
+    static MAX_CONTENT_WIDTH_MEDIUM = 650;
     /**
      * Set observed attributes that will trigger attributeChangedCallback()
      */
-    static get observedAttributes () {
-        return ['style']
+    static get observedAttributes() {
+        return ['style'];
     }
 
     /**
      * Placeholder element for blocked content
      * @type {HTMLDivElement}
      */
-    placeholderBlocked
+    placeholderBlocked;
 
     /**
      * Size variant of the latest calculated size of the placeholder.
@@ -61,7 +61,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * and adapt the layout for each size.
      * @type {placeholderSize}
      */
-    size = null
+    size = null;
 
     /**
      * @param {object} params - Params for building a custom element
@@ -77,45 +77,46 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @param {WithFeedbackParams=} params.withFeedback - Shows feedback link on tablet and desktop sizes,
      * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onButtonClick
      */
-    constructor (params) {
-        super()
-        this.params = params
+    constructor(params) {
+        super();
+        this.params = params;
         /**
          * Create the shadow root, closed to prevent any outside observers
          * @type {ShadowRoot}
          */
         const shadow = this.attachShadow({
-            mode: this.params.devMode ? 'open' : 'closed'
-        })
+            mode: this.params.devMode ? 'open' : 'closed',
+        });
 
         /**
          * Add our styles
          * @type {HTMLStyleElement}
          */
-        const style = document.createElement('style')
-        style.innerText = cssVars + css
+        const style = document.createElement('style');
+        style.innerText = cssVars + css;
 
         /**
          * Creates the placeholder for blocked content
          * @type {HTMLDivElement}
          */
-        this.placeholderBlocked = this.createPlaceholder()
+        this.placeholderBlocked = this.createPlaceholder();
         /**
          * Creates the Share Feedback element
          * @type {HTMLDivElement | null}
          */
-        const feedbackLink = this.params.withFeedback ? this.createShareFeedbackLink() : null
+        const feedbackLink = this.params.withFeedback ? this.createShareFeedbackLink() : null;
         /**
          * Setup the click handlers
          */
-        this.setupEventListeners(this.placeholderBlocked, feedbackLink)
+        this.setupEventListeners(this.placeholderBlocked, feedbackLink);
 
         /**
          * Append both to the shadow root
          */
-        feedbackLink && this.placeholderBlocked.appendChild(feedbackLink)
-        shadow.appendChild(this.placeholderBlocked)
-        shadow.appendChild(style)
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        feedbackLink && this.placeholderBlocked.appendChild(feedbackLink);
+        shadow.appendChild(this.placeholderBlocked);
+        shadow.appendChild(style);
     }
 
     /**
@@ -126,22 +127,20 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @returns {HTMLDivElement}
      */
     createPlaceholder = () => {
-        const { title, body, unblockBtnText, useSlimCard, withToggle, withFeedback } = this.params
+        const { title, body, unblockBtnText, useSlimCard, withToggle, withFeedback } = this.params;
 
-        const container = document.createElement('div')
-        container.classList.add('DuckDuckGoSocialContainer')
+        const container = document.createElement('div');
+        container.classList.add('DuckDuckGoSocialContainer');
         const cardClassNames = [
             ['slim-card', !!useSlimCard],
-            ['with-feedback-link', !!withFeedback]
+            ['with-feedback-link', !!withFeedback],
         ]
             .map(([className, active]) => (active ? className : ''))
-            .join(' ')
+            .join(' ');
 
         // Only add a card footer if we have the toggle button to display
-        const cardFooterSection = withToggle
-            ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> `
-            : ''
-        const learnMoreLink = this.createLearnMoreLink()
+        const cardFooterSection = withToggle ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> ` : '';
+        const learnMoreLink = this.createLearnMoreLink();
 
         container.innerHTML = html`
             <div class="ddg-ctl-placeholder-card ${cardClassNames}">
@@ -157,16 +156,16 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
                 </div>
                 ${cardFooterSection}
             </div>
-        `.toString()
+        `.toString();
 
-        return container
-    }
+        return container;
+    };
 
     /**
      * Creates a template string for Learn More link.
      */
     createLearnMoreLink = () => {
-        const { learnMore } = this.params
+        const { learnMore } = this.params;
 
         return html`<a
             class="ddg-text-link ddg-learn-more"
@@ -174,34 +173,34 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
             href="https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/"
             target="_blank"
             >${learnMore.learnMore}</a
-        >`
-    }
+        >`;
+    };
 
     /**
      * Creates a Feedback Link container row
      * @returns {HTMLDivElement}
      */
     createShareFeedbackLink = () => {
-        const { withFeedback } = this.params
+        const { withFeedback } = this.params;
 
-        const container = document.createElement('div')
-        container.classList.add('ddg-ctl-feedback-row')
+        const container = document.createElement('div');
+        container.classList.add('ddg-ctl-feedback-row');
 
         container.innerHTML = html`
             <button class="ddg-ctl-feedback-link" type="button">${withFeedback?.label || 'Share Feedback'}</button>
-        `.toString()
+        `.toString();
 
-        return container
-    }
+        return container;
+    };
 
     /**
      * Creates a template string for a toggle button with text.
      */
     createToggleButton = () => {
-        const { withToggle } = this.params
-        if (!withToggle) return
+        const { withToggle } = this.params;
+        if (!withToggle) return;
 
-        const { isActive, dataKey, label, size: toggleSize = 'md' } = withToggle
+        const { isActive, dataKey, label, size: toggleSize = 'md' } = withToggle;
 
         const toggleButton = html`
             <div class="ddg-toggle-button-container">
@@ -216,9 +215,9 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
                 </button>
                 <div class="ddg-toggle-button-label">${label}</div>
             </div>
-        `
-        return toggleButton
-    }
+        `;
+        return toggleButton;
+    };
 
     /**
      *
@@ -226,21 +225,17 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @param {HTMLElement?} feedbackLink
      */
     setupEventListeners = (containerElement, feedbackLink) => {
-        const { withToggle, withFeedback, originalElement, onButtonClick } = this.params
+        const { withToggle, withFeedback, originalElement, onButtonClick } = this.params;
 
-        containerElement
-            .querySelector('button.ddg-ctl-unblock-btn')
-            ?.addEventListener('click', onButtonClick(originalElement, this))
+        containerElement.querySelector('button.ddg-ctl-unblock-btn')?.addEventListener('click', onButtonClick(originalElement, this));
 
         if (withToggle) {
-            containerElement
-                .querySelector('.ddg-toggle-button-container')
-                ?.addEventListener('click', withToggle.onClick)
+            containerElement.querySelector('.ddg-toggle-button-container')?.addEventListener('click', withToggle.onClick);
         }
         if (withFeedback && feedbackLink) {
-            feedbackLink.querySelector('.ddg-ctl-feedback-link')?.addEventListener('click', withFeedback.onClick)
+            feedbackLink.querySelector('.ddg-ctl-feedback-link')?.addEventListener('click', withFeedback.onClick);
         }
-    }
+    };
 
     /**
      * Use JS to calculate the width and height of the root element placeholder. We could use a CSS Container Query, but full
@@ -249,37 +244,37 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      */
     updatePlaceholderSize = () => {
         /** @type {placeholderSize} */
-        let newSize = null
+        let newSize = null;
 
-        const { height, width } = this.getBoundingClientRect()
+        const { height, width } = this.getBoundingClientRect();
         if (height && height < DDGCtlPlaceholderBlockedElement.MIN_CONTENT_HEIGHT) {
-            newSize = 'size-xs'
+            newSize = 'size-xs';
         } else if (width) {
             if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_SMALL) {
-                newSize = 'size-sm'
+                newSize = 'size-sm';
             } else if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_MEDIUM) {
-                newSize = 'size-md'
+                newSize = 'size-md';
             } else {
-                newSize = 'size-lg'
+                newSize = 'size-lg';
             }
         }
 
         if (newSize && newSize !== this.size) {
             if (this.size) {
-                this.placeholderBlocked.classList.remove(this.size)
+                this.placeholderBlocked.classList.remove(this.size);
             }
-            this.placeholderBlocked.classList.add(newSize)
-            this.size = newSize
+            this.placeholderBlocked.classList.add(newSize);
+            this.size = newSize;
         }
-    }
+    };
 
     /**
      * Web Component lifecycle function.
      * When element is first added to the DOM, trigger this callback and
      * update the element CSS size class.
      */
-    connectedCallback () {
-        this.updatePlaceholderSize()
+    connectedCallback() {
+        this.updatePlaceholderSize();
     }
 
     /**
@@ -291,10 +286,10 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @param {*} _ Attribute old value, ignored
      * @param {*} newValue Attribute new value
      */
-    attributeChangedCallback (attr, _, newValue) {
+    attributeChangedCallback(attr, _, newValue) {
         if (attr === 'style') {
-            this.placeholderBlocked[attr].cssText = newValue
-            this.updatePlaceholderSize()
+            this.placeholderBlocked[attr].cssText = newValue;
+            this.updatePlaceholderSize();
         }
     }
 }

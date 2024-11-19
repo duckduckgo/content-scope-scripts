@@ -1,31 +1,33 @@
-import { defineConfig, devices } from '@playwright/test'
+/* global process */
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
     projects: [
         {
             name: 'windows',
-            testMatch: [
-                'duckplayer.spec.js',
-                'duckplayer-screenshots.spec.js',
-                'onboarding.spec.js'
-            ],
+            testMatch: ['duckplayer.spec.js', 'duckplayer-screenshots.spec.js', 'onboarding.spec.js'],
             use: {
                 ...devices['Desktop Edge'],
                 injectName: 'windows',
-                platform: 'windows'
-            }
+                platform: 'windows',
+            },
         },
         {
             name: 'integration',
+            // prettier-ignore
             testMatch: [
+                'next-steps.spec.js',
                 'privacy-stats.spec.js',
-                'new-tab.spec.js'
+                'rmf.spec.js',
+                'new-tab.spec.js',
+                'favorites.spec.js',
+                'update-notification.spec.js'
             ],
             use: {
                 ...devices['Desktop Chrome'],
                 injectName: 'integration',
-                platform: 'windows'
-            }
+                platform: 'windows',
+            },
         },
         {
             name: 'macos',
@@ -35,49 +37,41 @@ export default defineConfig({
                 'onboarding.spec.js',
                 'sslerror.spec.js',
                 'release-notes.spec.js',
-                'special-error.spec.js'
+                'special-error.spec.js',
             ],
             use: {
                 ...devices['Desktop Safari'],
                 injectName: 'apple',
-                platform: 'macos'
-            }
+                platform: 'macos',
+            },
         },
         {
             name: 'android',
-            testMatch: [
-                'duckplayer.spec.js',
-                'duckplayer-screenshots.spec.js'
-            ],
+            testMatch: ['duckplayer.spec.js', 'duckplayer-screenshots.spec.js'],
             use: {
                 ...devices['Galaxy S III'],
                 injectName: 'android',
-                platform: 'android'
-            }
+                platform: 'android',
+            },
         },
         {
             name: 'android-landscape',
-            testMatch: [
-                'duckplayer-screenshots.spec.js'
-            ],
+            testMatch: ['duckplayer-screenshots.spec.js', 'duckplayer-telemetry.spec.js'],
             use: {
                 ...devices['Galaxy S III landscape'],
                 injectName: 'android',
-                platform: 'android'
-            }
+                platform: 'android',
+            },
         },
         {
             name: 'ios',
-            testMatch: [
-                'duckplayer.spec.js',
-                'duckplayer-screenshots.spec.js'
-            ],
+            testMatch: ['duckplayer.spec.js', 'duckplayer-screenshots.spec.js'],
             use: {
                 ...devices['iPhone 14'],
                 injectName: 'apple',
-                platform: 'ios'
-            }
-        }
+                platform: 'ios',
+            },
+        },
     ],
     fullyParallel: !process.env.CI,
     /* Don't allow `.only` in CI */
@@ -92,10 +86,10 @@ export default defineConfig({
         command: 'npm run serve',
         port: 3210,
         reuseExistingServer: true,
-        env: process.env
+        env: process.env,
     },
     use: {
         actionTimeout: 5000,
-        trace: 'on-first-retry'
-    }
-})
+        trace: 'on-first-retry',
+    },
+});

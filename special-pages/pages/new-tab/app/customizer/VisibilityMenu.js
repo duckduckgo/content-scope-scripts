@@ -1,9 +1,9 @@
-import { h } from 'preact'
-import { useId } from 'preact/hooks'
+import { h } from 'preact';
+import { useId } from 'preact/hooks';
 
-import { DuckFoot, Shield } from '../components/Icons.js'
-import styles from './VisibilityMenu.module.css'
-import { useTypedTranslation } from '../types.js'
+import { DuckFoot, Shield } from '../components/Icons.js';
+import styles from './VisibilityMenu.module.css';
+import { useTypedTranslation } from '../types.js';
 
 /**
  * @import { Widgets, WidgetConfigItem } from '../../../../types/new-tab.js'
@@ -15,35 +15,32 @@ import { useTypedTranslation } from '../types.js'
  * meta data like translated titles
  *
  * @param {object} props
- * @param {(id: string) => void} props.toggle
  * @param {VisibilityRowData[]} props.rows
- * @param {VisibilityRowState[]} props.state
  */
-export function VisibilityMenu ({ rows, state, toggle }) {
-    const { t } = useTypedTranslation()
-    const MENU_ID = useId()
+export function VisibilityMenu({ rows }) {
+    const { t } = useTypedTranslation();
+    const MENU_ID = useId();
 
     return (
         <div className={styles.dropdownInner}>
             <h2 className="sr-only">{t('widgets_visibility_menu_title')}</h2>
             <ul className={styles.list}>
-                {rows.map((row, index) => {
-                    const current = state[index]
+                {rows.map((row) => {
                     return (
                         <li key={row.id}>
                             <label className={styles.menuItemLabel} htmlFor={MENU_ID + row.id}>
                                 <input
                                     type="checkbox"
-                                    checked={current.checked}
-                                    onChange={() => toggle(row.id)}
+                                    checked={row.visibility === 'visible'}
+                                    onChange={() => row.toggle?.(row.id)}
                                     id={MENU_ID + row.id}
                                     class={styles.checkbox}
                                 />
                                 <span aria-hidden={true} className={styles.checkboxIcon}>
-                                    {current.checked && (
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M3.5 9L6 11.5L12.5 5"
+                                    {row.visibility === 'visible' && (
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M3.5 9L6 11.5L12.5 5"
                                                 stroke="white"
                                                 stroke-width="1.5"
                                                 stroke-linecap="round"
@@ -53,15 +50,15 @@ export function VisibilityMenu ({ rows, state, toggle }) {
                                     )}
                                 </span>
                                 <span className={styles.svg}>
-                                    {row.icon === 'shield' && <DuckFoot/>}
-                                    {row.icon === 'star' && <Shield/>}
+                                    {row.icon === 'shield' && <DuckFoot />}
+                                    {row.icon === 'star' && <Shield />}
                                 </span>
                                 <span>{row.title ?? row.id}</span>
                             </label>
                         </li>
-                    )
+                    );
                 })}
             </ul>
         </div>
-    )
+    );
 }

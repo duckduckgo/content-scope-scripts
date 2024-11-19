@@ -1,7 +1,7 @@
 /**
  * @typedef {import("./iframe").IframeFeature} IframeFeature
  */
-import { getValidVideoTitle } from '../../src/js/utils.js'
+import { getValidVideoTitle } from '../../src/js/utils.js';
 
 /**
  * @implements IframeFeature
@@ -10,45 +10,44 @@ export class TitleCapture {
     /**
      * @param {HTMLIFrameElement} iframe
      */
-    iframeDidLoad (iframe) {
+    iframeDidLoad(iframe) {
         /** @type {(title: string) => void} */
         const setter = (title) => {
-            const validTitle = getValidVideoTitle(title)
+            const validTitle = getValidVideoTitle(title);
             if (validTitle) {
-                document.title = 'Duck Player - ' + validTitle
+                document.title = 'Duck Player - ' + validTitle;
             }
-        }
+        };
 
-        const doc = iframe.contentDocument
-        const win = iframe.contentWindow
+        const doc = iframe.contentDocument;
+        const win = iframe.contentWindow;
 
         if (!doc) {
-            console.log('could not access contentDocument')
-            return () => {}
+            console.log('could not access contentDocument');
+            return () => {};
         }
 
         if (doc.title) {
-            // eslint-disable-next-line n/no-callback-literal
-            setter(doc.title)
+            setter(doc.title);
         }
         if (win && doc) {
-            const titleElem = doc.querySelector('title')
+            const titleElem = doc.querySelector('title');
 
             if (titleElem) {
                 // @ts-expect-error - typescript known about MutationObserver in this context
                 const observer = new win.MutationObserver(function (mutations) {
                     mutations.forEach(function (mutation) {
-                        setter(mutation.target.textContent)
-                    })
-                })
-                observer.observe(titleElem, { childList: true })
+                        setter(mutation.target.textContent);
+                    });
+                });
+                observer.observe(titleElem, { childList: true });
             } else {
-                console.warn('could not access title in iframe')
+                console.warn('could not access title in iframe');
             }
         } else {
-            console.warn('could not access iframe?.contentWindow && iframe?.contentDocument')
+            console.warn('could not access iframe?.contentWindow && iframe?.contentDocument');
         }
 
-        return null
+        return null;
     }
 }

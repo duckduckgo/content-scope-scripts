@@ -1,4 +1,4 @@
-export const baseFeatures = /** @type {const} */([
+export const baseFeatures = /** @type {const} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
@@ -10,66 +10,34 @@ export const baseFeatures = /** @type {const} */([
     'fingerprintingTemporaryStorage',
     'navigatorInterface',
     'elementHiding',
-    'exceptionHandler'
-])
+    'exceptionHandler',
+    'apiManipulation',
+]);
 
-const otherFeatures = /** @type {const} */([
+const otherFeatures = /** @type {const} */ ([
     'clickToLoad',
     'cookie',
+    'messageBridge',
     'duckPlayer',
     'harmfulApis',
     'webCompat',
     'windowsPermissionUsage',
     'brokerProtection',
     'performanceMetrics',
-    'breakageReporting'
-])
+    'breakageReporting',
+    'autofillPasswordImport',
+]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: [
-        'webCompat',
-        ...baseFeatures
-    ],
-    'apple-isolated': [
-        'duckPlayer',
-        'brokerProtection',
-        'performanceMetrics',
-        'clickToLoad'
-    ],
-    android: [
-        ...baseFeatures,
-        'webCompat',
-        'clickToLoad',
-        'breakageReporting',
-        'duckPlayer'
-    ],
-    windows: [
-        'cookie',
-        ...baseFeatures,
-        'windowsPermissionUsage',
-        'duckPlayer',
-        'brokerProtection',
-        'breakageReporting'
-    ],
-    firefox: [
-        'cookie',
-        ...baseFeatures,
-        'clickToLoad'
-    ],
-    chrome: [
-        'cookie',
-        ...baseFeatures,
-        'clickToLoad'
-    ],
-    'chrome-mv3': [
-        'cookie',
-        ...baseFeatures,
-        'clickToLoad'
-    ],
-    integration: [
-        ...baseFeatures,
-        ...otherFeatures
-    ]
-}
+    apple: ['webCompat', ...baseFeatures],
+    'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
+    android: [...baseFeatures, 'webCompat', 'clickToLoad', 'breakageReporting', 'duckPlayer'],
+    'android-autofill-password-import': ['autofillPasswordImport'],
+    windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
+    firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
+    chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
+    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
+    integration: [...baseFeatures, ...otherFeatures],
+};

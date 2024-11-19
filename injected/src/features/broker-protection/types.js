@@ -9,12 +9,12 @@
  */
 export class ErrorResponse {
     /**
-    * @param {object} params
-    * @param {string} params.actionID
-    * @param {string} params.message
-    */
-    constructor (params) {
-        this.error = params
+     * @param {object} params
+     * @param {string} params.actionID
+     * @param {string} params.message
+     */
+    constructor(params) {
+        this.error = params;
     }
 }
 
@@ -48,25 +48,25 @@ export class ProfileResult {
      * @param {HTMLElement} [params.element] - the parent element that was matched. Not present in JSON
      * @param {Record<string, any>} params.scrapedData
      */
-    constructor (params) {
-        this.scrapedData = params.scrapedData
-        this.result = params.result
-        this.score = params.score
-        this.element = params.element
-        this.matchedFields = params.matchedFields
+    constructor(params) {
+        this.scrapedData = params.scrapedData;
+        this.result = params.result;
+        this.score = params.score;
+        this.element = params.element;
+        this.matchedFields = params.matchedFields;
     }
 
     /**
      * Convert this structure into a format that can be sent between JS contexts/native
      * @return {{result: boolean, score: number, matchedFields: string[], scrapedData: Record<string, any>}}
      */
-    asData () {
+    asData() {
         return {
             scrapedData: this.scrapedData,
             result: this.result,
             score: this.score,
-            matchedFields: this.matchedFields
-        }
+            matchedFields: this.matchedFields,
+        };
     }
 }
 
@@ -80,9 +80,9 @@ export class Extractor {
      * @param {import("./actions/extract").ExtractorParams} extractorParams
      * @return {JsonValue}
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    extract (noneEmptyStringArray, extractorParams) {
-        throw new Error('must implement extract')
+
+    extract(noneEmptyStringArray, extractorParams) {
+        throw new Error('must implement extract');
     }
 }
 
@@ -95,8 +95,8 @@ export class AsyncProfileTransform {
      * @param {Record<string, any>} profileParams - the original action params from `action.profile`
      * @return {Promise<Record<string, any>>}
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    transform (profile, profileParams) {
-        throw new Error('must implement extract')
+
+    transform(profile, profileParams) {
+        throw new Error('must implement extract');
     }
 }

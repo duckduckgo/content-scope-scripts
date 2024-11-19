@@ -7,14 +7,14 @@ import { ErrorResponse } from './broker-protection/types.js'
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
  */
 export default class BrokerProtection extends ContentFeature {
-    init () {
-        this.messaging.subscribe('onActionReceived', async (/** @type {any} */params) => {
+    init() {
+        this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             try {
-                const action = params.state.action
-                const data = params.state.data
+                const action = params.state.action;
+                const data = params.state.data;
 
                 if (!action) {
-                    return this.messaging.notify('actionError', { error: 'No action found.' })
+                    return this.messaging.notify('actionError', { error: 'No action found.' });
                 }
 
                 const { results, exceptions } = await this.exec(action, data)
@@ -43,10 +43,10 @@ export default class BrokerProtection extends ContentFeature {
                     return this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') })
                 }
             } catch (e) {
-                console.log('unhandled exception: ', e)
-                this.messaging.notify('actionError', { error: e.toString() })
+                console.log('unhandled exception: ', e);
+                this.messaging.notify('actionError', { error: e.toString() });
             }
-        })
+        });
     }
 
     /**

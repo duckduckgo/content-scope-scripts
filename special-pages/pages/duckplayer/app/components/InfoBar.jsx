@@ -1,43 +1,41 @@
-import styles from "./InfoBar.module.css"
-import { h } from "preact";
-import dax from "../img/dax.data.svg"
-import info from "../img/info.data.svg"
-import cog from "../img/cog.data.svg"
-import { Button, ButtonLink, Icon } from "./Button.jsx";
-import { SwitchBarDesktop } from "./SwitchBarDesktop.jsx";
-import { useOpenOnYoutubeHandler, useSettingsUrl } from "../providers/SettingsProvider.jsx";
-import { useContext, useLayoutEffect, useRef, useState } from "preact/hooks";
-import { SwitchContext, SwitchProvider } from "../providers/SwitchProvider.jsx";
-import { Tooltip } from "./Tooltip.jsx";
-import { useSetFocusMode } from "./FocusMode.jsx";
-import { useTypedTranslation } from "../types.js";
+import styles from './InfoBar.module.css';
+import { h } from 'preact';
+import dax from '../img/dax.data.svg';
+import info from '../img/info.data.svg';
+import cog from '../img/cog.data.svg';
+import { Button, ButtonLink, Icon } from './Button.jsx';
+import { SwitchBarDesktop } from './SwitchBarDesktop.jsx';
+import { useOpenOnYoutubeHandler, useSettingsUrl } from '../providers/SettingsProvider.jsx';
+import { useContext, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { SwitchContext, SwitchProvider } from '../providers/SwitchProvider.jsx';
+import { Tooltip } from './Tooltip.jsx';
+import { useSetFocusMode } from './FocusMode.jsx';
+import { useTypedTranslation } from '../types.js';
 
 /**
  * @param {object} props
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
-export function InfoBar({embed}) {
+export function InfoBar({ embed }) {
     return (
         <div class={styles.infoBar}>
             <div class={styles.lhs}>
                 <div class={styles.dax}>
-                    <img src={dax} class={styles.img}/>
+                    <img src={dax} class={styles.img} />
                 </div>
-                <div class={styles.text}>
-                    Duck Player
-                </div>
+                <div class={styles.text}>Duck Player</div>
                 <InfoIcon />
             </div>
             <div class={styles.rhs}>
                 <SwitchProvider>
                     <div class={styles.switch}>
-                            <SwitchBarDesktop />
+                        <SwitchBarDesktop />
                     </div>
                     <ControlBarDesktop embed={embed} />
                 </SwitchProvider>
             </div>
         </div>
-    )
+    );
 }
 
 /**
@@ -54,92 +52,88 @@ export function InfoIcon({ debugStyles = false }) {
     const tooltipRef = useRef(null);
 
     function show() {
-        setIsVisible(true)
-        setFocusMode('paused')
+        setIsVisible(true);
+        setFocusMode('paused');
     }
     function hide() {
-        setIsVisible(false)
-        setFocusMode('enabled')
+        setIsVisible(false);
+        setFocusMode('enabled');
     }
 
     useLayoutEffect(() => {
         if (!tooltipRef.current) return;
         const icon = tooltipRef.current;
-        const rect = icon.getBoundingClientRect()
+        const rect = icon.getBoundingClientRect();
 
-        const iconTop = rect.top + window.scrollY
-        const spaceBelowIcon = window.innerHeight - iconTop
+        const iconTop = rect.top + window.scrollY;
+        const spaceBelowIcon = window.innerHeight - iconTop;
 
         if (spaceBelowIcon < 125) {
-            return setIsBottom(false)
+            return setIsBottom(false);
         }
 
-        return setIsBottom(true)
+        return setIsBottom(true);
     }, [isVisible]);
 
     return (
-        <button className={styles.info}
-                aria-describedby="tooltip1"
-                aria-expanded={isVisible}
-                aria-label="Info"
-                onMouseEnter={show}
-                onMouseLeave={hide}
-                onFocus={show} // for keyboard accessibility
-                onBlur={hide} // for keyboard accessibility
-                ref={tooltipRef}
+        <button
+            className={styles.info}
+            aria-describedby="tooltip1"
+            aria-expanded={isVisible}
+            aria-label="Info"
+            onMouseEnter={show}
+            onMouseLeave={hide}
+            onFocus={show} // for keyboard accessibility
+            onBlur={hide} // for keyboard accessibility
+            ref={tooltipRef}
         >
-            <Icon src={info}/>
-            <Tooltip
-                id="tooltip1"
-                isVisible={isVisible}
-                position={isBottom ? 'bottom' : 'top'}
-            />
+            <Icon src={info} />
+            <Tooltip id="tooltip1" isVisible={isVisible} position={isBottom ? 'bottom' : 'top'} />
         </button>
-    )
+    );
 }
 
 /**
  * @param {object} props
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
-function ControlBarDesktop({embed}) {
-    const settingsUrl = useSettingsUrl()
+function ControlBarDesktop({ embed }) {
+    const settingsUrl = useSettingsUrl();
     const openOnYoutube = useOpenOnYoutubeHandler();
-    const {t} = useTypedTranslation();
+    const { t } = useTypedTranslation();
     const { state } = useContext(SwitchContext);
     return (
         <div className={styles.controls}>
             <ButtonLink
-                formfactor={"desktop"}
+                formfactor={'desktop'}
                 icon={true}
                 highlight={state === 'exiting'}
                 anchorProps={{
-                    "href": settingsUrl,
+                    href: settingsUrl,
                     target: '_blank',
-                    "aria-label": t('openSettingsButton')
+                    'aria-label': t('openSettingsButton'),
                 }}
-            ><Icon src={cog}/></ButtonLink>
+            >
+                <Icon src={cog} />
+            </ButtonLink>
             <Button
-                formfactor={"desktop"}
+                formfactor={'desktop'}
                 buttonProps={{
                     onClick: () => {
-                        if (embed) openOnYoutube(embed)
-                    }
+                        if (embed) openOnYoutube(embed);
+                    },
                 }}
-            >{t('watchOnYoutube')}</Button>
+            >
+                {t('watchOnYoutube')}
+            </Button>
         </div>
-    )
+    );
 }
 
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  */
-export function InfoBarContainer({children}) {
-    return (
-        <div class={styles.container}>
-            {children}
-        </div>
-    )
+export function InfoBarContainer({ children }) {
+    return <div class={styles.container}>{children}</div>;
 }
-

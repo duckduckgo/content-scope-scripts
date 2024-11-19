@@ -1,8 +1,8 @@
-import { PIP } from './pip.js'
-import { AutoFocus } from './autofocus.js'
-import { ClickCapture } from './click-capture.js'
-import { TitleCapture } from './title-capture.js'
-import { MouseCapture } from './mouse-capture.js'
+import { PIP } from './pip.js';
+import { AutoFocus } from './autofocus.js';
+import { ClickCapture } from './click-capture.js';
+import { TitleCapture } from './title-capture.js';
+import { MouseCapture } from './mouse-capture.js';
 
 /**
  * Represents an individual piece of functionality in the iframe.
@@ -14,17 +14,19 @@ export class IframeFeature {
      * @param {HTMLIFrameElement} iframe
      * @returns {(() => void) | null}
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    iframeDidLoad (iframe) {
+
+    iframeDidLoad(iframe) {
         return () => {
-            console.log('teardown')
-        }
+            console.log('teardown');
+        };
     }
 
-    static noop () {
+    static noop() {
         return {
-            iframeDidLoad: () => { return () => {} }
-        }
+            iframeDidLoad: () => {
+                return () => {};
+            },
+        };
     }
 }
 
@@ -35,42 +37,42 @@ export class IframeFeature {
  * @param {import("../settings").Settings} settings
  * @returns {Record<string, () => IframeFeature>}
  */
-export function createIframeFeatures (settings) {
+export function createIframeFeatures(settings) {
     return {
         /**
          * @return {IframeFeature}
          */
         pip: () => {
             if (settings.pip.state === 'enabled') {
-                return new PIP()
+                return new PIP();
             }
-            return IframeFeature.noop()
+            return IframeFeature.noop();
         },
         /**
          * @return {IframeFeature}
          */
         autofocus: () => {
-            return new AutoFocus()
+            return new AutoFocus();
         },
         /**
          * @return {IframeFeature}
          */
         clickCapture: () => {
             return new ClickCapture({
-                baseUrl: settings.youtubeBase
-            })
+                baseUrl: settings.youtubeBase,
+            });
         },
         /**
          * @return {IframeFeature}
          */
         titleCapture: () => {
-            return new TitleCapture()
+            return new TitleCapture();
         },
         /**
          * @return {IframeFeature}
          */
         mouseCapture: () => {
-            return new MouseCapture()
-        }
-    }
+            return new MouseCapture();
+        },
+    };
 }

@@ -13,10 +13,10 @@ export class MouseCapture {
     /**
      * @param {HTMLIFrameElement} iframe
      */
-    iframeDidLoad (iframe) {
+    iframeDidLoad(iframe) {
         iframe.contentDocument?.addEventListener('mousemove', () => {
-            window.dispatchEvent(new Event('iframe-mousemove'))
-        })
-        return null
+            window.dispatchEvent(new Event('iframe-mousemove'));
+        });
+        return null;
     }
 }

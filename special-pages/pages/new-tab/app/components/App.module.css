@@ -8,15 +8,26 @@ body {
     font-size: var(--body-font-size);
     font-weight: var(--body-font-weight);
     line-height: var(--body-line-height);
-    padding-left: var(--sp-6);
-    padding-right: var(--sp-6);
 }
 
 .layout {
     padding-top: var(--sp-16);
     padding-bottom: var(--sp-16);
-    max-width: calc(504 * var(--px-in-rem));
     margin-left: auto;
     margin-right: auto;
 }
 
+body:has([data-reset-layout="true"]) .layout {
+    padding-top: 0;
+}
+
+:global(.layout-centered) {
+    margin-inline: auto;
+    width: 100%;
+    max-width: calc(504 * var(--px-in-rem));
+}
+
+/** Don't affect layout if empty (eg: if a widget was toggled) **/
+:global(.layout-centered:empty) {
+    display: contents;
+}

@@ -1,29 +1,35 @@
 /**
  * @module Android integration
  */
-import { load, init } from '../src/content-scope-features.js'
-import { processConfig, isGloballyDisabled } from './../src/utils'
-import { isTrackerOrigin } from '../src/trackers'
-import { AndroidMessagingConfig } from '../../messaging/index.js'
+import { load, init } from '../src/content-scope-features.js';
+import { processConfig, isGloballyDisabled } from './../src/utils';
+import { isTrackerOrigin } from '../src/trackers';
+import { AndroidMessagingConfig } from '../../messaging/index.js';
 
-function initCode () {
+function initCode() {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
+    const config = $CONTENT_SCOPE$;
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+    const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+    const userPreferences = $USER_PREFERENCES$;
+
+    const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences);
     if (isGloballyDisabled(processedConfig)) {
-        return
+        return;
     }
 
-    const configConstruct = processedConfig
-    const messageCallback = configConstruct.messageCallback
-    const messageSecret = configConstruct.messageSecret
-    const javascriptInterface = configConstruct.javascriptInterface
+    const configConstruct = processedConfig;
+    const messageCallback = configConstruct.messageCallback;
+    const messageSecret = configConstruct.messageSecret;
+    const javascriptInterface = configConstruct.javascriptInterface;
     processedConfig.messagingConfig = new AndroidMessagingConfig({
         messageSecret,
         messageCallback,
         javascriptInterface,
         target: globalThis,
-        debug: processedConfig.debug
-    })
+        debug: processedConfig.debug,
+    });
 
     load({
         platform: processedConfig.platform,
@@ -31,10 +37,10 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig
-    })
+        messagingConfig: processedConfig.messagingConfig,
+    });
 
-    init(processedConfig)
+    init(processedConfig);
 }
 
-initCode()
+initCode();

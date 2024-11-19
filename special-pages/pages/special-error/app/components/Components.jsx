@@ -1,51 +1,51 @@
-import { h } from "preact";
-import { usePlatformName } from "../providers/SettingsProvider";
-import { useErrorData } from "../providers/SpecialErrorProvider";
-import { Warning, WarningHeading, WarningContent, AdvancedInfoButton, LeaveSiteButton } from "./Warning";
-import { AdvancedInfo, AdvancedInfoHeading, AdvancedInfoContent, VisitSiteLink } from "./AdvancedInfo";
-import { SpecialErrorView } from "./App";
-import { sampleData } from "../../src/js/sampleData";
+import { h } from 'preact';
+import { usePlatformName } from '../providers/SettingsProvider';
+import { useErrorData } from '../providers/SpecialErrorProvider';
+import { Warning, WarningHeading, WarningContent, AdvancedInfoButton, LeaveSiteButton } from './Warning';
+import { AdvancedInfo, AdvancedInfoHeading, AdvancedInfoContent, VisitSiteLink } from './AdvancedInfo';
+import { SpecialErrorView } from './App';
+import { sampleData } from '../../src/js/sampleData';
 
-import styles from "./Components.module.css";
+import styles from './Components.module.css';
 
 /** @type {Record<Extract<import("../../../../types/special-error.js").InitialSetupResponse['platform']['name'], "macos"|"ios">, string>} */
 const platforms = {
-    'macos': 'macOS',
-    'ios': 'iOS'
-}
+    macos: 'macOS',
+    ios: 'iOS',
+};
 
 /**
  * @param {import("../../../../types/special-error.js").InitialSetupResponse['errorData']} errorData
  */
 function idForError(errorData) {
-    const { kind } = errorData
+    const { kind } = errorData;
     if (kind === 'phishing') {
-        return kind
+        return kind;
     }
 
-    const { errorType } = errorData
-    return `${kind}.${errorType}`
+    const { errorType } = errorData;
+    return `${kind}.${errorType}`;
 }
 
 export function Components() {
-    const platformName = usePlatformName()
-    const errorData = useErrorData()
+    const platformName = usePlatformName();
+    const errorData = useErrorData();
 
     const handlePlatformChange = (value) => {
         if (Object.keys(platforms).includes(value)) {
-            const url = new URL(window.location.href)
-            url.searchParams.set('platform', value)
-            window.location.href = url.toString()
+            const url = new URL(window.location.href);
+            url.searchParams.set('platform', value);
+            window.location.href = url.toString();
         }
-    }
+    };
 
     const handleErrorTypeChange = (value) => {
         if (Object.keys(sampleData).includes(value)) {
-            const url = new URL(window.location.href)
-            url.searchParams.set('errorId', value)
-            window.location.href = url.toString()
+            const url = new URL(window.location.href);
+            url.searchParams.set('errorId', value);
+            window.location.href = url.toString();
         }
-    }
+    };
 
     return (
         <div>
@@ -54,7 +54,11 @@ export function Components() {
                     <label for="platform-select">Platform:</label>
                     <select id="platform-select" onChange={(e) => handlePlatformChange(e.currentTarget?.value)}>
                         {Object.entries(platforms).map(([id, name]) => {
-                            return <option value={id} selected={id === platformName}>{name}</option>
+                            return (
+                                <option value={id} selected={id === platformName}>
+                                    {name}
+                                </option>
+                            );
                         })}
                     </select>
                 </fieldset>
@@ -62,7 +66,11 @@ export function Components() {
                     <label for="error-select">Error Type:</label>
                     <select id="error-select" onChange={(e) => handleErrorTypeChange(e.currentTarget?.value)}>
                         {Object.entries(sampleData).map(([id, data]) => {
-                            return <option value={id} selected={id === idForError(errorData)}>{data.name}</option>
+                            return (
+                                <option value={id} selected={id === idForError(errorData)}>
+                                    {data.name}
+                                </option>
+                            );
                         })}
                     </select>
                 </fieldset>
@@ -108,7 +116,7 @@ export function Components() {
                 <section>
                     <h2>Advanced Info Button</h2>
                     <div>
-                        <AdvancedInfoButton onClick={() => {}}/>
+                        <AdvancedInfoButton onClick={() => {}} />
                     </div>
                 </section>
 
@@ -122,7 +130,7 @@ export function Components() {
                 <section>
                     <h2>Warning</h2>
                     <div>
-                        <Warning advancedInfoVisible={false} advancedButtonHandler={() => {}}/>
+                        <Warning advancedInfoVisible={false} advancedButtonHandler={() => {}} />
                     </div>
                 </section>
 
@@ -141,5 +149,5 @@ export function Components() {
                 </section>
             </main>
         </div>
-    )
+    );
 }
