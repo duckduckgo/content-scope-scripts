@@ -138,7 +138,7 @@ export function Body({ trackerCompanies, listAttrs = {} }) {
     const [formatter] = useState(() => new Intl.NumberFormat());
 
     return (
-        <ul {...listAttrs} class={styles.list}>
+        <ul {...listAttrs} class={styles.list} data-testid="CompanyList">
             {trackerCompanies.map((company) => {
                 const percentage = Math.min((company.count * 100) / max, 100);
                 const valueOrMin = Math.max(percentage, 10);

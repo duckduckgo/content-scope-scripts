@@ -1,4 +1,7 @@
-// todo: add schema for types here.
+/**
+ * @import { PrivacyStatsData } from "../../../../../types/new-tab";
+ * @type {Record<string, PrivacyStatsData>}
+ */
 export const stats = {
     few: {
         totalCount: 481_113,
@@ -24,7 +27,6 @@ export const stats = {
                 count: 210,
             },
         ],
-        trackerCompaniesPeriod: 'last-day',
     },
     single: {
         totalCount: 481_113,
@@ -34,16 +36,13 @@ export const stats = {
                 count: 1,
             },
         ],
-        trackerCompaniesPeriod: 'last-day',
     },
     norecent: {
         totalCount: 481_113,
         trackerCompanies: [],
-        trackerCompaniesPeriod: 'last-day',
     },
     none: {
         totalCount: 0,
         trackerCompanies: [],
-        trackerCompaniesPeriod: 'last-day',
     },
 };
