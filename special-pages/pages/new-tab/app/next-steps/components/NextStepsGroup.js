@@ -4,7 +4,7 @@ import styles from './NextSteps.module.css';
 import { useTypedTranslation } from '../../types';
 import { NextStepsCard } from './NextStepsCard';
 import { otherText } from '../nextsteps.data';
-import { ShowHideButtonWithText } from './ShowHideButtonWithText';
+import { ShowHideButtonWithText } from './ShowHideButtonText';
 import { useId } from 'preact/hooks';
 
 /**
