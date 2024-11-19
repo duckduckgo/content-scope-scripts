@@ -31,7 +31,7 @@
         text-decoration: underline;
     }
     @media screen and (prefers-color-scheme: dark) {
-        color: white;
+        color: var(--color-white);
         text-decoration: underline;
 
         &:hover {
@@ -78,7 +78,7 @@
     width: 24px;
     padding: 0;
     background-color: var(--ntp-background-color);
-    color: var(--color-black-at-60);
+    color: var(--ntp-text-muted);
     border: none;
     border-radius: 50%;
     position: relative;
@@ -94,7 +94,7 @@
 
     &:active {
         background-color: var(--color-black-at-18);
-        color: var(--color-black-at-84);
+        color: var(--ntp-text-normal);
     }
 
     &:hover {
@@ -107,15 +107,12 @@
     }
 
     @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-60);
-
         &:hover {
             background-color: var(--color-white-at-9);
         }
 
         &:active {
             background-color: var(--color-white-at-18);
-            color: var(--color-white-at-84);
         }
     }
 }

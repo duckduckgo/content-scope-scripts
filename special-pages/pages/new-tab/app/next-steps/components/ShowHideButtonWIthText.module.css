@@ -6,7 +6,7 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    color: var(--color-black-at-60);
+    color: var(--ntp-text-muted);
     height: var(--sp-8);
     width: 100%;
     line-height: var(--sp-8);
@@ -39,8 +39,6 @@
     }
 
     @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-60);
-
         span {
             border-bottom-color: var(--color-white-at-24);
         }

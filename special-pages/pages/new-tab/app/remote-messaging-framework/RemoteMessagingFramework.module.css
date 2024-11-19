@@ -8,7 +8,7 @@
     justify-content: flex-start;
     align-items: flex-start;
     font-family: system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto;
-    color: var(--color-black);
+    color: var(--ntp-text-normal);
     width: 100%;
     animation: animate-fade .2s cubic-bezier(0.55, 0.055, 0.666, 0.19);
 
@@ -19,7 +19,6 @@
 
     @media screen and (prefers-color-scheme: dark) {
         background-color: var(--color-white-at-6);
-        color: var(--color-white-at-84);
     }
 }
 
