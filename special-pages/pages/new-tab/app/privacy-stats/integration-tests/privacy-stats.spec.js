@@ -14,5 +14,13 @@ test.describe('newtab privacy stats', () => {
         expect(calls1.length).toBe(1);
         expect(calls2.length).toBe(1);
         expect(calls3.length).toBe(1);
+
+        const listItems = page.getByTestId('CompanyList').locator('li');
+        expect(await listItems.count()).toBe(5);
+        expect(await listItems.nth(0).textContent()).toBe('Facebook310');
+        expect(await listItems.nth(1).textContent()).toBe('Google279');
+        expect(await listItems.nth(2).textContent()).toBe('Amazon67');
+        expect(await listItems.nth(3).textContent()).toBe('Google Ads2');
+        expect(await listItems.nth(4).textContent()).toBe('Other210');
     });
 });

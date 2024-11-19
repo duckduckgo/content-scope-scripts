@@ -4,9 +4,10 @@
 const privacyStatsData = {
     totalCount: 12345,
     trackerCompanies: [
-        { displayName: 'Tracker Co. A', count: 1234 },
-        { displayName: 'Tracker Co. B', count: 5678 },
         { displayName: 'Tracker Co. C', count: 91011 },
+        { displayName: 'Tracker Co. A', count: 1234 },
+        { displayName: '__other__', count: 89901 },
+        { displayName: 'Tracker Co. B', count: 5678 },
     ],
 };
 
