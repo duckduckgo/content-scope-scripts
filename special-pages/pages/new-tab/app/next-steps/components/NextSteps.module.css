@@ -142,16 +142,6 @@
         align-items: center;
         justify-content: center;
     }
-
-    @media screen and (prefers-color-scheme: dark) {
-        svg path {
-            fill: var(--color-blue-30);
-        }
-
-        div {
-            background-color: var(--color-blue-30);
-        }
-    }
 }
 
 
