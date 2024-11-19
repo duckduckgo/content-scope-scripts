@@ -30,6 +30,27 @@ title: Privacy Stats
       }
       ```
 
-## Examples:
-The following examples show the data types in JSON format:
+## Example:
+
+Note: The frontend will re-order the list based on the following two rules:
+
+* First, descending order, from the highest count to lowest
+* Second, the special entry `__other__` will always be placed at the end.
+
+So, the following input is fine, no need for the native side to put the list into any order 
+
+```json
+{
+  "totalCount": 12345,
+  "trackerCompanies": [
+    { "displayName": "__other__", "count": 89901 },
+    { "displayName": "Tracker Co. C", "count": 91011 },
+    { "displayName": "Tracker Co. A", "count": 1234 },
+    { "displayName": "Tracker Co. B", "count": 5678 }
+  ]
+}
+```
+
+The following examples show the data types in JSON format (these are type-checked, so can be replied upon)
 [messages/new-tab/examples/stats.js](../../../../messages/new-tab/examples/stats.js)
+
