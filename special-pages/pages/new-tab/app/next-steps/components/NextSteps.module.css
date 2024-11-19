@@ -108,6 +108,12 @@
     height: 100%;
     width: 100%;
     position: relative;
+
+    &:hover {
+        .showhide {
+            opacity: 1;
+        }
+    }
 }
 
 .cardGrid {
@@ -157,12 +163,11 @@
 
 .showhide {
     height: var(--sp-8);
+    opacity: 0;
 
     &:focus-within,
     &:hover {
-        &.showhideVisible [aria-controls] {
-            opacity: 1;
-        }
+        opacity: 1;
     }
 }
 
