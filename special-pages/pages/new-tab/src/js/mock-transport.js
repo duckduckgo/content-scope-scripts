@@ -254,6 +254,33 @@ export function mockTransport() {
 
                     return () => controller.abort();
                 }
+                case 'stats_onDataUpdate': {
+                    const statsVariant = url.searchParams.get('stats');
+                    if (statsVariant !== 'willUpdate') return () => {};
+
+                    const count = url.searchParams.get('stats-update-count');
+                    const max = Math.min(parseInt(count || '0'), 10);
+                    if (max === 0) return () => {};
+
+                    let inc = 1;
+                    const int = setInterval(() => {
+                        if (inc === max) return clearInterval(int);
+                        const next = {
+                            ...stats.willUpdate,
+                            trackerCompanies: stats.willUpdate.trackerCompanies.map((x, index) => {
+                                return {
+                                    ...x,
+                                    count: x.count + inc * index,
+                                };
+                            }),
+                        };
+                        cb(next);
+                        inc++;
+                    }, 500);
+                    return () => {
+                        clearInterval(int);
+                    };
+                }
                 case 'favorites_onConfigUpdate': {
                     const controller = new AbortController();
                     channel.addEventListener(

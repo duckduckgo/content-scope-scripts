@@ -137,10 +137,10 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
  */
 // eslint-disable-next-line no-redeclare
 export function Body({ trackerCompanies, listAttrs = {} }) {
-    const max = trackerCompanies[0]?.count ?? 0;
     const { t } = useTypedTranslation();
     const [formatter] = useState(() => new Intl.NumberFormat());
     const sorted = sortStatsForDisplay(trackerCompanies);
+    const max = sorted[0]?.count ?? 0;
 
     return (
         <ul {...listAttrs} class={styles.list} data-testid="CompanyList">
