@@ -109,18 +109,19 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
             </span>
             {none && <p className={styles.title}>{t('trackerStatsNoRecent')}</p>}
             {some && <p className={styles.title}>{alltimeTitle}</p>}
-            <span className={styles.expander}>
-                <ShowHideButton
-                    buttonAttrs={{
-                        ...buttonAttrs,
-                        hidden: trackerCompanies.length === 0,
-                        'aria-expanded': expansion === 'expanded',
-                        'aria-pressed': expansion === 'expanded',
-                    }}
-                    onClick={onToggle}
-                    text={expansion === 'expanded' ? t('trackerStatsHideLabel') : t('trackerStatsToggleLabel')}
-                />
-            </span>
+            {recent > 0 && (
+                <span className={styles.expander}>
+                    <ShowHideButton
+                        buttonAttrs={{
+                            ...buttonAttrs,
+                            'aria-expanded': expansion === 'expanded',
+                            'aria-pressed': expansion === 'expanded',
+                        }}
+                        onClick={onToggle}
+                        text={expansion === 'expanded' ? t('trackerStatsHideLabel') : t('trackerStatsToggleLabel')}
+                    />
+                </span>
+            )}
             <p className={styles.subtitle}>
                 {recent === 0 && t('trackerStatsNoActivity')}
                 {recent > 0 && recentTitle}

@@ -5,7 +5,7 @@ test.describe('newtab privacy stats', () => {
     test('fetches config + stats', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage();
+        await ntp.openPage({ stats: 'few' });
 
         const calls1 = await ntp.mocks.waitForCallCount({ method: 'initialSetup', count: 1 });
         const calls2 = await ntp.mocks.waitForCallCount({ method: 'stats_getData', count: 1 });
@@ -22,5 +22,17 @@ test.describe('newtab privacy stats', () => {
         expect(await listItems.nth(2).textContent()).toBe('Amazon67');
         expect(await listItems.nth(3).textContent()).toBe('Google Ads2');
         expect(await listItems.nth(4).textContent()).toBe('Other210');
+
+        // show/hide
+        await page.getByLabel('Hide recent activity').click();
+        await page.getByLabel('Show recent activity').click();
+    });
+    test('hiding the expander when empty', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ stats: 'none' });
+        await page.getByText('No recent tracking activity').waitFor();
+        await expect(page.getByLabel('Hide recent activity')).not.toBeVisible();
+        await expect(page.getByLabel('Show recent activity')).not.toBeVisible();
     });
 });

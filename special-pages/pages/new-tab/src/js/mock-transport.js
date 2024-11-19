@@ -280,6 +280,10 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'stats_getData': {
+                    const statsVariant = url.searchParams.get('stats');
+                    if (statsVariant && statsVariant in stats) {
+                        return Promise.resolve(stats[statsVariant]);
+                    }
                     return Promise.resolve(stats.few);
                 }
                 case 'stats_getConfig': {
