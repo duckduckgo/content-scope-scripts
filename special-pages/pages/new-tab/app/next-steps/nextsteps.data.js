@@ -40,7 +40,7 @@ export const variants = {
         actionText: t('nextSteps_duckPlayer_actionText'),
     }),
     /** @param {(translationId: string) => string} t */
-    addAppDockMac: (t) => ({
+    addAppToDockMac: (t) => ({
         id: 'addAppToDockMac',
         icon: 'Dock-Add-Mac',
         title: t('nextSteps_addAppDockMac_title'),
