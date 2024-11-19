@@ -30,7 +30,6 @@ export class NewtabPage {
             initialSetup: {
                 widgets: [{ id: 'rmf' }, { id: 'nextSteps' }, { id: 'favorites' }, { id: 'privacyStats' }],
                 widgetConfigs: [
-                    { id: 'rmf', visibility: 'visible' },
                     { id: 'nextSteps', visibility: 'visible' },
                     { id: 'favorites', visibility: 'visible' },
                     { id: 'privacyStats', visibility: 'visible' },
