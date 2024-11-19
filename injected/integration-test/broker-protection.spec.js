@@ -396,7 +396,7 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('conditional clicks - hard-coded success', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use)
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-hard-coded-success.json')
@@ -407,7 +407,7 @@ test.describe('Broker Protection communications', () => {
         })
 
         test('conditional clicks - hard-coded default', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use)
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-hard-coded-default.json')
@@ -418,7 +418,7 @@ test.describe('Broker Protection communications', () => {
         })
 
         test('conditional clicks - do not throw error on defined (but empty) default', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use)
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-hard-coded-null-default.json')
@@ -428,7 +428,7 @@ test.describe('Broker Protection communications', () => {
         })
 
         test('conditional clicks - throw error if default is undefined', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use)
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-hard-coded-undefined-default.json')
@@ -438,7 +438,7 @@ test.describe('Broker Protection communications', () => {
         })
 
         test('conditional clicks - interpolated success', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use)
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-interpolated-success.json')
@@ -449,7 +449,7 @@ test.describe('Broker Protection communications', () => {
         })
 
         test('conditional clicks - interpolated default', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use)
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
             await dbp.receivesAction('conditional-clicks-interpolated-default.json')
@@ -589,7 +589,7 @@ test.describe('Broker Protection communications', () => {
     });
 
     test('expectation with conditional subaction', async ({ page }, workerInfo) => {
-        const dbp = BrokerProtectionPage.create(page, workerInfo)
+        const dbp = BrokerProtectionPage.create(page, workerInfo.project.use)
         await dbp.enabled()
         await dbp.navigatesTo('expectation-actions.html')
         await dbp.receivesAction('expectation-actions-conditional-subaction.json')
