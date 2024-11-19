@@ -122,7 +122,7 @@
     justify-content: flex-start;
     align-items: flex-start;
     position: absolute;
-    top: calc(-26 * var(--px-in-rem));
+    top: calc(-22 * var(--px-in-rem));
     left: 0;
 
     svg path {
