@@ -618,7 +618,6 @@ describe('Actions', () => {
                     fc.object(),
                     fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer())),
                     (input, action, userData) => {
-<<<<<<< HEAD
                         const output = processTemplateStringWithUserData(input, /** @type {any} */(action), userData)
                         expect(typeof output).toEqual('string')
                     }
@@ -653,16 +652,6 @@ describe('Actions', () => {
         })
     })
 })
-=======
-                        const output = processTemplateStringWithUserData(input, /** @type {any} */ (action), userData);
-                        expect(typeof output).toEqual('string');
-                    },
-                ),
-            );
-        });
-    });
-});
->>>>>>> main
 
 describe('generators', () => {
     describe('generateRandomPhoneNumber', () => {
