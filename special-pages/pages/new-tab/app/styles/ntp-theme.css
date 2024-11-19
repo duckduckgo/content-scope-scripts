@@ -27,6 +27,8 @@
     --border-radius-md: 8px;
     --border-radius-sm: 6px;
     --border-radius-xs: 4px;
+    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
+    --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
 
 
     @media (prefers-color-scheme: dark) {
@@ -38,6 +40,7 @@
         --ntp-color-primary: var(--color-blue-30);
         --ntp-text-on-primary: var(--color-black-at-84);
         --ntp-focus-outline-color: white;
+        --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     }
 }
 

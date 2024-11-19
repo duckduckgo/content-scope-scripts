@@ -36,7 +36,8 @@
     }
 
     &:focus-visible {
-        outline: 1px dotted var(--ntp-focus-outline-color);
+        box-shadow: var(--focus-ring);
+        outline: none;
     }
 
     &:hover {

@@ -1,4 +1,4 @@
-import styles from './ShowHide.module.css';
+import styles from './ShowHideButtonWithText.module.css';
 import { Chevron } from '../../components/Icons';
 import { h } from 'preact';
 

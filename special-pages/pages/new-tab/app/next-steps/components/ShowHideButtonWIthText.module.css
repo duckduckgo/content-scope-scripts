@@ -31,11 +31,11 @@
     }
 
     &[aria-pressed=true] .icon {
-        transform: rotate(180deg);
+        transform: rotate(-180deg);
     }
 
     &:focus-visible {
-        outline: 1px dotted var(--ntp-focus-outline-color);
+        box-shadow: var(--focus-ring-thin);
     }
 
     @media screen and (prefers-color-scheme: dark) {

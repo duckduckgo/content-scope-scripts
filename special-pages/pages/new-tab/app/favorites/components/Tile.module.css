@@ -10,7 +10,7 @@
     outline: none;
 
     &:focus-visible .icon {
-        outline: 1px dotted var(--ntp-focus-outline-color);
+        box-shadow: var(--focus-ring);
     }
 }
 

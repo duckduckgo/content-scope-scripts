@@ -25,24 +25,36 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
     const { t } = useTypedTranslation();
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
+    const alwaysShown = types.length >= 2 ? types.slice(0, 2) : types;
 
-    const shownCards = expansion === 'expanded' ? types : types.slice(0, 2);
     return (
         <div class={cn(styles.cardGroup)} id={WIDGET_ID}>
             <NextStepsBubbleHeader />
             <div class={styles.cardGrid}>
-                {shownCards.map((type) => (
+                {alwaysShown.map((type) => (
                     <NextStepsCard key={type} type={type} dismiss={dismiss} action={action} />
                 ))}
+                {expansion === 'expanded' &&
+                    types.length > 2 &&
+                    types.slice(2).map((type) => (
+                        <NextStepsCard
+                            key={type}
+                            type={type}
+                            dismiss={dismiss}
+                            action={action}
+                            className={styles.additional}
+                            // className={cn(expansion === 'collapsed' && i > 1 && styles.collapsed)}
+                        />
+                    ))}
             </div>
 
-            <div
-                className={cn({
-                    [styles.showhide]: types.length > 2,
-                    [styles.showhideVisible]: types.length > 2,
-                })}
-            >
-                {types.length > 2 && (
+            {types.length > 2 && (
+                <div
+                    className={cn({
+                        [styles.showhide]: types.length > 2,
+                        [styles.showhideVisible]: types.length > 2,
+                    })}
+                >
                     <ShowHideButtonWithText
                         buttonAttrs={{
                             'aria-expanded': expansion === 'expanded',
@@ -53,8 +65,8 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
                         text={expansion === 'expanded' ? otherText.showLess(t) : otherText.showMore(t)}
                         onClick={toggle}
                     />
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }

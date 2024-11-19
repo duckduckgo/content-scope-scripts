@@ -25,7 +25,7 @@
         text-decoration: underline;
     }
     &:focus {
-        outline: none
+        outline: none;
     }
     &:hover {
         text-decoration: underline;
@@ -38,7 +38,7 @@
             text-decoration: none;
         }
         &:focus-visible {
-            outline: 1px dotted var(--ntp-focus-outline-color);
+            box-shadow: var(--focus-ring);
             border-radius: var(--border-radius-xs);
             text-decoration: none;
         }
