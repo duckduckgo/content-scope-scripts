@@ -111,12 +111,12 @@ export async function init(messaging, telemetry, baseEnvironment) {
                         <TelemetryContext.Provider value={telemetry}>
                             <SettingsProvider settings={settings}>
                                 <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
-                                <WidgetConfigProvider
-                                    api={widgetConfigAPI}
-                                    widgetConfigs={init.widgetConfigs}
-                                    widgets={init.widgets}
-                                    entryPoints={entryPoints}
-                                >
+                                    <WidgetConfigProvider
+                                        api={widgetConfigAPI}
+                                        widgetConfigs={init.widgetConfigs}
+                                        widgets={init.widgets}
+                                        entryPoints={entryPoints}
+                                    >
                                         <App />
                                     </WidgetConfigProvider>
                                 </TranslationProvider>

@@ -12,7 +12,7 @@ export function DebugCustomized({ index }) {
         id: 'debug',
         icon: 'shield',
         visibility: isOpen ? 'visible' : 'hidden',
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
         toggle: (_id) => setOpen((prev) => !prev),
         index,
     });
@@ -50,7 +50,7 @@ function useEvents(ref, telemetry) {
         function handle(/** @type {CustomEvent<any>} */ { detail }) {
             elem.value += JSON.stringify(detail, null, 2) + '\n\n';
         }
-        for (let beforeElement of telemetry.eventStore) {
+        for (const beforeElement of telemetry.eventStore) {
             elem.value += JSON.stringify(beforeElement, null, 2) + '\n\n';
         }
         telemetry.eventStore = [];
