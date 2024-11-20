@@ -1,5 +1,5 @@
 import styles from './ShowHide.module.css';
-import cn from "classnames"
+import cn from 'classnames';
 import { ChevronButton } from './Icons.js';
 import { h } from 'preact';
 

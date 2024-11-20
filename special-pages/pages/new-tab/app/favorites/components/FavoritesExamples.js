@@ -1,5 +1,4 @@
 import { h } from 'preact';
-
 import { noop } from '../../utils.js';
 import { favorites } from '../mocks/favorites.data.js';
 import { MockFavoritesProvider } from '../mocks/MockFavoritesProvider.js';

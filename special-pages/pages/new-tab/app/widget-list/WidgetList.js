@@ -2,7 +2,7 @@ import { Fragment, h } from 'preact';
 import { WidgetConfigContext, WidgetVisibilityProvider } from './widget-config.provider.js';
 import { useContext } from 'preact/hooks';
 import { Stack } from '../../../onboarding/app/components/Stack.js';
-import { Customizer, CustomizerMenuPositionedFixed } from '../customizer/Customizer.js';
+import { Customizer, CustomizerMenuPositionedFixed } from '../customizer/components/Customizer';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { DebugCustomized } from '../telemetry/Debug.js';
 
