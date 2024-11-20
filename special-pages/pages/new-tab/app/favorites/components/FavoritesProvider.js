@@ -32,7 +32,7 @@ export const FavoritesContext = createContext({
     openContextMenu: (id) => {
         throw new Error('must implement');
     },
-    /** @type {(id: string, target: OpenTarget) => void} */
+    /** @type {(id: string, url: string, target: OpenTarget) => void} */
     openFavorite: (id, target) => {
         throw new Error('must implement');
     },
@@ -86,11 +86,11 @@ export function FavoritesProvider({ children }) {
         [service],
     );
 
-    /** @type {(id: string, target: OpenTarget) => void} */
+    /** @type {(id: string, url: string, target: OpenTarget) => void} */
     const openFavorite = useCallback(
-        (id, target) => {
+        (id, url, target) => {
             if (!service.current) return;
-            service.current.openFavorite(id, target);
+            service.current.openFavorite(id, url, target);
         },
         [service],
     );

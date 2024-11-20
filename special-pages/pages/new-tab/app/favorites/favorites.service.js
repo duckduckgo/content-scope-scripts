@@ -110,12 +110,13 @@ export class FavoritesService {
 
     /**
      * @param {string} id - entity id
+     * @param {string} url - target url
      * @param {FavoritesOpenAction['target']} target
      * @internal
      */
-    openFavorite(id, target) {
+    openFavorite(id, url, target) {
         // let the native side know too
-        this.ntp.messaging.notify('favorites_open', { id, target });
+        this.ntp.messaging.notify('favorites_open', { id, url, target });
     }
 
     /**

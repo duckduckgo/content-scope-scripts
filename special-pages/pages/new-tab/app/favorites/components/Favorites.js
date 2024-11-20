@@ -25,7 +25,7 @@ export const FavoritesMemo = memo(Favorites);
  * @param {Expansion} props.expansion
  * @param {() => void} props.toggle
  * @param {(id: string) => void} props.openContextMenu
- * @param {(id: string, target: OpenTarget) => void} props.openFavorite
+ * @param {(id: string, url: string, target: OpenTarget) => void} props.openFavorite
  * @param {() => void} props.add
  */
 export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add }) {
@@ -89,16 +89,16 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     function onClick(event) {
         let target = /** @type {HTMLElement|null} */ (event.target);
         while (target && target !== event.currentTarget) {
-            if (typeof target.dataset.id === 'string') {
+            if (typeof target.dataset.id === 'string' && 'href' in target && typeof target.href === 'string') {
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
                 if (isControlClick) {
-                    return openFavorite(target.dataset.id, 'new-tab');
+                    return openFavorite(target.dataset.id, target.href, 'new-tab');
                 } else if (event.shiftKey) {
-                    return openFavorite(target.dataset.id, 'new-window');
+                    return openFavorite(target.dataset.id, target.href, 'new-window');
                 }
-                return openFavorite(target.dataset.id, 'same-tab');
+                return openFavorite(target.dataset.id, target.href, 'same-tab');
             } else {
                 target = target.parentElement;
             }
