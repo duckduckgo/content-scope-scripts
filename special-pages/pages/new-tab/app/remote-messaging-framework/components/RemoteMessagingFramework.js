@@ -2,11 +2,11 @@ import { h } from 'preact';
 import cn from 'classnames';
 import styles from './RemoteMessagingFramework.module.css';
 import { useContext } from 'preact/hooks';
-import { RMFContext } from './RMFProvider.js';
-import { DismissButton } from '../components/DismissButton';
+import { RMFContext } from '../RMFProvider.js';
+import { DismissButton } from '../../components/DismissButton';
 
 /**
- * @import { RMFMessage } from "../../../../types/new-tab"
+ * @import { RMFMessage } from "../../../../../types/new-tab"
  * @param {object} props
  * @param {RMFMessage} props.message
  * @param {(id: string) => void} props.dismiss
