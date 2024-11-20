@@ -5,7 +5,7 @@ test.describe('newtab privacy stats', () => {
     test('fetches config + stats', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage();
+        await ntp.openPage({ additional: { stats: 'few' } });
 
         const calls1 = await ntp.mocks.waitForCallCount({ method: 'initialSetup', count: 1 });
         const calls2 = await ntp.mocks.waitForCallCount({ method: 'stats_getData', count: 1 });
@@ -22,5 +22,45 @@ test.describe('newtab privacy stats', () => {
         expect(await listItems.nth(2).textContent()).toBe('Amazon67');
         expect(await listItems.nth(3).textContent()).toBe('Google Ads2');
         expect(await listItems.nth(4).textContent()).toBe('Other210');
+
+        // show/hide
+        await page.getByLabel('Hide recent activity').click();
+        await page.getByLabel('Show recent activity').click();
     });
+    test(
+        'hiding the expander when empty',
+        {
+            annotation: {
+                type: 'issue',
+                description: 'https://app.asana.com/0/0/1208792040873366/f',
+            },
+        },
+        async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { stats: 'none' } });
+            await page.getByText('No recent tracking activity').waitFor();
+            await expect(page.getByLabel('Hide recent activity')).not.toBeVisible();
+            await expect(page.getByLabel('Show recent activity')).not.toBeVisible();
+        },
+    );
+    test(
+        'bar width',
+        {
+            annotation: {
+                type: 'issue',
+                description: 'https://app.asana.com/0/0/1208800221025230/f',
+            },
+        },
+        async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { stats: 'willUpdate', 'stats-update-count': '2' } });
+
+            //
+            // Checking the first + last bar widths due to a regression
+            await page.getByText('Google Ads5').locator('[style="width: 100%;"]').waitFor();
+            await page.getByText('Facebook1').locator('[style="width: 20%;"]').waitFor();
+        },
+    );
 });
