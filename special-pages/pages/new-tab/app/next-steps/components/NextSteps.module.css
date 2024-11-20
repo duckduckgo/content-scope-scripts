@@ -91,7 +91,6 @@
     }
 }
 
-
 .dismissBtn {
     position: absolute;
     top: 0.5rem;
@@ -136,7 +135,6 @@
     div {
         background-color: var(--ntp-color-primary);
         font-size: calc(11 * var(--px-in-rem));
-
         height: calc(20 * var(--px-in-rem));
         line-height: normal;
         font-weight: 600;
@@ -147,7 +145,6 @@
         justify-content: center;
     }
 }
-
 
 .cardGroup {
     transition: opacity .2s;
@@ -162,16 +159,6 @@
         }
     }
 }
-
-/* .showhide {
-    height: var(--sp-8);
-    opacity: 0;
-
-    &:focus-within,
-    &:hover {
-        opacity: 1;
-    }
-} */
 
 :root:has(body[data-platform-name="windows"]) {
     .nextStepsCard .title {

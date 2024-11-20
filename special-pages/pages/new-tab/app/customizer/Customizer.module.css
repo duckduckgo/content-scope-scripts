@@ -28,10 +28,9 @@
     cursor: pointer;
     display: flex;
     gap: calc(6 * var(--px-in-rem));
-    color: var(--color-black-at-84);
+    color: var(--ntp-text-normal);
 
     @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-80);
         border-color: var(--color-white-at-9);
     }
 

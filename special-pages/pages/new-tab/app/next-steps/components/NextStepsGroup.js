@@ -25,7 +25,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
     const { t } = useTypedTranslation();
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
-    const alwaysShown = types.length >= 2 ? types.slice(0, 2) : types;
+    const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
 
     return (
         <div class={cn(styles.cardGroup, types.length <= 2 && styles.bottomSpace)} id={WIDGET_ID}>
@@ -36,16 +36,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
                 ))}
                 {expansion === 'expanded' &&
                     types.length > 2 &&
-                    types.slice(2).map((type) => (
-                        <NextStepsCard
-                            key={type}
-                            type={type}
-                            dismiss={dismiss}
-                            action={action}
-                            className={styles.additional}
-                            // className={cn(expansion === 'collapsed' && i > 1 && styles.collapsed)}
-                        />
-                    ))}
+                    types.slice(2).map((type) => <NextStepsCard key={type} type={type} dismiss={dismiss} action={action} />)}
             </div>
 
             {types.length > 2 && (

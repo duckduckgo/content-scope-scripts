@@ -60,10 +60,6 @@
     &[data-loaded][data-did-try-fallback] {
         border-radius: var(--border-radius-md);
     }
-
-    &[data-errored] {
-
-    }
 }
 
 .text {
@@ -79,7 +75,6 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
 }
-
 
 .placeholder {
     background-color: transparent;
@@ -143,7 +138,4 @@
 
 [data-item-state="dragging"] {
     opacity: 0.4;
-}
-
-[data-item-state="is-dragging-over"] {
 }
