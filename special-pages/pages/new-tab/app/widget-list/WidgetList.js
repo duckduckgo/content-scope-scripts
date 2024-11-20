@@ -41,7 +41,7 @@ export function WidgetList() {
     const { env } = useEnv();
 
     return (
-        <Stack gap={'var(--sp-8)'}>
+        <Stack gap={'0'}>
             {widgets.map((widget, index) => {
                 const matchingConfig = widgetConfigItems.find((item) => item.id === widget.id);
                 const matchingEntryPoint = entryPoints[widget.id];
