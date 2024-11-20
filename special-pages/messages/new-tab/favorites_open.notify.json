@@ -4,11 +4,16 @@
   "type": "object",
   "required": [
     "id",
-    "target"
+    "target",
+    "url"
   ],
   "properties": {
     "id": {
       "description": "Entity ID",
+      "type": "string"
+    },
+    "url": {
+      "description": "The url to open",
       "type": "string"
     },
     "target": {

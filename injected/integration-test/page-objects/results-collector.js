@@ -1,13 +1,19 @@
 import { readFileSync } from 'fs';
 import {
     mockAndroidMessaging,
+    mockResponses,
     mockWebkitMessaging,
     mockWindowsMessaging,
+    readOutgoingMessages,
     simulateSubscriptionMessage,
+    waitForCallCount,
     wrapWebkitScripts,
     wrapWindowsScripts,
 } from '@duckduckgo/messaging/lib/test-utils.mjs';
 import { perPlatform } from '../type-helpers.mjs';
+import { windowsGlobalPolyfills } from '../shared.mjs';
+import { processConfig } from '../../src/utils.js';
+import { gotoAndWait } from '../helpers/harness.js';
 
 /**
  * This is designed to allow you to execute Playwright tests using the various
@@ -55,9 +61,17 @@ export class ResultsCollector {
      * @param {string} configPath
      */
     async load(htmlPath, configPath) {
+        /**
+         * For now, take a separate path for the extension since it's setup
+         * is quite different to browsers. We hide this setup step from consumers,
+         * allowing all platforms to call '.load(html, config)' and not care
+         * about the details.
+         */
+        if (this.platform.name === 'extension') {
+            return await this._loadExtension(htmlPath, configPath);
+        }
         await this.setup({ config: configPath });
         await this.page.goto(htmlPath);
-        return this;
     }
 
     /**
@@ -67,29 +81,104 @@ export class ResultsCollector {
         this.#userPreferences = values;
         return this;
     }
+
     /**
      * @param {Record<string, any>} values
      */
     withMockResponse(values) {
-        this.#mockResponses = values;
+        this.#mockResponses = {
+            ...this.#mockResponses,
+            ...values,
+        };
         return this;
+    }
+    /**
+     * @param {Record<string, any>} values
+     */
+    async updateMockResponse(values) {
+        await this.page.addInitScript(mockResponses, {
+            responses: values,
+        });
+    }
+
+    /**
+     * @param {string} htmlPath
+     * @param {string} configPath
+     * @private
+     */
+    async _loadExtension(htmlPath, configPath) {
+        const config = JSON.parse(readFileSync(configPath, 'utf8'));
+        /** @type {import('../../src/utils.js').UserPreferences} */
+        const userPreferences = {
+            platform: {
+                name: this.platform.name,
+            },
+            sessionKey: 'test',
+        };
+
+        const processedConfig = processConfig(
+            /** @type {import('../../src/utils.js').RemoteConfig} */ (config),
+            /* userList */ [],
+            /* preferences */ userPreferences /*, platformSpecificFeatures = [] */,
+        );
+
+        await gotoAndWait(this.page, htmlPath + '?automation=true', processedConfig);
     }
 
     /**
      * @param {object} params
      * @param {Record<string, any> | string} params.config
+     * @param {string} [params.locale]
      * @return {Promise<void>}
      */
     async setup(params) {
-        let { config } = params;
+        let { config, locale } = params;
+
         if (typeof config === 'string') {
             config = JSON.parse(readFileSync(config, 'utf8'));
         }
 
+        await this.build.switch({
+            windows: async () => {
+                /**
+                 * In CI, the global objects such as USB might not be installed on the
+                 * version of chromium running there.
+                 */
+                await this.page.addInitScript(windowsGlobalPolyfills);
+            },
+            'apple-isolated': async () => {
+                // noop
+            },
+            apple: async () => {
+                // noop
+            },
+            android: async () => {
+                // noop
+            },
+            'android-autofill-password-import': async () => {
+                // noop
+            },
+        });
+
+        const messagingMock = this.build.switch({
+            apple: () => mockWebkitMessaging,
+            'apple-isolated': () => mockWebkitMessaging,
+            windows: () => mockWindowsMessaging,
+            android: () => mockAndroidMessaging,
+            'android-autofill-password-import': () => mockAndroidMessaging,
+        });
+
+        await this.page.addInitScript(messagingMock, {
+            messagingContext: this.messagingContext('n/a'),
+            responses: this.#mockResponses,
+            messageCallback: 'messageCallback',
+        });
+
         const wrapFn = this.build.switch({
             'apple-isolated': () => wrapWebkitScripts,
             apple: () => wrapWebkitScripts,
-            android: () => wrapWindowsScripts,
+            android: () => wrapWebkitScripts,
+            'android-autofill-password-import': () => wrapWebkitScripts,
             windows: () => wrapWindowsScripts,
         });
 
@@ -100,40 +189,22 @@ export class ResultsCollector {
             $USER_PREFERENCES$: {
                 platform: { name: this.platform.name },
                 debug: true,
+                messageCallback: 'messageCallback',
+                messageSecret: 'duckduckgo-android-messaging-secret',
+                javascriptInterface: this.messagingContextName,
+                locale,
                 ...this.#userPreferences,
             },
-        });
-
-        const messagingMock = this.build.switch({
-            apple: () => mockWebkitMessaging,
-            'apple-isolated': () => mockWebkitMessaging,
-            windows: () => mockWindowsMessaging,
-            android: () => mockAndroidMessaging,
-        });
-
-        await this.page.addInitScript(messagingMock, {
-            messagingContext: this.messagingContext('n/a'),
-            responses: this.#mockResponses,
         });
 
         // attach the JS
         await this.page.addInitScript(injectedJS);
     }
 
-    collectResultsFromPage() {
-        return this.page.evaluate(() => {
-            return new Promise((resolve) => {
-                // @ts-expect-error - this is added by the test framework
-                if (window.results) return resolve(window.results);
-                window.addEventListener('results-ready', () => {
-                    // @ts-expect-error - this is added by the test framework
-                    resolve(window.results);
-                });
-            });
-        });
-    }
-
-    async runTests() {
+    /**
+     * @param {() => Promise<unknown>} [beforeAwait]
+     */
+    async results(beforeAwait) {
         const resultsPromise = this.page.evaluate(() => {
             return new Promise((resolve) => {
                 if ('results' in window) {
@@ -146,7 +217,9 @@ export class ResultsCollector {
                 }
             });
         });
-        // await this.page.getByTestId('render-results').click();
+        if (beforeAwait) {
+            await beforeAwait();
+        }
         return await resultsPromise;
     }
 
@@ -164,14 +237,17 @@ export class ResultsCollector {
         });
     }
 
+    get messagingContextName() {
+        return this.build.name === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
+    }
+
     /**
      * @param {string} featureName
      * @return {import("@duckduckgo/messaging").MessagingContext}
      */
     messagingContext(featureName) {
-        const context = this.build.name === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
         return {
-            context,
+            context: this.messagingContextName,
             featureName,
             env: 'development',
         };
@@ -185,6 +261,30 @@ export class ResultsCollector {
             apple: () => 'apple-isolated',
             windows: () => 'windows',
         });
+    }
+
+    /**
+     * @param {string} method
+     * @return {Promise<object>}
+     */
+    async waitForMessage(method) {
+        await this.page.waitForFunction(
+            waitForCallCount,
+            {
+                method,
+                count: 1,
+            },
+            { timeout: 5000, polling: 100 },
+        );
+        const calls = await this.page.evaluate(readOutgoingMessages);
+        return calls.filter((v) => v.payload.method === method);
+    }
+
+    /**
+     * @return {Promise<UnstableMockCall[]>}
+     */
+    async outgoingMessages() {
+        return await this.page.evaluate(readOutgoingMessages);
     }
 
     /**

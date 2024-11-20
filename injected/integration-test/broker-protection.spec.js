@@ -3,31 +3,31 @@ import { BrokerProtectionPage } from './page-objects/broker-protection.js';
 
 test.describe('Broker Protection communications', () => {
     test('sends an error when the action is not found', async ({ page }, workerInfo) => {
-        const dbp = BrokerProtectionPage.create(page, workerInfo);
+        const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
         await dbp.enabled();
         await dbp.navigatesTo('form.html');
         await dbp.receivesAction('action-not-found.json');
-        await dbp.waitForMessage('actionError');
+        await dbp.collector.waitForMessage('actionError');
     });
 
     test.describe('Executes invalid action and sends error message', () => {
         test('click element not on page', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('empty-form.html');
             await dbp.receivesAction('click.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isErrorMessage(response);
         });
     });
 
     test.describe('Profile extraction', () => {
         test('extract', async ({ page, baseURL }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results.html');
             await dbp.receivesAction('extract.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -48,11 +48,11 @@ test.describe('Broker Protection communications', () => {
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta);
         });
         test('extract with retry', async ({ page, baseURL }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results.html?delay=2000');
             await dbp.receivesAction('extract.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -74,11 +74,11 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('extract multiple profiles', async ({ page, baseURL }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-multiple.html');
             await dbp.receivesAction('extract2.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -132,11 +132,11 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('extract profiles test 3', async ({ page, baseURL }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-alt.html');
             await dbp.receivesAction('extract3.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -161,11 +161,11 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('extract profiles test 4', async ({ page, baseURL }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-4.html');
             await dbp.receivesAction('extract4.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -184,11 +184,11 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('extract profiles test 5', async ({ page, baseURL }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-5.html');
             await dbp.receivesAction('extract5.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -210,11 +210,11 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('extract profile from irregular HTML 1', async ({ page, baseURL }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-irregular1.html');
             await dbp.receivesAction('extract-irregular1.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -234,11 +234,11 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('extract profile from irregular HTML 2', async ({ page, baseURL }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-irregular2.html');
             await dbp.receivesAction('extract-irregular2.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -259,11 +259,11 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('extract profile from irregular HTML 3', async ({ page, baseURL }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-irregular3.html');
             await dbp.receivesAction('extract-irregular3.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -285,11 +285,11 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('extracts profile and generates id', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results.html');
             await dbp.receivesAction('extract-generate-id.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
@@ -312,11 +312,11 @@ test.describe('Broker Protection communications', () => {
         test('returns an empty array when no profile selector matches but the no results selector is present', async ({
             page,
         }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-not-found.html');
             await dbp.receivesAction('results-not-found-valid.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, []);
         });
@@ -324,128 +324,128 @@ test.describe('Broker Protection communications', () => {
         test('returns an error when no profile selector matches and the no results selector is not present', async ({
             page,
         }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results.html');
             await dbp.receivesAction('results-not-found-invalid.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isErrorMessage(response);
         });
     });
     test.describe('Executes action and sends success message', () => {
         test('buildUrl', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results.html');
             await dbp.receivesAction('navigate.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isUrlMatch(response[0].payload.params.result.success.response);
         });
 
         test('fillForm', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('form.html');
             await dbp.receivesAction('fill-form.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             await dbp.isFormFilled();
         });
 
         test('click', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('form.html');
             await dbp.receivesAction('click.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
         });
 
         test('clicking with parent selector (considering matching weight/score)', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-weighted.html');
             await dbp.receivesAction('click-weighted.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
 
             dbp.isSuccessMessage(response);
             await page.waitForURL((url) => url.hash === '#2', { timeout: 2000 });
         });
 
         test('clicking with parent selector (clicking the actual parent)', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-parent.html');
             await dbp.receivesAction('click-parent.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
 
             dbp.isSuccessMessage(response);
             await page.waitForURL((url) => url.hash === '#2', { timeout: 2000 });
         });
 
         test('click multiple targets', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('click-multiple.html');
             await dbp.receivesAction('click-multiple.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
 
             dbp.isSuccessMessage(response);
             await page.waitForURL((url) => url.hash === '#1-2', { timeout: 2000 });
         });
 
         test('getCaptchaInfo', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('captcha.html');
             await dbp.receivesAction('get-captcha.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isCaptchaMatch(response[0].payload?.params.result.success.response);
         });
 
         test('getCaptchaInfo (hcaptcha)', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('captcha2.html');
             await dbp.receivesAction('get-captcha.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isHCaptchaMatch(response[0].payload?.params.result.success.response);
         });
 
         test('remove query params from captcha url', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('captcha.html?fname=john&lname=smith');
             await dbp.receivesAction('get-captcha.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isQueryParamRemoved(response[0].payload?.params.result.success.response);
         });
 
         test('solveCaptcha', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('captcha.html');
             await dbp.receivesAction('solve-captcha.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             await dbp.isCaptchaTokenFilled();
         });
 
         test('expectation', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('form.html');
             await dbp.receivesAction('expectation.json');
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
         });
 
         test('expectation: element exists', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('form.html');
 
@@ -469,29 +469,29 @@ test.describe('Broker Protection communications', () => {
                 },
             });
 
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
         });
     });
 
     test('expectation with actions', async ({ page }, workerInfo) => {
-        const dbp = BrokerProtectionPage.create(page, workerInfo);
+        const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
         await dbp.enabled();
         await dbp.navigatesTo('expectation-actions.html');
         await dbp.receivesAction('expectation-actions.json');
-        const response = await dbp.waitForMessage('actionCompleted');
+        const response = await dbp.collector.waitForMessage('actionCompleted');
 
         dbp.isSuccessMessage(response);
         await page.waitForURL((url) => url.hash === '#1', { timeout: 2000 });
     });
 
     test('expectation fails when failSilently is not present', async ({ page }, workerInfo) => {
-        const dbp = BrokerProtectionPage.create(page, workerInfo);
+        const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
         await dbp.enabled();
         await dbp.navigatesTo('expectation-actions.html');
         await dbp.receivesAction('expectation-actions-fail.json');
 
-        const response = await dbp.waitForMessage('actionCompleted');
+        const response = await dbp.collector.waitForMessage('actionCompleted');
         dbp.isErrorMessage(response);
 
         const currentUrl = page.url();
@@ -499,12 +499,12 @@ test.describe('Broker Protection communications', () => {
     });
 
     test('expectation succeeds when failSilently is present', async ({ page }, workerInfo) => {
-        const dbp = BrokerProtectionPage.create(page, workerInfo);
+        const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
         await dbp.enabled();
         await dbp.navigatesTo('expectation-actions.html');
         await dbp.receivesAction('expectation-actions-fail-silently.json');
 
-        const response = await dbp.waitForMessage('actionCompleted');
+        const response = await dbp.collector.waitForMessage('actionCompleted');
         dbp.isSuccessMessage(response);
 
         const currentUrl = page.url();
@@ -512,12 +512,12 @@ test.describe('Broker Protection communications', () => {
     });
 
     test('expectation succeeds but subaction fails should throw error', async ({ page }, workerInfo) => {
-        const dbp = BrokerProtectionPage.create(page, workerInfo);
+        const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
         await dbp.enabled();
         await dbp.navigatesTo('expectation-actions.html');
         await dbp.receivesAction('expectation-actions-subaction-fail.json');
 
-        const response = await dbp.waitForMessage('actionCompleted');
+        const response = await dbp.collector.waitForMessage('actionCompleted');
         dbp.isErrorMessage(response);
 
         const currentUrl = page.url();
@@ -526,7 +526,7 @@ test.describe('Broker Protection communications', () => {
 
     test.describe('retrying', () => {
         test('retrying a click', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('retry.html');
 
@@ -551,11 +551,11 @@ test.describe('Broker Protection communications', () => {
             });
             await page.getByRole('heading', { name: 'Retry' }).waitFor({ timeout: 5000 });
 
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
         });
         test('ensuring retry doesnt apply everywhere', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo);
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('retry.html');
 
@@ -574,7 +574,7 @@ test.describe('Broker Protection communications', () => {
                 },
             });
 
-            const response = await dbp.waitForMessage('actionCompleted');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isErrorMessage(response);
         });
     });

@@ -838,6 +838,10 @@
           title: "Hide recent activity",
           note: "The aria-label text for a toggle button that hides the detailed activity feed"
         },
+        trackerStatsOtherCompanyName: {
+          title: "Other",
+          note: "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
+        },
         favorites_show_less: {
           title: "Show less",
           note: ""
@@ -1470,11 +1474,12 @@
         }
         /**
          * @param {string} id - entity id
+         * @param {string} url - target url
          * @param {FavoritesOpenAction['target']} target
          * @internal
          */
-        openFavorite(id, target2) {
-          this.ntp.messaging.notify("favorites_open", { id, target: target2 });
+        openFavorite(id, url3, target2) {
+          this.ntp.messaging.notify("favorites_open", { id, url: url3, target: target2 });
         }
         /**
          * @internal
@@ -1651,9 +1656,9 @@
       [service]
     );
     const openFavorite = q2(
-      (id, target2) => {
+      (id, url3, target2) => {
         if (!service.current) return;
-        service.current.openFavorite(id, target2);
+        service.current.openFavorite(id, url3, target2);
       },
       [service]
     );
@@ -1702,7 +1707,7 @@
         openContextMenu: (id) => {
           throw new Error("must implement");
         },
-        /** @type {(id: string, target: OpenTarget) => void} */
+        /** @type {(id: string, url: string, target: OpenTarget) => void} */
         openFavorite: (id, target2) => {
           throw new Error("must implement");
         },
@@ -4746,16 +4751,16 @@
         event.target
       );
       while (target2 && target2 !== event.currentTarget) {
-        if (typeof target2.dataset.id === "string") {
+        if (typeof target2.dataset.id === "string" && "href" in target2 && typeof target2.href === "string") {
           event.preventDefault();
           event.stopImmediatePropagation();
           const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
           if (isControlClick) {
-            return openFavorite(target2.dataset.id, "new-tab");
+            return openFavorite(target2.dataset.id, target2.href, "new-tab");
           } else if (event.shiftKey) {
-            return openFavorite(target2.dataset.id, "new-window");
+            return openFavorite(target2.dataset.id, target2.href, "new-window");
           }
-          return openFavorite(target2.dataset.id, "same-tab");
+          return openFavorite(target2.dataset.id, target2.href, "same-tab");
         } else {
           target2 = target2.parentElement;
         }
@@ -5485,6 +5490,32 @@
     }
   });
 
+  // pages/new-tab/app/privacy-stats/constants.js
+  var DDG_STATS_OTHER_COMPANY_IDENTIFIER;
+  var init_constants2 = __esm({
+    "pages/new-tab/app/privacy-stats/constants.js"() {
+      "use strict";
+      DDG_STATS_OTHER_COMPANY_IDENTIFIER = "__other__";
+    }
+  });
+
+  // pages/new-tab/app/privacy-stats/privacy-stats.utils.js
+  function sortStatsForDisplay(stats2) {
+    const sorted = stats2.slice().sort((a3, b2) => b2.count - a3.count);
+    const other = sorted.findIndex((x4) => x4.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER);
+    if (other > -1) {
+      const popped = sorted.splice(other, 1);
+      sorted.push(popped[0]);
+    }
+    return sorted;
+  }
+  var init_privacy_stats_utils = __esm({
+    "pages/new-tab/app/privacy-stats/privacy-stats.utils.js"() {
+      "use strict";
+      init_constants2();
+    }
+  });
+
   // pages/new-tab/app/privacy-stats/PrivacyStats.js
   function PrivacyStats({ expansion, data, toggle, animation = "auto-animate" }) {
     if (animation === "view-transitions") {
@@ -5526,12 +5557,11 @@
     const some = totalCount > 0;
     const alltime = formatter.format(totalCount);
     const alltimeTitle = totalCount === 1 ? t3("trackerStatsCountBlockedSingular") : t3("trackerStatsCountBlockedPlural", { count: alltime });
-    return /* @__PURE__ */ _("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield.svg", alt: "" })), none && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, t3("trackerStatsNoRecent")), some && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, alltimeTitle), /* @__PURE__ */ _("span", { className: PrivacyStats_default.expander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield.svg", alt: "" })), none && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, t3("trackerStatsNoRecent")), some && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, alltimeTitle), recent > 0 && /* @__PURE__ */ _("span", { className: PrivacyStats_default.expander }, /* @__PURE__ */ _(
       ShowHideButton,
       {
         buttonAttrs: {
           ...buttonAttrs,
-          hidden: trackerCompanies.length === 0,
           "aria-expanded": expansion === "expanded",
           "aria-pressed": expansion === "expanded"
         },
@@ -5541,16 +5571,19 @@
     )), /* @__PURE__ */ _("p", { className: PrivacyStats_default.subtitle }, recent === 0 && t3("trackerStatsNoActivity"), recent > 0 && recentTitle));
   }
   function Body({ trackerCompanies, listAttrs = {} }) {
-    const max = trackerCompanies[0]?.count ?? 0;
+    const { t: t3 } = useTypedTranslation();
     const [formatter] = h2(() => new Intl.NumberFormat());
-    return /* @__PURE__ */ _("ul", { ...listAttrs, class: PrivacyStats_default.list }, trackerCompanies.map((company) => {
+    const sorted = sortStatsForDisplay(trackerCompanies);
+    const max = sorted[0]?.count ?? 0;
+    return /* @__PURE__ */ _("ul", { ...listAttrs, class: PrivacyStats_default.list, "data-testid": "CompanyList" }, sorted.map((company) => {
       const percentage = Math.min(company.count * 100 / max, 100);
       const valueOrMin = Math.max(percentage, 10);
       const inlineStyles = {
         width: `${valueOrMin}%`
       };
       const countText = formatter.format(company.count);
-      return /* @__PURE__ */ _("li", { key: company.displayName }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { company }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.name }, company.displayName)), /* @__PURE__ */ _("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.fill, style: inlineStyles })));
+      const displayName = company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER ? t3("trackerStatsOtherCompanyName") : company.displayName;
+      return /* @__PURE__ */ _("li", { key: company.displayName }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { displayName: company.displayName }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ _("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.fill, style: inlineStyles })));
     }));
   }
   function PrivacyStatsCustomized() {
@@ -5570,11 +5603,11 @@
     }
     return null;
   }
-  function CompanyIcon({ company }) {
-    const icon = company.displayName.toLowerCase().split(".")[0];
+  function CompanyIcon({ displayName }) {
+    const icon = displayName.toLowerCase().split(".")[0];
     const cleaned = icon.replace(/ /g, "-");
     const firstChar = icon[0];
-    return /* @__PURE__ */ _("span", { className: PrivacyStats_default.icon }, icon === "other" && /* @__PURE__ */ _(Other, null), icon !== "other" && /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("span", { className: PrivacyStats_default.icon }, icon === DDG_STATS_OTHER_COMPANY_IDENTIFIER && /* @__PURE__ */ _(Other, null), icon !== DDG_STATS_OTHER_COMPANY_IDENTIFIER && /* @__PURE__ */ _(
       "img",
       {
         src: `./company-icons/${cleaned}.svg`,
@@ -5621,6 +5654,8 @@
       init_utils();
       init_ShowHideButton();
       init_Customizer2();
+      init_constants2();
+      init_privacy_stats_utils();
     }
   });
 
@@ -6865,6 +6900,7 @@
   init_PrivacyStatsProvider();
 
   // pages/new-tab/app/privacy-stats/mocks/stats.js
+  init_constants2();
   var stats = {
     few: {
       totalCount: 481113,
@@ -6878,19 +6914,18 @@
           count: 279
         },
         {
+          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+          count: 210
+        },
+        {
           displayName: "Amazon",
           count: 67
         },
         {
           displayName: "Google Ads",
           count: 2
-        },
-        {
-          displayName: "Other",
-          count: 210
         }
-      ],
-      trackerCompaniesPeriod: "last-day"
+      ]
     },
     single: {
       totalCount: 481113,
@@ -6899,18 +6934,40 @@
           displayName: "Google",
           count: 1
         }
-      ],
-      trackerCompaniesPeriod: "last-day"
+      ]
     },
     norecent: {
       totalCount: 481113,
-      trackerCompanies: [],
-      trackerCompaniesPeriod: "last-day"
+      trackerCompanies: []
     },
     none: {
       totalCount: 0,
-      trackerCompanies: [],
-      trackerCompaniesPeriod: "last-day"
+      trackerCompanies: []
+    },
+    willUpdate: {
+      totalCount: 481113,
+      trackerCompanies: [
+        {
+          displayName: "Facebook",
+          count: 1
+        },
+        {
+          displayName: "Google",
+          count: 1
+        },
+        {
+          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+          count: 1
+        },
+        {
+          displayName: "Amazon",
+          count: 1
+        },
+        {
+          displayName: "Google Ads",
+          count: 1
+        }
+      ]
     }
   };
 
@@ -9080,6 +9137,33 @@
             );
             return () => controller.abort();
           }
+          case "stats_onDataUpdate": {
+            const statsVariant = url2.searchParams.get("stats");
+            if (statsVariant !== "willUpdate") return () => {
+            };
+            const count = url2.searchParams.get("stats-update-count");
+            const max = Math.min(parseInt(count || "0"), 10);
+            if (max === 0) return () => {
+            };
+            let inc = 1;
+            const int = setInterval(() => {
+              if (inc === max) return clearInterval(int);
+              const next = {
+                ...stats.willUpdate,
+                trackerCompanies: stats.willUpdate.trackerCompanies.map((x4, index) => {
+                  return {
+                    ...x4,
+                    count: x4.count + inc * index
+                  };
+                })
+              };
+              cb(next);
+              inc++;
+            }, 500);
+            return () => {
+              clearInterval(int);
+            };
+          }
           case "favorites_onConfigUpdate": {
             const controller = new AbortController();
             channel.addEventListener(
@@ -9109,6 +9193,10 @@
         );
         switch (msg.method) {
           case "stats_getData": {
+            const statsVariant = url2.searchParams.get("stats");
+            if (statsVariant && statsVariant in stats) {
+              return Promise.resolve(stats[statsVariant]);
+            }
             return Promise.resolve(stats.few);
           }
           case "stats_getConfig": {

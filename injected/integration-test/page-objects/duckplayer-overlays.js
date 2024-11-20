@@ -1,18 +1,7 @@
 import { readFileSync } from 'fs';
-import {
-    mockAndroidMessaging,
-    mockResponses,
-    mockWebkitMessaging,
-    mockWindowsMessaging,
-    readOutgoingMessages,
-    simulateSubscriptionMessage,
-    waitForCallCount,
-    wrapWebkitScripts,
-    wrapWindowsScripts,
-} from '@duckduckgo/messaging/lib/test-utils.mjs';
 import { expect } from '@playwright/test';
 import { perPlatform } from '../type-helpers.mjs';
-import { windowsGlobalPolyfills } from '../shared.mjs';
+import { ResultsCollector } from './results-collector.js';
 
 // Every possible combination of UserValues
 const userValues = {
@@ -72,6 +61,25 @@ export class DuckplayerOverlays {
         this.page = page;
         this.build = build;
         this.platform = platform;
+        this.collector = new ResultsCollector(page, build, platform);
+        this.collector.withMockResponse({
+            initialSetup: {
+                userValues: {
+                    privatePlayerMode: { alwaysAsk: {} },
+                    overlayInteracted: false,
+                },
+                ui: {},
+            },
+            getUserValues: {
+                privatePlayerMode: { alwaysAsk: {} },
+                overlayInteracted: false,
+            },
+            setUserValues: {
+                privatePlayerMode: { alwaysAsk: {} },
+                overlayInteracted: false,
+            },
+            sendDuckPlayerPixel: {},
+        });
         page.on('console', (msg) => {
             console.log(msg.type(), msg.text());
         });
@@ -178,17 +186,19 @@ export class DuckplayerOverlays {
     }
 
     async userValuesCallIsProxied() {
-        const calls = await this.page.evaluate(readOutgoingMessages);
+        const calls = await this.collector.outgoingMessages();
         const message = calls[0];
-        const { id, ...rest } = message.payload;
+        const payload = message.payload;
+        if (!('id' in payload)) throw new Error('missing id');
+
+        const { id, ...rest } = payload;
 
         // just a sanity-check to ensure a none-empty string was used as the id
-        expect(typeof id).toBe('string');
         expect(id.length).toBeGreaterThan(10);
 
         // assert on the payload, minus the ID
         expect(rest).toMatchObject({
-            context: this.messagingContext,
+            context: this.collector.messagingContextName,
             featureName: 'duckPlayer',
             params: {},
             method: 'getUserValues',
@@ -239,14 +249,14 @@ export class DuckplayerOverlays {
     async withRemoteConfig(params = {}) {
         const { json = 'overlays.json', locale = 'en' } = params;
 
-        await this.setup({ config: loadConfig(json), locale });
+        await this.collector.setup({ config: loadConfig(json), locale });
     }
 
     async serpProxyEnabled() {
         const config = loadConfig('overlays.json');
         const domains = config.features.duckPlayer.settings.domains[0].patchSettings;
         config.features.duckPlayer.settings.domains[0].patchSettings = domains.filter((x) => x.path === '/overlays/serpProxy/state');
-        await this.setup({ config, locale: 'en' });
+        await this.collector.setup({ config, locale: 'en' });
     }
 
     async videoOverlayDoesntShow() {
@@ -255,15 +265,12 @@ export class DuckplayerOverlays {
 
     /**
      * @param {keyof userValues} setting
-     * @return {Promise<void>}
      */
     async userSettingIs(setting) {
-        await this.page.addInitScript(mockResponses, {
-            responses: {
-                initialSetup: {
-                    userValues: userValues[setting],
-                    ui: {},
-                },
+        await this.collector.updateMockResponse({
+            initialSetup: {
+                userValues: userValues[setting],
+                ui: {},
             },
         });
     }
@@ -283,10 +290,8 @@ export class DuckplayerOverlays {
             initialSetupResponse.ui = uiSettings[uiSetting];
         }
 
-        await this.page.addInitScript(mockResponses, {
-            responses: {
-                initialSetup: initialSetupResponse,
-            },
+        await this.collector.updateMockResponse({
+            initialSetup: initialSetupResponse,
         });
     }
 
@@ -294,32 +299,14 @@ export class DuckplayerOverlays {
      * @param {keyof userValues} setting
      */
     async userChangedSettingTo(setting) {
-        await this.page.evaluate(simulateSubscriptionMessage, {
-            messagingContext: {
-                context: this.messagingContext,
-                featureName: 'duckPlayer',
-                env: 'development',
-            },
-            name: 'onUserValuesChanged',
-            payload: userValues[setting],
-            injectName: this.build.name,
-        });
+        await this.collector.simulateSubscriptionMessage('duckPlayer', 'onUserValuesChanged', userValues[setting]);
     }
 
     /**
      * @param {keyof uiSettings} setting
      */
     async uiChangedSettingTo(setting) {
-        await this.page.evaluate(simulateSubscriptionMessage, {
-            messagingContext: {
-                context: this.messagingContext,
-                featureName: 'duckPlayer',
-                env: 'development',
-            },
-            name: 'onUIValuesChanged',
-            payload: uiSettings[setting],
-            injectName: this.build.name,
-        });
+        await this.collector.simulateSubscriptionMessage('duckPlayer', 'onUIValuesChanged', uiSettings[setting]);
     }
 
     async overlaysDisabled() {
@@ -327,7 +314,7 @@ export class DuckplayerOverlays {
         const config = loadConfig('overlays.json');
         // remove all domains from 'overlays', this disables the feature
         config.features.duckPlayer.settings.domains = [];
-        await this.setup({ config, locale: 'en' });
+        await this.collector.setup({ config, locale: 'en' });
     }
 
     async hoverAThumbnail() {
@@ -436,11 +423,11 @@ export class DuckplayerOverlays {
      * @return {Promise<void>}
      */
     async duckPlayerLoadsFor(id) {
-        const messages = await this.waitForMessage('openDuckPlayer');
+        const messages = await this.collector.waitForMessage('openDuckPlayer');
         expect(messages).toMatchObject([
             {
                 payload: {
-                    context: this.messagingContext,
+                    context: this.collector.messagingContextName,
                     featureName: 'duckPlayer',
                     params: {
                         href: 'duck://player/' + id,
@@ -452,8 +439,7 @@ export class DuckplayerOverlays {
     }
 
     async duckPlayerLoadedTimes(times = 0) {
-        /** @type {UnstableMockCall[]} */
-        const calls = await this.page.evaluate(readOutgoingMessages);
+        const calls = await this.collector.outgoingMessages();
         const opened = calls.filter((call) => {
             if ('method' in call.payload) {
                 return call.payload.method === 'openDuckPlayer';
@@ -464,117 +450,15 @@ export class DuckplayerOverlays {
     }
 
     /**
-     * This is a bit involved, but verifies that the built artefact behaves as expected
-     * given a mocked messaging implementation
-     *
-     * @param {object} params
-     * @param {Record<string, any>} params.config
-     * @param {string} params.locale
-     * @return {Promise<void>}
-     */
-    async setup(params) {
-        const { config, locale } = params;
-
-        await this.build.switch({
-            windows: async () => {
-                /**
-                 * In CI, the global objects such as USB might not be installed on the
-                 * version of chromium running there.
-                 */
-                await this.page.addInitScript(windowsGlobalPolyfills);
-            },
-            'apple-isolated': async () => {
-                // noop
-            },
-            android: async () => {
-                // noop
-            },
-        });
-
-        // read the built file from disk and do replacements
-        const wrapFn = this.build.switch({
-            'apple-isolated': () => wrapWebkitScripts,
-            windows: () => wrapWindowsScripts,
-            android: () => wrapWebkitScripts,
-        });
-
-        const injectedJS = wrapFn(this.build.artifact, {
-            $CONTENT_SCOPE$: config,
-            $USER_UNPROTECTED_DOMAINS$: [],
-            $USER_PREFERENCES$: {
-                platform: { name: this.platform.name },
-                debug: true,
-
-                // additional android keys
-                messageCallback: 'messageCallback',
-                messageSecret: 'duckduckgo-android-messaging-secret',
-                javascriptInterface: this.messagingContext,
-                locale,
-            },
-        });
-
-        const mockMessaging = this.build.switch({
-            windows: () => mockWindowsMessaging,
-            'apple-isolated': () => mockWebkitMessaging,
-            android: () => mockAndroidMessaging,
-        });
-
-        await this.page.addInitScript(mockMessaging, {
-            messagingContext: {
-                env: 'development',
-                context: this.messagingContext,
-                featureName: 'duckPlayer',
-            },
-            responses: {
-                initialSetup: {
-                    userValues: {
-                        privatePlayerMode: { alwaysAsk: {} },
-                        overlayInteracted: false,
-                    },
-                    ui: {},
-                },
-                getUserValues: {
-                    privatePlayerMode: { alwaysAsk: {} },
-                    overlayInteracted: false,
-                },
-                setUserValues: {
-                    privatePlayerMode: { alwaysAsk: {} },
-                    overlayInteracted: false,
-                },
-                sendDuckPlayerPixel: {},
-            },
-        });
-
-        // attach the JS
-        await this.page.addInitScript(injectedJS);
-    }
-
-    /**
-     * @param {string} method
-     */
-    async waitForMessage(method) {
-        await this.page.waitForFunction(
-            waitForCallCount,
-            {
-                method,
-                count: 1,
-            },
-            { timeout: 3000, polling: 100 },
-        );
-        const calls = await this.page.evaluate(readOutgoingMessages);
-        return calls.filter((v) => v.payload.method === method);
-    }
-
-    /**
      * @param {keyof userValues} setting
      * @return {Promise<void>}
      */
     async userSettingWasUpdatedTo(setting) {
-        const messages = await this.waitForMessage('setUserValues');
+        const messages = await this.collector.waitForMessage('setUserValues');
         expect(messages).toMatchObject([
             {
                 payload: {
-                    context: this.messagingContext,
+                    context: this.collector.messagingContextName,
                     featureName: 'duckPlayer',
                     params: userValues[setting],
                     method: 'setUserValues',
@@ -592,10 +476,6 @@ export class DuckplayerOverlays {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use);
         return new DuckplayerOverlays(page, build, platformInfo);
-    }
-
-    get messagingContext() {
-        return this.build.name === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
     }
 
     /**
@@ -664,7 +544,7 @@ class DuckplayerOverlaysMobile {
     async opensInfo() {
         const { page } = this.overlays;
         await page.getByLabel('Open Information Modal').click();
-        const messages = await this.overlays.waitForMessage('openInfo');
+        const messages = await this.overlays.collector.waitForMessage('openInfo');
         expect(messages).toHaveLength(1);
     }
 }
@@ -682,7 +562,7 @@ class DuckplayerOverlayPixels {
      * @return {Promise<void>}
      */
     async sendsPixels(pixels) {
-        const messages = await this.overlays.waitForMessage('sendDuckPlayerPixel');
+        const messages = await this.overlays.collector.waitForMessage('sendDuckPlayerPixel');
         const params = messages.map((x) => x.payload.params);
         expect(params).toMatchObject(pixels);
     }

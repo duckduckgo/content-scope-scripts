@@ -14,7 +14,7 @@ declare namespace contentScopeFeatures {
  */
 interface ImportMeta {
     env: 'production' | 'development';
-    platform?: 'windows' | 'macos' | 'android' | 'ios';
+    platform?: 'windows' | 'macos' | 'android' | 'ios' | 'extension';
     // this represents the different build artifact names
     injectName?:
         | 'firefox'

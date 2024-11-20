@@ -22,7 +22,7 @@ export class NewtabPage {
             env: 'development',
         });
         this.page.on('console', console.log);
-        // default mocks - just enough to render the first page without error
+        if (this.platform.name === 'extension') throw new Error('unreachable - not supported in extension platform');
         this.mocks.defaultResponses({
             requestSetAsDefault: {},
             requestImport: {},
@@ -58,11 +58,12 @@ export class NewtabPage {
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {string|number} [params.favorites] - Optional flag to preload a list of favorites
      * @param {string|string[]} [params.nextSteps] - Optional flag to load Next Steps cards
+     * @param {Record<string, any>} [params.additional] - Optional map of key/values to add
      * @param {string} [params.rmf] - Optional flag to add certain rmf example
      * @param {string} [params.updateNotification] - Optional flag to point to display=components view with certain rmf example visible
      * @param {string} [params.platformName] - Optional parameters for opening the page.
      */
-    async openPage({ mode = 'debug', platformName, willThrow = false, favorites, nextSteps, rmf, updateNotification } = {}) {
+    async openPage({ mode = 'debug', additional, platformName, willThrow = false, favorites, nextSteps, rmf, updateNotification } = {}) {
         await this.mocks.install();
         const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) });
 
@@ -90,6 +91,10 @@ export class NewtabPage {
 
         if (updateNotification !== undefined) {
             searchParams.set('update-notification', updateNotification);
+        }
+
+        for (const [key, value] of Object.entries(additional || {})) {
+            searchParams.set(key, value);
         }
 
         await this.page.goto('/new-tab' + '?' + searchParams.toString());

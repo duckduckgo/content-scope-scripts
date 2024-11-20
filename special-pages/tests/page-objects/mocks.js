@@ -43,12 +43,14 @@ export class Mocks {
                 await this.page.addInitScript(mockWindowsMessaging, {
                     messagingContext: this.messagingContext,
                     responses: this._defaultResponses,
+                    messageCallback: 'messageCallback',
                 });
             },
             apple: async () => {
                 await this.page.addInitScript(mockWebkitMessaging, {
                     messagingContext: this.messagingContext,
                     responses: this._defaultResponses,
+                    messageCallback: 'messageCallback',
                 });
             },
             android: async () => {
@@ -62,6 +64,7 @@ export class Mocks {
                 await this.page.addInitScript(mockWindowsMessaging, {
                     messagingContext: this.messagingContext,
                     responses: this._defaultResponses,
+                    messageCallback: 'messageCallback',
                 });
             },
         });

@@ -133,6 +133,10 @@ export interface FavoritesOpenAction {
    * Entity ID
    */
   id: string;
+  /**
+   * The url to open
+   */
+  url: string;
   target: "same-tab" | "new-tab" | "new-window";
 }
 /**

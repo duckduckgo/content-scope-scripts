@@ -1,4 +1,9 @@
-// todo: add schema for types here.
+import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
+
+/**
+ * @import { PrivacyStatsData } from "../../../../../types/new-tab";
+ * @type {Record<string, PrivacyStatsData>}
+ */
 export const stats = {
     few: {
         totalCount: 481_113,
@@ -12,6 +17,10 @@ export const stats = {
                 count: 279,
             },
             {
+                displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+                count: 210,
+            },
+            {
                 displayName: 'Amazon',
                 count: 67,
             },
@@ -19,12 +28,7 @@ export const stats = {
                 displayName: 'Google Ads',
                 count: 2,
             },
-            {
-                displayName: 'Other',
-                count: 210,
-            },
         ],
-        trackerCompaniesPeriod: 'last-day',
     },
     single: {
         totalCount: 481_113,
@@ -34,16 +38,38 @@ export const stats = {
                 count: 1,
             },
         ],
-        trackerCompaniesPeriod: 'last-day',
     },
     norecent: {
         totalCount: 481_113,
         trackerCompanies: [],
-        trackerCompaniesPeriod: 'last-day',
     },
     none: {
         totalCount: 0,
         trackerCompanies: [],
-        trackerCompaniesPeriod: 'last-day',
+    },
+    willUpdate: {
+        totalCount: 481_113,
+        trackerCompanies: [
+            {
+                displayName: 'Facebook',
+                count: 1,
+            },
+            {
+                displayName: 'Google',
+                count: 1,
+            },
+            {
+                displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+                count: 1,
+            },
+            {
+                displayName: 'Amazon',
+                count: 1,
+            },
+            {
+                displayName: 'Google Ads',
+                count: 1,
+            },
+        ],
     },
 };

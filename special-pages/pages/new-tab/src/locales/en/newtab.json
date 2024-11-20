@@ -61,6 +61,10 @@
     "title": "Hide recent activity",
     "note": "The aria-label text for a toggle button that hides the detailed activity feed"
   },
+  "trackerStatsOtherCompanyName": {
+    "title": "Other",
+    "note": "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
+  },
   "favorites_show_less": {
     "title": "Show less",
     "note": ""
