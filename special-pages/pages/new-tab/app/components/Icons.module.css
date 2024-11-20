@@ -1,11 +1,11 @@
-.chevron {
+.chevronButton {
     &:hover .chevronCircle {
         fill: black;
         fill-opacity: 0.06;
 
         @media screen and (prefers-color-scheme: dark) {
             fill: white;
-            fill-opacity: 0.12
+            fill-opacity: 0.12;
         }
     }
 }
@@ -18,11 +18,8 @@
 .chevronArrow {
     @media screen and (prefers-color-scheme: dark) {
         fill: white;
-        fill-opacity: 0.5
+        fill-opacity: 0.5;
     }
 }
 
-.customize {
-
-}
 

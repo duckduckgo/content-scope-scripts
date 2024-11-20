@@ -3,7 +3,7 @@ import styles from './Icons.module.css';
 
 export function ChevronButton() {
     return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class={styles.chevron}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class={styles.chevronButton}>
             <rect fill="black" fill-opacity="0.06" width="24" height="24" rx="12" class={styles.chevronCircle} />
             <path
                 fill="black"
