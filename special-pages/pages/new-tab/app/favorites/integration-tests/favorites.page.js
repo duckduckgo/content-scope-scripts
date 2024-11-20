@@ -19,19 +19,19 @@ export class FavoritesPage {
     async opensInNewTab() {
         await this.nthFavorite(0).click({ modifiers: ['Meta'] });
         const calls = await this.ntp.mocks.waitForCallCount({ method: 'favorites_open', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ id: 'id-many-1', target: 'new-tab' });
+        expect(calls[0].payload.params).toStrictEqual({ id: 'id-many-1', url: 'https://example.com/?id=id-many-1', target: 'new-tab' });
     }
 
     async opensInNewWindow() {
         await this.nthFavorite(0).click({ modifiers: ['Shift'] });
         const calls = await this.ntp.mocks.waitForCallCount({ method: 'favorites_open', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ id: 'id-many-1', target: 'new-window' });
+        expect(calls[0].payload.params).toStrictEqual({ id: 'id-many-1', url: 'https://example.com/?id=id-many-1', target: 'new-window' });
     }
 
     async opensInSameTab() {
         await this.nthFavorite(0).click();
         const calls = await this.ntp.mocks.waitForCallCount({ method: 'favorites_open', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ id: 'id-many-1', target: 'same-tab' });
+        expect(calls[0].payload.params).toStrictEqual({ id: 'id-many-1', url: 'https://example.com/?id=id-many-1', target: 'same-tab' });
     }
 
     async addsAnItem() {
