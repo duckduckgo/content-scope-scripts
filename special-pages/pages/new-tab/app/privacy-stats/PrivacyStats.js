@@ -119,6 +119,7 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
                         }}
                         onClick={onToggle}
                         text={expansion === 'expanded' ? t('trackerStatsHideLabel') : t('trackerStatsToggleLabel')}
+                        shape="round"
                     />
                 </span>
             )}

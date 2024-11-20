@@ -1,6 +1,6 @@
 .item {
     display: grid;
-    grid-row-gap: 6px;
+    grid-row-gap: calc(6 * var(--px-in-rem));
     align-content: center;
     justify-content: center;
     position: relative;
@@ -18,8 +18,8 @@
     display: grid;
     align-content: center;
     justify-content: center;
-    width: var(--sp-16);
-    height: var(--sp-16);
+    width: 4rem;
+    height: 4rem;
     border-radius: var(--border-radius-lg);
 }
 
@@ -44,8 +44,8 @@
 
 .favicon {
     display: block;
-    width: 32px;
-    height: 32px;
+    width: 2rem;
+    height: 2rem;
     border-radius: var(--border-radius-md);
     background-repeat: no-repeat;
     background-size: contain;
@@ -68,8 +68,8 @@
 
 .text {
     text-align: center;
-    font-size: 10px;
-    line-height: 13px;
+    font-size: calc(10 * var(--px-in-rem));
+    line-height: calc(13 * var(--px-in-rem));
     font-weight: 400;
     min-height: 2.8em;
     overflow: hidden;
@@ -112,15 +112,13 @@
     }
 
     &:focus-visible {
-        border-style: dotted;
-        border-color: var(--ntp-focus-outline-color);
-        border-width: 1px;
+        box-shadow: var(--focus-ring);
     }
 }
 
 .dropper {
     width: 2px;
-    height: 64px;
+    height: 4rem;
     position: absolute;
     top: 0;
     background-color: var(--color-black-at-12);

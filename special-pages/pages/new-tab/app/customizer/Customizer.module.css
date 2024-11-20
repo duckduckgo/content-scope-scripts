@@ -4,8 +4,8 @@
 
 .lowerRightFixed {
     position: fixed;
-    bottom: 16px;
-    right: 16px;
+    bottom: 1rem;
+    right: 1rem;
 }
 
 .dropdownMenu {
@@ -24,10 +24,10 @@
     background-color: transparent;
     border: 1px solid var(--color-black-at-9);
     border-radius: var(--border-radius-sm);
-    padding: 8px 12px;
+    padding: var(--sp-2) var(--sp-3);
     cursor: pointer;
     display: flex;
-    gap: 6px;
+    gap: calc(6 * var(--px-in-rem));
     color: var(--color-black-at-84);
 
     @media screen and (prefers-color-scheme: dark) {

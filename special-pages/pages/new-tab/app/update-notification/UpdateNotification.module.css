@@ -1,5 +1,5 @@
 .pulled {
-    margin-top: -40px;
+    margin-top: calc(-40 * var(--px-in-rem));
 }
 .root {
     border-bottom: 1px solid var(--ntp-surface-border-color);
@@ -69,13 +69,13 @@
 .dismiss {
     transition: all .3s;
     position: absolute;
-    top: calc(var(--sp-6) - 4px);
+    top: calc(var(--sp-6) - var(--sp-1));
     right: var(--sp-2);
 }
 
 .dismissBtn {
-    height: 24px;
-    width: 24px;
+    height: 1.5rem;
+    width: 1.5rem;
     padding: 0;
     background-color: var(--ntp-background-color);
     color: var(--ntp-text-muted);
@@ -103,7 +103,7 @@
 
     &:focus-visible {
         outline: 1px dotted var(--ntp-focus-outline-color);
-        outline-offset: 4px;
+        outline-offset: var(--sp-1);
     }
 
     @media screen and (prefers-color-scheme: dark) {

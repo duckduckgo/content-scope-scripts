@@ -45,7 +45,7 @@
     text-wrap: nowrap;
     font-weight: 600;
     font-size: calc(11 * var(--px-in-rem));
-    line-height: calc(11 * var(--px-in-rem));
+    line-height: 1;
     color: var(--ntp-color-primary);
 
     &:hover {
@@ -108,6 +108,10 @@
             opacity: 1;
         }
     }
+
+    &.bottomSpace {
+        margin-bottom: var(--sp-8);
+    }
 }
 
 .cardGrid {
@@ -133,7 +137,7 @@
         background-color: var(--ntp-color-primary);
         font-size: calc(11 * var(--px-in-rem));
 
-        height: 20px;
+        height: calc(20 * var(--px-in-rem));
         line-height: normal;
         font-weight: 600;
         letter-spacing: 0.06px;
@@ -145,21 +149,34 @@
 }
 
 
-.showhide {
+.cardGroup {
+    transition: opacity .2s;
+    &:hover {
+        .showhide [aria-controls] {
+            opacity: 1;
+        }
+    }
+    &:focus-within {
+        .showhide [aria-controls] {
+            opacity: 1;
+        }
+    }
+}
+
+/* .showhide {
     height: var(--sp-8);
     opacity: 0;
-    transition: opacity .2s;
 
     &:focus-within,
     &:hover {
         opacity: 1;
     }
-}
+} */
 
 :root:has(body[data-platform-name="windows"]) {
     .nextStepsCard .title {
         font-weight: 700;
-        line-height: 20px;
+        line-height: calc(20 * var(--px-in-rem));
         letter-spacing: normal;
     }
 }

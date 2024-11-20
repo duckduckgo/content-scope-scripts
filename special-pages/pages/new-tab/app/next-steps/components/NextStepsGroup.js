@@ -4,7 +4,7 @@ import styles from './NextSteps.module.css';
 import { useTypedTranslation } from '../../types';
 import { NextStepsCard } from './NextStepsCard';
 import { otherText } from '../nextsteps.data';
-import { ShowHideButtonWithText } from './ShowHideButtonWithText';
+import { ShowHideButton } from '../../components/ShowHideButton';
 import { useId } from 'preact/hooks';
 
 /**
@@ -28,7 +28,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
     const alwaysShown = types.length >= 2 ? types.slice(0, 2) : types;
 
     return (
-        <div class={cn(styles.cardGroup)} id={WIDGET_ID}>
+        <div class={cn(styles.cardGroup, types.length <= 2 && styles.bottomSpace)} id={WIDGET_ID}>
             <NextStepsBubbleHeader />
             <div class={styles.cardGrid}>
                 {alwaysShown.map((type) => (
@@ -55,7 +55,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
                         [styles.showhideVisible]: types.length > 2,
                     })}
                 >
-                    <ShowHideButtonWithText
+                    <ShowHideButton
                         buttonAttrs={{
                             'aria-expanded': expansion === 'expanded',
                             'aria-pressed': expansion === 'expanded',
