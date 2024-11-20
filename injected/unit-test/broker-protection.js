@@ -1,21 +1,16 @@
-import fc from 'fast-check'
-import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js'
-import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
-import {
-    stringToList,
-    extractValue
-} from '../src/features/broker-protection/actions/extract.js'
-import {
-    addressMatch
-} from '../src/features/broker-protection/comparisons/address.js'
-import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
-import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
-import { names } from '../src/features/broker-protection/comparisons/constants.js'
-import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils.js'
-import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js'
-import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
-import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js'
-import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js'
+import fc from 'fast-check';
+import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js';
+import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js';
+import { stringToList, extractValue } from '../src/features/broker-protection/actions/extract.js';
+import { addressMatch } from '../src/features/broker-protection/comparisons/address.js';
+import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js';
+import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js';
+import { names } from '../src/features/broker-protection/comparisons/constants.js';
+import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils.js';
+import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js';
+import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js';
+import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
+import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js';
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -618,40 +613,40 @@ describe('Actions', () => {
                     fc.object(),
                     fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer())),
                     (input, action, userData) => {
-                        const output = processTemplateStringWithUserData(input, /** @type {any} */(action), userData)
-                        expect(typeof output).toEqual('string')
-                    }
-                )
-            )
-        })
-    })
+                        const output = processTemplateStringWithUserData(input, /** @type {any} */ (action), userData);
+                        expect(typeof output).toEqual('string');
+                    },
+                ),
+            );
+        });
+    });
 
     describe('click', () => {
         it('should return the appropriate comparison function for a valid comparator', () => {
-            const areEqual = getComparisonFunction('=')
-            expect(areEqual(5, 5)).toBe(true)
+            const areEqual = getComparisonFunction('=');
+            expect(areEqual(5, 5)).toBe(true);
 
-            const areNotEqual = getComparisonFunction('!==')
-            expect(areNotEqual(6, 5)).toBe(true)
+            const areNotEqual = getComparisonFunction('!==');
+            expect(areNotEqual(6, 5)).toBe(true);
 
-            const isLessThan = getComparisonFunction('<')
-            expect(isLessThan(5, 6)).toBe(true)
+            const isLessThan = getComparisonFunction('<');
+            expect(isLessThan(5, 6)).toBe(true);
 
-            const isLessThanOrEqualTo = getComparisonFunction('<=')
-            expect(isLessThanOrEqualTo(6, 6)).toBe(true)
+            const isLessThanOrEqualTo = getComparisonFunction('<=');
+            expect(isLessThanOrEqualTo(6, 6)).toBe(true);
 
-            const isMoreThan = getComparisonFunction('>')
-            expect(isMoreThan(7, 6)).toBe(true)
+            const isMoreThan = getComparisonFunction('>');
+            expect(isMoreThan(7, 6)).toBe(true);
 
-            const isMoreThanOrEqualTo = getComparisonFunction('>=')
-            expect(isMoreThanOrEqualTo(7, 7)).toBe(true)
-        })
+            const isMoreThanOrEqualTo = getComparisonFunction('>=');
+            expect(isMoreThanOrEqualTo(7, 7)).toBe(true);
+        });
 
         it('should return an error for an invalid comparator', () => {
-            expect(() => getComparisonFunction('!!')).toThrow()
-        })
-    })
-})
+            expect(() => getComparisonFunction('!!')).toThrow();
+        });
+    });
+});
 
 describe('generators', () => {
     describe('generateRandomPhoneNumber', () => {

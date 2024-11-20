@@ -1,13 +1,13 @@
-import { getElement } from '../utils.js'
-import { ErrorResponse, SuccessResponse } from '../types.js'
+import { getElement } from '../utils.js';
+import { ErrorResponse, SuccessResponse } from '../types.js';
 
 /**
  * @param {Record<string, any>} action
  * @param {Document} root
  * @return {import('../types.js').ActionResponse}
  */
-export function expectation (action, root = document) {
-    const results = expectMany(action.expectations, root)
+export function expectation(action, root = document) {
+    const results = expectMany(action.expectations, root);
 
     // filter out good results + silent failures, leaving only fatal errors
     const errors = results
@@ -25,15 +25,15 @@ export function expectation (action, root = document) {
     }
 
     // only run later actions if every expectation was met
-    const runActions = results.every(x => x.result === true)
+    const runActions = results.every((x) => x.result === true);
 
     if (action.actions?.length && runActions) {
         return new SuccessResponse({
             actionID: action.id,
             actionType: action.actionType,
             response: null,
-            next: action.actions
-        })
+            next: action.actions,
+        });
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });

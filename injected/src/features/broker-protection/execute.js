@@ -18,26 +18,26 @@ import { ErrorResponse } from './types.js';
 export async function execute(action, inputData, root = document) {
     try {
         switch (action.actionType) {
-        case 'navigate':
-            return buildUrl(action, data(action, inputData, 'userProfile'))
-        case 'extract':
-            return await extract(action, data(action, inputData, 'userProfile'), root)
-        case 'click':
-            return click(action, data(action, inputData, 'userProfile'), root)
-        case 'expectation':
-            return expectation(action, root)
-        case 'fillForm':
-            return fillForm(action, data(action, inputData, 'extractedProfile'), root)
-        case 'getCaptchaInfo':
-            return getCaptchaInfo(action, root)
-        case 'solveCaptcha':
-            return solveCaptcha(action, data(action, inputData, 'token'), root)
-        default: {
-            return new ErrorResponse({
-                actionID: action.id,
-                message: `unimplemented actionType: ${action.actionType}`
-            })
-        }
+            case 'navigate':
+                return buildUrl(action, data(action, inputData, 'userProfile'));
+            case 'extract':
+                return await extract(action, data(action, inputData, 'userProfile'), root);
+            case 'click':
+                return click(action, data(action, inputData, 'userProfile'), root);
+            case 'expectation':
+                return expectation(action, root);
+            case 'fillForm':
+                return fillForm(action, data(action, inputData, 'extractedProfile'), root);
+            case 'getCaptchaInfo':
+                return getCaptchaInfo(action, root);
+            case 'solveCaptcha':
+                return solveCaptcha(action, data(action, inputData, 'token'), root);
+            default: {
+                return new ErrorResponse({
+                    actionID: action.id,
+                    message: `unimplemented actionType: ${action.actionType}`,
+                });
+            }
         }
     } catch (e) {
         console.log('unhandled exception: ', e);
