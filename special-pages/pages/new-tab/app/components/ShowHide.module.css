@@ -9,14 +9,19 @@
     justify-content: center;
     align-items: center;
     color: var(--ntp-text-normal);
-    height: 32px;
-    width: 32px;
-    line-height: 32px;
-    gap: 6px;
-    padding-left: 0;
-    padding-right: 0;
-    font-size: 11px;
-    border-radius: 50%;
+    height: 2rem;
+    width: 100%;
+    border-radius: var(--border-radius-md);
+
+    &.round {
+        width: 2rem;
+        border-radius: 50%;
+
+        &:focus-visible {
+            box-shadow: var(--focus-ring);
+        }
+    }
+
 
     svg {
         transition: transform .3s;
@@ -28,6 +33,6 @@
 
     &:focus-visible {
         opacity: 1;
-        box-shadow: var(--focus-ring);
+        box-shadow: var(--focus-ring-thin);
     }
 }
