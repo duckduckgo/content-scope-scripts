@@ -8,7 +8,7 @@ import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from './constants.js';
  * @return {TrackerCompany[]}
  */
 export function sortStatsForDisplay(stats) {
-    const sorted = stats.sort((a, b) => b.count - a.count);
+    const sorted = stats.slice().sort((a, b) => b.count - a.count);
     const other = sorted.findIndex((x) => x.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER);
     if (other > -1) {
         const popped = sorted.splice(other, 1);

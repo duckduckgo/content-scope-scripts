@@ -47,4 +47,29 @@ export const stats = {
         totalCount: 0,
         trackerCompanies: [],
     },
+    willUpdate: {
+        totalCount: 481_113,
+        trackerCompanies: [
+            {
+                displayName: 'Facebook',
+                count: 1,
+            },
+            {
+                displayName: 'Google',
+                count: 1,
+            },
+            {
+                displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+                count: 1,
+            },
+            {
+                displayName: 'Amazon',
+                count: 1,
+            },
+            {
+                displayName: 'Google Ads',
+                count: 1,
+            },
+        ],
+    },
 };
