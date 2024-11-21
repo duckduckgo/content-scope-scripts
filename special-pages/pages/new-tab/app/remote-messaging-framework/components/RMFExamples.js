@@ -3,6 +3,8 @@ import { noop } from '../../utils.js';
 import { RemoteMessagingFramework } from './RemoteMessagingFramework.js';
 import { rmfDataExamples } from '../mocks/rmf.data.js';
 
+/** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
+
 export const RMFExamples = {
     'rmf.small': {
         factory: () => <RemoteMessagingFramework message={rmfDataExamples.small.content} dismiss={noop('rmf_dismiss')} />,

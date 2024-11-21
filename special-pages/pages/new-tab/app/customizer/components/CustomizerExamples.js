@@ -3,6 +3,8 @@ import { noop } from '../../utils.js';
 import { CustomizerButton } from './Customizer.js';
 import { VisibilityMenu } from './VisibilityMenu.js';
 
+/** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
+
 export const customizerExamples = {
     'customizer-menu': {
         factory: () => (

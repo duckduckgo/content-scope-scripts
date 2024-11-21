@@ -4,6 +4,8 @@ import { PrivacyStatsMockProvider } from '../mocks/PrivacyStatsMockProvider.js';
 import { PrivacyStatsConsumer, PrivacyStatsBody, Heading } from './PrivacyStats.js';
 import { stats } from '../mocks/stats.js';
 
+/** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
+
 export const privacyStatsExamples = {
     'stats.few': {
         factory: () => (

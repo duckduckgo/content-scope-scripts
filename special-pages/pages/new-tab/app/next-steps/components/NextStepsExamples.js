@@ -4,6 +4,8 @@ import { noop } from '../../utils.js';
 import { NextStepsCard } from './NextStepsCard.js';
 import { NextStepsCardGroup, NextStepsBubbleHeader } from './NextStepsGroup.js';
 
+/** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
+
 export const nextStepsExamples = {
     'next-steps.cardGroup.all': {
         factory: () => (
