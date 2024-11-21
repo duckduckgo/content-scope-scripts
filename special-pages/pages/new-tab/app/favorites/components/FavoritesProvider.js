@@ -17,7 +17,7 @@ import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndC
 
 /**
  * @template {BaseFavoriteType} ItemType - allow any type that extends BaseFavoriteType
- * @typedef {(list: ItemType[], id: string, fromIndex: number, targetIndex: number) => void} ReorderFn
+ * @typedef {(params: { list: ItemType[], id: string, fromIndex: number, targetIndex: number }) => void} ReorderFn
  */
 
 /**
@@ -31,7 +31,7 @@ export const FavoritesContext = createContext({
         throw new Error('must implement');
     },
     /** @type {ReorderFn<Favorite>} */
-    favoritesDidReOrder: (list, id, fromIndex, targetIndex) => {
+    favoritesDidReOrder: ({ list, id, fromIndex, targetIndex }) => {
         throw new Error('must implement');
     },
     /** @type {(id: string) => void} */
@@ -76,9 +76,9 @@ export function FavoritesProvider({ children }) {
 
     /** @type {ReorderFn<Favorite>} */
     const favoritesDidReOrder = useCallback(
-        (favorites, id, fromIndex, targetIndex) => {
+        ({ list, id, fromIndex, targetIndex }) => {
             if (!service.current) return;
-            service.current.setFavoritesOrder({ favorites }, id, fromIndex, targetIndex);
+            service.current.setFavoritesOrder({ favorites: list }, id, fromIndex, targetIndex);
         },
         [service],
     );

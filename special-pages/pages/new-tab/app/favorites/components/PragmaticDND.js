@@ -89,7 +89,12 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                         axis: 'horizontal',
                     });
 
-                    itemsDidReOrder(favorites, id, favorites.length, targetIndex);
+                    itemsDidReOrder({
+                        list: favorites,
+                        id,
+                        fromIndex: favorites.length,
+                        targetIndex,
+                    });
                 },
             }),
             monitorForElements({
@@ -147,7 +152,12 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
 
                     flushSync(() => {
                         try {
-                            itemsDidReOrder(reorderedList, startId, startIndex, targetIndex);
+                            itemsDidReOrder({
+                                list: reorderedList,
+                                id: startId,
+                                fromIndex: startIndex,
+                                targetIndex: targetIndex,
+                            });
                         } catch (e) {
                             console.error('did catch', e);
                         }
