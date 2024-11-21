@@ -73,8 +73,6 @@
     }
 
     @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-blue-30);
-
         &:hover:not(:active) {
             background-color: var(--color-black-at-9);
         }
