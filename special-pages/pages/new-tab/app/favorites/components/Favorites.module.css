@@ -9,7 +9,7 @@
         'showhide';
 
     &.bottomSpace {
-        margin-bottom: var(--sp-8);
+        margin-bottom: var(--ntp-gap);
     }
 
     &:hover {
@@ -26,7 +26,7 @@
 
 .showhide {
     grid-area: showhide;
-    height: 2rem;
+    height: var(--ntp-gap);
     display: grid;
     justify-items: center;
 }

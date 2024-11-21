@@ -11,7 +11,7 @@
     color: var(--ntp-text-normal);
     width: 100%;
     animation: animate-fade .2s cubic-bezier(0.55, 0.055, 0.666, 0.19);
-    margin-bottom: var(--sp-8);
+    margin-bottom: var(--ntp-gap);
 
 
     &.icon {

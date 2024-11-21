@@ -6,6 +6,7 @@
     --ntp-text-muted: var(--color-black-at-60);
     --ntp-text-on-primary: var(--color-white-at-84);
     --ntp-color-primary: var(--ddg-color-primary);
+    --ntp-gap: 2rem;
 
     /* Mac/System/Body */
     --body-font-size: 13px;

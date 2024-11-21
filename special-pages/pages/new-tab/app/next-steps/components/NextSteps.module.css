@@ -107,7 +107,7 @@
     }
 
     &.bottomSpace {
-        margin-bottom: var(--sp-8);
+        margin-bottom: var(--ntp-gap);
     }
 }
 
