@@ -10,7 +10,7 @@
     color: var(--ntp-text-muted);
     border: none;
     border-radius: 50%;
-
+    transition: all .3s;
 
     &:hover {
         background-color: var(--color-black-at-9);

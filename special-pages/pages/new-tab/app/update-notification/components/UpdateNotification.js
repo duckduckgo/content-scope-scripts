@@ -2,10 +2,10 @@ import { h } from 'preact';
 import cn from 'classnames';
 import styles from './UpdateNotification.module.css';
 import { useContext, useId, useRef } from 'preact/hooks';
-import { UpdateNotificationContext } from './UpdateNotificationProvider.js';
-import { useTypedTranslation } from '../types.js';
-import { Trans } from '../../../../shared/components/TranslationsProvider.js';
-import { Cross } from '../components/Icons.js';
+import { UpdateNotificationContext } from '../UpdateNotificationProvider.js';
+import { useTypedTranslation } from '../../types.js';
+import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
+import { DismissButton } from '../../components/DismissButton';
 
 /**
  * @param {object} props
@@ -15,20 +15,12 @@ import { Cross } from '../components/Icons.js';
  */
 
 export function UpdateNotification({ notes, dismiss, version }) {
-    const { t } = useTypedTranslation();
-
     return (
         <div class={styles.root} data-reset-layout="true">
             <div class={cn('layout-centered', styles.body)}>
-                {notes.length > 0 && <WithNotes notes={notes} version={version} />}
-                {notes.length === 0 && <WithoutNotes version={version} />}
+                {notes.length > 0 ? <WithNotes notes={notes} version={version} /> : <WithoutNotes version={version} />}
             </div>
-            <div class={styles.dismiss}>
-                <button onClick={dismiss} class={styles.dismissBtn}>
-                    <span class="sr-only">{t('updateNotification_dismiss_btn')}</span>
-                    <Cross />
-                </button>
-            </div>
+            <DismissButton onClick={dismiss} className={styles.dismiss} />
         </div>
     );
 }

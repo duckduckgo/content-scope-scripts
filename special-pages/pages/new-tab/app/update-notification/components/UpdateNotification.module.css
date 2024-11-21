@@ -67,53 +67,8 @@
 }
 
 .dismiss {
-    transition: all .3s;
     position: absolute;
     top: calc(var(--sp-6) - var(--sp-1));
     right: var(--sp-2);
-}
-
-.dismissBtn {
-    height: 1.5rem;
-    width: 1.5rem;
-    padding: 0;
-    background-color: var(--ntp-background-color);
-    color: var(--ntp-text-muted);
-    border: none;
-    border-radius: 50%;
-    position: relative;
-    cursor: pointer;
-    transition: background-color .3s;
-
-    svg {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translateY(-50%) translateX(-50%);
-    }
-
-    &:active {
-        background-color: var(--color-black-at-18);
-        color: var(--ntp-text-normal);
-    }
-
-    &:hover {
-        background-color: var(--color-black-at-9);
-    }
-
-    &:focus-visible {
-        outline: 1px dotted var(--ntp-focus-outline-color);
-        outline-offset: var(--sp-1);
-    }
-
-    @media screen and (prefers-color-scheme: dark) {
-        &:hover {
-            background-color: var(--color-white-at-9);
-        }
-
-        &:active {
-            background-color: var(--color-white-at-18);
-        }
-    }
 }
 
