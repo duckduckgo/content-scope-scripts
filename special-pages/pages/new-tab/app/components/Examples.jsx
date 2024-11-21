@@ -20,5 +20,5 @@ export const otherExamples = {
     ...otherPrivacyStatsExamples,
     ...otherRMFExamples,
     ...customizerExamples,
-    ...updateNotificationExamples
+    ...updateNotificationExamples,
 };
