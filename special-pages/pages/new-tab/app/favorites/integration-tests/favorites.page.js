@@ -259,7 +259,7 @@ export class FavoritesPage {
             params: {
                 id: '3',
                 targetIndex: index,
-                fromIndex: 15, // this is the length of the list, and it gets dropped at the end in the test.
+                fromIndex: 16, // this is the length of the list, and it gets dropped at the end in the test.
             },
         });
     }
