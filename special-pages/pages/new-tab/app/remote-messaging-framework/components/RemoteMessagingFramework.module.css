@@ -37,7 +37,7 @@
 .title {
     font-weight: var(--title-2-font-weight);
     line-height: normal;
-    margin-bottom: var(--sp-2);
+    margin-bottom: var(--sp-1);
 }
 
 .description {
