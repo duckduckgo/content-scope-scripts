@@ -19,9 +19,13 @@
     display: grid;
     grid-template-columns: 1.5rem auto 2rem;
     gap: var(--sp-3);
+    grid-template-rows: auto;
+    grid-template-areas: 'icon title expander';
+}
+.heading:has(.subtitle) {
     grid-template-rows: auto auto;
     grid-template-areas:
-        'icon title expander'
+         'icon title expander'
         'label label label';
 }
 .headingIcon {
@@ -124,7 +128,9 @@
         grid-template-columns: auto auto 60%;
     }
 }
-
+.textRow {
+    margin-top: 12px;
+}
 .company {
     grid-area: company;
     display: flex;

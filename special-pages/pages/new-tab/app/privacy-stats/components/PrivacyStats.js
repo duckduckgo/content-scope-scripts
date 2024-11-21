@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import styles from './PrivacyStats.module.css';
 import { useTypedTranslationWith } from '../../types.js';
 import { useContext, useState, useId, useCallback } from 'preact/hooks';
@@ -67,7 +67,6 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
     return (
         <div class={styles.root} ref={parentRef}>
             <Heading
-                totalCount={data.totalCount}
                 trackerCompanies={data.trackerCompanies}
                 onToggle={toggle}
                 expansion={expansion}
@@ -85,21 +84,20 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
  * @param {object} props
  * @param {Expansion} props.expansion
  * @param {TrackerCompany[]} props.trackerCompanies
- * @param {number} props.totalCount
  * @param {() => void} props.onToggle
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
-export function Heading({ expansion, trackerCompanies, totalCount, onToggle, buttonAttrs = {} }) {
+export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
     const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0);
-    const recentTitle =
-        recent === 1 ? t('stats_feedCountBlockedSingular') : t('stats_feedCountBlockedPlural', { count: formatter.format(recent) });
+    // const recentTitle =
+    //     recent === 1 ? t('stats_feedCountBlockedSingular') : t('stats_feedCountBlockedPlural', { count: formatter.format(recent) });
 
-    const none = totalCount === 0;
-    const some = totalCount > 0;
-    const alltime = formatter.format(totalCount);
-    const alltimeTitle = totalCount === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural', { count: alltime });
+    const none = recent === 0;
+    const some = recent > 0;
+    const alltime = formatter.format(recent);
+    const alltimeTitle = recent === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural', { count: alltime });
 
     return (
         <div className={styles.heading}>
@@ -122,10 +120,7 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
                     />
                 </span>
             )}
-            <p className={styles.subtitle}>
-                {recent === 0 && t('stats_noActivity')}
-                {recent > 0 && recentTitle}
-            </p>
+            {recent === 0 && <p className={styles.subtitle}>{t('stats_noActivity')}</p>}
         </div>
     );
 }
@@ -141,35 +136,47 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
     const [formatter] = useState(() => new Intl.NumberFormat());
     const sorted = sortStatsForDisplay(trackerCompanies);
     const max = sorted[0]?.count ?? 0;
+    const [visible, setVisible] = useState(5);
+    const hasmore = sorted.length > visible;
 
     return (
-        <ul {...listAttrs} class={styles.list} data-testid="CompanyList">
-            {sorted.map((company) => {
-                const percentage = Math.min((company.count * 100) / max, 100);
-                const valueOrMin = Math.max(percentage, 10);
-                const inlineStyles = {
-                    width: `${valueOrMin}%`,
-                };
-                const countText = formatter.format(company.count);
-                // prettier-ignore
-                const displayName = company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER
-                        ? t('stats_otherCompanyName')
-                        : company.displayName;
-                return (
-                    <li key={company.displayName}>
-                        <div class={styles.row}>
-                            <div class={styles.company}>
-                                <CompanyIcon displayName={company.displayName} />
-                                <span class={styles.name}>{displayName}</span>
+        <Fragment>
+            <ul {...listAttrs} class={styles.list} data-testid="CompanyList">
+                {sorted.slice(0, visible).map((company) => {
+                    const percentage = Math.min((company.count * 100) / max, 100);
+                    const valueOrMin = Math.max(percentage, 10);
+                    const inlineStyles = {
+                        width: `${valueOrMin}%`,
+                    };
+                    const countText = formatter.format(company.count);
+                    // prettier-ignore
+                    const displayName = company.displayName
+                    if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
+                        const otherText = t('trackerStatsOtherCount', { count: String(company.count) });
+                        return (
+                            <li key={company.displayName}>
+                                <div class={styles.textRow}>{otherText}</div>
+                            </li>
+                        );
+                    }
+                    return (
+                        <li key={company.displayName}>
+                            <div class={styles.row}>
+                                <div class={styles.company}>
+                                    <CompanyIcon displayName={company.displayName} />
+                                    <span class={styles.name}>{displayName}</span>
+                                </div>
+                                <span class={styles.count}>{countText}</span>
+                                <span class={styles.bar}></span>
+                                <span class={styles.fill} style={inlineStyles}></span>
                             </div>
-                            <span class={styles.count}>{countText}</span>
-                            <span class={styles.bar}></span>
-                            <span class={styles.fill} style={inlineStyles}></span>
-                        </div>
-                    </li>
-                );
-            })}
-        </ul>
+                        </li>
+                    );
+                })}
+            </ul>
+            {hasmore && visible < sorted.length && <button onClick={() => setVisible(sorted.length)}>Show more</button>}
+            {visible > 5 && visible === sorted.length && <button onClick={() => setVisible(5)}>Show less</button>}
+        </Fragment>
     );
 }
 

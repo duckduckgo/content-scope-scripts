@@ -18,7 +18,7 @@ import { variants as nextSteps } from '../../app/next-steps/nextsteps.data.js';
  * @typedef {import('../../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  */
 
-const VERSION_PREFIX = '__ntp_28__.';
+const VERSION_PREFIX = '__ntp_29__.';
 const url = new URL(window.location.href);
 
 export function mockTransport() {

@@ -47,22 +47,12 @@ export const privacyStatsExamples = {
     },
     'stats.heading': {
         factory: () => (
-            <Heading
-                trackerCompanies={stats.few.trackerCompanies}
-                totalCount={stats.few.totalCount}
-                expansion={'expanded'}
-                onToggle={noop('stats.heading onToggle')}
-            />
+            <Heading trackerCompanies={stats.few.trackerCompanies} expansion={'expanded'} onToggle={noop('stats.heading onToggle')} />
         ),
     },
     'stats.heading.none': {
         factory: () => (
-            <Heading
-                trackerCompanies={stats.none.trackerCompanies}
-                totalCount={stats.none.totalCount}
-                expansion={'expanded'}
-                onToggle={noop('stats.heading onToggle')}
-            />
+            <Heading trackerCompanies={stats.none.trackerCompanies} expansion={'expanded'} onToggle={noop('stats.heading onToggle')} />
         ),
     },
 };
