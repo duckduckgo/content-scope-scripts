@@ -45,8 +45,9 @@ export function MockFavoritesProvider({ data = favorites.many, config = DEFAULT_
         }
     }, [state.status, state.config?.expansion, isReducedMotion]);
 
-    const favoritesDidReOrder = useCallback((/** @type {Favorite[]} */ newList) => {
-        dispatch({ kind: 'data', data: { favorites: newList } });
+    /** @type {import('../components/FavoritesProvider.js').ReorderFn<Favorite>} */
+    const favoritesDidReOrder = useCallback(({ list }) => {
+        dispatch({ kind: 'data', data: { favorites: list } });
     }, []);
 
     const openContextMenu = (...args) => {
