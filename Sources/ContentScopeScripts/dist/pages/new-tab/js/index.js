@@ -972,7 +972,7 @@
       t: x2(TranslationContext).t
     };
   }
-  var MessagingContext, useMessaging, InitialSetupContext, useInitialSetupData;
+  var MessagingContext, useMessaging, TelemetryContext, useTelemetry, InitialSetupContext, useInitialSetupData;
   var init_types = __esm({
     "pages/new-tab/app/types.js"() {
       "use strict";
@@ -984,6 +984,14 @@
         {}
       );
       useMessaging = () => x2(MessagingContext);
+      TelemetryContext = G(
+        /** @type {import("./telemetry/telemetry.js").Telemetry} */
+        {
+          measureFromPageLoad: () => {
+          }
+        }
+      );
+      useTelemetry = () => x2(TelemetryContext);
       InitialSetupContext = G(
         /** @type {InitialSetupResponse} */
         {}
@@ -1454,15 +1462,17 @@
          * @param {FavoritesData} data
          * @param {string} id - entity id to move
          * @param {number} targetIndex - target index
+         * @param {number} fromIndex - from index
          * @internal
          */
-        setFavoritesOrder(data, id, targetIndex) {
+        setFavoritesOrder(data, id, fromIndex, targetIndex) {
           this.dataService.update((_old) => {
             return data;
           });
           this.ntp.messaging.notify("favorites_move", {
             id,
-            targetIndex
+            targetIndex,
+            fromIndex
           });
         }
         /**
@@ -1642,9 +1652,9 @@
     useDataSubscription({ dispatch, service });
     const { toggle } = useConfigSubscription({ dispatch, service });
     const favoritesDidReOrder = q2(
-      (favorites2, id, targetIndex) => {
+      ({ list: list2, id, fromIndex, targetIndex }) => {
         if (!service.current) return;
-        service.current.setFavoritesOrder({ favorites: favorites2 }, id, targetIndex);
+        service.current.setFavoritesOrder({ favorites: list2 }, id, fromIndex, targetIndex);
       },
       [service]
     );
@@ -1699,8 +1709,8 @@
         toggle: () => {
           throw new Error("must implement");
         },
-        /** @type {(list: Favorite[], id: string, targetIndex: number) => void} */
-        favoritesDidReOrder: (list2, id, targetIndex) => {
+        /** @type {ReorderFn<Favorite>} */
+        favoritesDidReOrder: ({ list: list2, id, fromIndex, targetIndex }) => {
           throw new Error("must implement");
         },
         /** @type {(id: string) => void} */
@@ -4280,7 +4290,12 @@
               indexOfTarget,
               axis: "horizontal"
             });
-            itemsDidReOrder(favorites2, id, targetIndex);
+            itemsDidReOrder({
+              list: favorites2,
+              id,
+              fromIndex: favorites2.length,
+              targetIndex
+            });
           }
         }),
         monitorForElements({
@@ -4325,7 +4340,12 @@
             });
             pn(() => {
               try {
-                itemsDidReOrder(reorderedList, startId, targetIndex);
+                itemsDidReOrder({
+                  list: reorderedList,
+                  id: startId,
+                  fromIndex: startIndex,
+                  targetIndex
+                });
               } catch (e3) {
                 console.error("did catch", e3);
               }
@@ -4817,7 +4837,9 @@
   // pages/new-tab/app/favorites/components/FavoritesCustomized.js
   function FavoritesConsumer() {
     const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2 } = x2(FavoritesContext);
+    const telemetry2 = useTelemetry();
     if (state.status === "ready") {
+      telemetry2.measureFromPageLoad("favorites-will-render", "time to favorites");
       return /* @__PURE__ */ _(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: favoritesDidReOrder }, /* @__PURE__ */ _(
         FavoritesMemo,
         {
@@ -6704,6 +6726,204 @@
   // pages/new-tab/app/widget-list/WidgetList.js
   init_Customizer2();
 
+  // pages/new-tab/app/telemetry/Debug.js
+  init_preact_module();
+  init_hooks_module();
+  init_types();
+  init_Customizer2();
+
+  // pages/new-tab/app/telemetry/telemetry.js
+  var Telemetry = class _Telemetry {
+    static EVENT_REQUEST = "TELEMETRY_EVENT_REQUEST";
+    static EVENT_RESPONSE = "TELEMETRY_EVENT_RESPONSE";
+    static EVENT_SUBSCRIPTION = "TELEMETRY_EVENT_SUBSCRIPTION";
+    static EVENT_SUBSCRIPTION_DATA = "TELEMETRY_EVENT_SUBSCRIPTION_DATA";
+    static EVENT_NOTIFICATION = "TELEMETRY_EVENT_NOTIFICATION";
+    static EVENT_BROADCAST = "TELEMETRY_*";
+    eventTarget = new EventTarget();
+    /** @type {any[]} */
+    eventStore = [];
+    storeEnabled = true;
+    /**
+     * @param now
+     */
+    constructor(now = Date.now()) {
+      this.now = now;
+      performance.mark("ddg-telemetry-init");
+      this._setupMessagingMarkers();
+    }
+    _setupMessagingMarkers() {
+      this.eventTarget.addEventListener(_Telemetry.EVENT_REQUEST, ({ detail }) => {
+        const named = `ddg request ${detail.method} ${detail.timestamp}`;
+        performance.mark(named);
+        this.broadcast(detail);
+      });
+      this.eventTarget.addEventListener(_Telemetry.EVENT_RESPONSE, ({ detail }) => {
+        const reqNamed = `ddg request ${detail.method} ${detail.timestamp}`;
+        const resNamed = `ddg response ${detail.method} ${detail.timestamp}`;
+        performance.mark(resNamed);
+        performance.measure(reqNamed, reqNamed, resNamed);
+        this.broadcast(detail);
+      });
+      this.eventTarget.addEventListener(_Telemetry.EVENT_SUBSCRIPTION, ({ detail }) => {
+        const named = `ddg subscription ${detail.method} ${detail.timestamp}`;
+        performance.mark(named);
+        this.broadcast(detail);
+      });
+      this.eventTarget.addEventListener(_Telemetry.EVENT_SUBSCRIPTION_DATA, ({ detail }) => {
+        const named = `ddg subscription data ${detail.method} ${detail.timestamp}`;
+        performance.mark(named);
+        this.broadcast(detail);
+      });
+      this.eventTarget.addEventListener(_Telemetry.EVENT_NOTIFICATION, ({ detail }) => {
+        const named = `ddg notification ${detail.method} ${detail.timestamp}`;
+        performance.mark(named);
+        this.broadcast(detail);
+      });
+    }
+    broadcast(payload) {
+      if (this.eventStore.length >= 50) {
+        this.eventStore = [];
+      }
+      if (this.storeEnabled) {
+        this.eventStore.push(structuredClone(payload));
+      }
+      this.eventTarget.dispatchEvent(new CustomEvent(_Telemetry.EVENT_BROADCAST, { detail: payload }));
+    }
+    measureFromPageLoad(marker, measure = "measure__" + Date.now()) {
+      if (!performance.getEntriesByName(marker).length) {
+        performance.mark(marker);
+        performance.measure(measure, "ddg-telemetry-init", marker);
+      }
+    }
+  };
+  var MessagingObserver = class {
+    /** @type {Map<string, number>} */
+    observed = /* @__PURE__ */ new Map();
+    /**
+     * @param {import("@duckduckgo/messaging").Messaging} messaging
+     * @param {EventTarget} eventTarget
+     */
+    constructor(messaging2, eventTarget) {
+      this.messaging = messaging2;
+      this.messagingContext = messaging2.messagingContext;
+      this.transport = messaging2.transport;
+      this.eventTarget = eventTarget;
+    }
+    /**
+     * @param {string} method
+     * @param {Record<string, any>} params
+     */
+    request(method, params) {
+      const timestamp = Date.now();
+      const json = {
+        kind: "request",
+        method,
+        params,
+        timestamp
+      };
+      this.record(Telemetry.EVENT_REQUEST, json);
+      return this.messaging.request(method, params).then((x4) => {
+        const resJson = {
+          kind: "response",
+          method,
+          result: x4,
+          timestamp
+        };
+        this.record(Telemetry.EVENT_RESPONSE, resJson);
+        return x4;
+      });
+    }
+    /**
+     * @param {string} method
+     * @param {Record<string, any>} params
+     */
+    notify(method, params) {
+      const json = {
+        kind: "notification",
+        method,
+        params
+      };
+      this.record(Telemetry.EVENT_NOTIFICATION, json);
+      return this.messaging.notify(method, params);
+    }
+    /**
+     * @param method
+     * @param callback
+     * @return {function(): void}
+     */
+    subscribe(method, callback) {
+      const timestamp = Date.now();
+      const json = {
+        kind: "subscription",
+        method,
+        timestamp
+      };
+      this.record(Telemetry.EVENT_SUBSCRIPTION, json);
+      return this.messaging.subscribe(method, (params) => {
+        const json2 = {
+          kind: "subscription data",
+          method,
+          timestamp,
+          params
+        };
+        this.record(Telemetry.EVENT_SUBSCRIPTION_DATA, json2);
+        callback(params);
+      });
+    }
+    /**
+     * @param {string} name
+     * @param {Record<string, any>} detail
+     */
+    record(name, detail) {
+      this.eventTarget.dispatchEvent(new CustomEvent(name, { detail }));
+    }
+  };
+  function install(messaging2) {
+    const telemetry2 = new Telemetry();
+    const observedMessaging = new MessagingObserver(messaging2, telemetry2.eventTarget);
+    return { telemetry: telemetry2, messaging: observedMessaging };
+  }
+
+  // pages/new-tab/app/telemetry/Debug.js
+  function DebugCustomized({ index }) {
+    const [isOpen, setOpen] = h2(false);
+    const telemetry2 = useTelemetry();
+    useCustomizer({
+      title: "\u{1F41E} Debug",
+      id: "debug",
+      icon: "shield",
+      visibility: isOpen ? "visible" : "hidden",
+      toggle: (_id) => setOpen((prev) => !prev),
+      index
+    });
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Debug, { telemetry: telemetry2, isOpen }));
+  }
+  function Debug({ telemetry: telemetry2, isOpen }) {
+    const textRef = A2(null);
+    useEvents(textRef, telemetry2);
+    return /* @__PURE__ */ _("div", { hidden: !isOpen }, /* @__PURE__ */ _("textarea", { style: { width: "100%" }, rows: 20, ref: textRef }));
+  }
+  function useEvents(ref, telemetry2) {
+    y2(() => {
+      if (!ref.current) return;
+      const elem = ref.current;
+      function handle({ detail }) {
+        elem.value += JSON.stringify(detail, null, 2) + "\n\n";
+      }
+      for (const beforeElement of telemetry2.eventStore) {
+        elem.value += JSON.stringify(beforeElement, null, 2) + "\n\n";
+      }
+      telemetry2.eventStore = [];
+      telemetry2.storeEnabled = false;
+      telemetry2.eventTarget.addEventListener(Telemetry.EVENT_BROADCAST, handle);
+      return () => {
+        telemetry2.eventTarget.removeEventListener(Telemetry.EVENT_BROADCAST, handle);
+        telemetry2.storeEnabled = true;
+      };
+    }, [ref, telemetry2]);
+  }
+
   // import("../entry-points/**/*.js") in pages/new-tab/app/widget-list/WidgetList.js
   var globImport_entry_points_js = __glob({
     "../entry-points/favorites.js": () => Promise.resolve().then(() => (init_favorites(), favorites_exports)),
@@ -6736,6 +6956,7 @@
   }
   function WidgetList() {
     const { widgets, widgetConfigItems, entryPoints } = x2(WidgetConfigContext);
+    const { env } = useEnv();
     return /* @__PURE__ */ _(Stack, { gap: "var(--sp-8)" }, widgets.map((widget, index) => {
       const matchingConfig = widgetConfigItems.find((item) => item.id === widget.id);
       const matchingEntryPoint = entryPoints[widget.id];
@@ -6743,7 +6964,7 @@
         return /* @__PURE__ */ _(b, { key: widget.id }, matchingEntryPoint.factory?.());
       }
       return /* @__PURE__ */ _(b, { key: widget.id }, /* @__PURE__ */ _(WidgetVisibilityProvider, { visibility: matchingConfig.visibility, id: matchingConfig.id, index }, matchingEntryPoint.factory?.()));
-    }), /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(Customizer, null)));
+    }), env === "development" && /* @__PURE__ */ _(DebugCustomized, { index: widgets.length }), /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(Customizer, null)));
   }
 
   // pages/new-tab/app/components/App.js
@@ -7285,8 +7506,8 @@
         dispatch({ kind: "config", config: { ...state.config, expansion: "expanded" } });
       }
     }, [state.status, state.config?.expansion, isReducedMotion]);
-    const favoritesDidReOrder = q2((newList) => {
-      dispatch({ kind: "data", data: { favorites: newList } });
+    const favoritesDidReOrder = q2(({ list: list2 }) => {
+      dispatch({ kind: "data", data: { favorites: list2 } });
     }, []);
     const openContextMenu = (...args) => {
       console.log("noop openContextMenu", ...args);
@@ -7629,7 +7850,7 @@
   }
 
   // pages/new-tab/app/index.js
-  async function init(messaging2, baseEnvironment2) {
+  async function init(messaging2, telemetry2, baseEnvironment2) {
     const init2 = await messaging2.init();
     if (!Array.isArray(init2.widgets)) {
       throw new Error("missing critical initialSetup.widgets array");
@@ -7684,7 +7905,7 @@
           willThrow: environment.willThrow,
           env: environment.env
         },
-        /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ _(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: strings, textLength: environment.textLength }, /* @__PURE__ */ _(
+        /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ _(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ _(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: strings, textLength: environment.textLength }, /* @__PURE__ */ _(
           WidgetConfigProvider,
           {
             api: widgetConfigAPI,
@@ -7693,7 +7914,7 @@
             entryPoints
           },
           /* @__PURE__ */ _(App, null)
-        ))))))
+        )))))))
       ),
       root2
     );
@@ -8609,11 +8830,11 @@
         const opts2 = new WindowsMessagingConfig({
           methods: {
             // @ts-expect-error - not in @types/chrome
-            postMessage: window.chrome.webview.postMessage,
+            postMessage: globalThis.windowsInteropPostMessage,
             // @ts-expect-error - not in @types/chrome
-            addEventListener: window.chrome.webview.addEventListener,
+            addEventListener: globalThis.windowsInteropAddEventListener,
             // @ts-expect-error - not in @types/chrome
-            removeEventListener: window.chrome.webview.removeEventListener
+            removeEventListener: globalThis.windowsInteropRemoveEventListener
           }
         });
         return new Messaging(messageContext, opts2);
@@ -8815,7 +9036,7 @@
     }
   };
   var baseEnvironment = new Environment().withInjectName("apple").withEnv("production");
-  var messaging = createSpecialPageMessaging({
+  var rawMessaging = createSpecialPageMessaging({
     injectName: "apple",
     env: "production",
     pageName: "newTabPage",
@@ -8825,8 +9046,9 @@
       return mock;
     }
   });
+  var { messaging, telemetry } = install(rawMessaging);
   var newTabMessaging = new NewTabPage(messaging, "apple");
-  init(newTabMessaging, baseEnvironment).catch((e3) => {
+  init(newTabMessaging, telemetry, baseEnvironment).catch((e3) => {
     console.error(e3);
     const msg = typeof e3?.message === "string" ? e3.message : "unknown init error";
     newTabMessaging.reportInitException(msg);

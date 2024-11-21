@@ -120,6 +120,10 @@ export interface FavoritesMoveAction {
    * zero-indexed target
    */
   targetIndex: number;
+  /**
+   * zero-indexed source
+   */
+  fromIndex: number;
 }
 /**
  * Generated from @see "../messages/new-tab/favorites_open.notify.json"

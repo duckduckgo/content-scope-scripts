@@ -4,6 +4,7 @@
   "type": "object",
   "required": [
     "id",
+    "fromIndex",
     "targetIndex"
   ],
   "properties": {
@@ -13,6 +14,10 @@
     },
     "targetIndex": {
       "description": "zero-indexed target",
+      "type": "number"
+    },
+    "fromIndex": {
+      "description": "zero-indexed source",
       "type": "number"
     }
   }

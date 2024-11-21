@@ -14,6 +14,9 @@ interface UnstableMockCall {
 
 interface Window {
     webkit: UnstableWebkit;
+    windowsInteropPostMessage: Window['postMessage'];
+    windowsInteropAddEventListener: Window['addEventListener'];
+    windowsInteropRemoveEventListener: Window['removeEventListener'];
     __playwright_01: {
         mockResponses: Record<string, import('../index.js').MessageResponse>;
         subscriptionEvents: import('../index.js').SubscriptionEvent[];
