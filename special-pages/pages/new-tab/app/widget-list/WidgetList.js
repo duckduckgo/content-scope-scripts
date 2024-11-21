@@ -3,6 +3,8 @@ import { WidgetConfigContext, WidgetVisibilityProvider } from './widget-config.p
 import { useContext } from 'preact/hooks';
 import { Stack } from '../../../onboarding/app/components/Stack.js';
 import { Customizer, CustomizerMenuPositionedFixed } from '../customizer/Customizer.js';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
+import { DebugCustomized } from '../telemetry/Debug.js';
 
 /**
  * @param {string} id
@@ -36,6 +38,7 @@ export async function widgetEntryPoint(id) {
 
 export function WidgetList() {
     const { widgets, widgetConfigItems, entryPoints } = useContext(WidgetConfigContext);
+    const { env } = useEnv();
 
     return (
         <Stack gap={'var(--sp-8)'}>
@@ -53,6 +56,7 @@ export function WidgetList() {
                     </Fragment>
                 );
             })}
+            {env === 'development' && <DebugCustomized index={widgets.length} />}
             <CustomizerMenuPositionedFixed>
                 <Customizer />
             </CustomizerMenuPositionedFixed>

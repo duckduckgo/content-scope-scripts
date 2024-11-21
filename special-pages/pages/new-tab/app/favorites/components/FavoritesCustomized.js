@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useContext } from 'preact/hooks';
 
-import { useTypedTranslation } from '../../types.js';
+import { useTelemetry, useTypedTranslation } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useCustomizer } from '../../customizer/Customizer.js';
 
@@ -14,8 +14,10 @@ import { FavoritesMemo } from './Favorites.js';
  */
 export function FavoritesConsumer() {
     const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add } = useContext(FavoritesContext);
+    const telemetry = useTelemetry();
 
     if (state.status === 'ready') {
+        telemetry.measureFromPageLoad('favorites-will-render', 'time to favorites');
         return (
             <PragmaticDND items={state.data.favorites} itemsDidReOrder={favoritesDidReOrder}>
                 <FavoritesMemo

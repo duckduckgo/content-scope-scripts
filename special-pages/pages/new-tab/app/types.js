@@ -20,6 +20,12 @@ export function useTypedTranslation() {
 
 export const MessagingContext = createContext(/** @type {import("../src/js/index.js").NewTabPage} */ ({}));
 export const useMessaging = () => useContext(MessagingContext);
+export const TelemetryContext = createContext(
+    /** @type {import("./telemetry/telemetry.js").Telemetry} */ ({
+        measureFromPageLoad: () => {},
+    }),
+);
+export const useTelemetry = () => useContext(TelemetryContext);
 
 export const InitialSetupContext = createContext(/** @type {InitialSetupResponse} */ ({}));
 export const useInitialSetupData = () => useContext(InitialSetupContext);
