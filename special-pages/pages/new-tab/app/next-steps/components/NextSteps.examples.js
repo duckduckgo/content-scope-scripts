@@ -4,6 +4,8 @@ import { noop } from '../../utils.js';
 import { NextStepsCard } from './NextStepsCard.js';
 import { NextStepsCardGroup, NextStepsBubbleHeader } from './NextStepsGroup.js';
 
+/** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
+
 export const nextStepsExamples = {
     'next-steps.cardGroup.all': {
         factory: () => (
@@ -14,7 +16,7 @@ export const nextStepsExamples = {
                     'blockCookies',
                     'emailProtection',
                     'duckplayer',
-                    'addAppDockMac',
+                    'addAppToDockMac',
                     'pinAppToTaskbarWindows',
                 ]}
                 expansion="collapsed"
@@ -33,7 +35,7 @@ export const nextStepsExamples = {
                     'blockCookies',
                     'emailProtection',
                     'duckplayer',
-                    'addAppDockMac',
+                    'addAppToDockMac',
                     'pinAppToTaskbarWindows',
                 ]}
                 expansion="expanded"
@@ -83,8 +85,8 @@ export const otherNextStepsExamples = {
     'next-steps.blockCookies': {
         factory: () => <NextStepsCard type="blockCookies" dismiss={noop('dismiss')} action={noop('action')} />,
     },
-    'next-steps.addAppDockMac': {
-        factory: () => <NextStepsCard type="addAppDockMac" dismiss={noop('dismiss')} action={noop('action')} />,
+    'next-steps.addAppToDockMac': {
+        factory: () => <NextStepsCard type="addAppToDockMac" dismiss={noop('dismiss')} action={noop('action')} />,
     },
     'next-steps.pinToTaskbarWindows': {
         factory: () => <NextStepsCard type="pinAppToTaskbarWindows" dismiss={noop('dismiss')} action={noop('action')} />,

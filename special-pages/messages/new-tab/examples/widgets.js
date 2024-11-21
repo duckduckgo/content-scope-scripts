@@ -32,6 +32,8 @@ const widgetConfig = {
 const initialSetupResponse = {
     widgets: [{ id: 'updateNotification' }, { id: 'rmf' }, { id: 'favorites' }, { id: 'privacyStats' }],
     widgetConfigs: [
+        { id: 'rmf', visibility: 'visible' },
+        { id: 'nextSteps', visibility: 'visible' },
         { id: 'favorites', visibility: 'visible' },
         { id: 'privacyStats', visibility: 'visible' },
     ],

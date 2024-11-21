@@ -1,22 +1,22 @@
 import { h } from 'preact';
 import styles from './PrivacyStats.module.css';
-import { useTypedTranslation } from '../types.js';
+import { useTypedTranslation } from '../../types.js';
 import { useContext, useState, useId, useCallback } from 'preact/hooks';
-import { PrivacyStatsContext, PrivacyStatsProvider } from './PrivacyStatsProvider.js';
-import { useVisibility } from '../widget-list/widget-config.provider.js';
-import { viewTransition } from '../utils.js';
-import { ShowHideButton } from '../components/ShowHideButton.jsx';
-import { useCustomizer } from '../customizer/Customizer.js';
-import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from './constants.js';
-import { sortStatsForDisplay } from './privacy-stats.utils.js';
+import { PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvider.js';
+import { useVisibility } from '../../widget-list/widget-config.provider.js';
+import { viewTransition } from '../../utils.js';
+import { ShowHideButton } from '../../components/ShowHideButton.jsx';
+import { useCustomizer } from '../../customizer/components/Customizer.js';
+import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
+import { sortStatsForDisplay } from '../privacy-stats.utils.js';
 
 /**
- * @typedef {import('../../../../types/new-tab').TrackerCompany} TrackerCompany
- * @typedef {import('../../../../types/new-tab').Expansion} Expansion
- * @typedef {import('../../../../types/new-tab').Animation} Animation
- * @typedef {import('../../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
- * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
- * @typedef {import("./PrivacyStatsProvider.js").Events} Events
+ * @typedef {import('../../../../../types/new-tab').TrackerCompany} TrackerCompany
+ * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
+ * @typedef {import('../../../../../types/new-tab').Animation} Animation
+ * @typedef {import('../../../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
+ * @typedef {import('../../../../../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import("../PrivacyStatsProvider.js").Events} Events
  */
 
 /**
@@ -75,7 +75,7 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
                     id: TOGGLE_ID,
                 }}
             />
-            {expanded && someCompanies && <Body trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />}
+            {expanded && someCompanies && <PrivacyStatsBody trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />}
         </div>
     );
 }
@@ -105,7 +105,7 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
     return (
         <div className={styles.heading}>
             <span className={styles.headingIcon}>
-                <img src="./icons/shield.svg" alt="" />
+                <img src="./icons/shield.svg" alt="Privacy Shield" />
             </span>
             {none && <p className={styles.title}>{t('trackerStatsNoRecent')}</p>}
             {some && <p className={styles.title}>{alltimeTitle}</p>}
@@ -119,6 +119,7 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
                         }}
                         onClick={onToggle}
                         text={expansion === 'expanded' ? t('trackerStatsHideLabel') : t('trackerStatsToggleLabel')}
+                        shape="round"
                     />
                 </span>
             )}
@@ -135,8 +136,8 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
  * @param {import("preact").ComponentProps<'ul'>} [props.listAttrs]
  * @param {TrackerCompany[]} props.trackerCompanies
  */
-// eslint-disable-next-line no-redeclare
-export function Body({ trackerCompanies, listAttrs = {} }) {
+
+export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
     const { t } = useTypedTranslation();
     const [formatter] = useState(() => new Intl.NumberFormat());
     const sorted = sortStatsForDisplay(trackerCompanies);

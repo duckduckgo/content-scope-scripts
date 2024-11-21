@@ -2,12 +2,12 @@ import { h } from 'preact';
 import { useEffect, useRef, useState, useCallback, useId } from 'preact/hooks';
 import styles from './Customizer.module.css';
 import { VisibilityMenu } from './VisibilityMenu.js';
-import { CustomizeIcon } from '../components/Icons.js';
+import { CustomizeIcon } from '../../components/Icons.js';
 import cn from 'classnames';
-import { useMessaging } from '../types.js';
+import { useMessaging } from '../../types.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../../../types/new-tab.js'
  */
 
 /**

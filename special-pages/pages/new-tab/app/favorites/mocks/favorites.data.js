@@ -23,6 +23,7 @@ export const favorites = {
             { id: 'id-many-2', url: 'https://example.com?id=id-many-2', title: 'Adform', favicon: null },
             { id: 'id-many-3', url: 'https://a.example.com?id=id-many-3', title: 'Adobe', favicon: { src: './this-does-note-exist', maxAvailableSize: 64 } },
             { id: 'id-many-4', url: 'https://b.example.com?id=id-many-3', title: 'Adobe', favicon: { src: './this-does-note-exist', maxAvailableSize: 64 } },
+            { id: 'id-many-31', url: 'https://b.example.com?id=id-many-4', title: 'A Beautiful Mess', favicon: { src: './this-does-note-exist', maxAvailableSize: 64 } },
             { id: 'id-many-5', url: 'https://222?id=id-many-3', title: 'Gmail', favicon: null },
             { id: 'id-many-6', url: 'https://example.com?id=id-many-5', title: 'TikTok', favicon: { src: './company-icons/bytedance.svg', maxAvailableSize: 64 } },
             { id: 'id-many-7', url: 'https://example.com?id=id-many-6', title: 'DoorDash', favicon: { src: './company-icons/d.svg', maxAvailableSize: 64 } },

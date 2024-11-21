@@ -108,17 +108,17 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     const canToggleExpansion = items.length > ROW_CAPACITY;
 
     return (
-        <div class={styles.root} data-testid="FavoritesConfigured">
+        <div class={cn(styles.root, !canToggleExpansion && styles.bottomSpace)} data-testid="FavoritesConfigured">
             <div class={styles.grid} id={WIDGET_ID} ref={gridRef} onContextMenu={onContextMenu} onClick={onClick}>
                 {items.slice(0, expansion === 'expanded' ? undefined : ROW_CAPACITY)}
             </div>
-            <div
-                className={cn({
-                    [styles.showhide]: true,
-                    [styles.showhideVisible]: canToggleExpansion,
-                })}
-            >
-                {canToggleExpansion && (
+            {canToggleExpansion && (
+                <div
+                    className={cn({
+                        [styles.showhide]: true,
+                        [styles.showhideVisible]: canToggleExpansion,
+                    })}
+                >
                     <ShowHideButton
                         buttonAttrs={{
                             'aria-expanded': expansion === 'expanded',
@@ -131,8 +131,8 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
                         }
                         onClick={toggle}
                     />
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }
