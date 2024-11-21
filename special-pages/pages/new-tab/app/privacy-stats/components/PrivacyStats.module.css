@@ -2,35 +2,32 @@
     background: var(--ntp-surface-background-color);
     border: 1px solid var(--ntp-surface-border-color);
     padding: var(--sp-6);
-    border-radius: var(--sp-3);
+    border-radius: var(--border-radius-lg);
     display: grid;
     align-items: start;
     grid-template-columns: auto;
-    grid-row-gap: 18px;
+    grid-row-gap: calc(18 * var(--px-in-rem));
     width: 100%;
+    margin-bottom: var(--ntp-gap);
 
     @media screen and (prefers-color-scheme: dark) {
         border-color: var(--color-white-at-9);
     }
 }
 
-.collapsed {}
-.expanded {}
 .heading {
     display: grid;
-    grid-template-columns: 24px auto 32px;
-    grid-column-gap: 12px;
-    grid-row-gap: 12px;
+    grid-template-columns: 1.5rem auto 2rem;
+    gap: var(--sp-3);
     grid-template-rows: auto auto;
     grid-template-areas:
         'icon title expander'
         'label label label';
-    grid-row-gap: 12px;
 }
 .headingIcon {
     grid-area: icon;
-    width: 24px;
-    height: 24px;
+    width: 1.5rem;
+    height: 1.5rem;
     position: relative;
 
     img {
@@ -61,18 +58,14 @@
 
 .subtitle {
     grid-area: label;
-    color: var(--color-black-at-60);
+    color: var(--ntp-text-muted);
     padding-left: 2px;
-
-    @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-60);
-    }
 }
 
 .list {
     display: grid;
     grid-template-columns: auto;
-    grid-row-gap: 6px;
+    grid-row-gap: calc(6 * var(--px-in-rem));
     transition: opacity ease-in-out 0.3s, visibility ease-in-out 0.3s;
 }
 
@@ -121,9 +114,9 @@
 }
 
 .row {
-    min-height: 32px;
+    min-height: 2rem;
     display: grid;
-    grid-gap: 12px;
+    grid-gap: 0.75rem;
     grid-template-columns: auto auto 40%;
     grid-template-areas: 'company count bar';
     align-items: center;
@@ -136,21 +129,21 @@
     grid-area: company;
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding-left: 4px;
+    gap: var(--sp-2);
+    padding-left: var(--sp-1);
 }
 
 .icon {
     display: block;
-    width: 16px;
-    height: 16px;
+    width: 1rem;
+    height: 1rem;
     border-radius: 50%;
     flex-shrink: 0;
     img, svg {
         display: block;
         font-size: 0;
-        width: 16px;
-        height: 16px;
+        width: 1rem;
+        height: 1rem;
     }
     &:has([data-errored=true]) {
         outline: 1px solid var(--ntp-surface-border-color);
@@ -168,10 +161,6 @@
     opacity: 1;
 }
 
-.other {
-    /*color: */
-}
-
 .name {
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
@@ -181,8 +170,8 @@
 .bar {
     grid-area: bar;
     width: 100%;
-    height: 16px;
-    border-radius: 20px;
+    height: 1rem;
+    border-radius: calc(20 * var(--px-in-rem));
 
     background: var(--color-black-at-3);
 
@@ -193,8 +182,8 @@
 
 .fill {
     grid-area: bar;
-    height: 16px;
-    border-radius: 20px;
+    height: 1rem;
+    border-radius: calc(20 * var(--px-in-rem));
 
     background: var(--color-black-at-6);
 
@@ -206,8 +195,5 @@
 .count {
     grid-area: count;
     text-align: right;
-
-    @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-84);
-    }
+    color: var(--ntp-text-normal);
 }

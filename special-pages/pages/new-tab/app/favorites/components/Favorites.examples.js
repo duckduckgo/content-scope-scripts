@@ -1,11 +1,11 @@
 import { h } from 'preact';
-
 import { noop } from '../../utils.js';
 import { favorites } from '../mocks/favorites.data.js';
 import { MockFavoritesProvider } from '../mocks/MockFavoritesProvider.js';
-
 import { FavoritesMemo } from './Favorites.js';
 import { FavoritesConsumer } from './FavoritesCustomized.js';
+
+/** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 
 export const favoritesExamples = {
     'favorites.no-dnd': {

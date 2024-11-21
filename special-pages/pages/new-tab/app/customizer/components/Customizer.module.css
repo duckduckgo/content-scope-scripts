@@ -4,8 +4,8 @@
 
 .lowerRightFixed {
     position: fixed;
-    bottom: 16px;
-    right: 16px;
+    bottom: 1rem;
+    right: 1rem;
 }
 
 .dropdownMenu {
@@ -23,20 +23,20 @@
 .customizeButton {
     background-color: transparent;
     border: 1px solid var(--color-black-at-9);
-    border-radius: 6px;
-    padding: 8px 12px;
+    border-radius: var(--border-radius-sm);
+    padding: var(--sp-2) var(--sp-3);
     cursor: pointer;
     display: flex;
-    gap: 6px;
-    color: var(--color-black-at-84);
+    gap: calc(6 * var(--px-in-rem));
+    color: var(--ntp-text-normal);
 
     @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-80);
         border-color: var(--color-white-at-9);
     }
 
     &:focus-visible {
-        outline: 1px dotted var(--ntp-focus-outline-color);
+        box-shadow: var(--focus-ring);
+        outline: none;
     }
 
     &:hover {

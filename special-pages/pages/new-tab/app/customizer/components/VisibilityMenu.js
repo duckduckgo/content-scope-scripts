@@ -1,12 +1,12 @@
 import { h } from 'preact';
 import { useId } from 'preact/hooks';
 
-import { DuckFoot, Shield } from '../components/Icons.js';
+import { DuckFoot, Shield } from '../../components/Icons.js';
 import styles from './VisibilityMenu.module.css';
-import { useTypedTranslation } from '../types.js';
+import { useTypedTranslation } from '../../types.js';
 
 /**
- * @import { Widgets, WidgetConfigItem } from '../../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem } from '../../../../../types/new-tab.js'
  * @import { VisibilityRowData, VisibilityRowState } from './Customizer.js'
  */
 
