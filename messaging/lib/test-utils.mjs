@@ -118,18 +118,20 @@ export function mockWindowsMessaging(params) {
  * }} params
  */
 export function mockWindowsInteropMessaging(params) {
-    window.__playwright_01 = {
-        mockResponses: params.responses,
-        subscriptionEvents: [],
-        mocks: {
-            outgoing: [],
-        },
-    };
+    if (!window.__playwright_01) {
+        window.__playwright_01 = {
+            mockResponses: params.responses,
+            subscriptionEvents: [],
+            mocks: {
+                outgoing: [],
+            },
+        };
+    }
     const listeners = [];
     /**
      * @param {AnyWindowsMessage} input
      */
-    globalThis.postMessage = (input) => {
+    window.windowsInteropPostMessage = (input) => {
         // subscription events come through here also
         if ('subscriptionName' in input) {
             setTimeout(() => {
@@ -192,13 +194,13 @@ export function mockWindowsInteropMessaging(params) {
             }
         }, 0);
     };
-    globalThis.removeEventListener = (_name, _listener) => {
+    window.windowsInteropRemoveEventListener = (_name, _listener) => {
         const index = listeners.indexOf(_listener);
         if (index > -1) {
             listeners.splice(index, 1);
         }
     };
-    globalThis.addEventListener = (_name, listener) => {
+    window.windowsInteropAddEventListener = (_name, listener) => {
         listeners.push(listener);
     };
 }
