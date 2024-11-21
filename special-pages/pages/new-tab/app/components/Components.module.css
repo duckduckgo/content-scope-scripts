@@ -72,7 +72,6 @@ body[data-display="components"] {
     gap: 1rem; /* Adjust the gap size as needed */
 }
 
-.selectItem {
+.item {
+    position: relative;
 }
-
-.item {}
