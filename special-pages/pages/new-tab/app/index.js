@@ -4,7 +4,7 @@ import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/componen
 import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx';
 import { ErrorBoundary } from '../../../shared/components/ErrorBoundary.js';
 import { SettingsProvider } from './settings.provider.js';
-import { InitialSetupContext, MessagingContext } from './types';
+import { InitialSetupContext, MessagingContext, TelemetryContext } from './types';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { WidgetConfigService } from './widget-list/widget-config.service.js';
 import enStrings from '../src/locales/en/newtab.json';
@@ -15,9 +15,10 @@ import { widgetEntryPoint } from './widget-list/WidgetList.js';
 
 /**
  * @param {import("../src/js").NewTabPage} messaging
+ * @param {import("./telemetry/telemetry.js").Telemetry} telemetry
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  */
-export async function init(messaging, baseEnvironment) {
+export async function init(messaging, telemetry, baseEnvironment) {
     const init = await messaging.init();
 
     if (!Array.isArray(init.widgets)) {
@@ -107,18 +108,20 @@ export async function init(messaging, baseEnvironment) {
                 <UpdateEnvironment search={window.location.search} />
                 <MessagingContext.Provider value={messaging}>
                     <InitialSetupContext.Provider value={init}>
-                        <SettingsProvider settings={settings}>
-                            <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
-                                <WidgetConfigProvider
-                                    api={widgetConfigAPI}
-                                    widgetConfigs={init.widgetConfigs}
-                                    widgets={init.widgets}
-                                    entryPoints={entryPoints}
-                                >
-                                    <App />
-                                </WidgetConfigProvider>
-                            </TranslationProvider>
-                        </SettingsProvider>
+                        <TelemetryContext.Provider value={telemetry}>
+                            <SettingsProvider settings={settings}>
+                                <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                                    <WidgetConfigProvider
+                                        api={widgetConfigAPI}
+                                        widgetConfigs={init.widgetConfigs}
+                                        widgets={init.widgets}
+                                        entryPoints={entryPoints}
+                                    >
+                                        <App />
+                                    </WidgetConfigProvider>
+                                </TranslationProvider>
+                            </SettingsProvider>
+                        </TelemetryContext.Provider>
                     </InitialSetupContext.Provider>
                 </MessagingContext.Provider>
             </ErrorBoundary>

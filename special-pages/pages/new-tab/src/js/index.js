@@ -9,6 +9,7 @@ import { createTypedMessages } from '@duckduckgo/messaging';
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging';
 import { Environment } from '../../../../shared/environment.js';
 import { mockTransport } from './mock-transport.js';
+import { install } from '../../app/telemetry/telemetry.js';
 
 export class NewTabPage {
     /**
@@ -57,7 +58,7 @@ export class NewTabPage {
 
 const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env);
 
-const messaging = createSpecialPageMessaging({
+const rawMessaging = createSpecialPageMessaging({
     injectName: import.meta.injectName,
     env: import.meta.env,
     pageName: 'newTabPage',
@@ -71,9 +72,10 @@ const messaging = createSpecialPageMessaging({
     },
 });
 
+const { messaging, telemetry } = install(rawMessaging);
 const newTabMessaging = new NewTabPage(messaging, import.meta.injectName);
 
-init(newTabMessaging, baseEnvironment).catch((e) => {
+init(newTabMessaging, telemetry, baseEnvironment).catch((e) => {
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
     newTabMessaging.reportInitException(msg);
