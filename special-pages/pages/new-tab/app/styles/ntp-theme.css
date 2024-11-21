@@ -42,6 +42,7 @@
         --ntp-text-on-primary: var(--color-black-at-84);
         --ntp-focus-outline-color: white;
         --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
+        --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
     }
 }
 
