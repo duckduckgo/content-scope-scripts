@@ -23,4 +23,4 @@ export const Promise = globalThis.Promise;
 export const String = globalThis.String;
 export const Map = globalThis.Map;
 export const Error = globalThis.Error;
-export const randomUUID = globalThis.crypto?.randomUUID.bind(globalThis.crypto);
+export const randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
