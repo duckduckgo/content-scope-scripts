@@ -156,7 +156,7 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                                 list: reorderedList,
                                 id: startId,
                                 fromIndex: startIndex,
-                                targetIndex: targetIndex,
+                                targetIndex,
                             });
                         } catch (e) {
                             console.error('did catch', e);
