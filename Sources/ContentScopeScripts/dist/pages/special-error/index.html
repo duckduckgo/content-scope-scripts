@@ -1,0 +1,3278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Error</title>
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+"use strict";
+(() => {
+  // pages/special-error/src/js/inline.js
+  var param = new URLSearchParams(window.location.search).get("platform");
+  if (isAllowed(param)) {
+    document.documentElement.dataset.platform = String(param);
+  } else {
+    document.documentElement.dataset.platform = "apple";
+  }
+  function isAllowed(input) {
+    const allowed = ["windows", "apple", "integration"];
+    return allowed.includes(input);
+  }
+})();
+
+</script>
+    <style>
+/* shared/components/Text/Text.module.css */
+a {
+  color: var(--ddg-color-primary);
+}
+.Text_title-1 {
+  font-size: calc(22 * var(--px-in-rem));
+  line-height: calc(26 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(-0.26 * var(--px-in-rem));
+  }
+}
+.Text_title-2 {
+  font-size: calc(17 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: calc(22 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(-0.43 * var(--px-in-rem));
+  }
+}
+.Text_title-2-emphasis {
+  font-size: calc(17 * var(--px-in-rem));
+  font-weight: 700;
+  line-height: calc(22 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(-0.43 * var(--px-in-rem));
+  }
+}
+.Text_headline {
+  font-size: calc(13 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: calc(16 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(-0.08 * var(--px-in-rem));
+  }
+}
+.Text_subheadline {
+  font-size: calc(11 * var(--px-in-rem));
+  line-height: calc(14 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(0.06 * var(--px-in-rem));
+  }
+}
+.Text_body {
+  font-size: calc(13 * var(--px-in-rem));
+  line-height: calc(16 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(-0.08 * var(--px-in-rem));
+  }
+}
+.Text_body-emphasis {
+  font-size: calc(13 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: calc(16 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(-0.08 * var(--px-in-rem));
+  }
+}
+.Text_label-small {
+  font-size: calc(11 * var(--px-in-rem));
+  line-height: calc(11 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(0.06 * var(--px-in-rem));
+  }
+}
+.Text_label-default {
+  font-size: calc(13 * var(--px-in-rem));
+  line-height: calc(13 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(-0.08 * var(--px-in-rem));
+  }
+}
+.Text_label-medium {
+  font-size: calc(13 * var(--px-in-rem));
+  font-weight: 500;
+  line-height: calc(13 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(-0.25 * var(--px-in-rem));
+  }
+}
+.Text_caption-2-emphasis {
+  font-size: calc(10 * var(--px-in-rem));
+  line-height: calc(13 * var(--px-in-rem));
+  &.Text_strictSpacing {
+    letter-spacing: calc(0.12 * var(--px-in-rem));
+  }
+}
+[data-platform-name=ios] {
+  & .Text_title-2 {
+    font-size: calc(22 * var(--px-in-rem));
+    font-weight: 600;
+    line-height: calc(28 * var(--px-in-rem));
+    &.Text_strictSpacing {
+      letter-spacing: calc(0.35 * var(--px-in-rem));
+    }
+  }
+  & .Text_body {
+    font-size: calc(16 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(21 * var(--px-in-rem));
+    &.Text_strictSpacing {
+      letter-spacing: calc(-0.31 * var(--px-in-rem));
+    }
+  }
+}
+
+/* shared/components/Button/Button.module.css */
+.Button_button {
+  appearance: none;
+  background: var(--button-bg);
+  color: var(--button-text);
+  cursor: pointer;
+}
+[data-platform-name=macos] .Button_button {
+  border: 0;
+  border-radius: calc(5 * var(--px-in-rem));
+  box-shadow: var(--button-shadow);
+  font-size: calc(13 * var(--px-in-rem));
+  height: var(--sp-5);
+  opacity: var(--button-opacity);
+  padding: 0 var(--sp-3);
+  &:active {
+    background: var(--button-bg--active, var(--button-bg));
+    box-shadow: var(--button-shadow--active, var(--button-shadow));
+    color: var(--button-text--active, var(--button-text));
+    opacity: var(--button-opacity--active, var(--button-opacity));
+  }
+  &:disabled {
+    background: var(--button-bg--disabled, var(--button-bg));
+    box-shadow: var(--button-shadow--disabled, var(--button-shadow));
+    color: var(--button-text--disabled, var(--button-text));
+    opacity: var(--button-opacity--disabled, var(--button-opacity));
+  }
+  &:focus {
+    background: var(--button-bg--focus, var(--button-bg));
+    box-shadow: var(--button-shadow--focus, var(--button-shadow));
+    color: var(--button-text--focus, var(--button-text));
+    opacity: var(--button-opacity--focus, var(--button-opacity));
+  }
+  &:hover {
+    background: var(--button-bg);
+    box-shadow: var(--button-shadow--hover, var(--button-shadow));
+    color: var(--button-text--hover, var(--button-text));
+    opacity: var(--button-opacity--hover, var(--button-opacity));
+  }
+}
+[data-platform-name=ios] .Button_button {
+  border-radius: var(--sp-2);
+  border: 0;
+  font-size: calc(15 * var(--px-in-rem));
+  font-weight: 600;
+  height: calc(50 * var(--px-in-rem));
+  letter-spacing: calc(-0.23 * var(--px-in-rem));
+  padding: 0 var(--sp-6);
+  text-align: center;
+  &:active {
+    background: var(--button-bg--active, var(--button-bg));
+    color: var(--button-text--active, var(--button-text));
+  }
+  &:disabled {
+    background: var(--button-bg--disabled, var(--button-bg));
+    color: var(--button-text--disabled, var(--button-text));
+  }
+}
+body:not([data-platform-name]) {
+  & .Button_button {
+    background-blend-mode:
+      normal,
+      color-burn,
+      normal;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0) 100%),
+      linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.06) 100%),
+      #007aff;
+    border-radius: var(--sp-2);
+    border: 1px solid rgba(40, 145, 255, 0.05);
+    box-shadow: 0 0 1px 0 rgba(40, 145, 255, 0.05), 0 1px 1px 0 rgba(40, 145, 255, 0.1);
+    color: white;
+    font-size: calc(13 * var(--px-in-rem));
+    font-weight: 600;
+    line-height: var(--sp-8);
+    padding: 0 var(--sp-4);
+    &:hover {
+      background:
+        linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.16) 100%),
+        #2749db;
+    }
+    &:active {
+      background:
+        linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.16) 100%),
+        #1743d1;
+    }
+  }
+}
+[data-platform-name=macos] {
+  --macos-control-standard-background-rest: #fff;
+  --macos-control-standard-background-rest--dark: rgba(255, 255, 255, 0.28);
+  --macos-control-standard-background-pressed: #e7e7e7;
+  --macos-control-accent-branded-background-rest:
+    linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.16) 100%),
+    #2749db;
+  --macos-control-accent-branded-background-pressed:
+    linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.16) 100%),
+    #1743d1;
+  --macos-control-standard-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.2) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 0 1px 0 rgba(0, 0, 0, 0.05),
+    0 1px 1px 0 rgba(0, 0, 0, 0.2);
+  --macos-control-accent-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0) inset,
+    0 0 0 1px rgba(0, 122, 255, 0.05),
+    0 0 1px 0 rgba(0, 122, 255, 0.05),
+    0 1px 1px 0 rgba(0, 122, 255, 0.1);
+  --macos-control-focused-shadow:
+    0 0 0 3px rgba(57, 105, 239, 0.55),
+    0 0 0 1px rgba(57, 105, 239, 0.55) inset,
+    0 0 1px 0 rgba(0, 0, 0, 0.05),
+    0 1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+[data-platform-name=macos] .Button_button {
+  &.Button_standard {
+    --button-bg: var(--macos-control-standard-background-rest);
+    --button-text: var(--macos-text-primary);
+    --button-shadow: var(--macos-control-standard-shadow);
+    --button-opacity: 1;
+    --button-bg--active: var(--macos-control-standard-background-pressed);
+    --button-bg--disabled: var(--macos-control-standard-background-rest);
+    --button-text--disabled: var(--macos-text-primary);
+    --button-shadow--disabled: var(--macos-control-standard-shadow);
+    --button-opacity--disabled: 0.4;
+    --button-shadow--focus: var(--macos-control-focused-shadow);
+  }
+  &.Button_accent {
+    --button-bg: var(--macos-control-accent-branded-background-rest);
+    --button-text: var(--color-white);
+    --button-shadow: var(--macos-control-accent-shadow);
+    --button-opacity: 1;
+    --button-bg--active: var(--macos-control-accent-branded-background-pressed);
+    --button-bg--disabled: var(--macos-control-standard-background-rest);
+    --button-text--disabled: var(--macos-text-primary);
+    --button-shadow--disabled: var(--macos-control-standard-shadow);
+    --button-opacity--disabled: 0.4;
+    --button-shadow--focus: var(--macos-control-focused-shadow);
+  }
+  @media (prefers-color-scheme: dark) {
+    &.Button_standard {
+      --button-bg: var(--macos-control-standard-background-rest--dark);
+      --button-text: var(--color-white-at-84);
+    }
+  }
+}
+[data-platform-name=ios] .Button_button {
+  &.Button_primary {
+    --button-bg: var(--color-blue-50);
+    --button-text: var(--color-white);
+    --button-bg--active: var(--color-blue-70);
+    --button-text--active: var(--color-white);
+    --button-bg--disabled: var(--color-black-at-6);
+    --button-text--disabled: var(--color-black-at-36);
+  }
+  &.Button_ghost {
+    --button-bg: transparent;
+    --button-text: var(--color-blue-50);
+    --button-bg--active: rgba(57, 105, 239, 0.12);
+    --button-text--active: var(--color-blue-70);
+    --button-bg--disabled: transparent;
+    --button-text--disabled: var(--color-black-at-36);
+  }
+  @media (prefers-color-scheme: dark) {
+    &.Button_primary {
+      --button-bg: var(--color-blue-30);
+      --button-text: var(--color-black-at-84);
+      --button-bg--active: var(--color-blue-50);
+      --button-text--active: var(--color-black-at-84);
+      --button-bg--disabled: var(--color-black-at-6);
+      --button-text--disabled: var(--color-black-at-36);
+    }
+    &.Button_ghost {
+      --button-bg: transparent;
+      --button-text: var(--color-blue-30);
+      --button-bg--active: rgba(114, 149, 246, 0.2);
+      --button-text--active: var(--color-blue-20);
+      --button-bg--disabled: transparent;
+      --button-text--disabled: var(--color-black-at-36);
+    }
+  }
+}
+
+/* pages/special-error/app/components/Warning.module.css */
+.Warning_container {
+  display: flex;
+  flex-flow: column;
+  gap: var(--sp-4);
+  max-width: var(--ios-content-max-width);
+  padding: var(--sp-8) var(--sp-10);
+  overflow: hidden;
+  width: 100%;
+}
+.Warning_content {
+  display: flex;
+  flex-flow: column;
+  gap: var(--sp-5);
+  & a {
+    color: var(--link-color);
+  }
+}
+.Warning_heading {
+  align-items: center;
+  display: flex;
+  gap: var(--sp-2);
+}
+.Warning_icon {
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.Warning_buttonContainer {
+  display: flex;
+  gap: var(--sp-2);
+  padding-block-start: var(--sp-2);
+}
+[data-platform-name=macos] {
+  & .Warning_icon {
+    align-self: flex-start;
+  }
+  & .Warning_ssl.Warning_heading {
+    height: var(--sp-8);
+  }
+  & .Warning_ssl .Warning_icon {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiB2aWV3Qm94PSIwIDAgOTYgOTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTcxIDUxYy0xMS4wNDYgMC0yMCA4Ljk1NC0yMCAyMHY1Ljk1Yy0xLjg0LjYwMi0zIC44LTMgLjhzLTI3LTQuNjE2LTI3LTM2LjgwOFYyNi40MDRsMTQgLjg0NiAxMy05LjE1NCAxMi41IDguNjU0IDE0LjUtLjM0NnYxNC41MzhjMCAzLjcwNy0uMzU4IDcuMDQ4LS45OTIgMTAuMDU4eiIvPgogIDxwYXRoIGZpbGw9IiNGMkYyRjIiIGQ9Ik03MSA1MWMtMTEuMDQ2IDAtMjAgOC45NTQtMjAgMjB2NC45OTVsLTMgMS4yMzZWMTdsMTMgOC42MzQgMTMuNDgtLjMyNnYxNC41MzhjMCAzLjU1NC0uNTY5IDcuMzc3LTEuNjI5IDExLjE1NHoiLz4KICA8cGF0aCBmaWxsPSIjQ0FDQUNBIiBkPSJNNzIuNDcyIDUxYzEuMzgyLTUuMDcxIDIuMDk2LTExLjU2NiAyLjAyMy0yMC4xNjItLjAwNS0uNTQtLjI2Ni0xLjAzNS0uODYtMS40NDNhMy4zNzYgMy4zNzYgMCAwIDAtMi4yNDQtLjU0OWMtNC41MTYuNTctOC4yNTMuNDA4LTExLjYzOS0uNjc0LTMuNDEyLTEuMDktNi40Ny0zLjExNi05LjU4Ny02LjI1NS0xLjA4Ni0xLjA5NC0zLjIwMy0xLjA4OC00LjI4LjAxLTMuMTYzIDMuMjIzLTYuMjY2IDUuMjUtOS43MDUgNi4zMTYtMy4zODYgMS4wNS03LjEwNyAxLjE3LTExLjU2Ny42MDNhMy4zNzggMy4zNzggMCAwIDAtMi4yNDcuNTQ3Yy0uNTk1LjQwOC0uODU2LjkwMy0uODYgMS40NDQtLjEyNiAxNC42OTkgMi4wNTIgMjMuMjU2IDUuOTMgMjkuMDU0IDQuMTczIDYuMjQxIDEwLjQxOSA5LjQ2NSAxOC40MDkgMTMuNTE1bC42ODkuMzVhMy4zMjcgMy4zMjcgMCAwIDAgMi45MzIgMGwuNjktLjM1Ljg0NC0uNDI4djMuNTA3YzAgMS4yMzgtLjc2IDIuNDAxLTEuOTg5IDIuNTVhOC4zMDUgOC4zMDUgMCAwIDEtNC43MzgtLjgybC0uOTU4LS40ODZjLTcuNjgzLTMuODkzLTE1LjA3NC03LjYzOC0yMC4wMzYtMTUuMDU5LTQuNy03LjAyNy02LjkwMi0xNi43ODYtNi43NzQtMzEuODc1LjAyMS0yLjQ3IDEuMzU0LTQuMzczIDMuMDMxLTUuNTI1YTguMzczIDguMzczIDAgMCAxIDUuNzA4LTEuMzg0YzQuMDQ1LjUxNSA2Ljk4Ny4zNDYgOS40NTUtLjQxOSAyLjQ2Ny0uNzY1IDQuODgzLTIuMjU2IDcuNjE4LTUuMDQzIDMuMDMzLTMuMDkgOC4zNTItMy4wOTcgMTEuMzk3LS4wMyAyLjcwNyAyLjcyOCA1LjEgNC4yMyA3LjU2IDUuMDE2IDIuNDY5Ljc4OSA1LjQyLjk4OSA5LjQ5MS40NzZhOC4zNzMgOC4zNzMgMCAwIDEgNS43MDMgMS4zODhjMS42NzUgMS4xNTIgMy4wMDYgMy4wNTUgMy4wMjcgNS41MjIuMDYgNy4wMzgtLjM4OCAxMi45MTYtMS4zNTkgMTcuODk4LS4yNjUgMS4zNi0xLjQ3OCAyLjMwNi0yLjg2MyAyLjMwNmgtMi44WiIvPgogIDxwYXRoIGZpbGw9IiNFQjEwMkQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTcxIDg3YzguODM3IDAgMTYtNy4xNjMgMTYtMTZzLTcuMTYzLTE2LTE2LTE2LTE2IDcuMTYzLTE2IDE2IDcuMTYzIDE2IDE2IDE2bS0xLjQ1MS0xNC43MmMuMDc4LjYzLjcwNiAxLjEyIDEuNDEyIDEuMTIuNzA3IDAgMS4zMzQtLjQ5IDEuNDkxLTEuMTJsLjk0Mi04Ljc1Yy4wNzktLjctLjYyOC0xLjMzLTEuNDEzLTEuMzNINzAuMDJjLS44NjMgMC0xLjQ5LjYzLTEuNDEyIDEuMzNsLjk0MiA4Ljc1Wk03MSA3OS44YTIgMiAwIDEgMCAwLTQgMiAyIDAgMCAwIDAgNCIgY2xpcC1ydWxlPSJldmVub2RkIi8+CiAgPHBhdGggZmlsbD0iI0NDQyIgZD0iTTkyLjUwMSA1OWMuMjk4IDAgLjU5NS4xMi44MjMuMzU0LjQ1NC40NjguNDU0IDEuMjMgMCAxLjY5OGwtMi4zMzMgMi40YTEuMTQ1IDEuMTQ1IDAgMCAxLTEuNjUgMCAxLjIyNyAxLjIyNyAwIDAgMSAwLTEuNjk4bDIuMzMzLTIuNGMuMjI3LS4yMzQuNTI0LS4zNTQuODIyLS4zNTRoLjAwNVptLTEuMTY2IDEwLjc5OGgzLjQ5OWMuNjQxIDAgMS4xNjYuNTQgMS4xNjYgMS4yIDAgLjY2LS41MjUgMS4yLTEuMTY2IDEuMmgtMy40OTljLS42NDEgMC0xLjE2Ni0uNTQtMS4xNjYtMS4yIDAtLjY2LjUyNS0xLjIgMS4xNjYtMS4ybS0xLjk4MiA4Ljc1NGMuMjI3LS4yMzQuNTI1LS4zNTQuODIyLS4zNTRoLjAwNmMuMjk3IDAgLjU5NS4xMi44MjIuMzU0bDIuMzMyIDIuNGMuNDU1LjQ2Ny40NTUgMS4yMyAwIDEuNjk3YTEuMTQ1IDEuMTQ1IDAgMCAxLTEuNjUgMGwtMi4zMzItMi40YTEuMjI3IDEuMjI3IDAgMCAxIDAtMS42OTciLz4KPC9zdmc+Cg==");
+    flex: 0 0 var(--sp-12);
+    height: var(--sp-12);
+    width: var(--sp-12);
+    margin-left: calc(-1 * var(--sp-2));
+    margin-top: calc(-1 * var(--sp-2));
+  }
+  & .Warning_phishing .Warning_icon {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA2NCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC4yIiBkPSJNOC40NTYgMTUuNTI0NUM4LjMxOTM3IDE1LjM4MzYgOC4yNDM2MyAxNS4xOTQ2IDguMjQ1MTQgMTQuOTk4NEM4LjI0NjY0IDE0LjgwMjEgOC4zMjUyOCAxNC42MTQzIDguNDY0MDUgMTQuNDc1NkM4LjYwMjgzIDE0LjMzNjggOC43OTA2MiAxNC4yNTgyIDguOTg2ODggMTQuMjU2NkM5LjE4MzEzIDE0LjI1NTEgOS4zNzIxMSAxNC4zMzA5IDkuNTEzIDE0LjQ2NzVMMTAuNDc5IDE1LjQzMzVMMTEuNDQ1IDE0LjQ2NzVDMTEuNTg1OSAxNC4zMzA5IDExLjc3NDkgMTQuMjU1MSAxMS45NzExIDE0LjI1NjZDMTIuMTY3NCAxNC4yNTgyIDEyLjM1NTIgMTQuMzM2OCAxMi40OTM5IDE0LjQ3NTZDMTIuNjMyNyAxNC42MTQzIDEyLjcxMTQgMTQuODAyMSAxMi43MTI5IDE0Ljk5ODRDMTIuNzE0NCAxNS4xOTQ2IDEyLjYzODYgMTUuMzgzNiAxMi41MDIgMTUuNTI0NUwxMS41MzYgMTYuNDkwNUwxMi41MDIgMTcuNDU2NUMxMi42Mzg2IDE3LjU5NzQgMTIuNzE0NCAxNy43ODY0IDEyLjcxMjkgMTcuOTgyNkMxMi43MTE0IDE4LjE3ODkgMTIuNjMyNyAxOC4zNjY3IDEyLjQ5MzkgMTguNTA1NUMxMi4zNTUyIDE4LjY0NDIgMTIuMTY3NCAxOC43MjI5IDExLjk3MTEgMTguNzI0NEMxMS43NzQ5IDE4LjcyNTkgMTEuNTg1OSAxOC42NTAxIDExLjQ0NSAxOC41MTM1TDEwLjQ3OSAxNy41NDdMOS41MTMgMTguNTEzNUM5LjQ0MzU5IDE4LjU4MjkgOS4zNjEyIDE4LjYzOCA5LjI3MDUyIDE4LjY3NTVDOS4xNzk4NCAxOC43MTMxIDkuMDgyNjUgMTguNzMyNCA4Ljk4NDUgMTguNzMyNEM4Ljg4NjM1IDE4LjczMjQgOC43ODkxNiAxOC43MTMxIDguNjk4NDggMTguNjc1NUM4LjYwNzggMTguNjM4IDguNTI1NCAxOC41ODI5IDguNDU2IDE4LjUxMzVDOC4zODY2IDE4LjQ0NDEgOC4zMzE1NCAxOC4zNjE3IDguMjkzOTggMTguMjcxQzguMjU2NDIgMTguMTgwMyA4LjIzNzA5IDE4LjA4MzIgOC4yMzcwOSAxNy45ODVDOC4yMzcwOSAxNy44ODY5IDguMjU2NDIgMTcuNzg5NyA4LjI5Mzk4IDE3LjY5OUM4LjMzMTU0IDE3LjYwODMgOC4zODY2IDE3LjUyNTkgOC40NTYgMTcuNDU2NUw5LjQyMiAxNi40OTA1TDguNDU2IDE1LjUyNDVaIiBmaWxsPSIjODg4ODg4Ii8+CjxwYXRoIG9wYWNpdHk9IjAuMSIgZD0iTTAuMjkxMDAxIDI2LjQ1NUMwLjE1NDMwMyAyNi4zMTQyIDAuMDc4NDczNyAyNi4xMjUyIDAuMDc5ODg3MSAyNS45MjlDMC4wODEzMDA0IDI1LjczMjcgMC4xNTk4NDMgMjUuNTQ0OSAwLjI5ODU1NSAyNS40MDZDMC40MzcyNjggMjUuMjY3MiAwLjYyNTAyMiAyNS4xODg1IDAuODIxMjc4IDI1LjE4NjlDMS4wMTc1MyAyNS4xODUzIDEuMjA2NTQgMjUuMjYwOSAxLjM0NzUgMjUuMzk3NUwxLjk5MzUgMjYuMDQzNUwyLjYzOSAyNS4zOTc1QzIuNzA4MDEgMjUuMzI2MyAyLjc5MDQ5IDI1LjI2OTYgMi44ODE2MyAyNS4yMzA2QzIuOTcyNzcgMjUuMTkxNiAzLjA3MDc1IDI1LjE3MTIgMy4xNjk4OCAyNS4xNzA0QzMuMjY5IDI1LjE2OTYgMy4zNjcyOSAyNS4xODg2IDMuNDU5MDIgMjUuMjI2MkMzLjU1MDc1IDI1LjI2MzggMy42MzQwOSAyNS4zMTkyIDMuNzA0MTggMjUuMzg5M0MzLjc3NDI3IDI1LjQ1OTQgMy44Mjk3MyAyNS41NDI3IDMuODY3MzEgMjUuNjM0NUMzLjkwNDg5IDI1LjcyNjIgMy45MjM4NiAyNS44MjQ1IDMuOTIzMSAyNS45MjM2QzMuOTIyMzMgMjYuMDIyNyAzLjkwMTg2IDI2LjEyMDcgMy44NjI4OCAyNi4yMTE5QzMuODIzODkgMjYuMzAzIDMuNzY3MTYgMjYuMzg1NSAzLjY5NiAyNi40NTQ1TDMuMDUgMjcuMUwzLjY5NiAyNy43NDZDMy43Njg0NyAyNy44MTQ3IDMuODI2NDQgMjcuODk3MiAzLjg2NjUgMjcuOTg4NkMzLjkwNjU3IDI4LjA4MDEgMy45Mjc5IDI4LjE3ODYgMy45MjkyNiAyOC4yNzg0QzMuOTMwNjEgMjguMzc4MyAzLjkxMTk1IDI4LjQ3NzQgMy44NzQzOCAyOC41Njk5QzMuODM2ODEgMjguNjYyNCAzLjc4MTA5IDI4Ljc0NjQgMy43MTA1MSAyOC44MTdDMy42Mzk5MyAyOC44ODc2IDMuNTU1OTIgMjguOTQzNCAzLjQ2MzQ0IDI4Ljk4MUMzLjM3MDk2IDI5LjAxODYgMy4yNzE4OCAyOS4wMzczIDMuMTcyMDUgMjkuMDM2QzMuMDcyMjIgMjkuMDM0NyAyLjk3MzY3IDI5LjAxMzQgMi44ODIyIDI4Ljk3MzRDMi43OTA3MyAyOC45MzM0IDIuNzA4MjEgMjguODc1NCAyLjYzOTUgMjguODAzTDEuOTkzNSAyOC4xNTdMMS4zNDc1IDI4LjgwM0MxLjI3ODQ5IDI4Ljg3NDIgMS4xOTYwMiAyOC45MzA5IDEuMTA0ODggMjguOTY5OUMxLjAxMzc0IDI5LjAwODkgMC45MTU3NSAyOS4wMjkzIDAuODE2NjI0IDI5LjAzMDFDMC43MTc0OTggMjkuMDMwOSAwLjYxOTIxMSAyOS4wMTE5IDAuNTI3NDgyIDI4Ljk3NDNDMC40MzU3NTQgMjguOTM2NyAwLjM1MjQxNyAyOC44ODEzIDAuMjgyMzIzIDI4LjgxMTJDMC4yMTIyMjggMjguNzQxMSAwLjE1Njc3NSAyOC42NTc3IDAuMTE5MTkyIDI4LjU2NkMwLjA4MTYwODggMjguNDc0MyAwLjA2MjY0NTkgMjguMzc2IDAuMDYzNDA3IDI4LjI3NjlDMC4wNjQxNjgyIDI4LjE3NzcgMC4wODQ2MzgxIDI4LjA3OTggMC4xMjM2MjUgMjcuOTg4NkMwLjE2MjYxMyAyNy44OTc1IDAuMjE5MzM4IDI3LjgxNSAwLjI5MDUwMSAyNy43NDZMMC45MzY1MDEgMjcuMTAwNUwwLjI5MTAwMSAyNi40NTVaIiBmaWxsPSIjODg4ODg4Ii8+CjxwYXRoIG9wYWNpdHk9IjAuMiIgZD0iTTYwLjM0MiAzMy44MjJDNjAuMjEwOSAzMy42OCA2MC4xMzk4IDMzLjQ5MjkgNjAuMTQzNiAzMy4yOTk2QzYwLjE0NzQgMzMuMTA2NCA2MC4yMjU5IDMyLjkyMjIgNjAuMzYyNiAzMi43ODU2QzYwLjQ5OTIgMzIuNjQ4OSA2MC42ODM0IDMyLjU3MDUgNjAuODc2NiAzMi41NjY2QzYxLjA2OTggMzIuNTYyOCA2MS4yNTcgMzIuNjMzOSA2MS4zOTkgMzIuNzY1TDYyLjA0NDUgMzMuNDExTDYyLjY5MDUgMzIuNzY1QzYyLjc1OTkgMzIuNjk1NiA2Mi44NDIzIDMyLjY0MDYgNjIuOTMzIDMyLjYwMzFDNjMuMDIzNiAzMi41NjU2IDYzLjEyMDggMzIuNTQ2MiA2My4yMTg5IDMyLjU0NjNDNjMuMzE3MSAzMi41NDYzIDYzLjQxNDIgMzIuNTY1NiA2My41MDQ5IDMyLjYwMzJDNjMuNTk1NSAzMi42NDA4IDYzLjY3NzkgMzIuNjk1OSA2My43NDcyIDMyLjc2NTNDNjMuODE2NiAzMi44MzQ3IDYzLjg3MTYgMzIuOTE3IDYzLjkwOTIgMzMuMDA3N0M2My45NDY3IDMzLjA5ODQgNjMuOTY2IDMzLjE5NTYgNjMuOTY2IDMzLjI5MzdDNjMuOTY2IDMzLjM5MTggNjMuOTQ2NiAzMy40ODkgNjMuOTA5IDMzLjU3OTZDNjMuODcxNSAzMy42NzAzIDYzLjgxNjQgMzMuNzUyNiA2My43NDcgMzMuODIyTDYzLjEwMTUgMzQuNDY3NUw2My43NDc1IDM1LjExMzVDNjMuODg3NyAzNS4yNTM3IDYzLjk2NjQgMzUuNDQzOCA2My45NjY0IDM1LjY0MkM2My45NjY0IDM1Ljg0MDIgNjMuODg3NyAzNi4wMzAzIDYzLjc0NzUgMzYuMTcwNUM2My42MDczIDM2LjMxMDcgNjMuNDE3MiAzNi4zODk0IDYzLjIxOSAzNi4zODk0QzYzLjAyMDggMzYuMzg5NCA2Mi44MzA3IDM2LjMxMDcgNjIuNjkwNSAzNi4xNzA1TDYyLjA0NDUgMzUuNTI0NUw2MS4zOTg1IDM2LjE3MDVDNjEuMzI5MSAzNi4yMzk5IDYxLjI0NjcgMzYuMjk0OSA2MS4xNTYgMzYuMzMyNEM2MS4wNjU0IDM2LjM3IDYwLjk2ODIgMzYuMzg5MyA2MC44NzAxIDM2LjM4OTJDNjAuNzcxOSAzNi4zODkyIDYwLjY3NDggMzYuMzY5OSA2MC41ODQxIDM2LjMzMjNDNjAuNDkzNSAzNi4yOTQ3IDYwLjQxMTEgMzYuMjM5NyA2MC4zNDE4IDM2LjE3MDNDNjAuMjcyNCAzNi4xMDA5IDYwLjIxNzQgMzYuMDE4NSA2MC4xNzk4IDM1LjkyNzhDNjAuMTQyMyAzNS44MzcxIDYwLjEyMyAzNS43NCA2MC4xMjMgMzUuNjQxOEM2MC4xMjMgMzUuNTQzNyA2MC4xNDI0IDM1LjQ0NjUgNjAuMTggMzUuMzU1OUM2MC4yMTc1IDM1LjI2NTIgNjAuMjcyNiAzNS4xODI5IDYwLjM0MiAzNS4xMTM1TDYwLjk4OCAzNC40Njc1TDYwLjM0MiAzMy44MjJaTTUyLjc3NyAxOC43MjlDNTIuNjQ1OSAxOC41ODcgNTIuNTc0OCAxOC4zOTk5IDUyLjU3ODYgMTguMjA2NkM1Mi41ODI0IDE4LjAxMzQgNTIuNjYwOSAxNy44MjkyIDUyLjc5NzYgMTcuNjkyNkM1Mi45MzQyIDE3LjU1NTkgNTMuMTE4NCAxNy40Nzc1IDUzLjMxMTYgMTcuNDczNkM1My41MDQ4IDE3LjQ2OTggNTMuNjkyIDE3LjU0MDkgNTMuODM0IDE3LjY3Mkw1NC40Nzk1IDE4LjMxOEw1NS4xMjU1IDE3LjY3MkM1NS4yNjY0IDE3LjUzNTQgNTUuNDU1NCAxNy40NTk2IDU1LjY1MTYgMTcuNDYxMUM1NS44NDc5IDE3LjQ2MjYgNTYuMDM1NyAxNy41NDEzIDU2LjE3NDQgMTcuNjgwMUM1Ni4zMTMyIDE3LjgxODggNTYuMzkxOSAxOC4wMDY2IDU2LjM5MzQgMTguMjAyOUM1Ni4zOTQ5IDE4LjM5OTEgNTYuMzE5MSAxOC41ODgxIDU2LjE4MjUgMTguNzI5TDU1LjUzNjUgMTkuMzc0NUw1Ni4xODI1IDIwLjAyMDVDNTYuMjUxOSAyMC4wODk5IDU2LjMwNyAyMC4xNzIzIDU2LjM0NDUgMjAuMjYzQzU2LjM4MjEgMjAuMzUzNyA1Ni40MDE0IDIwLjQ1MDkgNTYuNDAxNCAyMC41NDlDNTYuNDAxNCAyMC42NDcyIDU2LjM4MjEgMjAuNzQ0MyA1Ni4zNDQ1IDIwLjgzNUM1Ni4zMDcgMjAuOTI1NyA1Ni4yNTE5IDIxLjAwODEgNTYuMTgyNSAyMS4wNzc1QzU2LjExMzEgMjEuMTQ2OSA1Ni4wMzA3IDIxLjIwMiA1NS45NCAyMS4yMzk1QzU1Ljg0OTMgMjEuMjc3MSA1NS43NTIyIDIxLjI5NjQgNTUuNjU0IDIxLjI5NjRDNTUuNTU1OCAyMS4yOTY0IDU1LjQ1ODcgMjEuMjc3MSA1NS4zNjggMjEuMjM5NUM1NS4yNzczIDIxLjIwMiA1NS4xOTQ5IDIxLjE0NjkgNTUuMTI1NSAyMS4wNzc1TDU0LjQ3OTUgMjAuNDMxNUw1My44MzQgMjEuMDc3NUM1My42OTMxIDIxLjIxNDEgNTMuNTA0MSAyMS4yODk5IDUzLjMwNzkgMjEuMjg4NEM1My4xMTE2IDIxLjI4NjkgNTIuOTIzOCAyMS4yMDgyIDUyLjc4NTEgMjEuMDY5NUM1Mi42NDYzIDIwLjkzMDcgNTIuNTY3NiAyMC43NDI5IDUyLjU2NjEgMjAuNTQ2NkM1Mi41NjQ2IDIwLjM1MDQgNTIuNjQwNCAyMC4xNjE0IDUyLjc3NyAyMC4wMjA1TDUzLjQyMyAxOS4zNzQ1TDUyLjc3NyAxOC43MjlaIiBmaWxsPSIjODg4ODg4Ii8+CjxwYXRoIG9wYWNpdHk9IjAuMSIgZD0iTTYyLjI1IDI3QzYxLjgzNzUgMjcgNjEuNSAyNi42NjI1IDYxLjUgMjYuMjVDNjEuNSAyNS44Mzc1IDYxLjgzNzUgMjUuNSA2Mi4yNSAyNS41QzYyLjY2MjUgMjUuNSA2MyAyNS44Mzc1IDYzIDI2LjI1QzYzIDI2LjY2MjUgNjIuNjYyNSAyNyA2Mi4yNSAyN1oiIGZpbGw9IiM4ODg4ODgiLz4KPHBhdGggb3BhY2l0eT0iMC4yIiBkPSJNMTIgMzMuNUMxMS40NSAzMy41IDExIDMzLjA1IDExIDMyLjVDMTEgMzEuOTUgMTEuNDUgMzEuNSAxMiAzMS41QzEyLjU1IDMxLjUgMTMgMzEuOTUgMTMgMzIuNUMxMyAzMy4wNSAxMi41NSAzMy41IDEyIDMzLjVaIiBmaWxsPSIjODg4ODg4Ii8+CjxwYXRoIGQ9Ik0yMSAxMEMyMC4yMDQ0IDEwIDE5LjQ0MTMgMTAuMzE2MSAxOC44Nzg3IDEwLjg3ODdDMTguMzE2MSAxMS40NDEzIDE4IDEyLjIwNDQgMTggMTNWMzVDMTggMzUuNzk1NiAxOC4zMTYxIDM2LjU1ODcgMTguODc4NyAzNy4xMjEzQzE5LjQ0MTMgMzcuNjgzOSAyMC4yMDQ0IDM4IDIxIDM4SDMxLjVDMzIuMDMwNCAzOCAzMi41MzkxIDM3Ljc4OTMgMzIuOTE0MiAzNy40MTQyQzMzLjI4OTMgMzcuMDM5MSAzMy41IDM2LjUzMDQgMzMuNSAzNlYzNS41QzMzLjUgMjkuOTc3IDM3Ljk3NyAyNS41IDQzLjUgMjUuNUg0NkM0Ni41MzA0IDI1LjUgNDcuMDM5MSAyNS4yODkzIDQ3LjQxNDIgMjQuOTE0MkM0Ny43ODkzIDI0LjUzOTEgNDggMjQuMDMwNCA0OCAyMy41VjEzQzQ4IDEyLjIwNDQgNDcuNjgzOSAxMS40NDEzIDQ3LjEyMTMgMTAuODc4N0M0Ni41NTg3IDEwLjMxNjEgNDUuNzk1NiAxMCA0NSAxMEgyMVoiIGZpbGw9IiNBQUFBQUEiLz4KPHBhdGggZD0iTTE5IDEwQzE4LjIwNDQgMTAgMTcuNDQxMyAxMC4zMTYxIDE2Ljg3ODcgMTAuODc4N0MxNi4zMTYxIDExLjQ0MTMgMTYgMTIuMjA0NCAxNiAxM1YzNUMxNiAzNS43OTU2IDE2LjMxNjEgMzYuNTU4NyAxNi44Nzg3IDM3LjEyMTNDMTcuNDQxMyAzNy42ODM5IDE4LjIwNDQgMzggMTkgMzhIMzEuNUMzMi4wMzA0IDM4IDMyLjUzOTEgMzcuNzg5MyAzMi45MTQyIDM3LjQxNDJDMzMuMjg5MyAzNy4wMzkxIDMzLjUgMzYuNTMwNCAzMy41IDM2VjM1LjVDMzMuNSAyOS45NzcgMzcuOTc3IDI1LjUgNDMuNSAyNS41SDQ2VjEzQzQ2IDEyLjIwNDQgNDUuNjgzOSAxMS40NDEzIDQ1LjEyMTMgMTAuODc4N0M0NC41NTg3IDEwLjMxNjEgNDMuNzk1NiAxMCA0MyAxMEgxOVoiIGZpbGw9IiNGNUY1RjUiLz4KPHBhdGggZD0iTTE2LjAxNTUgMTIuNjkzNUMxNi4wMDU1IDEyLjc5NCAxNiAxMi44OTY1IDE2IDEzVjM1QzE2IDM1Ljc5NTYgMTYuMzE2MSAzNi41NTg3IDE2Ljg3ODcgMzcuMTIxM0MxNy40NDEzIDM3LjY4MzkgMTguMjA0NCAzOCAxOSAzOEgzMkMzMi4zOTc4IDM4IDMyLjc3OTQgMzcuODQyIDMzLjA2MDcgMzcuNTYwN0MzMy4zNDIgMzcuMjc5NCAzMy41IDM2Ljg5NzggMzMuNSAzNi41SDE5QzE4LjYwMjIgMzYuNSAxOC4yMjA2IDM2LjM0MiAxNy45MzkzIDM2LjA2MDdDMTcuNjU4IDM1Ljc3OTQgMTcuNSAzNS4zOTc4IDE3LjUgMzVWMTRINDQuNVYyNS41SDQ2VjEzQzQ2IDEyLjIwNDQgNDUuNjgzOSAxMS40NDEzIDQ1LjEyMTMgMTAuODc4N0M0NC41NTg3IDEwLjMxNjEgNDMuNzk1NiAxMCA0MyAxMEgxOUMxOC4yNTc0IDkuOTk5OTUgMTcuNTQxMSAxMC4yNzUzIDE2Ljk4OTggMTAuNzcyOUMxNi40Mzg1IDExLjI3MDQgMTYuMDkxNCAxMS45NTQ4IDE2LjAxNTUgMTIuNjkzNVoiIGZpbGw9IiNEREREREQiLz4KPHBhdGggZD0iTTQwLjk1NSAxOS42OTY1QzQxLjEzNTMgMTkuNzA0MyA0MS4zMTA4IDE5Ljc1NzIgNDEuNDY1NCAxOS44NTAzQzQxLjYyIDE5Ljk0MzQgNDEuNzQ4OCAyMC4wNzM4IDQxLjg0IDIwLjIyOTVDNDIuMTUxNSAyMC43NTc1IDQxLjk5NTUgMjEuNDQ2IDQxLjQ4NCAyMS43NzJMNDEuMzEwNSAyMS44ODJDNDEuMDQyNCAyMi4wNTI1IDQwLjc0MjggMjIuMTY3MiA0MC40Mjk0IDIyLjIxOTNDNDAuMTE2IDIyLjI3MTQgMzkuNzk1MyAyMi4yNTk3IDM5LjQ4NjUgMjIuMTg1QzM5LjE0MDMgMjIuMDk5MiAzOC43ODAyIDIyLjA4NTEgMzguNDI4NCAyMi4xNDM2QzM4LjA3NjUgMjIuMjAyIDM3Ljc0MDMgMjIuMzMxOCAzNy40NDA1IDIyLjUyNUwzMi41ODcgMjUuNjE1TDM2LjI5MjUgMjcuOTc1QzM2LjQxODUgMjguMDU1NSAzNi41NDk1IDI4LjEyNSAzNi42ODUgMjguMTgyQzM2LjI1MzMgMjguNTg0IDM1Ljg1NzggMjkuMDIzMiAzNS41MDMgMjkuNDk0NUMzNS40NzU4IDI5LjQ3NTcgMzUuNDQ4MyAyOS40NTc0IDM1LjQyMDUgMjkuNDM5NUwzMC45OTkgMjYuNjI1TDI2LjU3NyAyOS40NEMyNS45NTk0IDI5LjgzNTkgMjUuNTIyOSAzMC40NTkzIDI1LjM2MiAzMS4xNzVDMjUuMjE5NCAzMS44MTI5IDI0LjgzMTIgMzIuMzY4OCAyNC4yODE1IDMyLjcyMjVMMjQuMTA4IDMyLjgzMjVDMjMuNTk2NSAzMy4xNTQgMjIuOTI5IDMyLjk5MzUgMjIuNjEzIDMyLjQ2NTVDMjIuNTE5IDMyLjMwNzMgMjIuNDY0MyAzMi4xMjg4IDIyLjQ1MzUgMzEuOTQ1QzIyLjQ0MjcgMzEuNzYxMyAyMi40NzYxIDMxLjU3NzcgMjIuNTUxIDMxLjQwOTVDMjIuNjc1NSAzMS4xMjk1IDIyLjQ4NCAzMC44MTI1IDIyLjE5MSAzMC44MDM1QzIyLjAxMDYgMzAuNzk1OCAyMS44MzUgMzAuNzQyOSAyMS42ODA0IDMwLjY0OThDMjEuNTI1NyAzMC41NTY3IDIxLjM5NjggMzAuNDI2MyAyMS4zMDU1IDMwLjI3MDVDMjAuOTk0IDI5Ljc0MjUgMjEuMTQ5NSAyOS4wNTQgMjEuNjYxNSAyOC43MjhMMjEuODM0NSAyOC42MThDMjIuMTAyNSAyOC40NDc1IDIyLjQwMjIgMjguMzMyOCAyMi43MTU2IDI4LjI4MDdDMjMuMDI5IDI4LjIyODYgMjMuMzQ5NyAyOC4yNDAzIDIzLjY1ODUgMjguMzE1QzI0LjAwNDggMjguNDAwOSAyNC4zNjUgMjguNDE1IDI0LjcxNjkgMjguMzU2NUMyNS4wNjg4IDI4LjI5ODEgMjUuNDA1MSAyOC4xNjgyIDI1LjcwNSAyNy45NzVMMjYuMzEgMjcuNTg5NUwyOS40MTUgMjUuNjE1TDI0LjU2MTUgMjIuNTI1QzI0LjI2MTIgMjIuMzMyOSAyMy45MjUgMjIuMjAzNyAyMy41NzM0IDIyLjE0NTJDMjMuMjIxNyAyMi4wODY4IDIyLjg2MTggMjIuMTAwMyAyMi41MTU1IDIyLjE4NUMyMi4yMDY4IDIyLjI2MDcgMjEuODg1OSAyMi4yNzI4IDIxLjU3MjQgMjIuMjIwN0MyMS4yNTg5IDIyLjE2ODYgMjAuOTU5MiAyMi4wNTM0IDIwLjY5MTUgMjEuODgyTDIwLjUxOCAyMS43NzJDMjAuMDA2NSAyMS40NDYgMTkuODQ2IDIwLjc1NyAyMC4xNjIgMjAuMjI5NUMyMC4yNTI4IDIwLjA3MzQgMjAuMzgxNSAxOS45NDI4IDIwLjUzNjIgMTkuODQ5NkMyMC42OTA5IDE5Ljc1NjQgMjAuODY2NiAxOS43MDM4IDIxLjA0NyAxOS42OTY1QzIxLjM0MSAxOS42ODc1IDIxLjUzMiAxOS4zNjY1IDIxLjQwNzUgMTkuMDkwNUMyMS4zMzI4IDE4LjkyMjMgMjEuMjk5NCAxOC43Mzg2IDIxLjMxMDMgMTguNTU0OUMyMS4zMjEyIDE4LjM3MTIgMjEuMzc1OSAxOC4xOTI3IDIxLjQ3IDE4LjAzNDVDMjEuNzg2IDE3LjUwNjUgMjIuNDUzIDE3LjM0MSAyMi45NjUgMTcuNjY3TDIzLjEzOCAxNy43NzdDMjMuNjg2NyAxOC4xMzIgMjQuMDc0NyAxOC42ODc2IDI0LjIxOSAxOS4zMjVDMjQuMzgxNSAyMC4wNCAyNC44MTc3IDIwLjY2MjggMjUuNDM0IDIxLjA2TDMxLjAwMyAyNC42MDVMMzYuNTY4IDIxLjA2QzM3LjE4NTYgMjAuNjY0MSAzNy42MjIyIDIwLjA0MDcgMzcuNzgzIDE5LjMyNUMzNy45MjU4IDE4LjY4NzEgMzguMzE0MSAxOC4xMzExIDM4Ljg2NCAxNy43Nzc1TDM5LjAzNzUgMTcuNjY3NUMzOS41NDkgMTcuMzQ2IDQwLjIxNiAxNy41MDY1IDQwLjUzMjUgMTguMDM0NUM0MC43MjM1IDE4LjM1MTUgNDAuNzQ1NSAxOC43NTEgNDAuNTk0NSAxOS4wOTA1QzQwLjQ2OTUgMTkuMzcwNSA0MC42NjEgMTkuNjg3NSA0MC45NTQ1IDE5LjY5NjVINDAuOTU1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8cGF0aCBkPSJNMzYuMjg4NSAyNy45ODQ1QzM2LjM3MzUgMjguMDM5NSAzNi40NjIgMjguMDkgMzYuNTUxIDI4LjEzMTVIMzYuNTZDMzYuMTgwNCAyOC41OTA0IDM1Ljc0NTUgMjkuMDAwNiAzNS4yNjUgMjkuMzUyNUwzNC44MTYgMjkuMDY4TDMxIDI2LjYzOUwyNy4xODMgMjkuMDY4TDI2LjczMzUgMjkuMzUzQzI2LjI1MzIgMjkuMDAwOSAyNS44MTg0IDI4LjU5MDYgMjUuNDM5IDI4LjEzMTVDMjUuNTI4IDI4LjA4NTUgMjUuNjE3IDI4LjAzOTUgMjUuNzAxNSAyNy45ODQ1TDI2LjMwNjUgMjcuNTk4NUwyOS40MTE1IDI1LjYyNDVMMjQuNTU4NSAyMi41MzQ1QzI0LjM3MTMgMjIuNDE4MiAyNC4xNzExIDIyLjMyNDIgMjMuOTYyIDIyLjI1NDVDMjQuMDk1NSAyMS41NjU1IDI0LjMzMTUgMjAuOTA5NSAyNC42NDcgMjAuMzA3NUMyNC44NTIgMjAuNjA2IDI1LjExOSAyMC44Njc1IDI1LjQzIDIxLjA2NUwzMSAyNC42MUwzNi41NjUgMjEuMDY1QzM2Ljg3NDQgMjAuODY3OSAzNy4xNDA4IDIwLjYxMDIgMzcuMzQ4IDIwLjMwNzVDMzcuNjY5MiAyMC45MiAzNy45IDIxLjU3NTggMzguMDMzIDIyLjI1NDVDMzcuODIzNCAyMi4zMjI1IDM3LjYyMzIgMjIuNDE2NiAzNy40MzcgMjIuNTM0NUwzMi41ODM1IDI1LjYyNDVMMzYuMjg4NSAyNy45ODQ1WiIgZmlsbD0iI0JDQkNCQyIvPgo8cGF0aCBkPSJNMzEuODQ0IDE3LjVIMzAuMTY5NUMyNi44MzkgMTcuNSAyNC4yNDQ1IDIwLjc3NiAyNS4yMDA1IDI0LjQwMDVDMjUuNDAxNSAyNS4xNjc1IDI1LjgyMDUgMjUuODU1IDI2LjM2MSAyNi40MTc1TDI3LjQ4NiAyNy41ODg1QzI3Ljc0MjUgMjcuODU3NyAyNy44ODQ5IDI4LjIxNTcgMjcuODgzNSAyOC41ODc1VjI5LjI2NkMyNy44ODM1IDI5LjY3IDI4LjIwMDUgMzAgMjguNTg5IDMwQzI4LjY2NjIgMjkuOTk5NCAyOC43NDE3IDI5Ljk3NjggMjguODA2NSAyOS45MzQ4QzI4Ljg3MTMgMjkuODkyOCAyOC45MjI5IDI5LjgzMzIgMjguOTU1IDI5Ljc2M0MyOC45ODY3IDI5LjY5MjQgMjkuMDM4MiAyOS42MzI1IDI5LjEwMzEgMjkuNTkwNEMyOS4xNjgxIDI5LjU0ODQgMjkuMjQzOSAyOS41MjYgMjkuMzIxMyAyOS41MjZDMjkuMzk4NiAyOS41MjYgMjkuNDc0NCAyOS41NDg0IDI5LjUzOTQgMjkuNTkwNEMyOS42MDQzIDI5LjYzMjUgMjkuNjU1OCAyOS42OTI0IDI5LjY4NzUgMjkuNzYzQzI5Ljc1OSAyOS45MDcgMjkuODk3NSAzMCAzMC4wNTM1IDMwSDMwLjI2OEMzMC4zNDUyIDI5Ljk5OTQgMzAuNDIwNyAyOS45NzY4IDMwLjQ4NTUgMjkuOTM0OEMzMC41NTAzIDI5Ljg5MjggMzAuNjAxOSAyOS44MzMyIDMwLjYzNCAyOS43NjNDMzAuNjY1OCAyOS42OTI1IDMwLjcxNzIgMjkuNjMyOCAzMC43ODIxIDI5LjU5MDhDMzAuODQ3MSAyOS41NDg5IDMwLjkyMjcgMjkuNTI2NiAzMSAyOS41MjY2QzMxLjA3NzMgMjkuNTI2NiAzMS4xNTI5IDI5LjU0ODkgMzEuMjE3OSAyOS41OTA4QzMxLjI4MjggMjkuNjMyOCAzMS4zMzQyIDI5LjY5MjUgMzEuMzY2IDI5Ljc2M0MzMS40Mzc1IDI5LjkwNyAzMS41NzYgMzAgMzEuNzMyIDMwSDMxLjk0NjVDMzIuMDIzNyAyOS45OTk0IDMyLjA5OTIgMjkuOTc2OCAzMi4xNjQgMjkuOTM0OEMzMi4yMjg4IDI5Ljg5MjggMzIuMjgwNCAyOS44MzMyIDMyLjMxMjUgMjkuNzYzQzMyLjM0NDIgMjkuNjkyNCAzMi4zOTU3IDI5LjYzMjUgMzIuNDYwNiAyOS41OTA0QzMyLjUyNTYgMjkuNTQ4NCAzMi42MDE0IDI5LjUyNiAzMi42Nzg3IDI5LjUyNkMzMi43NTYxIDI5LjUyNiAzMi44MzE5IDI5LjU0ODQgMzIuODk2OSAyOS41OTA0QzMyLjk2MTggMjkuNjMyNSAzMy4wMTMzIDI5LjY5MjQgMzMuMDQ1IDI5Ljc2M0MzMy4xMTYgMjkuOTA3IDMzLjI1NSAzMCAzMy40MTEgMzBDMzMuNzk5NSAzMCAzNC4xMTYgMjkuNjcgMzQuMTE2IDI5LjI2NlYyOC41ODc1QzM0LjExNiAyOC4yMTEgMzQuMjU5NSAyNy44NTMgMzQuNTEzNSAyNy41ODg1TDM1LjYzODUgMjYuNDE3NUMzNi4xNzkgMjUuODU1IDM2LjU5NDUgMjUuMTY3NSAzNi43OTk1IDI0LjQwMDVDMzcuNzU1IDIwLjc3NiAzNS4xNjEgMTcuNSAzMS44MzA1IDE3LjVIMzEuODQ0WiIgZmlsbD0iI0NDQ0NDQyIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTMzLjE0MjUgMjUuODI2NUMzMy42NzA1IDI1LjgyNjUgMzQuMDk5IDI1LjM4NDUgMzQuMDk5IDI0LjgzOUMzNC4wOTkgMjQuMjk0IDMzLjY3MDUgMjMuODUyIDMzLjE0MjUgMjMuODUyQzMyLjYxNCAyMy44NTIgMzIuMTg2IDI0LjI5NCAzMi4xODYgMjQuODM5QzMyLjE4NiAyNS4zODQgMzIuNjE0IDI1LjgyNjUgMzMuMTQyNSAyNS44MjY1Wk0yOC44MzY1IDI1LjgyNjVDMjkuMzY0NSAyNS44MjY1IDI5Ljc5MyAyNS4zODQ1IDI5Ljc5MyAyNC44MzlDMjkuNzkzIDI0LjI5NCAyOS4zNjQ1IDIzLjg1MiAyOC44MzY1IDIzLjg1MkMyOC4zMDggMjMuODUyIDI3Ljg4IDI0LjI5NCAyNy44OCAyNC44MzlDMjcuODggMjUuMzg0IDI4LjMwOCAyNS44MjY1IDI4LjgzNjUgMjUuODI2NVpNMzEuODM0NSAyNi44MjdMMzEuMjMgMjUuOTVIMzEuMjIxNUMzMS4xOTU0IDI1LjkxMDggMzEuMTYgMjUuODc4NyAzMS4xMTg1IDI1Ljg1NjVDMzEuMDc3IDI1LjgzNDIgMzEuMDMwNiAyNS44MjI2IDMwLjk4MzUgMjUuODIyNkMzMC45MzY0IDI1LjgyMjYgMzAuODkgMjUuODM0MiAzMC44NDg1IDI1Ljg1NjVDMzAuODA3IDI1Ljg3ODcgMzAuNzcxNiAyNS45MTA4IDMwLjc0NTUgMjUuOTVMMzAuMTQwNSAyNi44MjdDMzAuMDAyNSAyNy4wMjQ1IDMwLjE0MDUgMjcuMzA0NSAzMC4zODA1IDI3LjMwNDVIMzEuNTk1NUMzMS44MzU1IDI3LjMwNDUgMzEuOTczIDI3LjAyOTUgMzEuODM1NSAyNi44MjdIMzEuODM0NVoiIGZpbGw9IiNGMkYyRjIiLz4KPHBhdGggZD0iTTM1Ljg5NiAyNS42NzNDMzYuNzUwNSAyMi4xNDY1IDM0LjE4OCAxOC45ODMgMzAuOTE0IDE4Ljk4M0gyOS4yNDVDMjcuNzY4IDE4Ljk4MyAyNi40MzggMTkuNjI2IDI1LjQ5OTUgMjAuNjU0NUMyNi4zIDE4Ljc5NDUgMjguMTA3IDE3LjUgMzAuMjAyIDE3LjVIMzEuODdDMzUuMTQ5IDE3LjUgMzcuNzExIDIwLjY1OSAzNi44NTI1IDI0LjE5QzM2LjY2MTUgMjQuOTc1IDM2LjI1MjUgMjUuNjg2NSAzNS43MDUgMjYuMjdDMzUuNzgwNSAyNi4wNzcgMzUuODQ3NSAyNS44Nzk1IDM1Ljg5NiAyNS42NzNaIiBmaWxsPSIjQkNCQ0JDIi8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjAuNSAxMkMyMC41IDExLjczNDggMjAuMzk0NiAxMS40ODA0IDIwLjIwNzEgMTEuMjkyOUMyMC4wMTk2IDExLjEwNTQgMTkuNzY1MiAxMSAxOS41IDExQzE5LjIzNDggMTEgMTguOTgwNCAxMS4xMDU0IDE4Ljc5MjkgMTEuMjkyOUMxOC42MDU0IDExLjQ4MDQgMTguNSAxMS43MzQ4IDE4LjUgMTJDMTguNSAxMi4yNjUyIDE4LjYwNTQgMTIuNTE5NiAxOC43OTI5IDEyLjcwNzFDMTguOTgwNCAxMi44OTQ2IDE5LjIzNDggMTMgMTkuNSAxM0MxOS43NjUyIDEzIDIwLjAxOTYgMTIuODk0NiAyMC4yMDcxIDEyLjcwNzFDMjAuMzk0NiAxMi41MTk2IDIwLjUgMTIuMjY1MiAyMC41IDEyWk0yMy41IDEyQzIzLjUgMTEuNzM0OCAyMy4zOTQ2IDExLjQ4MDQgMjMuMjA3MSAxMS4yOTI5QzIzLjAxOTYgMTEuMTA1NCAyMi43NjUyIDExIDIyLjUgMTFDMjIuMjM0OCAxMSAyMS45ODA0IDExLjEwNTQgMjEuNzkyOSAxMS4yOTI5QzIxLjYwNTQgMTEuNDgwNCAyMS41IDExLjczNDggMjEuNSAxMkMyMS41IDEyLjI2NTIgMjEuNjA1NCAxMi41MTk2IDIxLjc5MjkgMTIuNzA3MUMyMS45ODA0IDEyLjg5NDYgMjIuMjM0OCAxMyAyMi41IDEzQzIyLjc2NTIgMTMgMjMuMDE5NiAxMi44OTQ2IDIzLjIwNzEgMTIuNzA3MUMyMy4zOTQ2IDEyLjUxOTYgMjMuNSAxMi4yNjUyIDIzLjUgMTJaTTI1LjUgMTFDMjUuNzY1MiAxMSAyNi4wMTk2IDExLjEwNTQgMjYuMjA3MSAxMS4yOTI5QzI2LjM5NDYgMTEuNDgwNCAyNi41IDExLjczNDggMjYuNSAxMkMyNi41IDEyLjI2NTIgMjYuMzk0NiAxMi41MTk2IDI2LjIwNzEgMTIuNzA3MUMyNi4wMTk2IDEyLjg5NDYgMjUuNzY1MiAxMyAyNS41IDEzQzI1LjIzNDggMTMgMjQuOTgwNCAxMi44OTQ2IDI0Ljc5MjkgMTIuNzA3MUMyNC42MDU0IDEyLjUxOTYgMjQuNSAxMi4yNjUyIDI0LjUgMTJDMjQuNSAxMS43MzQ4IDI0LjYwNTQgMTEuNDgwNCAyNC43OTI5IDExLjI5MjlDMjQuOTgwNCAxMS4xMDU0IDI1LjIzNDggMTEgMjUuNSAxMVoiIGZpbGw9ImJsYWNrIiBmaWxsLW9wYWNpdHk9IjAuMTgiLz4KPHBhdGggZD0iTTQzLjUgNDMuNUM0Ny45MTgzIDQzLjUgNTEuNSAzOS45MTgzIDUxLjUgMzUuNUM1MS41IDMxLjA4MTcgNDcuOTE4MyAyNy41IDQzLjUgMjcuNUMzOS4wODE3IDI3LjUgMzUuNSAzMS4wODE3IDM1LjUgMzUuNUMzNS41IDM5LjkxODMgMzkuMDgxNyA0My41IDQzLjUgNDMuNVoiIGZpbGw9IiNFQjEwMkQiLz4KPHBhdGggZD0iTTQzLjUgMzkuOUM0NC4wNTIzIDM5LjkgNDQuNSAzOS40NTIzIDQ0LjUgMzguOUM0NC41IDM4LjM0NzcgNDQuMDUyMyAzNy45IDQzLjUgMzcuOUM0Mi45NDc3IDM3LjkgNDIuNSAzOC4zNDc3IDQyLjUgMzguOUM0Mi41IDM5LjQ1MjMgNDIuOTQ3NyAzOS45IDQzLjUgMzkuOVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik00My40ODA1IDM2LjdDNDMuMTI3NSAzNi43IDQyLjgxMzUgMzYuNDU1IDQyLjc3NDUgMzYuMTRMNDIuMzAzNSAzMS43NjVDNDIuMjY0IDMxLjQxNSA0Mi41Nzg1IDMxLjEgNDMuMDA5NSAzMS4xSDQzLjk5MDVDNDQuMzgzIDMxLjEgNDQuNzM2NSAzMS40MTUgNDQuNjk3IDMxLjc2NUw0NC4yMjYgMzYuMTRDNDQuMTQ3NSAzNi40NTUgNDMuODMzNSAzNi43IDQzLjQ4MDUgMzYuN1oiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik01NC4yNTA1IDI5LjVDNTQuMzk5NSAyOS41IDU0LjU0OCAyOS41NiA1NC42NjIgMjkuNjc3QzU0Ljg4OSAyOS45MTEgNTQuODg5IDMwLjI5MiA1NC42NjIgMzAuNTI2TDUzLjQ5NTUgMzEuNzI2QzUzLjQ0MjEgMzEuNzgxNSA1My4zNzggMzEuODI1NyA1My4zMDcxIDMxLjg1NThDNTMuMjM2MyAzMS44ODYgNTMuMTYgMzEuOTAxNSA1My4wODMgMzEuOTAxNUM1My4wMDYgMzEuOTAxNSA1Mi45Mjk3IDMxLjg4NiA1Mi44NTg5IDMxLjg1NThDNTIuNzg4IDMxLjgyNTcgNTIuNzIzOSAzMS43ODE1IDUyLjY3MDUgMzEuNzI2QzUyLjU2MDkgMzEuNjExOCA1Mi40OTk3IDMxLjQ1OTcgNTIuNDk5NyAzMS4zMDE1QzUyLjQ5OTcgMzEuMTQzMyA1Mi41NjA5IDMwLjk5MTIgNTIuNjcwNSAzMC44NzdMNTMuODM2NSAyOS42NzdDNTMuOTUwNSAyOS41NiA1NC4wOTkgMjkuNSA1NC4yNDggMjkuNUg1NC4yNTA1Wk01My42Njc1IDM0Ljg5OUg1NS40MTdDNTUuNzM3NSAzNC44OTkgNTYgMzUuMTY5IDU2IDM1LjQ5OUM1NiAzNS44MjkgNTUuNzM3NSAzNi4wOTkgNTUuNDE3IDM2LjA5OUg1My42Njc1QzUzLjM0NyAzNi4wOTkgNTMuMDg0NSAzNS44MjkgNTMuMDg0NSAzNS40OTlDNTMuMDg0NSAzNS4xNjkgNTMuMzQ3IDM0Ljg5OSA1My42Njc1IDM0Ljg5OVpNNTIuNjc2NSAzOS4yNzZDNTIuNzkgMzkuMTU5IDUyLjkzOSAzOS4wOTkgNTMuMDg3NSAzOS4wOTlINTMuMDkwNUM1My4yMzkgMzkuMDk5IDUzLjM4OCAzOS4xNTkgNTMuNTAxNSAzOS4yNzZMNTQuNjY4IDQwLjQ3NkM1NC44OTUgNDAuNzA5NSA1NC44OTUgNDEuMDkxIDU0LjY2OCA0MS4zMjQ1QzU0LjYxNDUgNDEuMzggNTQuNTUwNCA0MS40MjQyIDU0LjQ3OTUgNDEuNDU0M0M1NC40MDg2IDQxLjQ4NDUgNTQuMzMyMyA0MS41IDU0LjI1NTIgNDEuNUM1NC4xNzgyIDQxLjUgNTQuMTAxOSA0MS40ODQ1IDU0LjAzMSA0MS40NTQzQzUzLjk2MDEgNDEuNDI0MiA1My44OTYgNDEuMzggNTMuODQyNSA0MS4zMjQ1TDUyLjY3NjUgNDAuMTI0NUM1Mi41NjcxIDQwLjAxMDQgNTIuNTA2IDM5Ljg1ODQgNTIuNTA2IDM5LjcwMDJDNTIuNTA2IDM5LjU0MjEgNTIuNTY3MSAzOS4zOTAxIDUyLjY3NjUgMzkuMjc2WiIgZmlsbD0iI0NDQ0NDQyIvPgo8L3N2Zz4K");
+    flex: 0 0 var(--sp-16);
+    height: var(--sp-12);
+    width: var(--sp-16);
+  }
+  & .Warning_buttonContainer {
+    justify-content: flex-end;
+  }
+}
+[data-platform-name=ios] {
+  & .Warning_container {
+    gap: var(--sp-6);
+  }
+  & .Warning_heading {
+    flex-flow: column;
+    gap: var(--sp-6);
+    justify-content: center;
+    text-align: center;
+  }
+  & .Warning_content {
+    text-align: center;
+  }
+  & .Warning_buttonContainer {
+    flex-flow: column-reverse;
+    justify-content: center;
+    align-items: center;
+    gap: var(--sp-2);
+    padding-top: var(--sp-6);
+  }
+  & .Warning_button {
+    max-width: var(--sp-90);
+    width: 100%;
+  }
+  & .Warning_advanced {
+    background-color: transparent;
+  }
+  & .Warning_icon {
+    flex: 0 0 var(--sp-24);
+    height: var(--sp-24);
+    width: var(--sp-32);
+  }
+  & .Warning_ssl .Warning_icon {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiB2aWV3Qm94PSIwIDAgMTI4IDk2IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik04NyA1MWMtMTEuMDQ2IDAtMjAgOC45NTQtMjAgMjB2NS45NWMtMS44NC42MDItMyAuOC0zIC44cy0yNy00LjYxNi0yNy0zNi44MDhWMjYuNDA0bDE0IC44NDYgMTMtOS4xNTQgMTIuNSA4LjY1NCAxNC41LS4zNDZ2MTQuNTM4YzAgMy43MDctLjM1OCA3LjA0OC0uOTkyIDEwLjA1OHoiLz4KICA8cGF0aCBmaWxsPSIjRjJGMkYyIiBkPSJNODcgNTFjLTExLjA0NiAwLTIwIDguOTU0LTIwIDIwdjQuOTk1bC0zIDEuMjM2VjE3bDEzIDguNjM0IDEzLjQ4LS4zMjZ2MTQuNTM4YzAgMy41NTQtLjU2OSA3LjM3Ny0xLjYyOSAxMS4xNTR6Ii8+CiAgPHBhdGggZmlsbD0iI0NBQ0FDQSIgZD0iTTg4LjQ3MiA1MWMxLjM4Mi01LjA3MSAyLjA5Ni0xMS41NjYgMi4wMjMtMjAuMTYyLS4wMDUtLjU0LS4yNjYtMS4wMzUtLjg2LTEuNDQzYTMuMzc2IDMuMzc2IDAgMCAwLTIuMjQ0LS41NDljLTQuNTE2LjU3LTguMjUzLjQwOC0xMS42MzktLjY3NC0zLjQxMi0xLjA5LTYuNDctMy4xMTYtOS41ODctNi4yNTUtMS4wODYtMS4wOTQtMy4yMDMtMS4wODgtNC4yOC4wMS0zLjE2MyAzLjIyMy02LjI2NiA1LjI1LTkuNzA1IDYuMzE2LTMuMzg2IDEuMDUtNy4xMDYgMS4xNy0xMS41NjcuNjAzYTMuMzc4IDMuMzc4IDAgMCAwLTIuMjQ3LjU0N2MtLjU5NS40MDgtLjg1Ni45MDMtLjg2IDEuNDQ0LS4xMjYgMTQuNjk5IDIuMDUyIDIzLjI1NiA1LjkzIDI5LjA1NCA0LjE3MyA2LjI0MSAxMC40MTkgOS40NjUgMTguNDA5IDEzLjUxNWwuNjg5LjM1YTMuMzI3IDMuMzI3IDAgMCAwIDIuOTMyIDBsLjY5LS4zNS44NDQtLjQyOHYzLjUwN2MwIDEuMjM4LS43NiAyLjQwMS0xLjk4OSAyLjU1YTguMzA1IDguMzA1IDAgMCAxLTQuNzM4LS44MmwtLjk1OC0uNDg2Yy03LjY4My0zLjg5My0xNS4wNzQtNy42MzgtMjAuMDM2LTE1LjA1OS00LjctNy4wMjctNi45MDItMTYuNzg2LTYuNzc0LTMxLjg3NS4wMjEtMi40NyAxLjM1NC00LjM3MyAzLjAzMS01LjUyNWE4LjM3MyA4LjM3MyAwIDAgMSA1LjcwOC0xLjM4NGM0LjA0NS41MTUgNi45ODcuMzQ2IDkuNDU1LS40MTkgMi40NjctLjc2NSA0Ljg4My0yLjI1NiA3LjYxOC01LjA0MyAzLjAzMy0zLjA5IDguMzUyLTMuMDk3IDExLjM5Ny0uMDMgMi43MDcgMi43MjggNS4xIDQuMjMgNy41NiA1LjAxNiAyLjQ2OS43ODkgNS40Mi45ODkgOS40OTEuNDc2YTguMzczIDguMzczIDAgMCAxIDUuNzAzIDEuMzg4YzEuNjc1IDEuMTUyIDMuMDA2IDMuMDU1IDMuMDI3IDUuNTIyLjA2IDcuMDM4LS4zODggMTIuOTE2LTEuMzU5IDE3Ljg5OC0uMjY1IDEuMzYtMS40NzggMi4zMDYtMi44NjMgMi4zMDZoLTIuOFoiLz4KICA8cGF0aCBmaWxsPSIjRUIxMDJEIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik04NyA4N2M4LjgzNyAwIDE2LTcuMTYzIDE2LTE2cy03LjE2My0xNi0xNi0xNi0xNiA3LjE2My0xNiAxNiA3LjE2MyAxNiAxNiAxNm0tMS40NTEtMTQuNzJjLjA3OC42My43MDYgMS4xMiAxLjQxMiAxLjEyLjcwNyAwIDEuMzM0LS40OSAxLjQ5MS0xLjEybC45NDItOC43NWMuMDc5LS43LS42MjgtMS4zMy0xLjQxMy0xLjMzSDg2LjAyYy0uODYzIDAtMS40OS42My0xLjQxMiAxLjMzbC45NDIgOC43NVpNODcgNzkuOGEyIDIgMCAxIDAgMC00IDIgMiAwIDAgMCAwIDQiIGNsaXAtcnVsZT0iZXZlbm9kZCIvPgogIDxwYXRoIGZpbGw9IiM4ODgiIGQ9Im0xMTIuMzcxIDQxLjgtMS41NDIuNGEuODc1Ljg3NSAwIDAgMC0uNjI5LjYyOWwtLjQgMS41NDJhLjg0Ljg0IDAgMCAxLS44LjYyOWMtLjQgMC0uNzQzLS4yODYtLjgtLjYyOWwtLjQtMS41NDJhLjg3NS44NzUgMCAwIDAtLjYyOS0uNjI5bC0xLjU0Mi0uNEEuODQxLjg0MSAwIDAgMSAxMDUgNDFjMC0uNC4yODYtLjc0My42MjktLjhsMS41NDItLjRhLjg3NS44NzUgMCAwIDAgLjYyOS0uNjI5bC40LTEuNTQyQS44NC44NCAwIDAgMSAxMDkgMzdjLjQgMCAuNzQzLjI4Ni44LjYyOWwuNCAxLjU0MmEuODc1Ljg3NSAwIDAgMCAuNjI5LjYyOWwxLjU0Mi40Yy40LjExNC42MjkuNDU3LjYyOS44IDAgLjQtLjI4Ni43NDMtLjYyOS44Wm0tODYuMzE0LTUuNi0yLjMxNC42Yy0uNDI5LjA4Ni0uODU3LjUxNC0uOTQzLjk0M2wtLjYgMi4zMTRjLS4xNzEuNi0uNjg2Ljk0My0xLjIuOTQzLS42IDAtMS4xMTQtLjQyOS0xLjItLjk0M2wtLjYtMi4zMTRjLS4wODYtLjQyOS0uNTE0LS44NTctLjk0My0uOTQzbC0yLjMxNC0uNmMtLjYtLjE3MS0uOTQzLS42ODYtLjk0My0xLjIgMC0uNi40MjktMS4xMTQuOTQzLTEuMmwyLjMxNC0uNmMuNDI5LS4wODYuODU3LS41MTQuOTQzLS45NDNsLjYtMi4zMTRjLjE3MS0uNi42ODYtLjk0MyAxLjItLjk0My42IDAgMS4xMTQuNDI5IDEuMi45NDNsLjYgMi4zMTRjLjA4Ni40MjkuNTE0Ljg1Ny45NDMuOTQzbDIuMzE0LjZjLjYuMTcxLjk0My42ODYuOTQzIDEuMiAwIC42LS40MjkgMS4xMTQtLjk0MyAxLjIiIG9wYWNpdHk9Ii4yIi8+CiAgPHBhdGggZmlsbD0iIzg4OCIgZD0ibTcuMzcxIDU2LjgtMS41NDIuNGEuODc1Ljg3NSAwIDAgMC0uNjI5LjYyOWwtLjQgMS41NDJBLjg0MS44NDEgMCAwIDEgNCA2MGMtLjQgMC0uNzQzLS4yODYtLjgtLjYyOWwtLjQtMS41NDJhLjg3NS44NzUgMCAwIDAtLjYyOS0uNjI5TC42MyA1Ni44QS44NDEuODQxIDAgMCAxIDAgNTZjMC0uNC4yODYtLjc0My42MjktLjhsMS41NDItLjRhLjg3NS44NzUgMCAwIDAgLjYyOS0uNjI5bC40LTEuNTQyQS44NDEuODQxIDAgMCAxIDQgNTJjLjQgMCAuNzQzLjI4Ni44LjYyOWwuNCAxLjU0MmEuODc1Ljg3NSAwIDAgMCAuNjI5LjYyOWwxLjU0Mi40Yy40LjExNC42MjkuNDU3LjYyOS44IDAgLjQtLjI4Ni43NDMtLjYyOS44Wk0xMjYuNSA1NGMtLjgyNSAwLTEuNS0uNjc1LTEuNS0xLjVzLjY3NS0xLjUgMS41LTEuNSAxLjUuNjc1IDEuNSAxLjUtLjY3NSAxLjUtMS41IDEuNSIgb3BhY2l0eT0iLjEiLz4KICA8cGF0aCBmaWxsPSIjODg4IiBkPSJNMjYgNjdjLTEuMSAwLTItLjktMi0ycy45LTIgMi0yIDIgLjkgMiAyLS45IDItMiAyIiBvcGFjaXR5PSIuMiIvPgogIDxwYXRoIGZpbGw9IiNDQ0MiIGQ9Ik0xMDguNTAxIDU5Yy4yOTggMCAuNTk1LjEyLjgyMy4zNTQuNDU0LjQ2OC40NTQgMS4yMyAwIDEuNjk4bC0yLjMzMyAyLjRhMS4xNDUgMS4xNDUgMCAwIDEtMS42NSAwIDEuMjI2IDEuMjI2IDAgMCAxIDAtMS42OThsMi4zMzItMi40Yy4yMjgtLjIzNC41MjUtLjM1NC44MjMtLjM1NGguMDA1Wm0tMS4xNjYgMTAuNzk4aDMuNDk5Yy42NDEgMCAxLjE2Ni41NCAxLjE2NiAxLjIgMCAuNjYtLjUyNSAxLjItMS4xNjYgMS4yaC0zLjQ5OWMtLjY0MSAwLTEuMTY2LS41NC0xLjE2Ni0xLjIgMC0uNjYuNTI1LTEuMiAxLjE2Ni0xLjJtLTEuOTgyIDguNzU0Yy4yMjctLjIzNC41MjUtLjM1NC44MjItLjM1NGguMDA2Yy4yOTcgMCAuNTk1LjEyLjgyMi4zNTRsMi4zMzMgMi40Yy40NTQuNDY3LjQ1NCAxLjIzIDAgMS42OTdhMS4xNDYgMS4xNDYgMCAwIDEtMS42NTEgMGwtMi4zMzItMi40YTEuMjI2IDEuMjI2IDAgMCAxIDAtMS42OTdaIi8+Cjwvc3ZnPgo=");
+  }
+  & .Warning_phishing .Warning_icon {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA2NCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC4yIiBkPSJNOC40NTYgMTUuNTI0NUM4LjMxOTM3IDE1LjM4MzYgOC4yNDM2MyAxNS4xOTQ2IDguMjQ1MTQgMTQuOTk4NEM4LjI0NjY0IDE0LjgwMjEgOC4zMjUyOCAxNC42MTQzIDguNDY0MDUgMTQuNDc1NkM4LjYwMjgzIDE0LjMzNjggOC43OTA2MiAxNC4yNTgyIDguOTg2ODggMTQuMjU2NkM5LjE4MzEzIDE0LjI1NTEgOS4zNzIxMSAxNC4zMzA5IDkuNTEzIDE0LjQ2NzVMMTAuNDc5IDE1LjQzMzVMMTEuNDQ1IDE0LjQ2NzVDMTEuNTg1OSAxNC4zMzA5IDExLjc3NDkgMTQuMjU1MSAxMS45NzExIDE0LjI1NjZDMTIuMTY3NCAxNC4yNTgyIDEyLjM1NTIgMTQuMzM2OCAxMi40OTM5IDE0LjQ3NTZDMTIuNjMyNyAxNC42MTQzIDEyLjcxMTQgMTQuODAyMSAxMi43MTI5IDE0Ljk5ODRDMTIuNzE0NCAxNS4xOTQ2IDEyLjYzODYgMTUuMzgzNiAxMi41MDIgMTUuNTI0NUwxMS41MzYgMTYuNDkwNUwxMi41MDIgMTcuNDU2NUMxMi42Mzg2IDE3LjU5NzQgMTIuNzE0NCAxNy43ODY0IDEyLjcxMjkgMTcuOTgyNkMxMi43MTE0IDE4LjE3ODkgMTIuNjMyNyAxOC4zNjY3IDEyLjQ5MzkgMTguNTA1NUMxMi4zNTUyIDE4LjY0NDIgMTIuMTY3NCAxOC43MjI5IDExLjk3MTEgMTguNzI0NEMxMS43NzQ5IDE4LjcyNTkgMTEuNTg1OSAxOC42NTAxIDExLjQ0NSAxOC41MTM1TDEwLjQ3OSAxNy41NDdMOS41MTMgMTguNTEzNUM5LjQ0MzU5IDE4LjU4MjkgOS4zNjEyIDE4LjYzOCA5LjI3MDUyIDE4LjY3NTVDOS4xNzk4NCAxOC43MTMxIDkuMDgyNjUgMTguNzMyNCA4Ljk4NDUgMTguNzMyNEM4Ljg4NjM1IDE4LjczMjQgOC43ODkxNiAxOC43MTMxIDguNjk4NDggMTguNjc1NUM4LjYwNzggMTguNjM4IDguNTI1NCAxOC41ODI5IDguNDU2IDE4LjUxMzVDOC4zODY2IDE4LjQ0NDEgOC4zMzE1NCAxOC4zNjE3IDguMjkzOTggMTguMjcxQzguMjU2NDIgMTguMTgwMyA4LjIzNzA5IDE4LjA4MzIgOC4yMzcwOSAxNy45ODVDOC4yMzcwOSAxNy44ODY5IDguMjU2NDIgMTcuNzg5NyA4LjI5Mzk4IDE3LjY5OUM4LjMzMTU0IDE3LjYwODMgOC4zODY2IDE3LjUyNTkgOC40NTYgMTcuNDU2NUw5LjQyMiAxNi40OTA1TDguNDU2IDE1LjUyNDVaIiBmaWxsPSIjODg4ODg4Ii8+CjxwYXRoIG9wYWNpdHk9IjAuMSIgZD0iTTAuMjkxMDAxIDI2LjQ1NUMwLjE1NDMwMyAyNi4zMTQyIDAuMDc4NDczNyAyNi4xMjUyIDAuMDc5ODg3MSAyNS45MjlDMC4wODEzMDA0IDI1LjczMjcgMC4xNTk4NDMgMjUuNTQ0OSAwLjI5ODU1NSAyNS40MDZDMC40MzcyNjggMjUuMjY3MiAwLjYyNTAyMiAyNS4xODg1IDAuODIxMjc4IDI1LjE4NjlDMS4wMTc1MyAyNS4xODUzIDEuMjA2NTQgMjUuMjYwOSAxLjM0NzUgMjUuMzk3NUwxLjk5MzUgMjYuMDQzNUwyLjYzOSAyNS4zOTc1QzIuNzA4MDEgMjUuMzI2MyAyLjc5MDQ5IDI1LjI2OTYgMi44ODE2MyAyNS4yMzA2QzIuOTcyNzcgMjUuMTkxNiAzLjA3MDc1IDI1LjE3MTIgMy4xNjk4OCAyNS4xNzA0QzMuMjY5IDI1LjE2OTYgMy4zNjcyOSAyNS4xODg2IDMuNDU5MDIgMjUuMjI2MkMzLjU1MDc1IDI1LjI2MzggMy42MzQwOSAyNS4zMTkyIDMuNzA0MTggMjUuMzg5M0MzLjc3NDI3IDI1LjQ1OTQgMy44Mjk3MyAyNS41NDI3IDMuODY3MzEgMjUuNjM0NUMzLjkwNDg5IDI1LjcyNjIgMy45MjM4NiAyNS44MjQ1IDMuOTIzMSAyNS45MjM2QzMuOTIyMzMgMjYuMDIyNyAzLjkwMTg2IDI2LjEyMDcgMy44NjI4OCAyNi4yMTE5QzMuODIzODkgMjYuMzAzIDMuNzY3MTYgMjYuMzg1NSAzLjY5NiAyNi40NTQ1TDMuMDUgMjcuMUwzLjY5NiAyNy43NDZDMy43Njg0NyAyNy44MTQ3IDMuODI2NDQgMjcuODk3MiAzLjg2NjUgMjcuOTg4NkMzLjkwNjU3IDI4LjA4MDEgMy45Mjc5IDI4LjE3ODYgMy45MjkyNiAyOC4yNzg0QzMuOTMwNjEgMjguMzc4MyAzLjkxMTk1IDI4LjQ3NzQgMy44NzQzOCAyOC41Njk5QzMuODM2ODEgMjguNjYyNCAzLjc4MTA5IDI4Ljc0NjQgMy43MTA1MSAyOC44MTdDMy42Mzk5MyAyOC44ODc2IDMuNTU1OTIgMjguOTQzNCAzLjQ2MzQ0IDI4Ljk4MUMzLjM3MDk2IDI5LjAxODYgMy4yNzE4OCAyOS4wMzczIDMuMTcyMDUgMjkuMDM2QzMuMDcyMjIgMjkuMDM0NyAyLjk3MzY3IDI5LjAxMzQgMi44ODIyIDI4Ljk3MzRDMi43OTA3MyAyOC45MzM0IDIuNzA4MjEgMjguODc1NCAyLjYzOTUgMjguODAzTDEuOTkzNSAyOC4xNTdMMS4zNDc1IDI4LjgwM0MxLjI3ODQ5IDI4Ljg3NDIgMS4xOTYwMiAyOC45MzA5IDEuMTA0ODggMjguOTY5OUMxLjAxMzc0IDI5LjAwODkgMC45MTU3NSAyOS4wMjkzIDAuODE2NjI0IDI5LjAzMDFDMC43MTc0OTggMjkuMDMwOSAwLjYxOTIxMSAyOS4wMTE5IDAuNTI3NDgyIDI4Ljk3NDNDMC40MzU3NTQgMjguOTM2NyAwLjM1MjQxNyAyOC44ODEzIDAuMjgyMzIzIDI4LjgxMTJDMC4yMTIyMjggMjguNzQxMSAwLjE1Njc3NSAyOC42NTc3IDAuMTE5MTkyIDI4LjU2NkMwLjA4MTYwODggMjguNDc0MyAwLjA2MjY0NTkgMjguMzc2IDAuMDYzNDA3IDI4LjI3NjlDMC4wNjQxNjgyIDI4LjE3NzcgMC4wODQ2MzgxIDI4LjA3OTggMC4xMjM2MjUgMjcuOTg4NkMwLjE2MjYxMyAyNy44OTc1IDAuMjE5MzM4IDI3LjgxNSAwLjI5MDUwMSAyNy43NDZMMC45MzY1MDEgMjcuMTAwNUwwLjI5MTAwMSAyNi40NTVaIiBmaWxsPSIjODg4ODg4Ii8+CjxwYXRoIG9wYWNpdHk9IjAuMiIgZD0iTTYwLjM0MiAzMy44MjJDNjAuMjEwOSAzMy42OCA2MC4xMzk4IDMzLjQ5MjkgNjAuMTQzNiAzMy4yOTk2QzYwLjE0NzQgMzMuMTA2NCA2MC4yMjU5IDMyLjkyMjIgNjAuMzYyNiAzMi43ODU2QzYwLjQ5OTIgMzIuNjQ4OSA2MC42ODM0IDMyLjU3MDUgNjAuODc2NiAzMi41NjY2QzYxLjA2OTggMzIuNTYyOCA2MS4yNTcgMzIuNjMzOSA2MS4zOTkgMzIuNzY1TDYyLjA0NDUgMzMuNDExTDYyLjY5MDUgMzIuNzY1QzYyLjc1OTkgMzIuNjk1NiA2Mi44NDIzIDMyLjY0MDYgNjIuOTMzIDMyLjYwMzFDNjMuMDIzNiAzMi41NjU2IDYzLjEyMDggMzIuNTQ2MiA2My4yMTg5IDMyLjU0NjNDNjMuMzE3MSAzMi41NDYzIDYzLjQxNDIgMzIuNTY1NiA2My41MDQ5IDMyLjYwMzJDNjMuNTk1NSAzMi42NDA4IDYzLjY3NzkgMzIuNjk1OSA2My43NDcyIDMyLjc2NTNDNjMuODE2NiAzMi44MzQ3IDYzLjg3MTYgMzIuOTE3IDYzLjkwOTIgMzMuMDA3N0M2My45NDY3IDMzLjA5ODQgNjMuOTY2IDMzLjE5NTYgNjMuOTY2IDMzLjI5MzdDNjMuOTY2IDMzLjM5MTggNjMuOTQ2NiAzMy40ODkgNjMuOTA5IDMzLjU3OTZDNjMuODcxNSAzMy42NzAzIDYzLjgxNjQgMzMuNzUyNiA2My43NDcgMzMuODIyTDYzLjEwMTUgMzQuNDY3NUw2My43NDc1IDM1LjExMzVDNjMuODg3NyAzNS4yNTM3IDYzLjk2NjQgMzUuNDQzOCA2My45NjY0IDM1LjY0MkM2My45NjY0IDM1Ljg0MDIgNjMuODg3NyAzNi4wMzAzIDYzLjc0NzUgMzYuMTcwNUM2My42MDczIDM2LjMxMDcgNjMuNDE3MiAzNi4zODk0IDYzLjIxOSAzNi4zODk0QzYzLjAyMDggMzYuMzg5NCA2Mi44MzA3IDM2LjMxMDcgNjIuNjkwNSAzNi4xNzA1TDYyLjA0NDUgMzUuNTI0NUw2MS4zOTg1IDM2LjE3MDVDNjEuMzI5MSAzNi4yMzk5IDYxLjI0NjcgMzYuMjk0OSA2MS4xNTYgMzYuMzMyNEM2MS4wNjU0IDM2LjM3IDYwLjk2ODIgMzYuMzg5MyA2MC44NzAxIDM2LjM4OTJDNjAuNzcxOSAzNi4zODkyIDYwLjY3NDggMzYuMzY5OSA2MC41ODQxIDM2LjMzMjNDNjAuNDkzNSAzNi4yOTQ3IDYwLjQxMTEgMzYuMjM5NyA2MC4zNDE4IDM2LjE3MDNDNjAuMjcyNCAzNi4xMDA5IDYwLjIxNzQgMzYuMDE4NSA2MC4xNzk4IDM1LjkyNzhDNjAuMTQyMyAzNS44MzcxIDYwLjEyMyAzNS43NCA2MC4xMjMgMzUuNjQxOEM2MC4xMjMgMzUuNTQzNyA2MC4xNDI0IDM1LjQ0NjUgNjAuMTggMzUuMzU1OUM2MC4yMTc1IDM1LjI2NTIgNjAuMjcyNiAzNS4xODI5IDYwLjM0MiAzNS4xMTM1TDYwLjk4OCAzNC40Njc1TDYwLjM0MiAzMy44MjJaTTUyLjc3NyAxOC43MjlDNTIuNjQ1OSAxOC41ODcgNTIuNTc0OCAxOC4zOTk5IDUyLjU3ODYgMTguMjA2NkM1Mi41ODI0IDE4LjAxMzQgNTIuNjYwOSAxNy44MjkyIDUyLjc5NzYgMTcuNjkyNkM1Mi45MzQyIDE3LjU1NTkgNTMuMTE4NCAxNy40Nzc1IDUzLjMxMTYgMTcuNDczNkM1My41MDQ4IDE3LjQ2OTggNTMuNjkyIDE3LjU0MDkgNTMuODM0IDE3LjY3Mkw1NC40Nzk1IDE4LjMxOEw1NS4xMjU1IDE3LjY3MkM1NS4yNjY0IDE3LjUzNTQgNTUuNDU1NCAxNy40NTk2IDU1LjY1MTYgMTcuNDYxMUM1NS44NDc5IDE3LjQ2MjYgNTYuMDM1NyAxNy41NDEzIDU2LjE3NDQgMTcuNjgwMUM1Ni4zMTMyIDE3LjgxODggNTYuMzkxOSAxOC4wMDY2IDU2LjM5MzQgMTguMjAyOUM1Ni4zOTQ5IDE4LjM5OTEgNTYuMzE5MSAxOC41ODgxIDU2LjE4MjUgMTguNzI5TDU1LjUzNjUgMTkuMzc0NUw1Ni4xODI1IDIwLjAyMDVDNTYuMjUxOSAyMC4wODk5IDU2LjMwNyAyMC4xNzIzIDU2LjM0NDUgMjAuMjYzQzU2LjM4MjEgMjAuMzUzNyA1Ni40MDE0IDIwLjQ1MDkgNTYuNDAxNCAyMC41NDlDNTYuNDAxNCAyMC42NDcyIDU2LjM4MjEgMjAuNzQ0MyA1Ni4zNDQ1IDIwLjgzNUM1Ni4zMDcgMjAuOTI1NyA1Ni4yNTE5IDIxLjAwODEgNTYuMTgyNSAyMS4wNzc1QzU2LjExMzEgMjEuMTQ2OSA1Ni4wMzA3IDIxLjIwMiA1NS45NCAyMS4yMzk1QzU1Ljg0OTMgMjEuMjc3MSA1NS43NTIyIDIxLjI5NjQgNTUuNjU0IDIxLjI5NjRDNTUuNTU1OCAyMS4yOTY0IDU1LjQ1ODcgMjEuMjc3MSA1NS4zNjggMjEuMjM5NUM1NS4yNzczIDIxLjIwMiA1NS4xOTQ5IDIxLjE0NjkgNTUuMTI1NSAyMS4wNzc1TDU0LjQ3OTUgMjAuNDMxNUw1My44MzQgMjEuMDc3NUM1My42OTMxIDIxLjIxNDEgNTMuNTA0MSAyMS4yODk5IDUzLjMwNzkgMjEuMjg4NEM1My4xMTE2IDIxLjI4NjkgNTIuOTIzOCAyMS4yMDgyIDUyLjc4NTEgMjEuMDY5NUM1Mi42NDYzIDIwLjkzMDcgNTIuNTY3NiAyMC43NDI5IDUyLjU2NjEgMjAuNTQ2NkM1Mi41NjQ2IDIwLjM1MDQgNTIuNjQwNCAyMC4xNjE0IDUyLjc3NyAyMC4wMjA1TDUzLjQyMyAxOS4zNzQ1TDUyLjc3NyAxOC43MjlaIiBmaWxsPSIjODg4ODg4Ii8+CjxwYXRoIG9wYWNpdHk9IjAuMSIgZD0iTTYyLjI1IDI3QzYxLjgzNzUgMjcgNjEuNSAyNi42NjI1IDYxLjUgMjYuMjVDNjEuNSAyNS44Mzc1IDYxLjgzNzUgMjUuNSA2Mi4yNSAyNS41QzYyLjY2MjUgMjUuNSA2MyAyNS44Mzc1IDYzIDI2LjI1QzYzIDI2LjY2MjUgNjIuNjYyNSAyNyA2Mi4yNSAyN1oiIGZpbGw9IiM4ODg4ODgiLz4KPHBhdGggb3BhY2l0eT0iMC4yIiBkPSJNMTIgMzMuNUMxMS40NSAzMy41IDExIDMzLjA1IDExIDMyLjVDMTEgMzEuOTUgMTEuNDUgMzEuNSAxMiAzMS41QzEyLjU1IDMxLjUgMTMgMzEuOTUgMTMgMzIuNUMxMyAzMy4wNSAxMi41NSAzMy41IDEyIDMzLjVaIiBmaWxsPSIjODg4ODg4Ii8+CjxwYXRoIGQ9Ik0yMSAxMEMyMC4yMDQ0IDEwIDE5LjQ0MTMgMTAuMzE2MSAxOC44Nzg3IDEwLjg3ODdDMTguMzE2MSAxMS40NDEzIDE4IDEyLjIwNDQgMTggMTNWMzVDMTggMzUuNzk1NiAxOC4zMTYxIDM2LjU1ODcgMTguODc4NyAzNy4xMjEzQzE5LjQ0MTMgMzcuNjgzOSAyMC4yMDQ0IDM4IDIxIDM4SDMxLjVDMzIuMDMwNCAzOCAzMi41MzkxIDM3Ljc4OTMgMzIuOTE0MiAzNy40MTQyQzMzLjI4OTMgMzcuMDM5MSAzMy41IDM2LjUzMDQgMzMuNSAzNlYzNS41QzMzLjUgMjkuOTc3IDM3Ljk3NyAyNS41IDQzLjUgMjUuNUg0NkM0Ni41MzA0IDI1LjUgNDcuMDM5MSAyNS4yODkzIDQ3LjQxNDIgMjQuOTE0MkM0Ny43ODkzIDI0LjUzOTEgNDggMjQuMDMwNCA0OCAyMy41VjEzQzQ4IDEyLjIwNDQgNDcuNjgzOSAxMS40NDEzIDQ3LjEyMTMgMTAuODc4N0M0Ni41NTg3IDEwLjMxNjEgNDUuNzk1NiAxMCA0NSAxMEgyMVoiIGZpbGw9IiNBQUFBQUEiLz4KPHBhdGggZD0iTTE5IDEwQzE4LjIwNDQgMTAgMTcuNDQxMyAxMC4zMTYxIDE2Ljg3ODcgMTAuODc4N0MxNi4zMTYxIDExLjQ0MTMgMTYgMTIuMjA0NCAxNiAxM1YzNUMxNiAzNS43OTU2IDE2LjMxNjEgMzYuNTU4NyAxNi44Nzg3IDM3LjEyMTNDMTcuNDQxMyAzNy42ODM5IDE4LjIwNDQgMzggMTkgMzhIMzEuNUMzMi4wMzA0IDM4IDMyLjUzOTEgMzcuNzg5MyAzMi45MTQyIDM3LjQxNDJDMzMuMjg5MyAzNy4wMzkxIDMzLjUgMzYuNTMwNCAzMy41IDM2VjM1LjVDMzMuNSAyOS45NzcgMzcuOTc3IDI1LjUgNDMuNSAyNS41SDQ2VjEzQzQ2IDEyLjIwNDQgNDUuNjgzOSAxMS40NDEzIDQ1LjEyMTMgMTAuODc4N0M0NC41NTg3IDEwLjMxNjEgNDMuNzk1NiAxMCA0MyAxMEgxOVoiIGZpbGw9IiNGNUY1RjUiLz4KPHBhdGggZD0iTTE2LjAxNTUgMTIuNjkzNUMxNi4wMDU1IDEyLjc5NCAxNiAxMi44OTY1IDE2IDEzVjM1QzE2IDM1Ljc5NTYgMTYuMzE2MSAzNi41NTg3IDE2Ljg3ODcgMzcuMTIxM0MxNy40NDEzIDM3LjY4MzkgMTguMjA0NCAzOCAxOSAzOEgzMkMzMi4zOTc4IDM4IDMyLjc3OTQgMzcuODQyIDMzLjA2MDcgMzcuNTYwN0MzMy4zNDIgMzcuMjc5NCAzMy41IDM2Ljg5NzggMzMuNSAzNi41SDE5QzE4LjYwMjIgMzYuNSAxOC4yMjA2IDM2LjM0MiAxNy45MzkzIDM2LjA2MDdDMTcuNjU4IDM1Ljc3OTQgMTcuNSAzNS4zOTc4IDE3LjUgMzVWMTRINDQuNVYyNS41SDQ2VjEzQzQ2IDEyLjIwNDQgNDUuNjgzOSAxMS40NDEzIDQ1LjEyMTMgMTAuODc4N0M0NC41NTg3IDEwLjMxNjEgNDMuNzk1NiAxMCA0MyAxMEgxOUMxOC4yNTc0IDkuOTk5OTUgMTcuNTQxMSAxMC4yNzUzIDE2Ljk4OTggMTAuNzcyOUMxNi40Mzg1IDExLjI3MDQgMTYuMDkxNCAxMS45NTQ4IDE2LjAxNTUgMTIuNjkzNVoiIGZpbGw9IiNEREREREQiLz4KPHBhdGggZD0iTTQwLjk1NSAxOS42OTY1QzQxLjEzNTMgMTkuNzA0MyA0MS4zMTA4IDE5Ljc1NzIgNDEuNDY1NCAxOS44NTAzQzQxLjYyIDE5Ljk0MzQgNDEuNzQ4OCAyMC4wNzM4IDQxLjg0IDIwLjIyOTVDNDIuMTUxNSAyMC43NTc1IDQxLjk5NTUgMjEuNDQ2IDQxLjQ4NCAyMS43NzJMNDEuMzEwNSAyMS44ODJDNDEuMDQyNCAyMi4wNTI1IDQwLjc0MjggMjIuMTY3MiA0MC40Mjk0IDIyLjIxOTNDNDAuMTE2IDIyLjI3MTQgMzkuNzk1MyAyMi4yNTk3IDM5LjQ4NjUgMjIuMTg1QzM5LjE0MDMgMjIuMDk5MiAzOC43ODAyIDIyLjA4NTEgMzguNDI4NCAyMi4xNDM2QzM4LjA3NjUgMjIuMjAyIDM3Ljc0MDMgMjIuMzMxOCAzNy40NDA1IDIyLjUyNUwzMi41ODcgMjUuNjE1TDM2LjI5MjUgMjcuOTc1QzM2LjQxODUgMjguMDU1NSAzNi41NDk1IDI4LjEyNSAzNi42ODUgMjguMTgyQzM2LjI1MzMgMjguNTg0IDM1Ljg1NzggMjkuMDIzMiAzNS41MDMgMjkuNDk0NUMzNS40NzU4IDI5LjQ3NTcgMzUuNDQ4MyAyOS40NTc0IDM1LjQyMDUgMjkuNDM5NUwzMC45OTkgMjYuNjI1TDI2LjU3NyAyOS40NEMyNS45NTk0IDI5LjgzNTkgMjUuNTIyOSAzMC40NTkzIDI1LjM2MiAzMS4xNzVDMjUuMjE5NCAzMS44MTI5IDI0LjgzMTIgMzIuMzY4OCAyNC4yODE1IDMyLjcyMjVMMjQuMTA4IDMyLjgzMjVDMjMuNTk2NSAzMy4xNTQgMjIuOTI5IDMyLjk5MzUgMjIuNjEzIDMyLjQ2NTVDMjIuNTE5IDMyLjMwNzMgMjIuNDY0MyAzMi4xMjg4IDIyLjQ1MzUgMzEuOTQ1QzIyLjQ0MjcgMzEuNzYxMyAyMi40NzYxIDMxLjU3NzcgMjIuNTUxIDMxLjQwOTVDMjIuNjc1NSAzMS4xMjk1IDIyLjQ4NCAzMC44MTI1IDIyLjE5MSAzMC44MDM1QzIyLjAxMDYgMzAuNzk1OCAyMS44MzUgMzAuNzQyOSAyMS42ODA0IDMwLjY0OThDMjEuNTI1NyAzMC41NTY3IDIxLjM5NjggMzAuNDI2MyAyMS4zMDU1IDMwLjI3MDVDMjAuOTk0IDI5Ljc0MjUgMjEuMTQ5NSAyOS4wNTQgMjEuNjYxNSAyOC43MjhMMjEuODM0NSAyOC42MThDMjIuMTAyNSAyOC40NDc1IDIyLjQwMjIgMjguMzMyOCAyMi43MTU2IDI4LjI4MDdDMjMuMDI5IDI4LjIyODYgMjMuMzQ5NyAyOC4yNDAzIDIzLjY1ODUgMjguMzE1QzI0LjAwNDggMjguNDAwOSAyNC4zNjUgMjguNDE1IDI0LjcxNjkgMjguMzU2NUMyNS4wNjg4IDI4LjI5ODEgMjUuNDA1MSAyOC4xNjgyIDI1LjcwNSAyNy45NzVMMjYuMzEgMjcuNTg5NUwyOS40MTUgMjUuNjE1TDI0LjU2MTUgMjIuNTI1QzI0LjI2MTIgMjIuMzMyOSAyMy45MjUgMjIuMjAzNyAyMy41NzM0IDIyLjE0NTJDMjMuMjIxNyAyMi4wODY4IDIyLjg2MTggMjIuMTAwMyAyMi41MTU1IDIyLjE4NUMyMi4yMDY4IDIyLjI2MDcgMjEuODg1OSAyMi4yNzI4IDIxLjU3MjQgMjIuMjIwN0MyMS4yNTg5IDIyLjE2ODYgMjAuOTU5MiAyMi4wNTM0IDIwLjY5MTUgMjEuODgyTDIwLjUxOCAyMS43NzJDMjAuMDA2NSAyMS40NDYgMTkuODQ2IDIwLjc1NyAyMC4xNjIgMjAuMjI5NUMyMC4yNTI4IDIwLjA3MzQgMjAuMzgxNSAxOS45NDI4IDIwLjUzNjIgMTkuODQ5NkMyMC42OTA5IDE5Ljc1NjQgMjAuODY2NiAxOS43MDM4IDIxLjA0NyAxOS42OTY1QzIxLjM0MSAxOS42ODc1IDIxLjUzMiAxOS4zNjY1IDIxLjQwNzUgMTkuMDkwNUMyMS4zMzI4IDE4LjkyMjMgMjEuMjk5NCAxOC43Mzg2IDIxLjMxMDMgMTguNTU0OUMyMS4zMjEyIDE4LjM3MTIgMjEuMzc1OSAxOC4xOTI3IDIxLjQ3IDE4LjAzNDVDMjEuNzg2IDE3LjUwNjUgMjIuNDUzIDE3LjM0MSAyMi45NjUgMTcuNjY3TDIzLjEzOCAxNy43NzdDMjMuNjg2NyAxOC4xMzIgMjQuMDc0NyAxOC42ODc2IDI0LjIxOSAxOS4zMjVDMjQuMzgxNSAyMC4wNCAyNC44MTc3IDIwLjY2MjggMjUuNDM0IDIxLjA2TDMxLjAwMyAyNC42MDVMMzYuNTY4IDIxLjA2QzM3LjE4NTYgMjAuNjY0MSAzNy42MjIyIDIwLjA0MDcgMzcuNzgzIDE5LjMyNUMzNy45MjU4IDE4LjY4NzEgMzguMzE0MSAxOC4xMzExIDM4Ljg2NCAxNy43Nzc1TDM5LjAzNzUgMTcuNjY3NUMzOS41NDkgMTcuMzQ2IDQwLjIxNiAxNy41MDY1IDQwLjUzMjUgMTguMDM0NUM0MC43MjM1IDE4LjM1MTUgNDAuNzQ1NSAxOC43NTEgNDAuNTk0NSAxOS4wOTA1QzQwLjQ2OTUgMTkuMzcwNSA0MC42NjEgMTkuNjg3NSA0MC45NTQ1IDE5LjY5NjVINDAuOTU1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8cGF0aCBkPSJNMzYuMjg4NSAyNy45ODQ1QzM2LjM3MzUgMjguMDM5NSAzNi40NjIgMjguMDkgMzYuNTUxIDI4LjEzMTVIMzYuNTZDMzYuMTgwNCAyOC41OTA0IDM1Ljc0NTUgMjkuMDAwNiAzNS4yNjUgMjkuMzUyNUwzNC44MTYgMjkuMDY4TDMxIDI2LjYzOUwyNy4xODMgMjkuMDY4TDI2LjczMzUgMjkuMzUzQzI2LjI1MzIgMjkuMDAwOSAyNS44MTg0IDI4LjU5MDYgMjUuNDM5IDI4LjEzMTVDMjUuNTI4IDI4LjA4NTUgMjUuNjE3IDI4LjAzOTUgMjUuNzAxNSAyNy45ODQ1TDI2LjMwNjUgMjcuNTk4NUwyOS40MTE1IDI1LjYyNDVMMjQuNTU4NSAyMi41MzQ1QzI0LjM3MTMgMjIuNDE4MiAyNC4xNzExIDIyLjMyNDIgMjMuOTYyIDIyLjI1NDVDMjQuMDk1NSAyMS41NjU1IDI0LjMzMTUgMjAuOTA5NSAyNC42NDcgMjAuMzA3NUMyNC44NTIgMjAuNjA2IDI1LjExOSAyMC44Njc1IDI1LjQzIDIxLjA2NUwzMSAyNC42MUwzNi41NjUgMjEuMDY1QzM2Ljg3NDQgMjAuODY3OSAzNy4xNDA4IDIwLjYxMDIgMzcuMzQ4IDIwLjMwNzVDMzcuNjY5MiAyMC45MiAzNy45IDIxLjU3NTggMzguMDMzIDIyLjI1NDVDMzcuODIzNCAyMi4zMjI1IDM3LjYyMzIgMjIuNDE2NiAzNy40MzcgMjIuNTM0NUwzMi41ODM1IDI1LjYyNDVMMzYuMjg4NSAyNy45ODQ1WiIgZmlsbD0iI0JDQkNCQyIvPgo8cGF0aCBkPSJNMzEuODQ0IDE3LjVIMzAuMTY5NUMyNi44MzkgMTcuNSAyNC4yNDQ1IDIwLjc3NiAyNS4yMDA1IDI0LjQwMDVDMjUuNDAxNSAyNS4xNjc1IDI1LjgyMDUgMjUuODU1IDI2LjM2MSAyNi40MTc1TDI3LjQ4NiAyNy41ODg1QzI3Ljc0MjUgMjcuODU3NyAyNy44ODQ5IDI4LjIxNTcgMjcuODgzNSAyOC41ODc1VjI5LjI2NkMyNy44ODM1IDI5LjY3IDI4LjIwMDUgMzAgMjguNTg5IDMwQzI4LjY2NjIgMjkuOTk5NCAyOC43NDE3IDI5Ljk3NjggMjguODA2NSAyOS45MzQ4QzI4Ljg3MTMgMjkuODkyOCAyOC45MjI5IDI5LjgzMzIgMjguOTU1IDI5Ljc2M0MyOC45ODY3IDI5LjY5MjQgMjkuMDM4MiAyOS42MzI1IDI5LjEwMzEgMjkuNTkwNEMyOS4xNjgxIDI5LjU0ODQgMjkuMjQzOSAyOS41MjYgMjkuMzIxMyAyOS41MjZDMjkuMzk4NiAyOS41MjYgMjkuNDc0NCAyOS41NDg0IDI5LjUzOTQgMjkuNTkwNEMyOS42MDQzIDI5LjYzMjUgMjkuNjU1OCAyOS42OTI0IDI5LjY4NzUgMjkuNzYzQzI5Ljc1OSAyOS45MDcgMjkuODk3NSAzMCAzMC4wNTM1IDMwSDMwLjI2OEMzMC4zNDUyIDI5Ljk5OTQgMzAuNDIwNyAyOS45NzY4IDMwLjQ4NTUgMjkuOTM0OEMzMC41NTAzIDI5Ljg5MjggMzAuNjAxOSAyOS44MzMyIDMwLjYzNCAyOS43NjNDMzAuNjY1OCAyOS42OTI1IDMwLjcxNzIgMjkuNjMyOCAzMC43ODIxIDI5LjU5MDhDMzAuODQ3MSAyOS41NDg5IDMwLjkyMjcgMjkuNTI2NiAzMSAyOS41MjY2QzMxLjA3NzMgMjkuNTI2NiAzMS4xNTI5IDI5LjU0ODkgMzEuMjE3OSAyOS41OTA4QzMxLjI4MjggMjkuNjMyOCAzMS4zMzQyIDI5LjY5MjUgMzEuMzY2IDI5Ljc2M0MzMS40Mzc1IDI5LjkwNyAzMS41NzYgMzAgMzEuNzMyIDMwSDMxLjk0NjVDMzIuMDIzNyAyOS45OTk0IDMyLjA5OTIgMjkuOTc2OCAzMi4xNjQgMjkuOTM0OEMzMi4yMjg4IDI5Ljg5MjggMzIuMjgwNCAyOS44MzMyIDMyLjMxMjUgMjkuNzYzQzMyLjM0NDIgMjkuNjkyNCAzMi4zOTU3IDI5LjYzMjUgMzIuNDYwNiAyOS41OTA0QzMyLjUyNTYgMjkuNTQ4NCAzMi42MDE0IDI5LjUyNiAzMi42Nzg3IDI5LjUyNkMzMi43NTYxIDI5LjUyNiAzMi44MzE5IDI5LjU0ODQgMzIuODk2OSAyOS41OTA0QzMyLjk2MTggMjkuNjMyNSAzMy4wMTMzIDI5LjY5MjQgMzMuMDQ1IDI5Ljc2M0MzMy4xMTYgMjkuOTA3IDMzLjI1NSAzMCAzMy40MTEgMzBDMzMuNzk5NSAzMCAzNC4xMTYgMjkuNjcgMzQuMTE2IDI5LjI2NlYyOC41ODc1QzM0LjExNiAyOC4yMTEgMzQuMjU5NSAyNy44NTMgMzQuNTEzNSAyNy41ODg1TDM1LjYzODUgMjYuNDE3NUMzNi4xNzkgMjUuODU1IDM2LjU5NDUgMjUuMTY3NSAzNi43OTk1IDI0LjQwMDVDMzcuNzU1IDIwLjc3NiAzNS4xNjEgMTcuNSAzMS44MzA1IDE3LjVIMzEuODQ0WiIgZmlsbD0iI0NDQ0NDQyIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTMzLjE0MjUgMjUuODI2NUMzMy42NzA1IDI1LjgyNjUgMzQuMDk5IDI1LjM4NDUgMzQuMDk5IDI0LjgzOUMzNC4wOTkgMjQuMjk0IDMzLjY3MDUgMjMuODUyIDMzLjE0MjUgMjMuODUyQzMyLjYxNCAyMy44NTIgMzIuMTg2IDI0LjI5NCAzMi4xODYgMjQuODM5QzMyLjE4NiAyNS4zODQgMzIuNjE0IDI1LjgyNjUgMzMuMTQyNSAyNS44MjY1Wk0yOC44MzY1IDI1LjgyNjVDMjkuMzY0NSAyNS44MjY1IDI5Ljc5MyAyNS4zODQ1IDI5Ljc5MyAyNC44MzlDMjkuNzkzIDI0LjI5NCAyOS4zNjQ1IDIzLjg1MiAyOC44MzY1IDIzLjg1MkMyOC4zMDggMjMuODUyIDI3Ljg4IDI0LjI5NCAyNy44OCAyNC44MzlDMjcuODggMjUuMzg0IDI4LjMwOCAyNS44MjY1IDI4LjgzNjUgMjUuODI2NVpNMzEuODM0NSAyNi44MjdMMzEuMjMgMjUuOTVIMzEuMjIxNUMzMS4xOTU0IDI1LjkxMDggMzEuMTYgMjUuODc4NyAzMS4xMTg1IDI1Ljg1NjVDMzEuMDc3IDI1LjgzNDIgMzEuMDMwNiAyNS44MjI2IDMwLjk4MzUgMjUuODIyNkMzMC45MzY0IDI1LjgyMjYgMzAuODkgMjUuODM0MiAzMC44NDg1IDI1Ljg1NjVDMzAuODA3IDI1Ljg3ODcgMzAuNzcxNiAyNS45MTA4IDMwLjc0NTUgMjUuOTVMMzAuMTQwNSAyNi44MjdDMzAuMDAyNSAyNy4wMjQ1IDMwLjE0MDUgMjcuMzA0NSAzMC4zODA1IDI3LjMwNDVIMzEuNTk1NUMzMS44MzU1IDI3LjMwNDUgMzEuOTczIDI3LjAyOTUgMzEuODM1NSAyNi44MjdIMzEuODM0NVoiIGZpbGw9IiNGMkYyRjIiLz4KPHBhdGggZD0iTTM1Ljg5NiAyNS42NzNDMzYuNzUwNSAyMi4xNDY1IDM0LjE4OCAxOC45ODMgMzAuOTE0IDE4Ljk4M0gyOS4yNDVDMjcuNzY4IDE4Ljk4MyAyNi40MzggMTkuNjI2IDI1LjQ5OTUgMjAuNjU0NUMyNi4zIDE4Ljc5NDUgMjguMTA3IDE3LjUgMzAuMjAyIDE3LjVIMzEuODdDMzUuMTQ5IDE3LjUgMzcuNzExIDIwLjY1OSAzNi44NTI1IDI0LjE5QzM2LjY2MTUgMjQuOTc1IDM2LjI1MjUgMjUuNjg2NSAzNS43MDUgMjYuMjdDMzUuNzgwNSAyNi4wNzcgMzUuODQ3NSAyNS44Nzk1IDM1Ljg5NiAyNS42NzNaIiBmaWxsPSIjQkNCQ0JDIi8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjAuNSAxMkMyMC41IDExLjczNDggMjAuMzk0NiAxMS40ODA0IDIwLjIwNzEgMTEuMjkyOUMyMC4wMTk2IDExLjEwNTQgMTkuNzY1MiAxMSAxOS41IDExQzE5LjIzNDggMTEgMTguOTgwNCAxMS4xMDU0IDE4Ljc5MjkgMTEuMjkyOUMxOC42MDU0IDExLjQ4MDQgMTguNSAxMS43MzQ4IDE4LjUgMTJDMTguNSAxMi4yNjUyIDE4LjYwNTQgMTIuNTE5NiAxOC43OTI5IDEyLjcwNzFDMTguOTgwNCAxMi44OTQ2IDE5LjIzNDggMTMgMTkuNSAxM0MxOS43NjUyIDEzIDIwLjAxOTYgMTIuODk0NiAyMC4yMDcxIDEyLjcwNzFDMjAuMzk0NiAxMi41MTk2IDIwLjUgMTIuMjY1MiAyMC41IDEyWk0yMy41IDEyQzIzLjUgMTEuNzM0OCAyMy4zOTQ2IDExLjQ4MDQgMjMuMjA3MSAxMS4yOTI5QzIzLjAxOTYgMTEuMTA1NCAyMi43NjUyIDExIDIyLjUgMTFDMjIuMjM0OCAxMSAyMS45ODA0IDExLjEwNTQgMjEuNzkyOSAxMS4yOTI5QzIxLjYwNTQgMTEuNDgwNCAyMS41IDExLjczNDggMjEuNSAxMkMyMS41IDEyLjI2NTIgMjEuNjA1NCAxMi41MTk2IDIxLjc5MjkgMTIuNzA3MUMyMS45ODA0IDEyLjg5NDYgMjIuMjM0OCAxMyAyMi41IDEzQzIyLjc2NTIgMTMgMjMuMDE5NiAxMi44OTQ2IDIzLjIwNzEgMTIuNzA3MUMyMy4zOTQ2IDEyLjUxOTYgMjMuNSAxMi4yNjUyIDIzLjUgMTJaTTI1LjUgMTFDMjUuNzY1MiAxMSAyNi4wMTk2IDExLjEwNTQgMjYuMjA3MSAxMS4yOTI5QzI2LjM5NDYgMTEuNDgwNCAyNi41IDExLjczNDggMjYuNSAxMkMyNi41IDEyLjI2NTIgMjYuMzk0NiAxMi41MTk2IDI2LjIwNzEgMTIuNzA3MUMyNi4wMTk2IDEyLjg5NDYgMjUuNzY1MiAxMyAyNS41IDEzQzI1LjIzNDggMTMgMjQuOTgwNCAxMi44OTQ2IDI0Ljc5MjkgMTIuNzA3MUMyNC42MDU0IDEyLjUxOTYgMjQuNSAxMi4yNjUyIDI0LjUgMTJDMjQuNSAxMS43MzQ4IDI0LjYwNTQgMTEuNDgwNCAyNC43OTI5IDExLjI5MjlDMjQuOTgwNCAxMS4xMDU0IDI1LjIzNDggMTEgMjUuNSAxMVoiIGZpbGw9ImJsYWNrIiBmaWxsLW9wYWNpdHk9IjAuMTgiLz4KPHBhdGggZD0iTTQzLjUgNDMuNUM0Ny45MTgzIDQzLjUgNTEuNSAzOS45MTgzIDUxLjUgMzUuNUM1MS41IDMxLjA4MTcgNDcuOTE4MyAyNy41IDQzLjUgMjcuNUMzOS4wODE3IDI3LjUgMzUuNSAzMS4wODE3IDM1LjUgMzUuNUMzNS41IDM5LjkxODMgMzkuMDgxNyA0My41IDQzLjUgNDMuNVoiIGZpbGw9IiNFQjEwMkQiLz4KPHBhdGggZD0iTTQzLjUgMzkuOUM0NC4wNTIzIDM5LjkgNDQuNSAzOS40NTIzIDQ0LjUgMzguOUM0NC41IDM4LjM0NzcgNDQuMDUyMyAzNy45IDQzLjUgMzcuOUM0Mi45NDc3IDM3LjkgNDIuNSAzOC4zNDc3IDQyLjUgMzguOUM0Mi41IDM5LjQ1MjMgNDIuOTQ3NyAzOS45IDQzLjUgMzkuOVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik00My40ODA1IDM2LjdDNDMuMTI3NSAzNi43IDQyLjgxMzUgMzYuNDU1IDQyLjc3NDUgMzYuMTRMNDIuMzAzNSAzMS43NjVDNDIuMjY0IDMxLjQxNSA0Mi41Nzg1IDMxLjEgNDMuMDA5NSAzMS4xSDQzLjk5MDVDNDQuMzgzIDMxLjEgNDQuNzM2NSAzMS40MTUgNDQuNjk3IDMxLjc2NUw0NC4yMjYgMzYuMTRDNDQuMTQ3NSAzNi40NTUgNDMuODMzNSAzNi43IDQzLjQ4MDUgMzYuN1oiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik01NC4yNTA1IDI5LjVDNTQuMzk5NSAyOS41IDU0LjU0OCAyOS41NiA1NC42NjIgMjkuNjc3QzU0Ljg4OSAyOS45MTEgNTQuODg5IDMwLjI5MiA1NC42NjIgMzAuNTI2TDUzLjQ5NTUgMzEuNzI2QzUzLjQ0MjEgMzEuNzgxNSA1My4zNzggMzEuODI1NyA1My4zMDcxIDMxLjg1NThDNTMuMjM2MyAzMS44ODYgNTMuMTYgMzEuOTAxNSA1My4wODMgMzEuOTAxNUM1My4wMDYgMzEuOTAxNSA1Mi45Mjk3IDMxLjg4NiA1Mi44NTg5IDMxLjg1NThDNTIuNzg4IDMxLjgyNTcgNTIuNzIzOSAzMS43ODE1IDUyLjY3MDUgMzEuNzI2QzUyLjU2MDkgMzEuNjExOCA1Mi40OTk3IDMxLjQ1OTcgNTIuNDk5NyAzMS4zMDE1QzUyLjQ5OTcgMzEuMTQzMyA1Mi41NjA5IDMwLjk5MTIgNTIuNjcwNSAzMC44NzdMNTMuODM2NSAyOS42NzdDNTMuOTUwNSAyOS41NiA1NC4wOTkgMjkuNSA1NC4yNDggMjkuNUg1NC4yNTA1Wk01My42Njc1IDM0Ljg5OUg1NS40MTdDNTUuNzM3NSAzNC44OTkgNTYgMzUuMTY5IDU2IDM1LjQ5OUM1NiAzNS44MjkgNTUuNzM3NSAzNi4wOTkgNTUuNDE3IDM2LjA5OUg1My42Njc1QzUzLjM0NyAzNi4wOTkgNTMuMDg0NSAzNS44MjkgNTMuMDg0NSAzNS40OTlDNTMuMDg0NSAzNS4xNjkgNTMuMzQ3IDM0Ljg5OSA1My42Njc1IDM0Ljg5OVpNNTIuNjc2NSAzOS4yNzZDNTIuNzkgMzkuMTU5IDUyLjkzOSAzOS4wOTkgNTMuMDg3NSAzOS4wOTlINTMuMDkwNUM1My4yMzkgMzkuMDk5IDUzLjM4OCAzOS4xNTkgNTMuNTAxNSAzOS4yNzZMNTQuNjY4IDQwLjQ3NkM1NC44OTUgNDAuNzA5NSA1NC44OTUgNDEuMDkxIDU0LjY2OCA0MS4zMjQ1QzU0LjYxNDUgNDEuMzggNTQuNTUwNCA0MS40MjQyIDU0LjQ3OTUgNDEuNDU0M0M1NC40MDg2IDQxLjQ4NDUgNTQuMzMyMyA0MS41IDU0LjI1NTIgNDEuNUM1NC4xNzgyIDQxLjUgNTQuMTAxOSA0MS40ODQ1IDU0LjAzMSA0MS40NTQzQzUzLjk2MDEgNDEuNDI0MiA1My44OTYgNDEuMzggNTMuODQyNSA0MS4zMjQ1TDUyLjY3NjUgNDAuMTI0NUM1Mi41NjcxIDQwLjAxMDQgNTIuNTA2IDM5Ljg1ODQgNTIuNTA2IDM5LjcwMDJDNTIuNTA2IDM5LjU0MjEgNTIuNTY3MSAzOS4zOTAxIDUyLjY3NjUgMzkuMjc2WiIgZmlsbD0iI0NDQ0NDQyIvPgo8L3N2Zz4K");
+  }
+}
+
+/* pages/special-error/app/components/AdvancedInfo.module.css */
+.AdvancedInfo_container {
+  align-items: flex-start;
+  display: flex;
+  flex-flow: column;
+  gap: var(--sp-4);
+  max-width: var(--ios-content-max-width);
+  width: 100%;
+  animation-duration: 300ms;
+  animation-fill-mode: forwards;
+  animation-name: AdvancedInfo_appear;
+}
+.AdvancedInfo_content {
+  display: flex;
+  flex-flow: column;
+  gap: var(--sp-5);
+  & a {
+    color: var(--link-color);
+  }
+}
+.AdvancedInfo_visitSite {
+  color: var(--visit-site-color);
+  cursor: pointer;
+  font-size: calc(13 * var(--px-in-rem));
+  letter-spacing: calc(-0.08 * var(--px-in-rem));
+  line-height: calc(16 * var(--px-in-rem));
+  text-decoration: underline;
+}
+@keyframes AdvancedInfo_appear {
+  0% {
+    padding: 0 var(--sp-10);
+    max-height: 0;
+  }
+  100% {
+    padding: var(--sp-6) var(--sp-10);
+    max-height: calc(400 * var(--px-in-rem));
+  }
+}
+[data-platform-name=macos] {
+  & .AdvancedInfo_container {
+    background: var(--advanced-info-bg);
+    box-shadow: inset 0 1px 0 0 var(--border-color);
+  }
+  & .AdvancedInfo_visitSite {
+    align-self: flex-end;
+  }
+}
+[data-platform-name=ios] {
+  & .AdvancedInfo_wrapper {
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid var(--color-black-at-9);
+    width: 100%;
+    @media (prefers-color-scheme: dark) {
+      border-top: 1px solid var(--color-white-at-9);
+    }
+  }
+  & .AdvancedInfo_container {
+    align-items: center;
+    gap: var(--sp-6);
+  }
+  & .AdvancedInfo_heading {
+    text-align: center;
+  }
+  & .AdvancedInfo_content {
+    text-align: center;
+  }
+  & .AdvancedInfo_visitSite {
+    font-size: calc(16 * var(--px-in-rem));
+    font-weight: 400;
+    letter-spacing: calc(-0.31 * var(--px-in-rem));
+    line-height: calc(21 * var(--px-in-rem));
+  }
+}
+
+/* pages/special-error/app/components/App.module.css */
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+.App_main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  @media (max-height: 400px) {
+    padding-top: var(--sp-10);
+    align-items: flex-start;
+  }
+  @media (max-height: 700px) {
+    [data-platform-name=ios] & {
+      padding-top: var(--sp-10);
+      align-items: flex-start;
+    }
+  }
+}
+.App_container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+}
+[data-platform-name=macos] {
+  & .App_container {
+    background: var(--container-bg);
+    border-radius: var(--sp-2);
+    border: 1px solid var(--border-color);
+    min-width: calc(400 * var(--px-in-rem));
+    width: calc(504 * var(--px-in-rem));
+  }
+}
+[data-platform-name=ios] {
+  & .App_container {
+    align-items: center;
+  }
+}
+
+/* pages/special-error/app/components/Components.module.css */
+.Components_selector {
+  width: 100%;
+  display: flex;
+  padding: var(--sp-5);
+  gap: var(--sp-4);
+  & fieldset {
+    border: 0;
+    display: flex;
+    gap: var(--sp-2);
+  }
+}
+.Components_main {
+  display: flex;
+  flex-flow: column;
+  padding: var(--sp-5);
+  gap: var(--sp-5);
+  & > section {
+    display: flex;
+    flex-flow: column;
+    border-top: 1px solid var(--theme-text-primary-color);
+    padding: var(--sp-3);
+    gap: var(--sp-3);
+    & > h1 {
+      padding: var(--sp-3) 0;
+    }
+    & > h2 {
+      padding: var(--sp-2) 0;
+    }
+  }
+}
+
+/* shared/styles/variables.css */
+:root {
+  --base: 16px;
+  font-size: calc(16px / var(--base));
+  --px-in-rem: calc(1rem / 16);
+  --sp-320: 80rem;
+  --sp-256: 64rem;
+  --sp-192: 48rem;
+  --sp-96: 24rem;
+  --sp-90: 22.5rem;
+  --sp-80: 20rem;
+  --sp-72: 18rem;
+  --sp-64: 16rem;
+  --sp-56: 14rem;
+  --sp-48: 12rem;
+  --sp-40: 10rem;
+  --sp-35: 8.75rem;
+  --sp-32: 8rem;
+  --sp-30: 7.5rem;
+  --sp-25: 6.25rem;
+  --sp-24: 6rem;
+  --sp-20: 5rem;
+  --sp-16: 4rem;
+  --sp-15: 3.75rem;
+  --sp-14: 3.5rem;
+  --sp-13: 3.25rem;
+  --sp-12: 3rem;
+  --sp-11: 2.75rem;
+  --sp-10: 2.5rem;
+  --sp-9: 2.25rem;
+  --sp-8: 2rem;
+  --sp-7: 1.75rem;
+  --sp-6: 1.5rem;
+  --sp-5: 1.25rem;
+  --sp-4: 1rem;
+  --sp-3: 0.75rem;
+  --sp-2: 0.5rem;
+  --sp-1: 0.25rem;
+  --sp-0_5: 0.125rem;
+  --color-red-50: #de5833;
+  --color-purple-50: #5132a9;
+  --color-yellow-50: #fcd00a;
+  --color-green-50: #4cba3c;
+  --color-yellow-60: #f9be1a;
+  --color-blue-100: #051133;
+  --color-blue-90: #0b2059;
+  --color-blue-80: #14307e;
+  --color-blue-70: #1e42a4;
+  --color-blue-60: #2b55ca;
+  --color-blue-50: #3969ef;
+  --color-blue-40: #557ff3;
+  --color-blue-30: #7295f6;
+  --color-blue-20: #8fabf9;
+  --color-blue-10: #adc2fc;
+  --color-blue-0: #ccdaff;
+  --color-black: #000;
+  --color-gray-95: #111;
+  --color-gray-90: #222;
+  --color-gray-85: #333;
+  --color-gray-80: #444;
+  --color-gray-70: #666;
+  --color-gray-60: #888;
+  --color-gray-50: #aaa;
+  --color-gray-40: #ccc;
+  --color-gray-30: #ddd;
+  --color-gray-25: #e5e5e5;
+  --color-gray-20: #eee;
+  --color-gray-10: #f5f5f5;
+  --color-gray-0: #fafafa;
+  --color-white: #fff;
+  --color-black-at-1: rgba(0, 0, 0, 0.01);
+  --color-black-at-3: rgba(0, 0, 0, 0.03);
+  --color-black-at-6: rgba(0, 0, 0, 0.06);
+  --color-black-at-9: rgba(0, 0, 0, 0.09);
+  --color-black-at-12: rgba(0, 0, 0, 0.12);
+  --color-black-at-15: rgba(0, 0, 0, 0.15);
+  --color-black-at-18: rgba(0, 0, 0, 0.18);
+  --color-black-at-36: rgba(0, 0, 0, 0.36);
+  --color-black-at-40: rgba(0, 0, 0, 0.4);
+  --color-black-at-42: rgba(0, 0, 0, 0.42);
+  --color-black-at-48: rgba(0, 0, 0, 0.48);
+  --color-black-at-50: rgba(0, 0, 0, 0.5);
+  --color-black-at-60: rgba(0, 0, 0, 0.6);
+  --color-black-at-72: rgba(0, 0, 0, 0.72);
+  --color-black-at-80: rgba(0, 0, 0, 0.8);
+  --color-black-at-84: rgba(0, 0, 0, 0.84);
+  --color-black-at-90: rgba(0, 0, 0, 0.9);
+  --color-black-at-96: rgba(0, 0, 0, 0.96);
+  --color-gray85-at-80: rgba(51, 51, 51, 0.8);
+  --color-white-at-3: rgba(255, 255, 255, 0.03);
+  --color-white-at-6: rgba(255, 255, 255, 0.06);
+  --color-white-at-9: rgba(255, 255, 255, 0.09);
+  --color-white-at-12: rgba(255, 255, 255, 0.12);
+  --color-white-at-15: rgba(255, 255, 255, 0.15);
+  --color-white-at-18: rgba(255, 255, 255, 0.18);
+  --color-white-at-24: rgba(255, 255, 255, 0.24);
+  --color-white-at-30: rgba(255, 255, 255, 0.3);
+  --color-white-at-36: rgba(255, 255, 255, 0.36);
+  --color-white-at-42: rgba(255, 255, 255, 0.42);
+  --color-white-at-50: rgba(255, 255, 255, 0.5);
+  --color-white-at-60: rgba(255, 255, 255, 0.6);
+  --color-white-at-70: rgba(255, 255, 255, 0.7);
+  --color-white-at-80: rgba(255, 255, 255, 0.8);
+  --color-white-at-84: rgba(255, 255, 255, 0.84);
+  --color-white-at-85: rgba(255, 255, 255, 0.85);
+  --color-white-at-96: rgba(255, 255, 255, 0.96);
+  --ddg-color-primary: var(--color-blue-50);
+  --ddg-color-primary-dark: var(--color-blue-30);
+  --theme-background-color: var(--color-white);
+  --theme-text-primary-color: var(--color-black-at-84);
+  --theme-text-secondary-color: var(--color-black-at-60);
+  --theme-text-link-color: var(--ddg-color-primary);
+  @media (prefers-color-scheme: dark) {
+    --theme-background-color: var(--color-gray-95);
+    --theme-text-primary-color: var(--color-white-at-85);
+    --theme-text-secondary-color: var(--color-white-at-50);
+    --theme-text-link-color: var(--ddg-color-primary-dark);
+  }
+  --macos-text-primary: var(--color-black-at-84);
+  --ios-content-max-width: calc(794 * var(--px-in-rem));
+}
+
+/* shared/styles/reset.css */
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
+}
+html[data-reduced-motion=true] * {
+  animation: none !important;
+  transition: none !important;
+}
+body {
+  font-family: var(--theme-font-family, system-ui);
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.08px;
+  margin: 0;
+  height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  background: var(--theme-background-color);
+  color: var(--theme-text-primary-color);
+}
+body > main {
+  width: 100%;
+}
+h1,
+h2,
+h3,
+h4,
+p {
+  font-weight: normal;
+  margin: 0;
+}
+a {
+  color: var(--theme-text-link-color);
+}
+button {
+  font-family: system-ui, sans-serif;
+}
+ul {
+  margin: 0;
+  padding: 0;
+}
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* shared/styles/utilities.css */
+.offscreen {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+/* shared/styles/global.css */
+
+/* pages/special-error/app/styles/variables.css */
+:root {
+  --theme-background-color: var(--color-gray-20);
+  --theme-text-primary-color: var(--color-black-at-84);
+  --link-color: var(--color-black);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --container-bg: var(--color-white);
+  --advanced-info-bg: var(--color-black-at-3);
+  --visit-site-color: var(--color-black);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --theme-background-color: var(--color-gray-85);
+    --theme-text-primary-color: var(--color-white-at-84);
+    --link-color: var(--color-gray-40);
+    --border-color: var(--color-white-at-30);
+    --container-bg: var(--color-gray-90);
+    --advanced-info-bg: #2f2f2f;
+    --visit-site-color: var(--color-gray-40);
+  }
+  [data-platform-name=ios] {
+    --theme-background-color: #222;
+  }
+}
+[data-platform-name=macos],
+[data-platform-name=ios] {
+  --theme-font:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    sans-serif;
+}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+(() => {
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+    // If the importer is in node compatibility mode or this is not an ESM
+    // file that has been converted to a CommonJS file using a Babel-
+    // compatible transform (i.e. "__esModule" has not been set), then set
+    // "default" to the CommonJS "module.exports" for node compatibility.
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+    mod
+  ));
+
+  // ../node_modules/classnames/index.js
+  var require_classnames = __commonJS({
+    "../node_modules/classnames/index.js"(exports, module) {
+      (function() {
+        "use strict";
+        var hasOwn = {}.hasOwnProperty;
+        function classNames4() {
+          var classes = "";
+          for (var i3 = 0; i3 < arguments.length; i3++) {
+            var arg = arguments[i3];
+            if (arg) {
+              classes = appendClass(classes, parseValue(arg));
+            }
+          }
+          return classes;
+        }
+        function parseValue(arg) {
+          if (typeof arg === "string" || typeof arg === "number") {
+            return arg;
+          }
+          if (typeof arg !== "object") {
+            return "";
+          }
+          if (Array.isArray(arg)) {
+            return classNames4.apply(null, arg);
+          }
+          if (arg.toString !== Object.prototype.toString && !arg.toString.toString().includes("[native code]")) {
+            return arg.toString();
+          }
+          var classes = "";
+          for (var key in arg) {
+            if (hasOwn.call(arg, key) && arg[key]) {
+              classes = appendClass(classes, key);
+            }
+          }
+          return classes;
+        }
+        function appendClass(value, newClass) {
+          if (!newClass) {
+            return value;
+          }
+          if (value) {
+            return value + " " + newClass;
+          }
+          return value + newClass;
+        }
+        if (typeof module !== "undefined" && module.exports) {
+          classNames4.default = classNames4;
+          module.exports = classNames4;
+        } else if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
+          define("classnames", [], function() {
+            return classNames4;
+          });
+        } else {
+          window.classNames = classNames4;
+        }
+      })();
+    }
+  });
+
+  // ../messaging/lib/windows.js
+  var WindowsMessagingTransport = class {
+    /**
+     * @param {WindowsMessagingConfig} config
+     * @param {import('../index.js').MessagingContext} messagingContext
+     * @internal
+     */
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+      this.globals = {
+        window,
+        JSONparse: window.JSON.parse,
+        JSONstringify: window.JSON.stringify,
+        Promise: window.Promise,
+        Error: window.Error,
+        String: window.String
+      };
+      for (const [methodName, fn] of Object.entries(this.config.methods)) {
+        if (typeof fn !== "function") {
+          throw new Error("cannot create WindowsMessagingTransport, missing the method: " + methodName);
+        }
+      }
+    }
+    /**
+     * @param {import('../index.js').NotificationMessage} msg
+     */
+    notify(msg) {
+      const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+      const notification = WindowsNotification.fromNotification(msg, data);
+      this.config.methods.postMessage(notification);
+    }
+    /**
+     * @param {import('../index.js').RequestMessage} msg
+     * @param {{signal?: AbortSignal}} opts
+     * @return {Promise<any>}
+     */
+    request(msg, opts = {}) {
+      const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+      const outgoing = WindowsRequestMessage.fromRequest(msg, data);
+      this.config.methods.postMessage(outgoing);
+      const comparator = (eventData) => {
+        return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
+      };
+      function isMessageResponse(data2) {
+        if ("result" in data2) return true;
+        if ("error" in data2) return true;
+        return false;
+      }
+      return new this.globals.Promise((resolve, reject) => {
+        try {
+          this._subscribe(comparator, opts, (value, unsubscribe) => {
+            unsubscribe();
+            if (!isMessageResponse(value)) {
+              console.warn("unknown response type", value);
+              return reject(new this.globals.Error("unknown response"));
+            }
+            if (value.result) {
+              return resolve(value.result);
+            }
+            const message = this.globals.String(value.error?.message || "unknown error");
+            reject(new this.globals.Error(message));
+          });
+        } catch (e3) {
+          reject(e3);
+        }
+      });
+    }
+    /**
+     * @param {import('../index.js').Subscription} msg
+     * @param {(value: unknown | undefined) => void} callback
+     */
+    subscribe(msg, callback) {
+      const comparator = (eventData) => {
+        return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.subscriptionName === msg.subscriptionName;
+      };
+      const cb = (eventData) => {
+        return callback(eventData.params);
+      };
+      return this._subscribe(comparator, {}, cb);
+    }
+    /**
+     * @typedef {import('../index.js').MessageResponse | import('../index.js').SubscriptionEvent} Incoming
+     */
+    /**
+     * @param {(eventData: any) => boolean} comparator
+     * @param {{signal?: AbortSignal}} options
+     * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
+     * @internal
+     */
+    _subscribe(comparator, options, callback) {
+      if (options?.signal?.aborted) {
+        throw new DOMException("Aborted", "AbortError");
+      }
+      let teardown;
+      const idHandler = (event) => {
+        if (this.messagingContext.env === "production") {
+          if (event.origin !== null && event.origin !== void 0) {
+            console.warn("ignoring because evt.origin is not `null` or `undefined`");
+            return;
+          }
+        }
+        if (!event.data) {
+          console.warn("data absent from message");
+          return;
+        }
+        if (comparator(event.data)) {
+          if (!teardown) throw new Error("unreachable");
+          callback(event.data, teardown);
+        }
+      };
+      const abortHandler = () => {
+        teardown?.();
+        throw new DOMException("Aborted", "AbortError");
+      };
+      this.config.methods.addEventListener("message", idHandler);
+      options?.signal?.addEventListener("abort", abortHandler);
+      teardown = () => {
+        this.config.methods.removeEventListener("message", idHandler);
+        options?.signal?.removeEventListener("abort", abortHandler);
+      };
+      return () => {
+        teardown?.();
+      };
+    }
+  };
+  var WindowsMessagingConfig = class {
+    /**
+     * @param {object} params
+     * @param {WindowsInteropMethods} params.methods
+     * @internal
+     */
+    constructor(params) {
+      this.methods = params.methods;
+      this.platform = "windows";
+    }
+  };
+  var WindowsNotification = class {
+    /**
+     * @param {object} params
+     * @param {string} params.Feature
+     * @param {string} params.SubFeatureName
+     * @param {string} params.Name
+     * @param {Record<string, any>} [params.Data]
+     * @internal
+     */
+    constructor(params) {
+      this.Feature = params.Feature;
+      this.SubFeatureName = params.SubFeatureName;
+      this.Name = params.Name;
+      this.Data = params.Data;
+    }
+    /**
+     * Helper to convert a {@link NotificationMessage} to a format that Windows can support
+     * @param {NotificationMessage} notification
+     * @returns {WindowsNotification}
+     */
+    static fromNotification(notification, data) {
+      const output = {
+        Data: data,
+        Feature: notification.context,
+        SubFeatureName: notification.featureName,
+        Name: notification.method
+      };
+      return output;
+    }
+  };
+  var WindowsRequestMessage = class {
+    /**
+     * @param {object} params
+     * @param {string} params.Feature
+     * @param {string} params.SubFeatureName
+     * @param {string} params.Name
+     * @param {Record<string, any>} [params.Data]
+     * @param {string} [params.Id]
+     * @internal
+     */
+    constructor(params) {
+      this.Feature = params.Feature;
+      this.SubFeatureName = params.SubFeatureName;
+      this.Name = params.Name;
+      this.Data = params.Data;
+      this.Id = params.Id;
+    }
+    /**
+     * Helper to convert a {@link RequestMessage} to a format that Windows can support
+     * @param {RequestMessage} msg
+     * @param {Record<string, any>} data
+     * @returns {WindowsRequestMessage}
+     */
+    static fromRequest(msg, data) {
+      const output = {
+        Data: data,
+        Feature: msg.context,
+        SubFeatureName: msg.featureName,
+        Name: msg.method,
+        Id: msg.id
+      };
+      return output;
+    }
+  };
+
+  // ../messaging/schema.js
+  var RequestMessage = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.method
+     * @param {string} params.id
+     * @param {Record<string, any>} [params.params]
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.method = params.method;
+      this.id = params.id;
+      this.params = params.params;
+    }
+  };
+  var NotificationMessage = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.method
+     * @param {Record<string, any>} [params.params]
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.method = params.method;
+      this.params = params.params;
+    }
+  };
+  var Subscription = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.subscriptionName
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.subscriptionName = params.subscriptionName;
+    }
+  };
+  function isResponseFor(request, data) {
+    if ("result" in data) {
+      return data.featureName === request.featureName && data.context === request.context && data.id === request.id;
+    }
+    if ("error" in data) {
+      if ("message" in data.error) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function isSubscriptionEventFor(sub, data) {
+    if ("subscriptionName" in data) {
+      return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName;
+    }
+    return false;
+  }
+
+  // ../messaging/lib/webkit.js
+  var WebkitMessagingTransport = class {
+    /**
+     * @param {WebkitMessagingConfig} config
+     * @param {import('../index.js').MessagingContext} messagingContext
+     */
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+      this.globals = captureGlobals();
+      if (!this.config.hasModernWebkitAPI) {
+        this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
+      }
+    }
+    /**
+     * Sends message to the webkit layer (fire and forget)
+     * @param {String} handler
+     * @param {*} data
+     * @internal
+     */
+    wkSend(handler, data = {}) {
+      if (!(handler in this.globals.window.webkit.messageHandlers)) {
+        throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
+      }
+      if (!this.config.hasModernWebkitAPI) {
+        const outgoing = {
+          ...data,
+          messageHandling: {
+            ...data.messageHandling,
+            secret: this.config.secret
+          }
+        };
+        if (!(handler in this.globals.capturedWebkitHandlers)) {
+          throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
+        } else {
+          return this.globals.capturedWebkitHandlers[handler](outgoing);
+        }
+      }
+      return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data);
+    }
+    /**
+     * Sends message to the webkit layer and waits for the specified response
+     * @param {String} handler
+     * @param {import('../index.js').RequestMessage} data
+     * @returns {Promise<*>}
+     * @internal
+     */
+    async wkSendAndWait(handler, data) {
+      if (this.config.hasModernWebkitAPI) {
+        const response = await this.wkSend(handler, data);
+        return this.globals.JSONparse(response || "{}");
+      }
+      try {
+        const randMethodName = this.createRandMethodName();
+        const key = await this.createRandKey();
+        const iv = this.createRandIv();
+        const { ciphertext, tag } = await new this.globals.Promise((resolve) => {
+          this.generateRandomMethod(randMethodName, resolve);
+          data.messageHandling = new SecureMessagingParams({
+            methodName: randMethodName,
+            secret: this.config.secret,
+            key: this.globals.Arrayfrom(key),
+            iv: this.globals.Arrayfrom(iv)
+          });
+          this.wkSend(handler, data);
+        });
+        const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
+        const decrypted = await this.decrypt(cipher, key, iv);
+        return this.globals.JSONparse(decrypted || "{}");
+      } catch (e3) {
+        if (e3 instanceof MissingHandler) {
+          throw e3;
+        } else {
+          console.error("decryption failed", e3);
+          console.error(e3);
+          return { error: e3 };
+        }
+      }
+    }
+    /**
+     * @param {import('../index.js').NotificationMessage} msg
+     */
+    notify(msg) {
+      this.wkSend(msg.context, msg);
+    }
+    /**
+     * @param {import('../index.js').RequestMessage} msg
+     */
+    async request(msg) {
+      const data = await this.wkSendAndWait(msg.context, msg);
+      if (isResponseFor(msg, data)) {
+        if (data.result) {
+          return data.result || {};
+        }
+        if (data.error) {
+          throw new Error(data.error.message);
+        }
+      }
+      throw new Error("an unknown error occurred");
+    }
+    /**
+     * Generate a random method name and adds it to the global scope
+     * The native layer will use this method to send the response
+     * @param {string | number} randomMethodName
+     * @param {Function} callback
+     * @internal
+     */
+    generateRandomMethod(randomMethodName, callback) {
+      this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
+        enumerable: false,
+        // configurable, To allow for deletion later
+        configurable: true,
+        writable: false,
+        /**
+         * @param {any[]} args
+         */
+        value: (...args) => {
+          callback(...args);
+          delete this.globals.window[randomMethodName];
+        }
+      });
+    }
+    /**
+     * @internal
+     * @return {string}
+     */
+    randomString() {
+      return "" + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
+    }
+    /**
+     * @internal
+     * @return {string}
+     */
+    createRandMethodName() {
+      return "_" + this.randomString();
+    }
+    /**
+     * @type {{name: string, length: number}}
+     * @internal
+     */
+    algoObj = {
+      name: "AES-GCM",
+      length: 256
+    };
+    /**
+     * @returns {Promise<Uint8Array>}
+     * @internal
+     */
+    async createRandKey() {
+      const key = await this.globals.generateKey(this.algoObj, true, ["encrypt", "decrypt"]);
+      const exportedKey = await this.globals.exportKey("raw", key);
+      return new this.globals.Uint8Array(exportedKey);
+    }
+    /**
+     * @returns {Uint8Array}
+     * @internal
+     */
+    createRandIv() {
+      return this.globals.getRandomValues(new this.globals.Uint8Array(12));
+    }
+    /**
+     * @param {BufferSource} ciphertext
+     * @param {BufferSource} key
+     * @param {Uint8Array} iv
+     * @returns {Promise<string>}
+     * @internal
+     */
+    async decrypt(ciphertext, key, iv) {
+      const cryptoKey = await this.globals.importKey("raw", key, "AES-GCM", false, ["decrypt"]);
+      const algo = {
+        name: "AES-GCM",
+        iv
+      };
+      const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
+      const dec = new this.globals.TextDecoder();
+      return dec.decode(decrypted);
+    }
+    /**
+     * When required (such as on macos 10.x), capture the `postMessage` method on
+     * each webkit messageHandler
+     *
+     * @param {string[]} handlerNames
+     */
+    captureWebkitHandlers(handlerNames) {
+      const handlers = window.webkit.messageHandlers;
+      if (!handlers) throw new MissingHandler("window.webkit.messageHandlers was absent", "all");
+      for (const webkitMessageHandlerName of handlerNames) {
+        if (typeof handlers[webkitMessageHandlerName]?.postMessage === "function") {
+          const original = handlers[webkitMessageHandlerName];
+          const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
+          this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
+          delete handlers[webkitMessageHandlerName].postMessage;
+        }
+      }
+    }
+    /**
+     * @param {import('../index.js').Subscription} msg
+     * @param {(value: unknown) => void} callback
+     */
+    subscribe(msg, callback) {
+      if (msg.subscriptionName in this.globals.window) {
+        throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
+      }
+      this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+        enumerable: false,
+        configurable: true,
+        writable: false,
+        value: (data) => {
+          if (data && isSubscriptionEventFor(msg, data)) {
+            callback(data.params);
+          } else {
+            console.warn("Received a message that did not match the subscription", data);
+          }
+        }
+      });
+      return () => {
+        this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
+      };
+    }
+  };
+  var WebkitMessagingConfig = class {
+    /**
+     * @param {object} params
+     * @param {boolean} params.hasModernWebkitAPI
+     * @param {string[]} params.webkitMessageHandlerNames
+     * @param {string} params.secret
+     * @internal
+     */
+    constructor(params) {
+      this.hasModernWebkitAPI = params.hasModernWebkitAPI;
+      this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
+      this.secret = params.secret;
+    }
+  };
+  var SecureMessagingParams = class {
+    /**
+     * @param {object} params
+     * @param {string} params.methodName
+     * @param {string} params.secret
+     * @param {number[]} params.key
+     * @param {number[]} params.iv
+     */
+    constructor(params) {
+      this.methodName = params.methodName;
+      this.secret = params.secret;
+      this.key = params.key;
+      this.iv = params.iv;
+    }
+  };
+  function captureGlobals() {
+    const globals = {
+      window,
+      getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
+      TextEncoder,
+      TextDecoder,
+      Uint8Array,
+      Uint16Array,
+      Uint32Array,
+      JSONstringify: window.JSON.stringify,
+      JSONparse: window.JSON.parse,
+      Arrayfrom: window.Array.from,
+      Promise: window.Promise,
+      Error: window.Error,
+      ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
+      ObjectDefineProperty: window.Object.defineProperty,
+      addEventListener: window.addEventListener.bind(window),
+      /** @type {Record<string, any>} */
+      capturedWebkitHandlers: {}
+    };
+    if (isSecureContext) {
+      globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
+      globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
+      globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
+      globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
+      globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
+    }
+    return globals;
+  }
+
+  // ../messaging/lib/android.js
+  var AndroidMessagingTransport = class {
+    /**
+     * @param {AndroidMessagingConfig} config
+     * @param {MessagingContext} messagingContext
+     * @internal
+     */
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+    }
+    /**
+     * @param {NotificationMessage} msg
+     */
+    notify(msg) {
+      try {
+        this.config.sendMessageThrows?.(JSON.stringify(msg));
+      } catch (e3) {
+        console.error(".notify failed", e3);
+      }
+    }
+    /**
+     * @param {RequestMessage} msg
+     * @return {Promise<any>}
+     */
+    request(msg) {
+      return new Promise((resolve, reject) => {
+        const unsub = this.config.subscribe(msg.id, handler);
+        try {
+          this.config.sendMessageThrows?.(JSON.stringify(msg));
+        } catch (e3) {
+          unsub();
+          reject(new Error("request failed to send: " + e3.message || "unknown error"));
+        }
+        function handler(data) {
+          if (isResponseFor(msg, data)) {
+            if (data.result) {
+              resolve(data.result || {});
+              return unsub();
+            }
+            if (data.error) {
+              reject(new Error(data.error.message));
+              return unsub();
+            }
+            unsub();
+            throw new Error("unreachable: must have `result` or `error` key by this point");
+          }
+        }
+      });
+    }
+    /**
+     * @param {Subscription} msg
+     * @param {(value: unknown | undefined) => void} callback
+     */
+    subscribe(msg, callback) {
+      const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
+        if (isSubscriptionEventFor(msg, data)) {
+          callback(data.params || {});
+        }
+      });
+      return () => {
+        unsub();
+      };
+    }
+  };
+  var AndroidMessagingConfig = class {
+    /** @type {(json: string, secret: string) => void} */
+    _capturedHandler;
+    /**
+     * @param {object} params
+     * @param {Record<string, any>} params.target
+     * @param {boolean} params.debug
+     * @param {string} params.messageSecret - a secret to ensure that messages are only
+     * processed by the correct handler
+     * @param {string} params.javascriptInterface - the name of the javascript interface
+     * registered on the native side
+     * @param {string} params.messageCallback - the name of the callback that the native
+     * side will use to send messages back to the javascript side
+     */
+    constructor(params) {
+      this.target = params.target;
+      this.debug = params.debug;
+      this.javascriptInterface = params.javascriptInterface;
+      this.messageSecret = params.messageSecret;
+      this.messageCallback = params.messageCallback;
+      this.listeners = new globalThis.Map();
+      this._captureGlobalHandler();
+      this._assignHandlerMethod();
+    }
+    /**
+     * The transport can call this to transmit a JSON payload along with a secret
+     * to the native Android handler.
+     *
+     * Note: This can throw - it's up to the transport to handle the error.
+     *
+     * @type {(json: string) => void}
+     * @throws
+     * @internal
+     */
+    sendMessageThrows(json) {
+      this._capturedHandler(json, this.messageSecret);
+    }
+    /**
+     * A subscription on Android is just a named listener. All messages from
+     * android -> are delivered through a single function, and this mapping is used
+     * to route the messages to the correct listener.
+     *
+     * Note: Use this to implement request->response by unsubscribing after the first
+     * response.
+     *
+     * @param {string} id
+     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
+     * @returns {() => void}
+     * @internal
+     */
+    subscribe(id, callback) {
+      this.listeners.set(id, callback);
+      return () => {
+        this.listeners.delete(id);
+      };
+    }
+    /**
+     * Accept incoming messages and try to deliver it to a registered listener.
+     *
+     * This code is defensive to prevent any single handler from affecting another if
+     * it throws (producer interference).
+     *
+     * @param {MessageResponse | SubscriptionEvent} payload
+     * @internal
+     */
+    _dispatch(payload) {
+      if (!payload) return this._log("no response");
+      if ("id" in payload) {
+        if (this.listeners.has(payload.id)) {
+          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
+        } else {
+          this._log("no listeners for ", payload);
+        }
+      }
+      if ("subscriptionName" in payload) {
+        if (this.listeners.has(payload.subscriptionName)) {
+          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
+        } else {
+          this._log("no subscription listeners for ", payload);
+        }
+      }
+    }
+    /**
+     *
+     * @param {(...args: any[]) => any} fn
+     * @param {string} [context]
+     */
+    _tryCatch(fn, context = "none") {
+      try {
+        return fn();
+      } catch (e3) {
+        if (this.debug) {
+          console.error("AndroidMessagingConfig error:", context);
+          console.error(e3);
+        }
+      }
+    }
+    /**
+     * @param {...any} args
+     */
+    _log(...args) {
+      if (this.debug) {
+        console.log("AndroidMessagingConfig", ...args);
+      }
+    }
+    /**
+     * Capture the global handler and remove it from the global object.
+     */
+    _captureGlobalHandler() {
+      const { target, javascriptInterface } = this;
+      if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
+        this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface]);
+        delete target[javascriptInterface];
+      } else {
+        this._capturedHandler = () => {
+          this._log("Android messaging interface not available", javascriptInterface);
+        };
+      }
+    }
+    /**
+     * Assign the incoming handler method to the global object.
+     * This is the method that Android will call to deliver messages.
+     */
+    _assignHandlerMethod() {
+      const responseHandler = (providedSecret, response) => {
+        if (providedSecret === this.messageSecret) {
+          this._dispatch(response);
+        }
+      };
+      Object.defineProperty(this.target, this.messageCallback, {
+        value: responseHandler
+      });
+    }
+  };
+
+  // ../messaging/lib/typed-messages.js
+  function createTypedMessages(base, messaging2) {
+    const asAny = (
+      /** @type {any} */
+      messaging2
+    );
+    return (
+      /** @type {BaseClass} */
+      asAny
+    );
+  }
+
+  // ../messaging/index.js
+  var MessagingContext = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {"production" | "development"} params.env
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.env = params.env;
+    }
+  };
+  var Messaging = class {
+    /**
+     * @param {MessagingContext} messagingContext
+     * @param {MessagingConfig} config
+     */
+    constructor(messagingContext, config) {
+      this.messagingContext = messagingContext;
+      this.transport = getTransport(config, this.messagingContext);
+    }
+    /**
+     * Send a 'fire-and-forget' message.
+     * @throws {MissingHandler}
+     *
+     * @example
+     *
+     * ```ts
+     * const messaging = new Messaging(config)
+     * messaging.notify("foo", {bar: "baz"})
+     * ```
+     * @param {string} name
+     * @param {Record<string, any>} [data]
+     */
+    notify(name, data = {}) {
+      const message = new NotificationMessage({
+        context: this.messagingContext.context,
+        featureName: this.messagingContext.featureName,
+        method: name,
+        params: data
+      });
+      this.transport.notify(message);
+    }
+    /**
+     * Send a request, and wait for a response
+     * @throws {MissingHandler}
+     *
+     * @example
+     * ```
+     * const messaging = new Messaging(config)
+     * const response = await messaging.request("foo", {bar: "baz"})
+     * ```
+     *
+     * @param {string} name
+     * @param {Record<string, any>} [data]
+     * @return {Promise<any>}
+     */
+    request(name, data = {}) {
+      const id = globalThis?.crypto?.randomUUID?.() || name + ".response";
+      const message = new RequestMessage({
+        context: this.messagingContext.context,
+        featureName: this.messagingContext.featureName,
+        method: name,
+        params: data,
+        id
+      });
+      return this.transport.request(message);
+    }
+    /**
+     * @param {string} name
+     * @param {(value: unknown) => void} callback
+     * @return {() => void}
+     */
+    subscribe(name, callback) {
+      const msg = new Subscription({
+        context: this.messagingContext.context,
+        featureName: this.messagingContext.featureName,
+        subscriptionName: name
+      });
+      return this.transport.subscribe(msg, callback);
+    }
+  };
+  var TestTransportConfig = class {
+    /**
+     * @param {MessagingTransport} impl
+     */
+    constructor(impl) {
+      this.impl = impl;
+    }
+  };
+  var TestTransport = class {
+    /**
+     * @param {TestTransportConfig} config
+     * @param {MessagingContext} messagingContext
+     */
+    constructor(config, messagingContext) {
+      this.config = config;
+      this.messagingContext = messagingContext;
+    }
+    notify(msg) {
+      return this.config.impl.notify(msg);
+    }
+    request(msg) {
+      return this.config.impl.request(msg);
+    }
+    subscribe(msg, callback) {
+      return this.config.impl.subscribe(msg, callback);
+    }
+  };
+  function getTransport(config, messagingContext) {
+    if (config instanceof WebkitMessagingConfig) {
+      return new WebkitMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof WindowsMessagingConfig) {
+      return new WindowsMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof AndroidMessagingConfig) {
+      return new AndroidMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof TestTransportConfig) {
+      return new TestTransport(config, messagingContext);
+    }
+    throw new Error("unreachable");
+  }
+  var MissingHandler = class extends Error {
+    /**
+     * @param {string} message
+     * @param {string} handlerName
+     */
+    constructor(message, handlerName) {
+      super(message);
+      this.handlerName = handlerName;
+    }
+  };
+
+  // shared/environment.js
+  var Environment = class _Environment {
+    /**
+     * @param {object} params
+     * @param {'app' | 'components'} [params.display] - whether to show the application or component list
+     * @param {'production' | 'development'} [params.env] - application environment
+     * @param {URLSearchParams} [params.urlParams] - URL params passed into the page
+     * @param {ImportMeta['injectName']} [params.injectName] - application platform
+     * @param {boolean} [params.willThrow] - whether the application will simulate an error
+     * @param {boolean} [params.debugState] - whether to show debugging UI
+     * @param {string} [params.locale] - for applications strings
+     * @param {number} [params.textLength] - what ratio of text should be used. Set a number higher than 1 to have longer strings for testing
+     */
+    constructor({
+      env = "production",
+      urlParams = new URLSearchParams(location.search),
+      injectName = "windows",
+      willThrow = urlParams.get("willThrow") === "true",
+      debugState = urlParams.has("debugState"),
+      display = "app",
+      locale = "en",
+      textLength = 1
+    } = {}) {
+      this.display = display;
+      this.urlParams = urlParams;
+      this.injectName = injectName;
+      this.willThrow = willThrow;
+      this.debugState = debugState;
+      this.env = env;
+      this.locale = locale;
+      this.textLength = textLength;
+    }
+    /**
+     * @param {string|null|undefined} injectName
+     * @returns {Environment}
+     */
+    withInjectName(injectName) {
+      if (!injectName) return this;
+      if (!isInjectName(injectName)) return this;
+      return new _Environment({
+        ...this,
+        injectName
+      });
+    }
+    /**
+     * @param {string|null|undefined} env
+     * @returns {Environment}
+     */
+    withEnv(env) {
+      if (!env) return this;
+      if (env !== "production" && env !== "development") return this;
+      return new _Environment({
+        ...this,
+        env
+      });
+    }
+    /**
+     * @param {string|null|undefined} display
+     * @returns {Environment}
+     */
+    withDisplay(display) {
+      if (!display) return this;
+      if (display !== "app" && display !== "components") return this;
+      return new _Environment({
+        ...this,
+        display
+      });
+    }
+    /**
+     * @param {string|null|undefined} locale
+     * @returns {Environment}
+     */
+    withLocale(locale) {
+      if (!locale) return this;
+      if (typeof locale !== "string") return this;
+      if (locale.length !== 2) return this;
+      return new _Environment({
+        ...this,
+        locale
+      });
+    }
+    /**
+     * @param {string|number|null|undefined} length
+     * @returns {Environment}
+     */
+    withTextLength(length) {
+      if (!length) return this;
+      const num = Number(length);
+      if (num >= 1 && num <= 2) {
+        return new _Environment({
+          ...this,
+          textLength: num
+        });
+      }
+      return this;
+    }
+  };
+  function isInjectName(input) {
+    const allowed = ["windows", "apple", "integration", "android"];
+    return allowed.includes(input);
+  }
+
+  // shared/create-special-page-messaging.js
+  function createSpecialPageMessaging(opts) {
+    const messageContext = new MessagingContext({
+      context: "specialPages",
+      featureName: opts.pageName,
+      env: opts.env
+    });
+    try {
+      if (opts.injectName === "windows") {
+        const opts2 = new WindowsMessagingConfig({
+          methods: {
+            // @ts-expect-error - not in @types/chrome
+            postMessage: globalThis.windowsInteropPostMessage,
+            // @ts-expect-error - not in @types/chrome
+            addEventListener: globalThis.windowsInteropAddEventListener,
+            // @ts-expect-error - not in @types/chrome
+            removeEventListener: globalThis.windowsInteropRemoveEventListener
+          }
+        });
+        return new Messaging(messageContext, opts2);
+      } else if (opts.injectName === "apple") {
+        const opts2 = new WebkitMessagingConfig({
+          hasModernWebkitAPI: true,
+          secret: "",
+          webkitMessageHandlerNames: ["specialPages"]
+        });
+        return new Messaging(messageContext, opts2);
+      } else if (opts.injectName === "android") {
+        const opts2 = new AndroidMessagingConfig({
+          messageSecret: "duckduckgo-android-messaging-secret",
+          messageCallback: "messageCallback",
+          javascriptInterface: messageContext.context,
+          target: globalThis,
+          debug: true
+        });
+        return new Messaging(messageContext, opts2);
+      }
+    } catch (e3) {
+      console.error("could not access handlers for %s, falling back to mock interface", opts.injectName);
+    }
+    const fallback = opts.mockTransport?.() || new TestTransportConfig({
+      /**
+       * @param {import('@duckduckgo/messaging').NotificationMessage} msg
+       */
+      notify(msg) {
+        console.log(msg);
+      },
+      /**
+       * @param {import('@duckduckgo/messaging').RequestMessage} msg
+       */
+      request: (msg) => {
+        console.log(msg);
+        if (msg.method === "initialSetup") {
+          return Promise.resolve({
+            locale: "en",
+            env: opts.env
+          });
+        }
+        return Promise.resolve(null);
+      },
+      /**
+       * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
+       */
+      subscribe(msg) {
+        console.log(msg);
+        return () => {
+          console.log("teardown");
+        };
+      }
+    });
+    return new Messaging(messageContext, fallback);
+  }
+
+  // pages/special-error/src/js/sampleData.js
+  var sampleData = {
+    phishing: {
+      name: "Phishing",
+      data: {
+        kind: "phishing"
+      }
+    },
+    "ssl.expired": {
+      name: "Expired",
+      data: {
+        kind: "ssl",
+        errorType: "expired",
+        domain: "example.com"
+      }
+    },
+    "ssl.invalid": {
+      name: "Invalid",
+      data: {
+        kind: "ssl",
+        errorType: "invalid",
+        domain: "example.com"
+      }
+    },
+    "ssl.selfSigned": {
+      name: "Self-signed",
+      data: {
+        kind: "ssl",
+        errorType: "selfSigned",
+        domain: "example.com"
+      }
+    },
+    "ssl.wrongHost": {
+      name: "Wrong Host",
+      data: {
+        kind: "ssl",
+        errorType: "wrongHost",
+        domain: "example.com",
+        eTldPlus1: "anothersite.com"
+      }
+    }
+  };
+
+  // ../node_modules/preact/dist/preact.module.js
+  var n;
+  var l;
+  var u;
+  var t;
+  var i;
+  var o;
+  var r;
+  var f;
+  var e;
+  var c;
+  var s;
+  var a;
+  var h = {};
+  var v = [];
+  var p = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
+  var y = Array.isArray;
+  function d(n2, l3) {
+    for (var u3 in l3) n2[u3] = l3[u3];
+    return n2;
+  }
+  function w(n2) {
+    n2 && n2.parentNode && n2.parentNode.removeChild(n2);
+  }
+  function _(l3, u3, t3) {
+    var i3, o3, r3, f3 = {};
+    for (r3 in u3) "key" == r3 ? i3 = u3[r3] : "ref" == r3 ? o3 = u3[r3] : f3[r3] = u3[r3];
+    if (arguments.length > 2 && (f3.children = arguments.length > 3 ? n.call(arguments, 2) : t3), "function" == typeof l3 && null != l3.defaultProps) for (r3 in l3.defaultProps) void 0 === f3[r3] && (f3[r3] = l3.defaultProps[r3]);
+    return g(l3, f3, i3, o3, null);
+  }
+  function g(n2, t3, i3, o3, r3) {
+    var f3 = { type: n2, props: t3, key: i3, ref: o3, __k: null, __: null, __b: 0, __e: null, __d: void 0, __c: null, constructor: void 0, __v: null == r3 ? ++u : r3, __i: -1, __u: 0 };
+    return null == r3 && null != l.vnode && l.vnode(f3), f3;
+  }
+  function b(n2) {
+    return n2.children;
+  }
+  function k(n2, l3) {
+    this.props = n2, this.context = l3;
+  }
+  function x(n2, l3) {
+    if (null == l3) return n2.__ ? x(n2.__, n2.__i + 1) : null;
+    for (var u3; l3 < n2.__k.length; l3++) if (null != (u3 = n2.__k[l3]) && null != u3.__e) return u3.__e;
+    return "function" == typeof n2.type ? x(n2) : null;
+  }
+  function C(n2) {
+    var l3, u3;
+    if (null != (n2 = n2.__) && null != n2.__c) {
+      for (n2.__e = n2.__c.base = null, l3 = 0; l3 < n2.__k.length; l3++) if (null != (u3 = n2.__k[l3]) && null != u3.__e) {
+        n2.__e = n2.__c.base = u3.__e;
+        break;
+      }
+      return C(n2);
+    }
+  }
+  function S(n2) {
+    (!n2.__d && (n2.__d = true) && i.push(n2) && !M.__r++ || o !== l.debounceRendering) && ((o = l.debounceRendering) || r)(M);
+  }
+  function M() {
+    var n2, u3, t3, o3, r3, e3, c3, s3;
+    for (i.sort(f); n2 = i.shift(); ) n2.__d && (u3 = i.length, o3 = void 0, e3 = (r3 = (t3 = n2).__v).__e, c3 = [], s3 = [], t3.__P && ((o3 = d({}, r3)).__v = r3.__v + 1, l.vnode && l.vnode(o3), O(t3.__P, o3, r3, t3.__n, t3.__P.namespaceURI, 32 & r3.__u ? [e3] : null, c3, null == e3 ? x(r3) : e3, !!(32 & r3.__u), s3), o3.__v = r3.__v, o3.__.__k[o3.__i] = o3, j(c3, o3, s3), o3.__e != e3 && C(o3)), i.length > u3 && i.sort(f));
+    M.__r = 0;
+  }
+  function P(n2, l3, u3, t3, i3, o3, r3, f3, e3, c3, s3) {
+    var a3, p3, y3, d3, w3, _2 = t3 && t3.__k || v, g2 = l3.length;
+    for (u3.__d = e3, $(u3, l3, _2), e3 = u3.__d, a3 = 0; a3 < g2; a3++) null != (y3 = u3.__k[a3]) && (p3 = -1 === y3.__i ? h : _2[y3.__i] || h, y3.__i = a3, O(n2, y3, p3, i3, o3, r3, f3, e3, c3, s3), d3 = y3.__e, y3.ref && p3.ref != y3.ref && (p3.ref && N(p3.ref, null, y3), s3.push(y3.ref, y3.__c || d3, y3)), null == w3 && null != d3 && (w3 = d3), 65536 & y3.__u || p3.__k === y3.__k ? e3 = I(y3, e3, n2) : "function" == typeof y3.type && void 0 !== y3.__d ? e3 = y3.__d : d3 && (e3 = d3.nextSibling), y3.__d = void 0, y3.__u &= -196609);
+    u3.__d = e3, u3.__e = w3;
+  }
+  function $(n2, l3, u3) {
+    var t3, i3, o3, r3, f3, e3 = l3.length, c3 = u3.length, s3 = c3, a3 = 0;
+    for (n2.__k = [], t3 = 0; t3 < e3; t3++) null != (i3 = l3[t3]) && "boolean" != typeof i3 && "function" != typeof i3 ? (r3 = t3 + a3, (i3 = n2.__k[t3] = "string" == typeof i3 || "number" == typeof i3 || "bigint" == typeof i3 || i3.constructor == String ? g(null, i3, null, null, null) : y(i3) ? g(b, { children: i3 }, null, null, null) : void 0 === i3.constructor && i3.__b > 0 ? g(i3.type, i3.props, i3.key, i3.ref ? i3.ref : null, i3.__v) : i3).__ = n2, i3.__b = n2.__b + 1, o3 = null, -1 !== (f3 = i3.__i = L(i3, u3, r3, s3)) && (s3--, (o3 = u3[f3]) && (o3.__u |= 131072)), null == o3 || null === o3.__v ? (-1 == f3 && a3--, "function" != typeof i3.type && (i3.__u |= 65536)) : f3 !== r3 && (f3 == r3 - 1 ? a3-- : f3 == r3 + 1 ? a3++ : (f3 > r3 ? a3-- : a3++, i3.__u |= 65536))) : i3 = n2.__k[t3] = null;
+    if (s3) for (t3 = 0; t3 < c3; t3++) null != (o3 = u3[t3]) && 0 == (131072 & o3.__u) && (o3.__e == n2.__d && (n2.__d = x(o3)), V(o3, o3));
+  }
+  function I(n2, l3, u3) {
+    var t3, i3;
+    if ("function" == typeof n2.type) {
+      for (t3 = n2.__k, i3 = 0; t3 && i3 < t3.length; i3++) t3[i3] && (t3[i3].__ = n2, l3 = I(t3[i3], l3, u3));
+      return l3;
+    }
+    n2.__e != l3 && (l3 && n2.type && !u3.contains(l3) && (l3 = x(n2)), u3.insertBefore(n2.__e, l3 || null), l3 = n2.__e);
+    do {
+      l3 = l3 && l3.nextSibling;
+    } while (null != l3 && 8 === l3.nodeType);
+    return l3;
+  }
+  function L(n2, l3, u3, t3) {
+    var i3 = n2.key, o3 = n2.type, r3 = u3 - 1, f3 = u3 + 1, e3 = l3[u3];
+    if (null === e3 || e3 && i3 == e3.key && o3 === e3.type && 0 == (131072 & e3.__u)) return u3;
+    if (t3 > (null != e3 && 0 == (131072 & e3.__u) ? 1 : 0)) for (; r3 >= 0 || f3 < l3.length; ) {
+      if (r3 >= 0) {
+        if ((e3 = l3[r3]) && 0 == (131072 & e3.__u) && i3 == e3.key && o3 === e3.type) return r3;
+        r3--;
+      }
+      if (f3 < l3.length) {
+        if ((e3 = l3[f3]) && 0 == (131072 & e3.__u) && i3 == e3.key && o3 === e3.type) return f3;
+        f3++;
+      }
+    }
+    return -1;
+  }
+  function T(n2, l3, u3) {
+    "-" === l3[0] ? n2.setProperty(l3, null == u3 ? "" : u3) : n2[l3] = null == u3 ? "" : "number" != typeof u3 || p.test(l3) ? u3 : u3 + "px";
+  }
+  function A(n2, l3, u3, t3, i3) {
+    var o3;
+    n: if ("style" === l3) if ("string" == typeof u3) n2.style.cssText = u3;
+    else {
+      if ("string" == typeof t3 && (n2.style.cssText = t3 = ""), t3) for (l3 in t3) u3 && l3 in u3 || T(n2.style, l3, "");
+      if (u3) for (l3 in u3) t3 && u3[l3] === t3[l3] || T(n2.style, l3, u3[l3]);
+    }
+    else if ("o" === l3[0] && "n" === l3[1]) o3 = l3 !== (l3 = l3.replace(/(PointerCapture)$|Capture$/i, "$1")), l3 = l3.toLowerCase() in n2 || "onFocusOut" === l3 || "onFocusIn" === l3 ? l3.toLowerCase().slice(2) : l3.slice(2), n2.l || (n2.l = {}), n2.l[l3 + o3] = u3, u3 ? t3 ? u3.u = t3.u : (u3.u = e, n2.addEventListener(l3, o3 ? s : c, o3)) : n2.removeEventListener(l3, o3 ? s : c, o3);
+    else {
+      if ("http://www.w3.org/2000/svg" == i3) l3 = l3.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
+      else if ("width" != l3 && "height" != l3 && "href" != l3 && "list" != l3 && "form" != l3 && "tabIndex" != l3 && "download" != l3 && "rowSpan" != l3 && "colSpan" != l3 && "role" != l3 && "popover" != l3 && l3 in n2) try {
+        n2[l3] = null == u3 ? "" : u3;
+        break n;
+      } catch (n3) {
+      }
+      "function" == typeof u3 || (null == u3 || false === u3 && "-" !== l3[4] ? n2.removeAttribute(l3) : n2.setAttribute(l3, "popover" == l3 && 1 == u3 ? "" : u3));
+    }
+  }
+  function F(n2) {
+    return function(u3) {
+      if (this.l) {
+        var t3 = this.l[u3.type + n2];
+        if (null == u3.t) u3.t = e++;
+        else if (u3.t < t3.u) return;
+        return t3(l.event ? l.event(u3) : u3);
+      }
+    };
+  }
+  function O(n2, u3, t3, i3, o3, r3, f3, e3, c3, s3) {
+    var a3, h3, v3, p3, w3, _2, g2, m2, x3, C3, S2, M2, $2, I2, H, L2, T3 = u3.type;
+    if (void 0 !== u3.constructor) return null;
+    128 & t3.__u && (c3 = !!(32 & t3.__u), r3 = [e3 = u3.__e = t3.__e]), (a3 = l.__b) && a3(u3);
+    n: if ("function" == typeof T3) try {
+      if (m2 = u3.props, x3 = "prototype" in T3 && T3.prototype.render, C3 = (a3 = T3.contextType) && i3[a3.__c], S2 = a3 ? C3 ? C3.props.value : a3.__ : i3, t3.__c ? g2 = (h3 = u3.__c = t3.__c).__ = h3.__E : (x3 ? u3.__c = h3 = new T3(m2, S2) : (u3.__c = h3 = new k(m2, S2), h3.constructor = T3, h3.render = q), C3 && C3.sub(h3), h3.props = m2, h3.state || (h3.state = {}), h3.context = S2, h3.__n = i3, v3 = h3.__d = true, h3.__h = [], h3._sb = []), x3 && null == h3.__s && (h3.__s = h3.state), x3 && null != T3.getDerivedStateFromProps && (h3.__s == h3.state && (h3.__s = d({}, h3.__s)), d(h3.__s, T3.getDerivedStateFromProps(m2, h3.__s))), p3 = h3.props, w3 = h3.state, h3.__v = u3, v3) x3 && null == T3.getDerivedStateFromProps && null != h3.componentWillMount && h3.componentWillMount(), x3 && null != h3.componentDidMount && h3.__h.push(h3.componentDidMount);
+      else {
+        if (x3 && null == T3.getDerivedStateFromProps && m2 !== p3 && null != h3.componentWillReceiveProps && h3.componentWillReceiveProps(m2, S2), !h3.__e && (null != h3.shouldComponentUpdate && false === h3.shouldComponentUpdate(m2, h3.__s, S2) || u3.__v === t3.__v)) {
+          for (u3.__v !== t3.__v && (h3.props = m2, h3.state = h3.__s, h3.__d = false), u3.__e = t3.__e, u3.__k = t3.__k, u3.__k.some(function(n3) {
+            n3 && (n3.__ = u3);
+          }), M2 = 0; M2 < h3._sb.length; M2++) h3.__h.push(h3._sb[M2]);
+          h3._sb = [], h3.__h.length && f3.push(h3);
+          break n;
+        }
+        null != h3.componentWillUpdate && h3.componentWillUpdate(m2, h3.__s, S2), x3 && null != h3.componentDidUpdate && h3.__h.push(function() {
+          h3.componentDidUpdate(p3, w3, _2);
+        });
+      }
+      if (h3.context = S2, h3.props = m2, h3.__P = n2, h3.__e = false, $2 = l.__r, I2 = 0, x3) {
+        for (h3.state = h3.__s, h3.__d = false, $2 && $2(u3), a3 = h3.render(h3.props, h3.state, h3.context), H = 0; H < h3._sb.length; H++) h3.__h.push(h3._sb[H]);
+        h3._sb = [];
+      } else do {
+        h3.__d = false, $2 && $2(u3), a3 = h3.render(h3.props, h3.state, h3.context), h3.state = h3.__s;
+      } while (h3.__d && ++I2 < 25);
+      h3.state = h3.__s, null != h3.getChildContext && (i3 = d(d({}, i3), h3.getChildContext())), x3 && !v3 && null != h3.getSnapshotBeforeUpdate && (_2 = h3.getSnapshotBeforeUpdate(p3, w3)), P(n2, y(L2 = null != a3 && a3.type === b && null == a3.key ? a3.props.children : a3) ? L2 : [L2], u3, t3, i3, o3, r3, f3, e3, c3, s3), h3.base = u3.__e, u3.__u &= -161, h3.__h.length && f3.push(h3), g2 && (h3.__E = h3.__ = null);
+    } catch (n3) {
+      if (u3.__v = null, c3 || null != r3) {
+        for (u3.__u |= c3 ? 160 : 128; e3 && 8 === e3.nodeType && e3.nextSibling; ) e3 = e3.nextSibling;
+        r3[r3.indexOf(e3)] = null, u3.__e = e3;
+      } else u3.__e = t3.__e, u3.__k = t3.__k;
+      l.__e(n3, u3, t3);
+    }
+    else null == r3 && u3.__v === t3.__v ? (u3.__k = t3.__k, u3.__e = t3.__e) : u3.__e = z(t3.__e, u3, t3, i3, o3, r3, f3, c3, s3);
+    (a3 = l.diffed) && a3(u3);
+  }
+  function j(n2, u3, t3) {
+    u3.__d = void 0;
+    for (var i3 = 0; i3 < t3.length; i3++) N(t3[i3], t3[++i3], t3[++i3]);
+    l.__c && l.__c(u3, n2), n2.some(function(u4) {
+      try {
+        n2 = u4.__h, u4.__h = [], n2.some(function(n3) {
+          n3.call(u4);
+        });
+      } catch (n3) {
+        l.__e(n3, u4.__v);
+      }
+    });
+  }
+  function z(u3, t3, i3, o3, r3, f3, e3, c3, s3) {
+    var a3, v3, p3, d3, _2, g2, m2, b2 = i3.props, k3 = t3.props, C3 = t3.type;
+    if ("svg" === C3 ? r3 = "http://www.w3.org/2000/svg" : "math" === C3 ? r3 = "http://www.w3.org/1998/Math/MathML" : r3 || (r3 = "http://www.w3.org/1999/xhtml"), null != f3) {
+      for (a3 = 0; a3 < f3.length; a3++) if ((_2 = f3[a3]) && "setAttribute" in _2 == !!C3 && (C3 ? _2.localName === C3 : 3 === _2.nodeType)) {
+        u3 = _2, f3[a3] = null;
+        break;
+      }
+    }
+    if (null == u3) {
+      if (null === C3) return document.createTextNode(k3);
+      u3 = document.createElementNS(r3, C3, k3.is && k3), c3 && (l.__m && l.__m(t3, f3), c3 = false), f3 = null;
+    }
+    if (null === C3) b2 === k3 || c3 && u3.data === k3 || (u3.data = k3);
+    else {
+      if (f3 = f3 && n.call(u3.childNodes), b2 = i3.props || h, !c3 && null != f3) for (b2 = {}, a3 = 0; a3 < u3.attributes.length; a3++) b2[(_2 = u3.attributes[a3]).name] = _2.value;
+      for (a3 in b2) if (_2 = b2[a3], "children" == a3) ;
+      else if ("dangerouslySetInnerHTML" == a3) p3 = _2;
+      else if (!(a3 in k3)) {
+        if ("value" == a3 && "defaultValue" in k3 || "checked" == a3 && "defaultChecked" in k3) continue;
+        A(u3, a3, null, _2, r3);
+      }
+      for (a3 in k3) _2 = k3[a3], "children" == a3 ? d3 = _2 : "dangerouslySetInnerHTML" == a3 ? v3 = _2 : "value" == a3 ? g2 = _2 : "checked" == a3 ? m2 = _2 : c3 && "function" != typeof _2 || b2[a3] === _2 || A(u3, a3, _2, b2[a3], r3);
+      if (v3) c3 || p3 && (v3.__html === p3.__html || v3.__html === u3.innerHTML) || (u3.innerHTML = v3.__html), t3.__k = [];
+      else if (p3 && (u3.innerHTML = ""), P(u3, y(d3) ? d3 : [d3], t3, i3, o3, "foreignObject" === C3 ? "http://www.w3.org/1999/xhtml" : r3, f3, e3, f3 ? f3[0] : i3.__k && x(i3, 0), c3, s3), null != f3) for (a3 = f3.length; a3--; ) w(f3[a3]);
+      c3 || (a3 = "value", "progress" === C3 && null == g2 ? u3.removeAttribute("value") : void 0 !== g2 && (g2 !== u3[a3] || "progress" === C3 && !g2 || "option" === C3 && g2 !== b2[a3]) && A(u3, a3, g2, b2[a3], r3), a3 = "checked", void 0 !== m2 && m2 !== u3[a3] && A(u3, a3, m2, b2[a3], r3));
+    }
+    return u3;
+  }
+  function N(n2, u3, t3) {
+    try {
+      if ("function" == typeof n2) {
+        var i3 = "function" == typeof n2.__u;
+        i3 && n2.__u(), i3 && null == u3 || (n2.__u = n2(u3));
+      } else n2.current = u3;
+    } catch (n3) {
+      l.__e(n3, t3);
+    }
+  }
+  function V(n2, u3, t3) {
+    var i3, o3;
+    if (l.unmount && l.unmount(n2), (i3 = n2.ref) && (i3.current && i3.current !== n2.__e || N(i3, null, u3)), null != (i3 = n2.__c)) {
+      if (i3.componentWillUnmount) try {
+        i3.componentWillUnmount();
+      } catch (n3) {
+        l.__e(n3, u3);
+      }
+      i3.base = i3.__P = null;
+    }
+    if (i3 = n2.__k) for (o3 = 0; o3 < i3.length; o3++) i3[o3] && V(i3[o3], u3, t3 || "function" != typeof n2.type);
+    t3 || w(n2.__e), n2.__c = n2.__ = n2.__e = n2.__d = void 0;
+  }
+  function q(n2, l3, u3) {
+    return this.constructor(n2, u3);
+  }
+  function B(u3, t3, i3) {
+    var o3, r3, f3, e3;
+    l.__ && l.__(u3, t3), r3 = (o3 = "function" == typeof i3) ? null : i3 && i3.__k || t3.__k, f3 = [], e3 = [], O(t3, u3 = (!o3 && i3 || t3).__k = _(b, null, [u3]), r3 || h, h, t3.namespaceURI, !o3 && i3 ? [i3] : r3 ? null : t3.firstChild ? n.call(t3.childNodes) : null, f3, !o3 && i3 ? i3 : r3 ? r3.__e : t3.firstChild, o3, e3), j(f3, u3, e3);
+  }
+  function G(n2, l3) {
+    var u3 = { __c: l3 = "__cC" + a++, __: n2, Consumer: function(n3, l4) {
+      return n3.children(l4);
+    }, Provider: function(n3) {
+      var u4, t3;
+      return this.getChildContext || (u4 = /* @__PURE__ */ new Set(), (t3 = {})[l3] = this, this.getChildContext = function() {
+        return t3;
+      }, this.componentWillUnmount = function() {
+        u4 = null;
+      }, this.shouldComponentUpdate = function(n4) {
+        this.props.value !== n4.value && u4.forEach(function(n5) {
+          n5.__e = true, S(n5);
+        });
+      }, this.sub = function(n4) {
+        u4.add(n4);
+        var l4 = n4.componentWillUnmount;
+        n4.componentWillUnmount = function() {
+          u4 && u4.delete(n4), l4 && l4.call(n4);
+        };
+      }), n3.children;
+    } };
+    return u3.Provider.__ = u3.Consumer.contextType = u3;
+  }
+  n = v.slice, l = { __e: function(n2, l3, u3, t3) {
+    for (var i3, o3, r3; l3 = l3.__; ) if ((i3 = l3.__c) && !i3.__) try {
+      if ((o3 = i3.constructor) && null != o3.getDerivedStateFromError && (i3.setState(o3.getDerivedStateFromError(n2)), r3 = i3.__d), null != i3.componentDidCatch && (i3.componentDidCatch(n2, t3 || {}), r3 = i3.__d), r3) return i3.__E = i3;
+    } catch (l4) {
+      n2 = l4;
+    }
+    throw n2;
+  } }, u = 0, t = function(n2) {
+    return null != n2 && null == n2.constructor;
+  }, k.prototype.setState = function(n2, l3) {
+    var u3;
+    u3 = null != this.__s && this.__s !== this.state ? this.__s : this.__s = d({}, this.state), "function" == typeof n2 && (n2 = n2(d({}, u3), this.props)), n2 && d(u3, n2), null != n2 && this.__v && (l3 && this._sb.push(l3), S(this));
+  }, k.prototype.forceUpdate = function(n2) {
+    this.__v && (this.__e = true, n2 && this.__h.push(n2), S(this));
+  }, k.prototype.render = b, i = [], r = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, f = function(n2, l3) {
+    return n2.__v.__b - l3.__v.__b;
+  }, M.__r = 0, e = 0, c = F(false), s = F(true), a = 0;
+
+  // ../node_modules/preact/hooks/dist/hooks.module.js
+  var t2;
+  var r2;
+  var u2;
+  var i2;
+  var o2 = 0;
+  var f2 = [];
+  var c2 = l;
+  var e2 = c2.__b;
+  var a2 = c2.__r;
+  var v2 = c2.diffed;
+  var l2 = c2.__c;
+  var m = c2.unmount;
+  var s2 = c2.__;
+  function d2(n2, t3) {
+    c2.__h && c2.__h(r2, n2, o2 || t3), o2 = 0;
+    var u3 = r2.__H || (r2.__H = { __: [], __h: [] });
+    return n2 >= u3.__.length && u3.__.push({}), u3.__[n2];
+  }
+  function h2(n2) {
+    return o2 = 1, p2(D, n2);
+  }
+  function p2(n2, u3, i3) {
+    var o3 = d2(t2++, 2);
+    if (o3.t = n2, !o3.__c && (o3.__ = [i3 ? i3(u3) : D(void 0, u3), function(n3) {
+      var t3 = o3.__N ? o3.__N[0] : o3.__[0], r3 = o3.t(t3, n3);
+      t3 !== r3 && (o3.__N = [r3, o3.__[1]], o3.__c.setState({}));
+    }], o3.__c = r2, !r2.u)) {
+      var f3 = function(n3, t3, r3) {
+        if (!o3.__c.__H) return true;
+        var u4 = o3.__c.__H.__.filter(function(n4) {
+          return !!n4.__c;
+        });
+        if (u4.every(function(n4) {
+          return !n4.__N;
+        })) return !c3 || c3.call(this, n3, t3, r3);
+        var i4 = false;
+        return u4.forEach(function(n4) {
+          if (n4.__N) {
+            var t4 = n4.__[0];
+            n4.__ = n4.__N, n4.__N = void 0, t4 !== n4.__[0] && (i4 = true);
+          }
+        }), !(!i4 && o3.__c.props === n3) && (!c3 || c3.call(this, n3, t3, r3));
+      };
+      r2.u = true;
+      var c3 = r2.shouldComponentUpdate, e3 = r2.componentWillUpdate;
+      r2.componentWillUpdate = function(n3, t3, r3) {
+        if (this.__e) {
+          var u4 = c3;
+          c3 = void 0, f3(n3, t3, r3), c3 = u4;
+        }
+        e3 && e3.call(this, n3, t3, r3);
+      }, r2.shouldComponentUpdate = f3;
+    }
+    return o3.__N || o3.__;
+  }
+  function y2(n2, u3) {
+    var i3 = d2(t2++, 3);
+    !c2.__s && C2(i3.__H, u3) && (i3.__ = n2, i3.i = u3, r2.__H.__h.push(i3));
+  }
+  function A2(n2) {
+    return o2 = 5, T2(function() {
+      return { current: n2 };
+    }, []);
+  }
+  function T2(n2, r3) {
+    var u3 = d2(t2++, 7);
+    return C2(u3.__H, r3) && (u3.__ = n2(), u3.__H = r3, u3.__h = n2), u3.__;
+  }
+  function x2(n2) {
+    var u3 = r2.context[n2.__c], i3 = d2(t2++, 9);
+    return i3.c = n2, u3 ? (null == i3.__ && (i3.__ = true, u3.sub(r2)), u3.props.value) : n2.__;
+  }
+  function j2() {
+    for (var n2; n2 = f2.shift(); ) if (n2.__P && n2.__H) try {
+      n2.__H.__h.forEach(z2), n2.__H.__h.forEach(B2), n2.__H.__h = [];
+    } catch (t3) {
+      n2.__H.__h = [], c2.__e(t3, n2.__v);
+    }
+  }
+  c2.__b = function(n2) {
+    r2 = null, e2 && e2(n2);
+  }, c2.__ = function(n2, t3) {
+    n2 && t3.__k && t3.__k.__m && (n2.__m = t3.__k.__m), s2 && s2(n2, t3);
+  }, c2.__r = function(n2) {
+    a2 && a2(n2), t2 = 0;
+    var i3 = (r2 = n2.__c).__H;
+    i3 && (u2 === r2 ? (i3.__h = [], r2.__h = [], i3.__.forEach(function(n3) {
+      n3.__N && (n3.__ = n3.__N), n3.i = n3.__N = void 0;
+    })) : (i3.__h.forEach(z2), i3.__h.forEach(B2), i3.__h = [], t2 = 0)), u2 = r2;
+  }, c2.diffed = function(n2) {
+    v2 && v2(n2);
+    var t3 = n2.__c;
+    t3 && t3.__H && (t3.__H.__h.length && (1 !== f2.push(t3) && i2 === c2.requestAnimationFrame || ((i2 = c2.requestAnimationFrame) || w2)(j2)), t3.__H.__.forEach(function(n3) {
+      n3.i && (n3.__H = n3.i), n3.i = void 0;
+    })), u2 = r2 = null;
+  }, c2.__c = function(n2, t3) {
+    t3.some(function(n3) {
+      try {
+        n3.__h.forEach(z2), n3.__h = n3.__h.filter(function(n4) {
+          return !n4.__ || B2(n4);
+        });
+      } catch (r3) {
+        t3.some(function(n4) {
+          n4.__h && (n4.__h = []);
+        }), t3 = [], c2.__e(r3, n3.__v);
+      }
+    }), l2 && l2(n2, t3);
+  }, c2.unmount = function(n2) {
+    m && m(n2);
+    var t3, r3 = n2.__c;
+    r3 && r3.__H && (r3.__H.__.forEach(function(n3) {
+      try {
+        z2(n3);
+      } catch (n4) {
+        t3 = n4;
+      }
+    }), r3.__H = void 0, t3 && c2.__e(t3, r3.__v));
+  };
+  var k2 = "function" == typeof requestAnimationFrame;
+  function w2(n2) {
+    var t3, r3 = function() {
+      clearTimeout(u3), k2 && cancelAnimationFrame(t3), setTimeout(n2);
+    }, u3 = setTimeout(r3, 100);
+    k2 && (t3 = requestAnimationFrame(r3));
+  }
+  function z2(n2) {
+    var t3 = r2, u3 = n2.__c;
+    "function" == typeof u3 && (n2.__c = void 0, u3()), r2 = t3;
+  }
+  function B2(n2) {
+    var t3 = r2;
+    n2.__c = n2.__(), r2 = t3;
+  }
+  function C2(n2, t3) {
+    return !n2 || n2.length !== t3.length || t3.some(function(t4, r3) {
+      return t4 !== n2[r3];
+    });
+  }
+  function D(n2, t3) {
+    return "function" == typeof t3 ? t3(n2) : t3;
+  }
+
+  // shared/components/EnvironmentProvider.js
+  var EnvironmentContext = G({
+    isReducedMotion: false,
+    isDarkMode: false,
+    debugState: false,
+    injectName: (
+      /** @type {import('../environment').Environment['injectName']} */
+      "windows"
+    ),
+    willThrow: false,
+    /** @type {import('../environment').Environment['env']} */
+    env: "production"
+  });
+  var THEME_QUERY = "(prefers-color-scheme: dark)";
+  var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+  function EnvironmentProvider({ children, debugState, env = "production", willThrow = false, injectName = "windows" }) {
+    const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
+    const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
+    y2(() => {
+      const mediaQueryList = window.matchMedia(THEME_QUERY);
+      const listener = (e3) => setTheme(e3.matches ? "dark" : "light");
+      mediaQueryList.addEventListener("change", listener);
+      return () => mediaQueryList.removeEventListener("change", listener);
+    }, []);
+    y2(() => {
+      const mediaQueryList = window.matchMedia(REDUCED_MOTION_QUERY);
+      const listener = (e3) => setter(e3.matches);
+      mediaQueryList.addEventListener("change", listener);
+      setter(mediaQueryList.matches);
+      function setter(value) {
+        document.documentElement.dataset.reducedMotion = String(value);
+        setReducedMotion(value);
+      }
+      window.addEventListener("toggle-reduced-motion", () => {
+        setter(true);
+      });
+      return () => mediaQueryList.removeEventListener("change", listener);
+    }, []);
+    return /* @__PURE__ */ _(
+      EnvironmentContext.Provider,
+      {
+        value: {
+          isReducedMotion,
+          debugState,
+          isDarkMode: theme === "dark",
+          injectName,
+          willThrow,
+          env
+        }
+      },
+      children
+    );
+  }
+  function UpdateEnvironment({ search }) {
+    y2(() => {
+      const params = new URLSearchParams(search);
+      if (params.has("reduced-motion")) {
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("toggle-reduced-motion"));
+        }, 0);
+      }
+    }, [search]);
+    return null;
+  }
+  function useEnv() {
+    return x2(EnvironmentContext);
+  }
+
+  // pages/special-error/app/providers/MessagingProvider.js
+  var MessagingContext2 = G({
+    messaging: (
+      /** @type {import('../../src/js/index').SpecialErrorPage | null} */
+      null
+    )
+  });
+  function MessagingProvider({ children, messaging: messaging2 }) {
+    return /* @__PURE__ */ _(MessagingContext2.Provider, { value: { messaging: messaging2 } }, children);
+  }
+  function useMessaging() {
+    return x2(MessagingContext2);
+  }
+
+  // shared/components/ErrorBoundary.js
+  var ErrorBoundary = class extends k {
+    /**
+     * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
+     */
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false };
+    }
+    static getDerivedStateFromError() {
+      return { hasError: true };
+    }
+    componentDidCatch(error, info) {
+      console.error(error);
+      console.log(info);
+      this.props.didCatch({ error, info });
+    }
+    render() {
+      if (this.state.hasError) {
+        return this.props.fallback;
+      }
+      return this.props.children;
+    }
+  };
+
+  // pages/special-error/app/components/ErrorFallback.js
+  function ErrorFallback() {
+    return /* @__PURE__ */ _("h1", null, "Something went wrong");
+  }
+
+  // shared/translations.js
+  function apply(subject, replacements, textLength = 1) {
+    if (typeof subject !== "string" || subject.length === 0) return "";
+    let out = subject;
+    if (replacements) {
+      for (let [name, value] of Object.entries(replacements)) {
+        if (typeof value !== "string") value = "";
+        out = out.replaceAll(`{${name}}`, value);
+      }
+    }
+    if (textLength !== 1 && textLength > 0 && textLength <= 2) {
+      const targetLen = Math.ceil(out.length * textLength);
+      const target = Math.ceil(textLength);
+      const combined = out.repeat(target);
+      return combined.slice(0, targetLen);
+    }
+    return out;
+  }
+
+  // shared/components/TranslationsProvider.js
+  var TranslationContext = G({
+    /** @type {LocalTranslationFn} */
+    t: () => {
+      throw new Error("must implement");
+    }
+  });
+  function TranslationProvider({ children, translationObject, fallback, textLength = 1 }) {
+    function t3(inputKey, replacements) {
+      const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
+      return apply(subject, replacements, textLength);
+    }
+    return /* @__PURE__ */ _(TranslationContext.Provider, { value: { t: t3 } }, children);
+  }
+  function Trans({ str, values }) {
+    const ref = A2(null);
+    const cleanups = A2([]);
+    y2(() => {
+      if (!ref.current) return;
+      const curr = ref.current;
+      const cleanupsCurr = cleanups.current;
+      Object.entries(values).forEach(([tag, attributes]) => {
+        curr.querySelectorAll(tag).forEach((el) => {
+          Object.entries(attributes).forEach(([key, value]) => {
+            if (typeof value === "function") {
+              el.addEventListener(key, value);
+              cleanupsCurr.push(() => el.removeEventListener(key, value));
+            } else {
+              el.setAttribute(key, value);
+            }
+          });
+        });
+      });
+      return () => {
+        cleanupsCurr.forEach((fn) => fn());
+      };
+    }, [values, str]);
+    return /* @__PURE__ */ _("span", { ref, dangerouslySetInnerHTML: { __html: str } });
+  }
+
+  // pages/special-error/src/locales/en/special-error.json
+  var special_error_default = {
+    smartling: {
+      string_format: "icu",
+      translate_paths: [
+        {
+          path: "*/title",
+          key: "{*}/title",
+          instruction: "*/note"
+        }
+      ]
+    },
+    advancedButton: {
+      title: "Advanced",
+      note: "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+    },
+    advancedEllipsisButton: {
+      title: "Advanced...",
+      note: "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+    },
+    leaveSiteButton: {
+      title: "Leave This Site",
+      note: "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+    },
+    visitSiteButton: {
+      title: "Accept Risk and Visit Site",
+      note: "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+    },
+    phishingPageHeading: {
+      title: "Warning: This site puts your personal information at risk",
+      note: "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+    },
+    phishingWarningText: {
+      title: "This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. <a>Learn more</a>",
+      note: "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+    },
+    phishingAdvancedInfoHeading: {
+      title: "DuckDuckGo warns you when a website has been flagged as malicious.",
+      note: "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
+    },
+    phishingAdvancedInfoText_1: {
+      title: "Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.",
+      note: "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
+    },
+    phishingAdvancedInfoText_2: {
+      title: "See our <a>Phishing and Malware Protection help page</a> for more information.",
+      note: "A call-to-action to read more on our help pages for phishing and malware protection."
+    },
+    sslPageHeading: {
+      title: "Warning: This site may be insecure",
+      note: "Title shown in an error page that warn users of security risks on a website due to SSL issues"
+    },
+    sslWarningText: {
+      title: "The certificate for this site is invalid. You might be connecting to a server that is pretending to be <b>{domain}</b> which could put your confidential information at risk.",
+      note: "Describes an SSL error where a website\u2019s security certificate is invalid. The placeholder is the site\u2019s domain (example: duckduckgo.com)."
+    },
+    sslAdvancedInfoHeading: {
+      title: "DuckDuckGo warns you when a website has an invalid certificate.",
+      note: "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
+    },
+    sslExpiredAdvancedInfoText: {
+      title: "The security certificate for <b>{domain}</b> is expired. It\u2019s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.",
+      note: "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+    },
+    sslInvalidAdvancedInfoText: {
+      title: "The security certificate for <b>{domain}</b> is not trusted by your device\u2019s operating system. It\u2019s possible that the website is misconfigured or that an attacker has compromised your connection.",
+      note: "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site\u2019s domain (example: duckduckgo.com)."
+    },
+    sslSelfSignedAdvancedInfoText: {
+      title: "The security certificate for <b>{domain}</b> is not trusted by your device\u2019s operating system. It\u2019s possible that the website is misconfigured or that an attacker has compromised your connection.",
+      note: "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site\u2019s domain (example: duckduckgo.com)."
+    },
+    sslWrongHostAdvancedInfoText: {
+      title: "The security certificate for <b>{domain}</b> does not match <b>*.{eTldPlus1}</b>. It\u2019s possible that the website is misconfigured or that an attacker has compromised your connection.",
+      note: "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The two placeholders are website domain names (example: duckduckgo.com)."
+    }
+  };
+
+  // pages/special-error/app/types.js
+  function useTypedTranslation() {
+    return {
+      t: x2(TranslationContext).t
+    };
+  }
+
+  // pages/special-error/app/providers/SpecialErrorProvider.js
+  var SpecialErrorContext = G(
+    /** @type {import('../specialError.js').SpecialError} */
+    {}
+  );
+  function SpecialErrorProvider({ children, specialError }) {
+    return /* @__PURE__ */ _(SpecialErrorContext.Provider, { value: specialError }, children);
+  }
+  function useErrorData() {
+    return x2(SpecialErrorContext).data;
+  }
+
+  // pages/special-error/app/components/Warning.jsx
+  var import_classnames3 = __toESM(require_classnames(), 1);
+
+  // pages/special-error/app/settings.js
+  var Settings = class _Settings {
+    /**
+     * @param {object} params
+     * @param {{name: ImportMeta['platform']}} [params.platform]
+     */
+    constructor({ platform = { name: "macos" } }) {
+      this.platform = platform;
+    }
+    withPlatformName(name) {
+      const valid = ["windows", "macos", "ios", "android"];
+      if (valid.includes(
+        /** @type {any} */
+        name
+      )) {
+        return new _Settings({
+          ...this,
+          platform: { name }
+        });
+      }
+      return this;
+    }
+  };
+
+  // pages/special-error/app/providers/SettingsProvider.jsx
+  var SettingsContext = G(
+    /** @type {{settings: Settings}} */
+    {}
+  );
+  function SettingsProvider({ settings, children }) {
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
+  }
+  function usePlatformName() {
+    return x2(SettingsContext).settings.platform?.name;
+  }
+
+  // pages/special-error/app/constants.js
+  var phishingHelpPageURL = "https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/";
+
+  // pages/special-error/app/hooks/ErrorStrings.jsx
+  var phishingAnchorTagValues = {
+    href: phishingHelpPageURL,
+    target: "blank"
+  };
+  function useWarningHeading() {
+    const { t: t3 } = useTypedTranslation();
+    const { kind } = useErrorData();
+    if (kind === "phishing") {
+      return t3("phishingPageHeading");
+    }
+    if (kind === "ssl") {
+      return t3("sslPageHeading");
+    }
+    throw new Error(`Unhandled error kind ${kind}`);
+  }
+  function useWarningContent() {
+    const { t: t3 } = useTypedTranslation();
+    const errorData = useErrorData();
+    const { kind } = useErrorData();
+    if (kind === "phishing") {
+      return [/* @__PURE__ */ _(Trans, { str: t3("phishingWarningText"), values: { a: phishingAnchorTagValues } })];
+    }
+    if (kind === "ssl") {
+      const { domain } = (
+        /** @type {SSLError}} */
+        errorData
+      );
+      return [/* @__PURE__ */ _(Trans, { str: t3("sslWarningText", { domain }), values: "" })];
+    }
+    throw new Error(`Unhandled error kind ${kind}`);
+  }
+  function useAdvancedInfoHeading() {
+    const { t: t3 } = useTypedTranslation();
+    const { kind } = useErrorData();
+    if (kind === "phishing") {
+      return t3("phishingAdvancedInfoHeading");
+    }
+    if (kind === "ssl") {
+      return t3("sslAdvancedInfoHeading");
+    }
+    throw new Error(`Unhandled error kind ${kind}`);
+  }
+  function useAdvancedInfoContent() {
+    const { t: t3 } = useTypedTranslation();
+    const errorData = useErrorData();
+    const { kind } = errorData;
+    if (kind === "phishing") {
+      return [t3("phishingAdvancedInfoText_1"), /* @__PURE__ */ _(Trans, { str: t3("phishingAdvancedInfoText_2"), values: { a: phishingAnchorTagValues } })];
+    }
+    if (kind === "ssl") {
+      const { errorType, domain } = (
+        /** @type {SSLError}} */
+        errorData
+      );
+      switch (errorType) {
+        case "expired":
+          return [/* @__PURE__ */ _(Trans, { str: t3("sslExpiredAdvancedInfoText", { domain }), values: "" })];
+        case "invalid":
+          return [/* @__PURE__ */ _(Trans, { str: t3("sslInvalidAdvancedInfoText", { domain }), values: "" })];
+        case "selfSigned":
+          return [/* @__PURE__ */ _(Trans, { str: t3("sslSelfSignedAdvancedInfoText", { domain }), values: "" })];
+        case "wrongHost":
+          const { eTldPlus1 } = (
+            /** @type {SSLWrongHost} */
+            errorData
+          );
+          return [/* @__PURE__ */ _(Trans, { str: t3("sslWrongHostAdvancedInfoText", { domain, eTldPlus1 }), values: "" })];
+        default:
+          throw new Error(`Unhandled SSL error type ${errorType}`);
+      }
+    }
+    throw new Error(`Unhandled error kind ${kind}`);
+  }
+
+  // shared/components/Text/Text.js
+  var import_classnames = __toESM(require_classnames(), 1);
+
+  // shared/components/Text/Text.module.css
+  var Text_default = {
+    "title-1": "Text_title-1",
+    strictSpacing: "Text_strictSpacing",
+    "title-2": "Text_title-2",
+    "title-2-emphasis": "Text_title-2-emphasis",
+    headline: "Text_headline",
+    subheadline: "Text_subheadline",
+    body: "Text_body",
+    "body-emphasis": "Text_body-emphasis",
+    "label-small": "Text_label-small",
+    "label-default": "Text_label-default",
+    "label-medium": "Text_label-medium",
+    "caption-2-emphasis": "Text_caption-2-emphasis"
+  };
+
+  // shared/components/Text/Text.js
+  function Text({ as: Comp = "p", variant, strictSpacing = true, className, children }) {
+    return /* @__PURE__ */ _(Comp, { className: (0, import_classnames.default)({ [Text_default[`${variant}`]]: variant, [Text_default.strictSpacing]: strictSpacing }, className) }, children);
+  }
+
+  // shared/components/Button/Button.js
+  var import_classnames2 = __toESM(require_classnames(), 1);
+
+  // shared/components/Button/Button.module.css
+  var Button_default = {
+    button: "Button_button",
+    standard: "Button_standard",
+    accent: "Button_accent",
+    primary: "Button_primary",
+    ghost: "Button_ghost"
+  };
+
+  // shared/components/Button/Button.js
+  function Button({ variant, className, children, onClick, type = "button" }) {
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        className: (0, import_classnames2.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
+        type,
+        onClick: (
+          /**
+           * @param {import("preact").JSX.TargetedMouseEvent<EventTarget>} event
+           */
+          (event) => {
+            if (onClick) {
+              onClick(event);
+            }
+          }
+        )
+      },
+      children
+    );
+  }
+
+  // pages/special-error/app/components/Warning.module.css
+  var Warning_default = {
+    container: "Warning_container",
+    content: "Warning_content",
+    heading: "Warning_heading",
+    icon: "Warning_icon",
+    buttonContainer: "Warning_buttonContainer",
+    ssl: "Warning_ssl",
+    phishing: "Warning_phishing",
+    button: "Warning_button",
+    advanced: "Warning_advanced"
+  };
+
+  // pages/special-error/app/components/Warning.jsx
+  function AdvancedInfoButton({ onClick }) {
+    const { t: t3 } = useTypedTranslation();
+    const platformName = usePlatformName();
+    return /* @__PURE__ */ _(
+      Button,
+      {
+        variant: platformName === "macos" ? "standard" : "ghost",
+        className: (0, import_classnames3.default)(Warning_default.button, Warning_default.advanced),
+        onClick
+      },
+      platformName === "ios" ? t3("advancedButton") : t3("advancedEllipsisButton")
+    );
+  }
+  function LeaveSiteButton() {
+    const { t: t3 } = useTypedTranslation();
+    const { messaging: messaging2 } = useMessaging();
+    const platformName = usePlatformName();
+    return /* @__PURE__ */ _(
+      Button,
+      {
+        variant: platformName === "macos" ? "accent" : "primary",
+        className: (0, import_classnames3.default)(Warning_default.button, Warning_default.leaveSite),
+        onClick: () => messaging2?.leaveSite()
+      },
+      t3("leaveSiteButton")
+    );
+  }
+  function WarningHeading() {
+    const { kind } = useErrorData();
+    const heading = useWarningHeading();
+    const platformName = usePlatformName();
+    return /* @__PURE__ */ _("header", { className: (0, import_classnames3.default)(Warning_default.heading, Warning_default[kind]) }, /* @__PURE__ */ _("i", { className: Warning_default.icon, "aria-hidden": "true" }), /* @__PURE__ */ _(Text, { as: "h1", variant: platformName === "macos" ? "title-2-emphasis" : "title-2", strictSpacing: platformName !== "macos" }, heading));
+  }
+  function WarningContent() {
+    const content = useWarningContent();
+    return /* @__PURE__ */ _("div", { className: Warning_default.content }, content.map((text) => /* @__PURE__ */ _(Text, { as: "p", variant: "body" }, text)));
+  }
+  function Warning({ advancedInfoVisible, advancedButtonHandler }) {
+    return /* @__PURE__ */ _("section", { className: Warning_default.container }, /* @__PURE__ */ _(WarningHeading, null), /* @__PURE__ */ _(WarningContent, null), /* @__PURE__ */ _("div", { className: Warning_default.buttonContainer }, !advancedInfoVisible && /* @__PURE__ */ _(AdvancedInfoButton, { onClick: () => advancedButtonHandler() }), /* @__PURE__ */ _(LeaveSiteButton, null)));
+  }
+
+  // pages/special-error/app/components/AdvancedInfo.module.css
+  var AdvancedInfo_default = {
+    container: "AdvancedInfo_container",
+    appear: "AdvancedInfo_appear",
+    content: "AdvancedInfo_content",
+    visitSite: "AdvancedInfo_visitSite",
+    wrapper: "AdvancedInfo_wrapper",
+    heading: "AdvancedInfo_heading"
+  };
+
+  // pages/special-error/app/components/AdvancedInfo.jsx
+  function useScrollTarget() {
+    const linkRef = A2(null);
+    return {
+      ref: linkRef,
+      trigger: () => {
+        linkRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+  }
+  function VisitSiteLink({ elemRef }) {
+    const { t: t3 } = useTypedTranslation();
+    const { messaging: messaging2 } = useMessaging();
+    return /* @__PURE__ */ _("a", { className: AdvancedInfo_default.visitSite, onClick: () => messaging2?.visitSite(), ref: elemRef }, t3("visitSiteButton"));
+  }
+  function AdvancedInfoHeading() {
+    const heading = useAdvancedInfoHeading();
+    return /* @__PURE__ */ _("header", { className: AdvancedInfo_default.heading }, /* @__PURE__ */ _(Text, { as: "h2", variant: "body" }, heading));
+  }
+  function AdvancedInfoContent() {
+    const content = useAdvancedInfoContent();
+    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.content }, content.map((text) => /* @__PURE__ */ _(Text, { as: "p", variant: "body" }, text)));
+  }
+  function AdvancedInfo() {
+    const { ref, trigger } = useScrollTarget();
+    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.wrapper }, /* @__PURE__ */ _("div", { className: AdvancedInfo_default.container, onAnimationEnd: trigger }, /* @__PURE__ */ _(AdvancedInfoHeading, null), /* @__PURE__ */ _(AdvancedInfoContent, null), /* @__PURE__ */ _(VisitSiteLink, { elemRef: ref })));
+  }
+
+  // pages/special-error/app/components/App.module.css
+  var App_default = {
+    main: "App_main",
+    container: "App_container"
+  };
+
+  // pages/special-error/app/components/App.jsx
+  function SpecialErrorView() {
+    const [advancedInfoVisible, setAdvancedInfoVisible] = h2(false);
+    const { messaging: messaging2 } = useMessaging();
+    const advancedButtonHandler = () => {
+      messaging2?.advancedInfo();
+      setAdvancedInfoVisible(true);
+    };
+    return /* @__PURE__ */ _("div", { className: App_default.container }, /* @__PURE__ */ _(Warning, { advancedInfoVisible, advancedButtonHandler }), advancedInfoVisible && /* @__PURE__ */ _(AdvancedInfo, null));
+  }
+  function PageTitle() {
+    const { kind } = useErrorData();
+    const { t: t3 } = useTypedTranslation();
+    y2(() => {
+      switch (kind) {
+        case "phishing":
+          document.title = t3("phishingPageHeading");
+          break;
+        default:
+          document.title = t3("sslPageHeading");
+      }
+    }, [kind, t3]);
+    return null;
+  }
+  function App() {
+    const { messaging: messaging2 } = useMessaging();
+    function didCatch(error) {
+      const message = error?.message || "unknown";
+      console.error("ErrorBoundary", message);
+      messaging2?.reportPageException({ message });
+    }
+    return /* @__PURE__ */ _("main", { className: App_default.main }, /* @__PURE__ */ _(PageTitle, null), /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _(SpecialErrorView, null), /* @__PURE__ */ _(WillThrow, null)));
+  }
+  function WillThrow() {
+    const env = useEnv();
+    if (env.willThrow) {
+      throw new Error("Simulated Exception");
+    }
+    return null;
+  }
+
+  // pages/special-error/app/components/Components.module.css
+  var Components_default = {
+    selector: "Components_selector",
+    main: "Components_main"
+  };
+
+  // pages/special-error/app/components/Components.jsx
+  var platforms = {
+    macos: "macOS",
+    ios: "iOS"
+  };
+  function idForError(errorData) {
+    const { kind } = errorData;
+    if (kind === "phishing") {
+      return kind;
+    }
+    const { errorType } = errorData;
+    return `${kind}.${errorType}`;
+  }
+  function Components() {
+    const platformName = usePlatformName();
+    const errorData = useErrorData();
+    const handlePlatformChange = (value) => {
+      if (Object.keys(platforms).includes(value)) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("platform", value);
+        window.location.href = url.toString();
+      }
+    };
+    const handleErrorTypeChange = (value) => {
+      if (Object.keys(sampleData).includes(value)) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("errorId", value);
+        window.location.href = url.toString();
+      }
+    };
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("div", { className: Components_default.selector }, /* @__PURE__ */ _("fieldset", null, /* @__PURE__ */ _("label", { for: "platform-select" }, "Platform:"), /* @__PURE__ */ _("select", { id: "platform-select", onChange: (e3) => handlePlatformChange(e3.currentTarget?.value) }, Object.entries(platforms).map(([id, name]) => {
+      return /* @__PURE__ */ _("option", { value: id, selected: id === platformName }, name);
+    }))), /* @__PURE__ */ _("fieldset", null, /* @__PURE__ */ _("label", { for: "error-select" }, "Error Type:"), /* @__PURE__ */ _("select", { id: "error-select", onChange: (e3) => handleErrorTypeChange(e3.currentTarget?.value) }, Object.entries(sampleData).map(([id, data]) => {
+      return /* @__PURE__ */ _("option", { value: id, selected: id === idForError(errorData) }, data.name);
+    })))), /* @__PURE__ */ _("main", { class: Components_default.main, "data-platform-name": platformName }, /* @__PURE__ */ _("h1", null, "Special Error Components"), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Warning Heading"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(WarningHeading, null))), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Warning Content"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(WarningContent, null))), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Advanced Info Heading"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(AdvancedInfoHeading, null))), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Advanced Info Content"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(AdvancedInfoContent, null))), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Leave Site Button"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(LeaveSiteButton, null))), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Advanced Info Button"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(AdvancedInfoButton, { onClick: () => {
+    } }))), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Visit Site Link"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(VisitSiteLink, null))), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Warning"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Warning, { advancedInfoVisible: false, advancedButtonHandler: () => {
+    } }))), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Advanced Info"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(AdvancedInfo, null))), /* @__PURE__ */ _("section", null, /* @__PURE__ */ _("h2", null, "Special Error View"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(SpecialErrorView, null)))));
+  }
+
+  // shared/call-with-retry.js
+  async function callWithRetry(fn, params = {}) {
+    const { maxAttempts = 10, intervalMs = 300 } = params;
+    let attempt = 1;
+    while (attempt <= maxAttempts) {
+      try {
+        return { value: await fn(), attempt };
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          return { error: `Max attempts reached: ${error}` };
+        }
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+        attempt++;
+      }
+    }
+    return { error: "Unreachable: value not retrieved" };
+  }
+
+  // pages/special-error/app/specialError.js
+  var SpecialError = class _SpecialError {
+    /**
+     * @param {object} params
+     * @param {import('../../../types/special-error').InitialSetupResponse['errorData']} params.errorData
+     */
+    constructor({ errorData }) {
+      this.data = errorData;
+    }
+    /**
+     * @param {import('../../../types/special-error').InitialSetupResponse['errorData']} [errorData]
+     */
+    withErrorData(errorData) {
+      if (errorData) {
+        return new _SpecialError({ errorData });
+      }
+      return this;
+    }
+    /**
+     * @param {keyof sampleData|null} [errorId]
+     */
+    withSampleErrorId(errorId) {
+      if (errorId && Object.keys(sampleData).includes(errorId)) {
+        return new _SpecialError({ errorData: sampleData[errorId].data });
+      }
+      return this;
+    }
+  };
+
+  // pages/special-error/app/index.js
+  async function init(messaging2, baseEnvironment2) {
+    const result = await callWithRetry(() => messaging2.initialSetup());
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    const init2 = result.value;
+    const missingProperties = ["errorData", "platform"].filter((prop) => !init2[prop]);
+    if (missingProperties.length > 0) {
+      throw new Error(`Missing setup data: ${missingProperties.join(", ")}`);
+    }
+    const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
+    const strings = environment.locale === "en" ? special_error_default : await getTranslationsFromStringOrLoadDynamically(init2.localeStrings, environment.locale) || special_error_default;
+    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform"));
+    document.body.dataset.platformName = settings.platform?.name;
+    const specialError = new SpecialError({ errorData: init2.errorData }).withSampleErrorId(baseEnvironment2.urlParams.get("errorId"));
+    const root = document.querySelector("#app");
+    if (!root) throw new Error("could not render, root element missing");
+    if (environment.display === "app") {
+      B(
+        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: special_error_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingProvider, { messaging: messaging2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(SpecialErrorProvider, { specialError }, /* @__PURE__ */ _(App, null)))))),
+        root
+      );
+    } else if (environment.display === "components") {
+      B(
+        /* @__PURE__ */ _(EnvironmentProvider, { debugState: false, injectName: environment.injectName }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: special_error_default, textLength: environment.textLength }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(SpecialErrorProvider, { specialError }, /* @__PURE__ */ _(Components, null))))),
+        root
+      );
+    }
+  }
+  async function getTranslationsFromStringOrLoadDynamically(stringInput, locale) {
+    if (stringInput) {
+      try {
+        return JSON.parse(stringInput);
+      } catch (e3) {
+        console.warn("String could not be parsed. Falling back to fetch...");
+      }
+    }
+    try {
+      const response = await fetch(`./locales/${locale}/special-error.json`);
+      if (!response.ok) {
+        console.error("Network response was not ok");
+        return null;
+      }
+      return await response.json();
+    } catch (e3) {
+      console.error("Failed to fetch or parse JSON from the network:", e3);
+      return null;
+    }
+  }
+
+  // pages/special-error/src/js/index.js
+  var SpecialErrorPage = class {
+    /**
+     * @param {import("@duckduckgo/messaging").Messaging} messaging
+     */
+    constructor(messaging2, env) {
+      this.integration = env === "integration";
+      this.messaging = createTypedMessages(this, messaging2);
+    }
+    /**
+     * Sends an initial message to the native layer. This is the opportunity for the native layer
+     * to provide the initial state of the application or any configuration, for example:
+     *
+     * ```json
+     * {
+     *   "env": "development",
+     *   "locale": "en"
+     * }
+     * ```
+     *
+     * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
+     */
+    initialSetup() {
+      return this.messaging.request("initialSetup");
+    }
+    /**
+     * This will be sent if the application has loaded, but a client-side error
+     * has occurred that cannot be recovered from
+     * @param {{message: string}} params
+     */
+    reportPageException(params) {
+      this.messaging.notify("reportPageException", params);
+    }
+    /**
+     * This will be sent if the application fails to load.
+     * @param {{message: string}} params
+     */
+    reportInitException(params) {
+      this.messaging.notify("reportInitException", params);
+    }
+    /**
+     * This will be sent when the user chooses to leave the current site
+     */
+    leaveSite() {
+      this.messaging.notify("leaveSite");
+    }
+    /**
+     * This will be sent when the user chooses to visit the current site despite warnings
+     */
+    visitSite() {
+      this.messaging.notify("visitSite");
+    }
+    /**
+     * This will be sent when the user clicks the Advanced Info button
+     */
+    advancedInfo() {
+      this.messaging.notify("advancedInfo");
+    }
+  };
+  var IntegrationSpecialErrorPage = class extends SpecialErrorPage {
+    /**
+     * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
+     */
+    initialSetup() {
+      const searchParams = new URLSearchParams(window.location.search);
+      const errorId = searchParams.get("errorId");
+      const platformName = searchParams.get("platformName");
+      let errorData = sampleData["ssl.expired"].data;
+      if (errorId && Object.keys(sampleData).includes(errorId)) {
+        errorData = sampleData[errorId].data;
+      }
+      const supportedPlatforms = ["macos", "ios"];
+      let platform = { name: "macos" };
+      if (platformName && supportedPlatforms.includes(platformName)) {
+        platform = {
+          name: (
+            /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */
+            platformName
+          )
+        };
+      }
+      return Promise.resolve({
+        env: "development",
+        locale: "en",
+        platform,
+        errorData
+      });
+    }
+  };
+  var baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv("production");
+  var messaging = createSpecialPageMessaging({
+    injectName: baseEnvironment.injectName,
+    env: baseEnvironment.env,
+    pageName: (
+      /** @type {string} */
+      "special-error"
+    )
+  });
+  var specialErrorPage = baseEnvironment.injectName === "integration" ? new IntegrationSpecialErrorPage(messaging, baseEnvironment.injectName) : new SpecialErrorPage(messaging, baseEnvironment.injectName);
+  init(specialErrorPage, baseEnvironment).catch((e3) => {
+    console.error(e3);
+    const msg = typeof e3?.message === "string" ? e3.message : "unknown init error";
+    specialErrorPage.reportInitException({ message: msg });
+  });
+})();
+/*! Bundled license information:
+
+classnames/index.js:
+  (*!
+  	Copyright (c) 2018 Jed Watson.
+  	Licensed under the MIT License (MIT), see
+  	http://jedwatson.github.io/classnames
+  *)
+*/
+
+</script>
+</body>
+</html>
