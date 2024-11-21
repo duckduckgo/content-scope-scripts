@@ -12,6 +12,12 @@ import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndC
  * @typedef {import('../../../../../types/new-tab.ts').FavoritesOpenAction['target']} OpenTarget
  * @typedef {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} State
  * @typedef {import('../../service.hooks.js').Events<FavoritesData, FavoritesConfig>} Events
+ * @typedef {{id: string; url: string}} BaseFavoriteType
+ */
+
+/**
+ * @template {BaseFavoriteType} ItemType - allow any type that extends BaseFavoriteType
+ * @typedef {(params: { list: ItemType[], id: string, fromIndex: number, targetIndex: number }) => void} ReorderFn
  */
 
 /**
@@ -24,15 +30,15 @@ export const FavoritesContext = createContext({
     toggle: () => {
         throw new Error('must implement');
     },
-    /** @type {(list: Favorite[], id: string, targetIndex: number) => void} */
-    favoritesDidReOrder: (list, id, targetIndex) => {
+    /** @type {ReorderFn<Favorite>} */
+    favoritesDidReOrder: ({ list, id, fromIndex, targetIndex }) => {
         throw new Error('must implement');
     },
     /** @type {(id: string) => void} */
     openContextMenu: (id) => {
         throw new Error('must implement');
     },
-    /** @type {(id: string, target: OpenTarget) => void} */
+    /** @type {(id: string, url: string, target: OpenTarget) => void} */
     openFavorite: (id, target) => {
         throw new Error('must implement');
     },
@@ -68,11 +74,11 @@ export function FavoritesProvider({ children }) {
     // subscribe to toggle + expose a fn for sync toggling
     const { toggle } = useConfigSubscription({ dispatch, service });
 
-    /** @type {(f: Favorite[], id: string, targetIndex: number) => void} */
+    /** @type {ReorderFn<Favorite>} */
     const favoritesDidReOrder = useCallback(
-        (favorites, id, targetIndex) => {
+        ({ list, id, fromIndex, targetIndex }) => {
             if (!service.current) return;
-            service.current.setFavoritesOrder({ favorites }, id, targetIndex);
+            service.current.setFavoritesOrder({ favorites: list }, id, fromIndex, targetIndex);
         },
         [service],
     );
@@ -86,11 +92,11 @@ export function FavoritesProvider({ children }) {
         [service],
     );
 
-    /** @type {(id: string, target: OpenTarget) => void} */
+    /** @type {(id: string, url: string, target: OpenTarget) => void} */
     const openFavorite = useCallback(
-        (id, target) => {
+        (id, url, target) => {
             if (!service.current) return;
-            service.current.openFavorite(id, target);
+            service.current.openFavorite(id, url, target);
         },
         [service],
     );

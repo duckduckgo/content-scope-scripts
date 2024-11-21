@@ -120,6 +120,10 @@ export interface FavoritesMoveAction {
    * zero-indexed target
    */
   targetIndex: number;
+  /**
+   * zero-indexed source
+   */
+  fromIndex: number;
 }
 /**
  * Generated from @see "../messages/new-tab/favorites_open.notify.json"
@@ -133,6 +137,10 @@ export interface FavoritesOpenAction {
    * Entity ID
    */
   id: string;
+  /**
+   * The url to open
+   */
+  url: string;
   target: "same-tab" | "new-tab" | "new-window";
 }
 /**
