@@ -2,6 +2,7 @@ import { getStateFromAbbreviation } from '../comparisons/address.js';
 
 /**
  * @typedef {{url: string} & Record<string, any>} BuildUrlAction
+ * @typedef {Record<string, any>} BuildActionWithoutUrl
  * @typedef {Record<string, string|number>} UserData
  */
 
@@ -48,7 +49,7 @@ const baseTransforms = new Map([
  * Example, `/a/b/${name|capitalize}` -> applies the `capitalize` transform
  * to the name field
  *
- * @type {Map<string, ((value: string, argument: string|undefined, action: BuildUrlAction) => string)>}
+ * @type {Map<string, ((value: string, argument: string|undefined, action: BuildUrlAction | BuildActionWithoutUrl) => string)>}
  */
 const optionalTransforms = new Map([
     ['hyphenated', (value) => value.split(' ').join('-')],
@@ -133,7 +134,7 @@ function processPathname(pathname, action, userData) {
  * allowing the function to replace them with corresponding data from `userData` after applying any specified transformations.
  *
  * @param {string} input
- * @param {BuildUrlAction} action
+ * @param {BuildUrlAction | BuildActionWithoutUrl} action
  * @param {Record<string, string|number>} userData
  */
 export function processTemplateStringWithUserData(input, action, userData) {
@@ -153,7 +154,7 @@ export function processTemplateStringWithUserData(input, action, userData) {
  * @param {string} dataKey
  * @param {string|number} value
  * @param {string[]} transformNames
- * @param {BuildUrlAction} action
+ * @param {BuildUrlAction | BuildActionWithoutUrl} action
  */
 function applyTransforms(dataKey, value, transformNames, action) {
     const subject = String(value || '');

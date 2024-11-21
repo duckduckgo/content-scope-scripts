@@ -27,7 +27,7 @@
     const String$1 = globalThis.String;
     const Map$1 = globalThis.Map;
     const Error$1 = globalThis.Error;
-    const randomUUID = globalThis.crypto?.randomUUID.bind(globalThis.crypto);
+    const randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
 
     var capturedGlobals = /*#__PURE__*/Object.freeze({
         __proto__: null,
@@ -7160,6 +7160,7 @@
 
     /**
      * @typedef {{url: string} & Record<string, any>} BuildUrlAction
+     * @typedef {Record<string, any>} BuildActionWithoutUrl
      * @typedef {Record<string, string|number>} UserData
      */
 
@@ -7206,7 +7207,7 @@
      * Example, `/a/b/${name|capitalize}` -> applies the `capitalize` transform
      * to the name field
      *
-     * @type {Map<string, ((value: string, argument: string|undefined, action: BuildUrlAction) => string)>}
+     * @type {Map<string, ((value: string, argument: string|undefined, action: BuildUrlAction | BuildActionWithoutUrl) => string)>}
      */
     const optionalTransforms = new Map([
         ['hyphenated', (value) => value.split(' ').join('-')],
@@ -7291,7 +7292,7 @@
      * allowing the function to replace them with corresponding data from `userData` after applying any specified transformations.
      *
      * @param {string} input
-     * @param {BuildUrlAction} action
+     * @param {BuildUrlAction | BuildActionWithoutUrl} action
      * @param {Record<string, string|number>} userData
      */
     function processTemplateStringWithUserData(input, action, userData) {
@@ -7311,7 +7312,7 @@
      * @param {string} dataKey
      * @param {string|number} value
      * @param {string[]} transformNames
-     * @param {BuildUrlAction} action
+     * @param {BuildUrlAction | BuildActionWithoutUrl} action
      */
     function applyTransforms(dataKey, value, transformNames, action) {
         const subject = String(value || '');
@@ -7366,6 +7367,7 @@
          * @param {string} params.actionID
          * @param {string} params.actionType
          * @param {any} params.response
+         * @param {import("./actions/extract").Action[]} [params.next]
          * @param {Record<string, any>} [params.meta] - optional meta data
          */
         constructor(params) {
@@ -11463,9 +11465,44 @@
      * @return {import('../types.js').ActionResponse}
      */
     function click(action, userData, root = document) {
+        /** @type {Array<any> | null} */
+        let elements = [];
+
+        if (action.choices?.length) {
+            const choices = evaluateChoices(action, userData);
+
+            // If we returned null, the intention is to skip execution, so return success
+            if (choices === null) {
+                return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
+            } else if ('error' in choices) {
+                return new ErrorResponse({ actionID: action.id, message: `Unable to evaluate choices: ${choices.error}` });
+            } else if (!('elements' in choices)) {
+                return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' });
+            }
+
+            elements = choices.elements;
+        } else {
+            if (!('elements' in action)) {
+                return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' });
+            }
+
+            elements = action.elements;
+        }
+
+        if (!elements || !elements.length) {
+            return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' });
+        }
+
         // there can be multiple elements provided by the action
-        for (const element of action.elements) {
-            const rootElement = selectRootElement(element, userData, root);
+        for (const element of elements) {
+            let rootElement;
+
+            try {
+                rootElement = selectRootElement(element, userData, root);
+            } catch (error) {
+                return new ErrorResponse({ actionID: action.id, message: `Could not find root element: ${error.message}` });
+            }
+
             const elements = getElements(rootElement, element.selector);
 
             if (!elements?.length) {
@@ -11520,12 +11557,120 @@
     }
 
     /**
+     * Evaluate a comparator and return the appropriate function
+     * @param {string} operator
+     * @returns {(a: any, b: any) => boolean}
+     */
+    function getComparisonFunction(operator) {
+        switch (operator) {
+            case '=':
+            case '==':
+            case '===':
+                return (a, b) => a === b;
+            case '!=':
+            case '!==':
+                return (a, b) => a !== b;
+            case '<':
+                return (a, b) => a < b;
+            case '<=':
+                return (a, b) => a <= b;
+            case '>':
+                return (a, b) => a > b;
+            case '>=':
+                return (a, b) => a >= b;
+            default:
+                throw new Error(`Invalid operator: ${operator}`);
+        }
+    }
+
+    /**
+     * Evaluates the defined choices (and/or the default) and returns an array of the elements to be clicked
+     *
      * @param {Record<string, any>} action
      * @param {Record<string, any>} userData
-     * @param {Document} root
-     * @return {Promise<import('../types.js').ActionResponse>}
+     * @returns {{ elements: [Record<string, any>] } | { error: String } | null}
      */
-    async function expectation(action, userData, root = document) {
+    function evaluateChoices(action, userData) {
+        if ('elements' in action) {
+            return { error: 'Elements should be nested inside of choices' };
+        }
+
+        for (const choice of action.choices) {
+            if (!('condition' in choice) || !('elements' in choice)) {
+                return { error: 'All choices must have a condition and elements' };
+            }
+
+            const comparison = runComparison(choice, action, userData);
+
+            if ('error' in comparison) {
+                return { error: comparison.error };
+            } else if ('result' in comparison && comparison.result === true) {
+                return { elements: choice.elements };
+            }
+        }
+
+        // If there's no default defined, return an error.
+        if (!('default' in action)) {
+            return { error: 'All conditions failed and no default action was provided' };
+        }
+
+        // If there is a default and it's null (meaning skip any further action) return success.
+        if (action.default === null) {
+            // Nothing else to do, return null
+            return null;
+        }
+
+        // If the default is defined and not null (without elements), return an error.
+        if (!('elements' in action.default)) {
+            return { error: 'Default action must have elements' };
+        }
+
+        return { elements: action.default.elements };
+    }
+
+    /**
+     * Attempts to turn a choice definition into an executable comparison and returns the result
+     *
+     * @param {Record<string, any>} choice
+     * @param {Record<string, any>} action
+     * @param {Record<string, any>} userData
+     * @returns {{ result: Boolean } | { error: String }}
+     */
+    function runComparison(choice, action, userData) {
+        let compare;
+        let left;
+        let right;
+
+        try {
+            compare = getComparisonFunction(choice.condition.operation);
+        } catch (error) {
+            return { error: `Unable to get comparison function: ${error.message}` };
+        }
+
+        try {
+            left = processTemplateStringWithUserData(choice.condition.left, action, userData);
+            right = processTemplateStringWithUserData(choice.condition.right, action, userData);
+        } catch (error) {
+            return { error: `Unable to resolve left/right comparison arguments: ${error.message}` };
+        }
+
+        let result;
+
+        try {
+            result = compare(left, right);
+        } catch (error) {
+            return { error: `Comparison failed with the following error: ${error.message}` };
+        }
+
+        return { result };
+    }
+
+    /**
+     * @param {Record<string, any>} action
+     * @param {Document} root
+     * @return {import('../types.js').ActionResponse}
+     */
+    function expectation(action, root = document) {
         const results = expectMany(action.expectations, root);
 
         // filter out good results + silent failures, leaving only fatal errors
@@ -11545,20 +11690,14 @@
 
         // only run later actions if every expectation was met
         const runActions = results.every((x) => x.result === true);
-        const secondaryErrors = [];
 
         if (action.actions?.length && runActions) {
-            for (const subAction of action.actions) {
-                const result = await execute(subAction, userData, root);
-
-                if ('error' in result) {
-                    secondaryErrors.push(result.error);
-                }
-            }
-
-            if (secondaryErrors.length > 0) {
-                return new ErrorResponse({ actionID: action.id, message: secondaryErrors.join(', ') });
-            }
+            return new SuccessResponse({
+                actionID: action.id,
+                actionType: action.actionType,
+                response: null,
+                next: action.actions,
+            });
         }
 
         return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
@@ -11705,7 +11844,7 @@
                 case 'click':
                     return click(action, data(action, inputData, 'userProfile'), root);
                 case 'expectation':
-                    return await expectation(action, data(action, inputData, 'userProfile'), root);
+                    return expectation(action, root);
                 case 'fillForm':
                     return fillForm(action, data(action, inputData, 'extractedProfile'), root);
                 case 'getCaptchaInfo':
@@ -11783,7 +11922,6 @@
     /**
      * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
      */
-
     class BrokerProtection extends ContentFeature {
         init() {
             this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
@@ -11795,46 +11933,100 @@
                         return this.messaging.notify('actionError', { error: 'No action found.' });
                     }
 
-                    /**
-                     * Note: We're not currently guarding against concurrent actions here
-                     * since the native side contains the scheduling logic to prevent it.
-                     */
-                    let retryConfig = action.retry?.environment === 'web' ? action.retry : undefined;
+                    const { results, exceptions } = await this.exec(action, data);
 
-                    /**
-                     * Special case for the exact action
-                     */
-                    if (!retryConfig && action.actionType === 'extract') {
-                        retryConfig = {
-                            interval: { ms: 1000 },
-                            maxAttempts: 30,
-                        };
-                    }
+                    if (results) {
+                        // there might only be a single result.
+                        const parent = results[0];
+                        const errors = results.filter((x) => 'error' in x);
 
-                    /**
-                     * Special case for when expectation contains a check for an element, retry it
-                     */
-                    if (!retryConfig && action.actionType === 'expectation') {
-                        if (action.expectations.some((x) => x.type === 'element')) {
-                            retryConfig = {
-                                interval: { ms: 1000 },
-                                maxAttempts: 30,
-                            };
+                        // if there are no secondary actions, or just no errors in general, just report the parent action
+                        if (results.length === 1 || errors.length === 0) {
+                            return this.messaging.notify('actionCompleted', { result: parent });
                         }
-                    }
 
-                    const { result, exceptions } = await retry(() => execute(action, data), retryConfig);
+                        // here we must have secondary actions that failed.
+                        // so we want to create an error response with the parent ID, but with the errors messages from
+                        // the children
+                        const joinedErrors = errors.map((x) => x.error.message).join(', ');
+                        const response = new ErrorResponse({
+                            actionID: action.id,
+                            message: 'Secondary actions failed: ' + joinedErrors,
+                        });
 
-                    if (result) {
-                        this.messaging.notify('actionCompleted', { result });
+                        return this.messaging.notify('actionCompleted', { result: response });
                     } else {
-                        this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') });
+                        return this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') });
                     }
                 } catch (e) {
                     console.log('unhandled exception: ', e);
                     this.messaging.notify('actionError', { error: e.toString() });
                 }
             });
+        }
+
+        /**
+         * Recursively execute actions with the same dataset, collecting all results/exceptions for
+         * later analysis
+         * @param {any} action
+         * @param {Record<string, any>} data
+         * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
+         */
+        async exec(action, data) {
+            const retryConfig = this.retryConfigFor(action);
+            const { result, exceptions } = await retry(() => execute(action, data), retryConfig);
+
+            if (result) {
+                if ('success' in result && Array.isArray(result.success.next)) {
+                    const nextResults = [];
+                    const nextExceptions = [];
+
+                    for (const nextAction of result.success.next) {
+                        const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data);
+
+                        nextResults.push(...subResults);
+                        nextExceptions.push(...subExceptions);
+                    }
+                    return { results: [result, ...nextResults], exceptions: exceptions.concat(nextExceptions) };
+                }
+                return { results: [result], exceptions: [] };
+            }
+            return { results: [], exceptions };
+        }
+
+        /**
+         * Define default retry configurations for certain actions
+         *
+         * @param {any} action
+         * @returns
+         */
+        retryConfigFor(action) {
+            /**
+             * Note: We're not currently guarding against concurrent actions here
+             * since the native side contains the scheduling logic to prevent it.
+             */
+            const retryConfig = action.retry?.environment === 'web' ? action.retry : undefined;
+            /**
+             * Special case for the exact action
+             */
+            if (!retryConfig && action.actionType === 'extract') {
+                return {
+                    interval: { ms: 1000 },
+                    maxAttempts: 30,
+                };
+            }
+            /**
+             * Special case for when expectation contains a check for an element, retry it
+             */
+            if (!retryConfig && action.actionType === 'expectation') {
+                if (action.expectations.some((x) => x.type === 'element')) {
+                    return {
+                        interval: { ms: 1000 },
+                        maxAttempts: 30,
+                    };
+                }
+            }
+            return retryConfig;
         }
     }
 

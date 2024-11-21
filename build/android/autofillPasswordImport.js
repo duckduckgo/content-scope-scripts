@@ -16,7 +16,7 @@
     globalThis.dispatchEvent?.bind(globalThis);
     globalThis.addEventListener?.bind(globalThis);
     globalThis.removeEventListener?.bind(globalThis);
-    globalThis.crypto?.randomUUID.bind(globalThis.crypto);
+    globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
 
     /* eslint-disable no-redeclare, no-global-assign */
     /* global cloneInto, exportFunction, false */

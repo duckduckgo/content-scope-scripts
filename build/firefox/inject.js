@@ -27,7 +27,7 @@
     const String$1 = globalThis.String;
     const Map$1 = globalThis.Map;
     const Error$2 = globalThis.Error;
-    const randomUUID = globalThis.crypto?.randomUUID.bind(globalThis.crypto);
+    const randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
 
     var capturedGlobals = /*#__PURE__*/Object.freeze({
         __proto__: null,

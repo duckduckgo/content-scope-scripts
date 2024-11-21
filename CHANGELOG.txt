@@ -1,3 +1,2 @@
-- adding debugging+performance helpers (#1247)
-- ntp: send source index in move action (#1250)
-- messaging: windows special pages (#1216)
+- fix: randomUUID is absent in none-secure contexts (#1254)
+- Support Conditional Clicking in Broker Protection (#1141)
