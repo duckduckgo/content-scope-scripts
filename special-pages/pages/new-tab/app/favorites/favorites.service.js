@@ -83,9 +83,10 @@ export class FavoritesService {
      * @param {FavoritesData} data
      * @param {string} id - entity id to move
      * @param {number} targetIndex - target index
+     * @param {number} fromIndex - from index
      * @internal
      */
-    setFavoritesOrder(data, id, targetIndex) {
+    setFavoritesOrder(data, id, fromIndex, targetIndex) {
         // update in memory instantly - this will broadcast changes to all listeners
 
         this.dataService.update((_old) => {
@@ -96,6 +97,7 @@ export class FavoritesService {
         this.ntp.messaging.notify('favorites_move', {
             id,
             targetIndex,
+            fromIndex,
         });
     }
 

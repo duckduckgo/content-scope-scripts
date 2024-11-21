@@ -24,7 +24,7 @@ const InstanceIdContext = createContext(getInstanceId());
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  * @param {T[]} props.items
- * @param {(list: T[], id: string, index: number) => void} props.itemsDidReOrder
+ * @param {import('./FavoritesProvider.js').ReorderFn<{id: string; url: string}>} props.itemsDidReOrder
  */
 export function PragmaticDND({ children, items, itemsDidReOrder }) {
     /**
@@ -43,7 +43,7 @@ export function PragmaticDND({ children, items, itemsDidReOrder }) {
 /**
  * @template {{id: string; url: string}} T
  * @param {T[]} favorites
- * @param {(items: T[], id: string, target: number) => void} itemsDidReOrder
+ * @param {import('./FavoritesProvider.js').ReorderFn<{id: string; url: string}>} itemsDidReOrder
  * @param {symbol} instanceId
  */
 function useGridState(favorites, itemsDidReOrder, instanceId) {
@@ -89,7 +89,7 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                         axis: 'horizontal',
                     });
 
-                    itemsDidReOrder(favorites, id, targetIndex);
+                    itemsDidReOrder(favorites, id, favorites.length, targetIndex);
                 },
             }),
             monitorForElements({
@@ -147,7 +147,7 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
 
                     flushSync(() => {
                         try {
-                            itemsDidReOrder(reorderedList, startId, targetIndex);
+                            itemsDidReOrder(reorderedList, startId, startIndex, targetIndex);
                         } catch (e) {
                             console.error('did catch', e);
                         }

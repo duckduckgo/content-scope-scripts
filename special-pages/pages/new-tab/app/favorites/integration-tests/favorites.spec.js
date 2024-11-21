@@ -78,7 +78,7 @@ test.describe('newtab favorites', () => {
         await ntp.reducedMotion();
         await ntp.openPage();
         const { id } = await favorites.drags({ index: 0, to: 2 });
-        await favorites.sent({ id, targetIndex: 2 });
+        await favorites.sent({ id, fromIndex: 0, targetIndex: 2 });
     });
     test('support drop on placeholders', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -93,7 +93,7 @@ test.describe('newtab favorites', () => {
         const PLACEHOLDER_INDEX = 4;
         const EXPECTED_TARGET_INDEX = 2;
         const { id } = await favorites.drags({ index: 0, to: PLACEHOLDER_INDEX });
-        await favorites.sent({ id, targetIndex: EXPECTED_TARGET_INDEX });
+        await favorites.sent({ id, fromIndex: 0, targetIndex: EXPECTED_TARGET_INDEX });
     });
     test('accepts external drag/drop', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);

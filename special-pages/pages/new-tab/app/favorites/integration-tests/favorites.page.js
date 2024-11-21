@@ -157,13 +157,13 @@ export class FavoritesPage {
         return { id };
     }
 
-    async sent({ id, targetIndex }) {
+    async sent({ id, fromIndex, targetIndex }) {
         const calls = await this.ntp.mocks.waitForCallCount({ method: 'favorites_move', count: 1 });
         expect(calls[0].payload).toStrictEqual({
             context: 'specialPages',
             featureName: 'newTabPage',
             method: 'favorites_move',
-            params: { id, targetIndex },
+            params: { id, fromIndex, targetIndex },
         });
     }
 
@@ -259,6 +259,7 @@ export class FavoritesPage {
             params: {
                 id: '3',
                 targetIndex: index,
+                fromIndex: 15, // this is the length of the list, and it gets dropped at the end in the test.
             },
         });
     }
