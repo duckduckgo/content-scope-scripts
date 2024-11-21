@@ -1,6 +1,7 @@
 import {
     mockAndroidMessaging,
     mockWebkitMessaging,
+    mockWindowsInteropMessaging,
     mockWindowsMessaging,
     readOutgoingMessages,
     simulateSubscriptionMessage,
@@ -40,7 +41,7 @@ export class Mocks {
     async installMessagingMocks() {
         await this.build.switch({
             windows: async () => {
-                await this.page.addInitScript(mockWindowsMessaging, {
+                await this.page.addInitScript(mockWindowsInteropMessaging, {
                     messagingContext: this.messagingContext,
                     responses: this._defaultResponses,
                     messageCallback: 'messageCallback',
