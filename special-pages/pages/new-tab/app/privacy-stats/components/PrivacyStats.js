@@ -91,8 +91,6 @@ export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
     const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0);
-    // const recentTitle =
-    //     recent === 1 ? t('stats_feedCountBlockedSingular') : t('stats_feedCountBlockedPlural', { count: formatter.format(recent) });
 
     const none = recent === 0;
     const some = recent > 0;
@@ -121,6 +119,7 @@ export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {
                 </span>
             )}
             {recent === 0 && <p className={styles.subtitle}>{t('stats_noActivity')}</p>}
+            {recent > 0 && <p className={styles.subtitle}>{t('stats_feedCountBlockedPeriod')}</p>}
         </div>
     );
 }
@@ -152,7 +151,7 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
                     // prettier-ignore
                     const displayName = company.displayName
                     if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
-                        const otherText = t('trackerStatsOtherCount', { count: String(company.count) });
+                        const otherText = t('stats_otherCount', { count: String(company.count) });
                         return (
                             <li key={company.displayName}>
                                 <div class={styles.textRow}>{otherText}</div>

@@ -1,6 +1,6 @@
 {
   "stats_menuTitle": {
-    "title": "Privacy Stats",
+    "title": "Blocked Tracking Attempts",
     "note": "Used as a toggle label in a page customization menu"
   },
   "stats_noActivity": {
@@ -23,8 +23,12 @@
     "title": "1 attempt blocked by DuckDuckGo in the last 24 hours",
     "note": "A summary description of how many tracking attempts where blocked, when only one exists."
   },
+  "stats_feedCountBlockedPeriod": {
+    "title": "in the last 7 days",
+    "note": "A summary description of how many tracking attempts where blocked, when only one exists."
+  },
   "stats_feedCountBlockedPlural": {
-    "title": "{count} attempts blocked by DuckDuckGo in the last 24 hours",
+    "title": "{count} tracking attempts blocked",
     "note": "A summary description of how many tracking attempts where blocked, when there was more than 1. Eg: '1,028 attempts blocked by DuckDuckGo in the last 24 hours'"
   },
   "stats_toggleLabel": {
@@ -38,5 +42,9 @@
   "stats_otherCompanyName": {
     "title": "Other",
     "note": "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
+  },
+  "stats_otherCount": {
+    "title": "{count} attempts from other networks",
+    "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
   }
 }
