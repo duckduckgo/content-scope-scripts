@@ -1,4 +1,5 @@
 import 'preact/devtools';
+import { render, Fragment, h } from 'preact';
 /**
  * New Tab Page
  *
@@ -75,8 +76,41 @@ const rawMessaging = createSpecialPageMessaging({
 const { messaging, telemetry } = install(rawMessaging);
 const newTabMessaging = new NewTabPage(messaging, import.meta.injectName);
 
-init(newTabMessaging, telemetry, baseEnvironment).catch((e) => {
+/**
+ * Grab the root element from the index.html file - bail early if it's absent
+ */
+const root = document.querySelector('#app');
+if (!root) {
+    document.documentElement.dataset.fatalError = 'true';
+    render('Fatal: #app missing', document.body);
+    throw new Error('Missing #app');
+}
+
+init(root, newTabMessaging, telemetry, baseEnvironment).catch((e) => {
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
     newTabMessaging.reportInitException(msg);
+    document.documentElement.dataset.fatalError = 'true';
+    const element = (
+        <Fragment>
+            <div style="padding: 1rem;">
+                <p>
+                    <strong>A fatal error occurred:</strong>
+                </p>
+                <br />
+                <pre style={{ whiteSpace: 'prewrap', overflow: 'auto' }}>
+                    <code>{JSON.stringify({ message: e.message }, null, 2)}</code>
+                </pre>
+                <br />
+                <p>
+                    <strong>Telemetry</strong>
+                </p>
+                <br />
+                <pre style={{ whiteSpace: 'prewrap', overflow: 'auto', fontSize: '.8em' }}>
+                    <code>{JSON.stringify(telemetry.eventStore, null, 2)}</code>
+                </pre>
+            </div>
+        </Fragment>
+    );
+    render(element, document.body);
 });

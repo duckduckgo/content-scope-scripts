@@ -8,6 +8,7 @@ import { Placeholder, PlusIconMemo, TileMemo } from './Tile.js';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useTypedTranslation } from '../../types.js';
 import { usePlatformName } from '../../settings.provider.js';
+import { useDropzoneSafeArea } from '../../dropzone.js';
 
 /**
  * @typedef {import('../../../../../types/new-tab.js').Expansion} Expansion
@@ -31,6 +32,7 @@ export const FavoritesMemo = memo(Favorites);
 export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add }) {
     const platformName = usePlatformName();
     const { t } = useTypedTranslation();
+    const safeArea = useDropzoneSafeArea();
 
     const ROW_CAPACITY = 6;
 
@@ -109,7 +111,7 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
 
     return (
         <div class={cn(styles.root, !canToggleExpansion && styles.bottomSpace)} data-testid="FavoritesConfigured">
-            <div class={styles.grid} id={WIDGET_ID} ref={gridRef} onContextMenu={onContextMenu} onClick={onClick}>
+            <div class={styles.grid} id={WIDGET_ID} ref={safeArea} onContextMenu={onContextMenu} onClick={onClick}>
                 {items.slice(0, expansion === 'expanded' ? undefined : ROW_CAPACITY)}
             </div>
             {canToggleExpansion && (
