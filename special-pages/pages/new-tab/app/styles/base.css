@@ -26,6 +26,11 @@ body {
     -webkit-user-select: none;
     cursor: default;
 }
+/** Allow debugging error messages to be selected for debugging **/
+:root[data-fatal-error] body {
+    user-select: auto;
+    -webkit-user-select: auto;
+}
 img, picture, video, canvas, svg {
     display: block;
     max-width: 100%;

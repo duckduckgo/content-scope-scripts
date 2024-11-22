@@ -133,12 +133,15 @@ for (const buildJob of buildJobs) {
     if (DEBUG) console.log('\t- import.meta.env: ', NODE_ENV);
     if (DEBUG) console.log('\t- import.meta.injectName: ', buildJob.injectName);
     if (!DRY_RUN) {
-        buildSync({
+        const output = buildSync({
             entryPoints: buildJob.entryPoints,
             outdir: buildJob.outputDir,
             bundle: true,
-            format: 'iife',
+            // metafile: true,
+            // minify: true,
+            // splitting: true,
             // external: ['../assets/img/*'],
+            format: 'esm',
             sourcemap: NODE_ENV === 'development',
             loader: {
                 '.js': 'jsx',
@@ -156,6 +159,10 @@ for (const buildJob of buildJobs) {
             },
             dropLabels: buildJob.injectName === 'integration' ? [] : ['$INTEGRATION'],
         });
+        if (output.metafile) {
+            const meta = JSON.stringify(output.metafile, null, 2);
+            writeFileSync(join(buildJob.outputDir, 'metafile.json'), meta);
+        }
     }
 }
 for (const inlineJob of inlineJobs) {
