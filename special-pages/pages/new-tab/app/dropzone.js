@@ -57,6 +57,7 @@ export function useGlobalDropzone() {
                 // At the moment, this is not supported in the Playwright tests :(
                 // So we allow the integration build to check first
                 let preventDrop = true;
+                // eslint-disable-next-line no-labels,no-unused-labels
                 $INTEGRATION: (() => {
                     if (window.__playwright_01) {
                         preventDrop = false;
