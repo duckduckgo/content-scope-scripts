@@ -1,0 +1,42 @@
+{
+  "stats_menuTitle": {
+    "title": "Privacy Stats",
+    "note": "Used as a toggle label in a page customization menu"
+  },
+  "stats_noActivity": {
+    "title": "Tracking attempts blocked by DuckDuckGo appear here. Keep browsing to see how many we block.",
+    "note": "Placeholder for when we cannot report any blocked trackers yet"
+  },
+  "stats_noRecent": {
+    "title": "No recent tracking activity",
+    "note": "Placeholder to indicate that nothing was blocked in the last 24 hours"
+  },
+  "stats_countBlockedSingular": {
+    "title": "1 tracking attempt blocked",
+    "note": "The main headline indicating that 1 tracker was blocked"
+  },
+  "stats_countBlockedPlural": {
+    "title": "{count} tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "stats_feedCountBlockedSingular": {
+    "title": "1 attempt blocked by DuckDuckGo in the last 24 hours",
+    "note": "A summary description of how many tracking attempts where blocked, when only one exists."
+  },
+  "stats_feedCountBlockedPlural": {
+    "title": "{count} attempts blocked by DuckDuckGo in the last 24 hours",
+    "note": "A summary description of how many tracking attempts where blocked, when there was more than 1. Eg: '1,028 attempts blocked by DuckDuckGo in the last 24 hours'"
+  },
+  "stats_toggleLabel": {
+    "title": "Show recent activity",
+    "note": "The aria-label text for a toggle button that shows the detailed activity feed"
+  },
+  "stats_hideLabel": {
+    "title": "Hide recent activity",
+    "note": "The aria-label text for a toggle button that hides the detailed activity feed"
+  },
+  "stats_otherCompanyName": {
+    "title": "Other",
+    "note": "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
+  }
+}

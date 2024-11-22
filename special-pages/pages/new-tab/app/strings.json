@@ -1,0 +1,18 @@
+{
+  "ntp_show_less": {
+    "title": "Show less",
+    "note": "Text for the Expansion of a section on NTP"
+  },
+  "ntp_show_more": {
+    "title": "Show more",
+    "note": "Text for the Expansion of a section on NTP"
+  },
+  "ntp_dismiss": {
+    "title": "Dismiss",
+    "note": "Text for all dismiss buttons on NTP"
+  },
+  "widgets_visibility_menu_title": {
+    "title": "Customize New Tab Page",
+    "note": "Heading text describing that there's a list of toggles for customizing the page layout."
+  }
+}

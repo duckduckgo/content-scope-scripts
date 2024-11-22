@@ -6,7 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "prebuild": "node types.mjs",
+    "prebuild": "node types.mjs && node translations.mjs",
     "build": "node index.mjs",
     "build.dev": "npm run build -- --env development",
     "test-unit": "node --test unit-test/translations.mjs pages/duckplayer/unit-tests/embed-settings.mjs",
@@ -20,7 +20,7 @@
     "test.headed": "npm run test-int -- --headed",
     "test.ui": "npm run test-int -- --ui",
     "serve": "http-server -c-1 --port 3210 ../build/integration/pages",
-    "watch": "chokidar pages shared --initial -c 'npm run build.dev'"
+    "watch": "chokidar pages shared --initial -c 'npm run build.dev' --ignore 'pages/**/locales'"
   },
   "license": "ISC",
   "devDependencies": {

@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useContext } from 'preact/hooks';
 
-import { useTelemetry, useTypedTranslation } from '../../types.js';
+import { useTelemetry, useTypedTranslation, useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useCustomizer } from '../../customizer/components/Customizer.js';
 
@@ -38,7 +38,7 @@ export function FavoritesConsumer() {
  * Render the favorites widget, with integration into the page customizer
  */
 export function FavoritesCustomized() {
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
     const { id, visibility, toggle, index } = useVisibility();
 
     // register with the visibility menu

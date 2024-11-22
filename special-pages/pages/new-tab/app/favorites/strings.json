@@ -1,0 +1,14 @@
+{
+  "favorites_show_less": {
+    "title": "Show less",
+    "note": ""
+  },
+  "favorites_show_more": {
+    "title": "Show more ({count} remaining)",
+    "note": ""
+  },
+  "favorites_menu_title": {
+    "title": "Favorites",
+    "note": "Used as a toggle label in a page customization menu"
+  }
+}
