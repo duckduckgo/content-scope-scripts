@@ -52,22 +52,8 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
             monitorForExternal({
                 onDrop(payload) {
                     // const data = '<meta name="application/vnd.duckduckgo.bookmark-by-id" content="3" />';
-                    const data = payload.source.getStringData(DDG_MIME_TYPE) || getHTML(payload);
-                    if (!data) return console.warn(`missing text/html payload + missing ${DDG_MIME_TYPE} mime type`);
-
-                    // Create a document fragment using the safer createContextualFragment
-                    const fragment = document.createRange().createContextualFragment(data);
-
-                    // Get the first element
-                    const node = fragment.firstElementChild;
-                    if (!node) return console.warn('missing first element');
-
-                    // check the name attribute
-                    if (node.getAttribute('name') !== DDG_MIME_TYPE) return console.warn(`attribute name was not ${DDG_MIME_TYPE}`);
-
-                    // check the id
-                    const id = node.getAttribute('content');
-                    if (!id) return console.warn('id missing from `content` attribute');
+                    const id = idFromPayload(payload);
+                    if (!id) return;
 
                     const location = payload.location;
                     const target = location.current.dropTargets[0];
@@ -289,4 +275,34 @@ export function useItemState(url, id) {
 
 function getInstanceId() {
     return Symbol('instance-id');
+}
+
+/**
+ * @import {ContainsSource} from "@atlaskit/pragmatic-drag-and-drop/dist/types/public-utils/external/native-types.js"
+ * @param {ContainsSource} payload
+ */
+function idFromPayload(payload) {
+    // return the external DDG type first
+    const ddg = payload.source.getStringData(DDG_MIME_TYPE);
+    if (ddg && ddg.length > 0) return ddg;
+
+    // now try and parse the HTML, which might be `<meta name="application/vnd.duckduckgo.bookmark-by-id" content="3" />`
+    const html = getHTML(payload);
+    if (!html) return console.warn(`missing text/html payload + missing ${DDG_MIME_TYPE} mime type`);
+
+    // Create a document fragment using the safer createContextualFragment
+    const fragment = document.createRange().createContextualFragment(html);
+
+    // Get the first element
+    const node = fragment.firstElementChild;
+    if (!node) return console.warn('missing first element');
+
+    // check the name attribute
+    if (node.getAttribute('name') !== DDG_MIME_TYPE) return console.warn(`attribute name was not ${DDG_MIME_TYPE}`);
+
+    // check the id
+    const id = node.getAttribute('content');
+    if (!id) return console.warn('id missing from `content` attribute');
+
+    return id;
 }
