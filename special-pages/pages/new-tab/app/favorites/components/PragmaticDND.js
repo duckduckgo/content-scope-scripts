@@ -52,8 +52,8 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
             monitorForExternal({
                 onDrop(payload) {
                     // const data = '<meta name="application/vnd.duckduckgo.bookmark-by-id" content="3" />';
-                    const data = getHTML(payload);
-                    if (!data) return console.warn('missing text/html payload');
+                    const data = getHTML(payload) || payload.source.getStringData(DDG_MIME_TYPE);
+                    if (!data) return console.warn(`missing text/html payload + missing ${DDG_MIME_TYPE} mime type`);
 
                     // Create a document fragment using the safer createContextualFragment
                     const fragment = document.createRange().createContextualFragment(data);
