@@ -141,7 +141,7 @@ for (const buildJob of buildJobs) {
             // minify: true,
             // splitting: true,
             // external: ['../assets/img/*'],
-            format: 'esm',
+            format: 'iife',
             sourcemap: NODE_ENV === 'development',
             loader: {
                 '.js': 'jsx',
