@@ -89,6 +89,9 @@ export function fillMany(root, elements, data) {
             }
             results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
         } else {
+            if (typeOptional(element)) {
+                continue;
+            }
             if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
                 results.push({
                     result: false,
@@ -108,6 +111,20 @@ export function fillMany(root, elements, data) {
     }
 
     return results;
+}
+
+/**
+ * Checks if the element is required and does not exist in the data (or allows exceptions for optional fields)
+ *
+ * @param {{selector: string; type: string; min?: string; max?: string;}} element
+ * @returns Boolean
+ */
+function typeOptional(element) {
+    if (element.type === 'middleName') {
+        return true;
+    }
+
+    return false;
 }
 
 /**
