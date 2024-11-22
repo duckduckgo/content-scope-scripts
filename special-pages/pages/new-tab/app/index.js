@@ -170,7 +170,8 @@ async function resolveEntryPoints(widgets, didCatch) {
  * @param {Record<string, any>} strings
  */
 function renderComponents(root, environment, settings, strings) {
-    render(
+    // eslint-disable-next-line no-labels,no-unused-labels
+    $INTEGRATION: render(
         <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
             <SettingsProvider settings={settings}>
                 <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
