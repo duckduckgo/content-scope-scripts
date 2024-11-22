@@ -54,10 +54,21 @@ export function useGlobalDropzone() {
                     }
                 }
 
-                // if we get here, we're stopping a drag/drop from being allowed
-                event.preventDefault();
-                if (event.dataTransfer) {
-                    event.dataTransfer.dropEffect = 'none';
+                // At the moment, this is not supported in the Playwright tests :(
+                // So we allow the integration build to check first
+                let preventDrop = true;
+                $INTEGRATION: (() => {
+                    if (window.__playwright_01) {
+                        preventDrop = false;
+                    }
+                })();
+
+                if (preventDrop) {
+                    // if we get here, we're stopping a drag/drop from being allowed
+                    event.preventDefault();
+                    if (event.dataTransfer) {
+                        event.dataTransfer.dropEffect = 'none';
+                    }
                 }
             },
             { signal: controller.signal },
