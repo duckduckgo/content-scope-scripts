@@ -4,7 +4,7 @@ import { FavoritesCustomized } from '../favorites/components/FavoritesCustomized
 
 export function factory() {
     return (
-        <Centered>
+        <Centered data-entry-point="favorites">
             <FavoritesCustomized />
         </Centered>
     );
