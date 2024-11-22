@@ -18,7 +18,7 @@ const base = {
 };
 
 if (isLaunchFile(import.meta.url)) {
-    for (let path of paths) {
+    for (const path of paths) {
         await processPage(path);
     }
 }
@@ -43,7 +43,7 @@ async function processPage(path) {
             };
         });
 
-    for (let rawEntry of rawEntries) {
+    for (const rawEntry of rawEntries) {
         console.log(`✅ adding ${rawEntry.path} to ${targetName}.json`);
     }
 

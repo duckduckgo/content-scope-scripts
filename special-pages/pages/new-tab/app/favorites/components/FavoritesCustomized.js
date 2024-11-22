@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useContext } from 'preact/hooks';
 
-import { useTelemetry, useTypedTranslation, useTypedTranslationWith } from '../../types.js';
+import { useTelemetry, useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useCustomizer } from '../../customizer/components/Customizer.js';
 
