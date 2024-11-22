@@ -52,7 +52,7 @@ test.describe('newtab NextSteps cards', () => {
         await expect(page.getByRole('button', { name: 'Try DuckPlayer' })).not.toBeVisible();
 
         // expand the section
-        await page.getByLabel('Show more', { exact: true }).click();
+        await page.getByLabel('Show More', { exact: true }).click();
 
         await expect(page.locator('p').filter({ hasText: 'Block Cookie Pop-ups' })).toBeVisible();
         await page.getByRole('button', { name: 'Try DuckPlayer' }).click();

@@ -1,10 +1,10 @@
 {
   "ntp_show_less": {
-    "title": "Show less",
+    "title": "Show Less",
     "note": "Text for the Expansion of a section on NTP"
   },
   "ntp_show_more": {
-    "title": "Show more",
+    "title": "Show More",
     "note": "Text for the Expansion of a section on NTP"
   },
   "ntp_dismiss": {

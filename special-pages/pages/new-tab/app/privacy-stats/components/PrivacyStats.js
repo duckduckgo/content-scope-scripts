@@ -173,8 +173,8 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
                     );
                 })}
             </ul>
-            {hasmore && visible < sorted.length && <button onClick={() => setVisible(sorted.length)}>Show more</button>}
-            {visible > 5 && visible === sorted.length && <button onClick={() => setVisible(5)}>Show less</button>}
+            {hasmore && visible < sorted.length && <button onClick={() => setVisible(sorted.length)}>{t('ntp_show_more')}</button>}
+            {visible > 5 && visible === sorted.length && <button onClick={() => setVisible(5)}>{t('ntp_show_less')}</button>}
         </Fragment>
     );
 }
