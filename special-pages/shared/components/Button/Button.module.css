@@ -4,6 +4,7 @@
     color: var(--button-text);
     cursor: pointer;
     text-wrap: nowrap;
+    position: relative;
 }
 
 /* macOS Base Style */
@@ -107,7 +108,6 @@ body:not([data-platform-name]) {
 
 /* macOS Variables */
 [data-platform-name="macos"] .button {
-
     &.standard {
         --button-bg: var(--macos-control-standard-background-rest);
         --button-text: var(--macos-text-primary);
@@ -226,8 +226,6 @@ body:not([data-platform-name]) {
     .button {
         border-radius: var(--border-radius-sm);
         height: var(--sp-8);
-        position: relative;
-        text-wrap: nowrap;
         border-width: 0;
         padding-inline: var(--sp-3);
 
@@ -314,17 +312,3 @@ body:not([data-platform-name]) {
         }
     }
 }}
-
-/* Windows Variables (partial) */
-[data-platform-name="windows"] .button {
-    .standard {
-
-    }
-
-    .accent {
-
-    }
-
-    @media (prefers-color-scheme: dark) {
-    }
-}
