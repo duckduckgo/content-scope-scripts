@@ -53,7 +53,7 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
                                     </Button>
                                 )}
                                 {primaryAction && message.primaryActionText.length > 0 && (
-                                    <Button variant={'accent'} onClick={() => primaryAction(id)}>
+                                    <Button variant={'accentBrand'} onClick={() => primaryAction(id)}>
                                         {message.primaryActionText}
                                     </Button>
                                 )}

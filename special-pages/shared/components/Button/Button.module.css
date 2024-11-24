@@ -130,7 +130,8 @@ body:not([data-platform-name]) {
         /* TODO: No difference on hover according to Figma(?) */
     }
 
-    &.accent {
+    &.accent, 
+    &.accentBrand {
         --button-bg: var(--macos-control-accent-branded-background-rest);
         --button-text: var(--color-white);
         --button-shadow: var(--macos-control-accent-shadow);
