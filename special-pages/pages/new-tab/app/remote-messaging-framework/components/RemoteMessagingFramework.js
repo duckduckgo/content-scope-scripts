@@ -35,7 +35,7 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
                         {platform === 'windows' ? (
                             <Fragment>
                                 {primaryAction && message.primaryActionText.length > 0 && (
-                                    <Button variant={'accentBranded'} onClick={() => primaryAction(id)}>
+                                    <Button variant={'accentBrand'} onClick={() => primaryAction(id)}>
                                         {message.primaryActionText}
                                     </Button>
                                 )}
