@@ -1,14 +1,14 @@
 {
   "favorites_show_less": {
     "title": "Show less",
-    "note": ""
+    "note": "Button label to display fewer items"
   },
   "favorites_show_more": {
     "title": "Show more ({count} remaining)",
-    "note": ""
+    "note": "Button text to show hidden items. {count} will be replaced with the number of remaining favorite items to show, including the parentheses. Example: 'Show more (18 remaining)'"
   },
   "favorites_menu_title": {
     "title": "Favorites",
-    "note": "Used as a toggle label in a page customization menu"
+    "note": "Used as a label in a customization menu"
   }
 }

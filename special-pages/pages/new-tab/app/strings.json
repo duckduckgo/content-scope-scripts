@@ -1,15 +1,15 @@
 {
   "ntp_show_less": {
     "title": "Show Less",
-    "note": "Text for the Expansion of a section on NTP"
+    "note": "Button that reduces the number of items or content displayed."
   },
   "ntp_show_more": {
     "title": "Show More",
-    "note": "Text for the Expansion of a section on NTP"
+    "note": "Button that increases the number of items or content displayed."
   },
   "ntp_dismiss": {
     "title": "Dismiss",
-    "note": "Text for all dismiss buttons on NTP"
+    "note": "Button that closes or hides the current popup or notification."
   },
   "widgets_visibility_menu_title": {
     "title": "Customize New Tab Page",

@@ -1,11 +1,11 @@
 {
   "updateNotification_updated_version": {
     "title": "Browser Updated to version {version}.",
-    "note": "Text to indicate which new version was updated. `version` will be formatted like `1.22.0`"
+    "note": "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
   },
   "updateNotification_whats_new": {
     "title": "See <a>what's new</a> in this release.",
-    "note": "The `<a>` tag represents a toggle"
+    "note": "The `<a>` tag represents a clickable link, please preserve it."
   },
   "updateNotification_dismiss_btn": {
     "title": "Dismiss",
