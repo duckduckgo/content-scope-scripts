@@ -31,17 +31,18 @@
 
 .content {
     flex-grow: 1;
-    font-size: calc(14 * var(--px-in-rem));
 }
 
 .title {
+    font-size: var(--body-font-size);
     font-weight: var(--title-2-font-weight);
     line-height: normal;
     margin-bottom: var(--sp-1);
 }
 
 .description {
-    line-height: 1.25rem;
+    font-size: var(--body-font-size);
+    line-height: var(--body-line-height);
 }
 
 .btnBlock {

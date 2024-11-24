@@ -28,7 +28,7 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
                 </span>
             )}
             <div class={styles.content}>
-                <p class={styles.title}>{titleText}</p>
+                <h2 class={styles.title}>{titleText}</h2>
                 <p class={styles.description}>{descriptionText}</p>
                 {messageType === 'big_two_action' && (
                     <div class={styles.btnRow}>
