@@ -9,7 +9,7 @@ import { init } from '../../app/index.js';
 import { createTypedMessages } from '@duckduckgo/messaging';
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging';
 import { Environment } from '../../../../shared/environment.js';
-import { mockTransport } from './mock-transport.js';
+import { mockTransport } from '../../app/mock-transport.js';
 import { install } from '../../app/telemetry/telemetry.js';
 
 export class NewTabPage {

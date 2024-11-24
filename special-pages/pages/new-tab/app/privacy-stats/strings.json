@@ -4,7 +4,7 @@
     "note": "Used as a label in a customization menu"
   },
   "stats_noActivity": {
-    "title": "Tracking attempts blocked by DuckDuckGo appear here. Keep browsing to see how many we block.",
+    "title": "Blocked tracking attempts will appear here. Keep browsing to see how many we block.",
     "note": "Placeholder for when we cannot report any blocked trackers yet"
   },
   "stats_noRecent": {
