@@ -24,7 +24,7 @@
     "note": "A summary description of how many tracking attempts where blocked, when only one exists."
   },
   "stats_feedCountBlockedPeriod": {
-    "title": "In the last 7 days",
+    "title": "Past 7 days",
     "note": "A summary description of how many tracking attempts where blocked, when only one exists."
   },
   "stats_feedCountBlockedPlural": {
