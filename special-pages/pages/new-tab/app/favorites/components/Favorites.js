@@ -17,6 +17,11 @@ import { TileRow } from './TileRow.js';
  */
 export const FavoritesMemo = memo(Favorites);
 export const ROW_CAPACITY = 6;
+/**
+ * Note: These values MUST match exactly what's defined in the CSS.
+ */
+const ITEM_HEIGHT = 98;
+const ROW_GAP = 8;
 
 /**
  * Favorites Grid.
@@ -38,8 +43,6 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     const TOGGLE_ID = useId();
 
     const hiddenCount = expansion === 'collapsed' ? favorites.length - ROW_CAPACITY : 0;
-    const ITEM_HEIGHT = 98;
-    const ROW_GAP = 8;
     const rowHeight = ITEM_HEIGHT + ROW_GAP;
     const canToggleExpansion = favorites.length >= ROW_CAPACITY;
 
@@ -80,7 +83,10 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
 }
 
 /**
- * Favorites Grid.
+ * Favorites Grid. This will take a list of Favorites, split it into chunks (rows)
+ * and then layout the rows based on an offset from the top of the container.
+ *
+ * Doing this means we can just render the items in the current viewport
  *
  * @param {object} props
  * @param {string} props.WIDGET_ID
@@ -92,6 +98,9 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
  * @param {() => void} props.add
  */
 function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openFavorite, openContextMenu, add }) {
+    const platformName = usePlatformName();
+
+    // convert the list of favorites into chunks of length ROW_CAPACITY
     const rows = useMemo(() => {
         const chunked = [];
         let inner = [];
@@ -109,17 +118,26 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         return chunked;
     }, [favorites]);
 
-    const platformName = usePlatformName();
+    // get a ref for the favorites' grid, this will allow it to receive drop events,
+    // and the ref can also be used for reading the offset (eg: if other elements are above it)
     const safeAreaRef = /** @type {import("preact").RefObject<HTMLDivElement>} */ (useDropzoneSafeArea());
-    const [{ start, end }, setSlice] = useState({ start: 0, end: 1 });
+
+    // set the start/end indexes of the elements
+    const [{ start, end }, setVisibleRange] = useState({ start: 0, end: 1 });
+
+    // hold a mutable value that we update on resize
     const gridOffset = useRef(0);
 
+    // When called, make the expensive call to `getBoundingClientRect` to determine the offset of
+    // the grid wrapper.
     function updateGlobals() {
-        if (!safeAreaRef.current) return console.warn('cannot access curren');
+        if (!safeAreaRef.current) return;
         const rec = safeAreaRef.current.getBoundingClientRect();
         gridOffset.current = rec.y + window.scrollY;
     }
 
+    // decide which the start/end indexes should be, based on scroll position.
+    // NOTE: this is called on scroll, so must not incur expensive checks/measurements - math only!
     function setVisibleRows() {
         if (!safeAreaRef.current) return console.warn('cannot access ref');
         if (!gridOffset.current) return console.warn('cannot access ref');
@@ -133,7 +151,7 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         }
         let start_index = Math.floor(start / rowHeight);
         let end_index = Math.min(Math.ceil(end / rowHeight), rows.length);
-        setSlice({ start: start_index, end: end_index });
+        setVisibleRange({ start: start_index, end: end_index });
     }
 
     useLayoutEffect(() => {
@@ -166,34 +184,38 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         };
     }, [rows.length]);
 
+    // now, we decide which items to show based on the widget expansion
     // prettier-ignore
     const subsetOfRowsToRender = expansion === 'collapsed'
-        // if it's collapsed, just 1 row to show (the first one)
+        // if it's 'collapsed', just 1 row to show (the first one)
         ? [rows[0]]
         // otherwise, select the window between start/end
-        // the extra '1' is the additional row to render offscreen - this helps
-        // with keyboard focus
+        // the '+ 1' is an additional row to render offscreen - which helps with keyboard navigation.
         : rows.slice(start, end + 1);
 
     //
-    const container_height = expansion === 'collapsed' ? rowHeight : rows.length * rowHeight;
+    const containerHeight = expansion === 'collapsed' ? rowHeight : rows.length * rowHeight;
+
+    // read a global property on <html> to determine if an element was recently dropped.
+    // this is used for animation (the pulse) - it's easier this way because the act of dropping
+    // a tile can cause it to render inside a different row, meaning the `key` is invalidated and so the dom-node is recreated
     const dropped = document.documentElement.dataset.dropped;
 
     return (
         <div
             className={styles.grid}
-            style={{ height: container_height + 'px' }}
+            style={{ height: containerHeight + 'px' }}
             id={WIDGET_ID}
             ref={safeAreaRef}
             onContextMenu={getContextMenuHandler(openContextMenu)}
             onClick={getOnClickHandler(openFavorite, platformName)}
         >
-            {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} top_offset={0} add={add} />}
+            {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} topOffset={0} add={add} />}
             {rows.length > 0 &&
                 subsetOfRowsToRender.map((items, index) => {
                     const top_offset = (start + index) * rowHeight;
                     const keyed = `-${start + index}-`;
-                    return <TileRow key={keyed} dropped={dropped} items={items} top_offset={top_offset} add={add} />;
+                    return <TileRow key={keyed} dropped={dropped} items={items} topOffset={top_offset} add={add} />;
                 })}
         </div>
     );

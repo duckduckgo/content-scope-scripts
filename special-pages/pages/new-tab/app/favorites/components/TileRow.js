@@ -7,15 +7,15 @@ import { ROW_CAPACITY } from './Favorites.js';
 /**
  * Represents a row of tiles with optional placeholders to fill empty spaces in the first  row.
  * @param {object} props - An object containing parameters for the TileRow_ function.
- * @param {number} props.top_offset - The top offset position of the row.
+ * @param {number} props.topOffset - The top offset position of the row.
  * @param {Array} props.items - An array of items to be displayed as tiles in the row.
  * @param {()=>void} props.add - A function to be called when a new item is added to the row.
  * @param {string} [props.dropped] - The ID of the item that has been dropped (if one exists)
  */
-function TileRow_({ top_offset, items, add, dropped }) {
+function TileRow_({ topOffset, items, add, dropped }) {
     const fillers = ROW_CAPACITY - items.length;
     return (
-        <ul className={styles.gridRow} style={{ top: top_offset + 'px' }}>
+        <ul className={styles.gridRow} style={{ top: topOffset + 'px' }}>
             {items.map((item, index) => {
                 return (
                     <Tile
