@@ -66,8 +66,8 @@
 .subtitle {
     grid-area: label;
     color: var(--ntp-text-muted);
-    line-height: 1;
     &.uppercase {
+        line-height: 1;
         text-transform: uppercase;
     }
 }
