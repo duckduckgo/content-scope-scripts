@@ -11,7 +11,7 @@
     color: var(--ntp-text-normal);
     height: var(--ntp-gap);
     width: 100%;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-sm);
 
     &.round {
         width: 2rem;
@@ -22,9 +22,15 @@
         }
     }
 
+    &.withText {
+        border: 1px solid var(--color-black-at-9);
+        svg {
+            margin-right: var(--sp-2);
+        }
+    }
+
     svg {
         transition: transform .3s;
-        margin-left: var(--sp-1);
     }
 
     &[aria-pressed=true] svg {
@@ -34,5 +40,11 @@
     &:focus-visible {
         opacity: 1;
         box-shadow: var(--focus-ring-thin);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        &.withText {
+            border-color: var(--color-white-at-9);
+        } 
     }
 }

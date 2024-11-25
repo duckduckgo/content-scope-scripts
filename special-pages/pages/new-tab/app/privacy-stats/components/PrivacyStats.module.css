@@ -6,12 +6,11 @@
     display: grid;
     align-items: start;
     grid-template-columns: auto;
-    grid-row-gap: calc(18 * var(--px-in-rem));
     width: 100%;
     margin-bottom: var(--ntp-gap);
 
     &:hover {
-        .sectionExpander * {
+        .listExpander * {
             opacity: 1;
         }
     }
@@ -43,6 +42,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-top: 2px;
 }
 
 .title {
@@ -52,7 +52,7 @@
     line-height: var(--title-2-line-height);
 }
 
-.expander {
+.widgetExpander {
     position: relative;
 
     & [aria-controls] {
@@ -67,7 +67,9 @@
     grid-area: label;
     color: var(--ntp-text-muted);
     line-height: 1;
-    text-transform: uppercase;
+    &.uppercase {
+        text-transform: uppercase;
+    }
 }
 
 .list {
@@ -75,6 +77,7 @@
     grid-template-columns: auto;
     grid-row-gap: calc(6 * var(--px-in-rem));
     transition: opacity ease-in-out 0.3s, visibility ease-in-out 0.3s;
+    margin-top: 18px;
 }
 
 .entering {
@@ -128,12 +131,16 @@
     grid-template-columns: auto auto 40%;
     grid-template-areas: 'company count bar';
     align-items: center;
+
     @media screen and (min-width: 500px) {
         grid-template-columns: auto auto 60%;
     }
 }
+
 .textRow {
-    margin-top: 12px;
+    margin-top: var(--sp-3);
+    padding-left: var(--sp-1);
+    color: var(--ntp-text-muted);
 }
 .company {
     grid-area: company;
@@ -154,6 +161,7 @@
         font-size: 0;
         width: 1rem;
         height: 1rem;
+
     }
     &:has([data-errored=true]) {
         outline: 1px solid var(--ntp-surface-border-color);
@@ -177,6 +185,13 @@
     line-height: 1;
 }
 
+.count {
+    grid-area: count;
+    text-align: right;
+    color: var(--ntp-text-normal);
+    line-height: 1;
+}
+
 .bar {
     grid-area: bar;
     width: 100%;
@@ -194,7 +209,6 @@
     grid-area: bar;
     height: 1rem;
     border-radius: calc(20 * var(--px-in-rem));
-
     background: var(--color-black-at-6);
 
     @media screen and (prefers-color-scheme: dark) {
@@ -202,14 +216,10 @@
     }
 }
 
-.count {
-    grid-area: count;
-    text-align: right;
-    color: var(--ntp-text-normal);
-}
-
-.sectionExpander {
-    &:hover * {
+.listExpander {
+    margin-top: var(--sp-3);
+    button {
+        color: var(--ntp-text-muted);
         opacity: 1;
     }
 }

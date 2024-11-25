@@ -15,9 +15,9 @@ import { Fragment, h } from 'preact';
  */
 export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none', showText = false }) {
     return (
-        <button {...buttonAttrs} class={cn(styles.button, shape === 'round' && styles.round)} aria-label={text} onClick={onClick}>
+        <button {...buttonAttrs} class={cn(styles.button, shape === 'round' && styles.round, !!showText && styles.withText)} aria-label={text} onClick={onClick}>
             {showText ? (
-                <Fragment>{text}<Chevron /></Fragment>
+                <Fragment><Chevron />{text}</Fragment>
             ) : (
             <ChevronButton />
             )}
