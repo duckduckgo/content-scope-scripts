@@ -1,14 +1,14 @@
 import { h } from 'preact';
-import { useId, useMemo } from 'preact/hooks';
+import { useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import cn from 'classnames';
 
 import styles from './Favorites.module.css';
-import { Placeholder, PlusIconMemo, TileMemo } from './Tile.js';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useTypedTranslationWith } from '../../types.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { useDropzoneSafeArea } from '../../dropzone.js';
+import { TileRow } from './TileRow.js';
 
 /**
  * @typedef {import('../../../../../types/new-tab.js').Expansion} Expansion
@@ -16,6 +16,7 @@ import { useDropzoneSafeArea } from '../../dropzone.js';
  * @typedef {import('../../../../../types/new-tab.js').FavoritesOpenAction['target']} OpenTarget
  */
 export const FavoritesMemo = memo(Favorites);
+export const ROW_CAPACITY = 6;
 
 /**
  * Favorites Grid.
@@ -30,90 +31,29 @@ export const FavoritesMemo = memo(Favorites);
  * @param {() => void} props.add
  */
 export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add }) {
-    const platformName = usePlatformName();
     const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
-    const safeArea = useDropzoneSafeArea();
-
-    const ROW_CAPACITY = 6;
 
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
 
-    const ITEM_PREFIX = useId();
-    const placeholders = calculatePlaceholders(favorites.length, ROW_CAPACITY);
     const hiddenCount = expansion === 'collapsed' ? favorites.length - ROW_CAPACITY : 0;
-
-    // only recompute the list
-    const items = useMemo(() => {
-        return favorites
-            .map((item, index) => {
-                return (
-                    <TileMemo
-                        url={item.url}
-                        faviconSrc={item.favicon?.src}
-                        faviconMax={item.favicon?.maxAvailableSize}
-                        title={item.title}
-                        key={item.id + item.favicon?.src + item.favicon?.maxAvailableSize}
-                        id={item.id}
-                        index={index}
-                    />
-                );
-            })
-            .concat(
-                Array.from({ length: placeholders }).map((_, index) => {
-                    if (index === 0) {
-                        return <PlusIconMemo key="placeholder-plus" onClick={add} />;
-                    }
-                    return <Placeholder key={`placeholder-${index}`} />;
-                }),
-            );
-    }, [favorites, placeholders, ITEM_PREFIX, add]);
-
-    /**
-     * @param {MouseEvent} event
-     */
-    function onContextMenu(event) {
-        let target = /** @type {HTMLElement|null} */ (event.target);
-        while (target && target !== event.currentTarget) {
-            if (typeof target.dataset.id === 'string') {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                return openContextMenu(target.dataset.id);
-            } else {
-                target = target.parentElement;
-            }
-        }
-    }
-    /**
-     * @param {MouseEvent} event
-     */
-    function onClick(event) {
-        let target = /** @type {HTMLElement|null} */ (event.target);
-        while (target && target !== event.currentTarget) {
-            if (typeof target.dataset.id === 'string' && 'href' in target && typeof target.href === 'string') {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
-                if (isControlClick) {
-                    return openFavorite(target.dataset.id, target.href, 'new-tab');
-                } else if (event.shiftKey) {
-                    return openFavorite(target.dataset.id, target.href, 'new-window');
-                }
-                return openFavorite(target.dataset.id, target.href, 'same-tab');
-            } else {
-                target = target.parentElement;
-            }
-        }
-    }
-
-    const canToggleExpansion = items.length > ROW_CAPACITY;
+    const ITEM_HEIGHT = 98;
+    const ROW_GAP = 8;
+    const rowHeight = ITEM_HEIGHT + ROW_GAP;
+    const canToggleExpansion = favorites.length >= ROW_CAPACITY;
 
     return (
         <div class={cn(styles.root, !canToggleExpansion && styles.bottomSpace)} data-testid="FavoritesConfigured">
-            <div class={styles.grid} id={WIDGET_ID} ref={safeArea} onContextMenu={onContextMenu} onClick={onClick}>
-                {items.slice(0, expansion === 'expanded' ? undefined : ROW_CAPACITY)}
-            </div>
+            <VirtualizedGridRows
+                WIDGET_ID={WIDGET_ID}
+                favorites={favorites}
+                rowHeight={rowHeight}
+                add={add}
+                expansion={expansion}
+                openFavorite={openFavorite}
+                openContextMenu={openContextMenu}
+            />
             {canToggleExpansion && (
                 <div
                     className={cn({
@@ -140,18 +80,164 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
 }
 
 /**
- * @param {number} totalItems
- * @param {number} itemsPerRow
- * @return {number|number}
+ * Favorites Grid.
+ *
+ * @param {object} props
+ * @param {string} props.WIDGET_ID
+ * @param {number} props.rowHeight
+ * @param {Expansion} props.expansion
+ * @param {Favorite[]} props.favorites
+ * @param {(id: string) => void} props.openContextMenu
+ * @param {(id: string, url: string, target: OpenTarget) => void} props.openFavorite
+ * @param {() => void} props.add
  */
-function calculatePlaceholders(totalItems, itemsPerRow) {
-    if (totalItems === 0) return itemsPerRow;
-    if (totalItems === itemsPerRow) return 1;
-    // Calculate how many items are left over in the last row
-    const itemsInLastRow = totalItems % itemsPerRow;
+function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openFavorite, openContextMenu, add }) {
+    const rows = useMemo(() => {
+        const chunked = [];
+        let inner = [];
+        for (let i = 0; i < favorites.length; i++) {
+            inner.push(favorites[i]);
+            if (inner.length === ROW_CAPACITY) {
+                chunked.push(inner.slice());
+                inner = [];
+            }
+            if (i === favorites.length - 1) {
+                chunked.push(inner.slice());
+                inner = [];
+            }
+        }
+        return chunked;
+    }, [favorites]);
 
-    // If there are leftover items, calculate the placeholders needed to fill the last row
-    const placeholders = itemsInLastRow > 0 ? itemsPerRow - itemsInLastRow : 1;
+    const platformName = usePlatformName();
+    const safeAreaRef = /** @type {import("preact").RefObject<HTMLDivElement>} */ (useDropzoneSafeArea());
+    const [{ start, end }, setSlice] = useState({ start: 0, end: 1 });
+    const gridOffset = useRef(0);
 
-    return placeholders;
+    function updateGlobals() {
+        if (!safeAreaRef.current) return console.warn('cannot access curren');
+        const rec = safeAreaRef.current.getBoundingClientRect();
+        gridOffset.current = rec.y + window.scrollY;
+    }
+
+    function setVisibleRows() {
+        if (!safeAreaRef.current) return console.warn('cannot access ref');
+        if (!gridOffset.current) return console.warn('cannot access ref');
+        const offset = gridOffset.current;
+        let end = window.scrollY + window.innerHeight - offset;
+        let start;
+        if (offset > window.scrollY) {
+            start = 0;
+        } else {
+            start = window.scrollY - offset;
+        }
+        let start_index = Math.floor(start / rowHeight);
+        let end_index = Math.min(Math.ceil(end / rowHeight), rows.length);
+        setSlice({ start: start_index, end: end_index });
+    }
+
+    useLayoutEffect(() => {
+        // always update globals first
+        updateGlobals();
+
+        // and set visible rows once the size is known
+        setVisibleRows();
+
+        const controller = new AbortController();
+        window.addEventListener(
+            'resize',
+            () => {
+                updateGlobals();
+                setVisibleRows();
+            },
+            { signal: controller.signal },
+        );
+
+        window.addEventListener(
+            'scroll',
+            () => {
+                setVisibleRows();
+            },
+            { signal: controller.signal },
+        );
+
+        return () => {
+            controller.abort();
+        };
+    }, [rows.length]);
+
+    // prettier-ignore
+    const subsetOfRowsToRender = expansion === 'collapsed'
+        // if it's collapsed, just 1 row to show (the first one)
+        ? [rows[0]]
+        // otherwise select the window between start/end
+        : rows.slice(start, end);
+
+    //
+    const inline_height = expansion === 'collapsed' ? rowHeight : rows.length * rowHeight;
+    return (
+        <div
+            className={styles.grid}
+            style={{ height: inline_height + 'px' }}
+            id={WIDGET_ID}
+            ref={safeAreaRef}
+            onContextMenu={getContextMenuHandler(openContextMenu)}
+            onClick={getOnClickHandler(openFavorite, platformName)}
+        >
+            {subsetOfRowsToRender.map((items, index) => {
+                const top_offset = (start + index) * rowHeight;
+                const keyed = `-${start + index}-`;
+                return <TileRow key={keyed} items={items} top_offset={top_offset} add={add} />;
+            })}
+        </div>
+    );
+}
+
+/**
+ * @param {(id: string) => void} openContextMenu
+ */
+function getContextMenuHandler(openContextMenu) {
+    /**
+     * @param {MouseEvent} event
+     */
+    return (event) => {
+        let target = /** @type {HTMLElement|null} */ (event.target);
+        while (target && target !== event.currentTarget) {
+            if (typeof target.dataset.id === 'string') {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return openContextMenu(target.dataset.id);
+            } else {
+                target = target.parentElement;
+            }
+        }
+    };
+}
+
+/**
+ * @param {(id: string, url: string, target: OpenTarget) => void} openFavorite
+ * @param {ImportMeta['platform']} platformName
+ */
+function getOnClickHandler(openFavorite, platformName) {
+    /**
+     * @param {MouseEvent} event
+     */
+    return (event) => {
+        let target = /** @type {HTMLElement|null} */ (event.target);
+        while (target && target !== event.currentTarget) {
+            if (typeof target.dataset.id === 'string' && 'href' in target && typeof target.href === 'string') {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
+                if (isControlClick) {
+                    return openFavorite(target.dataset.id, target.href, 'new-tab');
+                } else if (event.shiftKey) {
+                    return openFavorite(target.dataset.id, target.href, 'new-window');
+                }
+                return openFavorite(target.dataset.id, target.href, 'same-tab');
+            } else {
+                target = target.parentElement;
+            }
+        }
+    };
 }

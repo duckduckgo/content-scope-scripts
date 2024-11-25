@@ -20,34 +20,8 @@ import { useItemState } from './PragmaticDND.js';
  * @param {number|null|undefined} props.faviconMax
  * @param {number} props.index
  */
-function Tile({ url, faviconSrc, faviconMax, index, title, id }) {
+export function Tile_({ url, faviconSrc, faviconMax, index, title, id }) {
     const { state, ref } = useItemState(url, id);
-    const [visible, setVisible] = useState(true);
-
-    useEffect(() => {
-        if (!ref) return;
-        if (state.type !== 'idle') return;
-        let elem = ref.current;
-        if (!elem) return;
-        /** @type {IntersectionObserver | null} */
-        let o = new IntersectionObserver(
-            (entries) => {
-                const last = entries[entries.length - 1];
-                requestAnimationFrame(() => {
-                    setVisible(last.isIntersecting);
-                });
-            },
-            { threshold: [0] },
-        );
-        o.observe(elem);
-        return () => {
-            if (elem) {
-                o?.unobserve(elem);
-            }
-            o = null;
-            elem = null;
-        };
-    }, [id, state.type]);
 
     return (
         <a
@@ -61,14 +35,7 @@ function Tile({ url, faviconSrc, faviconMax, index, title, id }) {
             ref={ref}
         >
             <div class={cn(styles.icon, styles.draggable)}>
-                {visible && (
-                    <ImageLoader
-                        faviconSrc={faviconSrc || 'n/a'}
-                        faviconMax={faviconMax || DDG_DEFAULT_ICON_SIZE}
-                        title={title}
-                        url={url}
-                    />
-                )}
+                <ImageLoader faviconSrc={faviconSrc || 'n/a'} faviconMax={faviconMax || DDG_DEFAULT_ICON_SIZE} title={title} url={url} />
             </div>
             <div class={styles.text}>{title}</div>
             {state.type === 'is-dragging-over' && state.closestEdge ? <div class={styles.dropper} data-edge={state.closestEdge} /> : null}
@@ -76,7 +43,7 @@ function Tile({ url, faviconSrc, faviconMax, index, title, id }) {
     );
 }
 
-export const TileMemo = memo(Tile);
+export const Tile = memo(Tile_);
 
 /**
  * Loads and displays an image for a given webpage.
@@ -118,7 +85,6 @@ function ImageLoader({ faviconSrc, faviconMax, title, url }) {
     return (
         <img
             src={src}
-            loading="lazy"
             className={styles.favicon}
             alt={`favicon for ${title}`}
             onLoad={imgLoaded}
