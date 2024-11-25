@@ -171,7 +171,9 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         // if it's collapsed, just 1 row to show (the first one)
         ? [rows[0]]
         // otherwise, select the window between start/end
-        : rows.slice(start, end);
+        // the extra '1' is the additional row to render offscreen - this helps
+        // with keyboard focus
+        : rows.slice(start, end + 1);
 
     //
     const container_height = expansion === 'collapsed' ? rowHeight : rows.length * rowHeight;
@@ -186,11 +188,13 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
             onContextMenu={getContextMenuHandler(openContextMenu)}
             onClick={getOnClickHandler(openFavorite, platformName)}
         >
-            {subsetOfRowsToRender.map((items, index) => {
-                const top_offset = (start + index) * rowHeight;
-                const keyed = `-${start + index}-`;
-                return <TileRow key={keyed} dropped={dropped} items={items} top_offset={top_offset} add={add} />;
-            })}
+            {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} top_offset={0} add={add} />}
+            {rows.length > 0 &&
+                subsetOfRowsToRender.map((items, index) => {
+                    const top_offset = (start + index) * rowHeight;
+                    const keyed = `-${start + index}-`;
+                    return <TileRow key={keyed} dropped={dropped} items={items} top_offset={top_offset} add={add} />;
+                })}
         </div>
     );
 }
