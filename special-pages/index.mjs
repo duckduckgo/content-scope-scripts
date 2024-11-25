@@ -19,10 +19,42 @@ const DEBUG = Boolean(args.debug);
 
 export const support = {
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    duckplayer: {
+        integration: ['copy', 'build-js'],
+        windows: ['copy', 'build-js'],
+        apple: ['copy', 'build-js', 'inline-html'],
+        android: ['copy', 'build-js'],
+    },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    errorpage: {
+        integration: ['copy'],
+        apple: ['copy', 'inline-html'],
+    },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    onboarding: {
+        integration: ['copy', 'build-js'],
+        windows: ['copy', 'build-js'],
+        apple: ['copy', 'build-js'],
+    },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    example: {
+        integration: ['copy', 'build-js'],
+    },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    'release-notes': {
+        integration: ['copy', 'build-js'],
+        apple: ['copy', 'build-js'],
+    },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    'special-error': {
+        integration: ['copy', 'build-js'],
+        apple: ['copy', 'build-js', 'inline-html'],
+    },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     'new-tab': {
         integration: ['copy', 'build-js'],
-        // windows: ['copy', 'build-js'],
-        // apple: ['copy', 'build-js'],
+        windows: ['copy', 'build-js'],
+        apple: ['copy', 'build-js'],
     },
 };
 
