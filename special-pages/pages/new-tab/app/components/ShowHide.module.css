@@ -24,6 +24,7 @@
 
     svg {
         transition: transform .3s;
+        margin-left: var(--sp-1);
     }
 
     &[aria-pressed=true] svg {
