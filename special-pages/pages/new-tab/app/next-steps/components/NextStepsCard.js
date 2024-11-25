@@ -2,7 +2,7 @@ import { h } from 'preact';
 import styles from './NextSteps.module.css';
 import { DismissButton } from '../../components/DismissButton';
 import { variants } from '../nextsteps.data';
-import { useTypedTranslation } from '../../types';
+import { useTypedTranslationWith } from '../../types';
 
 /**
  * @param {object} props
@@ -12,7 +12,7 @@ import { useTypedTranslation } from '../../types';
  */
 
 export function NextStepsCard({ type, dismiss, action }) {
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
     const message = variants[type]?.(t);
     return (
         <div class={styles.card}>

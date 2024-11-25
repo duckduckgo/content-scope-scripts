@@ -7,7 +7,7 @@ import { SettingsProvider } from './settings.provider.js';
 import { InitialSetupContext, MessagingContext, TelemetryContext } from './types';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { WidgetConfigService } from './widget-list/widget-config.service.js';
-import enStrings from '../src/locales/en/newtab.json';
+import enStrings from '../src/locales/en/new-tab.json';
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js';
 import { Settings } from './settings.js';
 import { Components } from './components/Components.jsx';

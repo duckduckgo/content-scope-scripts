@@ -1,13 +1,16 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './NextSteps.module.css';
-import { useTypedTranslation } from '../../types';
+import { useTypedTranslationWith } from '../../types';
 import { NextStepsCard } from './NextStepsCard';
 import { otherText } from '../nextsteps.data';
 import { ShowHideButton } from '../../components/ShowHideButton';
 import { useId } from 'preact/hooks';
 
 /**
+ * @import enStrings from '../strings.json';
+ * @import ntpStrings from '../../strings.json';
+ * @typedef {enStrings & ntpStrings} strings
  * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../../../types/new-tab').Animation} Animation
  * @typedef {import('../../../../../types/new-tab').NextStepsCards} NextStepsCards
@@ -22,7 +25,7 @@ import { useId } from 'preact/hooks';
  * @param {(id: string)=>void} props.dismiss
  */
 export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }) {
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
@@ -63,7 +66,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
 }
 
 export function NextStepsBubbleHeader() {
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
     const text = otherText.nextSteps_sectionTitle(t);
     return (
         <div class={styles.bubble}>
