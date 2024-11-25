@@ -4,6 +4,14 @@ export const sampleData = {
         name: 'Phishing',
         data: {
             kind: 'phishing',
+            url: 'https://privacy-test-pages.site/security/badware/phishing.html?query=param&some=other',
+        },
+    },
+    malware: {
+        name: 'Malware',
+        data: {
+            kind: 'malware',
+            url: 'https://privacy-test-pages.site/security/badware/malware.html?query=param&some=other',
         },
     },
     'ssl.expired': {

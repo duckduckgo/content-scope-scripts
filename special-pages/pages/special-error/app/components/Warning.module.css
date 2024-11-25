@@ -56,7 +56,7 @@
         margin-top: calc(-1 * var(--sp-2));
     }
 
-    & .phishing .icon {
+    & .phishing .icon, & .malware .icon {
         background-image: url(../../../../shared/assets/img/icons/Phishing-64.svg);
         flex: 0 0 var(--sp-16);
         height: var(--sp-12);
@@ -113,7 +113,7 @@
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-128.svg);
     }
 
-    & .phishing .icon {
+    & .phishing .icon, & .malware .icon {
         background-image: url(../../../../shared/assets/img/icons/Phishing-64.svg);
     }
 }
