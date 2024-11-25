@@ -28,6 +28,7 @@ export default defineConfig({
             name: 'apple',
             // prettier-ignore
             testMatch: [
+                'integration-test/navigator-interface-insecure.js',
                 'integration-test/webcompat.spec.js',
                 'integration-test/message-bridge-apple.spec.js'
             ],
