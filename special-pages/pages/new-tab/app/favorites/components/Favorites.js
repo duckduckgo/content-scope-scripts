@@ -142,16 +142,16 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         if (!safeAreaRef.current) return console.warn('cannot access ref');
         if (!gridOffset.current) return console.warn('cannot access ref');
         const offset = gridOffset.current;
-        let end = window.scrollY + window.innerHeight - offset;
+        const end = window.scrollY + window.innerHeight - offset;
         let start;
         if (offset > window.scrollY) {
             start = 0;
         } else {
             start = window.scrollY - offset;
         }
-        let start_index = Math.floor(start / rowHeight);
-        let end_index = Math.min(Math.ceil(end / rowHeight), rows.length);
-        setVisibleRange({ start: start_index, end: end_index });
+        const startIndex = Math.floor(start / rowHeight);
+        const endIndex = Math.min(Math.ceil(end / rowHeight), rows.length);
+        setVisibleRange({ start: startIndex, end: endIndex });
     }
 
     useLayoutEffect(() => {
@@ -213,9 +213,9 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
             {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} topOffset={0} add={add} />}
             {rows.length > 0 &&
                 subsetOfRowsToRender.map((items, index) => {
-                    const top_offset = (start + index) * rowHeight;
+                    const topOffset = (start + index) * rowHeight;
                     const keyed = `-${start + index}-`;
-                    return <TileRow key={keyed} dropped={dropped} items={items} topOffset={top_offset} add={add} />;
+                    return <TileRow key={keyed} dropped={dropped} items={items} topOffset={topOffset} add={add} />;
                 })}
         </div>
     );

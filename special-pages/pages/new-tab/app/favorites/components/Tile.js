@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import cn from 'classnames';
-import { useEffect, useId, useState } from 'preact/hooks';
+import { useId } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import styles from './Tile.module.css';
 import { urlToColor } from '../color.js';
