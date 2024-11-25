@@ -212,9 +212,9 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         >
             {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} topOffset={0} add={add} />}
             {rows.length > 0 &&
-                subsetOfRowsToRender.map((items, index) => {
-                    const topOffset = (start + index) * rowHeight;
-                    const keyed = `-${start + index}-`;
+                subsetOfRowsToRender.map((items, rowIndex) => {
+                    const topOffset = (start + rowIndex) * rowHeight;
+                    const keyed = `-${start + rowIndex}-`;
                     return <TileRow key={keyed} dropped={dropped} items={items} topOffset={topOffset} add={add} />;
                 })}
         </div>
@@ -231,7 +231,7 @@ function getContextMenuHandler(openContextMenu) {
     return (event) => {
         let target = /** @type {HTMLElement|null} */ (event.target);
         while (target && target !== event.currentTarget) {
-            if (typeof target.dataset.id === 'string') {
+            if (typeof target.dataset.id === 'string' && 'href' in target && typeof target.href === 'string') {
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 return openContextMenu(target.dataset.id);
@@ -243,6 +243,9 @@ function getContextMenuHandler(openContextMenu) {
 }
 
 /**
+ * Following a click on a favorite, walk up the DOM from the clicked
+ * element to find the <a>. This is done to prevent needing a click handler
+ * on every element.
  * @param {(id: string, url: string, target: OpenTarget) => void} openFavorite
  * @param {ImportMeta['platform']} platformName
  */
