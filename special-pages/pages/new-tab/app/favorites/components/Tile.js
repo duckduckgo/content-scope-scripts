@@ -19,8 +19,9 @@ import { useItemState } from './PragmaticDND.js';
  * @param {string|null|undefined} props.faviconSrc
  * @param {number|null|undefined} props.faviconMax
  * @param {number} props.index
+ * @param {boolean} props.dropped
  */
-export function Tile_({ url, faviconSrc, faviconMax, index, title, id }) {
+export function Tile_({ url, faviconSrc, faviconMax, index, title, id, dropped }) {
     const { state, ref } = useItemState(url, id);
 
     return (
@@ -31,6 +32,7 @@ export function Tile_({ url, faviconSrc, faviconMax, index, title, id }) {
             href={url}
             data-id={id}
             data-index={index}
+            data-dropped={String(dropped)}
             data-edge={'closestEdge' in state && state.closestEdge}
             ref={ref}
         >

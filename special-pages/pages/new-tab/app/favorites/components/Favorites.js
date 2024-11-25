@@ -170,15 +170,17 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
     const subsetOfRowsToRender = expansion === 'collapsed'
         // if it's collapsed, just 1 row to show (the first one)
         ? [rows[0]]
-        // otherwise select the window between start/end
+        // otherwise, select the window between start/end
         : rows.slice(start, end);
 
     //
-    const inline_height = expansion === 'collapsed' ? rowHeight : rows.length * rowHeight;
+    const container_height = expansion === 'collapsed' ? rowHeight : rows.length * rowHeight;
+    const dropped = document.documentElement.dataset.dropped;
+
     return (
         <div
             className={styles.grid}
-            style={{ height: inline_height + 'px' }}
+            style={{ height: container_height + 'px' }}
             id={WIDGET_ID}
             ref={safeAreaRef}
             onContextMenu={getContextMenuHandler(openContextMenu)}
@@ -187,7 +189,7 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
             {subsetOfRowsToRender.map((items, index) => {
                 const top_offset = (start + index) * rowHeight;
                 const keyed = `-${start + index}-`;
-                return <TileRow key={keyed} items={items} top_offset={top_offset} add={add} />;
+                return <TileRow key={keyed} dropped={dropped} items={items} top_offset={top_offset} add={add} />;
             })}
         </div>
     );
