@@ -6,7 +6,7 @@ import cn from 'classnames';
 import styles from './Favorites.module.css';
 import { Placeholder, PlusIconMemo, TileMemo } from './Tile.js';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
-import { useTypedTranslation } from '../../types.js';
+import { useTypedTranslationWith } from '../../types.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { useDropzoneSafeArea } from '../../dropzone.js';
 
@@ -31,7 +31,7 @@ export const FavoritesMemo = memo(Favorites);
  */
 export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add }) {
     const platformName = usePlatformName();
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
     const safeArea = useDropzoneSafeArea();
 
     const ROW_CAPACITY = 6;

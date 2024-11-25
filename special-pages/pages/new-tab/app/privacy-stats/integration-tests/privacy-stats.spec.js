@@ -21,7 +21,7 @@ test.describe('newtab privacy stats', () => {
         expect(await listItems.nth(1).textContent()).toBe('Google279');
         expect(await listItems.nth(2).textContent()).toBe('Amazon67');
         expect(await listItems.nth(3).textContent()).toBe('Google Ads2');
-        expect(await listItems.nth(4).textContent()).toBe('Other210');
+        expect(await listItems.nth(4).textContent()).toBe('210 attempts from other networks');
 
         // show/hide
         await page.getByLabel('Hide recent activity').click();

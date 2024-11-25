@@ -1,10 +1,9 @@
 import { useContext } from 'preact/hooks';
 import { TranslationContext } from '../../../shared/components/TranslationsProvider.js';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import json from '../src/locales/en/newtab.json';
 import { createContext } from 'preact';
 
 /**
+ * @import json from './strings.json';
  * @import { InitialSetupResponse } from "../../../types/new-tab.js";
  */
 
@@ -14,6 +13,19 @@ import { createContext } from 'preact';
  */
 export function useTypedTranslation() {
     return {
+        t: useContext(TranslationContext).t,
+    };
+}
+
+/**
+ * This is a wrapper to only allow keys from the default translation file + contextual ones
+ * @template {Record<string, any>} T
+ * @param {T} context
+ * @returns {{ t: (key: keyof json|keyof T, replacements?: Record<string, string>) => string }}
+ */
+export function useTypedTranslationWith(context) {
+    return {
+        /** @type {any} */
         t: useContext(TranslationContext).t,
     };
 }
