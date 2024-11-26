@@ -11,8 +11,8 @@ import { ROW_CAPACITY } from './Favorites.js';
 /**
  * Represents a row of tiles with optional placeholders to fill empty spaces in the first row.
  * @param {object} props - An object containing parameters for the TileRow_ function.
- * @param {number} props.topOffset - The top offset position of the row.
- * @param {Favorite[]} props.items - An array of items to be displayed as tiles in the row.
+ * @param {number} props.topOffset - The top offset position of the row (relative to the container)
+ * @param {Favorite[]} props.items - An array of favorites to be displayed as tiles in the row.
  * @param {() => void} props.add - A function to be called when a new item is added to the row.
  * @param {string} [props.dropped] - The ID of the item that has been dropped (if one exists)
  */
@@ -36,11 +36,12 @@ function TileRow_({ topOffset, items, add, dropped }) {
             })}
             {fillers > 0 &&
                 Array.from({ length: fillers }).map((_, fillerIndex) => {
-                    // first is always the + button
+                    // first is always the + (plus) button
                     if (fillerIndex === 0) {
                         return <PlusIconMemo key="placeholder-plus" onClick={add} />;
                     }
 
+                    // for all the rest, just fill the row with dotted outlines
                     return <Placeholder key={`placeholder-${fillerIndex}`} />;
                 })}
         </ul>

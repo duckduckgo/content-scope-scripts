@@ -65,8 +65,13 @@ export function MockFavoritesProvider({ data = favorites.many, config = DEFAULT_
         console.log('noop add', ...args);
     };
 
+    const onConfigChanged = () => {
+        /* no-op */
+        return () => {};
+    };
+
     return (
-        <FavoritesContext.Provider value={{ state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add }}>
+        <FavoritesContext.Provider value={{ state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add, onConfigChanged }}>
             <FavoritesDispatchContext.Provider value={dispatch}>{children}</FavoritesDispatchContext.Provider>
         </FavoritesContext.Provider>
     );

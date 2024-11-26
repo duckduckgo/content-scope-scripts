@@ -135,7 +135,13 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                         axis: 'horizontal',
                     });
 
+                    // mark an element as dropped globally.
+                    // todo: not happy with this, but it's working for launch.
                     document.documentElement.dataset.dropped = String(startId);
+                    setTimeout(() => {
+                        document.documentElement.dataset.dropped = '';
+                    }, 0);
+
                     itemsDidReOrder({
                         list: reorderedList,
                         id: startId,

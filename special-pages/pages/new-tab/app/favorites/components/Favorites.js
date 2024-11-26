@@ -1,5 +1,5 @@
-import { h } from 'preact';
-import { useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { Fragment, h } from 'preact';
+import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import cn from 'classnames';
 
@@ -9,6 +9,7 @@ import { useTypedTranslationWith } from '../../types.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { useDropzoneSafeArea } from '../../dropzone.js';
 import { TileRow } from './TileRow.js';
+import { FavoritesContext } from './FavoritesProvider.js';
 
 /**
  * @typedef {import('../../../../../types/new-tab.js').Expansion} Expansion
@@ -121,6 +122,52 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
     // get a ref for the favorites' grid, this will allow it to receive drop events,
     // and the ref can also be used for reading the offset (eg: if other elements are above it)
     const safeAreaRef = /** @type {import("preact").RefObject<HTMLDivElement>} */ (useDropzoneSafeArea());
+    const containerHeight = expansion === 'collapsed' ? rowHeight : rows.length * rowHeight;
+
+    return (
+        <div
+            className={styles.grid}
+            style={{ height: containerHeight + 'px' }}
+            id={WIDGET_ID}
+            ref={safeAreaRef}
+            onContextMenu={getContextMenuHandler(openContextMenu)}
+            onClick={getOnClickHandler(openFavorite, platformName)}
+        >
+            {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} topOffset={0} add={add} />}
+            {rows.length > 0 && <Inner rows={rows} safeAreaRef={safeAreaRef} rowHeight={rowHeight} add={add} />}
+        </div>
+    );
+}
+
+/**
+ * This is a potentially expensive operation. Especially when going from 'collapsed' to expanded. So, we force
+ * the tiles to render after the main thread is cleared by NOT using the 'expansion' from the parent, but instead
+ * subscribing to the same update asynchronously. If we accepted the 'expansion' prop in this component and used
+ * it directly, it would cause the browser to lock up (on slow devices) when expanding from 1 row to a full screen.
+ *
+ * @param {object} props
+ * @param {Favorite[][]} props.rows
+ * @param {import("preact").RefObject<HTMLDivElement>} props.safeAreaRef
+ * @param {number} props.rowHeight
+ * @param {()=>void} props.add
+ */
+function Inner({ rows, safeAreaRef, rowHeight, add }) {
+    const { onConfigChanged, state } = useContext(FavoritesContext);
+    const [expansion, setExpansion] = useState(state.config?.expansion || 'collapsed');
+
+    // force the children to be rendered after the main thread is cleared
+    useEffect(() => {
+        return onConfigChanged((config) => {
+            // when expanding, wait for the main thread to be clear
+            if (config.expansion === 'expanded') {
+                setTimeout(() => {
+                    setExpansion(config.expansion);
+                }, 0);
+            } else {
+                setExpansion(config.expansion);
+            }
+        });
+    }, [onConfigChanged]);
 
     // set the start/end indexes of the elements
     const [{ start, end }, setVisibleRange] = useState({ start: 0, end: 1 });
@@ -193,35 +240,25 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         // the '+ 1' is an additional row to render offscreen - which helps with keyboard navigation.
         : rows.slice(start, end + 1);
 
-    //
-    const containerHeight = expansion === 'collapsed' ? rowHeight : rows.length * rowHeight;
-
     // read a global property on <html> to determine if an element was recently dropped.
     // this is used for animation (the pulse) - it's easier this way because the act of dropping
     // a tile can cause it to render inside a different row, meaning the `key` is invalidated and so the dom-node is recreated
     const dropped = document.documentElement.dataset.dropped;
 
     return (
-        <div
-            className={styles.grid}
-            style={{ height: containerHeight + 'px' }}
-            id={WIDGET_ID}
-            ref={safeAreaRef}
-            onContextMenu={getContextMenuHandler(openContextMenu)}
-            onClick={getOnClickHandler(openFavorite, platformName)}
-        >
-            {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} topOffset={0} add={add} />}
-            {rows.length > 0 &&
-                subsetOfRowsToRender.map((items, rowIndex) => {
-                    const topOffset = (start + rowIndex) * rowHeight;
-                    const keyed = `-${start + rowIndex}-`;
-                    return <TileRow key={keyed} dropped={dropped} items={items} topOffset={topOffset} add={add} />;
-                })}
-        </div>
+        <Fragment>
+            {subsetOfRowsToRender.map((items, rowIndex) => {
+                const topOffset = (start + rowIndex) * rowHeight;
+                const keyed = `-${start + rowIndex}-`;
+                return <TileRow key={keyed} dropped={dropped} items={items} topOffset={topOffset} add={add} />;
+            })}
+        </Fragment>
     );
 }
 
 /**
+ * Handle right-clicks
+ *
  * @param {(id: string) => void} openContextMenu
  */
 function getContextMenuHandler(openContextMenu) {
