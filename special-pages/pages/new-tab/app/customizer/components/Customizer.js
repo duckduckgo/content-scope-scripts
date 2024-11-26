@@ -4,7 +4,7 @@ import styles from './Customizer.module.css';
 import { VisibilityMenu } from './VisibilityMenu.js';
 import { CustomizeIcon } from '../../components/Icons.js';
 import cn from 'classnames';
-import { useMessaging } from '../../types.js';
+import { useMessaging, useTypedTranslation } from '../../types.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../../../types/new-tab.js'
@@ -107,6 +107,7 @@ export function useContextMenu() {
  * @param {import("preact").Ref<HTMLButtonElement>} [props.buttonRef]
  */
 export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef }) {
+    const { t } = useTypedTranslation();
     return (
         <button
             ref={buttonRef}
@@ -118,7 +119,7 @@ export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonR
             id={buttonId}
         >
             <CustomizeIcon />
-            <span>Customize</span>
+            <span>{t('ntp_customizer_button')}</span>
         </button>
     );
 }
