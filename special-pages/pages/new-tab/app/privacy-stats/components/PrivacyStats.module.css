@@ -60,6 +60,12 @@
         top: 50%;
         transform: translateY(-50%);
         opacity: 1;
+        /**
+         * NOTE: This is just for visual alignment. The grid in which this sits is correct,
+         * but to preserve the larger tap-area for the button, we're opting to shift this over
+         * manually to solve this specific layout case.
+         */
+        right: -4px
     }
 }
 
