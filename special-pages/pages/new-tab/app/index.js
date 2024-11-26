@@ -24,7 +24,7 @@ import { callWithRetry } from '../../../shared/call-with-retry.js';
  * @throws Error
  */
 export async function init(root, messaging, telemetry, baseEnvironment) {
-    const result = await callWithRetry(() => messaging.init());
+    const result = await callWithRetry(() => messaging.initialSetup());
 
     // handle fatal exceptions, the following things prevent anything from starting.
     if ('error' in result) {

@@ -23,6 +23,7 @@
  */
 
 import { useCallback, useEffect } from 'preact/hooks';
+import { useMessaging } from './types.js';
 
 /**
  * @template D
@@ -86,14 +87,16 @@ export function reducer(state, event) {
  * @param {import("preact").RefObject<{
  *   getInitial: () => Promise<{data: D, config: C}>;
  *   destroy: () => void;
+ *   name: () => string;
  * }>} params.service
  */
 export function useInitialDataAndConfig({ dispatch, service }) {
+    const messaging = useMessaging();
     useEffect(() => {
         if (!service.current) return console.warn('missing service');
-        const stats = service.current;
+        const srv = service.current;
         async function init() {
-            const { config, data } = await stats.getInitial();
+            const { config, data } = await srv.getInitial();
             if (data) {
                 dispatch({ kind: 'initial-data', data, config });
             } else {
@@ -107,12 +110,13 @@ export function useInitialDataAndConfig({ dispatch, service }) {
         init().catch((e) => {
             console.error('uncaught error', e);
             dispatch({ kind: 'error', error: e });
+            messaging.reportPageException({ message: `${srv.name()}: failed to fetch initial data+config: ` + e.message });
         });
 
         return () => {
-            stats.destroy();
+            srv.destroy();
         };
-    }, []);
+    }, [messaging]);
 }
 
 /**
@@ -122,14 +126,16 @@ export function useInitialDataAndConfig({ dispatch, service }) {
  * @param {import("preact").RefObject<{
  *   getInitial: () => Promise<D>;
  *   destroy: () => void;
+ *   name: () => string;
  * }>} params.service
  */
 export function useInitialData({ dispatch, service }) {
+    const messaging = useMessaging();
     useEffect(() => {
         if (!service.current) return console.warn('missing service');
-        const stats = service.current;
+        const srv = service.current;
         async function init() {
-            const data = await stats.getInitial();
+            const data = await srv.getInitial();
             if (data) {
                 dispatch({ kind: 'initial-data', data });
             } else {
@@ -143,10 +149,11 @@ export function useInitialData({ dispatch, service }) {
         init().catch((e) => {
             console.error('uncaught error', e);
             dispatch({ kind: 'error', error: e });
+            messaging.reportPageException({ message: `${srv.name()}: failed to fetch initial data: ` + e.message });
         });
 
         return () => {
-            stats.destroy();
+            srv.destroy();
         };
     }, []);
 }

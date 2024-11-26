@@ -29,6 +29,10 @@ export class FavoritesService {
         });
     }
 
+    name() {
+        return 'FavoritesService';
+    }
+
     /**
      * @returns {Promise<{data: FavoritesData; config: FavoritesConfig}>}
      * @internal
