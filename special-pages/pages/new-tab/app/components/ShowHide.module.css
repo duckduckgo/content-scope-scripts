@@ -17,6 +17,7 @@
         height: 2rem;
         width: 2rem;
         border-radius: 50%;
+        padding-inline: 0;
 
         &:focus-visible {
             box-shadow: var(--focus-ring);
