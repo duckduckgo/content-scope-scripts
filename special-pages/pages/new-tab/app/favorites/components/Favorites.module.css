@@ -34,10 +34,14 @@
 .grid {
     grid-area: grid;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    align-items: start;
-    grid-row-gap: 0.5rem;
+    position: relative;
     margin-left: -0.75rem;
     margin-right: -0.75rem;
 }
 
+.gridRow {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    align-items: start;
+    position: absolute;
+}
