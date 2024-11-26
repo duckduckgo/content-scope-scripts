@@ -46,6 +46,10 @@ export const FavoritesContext = createContext({
     add: () => {
         throw new Error('must implement add');
     },
+    /** @type {(cb: (data: FavoritesConfig) => void) => void} */
+    onConfigChanged: (cb) => {
+        throw new Error('must implement add');
+    },
 });
 
 export const FavoritesDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}));
@@ -107,8 +111,21 @@ export function FavoritesProvider({ children }) {
         service.current.add();
     }, [service]);
 
+    /** @type {(cb: (data: FavoritesConfig) => void) => void} */
+    const onConfigChanged = useCallback(
+        (cb) => {
+            if (!service.current) return;
+            return service.current.onConfig((event) => {
+                if (event.source === 'manual') {
+                    cb(event.data);
+                }
+            });
+        },
+        [service],
+    );
+
     return (
-        <FavoritesContext.Provider value={{ state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add }}>
+        <FavoritesContext.Provider value={{ state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add, onConfigChanged }}>
             <FavoritesDispatchContext.Provider value={dispatch}>{children}</FavoritesDispatchContext.Provider>
         </FavoritesContext.Provider>
     );
