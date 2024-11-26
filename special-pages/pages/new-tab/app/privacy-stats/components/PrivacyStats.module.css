@@ -42,7 +42,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 2px;
+    padding-top: 0.5px;
 }
 
 .title {
@@ -133,7 +133,7 @@
     align-items: center;
 
     @media screen and (min-width: 500px) {
-        grid-template-columns: auto auto 60%;
+        grid-template-columns: 35% 10% calc(55% - 1rem); /* - 1rem accounts for the grid gaps */
     }
 }
 
@@ -149,6 +149,7 @@
     align-items: center;
     gap: var(--sp-2);
     padding-left: var(--sp-1);
+    overflow: hidden;
 }
 
 .icon {
@@ -184,7 +185,12 @@
 .name {
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
-    line-height: 1;
+    text-overflow: ellipsis;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    top: -1px;
 }
 
 .count {
