@@ -28,6 +28,14 @@
         svg {
             margin-right: var(--sp-2);
         }
+
+        &:hover {
+            background-color: var(--color-black-at-9);
+        }
+
+        &:active {
+            background-color: var(--color-black-at-12);
+        }
     }
 
     svg {
@@ -46,6 +54,14 @@
     @media (prefers-color-scheme: dark) {
         &.withText {
             border-color: var(--color-white-at-9);
+
+            &:hover {
+                background-color: var(--color-white-at-9);
+            }
+    
+            &:active {
+                background-color: var(--color-white-at-12);
+            }
         } 
     }
 }
