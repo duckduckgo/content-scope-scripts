@@ -15,9 +15,9 @@ export function ChevronButton() {
     );
 }
 
-export function Chevron({ className }) {
+export function Chevron() {
     return (
-        <svg fill="none" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class={className}>
+        <svg fill="none" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path
                 fill="currentColor"
                 fill-rule="evenodd"

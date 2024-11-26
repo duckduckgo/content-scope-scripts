@@ -1,4 +1,5 @@
 import { Fragment, h } from 'preact';
+import cn from 'classnames';
 import styles from './PrivacyStats.module.css';
 import { useTypedTranslationWith } from '../../types.js';
 import { useContext, useState, useId, useCallback } from 'preact/hooks';
@@ -105,7 +106,7 @@ export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {
             {none && <p className={styles.title}>{t('stats_noRecent')}</p>}
             {some && <p className={styles.title}>{alltimeTitle}</p>}
             {recent > 0 && (
-                <span className={styles.expander}>
+                <span className={styles.widgetExpander}>
                     <ShowHideButton
                         buttonAttrs={{
                             ...buttonAttrs,
@@ -119,7 +120,7 @@ export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {
                 </span>
             )}
             {recent === 0 && <p className={styles.subtitle}>{t('stats_noActivity')}</p>}
-            {recent > 0 && <p className={styles.subtitle}>{t('stats_feedCountBlockedPeriod')}</p>}
+            {recent > 0 && <p className={cn(styles.subtitle, styles.uppercase)}>{t('stats_feedCountBlockedPeriod')}</p>}
         </div>
     );
 }
@@ -133,10 +134,20 @@ export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {
 export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
+    const defaultRowMax = 5;
     const sorted = sortStatsForDisplay(trackerCompanies);
     const max = sorted[0]?.count ?? 0;
-    const [visible, setVisible] = useState(5);
+    const [visible, setVisible] = useState(defaultRowMax);
     const hasmore = sorted.length > visible;
+
+    const toggleListExpansion = () => {
+        if (visible === defaultRowMax) {
+            setVisible(sorted.length);
+        }
+        if (visible === sorted.length) {
+            setVisible(defaultRowMax);
+        }
+    };
 
     return (
         <Fragment>
@@ -153,28 +164,37 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
                     if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
                         const otherText = t('stats_otherCount', { count: String(company.count) });
                         return (
-                            <li key={company.displayName}>
-                                <div class={styles.textRow}>{otherText}</div>
+                            <li key={company.displayName} class={styles.otherTrackersRow}>
+                                {otherText}
                             </li>
                         );
                     }
                     return (
-                        <li key={company.displayName}>
-                            <div class={styles.row}>
-                                <div class={styles.company}>
-                                    <CompanyIcon displayName={company.displayName} />
-                                    <span class={styles.name}>{displayName}</span>
-                                </div>
-                                <span class={styles.count}>{countText}</span>
-                                <span class={styles.bar}></span>
-                                <span class={styles.fill} style={inlineStyles}></span>
+                        <li key={company.displayName} class={styles.row}>
+                            <div class={styles.company}>
+                                <CompanyIcon displayName={company.displayName} />
+                                <span class={styles.name}>{displayName}</span>
                             </div>
+                            <span class={styles.count}>{countText}</span>
+                            <span class={styles.bar}></span>
+                            <span class={styles.fill} style={inlineStyles}></span>
                         </li>
                     );
                 })}
             </ul>
-            {hasmore && visible < sorted.length && <button onClick={() => setVisible(sorted.length)}>{t('ntp_show_more')}</button>}
-            {visible > 5 && visible === sorted.length && <button onClick={() => setVisible(5)}>{t('ntp_show_less')}</button>}
+            {sorted.length > defaultRowMax && (
+                <div class={styles.listExpander}>
+                    <ShowHideButton
+                        onClick={toggleListExpansion}
+                        text={hasmore ? t('ntp_show_more') : t('ntp_show_less')}
+                        showText={true}
+                        buttonAttrs={{
+                            'aria-expanded': !hasmore,
+                            'aria-pressed': visible === sorted.length,
+                        }}
+                    />
+                </div>
+            )}
         </Fragment>
     );
 }
