@@ -94,9 +94,9 @@ export function useInitialDataAndConfig({ dispatch, service }) {
     const messaging = useMessaging();
     useEffect(() => {
         if (!service.current) return console.warn('missing service');
-        const srv = service.current;
+        const currentService = service.current;
         async function init() {
-            const { config, data } = await srv.getInitial();
+            const { config, data } = await currentService.getInitial();
             if (data) {
                 dispatch({ kind: 'initial-data', data, config });
             } else {
@@ -110,11 +110,11 @@ export function useInitialDataAndConfig({ dispatch, service }) {
         init().catch((e) => {
             console.error('uncaught error', e);
             dispatch({ kind: 'error', error: e });
-            messaging.reportPageException({ message: `${srv.name()}: failed to fetch initial data+config: ` + e.message });
+            messaging.reportPageException({ message: `${currentService.name()}: failed to fetch initial data+config: ` + e.message });
         });
 
         return () => {
-            srv.destroy();
+            currentService.destroy();
         };
     }, [messaging]);
 }
@@ -133,9 +133,9 @@ export function useInitialData({ dispatch, service }) {
     const messaging = useMessaging();
     useEffect(() => {
         if (!service.current) return console.warn('missing service');
-        const srv = service.current;
+        const currentService = service.current;
         async function init() {
-            const data = await srv.getInitial();
+            const data = await currentService.getInitial();
             if (data) {
                 dispatch({ kind: 'initial-data', data });
             } else {
@@ -149,11 +149,11 @@ export function useInitialData({ dispatch, service }) {
         init().catch((e) => {
             console.error('uncaught error', e);
             dispatch({ kind: 'error', error: e });
-            messaging.reportPageException({ message: `${srv.name()}: failed to fetch initial data: ` + e.message });
+            messaging.reportPageException({ message: `${currentService.name()}: failed to fetch initial data: ` + e.message });
         });
 
         return () => {
-            srv.destroy();
+            currentService.destroy();
         };
     }, []);
 }
