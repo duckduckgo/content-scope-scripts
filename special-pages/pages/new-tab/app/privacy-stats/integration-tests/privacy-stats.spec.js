@@ -33,26 +33,27 @@ test.describe('newtab privacy stats', () => {
         await ntp.openPage({ additional: { stats: 'many' } });
         await page.getByLabel('Show More', { exact: true }).click();
         await page.getByLabel('Show Less').click();
-        const calls1 = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
-        expect(calls1.length).toBe(2);
-        expect(calls1).toStrictEqual([
-            {
-                payload: {
-                    context: 'specialPages',
-                    featureName: 'newTabPage',
-                    method: 'telemetryEvent',
-                    params: { attributes: { name: 'stats_toggle', value: 'show_more' } },
-                },
-            },
-            {
-                payload: {
-                    context: 'specialPages',
-                    featureName: 'newTabPage',
-                    method: 'telemetryEvent',
-                    params: { attributes: { name: 'stats_toggle', value: 'show_less' } },
-                },
-            },
-        ]);
+        await ntp.mocks.waitForCallCount({ method: 'stats_showMore', count: 1 });
+        await ntp.mocks.waitForCallCount({ method: 'stats_showLess', count: 1 });
+        // expect(calls1.length).toBe(2);
+        // expect(calls1).toStrictEqual([
+        //     {
+        //         payload: {
+        //             context: 'specialPages',
+        //             featureName: 'newTabPage',
+        //             method: 'telemetryEvent',
+        //             params: { attributes: { name: 'stats_toggle', value: 'show_more' } },
+        //         },
+        //     },
+        //     {
+        //         payload: {
+        //             context: 'specialPages',
+        //             featureName: 'newTabPage',
+        //             method: 'telemetryEvent',
+        //             params: { attributes: { name: 'stats_toggle', value: 'show_less' } },
+        //         },
+        //     },
+        // ]);
     });
     test(
         'hiding the expander when empty',

@@ -143,9 +143,9 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
 
     const toggleListExpansion = () => {
         if (hasmore) {
-            messaging.telemetryEvent({ attributes: { name: 'stats_toggle', value: 'show_more' } });
+            messaging.statsShowMore();
         } else {
-            messaging.telemetryEvent({ attributes: { name: 'stats_toggle', value: 'show_less' } });
+            messaging.statsShowLess();
         }
         if (visible === defaultRowMax) {
             setVisible(sorted.length);
