@@ -164,8 +164,8 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
                     if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
                         const otherText = t('stats_otherCount', { count: String(company.count) });
                         return (
-                            <li key={company.displayName}>
-                                <div class={styles.textRow}>{otherText}</div>
+                            <li key={company.displayName} class={styles.otherTrackersRow}>
+                                {otherText}
                             </li>
                         );
                     }

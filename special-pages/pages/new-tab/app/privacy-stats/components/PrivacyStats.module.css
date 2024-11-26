@@ -137,11 +137,12 @@
     }
 }
 
-.textRow {
+.otherTrackersRow {
     margin-top: var(--sp-3);
     padding-left: var(--sp-1);
     color: var(--ntp-text-muted);
 }
+
 .company {
     grid-area: company;
     display: flex;
@@ -156,13 +157,14 @@
     height: 1rem;
     border-radius: 50%;
     flex-shrink: 0;
+
     img, svg {
         display: block;
         font-size: 0;
         width: 1rem;
         height: 1rem;
-
     }
+
     &:has([data-errored=true]) {
         outline: 1px solid var(--ntp-surface-border-color);
         @media screen and (prefers-color-scheme: dark) {
