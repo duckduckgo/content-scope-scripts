@@ -20,7 +20,7 @@ children:
 
 ## Notifications
 
-- {@link "NewTab Messages".ContextMenuNotification `contextMenu`}
+### {@link "NewTab Messages".ContextMenuNotification `contextMenu`}
   - Sent when the user right-clicks in the page
   - Note: Other widgets might prevent this (and send their own, eg: favorites)
   - Sends: {@link "NewTab Messages".ContextMenuNotify}
@@ -41,10 +41,24 @@ children:
 }
 ```
 
-- {@link "NewTab Messages".ReportInitExceptionNotification `reportInitException`}
+### {@link "NewTab Messages".TelemetryEventNotification `telemetryEvent`}
+  - These are generic events that might be useful to observe. For example, you can use these to decide when to send pixels.
+  - Sends a standard format `{ attributes: { name: string', value?: any  } }` - see {@link "NewTab Messages".TelemetryEventNotification `telemetryEvent`}
+  - Example:
+
+```json
+{
+  "attributes": {
+    "name": "stats_toggle",
+    "value": "show_more"
+  }
+}
+```
+
+### {@link "NewTab Messages".ReportInitExceptionNotification `reportInitException`}
   - Sent when the application fails to initialize (for example, a JavaScript exception prevented it)
   - Sends: `{ message: string }` - see {@link "NewTab Messages".ReportInitExceptionNotify}
 
-- {@link "NewTab Messages".ReportPageExceptionNotification `reportPageException`}
+### {@link "NewTab Messages".ReportPageExceptionNotification `reportPageException`}
   - Sent when the application failed after initialization (for example, a JavaScript exception prevented it)
   - Sends: `{ message: string }` - see {@link "NewTab Messages".ReportPageExceptionNotify}

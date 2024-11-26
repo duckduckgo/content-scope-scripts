@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './PrivacyStats.module.css';
-import { useTypedTranslationWith } from '../../types.js';
+import { useMessaging, useTypedTranslationWith } from '../../types.js';
 import { useContext, useState, useId, useCallback } from 'preact/hooks';
 import { PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvider.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
@@ -133,6 +133,7 @@ export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {
 
 export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const messaging = useMessaging();
     const [formatter] = useState(() => new Intl.NumberFormat());
     const defaultRowMax = 5;
     const sorted = sortStatsForDisplay(trackerCompanies);
@@ -141,6 +142,11 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
     const hasmore = sorted.length > visible;
 
     const toggleListExpansion = () => {
+        if (hasmore) {
+            messaging.telemetryEvent({ attributes: { name: 'stats_toggle', value: 'show_more' } });
+        } else {
+            messaging.telemetryEvent({ attributes: { name: 'stats_toggle', value: 'show_less' } });
+        }
         if (visible === defaultRowMax) {
             setVisible(sorted.length);
         }

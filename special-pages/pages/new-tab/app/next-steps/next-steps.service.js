@@ -25,6 +25,10 @@ export class NextStepsService {
         });
     }
 
+    name() {
+        return 'NextStepsService';
+    }
+
     /**
      * @returns {Promise<{data: NextStepsData; config: NextStepsConfig}>}
      * @internal

@@ -24,6 +24,10 @@ export class PrivacyStatsService {
         });
     }
 
+    name() {
+        return 'PrivacyStatsService';
+    }
+
     /**
      * @returns {Promise<{data: PrivacyStatsData; config: StatsConfig}>}
      * @internal
