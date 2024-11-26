@@ -42,10 +42,9 @@
     background-color: transparent;
     border-width: 0;
     border-radius: var(--border-radius-sm);
-    text-wrap: nowrap;
     font-weight: 600;
     font-size: calc(11 * var(--px-in-rem));
-    line-height: 1;
+    line-height: calc(14 * var(--px-in-rem));
     color: var(--ntp-color-primary);
 
     &:hover {
