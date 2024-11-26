@@ -209,6 +209,7 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
         setVisibleRows();
 
         const controller = new AbortController();
+
         window.addEventListener(
             'resize',
             () => {
@@ -248,7 +249,7 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
     return (
         <Fragment>
             {subsetOfRowsToRender.map((items, rowIndex) => {
-                const topOffset = (start + rowIndex) * rowHeight;
+                const topOffset = expansion === 'expanded' ? (start + rowIndex) * rowHeight : 0;
                 const keyed = `-${start + rowIndex}-`;
                 return <TileRow key={keyed} dropped={dropped} items={items} topOffset={topOffset} add={add} />;
             })}
