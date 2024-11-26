@@ -17,6 +17,7 @@
         height: 2rem;
         width: 2rem;
         border-radius: 50%;
+        padding-inline: 0;
 
         &:focus-visible {
             box-shadow: var(--focus-ring);
@@ -27,6 +28,14 @@
         border: 1px solid var(--color-black-at-9);
         svg {
             margin-right: var(--sp-2);
+        }
+
+        &:hover {
+            background-color: var(--color-black-at-9);
+        }
+
+        &:active {
+            background-color: var(--color-black-at-12);
         }
     }
 
@@ -46,6 +55,14 @@
     @media (prefers-color-scheme: dark) {
         &.withText {
             border-color: var(--color-white-at-9);
+
+            &:hover {
+                background-color: var(--color-white-at-9);
+            }
+    
+            &:active {
+                background-color: var(--color-white-at-12);
+            }
         } 
     }
 }
