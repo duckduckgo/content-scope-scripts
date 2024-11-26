@@ -134,17 +134,18 @@ export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {
 export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
+    const defaultRowMax = 5;
     const sorted = sortStatsForDisplay(trackerCompanies);
     const max = sorted[0]?.count ?? 0;
-    const [visible, setVisible] = useState(5);
+    const [visible, setVisible] = useState(defaultRowMax);
     const hasmore = sorted.length > visible;
 
     const toggleListExpansion = () => {
-        if (visible === 5) {
+        if (visible === defaultRowMax) {
             setVisible(sorted.length);
         }
         if (visible === sorted.length) {
-            setVisible(5);
+            setVisible(defaultRowMax);
         }
     };
 
@@ -181,7 +182,7 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
                     );
                 })}
             </ul>
-            {sorted.length > 5 && (
+            {sorted.length > defaultRowMax && (
                 <div class={styles.listExpander}>
                     <ShowHideButton
                         onClick={toggleListExpansion}
