@@ -95,7 +95,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                     <InitialSetupContext.Provider value={init}>
                         <TelemetryContext.Provider value={telemetry}>
                             <SettingsProvider settings={settings}>
-                                <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                                     <WidgetConfigProvider
                                         api={widgetConfigAPI}
                                         widgetConfigs={init.widgetConfigs}
@@ -174,7 +174,7 @@ function renderComponents(root, environment, settings, strings) {
     $INTEGRATION: render(
         <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
             <SettingsProvider settings={settings}>
-                <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <Components />
                 </TranslationProvider>
             </SettingsProvider>

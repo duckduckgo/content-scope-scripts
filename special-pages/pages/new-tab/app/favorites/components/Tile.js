@@ -6,9 +6,11 @@ import styles from './Tile.module.css';
 import { urlToColor } from '../color.js';
 import { DDG_DEFAULT_ICON_SIZE, DDG_FALLBACK_ICON } from '../constants.js';
 import { useItemState } from './PragmaticDND.js';
+import { useTypedTranslationWith } from '../../types.js';
 
 /**
  * @import {Favorite} from '../../../../../types/new-tab'
+ * @import enStrings from '../../strings.json'
  */
 
 /**
@@ -133,6 +135,7 @@ export function Placeholder() {
  */
 export function PlusIcon({ onClick }) {
     const id = useId();
+    const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
     return (
         <div class={styles.item} ref={ref} data-edge={'closestEdge' in state && state.closestEdge}>
@@ -147,7 +150,7 @@ export function PlusIcon({ onClick }) {
                 </svg>
             </button>
             <div class={styles.text} id={id}>
-                {'Add Favorite'}
+                {t('favorites_add')}
             </div>
             {state.type === 'is-dragging-over' && state.closestEdge ? <div class={styles.dropper} data-edge={state.closestEdge} /> : null}
         </div>
