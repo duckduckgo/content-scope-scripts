@@ -95,7 +95,6 @@ function ImageLoader({ faviconSrc, faviconMax, title, url }) {
             onError={imgError}
             data-src={faviconSrc}
             data-fallback={fallbackSrcFor(url) || DDG_FALLBACK_ICON}
-            style={size !== DDG_DEFAULT_ICON_SIZE ? { width: size, height: size } : undefined}
         />
     );
 }
