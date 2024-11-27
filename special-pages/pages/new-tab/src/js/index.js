@@ -62,6 +62,19 @@ export class NewTabPage {
     telemetryEvent(event) {
         this.messaging.notify('telemetryEvent', event);
     }
+
+    /**
+     * NOTE: temporary workaround, to be replaced with 'telemetryEvent'
+     */
+    statsShowMore() {
+        this.messaging.notify('stats_showMore');
+    }
+    /**
+     * NOTE: temporary workaround, to be replaced with 'telemetryEvent'
+     */
+    statsShowLess() {
+        this.messaging.notify('stats_showLess');
+    }
 }
 
 const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env);
