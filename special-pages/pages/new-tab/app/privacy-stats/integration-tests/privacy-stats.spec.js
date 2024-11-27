@@ -27,6 +27,33 @@ test.describe('newtab privacy stats', () => {
         await page.getByLabel('Hide recent activity').click();
         await page.getByLabel('Show recent activity').click();
     });
+    test('sending a pixel when show more is clicked', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { stats: 'many' } });
+        await page.getByLabel('Show More', { exact: true }).click();
+        await page.getByLabel('Show Less').click();
+        const calls1 = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+        expect(calls1.length).toBe(2);
+        expect(calls1).toStrictEqual([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'newTabPage',
+                    method: 'telemetryEvent',
+                    params: { attributes: { name: 'stats_toggle', value: 'show_more' } },
+                },
+            },
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'newTabPage',
+                    method: 'telemetryEvent',
+                    params: { attributes: { name: 'stats_toggle', value: 'show_less' } },
+                },
+            },
+        ]);
+    });
     test(
         'hiding the expander when empty',
         {

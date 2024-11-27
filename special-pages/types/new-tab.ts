@@ -59,6 +59,7 @@ export interface NewTabMessages {
     | RmfPrimaryActionNotification
     | RmfSecondaryActionNotification
     | StatsSetConfigNotification
+    | TelemetryEventNotification
     | UpdateNotificationDismissNotification
     | WidgetsSetConfigNotification;
   requests:
@@ -273,6 +274,23 @@ export interface StatsSetConfigNotification {
 export interface StatsConfig {
   expansion: Expansion;
   animation?: Animation;
+}
+/**
+ * Generated from @see "../messages/new-tab/telemetryEvent.notify.json"
+ */
+export interface TelemetryEventNotification {
+  method: "telemetryEvent";
+  params: NTPTelemetryEvent;
+}
+export interface NTPTelemetryEvent {
+  attributes: StatsShowMore | ExampleTelemetryEvent;
+}
+export interface StatsShowMore {
+  name: "stats_toggle";
+  value: "show_more" | "show_less";
+}
+export interface ExampleTelemetryEvent {
+  name: "ntp_example";
 }
 /**
  * Generated from @see "../messages/new-tab/updateNotification_dismiss.notify.json"

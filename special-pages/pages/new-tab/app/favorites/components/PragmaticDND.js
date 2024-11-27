@@ -1,6 +1,5 @@
 import { h, createContext } from 'preact';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
-import { flushSync } from 'preact/compat';
 
 import { monitorForElements, draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { extractClosestEdge, attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
@@ -136,33 +135,19 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                         axis: 'horizontal',
                     });
 
-                    flushSync(() => {
-                        try {
-                            itemsDidReOrder({
-                                list: reorderedList,
-                                id: startId,
-                                fromIndex: startIndex,
-                                targetIndex,
-                            });
-                        } catch (e) {
-                            console.error('did catch', e);
-                        }
+                    // mark an element as dropped globally.
+                    // todo: not happy with this, but it's working for launch.
+                    document.documentElement.dataset.dropped = String(startId);
+                    setTimeout(() => {
+                        document.documentElement.dataset.dropped = '';
+                    }, 0);
+
+                    itemsDidReOrder({
+                        list: reorderedList,
+                        id: startId,
+                        fromIndex: startIndex,
+                        targetIndex,
                     });
-
-                    const htmlElem = source.element;
-
-                    const pulseAnimation = htmlElem.animate(
-                        [{ transform: 'scale(1)' }, { transform: 'scale(1.1)' }, { transform: 'scale(1)' }],
-                        {
-                            duration: 500, // duration in milliseconds
-                            iterations: 1, // run the animation once
-                            easing: 'ease-in-out', // easing function
-                        },
-                    );
-
-                    pulseAnimation.onfinish = () => {
-                        // additional actions can be placed here or handle the end of the animation if needed
-                    };
                 },
             }),
         );

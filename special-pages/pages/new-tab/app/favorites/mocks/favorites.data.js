@@ -234,7 +234,7 @@ export function gen(count = 1000) {
             const out = {
                 id: `id-many-${index}`,
                 url: `https://${alpha[index % 7]}.example.com?id=${index}`,
-                title: `Example ${index}`,
+                title: `Example ${index + 1}`,
                 favicon: { src: joined, maxAvailableSize: 64 },
             };
 

@@ -28,7 +28,7 @@ export class NewTabPage {
     /**
      * @return {Promise<import('../../../../types/new-tab.js').InitialSetupResponse>}
      */
-    init() {
+    initialSetup() {
         return this.messaging.request('initialSetup');
     }
 
@@ -54,6 +54,13 @@ export class NewTabPage {
      */
     contextMenu(params) {
         this.messaging.notify('contextMenu', params);
+    }
+
+    /**
+     * @param {import("../../../../types/new-tab.js").NTPTelemetryEvent} event
+     */
+    telemetryEvent(event) {
+        this.messaging.notify('telemetryEvent', event);
     }
 }
 

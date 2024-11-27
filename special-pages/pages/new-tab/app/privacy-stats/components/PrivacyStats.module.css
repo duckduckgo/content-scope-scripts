@@ -6,9 +6,14 @@
     display: grid;
     align-items: start;
     grid-template-columns: auto;
-    grid-row-gap: calc(18 * var(--px-in-rem));
     width: 100%;
     margin-bottom: var(--ntp-gap);
+
+    &:hover {
+        .listExpander * {
+            opacity: 1;
+        }
+    }
 
     @media screen and (prefers-color-scheme: dark) {
         border-color: var(--color-white-at-9);
@@ -18,28 +23,26 @@
 .heading {
     display: grid;
     grid-template-columns: 1.5rem auto 2rem;
-    gap: var(--sp-3);
+    grid-column-gap: var(--sp-2);
+    grid-row-gap: var(--sp-1);
     grid-template-rows: auto;
     grid-template-areas: 'icon title expander';
 }
 .heading:has(.subtitle) {
     grid-template-rows: auto auto;
     grid-template-areas:
-         'icon title expander'
-        'label label label';
+        'icon title expander'
+        'empty label label';
 }
 .headingIcon {
     grid-area: icon;
     width: 1.5rem;
-    height: 1.5rem;
+    height: var(--title-2-line-height);
     position: relative;
-
-    img {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, calc(-50% - 2px));
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0.5px;
 }
 
 .title {
@@ -49,7 +52,7 @@
     line-height: var(--title-2-line-height);
 }
 
-.expander {
+.widgetExpander {
     position: relative;
 
     & [aria-controls] {
@@ -57,13 +60,22 @@
         top: 50%;
         transform: translateY(-50%);
         opacity: 1;
+        /**
+         * NOTE: This is just for visual alignment. The grid in which this sits is correct,
+         * but to preserve the larger tap-area for the button, we're opting to shift this over
+         * manually to solve this specific layout case.
+         */
+        right: -4px
     }
 }
 
 .subtitle {
     grid-area: label;
     color: var(--ntp-text-muted);
-    padding-left: 2px;
+    &.uppercase {
+        line-height: 1;
+        text-transform: uppercase;
+    }
 }
 
 .list {
@@ -71,6 +83,7 @@
     grid-template-columns: auto;
     grid-row-gap: calc(6 * var(--px-in-rem));
     transition: opacity ease-in-out 0.3s, visibility ease-in-out 0.3s;
+    margin-top: 18px;
 }
 
 .entering {
@@ -120,23 +133,29 @@
 .row {
     min-height: 2rem;
     display: grid;
-    grid-gap: 0.75rem;
+    grid-gap: var(--sp-2);
     grid-template-columns: auto auto 40%;
     grid-template-areas: 'company count bar';
     align-items: center;
+
     @media screen and (min-width: 500px) {
-        grid-template-columns: auto auto 60%;
+        grid-template-columns: 35% 10% calc(55% - 1rem); /* - 1rem accounts for the grid gaps */
     }
 }
-.textRow {
-    margin-top: 12px;
+
+.otherTrackersRow {
+    margin-top: var(--sp-3);
+    padding-left: var(--sp-1);
+    color: var(--ntp-text-muted);
 }
+
 .company {
     grid-area: company;
     display: flex;
     align-items: center;
     gap: var(--sp-2);
     padding-left: var(--sp-1);
+    overflow: hidden;
 }
 
 .icon {
@@ -145,12 +164,14 @@
     height: 1rem;
     border-radius: 50%;
     flex-shrink: 0;
+
     img, svg {
         display: block;
         font-size: 0;
         width: 1rem;
         height: 1rem;
     }
+
     &:has([data-errored=true]) {
         outline: 1px solid var(--ntp-surface-border-color);
         @media screen and (prefers-color-scheme: dark) {
@@ -170,6 +191,18 @@
 .name {
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
+    text-overflow: ellipsis;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    top: -1px;
+}
+
+.count {
+    grid-area: count;
+    text-align: right;
+    color: var(--ntp-text-normal);
     line-height: 1;
 }
 
@@ -190,7 +223,6 @@
     grid-area: bar;
     height: 1rem;
     border-radius: calc(20 * var(--px-in-rem));
-
     background: var(--color-black-at-6);
 
     @media screen and (prefers-color-scheme: dark) {
@@ -198,8 +230,10 @@
     }
 }
 
-.count {
-    grid-area: count;
-    text-align: right;
-    color: var(--ntp-text-normal);
+.listExpander {
+    margin-top: var(--sp-3);
+    button {
+        color: var(--ntp-text-muted);
+        opacity: 1;
+    }
 }
