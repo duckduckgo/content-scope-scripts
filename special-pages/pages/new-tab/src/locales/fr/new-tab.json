@@ -195,5 +195,9 @@
   "favorites_menu_title" : {
     "title" : "Favoris",
     "note" : "Used as a label in a customization menu"
+  },
+  "favorites_add" : {
+    "title" : "Ajouter un favori",
+    "note" : "A button that allows a user to add a new 'favorite' bookmark to their existing list"
   }
 }
