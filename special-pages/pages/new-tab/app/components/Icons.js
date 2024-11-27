@@ -3,7 +3,7 @@ import styles from './Icons.module.css';
 
 export function ChevronButton() {
     return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class={styles.chevron}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class={styles.chevronButton}>
             <rect fill="black" fill-opacity="0.06" width="24" height="24" rx="12" class={styles.chevronCircle} />
             <path
                 fill="black"
@@ -15,9 +15,9 @@ export function ChevronButton() {
     );
 }
 
-export function Chevron({ className }) {
+export function Chevron() {
     return (
-        <svg fill="none" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class={className}>
+        <svg fill="none" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path
                 fill="currentColor"
                 fill-rule="evenodd"

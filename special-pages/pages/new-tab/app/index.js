@@ -7,19 +7,31 @@ import { SettingsProvider } from './settings.provider.js';
 import { InitialSetupContext, MessagingContext, TelemetryContext } from './types';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { WidgetConfigService } from './widget-list/widget-config.service.js';
-import enStrings from '../src/locales/en/newtab.json';
+import enStrings from '../src/locales/en/new-tab.json';
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js';
 import { Settings } from './settings.js';
 import { Components } from './components/Components.jsx';
 import { widgetEntryPoint } from './widget-list/WidgetList.js';
+import { callWithRetry } from '../../../shared/call-with-retry.js';
 
 /**
+ * @import {Telemetry} from "./telemetry/telemetry.js"
+ * @import { Environment } from "../../../shared/environment";
+ * @param {Element} root
  * @param {import("../src/js").NewTabPage} messaging
  * @param {import("./telemetry/telemetry.js").Telemetry} telemetry
- * @param {import("../../../shared/environment").Environment} baseEnvironment
+ * @param {Environment} baseEnvironment
+ * @throws Error
  */
-export async function init(messaging, telemetry, baseEnvironment) {
-    const init = await messaging.init();
+export async function init(root, messaging, telemetry, baseEnvironment) {
+    const result = await callWithRetry(() => messaging.initialSetup());
+
+    // handle fatal exceptions, the following things prevent anything from starting.
+    if ('error' in result) {
+        throw new Error(result.error);
+    }
+
+    const init = result.value;
 
     if (!Array.isArray(init.widgets)) {
         throw new Error('missing critical initialSetup.widgets array');
@@ -27,9 +39,6 @@ export async function init(messaging, telemetry, baseEnvironment) {
     if (!Array.isArray(init.widgetConfigs)) {
         throw new Error('missing critical initialSetup.widgetConfig array');
     }
-
-    // Create an instance of the global widget api
-    const widgetConfigAPI = new WidgetConfigService(messaging, init.widgetConfigs);
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -39,63 +48,39 @@ export async function init(messaging, telemetry, baseEnvironment) {
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
         .withDisplay(baseEnvironment.urlParams.get('display'));
 
-    const strings =
-        environment.locale === 'en'
-            ? enStrings
-            : await fetch(`./locales/${environment.locale}/new-tab.json`)
-                  .then((x) => x.json())
-                  .catch((e) => {
-                      console.error('Could not load locale', environment.locale, e);
-                      return enStrings;
-                  });
+    // read the translation file
+    const strings = await getStrings(environment);
 
+    // create app-specific settings
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'));
 
-    console.log('environment:', environment);
-    console.log('settings:', settings);
-    console.log('locale:', environment.locale);
+    if (!window.__playwright_01) {
+        console.log('environment:', environment);
+        console.log('settings:', settings);
+        console.log('locale:', environment.locale);
+    }
 
     const didCatch = (error) => {
         const message = error?.message || error?.error || 'unknown';
         messaging.reportPageException({ message });
     };
 
-    const root = document.querySelector('#app');
-    if (!root) throw new Error('could not render, root element missing');
-
-    document.body.dataset.platformName = settings.platform.name;
-
+    // return early if we're in the 'components' view.
     if (environment.display === 'components') {
-        document.body.dataset.display = 'components';
-        return render(
-            <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
-                <SettingsProvider settings={settings}>
-                    <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
-                        <Components />
-                    </TranslationProvider>
-                </SettingsProvider>
-            </EnvironmentProvider>,
-            root,
-        );
+        return renderComponents(root, environment, settings, strings);
     }
 
-    const entryPoints = await (async () => {
-        try {
-            const loaders = init.widgets.map((widget) => {
-                return widgetEntryPoint(widget.id).then((mod) => [widget.id, mod]);
-            });
-            const entryPoints = await Promise.all(loaders);
-            return Object.fromEntries(entryPoints);
-        } catch (e) {
-            const error = new Error('Error loading widget entry points:' + e.message);
-            didCatch(error);
-            console.error(error);
-            return {};
-        }
-    })();
+    // install global side effects that are not specific to any widget
+    installGlobalSideEffects(environment, settings);
+
+    // Resolve the entry points for each selected widget
+    const entryPoints = await resolveEntryPoints(init.widgets, didCatch);
+
+    // Create an instance of the global widget api
+    const widgetConfigAPI = new WidgetConfigService(messaging, init.widgetConfigs);
 
     render(
         <EnvironmentProvider
@@ -110,7 +95,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
                     <InitialSetupContext.Provider value={init}>
                         <TelemetryContext.Provider value={telemetry}>
                             <SettingsProvider settings={settings}>
-                                <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                                     <WidgetConfigProvider
                                         api={widgetConfigAPI}
                                         widgetConfigs={init.widgetConfigs}
@@ -125,6 +110,74 @@ export async function init(messaging, telemetry, baseEnvironment) {
                     </InitialSetupContext.Provider>
                 </MessagingContext.Provider>
             </ErrorBoundary>
+        </EnvironmentProvider>,
+        root,
+    );
+}
+
+/**
+ * @param {Environment} environment
+ */
+async function getStrings(environment) {
+    return environment.locale === 'en'
+        ? enStrings
+        : await fetch(`./locales/${environment.locale}/new-tab.json`)
+              .then((x) => x.json())
+              .catch((e) => {
+                  console.error('Could not load locale', environment.locale, e);
+                  return enStrings;
+              });
+}
+
+/**
+ * @param {Environment} environment
+ * @param {Settings} settings
+ */
+function installGlobalSideEffects(environment, settings) {
+    document.body.dataset.platformName = settings.platform.name;
+    document.body.dataset.display = environment.display;
+}
+
+/**
+ *
+ * @param {import('../../../types/new-tab.js').InitialSetupResponse['widgets']} widgets
+ * @param {(e: {message:string}) => void} didCatch
+ * @return {Promise<{[p: string]: any}|{}>}
+ */
+async function resolveEntryPoints(widgets, didCatch) {
+    try {
+        const loaders = widgets.map((widget) => {
+            return (
+                widgetEntryPoint(widget.id)
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    .then((mod) => [widget.id, mod])
+            );
+        });
+        const entryPoints = await Promise.all(loaders);
+        return Object.fromEntries(entryPoints);
+    } catch (e) {
+        const error = new Error('Error loading widget entry points:' + e.message);
+        didCatch(error);
+        console.error(error);
+        return {};
+    }
+}
+
+/**
+ * @param {Element} root
+ * @param {Environment} environment
+ * @param {Settings} settings
+ * @param {Record<string, any>} strings
+ */
+function renderComponents(root, environment, settings, strings) {
+    // eslint-disable-next-line no-labels,no-unused-labels
+    $INTEGRATION: render(
+        <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
+            <SettingsProvider settings={settings}>
+                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                    <Components />
+                </TranslationProvider>
+            </SettingsProvider>
         </EnvironmentProvider>,
         root,
     );

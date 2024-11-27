@@ -1,6 +1,5 @@
 import { h, createContext } from 'preact';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
-import { flushSync } from 'preact/compat';
 
 import { monitorForElements, draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { extractClosestEdge, attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
@@ -52,22 +51,8 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
             monitorForExternal({
                 onDrop(payload) {
                     // const data = '<meta name="application/vnd.duckduckgo.bookmark-by-id" content="3" />';
-                    const data = getHTML(payload);
-                    if (!data) return console.warn('missing text/html payload');
-
-                    // Create a document fragment using the safer createContextualFragment
-                    const fragment = document.createRange().createContextualFragment(data);
-
-                    // Get the first element
-                    const node = fragment.firstElementChild;
-                    if (!node) return console.warn('missing first element');
-
-                    // check the name attribute
-                    if (node.getAttribute('name') !== DDG_MIME_TYPE) return console.warn(`attribute name was not ${DDG_MIME_TYPE}`);
-
-                    // check the id
-                    const id = node.getAttribute('content');
-                    if (!id) return console.warn('id missing from `content` attribute');
+                    const id = idFromPayload(payload);
+                    if (!id) return;
 
                     const location = payload.location;
                     const target = location.current.dropTargets[0];
@@ -150,33 +135,19 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                         axis: 'horizontal',
                     });
 
-                    flushSync(() => {
-                        try {
-                            itemsDidReOrder({
-                                list: reorderedList,
-                                id: startId,
-                                fromIndex: startIndex,
-                                targetIndex,
-                            });
-                        } catch (e) {
-                            console.error('did catch', e);
-                        }
+                    // mark an element as dropped globally.
+                    // todo: not happy with this, but it's working for launch.
+                    document.documentElement.dataset.dropped = String(startId);
+                    setTimeout(() => {
+                        document.documentElement.dataset.dropped = '';
+                    }, 0);
+
+                    itemsDidReOrder({
+                        list: reorderedList,
+                        id: startId,
+                        fromIndex: startIndex,
+                        targetIndex,
                     });
-
-                    const htmlElem = source.element;
-
-                    const pulseAnimation = htmlElem.animate(
-                        [{ transform: 'scale(1)' }, { transform: 'scale(1.1)' }, { transform: 'scale(1)' }],
-                        {
-                            duration: 500, // duration in milliseconds
-                            iterations: 1, // run the animation once
-                            easing: 'ease-in-out', // easing function
-                        },
-                    );
-
-                    pulseAnimation.onfinish = () => {
-                        // additional actions can be placed here or handle the end of the animation if needed
-                    };
                 },
             }),
         );
@@ -289,4 +260,34 @@ export function useItemState(url, id) {
 
 function getInstanceId() {
     return Symbol('instance-id');
+}
+
+/**
+ * @import {ContainsSource} from "@atlaskit/pragmatic-drag-and-drop/dist/types/public-utils/external/native-types.js"
+ * @param {ContainsSource} payload
+ */
+function idFromPayload(payload) {
+    // return the external DDG type first
+    const ddg = payload.source.getStringData(DDG_MIME_TYPE);
+    if (ddg && ddg.length > 0) return ddg;
+
+    // now try and parse the HTML, which might be `<meta name="application/vnd.duckduckgo.bookmark-by-id" content="3" />`
+    const html = getHTML(payload);
+    if (!html) return console.warn(`missing text/html payload + missing ${DDG_MIME_TYPE} mime type`);
+
+    // Create a document fragment using the safer createContextualFragment
+    const fragment = document.createRange().createContextualFragment(html);
+
+    // Get the first element
+    const node = fragment.firstElementChild;
+    if (!node) return console.warn('missing first element');
+
+    // check the name attribute
+    if (node.getAttribute('name') !== DDG_MIME_TYPE) return console.warn(`attribute name was not ${DDG_MIME_TYPE}`);
+
+    // check the id
+    const id = node.getAttribute('content');
+    if (!id) return console.warn('id missing from `content` attribute');
+
+    return id;
 }

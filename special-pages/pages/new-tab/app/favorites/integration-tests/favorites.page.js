@@ -10,7 +10,7 @@ export class FavoritesPage {
 
     async togglesExpansion() {
         const { page } = this.ntp;
-        await page.getByLabel('Show more (9 remaining)').click();
+        await page.getByLabel('Show more (10 remaining)').click();
         await expect(page.getByLabel('Add Favorite')).toBeVisible();
         await page.getByLabel('Show less').click();
         await expect(page.getByLabel('Add Favorite')).not.toBeVisible();
@@ -37,7 +37,7 @@ export class FavoritesPage {
     async addsAnItem() {
         const { page } = this.ntp;
         await page.pause();
-        await page.getByLabel('Show more (9 remaining)').click();
+        await page.getByLabel('Show more (10 remaining)').click();
         await page.getByLabel('Add Favorite').click();
         await this.ntp.mocks.waitForCallCount({ method: 'favorites_add', count: 1 });
     }
@@ -93,13 +93,13 @@ export class FavoritesPage {
         await context.press('Tab');
 
         {
-            const button = page.getByLabel('Show more (9 remaining)');
+            const button = page.getByLabel('Show more (10 remaining)');
             const isActiveElement = await button.evaluate((elem) => elem === document.activeElement);
             expect(isActiveElement).toBe(true);
         }
 
         await context.press('Space');
-        await this.waitForNumFavorites(15);
+        await this.waitForNumFavorites(16);
         await context.press('Space');
         await this.waitForNumFavorites(6);
     }
@@ -259,7 +259,7 @@ export class FavoritesPage {
             params: {
                 id: '3',
                 targetIndex: index,
-                fromIndex: 15, // this is the length of the list, and it gets dropped at the end in the test.
+                fromIndex: 16, // this is the length of the list, and it gets dropped at the end in the test.
             },
         });
     }

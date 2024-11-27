@@ -17,9 +17,9 @@
   var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
-  var __export = (target2, all) => {
+  var __export = (target, all) => {
     for (var name in all)
-      __defProp(target2, name, { get: all[name], enumerable: true });
+      __defProp(target, name, { get: all[name], enumerable: true });
   };
   var __copyProps = (to, from, except, desc) => {
     if (from && typeof from === "object" || typeof from === "function") {
@@ -29,12 +29,12 @@
     }
     return to;
   };
-  var __toESM = (mod, isNodeMode, target2) => (target2 = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
     // If the importer is in node compatibility mode or this is not an ESM
     // file that has been converted to a CommonJS file using a Babel-
     // compatible transform (i.e. "__esModule" has not been set), then set
     // "default" to the CommonJS "module.exports" for node compatibility.
-    isNodeMode || !mod || !mod.__esModule ? __defProp(target2, "default", { value: mod, enumerable: true }) : target2,
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
     mod
   ));
 
@@ -361,6 +361,10 @@
     var i4 = d2(t2++, 3);
     !c2.__s && C2(i4.__H, u3) && (i4.__ = n2, i4.i = u3, r2.__H.__h.push(i4));
   }
+  function _2(n2, u3) {
+    var i4 = d2(t2++, 4);
+    !c2.__s && C2(i4.__H, u3) && (i4.__ = n2, i4.i = u3, r2.__h.push(i4));
+  }
   function A2(n2) {
     return o2 = 5, T2(function() {
       return { current: n2 };
@@ -576,10 +580,10 @@
     }
   });
 
-  // pages/new-tab/app/customizer/Customizer.module.css
+  // pages/new-tab/app/customizer/components/Customizer.module.css
   var Customizer_default;
   var init_Customizer = __esm({
-    "pages/new-tab/app/customizer/Customizer.module.css"() {
+    "pages/new-tab/app/customizer/components/Customizer.module.css"() {
       Customizer_default = {
         root: "Customizer_root",
         lowerRightFixed: "Customizer_lowerRightFixed",
@@ -595,17 +599,16 @@
   var init_Icons = __esm({
     "pages/new-tab/app/components/Icons.module.css"() {
       Icons_default = {
-        chevron: "Icons_chevron",
+        chevronButton: "Icons_chevronButton",
         chevronCircle: "Icons_chevronCircle",
-        chevronArrow: "Icons_chevronArrow",
-        customize: "Icons_customize"
+        chevronArrow: "Icons_chevronArrow"
       };
     }
   });
 
   // pages/new-tab/app/components/Icons.js
   function ChevronButton() {
-    return /* @__PURE__ */ _("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", class: Icons_default.chevron }, /* @__PURE__ */ _("rect", { fill: "black", "fill-opacity": "0.06", width: "24", height: "24", rx: "12", class: Icons_default.chevronCircle }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", class: Icons_default.chevronButton }, /* @__PURE__ */ _("rect", { fill: "black", "fill-opacity": "0.06", width: "24", height: "24", rx: "12", class: Icons_default.chevronCircle }), /* @__PURE__ */ _(
       "path",
       {
         fill: "black",
@@ -615,8 +618,8 @@
       }
     ));
   }
-  function Chevron({ className }) {
-    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", class: className }, /* @__PURE__ */ _(
+  function Chevron() {
+    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
       "path",
       {
         fill: "currentColor",
@@ -683,10 +686,10 @@
     }
   });
 
-  // pages/new-tab/app/customizer/VisibilityMenu.module.css
+  // pages/new-tab/app/customizer/components/VisibilityMenu.module.css
   var VisibilityMenu_default;
   var init_VisibilityMenu = __esm({
-    "pages/new-tab/app/customizer/VisibilityMenu.module.css"() {
+    "pages/new-tab/app/customizer/components/VisibilityMenu.module.css"() {
       VisibilityMenu_default = {
         dropdownInner: "VisibilityMenu_dropdownInner",
         list: "VisibilityMenu_list",
@@ -710,8 +713,8 @@
     }
     if (textLength !== 1 && textLength > 0 && textLength <= 2) {
       const targetLen = Math.ceil(out.length * textLength);
-      const target2 = Math.ceil(textLength);
-      const combined = out.repeat(target2);
+      const target = Math.ceil(textLength);
+      const combined = out.repeat(target);
       return combined.slice(0, targetLen);
     }
     return out;
@@ -771,204 +774,15 @@
     }
   });
 
-  // pages/new-tab/src/locales/en/newtab.json
-  var newtab_default;
-  var init_newtab = __esm({
-    "pages/new-tab/src/locales/en/newtab.json"() {
-      newtab_default = {
-        smartling: {
-          string_format: "icu",
-          translate_paths: [
-            {
-              path: "*/title",
-              key: "{*}/title",
-              instruction: "*/note"
-            }
-          ]
-        },
-        ntp_show_less: {
-          title: "Show less",
-          note: "Text for the Expansion of a section on NTP"
-        },
-        ntp_show_more: {
-          title: "Show more",
-          note: "Text for the Expansion of a section on NTP"
-        },
-        ntp_dismiss: {
-          title: "Dismiss",
-          note: "Text for all dismiss buttons on NTP"
-        },
-        widgets_visibility_menu_title: {
-          title: "Customize New Tab Page",
-          note: "Heading text describing that there's a list of toggles for customizing the page layout."
-        },
-        trackerStatsMenuTitle: {
-          title: "Privacy Stats",
-          note: "Used as a toggle label in a page customization menu"
-        },
-        trackerStatsNoActivity: {
-          title: "Tracking attempts blocked by DuckDuckGo appear here. Keep browsing to see how many we block.",
-          note: "Placeholder for when we cannot report any blocked trackers yet"
-        },
-        trackerStatsNoRecent: {
-          title: "No recent tracking activity",
-          note: "Placeholder to indicate that nothing was blocked in the last 24 hours"
-        },
-        trackerStatsCountBlockedSingular: {
-          title: "1 tracking attempt blocked",
-          note: "The main headline indicating that 1 tracker was blocked"
-        },
-        trackerStatsCountBlockedPlural: {
-          title: "{count} tracking attempts blocked",
-          note: "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
-        },
-        trackerStatsFeedCountBlockedSingular: {
-          title: "1 attempt blocked by DuckDuckGo in the last 24 hours",
-          note: "A summary description of how many tracking attempts where blocked, when only one exists."
-        },
-        trackerStatsFeedCountBlockedPlural: {
-          title: "{count} attempts blocked by DuckDuckGo in the last 24 hours",
-          note: "A summary description of how many tracking attempts where blocked, when there was more than 1. Eg: '1,028 attempts blocked by DuckDuckGo in the last 24 hours'"
-        },
-        trackerStatsToggleLabel: {
-          title: "Show recent activity",
-          note: "The aria-label text for a toggle button that shows the detailed activity feed"
-        },
-        trackerStatsHideLabel: {
-          title: "Hide recent activity",
-          note: "The aria-label text for a toggle button that hides the detailed activity feed"
-        },
-        trackerStatsOtherCompanyName: {
-          title: "Other",
-          note: "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
-        },
-        favorites_show_less: {
-          title: "Show less",
-          note: ""
-        },
-        favorites_show_more: {
-          title: "Show more ({count} remaining)",
-          note: ""
-        },
-        favorites_menu_title: {
-          title: "Favorites",
-          note: "Used as a toggle label in a page customization menu"
-        },
-        updateNotification_updated_version: {
-          title: "Browser Updated to version {version}.",
-          note: "Text to indicate which new version was updated. `version` will be formatted like `1.22.0`"
-        },
-        updateNotification_whats_new: {
-          title: "See <a>what's new</a> in this release.",
-          note: "The `<a>` tag represents a toggle"
-        },
-        updateNotification_dismiss_btn: {
-          title: "Dismiss",
-          note: "Button label text for an action that removes the widget from the screen."
-        },
-        nextSteps_sectionTitle: {
-          title: "Next Steps",
-          note: "Text that goes in the Next Steps bubble above the first card"
-        },
-        nextSteps_bringStuff_title: {
-          title: "Bring Your Stuff",
-          note: "Title of the Next Steps card for importing bookmarks and favorites"
-        },
-        nextSteps_bringStuff_summary: {
-          title: "Import bookmarks, favorites, and passwords for a smooth transition from your old browser.",
-          note: "Summary of the Next Steps card for importing bookmarks and favorites"
-        },
-        nextSteps_bringStuff_actionText: {
-          title: "Import Now",
-          note: "Button text of the Next Steps card for importing bookmarks and favorites"
-        },
-        nextSteps_defaultApp_title: {
-          title: "Set as Default Browser",
-          note: "Title of the Next Steps card for making DDG the user's default browser"
-        },
-        nextSteps_defaultApp_summary: {
-          title: "We automatically block trackers as you browse. It\u2019s privacy, simplified.",
-          note: "Summary of the Next Steps card for making DDG the user's default browser"
-        },
-        nextSteps_defaultApp_actionText: {
-          title: "Make Default Browser",
-          note: "Button text of the Next Steps card for making DDG the user's default browser"
-        },
-        nextSteps_blockCookies_title: {
-          title: "Block Cookie Pop-ups",
-          note: "Title of the Next Steps card for blocking cookie pop-ups"
-        },
-        nextSteps_blockCookies_summary: {
-          title: "We need your permission to say no to cookies on your behalf. Easy choice.",
-          note: "Summary of the Next Steps card for blocking cookie pop-ups"
-        },
-        nextSteps_blockCookies_actionText: {
-          title: "Block Cookie Pop-ups",
-          note: "Button text of the Next Steps card for blocking cookie pop-ups"
-        },
-        nextSteps_emailProtection_title: {
-          title: "Protect Your Inbox",
-          note: "Title of the Next Steps card for email protection"
-        },
-        nextSteps_emailProtection_summary: {
-          title: "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
-          note: "Summary of the Next Steps card for email protection"
-        },
-        nextSteps_emailProtection_actionText: {
-          title: "Get Email Protection",
-          note: "Button text of the Next Steps card for email protection"
-        },
-        nextSteps_duckPlayer_title: {
-          title: "YouTube Without Creepy Ads",
-          note: "Title of the Next Steps card for adopting DuckPlayer"
-        },
-        nextSteps_duckPlayer_summary: {
-          title: "Enjoy a clean viewing experience without personalized ads.",
-          note: "Summary of the Next Steps card for adopting DuckPlayer"
-        },
-        nextSteps_duckPlayer_actionText: {
-          title: "Try DuckPlayer",
-          note: "Button text of the Next Steps card for adopting DuckPlayer"
-        },
-        nextSteps_addAppDockMac_title: {
-          title: "Add App to the Dock",
-          note: "Title of the Next Steps card for adding DDG app to OS dock"
-        },
-        nextSteps_addAppDockMac_summary: {
-          title: "Access DuckDuckGo faster by adding it to the Dock.",
-          note: "Summary of the Next Steps card for adding DDG app to OS dock"
-        },
-        nextSteps_addAppDockMac_actionText: {
-          title: "Add to Dock",
-          note: "Initial button text of the Next Steps card for adding DDG app to OS dock"
-        },
-        nextSteps_addAppDockMac_confirmationText: {
-          title: "Added to Dock!",
-          note: "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
-        },
-        nextSteps_pinAppToTaskbarWindows_title: {
-          title: "Pin App to the Taskbar",
-          note: "Title of the Next Steps card for adding DDG app to OS dock"
-        },
-        nextSteps_pinAppToTaskbarWindows_summary: {
-          title: "Access DuckDuckGo faster by pinning it to the Taskbar.",
-          note: "Summary of the Next Steps card for adding DDG app to OS dock"
-        },
-        nextSteps_pinAppToTaskbarWindows_actionText: {
-          title: "Pin to Taskbar",
-          note: "Initial button text of the Next Steps card for adding DDG app to OS dock"
-        },
-        nextSteps_pinAppToTaskbarWindows_confirmationText: {
-          title: "Pinned to Taskbar!",
-          note: "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
-        }
-      };
-    }
-  });
-
   // pages/new-tab/app/types.js
   function useTypedTranslation() {
     return {
+      t: x2(TranslationContext).t
+    };
+  }
+  function useTypedTranslationWith(context) {
+    return {
+      /** @type {any} */
       t: x2(TranslationContext).t
     };
   }
@@ -1000,7 +814,7 @@
     }
   });
 
-  // pages/new-tab/app/customizer/VisibilityMenu.js
+  // pages/new-tab/app/customizer/components/VisibilityMenu.js
   function VisibilityMenu({ rows }) {
     const { t: t3 } = useTypedTranslation();
     const MENU_ID = g2();
@@ -1027,7 +841,7 @@
     })));
   }
   var init_VisibilityMenu2 = __esm({
-    "pages/new-tab/app/customizer/VisibilityMenu.js"() {
+    "pages/new-tab/app/customizer/components/VisibilityMenu.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
@@ -1097,7 +911,7 @@
     }
   });
 
-  // pages/new-tab/app/customizer/Customizer.js
+  // pages/new-tab/app/customizer/components/Customizer.js
   function Customizer() {
     const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown();
     const [rowData, setRowData] = h2(
@@ -1158,6 +972,7 @@
     }, [messaging2]);
   }
   function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef }) {
+    const { t: t3 } = useTypedTranslation();
     return /* @__PURE__ */ _(
       "button",
       {
@@ -1170,7 +985,7 @@
         id: buttonId
       },
       /* @__PURE__ */ _(CustomizeIcon, null),
-      /* @__PURE__ */ _("span", null, "Customize")
+      /* @__PURE__ */ _("span", null, t3("ntp_customizer_button"))
     );
   }
   function CustomizerMenuPositionedFixed({ children }) {
@@ -1223,7 +1038,7 @@
   }
   var import_classnames;
   var init_Customizer2 = __esm({
-    "pages/new-tab/app/customizer/Customizer.js"() {
+    "pages/new-tab/app/customizer/components/Customizer.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
@@ -1238,8 +1053,8 @@
   });
 
   // pages/new-tab/app/components/Layout.js
-  function Centered({ children }) {
-    return /* @__PURE__ */ _("div", { class: "layout-centered" }, children);
+  function Centered({ children, ...rest }) {
+    return /* @__PURE__ */ _("div", { ...rest, class: "layout-centered" }, children);
   }
   var init_Layout = __esm({
     "pages/new-tab/app/components/Layout.js"() {
@@ -1407,6 +1222,9 @@
             persist: (data) => ntp.messaging.notify("favorites_setConfig", data)
           });
         }
+        name() {
+          return "FavoritesService";
+        }
         /**
          * @returns {Promise<{data: FavoritesData; config: FavoritesConfig}>}
          * @internal
@@ -1488,8 +1306,8 @@
          * @param {FavoritesOpenAction['target']} target
          * @internal
          */
-        openFavorite(id, url3, target2) {
-          this.ntp.messaging.notify("favorites_open", { id, url: url3, target: target2 });
+        openFavorite(id, url3, target) {
+          this.ntp.messaging.notify("favorites_open", { id, url: url3, target });
         }
         /**
          * @internal
@@ -1557,11 +1375,12 @@
     }
   }
   function useInitialDataAndConfig({ dispatch, service }) {
+    const messaging2 = useMessaging();
     y2(() => {
       if (!service.current) return console.warn("missing service");
-      const stats2 = service.current;
+      const currentService = service.current;
       async function init2() {
-        const { config, data } = await stats2.getInitial();
+        const { config, data } = await currentService.getInitial();
         if (data) {
           dispatch({ kind: "initial-data", data, config });
         } else {
@@ -1572,18 +1391,20 @@
       init2().catch((e3) => {
         console.error("uncaught error", e3);
         dispatch({ kind: "error", error: e3 });
+        messaging2.reportPageException({ message: `${currentService.name()}: failed to fetch initial data+config: ` + e3.message });
       });
       return () => {
-        stats2.destroy();
+        currentService.destroy();
       };
-    }, []);
+    }, [messaging2]);
   }
   function useInitialData({ dispatch, service }) {
+    const messaging2 = useMessaging();
     y2(() => {
       if (!service.current) return console.warn("missing service");
-      const stats2 = service.current;
+      const currentService = service.current;
       async function init2() {
-        const data = await stats2.getInitial();
+        const data = await currentService.getInitial();
         if (data) {
           dispatch({ kind: "initial-data", data });
         } else {
@@ -1594,9 +1415,10 @@
       init2().catch((e3) => {
         console.error("uncaught error", e3);
         dispatch({ kind: "error", error: e3 });
+        messaging2.reportPageException({ message: `${currentService.name()}: failed to fetch initial data: ` + e3.message });
       });
       return () => {
-        stats2.destroy();
+        currentService.destroy();
       };
     }, []);
   }
@@ -1630,6 +1452,7 @@
     "pages/new-tab/app/service.hooks.js"() {
       "use strict";
       init_hooks_module();
+      init_types();
     }
   });
 
@@ -1666,17 +1489,28 @@
       [service]
     );
     const openFavorite = q2(
-      (id, url3, target2) => {
+      (id, url3, target) => {
         if (!service.current) return;
-        service.current.openFavorite(id, url3, target2);
+        service.current.openFavorite(id, url3, target);
       },
       [service]
     );
-    const add2 = q2(() => {
+    const add = q2(() => {
       if (!service.current) return;
       service.current.add();
     }, [service]);
-    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2 } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
+    const onConfigChanged = q2(
+      (cb) => {
+        if (!service.current) return;
+        return service.current.onConfig((event) => {
+          if (event.source === "manual") {
+            cb(event.data);
+          }
+        });
+      },
+      [service]
+    );
+    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add, onConfigChanged } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
   }
   function useService() {
     const service = A2(
@@ -1718,11 +1552,15 @@
           throw new Error("must implement");
         },
         /** @type {(id: string, url: string, target: OpenTarget) => void} */
-        openFavorite: (id, target2) => {
+        openFavorite: (id, target) => {
           throw new Error("must implement");
         },
         /** @type {() => void} */
         add: () => {
+          throw new Error("must implement add");
+        },
+        /** @type {(cb: (data: FavoritesConfig) => void) => void} */
+        onConfigChanged: (cb) => {
           throw new Error("must implement add");
         }
       });
@@ -1730,198 +1568,6 @@
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
-    }
-  });
-
-  // ../node_modules/preact/compat/dist/compat.module.js
-  function g3(n2, t3) {
-    for (var e3 in n2) if ("__source" !== e3 && !(e3 in t3)) return true;
-    for (var r3 in t3) if ("__source" !== r3 && n2[r3] !== t3[r3]) return true;
-    return false;
-  }
-  function E2(n2, t3) {
-    this.props = n2, this.context = t3;
-  }
-  function C3(n2, e3) {
-    function r3(n3) {
-      var t3 = this.props.ref, r4 = t3 == n3.ref;
-      return !r4 && t3 && (t3.call ? t3(null) : t3.current = null), e3 ? !e3(this.props, n3) || !r4 : g3(this.props, n3);
-    }
-    function u3(e4) {
-      return this.shouldComponentUpdate = r3, _(n2, e4);
-    }
-    return u3.displayName = "Memo(" + (n2.displayName || n2.name) + ")", u3.prototype.isReactComponent = true, u3.__f = true, u3;
-  }
-  function T3(n2, t3, e3) {
-    return n2 && (n2.__c && n2.__c.__H && (n2.__c.__H.__.forEach(function(n3) {
-      "function" == typeof n3.__c && n3.__c();
-    }), n2.__c.__H = null), null != (n2 = function(n3, t4) {
-      for (var e4 in t4) n3[e4] = t4[e4];
-      return n3;
-    }({}, n2)).__c && (n2.__c.__P === e3 && (n2.__c.__P = t3), n2.__c = null), n2.__k = n2.__k && n2.__k.map(function(n3) {
-      return T3(n3, t3, e3);
-    })), n2;
-  }
-  function A3(n2, t3, e3) {
-    return n2 && e3 && (n2.__v = null, n2.__k = n2.__k && n2.__k.map(function(n3) {
-      return A3(n3, t3, e3);
-    }), n2.__c && n2.__c.__P === t3 && (n2.__e && e3.appendChild(n2.__e), n2.__c.__e = true, n2.__c.__P = e3)), n2;
-  }
-  function D3() {
-    this.__u = 0, this.t = null, this.__b = null;
-  }
-  function L2(n2) {
-    var t3 = n2.__.__c;
-    return t3 && t3.__a && t3.__a(n2);
-  }
-  function F3() {
-    this.u = null, this.o = null;
-  }
-  function J() {
-  }
-  function K() {
-    return this.cancelBubble;
-  }
-  function Q() {
-    return this.defaultPrevented;
-  }
-  var x3, R, N2, M2, U, j3, z3, B3, H2, Z, Y, G2, X, nn, tn, en, rn, pn;
-  var init_compat_module = __esm({
-    "../node_modules/preact/compat/dist/compat.module.js"() {
-      init_preact_module();
-      init_preact_module();
-      init_hooks_module();
-      init_hooks_module();
-      (E2.prototype = new k()).isPureReactComponent = true, E2.prototype.shouldComponentUpdate = function(n2, t3) {
-        return g3(this.props, n2) || g3(this.state, t3);
-      };
-      x3 = l.__b;
-      l.__b = function(n2) {
-        n2.type && n2.type.__f && n2.ref && (n2.props.ref = n2.ref, n2.ref = null), x3 && x3(n2);
-      };
-      R = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.forward_ref") || 3911;
-      N2 = l.__e;
-      l.__e = function(n2, t3, e3, r3) {
-        if (n2.then) {
-          for (var u3, o3 = t3; o3 = o3.__; ) if ((u3 = o3.__c) && u3.__c) return null == t3.__e && (t3.__e = e3.__e, t3.__k = e3.__k), u3.__c(n2, t3);
-        }
-        N2(n2, t3, e3, r3);
-      };
-      M2 = l.unmount;
-      l.unmount = function(n2) {
-        var t3 = n2.__c;
-        t3 && t3.__R && t3.__R(), t3 && 32 & n2.__u && (n2.type = null), M2 && M2(n2);
-      }, (D3.prototype = new k()).__c = function(n2, t3) {
-        var e3 = t3.__c, r3 = this;
-        null == r3.t && (r3.t = []), r3.t.push(e3);
-        var u3 = L2(r3.__v), o3 = false, i4 = function() {
-          o3 || (o3 = true, e3.__R = null, u3 ? u3(c3) : c3());
-        };
-        e3.__R = i4;
-        var c3 = function() {
-          if (!--r3.__u) {
-            if (r3.state.__a) {
-              var n3 = r3.state.__a;
-              r3.__v.__k[0] = A3(n3, n3.__c.__P, n3.__c.__O);
-            }
-            var t4;
-            for (r3.setState({ __a: r3.__b = null }); t4 = r3.t.pop(); ) t4.forceUpdate();
-          }
-        };
-        r3.__u++ || 32 & t3.__u || r3.setState({ __a: r3.__b = r3.__v.__k[0] }), n2.then(i4, i4);
-      }, D3.prototype.componentWillUnmount = function() {
-        this.t = [];
-      }, D3.prototype.render = function(n2, e3) {
-        if (this.__b) {
-          if (this.__v.__k) {
-            var r3 = document.createElement("div"), o3 = this.__v.__k[0].__c;
-            this.__v.__k[0] = T3(this.__b, r3, o3.__O = o3.__P);
-          }
-          this.__b = null;
-        }
-        var i4 = e3.__a && _(b, null, n2.fallback);
-        return i4 && (i4.__u &= -33), [_(b, null, e3.__a ? null : n2.children), i4];
-      };
-      U = function(n2, t3, e3) {
-        if (++e3[1] === e3[0] && n2.o.delete(t3), n2.props.revealOrder && ("t" !== n2.props.revealOrder[0] || !n2.o.size)) for (e3 = n2.u; e3; ) {
-          for (; e3.length > 3; ) e3.pop()();
-          if (e3[1] < e3[0]) break;
-          n2.u = e3 = e3[2];
-        }
-      };
-      (F3.prototype = new k()).__a = function(n2) {
-        var t3 = this, e3 = L2(t3.__v), r3 = t3.o.get(n2);
-        return r3[0]++, function(u3) {
-          var o3 = function() {
-            t3.props.revealOrder ? (r3.push(u3), U(t3, n2, r3)) : u3();
-          };
-          e3 ? e3(o3) : o3();
-        };
-      }, F3.prototype.render = function(n2) {
-        this.u = null, this.o = /* @__PURE__ */ new Map();
-        var t3 = H(n2.children);
-        n2.revealOrder && "b" === n2.revealOrder[0] && t3.reverse();
-        for (var e3 = t3.length; e3--; ) this.o.set(t3[e3], this.u = [1, 0, this.u]);
-        return n2.children;
-      }, F3.prototype.componentDidUpdate = F3.prototype.componentDidMount = function() {
-        var n2 = this;
-        this.o.forEach(function(t3, e3) {
-          U(n2, e3, t3);
-        });
-      };
-      j3 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
-      z3 = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;
-      B3 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
-      H2 = /[A-Z0-9]/g;
-      Z = "undefined" != typeof document;
-      Y = function(n2) {
-        return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n2);
-      };
-      k.prototype.isReactComponent = {}, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t3) {
-        Object.defineProperty(k.prototype, t3, { configurable: true, get: function() {
-          return this["UNSAFE_" + t3];
-        }, set: function(n2) {
-          Object.defineProperty(this, t3, { configurable: true, writable: true, value: n2 });
-        } });
-      });
-      G2 = l.event;
-      l.event = function(n2) {
-        return G2 && (n2 = G2(n2)), n2.persist = J, n2.isPropagationStopped = K, n2.isDefaultPrevented = Q, n2.nativeEvent = n2;
-      };
-      nn = { enumerable: false, configurable: true, get: function() {
-        return this.class;
-      } };
-      tn = l.vnode;
-      l.vnode = function(n2) {
-        "string" == typeof n2.type && function(n3) {
-          var t3 = n3.props, e3 = n3.type, u3 = {}, o3 = -1 === e3.indexOf("-");
-          for (var i4 in t3) {
-            var c3 = t3[i4];
-            if (!("value" === i4 && "defaultValue" in t3 && null == c3 || Z && "children" === i4 && "noscript" === e3 || "class" === i4 || "className" === i4)) {
-              var f3 = i4.toLowerCase();
-              "defaultValue" === i4 && "value" in t3 && null == t3.value ? i4 = "value" : "download" === i4 && true === c3 ? c3 = "" : "translate" === f3 && "no" === c3 ? c3 = false : "o" === f3[0] && "n" === f3[1] ? "ondoubleclick" === f3 ? i4 = "ondblclick" : "onchange" !== f3 || "input" !== e3 && "textarea" !== e3 || Y(t3.type) ? "onfocus" === f3 ? i4 = "onfocusin" : "onblur" === f3 ? i4 = "onfocusout" : B3.test(i4) && (i4 = f3) : f3 = i4 = "oninput" : o3 && z3.test(i4) ? i4 = i4.replace(H2, "-$&").toLowerCase() : null === c3 && (c3 = void 0), "oninput" === f3 && u3[i4 = f3] && (i4 = "oninputCapture"), u3[i4] = c3;
-            }
-          }
-          "select" == e3 && u3.multiple && Array.isArray(u3.value) && (u3.value = H(t3.children).forEach(function(n4) {
-            n4.props.selected = -1 != u3.value.indexOf(n4.props.value);
-          })), "select" == e3 && null != u3.defaultValue && (u3.value = H(t3.children).forEach(function(n4) {
-            n4.props.selected = u3.multiple ? -1 != u3.defaultValue.indexOf(n4.props.value) : u3.defaultValue == n4.props.value;
-          })), t3.class && !t3.className ? (u3.class = t3.class, Object.defineProperty(u3, "className", nn)) : (t3.className && !t3.class || t3.class && t3.className) && (u3.class = u3.className = t3.className), n3.props = u3;
-        }(n2), n2.$$typeof = j3, tn && tn(n2);
-      };
-      en = l.__r;
-      l.__r = function(n2) {
-        en && en(n2), X = n2.__c;
-      };
-      rn = l.diffed;
-      l.diffed = function(n2) {
-        rn && rn(n2);
-        var t3 = n2.props, e3 = n2.__e;
-        null != e3 && "textarea" === n2.type && "value" in t3 && t3.value !== e3.value && (e3.value = null == t3.value ? "" : t3.value), X = null;
-      };
-      pn = function(n2, t3) {
-        return n2(t3);
-      };
     }
   });
 
@@ -2014,11 +1660,11 @@
       "use strict";
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.bind = void 0;
-      function bind4(target2, _a) {
-        var type = _a.type, listener = _a.listener, options2 = _a.options;
-        target2.addEventListener(type, listener, options2);
+      function bind4(target, _a) {
+        var type = _a.type, listener = _a.listener, options = _a.options;
+        target.addEventListener(type, listener, options);
         return function unbind() {
-          target2.removeEventListener(type, listener, options2);
+          target.removeEventListener(type, listener, options);
         };
       }
       exports.bind = bind4;
@@ -2061,10 +1707,10 @@
         var binding = __assign(__assign({}, original), { options: __assign(__assign({}, toOptions(sharedOptions)), toOptions(original.options)) });
         return binding;
       }
-      function bindAll5(target2, bindings, sharedOptions) {
+      function bindAll5(target, bindings, sharedOptions) {
         var unbinds = bindings.map(function(original) {
           var binding = getBinding(original, sharedOptions);
-          return (0, bind_1.bind)(target2, binding);
+          return (0, bind_1.bind)(target, binding);
         });
         return function unbindAll() {
           unbinds.forEach(function(unbind) {
@@ -2102,8 +1748,8 @@
   });
 
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/is-honey-pot-element.js
-  function isHoneyPotElement(target2) {
-    return target2 instanceof Element && target2.hasAttribute(honeyPotDataAttribute);
+  function isHoneyPotElement(target) {
+    return target instanceof Element && target.hasAttribute(honeyPotDataAttribute);
   }
   var init_is_honey_pot_element = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/is-honey-pot-element.js"() {
@@ -2617,8 +2263,8 @@
   });
 
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js
-  function isNodeLike(target2) {
-    return "nodeName" in target2;
+  function isNodeLike(target) {
+    return "nodeName" in target;
   }
   function isFromAnotherWindow(eventTarget) {
     return isNodeLike(eventTarget) && eventTarget.ownerDocument !== document;
@@ -2944,12 +2590,12 @@
     }
     function onUpdateEvent(event2) {
       var input = getInput(event2);
-      var target2 = isHoneyPotElement(event2.target) ? getElementFromPointWithoutHoneypot({
+      var target = isHoneyPotElement(event2.target) ? getElementFromPointWithoutHoneypot({
         x: input.clientX,
         y: input.clientY
       }) : event2.target;
       var nextDropTargets = getDropTargetsOver({
-        target: target2,
+        target,
         input,
         source: dragType.payload,
         current: state.current.dropTargets
@@ -3285,22 +2931,22 @@
     }
     function getActualDropTargets(_ref2) {
       var _args$getData, _args$getData2, _args$getDropEffect, _args$getDropEffect2;
-      var source = _ref2.source, target2 = _ref2.target, input = _ref2.input, _ref2$result = _ref2.result, result = _ref2$result === void 0 ? [] : _ref2$result;
-      if (target2 == null) {
+      var source = _ref2.source, target = _ref2.target, input = _ref2.input, _ref2$result = _ref2.result, result = _ref2$result === void 0 ? [] : _ref2$result;
+      if (target == null) {
         return result;
       }
-      if (!(target2 instanceof Element)) {
-        if (target2 instanceof Node) {
+      if (!(target instanceof Element)) {
+        if (target instanceof Node) {
           return getActualDropTargets({
             source,
-            target: target2.parentElement,
+            target: target.parentElement,
             input,
             result
           });
         }
         return result;
       }
-      var closest = target2.closest(dropTargetSelector);
+      var closest = target.closest(dropTargetSelector);
       if (closest == null) {
         return result;
       }
@@ -3423,10 +3069,10 @@
       actions[args.eventName](args);
     }
     function getIsOver(_ref5) {
-      var source = _ref5.source, target2 = _ref5.target, input = _ref5.input, current = _ref5.current;
+      var source = _ref5.source, target = _ref5.target, input = _ref5.input, current = _ref5.current;
       var actual = getActualDropTargets({
         source,
-        target: target2,
+        target,
         input
       });
       if (actual.length >= current.length) {
@@ -3783,11 +3429,11 @@
                 }
                 return;
               }
-              var target2 = event.target;
-              if (!(target2 instanceof HTMLElement)) {
+              var target = event.target;
+              if (!(target instanceof HTMLElement)) {
                 return null;
               }
-              var entry = draggableRegistry.get(target2);
+              var entry = draggableRegistry.get(target);
               if (!entry) {
                 return null;
               }
@@ -4265,21 +3911,15 @@
       return combine(
         monitorForExternal({
           onDrop(payload) {
-            const data = getHTML(payload);
-            if (!data) return console.warn("missing text/html payload");
-            const fragment = document.createRange().createContextualFragment(data);
-            const node = fragment.firstElementChild;
-            if (!node) return console.warn("missing first element");
-            if (node.getAttribute("name") !== DDG_MIME_TYPE) return console.warn(`attribute name was not ${DDG_MIME_TYPE}`);
-            const id = node.getAttribute("content");
-            if (!id) return console.warn("id missing from `content` attribute");
+            const id = idFromPayload(payload);
+            if (!id) return;
             const location2 = payload.location;
-            const target2 = location2.current.dropTargets[0];
-            if (!target2 || !target2.data || typeof target2.data.url !== "string") {
+            const target = location2.current.dropTargets[0];
+            if (!target || !target.data || typeof target.data.url !== "string") {
               return console.warn("missing data from target");
             }
-            const closestEdgeOfTarget = extractClosestEdge(target2.data);
-            const destinationSrc = target2.data.url;
+            const closestEdgeOfTarget = extractClosestEdge(target.data);
+            const destinationSrc = target.data.url;
             let indexOfTarget = favorites2.findIndex((item) => item.url === destinationSrc);
             if (indexOfTarget === -1 && destinationSrc.includes("PLACEHOLDER-URL")) {
               indexOfTarget = favorites2.length;
@@ -4303,11 +3943,11 @@
             return source.data.instanceId === instanceId;
           },
           onDrop({ source, location: location2 }) {
-            const target2 = location2.current.dropTargets[0];
-            if (!target2) {
+            const target = location2.current.dropTargets[0];
+            if (!target) {
               return;
             }
-            const destinationSrc = target2.data.url;
+            const destinationSrc = target.data.url;
             const startSrc = source.data.url;
             const startId = source.data.id;
             if (typeof startId !== "string") {
@@ -4324,7 +3964,7 @@
             if (indexOfTarget === -1 && destinationSrc.includes("PLACEHOLDER-URL")) {
               indexOfTarget = favorites2.length;
             }
-            const closestEdgeOfTarget = extractClosestEdge(target2.data);
+            const closestEdgeOfTarget = extractClosestEdge(target.data);
             const targetIndex = getReorderDestinationIndex({
               closestEdgeOfTarget,
               startIndex,
@@ -4338,32 +3978,16 @@
               closestEdgeOfTarget,
               axis: "horizontal"
             });
-            pn(() => {
-              try {
-                itemsDidReOrder({
-                  list: reorderedList,
-                  id: startId,
-                  fromIndex: startIndex,
-                  targetIndex
-                });
-              } catch (e3) {
-                console.error("did catch", e3);
-              }
+            document.documentElement.dataset.dropped = String(startId);
+            setTimeout(() => {
+              document.documentElement.dataset.dropped = "";
+            }, 0);
+            itemsDidReOrder({
+              list: reorderedList,
+              id: startId,
+              fromIndex: startIndex,
+              targetIndex
             });
-            const htmlElem = source.element;
-            const pulseAnimation = htmlElem.animate(
-              [{ transform: "scale(1)" }, { transform: "scale(1.1)" }, { transform: "scale(1)" }],
-              {
-                duration: 500,
-                // duration in milliseconds
-                iterations: 1,
-                // run the animation once
-                easing: "ease-in-out"
-                // easing function
-              }
-            );
-            pulseAnimation.onfinish = () => {
-            };
           }
         })
       );
@@ -4458,13 +4082,25 @@
   function getInstanceId() {
     return Symbol("instance-id");
   }
+  function idFromPayload(payload) {
+    const ddg = payload.source.getStringData(DDG_MIME_TYPE);
+    if (ddg && ddg.length > 0) return ddg;
+    const html = getHTML(payload);
+    if (!html) return console.warn(`missing text/html payload + missing ${DDG_MIME_TYPE} mime type`);
+    const fragment = document.createRange().createContextualFragment(html);
+    const node = fragment.firstElementChild;
+    if (!node) return console.warn("missing first element");
+    if (node.getAttribute("name") !== DDG_MIME_TYPE) return console.warn(`attribute name was not ${DDG_MIME_TYPE}`);
+    const id = node.getAttribute("content");
+    if (!id) return console.warn("id missing from `content` attribute");
+    return id;
+  }
   var InstanceIdContext;
   var init_PragmaticDND = __esm({
     "pages/new-tab/app/favorites/components/PragmaticDND.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      init_compat_module();
       init_adapter();
       init_closest_edge();
       init_reorder_with_edge();
@@ -4477,17 +4113,321 @@
     }
   });
 
+  // ../node_modules/preact/compat/dist/compat.module.js
+  function g3(n2, t3) {
+    for (var e3 in n2) if ("__source" !== e3 && !(e3 in t3)) return true;
+    for (var r3 in t3) if ("__source" !== r3 && n2[r3] !== t3[r3]) return true;
+    return false;
+  }
+  function E2(n2, t3) {
+    this.props = n2, this.context = t3;
+  }
+  function C3(n2, e3) {
+    function r3(n3) {
+      var t3 = this.props.ref, r4 = t3 == n3.ref;
+      return !r4 && t3 && (t3.call ? t3(null) : t3.current = null), e3 ? !e3(this.props, n3) || !r4 : g3(this.props, n3);
+    }
+    function u3(e4) {
+      return this.shouldComponentUpdate = r3, _(n2, e4);
+    }
+    return u3.displayName = "Memo(" + (n2.displayName || n2.name) + ")", u3.prototype.isReactComponent = true, u3.__f = true, u3;
+  }
+  function T3(n2, t3, e3) {
+    return n2 && (n2.__c && n2.__c.__H && (n2.__c.__H.__.forEach(function(n3) {
+      "function" == typeof n3.__c && n3.__c();
+    }), n2.__c.__H = null), null != (n2 = function(n3, t4) {
+      for (var e4 in t4) n3[e4] = t4[e4];
+      return n3;
+    }({}, n2)).__c && (n2.__c.__P === e3 && (n2.__c.__P = t3), n2.__c = null), n2.__k = n2.__k && n2.__k.map(function(n3) {
+      return T3(n3, t3, e3);
+    })), n2;
+  }
+  function A3(n2, t3, e3) {
+    return n2 && e3 && (n2.__v = null, n2.__k = n2.__k && n2.__k.map(function(n3) {
+      return A3(n3, t3, e3);
+    }), n2.__c && n2.__c.__P === t3 && (n2.__e && e3.appendChild(n2.__e), n2.__c.__e = true, n2.__c.__P = e3)), n2;
+  }
+  function D3() {
+    this.__u = 0, this.t = null, this.__b = null;
+  }
+  function L2(n2) {
+    var t3 = n2.__.__c;
+    return t3 && t3.__a && t3.__a(n2);
+  }
+  function F3() {
+    this.u = null, this.o = null;
+  }
+  function J() {
+  }
+  function K() {
+    return this.cancelBubble;
+  }
+  function Q() {
+    return this.defaultPrevented;
+  }
+  var x3, R, N2, M2, U, j3, z3, B3, H2, Z, Y, G2, X, nn, tn, en, rn;
+  var init_compat_module = __esm({
+    "../node_modules/preact/compat/dist/compat.module.js"() {
+      init_preact_module();
+      init_preact_module();
+      init_hooks_module();
+      init_hooks_module();
+      (E2.prototype = new k()).isPureReactComponent = true, E2.prototype.shouldComponentUpdate = function(n2, t3) {
+        return g3(this.props, n2) || g3(this.state, t3);
+      };
+      x3 = l.__b;
+      l.__b = function(n2) {
+        n2.type && n2.type.__f && n2.ref && (n2.props.ref = n2.ref, n2.ref = null), x3 && x3(n2);
+      };
+      R = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.forward_ref") || 3911;
+      N2 = l.__e;
+      l.__e = function(n2, t3, e3, r3) {
+        if (n2.then) {
+          for (var u3, o3 = t3; o3 = o3.__; ) if ((u3 = o3.__c) && u3.__c) return null == t3.__e && (t3.__e = e3.__e, t3.__k = e3.__k), u3.__c(n2, t3);
+        }
+        N2(n2, t3, e3, r3);
+      };
+      M2 = l.unmount;
+      l.unmount = function(n2) {
+        var t3 = n2.__c;
+        t3 && t3.__R && t3.__R(), t3 && 32 & n2.__u && (n2.type = null), M2 && M2(n2);
+      }, (D3.prototype = new k()).__c = function(n2, t3) {
+        var e3 = t3.__c, r3 = this;
+        null == r3.t && (r3.t = []), r3.t.push(e3);
+        var u3 = L2(r3.__v), o3 = false, i4 = function() {
+          o3 || (o3 = true, e3.__R = null, u3 ? u3(c3) : c3());
+        };
+        e3.__R = i4;
+        var c3 = function() {
+          if (!--r3.__u) {
+            if (r3.state.__a) {
+              var n3 = r3.state.__a;
+              r3.__v.__k[0] = A3(n3, n3.__c.__P, n3.__c.__O);
+            }
+            var t4;
+            for (r3.setState({ __a: r3.__b = null }); t4 = r3.t.pop(); ) t4.forceUpdate();
+          }
+        };
+        r3.__u++ || 32 & t3.__u || r3.setState({ __a: r3.__b = r3.__v.__k[0] }), n2.then(i4, i4);
+      }, D3.prototype.componentWillUnmount = function() {
+        this.t = [];
+      }, D3.prototype.render = function(n2, e3) {
+        if (this.__b) {
+          if (this.__v.__k) {
+            var r3 = document.createElement("div"), o3 = this.__v.__k[0].__c;
+            this.__v.__k[0] = T3(this.__b, r3, o3.__O = o3.__P);
+          }
+          this.__b = null;
+        }
+        var i4 = e3.__a && _(b, null, n2.fallback);
+        return i4 && (i4.__u &= -33), [_(b, null, e3.__a ? null : n2.children), i4];
+      };
+      U = function(n2, t3, e3) {
+        if (++e3[1] === e3[0] && n2.o.delete(t3), n2.props.revealOrder && ("t" !== n2.props.revealOrder[0] || !n2.o.size)) for (e3 = n2.u; e3; ) {
+          for (; e3.length > 3; ) e3.pop()();
+          if (e3[1] < e3[0]) break;
+          n2.u = e3 = e3[2];
+        }
+      };
+      (F3.prototype = new k()).__a = function(n2) {
+        var t3 = this, e3 = L2(t3.__v), r3 = t3.o.get(n2);
+        return r3[0]++, function(u3) {
+          var o3 = function() {
+            t3.props.revealOrder ? (r3.push(u3), U(t3, n2, r3)) : u3();
+          };
+          e3 ? e3(o3) : o3();
+        };
+      }, F3.prototype.render = function(n2) {
+        this.u = null, this.o = /* @__PURE__ */ new Map();
+        var t3 = H(n2.children);
+        n2.revealOrder && "b" === n2.revealOrder[0] && t3.reverse();
+        for (var e3 = t3.length; e3--; ) this.o.set(t3[e3], this.u = [1, 0, this.u]);
+        return n2.children;
+      }, F3.prototype.componentDidUpdate = F3.prototype.componentDidMount = function() {
+        var n2 = this;
+        this.o.forEach(function(t3, e3) {
+          U(n2, e3, t3);
+        });
+      };
+      j3 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
+      z3 = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;
+      B3 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
+      H2 = /[A-Z0-9]/g;
+      Z = "undefined" != typeof document;
+      Y = function(n2) {
+        return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n2);
+      };
+      k.prototype.isReactComponent = {}, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t3) {
+        Object.defineProperty(k.prototype, t3, { configurable: true, get: function() {
+          return this["UNSAFE_" + t3];
+        }, set: function(n2) {
+          Object.defineProperty(this, t3, { configurable: true, writable: true, value: n2 });
+        } });
+      });
+      G2 = l.event;
+      l.event = function(n2) {
+        return G2 && (n2 = G2(n2)), n2.persist = J, n2.isPropagationStopped = K, n2.isDefaultPrevented = Q, n2.nativeEvent = n2;
+      };
+      nn = { enumerable: false, configurable: true, get: function() {
+        return this.class;
+      } };
+      tn = l.vnode;
+      l.vnode = function(n2) {
+        "string" == typeof n2.type && function(n3) {
+          var t3 = n3.props, e3 = n3.type, u3 = {}, o3 = -1 === e3.indexOf("-");
+          for (var i4 in t3) {
+            var c3 = t3[i4];
+            if (!("value" === i4 && "defaultValue" in t3 && null == c3 || Z && "children" === i4 && "noscript" === e3 || "class" === i4 || "className" === i4)) {
+              var f3 = i4.toLowerCase();
+              "defaultValue" === i4 && "value" in t3 && null == t3.value ? i4 = "value" : "download" === i4 && true === c3 ? c3 = "" : "translate" === f3 && "no" === c3 ? c3 = false : "o" === f3[0] && "n" === f3[1] ? "ondoubleclick" === f3 ? i4 = "ondblclick" : "onchange" !== f3 || "input" !== e3 && "textarea" !== e3 || Y(t3.type) ? "onfocus" === f3 ? i4 = "onfocusin" : "onblur" === f3 ? i4 = "onfocusout" : B3.test(i4) && (i4 = f3) : f3 = i4 = "oninput" : o3 && z3.test(i4) ? i4 = i4.replace(H2, "-$&").toLowerCase() : null === c3 && (c3 = void 0), "oninput" === f3 && u3[i4 = f3] && (i4 = "oninputCapture"), u3[i4] = c3;
+            }
+          }
+          "select" == e3 && u3.multiple && Array.isArray(u3.value) && (u3.value = H(t3.children).forEach(function(n4) {
+            n4.props.selected = -1 != u3.value.indexOf(n4.props.value);
+          })), "select" == e3 && null != u3.defaultValue && (u3.value = H(t3.children).forEach(function(n4) {
+            n4.props.selected = u3.multiple ? -1 != u3.defaultValue.indexOf(n4.props.value) : u3.defaultValue == n4.props.value;
+          })), t3.class && !t3.className ? (u3.class = t3.class, Object.defineProperty(u3, "className", nn)) : (t3.className && !t3.class || t3.class && t3.className) && (u3.class = u3.className = t3.className), n3.props = u3;
+        }(n2), n2.$$typeof = j3, tn && tn(n2);
+      };
+      en = l.__r;
+      l.__r = function(n2) {
+        en && en(n2), X = n2.__c;
+      };
+      rn = l.diffed;
+      l.diffed = function(n2) {
+        rn && rn(n2);
+        var t3 = n2.props, e3 = n2.__e;
+        null != e3 && "textarea" === n2.type && "value" in t3 && t3.value !== e3.value && (e3.value = null == t3.value ? "" : t3.value), X = null;
+      };
+    }
+  });
+
   // pages/new-tab/app/favorites/components/Favorites.module.css
   var Favorites_default;
   var init_Favorites = __esm({
     "pages/new-tab/app/favorites/components/Favorites.module.css"() {
       Favorites_default = {
         root: "Favorites_root",
-        showhide: "Favorites_showhide",
+        bottomSpace: "Favorites_bottomSpace",
         showhideVisible: "Favorites_showhideVisible",
-        hr: "Favorites_hr",
-        grid: "Favorites_grid"
+        showhide: "Favorites_showhide",
+        grid: "Favorites_grid",
+        gridRow: "Favorites_gridRow"
       };
+    }
+  });
+
+  // pages/new-tab/app/components/ShowHide.module.css
+  var ShowHide_default;
+  var init_ShowHide = __esm({
+    "pages/new-tab/app/components/ShowHide.module.css"() {
+      ShowHide_default = {
+        button: "ShowHide_button",
+        round: "ShowHide_round",
+        withText: "ShowHide_withText"
+      };
+    }
+  });
+
+  // pages/new-tab/app/components/ShowHideButton.jsx
+  function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = "none", showText = false }) {
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        ...buttonAttrs,
+        class: (0, import_classnames2.default)(ShowHide_default.button, shape === "round" && ShowHide_default.round, !!showText && ShowHide_default.withText),
+        "aria-label": text,
+        onClick
+      },
+      showText ? /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(Chevron, null), text) : /* @__PURE__ */ _(ChevronButton, null)
+    );
+  }
+  var import_classnames2;
+  var init_ShowHideButton = __esm({
+    "pages/new-tab/app/components/ShowHideButton.jsx"() {
+      "use strict";
+      init_ShowHide();
+      import_classnames2 = __toESM(require_classnames(), 1);
+      init_Icons2();
+      init_preact_module();
+    }
+  });
+
+  // pages/new-tab/app/dropzone.js
+  function useGlobalDropzone() {
+    y2(() => {
+      let safezones = [];
+      const controller = new AbortController();
+      window.addEventListener(
+        REGISTER_EVENT,
+        (e3) => {
+          if (isValidEvent(e3)) {
+            safezones.push(e3.detail.dropzone);
+          }
+        },
+        { signal: controller.signal }
+      );
+      window.addEventListener(
+        CLEAR_EVENT,
+        (e3) => {
+          if (isValidEvent(e3)) {
+            const match = safezones.findIndex((x4) => x4 === e3.detail.dropzone);
+            safezones.splice(match, 1);
+          }
+        },
+        { signal: controller.signal }
+      );
+      document.addEventListener(
+        "dragover",
+        (event) => {
+          if (!event.target) return;
+          const target = (
+            /** @type {HTMLElement} */
+            event.target
+          );
+          if (safezones.length > 0) {
+            for (const safezone of safezones) {
+              if (safezone.contains(target)) return;
+            }
+          }
+          let preventDrop = true;
+          if (preventDrop) {
+            event.preventDefault();
+            if (event.dataTransfer) {
+              event.dataTransfer.dropEffect = "none";
+            }
+          }
+        },
+        { signal: controller.signal }
+      );
+      return () => {
+        controller.abort();
+        safezones = [];
+      };
+    }, []);
+  }
+  function useDropzoneSafeArea() {
+    const ref = A2(null);
+    y2(() => {
+      if (!ref.current) return;
+      const evt = new CustomEvent(REGISTER_EVENT, { detail: { dropzone: ref.current } });
+      window.dispatchEvent(evt);
+      return () => {
+        window.dispatchEvent(new CustomEvent(CLEAR_EVENT, { detail: { dropzone: ref.current } }));
+      };
+    }, []);
+    return ref;
+  }
+  function isValidEvent(input) {
+    return "detail" in input && input.detail.dropzone instanceof HTMLElement;
+  }
+  var REGISTER_EVENT, CLEAR_EVENT;
+  var init_dropzone = __esm({
+    "pages/new-tab/app/dropzone.js"() {
+      "use strict";
+      init_hooks_module();
+      REGISTER_EVENT = "register-dropzone";
+      CLEAR_EVENT = "clear-dropzone";
     }
   });
 
@@ -4498,10 +4438,10 @@
       Tile_default = {
         item: "Tile_item",
         icon: "Tile_icon",
+        pulse: "Tile_pulse",
         draggable: "Tile_draggable",
         favicon: "Tile_favicon",
         text: "Tile_text",
-        preview: "Tile_preview",
         placeholder: "Tile_placeholder",
         plus: "Tile_plus",
         dropper: "Tile_dropper"
@@ -4556,32 +4496,8 @@
   });
 
   // pages/new-tab/app/favorites/components/Tile.js
-  function Tile({ url: url3, faviconSrc, faviconMax, index, title, id }) {
+  function Tile_({ url: url3, faviconSrc, faviconMax, index, title, id, dropped }) {
     const { state, ref } = useItemState(url3, id);
-    const [visible, setVisible] = h2(true);
-    y2(() => {
-      if (!ref) return;
-      if (state.type !== "idle") return;
-      let elem = ref.current;
-      if (!elem) return;
-      let o3 = new IntersectionObserver(
-        (entries2) => {
-          const last = entries2[entries2.length - 1];
-          requestAnimationFrame(() => {
-            setVisible(last.isIntersecting);
-          });
-        },
-        { threshold: [0] }
-      );
-      o3.observe(elem);
-      return () => {
-        if (elem) {
-          o3?.unobserve(elem);
-        }
-        o3 = null;
-        elem = null;
-      };
-    }, [id, state.type]);
     return /* @__PURE__ */ _(
       "a",
       {
@@ -4591,18 +4507,11 @@
         href: url3,
         "data-id": id,
         "data-index": index,
+        "data-dropped": String(dropped),
         "data-edge": "closestEdge" in state && state.closestEdge,
         ref
       },
-      /* @__PURE__ */ _("div", { class: (0, import_classnames2.default)(Tile_default.icon, Tile_default.draggable) }, visible && /* @__PURE__ */ _(
-        ImageLoader,
-        {
-          faviconSrc: faviconSrc || "n/a",
-          faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE,
-          title,
-          url: url3
-        }
-      )),
+      /* @__PURE__ */ _("div", { class: (0, import_classnames3.default)(Tile_default.icon, Tile_default.draggable) }, /* @__PURE__ */ _(ImageLoader, { faviconSrc: faviconSrc || "n/a", faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE, title, url: url3 })),
       /* @__PURE__ */ _("div", { class: Tile_default.text }, title),
       state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
     );
@@ -4636,14 +4545,12 @@
       "img",
       {
         src,
-        loading: "lazy",
         className: Tile_default.favicon,
         alt: `favicon for ${title}`,
         onLoad: imgLoaded,
         onError: imgError,
         "data-src": faviconSrc,
-        "data-fallback": fallbackSrcFor(url3) || DDG_FALLBACK_ICON,
-        style: size !== DDG_DEFAULT_ICON_SIZE ? { width: size, height: size } : void 0
+        "data-fallback": fallbackSrcFor(url3) || DDG_FALLBACK_ICON
       }
     );
   }
@@ -4662,12 +4569,16 @@
   function Placeholder() {
     const id = g2();
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
-    return /* @__PURE__ */ _("div", { className: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { className: (0, import_classnames2.default)(Tile_default.icon, Tile_default.placeholder) }), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+    return /* @__PURE__ */ _("div", { className: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { className: (0, import_classnames3.default)(Tile_default.icon, Tile_default.placeholder) }), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
   }
   function PlusIcon({ onClick }) {
     const id = g2();
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {import('../strings.json')} */
+      {}
+    );
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames2.default)(Tile_default.icon, Tile_default.placeholder, Tile_default.plus), "aria-labelledby": id, onClick }, /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames3.default)(Tile_default.icon, Tile_default.placeholder, Tile_default.plus), "aria-labelledby": id, onClick }, /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -4675,127 +4586,94 @@
         d: "M8.25 0.5C8.66421 0.5 9 0.835786 9 1.25V7H14.75C15.1642 7 15.5 7.33579 15.5 7.75C15.5 8.16421 15.1642 8.5 14.75 8.5H9V14.25C9 14.6642 8.66421 15 8.25 15C7.83579 15 7.5 14.6642 7.5 14.25V8.5H1.75C1.33579 8.5 1 8.16421 1 7.75C1 7.33579 1.33579 7 1.75 7H7.5V1.25C7.5 0.835786 7.83579 0.5 8.25 0.5Z",
         fill: "currentColor"
       }
-    ))), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, "Add Favorite"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+    ))), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, t3("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
   }
-  var import_classnames2, TileMemo, PlusIconMemo;
+  var import_classnames3, Tile, PlusIconMemo;
   var init_Tile2 = __esm({
     "pages/new-tab/app/favorites/components/Tile.js"() {
       "use strict";
       init_preact_module();
-      import_classnames2 = __toESM(require_classnames(), 1);
+      import_classnames3 = __toESM(require_classnames(), 1);
       init_hooks_module();
       init_compat_module();
       init_Tile();
       init_color();
       init_constants();
       init_PragmaticDND();
-      TileMemo = C3(Tile);
+      init_types();
+      Tile = C3(Tile_);
       PlusIconMemo = C3(PlusIcon);
     }
   });
 
-  // pages/new-tab/app/components/ShowHide.module.css
-  var ShowHide_default;
-  var init_ShowHide = __esm({
-    "pages/new-tab/app/components/ShowHide.module.css"() {
-      ShowHide_default = {
-        button: "ShowHide_button"
-      };
-    }
-  });
-
-  // pages/new-tab/app/components/ShowHideButton.jsx
-  function ShowHideButton({ text, onClick, buttonAttrs = {} }) {
-    return /* @__PURE__ */ _("button", { ...buttonAttrs, class: ShowHide_default.button, "aria-label": text, onClick }, /* @__PURE__ */ _(ChevronButton, null));
+  // pages/new-tab/app/favorites/components/TileRow.js
+  function TileRow_({ topOffset, items, add, dropped }) {
+    const fillers = ROW_CAPACITY - items.length;
+    return /* @__PURE__ */ _("ul", { className: Favorites_default.gridRow, style: { top: topOffset + "px" } }, items.map((item, index) => {
+      return /* @__PURE__ */ _(
+        Tile,
+        {
+          url: item.url,
+          faviconSrc: item.favicon?.src,
+          faviconMax: item.favicon?.maxAvailableSize,
+          title: item.title,
+          key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize,
+          id: item.id,
+          index,
+          dropped: dropped === item.id
+        }
+      );
+    }), fillers > 0 && Array.from({ length: fillers }).map((_3, fillerIndex) => {
+      if (fillerIndex === 0) {
+        return /* @__PURE__ */ _(PlusIconMemo, { key: "placeholder-plus", onClick: add });
+      }
+      return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${fillerIndex}` });
+    }));
   }
-  var init_ShowHideButton = __esm({
-    "pages/new-tab/app/components/ShowHideButton.jsx"() {
+  var TileRow;
+  var init_TileRow = __esm({
+    "pages/new-tab/app/favorites/components/TileRow.js"() {
       "use strict";
-      init_ShowHide();
-      init_Icons2();
+      init_Favorites();
+      init_Tile2();
       init_preact_module();
+      init_compat_module();
+      init_Favorites2();
+      TileRow = C3(TileRow_);
     }
   });
 
   // pages/new-tab/app/favorites/components/Favorites.js
-  function Favorites({ gridRef, favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add: add2 }) {
-    const platformName = usePlatformName();
-    const { t: t3 } = useTypedTranslation();
-    const ROW_CAPACITY = 6;
+  function Favorites({ gridRef, favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add }) {
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {import('../strings.json')} */
+      {}
+    );
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
-    const ITEM_PREFIX = g2();
-    const placeholders = calculatePlaceholders(favorites2.length, ROW_CAPACITY);
     const hiddenCount = expansion === "collapsed" ? favorites2.length - ROW_CAPACITY : 0;
-    const items = T2(() => {
-      return favorites2.map((item, index) => {
-        return /* @__PURE__ */ _(
-          TileMemo,
-          {
-            url: item.url,
-            faviconSrc: item.favicon?.src,
-            faviconMax: item.favicon?.maxAvailableSize,
-            title: item.title,
-            key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize,
-            id: item.id,
-            index
-          }
-        );
-      }).concat(
-        Array.from({ length: placeholders }).map((_3, index) => {
-          if (index === 0) {
-            return /* @__PURE__ */ _(PlusIconMemo, { key: "placeholder-plus", onClick: add2 });
-          }
-          return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${index}` });
-        })
-      );
-    }, [favorites2, placeholders, ITEM_PREFIX, add2]);
-    function onContextMenu(event) {
-      let target2 = (
-        /** @type {HTMLElement|null} */
-        event.target
-      );
-      while (target2 && target2 !== event.currentTarget) {
-        if (typeof target2.dataset.id === "string") {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          return openContextMenu(target2.dataset.id);
-        } else {
-          target2 = target2.parentElement;
-        }
+    const rowHeight = ITEM_HEIGHT + ROW_GAP;
+    const canToggleExpansion = favorites2.length >= ROW_CAPACITY;
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(Favorites_default.root, !canToggleExpansion && Favorites_default.bottomSpace), "data-testid": "FavoritesConfigured" }, /* @__PURE__ */ _(
+      VirtualizedGridRows,
+      {
+        WIDGET_ID,
+        favorites: favorites2,
+        rowHeight,
+        add,
+        expansion,
+        openFavorite,
+        openContextMenu
       }
-    }
-    function onClick(event) {
-      let target2 = (
-        /** @type {HTMLElement|null} */
-        event.target
-      );
-      while (target2 && target2 !== event.currentTarget) {
-        if (typeof target2.dataset.id === "string" && "href" in target2 && typeof target2.href === "string") {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
-          if (isControlClick) {
-            return openFavorite(target2.dataset.id, target2.href, "new-tab");
-          } else if (event.shiftKey) {
-            return openFavorite(target2.dataset.id, target2.href, "new-window");
-          }
-          return openFavorite(target2.dataset.id, target2.href, "same-tab");
-        } else {
-          target2 = target2.parentElement;
-        }
-      }
-    }
-    const canToggleExpansion = items.length > ROW_CAPACITY;
-    return /* @__PURE__ */ _("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured" }, /* @__PURE__ */ _("div", { class: Favorites_default.grid, id: WIDGET_ID, ref: gridRef, onContextMenu, onClick }, items.slice(0, expansion === "expanded" ? void 0 : ROW_CAPACITY)), /* @__PURE__ */ _(
+    ), canToggleExpansion && /* @__PURE__ */ _(
       "div",
       {
-        className: (0, import_classnames3.default)({
+        className: (0, import_classnames4.default)({
           [Favorites_default.showhide]: true,
           [Favorites_default.showhideVisible]: canToggleExpansion
         })
       },
-      canToggleExpansion && /* @__PURE__ */ _(
+      /* @__PURE__ */ _(
         ShowHideButton,
         {
           buttonAttrs: {
@@ -4810,33 +4688,175 @@
       )
     ));
   }
-  function calculatePlaceholders(totalItems, itemsPerRow) {
-    if (totalItems === 0) return itemsPerRow;
-    if (totalItems === itemsPerRow) return 1;
-    const itemsInLastRow = totalItems % itemsPerRow;
-    const placeholders = itemsInLastRow > 0 ? itemsPerRow - itemsInLastRow : 1;
-    return placeholders;
+  function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites: favorites2, expansion, openFavorite, openContextMenu, add }) {
+    const platformName = usePlatformName();
+    const rows = T2(() => {
+      const chunked = [];
+      let inner = [];
+      for (let i4 = 0; i4 < favorites2.length; i4++) {
+        inner.push(favorites2[i4]);
+        if (inner.length === ROW_CAPACITY) {
+          chunked.push(inner.slice());
+          inner = [];
+        }
+        if (i4 === favorites2.length - 1) {
+          chunked.push(inner.slice());
+          inner = [];
+        }
+      }
+      return chunked;
+    }, [favorites2]);
+    const safeAreaRef = (
+      /** @type {import("preact").RefObject<HTMLDivElement>} */
+      useDropzoneSafeArea()
+    );
+    const containerHeight = expansion === "collapsed" ? rowHeight : rows.length * rowHeight;
+    return /* @__PURE__ */ _(
+      "div",
+      {
+        className: Favorites_default.grid,
+        style: { height: containerHeight + "px" },
+        id: WIDGET_ID,
+        ref: safeAreaRef,
+        onContextMenu: getContextMenuHandler(openContextMenu),
+        onClick: getOnClickHandler(openFavorite, platformName)
+      },
+      rows.length === 0 && /* @__PURE__ */ _(TileRow, { key: "empty-rows", items: [], topOffset: 0, add }),
+      rows.length > 0 && /* @__PURE__ */ _(Inner, { rows, safeAreaRef, rowHeight, add })
+    );
   }
-  var import_classnames3, FavoritesMemo;
+  function Inner({ rows, safeAreaRef, rowHeight, add }) {
+    const { onConfigChanged, state } = x2(FavoritesContext);
+    const [expansion, setExpansion] = h2(state.config?.expansion || "collapsed");
+    y2(() => {
+      return onConfigChanged((config) => {
+        if (config.expansion === "expanded") {
+          setTimeout(() => {
+            setExpansion(config.expansion);
+          }, 0);
+        } else {
+          setExpansion(config.expansion);
+        }
+      });
+    }, [onConfigChanged]);
+    const [{ start: start2, end }, setVisibleRange] = h2({ start: 0, end: 1 });
+    const gridOffset = A2(0);
+    function updateGlobals() {
+      if (!safeAreaRef.current) return;
+      const rec = safeAreaRef.current.getBoundingClientRect();
+      gridOffset.current = rec.y + window.scrollY;
+    }
+    function setVisibleRows() {
+      if (!safeAreaRef.current) return console.warn("cannot access ref");
+      if (!gridOffset.current) return console.warn("cannot access ref");
+      const offset = gridOffset.current;
+      const end2 = window.scrollY + window.innerHeight - offset;
+      let start3;
+      if (offset > window.scrollY) {
+        start3 = 0;
+      } else {
+        start3 = window.scrollY - offset;
+      }
+      const startIndex = Math.floor(start3 / rowHeight);
+      const endIndex = Math.min(Math.ceil(end2 / rowHeight), rows.length);
+      setVisibleRange({ start: startIndex, end: endIndex });
+    }
+    _2(() => {
+      updateGlobals();
+      setVisibleRows();
+      const controller = new AbortController();
+      window.addEventListener(
+        "resize",
+        () => {
+          updateGlobals();
+          setVisibleRows();
+        },
+        { signal: controller.signal }
+      );
+      window.addEventListener(
+        "scroll",
+        () => {
+          setVisibleRows();
+        },
+        { signal: controller.signal }
+      );
+      return () => {
+        controller.abort();
+      };
+    }, [rows.length]);
+    const subsetOfRowsToRender = expansion === "collapsed" ? [rows[0]] : rows.slice(start2, end + 1);
+    const dropped = document.documentElement.dataset.dropped;
+    return /* @__PURE__ */ _(b, null, subsetOfRowsToRender.map((items, rowIndex) => {
+      const topOffset = expansion === "expanded" ? (start2 + rowIndex) * rowHeight : 0;
+      const keyed = `-${start2 + rowIndex}-`;
+      return /* @__PURE__ */ _(TileRow, { key: keyed, dropped, items, topOffset, add });
+    }));
+  }
+  function getContextMenuHandler(openContextMenu) {
+    return (event) => {
+      let target = (
+        /** @type {HTMLElement|null} */
+        event.target
+      );
+      while (target && target !== event.currentTarget) {
+        if (typeof target.dataset.id === "string" && "href" in target && typeof target.href === "string") {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return openContextMenu(target.dataset.id);
+        } else {
+          target = target.parentElement;
+        }
+      }
+    };
+  }
+  function getOnClickHandler(openFavorite, platformName) {
+    return (event) => {
+      let target = (
+        /** @type {HTMLElement|null} */
+        event.target
+      );
+      while (target && target !== event.currentTarget) {
+        if (typeof target.dataset.id === "string" && "href" in target && typeof target.href === "string") {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
+          if (isControlClick) {
+            return openFavorite(target.dataset.id, target.href, "new-tab");
+          } else if (event.shiftKey) {
+            return openFavorite(target.dataset.id, target.href, "new-window");
+          }
+          return openFavorite(target.dataset.id, target.href, "same-tab");
+        } else {
+          target = target.parentElement;
+        }
+      }
+    };
+  }
+  var import_classnames4, FavoritesMemo, ROW_CAPACITY, ITEM_HEIGHT, ROW_GAP;
   var init_Favorites2 = __esm({
     "pages/new-tab/app/favorites/components/Favorites.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_compat_module();
-      import_classnames3 = __toESM(require_classnames(), 1);
+      import_classnames4 = __toESM(require_classnames(), 1);
       init_Favorites();
-      init_Tile2();
       init_ShowHideButton();
       init_types();
       init_settings_provider();
+      init_dropzone();
+      init_TileRow();
+      init_FavoritesProvider();
       FavoritesMemo = C3(Favorites);
+      ROW_CAPACITY = 6;
+      ITEM_HEIGHT = 98;
+      ROW_GAP = 8;
     }
   });
 
   // pages/new-tab/app/favorites/components/FavoritesCustomized.js
   function FavoritesConsumer() {
-    const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2 } = x2(FavoritesContext);
+    const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add } = x2(FavoritesContext);
     const telemetry2 = useTelemetry();
     if (state.status === "ready") {
       telemetry2.measureFromPageLoad("favorites-will-render", "time to favorites");
@@ -4847,7 +4867,7 @@
           expansion: state.config.expansion,
           openContextMenu,
           openFavorite,
-          add: add2,
+          add,
           toggle
         }
       ));
@@ -4855,7 +4875,10 @@
     return null;
   }
   function FavoritesCustomized() {
-    const { t: t3 } = useTypedTranslation();
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {import("../strings.json")} */
+      {}
+    );
     const { id, visibility, toggle, index } = useVisibility();
     const title = t3("favorites_menu_title");
     useCustomizer({ title, id, icon: "star", toggle, visibility, index });
@@ -4884,7 +4907,7 @@
     factory: () => factory
   });
   function factory() {
-    return /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _(FavoritesCustomized, null));
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "favorites" }, /* @__PURE__ */ _(FavoritesCustomized, null));
   }
   var init_favorites = __esm({
     "pages/new-tab/app/entry-points/favorites.js"() {
@@ -4917,6 +4940,9 @@
             subscribe: (cb) => ntp.messaging.subscribe("nextSteps_onConfigUpdate", cb),
             persist: (data) => ntp.messaging.notify("nextSteps_setConfig", data)
           });
+        }
+        name() {
+          return "NextStepsService";
         }
         /**
          * @returns {Promise<{data: NextStepsData; config: NextStepsConfig}>}
@@ -5073,12 +5099,12 @@
         title: "NextSteps_title",
         description: "NextSteps_description",
         btn: "NextSteps_btn",
-        showhideVisible: "NextSteps_showhideVisible",
         dismissBtn: "NextSteps_dismissBtn",
         cardGroup: "NextSteps_cardGroup",
+        showhide: "NextSteps_showhide",
+        bottomSpace: "NextSteps_bottomSpace",
         cardGrid: "NextSteps_cardGrid",
         bubble: "NextSteps_bubble",
-        showhide: "NextSteps_showhide",
         nextStepsCard: "NextSteps_nextStepsCard"
       };
     }
@@ -5097,14 +5123,14 @@
   // pages/new-tab/app/components/DismissButton.jsx
   function DismissButton({ className, onClick }) {
     const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(DismissButton_default.btn, className), onClick, "aria-label": t3("ntp_dismiss"), "data-testid": "dismissBtn" }, /* @__PURE__ */ _(Cross, null));
+    return /* @__PURE__ */ _("button", { class: (0, import_classnames5.default)(DismissButton_default.btn, className), onClick, "aria-label": t3("ntp_dismiss"), "data-testid": "dismissBtn" }, /* @__PURE__ */ _(Cross, null));
   }
-  var import_classnames4;
+  var import_classnames5;
   var init_DismissButton2 = __esm({
     "pages/new-tab/app/components/DismissButton.jsx"() {
       "use strict";
       init_preact_module();
-      import_classnames4 = __toESM(require_classnames(), 1);
+      import_classnames5 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_types();
       init_DismissButton();
@@ -5117,7 +5143,7 @@
     "pages/new-tab/app/next-steps/nextsteps.data.js"() {
       "use strict";
       variants = {
-        /** @param {(translationId: string) => string} t */
+        /** @param {(translationId: keyof enStrings) => string} t */
         bringStuff: (t3) => ({
           id: "bringStuff",
           icon: "Bring-Stuff",
@@ -5125,7 +5151,7 @@
           summary: t3("nextSteps_bringStuff_summary"),
           actionText: t3("nextSteps_bringStuff_actionText")
         }),
-        /** @param {(translationId: string) => string} t */
+        /** @param {(translationId: keyof enStrings) => string} t */
         defaultApp: (t3) => ({
           id: "defaultApp",
           icon: "Default-App",
@@ -5133,7 +5159,7 @@
           summary: t3("nextSteps_defaultApp_summary"),
           actionText: t3("nextSteps_defaultApp_actionText")
         }),
-        /** @param {(translationId: string) => string} t */
+        /** @param {(translationId: keyof enStrings) => string} t */
         blockCookies: (t3) => ({
           id: "blockCookies",
           icon: "Cookie-Pops",
@@ -5141,7 +5167,7 @@
           summary: t3("nextSteps_blockCookies_summary"),
           actionText: t3("nextSteps_blockCookies_actionText")
         }),
-        /** @param {(translationId: string) => string} t */
+        /** @param {(translationId: keyof enStrings) => string} t */
         emailProtection: (t3) => ({
           id: "emailProtection",
           icon: "Email-Protection",
@@ -5149,7 +5175,7 @@
           summary: t3("nextSteps_emailProtection_summary"),
           actionText: t3("nextSteps_emailProtection_actionText")
         }),
-        /** @param {(translationId: string) => string} t */
+        /** @param {(translationId: keyof enStrings) => string} t */
         duckplayer: (t3) => ({
           id: "duckplayer",
           icon: "Tube-Clean",
@@ -5157,15 +5183,15 @@
           summary: t3("nextSteps_duckPlayer_summary"),
           actionText: t3("nextSteps_duckPlayer_actionText")
         }),
-        /** @param {(translationId: string) => string} t */
-        addAppDockMac: (t3) => ({
+        /** @param {(translationId: keyof enStrings) => string} t */
+        addAppToDockMac: (t3) => ({
           id: "addAppToDockMac",
           icon: "Dock-Add-Mac",
           title: t3("nextSteps_addAppDockMac_title"),
           summary: t3("nextSteps_addAppDockMac_summary"),
           actionText: t3("nextSteps_addAppDockMac_actionText")
         }),
-        /** @param {(translationId: string) => string} t */
+        /** @param {(translationId: keyof enStrings) => string} t */
         pinAppToTaskbarWindows: (t3) => ({
           id: "pinAppToTaskbarWindows",
           icon: "Dock-Add-Windows",
@@ -5175,11 +5201,11 @@
         })
       };
       otherText = {
-        /** @param {(translationId: string) => string} t */
+        /** @param {(translationId: keyof ntpStrings) => string} t */
         showMore: (t3) => t3("ntp_show_more"),
-        /** @param {(translationId: string) => string} t */
+        /** @param {(translationId: keyof ntpStrings) => string} t */
         showLess: (t3) => t3("ntp_show_less"),
-        /** @param {(translationId: string) => string} t */
+        /** @param {(translationId: keyof enStrings) => string} t */
         nextSteps_sectionTitle: (t3) => t3("nextSteps_sectionTitle")
       };
     }
@@ -5187,7 +5213,10 @@
 
   // pages/new-tab/app/next-steps/components/NextStepsCard.js
   function NextStepsCard({ type, dismiss, action }) {
-    const { t: t3 } = useTypedTranslation();
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {import("../strings.json")} */
+      {}
+    );
     const message = variants[type]?.(t3);
     return /* @__PURE__ */ _("div", { class: NextSteps_default.card }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ _("p", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ _("p", { class: NextSteps_default.description }, message.summary), /* @__PURE__ */ _("button", { class: NextSteps_default.btn, onClick: () => action(message.id) }, message.actionText), /* @__PURE__ */ _(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
@@ -5202,46 +5231,25 @@
     }
   });
 
-  // pages/new-tab/app/next-steps/components/ShowHide.module.css
-  var ShowHide_default2;
-  var init_ShowHide2 = __esm({
-    "pages/new-tab/app/next-steps/components/ShowHide.module.css"() {
-      ShowHide_default2 = {
-        button: "ShowHide_button2",
-        icon: "ShowHide_icon"
-      };
-    }
-  });
-
-  // pages/new-tab/app/next-steps/components/ShowHideButtonWithText.jsx
-  function ShowHideButtonWithText({ text, onClick, buttonAttrs = {} }) {
-    return /* @__PURE__ */ _("button", { ...buttonAttrs, class: ShowHide_default2.button, "aria-label": text, onClick }, /* @__PURE__ */ _("span", null), text, /* @__PURE__ */ _(Chevron, { className: ShowHide_default2.icon }), /* @__PURE__ */ _("span", null));
-  }
-  var init_ShowHideButtonWithText = __esm({
-    "pages/new-tab/app/next-steps/components/ShowHideButtonWithText.jsx"() {
-      "use strict";
-      init_ShowHide2();
-      init_Icons2();
-      init_preact_module();
-    }
-  });
-
   // pages/new-tab/app/next-steps/components/NextStepsGroup.js
   function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }) {
-    const { t: t3 } = useTypedTranslation();
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {strings} */
+      {}
+    );
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
-    const shownCards = expansion === "expanded" ? types : types.slice(0, 2);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)(NextSteps_default.cardGroup), id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, shownCards.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), /* @__PURE__ */ _(
+    const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(NextSteps_default.cardGroup, types.length <= 2 && NextSteps_default.bottomSpace), id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(
       "div",
       {
-        className: (0, import_classnames5.default)({
-          [NextSteps_default.showhide]: true,
+        className: (0, import_classnames6.default)({
+          [NextSteps_default.showhide]: types.length > 2,
           [NextSteps_default.showhideVisible]: types.length > 2
         })
       },
-      types.length > 2 && /* @__PURE__ */ _(
-        ShowHideButtonWithText,
+      /* @__PURE__ */ _(
+        ShowHideButton,
         {
           buttonAttrs: {
             "aria-expanded": expansion === "expanded",
@@ -5256,7 +5264,10 @@
     ));
   }
   function NextStepsBubbleHeader() {
-    const { t: t3 } = useTypedTranslation();
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {strings} */
+      {}
+    );
     const text = otherText.nextSteps_sectionTitle(t3);
     return /* @__PURE__ */ _("div", { class: NextSteps_default.bubble }, /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ _(
       "path",
@@ -5274,17 +5285,17 @@
       }
     )));
   }
-  var import_classnames5;
+  var import_classnames6;
   var init_NextStepsGroup = __esm({
     "pages/new-tab/app/next-steps/components/NextStepsGroup.js"() {
       "use strict";
       init_preact_module();
-      import_classnames5 = __toESM(require_classnames(), 1);
+      import_classnames6 = __toESM(require_classnames(), 1);
       init_NextSteps();
       init_types();
       init_NextStepsCard();
       init_nextsteps_data();
-      init_ShowHideButtonWithText();
+      init_ShowHideButton();
       init_hooks_module();
     }
   });
@@ -5329,19 +5340,19 @@
     }
   });
 
-  // pages/new-tab/app/privacy-stats/PrivacyStats.module.css
+  // pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css
   var PrivacyStats_default;
   var init_PrivacyStats = __esm({
-    "pages/new-tab/app/privacy-stats/PrivacyStats.module.css"() {
+    "pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css"() {
       PrivacyStats_default = {
         root: "PrivacyStats_root",
-        collapsed: "PrivacyStats_collapsed",
-        expanded: "PrivacyStats_expanded",
+        listExpander: "PrivacyStats_listExpander",
         heading: "PrivacyStats_heading",
+        subtitle: "PrivacyStats_subtitle",
         headingIcon: "PrivacyStats_headingIcon",
         title: "PrivacyStats_title",
-        expander: "PrivacyStats_expander",
-        subtitle: "PrivacyStats_subtitle",
+        widgetExpander: "PrivacyStats_widgetExpander",
+        uppercase: "PrivacyStats_uppercase",
         list: "PrivacyStats_list",
         entering: "PrivacyStats_entering",
         "fade-in": "PrivacyStats_fade-in",
@@ -5349,14 +5360,14 @@
         exiting: "PrivacyStats_exiting",
         "fade-out": "PrivacyStats_fade-out",
         row: "PrivacyStats_row",
+        otherTrackersRow: "PrivacyStats_otherTrackersRow",
         company: "PrivacyStats_company",
         icon: "PrivacyStats_icon",
         companyImgIcon: "PrivacyStats_companyImgIcon",
-        other: "PrivacyStats_other",
         name: "PrivacyStats_name",
+        count: "PrivacyStats_count",
         bar: "PrivacyStats_bar",
-        fill: "PrivacyStats_fill",
-        count: "PrivacyStats_count"
+        fill: "PrivacyStats_fill"
       };
     }
   });
@@ -5382,6 +5393,9 @@
             subscribe: (cb) => ntp.messaging.subscribe("stats_onConfigUpdate", cb),
             persist: (data) => ntp.messaging.notify("stats_setConfig", data)
           });
+        }
+        name() {
+          return "PrivacyStatsService";
         }
         /**
          * @returns {Promise<{data: PrivacyStatsData; config: StatsConfig}>}
@@ -5538,7 +5552,7 @@
     }
   });
 
-  // pages/new-tab/app/privacy-stats/PrivacyStats.js
+  // pages/new-tab/app/privacy-stats/components/PrivacyStats.js
   function PrivacyStats({ expansion, data, toggle, animation = "auto-animate" }) {
     if (animation === "view-transitions") {
       return /* @__PURE__ */ _(WithViewTransitions, { data, expansion, toggle });
@@ -5559,7 +5573,6 @@
     return /* @__PURE__ */ _("div", { class: PrivacyStats_default.root, ref: parentRef }, /* @__PURE__ */ _(
       Heading,
       {
-        totalCount: data.totalCount,
         trackerCompanies: data.trackerCompanies,
         onToggle: toggle,
         expansion,
@@ -5568,18 +5581,20 @@
           id: TOGGLE_ID
         }
       }
-    ), expanded && someCompanies && /* @__PURE__ */ _(Body, { trackerCompanies: data.trackerCompanies, listAttrs: { id: WIDGET_ID } }));
+    ), expanded && someCompanies && /* @__PURE__ */ _(PrivacyStatsBody, { trackerCompanies: data.trackerCompanies, listAttrs: { id: WIDGET_ID } }));
   }
-  function Heading({ expansion, trackerCompanies, totalCount, onToggle, buttonAttrs = {} }) {
-    const { t: t3 } = useTypedTranslation();
+  function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {} }) {
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     const [formatter] = h2(() => new Intl.NumberFormat());
     const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0);
-    const recentTitle = recent === 1 ? t3("trackerStatsFeedCountBlockedSingular") : t3("trackerStatsFeedCountBlockedPlural", { count: formatter.format(recent) });
-    const none = totalCount === 0;
-    const some = totalCount > 0;
-    const alltime = formatter.format(totalCount);
-    const alltimeTitle = totalCount === 1 ? t3("trackerStatsCountBlockedSingular") : t3("trackerStatsCountBlockedPlural", { count: alltime });
-    return /* @__PURE__ */ _("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield.svg", alt: "" })), none && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, t3("trackerStatsNoRecent")), some && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, alltimeTitle), recent > 0 && /* @__PURE__ */ _("span", { className: PrivacyStats_default.expander }, /* @__PURE__ */ _(
+    const none = recent === 0;
+    const some = recent > 0;
+    const alltime = formatter.format(recent);
+    const alltimeTitle = recent === 1 ? t3("stats_countBlockedSingular") : t3("stats_countBlockedPlural", { count: alltime });
+    return /* @__PURE__ */ _("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, t3("stats_noRecent")), some && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, alltimeTitle), recent > 0 && /* @__PURE__ */ _("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
       ShowHideButton,
       {
         buttonAttrs: {
@@ -5588,30 +5603,69 @@
           "aria-pressed": expansion === "expanded"
         },
         onClick: onToggle,
-        text: expansion === "expanded" ? t3("trackerStatsHideLabel") : t3("trackerStatsToggleLabel")
+        text: expansion === "expanded" ? t3("stats_hideLabel") : t3("stats_toggleLabel"),
+        shape: "round"
       }
-    )), /* @__PURE__ */ _("p", { className: PrivacyStats_default.subtitle }, recent === 0 && t3("trackerStatsNoActivity"), recent > 0 && recentTitle));
+    )), recent === 0 && /* @__PURE__ */ _("p", { className: PrivacyStats_default.subtitle }, t3("stats_noActivity")), recent > 0 && /* @__PURE__ */ _("p", { className: (0, import_classnames7.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t3("stats_feedCountBlockedPeriod")));
   }
-  function Body({ trackerCompanies, listAttrs = {} }) {
-    const { t: t3 } = useTypedTranslation();
+  function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
+    const messaging2 = useMessaging();
     const [formatter] = h2(() => new Intl.NumberFormat());
+    const defaultRowMax = 5;
     const sorted = sortStatsForDisplay(trackerCompanies);
     const max = sorted[0]?.count ?? 0;
-    return /* @__PURE__ */ _("ul", { ...listAttrs, class: PrivacyStats_default.list, "data-testid": "CompanyList" }, sorted.map((company) => {
+    const [visible, setVisible] = h2(defaultRowMax);
+    const hasmore = sorted.length > visible;
+    const toggleListExpansion = () => {
+      if (hasmore) {
+        messaging2.statsShowMore();
+      } else {
+        messaging2.statsShowLess();
+      }
+      if (visible === defaultRowMax) {
+        setVisible(sorted.length);
+      }
+      if (visible === sorted.length) {
+        setVisible(defaultRowMax);
+      }
+    };
+    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("ul", { ...listAttrs, class: PrivacyStats_default.list, "data-testid": "CompanyList" }, sorted.slice(0, visible).map((company) => {
       const percentage = Math.min(company.count * 100 / max, 100);
       const valueOrMin = Math.max(percentage, 10);
       const inlineStyles = {
         width: `${valueOrMin}%`
       };
       const countText = formatter.format(company.count);
-      const displayName = company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER ? t3("trackerStatsOtherCompanyName") : company.displayName;
-      return /* @__PURE__ */ _("li", { key: company.displayName }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { displayName: company.displayName }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ _("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.fill, style: inlineStyles })));
-    }));
+      const displayName = company.displayName;
+      if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
+        const otherText2 = t3("stats_otherCount", { count: String(company.count) });
+        return /* @__PURE__ */ _("li", { key: company.displayName, class: PrivacyStats_default.otherTrackersRow }, otherText2);
+      }
+      return /* @__PURE__ */ _("li", { key: company.displayName, class: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { displayName: company.displayName }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ _("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.fill, style: inlineStyles }));
+    })), sorted.length > defaultRowMax && /* @__PURE__ */ _("div", { class: PrivacyStats_default.listExpander }, /* @__PURE__ */ _(
+      ShowHideButton,
+      {
+        onClick: toggleListExpansion,
+        text: hasmore ? t3("ntp_show_more") : t3("ntp_show_less"),
+        showText: true,
+        buttonAttrs: {
+          "aria-expanded": !hasmore,
+          "aria-pressed": visible === sorted.length
+        }
+      }
+    )));
   }
   function PrivacyStatsCustomized() {
-    const { t: t3 } = useTypedTranslation();
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     const { visibility, id, toggle, index } = useVisibility();
-    const title = t3("trackerStatsMenuTitle");
+    const title = t3("stats_menuTitle");
     useCustomizer({ title, id, icon: "shield", toggle, visibility, index });
     if (visibility === "hidden") {
       return null;
@@ -5664,10 +5718,12 @@
       }
     ));
   }
+  var import_classnames7;
   var init_PrivacyStats2 = __esm({
-    "pages/new-tab/app/privacy-stats/PrivacyStats.js"() {
+    "pages/new-tab/app/privacy-stats/components/PrivacyStats.js"() {
       "use strict";
       init_preact_module();
+      import_classnames7 = __toESM(require_classnames(), 1);
       init_PrivacyStats();
       init_types();
       init_hooks_module();
@@ -5698,13 +5754,14 @@
     }
   });
 
-  // pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.module.css
+  // pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.module.css
   var RemoteMessagingFramework_default;
   var init_RemoteMessagingFramework = __esm({
-    "pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.module.css"() {
+    "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.module.css"() {
       RemoteMessagingFramework_default = {
         root: "RemoteMessagingFramework_root",
         icon: "RemoteMessagingFramework_icon",
+        "animate-fade": "RemoteMessagingFramework_animate-fade",
         iconBlock: "RemoteMessagingFramework_iconBlock",
         content: "RemoteMessagingFramework_content",
         title: "RemoteMessagingFramework_title",
@@ -5735,6 +5792,9 @@
             initial: () => ntp.messaging.request("rmf_getData"),
             subscribe: (cb) => ntp.messaging.subscribe("rmf_onDataUpdate", cb)
           });
+        }
+        name() {
+          return "RMFService";
         }
         /**
          * @returns {Promise<RMFData>}
@@ -5862,10 +5922,10 @@
     }
   });
 
-  // pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.js
+  // pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames6.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames6.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.primary), onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames6.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.secondary), onClick: () => secondaryAction(id) }, message.secondaryActionText))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _("button", { class: (0, import_classnames6.default)(RemoteMessagingFramework_default.btn), onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames8.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames8.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.primary), onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames8.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.secondary), onClick: () => secondaryAction(id) }, message.secondaryActionText))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _("button", { class: (0, import_classnames8.default)(RemoteMessagingFramework_default.btn), onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -5882,12 +5942,12 @@
     }
     return null;
   }
-  var import_classnames6;
+  var import_classnames8;
   var init_RemoteMessagingFramework2 = __esm({
-    "pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.js"() {
+    "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames6 = __toESM(require_classnames(), 1);
+      import_classnames8 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -5913,10 +5973,10 @@
     }
   });
 
-  // pages/new-tab/app/update-notification/UpdateNotification.module.css
+  // pages/new-tab/app/update-notification/components/UpdateNotification.module.css
   var UpdateNotification_default;
   var init_UpdateNotification = __esm({
-    "pages/new-tab/app/update-notification/UpdateNotification.module.css"() {
+    "pages/new-tab/app/update-notification/components/UpdateNotification.module.css"() {
       UpdateNotification_default = {
         pulled: "UpdateNotification_pulled",
         root: "UpdateNotification_root",
@@ -5926,8 +5986,7 @@
         summary: "UpdateNotification_summary",
         detailsContent: "UpdateNotification_detailsContent",
         list: "UpdateNotification_list",
-        dismiss: "UpdateNotification_dismiss",
-        dismissBtn: "UpdateNotification_dismissBtn"
+        dismiss: "UpdateNotification_dismiss"
       };
     }
   });
@@ -6043,10 +6102,9 @@
     }
   });
 
-  // pages/new-tab/app/update-notification/UpdateNotification.js
+  // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames7.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 && /* @__PURE__ */ _(WithNotes, { notes, version }), notes.length === 0 && /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _("div", { class: UpdateNotification_default.dismiss }, /* @__PURE__ */ _("button", { onClick: dismiss, class: UpdateNotification_default.dismissBtn }, /* @__PURE__ */ _("span", { class: "sr-only" }, t3("updateNotification_dismiss_btn")), /* @__PURE__ */ _(Cross, null))));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -6054,7 +6112,10 @@
       /** @type {HTMLDetailsElement|null} */
       null
     );
-    const { t: t3 } = useTypedTranslation();
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {import("../strings.json")} */
+      {}
+    );
     const inlineLink = /* @__PURE__ */ _(
       Trans,
       {
@@ -6077,7 +6138,10 @@
     }))));
   }
   function WithoutNotes({ version }) {
-    const { t: t3 } = useTypedTranslation();
+    const { t: t3 } = useTypedTranslationWith(
+      /** @type {import("../strings.json")} */
+      {}
+    );
     return /* @__PURE__ */ _("p", null, t3("updateNotification_updated_version", { version }));
   }
   function UpdateNotificationConsumer() {
@@ -6087,18 +6151,18 @@
     }
     return null;
   }
-  var import_classnames7;
+  var import_classnames9;
   var init_UpdateNotification2 = __esm({
-    "pages/new-tab/app/update-notification/UpdateNotification.js"() {
+    "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames7 = __toESM(require_classnames(), 1);
+      import_classnames9 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
       init_types();
       init_TranslationsProvider();
-      init_Icons2();
+      init_DismissButton2();
     }
   });
 
@@ -6124,6 +6188,9 @@
   var i2;
   null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.24.3", l, { Fragment: b, Component: k });
 
+  // pages/new-tab/src/js/index.js
+  init_preact_module();
+
   // pages/new-tab/app/index.js
   init_preact_module();
 
@@ -6142,503 +6209,113 @@
   init_preact_module();
   init_widget_config_provider();
   init_hooks_module();
+  init_Customizer2();
+  init_types();
 
-  // pages/onboarding/app/components/Stack.js
+  // shared/components/ErrorBoundary.js
+  init_preact_module();
+  var ErrorBoundary = class extends k {
+    /**
+     * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
+     */
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false };
+    }
+    static getDerivedStateFromError() {
+      return { hasError: true };
+    }
+    componentDidCatch(error, info) {
+      console.error(error);
+      console.log(info);
+      this.props.didCatch({ error, info });
+    }
+    render() {
+      if (this.state.hasError) {
+        return this.props.fallback;
+      }
+      return this.props.children;
+    }
+  };
+
+  // shared/components/Fallback/Fallback.jsx
   init_preact_module();
 
-  // pages/onboarding/app/components/Stack.module.css
-  var Stack_default = {
-    stack: "Stack_stack"
+  // shared/components/Fallback/Fallback.module.css
+  var Fallback_default = {
+    fallback: "Fallback_fallback"
   };
 
-  // ../node_modules/@formkit/auto-animate/preact/index.mjs
-  init_hooks_module();
+  // shared/components/Fallback/Fallback.jsx
+  function Fallback({ showDetails, children }) {
+    return /* @__PURE__ */ _("div", { class: Fallback_default.fallback }, /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("p", null, "Something went wrong!"), children, showDetails && /* @__PURE__ */ _("p", null, "Please check logs for a message called ", /* @__PURE__ */ _("code", null, "reportPageException"))));
+  }
 
-  // ../node_modules/@formkit/auto-animate/index.mjs
-  var parents = /* @__PURE__ */ new Set();
-  var coords = /* @__PURE__ */ new WeakMap();
-  var siblings = /* @__PURE__ */ new WeakMap();
-  var animations = /* @__PURE__ */ new WeakMap();
-  var intersections = /* @__PURE__ */ new WeakMap();
-  var intervals = /* @__PURE__ */ new WeakMap();
-  var options = /* @__PURE__ */ new WeakMap();
-  var debounces = /* @__PURE__ */ new WeakMap();
-  var enabled = /* @__PURE__ */ new WeakSet();
-  var root;
-  var scrollX = 0;
-  var scrollY = 0;
-  var TGT = "__aa_tgt";
-  var DEL = "__aa_del";
-  var NEW = "__aa_new";
-  var handleMutations = (mutations2) => {
-    const elements = getElements(mutations2);
-    if (elements) {
-      elements.forEach((el) => animate(el));
-    }
-  };
-  var handleResizes = (entries2) => {
-    entries2.forEach((entry) => {
-      if (entry.target === root)
-        updateAllPos();
-      if (coords.has(entry.target))
-        updatePos(entry.target);
-    });
-  };
-  function observePosition(el) {
-    const oldObserver = intersections.get(el);
-    oldObserver === null || oldObserver === void 0 ? void 0 : oldObserver.disconnect();
-    let rect = coords.get(el);
-    let invocations = 0;
-    const buffer = 5;
-    if (!rect) {
-      rect = getCoords(el);
-      coords.set(el, rect);
-    }
-    const { offsetWidth, offsetHeight } = root;
-    const rootMargins = [
-      rect.top - buffer,
-      offsetWidth - (rect.left + buffer + rect.width),
-      offsetHeight - (rect.top + buffer + rect.height),
-      rect.left - buffer
-    ];
-    const rootMargin = rootMargins.map((px) => `${-1 * Math.floor(px)}px`).join(" ");
-    const observer = new IntersectionObserver(() => {
-      ++invocations > 1 && updatePos(el);
-    }, {
-      root,
-      threshold: 1,
-      rootMargin
-    });
-    observer.observe(el);
-    intersections.set(el, observer);
-  }
-  function updatePos(el) {
-    clearTimeout(debounces.get(el));
-    const optionsOrPlugin = getOptions(el);
-    const delay = isPlugin(optionsOrPlugin) ? 500 : optionsOrPlugin.duration;
-    debounces.set(el, setTimeout(async () => {
-      const currentAnimation = animations.get(el);
-      try {
-        await (currentAnimation === null || currentAnimation === void 0 ? void 0 : currentAnimation.finished);
-        coords.set(el, getCoords(el));
-        observePosition(el);
-      } catch {
-      }
-    }, delay));
-  }
-  function updateAllPos() {
-    clearTimeout(debounces.get(root));
-    debounces.set(root, setTimeout(() => {
-      parents.forEach((parent) => forEach(parent, (el) => lowPriority(() => updatePos(el))));
-    }, 100));
-  }
-  function poll(el) {
-    setTimeout(() => {
-      intervals.set(el, setInterval(() => lowPriority(updatePos.bind(null, el)), 2e3));
-    }, Math.round(2e3 * Math.random()));
-  }
-  function lowPriority(callback) {
-    if (typeof requestIdleCallback === "function") {
-      requestIdleCallback(() => callback());
-    } else {
-      requestAnimationFrame(() => callback());
-    }
-  }
-  var mutations;
-  var resize;
-  var supportedBrowser = typeof window !== "undefined" && "ResizeObserver" in window;
-  if (supportedBrowser) {
-    root = document.documentElement;
-    mutations = new MutationObserver(handleMutations);
-    resize = new ResizeObserver(handleResizes);
-    window.addEventListener("scroll", () => {
-      scrollY = window.scrollY;
-      scrollX = window.scrollX;
-    });
-    resize.observe(root);
-  }
-  function getElements(mutations2) {
-    const observedNodes = mutations2.reduce((nodes, mutation) => {
-      return [
-        ...nodes,
-        ...Array.from(mutation.addedNodes),
-        ...Array.from(mutation.removedNodes)
-      ];
-    }, []);
-    const onlyCommentNodesObserved = observedNodes.every((node) => node.nodeName === "#comment");
-    if (onlyCommentNodesObserved)
-      return false;
-    return mutations2.reduce((elements, mutation) => {
-      if (elements === false)
-        return false;
-      if (mutation.target instanceof Element) {
-        target(mutation.target);
-        if (!elements.has(mutation.target)) {
-          elements.add(mutation.target);
-          for (let i4 = 0; i4 < mutation.target.children.length; i4++) {
-            const child = mutation.target.children.item(i4);
-            if (!child)
-              continue;
-            if (DEL in child) {
-              return false;
-            }
-            target(mutation.target, child);
-            elements.add(child);
-          }
-        }
-        if (mutation.removedNodes.length) {
-          for (let i4 = 0; i4 < mutation.removedNodes.length; i4++) {
-            const child = mutation.removedNodes[i4];
-            if (DEL in child) {
-              return false;
-            }
-            if (child instanceof Element) {
-              elements.add(child);
-              target(mutation.target, child);
-              siblings.set(child, [
-                mutation.previousSibling,
-                mutation.nextSibling
-              ]);
-            }
-          }
-        }
-      }
-      return elements;
-    }, /* @__PURE__ */ new Set());
-  }
-  function target(el, child) {
-    if (!child && !(TGT in el))
-      Object.defineProperty(el, TGT, { value: el });
-    else if (child && !(TGT in child))
-      Object.defineProperty(child, TGT, { value: el });
-  }
-  function animate(el) {
-    var _a;
-    const isMounted = el.isConnected;
-    const preExisting = coords.has(el);
-    if (isMounted && siblings.has(el))
-      siblings.delete(el);
-    if (animations.has(el)) {
-      (_a = animations.get(el)) === null || _a === void 0 ? void 0 : _a.cancel();
-    }
-    if (NEW in el) {
-      add(el);
-    } else if (preExisting && isMounted) {
-      remain(el);
-    } else if (preExisting && !isMounted) {
-      remove(el);
-    } else {
-      add(el);
-    }
-  }
-  function raw(str) {
-    return Number(str.replace(/[^0-9.\-]/g, ""));
-  }
-  function getScrollOffset(el) {
-    let p3 = el.parentElement;
-    while (p3) {
-      if (p3.scrollLeft || p3.scrollTop) {
-        return { x: p3.scrollLeft, y: p3.scrollTop };
-      }
-      p3 = p3.parentElement;
-    }
-    return { x: 0, y: 0 };
-  }
-  function getCoords(el) {
-    const rect = el.getBoundingClientRect();
-    const { x: x4, y: y3 } = getScrollOffset(el);
+  // pages/new-tab/app/widget-list/WidgetList.js
+  init_Layout();
+
+  // import("../entry-points/**/*.js") in pages/new-tab/app/widget-list/WidgetList.js
+  var globImport_entry_points_js = __glob({
+    "../entry-points/favorites.js": () => Promise.resolve().then(() => (init_favorites(), favorites_exports)),
+    "../entry-points/nextSteps.js": () => Promise.resolve().then(() => (init_nextSteps(), nextSteps_exports)),
+    "../entry-points/privacyStats.js": () => Promise.resolve().then(() => (init_privacyStats(), privacyStats_exports)),
+    "../entry-points/rmf.js": () => Promise.resolve().then(() => (init_rmf(), rmf_exports)),
+    "../entry-points/updateNotification.js": () => Promise.resolve().then(() => (init_updateNotification(), updateNotification_exports))
+  });
+
+  // pages/new-tab/app/widget-list/WidgetList.js
+  function placeholderWidget(id) {
     return {
-      top: rect.top + y3,
-      left: rect.left + x4,
-      width: rect.width,
-      height: rect.height
+      factory: () => {
+        return /* @__PURE__ */ _("p", null, "Entry point for ", id, " was not found. This is a bug.");
+      }
     };
   }
-  function getTransitionSizes(el, oldCoords, newCoords) {
-    let widthFrom = oldCoords.width;
-    let heightFrom = oldCoords.height;
-    let widthTo = newCoords.width;
-    let heightTo = newCoords.height;
-    const styles = getComputedStyle(el);
-    const sizing = styles.getPropertyValue("box-sizing");
-    if (sizing === "content-box") {
-      const paddingY = raw(styles.paddingTop) + raw(styles.paddingBottom) + raw(styles.borderTopWidth) + raw(styles.borderBottomWidth);
-      const paddingX = raw(styles.paddingLeft) + raw(styles.paddingRight) + raw(styles.borderRightWidth) + raw(styles.borderLeftWidth);
-      widthFrom -= paddingX;
-      widthTo -= paddingX;
-      heightFrom -= paddingY;
-      heightTo -= paddingY;
-    }
-    return [widthFrom, widthTo, heightFrom, heightTo].map(Math.round);
-  }
-  function getOptions(el) {
-    return TGT in el && options.has(el[TGT]) ? options.get(el[TGT]) : { duration: 250, easing: "ease-in-out" };
-  }
-  function getTarget(el) {
-    if (TGT in el)
-      return el[TGT];
-    return void 0;
-  }
-  function isEnabled(el) {
-    const target2 = getTarget(el);
-    return target2 ? enabled.has(target2) : false;
-  }
-  function forEach(parent, ...callbacks) {
-    callbacks.forEach((callback) => callback(parent, options.has(parent)));
-    for (let i4 = 0; i4 < parent.children.length; i4++) {
-      const child = parent.children.item(i4);
-      if (child) {
-        callbacks.forEach((callback) => callback(child, options.has(child)));
+  async function widgetEntryPoint(id) {
+    try {
+      const mod = await globImport_entry_points_js(`../entry-points/${id}.js`);
+      if (typeof mod.factory !== "function") {
+        console.error(`module found for ${id}, but missing 'factory' export`);
+        return placeholderWidget(id);
       }
+      return mod;
+    } catch (e3) {
+      console.error(e3);
+      return placeholderWidget(id);
     }
   }
-  function getPluginTuple(pluginReturn) {
-    if (Array.isArray(pluginReturn))
-      return pluginReturn;
-    return [pluginReturn];
-  }
-  function isPlugin(config) {
-    return typeof config === "function";
-  }
-  function remain(el) {
-    const oldCoords = coords.get(el);
-    const newCoords = getCoords(el);
-    if (!isEnabled(el))
-      return coords.set(el, newCoords);
-    let animation;
-    if (!oldCoords)
-      return;
-    const pluginOrOptions = getOptions(el);
-    if (typeof pluginOrOptions !== "function") {
-      const deltaX = oldCoords.left - newCoords.left;
-      const deltaY = oldCoords.top - newCoords.top;
-      const [widthFrom, widthTo, heightFrom, heightTo] = getTransitionSizes(el, oldCoords, newCoords);
-      const start2 = {
-        transform: `translate(${deltaX}px, ${deltaY}px)`
-      };
-      const end = {
-        transform: `translate(0, 0)`
-      };
-      if (widthFrom !== widthTo) {
-        start2.width = `${widthFrom}px`;
-        end.width = `${widthTo}px`;
-      }
-      if (heightFrom !== heightTo) {
-        start2.height = `${heightFrom}px`;
-        end.height = `${heightTo}px`;
-      }
-      animation = el.animate([start2, end], {
-        duration: pluginOrOptions.duration,
-        easing: pluginOrOptions.easing
-      });
-    } else {
-      const [keyframes] = getPluginTuple(pluginOrOptions(el, "remain", oldCoords, newCoords));
-      animation = new Animation(keyframes);
-      animation.play();
-    }
-    animations.set(el, animation);
-    coords.set(el, newCoords);
-    animation.addEventListener("finish", updatePos.bind(null, el));
-  }
-  function add(el) {
-    if (NEW in el)
-      delete el[NEW];
-    const newCoords = getCoords(el);
-    coords.set(el, newCoords);
-    const pluginOrOptions = getOptions(el);
-    if (!isEnabled(el))
-      return;
-    let animation;
-    if (typeof pluginOrOptions !== "function") {
-      animation = el.animate([
-        { transform: "scale(.98)", opacity: 0 },
-        { transform: "scale(0.98)", opacity: 0, offset: 0.5 },
-        { transform: "scale(1)", opacity: 1 }
-      ], {
-        duration: pluginOrOptions.duration * 1.5,
-        easing: "ease-in"
-      });
-    } else {
-      const [keyframes] = getPluginTuple(pluginOrOptions(el, "add", newCoords));
-      animation = new Animation(keyframes);
-      animation.play();
-    }
-    animations.set(el, animation);
-    animation.addEventListener("finish", updatePos.bind(null, el));
-  }
-  function cleanUp(el, styles) {
-    var _a;
-    el.remove();
-    coords.delete(el);
-    siblings.delete(el);
-    animations.delete(el);
-    (_a = intersections.get(el)) === null || _a === void 0 ? void 0 : _a.disconnect();
-    setTimeout(() => {
-      if (DEL in el)
-        delete el[DEL];
-      Object.defineProperty(el, NEW, { value: true, configurable: true });
-      if (styles && el instanceof HTMLElement) {
-        for (const style in styles) {
-          el.style[style] = "";
-        }
-      }
-    }, 0);
-  }
-  function remove(el) {
-    var _a;
-    if (!siblings.has(el) || !coords.has(el))
-      return;
-    const [prev, next] = siblings.get(el);
-    Object.defineProperty(el, DEL, { value: true, configurable: true });
-    const finalX = window.scrollX;
-    const finalY = window.scrollY;
-    if (next && next.parentNode && next.parentNode instanceof Element) {
-      next.parentNode.insertBefore(el, next);
-    } else if (prev && prev.parentNode) {
-      prev.parentNode.appendChild(el);
-    } else {
-      (_a = getTarget(el)) === null || _a === void 0 ? void 0 : _a.appendChild(el);
-    }
-    if (!isEnabled(el))
-      return cleanUp(el);
-    const [top2, left2, width, height] = deletePosition(el);
-    const optionsOrPlugin = getOptions(el);
-    const oldCoords = coords.get(el);
-    if (finalX !== scrollX || finalY !== scrollY) {
-      adjustScroll(el, finalX, finalY, optionsOrPlugin);
-    }
-    let animation;
-    let styleReset = {
-      position: "absolute",
-      top: `${top2}px`,
-      left: `${left2}px`,
-      width: `${width}px`,
-      height: `${height}px`,
-      margin: "0",
-      pointerEvents: "none",
-      transformOrigin: "center",
-      zIndex: "100"
+  function WidgetList() {
+    const { widgets, widgetConfigItems, entryPoints } = x2(WidgetConfigContext);
+    const messaging2 = useMessaging();
+    const didCatch = (error, id) => {
+      const message = error?.message || error?.error || "unknown";
+      const composed = `Widget '${id}' threw an exception: ` + message;
+      messaging2.reportPageException({ message: composed });
     };
-    if (!isPlugin(optionsOrPlugin)) {
-      Object.assign(el.style, styleReset);
-      animation = el.animate([
+    return /* @__PURE__ */ _("div", null, widgets.map((widget, index) => {
+      const matchingConfig = widgetConfigItems.find((item) => item.id === widget.id);
+      const matchingEntryPoint = entryPoints[widget.id];
+      if (!matchingConfig) {
+        return /* @__PURE__ */ _(ErrorBoundary, { key: widget.id, didCatch: (error) => didCatch(error, widget.id), fallback: null }, matchingEntryPoint.factory?.());
+      }
+      return /* @__PURE__ */ _(WidgetVisibilityProvider, { key: widget.id, visibility: matchingConfig.visibility, id: matchingConfig.id, index }, /* @__PURE__ */ _(
+        ErrorBoundary,
         {
-          transform: "scale(1)",
-          opacity: 1
+          key: widget.id,
+          didCatch: (error) => didCatch(error, widget.id),
+          fallback: /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _(Fallback, { showDetails: true }, "Widget id: ", matchingConfig.id))
         },
-        {
-          transform: "scale(.98)",
-          opacity: 0
-        }
-      ], { duration: optionsOrPlugin.duration, easing: "ease-out" });
-    } else {
-      const [keyframes, options2] = getPluginTuple(optionsOrPlugin(el, "remove", oldCoords));
-      if ((options2 === null || options2 === void 0 ? void 0 : options2.styleReset) !== false) {
-        styleReset = (options2 === null || options2 === void 0 ? void 0 : options2.styleReset) || styleReset;
-        Object.assign(el.style, styleReset);
-      }
-      animation = new Animation(keyframes);
-      animation.play();
-    }
-    animations.set(el, animation);
-    animation.addEventListener("finish", cleanUp.bind(null, el, styleReset));
-  }
-  function adjustScroll(el, finalX, finalY, optionsOrPlugin) {
-    const scrollDeltaX = scrollX - finalX;
-    const scrollDeltaY = scrollY - finalY;
-    const scrollBefore = document.documentElement.style.scrollBehavior;
-    const scrollBehavior = getComputedStyle(root).scrollBehavior;
-    if (scrollBehavior === "smooth") {
-      document.documentElement.style.scrollBehavior = "auto";
-    }
-    window.scrollTo(window.scrollX + scrollDeltaX, window.scrollY + scrollDeltaY);
-    if (!el.parentElement)
-      return;
-    const parent = el.parentElement;
-    let lastHeight = parent.clientHeight;
-    let lastWidth = parent.clientWidth;
-    const startScroll = performance.now();
-    function smoothScroll() {
-      requestAnimationFrame(() => {
-        if (!isPlugin(optionsOrPlugin)) {
-          const deltaY = lastHeight - parent.clientHeight;
-          const deltaX = lastWidth - parent.clientWidth;
-          if (startScroll + optionsOrPlugin.duration > performance.now()) {
-            window.scrollTo({
-              left: window.scrollX - deltaX,
-              top: window.scrollY - deltaY
-            });
-            lastHeight = parent.clientHeight;
-            lastWidth = parent.clientWidth;
-            smoothScroll();
-          } else {
-            document.documentElement.style.scrollBehavior = scrollBefore;
-          }
-        }
-      });
-    }
-    smoothScroll();
-  }
-  function deletePosition(el) {
-    const oldCoords = coords.get(el);
-    const [width, , height] = getTransitionSizes(el, oldCoords, getCoords(el));
-    let offsetParent = el.parentElement;
-    while (offsetParent && (getComputedStyle(offsetParent).position === "static" || offsetParent instanceof HTMLBodyElement)) {
-      offsetParent = offsetParent.parentElement;
-    }
-    if (!offsetParent)
-      offsetParent = document.body;
-    const parentStyles = getComputedStyle(offsetParent);
-    const parentCoords = coords.get(offsetParent) || getCoords(offsetParent);
-    const top2 = Math.round(oldCoords.top - parentCoords.top) - raw(parentStyles.borderTopWidth);
-    const left2 = Math.round(oldCoords.left - parentCoords.left) - raw(parentStyles.borderLeftWidth);
-    return [top2, left2, width, height];
-  }
-  function autoAnimate(el, config = {}) {
-    if (mutations && resize) {
-      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-      const isDisabledDueToReduceMotion = mediaQuery.matches && !isPlugin(config) && !config.disrespectUserMotionPreference;
-      if (!isDisabledDueToReduceMotion) {
-        enabled.add(el);
-        if (getComputedStyle(el).position === "static") {
-          Object.assign(el.style, { position: "relative" });
-        }
-        forEach(el, updatePos, poll, (element) => resize === null || resize === void 0 ? void 0 : resize.observe(element));
-        if (isPlugin(config)) {
-          options.set(el, config);
-        } else {
-          options.set(el, { duration: 250, easing: "ease-in-out", ...config });
-        }
-        mutations.observe(el, { childList: true });
-        parents.add(el);
-      }
-    }
-    return Object.freeze({
-      parent: el,
-      enable: () => {
-        enabled.add(el);
-      },
-      disable: () => {
-        enabled.delete(el);
-      },
-      isEnabled: () => enabled.has(el)
-    });
+        matchingEntryPoint.factory?.()
+      ));
+    }), /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(Customizer, null)));
   }
 
-  // ../node_modules/@formkit/auto-animate/preact/index.mjs
-  function useAutoAnimate(options2) {
-    const element = A2(null);
-    const [controller, setController] = h2();
-    const setEnabled = (enabled2) => {
-      if (controller) {
-        enabled2 ? controller.enable() : controller.disable();
-      }
-    };
-    y2(() => {
-      if (element.current instanceof HTMLElement)
-        setController(autoAnimate(element.current, options2 || {}));
-    }, []);
-    return [element, setEnabled];
+  // pages/new-tab/app/components/App.js
+  init_dropzone();
+  function App({ children }) {
+    const platformName = usePlatformName();
+    useGlobalDropzone();
+    return /* @__PURE__ */ _("div", { className: App_default.layout, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null), children);
   }
 
   // shared/components/EnvironmentProvider.js
@@ -6711,307 +6388,6 @@
     return x2(EnvironmentContext);
   }
 
-  // pages/onboarding/app/components/Stack.js
-  function Stack({ children, gap = "var(--sp-6)", animate: animate2 = false, debug = false }) {
-    const { isReducedMotion } = useEnv();
-    const [parent] = useAutoAnimate({ duration: isReducedMotion ? 0 : 300 });
-    return /* @__PURE__ */ _("div", { class: Stack_default.stack, ref: animate2 ? parent : null, "data-debug": String(debug), style: { gap } }, children);
-  }
-  Stack.gaps = {
-    6: "var(--sp-6)",
-    4: "var(--sp-4)",
-    3: "var(--sp-3)"
-  };
-
-  // pages/new-tab/app/widget-list/WidgetList.js
-  init_Customizer2();
-
-  // pages/new-tab/app/telemetry/Debug.js
-  init_preact_module();
-  init_hooks_module();
-  init_types();
-  init_Customizer2();
-
-  // pages/new-tab/app/telemetry/telemetry.js
-  var Telemetry = class _Telemetry {
-    static EVENT_REQUEST = "TELEMETRY_EVENT_REQUEST";
-    static EVENT_RESPONSE = "TELEMETRY_EVENT_RESPONSE";
-    static EVENT_SUBSCRIPTION = "TELEMETRY_EVENT_SUBSCRIPTION";
-    static EVENT_SUBSCRIPTION_DATA = "TELEMETRY_EVENT_SUBSCRIPTION_DATA";
-    static EVENT_NOTIFICATION = "TELEMETRY_EVENT_NOTIFICATION";
-    static EVENT_BROADCAST = "TELEMETRY_*";
-    eventTarget = new EventTarget();
-    /** @type {any[]} */
-    eventStore = [];
-    storeEnabled = true;
-    /**
-     * @param now
-     */
-    constructor(now = Date.now()) {
-      this.now = now;
-      performance.mark("ddg-telemetry-init");
-      this._setupMessagingMarkers();
-    }
-    _setupMessagingMarkers() {
-      this.eventTarget.addEventListener(_Telemetry.EVENT_REQUEST, ({ detail }) => {
-        const named = `ddg request ${detail.method} ${detail.timestamp}`;
-        performance.mark(named);
-        this.broadcast(detail);
-      });
-      this.eventTarget.addEventListener(_Telemetry.EVENT_RESPONSE, ({ detail }) => {
-        const reqNamed = `ddg request ${detail.method} ${detail.timestamp}`;
-        const resNamed = `ddg response ${detail.method} ${detail.timestamp}`;
-        performance.mark(resNamed);
-        performance.measure(reqNamed, reqNamed, resNamed);
-        this.broadcast(detail);
-      });
-      this.eventTarget.addEventListener(_Telemetry.EVENT_SUBSCRIPTION, ({ detail }) => {
-        const named = `ddg subscription ${detail.method} ${detail.timestamp}`;
-        performance.mark(named);
-        this.broadcast(detail);
-      });
-      this.eventTarget.addEventListener(_Telemetry.EVENT_SUBSCRIPTION_DATA, ({ detail }) => {
-        const named = `ddg subscription data ${detail.method} ${detail.timestamp}`;
-        performance.mark(named);
-        this.broadcast(detail);
-      });
-      this.eventTarget.addEventListener(_Telemetry.EVENT_NOTIFICATION, ({ detail }) => {
-        const named = `ddg notification ${detail.method} ${detail.timestamp}`;
-        performance.mark(named);
-        this.broadcast(detail);
-      });
-    }
-    broadcast(payload) {
-      if (this.eventStore.length >= 50) {
-        this.eventStore = [];
-      }
-      if (this.storeEnabled) {
-        this.eventStore.push(structuredClone(payload));
-      }
-      this.eventTarget.dispatchEvent(new CustomEvent(_Telemetry.EVENT_BROADCAST, { detail: payload }));
-    }
-    measureFromPageLoad(marker, measure = "measure__" + Date.now()) {
-      if (!performance.getEntriesByName(marker).length) {
-        performance.mark(marker);
-        performance.measure(measure, "ddg-telemetry-init", marker);
-      }
-    }
-  };
-  var MessagingObserver = class {
-    /** @type {Map<string, number>} */
-    observed = /* @__PURE__ */ new Map();
-    /**
-     * @param {import("@duckduckgo/messaging").Messaging} messaging
-     * @param {EventTarget} eventTarget
-     */
-    constructor(messaging2, eventTarget) {
-      this.messaging = messaging2;
-      this.messagingContext = messaging2.messagingContext;
-      this.transport = messaging2.transport;
-      this.eventTarget = eventTarget;
-    }
-    /**
-     * @param {string} method
-     * @param {Record<string, any>} params
-     */
-    request(method, params) {
-      const timestamp = Date.now();
-      const json = {
-        kind: "request",
-        method,
-        params,
-        timestamp
-      };
-      this.record(Telemetry.EVENT_REQUEST, json);
-      return this.messaging.request(method, params).then((x4) => {
-        const resJson = {
-          kind: "response",
-          method,
-          result: x4,
-          timestamp
-        };
-        this.record(Telemetry.EVENT_RESPONSE, resJson);
-        return x4;
-      });
-    }
-    /**
-     * @param {string} method
-     * @param {Record<string, any>} params
-     */
-    notify(method, params) {
-      const json = {
-        kind: "notification",
-        method,
-        params
-      };
-      this.record(Telemetry.EVENT_NOTIFICATION, json);
-      return this.messaging.notify(method, params);
-    }
-    /**
-     * @param method
-     * @param callback
-     * @return {function(): void}
-     */
-    subscribe(method, callback) {
-      const timestamp = Date.now();
-      const json = {
-        kind: "subscription",
-        method,
-        timestamp
-      };
-      this.record(Telemetry.EVENT_SUBSCRIPTION, json);
-      return this.messaging.subscribe(method, (params) => {
-        const json2 = {
-          kind: "subscription data",
-          method,
-          timestamp,
-          params
-        };
-        this.record(Telemetry.EVENT_SUBSCRIPTION_DATA, json2);
-        callback(params);
-      });
-    }
-    /**
-     * @param {string} name
-     * @param {Record<string, any>} detail
-     */
-    record(name, detail) {
-      this.eventTarget.dispatchEvent(new CustomEvent(name, { detail }));
-    }
-  };
-  function install(messaging2) {
-    const telemetry2 = new Telemetry();
-    const observedMessaging = new MessagingObserver(messaging2, telemetry2.eventTarget);
-    return { telemetry: telemetry2, messaging: observedMessaging };
-  }
-
-  // pages/new-tab/app/telemetry/Debug.js
-  function DebugCustomized({ index }) {
-    const [isOpen, setOpen] = h2(false);
-    const telemetry2 = useTelemetry();
-    useCustomizer({
-      title: "\u{1F41E} Debug",
-      id: "debug",
-      icon: "shield",
-      visibility: isOpen ? "visible" : "hidden",
-      toggle: (_id) => setOpen((prev) => !prev),
-      index
-    });
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Debug, { telemetry: telemetry2, isOpen }));
-  }
-  function Debug({ telemetry: telemetry2, isOpen }) {
-    const textRef = A2(null);
-    useEvents(textRef, telemetry2);
-    return /* @__PURE__ */ _("div", { hidden: !isOpen }, /* @__PURE__ */ _("textarea", { style: { width: "100%" }, rows: 20, ref: textRef }));
-  }
-  function useEvents(ref, telemetry2) {
-    y2(() => {
-      if (!ref.current) return;
-      const elem = ref.current;
-      function handle({ detail }) {
-        elem.value += JSON.stringify(detail, null, 2) + "\n\n";
-      }
-      for (const beforeElement of telemetry2.eventStore) {
-        elem.value += JSON.stringify(beforeElement, null, 2) + "\n\n";
-      }
-      telemetry2.eventStore = [];
-      telemetry2.storeEnabled = false;
-      telemetry2.eventTarget.addEventListener(Telemetry.EVENT_BROADCAST, handle);
-      return () => {
-        telemetry2.eventTarget.removeEventListener(Telemetry.EVENT_BROADCAST, handle);
-        telemetry2.storeEnabled = true;
-      };
-    }, [ref, telemetry2]);
-  }
-
-  // import("../entry-points/**/*.js") in pages/new-tab/app/widget-list/WidgetList.js
-  var globImport_entry_points_js = __glob({
-    "../entry-points/favorites.js": () => Promise.resolve().then(() => (init_favorites(), favorites_exports)),
-    "../entry-points/nextSteps.js": () => Promise.resolve().then(() => (init_nextSteps(), nextSteps_exports)),
-    "../entry-points/privacyStats.js": () => Promise.resolve().then(() => (init_privacyStats(), privacyStats_exports)),
-    "../entry-points/rmf.js": () => Promise.resolve().then(() => (init_rmf(), rmf_exports)),
-    "../entry-points/updateNotification.js": () => Promise.resolve().then(() => (init_updateNotification(), updateNotification_exports))
-  });
-
-  // pages/new-tab/app/widget-list/WidgetList.js
-  function placeholderWidget(id) {
-    return {
-      factory: () => {
-        return /* @__PURE__ */ _("p", null, "Entry point for ", id, " was not found. This is a bug.");
-      }
-    };
-  }
-  async function widgetEntryPoint(id) {
-    try {
-      const mod = await globImport_entry_points_js(`../entry-points/${id}.js`);
-      if (typeof mod.factory !== "function") {
-        console.error(`module found for ${id}, but missing 'factory' export`);
-        return placeholderWidget(id);
-      }
-      return mod;
-    } catch (e3) {
-      console.error(e3);
-      return placeholderWidget(id);
-    }
-  }
-  function WidgetList() {
-    const { widgets, widgetConfigItems, entryPoints } = x2(WidgetConfigContext);
-    const { env } = useEnv();
-    return /* @__PURE__ */ _(Stack, { gap: "var(--sp-8)" }, widgets.map((widget, index) => {
-      const matchingConfig = widgetConfigItems.find((item) => item.id === widget.id);
-      const matchingEntryPoint = entryPoints[widget.id];
-      if (!matchingConfig) {
-        return /* @__PURE__ */ _(b, { key: widget.id }, matchingEntryPoint.factory?.());
-      }
-      return /* @__PURE__ */ _(b, { key: widget.id }, /* @__PURE__ */ _(WidgetVisibilityProvider, { visibility: matchingConfig.visibility, id: matchingConfig.id, index }, matchingEntryPoint.factory?.()));
-    }), env === "development" && /* @__PURE__ */ _(DebugCustomized, { index: widgets.length }), /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(Customizer, null)));
-  }
-
-  // pages/new-tab/app/components/App.js
-  function App({ children }) {
-    const platformName = usePlatformName();
-    return /* @__PURE__ */ _("div", { className: App_default.layout, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null), children);
-  }
-
-  // shared/components/Fallback/Fallback.jsx
-  init_preact_module();
-
-  // shared/components/Fallback/Fallback.module.css
-  var Fallback_default = {
-    fallback: "Fallback_fallback"
-  };
-
-  // shared/components/Fallback/Fallback.jsx
-  function Fallback({ showDetails }) {
-    return /* @__PURE__ */ _("div", { class: Fallback_default.fallback }, /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("p", null, "Something went wrong!"), showDetails && /* @__PURE__ */ _("p", null, "Please check logs for a message called ", /* @__PURE__ */ _("code", null, "reportPageException"))));
-  }
-
-  // shared/components/ErrorBoundary.js
-  init_preact_module();
-  var ErrorBoundary = class extends k {
-    /**
-     * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
-     */
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false };
-    }
-    static getDerivedStateFromError() {
-      return { hasError: true };
-    }
-    componentDidCatch(error, info) {
-      console.error(error);
-      console.log(info);
-      this.props.didCatch({ error, info });
-    }
-    render() {
-      if (this.state.hasError) {
-        return this.props.fallback;
-      }
-      return this.props.children;
-    }
-  };
-
   // pages/new-tab/app/index.js
   init_settings_provider();
   init_types();
@@ -7068,8 +6444,213 @@
     }
   };
 
+  // pages/new-tab/src/locales/en/new-tab.json
+  var new_tab_default = {
+    smartling: {
+      string_format: "icu",
+      translate_paths: [
+        {
+          path: "*/title",
+          key: "{*}/title",
+          instruction: "*/note"
+        }
+      ]
+    },
+    ntp_show_less: {
+      title: "Show Less",
+      note: "Button that reduces the number of items or content displayed."
+    },
+    ntp_show_more: {
+      title: "Show More",
+      note: "Button that increases the number of items or content displayed."
+    },
+    ntp_dismiss: {
+      title: "Dismiss",
+      note: "Button that closes or hides the current popup or notification."
+    },
+    ntp_customizer_button: {
+      title: "Customize",
+      note: "Button opens a menu. The menu allows the user to customize the page, such as showing/hiding sections."
+    },
+    widgets_visibility_menu_title: {
+      title: "Customize New Tab Page",
+      note: "Heading text describing that there's a list of toggles for customizing the page layout."
+    },
+    updateNotification_updated_version: {
+      title: "Browser Updated to version {version}.",
+      note: "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
+    },
+    updateNotification_whats_new: {
+      title: "See <a>what's new</a> in this release.",
+      note: "The `<a>` tag represents a clickable link, please preserve it."
+    },
+    updateNotification_dismiss_btn: {
+      title: "Dismiss",
+      note: "Button label text for an action that removes the widget from the screen."
+    },
+    stats_menuTitle: {
+      title: "Blocked Tracking Attempts",
+      note: "Used as a label in a customization menu"
+    },
+    stats_noActivity: {
+      title: "Blocked tracking attempts will appear here. Keep browsing to see how many we block.",
+      note: "Placeholder for when we cannot report any blocked trackers yet"
+    },
+    stats_noRecent: {
+      title: "No recent tracking activity",
+      note: "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
+    },
+    stats_countBlockedSingular: {
+      title: "1 tracking attempt blocked",
+      note: "The main headline indicating that a single tracker was blocked"
+    },
+    stats_countBlockedPlural: {
+      title: "{count} tracking attempts blocked",
+      note: "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+    },
+    stats_feedCountBlockedSingular: {
+      title: "1 attempt blocked by DuckDuckGo in the last 7 days",
+      note: "A summary description of how many tracking attempts where blocked, when only one exists."
+    },
+    stats_feedCountBlockedPeriod: {
+      title: "Past 7 days",
+      note: "A summary description indicating the time period of the blocked tracking attempts, which is the past 7 days."
+    },
+    stats_feedCountBlockedPlural: {
+      title: "{count} tracking attempts blocked",
+      note: "A summary description of how many tracking attempts were blocked by DuckDuckGo in the last 7 days when there is more than one. E.g., '1,028 tracking attempts blocked."
+    },
+    stats_toggleLabel: {
+      title: "Show recent activity",
+      note: "The aria-label text for a toggle button that shows the detailed activity feed"
+    },
+    stats_hideLabel: {
+      title: "Hide recent activity",
+      note: "The aria-label text for a toggle button that hides the detailed activity feed"
+    },
+    stats_otherCompanyName: {
+      title: "Other",
+      note: "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
+    },
+    stats_otherCount: {
+      title: "{count} attempts from other networks",
+      note: "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
+    },
+    nextSteps_sectionTitle: {
+      title: "Next Steps",
+      note: "Text that goes in the Next Steps bubble above the first card"
+    },
+    nextSteps_bringStuff_title: {
+      title: "Bring Your Stuff",
+      note: "Title of the Next Steps card for importing bookmarks and favorites"
+    },
+    nextSteps_bringStuff_summary: {
+      title: "Import bookmarks, favorites, and passwords for a smooth transition from your old browser.",
+      note: "Summary of the Next Steps card for importing bookmarks and favorites"
+    },
+    nextSteps_bringStuff_actionText: {
+      title: "Import Now",
+      note: "Button text of the Next Steps card for importing bookmarks and favorites"
+    },
+    nextSteps_defaultApp_title: {
+      title: "Set as Default Browser",
+      note: "Title of the Next Steps card for making DDG the user's default browser"
+    },
+    nextSteps_defaultApp_summary: {
+      title: "We automatically block trackers as you browse. It\u2019s privacy, simplified.",
+      note: "Summary of the Next Steps card for making DDG the user's default browser"
+    },
+    nextSteps_defaultApp_actionText: {
+      title: "Make Default Browser",
+      note: "Button text of the Next Steps card for making DDG the user's default browser"
+    },
+    nextSteps_blockCookies_title: {
+      title: "Block Cookie Pop-ups",
+      note: "Title of the Next Steps card for blocking cookie pop-ups"
+    },
+    nextSteps_blockCookies_summary: {
+      title: "We need your permission to say no to cookies on your behalf. Easy choice.",
+      note: "Summary of the Next Steps card for blocking cookie pop-ups"
+    },
+    nextSteps_blockCookies_actionText: {
+      title: "Block Cookie Pop-ups",
+      note: "Button text of the Next Steps card for blocking cookie pop-ups"
+    },
+    nextSteps_emailProtection_title: {
+      title: "Protect Your Inbox",
+      note: "Title of the Next Steps card for email protection"
+    },
+    nextSteps_emailProtection_summary: {
+      title: "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
+      note: "Summary of the Next Steps card for email protection"
+    },
+    nextSteps_emailProtection_actionText: {
+      title: "Get Email Protection",
+      note: "Button text of the Next Steps card for email protection"
+    },
+    nextSteps_duckPlayer_title: {
+      title: "YouTube Without Creepy Ads",
+      note: "Title of the Next Steps card for adopting DuckPlayer"
+    },
+    nextSteps_duckPlayer_summary: {
+      title: "Enjoy a clean viewing experience without personalized ads.",
+      note: "Summary of the Next Steps card for adopting DuckPlayer"
+    },
+    nextSteps_duckPlayer_actionText: {
+      title: "Try DuckPlayer",
+      note: "Button text of the Next Steps card for adopting DuckPlayer"
+    },
+    nextSteps_addAppDockMac_title: {
+      title: "Add App to the Dock",
+      note: "Title of the Next Steps card for adding DDG app to OS dock"
+    },
+    nextSteps_addAppDockMac_summary: {
+      title: "Access DuckDuckGo faster by adding it to the Dock.",
+      note: "Summary of the Next Steps card for adding DDG app to OS dock"
+    },
+    nextSteps_addAppDockMac_actionText: {
+      title: "Add to Dock",
+      note: "Initial button text of the Next Steps card for adding DDG app to OS dock"
+    },
+    nextSteps_addAppDockMac_confirmationText: {
+      title: "Added to Dock!",
+      note: "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+    },
+    nextSteps_pinAppToTaskbarWindows_title: {
+      title: "Pin App to the Taskbar",
+      note: "Title of the Next Steps card for adding DDG app to OS dock"
+    },
+    nextSteps_pinAppToTaskbarWindows_summary: {
+      title: "Access DuckDuckGo faster by pinning it to the Taskbar.",
+      note: "Summary of the Next Steps card for adding DDG app to OS dock"
+    },
+    nextSteps_pinAppToTaskbarWindows_actionText: {
+      title: "Pin to Taskbar",
+      note: "Initial button text of the Next Steps card for adding DDG app to OS dock"
+    },
+    nextSteps_pinAppToTaskbarWindows_confirmationText: {
+      title: "Pinned to Taskbar!",
+      note: "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+    },
+    favorites_show_less: {
+      title: "Show less",
+      note: "Button label to display fewer items"
+    },
+    favorites_show_more: {
+      title: "Show more ({count} remaining)",
+      note: "Button text to show hidden items. {count} will be replaced with the number of remaining favorite items to show, including the parentheses. Example: 'Show more (18 remaining)'"
+    },
+    favorites_menu_title: {
+      title: "Favorites",
+      note: "Used as a label in a customization menu"
+    },
+    favorites_add: {
+      title: "Add Favorite",
+      note: "A button that allows a user to add a new 'favorite' bookmark to their existing list"
+    }
+  };
+
   // pages/new-tab/app/index.js
-  init_newtab();
   init_widget_config_provider();
 
   // pages/new-tab/app/settings.js
@@ -7099,306 +6680,10 @@
   // pages/new-tab/app/components/Components.jsx
   init_preact_module();
 
-  // pages/new-tab/app/components/Components.module.css
-  var Components_default = {
-    componentList: "Components_componentList",
-    itemInfo: "Components_itemInfo",
-    itemLinks: "Components_itemLinks",
-    itemLink: "Components_itemLink",
-    debugBar: "Components_debugBar",
-    buttonRow: "Components_buttonRow",
-    "grid-container": "Components_grid-container",
-    selectItem: "Components_selectItem",
-    item: "Components_item"
-  };
-
   // pages/new-tab/app/components/Examples.jsx
   init_preact_module();
 
-  // pages/new-tab/app/privacy-stats/mocks/PrivacyStatsMockProvider.js
-  init_hooks_module();
-  init_preact_module();
-  init_PrivacyStatsProvider();
-
-  // pages/new-tab/app/privacy-stats/mocks/stats.js
-  init_constants2();
-  var stats = {
-    few: {
-      totalCount: 481113,
-      trackerCompanies: [
-        {
-          displayName: "Facebook",
-          count: 310
-        },
-        {
-          displayName: "Google",
-          count: 279
-        },
-        {
-          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
-          count: 210
-        },
-        {
-          displayName: "Amazon",
-          count: 67
-        },
-        {
-          displayName: "Google Ads",
-          count: 2
-        }
-      ]
-    },
-    single: {
-      totalCount: 481113,
-      trackerCompanies: [
-        {
-          displayName: "Google",
-          count: 1
-        }
-      ]
-    },
-    norecent: {
-      totalCount: 481113,
-      trackerCompanies: []
-    },
-    none: {
-      totalCount: 0,
-      trackerCompanies: []
-    },
-    willUpdate: {
-      totalCount: 481113,
-      trackerCompanies: [
-        {
-          displayName: "Facebook",
-          count: 1
-        },
-        {
-          displayName: "Google",
-          count: 1
-        },
-        {
-          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
-          count: 1
-        },
-        {
-          displayName: "Amazon",
-          count: 1
-        },
-        {
-          displayName: "Google Ads",
-          count: 1
-        }
-      ]
-    }
-  };
-
-  // pages/new-tab/app/privacy-stats/mocks/PrivacyStatsMockProvider.js
-  init_service_hooks();
-  function PrivacyStatsMockProvider({
-    data = stats.few,
-    config = { expansion: "expanded", animation: { kind: "auto-animate" } },
-    ticker = false,
-    children
-  }) {
-    const initial = (
-      /** @type {import('../PrivacyStatsProvider.js').State} */
-      {
-        status: "ready",
-        data,
-        config
-      }
-    );
-    const [state, send] = p2(reducer, initial);
-    y2(() => {
-      if (!ticker) return;
-      if (state.status === "ready") {
-        const next = {
-          totalCount: state.data.totalCount + 1,
-          trackerCompanies: state.data.trackerCompanies.map((company, index) => {
-            if (index === 0) return { ...company, count: company.count + 1 };
-            return company;
-          })
-        };
-        const time = setTimeout(() => {
-          send({ kind: "data", data: next });
-        }, 1e3);
-        return () => clearTimeout(time);
-      }
-      return () => {
-      };
-    }, [state.data?.totalCount, ticker]);
-    const toggle = q2(() => {
-      if (state.status !== "ready") return console.warn("was not ready");
-      if (state.config?.expansion === "expanded") {
-        send({ kind: "config", config: { ...state.config, expansion: "collapsed" } });
-      } else {
-        send({ kind: "config", config: { ...state.config, expansion: "expanded" } });
-      }
-    }, [state.config?.expansion]);
-    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: send }, children));
-  }
-
-  // pages/new-tab/app/components/Examples.jsx
-  init_PrivacyStats2();
-  init_RemoteMessagingFramework2();
-
-  // pages/new-tab/app/next-steps/components/NextStepsExamples.js
-  init_preact_module();
-  init_utils();
-  init_NextStepsCard();
-  init_NextStepsGroup();
-  var nextStepsExamples = {
-    "next-steps.cardGroup.all": {
-      factory: () => /* @__PURE__ */ _(
-        NextStepsCardGroup,
-        {
-          types: [
-            "bringStuff",
-            "defaultApp",
-            "blockCookies",
-            "emailProtection",
-            "duckplayer",
-            "addAppDockMac",
-            "pinAppToTaskbarWindows"
-          ],
-          expansion: "collapsed",
-          toggle: noop("toggle"),
-          dismiss: noop("dismiss"),
-          action: noop("action")
-        }
-      )
-    },
-    "next-steps.cardGroup.all-expanded": {
-      factory: () => /* @__PURE__ */ _(
-        NextStepsCardGroup,
-        {
-          types: [
-            "bringStuff",
-            "defaultApp",
-            "blockCookies",
-            "emailProtection",
-            "duckplayer",
-            "addAppDockMac",
-            "pinAppToTaskbarWindows"
-          ],
-          expansion: "expanded",
-          toggle: noop("toggle"),
-          dismiss: noop("dismiss"),
-          action: noop("action")
-        }
-      )
-    },
-    "next-steps.cardGroup.two": {
-      factory: () => /* @__PURE__ */ _(
-        NextStepsCardGroup,
-        {
-          types: ["bringStuff", "defaultApp"],
-          expansion: "collapsed",
-          toggle: noop("toggle"),
-          dismiss: noop("dismiss"),
-          action: noop("action")
-        }
-      )
-    },
-    "next-steps.cardGroup.one": {
-      factory: () => /* @__PURE__ */ _(
-        NextStepsCardGroup,
-        {
-          types: ["bringStuff"],
-          expansion: "collapsed",
-          toggle: noop("toggle"),
-          dismiss: noop("dismiss"),
-          action: noop("action")
-        }
-      )
-    }
-  };
-  var otherNextStepsExamples = {
-    "next-steps.bringStuff": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "bringStuff", dismiss: noop("dismiss"), action: noop("action") })
-    },
-    "next-steps.duckplayer": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "duckplayer", dismiss: noop("dismiss"), action: noop("action") })
-    },
-    "next-steps.defaultApp": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "defaultApp", dismiss: noop("dismiss"), action: noop("action") })
-    },
-    "next-steps.emailProtection": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "emailProtection", dismiss: noop("dismiss"), action: noop("action") })
-    },
-    "next-steps.blockCookies": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "blockCookies", dismiss: noop("dismiss"), action: noop("action") })
-    },
-    "next-steps.addAppDockMac": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "addAppDockMac", dismiss: noop("dismiss"), action: noop("action") })
-    },
-    "next-steps.pinToTaskbarWindows": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "pinAppToTaskbarWindows", dismiss: noop("dismiss"), action: noop("action") })
-    },
-    "next-steps.bubble": {
-      factory: () => /* @__PURE__ */ _(NextStepsBubbleHeader, null)
-    }
-  };
-
-  // pages/new-tab/app/components/Examples.jsx
-  init_utils();
-  init_VisibilityMenu2();
-  init_Customizer2();
-
-  // pages/new-tab/app/remote-messaging-framework/mocks/rmf.data.js
-  var rmfDataExamples = {
-    small: {
-      content: {
-        messageType: "small",
-        id: "id-small",
-        titleText: "Search services limited",
-        descriptionText: "Search services are impacted by a Bing outage, results may not be what you expect"
-      }
-    },
-    medium: {
-      content: {
-        messageType: "medium",
-        id: "id-2",
-        icon: "DDGAnnounce",
-        titleText: "New Search Feature!",
-        descriptionText: "DuckDuckGo now offers Instant Answers for quicker access to the information you need."
-      }
-    },
-    big_single_action: {
-      content: {
-        messageType: "big_single_action",
-        id: "id-big-single",
-        titleText: "Tell Us Your Thoughts on Privacy Pro",
-        descriptionText: "Take our short anonymous survey and share your feedback.",
-        icon: "PrivacyPro",
-        primaryActionText: "Take Survey"
-      }
-    },
-    big_two_action: {
-      content: {
-        messageType: "big_two_action",
-        id: "id-big-two",
-        titleText: "Tell Us Your Thoughts on Privacy Pro",
-        descriptionText: "Take our short anonymous survey and share your feedback.",
-        icon: "Announce",
-        primaryActionText: "Take Survey",
-        secondaryActionText: "Remind me"
-      }
-    },
-    big_two_action_overflow: {
-      content: {
-        id: "big-two-overflow",
-        messageType: "big_two_action",
-        icon: "CriticalUpdate",
-        titleText: "Windows Update Recommended",
-        descriptionText: "Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.",
-        primaryActionText: "How to update Windows",
-        secondaryActionText: "Remind me later, but only if I\u2019m actually going to update soon"
-      }
-    }
-  };
-
-  // pages/new-tab/app/favorites/components/FavoritesExamples.js
+  // pages/new-tab/app/favorites/components/Favorites.examples.js
   init_preact_module();
   init_utils();
 
@@ -7408,21 +6693,22 @@
       // prettier-ignore
       /** @type {Favorite[]} */
       favorites: [
-        { id: "id-many-1", url: "https://example.com?id=id-many-1", title: "Amazon", favicon: { src: "./company-icons/amazon.svg", maxAvailableSize: 64 } },
+        { id: "id-many-1", url: "https://example.com?id=id-many-1", title: "Amazon", favicon: { src: "./company-icons/amazon.svg", maxAvailableSize: 16 } },
         { id: "id-many-2", url: "https://example.com?id=id-many-2", title: "Adform", favicon: null },
-        { id: "id-many-3", url: "https://a.example.com?id=id-many-3", title: "Adobe", favicon: { src: "./this-does-note-exist", maxAvailableSize: 64 } },
-        { id: "id-many-4", url: "https://b.example.com?id=id-many-3", title: "Adobe", favicon: { src: "./this-does-note-exist", maxAvailableSize: 64 } },
+        { id: "id-many-3", url: "https://a.example.com?id=id-many-3", title: "Adobe", favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 } },
+        { id: "id-many-4", url: "https://b.example.com?id=id-many-3", title: "Adobe", favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 } },
+        { id: "id-many-31", url: "https://b.example.com?id=id-many-4", title: "A Beautiful Mess", favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 } },
         { id: "id-many-5", url: "https://222?id=id-many-3", title: "Gmail", favicon: null },
-        { id: "id-many-6", url: "https://example.com?id=id-many-5", title: "TikTok", favicon: { src: "./company-icons/bytedance.svg", maxAvailableSize: 64 } },
-        { id: "id-many-7", url: "https://example.com?id=id-many-6", title: "DoorDash", favicon: { src: "./company-icons/d.svg", maxAvailableSize: 64 } },
-        { id: "id-many-8", url: "https://example.com?id=id-many-7", title: "Facebook", favicon: { src: "./company-icons/facebook.svg", maxAvailableSize: 64 } },
-        { id: "id-many-9", url: "https://example.com?id=id-many-8", title: "Beeswax", favicon: { src: "./company-icons/beeswax.svg", maxAvailableSize: 64 } },
-        { id: "id-many-10", url: "https://example.com?id=id-many-9", title: "Adobe", favicon: { src: "./company-icons/adobe.svg", maxAvailableSize: 64 } },
-        { id: "id-many-11", url: "https://example.com?id=id-many-10", title: "Beeswax", favicon: { src: "./company-icons/beeswax.svg", maxAvailableSize: 64 } },
-        { id: "id-many-12", url: "https://example.com?id=id-many-11", title: "Facebook", favicon: { src: "./company-icons/facebook.svg", maxAvailableSize: 64 } },
-        { id: "id-many-13", url: "https://example.com?id=id-many-12", title: "Gmail", favicon: { src: "./company-icons/google.svg", maxAvailableSize: 64 } },
-        { id: "id-many-14", url: "https://example.com?id=id-many-13", title: "TikTok", favicon: { src: "./company-icons/bytedance.svg", maxAvailableSize: 64 } },
-        { id: "id-many-15", url: "https://example.com?id=id-many-14", title: "yeti", favicon: { src: "./company-icons/d.svg", maxAvailableSize: 64 } }
+        { id: "id-many-6", url: "https://example.com?id=id-many-5", title: "TikTok", favicon: { src: "./company-icons/bytedance.svg", maxAvailableSize: 16 } },
+        { id: "id-many-7", url: "https://example.com?id=id-many-6", title: "DoorDash", favicon: { src: "./company-icons/d.svg", maxAvailableSize: 16 } },
+        { id: "id-many-8", url: "https://example.com?id=id-many-7", title: "Facebook", favicon: { src: "./company-icons/facebook.svg", maxAvailableSize: 16 } },
+        { id: "id-many-9", url: "https://example.com?id=id-many-8", title: "Beeswax", favicon: { src: "./company-icons/beeswax.svg", maxAvailableSize: 16 } },
+        { id: "id-many-10", url: "https://example.com?id=id-many-9", title: "Adobe", favicon: { src: "./company-icons/adobe.svg", maxAvailableSize: 16 } },
+        { id: "id-many-11", url: "https://example.com?id=id-many-10", title: "Beeswax", favicon: { src: "./company-icons/beeswax.svg", maxAvailableSize: 16 } },
+        { id: "id-many-12", url: "https://example.com?id=id-many-11", title: "Facebook", favicon: { src: "./company-icons/facebook.svg", maxAvailableSize: 16 } },
+        { id: "id-many-13", url: "https://example.com?id=id-many-12", title: "Gmail", favicon: { src: "./company-icons/google.svg", maxAvailableSize: 16 } },
+        { id: "id-many-14", url: "https://example.com?id=id-many-13", title: "TikTok", favicon: { src: "./company-icons/bytedance.svg", maxAvailableSize: 16 } },
+        { id: "id-many-15", url: "https://example.com?id=id-many-14", title: "yeti", favicon: { src: "./company-icons/d.svg", maxAvailableSize: 16 } }
       ]
     },
     two: {
@@ -7515,13 +6801,17 @@
     const openFavorite = (...args) => {
       console.log("noop openFavorite", ...args);
     };
-    const add2 = (...args) => {
+    const add = (...args) => {
       console.log("noop add", ...args);
     };
-    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2 } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
+    const onConfigChanged = () => {
+      return () => {
+      };
+    };
+    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add, onConfigChanged } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
   }
 
-  // pages/new-tab/app/favorites/components/FavoritesExamples.js
+  // pages/new-tab/app/favorites/components/Favorites.examples.js
   init_Favorites2();
   init_FavoritesCustomized();
   var favoritesExamples = {
@@ -7571,8 +6861,184 @@
     }
   };
 
-  // pages/new-tab/app/components/Examples.jsx
-  var mainExamples = {
+  // pages/new-tab/app/privacy-stats/components/PrivacyStats.examples.js
+  init_preact_module();
+  init_utils();
+
+  // pages/new-tab/app/privacy-stats/mocks/PrivacyStatsMockProvider.js
+  init_hooks_module();
+  init_preact_module();
+  init_PrivacyStatsProvider();
+
+  // pages/new-tab/app/privacy-stats/mocks/stats.js
+  init_constants2();
+  var stats = {
+    few: {
+      totalCount: 481113,
+      trackerCompanies: [
+        {
+          displayName: "Facebook",
+          count: 310
+        },
+        {
+          displayName: "Google",
+          count: 279
+        },
+        {
+          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+          count: 210
+        },
+        {
+          displayName: "Amazon",
+          count: 67
+        },
+        {
+          displayName: "Google Ads",
+          count: 2
+        }
+      ]
+    },
+    single: {
+      totalCount: 481113,
+      trackerCompanies: [
+        {
+          displayName: "Google",
+          count: 1
+        }
+      ]
+    },
+    norecent: {
+      totalCount: 481113,
+      trackerCompanies: []
+    },
+    none: {
+      totalCount: 0,
+      trackerCompanies: []
+    },
+    willUpdate: {
+      totalCount: 481113,
+      trackerCompanies: [
+        {
+          displayName: "Facebook",
+          count: 1
+        },
+        {
+          displayName: "Google",
+          count: 1
+        },
+        {
+          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+          count: 1
+        },
+        {
+          displayName: "Amazon",
+          count: 1
+        },
+        {
+          displayName: "Google Ads",
+          count: 1
+        }
+      ]
+    },
+    many: {
+      totalCount: 890,
+      trackerCompanies: [
+        { displayName: "Google", count: 153 },
+        { displayName: "Microsoft", count: 69 },
+        { displayName: "Cloudflare", count: 65 },
+        { displayName: "Facebook", count: 61 },
+        { displayName: "ByteDance", count: 58 },
+        { displayName: "Adobe", count: 38 },
+        { displayName: "Magnite", count: 12 },
+        { displayName: "PubMatic", count: 10 },
+        { displayName: "Index Exchange", count: 10 },
+        { displayName: "OpenX", count: 10 },
+        { displayName: "Taboola", count: 9 },
+        { displayName: "comScore", count: 9 },
+        { displayName: "Akamai", count: 8 },
+        { displayName: "LiveIntent", count: 7 },
+        { displayName: "Criteo", count: 6 },
+        { displayName: "Verizon Media", count: 6 },
+        { displayName: "TripleLift", count: 5 },
+        { displayName: "YieldMo", count: 4 },
+        { displayName: "Neustar", count: 4 },
+        { displayName: "Oracle", count: 4 },
+        { displayName: "WPP", count: 3 },
+        { displayName: "Adform", count: 3 },
+        { displayName: "The Nielsen Company", count: 3 },
+        { displayName: "IPONWEB", count: 3 },
+        { displayName: "Kargo", count: 2 },
+        { displayName: "__other__", count: 143 },
+        { displayName: "Sharethrough", count: 2 },
+        { displayName: "GumGum", count: 2 },
+        { displayName: "Media.net Advertising", count: 2 },
+        { displayName: "Amobee", count: 2 },
+        { displayName: "Improve Digital", count: 1 },
+        { displayName: "Smartadserver", count: 1 },
+        { displayName: "LoopMe", count: 1 },
+        { displayName: "Hotjar", count: 1 },
+        { displayName: "Amazon.com", count: 1 },
+        { displayName: "RTB House", count: 1 },
+        { displayName: "Sovrn Holdings", count: 1 },
+        { displayName: "Outbrain", count: 1 },
+        { displayName: "Conversant", count: 1 },
+        { displayName: "The Trade Desk", count: 1 },
+        { displayName: "RhythmOne", count: 1 },
+        { displayName: "Sonobi", count: 1 },
+        { displayName: "New Relic", count: 1 }
+      ]
+    }
+  };
+
+  // pages/new-tab/app/privacy-stats/mocks/PrivacyStatsMockProvider.js
+  init_service_hooks();
+  function PrivacyStatsMockProvider({
+    data = stats.few,
+    config = { expansion: "expanded", animation: { kind: "auto-animate" } },
+    ticker = false,
+    children
+  }) {
+    const initial = (
+      /** @type {import('../PrivacyStatsProvider.js').State} */
+      {
+        status: "ready",
+        data,
+        config
+      }
+    );
+    const [state, send] = p2(reducer, initial);
+    y2(() => {
+      if (!ticker) return;
+      if (state.status === "ready") {
+        const next = {
+          totalCount: state.data.totalCount + 1,
+          trackerCompanies: state.data.trackerCompanies.map((company, index) => {
+            if (index === 0) return { ...company, count: company.count + 1 };
+            return company;
+          })
+        };
+        const time = setTimeout(() => {
+          send({ kind: "data", data: next });
+        }, 1e3);
+        return () => clearTimeout(time);
+      }
+      return () => {
+      };
+    }, [state.data?.totalCount, ticker]);
+    const toggle = q2(() => {
+      if (state.status !== "ready") return console.warn("was not ready");
+      if (state.config?.expansion === "expanded") {
+        send({ kind: "config", config: { ...state.config, expansion: "collapsed" } });
+      } else {
+        send({ kind: "config", config: { ...state.config, expansion: "expanded" } });
+      }
+    }, [state.config?.expansion]);
+    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: send }, children));
+  }
+
+  // pages/new-tab/app/privacy-stats/components/PrivacyStats.examples.js
+  init_PrivacyStats2();
+  var privacyStatsExamples = {
     "stats.few": {
       factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { ticker: true }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
@@ -7589,61 +7055,16 @@
       factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: stats.norecent }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
     "stats.list": {
-      factory: () => /* @__PURE__ */ _(Body, { trackerCompanies: stats.few.trackerCompanies, listAttrs: { id: "example-stats.list" } })
+      factory: () => /* @__PURE__ */ _(PrivacyStatsBody, { trackerCompanies: stats.few.trackerCompanies, listAttrs: { id: "example-stats.list" } })
     },
     "stats.heading": {
-      factory: () => /* @__PURE__ */ _(
-        Heading,
-        {
-          trackerCompanies: stats.few.trackerCompanies,
-          totalCount: stats.few.totalCount,
-          expansion: "expanded",
-          onToggle: noop("stats.heading onToggle")
-        }
-      )
+      factory: () => /* @__PURE__ */ _(Heading, { trackerCompanies: stats.few.trackerCompanies, expansion: "expanded", onToggle: noop("stats.heading onToggle") })
     },
     "stats.heading.none": {
-      factory: () => /* @__PURE__ */ _(
-        Heading,
-        {
-          trackerCompanies: stats.none.trackerCompanies,
-          totalCount: stats.none.totalCount,
-          expansion: "expanded",
-          onToggle: noop("stats.heading onToggle")
-        }
-      )
-    },
-    "rmf.small": {
-      factory: () => /* @__PURE__ */ _(RemoteMessagingFramework, { message: rmfDataExamples.small.content, dismiss: () => {
-      } })
-    },
-    "rmf.medium": {
-      factory: () => /* @__PURE__ */ _(RemoteMessagingFramework, { message: rmfDataExamples.medium.content, dismiss: () => {
-      } })
-    },
-    "rmf.big-single-action": {
-      factory: () => /* @__PURE__ */ _(RemoteMessagingFramework, { message: rmfDataExamples.big_single_action.content, primaryAction: () => {
-      }, dismiss: () => {
-      } })
-    },
-    "rmf.big-two-action": {
-      factory: () => /* @__PURE__ */ _(
-        RemoteMessagingFramework,
-        {
-          message: rmfDataExamples.big_two_action.content,
-          primaryAction: () => {
-          },
-          secondaryAction: () => {
-          },
-          dismiss: () => {
-          }
-        }
-      )
-    },
-    ...favoritesExamples,
-    ...nextStepsExamples
+      factory: () => /* @__PURE__ */ _(Heading, { trackerCompanies: stats.none.trackerCompanies, expansion: "expanded", onToggle: noop("stats.heading onToggle") })
+    }
   };
-  var otherExamples = {
+  var otherPrivacyStatsExamples = {
     "stats.without-animation": {
       factory: () => /* @__PURE__ */ _(
         PrivacyStatsMockProvider,
@@ -7669,22 +7090,215 @@
         },
         /* @__PURE__ */ _(PrivacyStatsConsumer, null)
       )
+    }
+  };
+
+  // pages/new-tab/app/next-steps/components/NextSteps.examples.js
+  init_preact_module();
+  init_utils();
+  init_NextStepsCard();
+  init_NextStepsGroup();
+  var nextStepsExamples = {
+    "next-steps.cardGroup.all": {
+      factory: () => /* @__PURE__ */ _(
+        NextStepsCardGroup,
+        {
+          types: [
+            "bringStuff",
+            "defaultApp",
+            "blockCookies",
+            "emailProtection",
+            "duckplayer",
+            "addAppToDockMac",
+            "pinAppToTaskbarWindows"
+          ],
+          expansion: "collapsed",
+          toggle: noop("toggle"),
+          dismiss: noop("dismiss"),
+          action: noop("action")
+        }
+      )
     },
+    "next-steps.cardGroup.all-expanded": {
+      factory: () => /* @__PURE__ */ _(
+        NextStepsCardGroup,
+        {
+          types: [
+            "bringStuff",
+            "defaultApp",
+            "blockCookies",
+            "emailProtection",
+            "duckplayer",
+            "addAppToDockMac",
+            "pinAppToTaskbarWindows"
+          ],
+          expansion: "expanded",
+          toggle: noop("toggle"),
+          dismiss: noop("dismiss"),
+          action: noop("action")
+        }
+      )
+    },
+    "next-steps.cardGroup.two": {
+      factory: () => /* @__PURE__ */ _(
+        NextStepsCardGroup,
+        {
+          types: ["bringStuff", "defaultApp"],
+          expansion: "collapsed",
+          toggle: noop("toggle"),
+          dismiss: noop("dismiss"),
+          action: noop("action")
+        }
+      )
+    },
+    "next-steps.cardGroup.one": {
+      factory: () => /* @__PURE__ */ _(
+        NextStepsCardGroup,
+        {
+          types: ["bringStuff"],
+          expansion: "collapsed",
+          toggle: noop("toggle"),
+          dismiss: noop("dismiss"),
+          action: noop("action")
+        }
+      )
+    }
+  };
+  var otherNextStepsExamples = {
+    "next-steps.bringStuff": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "bringStuff", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.duckplayer": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "duckplayer", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.defaultApp": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "defaultApp", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.emailProtection": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "emailProtection", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.blockCookies": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "blockCookies", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.addAppToDockMac": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "addAppToDockMac", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.pinToTaskbarWindows": {
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "pinAppToTaskbarWindows", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.bubble": {
+      factory: () => /* @__PURE__ */ _(NextStepsBubbleHeader, null)
+    }
+  };
+
+  // pages/new-tab/app/remote-messaging-framework/components/RMF.examples.js
+  init_preact_module();
+  init_utils();
+  init_RemoteMessagingFramework2();
+
+  // pages/new-tab/app/remote-messaging-framework/mocks/rmf.data.js
+  var rmfDataExamples = {
+    small: {
+      content: {
+        messageType: "small",
+        id: "id-small",
+        titleText: "Search services limited",
+        descriptionText: "Search services are impacted by a Bing outage, results may not be what you expect"
+      }
+    },
+    medium: {
+      content: {
+        messageType: "medium",
+        id: "id-2",
+        icon: "DDGAnnounce",
+        titleText: "New Search Feature!",
+        descriptionText: "DuckDuckGo now offers Instant Answers for quicker access to the information you need."
+      }
+    },
+    big_single_action: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single",
+        titleText: "Tell Us Your Thoughts on Privacy Pro",
+        descriptionText: "Take our short anonymous survey and share your feedback.",
+        icon: "PrivacyPro",
+        primaryActionText: "Take Survey"
+      }
+    },
+    big_two_action: {
+      content: {
+        messageType: "big_two_action",
+        id: "id-big-two",
+        titleText: "Tell Us Your Thoughts on Privacy Pro",
+        descriptionText: "Take our short anonymous survey and share your feedback.",
+        icon: "Announce",
+        primaryActionText: "Take Survey",
+        secondaryActionText: "Remind me"
+      }
+    },
+    big_two_action_overflow: {
+      content: {
+        id: "big-two-overflow",
+        messageType: "big_two_action",
+        icon: "CriticalUpdate",
+        titleText: "Windows Update Recommended",
+        descriptionText: "Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.",
+        primaryActionText: "How to update Windows",
+        secondaryActionText: "Remind me later, but only if I\u2019m actually going to update soon"
+      }
+    }
+  };
+
+  // pages/new-tab/app/remote-messaging-framework/components/RMF.examples.js
+  var RMFExamples = {
+    "rmf.small": {
+      factory: () => /* @__PURE__ */ _(RemoteMessagingFramework, { message: rmfDataExamples.small.content, dismiss: noop("rmf_dismiss") })
+    },
+    "rmf.medium": {
+      factory: () => /* @__PURE__ */ _(RemoteMessagingFramework, { message: rmfDataExamples.medium.content, dismiss: noop("rmf_dismiss") })
+    },
+    "rmf.big-single-action": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-two-action": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_two_action.content,
+          primaryAction: noop("rmf_primaryAction"),
+          secondaryAction: noop("rmf_secondaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    }
+  };
+  var otherRMFExamples = {
     "rmf.big-two-action-overflow": {
       factory: () => /* @__PURE__ */ _(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_two_action_overflow.content,
-          primaryAction: () => {
-          },
-          secondaryAction: () => {
-          },
-          dismiss: () => {
-          }
+          primaryAction: noop("rmf_primaryAction"),
+          secondaryAction: noop("rmf_secondaryAction"),
+          dismiss: noop("rmf_dismiss")
         }
       )
-    },
-    ...otherNextStepsExamples,
+    }
+  };
+
+  // pages/new-tab/app/customizer/components/Customizer.examples.js
+  init_preact_module();
+  init_utils();
+  init_Customizer2();
+  init_VisibilityMenu2();
+  var customizerExamples = {
     "customizer-menu": {
       factory: () => /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true })), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(
         VisibilityMenu,
@@ -7715,187 +7329,98 @@
     return /* @__PURE__ */ _("div", { style: { display: "grid", gridTemplateColumns: "max-content" } }, children);
   }
 
-  // pages/new-tab/app/update-notification/UpdateNotification.examples.js
+  // pages/new-tab/app/components/Examples.jsx
+  init_utils();
+
+  // pages/new-tab/app/update-notification/components/UpdateNotification.examples.js
   init_preact_module();
   init_UpdateNotification2();
   init_utils();
   var updateNotificationExamples = {
-    empty: {
+    "updateNotification.empty": {
       factory: () => {
         return /* @__PURE__ */ _(UpdateNotification, { notes: [], version: "1.2.3", dismiss: noop("dismiss!") });
       }
     },
-    populated: {
+    "updateNotification.populated": {
       factory: () => {
         return /* @__PURE__ */ _(UpdateNotification, { notes: ["Bug Fixed and Updates"], version: "1.2.3", dismiss: noop("dismiss!") });
       }
     }
   };
 
+  // pages/new-tab/app/components/Examples.jsx
+  var mainExamples = {
+    ...favoritesExamples,
+    ...nextStepsExamples,
+    ...privacyStatsExamples,
+    ...RMFExamples
+  };
+  var otherExamples = {
+    ...otherNextStepsExamples,
+    ...otherPrivacyStatsExamples,
+    ...otherRMFExamples,
+    ...customizerExamples,
+    ...updateNotificationExamples
+  };
+
   // pages/new-tab/app/components/Components.jsx
   var url = new URL(window.location.href);
   var list = {
     ...mainExamples,
-    ...otherExamples,
-    ...updateNotificationExamples
+    ...otherExamples
   };
   var entries = Object.entries(list);
-  function Components() {
-    const ids = url.searchParams.getAll("id");
-    const isolated = url.searchParams.has("isolate");
-    const e2e = url.searchParams.has("e2e");
-    const entryIds = entries.map(([id]) => id);
-    const validIds = ids.filter((id) => entryIds.includes(id));
-    const filtered = validIds.length ? validIds.map((id) => (
-      /** @type {const} */
-      [id, list[id]]
-    )) : entries;
-    if (isolated) {
-      return /* @__PURE__ */ _(Isolated, { entries: filtered, e2e });
-    }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(DebugBar, { id: ids[0], ids, entries }), /* @__PURE__ */ _(Stage, { entries: (
-      /** @type {any} */
-      filtered
-    ) }));
-  }
-  function Stage({ entries: entries2 }) {
-    return /* @__PURE__ */ _("div", { class: Components_default.componentList, "data-testid": "stage" }, entries2.map(([id, item]) => {
-      const next = new URL(url);
-      next.searchParams.set("isolate", "true");
-      next.searchParams.set("id", id);
-      const selected = new URL(url);
-      selected.searchParams.set("id", id);
-      const e2e = new URL(url);
-      e2e.searchParams.set("isolate", "true");
-      e2e.searchParams.set("id", id);
-      e2e.searchParams.set("e2e", "true");
-      const without = new URL(url);
-      const current = without.searchParams.getAll("id");
-      const others = current.filter((x4) => x4 !== id);
-      const matching = current.filter((x4) => x4 === id);
-      const matchingMinus1 = matching.length === 1 ? [] : matching.slice(0, -1);
-      without.searchParams.delete("id");
-      for (let string of [...others, ...matchingMinus1]) {
-        without.searchParams.append("id", string);
-      }
-      return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("div", { class: Components_default.itemInfo }, /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _("code", null, id), /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank", title: "open in new tab" }, "Open \u{1F517}"), " ", /* @__PURE__ */ _("a", { href: without.toString(), hidden: current.length === 0 }, "Remove")), /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _("a", { href: selected.toString(), class: Components_default.itemLink, title: "show this component only" }, "select"), " ", /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "isolate"), " ", /* @__PURE__ */ _("a", { href: e2e.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "edge-to-edge"))), /* @__PURE__ */ _("div", { className: Components_default.item, key: id }, item.factory()));
-    }));
-  }
-  function Isolated({ entries: entries2, e2e }) {
-    if (e2e) {
-      return /* @__PURE__ */ _("div", null, entries2.map(([id, item]) => {
-        return /* @__PURE__ */ _(b, { key: id }, item.factory());
-      }));
-    }
-    return /* @__PURE__ */ _("div", { class: Components_default.componentList, "data-testid": "stage" }, entries2.map(([id, item], index) => {
-      return /* @__PURE__ */ _("div", { key: id + index }, item.factory());
-    }));
-  }
-  function DebugBar({ entries: entries2, id, ids }) {
-    return /* @__PURE__ */ _("div", { class: Components_default.debugBar, "data-testid": "selector" }, /* @__PURE__ */ _(ExampleSelector, { entries: entries2, id }), ids.length > 0 && /* @__PURE__ */ _(Append, { entries: entries2, id }), /* @__PURE__ */ _(TextLength, null), /* @__PURE__ */ _(Isolate, null));
-  }
-  function TextLength() {
-    function onClick() {
-      url.searchParams.set("textLength", "1.5");
-      window.location.href = url.toString();
-    }
-    function onReset() {
-      url.searchParams.delete("textLength");
-      window.location.href = url.toString();
-    }
-    return /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("button", { onClick: onReset, type: "button" }, "Text Length 1x"), /* @__PURE__ */ _("button", { onClick, type: "button" }, "Text Length 1.5x"));
-  }
-  function Isolate() {
-    const next = new URL(url);
-    next.searchParams.set("isolate", "true");
-    return /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank" }, "Isolate (open in a new tab)"));
-  }
-  function ExampleSelector({ entries: entries2, id }) {
-    function onReset() {
-      const url3 = new URL(window.location.href);
-      url3.searchParams.delete("id");
-      window.location.href = url3.toString();
-    }
-    function onChange(event) {
-      if (!event.target) return;
-      if (!(event.target instanceof HTMLSelectElement)) return;
-      const selectedId = event.target.value;
-      if (selectedId) {
-        if (selectedId === "none") return onReset();
-        const url3 = new URL(window.location.href);
-        url3.searchParams.set("id", selectedId);
-        window.location.href = url3.toString();
+
+  // shared/call-with-retry.js
+  async function callWithRetry(fn, params = {}) {
+    const { maxAttempts = 10, intervalMs = 300 } = params;
+    let attempt = 1;
+    while (attempt <= maxAttempts) {
+      try {
+        return { value: await fn(), attempt };
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          return { error: `Max attempts reached: ${error}` };
+        }
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+        attempt++;
       }
     }
-    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("label", null, "Single:", " ", /* @__PURE__ */ _("select", { value: id || "none", onChange }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries2.map(([id2]) => /* @__PURE__ */ _("option", { key: id2, value: id2 }, id2)))), /* @__PURE__ */ _("button", { onClick: onReset }, "RESET \u{1F501}")));
-  }
-  function Append({ entries: entries2, id }) {
-    function onReset() {
-      const url3 = new URL(window.location.href);
-      url3.searchParams.delete("id");
-      window.location.href = url3.toString();
-    }
-    function onSubmit(event) {
-      if (!event.target) return;
-      event.preventDefault();
-      const form = event.target;
-      const data = new FormData(form);
-      const value = data.get("add-id");
-      if (typeof value !== "string") return;
-      const url3 = new URL(window.location.href);
-      url3.searchParams.append("id", value);
-      window.location.href = url3.toString();
-    }
-    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("form", { class: Components_default.buttonRow, onSubmit }, /* @__PURE__ */ _("label", null, "Append:", " ", /* @__PURE__ */ _("select", { value: "none", name: "add-id" }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries2.map(([id2]) => /* @__PURE__ */ _("option", { key: id2, value: id2 }, id2)))), /* @__PURE__ */ _("button", null, "Confirm")));
+    return { error: "Unreachable: value not retrieved" };
   }
 
   // pages/new-tab/app/index.js
-  async function init(messaging2, telemetry2, baseEnvironment2) {
-    const init2 = await messaging2.init();
+  async function init(root2, messaging2, telemetry2, baseEnvironment2) {
+    const result = await callWithRetry(() => messaging2.initialSetup());
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    const init2 = result.value;
     if (!Array.isArray(init2.widgets)) {
       throw new Error("missing critical initialSetup.widgets array");
     }
     if (!Array.isArray(init2.widgetConfigs)) {
       throw new Error("missing critical initialSetup.widgetConfig array");
     }
-    const widgetConfigAPI = new WidgetConfigService(messaging2, init2.widgetConfigs);
     const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
-    const strings = environment.locale === "en" ? newtab_default : await fetch(`./locales/${environment.locale}/new-tab.json`).then((x4) => x4.json()).catch((e3) => {
-      console.error("Could not load locale", environment.locale, e3);
-      return newtab_default;
-    });
+    const strings = await getStrings(environment);
     const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform"));
-    console.log("environment:", environment);
-    console.log("settings:", settings);
-    console.log("locale:", environment.locale);
+    if (!window.__playwright_01) {
+      console.log("environment:", environment);
+      console.log("settings:", settings);
+      console.log("locale:", environment.locale);
+    }
     const didCatch = (error) => {
       const message = error?.message || error?.error || "unknown";
       messaging2.reportPageException({ message });
     };
-    const root2 = document.querySelector("#app");
-    if (!root2) throw new Error("could not render, root element missing");
-    document.body.dataset.platformName = settings.platform.name;
     if (environment.display === "components") {
-      document.body.dataset.display = "components";
-      return B(
-        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: strings, textLength: environment.textLength }, /* @__PURE__ */ _(Components, null)))),
-        root2
-      );
+      return renderComponents(root2, environment, settings, strings);
     }
-    const entryPoints = await (async () => {
-      try {
-        const loaders = init2.widgets.map((widget) => {
-          return widgetEntryPoint(widget.id).then((mod) => [widget.id, mod]);
-        });
-        const entryPoints2 = await Promise.all(loaders);
-        return Object.fromEntries(entryPoints2);
-      } catch (e3) {
-        const error = new Error("Error loading widget entry points:" + e3.message);
-        didCatch(error);
-        console.error(error);
-        return {};
-      }
-    })();
+    installGlobalSideEffects(environment, settings);
+    const entryPoints = await resolveEntryPoints(init2.widgets, didCatch);
+    const widgetConfigAPI = new WidgetConfigService(messaging2, init2.widgetConfigs);
     B(
       /* @__PURE__ */ _(
         EnvironmentProvider,
@@ -7905,7 +7430,7 @@
           willThrow: environment.willThrow,
           env: environment.env
         },
-        /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ _(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ _(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: strings, textLength: environment.textLength }, /* @__PURE__ */ _(
+        /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ _(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ _(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ _(
           WidgetConfigProvider,
           {
             api: widgetConfigAPI,
@@ -7918,6 +7443,32 @@
       ),
       root2
     );
+  }
+  async function getStrings(environment) {
+    return environment.locale === "en" ? new_tab_default : await fetch(`./locales/${environment.locale}/new-tab.json`).then((x4) => x4.json()).catch((e3) => {
+      console.error("Could not load locale", environment.locale, e3);
+      return new_tab_default;
+    });
+  }
+  function installGlobalSideEffects(environment, settings) {
+    document.body.dataset.platformName = settings.platform.name;
+    document.body.dataset.display = environment.display;
+  }
+  async function resolveEntryPoints(widgets, didCatch) {
+    try {
+      const loaders = widgets.map((widget) => {
+        return widgetEntryPoint(widget.id).then((mod) => [widget.id, mod]);
+      });
+      const entryPoints = await Promise.all(loaders);
+      return Object.fromEntries(entryPoints);
+    } catch (e3) {
+      const error = new Error("Error loading widget entry points:" + e3.message);
+      didCatch(error);
+      console.error(error);
+      return {};
+    }
+  }
+  function renderComponents(root2, environment, settings, strings) {
   }
 
   // ../messaging/lib/windows.js
@@ -8010,8 +7561,8 @@
      * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
      * @internal
      */
-    _subscribe(comparator, options2, callback) {
-      if (options2?.signal?.aborted) {
+    _subscribe(comparator, options, callback) {
+      if (options?.signal?.aborted) {
         throw new DOMException("Aborted", "AbortError");
       }
       let teardown;
@@ -8036,10 +7587,10 @@
         throw new DOMException("Aborted", "AbortError");
       };
       this.config.methods.addEventListener("message", idHandler);
-      options2?.signal?.addEventListener("abort", abortHandler);
+      options?.signal?.addEventListener("abort", abortHandler);
       teardown = () => {
         this.config.methods.removeEventListener("message", idHandler);
-        options2?.signal?.removeEventListener("abort", abortHandler);
+        options?.signal?.removeEventListener("abort", abortHandler);
       };
       return () => {
         teardown?.();
@@ -8642,10 +8193,10 @@
      * Capture the global handler and remove it from the global object.
      */
     _captureGlobalHandler() {
-      const { target: target2, javascriptInterface } = this;
-      if (Object.prototype.hasOwnProperty.call(target2, javascriptInterface)) {
-        this._capturedHandler = target2[javascriptInterface].process.bind(target2[javascriptInterface]);
-        delete target2[javascriptInterface];
+      const { target, javascriptInterface } = this;
+      if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
+        this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface]);
+        delete target[javascriptInterface];
       } else {
         this._capturedHandler = () => {
           this._log("Android messaging interface not available", javascriptInterface);
@@ -8993,9 +8544,162 @@
     return allowed.includes(input);
   }
 
-  // pages/new-tab/src/js/mock-transport.js
+  // pages/new-tab/app/mock-transport.js
   init_nextsteps_data();
   var url2 = new URL(window.location.href);
+
+  // pages/new-tab/app/telemetry/telemetry.js
+  var Telemetry = class _Telemetry {
+    static EVENT_REQUEST = "TELEMETRY_EVENT_REQUEST";
+    static EVENT_RESPONSE = "TELEMETRY_EVENT_RESPONSE";
+    static EVENT_SUBSCRIPTION = "TELEMETRY_EVENT_SUBSCRIPTION";
+    static EVENT_SUBSCRIPTION_DATA = "TELEMETRY_EVENT_SUBSCRIPTION_DATA";
+    static EVENT_NOTIFICATION = "TELEMETRY_EVENT_NOTIFICATION";
+    static EVENT_BROADCAST = "TELEMETRY_*";
+    eventTarget = new EventTarget();
+    /** @type {any[]} */
+    eventStore = [];
+    storeEnabled = false;
+    /**
+     * @param now
+     */
+    constructor(now = Date.now()) {
+      this.now = now;
+      performance.mark("ddg-telemetry-init");
+      this._setupMessagingMarkers();
+    }
+    _setupMessagingMarkers() {
+      this.eventTarget.addEventListener(_Telemetry.EVENT_REQUEST, ({ detail }) => {
+        const named = `ddg request ${detail.method} ${detail.timestamp}`;
+        performance.mark(named);
+        this.broadcast(detail);
+      });
+      this.eventTarget.addEventListener(_Telemetry.EVENT_RESPONSE, ({ detail }) => {
+        const reqNamed = `ddg request ${detail.method} ${detail.timestamp}`;
+        const resNamed = `ddg response ${detail.method} ${detail.timestamp}`;
+        performance.mark(resNamed);
+        performance.measure(reqNamed, reqNamed, resNamed);
+        this.broadcast(detail);
+      });
+      this.eventTarget.addEventListener(_Telemetry.EVENT_SUBSCRIPTION, ({ detail }) => {
+        const named = `ddg subscription ${detail.method} ${detail.timestamp}`;
+        performance.mark(named);
+        this.broadcast(detail);
+      });
+      this.eventTarget.addEventListener(_Telemetry.EVENT_SUBSCRIPTION_DATA, ({ detail }) => {
+        const named = `ddg subscription data ${detail.method} ${detail.timestamp}`;
+        performance.mark(named);
+        this.broadcast(detail);
+      });
+      this.eventTarget.addEventListener(_Telemetry.EVENT_NOTIFICATION, ({ detail }) => {
+        const named = `ddg notification ${detail.method} ${detail.timestamp}`;
+        performance.mark(named);
+        this.broadcast(detail);
+      });
+    }
+    broadcast(payload) {
+      if (this.eventStore.length >= 50) {
+        this.eventStore = [];
+      }
+      if (this.storeEnabled) {
+        this.eventStore.push(structuredClone(payload));
+      }
+      this.eventTarget.dispatchEvent(new CustomEvent(_Telemetry.EVENT_BROADCAST, { detail: payload }));
+    }
+    measureFromPageLoad(marker, measure = "measure__" + Date.now()) {
+      if (!performance.getEntriesByName(marker).length) {
+        performance.mark(marker);
+        performance.measure(measure, "ddg-telemetry-init", marker);
+      }
+    }
+  };
+  var MessagingObserver = class {
+    /** @type {Map<string, number>} */
+    observed = /* @__PURE__ */ new Map();
+    /**
+     * @param {import("@duckduckgo/messaging").Messaging} messaging
+     * @param {EventTarget} eventTarget
+     */
+    constructor(messaging2, eventTarget) {
+      this.messaging = messaging2;
+      this.messagingContext = messaging2.messagingContext;
+      this.transport = messaging2.transport;
+      this.eventTarget = eventTarget;
+    }
+    /**
+     * @param {string} method
+     * @param {Record<string, any>} params
+     */
+    request(method, params) {
+      const timestamp = Date.now();
+      const json = {
+        kind: "request",
+        method,
+        params,
+        timestamp
+      };
+      this.record(Telemetry.EVENT_REQUEST, json);
+      return this.messaging.request(method, params).then((x4) => {
+        const resJson = {
+          kind: "response",
+          method,
+          result: x4,
+          timestamp
+        };
+        this.record(Telemetry.EVENT_RESPONSE, resJson);
+        return x4;
+      });
+    }
+    /**
+     * @param {string} method
+     * @param {Record<string, any>} params
+     */
+    notify(method, params) {
+      const json = {
+        kind: "notification",
+        method,
+        params
+      };
+      this.record(Telemetry.EVENT_NOTIFICATION, json);
+      return this.messaging.notify(method, params);
+    }
+    /**
+     * @param method
+     * @param callback
+     * @return {function(): void}
+     */
+    subscribe(method, callback) {
+      const timestamp = Date.now();
+      const json = {
+        kind: "subscription",
+        method,
+        timestamp
+      };
+      this.record(Telemetry.EVENT_SUBSCRIPTION, json);
+      return this.messaging.subscribe(method, (params) => {
+        const json2 = {
+          kind: "subscription data",
+          method,
+          timestamp,
+          params
+        };
+        this.record(Telemetry.EVENT_SUBSCRIPTION_DATA, json2);
+        callback(params);
+      });
+    }
+    /**
+     * @param {string} name
+     * @param {Record<string, any>} detail
+     */
+    record(name, detail) {
+      this.eventTarget.dispatchEvent(new CustomEvent(name, { detail }));
+    }
+  };
+  function install(messaging2) {
+    const telemetry2 = new Telemetry();
+    const observedMessaging = new MessagingObserver(messaging2, telemetry2.eventTarget);
+    return { telemetry: telemetry2, messaging: observedMessaging };
+  }
 
   // pages/new-tab/src/js/index.js
   var NewTabPage = class {
@@ -9010,7 +8714,7 @@
     /**
      * @return {Promise<import('../../../../types/new-tab.js').InitialSetupResponse>}
      */
-    init() {
+    initialSetup() {
       return this.messaging.request("initialSetup");
     }
     /**
@@ -9034,6 +8738,24 @@
     contextMenu(params) {
       this.messaging.notify("contextMenu", params);
     }
+    /**
+     * @param {import("../../../../types/new-tab.js").NTPTelemetryEvent} event
+     */
+    telemetryEvent(event) {
+      this.messaging.notify("telemetryEvent", event);
+    }
+    /**
+     * NOTE: temporary workaround, to be replaced with 'telemetryEvent'
+     */
+    statsShowMore() {
+      this.messaging.notify("stats_showMore");
+    }
+    /**
+     * NOTE: temporary workaround, to be replaced with 'telemetryEvent'
+     */
+    statsShowLess() {
+      this.messaging.notify("stats_showLess");
+    }
   };
   var baseEnvironment = new Environment().withInjectName("apple").withEnv("production");
   var rawMessaging = createSpecialPageMessaging({
@@ -9048,10 +8770,19 @@
   });
   var { messaging, telemetry } = install(rawMessaging);
   var newTabMessaging = new NewTabPage(messaging, "apple");
-  init(newTabMessaging, telemetry, baseEnvironment).catch((e3) => {
+  var root = document.querySelector("#app");
+  if (!root) {
+    document.documentElement.dataset.fatalError = "true";
+    B("Fatal: #app missing", document.body);
+    throw new Error("Missing #app");
+  }
+  init(root, newTabMessaging, telemetry, baseEnvironment).catch((e3) => {
     console.error(e3);
     const msg = typeof e3?.message === "string" ? e3.message : "unknown init error";
     newTabMessaging.reportInitException(msg);
+    document.documentElement.dataset.fatalError = "true";
+    const element = /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("div", { style: "padding: 1rem;" }, /* @__PURE__ */ _("p", null, /* @__PURE__ */ _("strong", null, "A fatal error occurred:")), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("pre", { style: { whiteSpace: "prewrap", overflow: "auto" } }, /* @__PURE__ */ _("code", null, JSON.stringify({ message: e3.message }, null, 2))), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("p", null, /* @__PURE__ */ _("strong", null, "Telemetry")), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("pre", { style: { whiteSpace: "prewrap", overflow: "auto", fontSize: ".8em" } }, /* @__PURE__ */ _("code", null, JSON.stringify(telemetry.eventStore, null, 2)))));
+    B(element, document.body);
   });
 })();
 /*! Bundled license information:

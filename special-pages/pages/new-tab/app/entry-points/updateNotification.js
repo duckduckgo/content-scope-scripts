@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { UpdateNotificationConsumer } from '../update-notification/UpdateNotification.js';
+import { UpdateNotificationConsumer } from '../update-notification/components/UpdateNotification.js';
 import { UpdateNotificationProvider } from '../update-notification/UpdateNotificationProvider.js';
 
 export function factory() {

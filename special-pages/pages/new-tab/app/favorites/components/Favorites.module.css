@@ -1,21 +1,17 @@
 .root {
     width: 100%;
-    margin: 0 auto;
+    /* 1px bottom margin for focus box-shadow */
+    margin: 0 auto 1px;
     display: grid;
     grid-template-rows: auto auto;
     grid-template-areas:
         'grid'
         'showhide';
-}
 
-.showhide {
-    grid-area: showhide;
-    height: 32px;
-    display: grid;
-    justify-items: center;
-}
+    &.bottomSpace {
+        margin-bottom: var(--ntp-gap);
+    }
 
-.root {
     &:hover {
         .showhideVisible [aria-controls] {
             opacity: 1;
@@ -28,26 +24,24 @@
     }
 }
 
-.hr {
-    grid-area: middle;
-    width: 100%;
-    height: 1px;
-    border-color: var(--color-black-at-9);
-    @media screen and (prefers-color-scheme: dark) {
-        border-color: var(--color-white-at-9);
-    }
+.showhide {
+    grid-area: showhide;
+    height: var(--ntp-gap);
+    display: grid;
+    justify-items: center;
 }
 
 .grid {
     grid-area: grid;
+    display: grid;
+    position: relative;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
 }
 
-.grid {
+.gridRow {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     align-items: start;
-    grid-row-gap: 8px;
-    margin-left: -12px;
-    margin-right: -12px;
+    position: absolute;
 }
-

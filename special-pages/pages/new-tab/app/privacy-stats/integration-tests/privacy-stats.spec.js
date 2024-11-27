@@ -21,11 +21,39 @@ test.describe('newtab privacy stats', () => {
         expect(await listItems.nth(1).textContent()).toBe('Google279');
         expect(await listItems.nth(2).textContent()).toBe('Amazon67');
         expect(await listItems.nth(3).textContent()).toBe('Google Ads2');
-        expect(await listItems.nth(4).textContent()).toBe('Other210');
+        expect(await listItems.nth(4).textContent()).toBe('210 attempts from other networks');
 
         // show/hide
         await page.getByLabel('Hide recent activity').click();
         await page.getByLabel('Show recent activity').click();
+    });
+    test('sending a pixel when show more is clicked', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { stats: 'many' } });
+        await page.getByLabel('Show More', { exact: true }).click();
+        await page.getByLabel('Show Less').click();
+        await ntp.mocks.waitForCallCount({ method: 'stats_showMore', count: 1 });
+        await ntp.mocks.waitForCallCount({ method: 'stats_showLess', count: 1 });
+        // expect(calls1.length).toBe(2);
+        // expect(calls1).toStrictEqual([
+        //     {
+        //         payload: {
+        //             context: 'specialPages',
+        //             featureName: 'newTabPage',
+        //             method: 'telemetryEvent',
+        //             params: { attributes: { name: 'stats_toggle', value: 'show_more' } },
+        //         },
+        //     },
+        //     {
+        //         payload: {
+        //             context: 'specialPages',
+        //             featureName: 'newTabPage',
+        //             method: 'telemetryEvent',
+        //             params: { attributes: { name: 'stats_toggle', value: 'show_less' } },
+        //         },
+        //     },
+        // ]);
     });
     test(
         'hiding the expander when empty',

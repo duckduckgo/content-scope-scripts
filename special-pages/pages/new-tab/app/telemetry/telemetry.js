@@ -12,7 +12,7 @@ export class Telemetry {
     eventTarget = new EventTarget();
     /** @type {any[]} */
     eventStore = [];
-    storeEnabled = true;
+    storeEnabled = false;
 
     /**
      * @param now

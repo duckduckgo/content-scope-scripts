@@ -2,18 +2,15 @@
     border-width: 0;
     text-wrap: nowrap;
     font-weight: 600;
-    font-size: calc(11 * var(--px-in-rem));
-    line-height: calc(11 * var(--px-in-rem));
-    color: var(--ntp-color-primary);
     height: 1rem;
     width: 1rem;
     padding: 0;
     line-height: 1;
     background-color: transparent;
-    color: var(--color-black-at-60);
+    color: var(--ntp-text-muted);
     border: none;
     border-radius: 50%;
-
+    transition: all .3s;
 
     &:hover {
         background-color: var(--color-black-at-9);
@@ -22,7 +19,7 @@
 
     &:active {
         background-color: var(--color-black-at-18);
-        color: var(--color-black-at-84);
+        color: var(--ntp-text-normal);
     }
 
     &:disabled {
@@ -35,20 +32,17 @@
     }
 
     &:focus-visible {
-        box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
+        box-shadow: var(--focus-ring);
+        outline: none;
     }
 
     @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-60);
-
-
         &:hover {
             background-color: var(--color-black-at-9);
         }
 
         &:active {
             background-color: var(--color-white-at-18);
-            color: var(--color-white-at-84);
         }
 
         &:disabled {
@@ -60,42 +54,5 @@
             cursor: not-allowed;
             background-color: var(--color-white-at-12);
         }
-
-        &:focus-visible {
-            box-shadow: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
-        }
     }
 }
-/* 
-.dismissBtn {
-    height: 1rem;
-    width: 1rem;
-    padding: 0;
-    line-height: 1;
-    background-color: transparent;
-    color: var(--color-black-at-60);
-    border: none;
-    border-radius: 50%;
-
-    &:active {
-        background-color: var(--color-black-at-18);
-        color: var(--color-black-at-84);
-    }
-
-    &:hover {
-        background-color: var(--color-black-at-9);
-    }
-
-    @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-60);
-
-        &:hover {
-            background-color: var(--color-white-at-9);
-        }
-
-        &:active {
-            background-color: var(--color-white-at-18);
-            color: var(--color-white-at-84);
-        }
-    }
-} */

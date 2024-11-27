@@ -1,13 +1,16 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './NextSteps.module.css';
-import { useTypedTranslation } from '../../types';
+import { useTypedTranslationWith } from '../../types';
 import { NextStepsCard } from './NextStepsCard';
 import { otherText } from '../nextsteps.data';
-import { ShowHideButtonWithText } from './ShowHideButtonWithText';
+import { ShowHideButton } from '../../components/ShowHideButton';
 import { useId } from 'preact/hooks';
 
 /**
+ * @import enStrings from '../strings.json';
+ * @import ntpStrings from '../../strings.json';
+ * @typedef {enStrings & ntpStrings} strings
  * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../../../types/new-tab').Animation} Animation
  * @typedef {import('../../../../../types/new-tab').NextStepsCards} NextStepsCards
@@ -22,28 +25,31 @@ import { useId } from 'preact/hooks';
  * @param {(id: string)=>void} props.dismiss
  */
 export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }) {
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
+    const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
 
-    const shownCards = expansion === 'expanded' ? types : types.slice(0, 2);
     return (
-        <div class={cn(styles.cardGroup)} id={WIDGET_ID}>
+        <div class={cn(styles.cardGroup, types.length <= 2 && styles.bottomSpace)} id={WIDGET_ID}>
             <NextStepsBubbleHeader />
             <div class={styles.cardGrid}>
-                {shownCards.map((type) => (
+                {alwaysShown.map((type) => (
                     <NextStepsCard key={type} type={type} dismiss={dismiss} action={action} />
                 ))}
+                {expansion === 'expanded' &&
+                    types.length > 2 &&
+                    types.slice(2).map((type) => <NextStepsCard key={type} type={type} dismiss={dismiss} action={action} />)}
             </div>
 
-            <div
-                className={cn({
-                    [styles.showhide]: true,
-                    [styles.showhideVisible]: types.length > 2,
-                })}
-            >
-                {types.length > 2 && (
-                    <ShowHideButtonWithText
+            {types.length > 2 && (
+                <div
+                    className={cn({
+                        [styles.showhide]: types.length > 2,
+                        [styles.showhideVisible]: types.length > 2,
+                    })}
+                >
+                    <ShowHideButton
                         buttonAttrs={{
                             'aria-expanded': expansion === 'expanded',
                             'aria-pressed': expansion === 'expanded',
@@ -53,14 +59,14 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
                         text={expansion === 'expanded' ? otherText.showLess(t) : otherText.showMore(t)}
                         onClick={toggle}
                     />
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }
 
 export function NextStepsBubbleHeader() {
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
     const text = otherText.nextSteps_sectionTitle(t);
     return (
         <div class={styles.bubble}>

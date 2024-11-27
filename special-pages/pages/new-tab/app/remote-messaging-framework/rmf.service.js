@@ -17,6 +17,10 @@ export class RMFService {
         });
     }
 
+    name() {
+        return 'RMFService';
+    }
+
     /**
      * @returns {Promise<RMFData>}
      * @internal

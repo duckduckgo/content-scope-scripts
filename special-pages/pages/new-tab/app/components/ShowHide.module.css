@@ -9,21 +9,60 @@
     justify-content: center;
     align-items: center;
     color: var(--ntp-text-normal);
-    height: 32px;
-    width: 32px;
-    line-height: 32px;
-    gap: 6px;
-    padding-left: 0;
-    padding-right: 0;
-    font-size: 11px;
-    border-radius: 50%;
+    height: var(--ntp-gap);
+    width: 100%;
+    border-radius: var(--border-radius-sm);
+
+    &.round {
+        height: 2rem;
+        width: 2rem;
+        border-radius: 50%;
+        padding-inline: 0;
+
+        &:focus-visible {
+            box-shadow: var(--focus-ring);
+        }
+    }
+
+    &.withText {
+        border: 1px solid var(--color-black-at-9);
+        svg {
+            margin-right: var(--sp-2);
+        }
+
+        &:hover {
+            background-color: var(--color-black-at-9);
+        }
+
+        &:active {
+            background-color: var(--color-black-at-12);
+        }
+    }
+
+    svg {
+        transition: transform .3s;
+    }
 
     &[aria-pressed=true] svg {
-        transform: rotate(180deg);
+        transform: rotate(-180deg);
     }
 
     &:focus-visible {
         opacity: 1;
-        outline: 1px dotted var(--ntp-focus-outline-color);
+        box-shadow: var(--focus-ring-thin);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        &.withText {
+            border-color: var(--color-white-at-9);
+
+            &:hover {
+                background-color: var(--color-white-at-9);
+            }
+    
+            &:active {
+                background-color: var(--color-white-at-12);
+            }
+        } 
     }
 }

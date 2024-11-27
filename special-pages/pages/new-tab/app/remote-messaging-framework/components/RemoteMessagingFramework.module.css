@@ -1,0 +1,165 @@
+.root {
+    --ntp-rmf-surface-background-color: rgba(0, 0, 0, .06);
+    background: var(--ntp-rmf-surface-background-color);
+    padding: calc(14 * var(--px-in-rem)) var(--sp-8) calc(14 * var(--px-in-rem)) var(--sp-4);
+    border-radius: var(--border-radius-lg);
+    position: relative;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    font-family: system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto;
+    color: var(--ntp-text-normal);
+    width: 100%;
+    animation: animate-fade .2s cubic-bezier(0.55, 0.055, 0.666, 0.19);
+    margin-bottom: var(--ntp-gap);
+
+
+    &.icon {
+        padding-left: var(--sp-2);
+    }
+
+    @media screen and (prefers-color-scheme: dark) {
+        background-color: var(--color-white-at-6);
+    }
+}
+
+.iconBlock {
+    margin-right: var(--sp-2);
+    width: 3rem;
+    min-width: 3rem;
+}
+
+.content {
+    flex-grow: 1;
+    font-size: calc(14 * var(--px-in-rem));
+}
+
+.title {
+    font-weight: var(--title-2-font-weight);
+    line-height: normal;
+    margin-bottom: var(--sp-1);
+}
+
+.description {
+    line-height: 1.25rem;
+}
+
+.btnBlock {
+    margin-left: var(--sp-3);
+    align-self: center;
+}
+
+.btnRow {
+    margin-top: var(--sp-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(10 * var(--px-in-rem));
+}
+
+.btn {
+    padding-left: var(--sp-3);
+    padding-right: var(--sp-3);
+    height: var(--sp-8);
+    background-color: var(--color-black-at-6);
+    border-width: 0;
+    border-radius: var(--border-radius-sm);
+    text-wrap: nowrap;
+
+    &:hover {
+        background-color: var(--color-black-at-9);
+        cursor: pointer;
+    }
+
+    &:active {
+        background-color: var(--color-black-at-12);
+    }
+
+    &:disabled {
+        color: var(--color-black-at-84);
+    }
+
+    &:disabled:hover {
+        cursor: not-allowed;
+        background-color: var(--color-white-at-6);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+    }
+
+    @media screen and (prefers-color-scheme: dark) {
+        color: var(--color-white-at-84);
+        background-color: var(--color-white-at-12);
+
+        &:hover {
+            background-color: var(--color-white-at-18);
+        }
+
+        &:active {
+            background-color: var(--color-white-at-24);
+        }
+
+        &:disabled {
+            color: var(--color-white-at-12);
+            opacity: 0.8;
+        }
+
+        &:disabled:hover {
+            cursor: not-allowed;
+            background-color: var(--color-white-at-12);
+        }
+    }
+}
+
+
+.primary {
+    background-color: var(--ddg-color-primary);
+    color: var(--color-white);
+    position: relative;
+
+
+    &:hover {
+        background-color: var(--color-blue-60);
+    }
+
+    &:active {
+        background-color: var(--color-blue-70);
+    }
+
+    @media screen and (prefers-color-scheme: dark) {
+        color: var(--color-black-at-84);
+        background-color: var(--color-blue-20);
+
+        &:hover {
+            background-color: var(--color-blue-30);
+        }
+
+        &:active {
+            background-color: var(--color-blue-40);
+        }
+
+        &:disabled {
+            background-color: var(--color-white-at-36);
+            color: var(--color-black-at-84);
+        }
+    }
+}
+
+.dismissBtn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+
+@keyframes animate-fade {
+    0% { 
+        opacity: 0; 
+        scale: 0.98; 
+    }
+    100% { 
+        opacity: 1; 
+        scale: 1;
+    }
+  }

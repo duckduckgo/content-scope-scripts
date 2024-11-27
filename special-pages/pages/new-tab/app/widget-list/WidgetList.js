@@ -1,10 +1,11 @@
-import { Fragment, h } from 'preact';
+import { h } from 'preact';
 import { WidgetConfigContext, WidgetVisibilityProvider } from './widget-config.provider.js';
 import { useContext } from 'preact/hooks';
-import { Stack } from '../../../onboarding/app/components/Stack.js';
-import { Customizer, CustomizerMenuPositionedFixed } from '../customizer/Customizer.js';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
-import { DebugCustomized } from '../telemetry/Debug.js';
+import { Customizer, CustomizerMenuPositionedFixed } from '../customizer/components/Customizer.js';
+import { useMessaging } from '../types.js';
+import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary.js';
+import { Fallback } from '../../../../shared/components/Fallback/Fallback.jsx';
+import { Centered } from '../components/Layout.js';
 
 /**
  * @param {string} id
@@ -38,28 +39,56 @@ export async function widgetEntryPoint(id) {
 
 export function WidgetList() {
     const { widgets, widgetConfigItems, entryPoints } = useContext(WidgetConfigContext);
-    const { env } = useEnv();
+    const messaging = useMessaging();
+
+    /**
+     * @param {any} error
+     * @param {string} id
+     */
+    const didCatch = (error, id) => {
+        const message = error?.message || error?.error || 'unknown';
+        const composed = `Widget '${id}' threw an exception: ` + message;
+        messaging.reportPageException({ message: composed });
+    };
 
     return (
-        <Stack gap={'var(--sp-8)'}>
+        <div>
             {widgets.map((widget, index) => {
                 const matchingConfig = widgetConfigItems.find((item) => item.id === widget.id);
                 const matchingEntryPoint = entryPoints[widget.id];
+                /**
+                 * If there's no config, it means the user does not control the visibility of the elements in question.
+                 */
                 if (!matchingConfig) {
-                    return <Fragment key={widget.id}>{matchingEntryPoint.factory?.()}</Fragment>;
-                }
-                return (
-                    <Fragment key={widget.id}>
-                        <WidgetVisibilityProvider visibility={matchingConfig.visibility} id={matchingConfig.id} index={index}>
+                    return (
+                        <ErrorBoundary key={widget.id} didCatch={(error) => didCatch(error, widget.id)} fallback={null}>
                             {matchingEntryPoint.factory?.()}
-                        </WidgetVisibilityProvider>
-                    </Fragment>
+                        </ErrorBoundary>
+                    );
+                }
+
+                /**
+                 * This section is for elements that the user controls the visibility of
+                 */
+                return (
+                    <WidgetVisibilityProvider key={widget.id} visibility={matchingConfig.visibility} id={matchingConfig.id} index={index}>
+                        <ErrorBoundary
+                            key={widget.id}
+                            didCatch={(error) => didCatch(error, widget.id)}
+                            fallback={
+                                <Centered>
+                                    <Fallback showDetails={true}>Widget id: {matchingConfig.id}</Fallback>
+                                </Centered>
+                            }
+                        >
+                            {matchingEntryPoint.factory?.()}
+                        </ErrorBoundary>
+                    </WidgetVisibilityProvider>
                 );
             })}
-            {env === 'development' && <DebugCustomized index={widgets.length} />}
             <CustomizerMenuPositionedFixed>
                 <Customizer />
             </CustomizerMenuPositionedFixed>
-        </Stack>
+        </div>
     );
 }

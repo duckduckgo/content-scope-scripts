@@ -1,0 +1,62 @@
+.root {
+    position: relative
+}
+
+.lowerRightFixed {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+}
+
+.dropdownMenu {
+    display: none;
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 10px);
+}
+
+.show {
+    display: block;
+}
+
+/** todo: is this a re-usable button, yet? */
+.customizeButton {
+    background-color: transparent;
+    border: 1px solid var(--color-black-at-9);
+    border-radius: var(--border-radius-sm);
+    padding: var(--sp-2) var(--sp-3);
+    cursor: pointer;
+    display: flex;
+    gap: calc(6 * var(--px-in-rem));
+    color: var(--ntp-text-normal);
+
+    @media screen and (prefers-color-scheme: dark) {
+        border-color: var(--color-white-at-9);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+
+    &:hover {
+        background-color: var(--color-black-at-6);
+        border-color: var(--color-black-at-18);
+        @media screen and (prefers-color-scheme: dark) {
+            background-color: var(--color-white-at-18);
+            border-color: var(--color-white-at-36);
+        }
+    }
+
+    &:active {
+        background-color: var(--color-white-at-12);
+        @media screen and (prefers-color-scheme: dark) {
+            background-color: var(--color-white-at-24);
+            border-color: var(--color-white-at-50);
+        }
+    }
+}
+
+
+
+
