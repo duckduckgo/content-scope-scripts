@@ -19,6 +19,23 @@
         border-radius: 50%;
         padding-inline: 0;
 
+        svg rect {
+            fill-opacity: 0;
+        }
+
+        &:hover {
+            transition: all 0.3s ease-in;
+            svg rect {
+                fill: black;
+                fill-opacity: 0.06;
+    
+                @media screen and (prefers-color-scheme: dark) {
+                    fill: white;
+                    fill-opacity: 0.12;
+                }
+            }
+        } 
+
         &:focus-visible {
             box-shadow: var(--focus-ring);
         }
@@ -45,18 +62,6 @@
 
     &[aria-pressed=true] svg {
         transform: rotate(-180deg);
-    }
-
-    &:hover {
-        svg rect {
-            fill: black;
-            fill-opacity: 0.06;
-
-            @media screen and (prefers-color-scheme: dark) {
-                fill: white;
-                fill-opacity: 0.12;
-            }
-        }
     }
 
     &:focus-visible {
