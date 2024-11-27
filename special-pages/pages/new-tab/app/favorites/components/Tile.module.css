@@ -57,15 +57,16 @@
 
 .favicon {
     display: block;
-    width: 2rem;
-    height: 2rem;
-    border-radius: var(--border-radius-md);
+    max-height: calc(32 * var(--px-in-rem));
+    max-width: calc(32 * var(--px-in-rem));
     background-repeat: no-repeat;
     background-size: contain;
     pointer-events: none;
 
     &[data-loaded][data-did-try-fallback] {
         border-radius: var(--border-radius-md);
+        height: calc(32 * var(--px-in-rem));
+        width: calc(32 * var(--px-in-rem));
     }
 }
 
