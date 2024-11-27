@@ -47,6 +47,18 @@
         transform: rotate(-180deg);
     }
 
+    &:hover {
+        svg rect {
+            fill: black;
+            fill-opacity: 0.06;
+
+            @media screen and (prefers-color-scheme: dark) {
+                fill: white;
+                fill-opacity: 0.12;
+            }
+        }
+    }
+
     &:focus-visible {
         opacity: 1;
         box-shadow: var(--focus-ring-thin);
