@@ -31,7 +31,7 @@
     "fast-check": "^3.23.1"
   },
   "dependencies": {
-    "preact": "^10.24.3",
+    "preact": "^10.25.0",
     "classnames": "^2.5.1",
     "@formkit/auto-animate": "^0.8.2",
     "@rive-app/canvas-single": "^2.23.10",
