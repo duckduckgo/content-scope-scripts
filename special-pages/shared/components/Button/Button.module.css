@@ -222,7 +222,7 @@ body:not([data-platform-name]) {
 }
 
 /* Windows Implementation */
-:root:has(body[data-platform-name="windows"]) {
+[data-platform-name="windows"] {
     .button {
         /* this is the focus ring used on NTP widgets */
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
