@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 import { join, basename } from 'node:path';
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const paths = ['pages/new-tab'];
+const paths = [join('pages', 'new-tab')];
 const base = {
     smartling: {
         string_format: 'icu',
@@ -28,7 +28,7 @@ if (isLaunchFile(import.meta.url)) {
  */
 async function processPage(path) {
     const targetName = basename(path);
-    const outputFile = `${path}/src/locales/en/${targetName}.json`;
+    const outputFile = join(path, '/src/locales/en', `${targetName}.json`);
     const dirents = await readdir(path, { withFileTypes: true, recursive: true });
     const rawEntries = dirents
         .filter((entry) => entry.isFile() && entry.name === 'strings.json')
