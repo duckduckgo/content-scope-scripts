@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
+import { stats } from '../mocks/stats.js';
 
 test.describe('newtab privacy stats', () => {
     test('fetches config + stats', async ({ page }, workerInfo) => {
@@ -72,23 +73,39 @@ test.describe('newtab privacy stats', () => {
             await expect(page.getByLabel('Show recent activity')).not.toBeVisible();
         },
     );
-    test(
-        'bar width',
+
+    test.fail(
+        'secondary expansion',
         {
             annotation: {
                 type: 'issue',
-                description: 'https://app.asana.com/0/0/1208800221025230/f',
+                description: 'https://app.asana.com/0/1201141132935289/1208861172991227/f',
             },
         },
         async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { stats: 'willUpdate', 'stats-update-count': '2' } });
+            await ntp.openPage({ additional: { stats: 'none' } });
 
-            //
-            // Checking the first + last bar widths due to a regression
-            await page.getByText('Google Ads5').locator('[style="width: 100%;"]').waitFor();
-            await page.getByText('Facebook1').locator('[style="width: 20%;"]').waitFor();
+            // deliver enough companies to show the 'show more' toggle
+            await test.step('deliver initial 6 companies', async () => {
+                /** @type {import("../../../../../types/new-tab.js").PrivacyStatsData} */
+                const next = { totalCount: 0, trackerCompanies: stats.many.trackerCompanies.slice(0, 6) };
+                await ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', next);
+            });
+
+            // toggle the secondary expansion
+            await page.getByLabel('Show More', { exact: true }).click();
+
+            // increase the count by 1
+            await test.step('delivery 7 companies', async () => {
+                /** @type {import("../../../../../types/new-tab.js").PrivacyStatsData} */
+                const next = { totalCount: 0, trackerCompanies: stats.many.trackerCompanies.slice(0, 7) };
+                await ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', next);
+            });
+
+            // collapse
+            await page.getByLabel('Show Less', { exact: true }).click();
         },
     );
 });

@@ -16,6 +16,7 @@ import { variants as nextSteps } from './next-steps/nextsteps.data.js';
  * @typedef {import('../../../types/new-tab').NextStepsData} NextStepsData
  * @typedef {import('../../../types/new-tab').UpdateNotificationData} UpdateNotificationData
  * @typedef {import('../../../types/new-tab').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
+ * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
  */
 
 const VERSION_PREFIX = '__ntp_29__.';
@@ -23,6 +24,15 @@ const url = new URL(window.location.href);
 
 export function mockTransport() {
     const channel = new BroadcastChannel('ntp');
+    /** @type {Map<string, (d: any)=>void>} */
+    const subscriptions = new Map();
+    if ('__playwright_01' in window) {
+        window.__playwright_01.publishSubscriptionEvent = (/** @type {SubscriptionEvent} */ evt) => {
+            const matchingCallback = subscriptions.get(evt.subscriptionName);
+            if (!matchingCallback) return console.error('no matching callback for subscription', evt);
+            matchingCallback(evt.params);
+        };
+    }
 
     function broadcast(named) {
         setTimeout(() => {
@@ -153,9 +163,17 @@ export function mockTransport() {
             }
         },
         subscribe(_msg, cb) {
-            window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
             const sub = /** @type {any} */ (_msg.subscriptionName);
+
+            if ('__playwright_01' in window) {
+                window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+                subscriptions.set(sub, cb);
+                return () => {
+                    subscriptions.delete(sub);
+                };
+            }
+
             switch (sub) {
                 case 'widgets_onConfigUpdated': {
                     const controller = new AbortController();
@@ -256,30 +274,46 @@ export function mockTransport() {
                 }
                 case 'stats_onDataUpdate': {
                     const statsVariant = url.searchParams.get('stats');
-                    if (statsVariant !== 'willUpdate') return () => {};
-
                     const count = url.searchParams.get('stats-update-count');
-                    const max = Math.min(parseInt(count || '0'), 10);
-                    if (max === 0) return () => {};
-
-                    let inc = 1;
-                    const int = setInterval(() => {
-                        if (inc === max) return clearInterval(int);
-                        const next = {
-                            ...stats.willUpdate,
-                            trackerCompanies: stats.willUpdate.trackerCompanies.map((x, index) => {
-                                return {
-                                    ...x,
-                                    count: x.count + inc * index,
-                                };
-                            }),
+                    const updateMaxCount = parseInt(count || '0');
+                    if (updateMaxCount === 0) return () => {};
+                    if (statsVariant === 'willUpdate') {
+                        let inc = 1;
+                        let max = Math.min(updateMaxCount, 10);
+                        const int = setInterval(() => {
+                            if (inc === max) return clearInterval(int);
+                            const next = {
+                                ...stats.willUpdate,
+                                trackerCompanies: stats.willUpdate.trackerCompanies.map((x, index) => {
+                                    return {
+                                        ...x,
+                                        count: x.count + inc * index,
+                                    };
+                                }),
+                            };
+                            cb(next);
+                            inc++;
+                        }, 500);
+                        return () => {
+                            clearInterval(int);
                         };
-                        cb(next);
-                        inc++;
-                    }, 500);
-                    return () => {
-                        clearInterval(int);
-                    };
+                    } else if (statsVariant === 'growing') {
+                        const list = stats.many.trackerCompanies;
+                        let index = 0;
+                        let max = Math.min(updateMaxCount, list.length);
+                        let int = setInterval(() => {
+                            if (index === max) return clearInterval(int);
+                            console.log({ index, max });
+                            cb({
+                                trackerCompanies: list.slice(0, index + 1),
+                            });
+                            index++;
+                        }, 200);
+                        return () => {};
+                    } else {
+                        console.log(statsVariant);
+                        return () => {};
+                    }
                 }
                 case 'favorites_onConfigUpdate': {
                     const controller = new AbortController();

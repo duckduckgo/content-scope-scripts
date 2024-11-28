@@ -72,6 +72,10 @@ export const stats = {
             },
         ],
     },
+    growing: {
+        totalCount: 0,
+        trackerCompanies: [],
+    },
     many: {
         totalCount: 890,
         trackerCompanies: [

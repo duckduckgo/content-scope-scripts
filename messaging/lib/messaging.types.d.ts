@@ -20,6 +20,7 @@ interface Window {
     __playwright_01: {
         mockResponses: Record<string, import('../index.js').MessageResponse>;
         subscriptionEvents: import('../index.js').SubscriptionEvent[];
+        publishSubscriptionEvent?: (evt: import('../index.js').SubscriptionEvent) => void;
         mocks: {
             outgoing: UnstableMockCall[];
         };
