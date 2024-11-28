@@ -19,22 +19,22 @@ export const favorites = {
         // prettier-ignore
         /** @type {Favorite[]} */
         favorites: [
-            { id: 'id-many-1', url: 'https://example.com?id=id-many-1', title: 'Amazon', favicon: { src: './company-icons/amazon.svg', maxAvailableSize: 64 } },
+            { id: 'id-many-1', url: 'https://example.com?id=id-many-1', title: 'Amazon', favicon: { src: './company-icons/amazon.svg', maxAvailableSize: 16 } },
             { id: 'id-many-2', url: 'https://example.com?id=id-many-2', title: 'Adform', favicon: null },
-            { id: 'id-many-3', url: 'https://a.example.com?id=id-many-3', title: 'Adobe', favicon: { src: './this-does-note-exist', maxAvailableSize: 64 } },
-            { id: 'id-many-4', url: 'https://b.example.com?id=id-many-3', title: 'Adobe', favicon: { src: './this-does-note-exist', maxAvailableSize: 64 } },
-            { id: 'id-many-31', url: 'https://b.example.com?id=id-many-4', title: 'A Beautiful Mess', favicon: { src: './this-does-note-exist', maxAvailableSize: 64 } },
+            { id: 'id-many-3', url: 'https://a.example.com?id=id-many-3', title: 'Adobe', favicon: { src: './this-does-note-exist', maxAvailableSize: 16 } },
+            { id: 'id-many-4', url: 'https://b.example.com?id=id-many-3', title: 'Adobe', favicon: { src: './this-does-note-exist', maxAvailableSize: 16 } },
+            { id: 'id-many-31', url: 'https://b.example.com?id=id-many-4', title: 'A Beautiful Mess', favicon: { src: './this-does-note-exist', maxAvailableSize: 16 } },
             { id: 'id-many-5', url: 'https://222?id=id-many-3', title: 'Gmail', favicon: null },
-            { id: 'id-many-6', url: 'https://example.com?id=id-many-5', title: 'TikTok', favicon: { src: './company-icons/bytedance.svg', maxAvailableSize: 64 } },
-            { id: 'id-many-7', url: 'https://example.com?id=id-many-6', title: 'DoorDash', favicon: { src: './company-icons/d.svg', maxAvailableSize: 64 } },
-            { id: 'id-many-8', url: 'https://example.com?id=id-many-7', title: 'Facebook', favicon: { src: './company-icons/facebook.svg', maxAvailableSize: 64 } },
-            { id: 'id-many-9', url: 'https://example.com?id=id-many-8', title: 'Beeswax', favicon: { src: './company-icons/beeswax.svg', maxAvailableSize: 64 } },
-            { id: 'id-many-10', url: 'https://example.com?id=id-many-9', title: 'Adobe', favicon: { src: './company-icons/adobe.svg', maxAvailableSize: 64 } },
-            { id: 'id-many-11', url: 'https://example.com?id=id-many-10', title: 'Beeswax', favicon: { src: './company-icons/beeswax.svg', maxAvailableSize: 64 } },
-            { id: 'id-many-12', url: 'https://example.com?id=id-many-11', title: 'Facebook', favicon: { src: './company-icons/facebook.svg', maxAvailableSize: 64 } },
-            { id: 'id-many-13', url: 'https://example.com?id=id-many-12', title: 'Gmail', favicon: { src: './company-icons/google.svg', maxAvailableSize: 64 } },
-            { id: 'id-many-14', url: 'https://example.com?id=id-many-13', title: 'TikTok', favicon: { src: './company-icons/bytedance.svg', maxAvailableSize: 64 } },
-            { id: 'id-many-15', url: 'https://example.com?id=id-many-14', title: 'yeti', favicon: { src: './company-icons/d.svg', maxAvailableSize: 64 } }
+            { id: 'id-many-6', url: 'https://example.com?id=id-many-5', title: 'TikTok', favicon: { src: './company-icons/bytedance.svg', maxAvailableSize: 16 } },
+            { id: 'id-many-7', url: 'https://example.com?id=id-many-6', title: 'DoorDash', favicon: { src: './company-icons/d.svg', maxAvailableSize: 16 } },
+            { id: 'id-many-8', url: 'https://example.com?id=id-many-7', title: 'Facebook', favicon: { src: './company-icons/facebook.svg', maxAvailableSize: 16 } },
+            { id: 'id-many-9', url: 'https://example.com?id=id-many-8', title: 'Beeswax', favicon: { src: './company-icons/beeswax.svg', maxAvailableSize: 16 } },
+            { id: 'id-many-10', url: 'https://example.com?id=id-many-9', title: 'Adobe', favicon: { src: './company-icons/adobe.svg', maxAvailableSize: 16 } },
+            { id: 'id-many-11', url: 'https://example.com?id=id-many-10', title: 'Beeswax', favicon: { src: './company-icons/beeswax.svg', maxAvailableSize: 16 } },
+            { id: 'id-many-12', url: 'https://example.com?id=id-many-11', title: 'Facebook', favicon: { src: './company-icons/facebook.svg', maxAvailableSize: 16 } },
+            { id: 'id-many-13', url: 'https://example.com?id=id-many-12', title: 'Gmail', favicon: { src: './company-icons/google.svg', maxAvailableSize: 16 } },
+            { id: 'id-many-14', url: 'https://example.com?id=id-many-13', title: 'TikTok', favicon: { src: './company-icons/bytedance.svg', maxAvailableSize: 16 } },
+            { id: 'id-many-15', url: 'https://example.com?id=id-many-14', title: 'yeti', favicon: { src: './company-icons/d.svg', maxAvailableSize: 16 } }
         ],
     },
     two: {
@@ -234,7 +234,7 @@ export function gen(count = 1000) {
             const out = {
                 id: `id-many-${index}`,
                 url: `https://${alpha[index % 7]}.example.com?id=${index}`,
-                title: `Example ${index}`,
+                title: `Example ${index + 1}`,
                 favicon: { src: joined, maxAvailableSize: 64 },
             };
 

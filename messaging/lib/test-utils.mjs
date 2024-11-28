@@ -427,6 +427,14 @@ export function simulateSubscriptionMessage(params) {
             window[params.name](subscriptionEvent);
             break;
         }
+        case 'integration': {
+            if (!('publishSubscriptionEvent' in window.__playwright_01))
+                throw new Error(
+                    `subscription event '${subscriptionEvent.subscriptionName}' was not published because 'window.__playwright_01.publishSubscriptionEvent' was missing`,
+                );
+            window.__playwright_01.publishSubscriptionEvent?.(subscriptionEvent);
+            break;
+        }
         default:
             throw new Error('platform not supported yet: ' + params.injectName);
     }

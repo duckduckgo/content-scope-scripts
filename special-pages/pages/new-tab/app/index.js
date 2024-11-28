@@ -7,7 +7,7 @@ import { SettingsProvider } from './settings.provider.js';
 import { InitialSetupContext, MessagingContext, TelemetryContext } from './types';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { WidgetConfigService } from './widget-list/widget-config.service.js';
-import enStrings from '../src/locales/en/newtab.json';
+import enStrings from '../src/locales/en/new-tab.json';
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js';
 import { Settings } from './settings.js';
 import { Components } from './components/Components.jsx';
@@ -24,7 +24,7 @@ import { callWithRetry } from '../../../shared/call-with-retry.js';
  * @throws Error
  */
 export async function init(root, messaging, telemetry, baseEnvironment) {
-    const result = await callWithRetry(() => messaging.init());
+    const result = await callWithRetry(() => messaging.initialSetup());
 
     // handle fatal exceptions, the following things prevent anything from starting.
     if ('error' in result) {
@@ -95,7 +95,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                     <InitialSetupContext.Provider value={init}>
                         <TelemetryContext.Provider value={telemetry}>
                             <SettingsProvider settings={settings}>
-                                <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                                     <WidgetConfigProvider
                                         api={widgetConfigAPI}
                                         widgetConfigs={init.widgetConfigs}
@@ -170,10 +170,11 @@ async function resolveEntryPoints(widgets, didCatch) {
  * @param {Record<string, any>} strings
  */
 function renderComponents(root, environment, settings, strings) {
-    render(
+    // eslint-disable-next-line no-labels,no-unused-labels
+    $INTEGRATION: render(
         <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
             <SettingsProvider settings={settings}>
-                <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <Components />
                 </TranslationProvider>
             </SettingsProvider>

@@ -3,7 +3,7 @@ import cn from 'classnames';
 import styles from './UpdateNotification.module.css';
 import { useContext, useId, useRef } from 'preact/hooks';
 import { UpdateNotificationContext } from '../UpdateNotificationProvider.js';
-import { useTypedTranslation } from '../../types.js';
+import { useTypedTranslationWith } from '../../types.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { DismissButton } from '../../components/DismissButton';
 
@@ -28,7 +28,7 @@ export function UpdateNotification({ notes, dismiss, version }) {
 export function WithNotes({ notes, version }) {
     const id = useId();
     const ref = useRef(/** @type {HTMLDetailsElement|null} */ (null));
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
     const inlineLink = (
         <Trans
             str={t('updateNotification_whats_new')}
@@ -53,7 +53,17 @@ export function WithNotes({ notes, version }) {
             <div id={id} class={styles.detailsContent}>
                 <ul class={styles.list}>
                     {notes.map((note, index) => {
-                        return <li key={note + index}>{note}</li>;
+                        /**
+                         * Note: Doing this here as a very specific 'view' concern
+                         * Note: using the `if` + `.slice` to avoid regex
+                         * Note: `.slice` is safe on `•` because it is a single Unicode character
+                         *       and is represented by a single UTF-16 code unit.
+                         */
+                        let trimmed = note.trim();
+                        if (trimmed.startsWith('•')) {
+                            trimmed = trimmed.slice(1).trim();
+                        }
+                        return <li key={note + index}>{trimmed}</li>;
                     })}
                 </ul>
             </div>
@@ -62,7 +72,7 @@ export function WithNotes({ notes, version }) {
 }
 
 export function WithoutNotes({ version }) {
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
     return <p>{t('updateNotification_updated_version', { version })}</p>;
 }
 

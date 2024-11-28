@@ -9,7 +9,7 @@ import { init } from '../../app/index.js';
 import { createTypedMessages } from '@duckduckgo/messaging';
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging';
 import { Environment } from '../../../../shared/environment.js';
-import { mockTransport } from './mock-transport.js';
+import { mockTransport } from '../../app/mock-transport.js';
 import { install } from '../../app/telemetry/telemetry.js';
 
 export class NewTabPage {
@@ -28,7 +28,7 @@ export class NewTabPage {
     /**
      * @return {Promise<import('../../../../types/new-tab.js').InitialSetupResponse>}
      */
-    init() {
+    initialSetup() {
         return this.messaging.request('initialSetup');
     }
 
@@ -54,6 +54,26 @@ export class NewTabPage {
      */
     contextMenu(params) {
         this.messaging.notify('contextMenu', params);
+    }
+
+    /**
+     * @param {import("../../../../types/new-tab.js").NTPTelemetryEvent} event
+     */
+    telemetryEvent(event) {
+        this.messaging.notify('telemetryEvent', event);
+    }
+
+    /**
+     * NOTE: temporary workaround, to be replaced with 'telemetryEvent'
+     */
+    statsShowMore() {
+        this.messaging.notify('stats_showMore');
+    }
+    /**
+     * NOTE: temporary workaround, to be replaced with 'telemetryEvent'
+     */
+    statsShowLess() {
+        this.messaging.notify('stats_showLess');
     }
 }
 

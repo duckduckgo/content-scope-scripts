@@ -11,7 +11,7 @@ test.describe('newtab widgets', () => {
         await page.getByRole('button', { name: 'Customize' }).click();
 
         // hide
-        await page.locator('label').filter({ hasText: 'Privacy Stats' }).click();
+        await page.locator('label').filter({ hasText: 'Blocked Tracking Attempts' }).click();
 
         // debounced
         await page.waitForTimeout(500);
@@ -42,10 +42,10 @@ test.describe('newtab widgets', () => {
         await page.getByRole('button', { name: 'Customize' }).click();
 
         // hide
-        await page.locator('label').filter({ hasText: 'Privacy Stats' }).uncheck();
+        await page.locator('label').filter({ hasText: 'Blocked Tracking Attempts' }).uncheck();
 
         // show
-        await page.locator('label').filter({ hasText: 'Privacy Stats' }).check();
+        await page.locator('label').filter({ hasText: 'Blocked Tracking Attempts' }).check();
 
         // debounced
         await page.waitForTimeout(500);
@@ -89,7 +89,7 @@ test.describe('newtab widgets', () => {
                     },
                     {
                         id: 'privacyStats',
-                        title: 'Privacy Stats',
+                        title: 'Blocked Tracking Attempts',
                     },
                 ],
             },

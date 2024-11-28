@@ -1,6 +1,7 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
+import cn from 'classnames';
 import styles from './PrivacyStats.module.css';
-import { useTypedTranslation } from '../../types.js';
+import { useMessaging, useTypedTranslationWith } from '../../types.js';
 import { useContext, useState, useId, useCallback } from 'preact/hooks';
 import { PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvider.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
@@ -8,9 +9,10 @@ import { viewTransition } from '../../utils.js';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useCustomizer } from '../../customizer/components/Customizer.js';
 import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
-import { sortStatsForDisplay } from '../privacy-stats.utils.js';
+import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 
 /**
+ * @import enStrings from "../strings.json"
  * @typedef {import('../../../../../types/new-tab').TrackerCompany} TrackerCompany
  * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../../../types/new-tab').Animation} Animation
@@ -66,7 +68,6 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
     return (
         <div class={styles.root} ref={parentRef}>
             <Heading
-                totalCount={data.totalCount}
                 trackerCompanies={data.trackerCompanies}
                 onToggle={toggle}
                 expansion={expansion}
@@ -84,33 +85,28 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
  * @param {object} props
  * @param {Expansion} props.expansion
  * @param {TrackerCompany[]} props.trackerCompanies
- * @param {number} props.totalCount
  * @param {() => void} props.onToggle
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
-export function Heading({ expansion, trackerCompanies, totalCount, onToggle, buttonAttrs = {} }) {
-    const { t } = useTypedTranslation();
+export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {} }) {
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
     const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0);
-    const recentTitle =
-        recent === 1
-            ? t('trackerStatsFeedCountBlockedSingular')
-            : t('trackerStatsFeedCountBlockedPlural', { count: formatter.format(recent) });
 
-    const none = totalCount === 0;
-    const some = totalCount > 0;
-    const alltime = formatter.format(totalCount);
-    const alltimeTitle = totalCount === 1 ? t('trackerStatsCountBlockedSingular') : t('trackerStatsCountBlockedPlural', { count: alltime });
+    const none = recent === 0;
+    const some = recent > 0;
+    const alltime = formatter.format(recent);
+    const alltimeTitle = recent === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural', { count: alltime });
 
     return (
         <div className={styles.heading}>
             <span className={styles.headingIcon}>
                 <img src="./icons/shield.svg" alt="Privacy Shield" />
             </span>
-            {none && <p className={styles.title}>{t('trackerStatsNoRecent')}</p>}
+            {none && <p className={styles.title}>{t('stats_noRecent')}</p>}
             {some && <p className={styles.title}>{alltimeTitle}</p>}
             {recent > 0 && (
-                <span className={styles.expander}>
+                <span className={styles.widgetExpander}>
                     <ShowHideButton
                         buttonAttrs={{
                             ...buttonAttrs,
@@ -118,15 +114,13 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
                             'aria-pressed': expansion === 'expanded',
                         }}
                         onClick={onToggle}
-                        text={expansion === 'expanded' ? t('trackerStatsHideLabel') : t('trackerStatsToggleLabel')}
+                        text={expansion === 'expanded' ? t('stats_hideLabel') : t('stats_toggleLabel')}
                         shape="round"
                     />
                 </span>
             )}
-            <p className={styles.subtitle}>
-                {recent === 0 && t('trackerStatsNoActivity')}
-                {recent > 0 && recentTitle}
-            </p>
+            {recent === 0 && <p className={styles.subtitle}>{t('stats_noActivity')}</p>}
+            {recent > 0 && <p className={cn(styles.subtitle, styles.uppercase)}>{t('stats_feedCountBlockedPeriod')}</p>}
         </div>
     );
 }
@@ -138,39 +132,71 @@ export function Heading({ expansion, trackerCompanies, totalCount, onToggle, but
  */
 
 export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const messaging = useMessaging();
     const [formatter] = useState(() => new Intl.NumberFormat());
+    const defaultRowMax = 5;
     const sorted = sortStatsForDisplay(trackerCompanies);
     const max = sorted[0]?.count ?? 0;
+    const [expansion, setExpansion] = useState(/** @type {Expansion} */ ('collapsed'));
+
+    const toggleListExpansion = () => {
+        if (expansion === 'collapsed') {
+            messaging.statsShowMore();
+        } else {
+            messaging.statsShowLess();
+        }
+        setExpansion(expansion === 'collapsed' ? 'expanded' : 'collapsed');
+    };
+
+    const rows = expansion === 'expanded' ? sorted : sorted.slice(0, defaultRowMax);
 
     return (
-        <ul {...listAttrs} class={styles.list} data-testid="CompanyList">
-            {sorted.map((company) => {
-                const percentage = Math.min((company.count * 100) / max, 100);
-                const valueOrMin = Math.max(percentage, 10);
-                const inlineStyles = {
-                    width: `${valueOrMin}%`,
-                };
-                const countText = formatter.format(company.count);
-                // prettier-ignore
-                const displayName = company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER
-                        ? t('trackerStatsOtherCompanyName')
-                        : company.displayName;
-                return (
-                    <li key={company.displayName}>
-                        <div class={styles.row}>
+        <Fragment>
+            <ul {...listAttrs} class={styles.list} data-testid="CompanyList">
+                {rows.map((company) => {
+                    const percentage = Math.min((company.count * 100) / max, 100);
+                    const valueOrMin = Math.max(percentage, 10);
+                    const inlineStyles = {
+                        width: `${valueOrMin}%`,
+                    };
+                    const countText = formatter.format(company.count);
+                    const displayName = displayNameForCompany(company.displayName);
+                    if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
+                        const otherText = t('stats_otherCount', { count: String(company.count) });
+                        return (
+                            <li key={company.displayName} class={styles.otherTrackersRow}>
+                                {otherText}
+                            </li>
+                        );
+                    }
+                    return (
+                        <li key={company.displayName} class={styles.row}>
                             <div class={styles.company}>
-                                <CompanyIcon displayName={company.displayName} />
+                                <CompanyIcon displayName={displayName} />
                                 <span class={styles.name}>{displayName}</span>
                             </div>
                             <span class={styles.count}>{countText}</span>
                             <span class={styles.bar}></span>
                             <span class={styles.fill} style={inlineStyles}></span>
-                        </div>
-                    </li>
-                );
-            })}
-        </ul>
+                        </li>
+                    );
+                })}
+            </ul>
+            {sorted.length > defaultRowMax && (
+                <div class={styles.listExpander}>
+                    <ShowHideButton
+                        onClick={toggleListExpansion}
+                        text={expansion === 'collapsed' ? t('ntp_show_more') : t('ntp_show_less')}
+                        showText={true}
+                        buttonAttrs={{
+                            'aria-expanded': expansion === 'expanded',
+                            'aria-pressed': expansion === 'expanded',
+                        }}
+                    />
+                </div>
+            )}
+        </Fragment>
     );
 }
 
@@ -181,10 +207,10 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
  * whether to incur the side effects (data fetching).
  */
 export function PrivacyStatsCustomized() {
-    const { t } = useTypedTranslation();
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { visibility, id, toggle, index } = useVisibility();
 
-    const title = t('trackerStatsMenuTitle');
+    const title = t('stats_menuTitle');
     useCustomizer({ title, id, icon: 'shield', toggle, visibility, index });
 
     if (visibility === 'hidden') {

@@ -6,7 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "prebuild": "node types.mjs",
+    "prebuild": "node types.mjs && node translations.mjs",
     "build": "node index.mjs",
     "build.dev": "npm run build -- --env development",
     "test-unit": "node --test unit-test/translations.mjs pages/duckplayer/unit-tests/embed-settings.mjs",
@@ -20,7 +20,7 @@
     "test.headed": "npm run test-int -- --headed",
     "test.ui": "npm run test-int -- --ui",
     "serve": "http-server -c-1 --port 3210 ../build/integration/pages",
-    "watch": "chokidar pages shared --initial -c 'npm run build.dev'"
+    "watch": "chokidar pages shared --initial -c 'npm run build.dev' --ignore 'pages/**/locales'"
   },
   "license": "ISC",
   "devDependencies": {
@@ -34,7 +34,7 @@
     "preact": "^10.24.3",
     "classnames": "^2.5.1",
     "@formkit/auto-animate": "^0.8.2",
-    "@rive-app/canvas-single": "^2.23.8",
+    "@rive-app/canvas-single": "^2.23.10",
     "@atlaskit/pragmatic-drag-and-drop": "^1.3.1",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.0.3"
   }
