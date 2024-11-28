@@ -21,7 +21,7 @@ export const stats = {
                 count: 210,
             },
             {
-                displayName: 'Amazon',
+                displayName: 'Amazon.com',
                 count: 67,
             },
             {
@@ -63,7 +63,7 @@ export const stats = {
                 count: 1,
             },
             {
-                displayName: 'Amazon',
+                displayName: 'Amazon.com',
                 count: 1,
             },
             {
@@ -71,6 +71,10 @@ export const stats = {
                 count: 1,
             },
         ],
+    },
+    growing: {
+        totalCount: 0,
+        trackerCompanies: [],
     },
     many: {
         totalCount: 890,

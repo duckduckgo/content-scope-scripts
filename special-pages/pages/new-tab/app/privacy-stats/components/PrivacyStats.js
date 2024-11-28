@@ -9,7 +9,7 @@ import { viewTransition } from '../../utils.js';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useCustomizer } from '../../customizer/components/Customizer.js';
 import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
-import { sortStatsForDisplay } from '../privacy-stats.utils.js';
+import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -138,35 +138,30 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
     const defaultRowMax = 5;
     const sorted = sortStatsForDisplay(trackerCompanies);
     const max = sorted[0]?.count ?? 0;
-    const [visible, setVisible] = useState(defaultRowMax);
-    const hasmore = sorted.length > visible;
+    const [expansion, setExpansion] = useState(/** @type {Expansion} */ ('collapsed'));
 
     const toggleListExpansion = () => {
-        if (hasmore) {
+        if (expansion === 'collapsed') {
             messaging.statsShowMore();
         } else {
             messaging.statsShowLess();
         }
-        if (visible === defaultRowMax) {
-            setVisible(sorted.length);
-        }
-        if (visible === sorted.length) {
-            setVisible(defaultRowMax);
-        }
+        setExpansion(expansion === 'collapsed' ? 'expanded' : 'collapsed');
     };
+
+    const rows = expansion === 'expanded' ? sorted : sorted.slice(0, defaultRowMax);
 
     return (
         <Fragment>
             <ul {...listAttrs} class={styles.list} data-testid="CompanyList">
-                {sorted.slice(0, visible).map((company) => {
+                {rows.map((company) => {
                     const percentage = Math.min((company.count * 100) / max, 100);
                     const valueOrMin = Math.max(percentage, 10);
                     const inlineStyles = {
                         width: `${valueOrMin}%`,
                     };
                     const countText = formatter.format(company.count);
-                    // prettier-ignore
-                    const displayName = company.displayName
+                    const displayName = displayNameForCompany(company.displayName);
                     if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
                         const otherText = t('stats_otherCount', { count: String(company.count) });
                         return (
@@ -178,7 +173,7 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
                     return (
                         <li key={company.displayName} class={styles.row}>
                             <div class={styles.company}>
-                                <CompanyIcon displayName={company.displayName} />
+                                <CompanyIcon displayName={displayName} />
                                 <span class={styles.name}>{displayName}</span>
                             </div>
                             <span class={styles.count}>{countText}</span>
@@ -192,11 +187,11 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
                 <div class={styles.listExpander}>
                     <ShowHideButton
                         onClick={toggleListExpansion}
-                        text={hasmore ? t('ntp_show_more') : t('ntp_show_less')}
+                        text={expansion === 'collapsed' ? t('ntp_show_more') : t('ntp_show_less')}
                         showText={true}
                         buttonAttrs={{
-                            'aria-expanded': !hasmore,
-                            'aria-pressed': visible === sorted.length,
+                            'aria-expanded': expansion === 'expanded',
+                            'aria-pressed': expansion === 'expanded',
                         }}
                     />
                 </div>

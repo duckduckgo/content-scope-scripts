@@ -16,3 +16,15 @@ export function sortStatsForDisplay(stats) {
     }
     return sorted;
 }
+
+/**
+ * @param {string} companyName
+ */
+export function displayNameForCompany(companyName) {
+    return (
+        companyName
+            // remove any end sections followed by a '.' - this handles things like `Amazon.com` as a company name in the
+            // tracker radar dataset
+            .replace(/\.[a-z]+$/i, '')
+    );
+}

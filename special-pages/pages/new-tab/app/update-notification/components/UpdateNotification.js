@@ -53,7 +53,17 @@ export function WithNotes({ notes, version }) {
             <div id={id} class={styles.detailsContent}>
                 <ul class={styles.list}>
                     {notes.map((note, index) => {
-                        return <li key={note + index}>{note}</li>;
+                        /**
+                         * Note: Doing this here as a very specific 'view' concern
+                         * Note: using the `if` + `.slice` to avoid regex
+                         * Note: `.slice` is safe on `•` because it is a single Unicode character
+                         *       and is represented by a single UTF-16 code unit.
+                         */
+                        let trimmed = note.trim();
+                        if (trimmed.startsWith('•')) {
+                            trimmed = trimmed.slice(1).trim();
+                        }
+                        return <li key={note + index}>{trimmed}</li>;
                     })}
                 </ul>
             </div>

@@ -5545,6 +5545,9 @@
     }
     return sorted;
   }
+  function displayNameForCompany(companyName) {
+    return companyName.replace(/\.[a-z]+$/i, "");
+  }
   var init_privacy_stats_utils = __esm({
     "pages/new-tab/app/privacy-stats/privacy-stats.utils.js"() {
       "use strict";
@@ -5618,43 +5621,41 @@
     const defaultRowMax = 5;
     const sorted = sortStatsForDisplay(trackerCompanies);
     const max = sorted[0]?.count ?? 0;
-    const [visible, setVisible] = h2(defaultRowMax);
-    const hasmore = sorted.length > visible;
+    const [expansion, setExpansion] = h2(
+      /** @type {Expansion} */
+      "collapsed"
+    );
     const toggleListExpansion = () => {
-      if (hasmore) {
+      if (expansion === "collapsed") {
         messaging2.statsShowMore();
       } else {
         messaging2.statsShowLess();
       }
-      if (visible === defaultRowMax) {
-        setVisible(sorted.length);
-      }
-      if (visible === sorted.length) {
-        setVisible(defaultRowMax);
-      }
+      setExpansion(expansion === "collapsed" ? "expanded" : "collapsed");
     };
-    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("ul", { ...listAttrs, class: PrivacyStats_default.list, "data-testid": "CompanyList" }, sorted.slice(0, visible).map((company) => {
+    const rows = expansion === "expanded" ? sorted : sorted.slice(0, defaultRowMax);
+    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("ul", { ...listAttrs, class: PrivacyStats_default.list, "data-testid": "CompanyList" }, rows.map((company) => {
       const percentage = Math.min(company.count * 100 / max, 100);
       const valueOrMin = Math.max(percentage, 10);
       const inlineStyles = {
         width: `${valueOrMin}%`
       };
       const countText = formatter.format(company.count);
-      const displayName = company.displayName;
+      const displayName = displayNameForCompany(company.displayName);
       if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
         const otherText2 = t3("stats_otherCount", { count: String(company.count) });
         return /* @__PURE__ */ _("li", { key: company.displayName, class: PrivacyStats_default.otherTrackersRow }, otherText2);
       }
-      return /* @__PURE__ */ _("li", { key: company.displayName, class: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { displayName: company.displayName }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ _("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.fill, style: inlineStyles }));
+      return /* @__PURE__ */ _("li", { key: company.displayName, class: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { displayName }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ _("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.fill, style: inlineStyles }));
     })), sorted.length > defaultRowMax && /* @__PURE__ */ _("div", { class: PrivacyStats_default.listExpander }, /* @__PURE__ */ _(
       ShowHideButton,
       {
         onClick: toggleListExpansion,
-        text: hasmore ? t3("ntp_show_more") : t3("ntp_show_less"),
+        text: expansion === "collapsed" ? t3("ntp_show_more") : t3("ntp_show_less"),
         showText: true,
         buttonAttrs: {
-          "aria-expanded": !hasmore,
-          "aria-pressed": visible === sorted.length
+          "aria-expanded": expansion === "expanded",
+          "aria-pressed": expansion === "expanded"
         }
       }
     )));
@@ -5743,7 +5744,7 @@
     factory: () => factory3
   });
   function factory3() {
-    return /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _(PrivacyStatsCustomized, null));
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "privacyStats" }, /* @__PURE__ */ _(PrivacyStatsCustomized, null));
   }
   var init_privacyStats = __esm({
     "pages/new-tab/app/entry-points/privacyStats.js"() {
@@ -6134,7 +6135,11 @@
       }
     );
     return /* @__PURE__ */ _("details", { ref }, /* @__PURE__ */ _("summary", { tabIndex: -1, className: UpdateNotification_default.summary }, t3("updateNotification_updated_version", { version }), " ", inlineLink), /* @__PURE__ */ _("div", { id, class: UpdateNotification_default.detailsContent }, /* @__PURE__ */ _("ul", { class: UpdateNotification_default.list }, notes.map((note, index) => {
-      return /* @__PURE__ */ _("li", { key: note + index }, note);
+      let trimmed = note.trim();
+      if (trimmed.startsWith("\u2022")) {
+        trimmed = trimmed.slice(1).trim();
+      }
+      return /* @__PURE__ */ _("li", { key: note + index }, trimmed);
     }))));
   }
   function WithoutNotes({ version }) {
@@ -6889,7 +6894,7 @@
           count: 210
         },
         {
-          displayName: "Amazon",
+          displayName: "Amazon.com",
           count: 67
         },
         {
@@ -6931,7 +6936,7 @@
           count: 1
         },
         {
-          displayName: "Amazon",
+          displayName: "Amazon.com",
           count: 1
         },
         {
@@ -6939,6 +6944,10 @@
           count: 1
         }
       ]
+    },
+    growing: {
+      totalCount: 0,
+      trackerCompanies: []
     },
     many: {
       totalCount: 890,

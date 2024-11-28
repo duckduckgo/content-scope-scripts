@@ -10,7 +10,11 @@ export const updateNotificationExamples = {
     },
     populated: {
         content: {
-            notes: ['Bug fixes and improvements'],
+            // prettier-ignore
+            notes: [
+                '• Bug fixes and improvements',
+                'Optimized performance for faster load times'
+            ],
             version: '1.91',
         },
     },
