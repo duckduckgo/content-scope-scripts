@@ -279,7 +279,7 @@ export function mockTransport() {
                     if (updateMaxCount === 0) return () => {};
                     if (statsVariant === 'willUpdate') {
                         let inc = 1;
-                        let max = Math.min(updateMaxCount, 10);
+                        const max = Math.min(updateMaxCount, 10);
                         const int = setInterval(() => {
                             if (inc === max) return clearInterval(int);
                             const next = {
@@ -300,8 +300,8 @@ export function mockTransport() {
                     } else if (statsVariant === 'growing') {
                         const list = stats.many.trackerCompanies;
                         let index = 0;
-                        let max = Math.min(updateMaxCount, list.length);
-                        let int = setInterval(() => {
+                        const max = Math.min(updateMaxCount, list.length);
+                        const int = setInterval(() => {
                             if (index === max) return clearInterval(int);
                             console.log({ index, max });
                             cb({

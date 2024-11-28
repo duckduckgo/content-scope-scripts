@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
-import { stats } from '../mocks/stats.js';
+import { PrivacyStatsPage } from './privacy-stats.page.js';
 
 test.describe('newtab privacy stats', () => {
     test('fetches config + stats', async ({ page }, workerInfo) => {
@@ -30,12 +30,19 @@ test.describe('newtab privacy stats', () => {
     });
     test('sending a pixel when show more is clicked', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
+        const psp = new PrivacyStatsPage(page, ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { stats: 'many' } });
-        await page.getByLabel('Show More', { exact: true }).click();
-        await page.getByLabel('Show Less').click();
+
+        // show + hide
+        await psp.showMoreSecondary();
+        await psp.showLessSecondary();
+
+        // assert the event were sent
         await ntp.mocks.waitForCallCount({ method: 'stats_showMore', count: 1 });
         await ntp.mocks.waitForCallCount({ method: 'stats_showLess', count: 1 });
+
+        // to re-instate later
         // expect(calls1.length).toBe(2);
         // expect(calls1).toStrictEqual([
         //     {
@@ -74,7 +81,7 @@ test.describe('newtab privacy stats', () => {
         },
     );
 
-    test.fail(
+    test(
         'secondary expansion',
         {
             annotation: {
@@ -84,28 +91,21 @@ test.describe('newtab privacy stats', () => {
         },
         async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
+            const psp = new PrivacyStatsPage(page, ntp);
             await ntp.reducedMotion();
             await ntp.openPage({ additional: { stats: 'none' } });
 
             // deliver enough companies to show the 'show more' toggle
-            await test.step('deliver initial 6 companies', async () => {
-                /** @type {import("../../../../../types/new-tab.js").PrivacyStatsData} */
-                const next = { totalCount: 0, trackerCompanies: stats.many.trackerCompanies.slice(0, 6) };
-                await ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', next);
-            });
+            await psp.receive({ count: 6 });
+            await psp.hasRows(5); // 1 is hidden
+            await psp.showMoreSecondary();
 
-            // toggle the secondary expansion
-            await page.getByLabel('Show More', { exact: true }).click();
+            await psp.receive({ count: 7 });
+            await psp.hasRows(7);
+            await psp.showLessSecondary();
 
-            // increase the count by 1
-            await test.step('delivery 7 companies', async () => {
-                /** @type {import("../../../../../types/new-tab.js").PrivacyStatsData} */
-                const next = { totalCount: 0, trackerCompanies: stats.many.trackerCompanies.slice(0, 7) };
-                await ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', next);
-            });
-
-            // collapse
-            await page.getByLabel('Show Less', { exact: true }).click();
+            await psp.receive({ count: 2 });
+            await psp.hasRows(2);
         },
     );
 });

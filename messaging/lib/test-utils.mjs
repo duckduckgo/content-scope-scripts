@@ -428,7 +428,7 @@ export function simulateSubscriptionMessage(params) {
             break;
         }
         case 'integration': {
-            if (!(params.name in window))
+            if (!('publishSubscriptionEvent' in window.__playwright_01))
                 throw new Error(
                     `subscription event '${subscriptionEvent.subscriptionName}' was not published because 'window.__playwright_01.publishSubscriptionEvent' was missing`,
                 );
