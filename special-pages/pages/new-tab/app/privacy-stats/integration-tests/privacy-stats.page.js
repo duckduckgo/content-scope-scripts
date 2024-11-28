@@ -21,6 +21,13 @@ export class PrivacyStatsPage {
         await this.ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', next);
     }
 
+    /**
+     * @param {import("../../../../../types/new-tab.js").PrivacyStatsData} data
+     */
+    async receiveData(data) {
+        await this.ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', data);
+    }
+
     context() {
         return this.page.locator('[data-entry-point="privacyStats"]');
     }

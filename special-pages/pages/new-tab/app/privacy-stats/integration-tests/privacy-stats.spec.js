@@ -80,7 +80,44 @@ test.describe('newtab privacy stats', () => {
             await expect(page.getByLabel('Show recent activity')).not.toBeVisible();
         },
     );
+    test(
+        'bar width',
+        {
+            annotation: {
+                type: 'issue',
+                description: 'https://app.asana.com/0/0/1208800221025230/f',
+            },
+        },
+        async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const psp = new PrivacyStatsPage(page, ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { stats: 'none' } });
 
+            await psp.receiveData({
+                totalCount: 2,
+                trackerCompanies: [
+                    { displayName: 'Google', count: 1 },
+                    { displayName: 'Facebook', count: 1 },
+                ],
+            });
+
+            await page.getByText('Google1').locator('[style="width: 100%;"]').waitFor();
+            await page.getByText('Facebook1').locator('[style="width: 100%;"]').waitFor();
+
+            await psp.receiveData({
+                totalCount: 2,
+                trackerCompanies: [
+                    { displayName: 'Google', count: 5 },
+                    { displayName: 'Facebook', count: 1 },
+                ],
+            });
+
+            // Checking the first + last bar widths due to a regression
+            await page.getByText('Google5').locator('[style="width: 100%;"]').waitFor();
+            await page.getByText('Facebook1').locator('[style="width: 20%;"]').waitFor();
+        },
+    );
     test(
         'secondary expansion',
         {
