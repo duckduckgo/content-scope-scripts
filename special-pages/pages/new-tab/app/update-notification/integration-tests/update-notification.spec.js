@@ -27,7 +27,9 @@ test.describe('newtab update notifications', () => {
 
         await page.getByText("Browser Updated to version 1.91. See what's new in this release.").waitFor();
         await page.getByRole('link', { name: "what's new" }).click();
-        await page.getByText('Bug fixes and improvements').waitFor();
+        // this test was updated to add 'exact: true' which would fail if the bullet was not stripped
+        await page.getByText('Bug fixes and improvements', { exact: true }).waitFor();
+        await page.getByText('Optimized performance for faster load times', { exact: true }).waitFor();
         await page.getByRole('button', { name: 'Dismiss' }).click();
         await ntp.mocks.waitForCallCount({ method: 'updateNotification_dismiss', count: 1 });
     });
