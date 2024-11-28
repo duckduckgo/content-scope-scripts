@@ -9,7 +9,7 @@ import { viewTransition } from '../../utils.js';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useCustomizer } from '../../customizer/components/Customizer.js';
 import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
-import { sortStatsForDisplay } from '../privacy-stats.utils.js';
+import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -165,8 +165,7 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
                         width: `${valueOrMin}%`,
                     };
                     const countText = formatter.format(company.count);
-                    // prettier-ignore
-                    const displayName = company.displayName
+                    const displayName = displayNameForCompany(company.displayName);
                     if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
                         const otherText = t('stats_otherCount', { count: String(company.count) });
                         return (
@@ -178,7 +177,7 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
                     return (
                         <li key={company.displayName} class={styles.row}>
                             <div class={styles.company}>
-                                <CompanyIcon displayName={company.displayName} />
+                                <CompanyIcon displayName={displayName} />
                                 <span class={styles.name}>{displayName}</span>
                             </div>
                             <span class={styles.count}>{countText}</span>
