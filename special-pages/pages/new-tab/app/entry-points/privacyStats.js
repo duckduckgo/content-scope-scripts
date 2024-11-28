@@ -4,7 +4,7 @@ import { Centered } from '../components/Layout.js';
 
 export function factory() {
     return (
-        <Centered>
+        <Centered data-entry-point="privacyStats">
             <PrivacyStatsCustomized />
         </Centered>
     );
