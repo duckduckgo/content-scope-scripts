@@ -89,7 +89,7 @@ export function fillMany(root, elements, data) {
             }
             results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
         } else {
-            if (typeOptional(element)) {
+            if (isElementTypeOptional(element.type)) {
                 continue;
             }
             if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
@@ -114,13 +114,13 @@ export function fillMany(root, elements, data) {
 }
 
 /**
- * Checks if the element is required and does not exist in the data (or allows exceptions for optional fields)
+ * Returns whether an element type is optional, allowing some checks to be skipped
  *
- * @param {{selector: string; type: string; min?: string; max?: string;}} element
+ * @param { string } type
  * @returns Boolean
  */
-function typeOptional(element) {
-    if (element.type === 'middleName') {
+function isElementTypeOptional(type) {
+    if (type === 'middleName') {
         return true;
     }
 
