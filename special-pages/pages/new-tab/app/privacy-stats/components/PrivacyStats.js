@@ -29,12 +29,7 @@ import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.uti
  * @param {Animation['kind']} [props.animation] - optionally configure animations
  */
 export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animate' }) {
-    if (animation === 'view-transitions') {
-        return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />;
-    }
-
-    // no animations
-    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={toggle} />;
+    return <h1>Hello world</h1>;
 }
 
 /**
