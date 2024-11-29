@@ -6,6 +6,7 @@ children:
   - ./update-notification/update-notification.md
   - ./privacy-stats/privacy-stats.md
   - ./favorites/favorites.md
+  - ./next-steps/next-steps.md
 ---
 
 ## Requests
