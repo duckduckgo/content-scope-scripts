@@ -353,6 +353,16 @@ test.describe('Broker Protection communications', () => {
             await dbp.isFormFilled();
         });
 
+        test('fillForm with optional information', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-optional.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.isFormFilled();
+        });
+
         test('click', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
