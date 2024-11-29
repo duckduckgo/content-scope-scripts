@@ -3,7 +3,6 @@
     background: var(--button-bg);
     color: var(--button-text);
     cursor: pointer;
-    text-wrap: nowrap;
     position: relative;
 }
 
