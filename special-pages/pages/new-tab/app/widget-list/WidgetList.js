@@ -1,7 +1,6 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import { WidgetConfigContext, WidgetVisibilityProvider } from './widget-config.provider.js';
 import { useContext } from 'preact/hooks';
-import { Customizer, CustomizerMenuPositionedFixed } from '../customizer/components/Customizer.js';
 import { useMessaging } from '../types.js';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary.js';
 import { Fallback } from '../../../../shared/components/Fallback/Fallback.jsx';
@@ -52,14 +51,14 @@ export function WidgetList() {
     };
 
     return (
-        <div>
+        <Fragment>
             {widgets.map((widget, index) => {
-                const matchingConfig = widgetConfigItems.find((item) => item.id === widget.id);
+                const isUserConfigurable = widgetConfigItems.find((item) => item.id === widget.id);
                 const matchingEntryPoint = entryPoints[widget.id];
                 /**
                  * If there's no config, it means the user does not control the visibility of the elements in question.
                  */
-                if (!matchingConfig) {
+                if (!isUserConfigurable) {
                     return (
                         <ErrorBoundary key={widget.id} didCatch={(error) => didCatch(error, widget.id)} fallback={null}>
                             {matchingEntryPoint.factory?.()}
@@ -71,13 +70,13 @@ export function WidgetList() {
                  * This section is for elements that the user controls the visibility of
                  */
                 return (
-                    <WidgetVisibilityProvider key={widget.id} visibility={matchingConfig.visibility} id={matchingConfig.id} index={index}>
+                    <WidgetVisibilityProvider key={widget.id} id={widget.id} index={index}>
                         <ErrorBoundary
                             key={widget.id}
                             didCatch={(error) => didCatch(error, widget.id)}
                             fallback={
                                 <Centered>
-                                    <Fallback showDetails={true}>Widget id: {matchingConfig.id}</Fallback>
+                                    <Fallback showDetails={true}>Widget id: {widget.id}</Fallback>
                                 </Centered>
                             }
                         >
@@ -86,9 +85,6 @@ export function WidgetList() {
                     </WidgetVisibilityProvider>
                 );
             })}
-            <CustomizerMenuPositionedFixed>
-                <Customizer />
-            </CustomizerMenuPositionedFixed>
-        </div>
+        </Fragment>
     );
 }

@@ -1,5 +1,6 @@
 import { createContext, h } from 'preact';
-import { useContext, useEffect, useState } from 'preact/hooks';
+import { useContext } from 'preact/hooks';
+import { computed, effect, signal, useSignal } from '@preact/signals';
 
 /**
  * @typedef {import('../../../../types/new-tab.js').WidgetConfigs} WidgetConfigs
@@ -15,8 +16,18 @@ export const WidgetConfigContext = createContext({
     /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
     entryPoints: {},
 
-    /** @type {WidgetConfigItem[]} */
+    /**
+     * A snapshot of the widget config as received at page load. Use this when you
+     * don't need up-to-date values.
+     * @type {WidgetConfigItem[]}
+     */
     widgetConfigItems: [],
+    /**
+     * The live version of the data in 'widgetConfigItems' above. This represents the very
+     * latest updates and can be subscribed to for reactive updates
+     * @type {import("@preact/signals").Signal<WidgetConfigItem[]>}
+     */
+    currentValues: signal([]),
 
     /** @type {(id:string) => void} */
 
@@ -36,15 +47,14 @@ export const WidgetConfigDispatchContext = createContext({
  * @param {WidgetConfigAPI} props.api - the stateful API manager
  */
 export function WidgetConfigProvider(props) {
-    const [data, setData] = useState(props.widgetConfigs);
+    const currentValues = useSignal(props.widgetConfigs);
 
-    // todo: should we just useSyncExternalStore here?
-    useEffect(() => {
+    effect(() => {
         const unsub = props.api.onData((widgetConfig) => {
-            setData(widgetConfig.data);
+            currentValues.value = widgetConfig.data;
         });
         return () => unsub();
-    }, [props.api]);
+    });
 
     /**
      * @param {string} id
@@ -59,8 +69,8 @@ export function WidgetConfigProvider(props) {
                 // this field is static for the lifespan of the page
                 widgets: props.widgets,
                 entryPoints: props.entryPoints,
-                // this will be updated via subscriptions
-                widgetConfigItems: data || [],
+                widgetConfigItems: props.widgetConfigs,
+                currentValues,
                 toggle,
             }}
         >
@@ -70,13 +80,13 @@ export function WidgetConfigProvider(props) {
 }
 
 const WidgetVisibilityContext = createContext({
-    visibility: /** @type {WidgetConfigItem['visibility']} */ ('visible'),
     id: /** @type {WidgetConfigItem['id']} */ (''),
     /** @type {(id: string) => void} */
 
     toggle: (_id) => {},
     /** @type {number} */
     index: -1,
+    visibility: signal(/** @type {WidgetConfigItem['visibility']} */ ('visible')),
 });
 
 export function useVisibility() {
@@ -87,17 +97,21 @@ export function useVisibility() {
  * This wraps each widget and gives
  * @param {object} props
  * @param {WidgetConfigItem['id']} props.id - the current id key used for storage
- * @param {WidgetConfigItem['visibility']} props.visibility - the current id key used for storage
  * @param {number} props.index - the current id key used for storage
  * @param {import("preact").ComponentChild} props.children
  */
 export function WidgetVisibilityProvider(props) {
-    const { toggle } = useContext(WidgetConfigContext);
+    const { toggle, currentValues } = useContext(WidgetConfigContext);
+    const visibility = computed(() => {
+        const matchingConfig = currentValues.value.find((x) => x.id === props.id);
+        if (!matchingConfig) throw new Error('unreachable. Must find widget config via id: ' + props.id);
+        return matchingConfig.visibility;
+    });
 
     return (
         <WidgetVisibilityContext.Provider
             value={{
-                visibility: props.visibility,
+                visibility,
                 id: props.id,
                 toggle,
                 index: props.index,

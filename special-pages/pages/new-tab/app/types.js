@@ -41,3 +41,4 @@ export const useTelemetry = () => useContext(TelemetryContext);
 
 export const InitialSetupContext = createContext(/** @type {InitialSetupResponse} */ ({}));
 export const useInitialSetupData = () => useContext(InitialSetupContext);
+export const useSettings = () => useContext(InitialSetupContext);

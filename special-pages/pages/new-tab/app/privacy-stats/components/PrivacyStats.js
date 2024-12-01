@@ -211,9 +211,9 @@ export function PrivacyStatsCustomized() {
     const { visibility, id, toggle, index } = useVisibility();
 
     const title = t('stats_menuTitle');
-    useCustomizer({ title, id, icon: 'shield', toggle, visibility, index });
+    useCustomizer({ title, id, icon: 'shield', toggle, visibility: visibility.value, index });
 
-    if (visibility === 'hidden') {
+    if (visibility.value === 'hidden') {
         return null;
     }
 
