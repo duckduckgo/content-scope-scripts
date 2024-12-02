@@ -341,4 +341,14 @@ export class SpecialErrorPage {
             },
         ]);
     }
+
+    async overrideTestLinks() {
+        const { page } = this;
+        await page.context().route(/dub\.duckduckgo\.com|use-devtesting..\.duckduckgo\.com/, (route) =>
+            route.fulfill({
+                status: 200,
+                body: 'OK',
+            }),
+        );
+    }
 }

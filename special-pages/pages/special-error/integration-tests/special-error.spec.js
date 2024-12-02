@@ -74,6 +74,8 @@ test.describe('special-error', () => {
 
     test('opens phishing help page in a new window', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
+        await special.overrideTestLinks();
+
         const expectedURL = `${phishingMalwareHelpPageURL}`;
 
         await special.openPage({ errorId: 'phishing' });
@@ -84,6 +86,8 @@ test.describe('special-error', () => {
 
     test('opens malware help page in a new window', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
+        await special.overrideTestLinks();
+
         const expectedURL = `${phishingMalwareHelpPageURL}`;
 
         await special.openPage({ errorId: 'malware' });
@@ -92,7 +96,9 @@ test.describe('special-error', () => {
 
     test('opens report form in a new window', async ({ page, browser }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
-        const expectedURL = `${reportSiteAsSafeFormURL}https://privacy-test-pages.site/security/badware/malware.html`;
+        await special.overrideTestLinks();
+
+        const expectedURL = `${reportSiteAsSafeFormURL}${encodeURIComponent('https://privacy-test-pages.site/security/badware/malware.html')}`;
 
         await special.openPage({ errorId: 'malware' });
         await special.showsAdvancedInfo();
