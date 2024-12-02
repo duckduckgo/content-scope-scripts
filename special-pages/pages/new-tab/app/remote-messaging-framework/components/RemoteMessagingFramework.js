@@ -1,9 +1,11 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import cn from 'classnames';
 import styles from './RemoteMessagingFramework.module.css';
 import { useContext } from 'preact/hooks';
 import { RMFContext } from '../RMFProvider.js';
 import { DismissButton } from '../../components/DismissButton';
+import { Button } from '../../../../../shared/components/Button/Button';
+import { usePlatformName } from '../../settings.provider';
 
 /**
  * @import { RMFMessage } from "../../../../../types/new-tab"
@@ -16,6 +18,8 @@ import { DismissButton } from '../../components/DismissButton';
 
 export function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
+    const platform = usePlatformName();
+
     return (
         <div id={id} class={cn(styles.root, messageType !== 'small' && message.icon && styles.icon)}>
             {messageType !== 'small' && message.icon && (
@@ -24,28 +28,45 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
                 </span>
             )}
             <div class={styles.content}>
-                <p class={styles.title}>{titleText}</p>
+                <h2 class={styles.title}>{titleText}</h2>
                 <p class={styles.description}>{descriptionText}</p>
                 {messageType === 'big_two_action' && (
                     <div class={styles.btnRow}>
-                        {primaryAction && message.primaryActionText.length > 0 && (
-                            <button class={cn(styles.btn, styles.primary)} onClick={() => primaryAction(id)}>
-                                {message.primaryActionText}
-                            </button>
-                        )}
-                        {secondaryAction && message.secondaryActionText.length > 0 && (
-                            <button class={cn(styles.btn, styles.secondary)} onClick={() => secondaryAction(id)}>
-                                {message.secondaryActionText}
-                            </button>
+                        {platform === 'windows' ? (
+                            <Fragment>
+                                {primaryAction && message.primaryActionText.length > 0 && (
+                                    <Button variant={'accentBrand'} onClick={() => primaryAction(id)}>
+                                        {message.primaryActionText}
+                                    </Button>
+                                )}
+                                {secondaryAction && message.secondaryActionText.length > 0 && (
+                                    <Button variant={'standard'} onClick={() => secondaryAction(id)}>
+                                        {message.secondaryActionText}
+                                    </Button>
+                                )}
+                            </Fragment>
+                        ) : (
+                            <Fragment>
+                                {secondaryAction && message.secondaryActionText.length > 0 && (
+                                    <Button variant={'standard'} onClick={() => secondaryAction(id)}>
+                                        {message.secondaryActionText}
+                                    </Button>
+                                )}
+                                {primaryAction && message.primaryActionText.length > 0 && (
+                                    <Button variant={'accentBrand'} onClick={() => primaryAction(id)}>
+                                        {message.primaryActionText}
+                                    </Button>
+                                )}
+                            </Fragment>
                         )}
                     </div>
                 )}
             </div>
             {messageType === 'big_single_action' && message.primaryActionText && primaryAction && (
                 <div class={styles.btnBlock}>
-                    <button class={cn(styles.btn)} onClick={() => primaryAction(id)}>
+                    <Button variant="standard" onClick={() => primaryAction(id)}>
                         {message.primaryActionText}
-                    </button>
+                    </Button>
                 </div>
             )}
             <DismissButton className={styles.dismissBtn} onClick={() => dismiss(id)} />
