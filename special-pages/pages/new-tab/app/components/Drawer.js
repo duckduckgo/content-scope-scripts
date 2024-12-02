@@ -1,4 +1,4 @@
-import { useEffect, useRef, useId } from 'preact/hooks';
+import { useRef, useId, useLayoutEffect } from 'preact/hooks';
 import { computed, effect, useSignal } from '@preact/signals';
 
 const CLOSE_DRAWER_EVENT = 'close-drawer';
@@ -13,10 +13,10 @@ const REQUEST_VISIBILITY_EVENT = 'request-visibility';
 /**
  * Hook that manages the state and behavior of a drawer component.
  *
- * This function utilizes several hooks to manage references and signals
- * for elements involved in a drawer-like UI component. It handles visibility
- * toggling, event listeners, and ensures that child components are only rendered
- * when appropriate, taking into account any animations.
+ * There are three main considerations here:
+ *  - 1: we make the API available with events (via `useDrawerControls`)
+ *  - 2: we use signals to trigger animations for performance (to prevent VDOM diffing)
+ *  - 3: we provide a way for child components to render AFTER animations have ended, again for performance.
  *
  * @return {{
  *     wrapperRef: import("preact").RefObject<HTMLDivElement>,
@@ -39,17 +39,16 @@ export function useDrawer() {
     // the immediate value
     const visibility = useSignal(/** @type {DrawerVisibility} */ ('hidden'));
 
-    // the value that determines if it's safe to render children
-    // this takes animations into account so it can't be a derived state
-    // otherwise it would try to render children (which could be expensive) whilst
-    // animations are playing.
+    // The value that determines if it's safe to render children
+    // This takes animations into account, which is why is can't be a regular-derived state
     const displayChildren = useSignal(false);
 
-    // derive 'hidden' as a string for things like aria attributes
+    // Derive a 'hidden' signal that can be used as an aria-hidden={hidden}
+    // it needs to be done this way to `.value` being accessed in the top level of the application
     const hidden = computed(() => displayChildren.value === false);
 
-    // react to events
-    useEffect(() => {
+    // react to the global API events
+    useLayoutEffect(() => {
         const controller = new AbortController();
         const wrapper = wrapperRef.current;
         if (!wrapper) return;
@@ -99,7 +98,8 @@ export function useDrawer() {
         };
     }, []);
 
-    // move focus back to the button when drawer is closed
+    // move focus back to the button when the drawer is closed
+    // this needs to be done otherwise it's a violation of aria rules
     effect(() => {
         if (displayChildren.value === false) {
             buttonRef.current?.focus?.();
