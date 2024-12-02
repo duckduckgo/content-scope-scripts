@@ -43,9 +43,9 @@ export function FavoritesCustomized() {
 
     // register with the visibility menu
     const title = t('favorites_menu_title');
-    useCustomizer({ title, id, icon: 'star', toggle, visibility, index });
+    useCustomizer({ title, id, icon: 'star', toggle, visibility: visibility.value, index });
 
-    if (visibility === 'hidden') {
+    if (visibility.value === 'hidden') {
         return null;
     }
     return (
