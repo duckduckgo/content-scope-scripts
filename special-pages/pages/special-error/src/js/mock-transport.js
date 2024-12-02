@@ -17,26 +17,27 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'initialSetup': {
-
                     const searchParams = new URLSearchParams(window.location.search);
                     const errorId = searchParams.get('errorId');
                     const platformName = searchParams.get('platformName');
-            
+
                     /** @type {import('../../../../types/special-error').InitialSetupResponse['errorData']} */
                     let errorData = sampleData['ssl.expired'].data;
                     if (errorId && Object.keys(sampleData).includes(errorId)) {
                         errorData = sampleData[errorId].data;
                     }
-            
+
                     const supportedPlatforms = ['macos', 'ios'];
                     /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']} */
                     let platform = { name: 'macos' };
                     if (platformName && supportedPlatforms.includes(platformName)) {
                         platform = {
-                            name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */ (platformName),
+                            name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */ (
+                                platformName
+                            ),
                         };
                     }
-            
+
                     return Promise.resolve({
                         env: 'development',
                         locale: 'en',
@@ -55,7 +56,7 @@ export function mockTransport() {
 
             switch (subscription) {
                 // Add subscription logic here
-                default: 
+                default:
             }
 
             return () => {
