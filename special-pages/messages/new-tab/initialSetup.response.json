@@ -6,6 +6,9 @@
     "widgets": {
       "$ref": "./types/widget-list.json"
     },
+    "settings": {
+      "$ref": "./types/settings.json"
+    },
     "widgetConfigs": {
       "$ref": "types/widget-configs.json"
     },

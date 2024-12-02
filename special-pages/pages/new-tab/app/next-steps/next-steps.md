@@ -21,16 +21,26 @@ title: Next Steps Cards
 ## Requests:
 - {@link "NewTab Messages".NextStepsGetDataRequest `nextSteps_getData`}
     - Used to fetch the initial data (during the first render)
-    - returns {@link "NewTab Messages".NextStepsData} - either `null` or `Array<{id: string}>`
+    - returns {@link "NewTab Messages".NextStepsData} - either `{content: null}` or `{content: Array<{id: string}>}`
     - Note: Please use `null` to represent when there's nothing to show (instead of an empty array.)
     - IDs: Please find the list of supported IDs here {@link "NewTab Messages".NextStepsCards}
     - Example:
 
 ```json
-[
-  { "id": "bringStuff" },
-  { "id": "defaultApp" }
-]
+{
+  "content": [
+    { "id": "bringStuff" },
+    { "id": "defaultApp" }
+  ]
+}
+```
+
+or:
+
+```json
+{
+  "content": null
+}
 ```
 
 - {@link "NewTab Messages".NextStepsGetConfigRequest `nextSteps_getConfig`}

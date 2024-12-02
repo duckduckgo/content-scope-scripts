@@ -1,10 +1,10 @@
 import { h } from 'preact';
 import { useEffect, useRef, useState, useCallback, useId } from 'preact/hooks';
 import styles from './Customizer.module.css';
-import { VisibilityMenu } from './VisibilityMenu.js';
 import { CustomizeIcon } from '../../components/Icons.js';
 import cn from 'classnames';
 import { useMessaging, useTypedTranslation } from '../../types.js';
+import { VisibilityMenu, VisibilityMenuPopover } from './VisibilityMenu.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../../../types/new-tab.js'
@@ -16,8 +16,6 @@ import { useMessaging, useTypedTranslation } from '../../types.js';
 export function Customizer() {
     const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown();
     const [rowData, setRowData] = useState(/** @type {VisibilityRowData[]} */ ([]));
-
-    useContextMenu();
 
     /**
      * Dispatch an event every time the customizer is opened - this
@@ -47,7 +45,9 @@ export function Customizer() {
         <div class={styles.root} ref={dropdownRef}>
             <CustomizerButton buttonId={BUTTON_ID} menuId={MENU_ID} toggleMenu={toggleMenu} buttonRef={buttonRef} isOpen={isOpen} />
             <div id={MENU_ID} class={cn(styles.dropdownMenu, { [styles.show]: isOpen })} aria-labelledby={BUTTON_ID}>
-                <VisibilityMenu rows={rowData} />
+                <VisibilityMenuPopover>
+                    <VisibilityMenu rows={rowData} variant={'popover'} />
+                </VisibilityMenuPopover>
             </div>
         </div>
     );

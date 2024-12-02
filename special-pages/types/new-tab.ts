@@ -362,6 +362,7 @@ export interface InitialSetupRequest {
 }
 export interface InitialSetupResponse {
   widgets: Widgets;
+  settings?: NewTabPageSettings;
   widgetConfigs: WidgetConfigs;
   locale: string;
   env: "development" | "production";
@@ -375,6 +376,11 @@ export interface WidgetListItem {
    * A unique identifier for the widget.
    */
   id: string;
+}
+export interface NewTabPageSettings {
+  customizerDrawer?: {
+    state: "enabled" | "disabled";
+  };
 }
 export interface UpdateNotificationData {
   content: null | UpdateNotification;

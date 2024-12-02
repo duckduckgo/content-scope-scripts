@@ -15,6 +15,7 @@ import { variants as nextSteps } from './next-steps/nextsteps.data.js';
  * @typedef {import('../../../types/new-tab').NextStepsCards} NextStepsCards
  * @typedef {import('../../../types/new-tab').NextStepsData} NextStepsData
  * @typedef {import('../../../types/new-tab').UpdateNotificationData} UpdateNotificationData
+ * @typedef {import('../../../types/new-tab').NewTabPageSettings} NewTabPageSettings
  * @typedef {import('../../../types/new-tab').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
  */
@@ -448,10 +449,18 @@ export function mockTransport() {
                         updateNotification = updateNotificationExamples.populated;
                     }
 
+                    /** @type {import('../../../types/new-tab').NewTabPageSettings} */
+                    const settings = {};
+
+                    if (url.searchParams.get('customizerDrawer') === 'enabled') {
+                        settings.customizerDrawer = { state: 'enabled' };
+                    }
+
                     /** @type {import('../../../types/new-tab.ts').InitialSetupResponse} */
                     const initial = {
                         widgets: widgetsFromStorage,
                         widgetConfigs: widgetConfigFromStorage,
+                        settings,
                         platform: { name: 'integration' },
                         env: 'development',
                         locale: 'en',

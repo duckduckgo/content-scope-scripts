@@ -55,7 +55,8 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
-        .withPlatformName(baseEnvironment.urlParams.get('platform'));
+        .withPlatformName(baseEnvironment.urlParams.get('platform'))
+        .withFeatureState('customizerDrawer', init.settings?.customizerDrawer);
 
     if (!window.__playwright_01) {
         console.log('environment:', environment);

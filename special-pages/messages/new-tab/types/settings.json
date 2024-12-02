@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NewTabPageSettings",
+  "type": "object",
+  "properties": {
+    "customizerDrawer": {
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["enabled", "disabled"]
+        }
+      }
+    }
+  }
+}
