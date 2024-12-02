@@ -44,9 +44,12 @@ body:has([data-reset-layout="true"]) .tube {
 }
 
 .main {
-    overflow: hidden;
-    height: 100vh;
+    &[data-customizer-kind="drawer"] {
+        overflow: hidden;
+        height: 100vh;
+    }
 }
+
 .active {}
 
 .aside {
