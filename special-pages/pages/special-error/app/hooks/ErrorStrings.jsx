@@ -8,13 +8,13 @@ import { phishingMalwareHelpPageURL, reportSiteAsSafeFormURL } from '../constant
  * @param {string} urlString
  * @returns {string}
  */
-const sanitizeAndEncodeURL = (urlString) => {
+const sanitizeURL = (urlString) => {
     if (!urlString) return '';
 
     try {
         const url = new URL(urlString);
 
-        return encodeURIComponent(`${url.origin}${url.pathname}`);
+        return `${url.origin}${url.pathname}`;
     } catch (error) {
         return '';
     }
@@ -33,7 +33,7 @@ const helpPageAnchorTagParams = {
 
 /** @type {(url: string) => AnchorTagParams} */
 const reportSiteAnchorTagParams = (urlParam) => {
-    const sanitizedURLParam = sanitizeAndEncodeURL(urlParam);
+    const sanitizedURLParam = sanitizeURL(urlParam);
     const url = new URL(reportSiteAsSafeFormURL);
     url.searchParams.set('url', sanitizedURLParam);
 

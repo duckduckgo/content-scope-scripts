@@ -98,10 +98,11 @@ test.describe('special-error', () => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.overrideTestLinks();
 
-        const expectedURL = `${reportSiteAsSafeFormURL}${encodeURIComponent('https://privacy-test-pages.site/security/badware/malware.html')}`;
+        const url = new URL(reportSiteAsSafeFormURL);
+        url.searchParams.set('url', 'https://privacy-test-pages.site/security/badware/malware.html');
 
         await special.openPage({ errorId: 'malware' });
         await special.showsAdvancedInfo();
-        await special.opensNewPage('you can report an error', expectedURL);
+        await special.opensNewPage('you can report an error', url.toString());
     });
 });
