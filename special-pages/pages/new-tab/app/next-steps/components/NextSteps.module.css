@@ -21,8 +21,9 @@
 }
 
 .title {
+    font-size: var(--body-font-size);
     font-weight: 590;
-    line-height: var(--sp-4);
+    line-height: var(--body-line-height);
     letter-spacing: -0.08px;
     color: var(--ntp-text-normal);
     margin-bottom: var(--sp-1);
@@ -131,15 +132,18 @@
 
     div {
         background-color: var(--ntp-color-primary);
-        font-size: calc(11 * var(--px-in-rem));
         height: calc(20 * var(--px-in-rem));
-        line-height: normal;
-        font-weight: 600;
-        letter-spacing: 0.06px;
-        color: var(--ntp-text-on-primary);
         display: flex;
         align-items: center;
         justify-content: center;
+        
+        h2 {
+            color: var(--ntp-text-on-primary);
+            letter-spacing: 0.06px;
+            font-weight: 600;
+            line-height: normal;
+            font-size: calc(11 * var(--px-in-rem));
+        }
     }
 }
 
@@ -160,7 +164,6 @@
 :root:has(body[data-platform-name="windows"]) {
     .nextStepsCard .title {
         font-weight: 700;
-        line-height: calc(20 * var(--px-in-rem));
         letter-spacing: normal;
     }
 }

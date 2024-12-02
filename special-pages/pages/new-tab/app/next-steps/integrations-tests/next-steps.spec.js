@@ -54,7 +54,7 @@ test.describe('newtab NextSteps cards', () => {
         // expand the section
         await page.getByLabel('Show More', { exact: true }).click();
 
-        await expect(page.locator('p').filter({ hasText: 'Block Cookie Pop-ups' })).toBeVisible();
+        await expect(page.locator('h3').filter({ hasText: 'Block Cookie Pop-ups' })).toBeVisible();
         await page.getByRole('button', { name: 'Try DuckPlayer' }).click();
         await ntp.mocks.waitForCallCount({ method: 'nextSteps_action', count: 1 });
     });

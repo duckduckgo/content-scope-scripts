@@ -69,13 +69,13 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
         messaging.reportPageException({ message });
     };
 
+    // install global side effects that are not specific to any widget
+    installGlobalSideEffects(environment, settings);
+
     // return early if we're in the 'components' view.
     if (environment.display === 'components') {
         return renderComponents(root, environment, settings, strings);
     }
-
-    // install global side effects that are not specific to any widget
-    installGlobalSideEffects(environment, settings);
 
     // Resolve the entry points for each selected widget
     const entryPoints = await resolveEntryPoints(init.widgets, didCatch);

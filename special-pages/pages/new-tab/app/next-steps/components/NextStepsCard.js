@@ -17,7 +17,7 @@ export function NextStepsCard({ type, dismiss, action }) {
     return (
         <div class={styles.card}>
             <img src={`./icons/${message.icon}-128.svg`} alt="" class={styles.icon} />
-            <p class={styles.title}>{message.title}</p>
+            <h3 class={styles.title}>{message.title}</h3>
             <p class={styles.description}>{message.summary}</p>
             <button class={styles.btn} onClick={() => action(message.id)}>
                 {message.actionText}
