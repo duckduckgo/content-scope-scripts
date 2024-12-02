@@ -26,18 +26,19 @@ const sanitizeAndEncodeURL = (urlString) => {
  * @property {string} target
  */
 
-/** @type {() => AnchorTagParams} */
-const helpPageAnchorTagParams = () => ({
+const helpPageAnchorTagParams = {
     href: phishingMalwareHelpPageURL,
     target: '_blank',
-});
+};
 
 /** @type {(url: string) => AnchorTagParams} */
-const reportSiteAnchorTagParams = (url) => {
-    const sanitizedURL = sanitizeAndEncodeURL(url);
+const reportSiteAnchorTagParams = (urlParam) => {
+    const sanitizedURLParam = sanitizeAndEncodeURL(urlParam);
+    const url = new URL(reportSiteAsSafeFormURL);
+    url.searchParams.set('url', sanitizedURLParam);
 
     return {
-        href: `${reportSiteAsSafeFormURL}${sanitizedURL}`,
+        href: url.toString(),
         target: '_blank',
     };
 };
@@ -83,11 +84,11 @@ export function useWarningContent() {
     const { kind } = useErrorData();
 
     if (kind === 'phishing') {
-        return [<Trans str={t('phishingWarningText')} values={{ a: helpPageAnchorTagParams() }} />];
+        return [<Trans str={t('phishingWarningText')} values={{ a: helpPageAnchorTagParams }} />];
     }
 
     if (kind === 'malware') {
-        return [<Trans str={t('malwareWarningText')} values={{ a: helpPageAnchorTagParams() }} />];
+        return [<Trans str={t('malwareWarningText')} values={{ a: helpPageAnchorTagParams }} />];
     }
 
     if (kind === 'ssl') {
@@ -130,7 +131,7 @@ export function useAdvancedInfoContent() {
     const { kind } = errorData;
 
     if (kind === 'phishing') {
-        return [t('phishingAdvancedInfoText_1'), <Trans str={t('phishingAdvancedInfoText_2')} values={{ a: helpPageAnchorTagParams() }} />];
+        return [t('phishingAdvancedInfoText_1'), <Trans str={t('phishingAdvancedInfoText_2')} values={{ a: helpPageAnchorTagParams }} />];
     }
 
     if (kind === 'malware') {
