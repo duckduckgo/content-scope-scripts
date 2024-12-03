@@ -13,11 +13,11 @@ import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.uti
 
 /**
  * @import enStrings from "../strings.json"
- * @typedef {import('../../../../../types/new-tab').TrackerCompany} TrackerCompany
- * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
- * @typedef {import('../../../../../types/new-tab').Animation} Animation
- * @typedef {import('../../../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
- * @typedef {import('../../../../../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import('../../../types/new-tab').TrackerCompany} TrackerCompany
+ * @typedef {import('../../../types/new-tab').Expansion} Expansion
+ * @typedef {import('../../../types/new-tab').Animation} Animation
+ * @typedef {import('../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
+ * @typedef {import('../../../types/new-tab').StatsConfig} StatsConfig
  * @typedef {import("../PrivacyStatsProvider.js").Events} Events
  */
 

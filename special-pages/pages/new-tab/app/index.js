@@ -141,7 +141,7 @@ function installGlobalSideEffects(environment, settings) {
 
 /**
  *
- * @param {import('../../../types/new-tab.js').InitialSetupResponse['widgets']} widgets
+ * @param {import('../types/new-tab.js').InitialSetupResponse['widgets']} widgets
  * @param {(e: {message:string}) => void} didCatch
  * @return {Promise<{[p: string]: any}|{}>}
  */

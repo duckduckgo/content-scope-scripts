@@ -3,9 +3,9 @@ import { useContext } from 'preact/hooks';
 import { computed, effect, signal, useSignal } from '@preact/signals';
 
 /**
- * @typedef {import('../../../../types/new-tab.js').WidgetConfigs} WidgetConfigs
- * @typedef {import('../../../../types/new-tab.js').Widgets} Widgets
- * @typedef {import("../../../../types/new-tab.js").WidgetConfigItem} WidgetConfigItem
+ * @typedef {import('../../types/new-tab.js').WidgetConfigs} WidgetConfigs
+ * @typedef {import('../../types/new-tab.js').Widgets} Widgets
+ * @typedef {import("../../types/new-tab.js").WidgetConfigItem} WidgetConfigItem
  * @typedef {import("./widget-config.service.js").WidgetConfigService} WidgetConfigAPI
  */
 

@@ -1,5 +1,5 @@
 /**
- * @typedef {import("../../../../types/new-tab.js").RMFData} RMFData
+ * @typedef {import("../../types/new-tab.js").RMFData} RMFData
  */
 import { Service } from '../service.js';
 

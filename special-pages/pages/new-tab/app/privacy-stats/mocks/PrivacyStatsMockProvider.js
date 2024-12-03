@@ -5,10 +5,10 @@ import { stats } from './stats.js';
 import { reducer } from '../../service.hooks.js';
 
 /**
- * @typedef {import('../../../../../types/new-tab').TrackerCompany} TrackerCompany
- * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
- * @typedef {import('../../../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
- * @typedef {import('../../../../../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import('../../../types/new-tab').TrackerCompany} TrackerCompany
+ * @typedef {import('../../../types/new-tab').Expansion} Expansion
+ * @typedef {import('../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
+ * @typedef {import('../../../types/new-tab').StatsConfig} StatsConfig
  * @typedef {import('../../service.hooks.js').State<PrivacyStatsData, StatsConfig>} State
  * @typedef {import('../../service.hooks.js').Events<PrivacyStatsData, StatsConfig>} Events
  */

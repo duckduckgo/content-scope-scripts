@@ -30,7 +30,7 @@ export class SpecialErrorPage {
      * }
      * ```
      *
-     * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
+     * @returns {Promise<import('../../types/special-error.js').InitialSetupResponse>}
      */
     initialSetup() {
         return this.messaging.request('initialSetup');
@@ -77,25 +77,25 @@ export class SpecialErrorPage {
 
 export class IntegrationSpecialErrorPage extends SpecialErrorPage {
     /**
-     * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
+     * @returns {Promise<import('../../types/special-error.js').InitialSetupResponse>}
      */
     initialSetup() {
         const searchParams = new URLSearchParams(window.location.search);
         const errorId = searchParams.get('errorId');
         const platformName = searchParams.get('platformName');
 
-        /** @type {import('../../../../types/special-error').InitialSetupResponse['errorData']} */
+        /** @type {import('../../types/special-error.js').InitialSetupResponse['errorData']} */
         let errorData = sampleData['ssl.expired'].data;
         if (errorId && Object.keys(sampleData).includes(errorId)) {
             errorData = sampleData[errorId].data;
         }
 
         const supportedPlatforms = ['macos', 'ios'];
-        /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']} */
+        /** @type {import('../../types/special-error.js').InitialSetupResponse['platform']} */
         let platform = { name: 'macos' };
         if (platformName && supportedPlatforms.includes(platformName)) {
             platform = {
-                name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */ (platformName),
+                name: /** @type {import('../../types/special-error.js').InitialSetupResponse['platform']['name']} */ (platformName),
             };
         }
 

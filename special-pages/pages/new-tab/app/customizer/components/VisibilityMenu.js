@@ -6,7 +6,7 @@ import styles from './VisibilityMenu.module.css';
 import { useTypedTranslation } from '../../types.js';
 
 /**
- * @import { Widgets, WidgetConfigItem } from '../../../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem } from '../../../types/new-tab.js'
  * @import { VisibilityRowData, VisibilityRowState } from './Customizer.js'
  */
 

@@ -8,14 +8,14 @@ import { sampleData } from '../../src/js/sampleData';
 
 import styles from './Components.module.css';
 
-/** @type {Record<Extract<import("../../../../types/special-error.js").InitialSetupResponse['platform']['name'], "macos"|"ios">, string>} */
+/** @type {Record<Extract<import("../../types/special-error.ts").InitialSetupResponse['platform']['name'], "macos"|"ios">, string>} */
 const platforms = {
     macos: 'macOS',
     ios: 'iOS',
 };
 
 /**
- * @param {import("../../../../types/special-error.js").InitialSetupResponse['errorData']} errorData
+ * @param {import("../../types/special-error.ts").InitialSetupResponse['errorData']} errorData
  */
 function idForError(errorData) {
     const { kind } = errorData;

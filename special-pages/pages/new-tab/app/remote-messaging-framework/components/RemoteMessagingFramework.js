@@ -8,7 +8,7 @@ import { Button } from '../../../../../shared/components/Button/Button';
 import { usePlatformName } from '../../settings.provider';
 
 /**
- * @import { RMFMessage } from "../../../../../types/new-tab"
+ * @import { RMFMessage } from "../../../types/new-tab"
  * @param {object} props
  * @param {RMFMessage} props.message
  * @param {(id: string) => void} props.dismiss

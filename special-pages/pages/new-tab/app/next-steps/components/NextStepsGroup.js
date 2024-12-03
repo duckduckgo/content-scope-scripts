@@ -11,9 +11,9 @@ import { useId } from 'preact/hooks';
  * @import enStrings from '../strings.json';
  * @import ntpStrings from '../../strings.json';
  * @typedef {enStrings & ntpStrings} strings
- * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
- * @typedef {import('../../../../../types/new-tab').Animation} Animation
- * @typedef {import('../../../../../types/new-tab').NextStepsCards} NextStepsCards
+ * @typedef {import('../../../types/new-tab').Expansion} Expansion
+ * @typedef {import('../../../types/new-tab').Animation} Animation
+ * @typedef {import('../../../types/new-tab').NextStepsCards} NextStepsCards
  */
 
 /**

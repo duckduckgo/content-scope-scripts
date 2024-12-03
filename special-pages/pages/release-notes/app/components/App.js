@@ -9,7 +9,7 @@ import { ReleaseNotes } from './ReleaseNotes';
 import styles from './App.module.css';
 
 /**
- * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ * @typedef {import('../../types/release-notes.js').UpdateMessage} UpdateMessage
  */
 
 /**

@@ -10,11 +10,11 @@ const phishingAnchorTagValues = {
 };
 
 /**
- * @typedef {import("../../../../types/special-error.js").InitialSetupResponse['errorData']} ErrorData
- * @typedef {import("../../../../types/special-error.js").SSLExpiredCertificate} SSLExpiredCertificate
- * @typedef {import("../../../../types/special-error.js").SSLInvalidCertificate} SSLInvalidCertificate
- * @typedef {import("../../../../types/special-error.js").SSLSelfSignedCertificate} SSLSelfSignedCertificate
- * @typedef {import("../../../../types/special-error.js").SSLWrongHost} SSLWrongHost
+ * @typedef {import("../../types/special-error.ts").InitialSetupResponse['errorData']} ErrorData
+ * @typedef {import("../../types/special-error.ts").SSLExpiredCertificate} SSLExpiredCertificate
+ * @typedef {import("../../types/special-error.ts").SSLInvalidCertificate} SSLInvalidCertificate
+ * @typedef {import("../../types/special-error.ts").SSLSelfSignedCertificate} SSLSelfSignedCertificate
+ * @typedef {import("../../types/special-error.ts").SSLWrongHost} SSLWrongHost
  * @typedef {SSLExpiredCertificate|SSLInvalidCertificate|SSLSelfSignedCertificate|SSLWrongHost} SSLError
  */
 

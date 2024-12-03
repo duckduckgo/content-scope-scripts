@@ -3,14 +3,14 @@ import { sampleData } from '../src/js/sampleData';
 export class SpecialError {
     /**
      * @param {object} params
-     * @param {import('../../../types/special-error').InitialSetupResponse['errorData']} params.errorData
+     * @param {import('../types/special-error.js').InitialSetupResponse['errorData']} params.errorData
      */
     constructor({ errorData }) {
         this.data = errorData;
     }
 
     /**
-     * @param {import('../../../types/special-error').InitialSetupResponse['errorData']} [errorData]
+     * @param {import('../types/special-error.js').InitialSetupResponse['errorData']} [errorData]
      */
     withErrorData(errorData) {
         if (errorData) {

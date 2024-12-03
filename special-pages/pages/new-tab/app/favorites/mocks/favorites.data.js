@@ -1,7 +1,7 @@
 /**
- * @typedef {import('../../../../../types/new-tab').Favorite} Favorite
- * @typedef {import('../../../../../types/new-tab').FavoritesData} FavoritesData
- * @typedef {import('../../../../../types/new-tab').FavoritesConfig} FavoritesConfig
+ * @typedef {import('../../../types/new-tab').Favorite} Favorite
+ * @typedef {import('../../../types/new-tab').FavoritesData} FavoritesData
+ * @typedef {import('../../../types/new-tab').FavoritesConfig} FavoritesConfig
  */
 
 /**

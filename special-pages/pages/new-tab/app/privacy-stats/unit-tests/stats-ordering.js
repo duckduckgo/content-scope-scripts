@@ -4,7 +4,7 @@ import { stats } from '../mocks/stats.js';
 import { sortStatsForDisplay } from '../privacy-stats.utils.js';
 
 /**
- * @import { TrackerCompany } from "../../../../../types/new-tab"
+ * @import { TrackerCompany } from "../../../types/new-tab"
  */
 
 describe('stats re-ordering', () => {

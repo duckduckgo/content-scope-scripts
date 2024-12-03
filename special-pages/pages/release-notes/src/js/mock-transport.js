@@ -2,7 +2,7 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 import { sampleData } from '../../app/sampleData';
 
 /**
- * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ * @typedef {import('../../types/release-notes.js').UpdateMessage} UpdateMessage
  */
 
 export function mockTransport() {
@@ -28,7 +28,7 @@ export function mockTransport() {
         notify(_msg) {},
         request(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
-            /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['requests']} */
+            /** @type {import('../../types/release-notes.js').ReleaseNotesMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'initialSetup': {
@@ -43,7 +43,7 @@ export function mockTransport() {
         },
         subscribe(_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
-            /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['subscriptions']['subscriptionEvent']} */
+            /** @type {import('../../types/release-notes.js').ReleaseNotesMessages['subscriptions']['subscriptionEvent']} */
             const subscription = /** @type {any} */ (_msg.subscriptionName);
             switch (subscription) {
                 case 'onUpdate': {
