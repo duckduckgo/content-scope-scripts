@@ -42,7 +42,7 @@ export class SpecialErrorPage {
      * @param {string} [params.locale] - locale
      */
     async openPage({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = 'macos', locale } = {}) {
-        /** @type {import('../../types/special-error.js').InitialSetupResponse} */
+        /** @type {import('../../pages/special-error/types/special-error.ts').InitialSetupResponse} */
         const initialSetup = {
             env: 'development',
             locale: 'en',

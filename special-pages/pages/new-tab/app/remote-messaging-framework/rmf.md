@@ -44,4 +44,4 @@ title: Remote Messaging Framework
 ## Examples:
 
 The following examples show the data types in JSON format:
-[messages/new-tab/examples/stats.js](../../../../messages/new-tab/examples/rmf.js)
+[messages/new-tab/examples/stats.js](../../messages/examples/rmf.js)

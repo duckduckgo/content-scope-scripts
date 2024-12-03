@@ -1,5 +1,5 @@
 /**
- * @type {Record<string, {content: NonNullable<import("../../../../../types/new-tab").UpdateNotificationData['content']>}>}
+ * @type {Record<string, {content: NonNullable<import("../../../types/new-tab").UpdateNotificationData['content']>}>}
  */
 export const updateNotificationExamples = {
     empty: {

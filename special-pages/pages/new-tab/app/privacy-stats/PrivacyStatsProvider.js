@@ -5,8 +5,8 @@ import { PrivacyStatsService } from './privacy-stats.service.js';
 import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../service.hooks.js';
 
 /**
- * @typedef {import('../../../../types/new-tab.js').PrivacyStatsData} PrivacyStatsData
- * @typedef {import('../../../../types/new-tab.js').StatsConfig} StatsConfig
+ * @typedef {import('../../types/new-tab.js').PrivacyStatsData} PrivacyStatsData
+ * @typedef {import('../../types/new-tab.js').StatsConfig} StatsConfig
  * @typedef {import('../service.hooks.js').State<PrivacyStatsData, StatsConfig>} State
  * @typedef {import('../service.hooks.js').Events<PrivacyStatsData, StatsConfig>} Events
  */

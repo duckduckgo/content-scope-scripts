@@ -3,7 +3,7 @@ import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from './constants.js';
 /**
  * Sort into descending order + place __other__ at the end.
  *
- * @import { TrackerCompany } from "../../../../types/new-tab"
+ * @import { TrackerCompany } from "../../types/new-tab"
  * @param {TrackerCompany[]} stats
  * @return {TrackerCompany[]}
  */

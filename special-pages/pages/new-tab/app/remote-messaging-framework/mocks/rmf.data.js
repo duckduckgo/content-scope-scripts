@@ -1,5 +1,5 @@
 /**
- * @type {Record<string, {content: NonNullable<import("../../../../../types/new-tab").RMFData['content']>}>}
+ * @type {Record<string, {content: NonNullable<import("../../../types/new-tab").RMFData['content']>}>}
  */
 export const rmfDataExamples = {
     small: {

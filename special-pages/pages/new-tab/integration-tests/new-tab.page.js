@@ -26,7 +26,7 @@ export class NewtabPage {
         this.mocks.defaultResponses({
             requestSetAsDefault: {},
             requestImport: {},
-            /** @type {import('../../../types/new-tab.ts').InitialSetupResponse} */
+            /** @type {import('../types/new-tab.ts').InitialSetupResponse} */
             initialSetup: {
                 widgets: [{ id: 'rmf' }, { id: 'nextSteps' }, { id: 'favorites' }, { id: 'privacyStats' }],
                 widgetConfigs: [

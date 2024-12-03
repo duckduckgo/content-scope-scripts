@@ -12,9 +12,9 @@ import { TileRow } from './TileRow.js';
 import { FavoritesContext } from './FavoritesProvider.js';
 
 /**
- * @typedef {import('../../../../../types/new-tab.js').Expansion} Expansion
- * @typedef {import('../../../../../types/new-tab.js').Favorite} Favorite
- * @typedef {import('../../../../../types/new-tab.js').FavoritesOpenAction['target']} OpenTarget
+ * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
+ * @typedef {import('../../../types/new-tab.js').Favorite} Favorite
+ * @typedef {import('../../../types/new-tab.js').FavoritesOpenAction['target']} OpenTarget
  */
 export const FavoritesMemo = memo(Favorites);
 export const ROW_CAPACITY = 6;

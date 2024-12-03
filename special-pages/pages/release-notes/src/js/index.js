@@ -5,7 +5,7 @@
  */
 
 /**
- * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ * @typedef {import('../../types/release-notes.js').UpdateMessage} UpdateMessage
  */
 
 /**
@@ -85,7 +85,7 @@ export class ReleaseNotesPage {
 
     /**
      * Subscribes to release info updates from browser
-     * @param {(value: import('../../../../types/release-notes').UpdateMessage) => void} callback
+     * @param {(value: import('../../types/release-notes.js').UpdateMessage) => void} callback
      */
     onUpdate(callback) {
         return this.messaging.subscribe('onUpdate', callback);

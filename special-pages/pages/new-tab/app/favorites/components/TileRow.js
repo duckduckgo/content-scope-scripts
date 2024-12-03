@@ -5,7 +5,7 @@ import { memo } from 'preact/compat';
 import { ROW_CAPACITY } from './Favorites.js';
 
 /**
- * @typedef {import('../../../../../types/new-tab.js').Favorite} Favorite
+ * @typedef {import('../../../types/new-tab.js').Favorite} Favorite
  */
 
 /**

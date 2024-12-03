@@ -1,10 +1,10 @@
 import { Service } from '../service.js';
 
 /**
- * @typedef {import("../../../../types/new-tab.js").FavoritesData} FavoritesData
- * @typedef {import("../../../../types/new-tab.js").Favorite} Favorite
- * @typedef {import("../../../../types/new-tab.js").FavoritesConfig} FavoritesConfig
- * @typedef {import("../../../../types/new-tab.js").FavoritesOpenAction} FavoritesOpenAction
+ * @typedef {import("../../types/new-tab.js").FavoritesData} FavoritesData
+ * @typedef {import("../../types/new-tab.js").Favorite} Favorite
+ * @typedef {import("../../types/new-tab.js").FavoritesConfig} FavoritesConfig
+ * @typedef {import("../../types/new-tab.js").FavoritesOpenAction} FavoritesOpenAction
  */
 
 export class FavoritesService {

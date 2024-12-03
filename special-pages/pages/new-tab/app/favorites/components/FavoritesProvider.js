@@ -6,10 +6,10 @@ import { useMessaging } from '../../types.js';
 import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
 
 /**
- * @typedef {import('../../../../../types/new-tab.ts').Favorite} Favorite
- * @typedef {import('../../../../../types/new-tab.ts').FavoritesData} FavoritesData
- * @typedef {import('../../../../../types/new-tab.ts').FavoritesConfig} FavoritesConfig
- * @typedef {import('../../../../../types/new-tab.ts').FavoritesOpenAction['target']} OpenTarget
+ * @typedef {import('../../../types/new-tab.ts').Favorite} Favorite
+ * @typedef {import('../../../types/new-tab.ts').FavoritesData} FavoritesData
+ * @typedef {import('../../../types/new-tab.ts').FavoritesConfig} FavoritesConfig
+ * @typedef {import('../../../types/new-tab.ts').FavoritesOpenAction['target']} OpenTarget
  * @typedef {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} State
  * @typedef {import('../../service.hooks.js').Events<FavoritesData, FavoritesConfig>} Events
  * @typedef {{id: string; url: string}} BaseFavoriteType

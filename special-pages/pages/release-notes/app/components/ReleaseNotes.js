@@ -11,10 +11,10 @@ import { ContentPlaceholder } from './ContentPlaceholder';
 import styles from './ReleaseNotes.module.css';
 
 /**
- * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
- * @typedef {import('../../../../types/release-notes').UpdateErrorState} UpdateErrorState
- * @typedef {import('../../../../types/release-notes').UpdateReadyState} UpdateReadyState
- * @typedef {import('../../../../types/release-notes').ReleaseNotesLoadedState} ReleaseNotesLoadedState
+ * @typedef {import('../../types/release-notes.js').UpdateMessage} UpdateMessage
+ * @typedef {import('../../types/release-notes.js').UpdateErrorState} UpdateErrorState
+ * @typedef {import('../../types/release-notes.js').UpdateReadyState} UpdateReadyState
+ * @typedef {import('../../types/release-notes.js').ReleaseNotesLoadedState} ReleaseNotesLoadedState
  * @typedef {import('../types.js').Notes} Notes
  */
 

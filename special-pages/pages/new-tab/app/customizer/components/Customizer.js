@@ -7,7 +7,7 @@ import { useMessaging, useTypedTranslation } from '../../types.js';
 import { VisibilityMenu, VisibilityMenuPopover } from './VisibilityMenu.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
  */
 
 /**

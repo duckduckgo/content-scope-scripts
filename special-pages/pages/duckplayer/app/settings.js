@@ -19,13 +19,13 @@ export class Settings {
     }
 
     /**
-     * @param {keyof import("../../../types/duckplayer").DuckPlayerPageSettings} named
+     * @param {keyof import("../types/duckplayer.js").DuckPlayerPageSettings} named
      * @param {{state: 'enabled' | 'disabled'} | null | undefined} settings
      * @return {Settings}
      */
     withFeatureState(named, settings) {
         if (!settings) return this;
-        /** @type {(keyof import("../../../types/duckplayer").DuckPlayerPageSettings)[]} */
+        /** @type {(keyof import("../types/duckplayer.js").DuckPlayerPageSettings)[]} */
         const valid = ['pip', 'autoplay', 'focusMode'];
         if (!valid.includes(named)) {
             console.warn(`Excluding invalid feature key ${named}`);

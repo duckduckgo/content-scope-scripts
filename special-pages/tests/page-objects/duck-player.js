@@ -62,12 +62,12 @@ export class DuckPlayerPage {
                 env: 'development',
                 platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name },
             },
-            /** @type {import('../../types/duckplayer.js').UserValues} */
+            /** @type {import('../../pages/duckplayer/types/duckplayer.ts').UserValues} */
             getUserValues: {
                 privatePlayerMode: { alwaysAsk: {} },
                 overlayInteracted: false,
             },
-            /** @type {import('../../types/duckplayer.js').UserValues} */
+            /** @type {import('../../pages/duckplayer/types/duckplayer.ts').UserValues} */
             setUserValues: {
                 privatePlayerMode: { enabled: {} },
                 overlayInteracted: false,
@@ -443,7 +443,7 @@ export class DuckPlayerPage {
     }
 
     /**
-     * @param {import('../../types/duckplayer.js').TelemetryEvent} evt
+     * @param {import('../../pages/duckplayer/types/duckplayer.ts').TelemetryEvent} evt
      */
     async didSendTelemetry(evt) {
         const events = await this.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
