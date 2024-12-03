@@ -1,13 +1,13 @@
-import { Mocks } from './mocks.js';
-import { perPlatform } from '../../../injected/integration-test/type-helpers.mjs';
+import { Mocks } from '../../../shared/mocks.js';
+import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
 import { join } from 'node:path';
 import { expect } from '@playwright/test';
-import { sampleData } from '../../pages/release-notes/app/sampleData.js';
+import { sampleData } from '../app/sampleData.js';
 
 /**
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').Build} Build
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
- * @typedef {import('../../pages/release-notes/types/release-notes.js').UpdateMessage} UpdateMessage
+ * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
+ * @typedef {import('injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
+ * @typedef {import('../types/release-notes.ts').UpdateMessage} UpdateMessage
  */
 
 export class ReleaseNotesPage {

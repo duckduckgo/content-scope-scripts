@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { SpecialErrorPage } from './page-objects/special-error';
+import { SpecialErrorPage } from './special-error.js';
 
 test.describe('special-error', () => {
     test('initial handshake', async ({ page }, workerInfo) => {

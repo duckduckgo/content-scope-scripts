@@ -1,4 +1,4 @@
-import { Mocks } from '../../../tests/page-objects/mocks.js';
+import { Mocks } from '../../../shared/mocks.js';
 import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
 
 /**

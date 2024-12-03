@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { DuckPlayerPage } from './page-objects/duck-player.js';
+import { DuckPlayerPage } from './duck-player.js';
 
 test.describe('duckplayer iframe', () => {
     test('loads the iframe src without a timestamp', async ({ page }, workerInfo) => {

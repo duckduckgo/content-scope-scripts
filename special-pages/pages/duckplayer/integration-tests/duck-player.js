@@ -1,7 +1,7 @@
-import { Mocks } from './mocks.js';
+import { Mocks } from '../../../shared/mocks.js';
 import { expect } from '@playwright/test';
 import { join } from 'node:path';
-import { perPlatform } from '../../../injected/integration-test/type-helpers.mjs';
+import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
 
 const MOCK_VIDEO_ID = 'VIDEO_ID';
 const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube';
@@ -26,8 +26,8 @@ const html = {
 };
 
 /**
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').Build} Build
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
+ * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
+ * @typedef {import('injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
  */
 
 export class DuckPlayerPage {
@@ -62,12 +62,12 @@ export class DuckPlayerPage {
                 env: 'development',
                 platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name },
             },
-            /** @type {import('../../pages/duckplayer/types/duckplayer.ts').UserValues} */
+            /** @type {import('../types/duckplayer.ts').UserValues} */
             getUserValues: {
                 privatePlayerMode: { alwaysAsk: {} },
                 overlayInteracted: false,
             },
-            /** @type {import('../../pages/duckplayer/types/duckplayer.ts').UserValues} */
+            /** @type {import('../types/duckplayer.ts').UserValues} */
             setUserValues: {
                 privatePlayerMode: { enabled: {} },
                 overlayInteracted: false,
@@ -443,7 +443,7 @@ export class DuckPlayerPage {
     }
 
     /**
-     * @param {import('../../pages/duckplayer/types/duckplayer.ts').TelemetryEvent} evt
+     * @param {import('../types/duckplayer.ts').TelemetryEvent} evt
      */
     async didSendTelemetry(evt) {
         const events = await this.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });

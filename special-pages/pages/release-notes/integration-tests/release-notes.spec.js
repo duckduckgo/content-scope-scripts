@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { ReleaseNotesPage } from './page-objects/release-notes.js';
+import { ReleaseNotesPage } from './release-notes.js';
 
 test.describe('release-notes', () => {
     test('initial handshake', async ({ page }, workerInfo) => {

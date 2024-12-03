@@ -1,15 +1,15 @@
-import { Mocks } from './mocks.js';
+import { Mocks } from '../../../shared/mocks.js';
 import { expect } from '@playwright/test';
-import { perPlatform } from '../../../injected/integration-test/type-helpers.mjs';
+import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
 import { join } from 'node:path';
-import { sampleData } from '../../pages/special-error/src/js/sampleData';
+import { sampleData } from '../src/js/sampleData.js';
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 const require = createRequire(import.meta.url);
 
 /**
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').Build} Build
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
+ * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
+ * @typedef {import('injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
  */
 
 export class SpecialErrorPage {
@@ -42,7 +42,7 @@ export class SpecialErrorPage {
      * @param {string} [params.locale] - locale
      */
     async openPage({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = 'macos', locale } = {}) {
-        /** @type {import('../../pages/special-error/types/special-error.ts').InitialSetupResponse} */
+        /** @type {import('../types/special-error.ts').InitialSetupResponse} */
         const initialSetup = {
             env: 'development',
             locale: 'en',

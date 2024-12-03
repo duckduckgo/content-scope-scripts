@@ -1,11 +1,11 @@
-import { Mocks } from './mocks.js';
-import { perPlatform } from '../../../injected/integration-test/type-helpers.mjs';
+import { Mocks } from '../../../shared/mocks.js';
+import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
 import { join } from 'node:path';
 import { expect } from '@playwright/test';
 
 /**
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').Build} Build
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
+ * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
+ * @typedef {import('injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
  */
 
 export class OnboardingPage {
@@ -64,7 +64,7 @@ export class OnboardingPage {
      *
      * @param {Object} [params] - Optional parameters for opening the page.
      * @param {'app' | 'components'} [params.env] - Optional parameters for opening the page.
-     * @param {import('../../pages/onboarding/app/types.js').Step['id']} [params.page] - Optional start page
+     * @param {import('../app/types.js').Step['id']} [params.page] - Optional start page
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      */
     async openPage({ env = 'app', page = 'welcome', willThrow = false } = {}) {

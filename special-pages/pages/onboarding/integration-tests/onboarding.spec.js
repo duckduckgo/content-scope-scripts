@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { OnboardingPage } from './page-objects/onboarding.js';
+import { OnboardingPage } from './onboarding.js';
 
 test.describe('onboarding', () => {
     test('initial handshake', async ({ page }, workerInfo) => {
