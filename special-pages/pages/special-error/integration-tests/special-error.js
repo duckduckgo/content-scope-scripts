@@ -60,10 +60,7 @@ export class SpecialErrorPage {
          * catching it here and letting it bubble up to fail the playwright test in question.
          */
         if (locale && locale.length === 2) {
-            const localeStrings = readFileSync(
-                require.resolve(`../../pages/special-error/src/locales/${locale}/special-error.json`),
-                'utf8',
-            );
+            const localeStrings = readFileSync(require.resolve(`../src/locales/${locale}/special-error.json`), 'utf8');
             initialSetup.localeStrings = localeStrings;
             initialSetup.locale = locale;
         }
