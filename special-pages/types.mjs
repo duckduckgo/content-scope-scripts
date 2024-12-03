@@ -23,7 +23,7 @@ for (const pageListElement of pageList) {
         schemaDir: input,
         typesDir: output,
         exclude: process.platform === 'win32',
-        kind: 'multi',
+        kind: 'single',
         resolve: (_dirname) => '../src/js/index.js',
         className: (topLevelType) => topLevelType.replace('Messages', 'Page'),
         filename: `${pageListElement}.ts`,

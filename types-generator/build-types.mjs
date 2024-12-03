@@ -37,7 +37,7 @@ export async function buildTypes(mapping) {
         if (manifest.exclude) continue;
         if (manifest.kind === 'single') {
             // create a job for each sub-folder that contains schemas
-            const schema = processOneDirectory(manifest.schemaDir);
+            const schema = processOneDirectory({ rootDir: manifest.schemaDir, featureNameTitle: featureName });
             if (!schema) {
                 console.warn('could not find schema for', featureName, 'in', manifest.schemaDir);
                 continue;

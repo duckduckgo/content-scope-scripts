@@ -3,7 +3,7 @@
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
  *
- * @module  Messages
+ * @module ReleaseNotes Messages
  */
 
 /**
@@ -18,9 +18,9 @@ export type UpdateMessage =
   | PreparingUpdateState;
 
 /**
- * Requests, Notifications and Subscriptions from the  feature
+ * Requests, Notifications and Subscriptions from the ReleaseNotes feature
  */
-export interface _Messages {
+export interface ReleaseNotesMessages {
   notifications:
     | BrowserRestartNotification
     | ReportInitExceptionNotification
@@ -257,9 +257,9 @@ export interface PreparingUpdateState {
 }
 
 declare module "../src/js/index.js" {
-  export interface _Page {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['request'],
-    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['subscribe']
+  export interface ReleaseNotesPage {
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ReleaseNotesMessages>['notify'],
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ReleaseNotesMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ReleaseNotesMessages>['subscribe']
   }
 }

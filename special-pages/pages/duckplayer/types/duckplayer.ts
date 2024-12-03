@@ -3,7 +3,7 @@
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
  *
- * @module  Messages
+ * @module Duckplayer Messages
  */
 
 export type PrivatePlayerMode =
@@ -18,9 +18,9 @@ export type PrivatePlayerMode =
     };
 
 /**
- * Requests, Notifications and Subscriptions from the  feature
+ * Requests, Notifications and Subscriptions from the Duckplayer feature
  */
-export interface _Messages {
+export interface DuckplayerMessages {
   notifications:
     | OpenInfoNotification
     | OpenSettingsNotification
@@ -135,9 +135,9 @@ export interface OnUserValuesChangedSubscription {
 }
 
 declare module "../src/js/index.js" {
-  export interface _Page {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['request'],
-    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['subscribe']
+  export interface DuckplayerPage {
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckplayerMessages>['notify'],
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckplayerMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckplayerMessages>['subscribe']
   }
 }

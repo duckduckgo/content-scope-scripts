@@ -3,7 +3,7 @@
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
  *
- * @module  Messages
+ * @module NewTab Messages
  */
 
 /**
@@ -40,9 +40,9 @@ export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage |
 export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
 
 /**
- * Requests, Notifications and Subscriptions from the  feature
+ * Requests, Notifications and Subscriptions from the NewTab feature
  */
-export interface _Messages {
+export interface NewTabMessages {
   notifications:
     | ContextMenuNotification
     | FavoritesAddNotification
@@ -539,9 +539,9 @@ export interface WidgetsOnConfigUpdatedSubscription {
 }
 
 declare module "../src/js/index.js" {
-  export interface _Page {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['request'],
-    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['subscribe']
+  export interface NewTabPage {
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<NewTabMessages>['notify'],
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<NewTabMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<NewTabMessages>['subscribe']
   }
 }

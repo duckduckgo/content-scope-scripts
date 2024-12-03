@@ -3,13 +3,13 @@
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
  *
- * @module  Messages
+ * @module Example Messages
  */
 
 /**
- * Requests, Notifications and Subscriptions from the  feature
+ * Requests, Notifications and Subscriptions from the Example feature
  */
-export interface _Messages {
+export interface ExampleMessages {
   notifications: ReportInitExceptionNotification | ReportPageExceptionNotification;
   requests: InitialSetupRequest;
 }
@@ -46,8 +46,8 @@ export interface InitialSetupResponse {
 }
 
 declare module "../src/js/index.js" {
-  export interface _Page {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<_Messages>['request']
+  export interface ExamplePage {
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ExampleMessages>['notify'],
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ExampleMessages>['request']
   }
 }

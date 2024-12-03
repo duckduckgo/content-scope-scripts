@@ -47,23 +47,30 @@ export function createSchemasFromSubDirectories(rootDir) {
     const outputs = [];
 
     for (const dir of dirs) {
-        outputs.push(processOneDirectory(rootDir, dir.name));
+        outputs.push(processOneDirectory({ rootDir, subDir: dir.name, featureNameTitle: dir.name }));
     }
 
     return outputs.filter((x) => x !== null);
 }
 
 /**
- * @param {string} rootDir - the full path to the directory in question
- * @param {string} [subDir] - optional subdirectory
- * @return {{schema: import('json-schema-to-typescript').JSONSchema, featureName: *, topLevelType: *, dirname}|null}
+ * @param {object} params
+ * @param {string} params.rootDir - the full path to the directory in question
+ * @param {string} [params.subDir] - optional subdirectory
+ * @param {string} [params.featureNameTitle]
+ * @return {{
+ *   schema: import('json-schema-to-typescript').JSONSchema,
+ *   featureName: string,
+ *   topLevelType: string
+ *   dirname: string
+ * } | null}
  */
-export function processOneDirectory(rootDir, subDir = '') {
+export function processOneDirectory({ rootDir, subDir = '', featureNameTitle = '' }) {
     const fileList = createFileList(rootDir, subDir);
     const valid = fileList.filter((x) => x.valid);
     if (valid.length === 0) return null;
 
-    const featureName = toSafeString(subDir);
+    const featureName = toSafeString(featureNameTitle);
     const schema = generateSchema(featureName, valid);
     if (!schema.title) throw new Error('invariant: expected string');
     const topLevelType = toSafeString(schema.title);
