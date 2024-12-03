@@ -40,7 +40,7 @@
     "@types/eslint__js": "^8.42.3",
     "eslint": "^9.13.0",
     "minimist": "^1.2.8",
-    "prettier": "3.3.3",
+    "prettier": "3.4.1",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-csstree-validator": "^3.0.0",
