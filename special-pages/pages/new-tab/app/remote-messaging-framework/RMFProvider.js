@@ -5,7 +5,7 @@ import { RMFService } from './rmf.service.js';
 import { reducer, useDataSubscription, useInitialData } from '../service.hooks.js';
 
 /**
- * @typedef {import('../../../../types/new-tab.js').RMFData} RMFData
+ * @typedef {import('../../types/new-tab.js').RMFData} RMFData
  * @typedef {import('../service.hooks.js').State<RMFData, undefined>} State
  * @typedef {import('../service.hooks.js').Events<RMFData, undefined>} Events
  */

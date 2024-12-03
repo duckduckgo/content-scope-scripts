@@ -1,7 +1,7 @@
 build/**/*
 docs/**/*
 injected/src/types
-special-pages/types
+special-pages/pages/**/types
 injected/integration-test/extension/contentScope.js
 **/*.json
 **/*.md

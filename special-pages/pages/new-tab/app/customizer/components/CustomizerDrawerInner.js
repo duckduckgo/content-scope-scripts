@@ -5,7 +5,7 @@ import { Customizer, getItems } from './Customizer';
 import { VisibilityMenu } from './VisibilityMenu.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
  */
 
 export function CustomizerDrawerInner() {

@@ -2,7 +2,7 @@ import { createContext, h } from 'preact';
 import { useContext } from 'preact/hooks';
 
 /**
- * @typedef {import("../../../../types/special-error.js").InitialSetupResponse['errorData']} ErrorData
+ * @typedef {import("../../types/special-error.ts").InitialSetupResponse['errorData']} ErrorData
  */
 
 export const SpecialErrorContext = createContext(/** @type {import('../specialError.js').SpecialError} */ ({}));

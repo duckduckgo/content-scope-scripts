@@ -1,5 +1,5 @@
 /**
- * @typedef {import('../../../types/release-notes').UpdateMessage} UpdateMessage
+ * @typedef {import('../types/release-notes.js').UpdateMessage} UpdateMessage
  */
 
 const timestampInSeconds = Date.now() / 1000;

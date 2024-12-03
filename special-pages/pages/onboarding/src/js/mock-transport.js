@@ -1,7 +1,7 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
 
 /**
- * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ * @typedef {import('../../../release-notes/types/release-notes.js').UpdateMessage} UpdateMessage
  */
 
 export function mockTransport() {

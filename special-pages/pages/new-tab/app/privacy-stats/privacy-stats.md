@@ -52,5 +52,5 @@ So, the following input is fine, no need for the native side to put the list int
 ```
 
 The following examples show the data types in JSON format (these are type-checked, so can be replied upon)
-[messages/new-tab/examples/stats.js](../../../../messages/new-tab/examples/stats.js)
+[messages/new-tab/examples/stats.js](../../messages/examples/stats.js)
 

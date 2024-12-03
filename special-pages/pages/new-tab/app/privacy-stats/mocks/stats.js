@@ -1,7 +1,7 @@
 import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 
 /**
- * @import { PrivacyStatsData } from "../../../../../types/new-tab";
+ * @import { PrivacyStatsData } from "../../../types/new-tab";
  * @type {Record<string, PrivacyStatsData>}
  */
 export const stats = {

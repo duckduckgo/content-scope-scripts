@@ -130,7 +130,7 @@ export function Components() {
             <LoadingThen>
                 <ReleaseNotes
                     releaseData={
-                        /** @type {import('../../../types/release-notes').UpdateMessage} */ ({
+                        /** @type {import('../types/release-notes.js').UpdateMessage} */ ({
                             ...sampleData.updateReady,
                             automaticUpdate: false,
                         })

@@ -16,13 +16,13 @@ export class PrivacyStatsPage {
      * @param {number} params.count
      */
     async receive({ count }) {
-        /** @type {import("../../../../../types/new-tab.js").PrivacyStatsData} */
+        /** @type {import("../../../types/new-tab.js").PrivacyStatsData} */
         const next = { totalCount: 0, trackerCompanies: stats.many.trackerCompanies.slice(0, count) };
         await this.ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', next);
     }
 
     /**
-     * @param {import("../../../../../types/new-tab.js").PrivacyStatsData} data
+     * @param {import("../../../types/new-tab.js").PrivacyStatsData} data
      */
     async receiveData(data) {
         await this.ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', data);

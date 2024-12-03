@@ -5,8 +5,8 @@ import { NextStepsService } from './next-steps.service.js';
 import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../service.hooks.js';
 
 /**
- * @typedef {import('../../../../types/new-tab.js').NextStepsData} NextStepsData
- * @typedef {import('../../../../types/new-tab.js').NextStepsConfig} NextStepsConfig
+ * @typedef {import('../../types/new-tab.js').NextStepsData} NextStepsData
+ * @typedef {import('../../types/new-tab.js').NextStepsConfig} NextStepsConfig
  * @typedef {import('../service.hooks.js').State<NextStepsData, NextStepsConfig>} State
  * @typedef {import('../service.hooks.js').Events<NextStepsData, NextStepsConfig>} Events
  */

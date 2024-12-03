@@ -9,7 +9,7 @@ import { useItemState } from './PragmaticDND.js';
 import { useTypedTranslationWith } from '../../types.js';
 
 /**
- * @import {Favorite} from '../../../../../types/new-tab'
+ * @import {Favorite} from '../../../types/new-tab'
  * @import enStrings from '../../strings.json'
  */
 

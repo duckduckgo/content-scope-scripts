@@ -1,5 +1,5 @@
 /**
- * @typedef {import("../../../../types/new-tab.js").UpdateNotificationData} UpdateNotificationData
+ * @typedef {import("../../types/new-tab.js").UpdateNotificationData} UpdateNotificationData
  */
 import { Service } from '../service.js';
 

@@ -22,13 +22,13 @@ export class Settings {
     }
 
     /**
-     * @param {keyof import("../../../types/new-tab.js").NewTabPageSettings} named
+     * @param {keyof import("../types/new-tab.js").NewTabPageSettings} named
      * @param {{state: 'enabled' | 'disabled'} | null | undefined} settings
      * @return {Settings}
      */
     withFeatureState(named, settings) {
         if (!settings) return this;
-        /** @type {(keyof import("../../../types/new-tab.js").NewTabPageSettings)[]} */
+        /** @type {(keyof import("../types/new-tab.js").NewTabPageSettings)[]} */
         const valid = ['customizerDrawer'];
         if (!valid.includes(named)) {
             console.warn(`Excluding invalid feature key ${named}`);

@@ -1,5 +1,5 @@
 /**
- * @typedef {import("../../../../types/new-tab.js").WidgetConfigs} WidgetConfigs
+ * @typedef {import("../../types/new-tab.js").WidgetConfigs} WidgetConfigs
  */
 import { Service } from '../service.js';
 
