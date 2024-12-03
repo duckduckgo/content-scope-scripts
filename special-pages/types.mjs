@@ -1,9 +1,8 @@
 /* eslint-disable promise/prefer-await-to-then */
 import { join } from 'node:path';
+import { existsSync, readdirSync } from 'node:fs';
 import { cwd, isLaunchFile } from '../scripts/script-utils.js';
 import { buildTypes } from '../types-generator/build-types.mjs';
-import { readdirSync } from 'fs';
-import { existsSync } from 'node:fs';
 
 const specialPagesRoot = cwd(import.meta.url);
 const pageList = readdirSync(join(specialPagesRoot, 'pages'), { withFileTypes: true })
