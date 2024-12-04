@@ -37,7 +37,7 @@ export function NextStepsCard({ type, dismiss, action }) {
             {hasConfirmationState && !!showConfirmation ? (
                 <div class={styles.confirmation}>
                     <CheckColor />
-                    <p>Added to Dock!</p>
+                    <p>{message.confirmationText}</p>
                 </div>
             ) : (
                 <button class={cn(styles.btn, hasConfirmationState && styles.supressActiveStateForSwitch)} onClick={handleClick}>
