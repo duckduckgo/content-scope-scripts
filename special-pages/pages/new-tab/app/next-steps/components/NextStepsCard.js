@@ -1,12 +1,12 @@
 import { h } from 'preact';
 import cn from 'classnames';
 
-import styles from './NextSteps.module.css';
-import { DismissButton } from '../../components/DismissButton';
-import { variants } from '../nextsteps.data';
-import { useTypedTranslationWith } from '../../types';
-import { CheckColor } from '../../components/Icons';
 import { useState } from 'preact/hooks';
+import { DismissButton } from '../../components/DismissButton';
+import { CheckColor } from '../../components/Icons';
+import { useTypedTranslationWith } from '../../types';
+import { variants } from '../nextsteps.data';
+import styles from './NextSteps.module.css';
 
 /**
  * @param {object} props
