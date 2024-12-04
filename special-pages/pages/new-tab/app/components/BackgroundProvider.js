@@ -30,10 +30,10 @@ export function BackgroundProvider({ children }) {
 export function BackgroundConsumer() {
     const { current } = useContext(BackgroundContext);
     const background = current.value;
-    if (background === null) {
-        return <div class={styles.root}></div>;
-    }
     switch (background.kind) {
+        case 'default': {
+            return <div class={styles.root}></div>;
+        }
         case 'hex': {
             return (
                 <div
@@ -94,7 +94,8 @@ export function BackgroundConsumer() {
             );
         }
         default: {
-            throw new Error('Unreachable!');
+            console.warn('Unreachable!');
+            return <div className={styles.root}></div>;
         }
     }
 }
