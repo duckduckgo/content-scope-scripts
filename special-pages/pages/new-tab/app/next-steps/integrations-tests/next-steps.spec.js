@@ -64,7 +64,7 @@ test.describe('newtab NextSteps cards', () => {
         await ntp.reducedMotion();
         await ntp.openPage({ nextSteps: ['addAppToDockMac', 'defaultApp'] });
         await page.getByRole('button', { name: 'Add to Dock' }).click();
-        await page.pause();
+
         await expect(page.getByText('Added to Dock!')).toBeVisible();
         await expect(page.getByRole('button', { name: 'Add to Dock' })).not.toBeVisible();
     });
