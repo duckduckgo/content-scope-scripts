@@ -1,5 +1,6 @@
 .root {
     background: var(--ntp-surface-background-color);
+    backdrop-filter: blur(48px);
     border: 1px solid var(--ntp-surface-border-color);
     padding: var(--sp-6);
     border-radius: var(--border-radius-lg);

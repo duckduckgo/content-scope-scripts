@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["widgets", "widgetConfigs", "locale", "env", "platform", "updateNotification"],
+  "required": ["widgets", "widgetConfigs", "locale", "env", "platform", "updateNotification", "customizer"],
   "properties": {
     "widgets": {
       "$ref": "types/widget-list.json"
@@ -28,6 +28,9 @@
           "enum": ["macos", "windows", "android", "ios", "integration"]
         }
       }
+    },
+    "customizer": {
+      "$ref": "./types/customizer-data.json"
     },
     "updateNotification": {
       "oneOf": [

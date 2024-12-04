@@ -50,6 +50,7 @@ body:has([data-reset-layout="true"]) .tube {
     }
 }
 
+
 .active {}
 
 .aside {
@@ -69,5 +70,4 @@ body:has([data-reset-layout="true"]) .tube {
     box-sizing: border-box;
     height: 100vh;
     width: var(--ntp-drawer-width);
-    padding: var(--sp-2);
 }

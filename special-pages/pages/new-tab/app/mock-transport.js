@@ -5,6 +5,7 @@ import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js'
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
+import { values } from './customizer/values.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -465,6 +466,7 @@ export function mockTransport() {
                         env: 'development',
                         locale: 'en',
                         updateNotification,
+                        customizer: customizerData(),
                     };
 
                     return Promise.resolve(initial);
@@ -475,6 +477,56 @@ export function mockTransport() {
             }
         },
     });
+}
+
+/** @type {()=>import('../types/new-tab').CustomizerData} */
+function customizerData() {
+    /** @type {import('../types/new-tab').CustomizerData} */
+    const customizer = {
+        userImages: [],
+        theme: 'dark',
+        background: { kind: 'default' },
+    };
+
+    if (url.searchParams.has('background')) {
+        const value = url.searchParams.get('background');
+        if (value && value in values.colors) {
+            customizer.background = {
+                kind: 'color',
+                value: /** @type {import('../types/new-tab').PredefinedColor} */ (value),
+            };
+        } else if (value && value in values.gradients) {
+            customizer.background = {
+                kind: 'gradient',
+                value: /** @type {import('../types/new-tab').PredefinedGradient} */ (value),
+            };
+        } else if (value && value.startsWith('hex:')) {
+            const hex = value.slice(4);
+            if (hex.length === 6 || hex.length === 8) {
+                customizer.background = {
+                    kind: 'hex',
+                    value: `#${hex.slice(0, 6)}`,
+                };
+            } else {
+                console.warn('invalid hex values');
+            }
+        } else if (value && value.startsWith('userImage:')) {
+            const image = value.slice(10);
+            if (image in values.userImages) {
+                customizer.background = {
+                    kind: 'userImage',
+                    value: values.userImages[image],
+                };
+            } else {
+                console.warn('unknown user image');
+            }
+        }
+    }
+
+    if (url.searchParams.has('userImages')) {
+        customizer.userImages = [values.userImages['01'], values.userImages['02'], values.userImages['03']];
+    }
+    return customizer;
 }
 
 /**
