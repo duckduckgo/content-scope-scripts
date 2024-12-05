@@ -98,20 +98,20 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
             </span>
             <h2 className={styles.title}>{t('privacyPro_widgetTitle')}</h2>
             <div class={cn(styles.buttonBlock, expansion === 'collapsed' && styles.visible)}>
-                <Button className={styles.headingBtn} variant="standard" onClick={() => action('personalInformationRemoval')}>
+                <button className={styles.headingBtn} onClick={() => action('personalInformationRemoval')}>
                     <p class="sr-only">Personal Information Removal</p>
                     <img src="./icons/Identity-Blocked-PIR-Color-16.svg" alt="Personal Information Removal" />
-                </Button>
-                <Button className={styles.headingBtn} variant="standard" onClick={() => action('vpn')}>
+                </button>
+                <button className={styles.headingBtn} onClick={() => action('vpn')}>
                     <p class="sr-only">VPN</p>
 
                     <img src="./icons/VPN-Color-16.svg" alt="VPN" />
-                </Button>
-                <Button className={styles.headingBtn} variant="standard" onClick={() => action('identityRestoration')}>
+                </button>
+                <button className={styles.headingBtn} onClick={() => action('identityRestoration')}>
                     <p class="sr-only">Identity Restoration</p>
 
                     <img src="./icons/ID-32.svg" alt="Identity Restoration" />
-                </Button>
+                </button>
             </div>
             <span className={styles.widgetExpander}>
                 <ShowHideButton
