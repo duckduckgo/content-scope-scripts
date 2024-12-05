@@ -526,6 +526,7 @@ function customizerData() {
     if (url.searchParams.has('userImages')) {
         customizer.userImages = [values.userImages['01'], values.userImages['02'], values.userImages['03']];
     }
+
     return customizer;
 }
 

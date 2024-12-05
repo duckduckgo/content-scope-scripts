@@ -31,15 +31,10 @@ export function CustomizerDrawer({ displayChildren }) {
         };
     }, []);
 
-    return (
-        <div class={styles.root}>
-            <CustomizerConsumer />
-        </div>
-    );
+    return <div class={styles.root}>{displayChildren.value === true && <CustomizerConsumer />}</div>;
 }
 
 function CustomizerConsumer() {
-    console.log('CustomizerConsumer');
     const { data, select, upload, setTheme, deleteImage } = useContext(CustomizerContext);
     return <CustomizerDrawerInner data={data} select={select} onUpload={upload} setTheme={setTheme} deleteImage={deleteImage} />;
 }

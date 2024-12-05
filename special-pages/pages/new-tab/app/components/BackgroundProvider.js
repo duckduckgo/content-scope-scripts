@@ -38,6 +38,7 @@ export function BackgroundConsumer() {
             return (
                 <div
                     class={styles.root}
+                    data-animate="true"
                     style={{
                         backgroundColor: background.value,
                     }}
@@ -49,6 +50,7 @@ export function BackgroundConsumer() {
             return (
                 <div
                     class={styles.root}
+                    data-animate="true"
                     style={{
                         backgroundColor: color.hex,
                     }}
@@ -61,7 +63,9 @@ export function BackgroundConsumer() {
                 <Fragment key="gradient">
                     <div
                         class={styles.root}
+                        data-animate="false"
                         style={{
+                            backgroundColor: gradient.fallback,
                             backgroundImage: `url(${gradient.path})`,
                             backgroundSize: 'cover',
                             backgroundRepeat: 'no-repeat',
@@ -69,6 +73,7 @@ export function BackgroundConsumer() {
                     />
                     <div
                         class={styles.root}
+                        data-animate="false"
                         style={{
                             backgroundImage: `url(gradients/grain.png)`,
                             backgroundRepeat: 'repeat',
@@ -84,6 +89,7 @@ export function BackgroundConsumer() {
             return (
                 <div
                     class={styles.root}
+                    data-animate="true"
                     style={{
                         backgroundImage: `url(${img.src})`,
                         backgroundSize: 'cover',

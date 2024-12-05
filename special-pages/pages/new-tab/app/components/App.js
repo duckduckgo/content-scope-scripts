@@ -24,7 +24,7 @@ export function App({ children }) {
     useGlobalDropzone();
     useContextMenu();
 
-    const { buttonRef, wrapperRef, visibility, displayChildren, hidden, buttonId, drawerId } = useDrawer();
+    const { buttonRef, wrapperRef, visibility, displayChildren, animating, hidden, buttonId, drawerId } = useDrawer();
     const { toggle } = useDrawerControls();
 
     return (
@@ -34,29 +34,32 @@ export function App({ children }) {
                     <BackgroundConsumer />
                 </BackgroundProvider>
             )}
-            <div class={cn(styles.layout)} ref={wrapperRef} data-drawer-visibility={visibility}>
-                <main class={cn(styles.main)} data-customizer-kind={customizerKind}>
-                    <div class={styles.tube} data-platform={platformName}>
-                        <WidgetList />
-                        <CustomizerMenuPositionedFixed>
-                            {customizerKind === 'menu' && <Customizer />}
-                            {customizerKind === 'drawer' && (
-                                <CustomizerButton
-                                    buttonId={buttonId}
-                                    menuId={drawerId}
-                                    toggleMenu={toggle}
-                                    buttonRef={buttonRef}
-                                    isOpen={false}
-                                />
-                            )}
-                        </CustomizerMenuPositionedFixed>
-                        {children}
+            <div class={styles.layout} ref={wrapperRef} data-animating={animating} data-drawer-visibility={visibility}>
+                <main class={cn(styles.main, styles.mainScroller)} data-main-scroller>
+                    <CustomizerMenuPositionedFixed>
+                        {customizerKind === 'menu' && <Customizer />}
+                        {customizerKind === 'drawer' && (
+                            <CustomizerButton
+                                buttonId={buttonId}
+                                menuId={drawerId}
+                                toggleMenu={toggle}
+                                buttonRef={buttonRef}
+                                isOpen={false}
+                            />
+                        )}
+                    </CustomizerMenuPositionedFixed>
+                    <div class={styles.content}>
+                        <div className={styles.tube} data-platform={platformName}>
+                            <WidgetList />
+                        </div>
                     </div>
                 </main>
                 {customizerKind === 'drawer' && (
-                    <aside id={drawerId} class={styles.aside} aria-hidden={hidden}>
+                    <aside class={cn(styles.aside, styles.asideScroller)} aria-hidden={hidden}>
                         <div class={styles.asideContent}>
-                            <CustomizerDrawer displayChildren={displayChildren} />
+                            <div class={styles.asideContentInner}>
+                                <CustomizerDrawer displayChildren={displayChildren} />
+                            </div>
                         </div>
                     </aside>
                 )}

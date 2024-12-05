@@ -9,6 +9,8 @@
     --ntp-color-primary: var(--ddg-color-primary);
     --ntp-gap: 2rem;
     --ntp-drawer-width: calc(236 * var(--px-in-rem));
+    --ntp-drawer-scroll-width: 12px;
+    --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
 
     /* Mac/System/Body */
     --body-font-size: 13px;

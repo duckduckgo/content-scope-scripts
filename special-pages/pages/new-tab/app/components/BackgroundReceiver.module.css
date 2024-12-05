@@ -4,5 +4,9 @@
     inset: 0;
     width: 100vw;
     height: 100vh;
-    transition: all .3s;
+    pointer-events: none;
+
+    &[data-animate="true"] {
+        transition: all .3s ease-in-out;
+    }
 }

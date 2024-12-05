@@ -1,5 +1,5 @@
 import { useRef, useId, useLayoutEffect } from 'preact/hooks';
-import { computed, effect, useSignal } from '@preact/signals';
+import { batch, computed, effect, useSignal } from '@preact/signals';
 
 const CLOSE_DRAWER_EVENT = 'close-drawer';
 const TOGGLE_DRAWER_EVENT = 'toggle-drawer';
@@ -25,6 +25,7 @@ const REQUEST_VISIBILITY_EVENT = 'request-visibility';
  *     buttonId: string,
  *     drawerId: string,
  *     hidden: import("@preact/signals").Signal<boolean>,
+ *     animating: import("@preact/signals").Signal<boolean>,
  *     displayChildren: import("@preact/signals").Signal<boolean>,
  * }}
  */
@@ -42,6 +43,7 @@ export function useDrawer() {
     // The value that determines if it's safe to render children
     // This takes animations into account, which is why is can't be a regular-derived state
     const displayChildren = useSignal(false);
+    const animating = useSignal(false);
 
     // Derive a 'hidden' signal that can be used as an aria-hidden={hidden}
     // it needs to be done this way to `.value` being accessed in the top level of the application
@@ -57,6 +59,7 @@ export function useDrawer() {
          * @param {DrawerVisibility} value
          */
         const update = (value) => {
+            console.log('did update?');
             visibility.value = value;
         };
 
@@ -88,7 +91,21 @@ export function useDrawer() {
             (e) => {
                 // ignore child animations
                 if (e.target !== e.currentTarget) return;
-                displayChildren.value = visibility.value === 'visible';
+                batch(() => {
+                    displayChildren.value = visibility.value === 'visible';
+                    animating.value = false;
+                });
+            },
+            { signal: controller.signal },
+        );
+
+        // set animating = true when a parent transition starts
+        wrapper?.addEventListener(
+            'transitionstart',
+            (e) => {
+                // ignore child animations
+                if (e.target !== e.currentTarget) return;
+                animating.value = true;
             },
             { signal: controller.signal },
         );
@@ -114,6 +131,7 @@ export function useDrawer() {
         buttonId,
         drawerId,
         hidden,
+        animating,
     };
 }
 

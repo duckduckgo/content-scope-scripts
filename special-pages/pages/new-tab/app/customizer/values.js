@@ -2,7 +2,7 @@
  * @import { PredefinedColor, PredefinedGradient, BackgroundColorScheme, UserImage } from "../../types/new-tab"
  * @type {{
  *     colors: Record<PredefinedColor, { hex: string; colorScheme: BackgroundColorScheme }>,
- *     gradients: Record<PredefinedGradient, { path: string; colorScheme: BackgroundColorScheme }>
+ *     gradients: Record<PredefinedGradient, { path: string; colorScheme: BackgroundColorScheme, fallback: string }>
  *     userImages: Record<'01' | '02' | '03', UserImage>
  * }}
  */
@@ -29,14 +29,14 @@ export const values = {
         color19: { hex: '#9A979D', colorScheme: 'dark' },
     },
     gradients: {
-        gradient01: { path: 'gradients/gradient01.svg', colorScheme: 'light' },
-        gradient02: { path: 'gradients/gradient02.svg', colorScheme: 'light' },
-        gradient03: { path: 'gradients/gradient03.svg', colorScheme: 'light' },
-        gradient04: { path: 'gradients/gradient04.svg', colorScheme: 'light' },
-        gradient05: { path: 'gradients/gradient05.svg', colorScheme: 'dark' },
-        gradient06: { path: 'gradients/gradient06.svg', colorScheme: 'dark' },
-        gradient07: { path: 'gradients/gradient07.svg', colorScheme: 'dark' },
-        gradient08: { path: 'gradients/gradient08.svg', colorScheme: 'dark' },
+        gradient01: { path: 'gradients/gradient01.svg', fallback: '#f2e5d4', colorScheme: 'light' },
+        gradient02: { path: 'gradients/gradient02.svg', fallback: '#d5bcd1', colorScheme: 'light' },
+        gradient03: { path: 'gradients/gradient03.svg', fallback: '#f4ca78', colorScheme: 'light' },
+        gradient04: { path: 'gradients/gradient04.svg', fallback: '#e6a356', colorScheme: 'light' },
+        gradient05: { path: 'gradients/gradient05.svg', fallback: '#4448ae', colorScheme: 'dark' },
+        gradient06: { path: 'gradients/gradient06.svg', fallback: '#a55778', colorScheme: 'dark' },
+        gradient07: { path: 'gradients/gradient07.svg', fallback: '#222566', colorScheme: 'dark' },
+        gradient08: { path: 'gradients/gradient08.svg', fallback: '#0e0e3d', colorScheme: 'dark' },
     },
     userImages: {
         '01': {
