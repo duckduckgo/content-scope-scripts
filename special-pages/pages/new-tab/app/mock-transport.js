@@ -429,11 +429,13 @@ export function mockTransport() {
                         { id: 'updateNotification' },
                         { id: 'rmf' },
                         { id: 'nextSteps' },
+                        { id: 'privacyPro' },
                         { id: 'favorites' },
                         { id: 'privacyStats' },
                     ];
 
                     const widgetConfigFromStorage = read('widget_config') || [
+                        { id: 'privacyPro', visibility: 'visible' },
                         { id: 'favorites', visibility: 'visible' },
                         { id: 'privacyStats', visibility: 'visible' },
                     ];
@@ -454,6 +456,10 @@ export function mockTransport() {
 
                     if (url.searchParams.get('customizerDrawer') === 'enabled') {
                         settings.customizerDrawer = { state: 'enabled' };
+                    }
+
+                    if (url.searchParams.get('privacy-pro') === 'enabled') {
+                        privacyPro = 'loggedin';
                     }
 
                     /** @type {import('../types/new-tab.ts').InitialSetupResponse} */

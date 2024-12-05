@@ -1,0 +1,30 @@
+{
+  "privacyPro_menuTitle": {
+    "title": "Privacy Pro",
+    "note": "Used as a label in a customization menu"
+  },
+  "privacyPro_widgetTitle": {
+    "title": "Privacy Pro",
+    "note": "Used as text in heading"
+  },
+  "privacyPro_signedOutSubtext": {
+    "title": "Blocked tracking attempts will appear here. Keep browsing to see how many we block.",
+    "note": "Placeholder for when we cannot report any blocked trackers yet"
+  },
+  "privacyPro_feedCountBlockedPlural": {
+    "title": "{count} tracking attempts blocked",
+    "note": "A summary description of how many tracking attempts were blocked by DuckDuckGo in the last 7 days when there is more than one. E.g., '1,028 tracking attempts blocked."
+  },
+  "privacyPro_nonsubscriber_subtext": {
+    "title": "Try PrivacyPro for free today!",
+    "note": "Used when user is not a subscriber"
+  },
+  "privacyPro_otherCompanyName": {
+    "title": "Other",
+    "note": "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
+  },
+  "privacyPro_otherCount": {
+    "title": "{count} attempts from other networks",
+    "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
+  }
+}

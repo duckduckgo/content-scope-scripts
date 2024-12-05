@@ -6,6 +6,7 @@ import { otherRMFExamples, RMFExamples } from '../remote-messaging-framework/com
 import { customizerExamples } from '../customizer/components/Customizer.examples.js';
 import { noop } from '../utils.js';
 import { updateNotificationExamples } from '../update-notification/components/UpdateNotification.examples.js';
+import { privacyProExamples } from '../privacy-pro/components/PrivacyPro.examples.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -13,6 +14,7 @@ export const mainExamples = {
     ...nextStepsExamples,
     ...privacyStatsExamples,
     ...RMFExamples,
+    ...privacyProExamples
 };
 
 export const otherExamples = {

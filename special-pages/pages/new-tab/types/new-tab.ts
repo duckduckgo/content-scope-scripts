@@ -53,6 +53,9 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | PrivacyProSetConfigNotification
+    | PrivacyProShowLessNotification
+    | PrivacyProShowMoreNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | RmfDismissNotification
@@ -70,6 +73,8 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | PrivacyProGetConfigRequest
+    | PrivacyProGetDataRequest
     | RmfGetDataRequest
     | StatsGetConfigRequest
     | StatsGetDataRequest;
@@ -78,6 +83,8 @@ export interface NewTabMessages {
     | FavoritesOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
+    | PrivacyProOnConfigUpdateSubscription
+    | PrivacyProOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
     | StatsOnConfigUpdateSubscription
     | StatsOnDataUpdateSubscription
@@ -217,6 +224,29 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/privacyPro_setConfig.notify.json"
+ */
+export interface PrivacyProSetConfigNotification {
+  method: "privacyPro_setConfig";
+  params: StatsConfig;
+}
+export interface StatsConfig {
+  expansion: Expansion;
+  animation?: Animation;
+}
+/**
+ * Generated from @see "../messages/privacyPro_showLess.notify.json"
+ */
+export interface PrivacyProShowLessNotification {
+  method: "privacyPro_showLess";
+}
+/**
+ * Generated from @see "../messages/privacyPro_showMore.notify.json"
+ */
+export interface PrivacyProShowMoreNotification {
+  method: "privacyPro_showMore";
+}
+/**
  * Generated from @see "../messages/reportInitException.notify.json"
  */
 export interface ReportInitExceptionNotification {
@@ -272,10 +302,6 @@ export interface RMFSecondaryAction {
 export interface StatsSetConfigNotification {
   method: "stats_setConfig";
   params: StatsConfig;
-}
-export interface StatsConfig {
-  expansion: Expansion;
-  animation?: Animation;
 }
 /**
  * Generated from @see "../messages/stats_showLess.notify.json"
@@ -407,6 +433,31 @@ export interface NextStepsData {
   content: null | NextStepsCards;
 }
 /**
+ * Generated from @see "../messages/privacyPro_getConfig.request.json"
+ */
+export interface PrivacyProGetConfigRequest {
+  method: "privacyPro_getConfig";
+  result: StatsConfig;
+}
+/**
+ * Generated from @see "../messages/privacyPro_getData.request.json"
+ */
+export interface PrivacyProGetDataRequest {
+  method: "privacyPro_getData";
+  result: PrivacyStatsData;
+}
+export interface PrivacyStatsData {
+  /**
+   * Total number of trackers blocked since install
+   */
+  totalCount: number;
+  trackerCompanies: TrackerCompany[];
+}
+export interface TrackerCompany {
+  displayName: string;
+  count: number;
+}
+/**
  * Generated from @see "../messages/rmf_getData.request.json"
  */
 export interface RmfGetDataRequest {
@@ -463,17 +514,6 @@ export interface StatsGetDataRequest {
   method: "stats_getData";
   result: PrivacyStatsData;
 }
-export interface PrivacyStatsData {
-  /**
-   * Total number of trackers blocked since install
-   */
-  totalCount: number;
-  trackerCompanies: TrackerCompany[];
-}
-export interface TrackerCompany {
-  displayName: string;
-  count: number;
-}
 /**
  * Generated from @see "../messages/favorites_onConfigUpdate.subscribe.json"
  */
@@ -501,6 +541,20 @@ export interface NextStepsOnConfigUpdateSubscription {
 export interface NextStepsOnDataUpdateSubscription {
   subscriptionEvent: "nextSteps_onDataUpdate";
   params: NextStepsData;
+}
+/**
+ * Generated from @see "../messages/privacyPro_onConfigUpdate.subscribe.json"
+ */
+export interface PrivacyProOnConfigUpdateSubscription {
+  subscriptionEvent: "privacyPro_onConfigUpdate";
+  params: StatsConfig;
+}
+/**
+ * Generated from @see "../messages/privacyPro_onDataUpdate.subscribe.json"
+ */
+export interface PrivacyProOnDataUpdateSubscription {
+  subscriptionEvent: "privacyPro_onDataUpdate";
+  params: PrivacyStatsData;
 }
 /**
  * Generated from @see "../messages/rmf_onDataUpdate.subscribe.json"
