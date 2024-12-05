@@ -1,0 +1,89 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Privacy Pro Data",
+    "description": "",
+    "type": "object",
+    "required": [
+        "personalInformationRemoval",
+        "identityRestoration",
+        "vpn"
+    ],
+    "properties": {
+        "personalInformationRemoval": {
+            "description": "PIR data for subscriber",
+            "type": "object",
+            "required": [
+                "nextScanDate",
+                "status"
+            ],
+            "properties": {
+                "nextScanDate": {
+                    "description": "Date of subscriber's next schedule PIR scan",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status of PIR",
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "in-progress"
+                    ]
+                }
+            }
+        },
+        "identityRestoration": {
+            "description": "IDTR data for subscriber",
+            "type": "object",
+            "required": [
+                "coveredSince"
+            ],
+            "properties": {
+                "coveredSince": {
+                    "description": "date subscriber has been covered by IDTR",
+                    "type": "string"
+                }
+            }
+        },
+        "vpn": {
+            "type": "object",
+            "required": [
+                "status",
+                "location",
+                "cityName",
+                "countryName",
+                "countryCode"
+            ],
+            "properties": {
+                "status": {
+                    "description": "Status of subscriber's VPN",
+                    "type": "string",
+                    "enum": [
+                        "connected",
+                        "connecting",
+                        "disconnected",
+                        "disconnecting"
+                    ]
+                },
+                "location": {
+                    "description": "",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "cityName": {
+                    "description": "Name of city VPN is using",
+                    "type": "string"
+                },
+                "countryName": {
+                    "description": "for flag tooltip",
+                    "type": "string"
+                },
+                "countryCode": {
+                    "description": "an ISO 3166 country code for displaying flag",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
