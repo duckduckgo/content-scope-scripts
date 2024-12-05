@@ -5,12 +5,15 @@ import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js'
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
+import { variants as privacyProData } from './privacy-pro/privacy-pro.data.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
  * @typedef {import('../types/new-tab').FavoritesData} FavoritesData
  * @typedef {import('../types/new-tab').FavoritesConfig} FavoritesConfig
  * @typedef {import('../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import('../types/new-tab').PrivacyProConfig} PrivacyProConfig
+ * @typedef {import('../types/new-tab').PrivacyProData} PrivacyProData
  * @typedef {import('../types/new-tab').NextStepsConfig} NextStepsConfig
  * @typedef {import('../types/new-tab').NextStepsCards} NextStepsCards
  * @typedef {import('../types/new-tab').NextStepsData} NextStepsData
@@ -359,6 +362,23 @@ export function mockTransport() {
                         fromStorage.animation = { kind: 'view-transitions' };
                     }
                     return Promise.resolve(fromStorage);
+                }
+                case 'privacyPro_getConfig': {
+                    /** @type {PrivacyProConfig} */
+                    const defaultConfig = { expansion: 'expanded', animation: { kind: 'auto-animate' } };
+                    const fromStorage = read('privacyPro_config') || defaultConfig;
+                    if (url.searchParams.get('animation') === 'none') {
+                        fromStorage.animation = { kind: 'none' };
+                    }
+                    if (url.searchParams.get('animation') === 'view-transitions') {
+                        fromStorage.animation = { kind: 'view-transitions' };
+                    }
+                    return Promise.resolve(fromStorage);
+                }
+                case 'privacyPro_getData': {
+                    /** @type {PrivacyProData} */
+                    const data = privacyProData.basic;
+                    return Promise.resolve(data);
                 }
                 case 'nextSteps_getConfig': {
                     /** @type {NextStepsConfig} */
