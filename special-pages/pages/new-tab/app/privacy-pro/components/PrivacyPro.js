@@ -7,6 +7,7 @@ import { viewTransition } from '../../utils.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { PrivacyProContext, PrivacyProProvider } from '../PrivacyProProvider.js';
 import styles from './PrivacyPro.module.css';
+import { Button } from '../../../../../shared/components/Button/Button.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -52,8 +53,9 @@ function WithViewTransitions({ expansion, data, toggle }) {
  * @param {Expansion} props.expansion
  * @param {PrivacyProData} props.data
  * @param {()=>void} props.toggle
+ * @param {(id: string)=>void} props.action
  */
-function PrivacyProConfigured({ parentRef, expansion, data, toggle }) {
+function PrivacyProConfigured({ parentRef, expansion, data, toggle, action }) {
     const expanded = expansion === 'expanded';
 
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
@@ -69,8 +71,9 @@ function PrivacyProConfigured({ parentRef, expansion, data, toggle }) {
                     'aria-controls': WIDGET_ID,
                     id: TOGGLE_ID,
                 }}
+                action={action}
             />
-            {expanded && <PrivacyProBody data={data} />}
+            {expanded && <PrivacyProBody data={data} action={action} />}
         </div>
     );
 }
@@ -80,8 +83,9 @@ function PrivacyProConfigured({ parentRef, expansion, data, toggle }) {
  * @param {Expansion} props.expansion
  * @param {() => void} props.onToggle
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
+ * @param {(id: string) => void} props.action
  */
-export function Heading({ expansion, onToggle, buttonAttrs = {} }) {
+export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const notASubscriber = null;
     return (
@@ -90,7 +94,22 @@ export function Heading({ expansion, onToggle, buttonAttrs = {} }) {
                 <img src="./icons/PrivacyPro.svg" alt="Privacy Shield" />
             </span>
             <h2 className={styles.title}>{t('privacyPro_widgetTitle')}</h2>
+            <div class={styles.buttonBlock}>
+                <Button onClick={() => action('personalInformationRemoval')}>
+                    <p class="sr-only">Personal Information Removal</p>
+                    <img src="./icons/Identity-Blocked-PIR-Color-16.svg" alt="Personal Information Removal" />
+                </Button>
+                <Button onClick={() => action('vpn')}>
+                    <p class="sr-only">VPN</p>
 
+                    <img src="./icons/VPN-Color-16.svg" alt="VPN" />
+                </Button>
+                <Button onClick={() => action('identityRestoration')}>
+                    <p class="sr-only">Identity Restoration</p>
+
+                    <img src="./icons/ID-32.svg" alt="Identity Restoration" />
+                </Button>
+            </div>
             <span className={styles.widgetExpander}>
                 <ShowHideButton
                     buttonAttrs={{
@@ -112,28 +131,55 @@ export function Heading({ expansion, onToggle, buttonAttrs = {} }) {
 /**
  * @param {object} props
  * @param {PrivacyProData} props.data
- * @param {import("preact").ComponentProps<'ul'>} [props.listAttrs]
+ * @param {(id: string) => void} props.action
  */
 
-export function PrivacyProBody({ data }) {
+export function PrivacyProBody({ data, action }) {
     return (
         <div class={styles.body}>
             {data.personalInformationRemoval && (
-                <button class={styles.panelButton}>
-                    <img src="./icons/Information-Remover-128.svg" alt="Privacy Shield" />
-                    personalInformationRemoval
+                <button class={styles.panelButton} onClick={() => action('personalInformationRemoval')}>
+                    <div class={styles.topSection}>
+                        <img src="./icons/Information-Remover-128.svg" alt="Privacy Shield" />
+                        Information Removal
+                    </div>
+                    <div class={styles.bottomSection}>
+                        <p>Next Scan</p>
+                        <p>DATE</p>
+                        <p>
+                            <span class={styles.statusDot}></span> In Progress
+                        </p>
+                    </div>
                 </button>
             )}
             {data.vpn && (
-                <button class={styles.panelButton}>
-                    <img src="./icons/Network-Protection-VPN-128.svg" alt="Privacy Shield" />
-                    vpn
+                <button class={styles.panelButton} onClick={() => action('vpn')}>
+                    <div class={styles.topSection}>
+                        <img src="./icons/Network-Protection-VPN-128.svg" alt="Privacy Shield" />
+                        VPN
+                    </div>
+                    <div class={styles.bottomSection}>
+                        <p>Location</p>
+                        <p>United Kingdom</p>
+                        <p>
+                            <span class={styles.statusDot}></span> ON
+                        </p>
+                    </div>
                 </button>
             )}
             {data.identityRestoration && (
                 <button class={styles.panelButton}>
-                    <img src="./icons/ID-128.svg" alt="Privacy Shield" />
-                    identityRestoration
+                    <div class={styles.topSection}>
+                        <img src="./icons/ID-128.svg" alt="Privacy Shield" />
+                        Identity Restoration
+                    </div>
+                    <div class={styles.bottomSection}>
+                        <p>Covered since</p>
+                        <p>DATE</p>
+                        <p>
+                            <span class={styles.statusDot}></span> Available
+                        </p>
+                    </div>
                 </button>
             )}
         </div>

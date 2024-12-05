@@ -9,12 +9,6 @@
     width: 100%;
     margin-bottom: var(--ntp-gap);
 
-    &:hover {
-        .listExpander * {
-            opacity: 1;
-        }
-    }
-
     @media screen and (prefers-color-scheme: dark) {
         border-color: var(--color-white-at-9);
     }
@@ -22,17 +16,17 @@
 
 .heading {
     display: grid;
-    grid-template-columns: 1.5rem auto 2rem;
+    grid-template-columns: 1.5rem auto auto 2rem;
     grid-column-gap: var(--sp-2);
     grid-row-gap: var(--sp-1);
     grid-template-rows: auto;
-    grid-template-areas: 'icon title expander';
+    grid-template-areas: 'icon title buttonBlock expander';
 }
 .heading:has(.subtitle) {
     grid-template-rows: auto auto;
     grid-template-areas:
-        'icon title expander'
-        'empty label label';
+        'icon title buttonBlock expander'
+        'empty label label label';
 }
 .headingIcon {
     grid-area: icon;
@@ -50,6 +44,25 @@
     font-size: var(--title-2-font-size);
     font-weight: var(--title-2-font-weight);
     line-height: var(--title-2-line-height);
+}
+
+.buttonBlock {
+    grid-area: buttonBlock;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 6px;
+
+    button {
+        padding: 10px;
+        background-color: transparent;
+        box-sizing: border-box;
+    }
+
+    img {
+        height: 12px;
+        width: 12px;
+    }
 }
 
 .subtitle {
@@ -81,13 +94,29 @@
 .body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--sp-4);
+    padding-top: var(--sp-6);
 }
 
 .panelButton { 
     display: grid; 
-
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 4px;
+    color: var(--ntp-text-normal);
+    min-height: 140px;
+    
     &:hover {
-        background-color: grey;
+        border: 1px solid #3969EF;
+    }
+
+    .topSection {
+        display: grid;
+        grid-template-columns: 2rem auto;
+        align-items: center;
+        border-bottom: 1px solid var(--ntp-surface-border-color);
+        font-weight: 600;
     }
 
     img {
