@@ -65,6 +65,7 @@ export interface NewTabMessages {
     | UpdateNotificationDismissNotification
     | WidgetsSetConfigNotification;
   requests:
+    | CounterGetDataRequest
     | FavoritesGetConfigRequest
     | FavoritesGetDataRequest
     | InitialSetupRequest
@@ -74,6 +75,7 @@ export interface NewTabMessages {
     | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
+    | CounterOnDataUpdateSubscription
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
@@ -327,6 +329,16 @@ export interface WidgetConfigItem {
   visibility: WidgetVisibility;
 }
 /**
+ * Generated from @see "../messages/counter_getData.request.json"
+ */
+export interface CounterGetDataRequest {
+  method: "counter_getData";
+  result: CounterData;
+}
+export interface CounterData {
+  count: number;
+}
+/**
  * Generated from @see "../messages/favorites_getConfig.request.json"
  */
 export interface FavoritesGetConfigRequest {
@@ -473,6 +485,13 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/counter_onDataUpdate.subscribe.json"
+ */
+export interface CounterOnDataUpdateSubscription {
+  subscriptionEvent: "counter_onDataUpdate";
+  params: CounterData;
 }
 /**
  * Generated from @see "../messages/favorites_onConfigUpdate.subscribe.json"

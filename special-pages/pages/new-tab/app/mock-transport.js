@@ -332,6 +332,16 @@ export function mockTransport() {
                     );
                     return () => controller.abort();
                 }
+
+                // just faking the browser sending an update every second
+                case 'counter_onDataUpdate': {
+                    let count = 1; // from initialSetup
+                    const int = setInterval(() => {
+                        count += 1;
+                        cb({ count });
+                    }, 1000);
+                    return () => clearInterval(int);
+                }
             }
             return () => {};
         },
@@ -424,10 +434,17 @@ export function mockTransport() {
                     }
                     return Promise.resolve(fromStorage);
                 }
+                // just faking the browser responding to a 'request'
+                case 'counter_getData': {
+                    /** @type {import('../types/new-tab').CounterData} */
+                    const response = { count: 1 };
+                    return Promise.resolve(response);
+                }
                 case 'initialSetup': {
                     const widgetsFromStorage = read('widgets') || [
                         { id: 'updateNotification' },
                         { id: 'rmf' },
+                        { id: 'counter' },
                         { id: 'nextSteps' },
                         { id: 'favorites' },
                         { id: 'privacyStats' },
