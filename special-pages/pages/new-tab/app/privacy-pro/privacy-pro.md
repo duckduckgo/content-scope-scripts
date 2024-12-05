@@ -1,5 +1,5 @@
 ---
-title: Privacy Stats
+title: Privacy Pro
 ---
 
 ## Requests:

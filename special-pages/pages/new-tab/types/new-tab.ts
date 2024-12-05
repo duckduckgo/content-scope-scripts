@@ -53,6 +53,7 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | PrivacyProActionNotification
     | PrivacyProSetConfigNotification
     | PrivacyProShowLessNotification
     | PrivacyProShowMoreNotification
@@ -222,6 +223,16 @@ export interface NextStepsSetConfigNotification {
 export interface NextStepsConfig {
   expansion: Expansion;
   animation?: Animation;
+}
+/**
+ * Generated from @see "../messages/privacyPro_action.notify.json"
+ */
+export interface PrivacyProActionNotification {
+  method: "privacyPro_action";
+  params: PrivacyProActionNotify;
+}
+export interface PrivacyProActionNotify {
+  id: string;
 }
 /**
  * Generated from @see "../messages/privacyPro_setConfig.notify.json"
@@ -437,25 +448,61 @@ export interface NextStepsData {
  */
 export interface PrivacyProGetConfigRequest {
   method: "privacyPro_getConfig";
-  result: StatsConfig;
+  result: PrivacyProConfig;
+}
+export interface PrivacyProConfig {
+  expansion: Expansion;
+  animation?: Animation;
 }
 /**
  * Generated from @see "../messages/privacyPro_getData.request.json"
  */
 export interface PrivacyProGetDataRequest {
   method: "privacyPro_getData";
-  result: PrivacyStatsData;
+  result: PrivacyProData;
 }
-export interface PrivacyStatsData {
+export interface PrivacyProData {
   /**
-   * Total number of trackers blocked since install
+   * PIR data for subscriber
    */
-  totalCount: number;
-  trackerCompanies: TrackerCompany[];
-}
-export interface TrackerCompany {
-  displayName: string;
-  count: number;
+  personalInformationRemoval: {
+    /**
+     * Date of subscriber's next schedule PIR scan
+     */
+    nextScanDate: string;
+    /**
+     * Status of PIR
+     */
+    status: "active" | "in-progress";
+  };
+  /**
+   * IDTR data for subscriber
+   */
+  identityRestoration: {
+    /**
+     * date subscriber has been covered by IDTR
+     */
+    coveredSince: string;
+  };
+  vpn: {
+    /**
+     * Status of subscriber's VPN
+     */
+    status: "connected" | "connecting" | "disconnected" | "disconnecting";
+    location: boolean | null;
+    /**
+     * Name of city VPN is using
+     */
+    cityName: string;
+    /**
+     * for flag tooltip
+     */
+    countryName: string;
+    /**
+     * an ISO 3166 country code for displaying flag
+     */
+    countryCode: string;
+  };
 }
 /**
  * Generated from @see "../messages/rmf_getData.request.json"
@@ -513,6 +560,17 @@ export interface StatsGetConfigRequest {
 export interface StatsGetDataRequest {
   method: "stats_getData";
   result: PrivacyStatsData;
+}
+export interface PrivacyStatsData {
+  /**
+   * Total number of trackers blocked since install
+   */
+  totalCount: number;
+  trackerCompanies: TrackerCompany[];
+}
+export interface TrackerCompany {
+  displayName: string;
+  count: number;
 }
 /**
  * Generated from @see "../messages/favorites_onConfigUpdate.subscribe.json"

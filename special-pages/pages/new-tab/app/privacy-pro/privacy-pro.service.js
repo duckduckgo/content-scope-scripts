@@ -1,35 +1,35 @@
 /**
- * @typedef {import("../../types/new-tab.js").PrivacyStatsData} PrivacyStatsData
- * @typedef {import("../../types/new-tab.js").StatsConfig} StatsConfig
+ * @typedef {import("../../types/new-tab.js").PrivacyProData} PrivacyProData
+ * @typedef {import("../../types/new-tab.js").PrivacyProConfig} PrivacyProConfig
  */
 import { Service } from '../service.js';
 
-export class PrivacyStatsService {
+export class PrivacyProService {
     /**
      * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
      * @internal
      */
     constructor(ntp) {
-        /** @type {Service<PrivacyStatsData>} */
+        /** @type {Service<PrivacyProData>} */
         this.dataService = new Service({
-            initial: () => ntp.messaging.request('stats_getData'),
-            subscribe: (cb) => ntp.messaging.subscribe('stats_onDataUpdate', cb),
+            initial: () => ntp.messaging.request('privacyPro_getData'),
+            subscribe: (cb) => ntp.messaging.subscribe('privacyPro_onDataUpdate', cb),
         });
 
-        /** @type {Service<StatsConfig>} */
+        /** @type {Service<PrivacyProConfig>} */
         this.configService = new Service({
-            initial: () => ntp.messaging.request('stats_getConfig'),
-            subscribe: (cb) => ntp.messaging.subscribe('stats_onConfigUpdate', cb),
-            persist: (data) => ntp.messaging.notify('stats_setConfig', data),
+            initial: () => ntp.messaging.request('privacyPro_getConfig'),
+            subscribe: (cb) => ntp.messaging.subscribe('privacyPro_onConfigUpdate', cb),
+            persist: (data) => ntp.messaging.notify('privacyPro_setConfig', data),
         });
     }
 
     name() {
-        return 'PrivacyStatsService';
+        return 'PrivacyProService';
     }
 
     /**
-     * @returns {Promise<{data: PrivacyStatsData; config: StatsConfig}>}
+     * @returns {Promise<{data: PrivacyProData; config: PrivacyProConfig}>}
      * @internal
      */
     async getInitial() {
@@ -48,7 +48,7 @@ export class PrivacyStatsService {
     }
 
     /**
-     * @param {(evt: {data: PrivacyStatsData, source: 'manual' | 'subscription'}) => void} cb
+     * @param {(evt: {data: PrivacyProData, source: 'manual' | 'subscription'}) => void} cb
      * @internal
      */
     onData(cb) {
@@ -56,7 +56,7 @@ export class PrivacyStatsService {
     }
 
     /**
-     * @param {(evt: {data: StatsConfig, source: 'manual' | 'subscription'}) => void} cb
+     * @param {(evt: {data: PrivacyProConfig, source: 'manual' | 'subscription'}) => void} cb
      * @internal
      */
     onConfig(cb) {
