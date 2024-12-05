@@ -146,9 +146,11 @@ export function PrivacyProBody({ data, action }) {
                         <img src="./icons/Information-Remover-128.svg" alt="Privacy Shield" />
                         <p>Information Removal</p>
                     </div>
-                    <div class={styles.bottomSection}>
+                    <div class={styles.middleSection}>
                         <p>Next Scan</p>
                         <p>DATE</p>
+                    </div>
+                    <div class={styles.bottomSection}>
                         <p>
                             <span class={styles.statusDot}></span> In Progress
                         </p>
@@ -161,9 +163,11 @@ export function PrivacyProBody({ data, action }) {
                         <img src="./icons/Network-Protection-VPN-128.svg" alt="Privacy Shield" />
                         <p>VPN</p>
                     </div>
-                    <div class={styles.bottomSection}>
+                    <div class={styles.middleSection}>
                         <p>Location</p>
                         <p>United Kingdom</p>
+                    </div>
+                    <div class={styles.bottomSection}>
                         <p>
                             <span class={styles.statusDot}></span> ON
                         </p>
@@ -176,9 +180,11 @@ export function PrivacyProBody({ data, action }) {
                         <img src="./icons/ID-128.svg" alt="Privacy Shield" />
                         <p>Identity Restoration</p>
                     </div>
-                    <div class={styles.bottomSection}>
+                    <div class={styles.middleSection}>
                         <p>Covered since</p>
                         <p>DATE</p>
+                    </div>
+                    <div class={styles.bottomSection}>
                         <p>
                             <span class={styles.statusDot}></span> Available
                         </p>

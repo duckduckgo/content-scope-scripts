@@ -111,12 +111,14 @@
 
 .panelButton { 
     display: grid; 
+    gap: 12px;
     background-color: transparent;
     border: 1px solid transparent;
     border-radius: 12px;
     padding: 4px;
     color: var(--ntp-text-normal);
     min-height: 140px;
+    text-align: left;
     overflow: hidden;
     
     &:hover {
@@ -133,7 +135,6 @@
         p {
             word-wrap: break-word;
             text-wrap: wrap;
-            text-align: left;
         }
         img {
             height: 2rem;
@@ -141,6 +142,13 @@
         }
     }
 
+    .middleSection {
+        
+    }
+
+    .bottomSection {
+
+    }
 }
 
 .entering {
