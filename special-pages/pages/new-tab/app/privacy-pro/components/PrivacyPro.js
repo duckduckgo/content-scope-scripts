@@ -1,4 +1,4 @@
-import { Fragment, h } from 'preact';
+import { h } from 'preact';
 import { useCallback, useContext, useId } from 'preact/hooks';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useCustomizer } from '../../customizer/components/Customizer.js';
