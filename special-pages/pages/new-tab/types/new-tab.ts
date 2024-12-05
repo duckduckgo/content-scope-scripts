@@ -489,19 +489,20 @@ export interface PrivacyProData {
      * Status of subscriber's VPN
      */
     status: "connected" | "connecting" | "disconnected" | "disconnecting";
-    location: string | null;
-    /**
-     * Name of city VPN is using
-     */
-    cityName: string;
-    /**
-     * for flag tooltip
-     */
-    countryName: string;
-    /**
-     * an ISO 3166 country code for displaying flag
-     */
-    countryCode: string;
+    location: {
+      /**
+       * Name of city VPN is using
+       */
+      cityName: string;
+      /**
+       * for flag tooltip
+       */
+      countryName: string;
+      /**
+       * an ISO 3166 country code for displaying flag
+       */
+      countryCode: string;
+    } | null;
   };
 }
 /**

@@ -67,21 +67,28 @@
                 "location": {
                     "description": "",
                     "type": [
-                        "string",
+                        "object",
                         "null"
-                    ]
-                },
-                "cityName": {
-                    "description": "Name of city VPN is using",
-                    "type": "string"
-                },
-                "countryName": {
-                    "description": "for flag tooltip",
-                    "type": "string"
-                },
-                "countryCode": {
-                    "description": "an ISO 3166 country code for displaying flag",
-                    "type": "string"
+                    ],
+                    "required": [
+                        "cityName",
+                        "countryName",
+                        "countryCode"
+                    ],
+                    "properties": {
+                        "cityName": {
+                            "description": "Name of city VPN is using",
+                            "type": "string"
+                        },
+                        "countryName": {
+                            "description": "For flag tooltip",
+                            "type": "string"
+                        },
+                        "countryCode": {
+                            "description": "an ISO 3166 country code for displaying flag",
+                            "type": "string"
+                        }
+                    }
                 }
             }
         }

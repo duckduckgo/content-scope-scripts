@@ -12,10 +12,11 @@ export const data = {
             coveredSince: `${new Date()}`,
         },
         vpn: {
-            cityName: 'Denver',
-            countryCode: 'us',
-            countryName: 'United States',
-            location: 'Denver, CO, US',
+            location: {
+                cityName: 'Denver',
+                countryCode: 'us',
+                countryName: 'United States',
+            },
             status: 'connected',
         },
     },
