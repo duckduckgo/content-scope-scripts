@@ -489,7 +489,7 @@ export interface PrivacyProData {
      * Status of subscriber's VPN
      */
     status: "connected" | "connecting" | "disconnected" | "disconnecting";
-    location: boolean | null;
+    location: string | null;
     /**
      * Name of city VPN is using
      */

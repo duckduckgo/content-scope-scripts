@@ -67,7 +67,7 @@
                 "location": {
                     "description": "",
                     "type": [
-                        "boolean",
+                        "string",
                         "null"
                     ]
                 },

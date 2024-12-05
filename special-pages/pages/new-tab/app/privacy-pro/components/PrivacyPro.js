@@ -1,13 +1,12 @@
 import { Fragment, h } from 'preact';
-import cn from 'classnames';
-import styles from './PrivacyPro.module.css';
-import { useMessaging, useTypedTranslationWith } from '../../types.js';
-import { useContext, useState, useId, useCallback } from 'preact/hooks';
-import { PrivacyProContext, PrivacyProProvider } from '../PrivacyProProvider.js';
-import { useVisibility } from '../../widget-list/widget-config.provider.js';
-import { viewTransition } from '../../utils.js';
+import { useCallback, useContext, useId } from 'preact/hooks';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useCustomizer } from '../../customizer/components/Customizer.js';
+import { useTypedTranslationWith } from '../../types.js';
+import { viewTransition } from '../../utils.js';
+import { useVisibility } from '../../widget-list/widget-config.provider.js';
+import { PrivacyProContext, PrivacyProProvider } from '../PrivacyProProvider.js';
+import styles from './PrivacyPro.module.css';
 
 /**
  * @import enStrings from "../strings.json"
@@ -71,7 +70,7 @@ function PrivacyProConfigured({ parentRef, expansion, data, toggle }) {
                     id: TOGGLE_ID,
                 }}
             />
-            {expanded && <PrivacyProBody data={{}} />}
+            {expanded && <PrivacyProBody data={data} />}
         </div>
     );
 }
@@ -117,18 +116,6 @@ export function Heading({ expansion, onToggle, buttonAttrs = {} }) {
  */
 
 export function PrivacyProBody({ data }) {
-    const messaging = useMessaging();
-    const [expansion, setExpansion] = useState(/** @type {Expansion} */ ('collapsed'));
-
-    const toggleListExpansion = () => {
-        if (expansion === 'collapsed') {
-            messaging.privacyProShowMore();
-        } else {
-            messaging.privacyProShowLess();
-        }
-        setExpansion(expansion === 'collapsed' ? 'expanded' : 'collapsed');
-    };
-
     return (
         <Fragment>
             <h1>Privacy PRo widget bodys</h1>
