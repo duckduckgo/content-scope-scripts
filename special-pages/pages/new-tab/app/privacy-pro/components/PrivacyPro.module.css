@@ -141,7 +141,7 @@
     .topSection {
         display: grid;
         grid-template-columns: 2rem auto;
-        align-items: center;
+        align-items: flex-start;
         border-bottom: 1px solid var(--ntp-surface-border-color);
         font-weight: 600;
         padding-bottom: 1rem;

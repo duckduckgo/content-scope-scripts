@@ -140,7 +140,7 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
 export function PrivacyProBody({ data, action }) {
     return (
         <div class={styles.body}>
-            {data.personalInformationRemoval && (
+            {data?.personalInformationRemoval && (
                 <button class={styles.panelButton} onClick={() => action('personalInformationRemoval')}>
                     <div class={styles.topSection}>
                         <img src="./icons/Information-Remover-32.svg" alt="Privacy Shield" />
@@ -156,7 +156,7 @@ export function PrivacyProBody({ data, action }) {
                     </div>
                 </button>
             )}
-            {data.vpn && (
+            {data?.vpn && (
                 <button class={styles.panelButton} onClick={() => action('vpn')}>
                     <div class={styles.topSection}>
                         <img src="./icons/VPN-Color-32.svg" alt="Privacy Shield" />
@@ -172,7 +172,7 @@ export function PrivacyProBody({ data, action }) {
                     </div>
                 </button>
             )}
-            {data.identityRestoration && (
+            {data?.identityRestoration && (
                 <button class={styles.panelButton} onClick={() => action('identityRestoration')}>
                     <div class={styles.topSection}>
                         <img src="./icons/ID-32.svg" alt="Privacy Shield" />
