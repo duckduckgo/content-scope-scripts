@@ -35,10 +35,10 @@
             "description": "IDTR data for subscriber",
             "type": "object",
             "required": [
-                "coveredSince"
+                "coveredSinceDate"
             ],
             "properties": {
-                "coveredSince": {
+                "coveredSinceDate": {
                     "description": "date subscriber has been covered by IDTR",
                     "type": "string"
                 }

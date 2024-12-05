@@ -10,7 +10,7 @@ export const variants = {
             status: 'active',
         },
         identityRestoration: {
-            coveredSince: `${new Date()}`,
+            coveredSinceDate: `${new Date()}`,
         },
         vpn: {
             location: {

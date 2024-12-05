@@ -9,7 +9,7 @@ export const data = {
             status: 'active',
         },
         identityRestoration: {
-            coveredSince: `${new Date()}`,
+            coveredSinceDate: `${new Date()}`,
         },
         vpn: {
             location: {

@@ -482,7 +482,7 @@ export interface PrivacyProData {
     /**
      * date subscriber has been covered by IDTR
      */
-    coveredSince: string;
+    coveredSinceDate: string;
   };
   vpn: {
     /**
