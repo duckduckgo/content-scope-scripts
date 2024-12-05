@@ -143,7 +143,7 @@ export function PrivacyProBody({ data, action }) {
                 <button class={styles.panelButton} onClick={() => action('personalInformationRemoval')}>
                     <div class={styles.topSection}>
                         <img src="./icons/Information-Remover-128.svg" alt="Privacy Shield" />
-                        Information Removal
+                        <p>Information Removal</p>
                     </div>
                     <div class={styles.bottomSection}>
                         <p>Next Scan</p>
@@ -158,7 +158,7 @@ export function PrivacyProBody({ data, action }) {
                 <button class={styles.panelButton} onClick={() => action('vpn')}>
                     <div class={styles.topSection}>
                         <img src="./icons/Network-Protection-VPN-128.svg" alt="Privacy Shield" />
-                        VPN
+                        <p>VPN</p>
                     </div>
                     <div class={styles.bottomSection}>
                         <p>Location</p>
@@ -173,7 +173,7 @@ export function PrivacyProBody({ data, action }) {
                 <button class={styles.panelButton} onClick={() => action('identityRestoration')}>
                     <div class={styles.topSection}>
                         <img src="./icons/ID-128.svg" alt="Privacy Shield" />
-                        Identity Restoration
+                        <p>Identity Restoration</p>
                     </div>
                     <div class={styles.bottomSection}>
                         <p>Covered since</p>

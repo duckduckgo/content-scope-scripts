@@ -13,9 +13,8 @@ export const data = {
         },
         vpn: {
             location: {
-                cityName: 'Denver',
                 countryCode: 'us',
-                countryName: 'United States',
+                name: 'United States',
             },
             status: 'connected',
         },

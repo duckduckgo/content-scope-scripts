@@ -491,17 +491,13 @@ export interface PrivacyProData {
     status: "connected" | "connecting" | "disconnected" | "disconnecting";
     location: {
       /**
-       * Name of city VPN is using
-       */
-      cityName: string;
-      /**
        * For flag tooltip
        */
-      countryName: string;
+      name: string;
       /**
        * an ISO 3166 country code for displaying flag
        */
-      countryCode: string;
+      countryCode: string | null;
     } | null;
   };
 }
