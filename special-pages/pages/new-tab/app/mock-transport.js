@@ -457,10 +457,10 @@ export function mockTransport() {
                     if (url.searchParams.get('customizerDrawer') === 'enabled') {
                         settings.customizerDrawer = { state: 'enabled' };
                     }
-
-                    if (url.searchParams.get('privacy-pro') === 'enabled') {
-                        privacyPro = 'loggedin';
-                    }
+                    // TODO! PRIVACY PRO SEARCHPARAM
+                    // if (url.searchParams.get('privacy-pro') === 'enabled') {
+                    //     privacyPro = 'loggedin';
+                    // }
 
                     /** @type {import('../types/new-tab.ts').InitialSetupResponse} */
                     const initial = {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from 'preact/hooks';
+import { useCallback, useReducer } from 'preact/hooks';
 import { h } from 'preact';
 import { PrivacyProContext, PrivacyProDispatchContext } from '../PrivacyProProvider.js';
 import { data as privProData } from './stats.js';
