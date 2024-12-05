@@ -73,6 +73,7 @@
         }
 
         &:hover {
+            cursor: pointer;
             background-color: var(--color-black-at-6);
         }
         @media screen and (prefers-color-scheme: dark) {
@@ -138,6 +139,7 @@
     
     &:hover {
         border: 1px solid #3969EF;
+        cursor: pointer;
     }
 
     .topSection {

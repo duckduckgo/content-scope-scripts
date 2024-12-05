@@ -140,25 +140,12 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
 export function PrivacyProBody({ data, action }) {
     const formatDates = (date) => {
         let month = date.getMonth(); // JavaScript months are 0-indexed
-        const monthNames = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-        ];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         month = monthNames[month];
         const day = date.getDate();
         const year = date.getFullYear();
 
-        const formattedDate = `${month} ${day.toString().padStart(2, '0')} ${year}`;
+        const formattedDate = `${month} ${day.toString()}, ${year}`;
         console.log(formattedDate); // Output: 12 05 2024
         return formattedDate;
     };
