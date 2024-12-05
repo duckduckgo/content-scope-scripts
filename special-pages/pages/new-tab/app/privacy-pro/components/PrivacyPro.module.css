@@ -19,6 +19,7 @@
     grid-template-columns: 1.5rem auto auto 2rem;
     grid-column-gap: var(--sp-2);
     grid-row-gap: var(--sp-1);
+    align-items: center;
     grid-template-rows: auto;
     grid-template-areas: 'icon title buttonBlock expander';
 }
@@ -54,19 +55,31 @@
     gap: 6px;
     
     
-    button {
+    .headingBtn {
+        box-shadow: unset;
         opacity: 0;
         visibility: hidden;
         padding: 10px;
         background-color: transparent;
         box-sizing: border-box;
         transition: all .2s;
+        height: 2rem;
+
+        img {
+            height: 12px;
+            width: 12px;
+        }
+
+        &:hover {
+            background-color: var(--color-black-at-6);
+        }
+        @media screen and (prefers-color-scheme: dark) {
+            &:hover {
+                background-color: var(--color-white-at-6);
+            }
+        }
     }
 
-    img {
-        height: 12px;
-        width: 12px;
-    }
 
     &.visible {
         button {

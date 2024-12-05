@@ -36,6 +36,46 @@ export type NextStepsCards = {
     | "addAppToDockMac"
     | "pinAppToTaskbarWindows";
 }[];
+export type PrivacyProData = {
+  /**
+   * PIR data for subscriber
+   */
+  personalInformationRemoval: {
+    /**
+     * Date of subscriber's next schedule PIR scan
+     */
+    nextScanDate: string;
+    /**
+     * Status of PIR
+     */
+    status: "active" | "in-progress";
+  };
+  /**
+   * IDTR data for subscriber
+   */
+  identityRestoration: {
+    /**
+     * date subscriber has been covered by IDTR
+     */
+    coveredSinceDate: string;
+  };
+  vpn: {
+    /**
+     * Status of subscriber's VPN
+     */
+    status: "connected" | "connecting" | "disconnected" | "disconnecting";
+    location: {
+      /**
+       * For flag tooltip
+       */
+      name: string;
+      /**
+       * an ISO 3166 country code for displaying flag
+       */
+      countryCode: string | null;
+    } | null;
+  };
+} | null;
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
 
@@ -460,46 +500,6 @@ export interface PrivacyProConfig {
 export interface PrivacyProGetDataRequest {
   method: "privacyPro_getData";
   result: PrivacyProData;
-}
-export interface PrivacyProData {
-  /**
-   * PIR data for subscriber
-   */
-  personalInformationRemoval: {
-    /**
-     * Date of subscriber's next schedule PIR scan
-     */
-    nextScanDate: string;
-    /**
-     * Status of PIR
-     */
-    status: "active" | "in-progress";
-  };
-  /**
-   * IDTR data for subscriber
-   */
-  identityRestoration: {
-    /**
-     * date subscriber has been covered by IDTR
-     */
-    coveredSinceDate: string;
-  };
-  vpn: {
-    /**
-     * Status of subscriber's VPN
-     */
-    status: "connected" | "connecting" | "disconnected" | "disconnecting";
-    location: {
-      /**
-       * For flag tooltip
-       */
-      name: string;
-      /**
-       * an ISO 3166 country code for displaying flag
-       */
-      countryCode: string | null;
-    } | null;
-  };
 }
 /**
  * Generated from @see "../messages/rmf_getData.request.json"

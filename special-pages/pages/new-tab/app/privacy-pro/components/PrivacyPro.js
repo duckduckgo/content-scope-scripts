@@ -98,16 +98,16 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
             </span>
             <h2 className={styles.title}>{t('privacyPro_widgetTitle')}</h2>
             <div class={cn(styles.buttonBlock, expansion === 'collapsed' && styles.visible)}>
-                <Button onClick={() => action('personalInformationRemoval')}>
+                <Button className={styles.headingBtn} variant="standard" onClick={() => action('personalInformationRemoval')}>
                     <p class="sr-only">Personal Information Removal</p>
                     <img src="./icons/Identity-Blocked-PIR-Color-16.svg" alt="Personal Information Removal" />
                 </Button>
-                <Button onClick={() => action('vpn')}>
+                <Button className={styles.headingBtn} variant="standard" onClick={() => action('vpn')}>
                     <p class="sr-only">VPN</p>
 
                     <img src="./icons/VPN-Color-16.svg" alt="VPN" />
                 </Button>
-                <Button onClick={() => action('identityRestoration')}>
+                <Button className={styles.headingBtn} variant="standard" onClick={() => action('identityRestoration')}>
                     <p class="sr-only">Identity Restoration</p>
 
                     <img src="./icons/ID-32.svg" alt="Identity Restoration" />
