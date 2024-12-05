@@ -103,6 +103,6 @@ test.describe('special-error', () => {
 
         await special.openPage({ errorId: 'malware' });
         await special.showsAdvancedInfo();
-        await special.opensNewPage('you can report an error', url.toString());
+        await special.opensNewPage('report an error', url.toString());
     });
 });
