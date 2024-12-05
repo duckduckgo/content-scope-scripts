@@ -3,24 +3,24 @@ title: Privacy Pro
 ---
 
 ## Requests:
-- {@link "NewTab Messages".StatsGetDataRequest `stats_getData`}
+- {@link "NewTab Messages".StatsGetDataRequest `privacyPro_getData`}
     - Used to fetch the initial data (during the first render)
     - returns {@link "NewTab Messages".PrivacyStatsData}
 
-- {@link "NewTab Messages".StatsGetDataRequest `stats_getConfig`}
+- {@link "NewTab Messages".StatsGetDataRequest `privacyPro_getConfig`}
     - Used to fetch the initial config data (eg: expanded vs collapsed)
     - returns {@link "NewTab Messages".StatsConfig}
 
 ## Subscriptions:
-- {@link "NewTab Messages".StatsOnDataUpdateSubscription `stats_onDataUpdate`}.
+- {@link "NewTab Messages".StatsOnDataUpdateSubscription `privacyPro_onDataUpdate`}.
     - The tracker/company data used in the feed.
     - returns {@link "NewTab Messages".PrivacyStatsData}
-- {@link "NewTab Messages".StatsOnDataUpdateSubscription `stats_onConfigUpdate`}.
+- {@link "NewTab Messages".StatsOnDataUpdateSubscription `privacyPro_onConfigUpdate`}.
     - The widget config
     - returns {@link "NewTab Messages".StatsConfig}
 
 ## Notifications:
-- {@link "NewTab Messages".StatsSetConfigNotification `stats_setConfig`}
+- {@link "NewTab Messages".StatsSetConfigNotification `privacyPro_setConfig`}
     - Sent when the user toggles the expansion of the stats
     - sends {@link "NewTab Messages".StatsConfig}
     - example payload:

@@ -1,7 +1,7 @@
-import { stats } from '../mocks/stats.js';
+import { data } from '../mocks/stats.js';
 import { expect } from '@playwright/test';
 
-export class PrivacyStatsPage {
+export class PrivacyProPage {
     /**
      * @param {import("@playwright/test").Page} page
      * @param {import("../../../integration-tests/new-tab.page.js").NewtabPage} ntp
@@ -16,20 +16,20 @@ export class PrivacyStatsPage {
      * @param {number} params.count
      */
     async receive({ count }) {
-        /** @type {import("../../../types/new-tab.js").PrivacyStatsData} */
-        const next = { totalCount: 0, trackerCompanies: stats.many.trackerCompanies.slice(0, count) };
-        await this.ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', next);
+        /** @type {import("../../../types/new-tab.js").PrivacyProData} */
+        const next = data.basic;
+        await this.ntp.mocks.simulateSubscriptionMessage('privacyPro_onDataUpdate', next);
     }
 
     /**
-     * @param {import("../../../types/new-tab.js").PrivacyStatsData} data
+     * @param {import("../../../types/new-tab.js").PrivacyProData} data
      */
     async receiveData(data) {
-        await this.ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', data);
+        await this.ntp.mocks.simulateSubscriptionMessage('privacyPro_onDataUpdate', data);
     }
 
     context() {
-        return this.page.locator('[data-entry-point="privacyStats"]');
+        return this.page.locator('[data-entry-point="privacyPro"]');
     }
 
     rows() {

@@ -4,13 +4,22 @@
  */
 export const variants = {
     /** @param {(translationId: keyof enStrings) => string} t */
-    bringStuff: (t) => ({
-        id: 'bringStuff',
-        icon: 'Bring-Stuff',
-        title: t('nextSteps_bringStuff_title'),
-        summary: t('nextSteps_bringStuff_summary'),
-        actionText: t('nextSteps_bringStuff_actionText'),
-    }),
+    basic: {
+        personalInformationRemoval: {
+            nextScanDate: `${new Date()}`,
+            status: 'active',
+        },
+        identityRestoration: {
+            coveredSince: `${new Date()}`,
+        },
+        vpn: {
+            cityName: 'Denver',
+            countryCode: 'us',
+            countryName: 'United States',
+            location: 'Denver, CO, US',
+            status: 'connected',
+        },
+    },
 };
 
 export const otherText = {

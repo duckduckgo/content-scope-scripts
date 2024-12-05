@@ -14,7 +14,7 @@ export const mainExamples = {
     ...nextStepsExamples,
     ...privacyStatsExamples,
     ...RMFExamples,
-    ...privacyProExamples
+    ...privacyProExamples,
 };
 
 export const otherExamples = {
