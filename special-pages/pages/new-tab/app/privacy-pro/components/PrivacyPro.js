@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import { useCallback, useContext, useId } from 'preact/hooks';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useCustomizer } from '../../customizer/components/Customizer.js';
@@ -96,7 +97,7 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
                 <img src="./icons/PrivacyPro.svg" alt="Privacy Shield" />
             </span>
             <h2 className={styles.title}>{t('privacyPro_widgetTitle')}</h2>
-            <div class={styles.buttonBlock}>
+            <div class={cn(styles.buttonBlock, expansion === 'collapsed' && styles.visible)}>
                 <Button onClick={() => action('personalInformationRemoval')}>
                     <p class="sr-only">Personal Information Removal</p>
                     <img src="./icons/Identity-Blocked-PIR-Color-16.svg" alt="Personal Information Removal" />
