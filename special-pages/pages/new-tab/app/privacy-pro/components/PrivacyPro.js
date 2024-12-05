@@ -117,9 +117,26 @@ export function Heading({ expansion, onToggle, buttonAttrs = {} }) {
 
 export function PrivacyProBody({ data }) {
     return (
-        <Fragment>
-            <h1>Privacy PRo widget bodys</h1>
-        </Fragment>
+        <div class={styles.body}>
+            {data.personalInformationRemoval && (
+                <button class={styles.panelButton}>
+                    <img src="./icons/Information-Remover-128.svg" alt="Privacy Shield" />
+                    personalInformationRemoval
+                </button>
+            )}
+            {data.vpn && (
+                <button class={styles.panelButton}>
+                    <img src="./icons/Network-Protection-VPN-128.svg" alt="Privacy Shield" />
+                    vpn
+                </button>
+            )}
+            {data.identityRestoration && (
+                <button class={styles.panelButton}>
+                    <img src="./icons/ID-128.svg" alt="Privacy Shield" />
+                    identityRestoration
+                </button>
+            )}
+        </div>
     );
 }
 
