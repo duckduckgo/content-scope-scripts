@@ -10,6 +10,8 @@ export class PrivacyProService {
      * @internal
      */
     constructor(ntp) {
+        this.ntp = ntp;
+
         /** @type {Service<PrivacyProData>} */
         this.dataService = new Service({
             initial: () => ntp.messaging.request('privacyPro_getData'),
@@ -76,5 +78,13 @@ export class PrivacyProService {
                 return { ...old, expansion: /** @type {const} */ ('expanded') };
             }
         });
+    }
+
+    /**
+     * Perform action on a button in header or body of PrivacyPro widget
+     * @param {string} id
+     */
+    action(id) {
+        this.ntp.messaging.notify('privacyPro_action', { id });
     }
 }

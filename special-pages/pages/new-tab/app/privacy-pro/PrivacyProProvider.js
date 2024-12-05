@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../types.js';
 import { PrivacyProService } from './privacy-pro.service.js';
 import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../service.hooks.js';
@@ -20,6 +20,10 @@ export const PrivacyProContext = createContext({
     /** @type {() => void} */
     toggle: () => {
         throw new Error('must implement');
+    },
+    /** @type {(id: string) => void} */
+    action: (id) => {
+        throw new Error(`Privacy Pro action ${id}`);
     },
 });
 
@@ -54,8 +58,15 @@ export function PrivacyProProvider(props) {
     // subscribe to toggle + expose a fn for sync toggling
     const { toggle } = useConfigSubscription({ dispatch, service });
 
+    const action = useCallback(
+        (id) => {
+            service.current?.action(id);
+        },
+        [service],
+    );
+
     return (
-        <PrivacyProContext.Provider value={{ state, toggle }}>
+        <PrivacyProContext.Provider value={{ state, toggle, action }}>
             <PrivacyProDispatchContext.Provider value={dispatch}>{props.children}</PrivacyProDispatchContext.Provider>
         </PrivacyProContext.Provider>
     );

@@ -23,15 +23,16 @@ import { Button } from '../../../../../shared/components/Button/Button.js';
  * @param {Expansion} props.expansion
  * @param {PrivacyProData} props.data
  * @param {()=>void} props.toggle
+ * @param {(id: string)=>void} props.action
  * @param {Animation['kind']} [props.animation] - optionally configure animations
  */
-export function PrivacyPro({ expansion, data, toggle, animation = 'auto-animate' }) {
+export function PrivacyPro({ expansion, data, toggle, animation = 'auto-animate', action }) {
     if (animation === 'view-transitions') {
-        return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />;
+        return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} action={action} />;
     }
 
     // no animations
-    return <PrivacyProConfigured expansion={expansion} data={data} toggle={toggle} />;
+    return <PrivacyProConfigured expansion={expansion} data={data} toggle={toggle} action={action} />;
 }
 
 /**
@@ -39,12 +40,13 @@ export function PrivacyPro({ expansion, data, toggle, animation = 'auto-animate'
  * @param {Expansion} props.expansion
  * @param {PrivacyProData} props.data
  * @param {()=>void} props.toggle
+ * @param {(id: string)=>void} props.action
  */
-function WithViewTransitions({ expansion, data, toggle }) {
+function WithViewTransitions({ expansion, data, toggle, action }) {
     const willToggle = useCallback(() => {
         viewTransition(toggle);
     }, [toggle]);
-    return <PrivacyProConfigured expansion={expansion} data={data} toggle={willToggle} />;
+    return <PrivacyProConfigured expansion={expansion} data={data} toggle={willToggle} action={action} />;
 }
 
 /**
@@ -168,7 +170,7 @@ export function PrivacyProBody({ data, action }) {
                 </button>
             )}
             {data.identityRestoration && (
-                <button class={styles.panelButton}>
+                <button class={styles.panelButton} onClick={() => action('identityRestoration')}>
                     <div class={styles.topSection}>
                         <img src="./icons/ID-128.svg" alt="Privacy Shield" />
                         Identity Restoration
@@ -223,9 +225,17 @@ export function PrivacyProCustomized() {
  * ```
  */
 export function PrivacyProConsumer() {
-    const { state, toggle } = useContext(PrivacyProContext);
+    const { state, toggle, action } = useContext(PrivacyProContext);
     if (state.status === 'ready') {
-        return <PrivacyPro expansion={state.config.expansion} animation={state.config.animation?.kind} data={state.data} toggle={toggle} />;
+        return (
+            <PrivacyPro
+                expansion={state.config.expansion}
+                animation={state.config.animation?.kind}
+                data={state.data}
+                toggle={toggle}
+                action={action}
+            />
+        );
     }
     return null;
 }

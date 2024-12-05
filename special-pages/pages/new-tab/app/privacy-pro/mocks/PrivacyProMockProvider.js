@@ -45,8 +45,10 @@ export function PrivacyProMockProvider({
         }
     }, [state.config?.expansion]);
 
+    const action = (id) => console.log('Click on ', id);
+
     return (
-        <PrivacyProContext.Provider value={{ state, toggle }}>
+        <PrivacyProContext.Provider value={{ state, toggle, action }}>
             <PrivacyProDispatchContext.Provider value={send}>{children}</PrivacyProDispatchContext.Provider>
         </PrivacyProContext.Provider>
     );
