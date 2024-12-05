@@ -138,6 +138,31 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
  */
 
 export function PrivacyProBody({ data, action }) {
+    const formatDates = (date) => {
+        let month = date.getMonth(); // JavaScript months are 0-indexed
+        const monthNames = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
+        ];
+        month = monthNames[month];
+        const day = date.getDate();
+        const year = date.getFullYear();
+
+        const formattedDate = `${month} ${day.toString().padStart(2, '0')} ${year}`;
+        console.log(formattedDate); // Output: 12 05 2024
+        return formattedDate;
+    };
+
     return (
         <div class={styles.body}>
             {data?.personalInformationRemoval && (
@@ -148,7 +173,7 @@ export function PrivacyProBody({ data, action }) {
                     </div>
                     <div class={styles.middleSection}>
                         <p>Next Scan</p>
-                        <p>DATE</p>
+                        <p>{formatDates(new Date(data.personalInformationRemoval.nextScanDate))}</p>
                     </div>
                     <div class={styles.bottomSection}>
                         <span class={styles.statusDot}></span>
@@ -164,7 +189,7 @@ export function PrivacyProBody({ data, action }) {
                     </div>
                     <div class={styles.middleSection}>
                         <p>Location</p>
-                        <p>United Kingdom</p>
+                        <p>🇬🇧 United Kingdom</p>
                     </div>
                     <div class={styles.bottomSection}>
                         <span class={styles.statusDot}></span>
@@ -180,7 +205,7 @@ export function PrivacyProBody({ data, action }) {
                     </div>
                     <div class={styles.middleSection}>
                         <p>Covered since</p>
-                        <p>DATE</p>
+                        <p>{formatDates(new Date(data.identityRestoration.coveredSinceDate))}</p>
                     </div>
                     <div class={styles.bottomSection}>
                         <span class={styles.statusDot}></span>
