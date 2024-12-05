@@ -365,7 +365,7 @@ export function mockTransport() {
                 }
                 case 'privacyPro_getConfig': {
                     /** @type {PrivacyProConfig} */
-                    const defaultConfig = { expansion: 'expanded', animation: { kind: 'auto-animate' } };
+                    const defaultConfig = { expansion: 'collapsed', animation: { kind: 'auto-animate' } };
                     const fromStorage = read('privacyPro_config') || defaultConfig;
                     if (url.searchParams.get('animation') === 'none') {
                         fromStorage.animation = { kind: 'none' };

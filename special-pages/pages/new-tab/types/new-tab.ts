@@ -48,7 +48,7 @@ export type PrivacyProData = {
     /**
      * Status of PIR
      */
-    status: "active" | "in-progress";
+    status: "active" | "in-progress" | "inactive";
   };
   /**
    * IDTR data for subscriber
@@ -64,16 +64,19 @@ export type PrivacyProData = {
      * Status of subscriber's VPN
      */
     status: "connected" | "connecting" | "disconnected" | "disconnecting";
-    location: {
-      /**
-       * For flag tooltip
-       */
-      name: string;
-      /**
-       * an ISO 3166 country code for displaying flag
-       */
-      countryCode: string | null;
-    } | null;
+    location:
+      | {
+          /**
+           * For flag tooltip
+           */
+          name: string;
+          /**
+           * an ISO 3166 country code for displaying flag
+           */
+          countryCode: string | null;
+        }
+      | null
+      | string;
   };
 } | null;
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;

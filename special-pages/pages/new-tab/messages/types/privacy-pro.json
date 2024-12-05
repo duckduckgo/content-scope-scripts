@@ -2,7 +2,10 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Privacy Pro Data",
     "description": "",
-    "type": ["object", "null"],
+    "type": [
+        "object",
+        "null"
+    ],
     "required": [
         "personalInformationRemoval",
         "identityRestoration",
@@ -26,7 +29,8 @@
                     "type": "string",
                     "enum": [
                         "active",
-                        "in-progress"
+                        "in-progress",
+                        "inactive"
                     ]
                 }
             }
@@ -48,8 +52,7 @@
             "type": "object",
             "required": [
                 "status",
-                "location",
-                "countryCode"
+                "location"
             ],
             "properties": {
                 "status": {
@@ -66,7 +69,8 @@
                     "description": "",
                     "type": [
                         "object",
-                        "null"
+                        "null",
+                        "string"
                     ],
                     "required": [
                         "name",

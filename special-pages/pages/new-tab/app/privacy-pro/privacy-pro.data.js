@@ -7,7 +7,7 @@ export const variants = {
     basic: {
         personalInformationRemoval: {
             nextScanDate: `${new Date()}`,
-            status: 'active',
+            status: 'inactive',
         },
         identityRestoration: {
             coveredSinceDate: `${new Date()}`,
