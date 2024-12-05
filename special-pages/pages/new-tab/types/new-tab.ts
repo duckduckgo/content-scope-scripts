@@ -495,7 +495,7 @@ export interface PrivacyProData {
        */
       cityName: string;
       /**
-       * for flag tooltip
+       * For flag tooltip
        */
       countryName: string;
       /**
