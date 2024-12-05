@@ -13,7 +13,7 @@ export function mockTransport() {
                 errorId = 'ssl.invalid';
             }
 
-            /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['requests']} */
+            /** @type {import('../../types/special-error').SpecialErrorMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'initialSetup': {
@@ -21,18 +21,18 @@ export function mockTransport() {
                     const errorId = searchParams.get('errorId');
                     const platformName = searchParams.get('platformName');
 
-                    /** @type {import('../../../../types/special-error').InitialSetupResponse['errorData']} */
+                    /** @type {import('../../types/special-error').InitialSetupResponse['errorData']} */
                     let errorData = sampleData['ssl.expired'].data;
                     if (errorId && Object.keys(sampleData).includes(errorId)) {
                         errorData = sampleData[errorId].data;
                     }
 
                     const supportedPlatforms = ['macos', 'ios'];
-                    /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']} */
+                    /** @type {import('../../types/special-error').InitialSetupResponse['platform']} */
                     let platform = { name: 'macos' };
                     if (platformName && supportedPlatforms.includes(platformName)) {
                         platform = {
-                            name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */ (
+                            name: /** @type {import('../../types/special-error').InitialSetupResponse['platform']['name']} */ (
                                 platformName
                             ),
                         };
@@ -51,13 +51,6 @@ export function mockTransport() {
         },
         subscribe(_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
-            /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['subscriptions']['subscriptionEvent']} */
-            const subscription = /** @type {any} */ (_msg.subscriptionName);
-
-            switch (subscription) {
-                // Add subscription logic here
-                default:
-            }
 
             return () => {
                 // any cleanup
