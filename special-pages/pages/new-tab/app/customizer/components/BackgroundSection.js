@@ -3,8 +3,9 @@ import cn from 'classnames';
 
 import { values } from '../values.js';
 import styles from './CustomizerDrawerInner.module.css';
-import { CircleCheck } from '../../components/Icons.js';
+import { CircleCheck, PlusIcon } from '../../components/Icons.js';
 import { computed } from '@preact/signals';
+import { useId } from 'preact/hooks';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData } from '../../../types/new-tab.js'
@@ -12,11 +13,12 @@ import { computed } from '@preact/signals';
 
 /**
  * @param {object} props
+ * @param {(bg: CustomizerData['background']) => void} props.select
  * @param {import('@preact/signals').Signal<CustomizerData>} props.data
  * @param {(target: 'color' | 'back' | 'image' | 'gradient') => void} props.onNav
  * @param {() => void} props.onUpload
  */
-export function BackgroundSection({ data, onNav, onUpload }) {
+export function BackgroundSection({ data, onNav, onUpload, select }) {
     console.log('    RENDER:BackgroundSection?');
     const color = values.colors.color11;
     const gradient = values.gradients.gradient02;
@@ -24,79 +26,119 @@ export function BackgroundSection({ data, onNav, onUpload }) {
     return (
         <div class={styles.section}>
             <h3 class={styles.sectionTitle}>Background</h3>
-            <ul class={cn(styles.sectionBody, styles.bgList)}>
+            <ul class={cn(styles.sectionBody, styles.bgList)} role="radiogroup">
                 <li class={styles.bgListItem}>
-                    <DefaultPanel />
+                    <DefaultPanel checked={data.value.background.kind === 'default'} onClick={() => select({ kind: 'default' })} />
                 </li>
                 <li class={styles.bgListItem}>
-                    <ColorPanel color={color} onClick={() => onNav('color')} />
+                    <ColorPanel checked={data.value.background.kind === 'color'} color={color} onClick={() => onNav('color')} />
                 </li>
                 <li class={styles.bgListItem}>
-                    <GradientPanel gradient={gradient} onClick={() => onNav('gradient')} />
+                    <GradientPanel
+                        checked={data.value.background.kind === 'gradient'}
+                        gradient={gradient}
+                        onClick={() => onNav('gradient')}
+                    />
                 </li>
                 <li class={styles.bgListItem}>
-                    <BackgroundImagePanel onClick={() => onNav('image')} data={data} upload={onUpload} />
+                    <BackgroundImagePanel
+                        checked={data.value.background.kind === 'userImage'}
+                        onClick={() => onNav('image')}
+                        data={data}
+                        upload={onUpload}
+                    />
                 </li>
             </ul>
         </div>
     );
 }
 
-function DefaultPanel() {
+/**
+ * @param {object} props
+ * @param {boolean} props.checked
+ * @param {() => void} props.onClick
+ */
+function DefaultPanel({ checked, onClick }) {
+    const id = useId();
     return (
         <>
-            <button class={cn(styles.bgPanel, styles.bgPanelEmpty)}>
-                <CircleCheck />
+            <button
+                class={cn(styles.bgPanel, styles.bgPanelEmpty)}
+                aria-checked={checked}
+                aria-labelledby={id}
+                role="radio"
+                onClick={onClick}
+            >
+                {checked && <CircleCheck />}
             </button>
-            Default
+            <span id={id}>Default</span>
         </>
     );
 }
 
 /**
  * @param {object} props
+ * @param {boolean} props.checked
  * @param {() => void} props.onClick
  * @param {typeof values.colors[keyof typeof values.colors]} props.color
  */
 function ColorPanel(props) {
+    const id = useId();
     return (
         <>
-            <button class={styles.bgPanel} onClick={props.onClick} style={{ background: props.color.hex }}></button>
-            Solid Colors
+            <button
+                class={styles.bgPanel}
+                onClick={props.onClick}
+                aria-checked={props.checked}
+                aria-labelledby={id}
+                role="radio"
+                style={{ background: props.color.hex }}
+            >
+                {props.checked && <CircleCheck />}
+            </button>
+            <span id={id}>Solid Colors</span>
         </>
     );
 }
 
 /**
  * @param {object} props
+ * @param {boolean} props.checked
  * @param {() => void} props.onClick
  * @param {typeof values.gradients[keyof typeof values.gradients]} props.gradient
  */
 function GradientPanel(props) {
+    const id = useId();
     return (
         <>
             <button
                 onClick={props.onClick}
                 class={styles.bgPanel}
+                aria-checked={props.checked}
+                aria-labelledby={id}
                 style={{
                     background: `url(${props.gradient.path})`,
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center center',
                 }}
-            ></button>
-            Gradients
+            >
+                {props.checked && <CircleCheck />}
+            </button>
+            <span id={id}>Gradients</span>
         </>
     );
 }
 
 /**
  * @param {object} props
+ * @param {boolean} props.checked
  * @param {() => void} props.onClick
  * @param {() => void} props.upload
  * @param {import('@preact/signals').Signal<CustomizerData>} props.data
  */
 function BackgroundImagePanel(props) {
+    const id = useId();
     const empty = computed(() => props.data.value.userImages.length === 0);
     const selectedImage = computed(() => {
         const imageId = props.data.value.background.kind === 'userImage' ? props.data.value.background.value : null;
@@ -113,53 +155,49 @@ function BackgroundImagePanel(props) {
         return props.data.value.userImages[0] ?? null;
     });
 
+    // prettier-ignore
+    const label = empty.value === true
+        ? <span id={id}>Add Background</span>
+        : <span id={id}>My Backgrounds</span>;
+
     if (empty.value === true) {
         return (
             <Fragment>
-                <button class={cn(styles.bgPanel, styles.bgPanelEmpty)} onClick={props.upload}>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M8.25 0.5C8.66421 0.5 9 0.835786 9 1.25V7H14.75C15.1642 7 15.5 7.33579 15.5 7.75C15.5 8.16421 15.1642 8.5 14.75 8.5H9V14.25C9 14.6642 8.66421 15 8.25 15C7.83579 15 7.5 14.6642 7.5 14.25V8.5H1.75C1.33579 8.5 1 8.16421 1 7.75C1 7.33579 1.33579 7 1.75 7H7.5V1.25C7.5 0.835786 7.83579 0.5 8.25 0.5Z"
-                            fill="currentColor"
-                        />
-                    </svg>
+                <button
+                    class={cn(styles.bgPanel, styles.bgPanelEmpty)}
+                    aria-checked={props.checked}
+                    aria-labelledby={id}
+                    role={'radio'}
+                    onClick={props.upload}
+                >
+                    <PlusIcon />
                 </button>
-                Add Background
+                {label}
             </Fragment>
         );
     }
 
-    if (selectedImage.value !== null) {
-        return (
-            <Fragment>
-                <button
-                    class={cn(styles.bgPanel)}
-                    onClick={props.onClick}
-                    style={{
-                        backgroundImage: `url(${selectedImage.value?.thumb})`,
-                        backgroundSize: 'cover',
-                        backgroundRepeat: 'no-repeat',
-                    }}
-                ></button>
-                My Backgrounds
-            </Fragment>
-        );
-    }
+    // prettier-ignore
+    const image = selectedImage.value !== null
+        ? selectedImage.value?.thumb
+        : firstImage.value?.thumb;
 
     return (
         <Fragment>
             <button
                 class={cn(styles.bgPanel)}
                 onClick={props.onClick}
+                aria-checked={props.checked}
+                aria-labelledby={id}
                 style={{
-                    backgroundImage: `url(${firstImage.value?.thumb})`,
+                    backgroundImage: `url(${image})`,
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                 }}
-            ></button>
-            My Backgrounds
+            >
+                {props.checked && <CircleCheck />}
+            </button>
+            {label}
         </Fragment>
     );
 }

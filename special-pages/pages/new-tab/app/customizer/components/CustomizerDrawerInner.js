@@ -36,7 +36,7 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                 <h2>Customize</h2>
                 <button onClick={close}>Close</button>
             </header>
-            {state.value === 'home' && <BackgroundSection data={data} onNav={onNav} onUpload={onUpload} />}
+            {state.value === 'home' && <BackgroundSection data={data} onNav={onNav} onUpload={onUpload} select={select} />}
             {state.value === 'home' && <BrowserThemeSection data={data} setTheme={setTheme} />}
             {state.value === 'home' && <VisibilityMenuSection />}
             {state.value === 'color' && <ColorSelection data={data} select={select} back={back} />}

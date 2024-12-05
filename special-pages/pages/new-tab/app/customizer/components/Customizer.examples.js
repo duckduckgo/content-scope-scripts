@@ -15,7 +15,7 @@ export const customizerExamples = {
             return (
                 <Provider>
                     {({ data, select }) => {
-                        return <BackgroundSection data={data} onNav={noop('onNav')} onUpload={noop('onUpload')} />;
+                        return <BackgroundSection data={data} onNav={noop('onNav')} onUpload={noop('onUpload')} select={select} />;
                     }}
                 </Provider>
             );
