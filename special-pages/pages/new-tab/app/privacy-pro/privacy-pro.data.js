@@ -2,12 +2,17 @@
  * @import enStrings from "./strings.json"
  * @import ntpStrings from "../strings.json"
  */
+
+/**
+ * @typedef {import('../../types/new-tab').PrivacyProData} PrivacyProData
+ */
+
 export const variants = {
-    /** @param {(translationId: keyof enStrings) => string} t */
+    /** @type {PrivacyProData} */
     basic: {
         personalInformationRemoval: {
             nextScanDate: `${new Date()}`,
-            status: 'inactive',
+            status: /** type {const} */ 'inactive',
         },
         identityRestoration: {
             coveredSinceDate: `${new Date()}`,

@@ -377,7 +377,7 @@ export function mockTransport() {
                 }
                 case 'privacyPro_getData': {
                     /** @type {PrivacyProData} */
-                    const data = privacyProData.basic;
+                    const data = privacyProData?.basic;
                     return Promise.resolve(data);
                 }
                 case 'nextSteps_getConfig': {
