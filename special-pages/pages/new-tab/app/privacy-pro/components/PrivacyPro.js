@@ -143,7 +143,7 @@ export function PrivacyProBody({ data, action }) {
             {data.personalInformationRemoval && (
                 <button class={styles.panelButton} onClick={() => action('personalInformationRemoval')}>
                     <div class={styles.topSection}>
-                        <img src="./icons/Information-Remover-128.svg" alt="Privacy Shield" />
+                        <img src="./icons/Information-Remover-32.svg" alt="Privacy Shield" />
                         <p>Information Removal</p>
                     </div>
                     <div class={styles.middleSection}>
@@ -151,16 +151,15 @@ export function PrivacyProBody({ data, action }) {
                         <p>DATE</p>
                     </div>
                     <div class={styles.bottomSection}>
-                        <p>
-                            <span class={styles.statusDot}></span> In Progress
-                        </p>
+                        <span class={styles.statusDot}></span>
+                        <p>In Progress</p>
                     </div>
                 </button>
             )}
             {data.vpn && (
                 <button class={styles.panelButton} onClick={() => action('vpn')}>
                     <div class={styles.topSection}>
-                        <img src="./icons/Network-Protection-VPN-128.svg" alt="Privacy Shield" />
+                        <img src="./icons/VPN-Color-32.svg" alt="Privacy Shield" />
                         <p>VPN</p>
                     </div>
                     <div class={styles.middleSection}>
@@ -168,16 +167,15 @@ export function PrivacyProBody({ data, action }) {
                         <p>United Kingdom</p>
                     </div>
                     <div class={styles.bottomSection}>
-                        <p>
-                            <span class={styles.statusDot}></span> ON
-                        </p>
+                        <span class={styles.statusDot}></span>
+                        <p>ON</p>
                     </div>
                 </button>
             )}
             {data.identityRestoration && (
                 <button class={styles.panelButton} onClick={() => action('identityRestoration')}>
                     <div class={styles.topSection}>
-                        <img src="./icons/ID-128.svg" alt="Privacy Shield" />
+                        <img src="./icons/ID-32.svg" alt="Privacy Shield" />
                         <p>Identity Restoration</p>
                     </div>
                     <div class={styles.middleSection}>
@@ -185,9 +183,8 @@ export function PrivacyProBody({ data, action }) {
                         <p>DATE</p>
                     </div>
                     <div class={styles.bottomSection}>
-                        <p>
-                            <span class={styles.statusDot}></span> Available
-                        </p>
+                        <span class={styles.statusDot}></span>
+                        <p>Available</p>
                     </div>
                 </button>
             )}
