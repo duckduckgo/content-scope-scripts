@@ -41,6 +41,13 @@
 [data-platform-name="macos"] {
     & .icon {
         align-self: flex-start;
+        flex: 0 0 var(--sp-12);
+        height: var(--sp-12);
+        width: var(--sp-12);
+    }
+
+    & .heading {
+        gap: var(--sp-4);
     }
 
     & .ssl.heading {
@@ -49,18 +56,14 @@
 
     & .ssl .icon {
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-96.svg);
-        flex: 0 0 var(--sp-12);
-        height: var(--sp-12);
-        width: var(--sp-12);
         margin-left: calc(-1 * var(--sp-2));
         margin-top: calc(-1 * var(--sp-2));
     }
 
     & .phishing .icon, & .malware .icon {
-        background-image: url(../../../../shared/assets/img/icons/Phishing-64.svg);
-        flex: 0 0 var(--sp-16);
-        height: var(--sp-12);
-        width: var(--sp-16);
+        background-image: url(../../../../shared/assets/img/icons/Malware-Site-96.svg);
+        margin-left: calc(-1 * var(--sp-2));
+        margin-right: calc(-1 * var(--sp-1));
     }
 
     & .buttonContainer {
@@ -114,6 +117,6 @@
     }
 
     & .phishing .icon, & .malware .icon {
-        background-image: url(../../../../shared/assets/img/icons/Phishing-64.svg);
+        background-image: url(../../../../shared/assets/img/icons/Malware-Site-96.svg);
     }
 }

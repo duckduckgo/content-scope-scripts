@@ -41,7 +41,7 @@ body {
 [data-platform-name="macos"] {
     & .container {
         background: var(--container-bg);
-        border-radius: var(--sp-2);
+        border-radius: var(--sp-4);
         border: 1px solid var(--border-color);
         min-width: calc(400 * var(--px-in-rem));
         width: calc(504 * var(--px-in-rem));
