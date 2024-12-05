@@ -150,7 +150,7 @@
         p {
             line-height: 14px;
         }
-        p:nth-child(2) {
+        p:last-child {
             font-weight: 600;
         }
     }
