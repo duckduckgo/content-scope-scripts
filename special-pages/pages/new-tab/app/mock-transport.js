@@ -526,6 +526,12 @@ function customizerData() {
     if (url.searchParams.has('userImages')) {
         customizer.userImages = [values.userImages['01'], values.userImages['02'], values.userImages['03']];
     }
+    if (url.searchParams.has('theme')) {
+        const value = url.searchParams.get('theme');
+        if (value === 'light' || value === 'dark' || value === 'system') {
+            customizer.theme = value;
+        }
+    }
 
     return customizer;
 }

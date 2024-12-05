@@ -86,7 +86,9 @@ function GradientGrid({ data }) {
                                 backgroundSize: 'cover',
                                 backgroundRepeat: 'no-repeat',
                             }}
-                        ></button>
+                        >
+                            <span className="sr-only">Select {key}</span>
+                        </button>
                     </li>
                 );
             })}

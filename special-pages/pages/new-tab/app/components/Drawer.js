@@ -1,5 +1,6 @@
 import { useRef, useId, useLayoutEffect } from 'preact/hooks';
 import { batch, computed, effect, useSignal } from '@preact/signals';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 
 const CLOSE_DRAWER_EVENT = 'close-drawer';
 const TOGGLE_DRAWER_EVENT = 'toggle-drawer';
@@ -30,6 +31,7 @@ const REQUEST_VISIBILITY_EVENT = 'request-visibility';
  * }}
  */
 export function useDrawer() {
+    const { isReducedMotion } = useEnv();
     const wrapperRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const buttonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
 
@@ -59,8 +61,10 @@ export function useDrawer() {
          * @param {DrawerVisibility} value
          */
         const update = (value) => {
-            console.log('did update?');
             visibility.value = value;
+            if (isReducedMotion) {
+                displayChildren.value = visibility.value === 'visible';
+            }
         };
 
         // Event handlers
@@ -113,7 +117,7 @@ export function useDrawer() {
         return () => {
             controller.abort();
         };
-    }, []);
+    }, [isReducedMotion]);
 
     // move focus back to the button when the drawer is closed
     // this needs to be done otherwise it's a violation of aria rules
