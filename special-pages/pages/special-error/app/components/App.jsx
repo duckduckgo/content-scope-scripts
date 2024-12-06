@@ -34,6 +34,9 @@ function PageTitle() {
 
     useEffect(() => {
         switch (kind) {
+            case 'malware':
+                document.title = t('malwarePageHeading');
+                break;
             case 'phishing':
                 document.title = t('phishingPageHeading');
                 break;

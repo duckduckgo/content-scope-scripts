@@ -1,5 +1,6 @@
 import { test } from '@playwright/test';
-import { SpecialErrorPage } from './special-error.js';
+import { SpecialErrorPage } from './special-error';
+import { phishingMalwareHelpPageURL, reportSiteAsSafeFormURL } from '../app/constants';
 
 test.describe('special-error', () => {
     test('initial handshake', async ({ page }, workerInfo) => {
@@ -53,6 +54,12 @@ test.describe('special-error', () => {
         await special.showsPhishingPage();
     });
 
+    test('shows malware warning', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.openPage({ errorId: 'malware' });
+        await special.showsMalwarePage();
+    });
+
     test('leaves site', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.openPage({ errorId: 'ssl.expired' });
@@ -67,12 +74,35 @@ test.describe('special-error', () => {
 
     test('opens phishing help page in a new window', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
+        await special.overrideTestLinks();
+
+        const expectedURL = `${phishingMalwareHelpPageURL}`;
+
         await special.openPage({ errorId: 'phishing' });
-        await special.opensNewPage('Learn more', 'https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/');
+        await special.opensNewPage('Learn more', expectedURL);
         await special.showsAdvancedInfo();
-        await special.opensNewPage(
-            'Phishing and Malware Protection help page',
-            'https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/',
-        );
+        await special.opensNewPage('Phishing and Malware Protection help page', expectedURL);
+    });
+
+    test('opens malware help page in a new window', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.overrideTestLinks();
+
+        const expectedURL = `${phishingMalwareHelpPageURL}`;
+
+        await special.openPage({ errorId: 'malware' });
+        await special.opensNewPage('Learn more', expectedURL);
+    });
+
+    test('opens report form in a new window', async ({ page, browser }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.overrideTestLinks();
+
+        const url = new URL(reportSiteAsSafeFormURL);
+        url.searchParams.set('url', 'https://privacy-test-pages.site/security/badware/malware.html');
+
+        await special.openPage({ errorId: 'malware' });
+        await special.showsAdvancedInfo();
+        await special.opensNewPage('report an error', url.toString());
     });
 });
