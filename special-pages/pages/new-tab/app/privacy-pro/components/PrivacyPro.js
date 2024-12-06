@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import { useCallback, useContext, useId } from 'preact/hooks';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
@@ -8,6 +8,7 @@ import { viewTransition } from '../../utils.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { PrivacyProContext, PrivacyProProvider } from '../PrivacyProProvider.js';
 import styles from './PrivacyPro.module.css';
+import { Button } from '../../../../../shared/components/Button/Button.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -74,8 +75,9 @@ function PrivacyProConfigured({ parentRef, expansion, data, toggle, action }) {
                     id: TOGGLE_ID,
                 }}
                 action={action}
+                isNonsubscriber={data === null}
             />
-            {expanded && <PrivacyProBody data={data} action={action} />}
+            {expanded && <PrivacyProBody data={data} action={action} isNonsubscriber={data === null} />}
         </div>
     );
 }
@@ -86,16 +88,16 @@ function PrivacyProConfigured({ parentRef, expansion, data, toggle, action }) {
  * @param {() => void} props.onToggle
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  * @param {(id: string) => void} props.action
+ * @param {boolean} props.isNonsubscriber
  */
-export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
+export function Heading({ expansion, onToggle, buttonAttrs = {}, action, isNonsubscriber }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
-    const notASubscriber = null;
     return (
         <div className={styles.heading}>
             <span className={styles.headingIcon}>
                 <img src="./icons/PrivacyPro.svg" alt="Privacy Shield" />
             </span>
-            <h2 className={styles.title}>{t('privacyPro_widgetTitle')}</h2>
+            <h2 className={styles.title}>{isNonsubscriber ? 'Try Privacy Pro today for free!' : 'Privacy Pro'}</h2>
             <div class={cn(styles.buttonBlock, expansion === 'collapsed' && styles.visible)}>
                 <button className={styles.headingBtn} onClick={() => action('personalInformationRemoval')}>
                     <p class="sr-only">Personal Information Removal</p>
@@ -125,7 +127,7 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
                 />
             </span>
 
-            {notASubscriber && <p className={styles.subtitle}>{t('privacyPro_nonsubscriber_subtext')}</p>}
+            {isNonsubscriber && <p className={styles.subtitle}>{t('privacyPro_nonsubscriber_subtext')}</p>}
         </div>
     );
 }
@@ -134,9 +136,10 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action }) {
  * @param {object} props
  * @param {PrivacyProData} props.data
  * @param {(id: string) => void} props.action
+ * @param {boolean} props.isNonsubscriber
  */
 
-export function PrivacyProBody({ data, action }) {
+export function PrivacyProBody({ data, action, isNonsubscriber }) {
     const formatDates = (date) => {
         let month = date.getMonth(); // JavaScript months are 0-indexed
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -158,58 +161,107 @@ export function PrivacyProBody({ data, action }) {
     };
 
     return (
-        <div class={styles.body}>
-            {data?.personalInformationRemoval && (
-                <button class={styles.panelButton} onClick={() => action('personalInformationRemoval')}>
-                    <div class={styles.topSection}>
-                        <img src="./icons/Information-Remover-32.svg" alt="Privacy Shield" />
-                        <p>Information Removal</p>
+        <Fragment>
+            {!isNonsubscriber ? (
+                <div class={styles.body}>
+                    <div class={styles.panel}>
+                        <div class={styles.topSection}>
+                            <img src="./icons/Information-Remover-32.svg" alt="Privacy Shield" />
+                            <p>Information Removal</p>
+                        </div>
+                        <div class={styles.middleSection}>
+                            <p>Remove your info from sites that sell it</p>
+                        </div>
+                        <div class={styles.bottomSection}>
+                            <Button variant="standard" onClick={() => action('personalInformationRemoval')}>
+                                Learn More
+                            </Button>
+                        </div>
                     </div>
-                    <div class={styles.middleSection}>
-                        <p>Next Scan</p>
-                        <p>{formatDates(new Date(data.personalInformationRemoval.nextScanDate))}</p>
+                    <div class={styles.panel}>
+                        <div class={styles.topSection}>
+                            <img src="./icons/VPN-Color-32.svg" alt="Privacy Shield" />
+                            <p>VPN</p>
+                        </div>
+                        <div class={styles.middleSection}>
+                            <p>Secure connection anytime, anywhere</p>
+                        </div>
+                        <div class={styles.bottomSection}>
+                            <Button variant="standard" onClick={() => action('personalInformationRemoval')}>
+                                Learn More
+                            </Button>
+                        </div>
                     </div>
-                    <div class={styles.bottomSection}>
-                        <div class={styles.statusDot}></div>
-                        <p className={styles.status}>{data.personalInformationRemoval.status}</p>
+                    <div class={styles.panel}>
+                        <div class={styles.topSection}>
+                            <img src="./icons/ID-32.svg" alt="Privacy Shield" />
+                            <p>Identity Restoration</p>
+                        </div>
+                        <div class={styles.middleSection}>
+                            <p>Secure connection anytime, anywhere</p>
+                        </div>
+                        <div class={styles.bottomSection}>
+                            <Button variant="standard" onClick={() => action('personalInformationRemoval')}>
+                                Learn More
+                            </Button>
+                        </div>
                     </div>
-                </button>
+                </div>
+            ) : (
+                <div class={styles.body}>
+                    {data?.personalInformationRemoval && (
+                        <button class={styles.panelButton} onClick={() => action('personalInformationRemoval')}>
+                            <div class={styles.topSection}>
+                                <img src="./icons/Information-Remover-32.svg" alt="Privacy Shield" />
+                                <p>Information Removal</p>
+                            </div>
+                            <div class={styles.middleSection}>
+                                <p>Next Scan</p>
+                                <p>{formatDates(new Date(data.personalInformationRemoval.nextScanDate))}</p>
+                            </div>
+                            <div class={styles.bottomSection}>
+                                <div class={styles.statusDot}></div>
+                                <p className={styles.status}>{data.personalInformationRemoval.status}</p>
+                            </div>
+                        </button>
+                    )}
+                    {data?.vpn && (
+                        <button class={styles.panelButton} onClick={() => action('vpn')}>
+                            <div class={styles.topSection}>
+                                <img src="./icons/VPN-Color-32.svg" alt="Privacy Shield" />
+                                <p>VPN</p>
+                            </div>
+                            <div class={styles.middleSection}>
+                                <p>Location</p>
+                                {typeof data.vpn.location === 'object' && <p>{data.vpn.location?.name}</p>}
+                                {typeof data.vpn.location === 'string' && <p>{data.vpn.location}</p>}
+                                {data.vpn.location === 'null' && <p>Nearest Location</p>}
+                            </div>
+                            <div class={styles.bottomSection}>
+                                <div class={cn(styles.statusDot, data.vpn.status === 'disconnected' && styles.red)}></div>
+                                <p class={styles.status}>{displayVPNStatus(data.vpn.status)}</p>
+                            </div>
+                        </button>
+                    )}
+                    {data?.identityRestoration && (
+                        <button class={styles.panelButton} onClick={() => action('identityRestoration')}>
+                            <div class={styles.topSection}>
+                                <img src="./icons/ID-32.svg" alt="Privacy Shield" />
+                                <p>Identity Restoration</p>
+                            </div>
+                            <div class={styles.middleSection}>
+                                <p>Covered since</p>
+                                <p>{formatDates(new Date(data.identityRestoration.coveredSinceDate))}</p>
+                            </div>
+                            <div class={styles.bottomSection}>
+                                <div class={styles.statusDot}></div>
+                                <p class={styles.status}>available</p>
+                            </div>
+                        </button>
+                    )}
+                </div>
             )}
-            {data?.vpn && (
-                <button class={styles.panelButton} onClick={() => action('vpn')}>
-                    <div class={styles.topSection}>
-                        <img src="./icons/VPN-Color-32.svg" alt="Privacy Shield" />
-                        <p>VPN</p>
-                    </div>
-                    <div class={styles.middleSection}>
-                        <p>Location</p>
-                        {typeof data.vpn.location === 'object' && <p>{data.vpn.location?.name}</p>}
-                        {typeof data.vpn.location === 'string' && <p>{data.vpn.location}</p>}
-                        {data.vpn.location === 'null' && <p>Nearest Location</p>}
-                    </div>
-                    <div class={styles.bottomSection}>
-                        <div class={cn(styles.statusDot, data.vpn.status === 'disconnected' && styles.red)}></div>
-                        <p class={styles.status}>{displayVPNStatus(data.vpn.status)}</p>
-                    </div>
-                </button>
-            )}
-            {data?.identityRestoration && (
-                <button class={styles.panelButton} onClick={() => action('identityRestoration')}>
-                    <div class={styles.topSection}>
-                        <img src="./icons/ID-32.svg" alt="Privacy Shield" />
-                        <p>Identity Restoration</p>
-                    </div>
-                    <div class={styles.middleSection}>
-                        <p>Covered since</p>
-                        <p>{formatDates(new Date(data.identityRestoration.coveredSinceDate))}</p>
-                    </div>
-                    <div class={styles.bottomSection}>
-                        <div class={styles.statusDot}></div>
-                        <p class={styles.status}>available</p>
-                    </div>
-                </button>
-            )}
-        </div>
+        </Fragment>
     );
 }
 

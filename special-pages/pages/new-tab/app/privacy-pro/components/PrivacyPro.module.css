@@ -135,6 +135,7 @@
     margin-left: -12px;
 }
 
+.panel,
 .panelButton { 
     display: grid; 
     gap: 12px;
@@ -150,7 +151,6 @@
     
     &:hover {
         border: 1px solid #3969EF;
-        cursor: pointer;
     }
 
     .topSection {
@@ -203,6 +203,12 @@
             color: var(--ntp-text-muted);
             text-transform: capitalize;
         }
+    }
+}
+
+.panelButton {
+    &:hover {
+        cursor: pointer;
     }
 }
 
