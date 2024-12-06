@@ -1,7 +1,7 @@
 import styles from './CustomizerDrawerInner.module.css';
 import cn from 'classnames';
 import { h } from 'preact';
-import { computed } from '@preact/signals';
+import { useComputed } from '@preact/signals';
 
 /**
  * @param {object} props
@@ -10,7 +10,7 @@ import { computed } from '@preact/signals';
  */
 export function BrowserThemeSection(props) {
     console.log('    RENDER:BrowserThemeSection?');
-    const current = computed(() => props.data.value.theme);
+    const current = useComputed(() => props.data.value.theme);
     return (
         <div class={styles.section}>
             <h3 class={styles.sectionTitle}>Browser Theme</h3>

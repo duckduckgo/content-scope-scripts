@@ -3,8 +3,6 @@
 @import url("../styles/ntp-theme.css");
 
 body {
-    background: var(--ntp-background-color);
-    color: var(--ntp-text-normal);
     font-size: var(--body-font-size);
     font-weight: var(--body-font-weight);
     line-height: var(--body-line-height);
@@ -50,6 +48,7 @@ body:has([data-reset-layout="true"]) .tube {
     height: 100vh;
     overflow: auto;
     grid-area: main;
+    color: var(--ntp-text-normal);
 }
 
 .mainScroller {
@@ -72,6 +71,7 @@ body:has([data-reset-layout="true"]) .tube {
 }
 
 .aside {
+    color: var(--ntp-text-normal);
     background: var(--ntp-surfaces-panel-background-color);
     grid-area: aside;
     height: 100vh;
@@ -80,14 +80,14 @@ body:has([data-reset-layout="true"]) .tube {
 
     /** todo: is this re-usable in any way, or unique? */
     box-shadow: 0px 0px 1px 0px #FFF inset, 0px 0px 2px 0px rgba(0, 0, 0, 0.08), 0px 8px 12px 0px rgba(0, 0, 0, 0.12);
-    @media screen and (prefers-color-scheme: dark) {
+
+    &[data-theme=dark] {
         box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.60) inset, 0px 0px 2px 0px rgba(0, 0, 0, 0.16), 0px 8px 12px 0px rgba(0, 0, 0, 0.24);
     }
 
     .layout[data-animating="true"] & {
         overflow: hidden;
     }
-
 }
 
 .asideContent {

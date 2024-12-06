@@ -1,17 +1,19 @@
 import { createContext, Fragment, h } from 'preact';
 import styles from './BackgroundReceiver.module.css';
-import { values } from '../customizer/values.js';
-import { computed, signal } from '@preact/signals';
+import { detectThemeFromHex, values } from '../customizer/values.js';
+import { signal, useComputed } from '@preact/signals';
 import { useContext } from 'preact/hooks';
 import { CustomizerContext } from '../customizer/CustomizerProvider.js';
 
 /**
- * @import { BackgroundVariant } from "../../types/new-tab"
+ * @import { BackgroundVariant, BrowserTheme } from "../../types/new-tab"
  */
 
 const BackgroundContext = createContext({
     /** @type {import("@preact/signals").Signal<BackgroundVariant>} */
-    current: signal({ kind: 'default' }),
+    bg: signal({ kind: 'default' }),
+    /** @type {import("@preact/signals").Signal<BrowserTheme>} */
+    theme: signal('system'),
 });
 
 /**
@@ -20,19 +22,67 @@ const BackgroundContext = createContext({
  */
 export function BackgroundProvider({ children }) {
     const { data } = useContext(CustomizerContext);
-    const bg = computed(() => data.value.background);
-    return <BackgroundContext.Provider value={{ current: bg }}>{children}</BackgroundContext.Provider>;
+    const bg = useComputed(() => data.value.background);
+    const theme = useComputed(() => data.value.theme);
+    return <BackgroundContext.Provider value={{ bg, theme }}>{children}</BackgroundContext.Provider>;
+}
+
+/**
+ * @param {BackgroundVariant} background
+ * @param {BrowserTheme} browserTheme
+ * @return {{bg: 'light' | 'dark', browser: 'light' | 'dark'}}
+ */
+export function inferSchemeFrom(background, browserTheme) {
+    const browser = themeFromBrowser(browserTheme);
+    switch (background.kind) {
+        case 'default':
+            return { bg: browser, browser };
+        case 'color': {
+            const color = values.colors[background.value];
+            return { bg: color.colorScheme, browser };
+        }
+
+        case 'gradient': {
+            const gradient = values.gradients[background.value];
+            return { bg: gradient.colorScheme, browser };
+        }
+
+        case 'userImage':
+            return { bg: background.value.colorScheme, browser };
+
+        case 'hex':
+            return { bg: detectThemeFromHex(background.value), browser };
+    }
+}
+
+/**
+ * @param {BrowserTheme} browserTheme
+ * @return {'light' | 'dark'}
+ */
+export function themeFromBrowser(browserTheme) {
+    if (browserTheme === 'system') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return browserTheme;
 }
 
 /**
  *
  */
 export function BackgroundConsumer() {
-    const { current } = useContext(BackgroundContext);
-    const background = current.value;
+    const { bg, theme } = useContext(BackgroundContext);
+    const defaultBgColorScheme = themeFromBrowser(theme.value);
+    const background = bg.value;
     switch (background.kind) {
         case 'default': {
-            return <div class={styles.root}></div>;
+            return (
+                <div
+                    class={styles.root}
+                    style={{
+                        backgroundColor: defaultBgColorScheme === 'light' ? 'white' : '#333',
+                    }}
+                ></div>
+            );
         }
         case 'hex': {
             return (

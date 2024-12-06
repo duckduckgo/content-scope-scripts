@@ -1,10 +1,10 @@
 import { h, Fragment } from 'preact';
 import cn from 'classnames';
 
-import { values } from '../values.js';
+import { detectThemeFromHex, values } from '../values.js';
 import styles from './CustomizerDrawerInner.module.css';
 import { BackChevron, Picker } from '../../components/Icons.js';
-import { computed, useSignal } from '@preact/signals';
+import { useComputed, useSignal } from '@preact/signals';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, PredefinedColor } from '../../../types/new-tab.js'
@@ -65,7 +65,7 @@ const entries = Object.entries(values.colors);
  * @param {import("@preact/signals").Signal<CustomizerData>} props.data
  */
 function ColorGrid({ data }) {
-    const selected = computed(() => data.value.background.kind === 'color' && data.value.background.value);
+    const selected = useComputed(() => data.value.background.kind === 'color' && data.value.background.value);
     return (
         <Fragment>
             {entries.map(([key, entry]) => {
@@ -98,12 +98,13 @@ function PickerPanel({ data, select }) {
     const peeked = data.peek();
     const initialColor = peeked.background.kind === 'hex' ? peeked.background.value : '#FFFFFF';
     const hex = useSignal(initialColor);
-    const hexSelected = computed(() => data.value.background.kind === 'hex');
+    const hexSelected = useComputed(() => data.value.background.kind === 'hex');
+    const modeSelected = useComputed(() => detectThemeFromHex(hex.value));
 
     return (
         <div class={styles.bgListItem}>
             <button
-                className={cn(styles.bgPanel, styles.bgPanelOutlined)}
+                className={cn(styles.bgPanel, styles.bgPanelEmpty)}
                 type="button"
                 tabIndex={0}
                 style={{ background: hex.value }}
@@ -126,7 +127,7 @@ function PickerPanel({ data, select }) {
                     select({ kind: 'hex', value: hex.value });
                 }}
             />
-            <span class={styles.colorInputIcon}>
+            <span class={cn(styles.colorInputIcon, styles.dynamicIconColor)} data-color-mode={modeSelected}>
                 <Picker />
             </span>
             <span class="sr-only">Show color picker</span>

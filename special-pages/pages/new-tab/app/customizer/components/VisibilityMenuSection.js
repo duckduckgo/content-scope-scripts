@@ -5,7 +5,6 @@ import { VisibilityMenu } from './VisibilityMenu.js';
 import { h } from 'preact';
 
 export function VisibilityMenuSection() {
-    console.log('    RENDER:VisibilityMenuSection');
     const [rowData, setRowData] = useState(() => {
         const items = /** @type {import("./Customizer.js").VisibilityRowData[]} */ (getItems());
         return items;
@@ -14,8 +13,6 @@ export function VisibilityMenuSection() {
         function handler() {
             setRowData(getItems());
         }
-
-        console.log('waitin..');
         window.addEventListener(Customizer.UPDATE_EVENT, handler);
         return () => {
             window.removeEventListener(Customizer.UPDATE_EVENT, handler);

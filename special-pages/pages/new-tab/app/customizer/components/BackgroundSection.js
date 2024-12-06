@@ -1,11 +1,13 @@
 import { h, Fragment } from 'preact';
 import cn from 'classnames';
 
-import { values } from '../values.js';
+import { detectThemeFromHex, values } from '../values.js';
 import styles from './CustomizerDrawerInner.module.css';
 import { CircleCheck, PlusIcon } from '../../components/Icons.js';
-import { computed } from '@preact/signals';
-import { useId } from 'preact/hooks';
+import { useComputed } from '@preact/signals';
+import { useContext, useId } from 'preact/hooks';
+import { CustomizerContext } from '../CustomizerProvider.js';
+import { inferSchemeFrom, themeFromBrowser } from '../../components/BackgroundProvider.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData } from '../../../types/new-tab.js'
@@ -19,9 +21,29 @@ import { useId } from 'preact/hooks';
  * @param {() => void} props.onUpload
  */
 export function BackgroundSection({ data, onNav, onUpload, select }) {
-    console.log('    RENDER:BackgroundSection?');
-    const color = values.colors.color11;
-    const gradient = values.gradients.gradient02;
+    console.log('    RENDER:BackgroundSection?', data.value.background.kind);
+    let displayColor;
+
+    if (data.value.background.kind === 'color') {
+        displayColor = values.colors[data.value.background.value];
+    } else if (data.value.background.kind === 'hex') {
+        const hex = data.value.background.value;
+        displayColor = { hex: data.value.background.value, colorScheme: detectThemeFromHex(hex) };
+    } else {
+        displayColor = values.colors.color11;
+    }
+
+    /** @type {{path: string; colorScheme: 'light' | 'dark'}} */
+    let gradient;
+    if (data.value.background.kind === 'gradient') {
+        gradient = values.gradients[data.value.background.value];
+    } else {
+        gradient = values.gradients.gradient02;
+    }
+
+    const browserTheme = useComputed(() => {
+        return themeFromBrowser(data.value.theme);
+    });
 
     return (
         <div class={styles.section}>
@@ -31,7 +53,11 @@ export function BackgroundSection({ data, onNav, onUpload, select }) {
                     <DefaultPanel checked={data.value.background.kind === 'default'} onClick={() => select({ kind: 'default' })} />
                 </li>
                 <li class={styles.bgListItem}>
-                    <ColorPanel checked={data.value.background.kind === 'color'} color={color} onClick={() => onNav('color')} />
+                    <ColorPanel
+                        checked={data.value.background.kind === 'color' || data.value.background.kind === 'hex'}
+                        color={displayColor}
+                        onClick={() => onNav('color')}
+                    />
                 </li>
                 <li class={styles.bgListItem}>
                     <GradientPanel
@@ -46,6 +72,7 @@ export function BackgroundSection({ data, onNav, onUpload, select }) {
                         onClick={() => onNav('image')}
                         data={data}
                         upload={onUpload}
+                        browserTheme={browserTheme}
                     />
                 </li>
             </ul>
@@ -60,10 +87,15 @@ export function BackgroundSection({ data, onNav, onUpload, select }) {
  */
 function DefaultPanel({ checked, onClick }) {
     const id = useId();
+    const { data } = useContext(CustomizerContext);
+    const bg = useComputed(() => {
+        return inferSchemeFrom(data.value.background, data.value.theme).bg;
+    });
     return (
         <>
             <button
-                class={cn(styles.bgPanel, styles.bgPanelEmpty)}
+                class={cn(styles.bgPanel, styles.bgPanelEmpty, styles.dynamicIconColor)}
+                data-color-mode={bg}
                 aria-checked={checked}
                 aria-labelledby={id}
                 role="radio"
@@ -80,14 +112,15 @@ function DefaultPanel({ checked, onClick }) {
  * @param {object} props
  * @param {boolean} props.checked
  * @param {() => void} props.onClick
- * @param {typeof values.colors[keyof typeof values.colors]} props.color
+ * @param {{hex: string, colorScheme: 'light' | 'dark'}} props.color
  */
 function ColorPanel(props) {
     const id = useId();
     return (
         <>
             <button
-                class={styles.bgPanel}
+                class={cn(styles.bgPanel, styles.dynamicIconColor)}
+                data-color-mode={props.color.colorScheme}
                 onClick={props.onClick}
                 aria-checked={props.checked}
                 aria-labelledby={id}
@@ -105,7 +138,7 @@ function ColorPanel(props) {
  * @param {object} props
  * @param {boolean} props.checked
  * @param {() => void} props.onClick
- * @param {typeof values.gradients[keyof typeof values.gradients]} props.gradient
+ * @param {{path: string; colorScheme: 'light' | 'dark'}} props.gradient
  */
 function GradientPanel(props) {
     const id = useId();
@@ -113,7 +146,8 @@ function GradientPanel(props) {
         <>
             <button
                 onClick={props.onClick}
-                class={styles.bgPanel}
+                class={cn(styles.bgPanel, styles.dynamicIconColor)}
+                data-color-mode={props.gradient.colorScheme}
                 aria-checked={props.checked}
                 aria-labelledby={id}
                 style={{
@@ -136,11 +170,12 @@ function GradientPanel(props) {
  * @param {() => void} props.onClick
  * @param {() => void} props.upload
  * @param {import('@preact/signals').Signal<CustomizerData>} props.data
+ * @param {import('@preact/signals').Signal<'light' | 'dark'>} props.browserTheme
  */
 function BackgroundImagePanel(props) {
     const id = useId();
-    const empty = computed(() => props.data.value.userImages.length === 0);
-    const selectedImage = computed(() => {
+    const empty = useComputed(() => props.data.value.userImages.length === 0);
+    const selectedImage = useComputed(() => {
         const imageId = props.data.value.background.kind === 'userImage' ? props.data.value.background.value : null;
         if (imageId !== null) {
             const match = props.data.value.userImages.find((i) => i.id === imageId.id);
@@ -151,7 +186,7 @@ function BackgroundImagePanel(props) {
         return null;
     });
 
-    const firstImage = computed(() => {
+    const firstImage = useComputed(() => {
         return props.data.value.userImages[0] ?? null;
     });
 
@@ -164,7 +199,8 @@ function BackgroundImagePanel(props) {
         return (
             <Fragment>
                 <button
-                    class={cn(styles.bgPanel, styles.bgPanelEmpty)}
+                    class={cn(styles.bgPanel, styles.bgPanelEmpty, styles.dynamicIconColor)}
+                    data-color-mode={props.browserTheme}
                     aria-checked={props.checked}
                     aria-labelledby={id}
                     role={'radio'}
@@ -182,10 +218,16 @@ function BackgroundImagePanel(props) {
         ? selectedImage.value?.thumb
         : firstImage.value?.thumb;
 
+    // prettier-ignore
+    const scheme = selectedImage.value !== null
+        ? selectedImage.value?.colorScheme
+        : firstImage.value?.colorScheme;
+
     return (
         <Fragment>
             <button
-                class={cn(styles.bgPanel)}
+                class={cn(styles.bgPanel, styles.dynamicIconColor)}
+                data-color-mode={scheme}
                 onClick={props.onClick}
                 aria-checked={props.checked}
                 aria-labelledby={id}

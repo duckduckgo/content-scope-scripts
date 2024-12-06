@@ -1,8 +1,8 @@
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 import cn from 'classnames';
 
 import styles from './CustomizerDrawerInner.module.css';
-import { computed } from '@preact/signals';
+import { useComputed } from '@preact/signals';
 import { DismissButton } from '../../components/DismissButton.jsx';
 import { BackChevron } from '../../components/Icons.js';
 
@@ -66,8 +66,8 @@ export function ImageSelection({ data, select, back, onUpload, deleteImage }) {
  * @param {(id: string) => void} props.deleteImage
  */
 function ImageGrid({ data, deleteImage }) {
-    const selected = computed(() => data.value.background.kind === 'userImage' && data.value.background.value.id);
-    const entries = computed(() => {
+    const selected = useComputed(() => data.value.background.kind === 'userImage' && data.value.background.value.id);
+    const entries = useComputed(() => {
         return data.value.userImages;
     });
     return (

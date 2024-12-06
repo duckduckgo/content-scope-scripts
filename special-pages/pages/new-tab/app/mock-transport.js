@@ -484,7 +484,7 @@ function customizerData() {
     /** @type {import('../types/new-tab').CustomizerData} */
     const customizer = {
         userImages: [],
-        theme: 'dark',
+        theme: 'system',
         background: { kind: 'default' },
     };
 

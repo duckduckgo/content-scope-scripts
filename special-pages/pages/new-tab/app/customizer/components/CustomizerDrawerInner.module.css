@@ -88,13 +88,32 @@
         opacity: .9;
     }
 }
+
 .bgPanelEmpty {
-    border: 1px solid rgba(0, 0, 0, 0.09);
+    border: 1px solid var(--ntp-surface-border-color);
     background-color: rgba(0, 0, 0, 0.03);
+    [data-theme=dark] & {
+        background-color: rgba(255, 255, 255, 0.06);
+    }
 }
+
 .bgPanelOutlined {
-    border: 1px solid rgba(0, 0, 0, 0.09);
-    background-color: #FAFAFA;
+    border: 1px solid var(--ntp-surface-border-color);
+    background-color: transparent;
+}
+.dynamicIconColor {
+    &[data-color-mode="light"] {
+        color: black;
+        svg path {
+            fill-opacity: 0.84;
+        }
+    }
+    &[data-color-mode="dark"] {
+        color: white;
+        svg path {
+            fill-opacity: 0.84;
+        }
+    }
 }
 .colorInputIcon {
     position: absolute;

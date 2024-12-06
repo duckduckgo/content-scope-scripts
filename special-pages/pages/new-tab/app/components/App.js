@@ -8,6 +8,7 @@ import { Customizer, CustomizerButton, CustomizerMenuPositionedFixed, useContext
 import { useDrawer, useDrawerControls } from './Drawer.js';
 import { CustomizerDrawer } from '../customizer/components/CustomizerDrawer.js';
 import { BackgroundConsumer, BackgroundProvider } from './BackgroundProvider.js';
+import { useThemes } from './ThemeManager.js';
 
 /**
  * Renders the App component.
@@ -26,6 +27,7 @@ export function App({ children }) {
 
     const { buttonRef, wrapperRef, visibility, displayChildren, animating, hidden, buttonId, drawerId } = useDrawer();
     const { toggle } = useDrawerControls();
+    const { bg, browser } = useThemes();
 
     return (
         <Fragment>
@@ -35,7 +37,7 @@ export function App({ children }) {
                 </BackgroundProvider>
             )}
             <div class={styles.layout} ref={wrapperRef} data-animating={animating} data-drawer-visibility={visibility}>
-                <main class={cn(styles.main, styles.mainScroller)} data-main-scroller>
+                <main class={cn(styles.main, styles.mainScroller)} data-main-scroller data-theme={bg}>
                     <CustomizerMenuPositionedFixed>
                         {customizerKind === 'menu' && <Customizer />}
                         {customizerKind === 'drawer' && (
@@ -55,7 +57,7 @@ export function App({ children }) {
                     </div>
                 </main>
                 {customizerKind === 'drawer' && (
-                    <aside class={cn(styles.aside, styles.asideScroller)} aria-hidden={hidden}>
+                    <aside class={cn(styles.aside, styles.asideScroller)} aria-hidden={hidden} data-theme={browser} data-browser-panel>
                         <div class={styles.asideContent}>
                             <div class={styles.asideContentInner}>
                                 <CustomizerDrawer displayChildren={displayChildren} />

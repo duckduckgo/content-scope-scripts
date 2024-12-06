@@ -1,5 +1,5 @@
 import { useRef, useId, useLayoutEffect } from 'preact/hooks';
-import { batch, computed, effect, useSignal } from '@preact/signals';
+import { batch, useComputed, useSignal, useSignalEffect } from '@preact/signals';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 
 const CLOSE_DRAWER_EVENT = 'close-drawer';
@@ -49,7 +49,7 @@ export function useDrawer() {
 
     // Derive a 'hidden' signal that can be used as an aria-hidden={hidden}
     // it needs to be done this way to `.value` being accessed in the top level of the application
-    const hidden = computed(() => displayChildren.value === false);
+    const hidden = useComputed(() => displayChildren.value === false);
 
     // react to the global API events
     useLayoutEffect(() => {
@@ -121,7 +121,7 @@ export function useDrawer() {
 
     // move focus back to the button when the drawer is closed
     // this needs to be done otherwise it's a violation of aria rules
-    effect(() => {
+    useSignalEffect(() => {
         if (displayChildren.value === false) {
             buttonRef.current?.focus?.();
         }

@@ -65,7 +65,7 @@ export const values = {
  * @param {string} backgroundColor - HEX color code (6 or 8 digits)
  * @returns {'light' | 'dark'} - Returns 'light' or 'dark'
  */
-export function detectTheme(backgroundColor) {
+export function detectThemeFromHex(backgroundColor) {
     // Remove # if present and handle both 6 and 8 digit hex codes
     const hex = backgroundColor.replace('#', '');
 
@@ -141,7 +141,7 @@ export function detectTheme(backgroundColor) {
 // console.log('Running tests...\n');
 // testCases.forEach((testCase, index) => {
 //     try {
-//         const result = detectTheme(testCase.input);
+//         const result = detectThemeFromHex(testCase.input);
 //         assert.strictEqual(result, testCase.expected);
 //         console.log(`✓ Test ${index + 1}: ${testCase.description}`);
 //     } catch (error) {

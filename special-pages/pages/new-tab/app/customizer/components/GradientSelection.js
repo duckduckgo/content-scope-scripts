@@ -1,9 +1,9 @@
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 import cn from 'classnames';
 
 import { values } from '../values.js';
 import styles from './CustomizerDrawerInner.module.css';
-import { computed } from '@preact/signals';
+import { useComputed } from '@preact/signals';
 import { BackChevron } from '../../components/Icons.js';
 
 /**
@@ -61,7 +61,7 @@ const entries = Object.entries(values.gradients);
  * @param {import("@preact/signals").Signal<CustomizerData>} props.data
  */
 function GradientGrid({ data }) {
-    const selected = computed(() => data.value.background.kind === 'gradient' && data.value.background.value);
+    const selected = useComputed(() => data.value.background.kind === 'gradient' && data.value.background.value);
     return (
         <ul className={cn(styles.bgList)}>
             {entries.map(([key, entry]) => {
