@@ -231,10 +231,15 @@ export function PrivacyProBody({ data, action, isSubscriber }) {
                                 <p>VPN</p>
                             </div>
                             <div class={styles.middleSection}>
-                                <p>Location</p>
-                                {typeof data.vpn.location === 'object' && <p>{data.vpn.location?.name}</p>}
-                                {typeof data.vpn.location === 'string' && <p>{data.vpn.location}</p>}
-                                {data.vpn.location === 'null' && <p>Nearest Location</p>}
+                                {data.vpn.location !== 'null' ? (
+                                    <Fragment>
+                                        <p>Location</p>
+                                        {typeof data.vpn.location === 'object' && <p>{data.vpn.location?.name}</p>}
+                                        {typeof data.vpn.location === 'string' && <p>{data.vpn.location}</p>}
+                                    </Fragment>
+                                ) : (
+                                    <p>Nearest Location</p>
+                                )}
                             </div>
                             <div class={styles.bottomSection}>
                                 <div class={cn(styles.statusDot, data.vpn.status === 'disconnected' && styles.red)}></div>

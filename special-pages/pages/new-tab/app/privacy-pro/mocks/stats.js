@@ -29,8 +29,8 @@ export const data = {
             coveredSinceDate: `${new Date('8/11/2024')}`,
         },
         vpn: {
-            location: 'United Kingdom',
-            status: 'connected',
+            location: null,
+            status: 'disconnected',
         },
     },
 };
