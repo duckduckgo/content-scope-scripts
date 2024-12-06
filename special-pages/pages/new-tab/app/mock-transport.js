@@ -449,8 +449,8 @@ export function mockTransport() {
                         { id: 'updateNotification' },
                         { id: 'rmf' },
                         { id: 'nextSteps' },
-                        { id: 'privacyPro' },
                         { id: 'favorites' },
+                        { id: 'privacyPro' },
                         { id: 'privacyStats' },
                     ];
 
