@@ -1,0 +1,96 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Privacy Pro Data",
+    "description": "",
+    "type": [
+        "object",
+        "null"
+    ],
+    "required": [
+        "personalInformationRemoval",
+        "identityRestoration",
+        "vpn"
+    ],
+    "properties": {
+        "personalInformationRemoval": {
+            "description": "PIR data for subscriber",
+            "type": "object",
+            "required": [
+                "nextScanDate",
+                "status"
+            ],
+            "properties": {
+                "nextScanDate": {
+                    "description": "Date of subscriber's next schedule PIR scan",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status of PIR",
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "in-progress",
+                        "inactive"
+                    ]
+                }
+            }
+        },
+        "identityRestoration": {
+            "description": "IDTR data for subscriber",
+            "type": "object",
+            "required": [
+                "coveredSinceDate"
+            ],
+            "properties": {
+                "coveredSinceDate": {
+                    "description": "date subscriber has been covered by IDTR",
+                    "type": "string"
+                }
+            }
+        },
+        "vpn": {
+            "type": "object",
+            "required": [
+                "status",
+                "location"
+            ],
+            "properties": {
+                "status": {
+                    "description": "Status of subscriber's VPN",
+                    "type": "string",
+                    "enum": [
+                        "connected",
+                        "connecting",
+                        "disconnected",
+                        "disconnecting"
+                    ]
+                },
+                "location": {
+                    "description": "",
+                    "type": [
+                        "object",
+                        "null",
+                        "string"
+                    ],
+                    "required": [
+                        "name",
+                        "countryCode"
+                    ],
+                    "properties": {
+                        "name": {
+                            "description": "For flag tooltip",
+                            "type": "string"
+                        },
+                        "countryCode": {
+                            "description": "an ISO 3166 country code for displaying flag",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

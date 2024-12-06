@@ -1,6 +1,6 @@
 :root {
-    --ntp-background-color: white;
-    --ntp-surface-background-color: white;
+    --ntp-background-color: #fafafa;
+    --ntp-surface-background-color: var(--color-white);
     --ntp-surfaces-panel-background-color: white;
     --ntp-surface-border-color: var(--color-black-at-6);
     --ntp-text-normal: var(--color-black-at-84);

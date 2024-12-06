@@ -1,0 +1,287 @@
+.root {
+    background: var(--ntp-surface-background-color);
+    border: 1px solid var(--ntp-surface-border-color);
+    padding: var(--sp-6);
+    border-radius: var(--border-radius-lg);
+    display: grid;
+    align-items: start;
+    grid-template-columns: auto;
+    width: 100%;
+    margin-bottom: var(--ntp-gap);
+
+    @media screen and (prefers-color-scheme: dark) {
+        border-color: var(--color-white-at-9);
+    }
+}
+
+.heading {
+    display: grid;
+    grid-template-columns: 1.5rem auto auto 2rem;
+    grid-column-gap: var(--sp-2);
+    grid-row-gap: var(--sp-1);
+    align-items: center;
+    grid-template-rows: auto;
+    grid-template-areas: 'icon title buttonBlock expander';
+}
+.heading:has(.subtitle) {
+    grid-template-rows: auto auto;
+    grid-template-areas:
+        'icon title buttonBlock expander'
+        'empty label label label';
+}
+.headingIcon {
+    grid-area: icon;
+    height: var(--title-2-line-height);
+    position: relative;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0.5px;
+
+    img {
+        width: 20px;
+    }
+}
+
+.title {
+    grid-area: title;
+    font-size: var(--title-2-font-size);
+    font-weight: var(--title-2-font-weight);
+    line-height: var(--title-2-line-height);
+}
+
+.buttonBlock {
+    grid-area: buttonBlock;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 6px;
+    
+    
+    .headingBtn {
+        box-shadow: unset;
+        opacity: 0;
+        visibility: hidden;
+
+        background-color: transparent;
+        box-sizing: border-box;
+        transition: all .2s ease-in;
+        height: 2rem;
+        width: 2rem;
+        border-width: 0;
+        border-radius: 6px;
+
+        img {
+            height: 20px;
+            width: 20px;
+        }
+
+        &:hover {
+            cursor: pointer;
+            background-color: var(--color-black-at-6);
+        }
+
+        &:nth-child(2) {
+            transition-delay: 50ms;
+        }
+
+        &:last-child {
+            transition-delay: 100ms;
+        }
+        @media screen and (prefers-color-scheme: dark) {
+            &:hover {
+                background-color: var(--color-white-at-6);
+            }
+        }
+    }
+
+
+    &.visible {
+        button {
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+}
+
+.privProRed {
+    color: var(--color-red-50);
+}
+
+.subtitle {
+    grid-area: label;
+    color: var(--ntp-text-muted);
+    &.uppercase {
+        line-height: 1;
+        text-transform: uppercase;
+    }
+}
+
+.widgetExpander {
+    position: relative;
+
+    & [aria-controls] {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 1;
+        /**
+         * NOTE: This is just for visual alignment. The grid in which this sits is correct,
+         * but to preserve the larger tap-area for the button, we're opting to shift this over
+         * manually to solve this specific layout case.
+         */
+        right: -4px
+    }
+}
+
+.body {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding-top: var(--sp-6);
+    position: relative;
+    margin-left: -12px;
+}
+
+.panel,
+.panelButton { 
+    display: grid; 
+    gap: 12px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--ntp-text-normal);
+    min-height: 140px;
+    text-align: left;
+    overflow: hidden;
+    transition: border-color .2s ease-in;
+    
+    &:hover {
+        border: 1px solid #3969EF;
+    }
+
+    .topSection {
+        display: grid;
+        grid-template-columns: 2rem auto;
+        align-items: flex-start;
+        border-bottom: 1px solid var(--ntp-surface-border-color);
+        font-weight: 600;
+        padding-bottom: 1rem;
+        gap: var(--sp-3);
+        
+        p {
+            word-wrap: break-word;
+            text-wrap: wrap;
+        }
+        img {
+            height: 2rem;
+            width: 2rem;
+        }
+    }
+
+    .middleSection {
+        font-size: calc(11 * var(--px-in-rem));
+
+        p {
+            line-height: 14px;
+        }
+        p:last-child {
+            font-weight: 600;
+        }
+    }
+
+    .bottomSection {
+        display: flex;
+        align-items: center;
+        font-size: calc(11 * var(--px-in-rem));
+
+        .statusDot {
+            height: 6px;
+            width: 6px;
+            background-color: var(--color-green-50);
+            border-radius: 50%;
+            margin-right: var(--sp-1);
+
+            &.red {
+                background-color: var(--color-red-50);
+            }
+        }
+        .status {
+            color: var(--ntp-text-muted);
+            text-transform: capitalize;
+        }
+    }
+}
+
+.panelButton {
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.entering {
+    opacity: 0;
+    visibility: hidden;
+    animation-name: fade-in;
+    animation-delay: .1s;
+    animation-duration: .3s;
+    animation-fill-mode: forwards;
+}
+
+.entered {
+    opacity: 1;
+    visibility: visible;
+}
+
+.exiting {
+    animation-name: fade-out;
+    animation-duration: .3s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    100% {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+.icon {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    img, svg {
+        display: block;
+        font-size: 0;
+        width: 1rem;
+        height: 1rem;
+    }
+
+    &:has([data-errored=true]) {
+        outline: 1px solid var(--ntp-surface-border-color);
+        @media screen and (prefers-color-scheme: dark) {
+            outline-color: var(--color-white-at-9);
+        }
+    }
+}
