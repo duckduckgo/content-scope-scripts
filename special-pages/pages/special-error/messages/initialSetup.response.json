@@ -25,12 +25,15 @@
       "oneOf": [
         {
           "type": "object",
-          "title": "Phishing",
-          "required": ["kind"],
+          "title": "Phishing and Malware",
+          "required": ["kind", "url"],
           "properties": {
             "kind": {
               "type": "string",
-              "const": "phishing"
+              "enum": ["phishing", "malware"]
+            },
+            "url": {
+              "type": "string"
             }
           }
         }, {

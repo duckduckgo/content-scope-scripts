@@ -239,7 +239,12 @@ export class SpecialErrorPage {
             ),
         ).toBeVisible();
         await this.showsAdvancedInfo();
-        await expect(page.getByText('DuckDuckGo warns you when a website has been flagged as malicious.', { exact: true })).toBeVisible();
+        await expect(
+            page.getByText(
+                'DuckDuckGo warns you when a website has been flagged as malicious. If you believe this website is safe, you can report an error.',
+                { exact: true },
+            ),
+        ).toBeVisible();
         await expect(
             page.getByText(
                 'Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.',
@@ -248,6 +253,24 @@ export class SpecialErrorPage {
         ).toBeVisible();
         await expect(
             page.getByText('See our Phishing and Malware Protection help page for more information.', { exact: true }),
+        ).toBeVisible();
+    }
+
+    async showsMalwarePage() {
+        const { page } = this;
+        await expect(page.getByText('Warning: This site may put your personal information at risk', { exact: true })).toBeVisible();
+        await expect(
+            page.getByText(
+                'DuckDuckGo blocked this page because it may be distributing malware designed to compromise your device or steal your personal information. Learn more',
+                { exact: true },
+            ),
+        ).toBeVisible();
+        await this.showsAdvancedInfo();
+        await expect(
+            page.getByText(
+                'If you believe this website is safe, you can report an error. You can still visit the website at your own risk.',
+                { exact: true },
+            ),
         ).toBeVisible();
     }
 
@@ -317,5 +340,15 @@ export class SpecialErrorPage {
                 },
             },
         ]);
+    }
+
+    async overrideTestLinks() {
+        const { page } = this;
+        await page.context().route(/dub\.duckduckgo\.com|use-devtesting..\.duckduckgo\.com/, (route) =>
+            route.fulfill({
+                status: 200,
+                body: 'OK',
+            }),
+        );
     }
 }

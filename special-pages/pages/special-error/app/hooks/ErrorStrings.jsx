@@ -2,19 +2,54 @@ import { h } from 'preact';
 import { useTypedTranslation } from '../types';
 import { useErrorData } from '../providers/SpecialErrorProvider';
 import { Trans } from '../../../../shared/components/TranslationsProvider';
-import { phishingHelpPageURL } from '../constants';
+import { phishingMalwareHelpPageURL, reportSiteAsSafeFormURL } from '../constants';
 
-const phishingAnchorTagValues = {
-    href: phishingHelpPageURL,
-    target: 'blank',
+/**
+ * @param {string} urlString
+ * @returns {string}
+ */
+const sanitizeURL = (urlString) => {
+    if (!urlString) return '';
+
+    try {
+        const url = new URL(urlString);
+
+        return `${url.origin}${url.pathname}`;
+    } catch (error) {
+        return '';
+    }
 };
 
 /**
- * @typedef {import("../../types/special-error.ts").InitialSetupResponse['errorData']} ErrorData
- * @typedef {import("../../types/special-error.ts").SSLExpiredCertificate} SSLExpiredCertificate
- * @typedef {import("../../types/special-error.ts").SSLInvalidCertificate} SSLInvalidCertificate
- * @typedef {import("../../types/special-error.ts").SSLSelfSignedCertificate} SSLSelfSignedCertificate
- * @typedef {import("../../types/special-error.ts").SSLWrongHost} SSLWrongHost
+ * @typedef {object} AnchorTagParams
+ * @property {string} href
+ * @property {string} target
+ */
+
+const helpPageAnchorTagParams = {
+    href: phishingMalwareHelpPageURL,
+    target: '_blank',
+};
+
+/** @type {(url: string) => AnchorTagParams} */
+const reportSiteAnchorTagParams = (urlParam) => {
+    const sanitizedURLParam = sanitizeURL(urlParam);
+    const url = new URL(reportSiteAsSafeFormURL);
+    url.searchParams.set('url', sanitizedURLParam);
+
+    return {
+        href: url.toString(),
+        target: '_blank',
+    };
+};
+
+/**
+ * @typedef {import("../../types/special-error.js").InitialSetupResponse['errorData']} ErrorData
+ * @typedef {import("../../types/special-error.js").SSLExpiredCertificate} SSLExpiredCertificate
+ * @typedef {import("../../types/special-error.js").SSLInvalidCertificate} SSLInvalidCertificate
+ * @typedef {import("../../types/special-error.js").SSLSelfSignedCertificate} SSLSelfSignedCertificate
+ * @typedef {import("../../types/special-error.js").SSLWrongHost} SSLWrongHost
+ * @typedef {import("../../types/special-error.js").PhishingAndMalware} PhishingAndMalware
  * @typedef {SSLExpiredCertificate|SSLInvalidCertificate|SSLSelfSignedCertificate|SSLWrongHost} SSLError
  */
 
@@ -27,6 +62,10 @@ export function useWarningHeading() {
 
     if (kind === 'phishing') {
         return t('phishingPageHeading');
+    }
+
+    if (kind === 'malware') {
+        return t('malwarePageHeading');
     }
 
     if (kind === 'ssl') {
@@ -45,7 +84,11 @@ export function useWarningContent() {
     const { kind } = useErrorData();
 
     if (kind === 'phishing') {
-        return [<Trans str={t('phishingWarningText')} values={{ a: phishingAnchorTagValues }} />];
+        return [<Trans str={t('phishingWarningText')} values={{ a: helpPageAnchorTagParams }} />];
+    }
+
+    if (kind === 'malware') {
+        return [<Trans str={t('malwareWarningText')} values={{ a: helpPageAnchorTagParams }} />];
     }
 
     if (kind === 'ssl') {
@@ -61,10 +104,15 @@ export function useWarningContent() {
  */
 export function useAdvancedInfoHeading() {
     const { t } = useTypedTranslation();
-    const { kind } = useErrorData();
+    const errorData = useErrorData();
+    const { kind } = errorData;
 
-    if (kind === 'phishing') {
-        return t('phishingAdvancedInfoHeading');
+    if (kind === 'phishing' || kind === 'malware') {
+        const { url } = /** @type {PhishingAndMalware} */ (errorData);
+        const anchorTagParams = reportSiteAnchorTagParams(url);
+        const translatioKey = kind === 'phishing' ? 'phishingAdvancedInfoHeading' : 'malwareAdvancedInfoHeading';
+
+        return <Trans str={t(translatioKey)} values={{ a: anchorTagParams }} />;
     }
 
     if (kind === 'ssl') {
@@ -83,7 +131,11 @@ export function useAdvancedInfoContent() {
     const { kind } = errorData;
 
     if (kind === 'phishing') {
-        return [t('phishingAdvancedInfoText_1'), <Trans str={t('phishingAdvancedInfoText_2')} values={{ a: phishingAnchorTagValues }} />];
+        return [t('phishingAdvancedInfoText_1'), <Trans str={t('phishingAdvancedInfoText_2')} values={{ a: helpPageAnchorTagParams }} />];
+    }
+
+    if (kind === 'malware') {
+        return [];
     }
 
     if (kind === 'ssl') {
