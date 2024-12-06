@@ -6,23 +6,23 @@ import { PrivacyProConsumer } from './PrivacyPro.js';
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 
 export const privacyProExamples = {
-    'privacyPro.few': {
+    'privacyPro.locationString': {
         factory: () => (
-            <PrivacyProMockProvider ticker={true} data={data.basic}>
+            <PrivacyProMockProvider ticker={true} data={data.locationString}>
                 <PrivacyProConsumer />
             </PrivacyProMockProvider>
         ),
     },
-    'privacyPro.few.collapsed': {
+    'privacyPro.empty': {
         factory: () => (
-            <PrivacyProMockProvider config={{ expansion: 'collapsed' }} data={data.basic}>
+            <PrivacyProMockProvider config={{ expansion: 'collapsed' }} data={data.unsubscribed}>
                 <PrivacyProConsumer />
             </PrivacyProMockProvider>
         ),
     },
     'privacyPro.single': {
         factory: () => (
-            <PrivacyProMockProvider data={data.basic}>
+            <PrivacyProMockProvider data={data.basic} config={{ expansion: 'collapsed' }}>
                 <PrivacyProConsumer />
             </PrivacyProMockProvider>
         ),

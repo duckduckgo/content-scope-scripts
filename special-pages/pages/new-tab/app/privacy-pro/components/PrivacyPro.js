@@ -64,7 +64,7 @@ function PrivacyProConfigured({ parentRef, expansion, data, toggle, action }) {
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
-
+    console.log({ data });
     return (
         <div class={styles.root} ref={parentRef}>
             <Heading
@@ -75,9 +75,9 @@ function PrivacyProConfigured({ parentRef, expansion, data, toggle, action }) {
                     id: TOGGLE_ID,
                 }}
                 action={action}
-                isNonsubscriber={data === null}
+                isSubscriber={data !== null}
             />
-            {expanded && <PrivacyProBody data={data} action={action} isNonsubscriber={data === null} />}
+            {expanded && <PrivacyProBody data={data} action={action} isSubscriber={data !== null} />}
         </div>
     );
 }
@@ -88,16 +88,16 @@ function PrivacyProConfigured({ parentRef, expansion, data, toggle, action }) {
  * @param {() => void} props.onToggle
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  * @param {(id: string) => void} props.action
- * @param {boolean} props.isNonsubscriber
+ * @param {boolean} props.isSubscriber
  */
-export function Heading({ expansion, onToggle, buttonAttrs = {}, action, isNonsubscriber }) {
+export function Heading({ expansion, onToggle, buttonAttrs = {}, action, isSubscriber }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     return (
         <div className={styles.heading}>
             <span className={styles.headingIcon}>
                 <img src="./icons/PrivacyPro.svg" alt="Privacy Shield" />
             </span>
-            <h2 className={styles.title}>{isNonsubscriber ? 'Try Privacy Pro today for free!' : 'Privacy Pro'}</h2>
+            <h2 className={styles.title}>{!isSubscriber ? 'Try Privacy Pro today for free!' : 'Privacy Pro'}</h2>
             <div class={cn(styles.buttonBlock, expansion === 'collapsed' && styles.visible)}>
                 <button className={styles.headingBtn} onClick={() => action('personalInformationRemoval')}>
                     <p class="sr-only">Personal Information Removal</p>
@@ -126,8 +126,6 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action, isNonsu
                     shape="round"
                 />
             </span>
-
-            {isNonsubscriber && <p className={styles.subtitle}>{t('privacyPro_nonsubscriber_subtext')}</p>}
         </div>
     );
 }
@@ -136,12 +134,13 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action, isNonsu
  * @param {object} props
  * @param {PrivacyProData} props.data
  * @param {(id: string) => void} props.action
- * @param {boolean} props.isNonsubscriber
+ * @param {boolean} props.isSubscriber
  */
 
-export function PrivacyProBody({ data, action, isNonsubscriber }) {
+export function PrivacyProBody({ data, action, isSubscriber }) {
+    console.log({ isSubscriber });
     const formatDates = (date) => {
-        let month = date.getMonth(); // JavaScript months are 0-indexed
+        let month = date.getMonth();
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         month = monthNames[month];
         const day = date.getDate();
@@ -162,7 +161,7 @@ export function PrivacyProBody({ data, action, isNonsubscriber }) {
 
     return (
         <Fragment>
-            {!isNonsubscriber ? (
+            {!isSubscriber ? (
                 <div class={styles.body}>
                     <div class={styles.panel}>
                         <div class={styles.topSection}>
