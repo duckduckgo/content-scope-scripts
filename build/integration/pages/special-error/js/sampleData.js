@@ -1,9 +1,17 @@
-/** @type {Record<string, { name: string, data: import('../../../../types/special-error').InitialSetupResponse['errorData']}>} */
+/** @type {Record<string, { name: string, data: import('../../types/special-error.js').InitialSetupResponse['errorData']}>} */
 export const sampleData = {
     phishing: {
         name: 'Phishing',
         data: {
             kind: 'phishing',
+            url: 'https://privacy-test-pages.site/security/badware/phishing.html?query=param&some=other',
+        },
+    },
+    malware: {
+        name: 'Malware',
+        data: {
+            kind: 'malware',
+            url: 'https://privacy-test-pages.site/security/badware/malware.html?query=param&some=other',
         },
     },
     'ssl.expired': {

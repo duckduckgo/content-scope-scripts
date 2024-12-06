@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useRef, useEffect } from 'preact/hooks';
+import { useRef } from 'preact/hooks';
 import { useTypedTranslation } from '../types';
 import { Text } from '../../../../shared/components/Text/Text';
 import { useMessaging } from '../providers/MessagingProvider';

@@ -109,6 +109,7 @@ a {
   background: var(--button-bg);
   color: var(--button-text);
   cursor: pointer;
+  position: relative;
 }
 [data-platform-name=macos] .Button_button {
   border: 0;
@@ -250,7 +251,8 @@ body:not([data-platform-name]) {
     --button-opacity--disabled: 0.4;
     --button-shadow--focus: var(--macos-control-focused-shadow);
   }
-  &.Button_accent {
+  &.Button_accent,
+  &.Button_accentBrand {
     --button-bg: var(--macos-control-accent-branded-background-rest);
     --button-text: var(--color-white);
     --button-shadow: var(--macos-control-accent-shadow);
@@ -305,6 +307,81 @@ body:not([data-platform-name]) {
     }
   }
 }
+[data-platform-name=windows] {
+  .Button_button {
+    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
+    border-radius: var(--border-radius-sm);
+    height: var(--sp-8);
+    border-width: 0;
+    padding-inline: var(--sp-3);
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+    &.Button_standard {
+      background-color: var(--color-black-at-6);
+      border-width: 0;
+      &:hover {
+        background-color: var(--color-black-at-9);
+        cursor: pointer;
+      }
+      &:active {
+        background-color: var(--color-black-at-12);
+      }
+      &:disabled {
+        color: var(--color-black-at-84);
+      }
+      &:disabled:hover {
+        cursor: not-allowed;
+        background-color: var(--color-white-at-6);
+      }
+    }
+    &.Button_accentBrand {
+      background-color: var(--ddg-color-primary);
+      color: var(--color-white);
+      &:hover {
+        background-color: var(--color-blue-60);
+      }
+      &:active {
+        background-color: var(--color-blue-70);
+      }
+    }
+    @media screen and (prefers-color-scheme: dark) {
+      --focus-ring: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 3px var(--color-white);
+      &.Button_standard {
+        color: var(--color-white-at-84);
+        background-color: var(--color-white-at-12);
+        &:hover {
+          background-color: var(--color-white-at-18);
+        }
+        &:active {
+          background-color: var(--color-white-at-24);
+        }
+        &:disabled {
+          color: var(--color-white-at-12);
+          opacity: 0.8;
+        }
+        &:disabled:hover {
+          background-color: var(--color-white-at-12);
+        }
+      }
+      &.Button_accentBrand {
+        color: var(--color-black-at-84);
+        background-color: var(--color-blue-20);
+        &:hover {
+          background-color: var(--color-blue-30);
+        }
+        &:active {
+          background-color: var(--color-blue-40);
+        }
+        &:disabled {
+          background-color: var(--color-white-at-36);
+          color: var(--color-black-at-84);
+        }
+      }
+    }
+  }
+}
 
 /* pages/special-error/app/components/Warning.module.css */
 .Warning_container {
@@ -341,23 +418,26 @@ body:not([data-platform-name]) {
 [data-platform-name=macos] {
   & .Warning_icon {
     align-self: flex-start;
+    flex: 0 0 var(--sp-12);
+    height: var(--sp-12);
+    width: var(--sp-12);
+  }
+  & .Warning_heading {
+    gap: var(--sp-4);
   }
   & .Warning_ssl.Warning_heading {
     height: var(--sp-8);
   }
   & .Warning_ssl .Warning_icon {
     background-image: url("./Shield-Alert-96-W3VSTNOR.svg");
-    flex: 0 0 var(--sp-12);
-    height: var(--sp-12);
-    width: var(--sp-12);
     margin-left: calc(-1 * var(--sp-2));
     margin-top: calc(-1 * var(--sp-2));
   }
-  & .Warning_phishing .Warning_icon {
-    background-image: url("./Phishing-64-FB4XJ4DQ.svg");
-    flex: 0 0 var(--sp-16);
-    height: var(--sp-12);
-    width: var(--sp-16);
+  & .Warning_phishing .Warning_icon,
+  & .Warning_malware .Warning_icon {
+    background-image: url("./Malware-Site-96-A35AQOKY.svg");
+    margin-left: calc(-1 * var(--sp-2));
+    margin-right: calc(-1 * var(--sp-1));
   }
   & .Warning_buttonContainer {
     justify-content: flex-end;
@@ -398,8 +478,9 @@ body:not([data-platform-name]) {
   & .Warning_ssl .Warning_icon {
     background-image: url("./Shield-Alert-128-NGB6TVH6.svg");
   }
-  & .Warning_phishing .Warning_icon {
-    background-image: url("./Phishing-64-FB4XJ4DQ.svg");
+  & .Warning_phishing .Warning_icon,
+  & .Warning_malware .Warning_icon {
+    background-image: url("./Malware-Site-96-A35AQOKY.svg");
   }
 }
 
@@ -414,6 +495,11 @@ body:not([data-platform-name]) {
   animation-duration: 300ms;
   animation-fill-mode: forwards;
   animation-name: AdvancedInfo_appear;
+}
+.AdvancedInfo_heading {
+  & a {
+    color: var(--link-color);
+  }
 }
 .AdvancedInfo_content {
   display: flex;
@@ -445,9 +531,6 @@ body:not([data-platform-name]) {
   & .AdvancedInfo_container {
     background: var(--advanced-info-bg);
     box-shadow: inset 0 1px 0 0 var(--border-color);
-  }
-  & .AdvancedInfo_visitSite {
-    align-self: flex-end;
   }
 }
 [data-platform-name=ios] {
@@ -513,7 +596,7 @@ body {
 [data-platform-name=macos] {
   & .App_container {
     background: var(--container-bg);
-    border-radius: var(--sp-2);
+    border-radius: var(--sp-4);
     border: 1px solid var(--border-color);
     min-width: calc(400 * var(--px-in-rem));
     width: calc(504 * var(--px-in-rem));
@@ -760,7 +843,7 @@ li {
     --theme-background-color: var(--color-gray-85);
     --theme-text-primary-color: var(--color-white-at-84);
     --link-color: var(--color-gray-40);
-    --border-color: var(--color-white-at-30);
+    --border-color: var(--color-white-at-18);
     --container-bg: var(--color-gray-90);
     --advanced-info-bg: #2f2f2f;
     --visit-site-color: var(--color-gray-40);

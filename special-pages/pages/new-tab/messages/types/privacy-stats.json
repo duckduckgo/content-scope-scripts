@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Privacy Stats Data",
+  "description": "",
+  "type": "object",
+  "required": [
+    "totalCount",
+    "trackerCompanies"
+  ],
+  "properties": {
+    "totalCount": {
+      "description": "Total number of trackers blocked since install",
+      "type": "number"
+    },
+    "trackerCompanies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "title": "TrackerCompany",
+        "required": ["displayName", "count"],
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

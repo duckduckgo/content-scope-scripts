@@ -1,0 +1,19 @@
+.root {
+    animation-name: fade-in;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in-out;
+    animation-duration: .1s;
+    padding-block: 1rem;
+}
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    100% {
+        opacity: 1;
+        visibility: visible;
+    }
+}

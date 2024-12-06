@@ -1,6 +1,6 @@
 /**
- * @typedef {import("../../../../types/new-tab.js").PrivacyStatsData} PrivacyStatsData
- * @typedef {import("../../../../types/new-tab.js").StatsConfig} StatsConfig
+ * @typedef {import("../../types/new-tab.js").PrivacyStatsData} PrivacyStatsData
+ * @typedef {import("../../types/new-tab.js").StatsConfig} StatsConfig
  */
 import { Service } from '../service.js';
 

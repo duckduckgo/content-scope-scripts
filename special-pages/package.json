@@ -20,7 +20,7 @@
     "test.headed": "npm run test-int -- --headed",
     "test.ui": "npm run test-int -- --ui",
     "serve": "http-server -c-1 --port 3210 ../build/integration/pages",
-    "watch": "chokidar pages shared --initial -c 'npm run build.dev' --ignore 'pages/**/locales'"
+    "watch": "chokidar pages shared --initial -c 'npm run build.dev' --ignore 'pages/**/locales' --ignore 'pages/**/types'"
   },
   "license": "ISC",
   "devDependencies": {
@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "preact": "^10.24.3",
+    "@preact/signals": "^1.3.1",
     "classnames": "^2.5.1",
     "@formkit/auto-animate": "^0.8.2",
     "@rive-app/canvas-single": "^2.23.10",

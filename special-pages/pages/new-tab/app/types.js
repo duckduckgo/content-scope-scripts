@@ -4,7 +4,7 @@ import { createContext } from 'preact';
 
 /**
  * @import json from './strings.json';
- * @import { InitialSetupResponse } from "../../../types/new-tab.js";
+ * @import { InitialSetupResponse } from "../types/new-tab.js";
  */
 
 /**
@@ -41,3 +41,4 @@ export const useTelemetry = () => useContext(TelemetryContext);
 
 export const InitialSetupContext = createContext(/** @type {InitialSetupResponse} */ ({}));
 export const useInitialSetupData = () => useContext(InitialSetupContext);
+export const useSettings = () => useContext(InitialSetupContext);

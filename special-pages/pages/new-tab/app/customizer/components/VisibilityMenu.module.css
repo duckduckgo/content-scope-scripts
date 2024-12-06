@@ -3,7 +3,7 @@
     padding: var(--sp-1);
     border-radius: var(--border-radius-md);
     backdrop-filter: blur(48px);
-
+    padding-inline: calc(10 * var(--px-in-rem));
     border: 1px solid var(--color-black-at-9);
     box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12), 0px 8px 16px 0px rgba(0, 0, 0, 0.20), 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
 
@@ -29,7 +29,6 @@
     white-space: nowrap;
     font-size: var(--title-3-em-font-size);
     height: calc(28 * var(--px-in-rem));
-    padding-inline: calc(10 * var(--px-in-rem));
 
     > * {
         min-width: 0;

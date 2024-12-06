@@ -15,3 +15,7 @@ export function SettingsProvider({ settings, children }) {
 export function usePlatformName() {
     return useContext(SettingsContext).settings.platform.name;
 }
+
+export function useCustomizerDrawerSettings() {
+    return useContext(SettingsContext).settings.customizerDrawer;
+}

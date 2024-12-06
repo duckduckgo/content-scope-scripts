@@ -5,7 +5,7 @@ import { UpdateNotificationService } from './update-notification.service.js';
 import { reducer, useDataSubscription } from '../service.hooks.js';
 
 /**
- * @typedef {import('../../../../types/new-tab.js').UpdateNotificationData} UpdateNotificationData
+ * @typedef {import('../../types/new-tab.js').UpdateNotificationData} UpdateNotificationData
  * @typedef {import('../service.hooks.js').State<UpdateNotificationData, undefined>} State
  * @typedef {import('../service.hooks.js').Events<UpdateNotificationData, undefined>} Events
  */

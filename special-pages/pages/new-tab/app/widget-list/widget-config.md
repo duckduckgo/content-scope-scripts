@@ -57,4 +57,4 @@ it's normal for the `widgets` and `widgetConfigs` arrays to be different, for ex
 
 ## Examples:
 The following examples show the data types in JSON format:
-[messages/new-tab/examples/stats.js](../../../../messages/new-tab/examples/widgets.js)
+[messages/new-tab/examples/stats.js](../../messages/examples/widgets.js)

@@ -1164,7 +1164,15 @@
     phishing: {
       name: "Phishing",
       data: {
-        kind: "phishing"
+        kind: "phishing",
+        url: "https://privacy-test-pages.site/security/badware/phishing.html?query=param&some=other"
+      }
+    },
+    malware: {
+      name: "Malware",
+      data: {
+        kind: "malware",
+        url: "https://privacy-test-pages.site/security/badware/malware.html?query=param&some=other"
       }
     },
     "ssl.expired": {
@@ -1808,19 +1816,31 @@
     },
     advancedButton: {
       title: "Advanced",
-      note: "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+      note: "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click."
     },
     advancedEllipsisButton: {
       title: "Advanced...",
-      note: "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+      note: "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
     },
     leaveSiteButton: {
       title: "Leave This Site",
-      note: "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+      note: "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to leave the website and navigate to previous page."
     },
     visitSiteButton: {
       title: "Accept Risk and Visit Site",
-      note: "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+      note: "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
+    },
+    malwarePageHeading: {
+      title: "Warning: This site may put your personal information at risk",
+      note: "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+    },
+    malwareWarningText: {
+      title: "DuckDuckGo blocked this page because it may be distributing malware designed to compromise your device or steal your personal information. <a>Learn more</a>",
+      note: "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+    },
+    malwareAdvancedInfoHeading: {
+      title: "If you believe this website is safe, you can <a>report an error</a>. You can still visit the website at your own risk.",
+      note: "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
     },
     phishingPageHeading: {
       title: "Warning: This site puts your personal information at risk",
@@ -1831,7 +1851,7 @@
       note: "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
     },
     phishingAdvancedInfoHeading: {
-      title: "DuckDuckGo warns you when a website has been flagged as malicious.",
+      title: "DuckDuckGo warns you when a website has been flagged as malicious. If you believe this website is safe, you can <a>report an error</a>.",
       note: "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
     },
     phishingAdvancedInfoText_1: {
@@ -1931,18 +1951,40 @@
   }
 
   // pages/special-error/app/constants.js
-  var phishingHelpPageURL = "https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/";
+  var phishingMalwareHelpPageURL = "https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/";
+  var reportSiteAsSafeFormURL = "https://duckduckgo.com/malicious-site-protection/report-error";
 
   // pages/special-error/app/hooks/ErrorStrings.jsx
-  var phishingAnchorTagValues = {
-    href: phishingHelpPageURL,
-    target: "blank"
+  var sanitizeURL = (urlString) => {
+    if (!urlString) return "";
+    try {
+      const url = new URL(urlString);
+      return `${url.origin}${url.pathname}`;
+    } catch (error) {
+      return "";
+    }
+  };
+  var helpPageAnchorTagParams = {
+    href: phishingMalwareHelpPageURL,
+    target: "_blank"
+  };
+  var reportSiteAnchorTagParams = (urlParam) => {
+    const sanitizedURLParam = sanitizeURL(urlParam);
+    const url = new URL(reportSiteAsSafeFormURL);
+    url.searchParams.set("url", sanitizedURLParam);
+    return {
+      href: url.toString(),
+      target: "_blank"
+    };
   };
   function useWarningHeading() {
     const { t: t3 } = useTypedTranslation();
     const { kind } = useErrorData();
     if (kind === "phishing") {
       return t3("phishingPageHeading");
+    }
+    if (kind === "malware") {
+      return t3("malwarePageHeading");
     }
     if (kind === "ssl") {
       return t3("sslPageHeading");
@@ -1954,7 +1996,10 @@
     const errorData = useErrorData();
     const { kind } = useErrorData();
     if (kind === "phishing") {
-      return [/* @__PURE__ */ _(Trans, { str: t3("phishingWarningText"), values: { a: phishingAnchorTagValues } })];
+      return [/* @__PURE__ */ _(Trans, { str: t3("phishingWarningText"), values: { a: helpPageAnchorTagParams } })];
+    }
+    if (kind === "malware") {
+      return [/* @__PURE__ */ _(Trans, { str: t3("malwareWarningText"), values: { a: helpPageAnchorTagParams } })];
     }
     if (kind === "ssl") {
       const { domain } = (
@@ -1967,9 +2012,16 @@
   }
   function useAdvancedInfoHeading() {
     const { t: t3 } = useTypedTranslation();
-    const { kind } = useErrorData();
-    if (kind === "phishing") {
-      return t3("phishingAdvancedInfoHeading");
+    const errorData = useErrorData();
+    const { kind } = errorData;
+    if (kind === "phishing" || kind === "malware") {
+      const { url } = (
+        /** @type {PhishingAndMalware} */
+        errorData
+      );
+      const anchorTagParams = reportSiteAnchorTagParams(url);
+      const translatioKey = kind === "phishing" ? "phishingAdvancedInfoHeading" : "malwareAdvancedInfoHeading";
+      return /* @__PURE__ */ _(Trans, { str: t3(translatioKey), values: { a: anchorTagParams } });
     }
     if (kind === "ssl") {
       return t3("sslAdvancedInfoHeading");
@@ -1981,7 +2033,10 @@
     const errorData = useErrorData();
     const { kind } = errorData;
     if (kind === "phishing") {
-      return [t3("phishingAdvancedInfoText_1"), /* @__PURE__ */ _(Trans, { str: t3("phishingAdvancedInfoText_2"), values: { a: phishingAnchorTagValues } })];
+      return [t3("phishingAdvancedInfoText_1"), /* @__PURE__ */ _(Trans, { str: t3("phishingAdvancedInfoText_2"), values: { a: helpPageAnchorTagParams } })];
+    }
+    if (kind === "malware") {
+      return [];
     }
     if (kind === "ssl") {
       const { errorType, domain } = (
@@ -2040,6 +2095,7 @@
     button: "Button_button",
     standard: "Button_standard",
     accent: "Button_accent",
+    accentBrand: "Button_accentBrand",
     primary: "Button_primary",
     ghost: "Button_ghost"
   };
@@ -2075,6 +2131,7 @@
     buttonContainer: "Warning_buttonContainer",
     ssl: "Warning_ssl",
     phishing: "Warning_phishing",
+    malware: "Warning_malware",
     button: "Warning_button",
     advanced: "Warning_advanced"
   };
@@ -2125,10 +2182,10 @@
   var AdvancedInfo_default = {
     container: "AdvancedInfo_container",
     appear: "AdvancedInfo_appear",
+    heading: "AdvancedInfo_heading",
     content: "AdvancedInfo_content",
     visitSite: "AdvancedInfo_visitSite",
-    wrapper: "AdvancedInfo_wrapper",
-    heading: "AdvancedInfo_heading"
+    wrapper: "AdvancedInfo_wrapper"
   };
 
   // pages/special-error/app/components/AdvancedInfo.jsx
@@ -2180,6 +2237,9 @@
     const { t: t3 } = useTypedTranslation();
     y2(() => {
       switch (kind) {
+        case "malware":
+          document.title = t3("malwarePageHeading");
+          break;
         case "phishing":
           document.title = t3("phishingPageHeading");
           break;
@@ -2219,10 +2279,13 @@
   };
   function idForError(errorData) {
     const { kind } = errorData;
-    if (kind === "phishing") {
+    if (kind === "phishing" || kind === "malware") {
       return kind;
     }
-    const { errorType } = errorData;
+    const { errorType } = (
+      /** @type {SSLError} */
+      errorData
+    );
     return `${kind}.${errorType}`;
   }
   function Components() {
@@ -2273,13 +2336,13 @@
   var SpecialError = class _SpecialError {
     /**
      * @param {object} params
-     * @param {import('../../../types/special-error').InitialSetupResponse['errorData']} params.errorData
+     * @param {import('../types/special-error.js').InitialSetupResponse['errorData']} params.errorData
      */
     constructor({ errorData }) {
       this.data = errorData;
     }
     /**
-     * @param {import('../../../types/special-error').InitialSetupResponse['errorData']} [errorData]
+     * @param {import('../types/special-error.js').InitialSetupResponse['errorData']} [errorData]
      */
     withErrorData(errorData) {
       if (errorData) {
@@ -2354,8 +2417,7 @@
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
-    constructor(messaging2, env) {
-      this.integration = env === "integration";
+    constructor(messaging2) {
       this.messaging = createTypedMessages(this, messaging2);
     }
     /**
@@ -2369,7 +2431,7 @@
      * }
      * ```
      *
-     * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
+     * @returns {Promise<import('../../types/special-error.js').InitialSetupResponse>}
      */
     initialSetup() {
       return this.messaging.request("initialSetup");
@@ -2408,36 +2470,6 @@
       this.messaging.notify("advancedInfo");
     }
   };
-  var IntegrationSpecialErrorPage = class extends SpecialErrorPage {
-    /**
-     * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
-     */
-    initialSetup() {
-      const searchParams = new URLSearchParams(window.location.search);
-      const errorId = searchParams.get("errorId");
-      const platformName = searchParams.get("platformName");
-      let errorData = sampleData["ssl.expired"].data;
-      if (errorId && Object.keys(sampleData).includes(errorId)) {
-        errorData = sampleData[errorId].data;
-      }
-      const supportedPlatforms = ["macos", "ios"];
-      let platform = { name: "macos" };
-      if (platformName && supportedPlatforms.includes(platformName)) {
-        platform = {
-          name: (
-            /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */
-            platformName
-          )
-        };
-      }
-      return Promise.resolve({
-        env: "development",
-        locale: "en",
-        platform,
-        errorData
-      });
-    }
-  };
   var baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv("production");
   var messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
@@ -2445,9 +2477,14 @@
     pageName: (
       /** @type {string} */
       "special-error"
-    )
+    ),
+    mockTransport: () => {
+      if (baseEnvironment.injectName !== "integration") return null;
+      let mock = null;
+      return mock;
+    }
   });
-  var specialErrorPage = baseEnvironment.injectName === "integration" ? new IntegrationSpecialErrorPage(messaging, baseEnvironment.injectName) : new SpecialErrorPage(messaging, baseEnvironment.injectName);
+  var specialErrorPage = new SpecialErrorPage(messaging);
   init(specialErrorPage, baseEnvironment).catch((e3) => {
     console.error(e3);
     const msg = typeof e3?.message === "string" ? e3.message : "unknown init error";

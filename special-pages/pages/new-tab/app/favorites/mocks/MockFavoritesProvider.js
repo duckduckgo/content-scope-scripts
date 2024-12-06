@@ -6,9 +6,9 @@ import { favorites } from './favorites.data.js';
 import { reducer } from '../../service.hooks.js';
 
 /**
- * @typedef {import('../../../../../types/new-tab').Favorite} Favorite
- * @typedef {import('../../../../../types/new-tab').FavoritesData} FavoritesData
- * @typedef {import('../../../../../types/new-tab').FavoritesConfig} FavoritesConfig
+ * @typedef {import('../../../types/new-tab').Favorite} Favorite
+ * @typedef {import('../../../types/new-tab').FavoritesData} FavoritesData
+ * @typedef {import('../../../types/new-tab').FavoritesConfig} FavoritesConfig
  * @typedef {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} State
  * @typedef {import('../../service.hooks.js').Events<FavoritesData, FavoritesConfig>} Events
  */

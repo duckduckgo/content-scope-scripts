@@ -5,7 +5,7 @@ import styles from './Button.module.css';
 /**
  * @param {object} props
  * @param {string} [props.className]
- * @param {'primary'|'standard'|'accent'|'ghost'} [props.variant]
+ * @param {'primary'|'standard'|'accent'|'accentBrand'|'ghost'} [props.variant]
  * @param {'button'|'submit'|'reset'} [props.type]
  * @param {import("preact").ComponentChild} props.children
  * @param {import("preact").JSX.MouseEventHandler<EventTarget>} [props.onClick]

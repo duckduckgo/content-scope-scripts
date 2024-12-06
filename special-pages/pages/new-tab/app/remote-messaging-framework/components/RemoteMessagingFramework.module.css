@@ -31,17 +31,18 @@
 
 .content {
     flex-grow: 1;
-    font-size: calc(14 * var(--px-in-rem));
 }
 
 .title {
+    font-size: var(--body-font-size);
     font-weight: var(--title-2-font-weight);
     line-height: normal;
     margin-bottom: var(--sp-1);
 }
 
 .description {
-    line-height: 1.25rem;
+    font-size: var(--body-font-size);
+    line-height: var(--body-line-height);
 }
 
 .btnBlock {
@@ -54,96 +55,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: calc(10 * var(--px-in-rem));
-}
-
-.btn {
-    padding-left: var(--sp-3);
-    padding-right: var(--sp-3);
-    height: var(--sp-8);
-    background-color: var(--color-black-at-6);
-    border-width: 0;
-    border-radius: var(--border-radius-sm);
-    text-wrap: nowrap;
-
-    &:hover {
-        background-color: var(--color-black-at-9);
-        cursor: pointer;
-    }
-
-    &:active {
-        background-color: var(--color-black-at-12);
-    }
-
-    &:disabled {
-        color: var(--color-black-at-84);
-    }
-
-    &:disabled:hover {
-        cursor: not-allowed;
-        background-color: var(--color-white-at-6);
-    }
-
-    &:focus-visible {
-        outline: none;
-        box-shadow: var(--focus-ring);
-    }
-
-    @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-84);
-        background-color: var(--color-white-at-12);
-
-        &:hover {
-            background-color: var(--color-white-at-18);
-        }
-
-        &:active {
-            background-color: var(--color-white-at-24);
-        }
-
-        &:disabled {
-            color: var(--color-white-at-12);
-            opacity: 0.8;
-        }
-
-        &:disabled:hover {
-            cursor: not-allowed;
-            background-color: var(--color-white-at-12);
-        }
-    }
-}
-
-
-.primary {
-    background-color: var(--ddg-color-primary);
-    color: var(--color-white);
-    position: relative;
-
-
-    &:hover {
-        background-color: var(--color-blue-60);
-    }
-
-    &:active {
-        background-color: var(--color-blue-70);
-    }
-
-    @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-black-at-84);
-        background-color: var(--color-blue-20);
-
-        &:hover {
-            background-color: var(--color-blue-30);
-        }
-
-        &:active {
-            background-color: var(--color-blue-40);
-        }
-
-        &:disabled {
-            background-color: var(--color-white-at-36);
-            color: var(--color-black-at-84);
-        }
-    }
 }
 
 .dismissBtn {

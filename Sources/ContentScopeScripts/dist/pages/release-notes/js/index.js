@@ -688,6 +688,7 @@
     button: "Button_button",
     standard: "Button_standard",
     accent: "Button_accent",
+    accentBrand: "Button_accentBrand",
     primary: "Button_primary",
     ghost: "Button_ghost"
   };
@@ -1030,7 +1031,7 @@
       ReleaseNotes,
       {
         releaseData: (
-          /** @type {import('../../../types/release-notes').UpdateMessage} */
+          /** @type {import('../types/release-notes.js').UpdateMessage} */
           {
             ...sampleData.updateReady,
             automaticUpdate: false
@@ -2314,7 +2315,7 @@
     }
     /**
      * Subscribes to release info updates from browser
-     * @param {(value: import('../../../../types/release-notes').UpdateMessage) => void} callback
+     * @param {(value: import('../../types/release-notes.js').UpdateMessage) => void} callback
      */
     onUpdate(callback) {
       return this.messaging.subscribe("onUpdate", callback);

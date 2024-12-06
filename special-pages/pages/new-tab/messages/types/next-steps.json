@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "title": "Next Steps Data",
+    "required": [
+        "content"
+    ],
+    "properties": {
+        "content": {
+            "oneOf": [
+                {
+                    "type": "null"
+                },
+                {
+                    "title": "Next Steps Cards",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "id"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "enum": [
+                                    "bringStuff",
+                                    "defaultApp",
+                                    "blockCookies",
+                                    "emailProtection",
+                                    "duckplayer",
+                                    "addAppToDockMac",
+                                    "pinAppToTaskbarWindows"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

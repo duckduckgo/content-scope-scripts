@@ -16,7 +16,7 @@ export class DuckplayerPage {
     /**
      * This will be sent if the application has loaded, but a client-side error
      * has occurred that cannot be recovered from
-     * @returns {Promise<import("../../../../types/duckplayer").InitialSetupResponse>}
+     * @returns {Promise<import("../../types/duckplayer.js").InitialSetupResponse>}
      */
     initialSetup() {
         if (this.injectName === 'integration') {
@@ -41,7 +41,7 @@ export class DuckplayerPage {
     /**
      * This is sent when the user wants to set Duck Player as the default.
      *
-     * @param {import("../../../../types/duckplayer").UserValues} userValues
+     * @param {import("../../types/duckplayer.js").UserValues} userValues
      */
     setUserValues(userValues) {
         return this.messaging.request('setUserValues', userValues);
@@ -84,7 +84,7 @@ export class DuckplayerPage {
      * }
      * ```
      *
-     * @param {(value: import("../../../../types/duckplayer").UserValues) => void} cb
+     * @param {(value: import("../../types/duckplayer.js").UserValues) => void} cb
      */
     onUserValuesChanged(cb) {
         return this.messaging.subscribe('onUserValuesChanged', cb);
@@ -128,7 +128,7 @@ export class Telemetry {
     }
 
     /**
-     * @param {import('../../../../types/duckplayer').TelemetryEvent} event
+     * @param {import('../../types/duckplayer.js').TelemetryEvent} event
      * @internal
      */
     _event(event) {

@@ -7,15 +7,16 @@ import { updateNotificationExamples } from './update-notification/mocks/update-n
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 
 /**
- * @typedef {import('../../../types/new-tab').Favorite} Favorite
- * @typedef {import('../../../types/new-tab').FavoritesData} FavoritesData
- * @typedef {import('../../../types/new-tab').FavoritesConfig} FavoritesConfig
- * @typedef {import('../../../types/new-tab').StatsConfig} StatsConfig
- * @typedef {import('../../../types/new-tab').NextStepsConfig} NextStepsConfig
- * @typedef {import('../../../types/new-tab').NextStepsCards} NextStepsCards
- * @typedef {import('../../../types/new-tab').NextStepsData} NextStepsData
- * @typedef {import('../../../types/new-tab').UpdateNotificationData} UpdateNotificationData
- * @typedef {import('../../../types/new-tab').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
+ * @typedef {import('../types/new-tab').Favorite} Favorite
+ * @typedef {import('../types/new-tab').FavoritesData} FavoritesData
+ * @typedef {import('../types/new-tab').FavoritesConfig} FavoritesConfig
+ * @typedef {import('../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import('../types/new-tab').NextStepsConfig} NextStepsConfig
+ * @typedef {import('../types/new-tab').NextStepsCards} NextStepsCards
+ * @typedef {import('../types/new-tab').NextStepsData} NextStepsData
+ * @typedef {import('../types/new-tab').UpdateNotificationData} UpdateNotificationData
+ * @typedef {import('../types/new-tab').NewTabPageSettings} NewTabPageSettings
+ * @typedef {import('../types/new-tab').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
  */
 
@@ -85,7 +86,7 @@ export function mockTransport() {
 
     function clearRmf() {
         const listeners = rmfSubscriptions.get('rmf_onDataUpdate') || [];
-        /** @type {import('../../../types/new-tab.ts').RMFData} */
+        /** @type {import('../types/new-tab.ts').RMFData} */
         const message = { content: undefined };
         for (const listener of listeners) {
             listener(message);
@@ -95,7 +96,7 @@ export function mockTransport() {
     return new TestTransportConfig({
         notify(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
-            /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
+            /** @type {import('../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'widgets_setConfig': {
@@ -163,7 +164,7 @@ export function mockTransport() {
             }
         },
         subscribe(_msg, cb) {
-            /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
+            /** @type {import('../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
             const sub = /** @type {any} */ (_msg.subscriptionName);
 
             if ('__playwright_01' in window) {
@@ -337,7 +338,7 @@ export function mockTransport() {
         // eslint-ignore-next-line require-await
         request(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
-            /** @type {import('../../../types/new-tab.ts').NewTabMessages['requests']} */
+            /** @type {import('../types/new-tab.ts').NewTabMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'stats_getData': {
@@ -387,7 +388,7 @@ export function mockTransport() {
                     return Promise.resolve(data);
                 }
                 case 'rmf_getData': {
-                    /** @type {import('../../../types/new-tab.ts').RMFData} */
+                    /** @type {import('../types/new-tab.ts').RMFData} */
                     let message = { content: undefined };
                     const rmfParam = url.searchParams.get('rmf');
 
@@ -448,10 +449,18 @@ export function mockTransport() {
                         updateNotification = updateNotificationExamples.populated;
                     }
 
-                    /** @type {import('../../../types/new-tab.ts').InitialSetupResponse} */
+                    /** @type {import('../types/new-tab').NewTabPageSettings} */
+                    const settings = {};
+
+                    if (url.searchParams.get('customizerDrawer') === 'enabled') {
+                        settings.customizerDrawer = { state: 'enabled' };
+                    }
+
+                    /** @type {import('../types/new-tab.ts').InitialSetupResponse} */
                     const initial = {
                         widgets: widgetsFromStorage,
                         widgetConfigs: widgetConfigFromStorage,
+                        settings,
                         platform: { name: 'integration' },
                         env: 'development',
                         locale: 'en',

@@ -27,6 +27,7 @@
     padding: var(--sp-2) var(--sp-3);
     cursor: pointer;
     display: flex;
+    align-items: center;
     gap: calc(6 * var(--px-in-rem));
     color: var(--ntp-text-normal);
 

@@ -8,22 +8,31 @@ import { sampleData } from '../../src/js/sampleData';
 
 import styles from './Components.module.css';
 
-/** @type {Record<Extract<import("../../../../types/special-error.js").InitialSetupResponse['platform']['name'], "macos"|"ios">, string>} */
+/**
+ * @typedef {import("../../types/special-error.js").InitialSetupResponse['errorData']} ErrorData
+ * @typedef {import("../../types/special-error.js").SSLExpiredCertificate} SSLExpiredCertificate
+ * @typedef {import("../../types/special-error.js").SSLInvalidCertificate} SSLInvalidCertificate
+ * @typedef {import("../../types/special-error.js").SSLSelfSignedCertificate} SSLSelfSignedCertificate
+ * @typedef {import("../../types/special-error.js").SSLWrongHost} SSLWrongHost
+ * @typedef {SSLExpiredCertificate|SSLInvalidCertificate|SSLSelfSignedCertificate|SSLWrongHost} SSLError
+ */
+
+/** @type {Record<Extract<import("../../types/special-error.js").InitialSetupResponse['platform']['name'], "macos"|"ios">, string>} */
 const platforms = {
     macos: 'macOS',
     ios: 'iOS',
 };
 
 /**
- * @param {import("../../../../types/special-error.js").InitialSetupResponse['errorData']} errorData
+ * @param {import("../../types/special-error.ts").InitialSetupResponse['errorData']} errorData
  */
 function idForError(errorData) {
     const { kind } = errorData;
-    if (kind === 'phishing') {
+    if (kind === 'phishing' || kind === 'malware') {
         return kind;
     }
 
-    const { errorType } = errorData;
+    const { errorType } = /** @type {SSLError} */ (errorData);
     return `${kind}.${errorType}`;
 }
 

@@ -1,5 +1,6 @@
 .chevronButton {
-    &:hover .chevronCircle {
+    transition: all .3s;
+    .chevronCircle {
         fill: black;
         fill-opacity: 0.06;
 
@@ -8,11 +9,6 @@
             fill-opacity: 0.12;
         }
     }
-}
-
-.chevronCircle {
-    transition: all .3s;
-    fill-opacity: 0;
 }
 
 .chevronArrow {

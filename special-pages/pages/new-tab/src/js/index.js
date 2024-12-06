@@ -26,7 +26,7 @@ export class NewTabPage {
     }
 
     /**
-     * @return {Promise<import('../../../../types/new-tab.js').InitialSetupResponse>}
+     * @return {Promise<import('../../types/new-tab.js').InitialSetupResponse>}
      */
     initialSetup() {
         return this.messaging.request('initialSetup');
@@ -50,14 +50,14 @@ export class NewTabPage {
 
     /**
      * Sent when a right-click occurs, and wasn't intercepted by another widget
-     * @param {import('../../../../types/new-tab.js').ContextMenuNotify} params
+     * @param {import('../../types/new-tab.js').ContextMenuNotify} params
      */
     contextMenu(params) {
         this.messaging.notify('contextMenu', params);
     }
 
     /**
-     * @param {import("../../../../types/new-tab.js").NTPTelemetryEvent} event
+     * @param {import("../../types/new-tab.js").NTPTelemetryEvent} event
      */
     telemetryEvent(event) {
         this.messaging.notify('telemetryEvent', event);

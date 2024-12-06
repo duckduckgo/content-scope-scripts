@@ -55,7 +55,8 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
-        .withPlatformName(baseEnvironment.urlParams.get('platform'));
+        .withPlatformName(baseEnvironment.urlParams.get('platform'))
+        .withFeatureState('customizerDrawer', init.settings?.customizerDrawer);
 
     if (!window.__playwright_01) {
         console.log('environment:', environment);
@@ -68,13 +69,13 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
         messaging.reportPageException({ message });
     };
 
+    // install global side effects that are not specific to any widget
+    installGlobalSideEffects(environment, settings);
+
     // return early if we're in the 'components' view.
     if (environment.display === 'components') {
         return renderComponents(root, environment, settings, strings);
     }
-
-    // install global side effects that are not specific to any widget
-    installGlobalSideEffects(environment, settings);
 
     // Resolve the entry points for each selected widget
     const entryPoints = await resolveEntryPoints(init.widgets, didCatch);
@@ -140,7 +141,7 @@ function installGlobalSideEffects(environment, settings) {
 
 /**
  *
- * @param {import('../../../types/new-tab.js').InitialSetupResponse['widgets']} widgets
+ * @param {import('../types/new-tab.js').InitialSetupResponse['widgets']} widgets
  * @param {(e: {message:string}) => void} didCatch
  * @return {Promise<{[p: string]: any}|{}>}
  */

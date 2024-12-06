@@ -28,7 +28,7 @@ export class ExamplePage {
      * }
      * ```
      *
-     * @returns {Promise<import('../../../../types/example').InitialSetupResponse>}
+     * @returns {Promise<import('../../types/example.js').InitialSetupResponse>}
      */
     initialSetup() {
         return this.messaging.request('initialSetup');

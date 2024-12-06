@@ -13,11 +13,11 @@ import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.uti
 
 /**
  * @import enStrings from "../strings.json"
- * @typedef {import('../../../../../types/new-tab').TrackerCompany} TrackerCompany
- * @typedef {import('../../../../../types/new-tab').Expansion} Expansion
- * @typedef {import('../../../../../types/new-tab').Animation} Animation
- * @typedef {import('../../../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
- * @typedef {import('../../../../../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import('../../../types/new-tab').TrackerCompany} TrackerCompany
+ * @typedef {import('../../../types/new-tab').Expansion} Expansion
+ * @typedef {import('../../../types/new-tab').Animation} Animation
+ * @typedef {import('../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
+ * @typedef {import('../../../types/new-tab').StatsConfig} StatsConfig
  * @typedef {import("../PrivacyStatsProvider.js").Events} Events
  */
 
@@ -103,8 +103,8 @@ export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {
             <span className={styles.headingIcon}>
                 <img src="./icons/shield.svg" alt="Privacy Shield" />
             </span>
-            {none && <p className={styles.title}>{t('stats_noRecent')}</p>}
-            {some && <p className={styles.title}>{alltimeTitle}</p>}
+            {none && <h2 className={styles.title}>{t('stats_noRecent')}</h2>}
+            {some && <h2 className={styles.title}>{alltimeTitle}</h2>}
             {recent > 0 && (
                 <span className={styles.widgetExpander}>
                     <ShowHideButton
@@ -211,9 +211,9 @@ export function PrivacyStatsCustomized() {
     const { visibility, id, toggle, index } = useVisibility();
 
     const title = t('stats_menuTitle');
-    useCustomizer({ title, id, icon: 'shield', toggle, visibility, index });
+    useCustomizer({ title, id, icon: 'shield', toggle, visibility: visibility.value, index });
 
-    if (visibility === 'hidden') {
+    if (visibility.value === 'hidden') {
         return null;
     }
 

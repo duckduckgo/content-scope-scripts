@@ -198,6 +198,9 @@ li {
   margin: 0;
   padding: 0;
 }
+button {
+  text-wrap: nowrap;
+}
 .sr-only {
   position: absolute;
   width: 1px;
@@ -214,12 +217,14 @@ li {
 :root {
   --ntp-background-color: white;
   --ntp-surface-background-color: white;
+  --ntp-surfaces-panel-background-color: white;
   --ntp-surface-border-color: var(--color-black-at-6);
   --ntp-text-normal: var(--color-black-at-84);
   --ntp-text-muted: var(--color-black-at-60);
   --ntp-text-on-primary: var(--color-white-at-84);
   --ntp-color-primary: var(--ddg-color-primary);
   --ntp-gap: 2rem;
+  --ntp-drawer-width: calc(236 * var(--px-in-rem));
   --body-font-size: 13px;
   --body-font-weight: 400;
   --body-line-height: 16px;
@@ -239,6 +244,7 @@ li {
   @media (prefers-color-scheme: dark) {
     --ntp-background-color: var(--color-gray-85);
     --ntp-surface-background-color: #2a2a2a;
+    --ntp-surfaces-panel-background-color: #222222;
     --ntp-surface-border-color: var(--color-white-at-6);
     --ntp-text-normal: var(--color-white-at-84);
     --ntp-text-muted: var(--color-white-at-60);
@@ -269,13 +275,13 @@ body {
   font-weight: var(--body-font-weight);
   line-height: var(--body-line-height);
 }
-.App_layout {
+.App_tube {
   padding-top: var(--sp-16);
   padding-bottom: var(--sp-16);
   margin-left: auto;
   margin-right: auto;
 }
-body:has([data-reset-layout=true]) .App_layout {
+body:has([data-reset-layout=true]) .App_tube {
   padding-top: 0;
 }
 .layout-centered {
@@ -285,6 +291,51 @@ body:has([data-reset-layout=true]) .App_layout {
 }
 .layout-centered:empty {
   display: contents;
+}
+.App_layout {
+  display: grid;
+  grid-template-columns: auto 0;
+  transition: all ease .3s;
+  position: relative;
+  &[data-drawer-visibility=visible] {
+    grid-template-columns: auto var(--ntp-drawer-width);
+  }
+}
+.App_main {
+  &[data-customizer-kind=drawer] {
+    overflow: hidden;
+    height: 100vh;
+  }
+}
+.App_active {
+}
+.App_aside {
+  overflow: hidden;
+  height: 100vh;
+  background: var(--ntp-surfaces-panel-background-color);
+  z-index: 1;
+  box-shadow:
+    0px 0px 1px 0px #FFF inset,
+    0px 0px 2px 0px rgba(0, 0, 0, 0.08),
+    0px 8px 12px 0px rgba(0, 0, 0, 0.12);
+  @media screen and (prefers-color-scheme: dark) {
+    box-shadow:
+      0px 0px 1px 0px rgba(0, 0, 0, 0.60) inset,
+      0px 0px 2px 0px rgba(0, 0, 0, 0.16),
+      0px 8px 12px 0px rgba(0, 0, 0, 0.24);
+  }
+}
+.App_asideContent {
+  box-sizing: border-box;
+  height: 100vh;
+  width: var(--ntp-drawer-width);
+  padding: var(--sp-2);
+}
+
+/* shared/components/Fallback/Fallback.module.css */
+.Fallback_fallback {
+  height: 100%;
+  width: 100%;
 }
 
 /* pages/new-tab/app/customizer/components/Customizer.module.css */
@@ -312,6 +363,7 @@ body:has([data-reset-layout=true]) .App_layout {
   padding: var(--sp-2) var(--sp-3);
   cursor: pointer;
   display: flex;
+  align-items: center;
   gap: calc(6 * var(--px-in-rem));
   color: var(--ntp-text-normal);
   @media screen and (prefers-color-scheme: dark) {
@@ -340,7 +392,8 @@ body:has([data-reset-layout=true]) .App_layout {
 
 /* pages/new-tab/app/components/Icons.module.css */
 .Icons_chevronButton {
-  &:hover .Icons_chevronCircle {
+  transition: all .3s;
+  .Icons_chevronCircle {
     fill: black;
     fill-opacity: 0.06;
     @media screen and (prefers-color-scheme: dark) {
@@ -348,10 +401,6 @@ body:has([data-reset-layout=true]) .App_layout {
       fill-opacity: 0.12;
     }
   }
-}
-.Icons_chevronCircle {
-  transition: all .3s;
-  fill-opacity: 0;
 }
 .Icons_chevronArrow {
   @media screen and (prefers-color-scheme: dark) {
@@ -366,6 +415,7 @@ body:has([data-reset-layout=true]) .App_layout {
   padding: var(--sp-1);
   border-radius: var(--border-radius-md);
   backdrop-filter: blur(48px);
+  padding-inline: calc(10 * var(--px-in-rem));
   border: 1px solid var(--color-black-at-9);
   box-shadow:
     0px 0px 0px 1px rgba(0, 0, 0, 0.12),
@@ -395,7 +445,6 @@ body:has([data-reset-layout=true]) .App_layout {
   white-space: nowrap;
   font-size: var(--title-3-em-font-size);
   height: calc(28 * var(--px-in-rem));
-  padding-inline: calc(10 * var(--px-in-rem));
   > * {
     min-width: 0;
   }
@@ -500,12 +549,6 @@ body:has([data-reset-layout=true]) .App_layout {
   outline-offset: 2px;
 }
 
-/* shared/components/Fallback/Fallback.module.css */
-.Fallback_fallback {
-  height: 100%;
-  width: 100%;
-}
-
 /* pages/new-tab/app/favorites/components/Favorites.module.css */
 .Favorites_root {
   width: 100%;
@@ -567,6 +610,20 @@ body:has([data-reset-layout=true]) .App_layout {
     width: 2rem;
     border-radius: 50%;
     padding-inline: 0;
+    svg rect {
+      fill-opacity: 0;
+    }
+    &:hover {
+      transition: all 0.3s ease-in;
+      svg rect {
+        fill: black;
+        fill-opacity: 0.06;
+        @media screen and (prefers-color-scheme: dark) {
+          fill: white;
+          fill-opacity: 0.12;
+        }
+      }
+    }
     &:focus-visible {
       box-shadow: var(--focus-ring);
     }
@@ -641,7 +698,7 @@ body:has([data-reset-layout=true]) .App_layout {
 .Tile_icon {
   display: grid;
   align-content: center;
-  justify-content: center;
+  justify-items: center;
   width: 4rem;
   height: 4rem;
   border-radius: var(--border-radius-lg);
@@ -761,8 +818,9 @@ body:has([data-reset-layout=true]) .App_layout {
   margin-bottom: var(--sp-1);
 }
 .NextSteps_title {
+  font-size: var(--body-font-size);
   font-weight: 590;
-  line-height: var(--sp-4);
+  line-height: var(--body-line-height);
   letter-spacing: -0.08px;
   color: var(--ntp-text-normal);
   margin-bottom: var(--sp-1);
@@ -853,15 +911,17 @@ body:has([data-reset-layout=true]) .App_layout {
   }
   div {
     background-color: var(--ntp-color-primary);
-    font-size: calc(11 * var(--px-in-rem));
     height: calc(20 * var(--px-in-rem));
-    line-height: normal;
-    font-weight: 600;
-    letter-spacing: 0.06px;
-    color: var(--ntp-text-on-primary);
     display: flex;
     align-items: center;
     justify-content: center;
+    h2 {
+      color: var(--ntp-text-on-primary);
+      letter-spacing: 0.06px;
+      font-weight: 600;
+      line-height: normal;
+      font-size: calc(11 * var(--px-in-rem));
+    }
   }
 }
 .NextSteps_cardGroup {
@@ -880,7 +940,6 @@ body:has([data-reset-layout=true]) .App_layout {
 :root:has(body[data-platform-name=windows]) {
   .NextSteps_nextStepsCard .NextSteps_title {
     font-weight: 700;
-    line-height: calc(20 * var(--px-in-rem));
     letter-spacing: normal;
   }
 }
@@ -1172,15 +1231,16 @@ body:has([data-reset-layout=true]) .App_layout {
 }
 .RemoteMessagingFramework_content {
   flex-grow: 1;
-  font-size: calc(14 * var(--px-in-rem));
 }
 .RemoteMessagingFramework_title {
+  font-size: var(--body-font-size);
   font-weight: var(--title-2-font-weight);
   line-height: normal;
   margin-bottom: var(--sp-1);
 }
 .RemoteMessagingFramework_description {
-  line-height: 1.25rem;
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
 }
 .RemoteMessagingFramework_btnBlock {
   margin-left: var(--sp-3);
@@ -1191,76 +1251,6 @@ body:has([data-reset-layout=true]) .App_layout {
   display: flex;
   flex-wrap: wrap;
   gap: calc(10 * var(--px-in-rem));
-}
-.RemoteMessagingFramework_btn {
-  padding-left: var(--sp-3);
-  padding-right: var(--sp-3);
-  height: var(--sp-8);
-  background-color: var(--color-black-at-6);
-  border-width: 0;
-  border-radius: var(--border-radius-sm);
-  text-wrap: nowrap;
-  &:hover {
-    background-color: var(--color-black-at-9);
-    cursor: pointer;
-  }
-  &:active {
-    background-color: var(--color-black-at-12);
-  }
-  &:disabled {
-    color: var(--color-black-at-84);
-  }
-  &:disabled:hover {
-    cursor: not-allowed;
-    background-color: var(--color-white-at-6);
-  }
-  &:focus-visible {
-    outline: none;
-    box-shadow: var(--focus-ring);
-  }
-  @media screen and (prefers-color-scheme: dark) {
-    color: var(--color-white-at-84);
-    background-color: var(--color-white-at-12);
-    &:hover {
-      background-color: var(--color-white-at-18);
-    }
-    &:active {
-      background-color: var(--color-white-at-24);
-    }
-    &:disabled {
-      color: var(--color-white-at-12);
-      opacity: 0.8;
-    }
-    &:disabled:hover {
-      cursor: not-allowed;
-      background-color: var(--color-white-at-12);
-    }
-  }
-}
-.RemoteMessagingFramework_primary {
-  background-color: var(--ddg-color-primary);
-  color: var(--color-white);
-  position: relative;
-  &:hover {
-    background-color: var(--color-blue-60);
-  }
-  &:active {
-    background-color: var(--color-blue-70);
-  }
-  @media screen and (prefers-color-scheme: dark) {
-    color: var(--color-black-at-84);
-    background-color: var(--color-blue-20);
-    &:hover {
-      background-color: var(--color-blue-30);
-    }
-    &:active {
-      background-color: var(--color-blue-40);
-    }
-    &:disabled {
-      background-color: var(--color-white-at-36);
-      color: var(--color-black-at-84);
-    }
-  }
 }
 .RemoteMessagingFramework_dismissBtn {
   position: absolute;
@@ -1275,6 +1265,286 @@ body:has([data-reset-layout=true]) .App_layout {
   100% {
     opacity: 1;
     scale: 1;
+  }
+}
+
+/* shared/components/Button/Button.module.css */
+.Button_button {
+  appearance: none;
+  background: var(--button-bg);
+  color: var(--button-text);
+  cursor: pointer;
+  position: relative;
+}
+[data-platform-name=macos] .Button_button {
+  border: 0;
+  border-radius: calc(5 * var(--px-in-rem));
+  box-shadow: var(--button-shadow);
+  font-size: calc(13 * var(--px-in-rem));
+  height: var(--sp-5);
+  opacity: var(--button-opacity);
+  padding: 0 var(--sp-3);
+  &:active {
+    background: var(--button-bg--active, var(--button-bg));
+    box-shadow: var(--button-shadow--active, var(--button-shadow));
+    color: var(--button-text--active, var(--button-text));
+    opacity: var(--button-opacity--active, var(--button-opacity));
+  }
+  &:disabled {
+    background: var(--button-bg--disabled, var(--button-bg));
+    box-shadow: var(--button-shadow--disabled, var(--button-shadow));
+    color: var(--button-text--disabled, var(--button-text));
+    opacity: var(--button-opacity--disabled, var(--button-opacity));
+  }
+  &:focus {
+    background: var(--button-bg--focus, var(--button-bg));
+    box-shadow: var(--button-shadow--focus, var(--button-shadow));
+    color: var(--button-text--focus, var(--button-text));
+    opacity: var(--button-opacity--focus, var(--button-opacity));
+  }
+  &:hover {
+    background: var(--button-bg);
+    box-shadow: var(--button-shadow--hover, var(--button-shadow));
+    color: var(--button-text--hover, var(--button-text));
+    opacity: var(--button-opacity--hover, var(--button-opacity));
+  }
+}
+[data-platform-name=ios] .Button_button {
+  border-radius: var(--sp-2);
+  border: 0;
+  font-size: calc(15 * var(--px-in-rem));
+  font-weight: 600;
+  height: calc(50 * var(--px-in-rem));
+  letter-spacing: calc(-0.23 * var(--px-in-rem));
+  padding: 0 var(--sp-6);
+  text-align: center;
+  &:active {
+    background: var(--button-bg--active, var(--button-bg));
+    color: var(--button-text--active, var(--button-text));
+  }
+  &:disabled {
+    background: var(--button-bg--disabled, var(--button-bg));
+    color: var(--button-text--disabled, var(--button-text));
+  }
+}
+body:not([data-platform-name]) {
+  & .Button_button {
+    background-blend-mode:
+      normal,
+      color-burn,
+      normal;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0) 100%),
+      linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.06) 100%),
+      #007aff;
+    border-radius: var(--sp-2);
+    border: 1px solid rgba(40, 145, 255, 0.05);
+    box-shadow: 0 0 1px 0 rgba(40, 145, 255, 0.05), 0 1px 1px 0 rgba(40, 145, 255, 0.1);
+    color: white;
+    font-size: calc(13 * var(--px-in-rem));
+    font-weight: 600;
+    line-height: var(--sp-8);
+    padding: 0 var(--sp-4);
+    &:hover {
+      background:
+        linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.16) 100%),
+        #2749db;
+    }
+    &:active {
+      background:
+        linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.16) 100%),
+        #1743d1;
+    }
+  }
+}
+[data-platform-name=macos] {
+  --macos-control-standard-background-rest: #fff;
+  --macos-control-standard-background-rest--dark: rgba(255, 255, 255, 0.28);
+  --macos-control-standard-background-pressed: #e7e7e7;
+  --macos-control-accent-branded-background-rest:
+    linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.16) 100%),
+    #2749db;
+  --macos-control-accent-branded-background-pressed:
+    linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.16) 100%),
+    #1743d1;
+  --macos-control-standard-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.2) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 0 1px 0 rgba(0, 0, 0, 0.05),
+    0 1px 1px 0 rgba(0, 0, 0, 0.2);
+  --macos-control-accent-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0) inset,
+    0 0 0 1px rgba(0, 122, 255, 0.05),
+    0 0 1px 0 rgba(0, 122, 255, 0.05),
+    0 1px 1px 0 rgba(0, 122, 255, 0.1);
+  --macos-control-focused-shadow:
+    0 0 0 3px rgba(57, 105, 239, 0.55),
+    0 0 0 1px rgba(57, 105, 239, 0.55) inset,
+    0 0 1px 0 rgba(0, 0, 0, 0.05),
+    0 1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+[data-platform-name=macos] .Button_button {
+  &.Button_standard {
+    --button-bg: var(--macos-control-standard-background-rest);
+    --button-text: var(--macos-text-primary);
+    --button-shadow: var(--macos-control-standard-shadow);
+    --button-opacity: 1;
+    --button-bg--active: var(--macos-control-standard-background-pressed);
+    --button-bg--disabled: var(--macos-control-standard-background-rest);
+    --button-text--disabled: var(--macos-text-primary);
+    --button-shadow--disabled: var(--macos-control-standard-shadow);
+    --button-opacity--disabled: 0.4;
+    --button-shadow--focus: var(--macos-control-focused-shadow);
+  }
+  &.Button_accent,
+  &.Button_accentBrand {
+    --button-bg: var(--macos-control-accent-branded-background-rest);
+    --button-text: var(--color-white);
+    --button-shadow: var(--macos-control-accent-shadow);
+    --button-opacity: 1;
+    --button-bg--active: var(--macos-control-accent-branded-background-pressed);
+    --button-bg--disabled: var(--macos-control-standard-background-rest);
+    --button-text--disabled: var(--macos-text-primary);
+    --button-shadow--disabled: var(--macos-control-standard-shadow);
+    --button-opacity--disabled: 0.4;
+    --button-shadow--focus: var(--macos-control-focused-shadow);
+  }
+  @media (prefers-color-scheme: dark) {
+    &.Button_standard {
+      --button-bg: var(--macos-control-standard-background-rest--dark);
+      --button-text: var(--color-white-at-84);
+    }
+  }
+}
+[data-platform-name=ios] .Button_button {
+  &.Button_primary {
+    --button-bg: var(--color-blue-50);
+    --button-text: var(--color-white);
+    --button-bg--active: var(--color-blue-70);
+    --button-text--active: var(--color-white);
+    --button-bg--disabled: var(--color-black-at-6);
+    --button-text--disabled: var(--color-black-at-36);
+  }
+  &.Button_ghost {
+    --button-bg: transparent;
+    --button-text: var(--color-blue-50);
+    --button-bg--active: rgba(57, 105, 239, 0.12);
+    --button-text--active: var(--color-blue-70);
+    --button-bg--disabled: transparent;
+    --button-text--disabled: var(--color-black-at-36);
+  }
+  @media (prefers-color-scheme: dark) {
+    &.Button_primary {
+      --button-bg: var(--color-blue-30);
+      --button-text: var(--color-black-at-84);
+      --button-bg--active: var(--color-blue-50);
+      --button-text--active: var(--color-black-at-84);
+      --button-bg--disabled: var(--color-black-at-6);
+      --button-text--disabled: var(--color-black-at-36);
+    }
+    &.Button_ghost {
+      --button-bg: transparent;
+      --button-text: var(--color-blue-30);
+      --button-bg--active: rgba(114, 149, 246, 0.2);
+      --button-text--active: var(--color-blue-20);
+      --button-bg--disabled: transparent;
+      --button-text--disabled: var(--color-black-at-36);
+    }
+  }
+}
+[data-platform-name=windows] {
+  .Button_button {
+    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
+    border-radius: var(--border-radius-sm);
+    height: var(--sp-8);
+    border-width: 0;
+    padding-inline: var(--sp-3);
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+    &.Button_standard {
+      background-color: var(--color-black-at-6);
+      border-width: 0;
+      &:hover {
+        background-color: var(--color-black-at-9);
+        cursor: pointer;
+      }
+      &:active {
+        background-color: var(--color-black-at-12);
+      }
+      &:disabled {
+        color: var(--color-black-at-84);
+      }
+      &:disabled:hover {
+        cursor: not-allowed;
+        background-color: var(--color-white-at-6);
+      }
+    }
+    &.Button_accentBrand {
+      background-color: var(--ddg-color-primary);
+      color: var(--color-white);
+      &:hover {
+        background-color: var(--color-blue-60);
+      }
+      &:active {
+        background-color: var(--color-blue-70);
+      }
+    }
+    @media screen and (prefers-color-scheme: dark) {
+      --focus-ring: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 3px var(--color-white);
+      &.Button_standard {
+        color: var(--color-white-at-84);
+        background-color: var(--color-white-at-12);
+        &:hover {
+          background-color: var(--color-white-at-18);
+        }
+        &:active {
+          background-color: var(--color-white-at-24);
+        }
+        &:disabled {
+          color: var(--color-white-at-12);
+          opacity: 0.8;
+        }
+        &:disabled:hover {
+          background-color: var(--color-white-at-12);
+        }
+      }
+      &.Button_accentBrand {
+        color: var(--color-black-at-84);
+        background-color: var(--color-blue-20);
+        &:hover {
+          background-color: var(--color-blue-30);
+        }
+        &:active {
+          background-color: var(--color-blue-40);
+        }
+        &:disabled {
+          background-color: var(--color-white-at-36);
+          color: var(--color-black-at-84);
+        }
+      }
+    }
   }
 }
 
@@ -1345,6 +1615,29 @@ body:has([data-reset-layout=true]) .App_layout {
   position: absolute;
   top: calc(var(--sp-6) - var(--sp-1));
   right: var(--sp-2);
+}
+
+/* pages/new-tab/app/customizer/components/CustomizerDrawer.module.css */
+.CustomizerDrawer_root {
+}
+
+/* pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css */
+.CustomizerDrawerInner_root {
+  animation-name: CustomizerDrawerInner_fade-in;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in-out;
+  animation-duration: .1s;
+  padding-block: 1rem;
+}
+@keyframes CustomizerDrawerInner_fade-in {
+  0% {
+    opacity: 0;
+    visibility: hidden;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 /* pages/new-tab/app/components/Components.module.css */

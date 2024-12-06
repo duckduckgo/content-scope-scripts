@@ -7,15 +7,14 @@
 import { createTypedMessages } from '@duckduckgo/messaging';
 import { Environment } from '../../../../shared/environment.js';
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js';
-import { sampleData } from './sampleData.js';
+import { mockTransport } from './mock-transport.js';
 import { init } from '../../app/index.js';
 
 export class SpecialErrorPage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
-    constructor(messaging, env) {
-        this.integration = env === 'integration';
+    constructor(messaging) {
         this.messaging = createTypedMessages(this, messaging);
     }
 
@@ -30,7 +29,7 @@ export class SpecialErrorPage {
      * }
      * ```
      *
-     * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
+     * @returns {Promise<import('../../types/special-error.js').InitialSetupResponse>}
      */
     initialSetup() {
         return this.messaging.request('initialSetup');
@@ -75,51 +74,23 @@ export class SpecialErrorPage {
     }
 }
 
-export class IntegrationSpecialErrorPage extends SpecialErrorPage {
-    /**
-     * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
-     */
-    initialSetup() {
-        const searchParams = new URLSearchParams(window.location.search);
-        const errorId = searchParams.get('errorId');
-        const platformName = searchParams.get('platformName');
-
-        /** @type {import('../../../../types/special-error').InitialSetupResponse['errorData']} */
-        let errorData = sampleData['ssl.expired'].data;
-        if (errorId && Object.keys(sampleData).includes(errorId)) {
-            errorData = sampleData[errorId].data;
-        }
-
-        const supportedPlatforms = ['macos', 'ios'];
-        /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']} */
-        let platform = { name: 'macos' };
-        if (platformName && supportedPlatforms.includes(platformName)) {
-            platform = {
-                name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */ (platformName),
-            };
-        }
-
-        return Promise.resolve({
-            env: 'development',
-            locale: 'en',
-            platform,
-            errorData,
-        });
-    }
-}
-
 const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
 
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
     pageName: /** @type {string} */ (import.meta.pageName),
+    mockTransport: () => {
+        // only in integration environments
+        if (baseEnvironment.injectName !== 'integration') return null;
+        let mock = null;
+        // eslint-disable-next-line no-labels, no-unused-labels
+        $INTEGRATION: mock = mockTransport();
+        return mock;
+    },
 });
 
-const specialErrorPage =
-    baseEnvironment.injectName === 'integration'
-        ? new IntegrationSpecialErrorPage(messaging, baseEnvironment.injectName)
-        : new SpecialErrorPage(messaging, baseEnvironment.injectName);
+const specialErrorPage = new SpecialErrorPage(messaging);
 
 init(specialErrorPage, baseEnvironment).catch((e) => {
     // messages.

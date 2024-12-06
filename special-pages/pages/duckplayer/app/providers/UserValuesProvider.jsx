@@ -4,7 +4,7 @@ import { useMessaging } from '../types.js';
 import { useEffect } from 'preact/hooks';
 
 /**
- * @typedef {import("../../../../types/duckplayer").UserValues} UserValues
+ * @typedef {import("../../types/duckplayer.js").UserValues} UserValues
  */
 
 const UserValuesContext = createContext({
