@@ -111,7 +111,7 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action, isSubsc
                 <button className={styles.headingBtn} onClick={() => action('identityRestoration')}>
                     <p class="sr-only">Identity Restoration</p>
 
-                    <img src="./icons/ID-32.svg" alt="Identity Restoration" />
+                    <img src="./icons/Identity-Theft-Restoration-Color-16.svg" alt="Identity Restoration" />
                 </button>
             </div>
             <span className={styles.widgetExpander}>
