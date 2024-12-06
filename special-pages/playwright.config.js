@@ -21,7 +21,8 @@ export default defineConfig({
                 'rmf.spec.js',
                 'new-tab.spec.js',
                 'favorites.spec.js',
-                'update-notification.spec.js'
+                'update-notification.spec.js',
+                'customizer.spec.js'
             ],
             use: {
                 ...devices['Desktop Chrome'],

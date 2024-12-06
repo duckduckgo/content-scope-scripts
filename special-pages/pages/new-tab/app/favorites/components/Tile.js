@@ -7,6 +7,7 @@ import { urlToColor } from '../color.js';
 import { DDG_DEFAULT_ICON_SIZE, DDG_FALLBACK_ICON } from '../constants.js';
 import { useItemState } from './PragmaticDND.js';
 import { useTypedTranslationWith } from '../../types.js';
+import { PlusIcon } from '../../components/Icons.js';
 
 /**
  * @import {Favorite} from '../../../types/new-tab'
@@ -132,21 +133,14 @@ export function Placeholder() {
  * @param {object} props
  * @param {() => void} props.onClick
  */
-export function PlusIcon({ onClick }) {
+function PlusIconWrapper({ onClick }) {
     const id = useId();
     const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
     return (
         <div class={styles.item} ref={ref} data-edge={'closestEdge' in state && state.closestEdge}>
             <button class={cn(styles.icon, styles.placeholder, styles.plus)} aria-labelledby={id} onClick={onClick}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M8.25 0.5C8.66421 0.5 9 0.835786 9 1.25V7H14.75C15.1642 7 15.5 7.33579 15.5 7.75C15.5 8.16421 15.1642 8.5 14.75 8.5H9V14.25C9 14.6642 8.66421 15 8.25 15C7.83579 15 7.5 14.6642 7.5 14.25V8.5H1.75C1.33579 8.5 1 8.16421 1 7.75C1 7.33579 1.33579 7 1.75 7H7.5V1.25C7.5 0.835786 7.83579 0.5 8.25 0.5Z"
-                        fill="currentColor"
-                    />
-                </svg>
+                <PlusIcon />
             </button>
             <div class={styles.text} id={id}>
                 {t('favorites_add')}
@@ -156,4 +150,4 @@ export function PlusIcon({ onClick }) {
     );
 }
 
-export const PlusIconMemo = memo(PlusIcon);
+export const PlusIconMemo = memo(PlusIconWrapper);

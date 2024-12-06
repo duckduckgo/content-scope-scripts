@@ -4,6 +4,153 @@
     animation-timing-function: ease-in-out;
     animation-duration: .1s;
     padding-block: 1rem;
+    display: grid;
+    grid-auto-rows: max-content;
+    grid-row-gap: var(--sp-4);
+    font-size: var(--small-label-font-size);
+    line-height: var(--small-label-line-height);
+    font-weight: var(--small-label-font-weight);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.backBtn {
+    background: none;
+    border: none;
+    outline: none;
+    display: flex;
+    padding: 0;
+    align-items: center;
+    gap: 4px;
+    color: inherit;
+
+    svg {
+        width: 16px; height: 16px; display: block
+    }
+
+    &:active {
+        opacity: .8;
+    }
+    &:focus-visible {
+        outline: 1px solid var(--ntp-focus-outline-color)
+    }
+}
+.section {
+    width: 100%;
+}
+.sectionBody {
+    margin-top: 16px;
+}
+.sectionTitle {
+    font-size: var(--title-3-em-font-size);
+    font-weight: var(--title-3-em-font-weight);
+    line-height: var(--title-3-em-line-height);
+}
+.bgList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: max-content max-content;
+    grid-gap: 12px;
+}
+.bgListItem {
+    display: grid;
+    grid-row-gap: 6px;
+    white-space: nowrap;
+    position: relative;
+
+    &:hover {
+        .deleteBtn {
+            opacity: 1
+        }
+    }
+}
+.bgPanel {
+    display: grid;
+    aspect-ratio: 16/10;
+    border-radius: 4px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+
+    &[aria-checked="true"] {
+        outline: 3px solid var(--ntp-color-primary);
+        outline-offset: 2px;
+    }
+    &:focus-visible {
+        outline: 3px solid var(--ntp-focus-outline-color);
+        outline-offset: 2px;
+    }
+    &:active {
+        opacity: .9;
+    }
+}
+
+.bgPanelEmpty {
+    border: 1px solid var(--ntp-surface-border-color);
+    background-color: rgba(0, 0, 0, 0.03);
+    [data-theme=dark] & {
+        background-color: rgba(255, 255, 255, 0.06);
+    }
+}
+
+.bgPanelOutlined {
+    border: 1px solid var(--ntp-surface-border-color);
+    background-color: transparent;
+}
+.dynamicIconColor {
+    &[data-color-mode="light"] {
+        color: black;
+        svg path {
+            fill-opacity: 0.84;
+        }
+    }
+    &[data-color-mode="dark"] {
+        color: white;
+        svg path {
+            fill-opacity: 0.84;
+        }
+    }
+}
+.colorInputIcon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    &, svg {
+        pointer-events: none;
+    }
+}
+.themeList {
+
+    display: flex;
+    gap: 18px;
+}
+.themeItem {
+    display: grid;
+    justify-items: center;
+    grid-row-gap: 6px;
+}
+.themeButton {
+    display: block;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid #0000001F;
+    &[aria-checked="true"] {
+        outline: 3px solid var(--ntp-color-primary);
+        outline-offset: 2px;
+    }
+    &:focus-visible {
+        outline: 3px solid var(--ntp-focus-outline-color);
+        outline-offset: 2px;
+    }
+    &:active {
+        opacity: .9;
+    }
 }
 
 @keyframes fade-in {
@@ -16,4 +163,11 @@
         opacity: 1;
         visibility: visible;
     }
+}
+
+.deleteBtn {
+    opacity: 0;
+    position: absolute;
+    top: 4px;
+    right: 4px;
 }
