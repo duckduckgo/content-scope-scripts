@@ -62,7 +62,7 @@
         padding: 10px;
         background-color: transparent;
         box-sizing: border-box;
-        transition: all .2s;
+        transition: all .2s ease-in;
         height: 2rem;
         border-width: 0;
         border-radius: 6px;
@@ -75,6 +75,14 @@
         &:hover {
             cursor: pointer;
             background-color: var(--color-black-at-6);
+        }
+
+        &:nth-child(2) {
+            transition-delay: 50ms;
+        }
+
+        &:last-child {
+            transition-delay: 100ms;
         }
         @media screen and (prefers-color-scheme: dark) {
             &:hover {
@@ -123,6 +131,8 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--sp-4);
     padding-top: var(--sp-6);
+    position: relative;
+    margin-left: -12px;
 }
 
 .panelButton { 
@@ -136,6 +146,7 @@
     min-height: 140px;
     text-align: left;
     overflow: hidden;
+    transition: border-color .2s ease-in;
     
     &:hover {
         border: 1px solid #3969EF;
@@ -173,17 +184,24 @@
     }
 
     .bottomSection {
+        display: flex;
+        align-items: center;
         font-size: calc(11 * var(--px-in-rem));
 
         .statusDot {
             height: 6px;
             width: 6px;
-            background-color: lime;
+            background-color: var(--color-green-50);
             border-radius: 50%;
             margin-right: var(--sp-1);
+
+            &.red {
+                background-color: var(--color-red-50);
+            }
         }
-        p {
-            color: var(--ntp-text-muted)
+        .status {
+            color: var(--ntp-text-muted);
+            text-transform: capitalize;
         }
     }
 }

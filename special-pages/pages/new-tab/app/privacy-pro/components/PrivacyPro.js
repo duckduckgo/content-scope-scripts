@@ -8,7 +8,6 @@ import { viewTransition } from '../../utils.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { PrivacyProContext, PrivacyProProvider } from '../PrivacyProProvider.js';
 import styles from './PrivacyPro.module.css';
-import { Button } from '../../../../../shared/components/Button/Button.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -150,6 +149,14 @@ export function PrivacyProBody({ data, action }) {
         return formattedDate;
     };
 
+    const displayVPNStatus = (status) => {
+        if (status === 'connected' || status === 'connecting') {
+            return 'ON';
+        } else {
+            return 'OFF';
+        }
+    };
+
     return (
         <div class={styles.body}>
             {data?.personalInformationRemoval && (
@@ -163,8 +170,8 @@ export function PrivacyProBody({ data, action }) {
                         <p>{formatDates(new Date(data.personalInformationRemoval.nextScanDate))}</p>
                     </div>
                     <div class={styles.bottomSection}>
-                        <span class={styles.statusDot}></span>
-                        <p>In Progress</p>
+                        <div class={styles.statusDot}></div>
+                        <p className={styles.status}>{data.personalInformationRemoval.status}</p>
                     </div>
                 </button>
             )}
@@ -176,11 +183,13 @@ export function PrivacyProBody({ data, action }) {
                     </div>
                     <div class={styles.middleSection}>
                         <p>Location</p>
-                        <p>🇬🇧 United Kingdom</p>
+                        {typeof data.vpn.location === 'object' && <p>{data.vpn.location?.name}</p>}
+                        {typeof data.vpn.location === 'string' && <p>{data.vpn.location}</p>}
+                        {data.vpn.location === 'null' && <p>Nearest Location</p>}
                     </div>
                     <div class={styles.bottomSection}>
-                        <span class={styles.statusDot}></span>
-                        <p>ON</p>
+                        <div class={cn(styles.statusDot, data.vpn.status === 'disconnected' && styles.red)}></div>
+                        <p class={styles.status}>{displayVPNStatus(data.vpn.status)}</p>
                     </div>
                 </button>
             )}
@@ -195,8 +204,8 @@ export function PrivacyProBody({ data, action }) {
                         <p>{formatDates(new Date(data.identityRestoration.coveredSinceDate))}</p>
                     </div>
                     <div class={styles.bottomSection}>
-                        <span class={styles.statusDot}></span>
-                        <p>Available</p>
+                        <div class={styles.statusDot}></div>
+                        <p class={styles.status}>available</p>
                     </div>
                 </button>
             )}
