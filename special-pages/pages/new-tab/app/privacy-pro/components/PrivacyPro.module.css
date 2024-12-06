@@ -31,13 +31,17 @@
 }
 .headingIcon {
     grid-area: icon;
-    width: 20px;
     height: var(--title-2-line-height);
     position: relative;
+    width: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding-top: 0.5px;
+
+    svg {
+        width: 20px;
+    }
 }
 
 .title {
