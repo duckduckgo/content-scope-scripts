@@ -122,7 +122,11 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
     // get a ref for the favorites' grid, this will allow it to receive drop events,
     // and the ref can also be used for reading the offset (eg: if other elements are above it)
     const safeAreaRef = /** @type {import("preact").RefObject<HTMLDivElement>} */ (useDropzoneSafeArea());
-    const containerHeight = expansion === 'collapsed' ? rowHeight : rows.length * rowHeight;
+
+    // prettier-ignore
+    const containerHeight = expansion === 'collapsed' || rows.length === 0
+        ? rowHeight
+        : rows.length * rowHeight;
 
     return (
         <div
