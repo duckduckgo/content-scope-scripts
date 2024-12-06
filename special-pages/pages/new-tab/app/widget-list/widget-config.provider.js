@@ -1,6 +1,6 @@
 import { createContext, h } from 'preact';
 import { useContext } from 'preact/hooks';
-import { computed, effect, signal, useSignal } from '@preact/signals';
+import { effect, signal, useComputed, useSignal } from '@preact/signals';
 
 /**
  * @typedef {import('../../types/new-tab.js').WidgetConfigs} WidgetConfigs
@@ -102,7 +102,7 @@ export function useVisibility() {
  */
 export function WidgetVisibilityProvider(props) {
     const { toggle, currentValues } = useContext(WidgetConfigContext);
-    const visibility = computed(() => {
+    const visibility = useComputed(() => {
         const matchingConfig = currentValues.value.find((x) => x.id === props.id);
         if (!matchingConfig) throw new Error('unreachable. Must find widget config via id: ' + props.id);
         return matchingConfig.visibility;

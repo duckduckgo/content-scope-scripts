@@ -47,7 +47,7 @@
         transform: scale(0.95);
     }
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         background-color: var(--color-white-at-6);
         &:hover {
             background-color: var(--color-white-at-12);
@@ -88,7 +88,7 @@
     background-color: transparent;
     border: 1.5px dashed var(--color-black-at-9);
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         border-color: var(--color-white-at-9);
     }
 }
@@ -98,14 +98,14 @@
     border-style: solid;
     color: var(--color-black-at-90);
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         color: var(--color-white-at-85);
     }
 
     &:hover {
         background: var(--color-black-at-3);
 
-        @media screen and (prefers-color-scheme: dark) {
+        [data-theme=dark] & {
             background: var(--color-white-at-9);
         }
     }
@@ -125,7 +125,7 @@
     position: absolute;
     top: 0;
     background-color: var(--color-black-at-12);
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         background-color: var(--color-white-at-12);
     }
 }

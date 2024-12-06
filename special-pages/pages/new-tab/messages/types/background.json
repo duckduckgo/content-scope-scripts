@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Background Variant",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["kind"],
+      "title": "Default Background",
+      "properties": {
+        "kind": {
+          "const": "default"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "Solid Color Background",
+      "properties": {
+        "kind": {
+          "const": "color"
+        },
+        "value": {
+          "$ref": "./colors.json#/definitions/colors"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "Hex Value Background",
+      "properties": {
+        "kind": {
+          "const": "hex"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "Gradient Background",
+      "properties": {
+        "kind": {
+          "const": "gradient"
+        },
+        "value": {
+          "$ref": "./colors.json#/definitions/gradients"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "User Image Background",
+      "properties": {
+        "kind": {
+          "const": "userImage"
+        },
+        "value": {
+          "$ref": "./user-image.json"
+        }
+      }
+    }
+  ]
+}

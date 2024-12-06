@@ -1,0 +1,12 @@
+.root {
+    position: fixed;
+    z-index: 0;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+
+    &[data-animate="true"] {
+        transition: all .3s ease-in-out;
+    }
+}

@@ -72,7 +72,7 @@
         outline: none;
     }
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         &:hover:not(:active) {
             background-color: var(--color-black-at-9);
         }
@@ -136,7 +136,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
         h2 {
             color: var(--ntp-text-on-primary);
             letter-spacing: 0.06px;
