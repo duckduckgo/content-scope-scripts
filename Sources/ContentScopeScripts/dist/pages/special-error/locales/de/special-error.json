@@ -1,0 +1,75 @@
+{
+  "smartling" : {
+    "string_format" : "icu",
+    "translate_paths" : [
+    {
+      "path" : "*/title",
+      "key" : "{*}/title",
+      "instruction" : "*/note"
+    }]
+  },
+  "advancedButton" : {
+    "title" : "Erweitert",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+  },
+  "advancedEllipsisButton" : {
+    "title" : "Erweitert ...",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+  },
+  "leaveSiteButton" : {
+    "title" : "Diese Website verlassen",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+  },
+  "visitSiteButton" : {
+    "title" : "Risiko akzeptieren und Website besuchen",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+  },
+  "phishingPageHeading" : {
+    "title" : "Warnung: Diese Seite gefährdet deine persönlichen Daten",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+  },
+  "phishingWarningText" : {
+    "title" : "Diese Website gibt sich möglicherweise als legitime Website aus, um dich dazu zu verleiten, personenbezogene Daten wie Passwörter oder Kreditkartennummern preiszugeben. <a>Mehr erfahren</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoHeading" : {
+    "title" : "DuckDuckGo warnt dich, wenn eine Website als bösartig gekennzeichnet wurde.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoText_1" : {
+    "title" : "Es werden Warnungen für Websites angezeigt, die als betrügerisch gemeldet wurden. Betrügerische Websites versuchen dir vorzugaukeln, dass es sich um seriöse Websites handelt, denen du vertraust. Wenn du dir über die damit verbundenen Risiken im Klaren bist, kannst du trotzdem fortfahren.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoText_2" : {
+    "title" : "Weitere Informationen findest du auf unserer <a>Hilfeseite zum Schutz vor Phishing und Malware</a>.",
+    "note" : "A call-to-action to read more on our help pages for phishing and malware protection."
+  },
+  "sslPageHeading" : {
+    "title" : "Warnung: Diese Website ist möglicherweise unsicher",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to SSL issues"
+  },
+  "sslWarningText" : {
+    "title" : "Das Zertifikat für diese Website ist ungültig. Möglicherweise stellst du eine Verbindung zu einem Server her, der vorgibt, <b>{domain}</b> zu sein, wodurch deine vertraulichen Daten in Gefahr sein könnten.",
+    "note" : "Describes an SSL error where a website’s security certificate is invalid. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslAdvancedInfoHeading" : {
+    "title" : "DuckDuckGo warnt dich, wenn eine Website ein ungültiges Zertifikat hat.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslExpiredAdvancedInfoText" : {
+    "title" : "Das Sicherheitszertifikat für <b>{domain}</b> ist abgelaufen. Es ist möglich, dass die Website falsch konfiguriert ist, ein Angreifer deine Verbindung kompromittiert hat oder deine Systemuhr falsch ist.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslInvalidAdvancedInfoText" : {
+    "title" : "Das Sicherheitszertifikat für <b>{domain}</b> wird vom Betriebssystem deines Geräts als nicht vertrauenswürdig eingestuft. Möglicherweise ist die Website falsch konfiguriert oder ein Angreifer hat deine Verbindung kompromittiert.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslSelfSignedAdvancedInfoText" : {
+    "title" : "Das Sicherheitszertifikat für <b>{domain}</b> wird vom Betriebssystem deines Geräts als nicht vertrauenswürdig eingestuft. Möglicherweise ist die Website falsch konfiguriert oder ein Angreifer hat deine Verbindung kompromittiert.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslWrongHostAdvancedInfoText" : {
+    "title" : "Das Sicherheitszertifikat für <b>{domain}</b> stimmt nicht mit <b>*.{eTldPlus1}</b> überein. Möglicherweise ist die Website falsch konfiguriert oder ein Angreifer hat deine Verbindung kompromittiert.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The two placeholders are website domain names (example: duckduckgo.com)."
+  }
+}
