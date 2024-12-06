@@ -31,7 +31,7 @@
 }
 .headingIcon {
     grid-area: icon;
-    width: 1.5rem;
+    width: 20px;
     height: var(--title-2-line-height);
     position: relative;
     display: flex;
