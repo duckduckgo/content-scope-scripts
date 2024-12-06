@@ -101,6 +101,10 @@
     }
 }
 
+.privProRed {
+    color: var(--color-red-50);
+}
+
 .subtitle {
     grid-area: label;
     color: var(--ntp-text-muted);

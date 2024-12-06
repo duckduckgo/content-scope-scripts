@@ -97,7 +97,15 @@ export function Heading({ expansion, onToggle, buttonAttrs = {}, action, isSubsc
             <span className={styles.headingIcon}>
                 <img src="./icons/Privacy-Pro-Color-16.svg" alt="Privacy Shield" />
             </span>
-            <h2 className={styles.title}>{!isSubscriber ? 'Try Privacy Pro today for free!' : 'Privacy Pro'}</h2>
+            <h2 className={styles.title}>
+                {!isSubscriber ? (
+                    <Fragment>
+                        Try <span class={styles.privProRed}>Privacy Pro</span> today for free!
+                    </Fragment>
+                ) : (
+                    'Privacy Pro'
+                )}
+            </h2>
             <div class={cn(styles.buttonBlock, expansion === 'collapsed' && styles.visible)}>
                 <button className={styles.headingBtn} onClick={() => action('personalInformationRemoval')}>
                     <p class="sr-only">Personal Information Removal</p>
