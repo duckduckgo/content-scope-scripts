@@ -58,4 +58,14 @@ test.describe('newtab NextSteps cards', () => {
         await page.getByRole('button', { name: 'Try DuckPlayer' }).click();
         await ntp.mocks.waitForCallCount({ method: 'nextSteps_action', count: 1 });
     });
+
+    test('shows a confirmation state', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ nextSteps: ['addAppToDockMac', 'defaultApp'] });
+        await page.getByRole('button', { name: 'Add to Dock' }).click();
+
+        await expect(page.getByText('Added to Dock!')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Add to Dock' })).not.toBeVisible();
+    });
 });
