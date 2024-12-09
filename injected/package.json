@@ -49,7 +49,7 @@
     "fast-check": "^3.23.1",
     "jasmine": "^5.4.0",
     "minimist": "^1.2.8",
-    "rollup": "^4.27.4",
+    "rollup": "^4.28.1",
     "rollup-plugin-import-css": "^3.5.7",
     "rollup-plugin-svg-import": "^3.0.0"
   }
