@@ -286,7 +286,7 @@ const functionMap = {
         debugger;
     },
 
-    noop: () => {},
+    noop: () => { },
 };
 
 /**
@@ -762,7 +762,7 @@ export function legacySendMessage(messageType, options) {
     // FF & Chrome
     return (
         originalWindowDispatchEvent &&
-        originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+        originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: JSON.stringify({ messageType, options }) }))
     );
     // TBD other platforms
 }

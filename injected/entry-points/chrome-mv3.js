@@ -21,14 +21,16 @@ load({
 });
 
 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-window.addEventListener(secret, ({ detail: message }) => {
-    if (!message) return;
+window.addEventListener(secret, ({ detail: encodedMessage }) => {
+    if (!encodedMessage) return;
+    const message = JSON.parse(encodedMessage);
 
     switch (message.type) {
         case 'update':
             update(message);
             break;
         case 'register':
+            console.log('registered!', message);
             if (message.argumentsObject) {
                 message.argumentsObject.messageSecret = secret;
                 init(message.argumentsObject);
