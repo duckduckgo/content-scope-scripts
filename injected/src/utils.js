@@ -274,7 +274,7 @@ const functionMap = {
         debugger;
     },
 
-    noop: () => { },
+    noop: () => {},
 };
 
 /**
@@ -406,7 +406,7 @@ export class DDGProxy {
             }
             // The normal return value
             if (isExempt) {
-                return DDGReflect.apply(...args);
+                return DDGReflect.apply(args[0], args[1], args[2]);
             }
             return proxyObject.apply(...args);
         };
@@ -720,7 +720,9 @@ export function legacySendMessage(messageType, options) {
     // FF & Chrome
     return (
         originalWindowDispatchEvent &&
-        originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: JSON.stringify({ messageType, options }) }))
+        originalWindowDispatchEvent(
+            createCustomEvent('sendMessageProxy' + messageSecret, { detail: JSON.stringify({ messageType, options }) }),
+        )
     );
     // TBD other platforms
 }
