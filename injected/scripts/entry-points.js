@@ -60,12 +60,10 @@ const builds = {
 };
 
 async function initOther(injectScriptPath, platformName) {
-    const supportsMozProxies = platformName === 'firefox';
     const identName = `inject${camelcase(platformName)}`;
     const injectScript = await rollupScript({
         scriptPath: injectScriptPath,
         name: identName,
-        supportsMozProxies,
         platform: platformName,
     });
     const outputScript = injectScript;

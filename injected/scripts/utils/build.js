@@ -34,11 +34,10 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https:/
  * @param {string} params.platform
  * @param {string[]} [params.featureNames]
  * @param {string} [params.name]
- * @param {boolean} [params.supportsMozProxies]
  * @return {Promise<string>}
  */
 export async function rollupScript(params) {
-    const { scriptPath, platform, name, featureNames, supportsMozProxies = false } = params;
+    const { scriptPath, platform, name, featureNames } = params;
 
     const extensions = ['firefox', 'chrome', 'chrome-mv3'];
     const isExtension = extensions.includes(platform);
@@ -48,8 +47,6 @@ export async function rollupScript(params) {
         trackerLookup = trackerLookupData;
     }
     const suffixMessage = `/*# sourceURL=duckduckgo-privacy-protection.js?scope=${name} */`;
-    // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
-    const mozProxies = supportsMozProxies;
     const plugins = [
         css(),
         svg({
@@ -61,8 +58,6 @@ export async function rollupScript(params) {
         replace({
             preventAssignment: true,
             values: {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                mozProxies,
                 'import.meta.injectName': JSON.stringify(platform),
                 // To be replaced by the extension, but prevents tree shaking
                 'import.meta.trackerLookup': trackerLookup,
