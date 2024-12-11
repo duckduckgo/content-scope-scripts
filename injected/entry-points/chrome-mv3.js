@@ -30,7 +30,6 @@ window.addEventListener(secret, ({ detail: encodedMessage }) => {
             update(message);
             break;
         case 'register':
-            console.log('registered!', message);
             if (message.argumentsObject) {
                 message.argumentsObject.messageSecret = secret;
                 init(message.argumentsObject);

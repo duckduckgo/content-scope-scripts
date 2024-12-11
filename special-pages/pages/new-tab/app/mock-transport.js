@@ -226,7 +226,7 @@ export function mockTransport() {
                         }, ms);
                         return () => clearTimeout(timeout);
                     }
-                    return () => { };
+                    return () => {};
                 }
                 case 'updateNotification_onDataUpdate': {
                     const update = url.searchParams.get('update-notification');
@@ -239,7 +239,7 @@ export function mockTransport() {
                         }, ms);
                         return () => clearTimeout(timeout);
                     }
-                    return () => { };
+                    return () => {};
                 }
                 case 'favorites_onDataUpdate': {
                     const controller = new AbortController();
@@ -277,7 +277,7 @@ export function mockTransport() {
                     const statsVariant = url.searchParams.get('stats');
                     const count = url.searchParams.get('stats-update-count');
                     const updateMaxCount = parseInt(count || '0');
-                    if (updateMaxCount === 0) return () => { };
+                    if (updateMaxCount === 0) return () => {};
                     if (statsVariant === 'willUpdate') {
                         let inc = 1;
                         const max = Math.min(updateMaxCount, 10);
@@ -310,10 +310,10 @@ export function mockTransport() {
                             });
                             index++;
                         }, 200);
-                        return () => { };
+                        return () => {};
                     } else {
                         console.log(statsVariant);
-                        return () => { };
+                        return () => {};
                     }
                 }
                 case 'favorites_onConfigUpdate': {
@@ -333,7 +333,7 @@ export function mockTransport() {
                     return () => controller.abort();
                 }
             }
-            return () => { };
+            return () => {};
         },
         // eslint-ignore-next-line require-await
         request(_msg) {
