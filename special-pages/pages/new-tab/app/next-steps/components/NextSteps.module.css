@@ -137,6 +137,7 @@
     height: 100%;
     width: 100%;
     position: relative;
+    margin-bottom: var(--sp-3);
 
     &:hover {
         .showhide {
