@@ -70,3 +70,9 @@ export const otherText = {
     /** @param {(translationId: keyof enStrings) => string} t */
     nextSteps_sectionTitle: (t) => t('nextSteps_sectionTitle'),
 };
+
+const cardsWithConfirmationText = ['addAppToDockMac'];
+
+export const additionalCardStates = {
+    hasConfirmationText: (/** @type {keyof variants} */ variantId) => cardsWithConfirmationText.includes(variantId),
+};

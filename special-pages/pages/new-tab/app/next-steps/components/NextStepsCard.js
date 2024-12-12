@@ -5,7 +5,7 @@ import { useState } from 'preact/hooks';
 import { DismissButton } from '../../components/DismissButton';
 import { CheckColor } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
-import { variants } from '../nextsteps.data';
+import { variants, additionalCardStates } from '../nextsteps.data';
 import styles from './NextSteps.module.css';
 
 /**
@@ -19,7 +19,7 @@ export function NextStepsCard({ type, dismiss, action }) {
     const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
     const message = variants[type]?.(t);
     const [showConfirmation, setShowConfirmation] = useState(false);
-    const hasConfirmationState = message.id === 'addAppToDockMac';
+    const hasConfirmationState = additionalCardStates.hasConfirmationText(message.id);
 
     const handleClick = () => {
         if (!hasConfirmationState) {
@@ -40,7 +40,10 @@ export function NextStepsCard({ type, dismiss, action }) {
                     <p>{message.confirmationText}</p>
                 </div>
             ) : (
-                <button class={cn(styles.btn, hasConfirmationState && styles.supressActiveStateForSwitch)} onClick={handleClick}>
+                <button
+                    class={cn(styles.btn, hasConfirmationState && styles.supressActiveStateForSwitchToConfirmationText)}
+                    onClick={handleClick}
+                >
                     {message.actionText}
                 </button>
             )}
