@@ -5,7 +5,7 @@ import { FreemiumPIRBannerContext } from '../FreemiumPIRBannerProvider.js';
 
 /**
  * @typedef { import('../../components/MessageBar').MessageBarMessage} MessageBarMessage
- * @import { FreemiumPIRBannerMessage } from "../../../types/new-tab"
+ * @typedef { import("../../../types/new-tab").FreemiumPIRBannerMessage} FreemiumPIRBannerMessage
  * @param {object} props
  * @param {FreemiumPIRBannerMessage} props.message
  * @param {(id: string) => void} props.dismiss
@@ -15,11 +15,11 @@ import { FreemiumPIRBannerContext } from '../FreemiumPIRBannerProvider.js';
 export function FreemiumPIRBanner({ message, action, dismiss }) {
     /** @type {MessageBarMessage} msgBarMessage */
     const msgBarMessage = {
-        id: message?.id,
-        messageType: message?.messageType,
+        id: message?.id ? message.id : '',
+        messageType: message?.messageType ? message.messageType : 'big_single_action',
         icon: 'Information-Remover-96',
-        titleText: message?.titleText ? message?.titleText : undefined,
-        descriptionText: message?.descriptionText,
+        titleText: message?.titleText ? message.titleText : undefined,
+        descriptionText: message?.descriptionText ? message.descriptionText : '',
         primaryActionText: message?.actionText,
     };
 
