@@ -22,6 +22,13 @@ export type WidgetVisibility = "visible" | "hidden";
  * Configuration settings for widgets
  */
 export type WidgetConfigs = WidgetConfigItem[];
+export type FreemiumPIRBannerMessage = {
+  messageType: "big_single_action";
+  id: "onboarding" | "scan_results";
+  titleText: string | null;
+  descriptionText: string;
+  actionText: string;
+} | null;
 /**
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
@@ -50,6 +57,8 @@ export interface NewTabMessages {
     | FavoritesOpenNotification
     | FavoritesOpenContextMenuNotification
     | FavoritesSetConfigNotification
+    | FreemiumPIRBannerActionNotification
+    | FreemiumPIRBannerDismissNotification
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
@@ -67,6 +76,7 @@ export interface NewTabMessages {
   requests:
     | FavoritesGetConfigRequest
     | FavoritesGetDataRequest
+    | FreemiumPIRBannerGetDataRequest
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
@@ -76,6 +86,7 @@ export interface NewTabMessages {
   subscriptions:
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
+    | FreemiumPIRBannerOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
@@ -184,6 +195,26 @@ export interface ViewTransitions {
  */
 export interface Auto {
   kind: "auto-animate";
+}
+/**
+ * Generated from @see "../messages/freemiumPIRBanner_action.notify.json"
+ */
+export interface FreemiumPIRBannerActionNotification {
+  method: "freemiumPIRBanner_action";
+  params: FreemiumPIRBannerAction;
+}
+export interface FreemiumPIRBannerAction {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/freemiumPIRBanner_dismiss.notify.json"
+ */
+export interface FreemiumPIRBannerDismissNotification {
+  method: "freemiumPIRBanner_dismiss";
+  params: FreemiumPIRBannerDismissAction;
+}
+export interface FreemiumPIRBannerDismissAction {
+  id: string;
 }
 /**
  * Generated from @see "../messages/nextSteps_action.notify.json"
@@ -354,6 +385,19 @@ export interface FavoriteFavicon {
   maxAvailableSize: number;
 }
 /**
+ * Generated from @see "../messages/freemiumPIRBanner_getData.request.json"
+ */
+export interface FreemiumPIRBannerGetDataRequest {
+  method: "freemiumPIRBanner_getData";
+  result: FreemiumPIRBannerData;
+}
+/**
+ * The 'content' field is optional. Use that fact to show/hide messages
+ */
+export interface FreemiumPIRBannerData {
+  content?: FreemiumPIRBannerMessage;
+}
+/**
  * Generated from @see "../messages/initialSetup.request.json"
  */
 export interface InitialSetupRequest {
@@ -487,6 +531,13 @@ export interface FavoritesOnConfigUpdateSubscription {
 export interface FavoritesOnDataUpdateSubscription {
   subscriptionEvent: "favorites_onDataUpdate";
   params: FavoritesData;
+}
+/**
+ * Generated from @see "../messages/freemiumPIRBanner_onDataUpdate.subscribe.json"
+ */
+export interface FreemiumPIRBannerOnDataUpdateSubscription {
+  subscriptionEvent: "freemiumPIRBanner_onDataUpdate";
+  params: FreemiumPIRBannerData;
 }
 /**
  * Generated from @see "../messages/nextSteps_onConfigUpdate.subscribe.json"
