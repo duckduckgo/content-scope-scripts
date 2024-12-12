@@ -71,6 +71,7 @@ export const otherText = {
     nextSteps_sectionTitle: (t) => t('nextSteps_sectionTitle'),
 };
 
+/** @type {string[]} cardsWithConfirmationText */
 const cardsWithConfirmationText = ['addAppToDockMac'];
 
 export const additionalCardStates = {
