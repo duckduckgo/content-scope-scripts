@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Freemium PIR Banner Data",
+    "description": "The 'content' field is optional. Use that fact to show/hide messages",
+    "type": "object",
+    "properties": {
+        "content": {
+            "title": "Freemium PIR Banner Message",
+            "type": [
+                "object", "null"
+            ],
+            "properties": {
+                "messageType": {
+                    "const": "big_single_action"
+                },
+                "id": {
+                    "enum": [
+                        "onboarding",
+                        "scan_results"
+                    ]
+                },
+                "titleText": {
+                    "type": ["string", "null"]
+                },
+                "descriptionText": {
+                    "type": "string"
+                },
+                "actionText": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "messageType",
+                "id",
+                "descriptionText",
+                "titleText",
+                "actionText"
+            ]
+        }
+    }
+}
