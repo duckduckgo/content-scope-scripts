@@ -1,11 +1,11 @@
 import { h } from 'preact';
 import cn from 'classnames';
-import styles from './NextSteps.module.css';
-import { useTypedTranslationWith } from '../../types';
-import { NextStepsCard } from './NextStepsCard';
-import { otherText } from '../nextsteps.data';
-import { ShowHideButton } from '../../components/ShowHideButton';
 import { useId } from 'preact/hooks';
+import { ShowHideButton } from '../../components/ShowHideButton';
+import { useTypedTranslationWith } from '../../types';
+import { otherText } from '../nextsteps.data';
+import styles from './NextSteps.module.css';
+import { NextStepsCard } from './NextStepsCard';
 
 /**
  * @import enStrings from '../strings.json';

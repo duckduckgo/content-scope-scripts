@@ -50,6 +50,7 @@ export const variants = {
         title: t('nextSteps_addAppDockMac_title'),
         summary: t('nextSteps_addAppDockMac_summary'),
         actionText: t('nextSteps_addAppDockMac_actionText'),
+        confirmationText: t('nextSteps_addAppDockMac_confirmationText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
     pinAppToTaskbarWindows: (t) => ({
@@ -68,4 +69,11 @@ export const otherText = {
     showLess: (t) => t('ntp_show_less'),
     /** @param {(translationId: keyof enStrings) => string} t */
     nextSteps_sectionTitle: (t) => t('nextSteps_sectionTitle'),
+};
+
+/** @type {string[]} cardsWithConfirmationText */
+const cardsWithConfirmationText = ['addAppToDockMac'];
+
+export const additionalCardStates = {
+    hasConfirmationText: (/** @type {keyof variants} */ variantId) => cardsWithConfirmationText.includes(variantId),
 };

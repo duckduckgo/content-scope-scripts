@@ -1,8 +1,12 @@
 import { h } from 'preact';
-import styles from './NextSteps.module.css';
+import cn from 'classnames';
+
+import { useState } from 'preact/hooks';
 import { DismissButton } from '../../components/DismissButton';
-import { variants } from '../nextsteps.data';
+import { CheckColor } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
+import { variants, additionalCardStates } from '../nextsteps.data';
+import styles from './NextSteps.module.css';
 
 /**
  * @param {object} props
@@ -14,14 +18,35 @@ import { useTypedTranslationWith } from '../../types';
 export function NextStepsCard({ type, dismiss, action }) {
     const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
     const message = variants[type]?.(t);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const hasConfirmationState = additionalCardStates.hasConfirmationText(message.id);
+
+    const handleClick = () => {
+        if (!hasConfirmationState) {
+            return action(message.id);
+        }
+
+        action(message.id);
+        setShowConfirmation(true);
+    };
     return (
         <div class={styles.card}>
             <img src={`./icons/${message.icon}-128.svg`} alt="" class={styles.icon} />
             <h3 class={styles.title}>{message.title}</h3>
             <p class={styles.description}>{message.summary}</p>
-            <button class={styles.btn} onClick={() => action(message.id)}>
-                {message.actionText}
-            </button>
+            {hasConfirmationState && !!showConfirmation ? (
+                <div class={styles.confirmation}>
+                    <CheckColor />
+                    <p>{message.confirmationText}</p>
+                </div>
+            ) : (
+                <button
+                    class={cn(styles.btn, hasConfirmationState && styles.supressActiveStateForSwitchToConfirmationText)}
+                    onClick={handleClick}
+                >
+                    {message.actionText}
+                </button>
+            )}
 
             <DismissButton className={styles.dismissBtn} onClick={() => dismiss(message.id)} />
         </div>
