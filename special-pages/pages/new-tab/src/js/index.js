@@ -75,6 +75,19 @@ export class NewTabPage {
     statsShowLess() {
         this.messaging.notify('stats_showLess');
     }
+
+    /**
+     * NOTE: temporary workaround, to be replaced with 'telemetryEvent'
+     */
+    privacyProShowMore() {
+        this.messaging.notify('privacyPro_showMore');
+    }
+    /**
+     * NOTE: temporary workaround, to be replaced with 'telemetryEvent'
+     */
+    privacyProShowLess() {
+        this.messaging.notify('privacyPro_showLess');
+    }
 }
 
 const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env);
