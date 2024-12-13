@@ -6,27 +6,21 @@ import { freemiumPIRDataExamples } from '../mocks/freemiumPIRBanner.data.js';
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 
 export const FreemiumPIRBannerExamples = {
-    'freemiumPIR.small': {
-        factory: () => <FreemiumPIRBanner message={freemiumPIRDataExamples.small.content} dismiss={noop('freemiumPIR_dismiss')} />,
-    },
-    'freemiumPIR.medium': {
-        factory: () => <FreemiumPIRBanner message={freemiumPIRDataExamples.medium.content} dismiss={noop('freemiumPIR_dismiss')} />,
-    },
-    'freemiumPIR.big-single-action': {
+    'freemiumPIR.onboarding': {
         factory: () => (
             <FreemiumPIRBanner
                 message={freemiumPIRDataExamples.unused.content}
-                action={noop('freemiumPIR_action')}
-                dismiss={noop('freemiumPIR_dismiss')}
+                dismiss={noop('freemiumPIRBanner_dismiss')}
+                action={noop('freemiumPIRBanner_action')}
             />
         ),
     },
-    'freemiumPIR.big-two-action': {
+    'freemiumPIR.scan_results': {
         factory: () => (
             <FreemiumPIRBanner
                 message={freemiumPIRDataExamples.used.content}
-                action={noop('freemiumPIR_action')}
-                dismiss={noop('freemiumPIR_dismiss')}
+                dismiss={noop('freemiumPIRBanner_dismiss')}
+                action={noop('freemiumPIRBanner_action')}
             />
         ),
     },
@@ -37,8 +31,8 @@ export const otherFreemiumPIRBannerExamples = {
         factory: () => (
             <FreemiumPIRBanner
                 message={freemiumPIRDataExamples.big_two_action_overflow.content}
-                action={noop('freemiumPIR_action')}
-                dismiss={noop('freemiumPIR_dismiss')}
+                action={noop('freemiumPIRBanner_action')}
+                dismiss={noop('freemiumPIRBanner_dismiss')}
             />
         ),
     },
