@@ -1,8 +1,8 @@
 :root {
-    --ntp-background-color: white;
-    --ntp-surface-background-color: white;
+    --ntp-background-color: var(--color-gray-0);
+    --ntp-surface-background-color: var(--color-white-at-30);
     --ntp-surfaces-panel-background-color: white;
-    --ntp-surface-border-color: var(--color-black-at-6);
+    --ntp-surface-border-color: var(--color-black-at-9);
     --ntp-text-normal: var(--color-black-at-84);
     --ntp-text-muted: var(--color-black-at-60);
     --ntp-text-on-primary: var(--color-white-at-84);
@@ -36,7 +36,7 @@
 
     @media (prefers-color-scheme: dark) {
         --ntp-background-color: var(--color-gray-85);
-        --ntp-surface-background-color: #2a2a2a;
+        --ntp-surface-background-color: var(--color-black-at-18);
         --ntp-surfaces-panel-background-color: #222222;
         --ntp-surface-border-color: var(--color-white-at-6);
         --ntp-text-normal: var(--color-white-at-84);

@@ -9,6 +9,7 @@
     justify-content: flex-start;
     align-items: center;
     text-align: center;
+    backdrop-filter: blur(48px);
     max-width: calc(240 * var(--px-in-rem));
     min-height: calc(166 * var(--px-in-rem));
     font-size: var(--body-font-size);
