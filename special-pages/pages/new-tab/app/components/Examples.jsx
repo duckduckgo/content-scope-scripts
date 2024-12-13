@@ -6,10 +6,12 @@ import { otherRMFExamples, RMFExamples } from '../remote-messaging-framework/com
 import { customizerExamples } from '../customizer/components/Customizer.examples.js';
 import { noop } from '../utils.js';
 import { updateNotificationExamples } from '../update-notification/components/UpdateNotification.examples.js';
+import { FreemiumPIRBannerExamples } from '../freemium-pir-banner/components/FreemiumPIRBanner.examples.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
     ...favoritesExamples,
+    ...FreemiumPIRBannerExamples,
     ...nextStepsExamples,
     ...privacyStatsExamples,
     ...RMFExamples,
