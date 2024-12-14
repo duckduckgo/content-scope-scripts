@@ -1,41 +1,51 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Freemium PIR Banner Data",
-    "description": "The 'content' field is optional. Use that fact to show/hide messages",
     "type": "object",
+    "required": [
+        "content"
+    ],
     "properties": {
         "content": {
-            "title": "Freemium PIR Banner Message",
-            "type": [
-                "object", "null"
-            ],
-            "properties": {
-                "messageType": {
-                    "const": "big_single_action"
+            "oneOf": [
+                {
+                    "type": "null"
                 },
-                "id": {
-                    "type": "string",
-                    "enum": [
-                        "onboarding",
-                        "scan_results"
-                    ]
-                },
-                "titleText": {
-                    "type": ["string", "null"]
-                },
-                "descriptionText": {
-                    "type": "string"
-                },
-                "actionText": {
-                    "type": "string"
+                {
+                    "type": "object",
+                    "title": "Freemium PIR Banner Message",
+                    "required": [
+                        "messageType",
+                        "id",
+                        "descriptionText",
+                        "titleText",
+                        "actionText"
+                    ],
+                    "properties": {
+                        "messageType": {
+                            "const": "big_single_action"
+                        },
+                        "id": {
+                            "type": "string",
+                            "enum": [
+                                "onboarding",
+                                "scan_results"
+                            ]
+                        },
+                        "titleText": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "descriptionText": {
+                            "type": "string"
+                        },
+                        "actionText": {
+                            "type": "string"
+                        }
+                    }
                 }
-            },
-            "required": [
-                "messageType",
-                "id",
-                "descriptionText",
-                "titleText",
-                "actionText"
             ]
         }
     }

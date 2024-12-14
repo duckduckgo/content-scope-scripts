@@ -413,14 +413,14 @@ export function mockTransport() {
                 }
                 case 'freemiumPIRBanner_getData': {
                     /** @type {import('../types/new-tab.ts').FreemiumPIRBannerData} */
-                    let message = { content: undefined };
+                    let freemiumPIRBannerMessage = { content: null };
                     const freemiumPIRBannerParam = url.searchParams.get('pir');
 
                     if (freemiumPIRBannerParam && freemiumPIRBannerParam in freemiumPIRDataExamples) {
-                        message = freemiumPIRDataExamples[freemiumPIRBannerParam];
+                        freemiumPIRBannerMessage = freemiumPIRDataExamples[freemiumPIRBannerParam];
                     }
 
-                    return Promise.resolve(message);
+                    return Promise.resolve(freemiumPIRBannerMessage);
                 }
                 case 'favorites_getData': {
                     const param = url.searchParams.get('favorites');
