@@ -14,12 +14,22 @@ import { Fragment, h } from 'preact';
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
 export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none', showText = false }) {
+    /**
+     * @param {MouseEvent} e
+     */
+    const handleClick = (e) => {
+        onClick()
+        if (e.target) {
+            // @ts-ignore
+            e.target.blur()
+        }
+    }
     return (
         <button
             {...buttonAttrs}
             class={cn(styles.button, shape === 'round' && styles.round, !!showText && styles.withText)}
             aria-label={text}
-            onClick={onClick}
+            onClick={handleClick}
         >
             {showText ? (
                 <Fragment>
