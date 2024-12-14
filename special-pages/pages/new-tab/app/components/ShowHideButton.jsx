@@ -18,12 +18,13 @@ export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none'
      * @param {MouseEvent} e
      */
     const handleClick = (e) => {
-        onClick()
+        onClick();
         if (e.target) {
             // @ts-ignore
-            e.target.blur()
+            e.target.blur();
         }
-    }
+    };
+
     return (
         <button
             {...buttonAttrs}
