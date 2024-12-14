@@ -62,13 +62,6 @@ export type WidgetVisibility = "visible" | "hidden";
  * Configuration settings for widgets
  */
 export type WidgetConfigs = WidgetConfigItem[];
-export type FreemiumPIRBannerMessage = {
-  messageType: "big_single_action";
-  id: "onboarding" | "scan_results";
-  titleText: string | null;
-  descriptionText: string;
-  actionText: string;
-} | null;
 /**
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
@@ -501,11 +494,15 @@ export interface FreemiumPIRBannerGetDataRequest {
   method: "freemiumPIRBanner_getData";
   result: FreemiumPIRBannerData;
 }
-/**
- * The 'content' field is optional. Use that fact to show/hide messages
- */
 export interface FreemiumPIRBannerData {
-  content?: FreemiumPIRBannerMessage;
+  content: null | FreemiumPIRBannerMessage;
+}
+export interface FreemiumPIRBannerMessage {
+  messageType: "big_single_action";
+  id: "onboarding" | "scan_results";
+  titleText: string | null;
+  descriptionText: string;
+  actionText: string;
 }
 /**
  * Generated from @see "../messages/initialSetup.request.json"
