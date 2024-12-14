@@ -16,11 +16,12 @@ export default defineConfig({
             name: 'integration',
             // prettier-ignore
             testMatch: [
+                'favorites.spec.js',
+                'freemium-pir-banner.spec.js',
+                'new-tab.spec.js',
                 'next-steps.spec.js',
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
-                'new-tab.spec.js',
-                'favorites.spec.js',
                 'update-notification.spec.js'
             ],
             use: {
