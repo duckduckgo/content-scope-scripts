@@ -5,7 +5,7 @@ import { freemiumPIRDataExamples } from '../mocks/freemiumPIRBanner.data.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 
-export const FreemiumPIRBannerExamples = {
+export const freemiumPIRBannerExamples = {
     'freemiumPIR.onboarding': {
         factory: () => (
             <FreemiumPIRBanner
