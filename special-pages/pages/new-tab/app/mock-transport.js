@@ -219,15 +219,15 @@ export function mockTransport() {
                 }
                 case 'freemiumPIRBanner_onDataUpdate': {
                     // store the callback for later (eg: dismiss)
-                    const prev = freemiumPIRBannerSubscriptions.get('rmf_onDataUpdate') || [];
+                    const prev = freemiumPIRBannerSubscriptions.get('freemiumPIRBanner_onDataUpdate') || [];
                     const next = [...prev];
                     next.push(cb);
                     freemiumPIRBannerSubscriptions.set('freemiumPIRBanner_onDataUpdate', next);
 
-                    const pirParam = url.searchParams.get('pir');
+                    const freemiumPIRBannerParam = url.searchParams.get('pir');
 
-                    if (pirParam !== null && pirParam in freemiumPIRDataExamples) {
-                        const message = freemiumPIRDataExamples[pirParam];
+                    if (freemiumPIRBannerParam !== null && freemiumPIRBannerParam in freemiumPIRDataExamples) {
+                        const message = freemiumPIRDataExamples[freemiumPIRBannerParam];
                         cb(message);
                     }
                     return () => {};
