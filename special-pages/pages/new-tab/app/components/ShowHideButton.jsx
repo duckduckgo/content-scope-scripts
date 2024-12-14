@@ -19,7 +19,7 @@ export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none'
      */
     const handleClick = (e) => {
         onClick();
-        if (e.target) {
+        if (e?.target) {
             // @ts-ignore
             e.target.blur();
         }
