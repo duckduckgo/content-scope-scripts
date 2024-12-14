@@ -71,7 +71,10 @@ export const otherText = {
     nextSteps_sectionTitle: (t) => t('nextSteps_sectionTitle'),
 };
 
-/** @type {string[]} cardsWithConfirmationText */
+/**
+ * @typedef {import('../../types/new-tab').NextStepsCardTypes} NextStepsCardTypes
+ * @type {NextStepsCardTypes[]} cardsWithConfirmationText
+ */
 const cardsWithConfirmationText = ['addAppToDockMac'];
 
 export const additionalCardStates = {

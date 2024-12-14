@@ -9,10 +9,10 @@ import { variants, additionalCardStates } from '../nextsteps.data';
 import styles from './NextSteps.module.css';
 
 /**
- * @typedef {import('../../../types/new-tab').NextStepsCardsTypes} NextStepsCardsTypes
+ * @typedef {import('../../../types/new-tab').NextStepsCardTypes} NextStepsCardTypes
  *
  * @param {object} props
- * @param {NextStepsCardsTypes} props.type
+ * @param {NextStepsCardTypes} props.type
  * @param {(id: string) => void} props.dismiss
  * @param {(id: string) => void} props.action
  */
@@ -21,7 +21,7 @@ export function NextStepsCard({ type, dismiss, action }) {
     const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
     const message = variants[type]?.(t);
     const [showConfirmation, setShowConfirmation] = useState(false);
-    const hasConfirmationState = additionalCardStates.hasConfirmationText(message.id);
+    const hasConfirmationState = additionalCardStates.hasConfirmationText(type);
 
     const handleClick = () => {
         if (!hasConfirmationState) {
