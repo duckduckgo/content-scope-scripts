@@ -35,7 +35,6 @@ test.describe('newtab remote messaging framework freemiumPIRBanner', () => {
         await ntp.reducedMotion();
         await ntp.openPage({ pir: 'scan_results' });
 
-        await page.pause();
         await page.getByText('Your free personal').waitFor();
         await page.getByRole('button', { name: 'View Results' }).click();
         await page.getByTestId('dismissBtn').click();
