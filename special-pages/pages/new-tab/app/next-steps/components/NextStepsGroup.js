@@ -13,12 +13,12 @@ import { NextStepsCard } from './NextStepsCard';
  * @typedef {enStrings & ntpStrings} strings
  * @typedef {import('../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../types/new-tab').Animation} Animation
- * @typedef {import('../../../types/new-tab').NextStepsCardsTypes} NextStepsCardsTypes
+ * @typedef {import('../../../types/new-tab').NextStepsCardTypes} NextStepsCardTypes
  */
 
 /**
  * @param {object} props
- * @param {NextStepsCardsTypes[]} props.types
+ * @param {NextStepsCardTypes[]} props.types
  * @param {Expansion} props.expansion
  * @param {()=>void} props.toggle
  * @param {(id: string)=>void} props.action

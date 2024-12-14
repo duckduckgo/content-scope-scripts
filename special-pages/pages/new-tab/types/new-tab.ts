@@ -73,7 +73,7 @@ export type FreemiumPIRBannerMessage = {
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
-export type NextStepsCardsTypes =
+export type NextStepsCardTypes =
   | "bringStuff"
   | "defaultApp"
   | "blockCookies"
@@ -82,7 +82,7 @@ export type NextStepsCardsTypes =
   | "addAppToDockMac"
   | "pinAppToTaskbarWindows";
 export type NextStepsCards = {
-  id: NextStepsCardsTypes;
+  id: NextStepsCardTypes;
 }[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";

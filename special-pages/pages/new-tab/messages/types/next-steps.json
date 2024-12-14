@@ -21,7 +21,7 @@
                         ],
                         "properties": {
                             "id": {
-                                "title": "Next Steps Cards Types",
+                                "title": "Next Steps Card Types",
                                 "type": "string",
                                 "enum": [
                                     "bringStuff",
