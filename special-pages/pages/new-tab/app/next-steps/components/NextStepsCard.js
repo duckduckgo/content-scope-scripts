@@ -9,8 +9,10 @@ import { variants, additionalCardStates } from '../nextsteps.data';
 import styles from './NextSteps.module.css';
 
 /**
+ * @typedef {import('../../../types/new-tab').NextStepsCardsTypes} NextStepsCardsTypes
+ *
  * @param {object} props
- * @param {string} props.type
+ * @param {NextStepsCardsTypes} props.type
  * @param {(id: string) => void} props.dismiss
  * @param {(id: string) => void} props.action
  */
