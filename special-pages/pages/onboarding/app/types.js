@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import json from '../src/locales/en/onboarding.json';
+import json from '../public/locales/en/onboarding.json';
 import { TranslationContext } from '../../../shared/components/TranslationsProvider';
 import { useContext } from 'preact/hooks';
 

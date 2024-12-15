@@ -22,7 +22,7 @@ export function RiveAnimation({ animation, state, stateMachine, artboard, inputN
     useEffect(() => {
         if (!ref.current) return;
         rive.current = new Rive({
-            src: ['js', animation].join('/'),
+            src: ['dist', animation].join('/'),
             canvas: ref.current,
             enableRiveAssetCDN: false,
             autoplay,

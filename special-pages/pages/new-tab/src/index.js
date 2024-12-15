@@ -1,16 +1,18 @@
 import 'preact/devtools';
 import { render, Fragment, h } from 'preact';
+import '../../../shared/live-reload.js';
+
 /**
  * New Tab Page
  *
  * @module New Tab Page
  */
-import { init } from '../../app/index.js';
+import { init } from '../app/index.js';
 import { createTypedMessages } from '@duckduckgo/messaging';
-import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging';
-import { Environment } from '../../../../shared/environment.js';
-import { mockTransport } from '../../app/mock-transport.js';
-import { install } from '../../app/telemetry/telemetry.js';
+import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging.js';
+import { Environment } from '../../../shared/environment.js';
+import { mockTransport } from '../app/mock-transport.js';
+import { install } from '../app/telemetry/telemetry.js';
 
 export class NewTabPage {
     /**
@@ -26,7 +28,7 @@ export class NewTabPage {
     }
 
     /**
-     * @return {Promise<import('../../types/new-tab.js').InitialSetupResponse>}
+     * @return {Promise<import('../types/new-tab.ts').InitialSetupResponse>}
      */
     initialSetup() {
         return this.messaging.request('initialSetup');
@@ -50,14 +52,14 @@ export class NewTabPage {
 
     /**
      * Sent when a right-click occurs, and wasn't intercepted by another widget
-     * @param {import('../../types/new-tab.js').ContextMenuNotify} params
+     * @param {import('../types/new-tab.ts').ContextMenuNotify} params
      */
     contextMenu(params) {
         this.messaging.notify('contextMenu', params);
     }
 
     /**
-     * @param {import("../../types/new-tab.js").NTPTelemetryEvent} event
+     * @param {import("../types/new-tab.ts").NTPTelemetryEvent} event
      */
     telemetryEvent(event) {
         this.messaging.notify('telemetryEvent', event);

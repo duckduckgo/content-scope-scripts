@@ -8,6 +8,7 @@ import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs
 import { buildSync } from 'esbuild';
 import { cwd, parseArgs } from '../scripts/script-utils.js';
 import inliner from 'web-resource-inliner';
+import { baseEsbuildOptions } from './opts.mjs';
 
 const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../');
@@ -58,9 +59,9 @@ export const support = {
     },
 };
 
-/** @type {{src: string, dest: string, injectName: string}[]} */
+/** @type {{src: string, dest: string, dist: string, injectName: string}[]} */
 const copyJobs = [];
-/** @type {{entryPoints: string[], outputDir: string, injectName: string, pageName: string}[]} */
+/** @type {{outputDir: string, injectName: ImportMeta['injectName'], pageName: string}[]} */
 const buildJobs = [];
 /** @type {{src: string}[]} */
 const inlineJobs = [];
@@ -68,9 +69,9 @@ const errors = [];
 const DRY_RUN = false;
 
 for (const [pageName, injectNames] of Object.entries(support)) {
-    const pageSrc = join(CWD, 'pages', pageName, 'src');
-    if (!existsSync(pageSrc)) {
-        errors.push(`${pageSrc} does not exist. Each page must have a 'src' directory`);
+    const publicDir = join(CWD, 'pages', pageName, 'public');
+    if (!existsSync(publicDir)) {
+        errors.push(`${publicDir} does not exist. Each page must have a 'src' directory`);
         continue;
     }
     for (const [injectName, jobs] of Object.entries(injectNames)) {
@@ -82,20 +83,17 @@ for (const [pageName, injectNames] of Object.entries(support)) {
         for (const job of jobs) {
             if (job === 'copy') {
                 copyJobs.push({
-                    src: pageSrc,
+                    src: publicDir,
+                    dist: join(publicDir, 'dist'),
                     dest: pageOutputDirectory,
                     injectName,
                 });
             }
             if (job === 'build-js') {
-                const entryPoints = [join(pageSrc, 'js', 'index.js'), join(pageSrc, 'js', 'inline.js')].filter((pathname) =>
-                    existsSync(pathname),
-                );
-                const outputDir = join(pageOutputDirectory, 'js');
+                const outputDir = join(pageOutputDirectory, 'dist');
                 buildJobs.push({
-                    entryPoints,
                     outputDir,
-                    injectName,
+                    injectName: /** @type {ImportMeta['injectName']} */ (injectName),
                     pageName,
                 });
             }
@@ -118,6 +116,10 @@ if (errors.length > 0) {
 for (const copyJob of copyJobs) {
     if (DEBUG) console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest));
     if (!DRY_RUN) {
+        rmSync(copyJob.dist, {
+            force: true,
+            recursive: true,
+        });
         rmSync(copyJob.dest, {
             force: true,
             recursive: true,
@@ -129,40 +131,12 @@ for (const copyJob of copyJobs) {
     }
 }
 for (const buildJob of buildJobs) {
-    if (DEBUG) console.log('BUILD:', buildJob.entryPoints, relative(ROOT, buildJob.outputDir));
+    if (DEBUG) console.log('BUILD:', buildJob);
     if (DEBUG) console.log('\t- import.meta.env: ', NODE_ENV);
     if (DEBUG) console.log('\t- import.meta.injectName: ', buildJob.injectName);
     if (!DRY_RUN) {
-        const output = buildSync({
-            entryPoints: buildJob.entryPoints,
-            outdir: buildJob.outputDir,
-            bundle: true,
-            // metafile: true,
-            // minify: true,
-            // splitting: true,
-            // external: ['../assets/img/*'],
-            format: 'iife',
-            sourcemap: NODE_ENV === 'development',
-            loader: {
-                '.js': 'jsx',
-                '.module.css': 'local-css',
-                '.svg': 'file',
-                '.data.svg': 'dataurl',
-                '.jpg': 'file',
-                '.png': 'file',
-                '.riv': 'file',
-            },
-            define: {
-                'import.meta.env': JSON.stringify(NODE_ENV),
-                'import.meta.injectName': JSON.stringify(buildJob.injectName),
-                'import.meta.pageName': JSON.stringify(buildJob.pageName),
-            },
-            dropLabels: buildJob.injectName === 'integration' ? [] : ['$INTEGRATION'],
-        });
-        if (output.metafile) {
-            const meta = JSON.stringify(output.metafile, null, 2);
-            writeFileSync(join(buildJob.outputDir, 'metafile.json'), meta);
-        }
+        const opts = baseEsbuildOptions(buildJob.pageName, buildJob.injectName, NODE_ENV, buildJob.outputDir);
+        buildSync(opts);
     }
 }
 for (const inlineJob of inlineJobs) {

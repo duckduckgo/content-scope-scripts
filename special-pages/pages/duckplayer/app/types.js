@@ -1,7 +1,7 @@
 import { useContext } from 'preact/hooks';
 import { TranslationContext } from '../../../shared/components/TranslationsProvider.js';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import json from '../src/locales/en/duckplayer.json';
+import json from '../public/locales/en/duckplayer.json';
 import { createContext } from 'preact';
 
 /**
@@ -14,7 +14,7 @@ export function useTypedTranslation() {
     };
 }
 
-export const MessagingContext = createContext(/** @type {import("../src/js/index.js").DuckplayerPage} */ ({}));
+export const MessagingContext = createContext(/** @type {import("../src/index.js").DuckplayerPage} */ ({}));
 export const useMessaging = () => useContext(MessagingContext);
-export const TelemetryContext = createContext(/** @type {import("../src/js/index.js").Telemetry} */ ({}));
+export const TelemetryContext = createContext(/** @type {import("../src/index.js").Telemetry} */ ({}));
 export const useTelemetry = () => useContext(TelemetryContext);

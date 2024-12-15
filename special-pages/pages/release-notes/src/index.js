@@ -5,7 +5,7 @@
  */
 
 /**
- * @typedef {import('../../types/release-notes.js').UpdateMessage} UpdateMessage
+ * @typedef {import('../types/release-notes.ts').UpdateMessage} UpdateMessage
  */
 
 /**
@@ -14,11 +14,12 @@
  * @property {string} [locale] - optional override for the locale
  */
 
-import { init } from '../../app/index';
-import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging';
-import { Environment } from '../../../../shared/environment';
+import { init } from '../app/index.js';
+import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging.js';
+import { Environment } from '../../../shared/environment.js';
 import { createTypedMessages } from '@duckduckgo/messaging';
 import { mockTransport } from './mock-transport.js';
+import '../../../shared/live-reload.js';
 
 /**
  * This describes the messages that will be sent to the native layer,
@@ -85,7 +86,7 @@ export class ReleaseNotesPage {
 
     /**
      * Subscribes to release info updates from browser
-     * @param {(value: import('../../types/release-notes.js').UpdateMessage) => void} callback
+     * @param {(value: import('../types/release-notes.ts').UpdateMessage) => void} callback
      */
     onUpdate(callback) {
         return this.messaging.subscribe('onUpdate', callback);
