@@ -19,7 +19,8 @@ $WATCH: (() => {
 
     const es = new EventSource('/esbuild');
     es.addEventListener('change', (e) => {
-        // @ts-expect-error - this file might not exist
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - this will always be present in watch mode
         // eslint-disable-next-line promise/prefer-await-to-then
         import('../timestamp.json').then((x) => {
             // noop to force reload

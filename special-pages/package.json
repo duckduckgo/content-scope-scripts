@@ -20,8 +20,7 @@
     "test.headed": "npm run test-int -- --headed",
     "test.ui": "npm run test-int -- --ui",
     "serve": "http-server -c-1 --port 3210 ../build/integration/pages",
-    "watch": "node watch.mjs",
-    "preserve": "npm run build.dev"
+    "watch": "node watch.mjs"
   },
   "license": "ISC",
   "devDependencies": {
