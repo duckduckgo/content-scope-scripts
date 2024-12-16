@@ -28,14 +28,19 @@ if (isLaunchFile(import.meta.url)) {
  */
 async function processPage(path) {
     const targetName = basename(path);
-    const outputFile = join(path, '/src/locales/en', `${targetName}.json`);
+    const outputFile = join(path, '/public/locales/en', `${targetName}.json`);
     const dirents = await readdir(path, { withFileTypes: true, recursive: true });
     const rawEntries = dirents
         .filter((entry) => entry.isFile() && entry.name === 'strings.json')
         .map((entry) => {
             const path = join(entry.parentPath, entry.name);
             const raw = readFileSync(path, 'utf8');
-            const json = JSON.parse(raw);
+            let json;
+            try {
+                json = JSON.parse(raw);
+            } catch (e) {
+                throw new Error(`${e.name} in '${path}' ${e.name}\n  ${e.message}`);
+            }
             return {
                 path,
                 raw,

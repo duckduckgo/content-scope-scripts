@@ -97,7 +97,12 @@ export class NewtabPage {
             searchParams.set(key, value);
         }
 
-        await this.page.goto('/new-tab' + '?' + searchParams.toString());
+        // eslint-disable-next-line no-undef
+        if (process.env.PAGE) {
+            await this.page.goto('/' + '?' + searchParams.toString());
+        } else {
+            await this.page.goto('/new-tab' + '?' + searchParams.toString());
+        }
     }
 
     /**

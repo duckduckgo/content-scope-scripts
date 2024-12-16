@@ -5,12 +5,12 @@ import { Components } from './Components';
 import { EnvironmentProvider } from '../../../shared/components/EnvironmentProvider';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider';
 import { callWithRetry } from '../../../shared/call-with-retry.js';
-import enStrings from '../src/locales/en/release-notes.json';
+import enStrings from '../public/locales/en/release-notes.json';
 
 import '../../../shared/styles/global.css'; // global styles
 
 export const MessagingContext = createContext({
-    messages: /** @type {import('../src/js/index').ReleaseNotesPage | null} */ (null),
+    messages: /** @type {import('../src/index.js').ReleaseNotesPage | null} */ (null),
 });
 
 export const useMessaging = () => useContext(MessagingContext);

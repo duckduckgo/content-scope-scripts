@@ -30,7 +30,7 @@ export function useTypedTranslationWith(context) {
     };
 }
 
-export const MessagingContext = createContext(/** @type {import("../src/js/index.js").NewTabPage} */ ({}));
+export const MessagingContext = createContext(/** @type {import("../src/index.js").NewTabPage} */ ({}));
 export const useMessaging = () => useContext(MessagingContext);
 export const TelemetryContext = createContext(
     /** @type {import("./telemetry/telemetry.js").Telemetry} */ ({

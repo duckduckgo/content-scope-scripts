@@ -1,7 +1,7 @@
 /**
  * @typedef {import("./iframe").IframeFeature} IframeFeature
  */
-import { getValidVideoTitle } from '../../src/js/utils.js';
+import { getValidVideoTitle } from '../../src/utils.js';
 
 /**
  * @implements IframeFeature

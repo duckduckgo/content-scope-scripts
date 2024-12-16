@@ -1,5 +1,5 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
-import { sampleData } from './sampleData';
+import { sampleData } from './sampleData.js';
 
 export function mockTransport() {
     return new TestTransportConfig({
@@ -13,7 +13,7 @@ export function mockTransport() {
                 errorId = 'ssl.invalid';
             }
 
-            /** @type {import('../../types/special-error').SpecialErrorMessages['requests']} */
+            /** @type {import('../types/special-error.js').SpecialErrorMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'initialSetup': {
@@ -21,18 +21,18 @@ export function mockTransport() {
                     const errorId = searchParams.get('errorId');
                     const platformName = searchParams.get('platformName');
 
-                    /** @type {import('../../types/special-error').InitialSetupResponse['errorData']} */
+                    /** @type {import('../types/special-error.js').InitialSetupResponse['errorData']} */
                     let errorData = sampleData['ssl.expired'].data;
                     if (errorId && Object.keys(sampleData).includes(errorId)) {
                         errorData = sampleData[errorId].data;
                     }
 
                     const supportedPlatforms = ['macos', 'ios'];
-                    /** @type {import('../../types/special-error').InitialSetupResponse['platform']} */
+                    /** @type {import('../types/special-error.js').InitialSetupResponse['platform']} */
                     let platform = { name: 'macos' };
                     if (platformName && supportedPlatforms.includes(platformName)) {
                         platform = {
-                            name: /** @type {import('../../types/special-error').InitialSetupResponse['platform']['name']} */ (
+                            name: /** @type {import('../types/special-error.js').InitialSetupResponse['platform']['name']} */ (
                                 platformName
                             ),
                         };

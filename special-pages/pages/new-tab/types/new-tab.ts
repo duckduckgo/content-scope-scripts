@@ -538,7 +538,7 @@ export interface WidgetsOnConfigUpdatedSubscription {
   params: WidgetConfigs;
 }
 
-declare module "../src/js/index.js" {
+declare module "../src/index.js" {
   export interface NewTabPage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<NewTabMessages>['notify'],
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<NewTabMessages>['request'],

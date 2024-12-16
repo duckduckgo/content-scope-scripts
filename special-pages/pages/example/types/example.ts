@@ -45,7 +45,7 @@ export interface InitialSetupResponse {
   env: "development" | "production";
 }
 
-declare module "../src/js/index.js" {
+declare module "../src/index.js" {
   export interface ExamplePage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ExampleMessages>['notify'],
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ExampleMessages>['request']
