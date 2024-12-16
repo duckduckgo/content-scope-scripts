@@ -179,26 +179,32 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
     // hold a mutable value that we update on resize
     const gridOffset = useRef(0);
 
-    // When called, make the expensive call to `getBoundingClientRect` to determine the offset of
-    // the grid wrapper.
-    function updateGlobals() {
+    /**
+     * When called, make the expensive call to `getBoundingClientRect` to determine the offset of
+     * the grid wrapper.
+     * @param {number} scrollY
+     */
+    function updateGlobals(scrollY) {
         if (!safeAreaRef.current) return;
         const rec = safeAreaRef.current.getBoundingClientRect();
-        gridOffset.current = rec.y + window.scrollY;
+        gridOffset.current = rec.y + scrollY;
     }
 
-    // decide which the start/end indexes should be, based on scroll position.
-    // NOTE: this is called on scroll, so must not incur expensive checks/measurements - math only!
-    function setVisibleRows() {
+    /**
+     * decide which the start/end indexes should be, based on scroll position.
+     * NOTE: this is called on scroll, so must not incur expensive checks/measurements - math only!
+     * @param {number} scrollY
+     */
+    function setVisibleRowsForOffset(scrollY) {
         if (!safeAreaRef.current) return console.warn('cannot access ref');
         if (!gridOffset.current) return console.warn('cannot access ref');
         const offset = gridOffset.current;
-        const end = window.scrollY + window.innerHeight - offset;
+        const end = scrollY + window.innerHeight - offset;
         let start;
-        if (offset > window.scrollY) {
+        if (offset > scrollY) {
             start = 0;
         } else {
-            start = window.scrollY - offset;
+            start = scrollY - offset;
         }
         const startIndex = Math.floor(start / rowHeight);
         const endIndex = Math.min(Math.ceil(end / rowHeight), rows.length);
@@ -206,27 +212,29 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
     }
 
     useLayoutEffect(() => {
+        const stableElement = document.querySelector('[data-main-scroller]');
+        if (!stableElement) return console.warn('cannot find scrolling element');
         // always update globals first
-        updateGlobals();
+        updateGlobals(stableElement.scrollTop);
 
         // and set visible rows once the size is known
-        setVisibleRows();
+        setVisibleRowsForOffset(stableElement.scrollTop);
 
         const controller = new AbortController();
 
         window.addEventListener(
             'resize',
             () => {
-                updateGlobals();
-                setVisibleRows();
+                updateGlobals(stableElement.scrollTop);
+                setVisibleRowsForOffset(stableElement.scrollTop);
             },
             { signal: controller.signal },
         );
 
-        window.addEventListener(
+        stableElement.addEventListener(
             'scroll',
             () => {
-                setVisibleRows();
+                setVisibleRowsForOffset(stableElement.scrollTop);
             },
             { signal: controller.signal },
         );
