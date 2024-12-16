@@ -130,11 +130,7 @@ export function useAdvancedInfoContent() {
     const errorData = useErrorData();
     const { kind } = errorData;
 
-    if (kind === 'phishing') {
-        return [t('phishingAdvancedInfoText_1'), <Trans str={t('phishingAdvancedInfoText_2')} values={{ a: helpPageAnchorTagParams }} />];
-    }
-
-    if (kind === 'malware') {
+    if (kind === 'phishing' || kind === 'malware') {
         return [];
     }
 
