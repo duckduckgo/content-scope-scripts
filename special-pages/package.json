@@ -19,6 +19,7 @@
     "test.android": "npm run test-int -- --project android",
     "test.headed": "npm run test-int -- --headed",
     "test.ui": "npm run test-int -- --ui",
+    "preserve": "npm run build.dev",
     "serve": "http-server -c-1 --port 3210 ../build/integration/pages",
     "watch": "node watch.mjs"
   },
