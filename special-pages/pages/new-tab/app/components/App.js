@@ -45,7 +45,7 @@ export function App() {
 
     return (
         <Fragment>
-            <BackgroundConsumer browser={browser} />
+            <BackgroundConsumer browser={browser} bg={main} />
             <div class={styles.layout} ref={wrapperRef} data-animating={animating} data-drawer-visibility={visibility}>
                 <main class={cn(styles.main, styles.mainScroller)} data-main-scroller data-theme={main}>
                     <div class={styles.content}>

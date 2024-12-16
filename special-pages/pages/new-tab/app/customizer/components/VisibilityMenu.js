@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import { useId } from 'preact/hooks';
 
 import { DuckFoot, Shield } from '../../components/Icons.js';
@@ -22,7 +23,7 @@ export function VisibilityMenu({ rows, variant = 'popover' }) {
     const MENU_ID = useId();
 
     return (
-        <ul className={styles.list}>
+        <ul className={cn(styles.list, variant === 'embedded' && styles.embedded)}>
             {rows.map((row) => {
                 return (
                     <li key={row.id}>

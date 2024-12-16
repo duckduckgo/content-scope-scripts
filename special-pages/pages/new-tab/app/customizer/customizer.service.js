@@ -61,4 +61,78 @@ export class CustomizerService {
         this.imagesService.destroy();
         this.colorService.destroy();
     }
+
+    /**
+     * @param {(evt: {data: BackgroundData, source: 'manual' | 'subscription'}) => void} cb
+     * @internal
+     */
+    onBackground(cb) {
+        return this.bgService.onData(cb);
+    }
+    /**
+     * @param {(evt: {data: ThemeData, source: 'manual' | 'subscription'}) => void} cb
+     * @internal
+     */
+    onTheme(cb) {
+        return this.themeService.onData(cb);
+    }
+    /**
+     * @param {(evt: {data: UserImageData, source: 'manual' | 'subscription'}) => void} cb
+     * @internal
+     */
+    onImages(cb) {
+        return this.imagesService.onData(cb);
+    }
+    /**
+     * @param {(evt: {data: UserColorData, source: 'manual' | 'subscription'}) => void} cb
+     * @internal
+     */
+    onColor(cb) {
+        return this.colorService.onData(cb);
+    }
+
+    /**
+     * @param {BackgroundData} bg
+     */
+    setBackground(bg) {
+        this.bgService.update((data) => {
+            return bg;
+        });
+        if (bg.background.kind === 'hex') {
+            this.colorService.update((_old) => {
+                if (bg.background.kind !== 'hex') throw new Error('unreachable code path');
+                return { userColor: structuredClone(bg.background) };
+            });
+        }
+    }
+
+    /**
+     * @param {string} id
+     */
+    deleteImage(id) {
+        this.imagesService.update((data) => {
+            return {
+                ...data,
+                userImages: data.userImages.filter((img) => img.id !== id),
+            };
+        });
+        this.ntp.messaging.notify('customizer_deleteImage', { id });
+    }
+
+    /**
+     *
+     */
+    upload() {
+        this.ntp.messaging.notify('customizer_upload');
+    }
+
+    /**
+     * @param {ThemeData} theme
+     */
+    setTheme(theme) {
+        this.themeService.update((_data) => {
+            return theme;
+        });
+        this.ntp.messaging.notify('customizer_setTheme', theme);
+    }
 }
