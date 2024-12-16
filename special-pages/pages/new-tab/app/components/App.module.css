@@ -37,6 +37,7 @@ body:has([data-reset-layout="true"]) .tube {
     grid-template-columns: auto 0 0;
     grid-template-areas: "main gap aside";
     transition: all .3s ease-in-out;
+    position: relative;
     z-index: 1;
 
     &[data-drawer-visibility='visible'] {
