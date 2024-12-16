@@ -14,7 +14,6 @@ import { Fragment, h } from 'preact';
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
 export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none', showText = false }) {
-
     return (
         <button
             {...buttonAttrs}
