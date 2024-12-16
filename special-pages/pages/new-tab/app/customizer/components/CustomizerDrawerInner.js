@@ -5,10 +5,15 @@ import { Customizer, getItems } from './Customizer';
 import { VisibilityMenu } from './VisibilityMenu.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData } from '../../../types/new-tab.js'
  */
 
-export function CustomizerDrawerInner() {
+/**
+ * @param {object} props
+ * @param {import("@preact/signals").Signal<CustomizerData>} props.data
+ */
+export function CustomizerDrawerInner({ data }) {
+    console.log('incoming', data.value);
     const [rowData, setRowData] = useState(() => {
         const items = /** @type {import("./Customizer.js").VisibilityRowData[]} */ (getItems());
         return items;
