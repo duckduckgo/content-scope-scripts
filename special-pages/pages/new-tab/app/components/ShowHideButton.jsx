@@ -27,7 +27,9 @@ export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none'
                     {text}
                 </Fragment>
             ) : (
-                <ChevronButton />
+                <div class={styles.iconBlock}>
+                    <Chevron />
+                </div>
             )}
         </button>
     );
