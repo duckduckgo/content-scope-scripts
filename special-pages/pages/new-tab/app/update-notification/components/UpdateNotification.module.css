@@ -31,7 +31,7 @@
     &:hover {
         text-decoration: underline;
     }
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         color: var(--color-white);
         text-decoration: underline;
 
