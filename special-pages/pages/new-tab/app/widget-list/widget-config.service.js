@@ -5,7 +5,7 @@ import { Service } from '../service.js';
 
 export class WidgetConfigService {
     /**
-     * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed
+     * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed
      * @param {WidgetConfigs} initialConfig
      * @internal
      */

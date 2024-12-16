@@ -2,7 +2,7 @@
  * @typedef {import("./iframe").IframeFeature} IframeFeature
  */
 
-import { createYoutubeURLForError } from '../../src/js/utils.js';
+import { createYoutubeURLForError } from '../../src/utils.js';
 
 /**
  * @implements IframeFeature

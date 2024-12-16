@@ -1,7 +1,7 @@
 import { useContext } from 'preact/hooks';
 import { TranslationContext } from '../../../shared/components/TranslationsProvider.js';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import json from '../src/locales/en/example.json';
+import json from '../public/locales/en/example.json';
 
 /**
  * This is a wrapper to only allow keys from the default translation file

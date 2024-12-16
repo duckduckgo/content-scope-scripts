@@ -1,4 +1,4 @@
-import { sampleData } from '../src/js/sampleData';
+import { sampleData } from '../src/sampleData.js';
 
 export class SpecialError {
     /**

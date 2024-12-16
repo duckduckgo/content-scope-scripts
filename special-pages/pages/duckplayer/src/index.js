@@ -1,8 +1,9 @@
 import { createTypedMessages } from '@duckduckgo/messaging';
-import { Environment } from '../../../../shared/environment.js';
-import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js';
-import { init } from '../../app/index.js';
+import { Environment } from '../../../shared/environment.js';
+import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging.js';
+import { init } from '../app/index.js';
 import { initStorage } from './storage.js';
+import '../../../shared/live-reload.js';
 
 export class DuckplayerPage {
     /**
@@ -16,7 +17,7 @@ export class DuckplayerPage {
     /**
      * This will be sent if the application has loaded, but a client-side error
      * has occurred that cannot be recovered from
-     * @returns {Promise<import("../../types/duckplayer.js").InitialSetupResponse>}
+     * @returns {Promise<import("../types/duckplayer.ts").InitialSetupResponse>}
      */
     initialSetup() {
         if (this.injectName === 'integration') {
@@ -41,7 +42,7 @@ export class DuckplayerPage {
     /**
      * This is sent when the user wants to set Duck Player as the default.
      *
-     * @param {import("../../types/duckplayer.js").UserValues} userValues
+     * @param {import("../types/duckplayer.ts").UserValues} userValues
      */
     setUserValues(userValues) {
         return this.messaging.request('setUserValues', userValues);
@@ -84,7 +85,7 @@ export class DuckplayerPage {
      * }
      * ```
      *
-     * @param {(value: import("../../types/duckplayer.js").UserValues) => void} cb
+     * @param {(value: import("../types/duckplayer.ts").UserValues) => void} cb
      */
     onUserValuesChanged(cb) {
         return this.messaging.subscribe('onUserValuesChanged', cb);
@@ -128,7 +129,7 @@ export class Telemetry {
     }
 
     /**
-     * @param {import('../../types/duckplayer.js').TelemetryEvent} event
+     * @param {import('../types/duckplayer.ts').TelemetryEvent} event
      * @internal
      */
     _event(event) {

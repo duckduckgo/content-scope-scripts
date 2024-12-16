@@ -4,7 +4,7 @@ import { useErrorData } from '../providers/SpecialErrorProvider';
 import { Warning, WarningHeading, WarningContent, AdvancedInfoButton, LeaveSiteButton } from './Warning';
 import { AdvancedInfo, AdvancedInfoHeading, AdvancedInfoContent, VisitSiteLink } from './AdvancedInfo';
 import { SpecialErrorView } from './App';
-import { sampleData } from '../../src/js/sampleData';
+import { sampleData } from '../../src/sampleData.js';
 
 import styles from './Components.module.css';
 

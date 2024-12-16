@@ -83,8 +83,8 @@ export default defineConfig({
     reporter: process.env.CI ? 'github' : [['html', { open: 'never' }]],
     // @ts-expect-error - Type 'undefined' is not assignable to type 'string'. process.env
     webServer: {
-        command: 'npm run serve',
-        port: 3210,
+        command: process.env.PAGE ? `npm run watch -- --page ${process.env.PAGE}` : 'npm run serve',
+        port: process.env.PAGE ? 8000 : 3210,
         reuseExistingServer: true,
         env: process.env,
     },

@@ -2,7 +2,7 @@ import { Mocks } from '../../../shared/mocks.js';
 import { expect } from '@playwright/test';
 import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
 import { join } from 'node:path';
-import { sampleData } from '../src/js/sampleData.js';
+import { sampleData } from '../src/sampleData.js';
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 const require = createRequire(import.meta.url);
@@ -60,7 +60,7 @@ export class SpecialErrorPage {
          * catching it here and letting it bubble up to fail the playwright test in question.
          */
         if (locale && locale.length === 2) {
-            const localeStrings = readFileSync(require.resolve(`../src/locales/${locale}/special-error.json`), 'utf8');
+            const localeStrings = readFileSync(require.resolve(`../public/locales/${locale}/special-error.json`), 'utf8');
             initialSetup.localeStrings = localeStrings;
             initialSetup.locale = locale;
         }

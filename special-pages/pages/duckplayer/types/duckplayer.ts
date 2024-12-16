@@ -134,7 +134,7 @@ export interface OnUserValuesChangedSubscription {
   params: UserValues;
 }
 
-declare module "../src/js/index.js" {
+declare module "../src/index.js" {
   export interface DuckplayerPage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckplayerMessages>['notify'],
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckplayerMessages>['request'],
