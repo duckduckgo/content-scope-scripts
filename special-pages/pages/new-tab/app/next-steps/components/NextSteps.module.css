@@ -9,8 +9,9 @@
     justify-content: flex-start;
     align-items: center;
     text-align: center;
+    backdrop-filter: blur(48px);
     max-width: calc(240 * var(--px-in-rem));
-    min-height: calc(150 * var(--px-in-rem));
+    min-height: calc(166 * var(--px-in-rem));
     font-size: var(--body-font-size);
 }
 
@@ -137,6 +138,7 @@
     height: 100%;
     width: 100%;
     position: relative;
+    margin-bottom: var(--sp-4);
 
     &:hover {
         .showhide {
@@ -188,11 +190,6 @@
 .cardGroup {
     transition: opacity .2s;
     &:hover {
-        .showhide [aria-controls] {
-            opacity: 1;
-        }
-    }
-    &:focus-within {
         .showhide [aria-controls] {
             opacity: 1;
         }

@@ -28,7 +28,7 @@ export function App({ children }) {
 
     return (
         <div class={cn(styles.layout)} ref={wrapperRef} data-drawer-visibility={visibility}>
-            <main class={cn(styles.main)} data-customizer-kind={customizerKind}>
+            <main class={cn(styles.main)} data-main-scroller data-customizer-kind={customizerKind}>
                 <div class={styles.tube} data-platform={platformName}>
                     <WidgetList />
                     <CustomizerMenuPositionedFixed>
