@@ -41,6 +41,7 @@ const initialSetupResponse = {
     locale: 'en',
     platform: { name: 'windows' },
     updateNotification: { content: null },
+    customizer: { theme: 'system', userImages: [], userColor: null, background: { kind: 'default' } },
 };
 
 export {};

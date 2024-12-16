@@ -6,6 +6,46 @@
  * @module NewTab Messages
  */
 
+export type BackgroundVariant =
+  | DefaultBackground
+  | SolidColorBackground
+  | HexValueBackground
+  | GradientBackground
+  | UserImageBackground;
+export type PredefinedColor =
+  | "color01"
+  | "color02"
+  | "color03"
+  | "color04"
+  | "color05"
+  | "color06"
+  | "color07"
+  | "color08"
+  | "color09"
+  | "color10"
+  | "color11"
+  | "color12"
+  | "color13"
+  | "color14"
+  | "color15"
+  | "color16"
+  | "color17"
+  | "color18"
+  | "color19";
+export type PredefinedGradient =
+  | "gradient01"
+  | "gradient02"
+  | "gradient03"
+  | "gradient04"
+  | "gradient05"
+  | "gradient06"
+  | "gradient07"
+  | "gradient08";
+/**
+ * Note: this is different to the Browser Theme
+ */
+export type BackgroundColorScheme = "light" | "dark";
+export type BrowserTheme = "light" | "dark" | "system";
 /**
  * Represents the expansion state of a widget
  */
@@ -45,6 +85,10 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
 export interface NewTabMessages {
   notifications:
     | ContextMenuNotification
+    | CustomizerDeleteImageNotification
+    | CustomizerSetBackgroundNotification
+    | CustomizerSetThemeNotification
+    | CustomizerUploadNotification
     | FavoritesAddNotification
     | FavoritesMoveNotification
     | FavoritesOpenNotification
@@ -74,6 +118,10 @@ export interface NewTabMessages {
     | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
+    | CustomizerOnBackgroundUpdateSubscription
+    | CustomizerOnColorUpdateSubscription
+    | CustomizerOnImagesUpdateSubscription
+    | CustomizerOnThemeUpdateSubscription
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
@@ -100,6 +148,67 @@ export interface VisibilityMenuItem {
    * Translated name of the section
    */
   title: string;
+}
+/**
+ * Generated from @see "../messages/customizer_deleteImage.notify.json"
+ */
+export interface CustomizerDeleteImageNotification {
+  method: "customizer_deleteImage";
+  params: CustomizerDeleteImageNotify;
+}
+export interface CustomizerDeleteImageNotify {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/customizer_setBackground.notify.json"
+ */
+export interface CustomizerSetBackgroundNotification {
+  method: "customizer_setBackground";
+  params: CustomizerSetBackgroundNotify;
+}
+export interface CustomizerSetBackgroundNotify {
+  background: BackgroundVariant;
+}
+export interface DefaultBackground {
+  kind: "default";
+}
+export interface SolidColorBackground {
+  kind: "color";
+  value: PredefinedColor;
+}
+export interface HexValueBackground {
+  kind: "hex";
+  value: string;
+}
+export interface GradientBackground {
+  kind: "gradient";
+  value: PredefinedGradient;
+}
+export interface UserImageBackground {
+  kind: "userImage";
+  value: UserImage;
+}
+export interface UserImage {
+  id: string;
+  src: string;
+  thumb: string;
+  colorScheme: BackgroundColorScheme;
+}
+/**
+ * Generated from @see "../messages/customizer_setTheme.notify.json"
+ */
+export interface CustomizerSetThemeNotification {
+  method: "customizer_setTheme";
+  params: CustomizerSetThemeNotify;
+}
+export interface CustomizerSetThemeNotify {
+  theme: BrowserTheme;
+}
+/**
+ * Generated from @see "../messages/customizer_upload.notify.json"
+ */
+export interface CustomizerUploadNotification {
+  method: "customizer_upload";
 }
 /**
  * Generated from @see "../messages/favorites_add.notify.json"
@@ -369,6 +478,7 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
+  customizer?: CustomizerData;
   updateNotification: null | UpdateNotificationData;
 }
 export interface WidgetListItem {
@@ -381,6 +491,12 @@ export interface NewTabPageSettings {
   customizerDrawer?: {
     state: "enabled" | "disabled";
   };
+}
+export interface CustomizerData {
+  background: BackgroundVariant;
+  theme: BrowserTheme;
+  userImages: UserImage[];
+  userColor: null | HexValueBackground;
 }
 export interface UpdateNotificationData {
   content: null | UpdateNotification;
@@ -473,6 +589,46 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/customizer_onBackgroundUpdate.subscribe.json"
+ */
+export interface CustomizerOnBackgroundUpdateSubscription {
+  subscriptionEvent: "customizer_onBackgroundUpdate";
+  params: BackgroundData;
+}
+export interface BackgroundData {
+  background: BackgroundVariant;
+}
+/**
+ * Generated from @see "../messages/customizer_onColorUpdate.subscribe.json"
+ */
+export interface CustomizerOnColorUpdateSubscription {
+  subscriptionEvent: "customizer_onColorUpdate";
+  params: UserColorData;
+}
+export interface UserColorData {
+  userColor: null | HexValueBackground;
+}
+/**
+ * Generated from @see "../messages/customizer_onImagesUpdate.subscribe.json"
+ */
+export interface CustomizerOnImagesUpdateSubscription {
+  subscriptionEvent: "customizer_onImagesUpdate";
+  params: UserImageData;
+}
+export interface UserImageData {
+  userImages: UserImage[];
+}
+/**
+ * Generated from @see "../messages/customizer_onThemeUpdate.subscribe.json"
+ */
+export interface CustomizerOnThemeUpdateSubscription {
+  subscriptionEvent: "customizer_onThemeUpdate";
+  params: ThemeData;
+}
+export interface ThemeData {
+  theme: BrowserTheme;
 }
 /**
  * Generated from @see "../messages/favorites_onConfigUpdate.subscribe.json"
