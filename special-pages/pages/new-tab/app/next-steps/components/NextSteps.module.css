@@ -194,11 +194,6 @@
             opacity: 1;
         }
     }
-    &:focus-within {
-        .showhide [aria-controls] {
-            opacity: 1;
-        }
-    }
 }
 
 :root:has(body[data-platform-name="windows"]) {
