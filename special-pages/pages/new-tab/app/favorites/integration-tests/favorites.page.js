@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 
 export class FavoritesPage {
+    static ENTRY_POINT = '[data-entry-point="favorites"]';
     /**
      * @param {import("../../../integration-tests/new-tab.page.js").NewtabPage} ntp
      */
@@ -10,7 +11,7 @@ export class FavoritesPage {
 
     async togglesExpansion() {
         const { page } = this.ntp;
-        await page.getByLabel('Show more (10 remaining)').click();
+        await this.showMore();
         await expect(page.getByLabel('Add Favorite')).toBeVisible();
         await page.getByLabel('Show less').click();
         await expect(page.getByLabel('Add Favorite')).not.toBeVisible();
@@ -36,10 +37,17 @@ export class FavoritesPage {
 
     async addsAnItem() {
         const { page } = this.ntp;
-        await page.pause();
-        await page.getByLabel('Show more (10 remaining)').click();
+        await this.showMore();
         await page.getByLabel('Add Favorite').click();
         await this.ntp.mocks.waitForCallCount({ method: 'favorites_add', count: 1 });
+    }
+
+    /**
+     * @param {number|string} count
+     */
+    async showMore(count = '10') {
+        const { page } = this.ntp;
+        await page.locator(FavoritesPage.ENTRY_POINT).getByLabel(`Show more (${count} remaining)`).click();
     }
 
     async rightClickInvokesContextMenuFor() {
@@ -262,5 +270,15 @@ export class FavoritesPage {
                 fromIndex: 16, // this is the length of the list, and it gets dropped at the end in the test.
             },
         });
+    }
+
+    async scrollToContainer() {
+        const { page } = this.ntp;
+        const rect = await page.locator(FavoritesPage.ENTRY_POINT).evaluate((e) => e.getBoundingClientRect());
+        // scroll to the top of the container
+        await page.evaluate((y) => window.scrollBy(0, y), rect.top);
+
+        // give chance for any DOM changes to occur
+        await page.waitForTimeout(500);
     }
 }
