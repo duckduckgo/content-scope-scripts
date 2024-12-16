@@ -29,6 +29,9 @@
         }
       }
     },
+    "customizer": {
+      "$ref": "./types/customizer-data.json"
+    },
     "updateNotification": {
       "oneOf": [
         {
