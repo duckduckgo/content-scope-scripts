@@ -66,15 +66,16 @@ export type WidgetConfigs = WidgetConfigItem[];
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
+export type NextStepsCardTypes =
+  | "bringStuff"
+  | "defaultApp"
+  | "blockCookies"
+  | "emailProtection"
+  | "duckplayer"
+  | "addAppToDockMac"
+  | "pinAppToTaskbarWindows";
 export type NextStepsCards = {
-  id:
-    | "bringStuff"
-    | "defaultApp"
-    | "blockCookies"
-    | "emailProtection"
-    | "duckplayer"
-    | "addAppToDockMac"
-    | "pinAppToTaskbarWindows";
+  id: NextStepsCardTypes;
 }[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
@@ -94,6 +95,8 @@ export interface NewTabMessages {
     | FavoritesOpenNotification
     | FavoritesOpenContextMenuNotification
     | FavoritesSetConfigNotification
+    | FreemiumPIRBannerActionNotification
+    | FreemiumPIRBannerDismissNotification
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
@@ -111,6 +114,7 @@ export interface NewTabMessages {
   requests:
     | FavoritesGetConfigRequest
     | FavoritesGetDataRequest
+    | FreemiumPIRBannerGetDataRequest
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
@@ -124,6 +128,7 @@ export interface NewTabMessages {
     | CustomizerOnThemeUpdateSubscription
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
+    | FreemiumPIRBannerOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
@@ -295,6 +300,26 @@ export interface Auto {
   kind: "auto-animate";
 }
 /**
+ * Generated from @see "../messages/freemiumPIRBanner_action.notify.json"
+ */
+export interface FreemiumPIRBannerActionNotification {
+  method: "freemiumPIRBanner_action";
+  params: FreemiumPIRBannerAction;
+}
+export interface FreemiumPIRBannerAction {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/freemiumPIRBanner_dismiss.notify.json"
+ */
+export interface FreemiumPIRBannerDismissNotification {
+  method: "freemiumPIRBanner_dismiss";
+  params: FreemiumPIRBannerDismissAction;
+}
+export interface FreemiumPIRBannerDismissAction {
+  id: string;
+}
+/**
  * Generated from @see "../messages/nextSteps_action.notify.json"
  */
 export interface NextStepsActionNotification {
@@ -461,6 +486,23 @@ export interface Favorite {
 export interface FavoriteFavicon {
   src: string;
   maxAvailableSize: number;
+}
+/**
+ * Generated from @see "../messages/freemiumPIRBanner_getData.request.json"
+ */
+export interface FreemiumPIRBannerGetDataRequest {
+  method: "freemiumPIRBanner_getData";
+  result: FreemiumPIRBannerData;
+}
+export interface FreemiumPIRBannerData {
+  content: null | FreemiumPIRBannerMessage;
+}
+export interface FreemiumPIRBannerMessage {
+  messageType: "big_single_action";
+  id: "onboarding" | "scan_results";
+  titleText: string | null;
+  descriptionText: string;
+  actionText: string;
 }
 /**
  * Generated from @see "../messages/initialSetup.request.json"
@@ -643,6 +685,13 @@ export interface FavoritesOnConfigUpdateSubscription {
 export interface FavoritesOnDataUpdateSubscription {
   subscriptionEvent: "favorites_onDataUpdate";
   params: FavoritesData;
+}
+/**
+ * Generated from @see "../messages/freemiumPIRBanner_onDataUpdate.subscribe.json"
+ */
+export interface FreemiumPIRBannerOnDataUpdateSubscription {
+  subscriptionEvent: "freemiumPIRBanner_onDataUpdate";
+  params: FreemiumPIRBannerData;
 }
 /**
  * Generated from @see "../messages/nextSteps_onConfigUpdate.subscribe.json"
