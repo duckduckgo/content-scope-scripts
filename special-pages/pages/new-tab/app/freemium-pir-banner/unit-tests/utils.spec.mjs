@@ -33,4 +33,11 @@ describe('convertMarkdownToHTMLForStrongTags', () => {
         const actual = convertMarkdownToHTMLForStrongTags(str);
         equal(actual, expected);
     });
+
+    it('ignores HTML', () => {
+        const str = 'abc **def** <script>alert(document.cookie)</script>';
+        const expected = 'abc <strong>def</strong> &lt;script&gt;alert(document.cookie)&lt;&#x2F;script&gt;';
+        const actual = convertMarkdownToHTMLForStrongTags(str);
+        equal(actual, expected);
+    });
 });
