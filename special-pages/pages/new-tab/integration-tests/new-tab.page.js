@@ -40,6 +40,7 @@ export class NewtabPage {
                     name: this.platform.name || 'windows',
                 },
                 updateNotification: { content: null },
+                customizer: { theme: 'system', userImages: [], userColor: null, background: { kind: 'default' } },
             },
             stats_getConfig: {},
             stats_getData: {},

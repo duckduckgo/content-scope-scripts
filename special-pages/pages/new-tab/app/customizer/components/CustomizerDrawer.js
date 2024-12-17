@@ -1,24 +1,19 @@
 import { h } from 'preact';
 import styles from './CustomizerDrawer.module.css';
-import { Suspense, lazy } from 'preact/compat';
 import { useDrawerControls } from '../../components/Drawer.js';
-import { useEffect } from 'preact/hooks';
-
-// eslint-disable-next-line promise/prefer-await-to-then
-const CustomizerDrawerInner = lazy(() => import('./CustomizerDrawerInner').then((x) => x.CustomizerDrawerInner));
+import { useContext, useEffect } from 'preact/hooks';
+import { CustomizerContext } from '../CustomizerProvider.js';
+import { CustomizerDrawerInner } from './CustomizerDrawerInner.js';
 
 /**
  * @param {object} props
- * @param {object} props.onClose
- * @param {object} props.wrapperRef
  * @param {import("@preact/signals").Signal<boolean>} props.displayChildren
  */
-export function CustomizerDrawer({ onClose, displayChildren }) {
+export function CustomizerDrawer({ displayChildren }) {
     const { open, close } = useDrawerControls();
     useEffect(() => {
         const checker = () => {
             const shouldOpen = window.location.hash.startsWith('#/customizer');
-            console.log({ shouldOpen });
             if (shouldOpen) {
                 open();
             } else {
@@ -34,14 +29,11 @@ export function CustomizerDrawer({ onClose, displayChildren }) {
             window.removeEventListener('hashchange', checker);
         };
     }, []);
-    return (
-        <div class={styles.root}>
-            <button onClick={onClose}>Close</button>
-            {displayChildren.value && (
-                <Suspense fallback={<div>Loading...</div>}>
-                    <CustomizerDrawerInner />
-                </Suspense>
-            )}
-        </div>
-    );
+
+    return <div class={styles.root}>{displayChildren.value === true && <CustomizerConsumer />}</div>;
+}
+
+function CustomizerConsumer() {
+    const { data } = useContext(CustomizerContext);
+    return <CustomizerDrawerInner data={data} />;
 }

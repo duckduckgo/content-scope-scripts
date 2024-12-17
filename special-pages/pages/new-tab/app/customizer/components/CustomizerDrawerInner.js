@@ -3,12 +3,18 @@ import styles from './CustomizerDrawerInner.module.css';
 import { useState, useEffect } from 'preact/hooks';
 import { Customizer, getItems } from './Customizer';
 import { VisibilityMenu } from './VisibilityMenu.js';
+import { useDrawerControls } from '../../components/Drawer.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData } from '../../../types/new-tab.js'
  */
 
-export function CustomizerDrawerInner() {
+/**
+ * @param {object} props
+ * @param {import("@preact/signals").Signal<CustomizerData>} props.data
+ */
+export function CustomizerDrawerInner({ data }) {
+    const { close } = useDrawerControls();
     const [rowData, setRowData] = useState(() => {
         const items = /** @type {import("./Customizer.js").VisibilityRowData[]} */ (getItems());
         return items;
@@ -26,7 +32,10 @@ export function CustomizerDrawerInner() {
 
     return (
         <div class={styles.root}>
-            <h2>Customize</h2>
+            <header>
+                <h2>Customize</h2>
+                <button onClick={close}>Close</button>
+            </header>
             <br />
             <VisibilityMenu rows={rowData} variant={'embedded'} />
         </div>

@@ -22,7 +22,8 @@ export default defineConfig({
                 'next-steps.spec.js',
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
-                'update-notification.spec.js'
+                'update-notification.spec.js',
+                'customizer.spec.js'
             ],
             use: {
                 ...devices['Desktop Chrome'],
