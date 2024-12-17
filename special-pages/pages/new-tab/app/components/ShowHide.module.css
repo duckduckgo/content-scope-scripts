@@ -29,7 +29,6 @@
             transition: all 0.3s ease-in;
 
             [data-theme=dark] & {
-                backdrop-filter: unset;
                 box-shadow: none;
                 background-color: transparent;
             }
@@ -37,7 +36,6 @@
 
         &:hover {
             .iconBlock {
-                backdrop-filter: blur(48px);
                 background-color: var(--color-black-at-6);
 
                 [data-theme=dark] & {
