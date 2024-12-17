@@ -17,11 +17,6 @@
             opacity: 1;
         }
     }
-    &:focus-within {
-        .showhideVisible [aria-controls] {
-            opacity: 1;
-        }
-    }
 }
 
 .showhide {

@@ -106,7 +106,7 @@ export interface SSLWrongHost {
   eTldPlus1: string;
 }
 
-declare module "../src/js/index.js" {
+declare module "../src/index.js" {
   export interface SpecialErrorPage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SpecialErrorMessages>['notify'],
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SpecialErrorMessages>['request']

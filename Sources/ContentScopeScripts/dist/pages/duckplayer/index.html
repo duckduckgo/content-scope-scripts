@@ -7,7 +7,7 @@
     <script>
 "use strict";
 (() => {
-  // pages/duckplayer/src/js/inline.js
+  // pages/duckplayer/src/inline.js
   var param = new URLSearchParams(window.location.search).get("platform");
   if (isAllowed(param)) {
     document.documentElement.dataset.platform = String(param);
@@ -2922,7 +2922,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
     return null;
   }
 
-  // pages/duckplayer/src/locales/en/duckplayer.json
+  // pages/duckplayer/public/locales/en/duckplayer.json
   var duckplayer_default = {
     smartling: {
       string_format: "icu",
@@ -3072,12 +3072,12 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
     };
   }
   var MessagingContext2 = G(
-    /** @type {import("../src/js/index.js").DuckplayerPage} */
+    /** @type {import("../src/index.js").DuckplayerPage} */
     {}
   );
   var useMessaging = () => x2(MessagingContext2);
   var TelemetryContext = G(
-    /** @type {import("../src/js/index.js").Telemetry} */
+    /** @type {import("../src/index.js").Telemetry} */
     {}
   );
   var useTelemetry = () => x2(TelemetryContext);
@@ -3838,7 +3838,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
     }
   };
 
-  // pages/duckplayer/src/js/utils.js
+  // pages/duckplayer/src/utils.js
   function createYoutubeURLForError(href, urlBase) {
     const valid = VideoParams.forWatchPage(href);
     if (!valid) return null;
@@ -4340,7 +4340,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
     }
   }
 
-  // pages/duckplayer/src/js/storage.js
+  // pages/duckplayer/src/storage.js
   function deleteStorage(subject) {
     Object.keys(subject).forEach((key) => {
       if (key.indexOf("yt-player") === 0) {
@@ -4371,7 +4371,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
     });
   }
 
-  // pages/duckplayer/src/js/index.js
+  // pages/duckplayer/src/index.js
   var DuckplayerPage = class {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
@@ -4383,7 +4383,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
     /**
      * This will be sent if the application has loaded, but a client-side error
      * has occurred that cannot be recovered from
-     * @returns {Promise<import("../../types/duckplayer.js").InitialSetupResponse>}
+     * @returns {Promise<import("../types/duckplayer.ts").InitialSetupResponse>}
      */
     initialSetup() {
       if (this.injectName === "integration") {
@@ -4407,7 +4407,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
     /**
      * This is sent when the user wants to set Duck Player as the default.
      *
-     * @param {import("../../types/duckplayer.js").UserValues} userValues
+     * @param {import("../types/duckplayer.ts").UserValues} userValues
      */
     setUserValues(userValues) {
       return this.messaging.request("setUserValues", userValues);
@@ -4447,7 +4447,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
      * }
      * ```
      *
-     * @param {(value: import("../../types/duckplayer.js").UserValues) => void} cb
+     * @param {(value: import("../types/duckplayer.ts").UserValues) => void} cb
      */
     onUserValuesChanged(cb) {
       return this.messaging.subscribe("onUserValuesChanged", cb);
@@ -4481,7 +4481,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
       this.messaging = messaging2;
     }
     /**
-     * @param {import('../../types/duckplayer.js').TelemetryEvent} event
+     * @param {import('../types/duckplayer.ts').TelemetryEvent} event
      * @internal
      */
     _event(event) {

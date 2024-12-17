@@ -104,10 +104,10 @@ export function App({ children }) {
 
     return (
         <main className={styles.main}>
-            <link rel="preload" href={['js', animation].join('/')} as="image" />
-            <link rel="preload" href={['js', stepMeta.dockSingle.rows.dock.path].join('/')} as="image" />
-            <link rel="preload" href={['js', stepMeta.importSingle.rows.import.path].join('/')} as="image" />
-            <link rel="preload" href={['js', stepMeta.makeDefaultSingle.rows['default-browser'].path].join('/')} as="image" />
+            <link rel="preload" href={['dist', animation].join('/')} as="image" />
+            <link rel="preload" href={['dist', stepMeta.dockSingle.rows.dock.path].join('/')} as="image" />
+            <link rel="preload" href={['dist', stepMeta.importSingle.rows.import.path].join('/')} as="image" />
+            <link rel="preload" href={['dist', stepMeta.makeDefaultSingle.rows['default-browser'].path].join('/')} as="image" />
             <Background />
             {debugState && <Debug state={globalState} />}
             <div className={styles.container} data-current={activeStep}>

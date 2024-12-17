@@ -8,7 +8,7 @@ import { TranslationContext } from '../../../shared/components/TranslationsProvi
 
 /**
  * This is a wrapper to only allow keys from the default translation file
- * @type {() => { t: (key: keyof import('../src/locales/en/release-notes.json'), replacements?: Record<string, string>) => string }}
+ * @type {() => { t: (key: keyof import('../public/locales/en/release-notes.json'), replacements?: Record<string, string>) => string }}
  */
 export function useTypedTranslation() {
     return {

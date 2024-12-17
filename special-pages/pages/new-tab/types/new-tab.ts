@@ -6,6 +6,46 @@
  * @module NewTab Messages
  */
 
+export type BackgroundVariant =
+  | DefaultBackground
+  | SolidColorBackground
+  | HexValueBackground
+  | GradientBackground
+  | UserImageBackground;
+export type PredefinedColor =
+  | "color01"
+  | "color02"
+  | "color03"
+  | "color04"
+  | "color05"
+  | "color06"
+  | "color07"
+  | "color08"
+  | "color09"
+  | "color10"
+  | "color11"
+  | "color12"
+  | "color13"
+  | "color14"
+  | "color15"
+  | "color16"
+  | "color17"
+  | "color18"
+  | "color19";
+export type PredefinedGradient =
+  | "gradient01"
+  | "gradient02"
+  | "gradient03"
+  | "gradient04"
+  | "gradient05"
+  | "gradient06"
+  | "gradient07"
+  | "gradient08";
+/**
+ * Note: this is different to the Browser Theme
+ */
+export type BackgroundColorScheme = "light" | "dark";
+export type BrowserTheme = "light" | "dark" | "system";
 /**
  * Represents the expansion state of a widget
  */
@@ -26,15 +66,16 @@ export type WidgetConfigs = WidgetConfigItem[];
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
+export type NextStepsCardTypes =
+  | "bringStuff"
+  | "defaultApp"
+  | "blockCookies"
+  | "emailProtection"
+  | "duckplayer"
+  | "addAppToDockMac"
+  | "pinAppToTaskbarWindows";
 export type NextStepsCards = {
-  id:
-    | "bringStuff"
-    | "defaultApp"
-    | "blockCookies"
-    | "emailProtection"
-    | "duckplayer"
-    | "addAppToDockMac"
-    | "pinAppToTaskbarWindows";
+  id: NextStepsCardTypes;
 }[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
@@ -45,11 +86,17 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
 export interface NewTabMessages {
   notifications:
     | ContextMenuNotification
+    | CustomizerDeleteImageNotification
+    | CustomizerSetBackgroundNotification
+    | CustomizerSetThemeNotification
+    | CustomizerUploadNotification
     | FavoritesAddNotification
     | FavoritesMoveNotification
     | FavoritesOpenNotification
     | FavoritesOpenContextMenuNotification
     | FavoritesSetConfigNotification
+    | FreemiumPIRBannerActionNotification
+    | FreemiumPIRBannerDismissNotification
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
@@ -67,6 +114,7 @@ export interface NewTabMessages {
   requests:
     | FavoritesGetConfigRequest
     | FavoritesGetDataRequest
+    | FreemiumPIRBannerGetDataRequest
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
@@ -74,8 +122,13 @@ export interface NewTabMessages {
     | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
+    | CustomizerOnBackgroundUpdateSubscription
+    | CustomizerOnColorUpdateSubscription
+    | CustomizerOnImagesUpdateSubscription
+    | CustomizerOnThemeUpdateSubscription
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
+    | FreemiumPIRBannerOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
@@ -100,6 +153,67 @@ export interface VisibilityMenuItem {
    * Translated name of the section
    */
   title: string;
+}
+/**
+ * Generated from @see "../messages/customizer_deleteImage.notify.json"
+ */
+export interface CustomizerDeleteImageNotification {
+  method: "customizer_deleteImage";
+  params: CustomizerDeleteImageNotify;
+}
+export interface CustomizerDeleteImageNotify {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/customizer_setBackground.notify.json"
+ */
+export interface CustomizerSetBackgroundNotification {
+  method: "customizer_setBackground";
+  params: CustomizerSetBackgroundNotify;
+}
+export interface CustomizerSetBackgroundNotify {
+  background: BackgroundVariant;
+}
+export interface DefaultBackground {
+  kind: "default";
+}
+export interface SolidColorBackground {
+  kind: "color";
+  value: PredefinedColor;
+}
+export interface HexValueBackground {
+  kind: "hex";
+  value: string;
+}
+export interface GradientBackground {
+  kind: "gradient";
+  value: PredefinedGradient;
+}
+export interface UserImageBackground {
+  kind: "userImage";
+  value: UserImage;
+}
+export interface UserImage {
+  id: string;
+  src: string;
+  thumb: string;
+  colorScheme: BackgroundColorScheme;
+}
+/**
+ * Generated from @see "../messages/customizer_setTheme.notify.json"
+ */
+export interface CustomizerSetThemeNotification {
+  method: "customizer_setTheme";
+  params: CustomizerSetThemeNotify;
+}
+export interface CustomizerSetThemeNotify {
+  theme: BrowserTheme;
+}
+/**
+ * Generated from @see "../messages/customizer_upload.notify.json"
+ */
+export interface CustomizerUploadNotification {
+  method: "customizer_upload";
 }
 /**
  * Generated from @see "../messages/favorites_add.notify.json"
@@ -184,6 +298,26 @@ export interface ViewTransitions {
  */
 export interface Auto {
   kind: "auto-animate";
+}
+/**
+ * Generated from @see "../messages/freemiumPIRBanner_action.notify.json"
+ */
+export interface FreemiumPIRBannerActionNotification {
+  method: "freemiumPIRBanner_action";
+  params: FreemiumPIRBannerAction;
+}
+export interface FreemiumPIRBannerAction {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/freemiumPIRBanner_dismiss.notify.json"
+ */
+export interface FreemiumPIRBannerDismissNotification {
+  method: "freemiumPIRBanner_dismiss";
+  params: FreemiumPIRBannerDismissAction;
+}
+export interface FreemiumPIRBannerDismissAction {
+  id: string;
 }
 /**
  * Generated from @see "../messages/nextSteps_action.notify.json"
@@ -354,6 +488,23 @@ export interface FavoriteFavicon {
   maxAvailableSize: number;
 }
 /**
+ * Generated from @see "../messages/freemiumPIRBanner_getData.request.json"
+ */
+export interface FreemiumPIRBannerGetDataRequest {
+  method: "freemiumPIRBanner_getData";
+  result: FreemiumPIRBannerData;
+}
+export interface FreemiumPIRBannerData {
+  content: null | FreemiumPIRBannerMessage;
+}
+export interface FreemiumPIRBannerMessage {
+  messageType: "big_single_action";
+  id: "onboarding" | "scan_results";
+  titleText: string | null;
+  descriptionText: string;
+  actionText: string;
+}
+/**
  * Generated from @see "../messages/initialSetup.request.json"
  */
 export interface InitialSetupRequest {
@@ -369,6 +520,7 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
+  customizer?: CustomizerData;
   updateNotification: null | UpdateNotificationData;
 }
 export interface WidgetListItem {
@@ -381,6 +533,12 @@ export interface NewTabPageSettings {
   customizerDrawer?: {
     state: "enabled" | "disabled";
   };
+}
+export interface CustomizerData {
+  background: BackgroundVariant;
+  theme: BrowserTheme;
+  userImages: UserImage[];
+  userColor: null | HexValueBackground;
 }
 export interface UpdateNotificationData {
   content: null | UpdateNotification;
@@ -475,6 +633,46 @@ export interface TrackerCompany {
   count: number;
 }
 /**
+ * Generated from @see "../messages/customizer_onBackgroundUpdate.subscribe.json"
+ */
+export interface CustomizerOnBackgroundUpdateSubscription {
+  subscriptionEvent: "customizer_onBackgroundUpdate";
+  params: BackgroundData;
+}
+export interface BackgroundData {
+  background: BackgroundVariant;
+}
+/**
+ * Generated from @see "../messages/customizer_onColorUpdate.subscribe.json"
+ */
+export interface CustomizerOnColorUpdateSubscription {
+  subscriptionEvent: "customizer_onColorUpdate";
+  params: UserColorData;
+}
+export interface UserColorData {
+  userColor: null | HexValueBackground;
+}
+/**
+ * Generated from @see "../messages/customizer_onImagesUpdate.subscribe.json"
+ */
+export interface CustomizerOnImagesUpdateSubscription {
+  subscriptionEvent: "customizer_onImagesUpdate";
+  params: UserImageData;
+}
+export interface UserImageData {
+  userImages: UserImage[];
+}
+/**
+ * Generated from @see "../messages/customizer_onThemeUpdate.subscribe.json"
+ */
+export interface CustomizerOnThemeUpdateSubscription {
+  subscriptionEvent: "customizer_onThemeUpdate";
+  params: ThemeData;
+}
+export interface ThemeData {
+  theme: BrowserTheme;
+}
+/**
  * Generated from @see "../messages/favorites_onConfigUpdate.subscribe.json"
  */
 export interface FavoritesOnConfigUpdateSubscription {
@@ -487,6 +685,13 @@ export interface FavoritesOnConfigUpdateSubscription {
 export interface FavoritesOnDataUpdateSubscription {
   subscriptionEvent: "favorites_onDataUpdate";
   params: FavoritesData;
+}
+/**
+ * Generated from @see "../messages/freemiumPIRBanner_onDataUpdate.subscribe.json"
+ */
+export interface FreemiumPIRBannerOnDataUpdateSubscription {
+  subscriptionEvent: "freemiumPIRBanner_onDataUpdate";
+  params: FreemiumPIRBannerData;
 }
 /**
  * Generated from @see "../messages/nextSteps_onConfigUpdate.subscribe.json"
@@ -538,7 +743,7 @@ export interface WidgetsOnConfigUpdatedSubscription {
   params: WidgetConfigs;
 }
 
-declare module "../src/js/index.js" {
+declare module "../src/index.js" {
   export interface NewTabPage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<NewTabMessages>['notify'],
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<NewTabMessages>['request'],

@@ -256,7 +256,7 @@ export interface PreparingUpdateState {
   lastUpdate: number;
 }
 
-declare module "../src/js/index.js" {
+declare module "../src/index.js" {
   export interface ReleaseNotesPage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ReleaseNotesMessages>['notify'],
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ReleaseNotesMessages>['request'],

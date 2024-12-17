@@ -16,12 +16,14 @@ export default defineConfig({
             name: 'integration',
             // prettier-ignore
             testMatch: [
+                'favorites.spec.js',
+                'freemium-pir-banner.spec.js',
+                'new-tab.spec.js',
                 'next-steps.spec.js',
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
-                'new-tab.spec.js',
-                'favorites.spec.js',
-                'update-notification.spec.js'
+                'update-notification.spec.js',
+                'customizer.spec.js'
             ],
             use: {
                 ...devices['Desktop Chrome'],
@@ -83,8 +85,8 @@ export default defineConfig({
     reporter: process.env.CI ? 'github' : [['html', { open: 'never' }]],
     // @ts-expect-error - Type 'undefined' is not assignable to type 'string'. process.env
     webServer: {
-        command: 'npm run serve',
-        port: 3210,
+        command: process.env.PAGE ? `npm run watch -- --page ${process.env.PAGE}` : 'npm run serve',
+        port: process.env.PAGE ? 8000 : 3210,
         reuseExistingServer: true,
         env: process.env,
     },

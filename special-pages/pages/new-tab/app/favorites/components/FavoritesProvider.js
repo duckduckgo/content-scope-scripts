@@ -48,7 +48,7 @@ export const FavoritesContext = createContext({
     },
     /** @type {(cb: (data: FavoritesConfig) => void) => void} */
     onConfigChanged: (cb) => {
-        throw new Error('must implement add');
+        /** noop */
     },
 });
 

@@ -3,6 +3,22 @@
 body[data-display="components"] {
     padding-left: 0;
     padding-right: 0;
+
+    a {
+        color: var(--ntp-text-normal);
+    }
+}
+
+.main {
+    height: 100vh;
+    overflow: auto;
+    color: var(--ntp-text-normal);
+}
+
+
+.contentTube {
+    position: relative;
+    z-index: 1;
 }
 
 .componentList {
@@ -15,8 +31,6 @@ body[data-display="components"] {
     display: grid;
     grid-template-columns: auto;
     grid-row-gap: 2rem;
-
-
 }
 
 .itemInfo {
@@ -44,7 +58,7 @@ body[data-display="components"] {
         background: var(--color-gray-20);
     }
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         &:hover {
             background: var(--color-gray-90);
         }

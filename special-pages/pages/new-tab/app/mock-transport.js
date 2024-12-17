@@ -5,6 +5,7 @@ import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js'
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
+import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -83,6 +84,7 @@ export function mockTransport() {
 
     /** @type {Map<SubscriptionNames, any[]>} */
     const rmfSubscriptions = new Map();
+    const freemiumPIRBannerSubscriptions = new Map();
 
     function clearRmf() {
         const listeners = rmfSubscriptions.get('rmf_onDataUpdate') || [];
@@ -125,7 +127,14 @@ export function mockTransport() {
                 }
                 case 'rmf_dismiss': {
                     console.log('ignoring rmf_dismiss', msg.params);
-                    clearRmf();
+                    return;
+                }
+                case 'freemiumPIRBanner_action': {
+                    console.log('ignoring freemiumPIRBanner_action', msg.params);
+                    return;
+                }
+                case 'freemiumPIRBanner_dismiss': {
+                    console.log('ignoring freemiumPIRBanner_dismiss', msg.params);
                     return;
                 }
                 case 'favorites_setConfig': {
@@ -208,6 +217,21 @@ export function mockTransport() {
                     );
                     return () => controller.abort();
                 }
+                case 'freemiumPIRBanner_onDataUpdate': {
+                    // store the callback for later (eg: dismiss)
+                    const prev = freemiumPIRBannerSubscriptions.get('freemiumPIRBanner_onDataUpdate') || [];
+                    const next = [...prev];
+                    next.push(cb);
+                    freemiumPIRBannerSubscriptions.set('freemiumPIRBanner_onDataUpdate', next);
+
+                    const freemiumPIRBannerParam = url.searchParams.get('pir');
+
+                    if (freemiumPIRBannerParam !== null && freemiumPIRBannerParam in freemiumPIRDataExamples) {
+                        const message = freemiumPIRDataExamples[freemiumPIRBannerParam];
+                        cb(message);
+                    }
+                    return () => {};
+                }
                 case 'rmf_onDataUpdate': {
                     // store the callback for later (eg: dismiss)
                     const prev = rmfSubscriptions.get('rmf_onDataUpdate') || [];
@@ -255,21 +279,6 @@ export function mockTransport() {
                         },
                         { signal: controller.signal },
                     );
-
-                    // setTimeout(() => {
-                    //     const next = favorites.many.favorites.map(item => {
-                    //         if (item.id === 'id-many-2') {
-                    //             return {
-                    //                 ...item,
-                    //                 favicon: {
-                    //                     src: './company-icons/adform.svg', maxAvailableSize: 32
-                    //                 }
-                    //             }
-                    //         }
-                    //         return item
-                    //     });
-                    //     cb({favorites: next})
-                    // }, 2000)
 
                     return () => controller.abort();
                 }
@@ -402,6 +411,17 @@ export function mockTransport() {
 
                     return Promise.resolve(message);
                 }
+                case 'freemiumPIRBanner_getData': {
+                    /** @type {import('../types/new-tab.ts').FreemiumPIRBannerData} */
+                    let freemiumPIRBannerMessage = { content: null };
+                    const freemiumPIRBannerParam = url.searchParams.get('pir');
+
+                    if (freemiumPIRBannerParam && freemiumPIRBannerParam in freemiumPIRDataExamples) {
+                        freemiumPIRBannerMessage = freemiumPIRDataExamples[freemiumPIRBannerParam];
+                    }
+
+                    return Promise.resolve(freemiumPIRBannerMessage);
+                }
                 case 'favorites_getData': {
                     const param = url.searchParams.get('favorites');
                     let data;
@@ -428,6 +448,7 @@ export function mockTransport() {
                     const widgetsFromStorage = read('widgets') || [
                         { id: 'updateNotification' },
                         { id: 'rmf' },
+                        { id: 'freemiumPIRBanner' },
                         { id: 'nextSteps' },
                         { id: 'favorites' },
                         { id: 'privacyStats' },

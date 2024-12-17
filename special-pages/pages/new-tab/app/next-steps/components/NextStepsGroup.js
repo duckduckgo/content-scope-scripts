@@ -1,11 +1,11 @@
 import { h } from 'preact';
 import cn from 'classnames';
-import styles from './NextSteps.module.css';
-import { useTypedTranslationWith } from '../../types';
-import { NextStepsCard } from './NextStepsCard';
-import { otherText } from '../nextsteps.data';
-import { ShowHideButton } from '../../components/ShowHideButton';
 import { useId } from 'preact/hooks';
+import { ShowHideButton } from '../../components/ShowHideButton';
+import { useTypedTranslationWith } from '../../types';
+import { otherText } from '../nextsteps.data';
+import styles from './NextSteps.module.css';
+import { NextStepsCard } from './NextStepsCard';
 
 /**
  * @import enStrings from '../strings.json';
@@ -13,12 +13,12 @@ import { useId } from 'preact/hooks';
  * @typedef {enStrings & ntpStrings} strings
  * @typedef {import('../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../types/new-tab').Animation} Animation
- * @typedef {import('../../../types/new-tab').NextStepsCards} NextStepsCards
+ * @typedef {import('../../../types/new-tab').NextStepsCardTypes} NextStepsCardTypes
  */
 
 /**
  * @param {object} props
- * @param {string[]} props.types
+ * @param {NextStepsCardTypes[]} props.types
  * @param {Expansion} props.expansion
  * @param {()=>void} props.toggle
  * @param {(id: string)=>void} props.action
