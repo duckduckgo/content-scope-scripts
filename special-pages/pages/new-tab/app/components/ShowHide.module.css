@@ -85,7 +85,7 @@
         color: var(--ntp-text-muted);
 
 
-        @media (prefers-color-scheme: dark) {
+        [data-theme="dark"] & {
             box-shadow: 0px 2px 4px 0px var(--color-white-at-6), 0px 0px 3px 0px var(--color-white-at-9);
         }
     }
