@@ -10,22 +10,34 @@
   },
   "advancedButton" : {
     "title" : "Napredno",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click."
   },
   "advancedEllipsisButton" : {
     "title" : "Napredno ...",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
   },
   "leaveSiteButton" : {
     "title" : "Zapustite to spletno mesto",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to leave the website and navigate to previous page."
   },
   "visitSiteButton" : {
     "title" : "Sprejmite tveganje in obiščite spletno mesto",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
+  },
+  "malwarePageHeading" : {
+    "title" : "Opozorilo: to spletno mesto lahko ogrozi vaše osebne podatke",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+  },
+  "malwareWarningText" : {
+    "title" : "DuckDuckGo je blokiral to stran, ker morda distribuira zlonamerno programsko opremo, namenjeno ogrožanju vaše naprave ali kraji vaših osebnih podatkov. <a>Preberite več o tem</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "malwareAdvancedInfoHeading" : {
+    "title" : "Če menite, da je to spletno mesto varno, lahko <a>prijavite napako</a>. Spletno mesto lahko še vedno obiščete na lastno odgovornost.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading" : {
-    "title" : "Opozorilo: To spletno mesto ogroža vaše osebne podatke",
+    "title" : "Opozorilo: to spletno mesto lahko ogrozi vaše osebne podatke",
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
   },
   "phishingWarningText" : {
@@ -33,16 +45,8 @@
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
   },
   "phishingAdvancedInfoHeading" : {
-    "title" : "DuckDuckGo vas opozori, kadar je bilo spletno mesto označeno kot zlonamerno.",
-    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
-  },
-  "phishingAdvancedInfoText_1" : {
-    "title" : "Opozorila so prikazana za spletne strani, za katere je bilo sporočeno, da so zavajajoče. Zavajajoča spletna mesta vas poskušajo preslepiti, da so legitimna spletna mesta, ki jim zaupate. Če razumete vsa tveganja, lahko vseeno nadaljujete.",
-    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
-  },
-  "phishingAdvancedInfoText_2" : {
-    "title" : "Za več informacij glejte našo <a>stran s pomočjo za zaščito pred lažnim predstavljanjem in zlonamerno programsko opremo</a> .",
-    "note" : "A call-to-action to read more on our help pages for phishing and malware protection."
+    "title" : "Če menite, da je to spletno mesto varno, lahko <a>prijavite napako</a>. Spletno mesto lahko še vedno obiščete na lastno odgovornost.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "sslPageHeading" : {
     "title" : "Opozorilo: To spletno mesto je morda nevarno",
