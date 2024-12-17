@@ -1,0 +1,75 @@
+{
+  "smartling" : {
+    "string_format" : "icu",
+    "translate_paths" : [
+    {
+      "path" : "*/title",
+      "key" : "{*}/title",
+      "instruction" : "*/note"
+    }]
+  },
+  "advancedButton" : {
+    "title" : "Gelişmiş",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+  },
+  "advancedEllipsisButton" : {
+    "title" : "Gelişmiş...",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+  },
+  "leaveSiteButton" : {
+    "title" : "Bu Siteden Ayrılın",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+  },
+  "visitSiteButton" : {
+    "title" : "Riski Kabul Edin ve Siteyi Ziyaret Edin",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+  },
+  "phishingPageHeading" : {
+    "title" : "Uyarı: Bu site kişisel bilgilerinizi riske atıyor",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+  },
+  "phishingWarningText" : {
+    "title" : "Bu web sitesi, şifre veya kredi kartı numarası gibi kişisel bilgilerinizi vermeniz için sizi kandırmak amacıyla meşru bir siteyi taklit ediyor olabilir. <a>Daha fazla bilgi</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoHeading" : {
+    "title" : "DuckDuckGo, bir web sitesi kötü amaçlı olarak işaretlendiğinde sizi uyarır.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoText_1" : {
+    "title" : "Aldatıcı olduğu bildirilen web siteleri için uyarılar gösterilmektedir. Aldatıcı web siteleri, güvendiğiniz meşru web siteleri olduklarına inanmanız için sizi kandırmaya çalışır. Riskleri anlıyorsanız, yine de devam edebilirsiniz.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoText_2" : {
+    "title" : "Daha fazla bilgi için <a>Kimlik Avı ve Kötü Amaçlı Yazılım Koruması yardım sayfamızı</a> inceleyin.",
+    "note" : "A call-to-action to read more on our help pages for phishing and malware protection."
+  },
+  "sslPageHeading" : {
+    "title" : "Uyarı: Bu site güvenli olmayabilir",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to SSL issues"
+  },
+  "sslWarningText" : {
+    "title" : "Bu sitenin sertifikası geçersiz. <b>{domain}</b> gibi görünen ve gizli bilgilerinizi riske atabilecek bir sunucuya bağlanıyor olabilirsiniz.",
+    "note" : "Describes an SSL error where a website’s security certificate is invalid. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslAdvancedInfoHeading" : {
+    "title" : "DuckDuckGo, bir web sitesinin sertifikası geçersiz olduğunda sizi uyarır.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslExpiredAdvancedInfoText" : {
+    "title" : "<b>{domain}</b> için güvenlik sertifikasının süresi doldu. Web sitesi yanlış yapılandırılmış, bir saldırgan bağlantınızı tehlikeye atmış veya sistem saatiniz yanlış ayarlanmış olabilir.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslInvalidAdvancedInfoText" : {
+    "title" : "Cihazınızın işletim sistemi, <b>{domain}</b> için güvenlik sertifikasına güvenmiyor. Web sitesi yanlış yapılandırılmış veya bir saldırgan bağlantınızı tehlikeye atmış olabilir.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslSelfSignedAdvancedInfoText" : {
+    "title" : "Cihazınızın işletim sistemi, <b>{domain}</b> için güvenlik sertifikasına güvenmiyor. Web sitesi yanlış yapılandırılmış veya bir saldırgan bağlantınızı tehlikeye atmış olabilir.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslWrongHostAdvancedInfoText" : {
+    "title" : "<b>{domain}</b> için güvenlik sertifikası <b>*{eTldPlus1}</b> ile eşleşmiyor. Web sitesi yanlış yapılandırılmış veya bir saldırgan bağlantınızı tehlikeye atmış olabilir.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The two placeholders are website domain names (example: duckduckgo.com)."
+  }
+}

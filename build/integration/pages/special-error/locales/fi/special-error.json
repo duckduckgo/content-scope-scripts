@@ -1,0 +1,75 @@
+{
+  "smartling" : {
+    "string_format" : "icu",
+    "translate_paths" : [
+    {
+      "path" : "*/title",
+      "key" : "{*}/title",
+      "instruction" : "*/note"
+    }]
+  },
+  "advancedButton" : {
+    "title" : "Lisäasetukset",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+  },
+  "advancedEllipsisButton" : {
+    "title" : "Lisäasetukset...",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+  },
+  "leaveSiteButton" : {
+    "title" : "Poistu sivustolta",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+  },
+  "visitSiteButton" : {
+    "title" : "Hyväksy riski ja mene sivustolle",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+  },
+  "phishingPageHeading" : {
+    "title" : "Varoitus: Tämä sivusto vaarantaa henkilötietosi",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+  },
+  "phishingWarningText" : {
+    "title" : "Tämä verkkosivusto saattaa esiintyä laillisena sivustona huijatakseen sinua antamaan henkilötietoja, kuten salasanan tai luottokortin numeron. <a>Lue lisää</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoHeading" : {
+    "title" : "DuckDuckGo varoittaa sinua, jos verkkosivusto on merkitty haitalliseksi.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoText_1" : {
+    "title" : "Varoitukset näkyvät verkkosivustoilla, joiden on raportoitu olevan harhaanjohtavia. Huijaussivustot yrittävät saada sinut uskomaan, että ne ovat laillisia ja luotettavia verkkosivustoja. Jos ymmärrät sivuston riskit, voit jatkaa.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoText_2" : {
+    "title" : "Katso lisätietoja <a>tietojenkalastelua ja haittaohjelmasuojausta koskevalta ohjesivulta</a>.",
+    "note" : "A call-to-action to read more on our help pages for phishing and malware protection."
+  },
+  "sslPageHeading" : {
+    "title" : "Varoitus: Tämä sivusto ei välttämättä ole turvallinen",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to SSL issues"
+  },
+  "sslWarningText" : {
+    "title" : "Tämän sivuston varmenne on virheellinen. Saatat olla yhteydessä palvelimeen, joka teeskentelee olevansa <b>{domain}</b>, mikä voi vaarantaa luottamukselliset tietosi.",
+    "note" : "Describes an SSL error where a website’s security certificate is invalid. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslAdvancedInfoHeading" : {
+    "title" : "DuckDuckGo varoittaa, jos verkkosivustolla on virheellinen sertifikaatti.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslExpiredAdvancedInfoText" : {
+    "title" : "Verkkotunnuksen <b>{domain}</b> suojausvarmenne on vanhentunut. Verkkosivusto on ehkä väärin määritetty, hyökkäys on saattanut vaarantaa yhteytesi tai järjestelmäsi kellossa on virhe.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslInvalidAdvancedInfoText" : {
+    "title" : "Laitteesi käyttöjärjestelmä ei luota verkkotunnuksen <b>{domain}</b> suojausvarmenteeseen. Verkkosivusto on ehkä väärin määritetty, tai hyökkäys on saattanut vaarantaa yhteytesi.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslSelfSignedAdvancedInfoText" : {
+    "title" : "Laitteesi käyttöjärjestelmä ei luota verkkotunnuksen <b>{domain}</b> suojausvarmenteeseen. Verkkosivusto on ehkä väärin määritetty, tai hyökkäys on saattanut vaarantaa yhteytesi.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslWrongHostAdvancedInfoText" : {
+    "title" : "Verkkotunnuksen <b>{domain}</b> suojausvarmenne ei ole sama kuin <b>*.{eTldPlus1}</b>. Verkkosivusto on ehkä väärin määritetty tai hyökkäys on saattanut vaarantaa yhteytesi.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The two placeholders are website domain names (example: duckduckgo.com)."
+  }
+}
