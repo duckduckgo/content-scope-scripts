@@ -5,6 +5,11 @@ body[data-display="components"] {
     padding-right: 0;
 }
 
+.main {
+    height: 100vh;
+    overflow: auto;
+}
+
 .componentList {
     padding-top: var(--sp-16);
     padding-bottom: var(--sp-16);
@@ -15,8 +20,6 @@ body[data-display="components"] {
     display: grid;
     grid-template-columns: auto;
     grid-row-gap: 2rem;
-
-
 }
 
 .itemInfo {

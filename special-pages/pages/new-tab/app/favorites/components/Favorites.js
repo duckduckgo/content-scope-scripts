@@ -180,8 +180,8 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
     const gridOffset = useRef(0);
 
     useLayoutEffect(() => {
-        const mainScroller = document.querySelector('[data-main-scroller]');
-        const contentTube = document.querySelector('[data-content-tube]');
+        const mainScroller = document.querySelector('[data-main-scroller]') || document.documentElement;
+        const contentTube = document.querySelector('[data-content-tube]') || document.body;
         if (!mainScroller) return console.warn('cannot find scrolling element');
         if (!contentTube) return console.warn('cannot find content tube');
 

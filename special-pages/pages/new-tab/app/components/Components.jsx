@@ -21,13 +21,21 @@ export function Components() {
     const filtered = validIds.length ? validIds.map((id) => /** @type {const} */ ([id, list[id]])) : entries;
 
     if (isolated) {
-        return <Isolated entries={filtered} e2e={e2e} />;
+        return (
+            <div class={styles.main} data-main-scroller data-theme="light">
+                <div data-content-tube>
+                    <Isolated entries={filtered} e2e={e2e} />;
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div>
-            <DebugBar id={ids[0]} ids={ids} entries={entries} />
-            <Stage entries={/** @type {any} */ (filtered)} />
+        <div class={styles.main} data-main-scroller data-theme="light">
+            <div data-content-tube>
+                <DebugBar id={ids[0]} ids={ids} entries={entries} />
+                <Stage entries={/** @type {any} */ (filtered)} />
+            </div>
         </div>
     );
 }

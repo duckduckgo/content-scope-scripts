@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { FavoritesContext, FavoritesDispatchContext } from '../components/FavoritesProvider.js';
-import { useCallback, useReducer } from 'preact/hooks';
+import { useCallback, useReducer, useState } from 'preact/hooks';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { favorites } from './favorites.data.js';
 import { reducer } from '../../service.hooks.js';
@@ -33,16 +33,20 @@ export function MockFavoritesProvider({ data = favorites.many, config = DEFAULT_
         config,
     });
 
+    const [et] = useState(() => new EventTarget());
+
     /** @type {[State, import('preact/hooks').Dispatch<Events>]} */
     const [state, dispatch] = useReducer(reducer, initial);
 
     const toggle = useCallback(() => {
         if (state.status !== 'ready') return;
-        if (state.config.expansion === 'expanded') {
-            dispatch({ kind: 'config', config: { ...state.config, expansion: 'collapsed' } });
-        } else {
-            dispatch({ kind: 'config', config: { ...state.config, expansion: 'expanded' } });
-        }
+        const next =
+            state.config.expansion === 'expanded'
+                ? /** @type {const} */ ({ ...state.config, expansion: 'collapsed' })
+                : /** @type {const} */ ({ ...state.config, expansion: 'expanded' });
+
+        dispatch({ kind: 'config', config: next });
+        et.dispatchEvent(new CustomEvent('state-update', { detail: next }));
     }, [state.status, state.config?.expansion, isReducedMotion]);
 
     /** @type {import('../components/FavoritesProvider.js').ReorderFn<Favorite>} */
@@ -65,10 +69,14 @@ export function MockFavoritesProvider({ data = favorites.many, config = DEFAULT_
         console.log('noop add', ...args);
     };
 
-    const onConfigChanged = () => {
-        /* no-op */
-        return () => {};
-    };
+    const onConfigChanged = useCallback(
+        (cb) => {
+            et.addEventListener('state-update', (/** @type {CustomEvent<any>} */ e) => {
+                cb(e.detail);
+            });
+        },
+        [et],
+    );
 
     return (
         <FavoritesContext.Provider value={{ state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add, onConfigChanged }}>
