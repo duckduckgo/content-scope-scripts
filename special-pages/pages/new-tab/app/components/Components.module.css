@@ -44,7 +44,7 @@ body[data-display="components"] {
         background: var(--color-gray-20);
     }
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         &:hover {
             background: var(--color-gray-90);
         }
