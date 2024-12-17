@@ -145,7 +145,7 @@
         }
     }
 
-    &.bottomSpace {
+    &.noExpansionBtn {
         margin-bottom: var(--ntp-gap);
     }
 }
