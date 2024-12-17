@@ -21,12 +21,15 @@
         background-color: transparent;
         color: var(--ntp-text-muted);
 
+
         .iconBlock {
+            backdrop-filter: unset;
             background-color: transparent;
             box-shadow: none;
             transition: all 0.3s ease-in;
 
             [data-theme=dark] & {
+                backdrop-filter: unset;
                 box-shadow: none;
                 background-color: transparent;
             }
@@ -41,7 +44,7 @@
                     background-color: var(--color-white-at-12);
                 }
             }
-        } 
+        }
 
         &:focus-visible {
             box-shadow: var(--focus-ring);
@@ -50,6 +53,7 @@
 
     &.withText {
         border: 1px solid var(--color-black-at-9);
+
         svg {
             margin-right: var(--sp-2);
         }
@@ -63,7 +67,7 @@
         }
     }
 
-    > * {
+    >* {
         pointer-events: none;
     }
 
@@ -105,10 +109,10 @@
             &:hover {
                 background-color: var(--color-white-at-9);
             }
-    
+
             &:active {
                 background-color: var(--color-white-at-12);
             }
-        } 
+        }
     }
 }
