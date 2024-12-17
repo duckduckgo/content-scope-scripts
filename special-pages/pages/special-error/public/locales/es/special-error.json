@@ -10,22 +10,34 @@
   },
   "advancedButton" : {
     "title" : "Avanzado",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click."
   },
   "advancedEllipsisButton" : {
     "title" : "Avanzadas...",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
   },
   "leaveSiteButton" : {
     "title" : "Salir de este sitio",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to leave the website and navigate to previous page."
   },
   "visitSiteButton" : {
     "title" : "Aceptar el riesgo y visitar el sitio",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
+  },
+  "malwarePageHeading" : {
+    "title" : "Advertencia: este sitio puede poner en riesgo tu información personal",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+  },
+  "malwareWarningText" : {
+    "title" : "DuckDuckGo ha bloqueado esta página porque podría estar distribuyendo malware diseñado para comprometer tu dispositivo o robar tu información personal. <a>Más información</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "malwareAdvancedInfoHeading" : {
+    "title" : "Si crees que este sitio web es seguro, puedes <a>informar de un error</a>. Puedes seguir visitando el sitio web por tu cuenta y riesgo.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading" : {
-    "title" : "Advertencia: este sitio pone en riesgo tu información personal",
+    "title" : "Advertencia: este sitio puede poner en riesgo tu información personal",
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
   },
   "phishingWarningText" : {
@@ -33,16 +45,8 @@
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
   },
   "phishingAdvancedInfoHeading" : {
-    "title" : "DuckDuckGo te avisa cuando un sitio web ha sido marcado como malicioso.",
-    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
-  },
-  "phishingAdvancedInfoText_1" : {
-    "title" : "Se muestran advertencias para los sitios web que se han denunciado como engañosos. Los sitios web engañosos intentan engañarte haciéndote creer que son sitios web legítimos en los que confías. Si entiendes los riesgos involucrados, puedes continuar de todos modos.",
-    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
-  },
-  "phishingAdvancedInfoText_2" : {
-    "title" : "Consulta nuestra <a>página de ayuda Protección contra phishing y malware</a> para obtener más información.",
-    "note" : "A call-to-action to read more on our help pages for phishing and malware protection."
+    "title" : "Si crees que este sitio web es seguro, puedes <a>informar de un error</a>. Puedes seguir visitando el sitio web por tu cuenta y riesgo.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "sslPageHeading" : {
     "title" : "Advertencia: este sitio puede ser inseguro",

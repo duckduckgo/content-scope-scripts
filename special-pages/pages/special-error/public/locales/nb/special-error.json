@@ -10,22 +10,34 @@
   },
   "advancedButton" : {
     "title" : "Avansert",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click."
   },
   "advancedEllipsisButton" : {
     "title" : "Avansert ...",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
   },
   "leaveSiteButton" : {
     "title" : "Forlat dette nettstedet",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to leave the website and navigate to previous page."
   },
   "visitSiteButton" : {
     "title" : "Godta risikoen og gå til nettstedet",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
+  },
+  "malwarePageHeading" : {
+    "title" : "Advarsel: Dette nettstedet kan sette personopplysningene dine i fare",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+  },
+  "malwareWarningText" : {
+    "title" : "DuckDuckGo blokkerte denne siden fordi det er mulig at den distribuerer skadelig programvare som er laget for å kompromittere enheten din eller stjele personopplysningene dine. <a>Finn ut mer</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "malwareAdvancedInfoHeading" : {
+    "title" : "Hvis du mener at dette nettstedet er trygt, kan du <a>rapportere en feil</a>. Du kan fortsatt besøke nettstedet på egen risiko.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading" : {
-    "title" : "Advarsel: Dette nettstedet utgjør en risiko for personopplysningene dine",
+    "title" : "Advarsel: Dette nettstedet kan sette personopplysningene dine i fare",
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
   },
   "phishingWarningText" : {
@@ -33,16 +45,8 @@
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
   },
   "phishingAdvancedInfoHeading" : {
-    "title" : "DuckDuckGo advarer deg når et nettsted er flagget som skadelig.",
-    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
-  },
-  "phishingAdvancedInfoText_1" : {
-    "title" : "Advarsler vises for nettsteder som er rapportert som villedende. Villedende nettsteder prøver å lure deg til å tro at de er legitime nettsteder du stoler på. Hvis du forstår denne risikoen, kan du fortsette likevel.",
-    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
-  },
-  "phishingAdvancedInfoText_2" : {
-    "title" : "Se <a>hjelpesiden vår om beskyttelse mot phishing og skadelig programvare</a> for å få mer informasjon.",
-    "note" : "A call-to-action to read more on our help pages for phishing and malware protection."
+    "title" : "Hvis du mener at dette nettstedet er trygt, kan du <a>rapportere en feil</a>. Du kan besøke nettstedet på egen risiko.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "sslPageHeading" : {
     "title" : "Advarsel: Dette nettstedet kan være usikkert",
