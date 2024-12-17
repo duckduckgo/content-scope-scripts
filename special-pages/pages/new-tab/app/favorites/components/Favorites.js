@@ -48,7 +48,7 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     const canToggleExpansion = favorites.length >= ROW_CAPACITY;
 
     return (
-        <div class={cn(styles.root, !canToggleExpansion && styles.bottomSpace)} data-testid="FavoritesConfigured">
+        <div class={cn(styles.root, !canToggleExpansion && styles.noExpansionBtn)} data-testid="FavoritesConfigured">
             <VirtualizedGridRows
                 WIDGET_ID={WIDGET_ID}
                 favorites={favorites}
