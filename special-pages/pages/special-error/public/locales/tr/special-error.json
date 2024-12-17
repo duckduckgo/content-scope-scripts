@@ -10,22 +10,34 @@
   },
   "advancedButton" : {
     "title" : "Gelişmiş",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click."
   },
   "advancedEllipsisButton" : {
     "title" : "Gelişmiş...",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
   },
   "leaveSiteButton" : {
     "title" : "Bu Siteden Ayrılın",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to leave the website and navigate to previous page."
   },
   "visitSiteButton" : {
     "title" : "Riski Kabul Edin ve Siteyi Ziyaret Edin",
-    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
+  },
+  "malwarePageHeading" : {
+    "title" : "Uyarı: Bu site kişisel bilgilerinizi riske atabilir",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+  },
+  "malwareWarningText" : {
+    "title" : "Cihazınızı tehlikeye atmak veya kişisel bilgilerinizi çalmak için tasarlanmış kötü amaçlı yazılım dağıtıyor olabileceğinden, DuckDuckGo bu sayfayı engelledi. <a>Daha fazla bilgi</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "malwareAdvancedInfoHeading" : {
+    "title" : "Bu web sitesinin güvenli olduğuna inanıyorsanız <a>bir hata bildirebilirsiniz</a>. Riski göze alabiliyorsanız web sitesini yine de ziyaret edebilirsiniz.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading" : {
-    "title" : "Uyarı: Bu site kişisel bilgilerinizi riske atıyor",
+    "title" : "Uyarı: Bu site kişisel bilgilerinizi riske atabilir",
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
   },
   "phishingWarningText" : {
@@ -33,16 +45,8 @@
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
   },
   "phishingAdvancedInfoHeading" : {
-    "title" : "DuckDuckGo, bir web sitesi kötü amaçlı olarak işaretlendiğinde sizi uyarır.",
-    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
-  },
-  "phishingAdvancedInfoText_1" : {
-    "title" : "Aldatıcı olduğu bildirilen web siteleri için uyarılar gösterilmektedir. Aldatıcı web siteleri, güvendiğiniz meşru web siteleri olduklarına inanmanız için sizi kandırmaya çalışır. Riskleri anlıyorsanız, yine de devam edebilirsiniz.",
-    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
-  },
-  "phishingAdvancedInfoText_2" : {
-    "title" : "Daha fazla bilgi için <a>Kimlik Avı ve Kötü Amaçlı Yazılım Koruması yardım sayfamızı</a> inceleyin.",
-    "note" : "A call-to-action to read more on our help pages for phishing and malware protection."
+    "title" : "Bu web sitesinin güvenli olduğuna inanıyorsanız <a>bir hata bildirebilirsiniz</a>. Riski göze alabiliyorsanız web sitesini yine de ziyaret edebilirsiniz.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "sslPageHeading" : {
     "title" : "Uyarı: Bu site güvenli olmayabilir",
