@@ -1,6 +1,6 @@
 import styles from './ShowHide.module.css';
 import cn from 'classnames';
-import { ChevronButton, Chevron } from './Icons.js';
+import { Chevron } from './Icons.js';
 import { Fragment, h } from 'preact';
 
 /**
@@ -8,9 +8,9 @@ import { Fragment, h } from 'preact';
  *
  * @param {Object} props - Input parameters for controlling the behavior of the ShowHide functionality.
  * @param {string} props.text
- * @param {boolean} [props.showText]
  * @param {() => void} props.onClick
- * @param {'none'|'round'} [props.shape]
+ * @param {'none'|'round'} [props.shape] - when "none", is a full width btn w/ icon inside (used for below Favorites and NextSteps), Round is the PrivacyStats heading button
+ * @param {boolean} [props.showText] - btn w/ icon and text (used to expand PrivacyStats list), should be used with shape="none"
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
 export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none', showText = false }) {
@@ -27,7 +27,9 @@ export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none'
                     {text}
                 </Fragment>
             ) : (
-                <ChevronButton />
+                <div class={styles.iconBlock}>
+                    <Chevron />
+                </div>
             )}
         </button>
     );

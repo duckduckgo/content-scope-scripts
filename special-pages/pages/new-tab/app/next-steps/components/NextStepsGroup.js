@@ -31,7 +31,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
 
     return (
-        <div class={cn(styles.cardGroup, types.length <= 2 && styles.bottomSpace)} id={WIDGET_ID}>
+        <div class={cn(styles.cardGroup, types.length <= 2 && styles.noExpansionBtn)} id={WIDGET_ID}>
             <NextStepsBubbleHeader />
             <div class={styles.cardGrid}>
                 {alwaysShown.map((type) => (
