@@ -1,6 +1,9 @@
 import { Fragment, h } from 'preact';
 import styles from './Components.module.css';
 import { mainExamples, otherExamples } from './Examples.jsx';
+import { useThemes } from '../customizer/themes.js';
+import { useSignal } from '@preact/signals';
+import { BackgroundConsumer } from './BackgroundProvider.js';
 const url = new URL(window.location.href);
 
 const list = {
@@ -15,26 +18,30 @@ export function Components() {
     const isolated = url.searchParams.has('isolate');
     const e2e = url.searchParams.has('e2e');
     const entryIds = entries.map(([id]) => id);
-
     const validIds = ids.filter((id) => entryIds.includes(id));
-
     const filtered = validIds.length ? validIds.map((id) => /** @type {const} */ ([id, list[id]])) : entries;
 
-    if (isolated) {
-        return (
-            <div class={styles.main} data-main-scroller data-theme="light">
-                <div data-content-tube>
-                    <Isolated entries={filtered} e2e={e2e} />;
-                </div>
-            </div>
-        );
-    }
+    /** @type {import('../../types/new-tab').CustomizerData} */
+    const data = {
+        background: { kind: 'default' },
+        userImages: [],
+        theme: 'system',
+        userColor: null,
+    };
+    const dataSignal = useSignal(data);
+    const { main, browser } = useThemes(dataSignal);
 
     return (
-        <div class={styles.main} data-main-scroller data-theme="light">
-            <div data-content-tube>
-                <DebugBar id={ids[0]} ids={ids} entries={entries} />
-                <Stage entries={/** @type {any} */ (filtered)} />
+        <div class={styles.main} data-main-scroller data-theme={main}>
+            <BackgroundConsumer browser={browser} />
+            <div data-content-tube class={styles.contentTube}>
+                {isolated && <Isolated entries={filtered} e2e={e2e} />}
+                {!isolated && (
+                    <Fragment>
+                        <DebugBar id={ids[0]} ids={ids} entries={entries} />
+                        <Stage entries={/** @type {any} */ (filtered)} />
+                    </Fragment>
+                )}
             </div>
         </div>
     );

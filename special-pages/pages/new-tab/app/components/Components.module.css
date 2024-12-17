@@ -3,11 +3,22 @@
 body[data-display="components"] {
     padding-left: 0;
     padding-right: 0;
+
+    a {
+        color: var(--ntp-text-normal);
+    }
 }
 
 .main {
     height: 100vh;
     overflow: auto;
+    color: var(--ntp-text-normal);
+}
+
+
+.contentTube {
+    position: relative;
+    z-index: 1;
 }
 
 .componentList {
