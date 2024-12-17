@@ -49,7 +49,7 @@ export function App() {
             <div class={styles.layout} ref={wrapperRef} data-animating={animating} data-drawer-visibility={visibility}>
                 <main class={cn(styles.main, styles.mainScroller)} data-main-scroller data-theme={main}>
                     <div class={styles.content}>
-                        <div className={styles.tube} data-platform={platformName}>
+                        <div className={styles.tube} data-content-tube data-platform={platformName}>
                             <WidgetList />
                         </div>
                     </div>

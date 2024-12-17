@@ -179,68 +179,82 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
     // hold a mutable value that we update on resize
     const gridOffset = useRef(0);
 
-    /**
-     * When called, make the expensive call to `getBoundingClientRect` to determine the offset of
-     * the grid wrapper.
-     * @param {number} scrollY
-     */
-    function updateGlobals(scrollY) {
-        if (!safeAreaRef.current) return;
-        const rec = safeAreaRef.current.getBoundingClientRect();
-        gridOffset.current = rec.y + scrollY;
-    }
-
-    /**
-     * decide which the start/end indexes should be, based on scroll position.
-     * NOTE: this is called on scroll, so must not incur expensive checks/measurements - math only!
-     * @param {number} scrollY
-     */
-    function setVisibleRowsForOffset(scrollY) {
-        if (!safeAreaRef.current) return console.warn('cannot access ref');
-        if (!gridOffset.current) return console.warn('cannot access ref');
-        const offset = gridOffset.current;
-        const end = scrollY + window.innerHeight - offset;
-        let start;
-        if (offset > scrollY) {
-            start = 0;
-        } else {
-            start = scrollY - offset;
-        }
-        const startIndex = Math.floor(start / rowHeight);
-        const endIndex = Math.min(Math.ceil(end / rowHeight), rows.length);
-        setVisibleRange({ start: startIndex, end: endIndex });
-    }
-
     useLayoutEffect(() => {
-        const stableElement = document.querySelector('[data-main-scroller]');
-        if (!stableElement) return console.warn('cannot find scrolling element');
+        const mainScroller = document.querySelector('[data-main-scroller]');
+        const contentTube = document.querySelector('[data-content-tube]');
+        if (!mainScroller) return console.warn('cannot find scrolling element');
+        if (!contentTube) return console.warn('cannot find content tube');
+
+        /**
+         * When called, make the expensive call to `getBoundingClientRect` to determine the offset of
+         * the grid wrapper.
+         * @param {number} scrollY
+         */
+        function updateGlobals(scrollY) {
+            if (!safeAreaRef.current) return;
+            const rec = safeAreaRef.current.getBoundingClientRect();
+            gridOffset.current = rec.y + scrollY;
+        }
+
+        /**
+         * decide which the start/end indexes should be, based on scroll position.
+         * NOTE: this is called on scroll, so must not incur expensive checks/measurements - math only!
+         * @param {number} scrollY
+         */
+        function setVisibleRowsForOffset(scrollY) {
+            if (!safeAreaRef.current) return console.warn('cannot access ref');
+            if (!gridOffset.current) return console.warn('cannot access ref');
+            const offset = gridOffset.current;
+            const end = scrollY + window.innerHeight - offset;
+            let start;
+            if (offset > scrollY) {
+                start = 0;
+            } else {
+                start = scrollY - offset;
+            }
+            const startIndex = Math.floor(start / rowHeight);
+            const endIndex = Math.min(Math.ceil(end / rowHeight), rows.length);
+            setVisibleRange({ start: startIndex, end: endIndex });
+        }
+
         // always update globals first
-        updateGlobals(stableElement.scrollTop);
+        updateGlobals(mainScroller.scrollTop);
 
         // and set visible rows once the size is known
-        setVisibleRowsForOffset(stableElement.scrollTop);
+        setVisibleRowsForOffset(mainScroller.scrollTop);
 
         const controller = new AbortController();
 
         window.addEventListener(
             'resize',
             () => {
-                updateGlobals(stableElement.scrollTop);
-                setVisibleRowsForOffset(stableElement.scrollTop);
+                updateGlobals(mainScroller.scrollTop);
+                setVisibleRowsForOffset(mainScroller.scrollTop);
             },
             { signal: controller.signal },
         );
 
-        stableElement.addEventListener(
+        // when the content-tube grows, re-calc the layout
+        const resizer = new ResizeObserver(() => {
+            requestAnimationFrame(() => {
+                updateGlobals(mainScroller.scrollTop);
+                setVisibleRowsForOffset(mainScroller.scrollTop);
+            });
+        });
+        resizer.observe(contentTube);
+
+        // when the main area is scrolled, update the visible offset for the rows.
+        mainScroller.addEventListener(
             'scroll',
             () => {
-                setVisibleRowsForOffset(stableElement.scrollTop);
+                setVisibleRowsForOffset(mainScroller.scrollTop);
             },
             { signal: controller.signal },
         );
 
         return () => {
             controller.abort();
+            resizer.disconnect();
         };
     }, [rows.length]);
 
