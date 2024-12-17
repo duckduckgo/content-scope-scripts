@@ -52,10 +52,9 @@ export function themeFromBrowser(browserTheme, system) {
 
 /**
  * @param {object} props
- * @param {import("@preact/signals").Signal<'light' | 'dark'>} props.bg
  * @param {import("@preact/signals").Signal<'light' | 'dark'>} props.browser
  */
-export function BackgroundConsumer({ bg, browser }) {
+export function BackgroundConsumer({ browser }) {
     const { data } = useContext(CustomizerContext);
     const background = data.value.background;
 
