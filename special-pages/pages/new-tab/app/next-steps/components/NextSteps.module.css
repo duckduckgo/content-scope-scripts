@@ -85,13 +85,12 @@
         outline: none;
     }
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         &.supressActiveStateForSwitchToConfirmationText {
             &:active {
                 background-color: var(--color-black-at-9);
             }
         }
-
         &:hover:not(:active) {
             background-color: var(--color-black-at-9);
         }
@@ -113,13 +112,13 @@
     align-items: center;
     transition: all .2s ease-in;
     min-height: 26px;
-    
+
     svg {
         height: 1rem;
         width: 1rem;
         margin-right: var(--sp-2);
     }
-    
+
     p {
         font-size: calc(11 * var(--px-in-rem));
         line-height: calc(14 * var(--px-in-rem));
@@ -176,7 +175,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
         h2 {
             color: var(--ntp-text-on-primary);
             letter-spacing: 0.06px;

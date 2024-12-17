@@ -1,5 +1,6 @@
 .root {
     background: var(--ntp-surface-background-color);
+    backdrop-filter: blur(48px);
     border: 1px solid var(--ntp-surface-border-color);
     padding: var(--sp-6);
     border-radius: var(--border-radius-lg);
@@ -15,7 +16,7 @@
         }
     }
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         border-color: var(--color-white-at-9);
     }
 }
@@ -174,7 +175,7 @@
 
     &:has([data-errored=true]) {
         outline: 1px solid var(--ntp-surface-border-color);
-        @media screen and (prefers-color-scheme: dark) {
+        [data-theme=dark] & {
             outline-color: var(--color-white-at-9);
         }
     }
@@ -214,7 +215,7 @@
 
     background: var(--color-black-at-3);
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         background: var(--color-white-at-6);
     }
 }
@@ -225,7 +226,7 @@
     border-radius: calc(20 * var(--px-in-rem));
     background: var(--color-black-at-6);
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         background: var(--color-white-at-9);
     }
 }
