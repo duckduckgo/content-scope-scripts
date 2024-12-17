@@ -26,7 +26,8 @@ title: Customizer
   ],
   "settings": {
     "customizerDrawer": {
-      "state": "enabled"
+      "state": "enabled",
+      "autoOpen": false
     }
   },
   "customizer": {
@@ -124,6 +125,9 @@ title: Customizer
         "theme": "system"
       } 
       ```
+  
+- {@link "NewTab Messages".CustomizerAutoOpenSubscription `customizer_autoOpen`}.
+  - Send this into the page to trigger the customizer to be opened.
 
 ## Notifications
 

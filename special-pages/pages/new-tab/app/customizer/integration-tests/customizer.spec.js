@@ -18,6 +18,26 @@ test.describe('newtab customizer', () => {
         await ntp.openPage({ additional: { customizerDrawer: 'disabled' } });
         await cp.hasDefaultDarkBackground();
     });
+    test('Opens automatically from initialSetup settings', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { customizerDrawer: 'enabled', autoOpen: 'true' } });
+        await cp.closesCustomizer();
+    });
+    test('Opens automatically from subscription message', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { customizerDrawer: 'enabled' } });
+
+        // control
+        await cp.opensCustomizer();
+        // await page.screenshot({ path: 'abc.png' });
+        await cp.closesCustomizer();
+        // await page.screenshot({ path: 'abc1.png' });
+        await cp.customizerOpensAutomatically();
+    });
     test('loads with the default background', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);
@@ -183,6 +203,25 @@ test.describe('newtab customizer', () => {
         await cp.hasEmptyImagesPanel();
         await cp.acceptsImagesUpdate();
     });
+    test('loads without images, and handles root-level exceptions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { customizerDrawer: 'enabled' } });
+        await cp.opensCustomizer();
+        await cp.hasEmptyImagesPanel();
+        await cp.acceptsBadImagesUpdate();
+        await cp.closesCustomizer();
+    });
+    test('loads with images, and handles nested exceptions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { customizerDrawer: 'enabled', userImages: 'true', willThrowPageException: 'userImages' } });
+        await cp.opensCustomizer();
+        await cp.opensImages();
+        await cp.handlesNestedException();
+    });
     test('trigger file upload', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);
@@ -190,6 +229,15 @@ test.describe('newtab customizer', () => {
         await ntp.openPage({ additional: { customizerDrawer: 'enabled' } });
         await cp.opensCustomizer();
         await cp.uploadsFirstImage();
+    });
+    test('trigger additional file uploads', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { customizerDrawer: 'enabled', userImages: 'true' } });
+        await cp.opensCustomizer();
+        await cp.opensImages();
+        await cp.uploadsAdditional({ existing: 3 });
     });
     test('Sets theme', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -200,5 +248,13 @@ test.describe('newtab customizer', () => {
         await cp.lightThemeIsSelected();
         await cp.setsDarkTheme();
         await cp.darkThemeIsSelected();
+    });
+    test('opening settings', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { customizerDrawer: 'enabled', theme: 'light' } });
+        await cp.opensCustomizer();
+        await cp.opensSettings();
     });
 });

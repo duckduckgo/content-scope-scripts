@@ -21,7 +21,6 @@ import { useContext } from 'preact/hooks';
 export function App() {
     const platformName = usePlatformName();
     const customizerDrawer = useCustomizerDrawerSettings();
-
     const customizerKind = customizerDrawer.state === 'enabled' ? 'drawer' : 'menu';
 
     useGlobalDropzone();
@@ -37,10 +36,11 @@ export function App() {
         hidden,
         buttonId,
         drawerId
-    } = useDrawer();
+    } = useDrawer(customizerDrawer.autoOpen ? 'visible' : 'hidden');
 
     const tabIndex = useComputed(() => (hidden.value ? -1 : 0));
     const { toggle } = useDrawerControls();
+
     const { main, browser } = useContext(CustomizerThemesContext);
 
     return (
@@ -75,9 +75,7 @@ export function App() {
                         data-browser-panel
                     >
                         <div class={styles.asideContent}>
-                            <div class={styles.asideContentInner}>
-                                <CustomizerDrawer displayChildren={displayChildren} />
-                            </div>
+                            <CustomizerDrawer displayChildren={displayChildren} />
                         </div>
                     </aside>
                 )}

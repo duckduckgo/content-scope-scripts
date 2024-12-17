@@ -37,7 +37,20 @@
     > * {
         min-width: 0;
     }
+
+    label {
+        margin-left: auto;
+    }
 }
+
+.menuItemLabelEmbedded {
+    white-space: wrap;
+    gap: 6px;
+    > * {
+        min-width: auto;
+    }
+}
+
 
 .svg {
     flex-shrink: 0;
