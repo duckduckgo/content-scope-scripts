@@ -21,12 +21,15 @@
         background-color: transparent;
         color: var(--ntp-text-muted);
 
-        .iconBlock,
-        svg path {
+        .iconBlock {
             background-color: transparent;
             box-shadow: none;
-            fill-opacity: 0;
             transition: all 0.3s ease-in;
+
+            [data-theme=dark] & {
+                box-shadow: none;
+                background-color: transparent;
+            }
         }
 
         &:hover {
@@ -37,10 +40,6 @@
                 [data-theme=dark] & {
                     background-color: var(--color-white-at-12);
                 }
-            }
-
-            svg path {
-                fill-opacity: 1;
             }
         } 
 
