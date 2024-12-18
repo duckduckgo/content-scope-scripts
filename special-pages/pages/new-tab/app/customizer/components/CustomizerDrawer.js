@@ -20,6 +20,7 @@ export function CustomizerDrawer({ displayChildren }) {
                 close();
             }
         };
+
         // check once on page load
         checker();
 
@@ -34,6 +35,6 @@ export function CustomizerDrawer({ displayChildren }) {
 }
 
 function CustomizerConsumer() {
-    const { data } = useContext(CustomizerContext);
-    return <CustomizerDrawerInner data={data} />;
+    const { data, select, upload, setTheme, deleteImage } = useContext(CustomizerContext);
+    return <CustomizerDrawerInner data={data} select={select} onUpload={upload} setTheme={setTheme} deleteImage={deleteImage} />;
 }

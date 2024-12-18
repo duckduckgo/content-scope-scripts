@@ -2,10 +2,66 @@ import { h, Fragment } from 'preact';
 import { noop } from '../../utils.js';
 import { CustomizerButton } from './Customizer.js';
 import { VisibilityMenu } from './VisibilityMenu.js';
+import { BackgroundSection } from './BackgroundSection.js';
+import { ColorSelection } from './ColorSelection.js';
+import { GradientSelection } from './GradientSelection.js';
+import { useSignal } from '@preact/signals';
+import { ImageSelection } from './ImageSelection.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
-
 export const customizerExamples = {
+    'customizer.backgroundSection': {
+        factory: () => {
+            return (
+                <Provider>
+                    {({ data, select }) => {
+                        return <BackgroundSection data={data} onNav={noop('onNav')} onUpload={noop('onUpload')} select={select} />;
+                    }}
+                </Provider>
+            );
+        },
+    },
+    'customizer.colorSelection': {
+        factory: () => {
+            return (
+                <Provider>
+                    {({ data, select }) => {
+                        return <ColorSelection data={data} select={select} back={noop('back')} />;
+                    }}
+                </Provider>
+            );
+        },
+    },
+    'customizer.gradientSelection': {
+        factory: () => {
+            return (
+                <Provider>
+                    {({ data, select }) => {
+                        return <GradientSelection data={data} select={select} back={noop('back')} />;
+                    }}
+                </Provider>
+            );
+        },
+    },
+    'customizer.imageSelection': {
+        factory: () => {
+            return (
+                <Provider>
+                    {({ data, select }) => {
+                        return (
+                            <ImageSelection
+                                data={data}
+                                select={select}
+                                back={noop('back')}
+                                onUpload={noop('onUpload')}
+                                deleteImage={noop('deleteImage')}
+                            />
+                        );
+                    }}
+                </Provider>
+            );
+        },
+    },
     'customizer-menu': {
         factory: () => (
             <Fragment>
@@ -42,4 +98,22 @@ export const customizerExamples = {
 
 function MaxContent({ children }) {
     return <div style={{ display: 'grid', gridTemplateColumns: 'max-content' }}>{children}</div>;
+}
+
+function Provider({ children }) {
+    /** @type {import('../../../types/new-tab.js').CustomizerData} */
+    const data = {
+        background: { kind: 'hex', value: '#17afa8' },
+        theme: 'system',
+        userImages: [],
+        userColor: null,
+    };
+    const dataSignal = useSignal(data);
+    function select(bg) {
+        dataSignal.value = { ...dataSignal.value, background: bg };
+    }
+    function showPicker() {
+        console.log('no-op');
+    }
+    return children({ data: dataSignal, select, showPicker });
 }
