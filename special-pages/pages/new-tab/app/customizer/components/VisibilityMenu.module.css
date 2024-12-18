@@ -7,7 +7,7 @@
     border: 1px solid var(--color-black-at-9);
     box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12), 0px 8px 16px 0px rgba(0, 0, 0, 0.20), 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         border-color: var(--color-white-at-9);
         box-shadow: 0px 0px 0px 1px rgba(255, 255, 255, 0.09) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.50), 0px 2px 4px 0px rgba(0, 0, 0, 0.15), 0px 8px 16px 0px rgba(0, 0, 0, 0.40);
     }
@@ -20,6 +20,11 @@
     display: flex;
     flex-direction: column;
     gap: var(--sp-1);
+    font-size: var(--title-3-em-font-size);
+}
+
+.embedded {
+    font-size: var(--small-label-font-size);
 }
 
 .menuItemLabel {
@@ -27,7 +32,6 @@
     align-items: center;
     gap: 10px;
     white-space: nowrap;
-    font-size: var(--title-3-em-font-size);
     height: calc(28 * var(--px-in-rem));
 
     > * {
@@ -63,21 +67,21 @@
     border-radius: var(--border-radius-xs);
     border: 1px solid var(--color-black-at-48);
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         border-color: rgba(255, 255, 255, 0.42);
         background: rgba(255, 255, 255, 0.12);
     }
 
     &:hover {
         background: linear-gradient(0deg, var(--color-black-at-6) 0%, var(--color-black-at-6) 100%);
-        @media screen and (prefers-color-scheme: dark) {
+        [data-theme=dark] & {
             background: linear-gradient(0deg, var(--color-white-at-18) 0%, var(--color-white-at-18) 100%), var(--color-white-at-12);
         }
     }
 
     &:active {
         background: linear-gradient(0deg, var(--color-black-at-12) 0%, var(--color-black-at-12) 100%), var(--color-white-at-60);
-        @media screen and (prefers-color-scheme: dark) {
+        [data-theme=dark] & {
             background: linear-gradient(0deg, var(--color-white-at-24) 0%, var(--color-white-at-24) 100%), var(--color-white-at-12);
         }
     }
@@ -87,7 +91,7 @@
     background: var(--color-blue-50);
     border-color: var(--color-blue-50);
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         background: var(--color-blue-20);
         border-color: var(--color-blue-20);
     }
@@ -95,7 +99,7 @@
     &:hover {
         background: var(--color-blue-60);
         border-color: var(--color-blue-60);
-        @media screen and (prefers-color-scheme: dark) {
+        [data-theme=dark] & {
             background: var(--color-blue-30);
             border-color: var(--color-blue-30);
         }
@@ -105,7 +109,7 @@
         background: var(--color-blue-70);
         border-color: var(--color-blue-70);
 
-        @media screen and (prefers-color-scheme: dark) {
+        [data-theme=dark] & {
             background: var(--color-blue-40);
             border-color: var(--color-blue-40);
         }
@@ -120,7 +124,7 @@
 .menuItemLabel input:checked + .checkboxIcon svg path {
     stroke: white;
     opacity: 1;
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         stroke: black;
     }
 }
