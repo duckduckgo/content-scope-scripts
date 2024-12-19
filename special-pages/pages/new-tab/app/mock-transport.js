@@ -411,6 +411,7 @@ export function mockTransport() {
                                     return true;
                                 })
                                 .map((id) => {
+                                    // eslint-disable-next-line object-shorthand
                                     return { id: /** @type {any} */ (id) };
                                 }),
                         };

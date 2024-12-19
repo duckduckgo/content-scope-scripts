@@ -1,5 +1,4 @@
 /* eslint-disable no-redeclare, no-global-assign */
-/* global cloneInto, exportFunction, mozProxies */
 import { Set } from './captured-globals.js';
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
@@ -22,25 +21,14 @@ export function getInjectionElement() {
     return document.head || document.documentElement;
 }
 
-// Tests don't define this variable so fallback to behave like chrome
-const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false;
-
 /**
  * Creates a script element with the given code to avoid Firefox CSP restrictions.
  * @param {string} css
  * @returns {HTMLLinkElement | HTMLStyleElement}
  */
 export function createStyleElement(css) {
-    let style;
-    if (hasMozProxies) {
-        style = document.createElement('link');
-        style.href = 'data:text/css,' + encodeURIComponent(css);
-        style.setAttribute('rel', 'stylesheet');
-        style.setAttribute('type', 'text/css');
-    } else {
-        style = document.createElement('style');
-        style.innerText = css;
-    }
+    const style = document.createElement('style');
+    style.innerText = css;
     return style;
 }
 
@@ -418,7 +406,7 @@ export class DDGProxy {
             }
             // The normal return value
             if (isExempt) {
-                return DDGReflect.apply(...args);
+                return DDGReflect.apply(args[0], args[1], args[2]);
             }
             return proxyObject.apply(...args);
         };
@@ -434,30 +422,16 @@ export class DDGProxy {
             }
             return DDGReflect.get(target, prop, receiver);
         };
-        if (hasMozProxies) {
-            this._native = objectScope[property];
-            const handler = new globalObj.wrappedJSObject.Object();
-            handler.apply = exportFunction(outputHandler, globalObj);
-            handler.get = exportFunction(getMethod, globalObj);
-            // @ts-expect-error wrappedJSObject is not a property of objectScope
-            this.internal = new globalObj.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler);
-        } else {
-            this._native = objectScope[property];
-            const handler = {};
-            handler.apply = outputHandler;
-            handler.get = getMethod;
-            this.internal = new globalObj.Proxy(objectScope[property], handler);
-        }
+        this._native = objectScope[property];
+        const handler = {};
+        handler.apply = outputHandler;
+        handler.get = getMethod;
+        this.internal = new globalObj.Proxy(objectScope[property], handler);
     }
 
     // Actually apply the proxy to the native property
     overload() {
-        if (hasMozProxies) {
-            // @ts-expect-error wrappedJSObject is not a property of objectScope
-            exportFunction(this.internal, this.objectScope, { defineAs: this.property });
-        } else {
-            this.objectScope[this.property] = this.internal;
-        }
+        this.objectScope[this.property] = this.internal;
     }
 
     overloadDescriptor() {
@@ -500,17 +474,8 @@ export function postDebugMessage(feature, message, allowNonDebug = false) {
     });
 }
 
-export let DDGReflect;
-export let DDGPromise;
-
-// Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-if (hasMozProxies) {
-    DDGPromise = globalObj.wrappedJSObject.Promise;
-    DDGReflect = globalObj.wrappedJSObject.Reflect;
-} else {
-    DDGPromise = globalObj.Promise;
-    DDGReflect = globalObj.Reflect;
-}
+export const DDGPromise = globalObj.Promise;
+export const DDGReflect = globalObj.Reflect;
 
 /**
  * @param {string | null} topLevelHostname
@@ -746,13 +711,6 @@ export function isPlatformSpecificFeature(featureName) {
 }
 
 export function createCustomEvent(eventName, eventDetail) {
-    // By default, Firefox protects the event detail Object from the page,
-    // leading to "Permission denied to access property" errors.
-    // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-    if (hasMozProxies) {
-        eventDetail = cloneInto(eventDetail, window);
-    }
-
     // @ts-expect-error - possibly null
     return new OriginalCustomEvent(eventName, eventDetail);
 }
@@ -762,7 +720,9 @@ export function legacySendMessage(messageType, options) {
     // FF & Chrome
     return (
         originalWindowDispatchEvent &&
-        originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+        originalWindowDispatchEvent(
+            createCustomEvent('sendMessageProxy' + messageSecret, { detail: JSON.stringify({ messageType, options }) }),
+        )
     );
     // TBD other platforms
 }

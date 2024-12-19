@@ -1,96 +1,45 @@
 /**
- * @module Mozilla integration
+ * @module Mozilla MV2 main world integration
  */
 import { load, init, update } from '../src/content-scope-features.js';
 import { isTrackerOrigin } from '../src/trackers';
 import { computeLimitedSiteObject } from '../src/utils.js';
 
-const allowedMessages = [
-    'getClickToLoadState',
-    'getYouTubeVideoDetails',
-    'openShareFeedbackPage',
-    'addDebugFlag',
-    'setYoutubePreviewsEnabled',
-    'unblockClickToLoadContent',
-    'updateYouTubeCTLAddedFlag',
-    'updateFacebookCTLBreakageFlags',
-];
-const messageSecret = randomString();
+const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
 
-function randomString() {
-    const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
-    return num.toString().replace('0.', '');
-}
+const trackerLookup = import.meta.trackerLookup;
 
-function initCode() {
-    const trackerLookup = import.meta.trackerLookup;
-    load({
-        platform: {
-            name: 'extension',
-        },
-        trackerLookup,
-        documentOriginIsTracker: isTrackerOrigin(trackerLookup),
-        site: computeLimitedSiteObject(),
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        bundledConfig: $BUNDLED_CONFIG$,
-    });
+load({
+    platform: {
+        name: 'extension',
+    },
+    trackerLookup,
+    documentOriginIsTracker: isTrackerOrigin(trackerLookup),
+    site: computeLimitedSiteObject(),
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+    bundledConfig: $BUNDLED_CONFIG$,
+});
 
-    chrome.runtime.sendMessage(
-        {
-            messageType: 'registeredContentScript',
-            options: {
-                documentUrl: window.location.href,
-            },
-        },
-        (message) => {
-            // Background has disabled features
-            if (!message) {
-                return;
-            }
-            if (message.debug) {
-                window.addEventListener('message', (m) => {
-                    if (m.data.action && m.data.message) {
-                        chrome.runtime.sendMessage({
-                            messageType: 'debuggerMessage',
-                            options: m.data,
-                        });
-                    }
-                });
-            }
-            message.messageSecret = messageSecret;
-            init(message);
-        },
-    );
+// @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+window.addEventListener(secret, ({ detail: encodedMessage }) => {
+    if (!encodedMessage) return;
+    const message = JSON.parse(encodedMessage);
 
-    chrome.runtime.onMessage.addListener((message) => {
-        // forward update messages to the embedded script
-        if (message && message.type === 'update') {
+    switch (message.type) {
+        case 'update':
             update(message);
-        }
-    });
+            break;
+        case 'register':
+            if (message.argumentsObject) {
+                message.argumentsObject.messageSecret = secret;
+                init(message.argumentsObject);
+            }
+            break;
+    }
+});
 
-    window.addEventListener('sendMessageProxy' + messageSecret, (event) => {
-        event.stopImmediatePropagation();
-
-        if (!(event instanceof CustomEvent) || !event?.detail) {
-            return console.warn('no details in sendMessage proxy', event);
-        }
-
-        const messageType = event.detail?.messageType;
-        if (!allowedMessages.includes(messageType)) {
-            return console.warn('Ignoring invalid sendMessage messageType', messageType);
-        }
-
-        chrome.runtime.sendMessage(event.detail, (response) => {
-            const message = {
-                messageType: 'response',
-                responseMessageType: messageType,
-                response,
-            };
-
-            update(message);
-        });
-    });
-}
-
-initCode();
+window.dispatchEvent(
+    new CustomEvent('ddg-secret', {
+        detail: secret,
+    }),
+);

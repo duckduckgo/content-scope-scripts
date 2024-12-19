@@ -33,7 +33,6 @@ const checks = {
         file: join(BUILD, 'chrome-mv3/inject.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'cloneInto(', includes: false },
             { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true },
         ],
     },
@@ -41,7 +40,6 @@ const checks = {
         file: join(BUILD, 'firefox/inject.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'cloneInto(', includes: true },
             { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true },
         ],
     },
