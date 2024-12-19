@@ -90,7 +90,7 @@
 
 .bgListItem {
     display: grid;
-    grid-row-gap: 6px;
+    grid-row-gap: 4px;
     white-space: nowrap;
     position: relative;
 
@@ -102,7 +102,7 @@
 }
 .bgPanel {
     display: grid;
-    aspect-ratio: 16/10;
+    aspect-ratio: 16/10.6;
     border-radius: 4px;
     align-items: center;
     justify-content: center;

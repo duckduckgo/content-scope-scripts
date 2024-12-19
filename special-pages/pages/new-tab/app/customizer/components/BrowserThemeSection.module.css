@@ -7,7 +7,7 @@
 .themeItem {
     display: grid;
     justify-items: center;
-    grid-row-gap: 6px;
+    grid-row-gap: 4px;
 }
 .themeButton {
     display: block;

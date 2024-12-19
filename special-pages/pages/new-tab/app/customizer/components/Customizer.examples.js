@@ -88,26 +88,28 @@ export const customizerExamples = {
                     ]}
                 />
                 <br />
-                <EmbeddedVisibilityMenu
-                    rows={[
-                        {
-                            id: 'favorites',
-                            title: 'Favorites',
-                            icon: 'star',
-                            toggle: noop('toggle favorites'),
-                            visibility: 'hidden',
-                            index: 0,
-                        },
-                        {
-                            id: 'privacyStats',
-                            title: 'Privacy Stats',
-                            icon: 'shield',
-                            toggle: noop('toggle favorites'),
-                            visibility: 'visible',
-                            index: 1,
-                        },
-                    ]}
-                />
+                <div style="width: 206px; border: 1px dotted black">
+                    <EmbeddedVisibilityMenu
+                        rows={[
+                            {
+                                id: 'favorites',
+                                title: 'Favorites',
+                                icon: 'star',
+                                toggle: noop('toggle favorites'),
+                                visibility: 'hidden',
+                                index: 0,
+                            },
+                            {
+                                id: 'privacyStats',
+                                title: 'Privacy Stats',
+                                icon: 'shield',
+                                toggle: noop('toggle favorites'),
+                                visibility: 'visible',
+                                index: 1,
+                            },
+                        ]}
+                    />
+                </div>
             </MaxContent>
         ),
     },

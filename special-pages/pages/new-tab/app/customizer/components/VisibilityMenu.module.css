@@ -25,6 +25,7 @@
 
 .embedded {
     font-size: var(--small-label-font-size);
+    gap: 12px;
 }
 
 .menuItemLabel {
@@ -46,6 +47,7 @@
 .menuItemLabelEmbedded {
     white-space: wrap;
     gap: 6px;
+    height: auto;
     > * {
         min-width: auto;
     }

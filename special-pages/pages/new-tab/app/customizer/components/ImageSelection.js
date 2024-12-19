@@ -8,8 +8,12 @@ import { BackChevron, PlusIcon } from '../../components/Icons.js';
 import { useContext } from 'preact/hooks';
 import { CustomizerThemesContext } from '../CustomizerProvider.js';
 import { InlineError } from '../../InlineError.js';
+import { useTypedTranslationWith } from '../../types.js';
 
 /**
+ * @import enStrings from '../strings.json';
+ * @import ntpStrings from '../../strings.json';
+ * @typedef {enStrings & ntpStrings} strings
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, PredefinedGradient } from '../../../types/new-tab.js'
  */
 
@@ -22,6 +26,7 @@ import { InlineError } from '../../InlineError.js';
  * @param {(id: string) => void} props.deleteImage
  */
 export function ImageSelection({ data, select, back, onUpload, deleteImage }) {
+    const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
     function onClick(event) {
         let target = /** @type {HTMLElement|null} */ (event.target);
         const selector = `[role="radio"][aria-checked="false"][data-id]`;
@@ -45,6 +50,9 @@ export function ImageSelection({ data, select, back, onUpload, deleteImage }) {
                 <InlineError named={'Image Selection'}>
                     <ImageGrid data={data} deleteImage={deleteImage} onUpload={onUpload} />
                 </InlineError>
+            </div>
+            <div className={styles.sectionBody}>
+                <p>{t('customizer_image_privacy')}</p>
             </div>
         </div>
     );
