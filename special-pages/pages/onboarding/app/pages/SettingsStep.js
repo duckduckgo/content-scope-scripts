@@ -7,10 +7,11 @@ import { Stack } from '../components/Stack';
 import { Button, ButtonBar } from '../components/Buttons';
 import { useGlobalDispatch, useGlobalState } from '../global';
 import { useRollin } from '../hooks/useRollin';
-import { Switch } from '../components/Switch';
+import { Switch } from '../../../../shared/components/Switch/Switch.js';
 import { useTypedTranslation } from '../types';
 import { RiveAnimation } from '../components/RiveAnimation';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider';
+import { usePlatformName } from '../components/SettingsProvider.js';
 
 /**
  * @param {object} props
@@ -96,6 +97,8 @@ export function SettingsStep({ onNextPage, data, metaData, subtitle }) {
 export function SettingListItem({ index, item, dispatch }) {
     const data = item.data;
     const { t } = useTypedTranslation();
+    const platformName = /** @type {'macos'|'windows'} */ (usePlatformName());
+    const { isDarkMode } = useEnv();
 
     const accept = () => {
         dispatch({
@@ -145,6 +148,8 @@ export function SettingListItem({ index, item, dispatch }) {
                             checked={enabled}
                             onChecked={accept}
                             onUnchecked={deny}
+                            platformName={platformName}
+                            theme={isDarkMode ? 'dark' : 'light'}
                         />
                     )}
                 </FadeIn>
@@ -169,8 +174,6 @@ export function SettingListItem({ index, item, dispatch }) {
         }
         return { kind: 'button-bar' };
     })();
-
-    const { isDarkMode } = useEnv();
 
     return (
         <ListItem
