@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 import { noop } from '../../utils.js';
 import { CustomizerButton } from './Customizer.js';
 import { EmbeddedVisibilityMenu, VisibilityMenu } from './VisibilityMenu.js';
