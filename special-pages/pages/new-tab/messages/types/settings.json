@@ -10,6 +10,10 @@
         "state": {
           "type": "string",
           "enum": ["enabled", "disabled"]
+        },
+        "autoOpen": {
+          "description": "Should the customizer drawer be opened on page load?",
+          "type": "boolean"
         }
       }
     }

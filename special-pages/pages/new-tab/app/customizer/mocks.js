@@ -8,7 +8,7 @@ import { values } from './values.js';
 
 const url = new URL(window.location.href);
 
-export function customizerMockTransport({ read, write, broadcast }) {
+export function customizerMockTransport() {
     const channel = new BroadcastChannel('ntp_customizer');
     /** @type {Map<SubscriptionNames, any>} */
     const subscriptions = new Map();
@@ -139,6 +139,12 @@ export function customizerData() {
 
     if (url.searchParams.has('userImages')) {
         customizer.userImages = [values.userImages['01'], values.userImages['02'], values.userImages['03']];
+        if (url.searchParams.get('willThrowPageException') === 'userImages') {
+            customizer.userImages[0] = {
+                ...customizer.userImages[0],
+                id: '__will_throw__',
+            };
+        }
     }
     if (url.searchParams.has('userColor')) {
         const hex = `#` + url.searchParams.get('userColor');
