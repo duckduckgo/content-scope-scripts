@@ -2,8 +2,10 @@
     & h2,
     & p {
         background: var(--color-black-at-6);
-
-        @media (prefers-color-scheme: dark) {
+    }
+    [data-theme="dark"] {
+        & h2,
+        & p {
             background: var(--color-white-at-6);
         }
     }
@@ -43,7 +45,7 @@
             left: 0;
         }
 
-        @media (prefers-color-scheme: dark) {
+        [data-theme=dark] {
             &::before {
                 background: var(--color-white-at-6);
             }

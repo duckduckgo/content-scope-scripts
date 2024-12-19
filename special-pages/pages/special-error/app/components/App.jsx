@@ -1,13 +1,13 @@
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider';
-import { useMessaging } from '../providers/MessagingProvider';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
-import { ErrorFallback } from './ErrorFallback';
-import { useTypedTranslation } from '../types';
+import { useMessaging } from '../providers/MessagingProvider';
 import { useErrorData } from '../providers/SpecialErrorProvider';
-import { Warning } from './Warning';
+import { useTypedTranslation } from '../types';
 import { AdvancedInfo } from './AdvancedInfo';
+import { ErrorFallback } from './ErrorFallback';
+import { Warning } from './Warning';
 
 import styles from './App.module.css';
 
@@ -50,6 +50,7 @@ function PageTitle() {
 
 export function App() {
     const { messaging } = useMessaging();
+    const { isDarkMode } = useEnv();
 
     /**
      * @param {Error} error
@@ -61,7 +62,7 @@ export function App() {
     }
 
     return (
-        <main className={styles.main}>
+        <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'}>
             <PageTitle />
             <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
                 <SpecialErrorView />

@@ -65,7 +65,7 @@
         border-top: 1px solid var(--color-black-at-9);
         width: 100%;
 
-        @media (prefers-color-scheme: dark) {
+        [data-theme='dark'] & {
             border-top: 1px solid var(--color-white-at-9);
         }
     }

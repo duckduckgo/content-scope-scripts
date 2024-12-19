@@ -9,10 +9,8 @@
     --advanced-info-bg: var(--color-black-at-3);
 
     --visit-site-color: var(--color-black);
-}
 
-@media (prefers-color-scheme: dark) {
-    :root {
+    [data-theme='dark'] {
         /* Dark theme colors */
         --theme-background-color: var(--color-gray-85);
         --theme-text-primary-color: var(--color-white-at-84);
@@ -23,10 +21,10 @@
         --advanced-info-bg: #2f2f2f;
 
         --visit-site-color: var(--color-gray-40);
-    }
-
-    [data-platform-name="ios"] {
-        --theme-background-color: #222;
+        
+        [data-platform-name="ios"] {
+            --theme-background-color: #222;
+        }
     }
 }
 
