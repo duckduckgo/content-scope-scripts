@@ -46,7 +46,7 @@ export function Customizer() {
             <CustomizerButton buttonId={BUTTON_ID} menuId={MENU_ID} toggleMenu={toggleMenu} buttonRef={buttonRef} isOpen={isOpen} />
             <div id={MENU_ID} class={cn(styles.dropdownMenu, { [styles.show]: isOpen })} aria-labelledby={BUTTON_ID}>
                 <VisibilityMenuPopover>
-                    <VisibilityMenu rows={rowData} variant={'popover'} />
+                    <VisibilityMenu rows={rowData} />
                 </VisibilityMenuPopover>
             </div>
         </div>

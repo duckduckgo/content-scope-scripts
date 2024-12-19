@@ -47,6 +47,10 @@ export class NewTabPage {
      * @param {{message: string}} params
      */
     reportPageException(params) {
+        if (!params || !('message' in params) || typeof params.message !== 'string') {
+            console.trace('reportPageException INCORRECT params', params);
+            return this.messaging.notify('reportPageException', { message: 'an unknown error was reported' });
+        }
         this.messaging.notify('reportPageException', params);
     }
 
@@ -56,6 +60,14 @@ export class NewTabPage {
      */
     contextMenu(params) {
         this.messaging.notify('contextMenu', params);
+    }
+
+    /**
+     * Sent when a right-click occurs, and wasn't intercepted by another widget
+     * @param {import('../types/new-tab.ts').OpenAction} params
+     */
+    open(params) {
+        this.messaging.notify('open', params);
     }
 
     /**

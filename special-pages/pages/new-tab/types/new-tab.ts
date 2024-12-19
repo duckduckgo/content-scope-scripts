@@ -100,6 +100,7 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OpenNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | RmfDismissNotification
@@ -122,6 +123,7 @@ export interface NewTabMessages {
     | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
+    | CustomizerAutoOpenSubscription
     | CustomizerOnBackgroundUpdateSubscription
     | CustomizerOnColorUpdateSubscription
     | CustomizerOnImagesUpdateSubscription
@@ -351,6 +353,16 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/open.notify.json"
+ */
+export interface OpenNotification {
+  method: "open";
+  params: OpenAction;
+}
+export interface OpenAction {
+  target: "settings";
+}
+/**
  * Generated from @see "../messages/reportInitException.notify.json"
  */
 export interface ReportInitExceptionNotification {
@@ -532,6 +544,10 @@ export interface WidgetListItem {
 export interface NewTabPageSettings {
   customizerDrawer?: {
     state: "enabled" | "disabled";
+    /**
+     * Should the customizer drawer be opened on page load?
+     */
+    autoOpen?: boolean;
   };
 }
 export interface CustomizerData {
@@ -631,6 +647,12 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/customizer_autoOpen.subscribe.json"
+ */
+export interface CustomizerAutoOpenSubscription {
+  subscriptionEvent: "customizer_autoOpen";
 }
 /**
  * Generated from @see "../messages/customizer_onBackgroundUpdate.subscribe.json"

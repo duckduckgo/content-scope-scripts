@@ -2,7 +2,7 @@
     --default-light-bg: var(--color-gray-0);
     --default-dark-bg: var(--color-gray-85);
     --ntp-gap: 2rem;
-    --ntp-drawer-width: calc(236 * var(--px-in-rem));
+    --ntp-drawer-width: calc(224 * var(--px-in-rem));
     --ntp-drawer-scroll-width: 12px;
     --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
 
@@ -24,7 +24,7 @@
     /* label small */
     --small-label-font-size: 11px;
     --small-label-font-weight: 400;
-    --small-label-line-height: 11px;
+    --small-label-line-height: 14px;
 
     --border-radius-lg: 12px;
     --border-radius-md: 8px;
@@ -52,7 +52,7 @@
     --ntp-background-color: var(--default-dark-bg);
     --ntp-surface-background-color: var(--color-black-at-18);
     --ntp-surfaces-panel-background-color: #222222;
-    --ntp-surface-border-color: var(--color-white-at-9);
+    --ntp-surface-border-color: var(--color-white-at-12);
     --ntp-text-normal: var(--color-white-at-84);
     --ntp-text-muted: var(--color-white-at-60);
     --ntp-color-primary: var(--color-blue-30);
