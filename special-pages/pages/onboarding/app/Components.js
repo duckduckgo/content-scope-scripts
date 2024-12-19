@@ -12,8 +12,7 @@ import { h } from 'preact';
 import { Background } from './components/Background';
 import { settingsRowItems } from './data';
 import { Summary } from './pages/Summary';
-import { Switch } from './components/Switch';
-import { useState } from 'preact/hooks';
+import { Switch } from '../../../shared/components/Switch/Switch.js';
 import { Typed } from './components/Typed';
 import { CleanBrowsing } from './pages/CleanBrowsing';
 import { useTypedTranslation } from './types';
@@ -25,20 +24,6 @@ function noop(name) {
     return () => {
         console.log('clicked ' + name);
     };
-}
-
-function NewCheck({ variant }) {
-    const [selected, setSelected] = useState(false);
-    return (
-        <Switch
-            pending={false}
-            variant={variant}
-            ariaLabel={'op'}
-            checked={selected}
-            onChecked={() => setSelected(true)}
-            onUnchecked={() => setSelected(false)}
-        />
-    );
 }
 
 export function Components() {
@@ -77,27 +62,14 @@ export function Components() {
                         <CleanBrowsing onNextPage={console.log} />
                     </div>
                     <div>
-                        <ButtonBar>
-                            <NewCheck variant={'windows'} />
-                            <NewCheck variant={'apple'} />
-                        </ButtonBar>
-                        <ButtonBar>
-                            <Switch
-                                pending={false}
-                                ariaLabel={'op'}
-                                checked={true}
-                                onChecked={noop('onChecked')}
-                                onUnchecked={noop('onUnchecked')}
-                            />
-                            <Switch
-                                pending={false}
-                                ariaLabel={'op'}
-                                variant={'apple'}
-                                checked={true}
-                                onChecked={noop('onChecked')}
-                                onUnchecked={noop('onUnchecked')}
-                            />
-                        </ButtonBar>
+                        <p>On Light</p>
+                        <AllSwitches theme={'light'} />
+                    </div>
+                    <div>
+                        <p>On Dark</p>
+                        <div style="background: #333; padding: 1rem;">
+                            <AllSwitches theme={'dark'} />
+                        </div>
                     </div>
                     <ButtonBar>
                         <Button size="large">L Button</Button>
@@ -285,5 +257,52 @@ export function Components() {
             <div className={classNames(styles.foreground, styles.layer2)} />
             <div className={classNames(styles.foreground, styles.layer3)} />
         </main>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {'light' | 'dark'} props.theme
+ */
+function AllSwitches({ theme = 'light' }) {
+    return (
+        <ButtonBar>
+            <Switch
+                pending={false}
+                ariaLabel={'op'}
+                checked={true}
+                onChecked={noop('onChecked')}
+                onUnchecked={noop('onUnchecked')}
+                platformName={'macos'}
+                theme={theme}
+            />
+            <Switch
+                pending={false}
+                ariaLabel={'op'}
+                checked={false}
+                onChecked={noop('onChecked')}
+                onUnchecked={noop('onUnchecked')}
+                platformName={'macos'}
+                theme={theme}
+            />
+            <Switch
+                pending={false}
+                ariaLabel={'op'}
+                platformName={'windows'}
+                checked={true}
+                onChecked={noop('onChecked')}
+                onUnchecked={noop('onUnchecked')}
+                theme={theme}
+            />
+            <Switch
+                pending={false}
+                ariaLabel={'op'}
+                platformName={'windows'}
+                checked={false}
+                onChecked={noop('onChecked')}
+                onUnchecked={noop('onUnchecked')}
+                theme={theme}
+            />
+        </ButtonBar>
     );
 }
