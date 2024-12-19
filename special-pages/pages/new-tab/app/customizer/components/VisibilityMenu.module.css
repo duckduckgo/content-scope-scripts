@@ -45,7 +45,7 @@
 }
 
 .menuItemLabelEmbedded {
-    white-space: wrap;
+    white-space: normal;
     gap: 6px;
     height: auto;
     > * {
