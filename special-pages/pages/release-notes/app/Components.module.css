@@ -8,7 +8,7 @@
         border-bottom: 1px solid black;
         width: 100%;
 
-        @media (prefers-color-scheme: dark) {
+        [data-theme='dark'] & {
             border-bottom: 1px solid white;
         }
     }

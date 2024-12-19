@@ -7,4 +7,7 @@
     @media (prefers-color-scheme: dark) {
         background: url(../../assets/img/Logo-Horizontal-Dark.svg) no-repeat;
     }
+    [data-theme="dark"] & {
+        background: url(../../assets/img/Logo-Horizontal-Dark.svg) no-repeat;
+    }
 }

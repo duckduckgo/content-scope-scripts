@@ -18,6 +18,7 @@ import styles from './App.module.css';
  */
 export function App({ children }) {
     const { messages } = useMessaging();
+    const { isDarkMode } = useEnv();
     /** @type {ReturnType<typeof useState<UpdateMessage>>} */
     const [releaseData, setReleaseData] = useState();
 
@@ -37,7 +38,7 @@ export function App({ children }) {
         messages?.reportPageException({ message });
     }
     return (
-        <main className={styles.main}>
+        <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'}>
             <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
                 <header className={styles.header}>
                     <DuckDuckGoLogo />

@@ -135,6 +135,14 @@
         --theme-text-link-color: var(--ddg-color-primary-dark);
     }
 
+    [data-theme='dark'] {
+        --theme-background-color: var(--color-gray-95);
+
+        --theme-text-primary-color: var(--color-white-at-85);
+        --theme-text-secondary-color: var(--color-white-at-50);
+        --theme-text-link-color: var(--ddg-color-primary-dark);
+    }
+
     /* macOS */
     --macos-text-primary: var(--color-black-at-84);
 

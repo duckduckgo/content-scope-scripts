@@ -5,7 +5,7 @@
     --sp-2_5: calc(10 * var(--px-in-rem)); /* 10px */
     --sp-1_5: calc(6 * var(--px-in-rem));  /* 6px */
 
-    @media (prefers-color-scheme: dark) {
+    [data-theme='dark'] & {
         --bullet-color: var(--color-blue-20);
     }
 }
@@ -75,10 +75,10 @@
 
 @keyframes spinner {
     0% {
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
     100% {
-      transform: rotate(360deg);
+        transform: rotate(360deg);
     }
 }
 
