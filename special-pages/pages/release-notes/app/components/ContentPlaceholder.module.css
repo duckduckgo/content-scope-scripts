@@ -1,11 +1,15 @@
 .contentPlaceholder {
+
     & h2,
     & p {
         background: var(--color-black-at-6);
 
     }
+
     [data-theme=dark] & {
-        & h2, & p {
+
+        & h2,
+        & p {
 
             background: var(--color-white-at-6);
         }
@@ -46,7 +50,7 @@
             left: 0;
         }
 
-        
+
 
         p {
             width: 100%;
@@ -56,7 +60,7 @@
             }
         }
     }
-    
+
     [data-theme=dark] & {
         li::before {
             background: var(--color-white-at-6);

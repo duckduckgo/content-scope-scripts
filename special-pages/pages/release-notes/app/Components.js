@@ -1,23 +1,22 @@
 import { h } from 'preact';
-import { DuckDuckGoLogo } from '../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo';
-import {
-    PageTitle,
-    UpdateStatus,
-    ReleaseNotesHeading,
-    ReleaseNotesSubheading,
-    ReleaseNotesList,
-    ReleaseNotesContent,
-    ReleaseNotes,
-} from './components/ReleaseNotes';
+import { useEffect, useState } from 'preact/hooks';
 import { Button } from '../../../shared/components/Button/Button';
 import { Card } from '../../../shared/components/Card/Card';
-import { ContentPlaceholder } from './components/ContentPlaceholder';
-import { useTypedTranslation } from '../app/types';
-
-import styles from './Components.module.css';
-import { sampleData } from './sampleData.js';
-import { useEffect, useState } from 'preact/hooks';
+import { DuckDuckGoLogo } from '../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo';
 import { useEnv } from '../../../shared/components/EnvironmentProvider';
+import { useTypedTranslation } from '../app/types';
+import styles from './Components.module.css';
+import { ContentPlaceholder } from './components/ContentPlaceholder';
+import {
+    PageTitle,
+    ReleaseNotes,
+    ReleaseNotesContent,
+    ReleaseNotesHeading,
+    ReleaseNotesList,
+    ReleaseNotesSubheading,
+    UpdateStatus,
+} from './components/ReleaseNotes';
+import { sampleData } from './sampleData.js';
 
 export function Components() {
     const { t } = useTypedTranslation();

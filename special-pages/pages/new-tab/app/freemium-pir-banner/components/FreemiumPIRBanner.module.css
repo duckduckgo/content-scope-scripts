@@ -62,12 +62,13 @@
 
 
 @keyframes animate-fade {
-    0% { 
-        opacity: 0; 
-        scale: 0.98; 
+    0% {
+        opacity: 0;
+        scale: 0.98;
     }
-    100% { 
-        opacity: 1; 
+
+    100% {
+        opacity: 1;
         scale: 1;
     }
 }

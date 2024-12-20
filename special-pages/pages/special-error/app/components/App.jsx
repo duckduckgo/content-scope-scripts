@@ -1,15 +1,14 @@
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider';
-import { useMessaging } from '../providers/MessagingProvider';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
-import { ErrorFallback } from './ErrorFallback';
-import { useTypedTranslation } from '../types';
+import { useMessaging } from '../providers/MessagingProvider';
 import { useErrorData } from '../providers/SpecialErrorProvider';
-import { Warning } from './Warning';
+import { useTypedTranslation } from '../types';
 import { AdvancedInfo } from './AdvancedInfo';
-
 import styles from './App.module.css';
+import { ErrorFallback } from './ErrorFallback';
+import { Warning } from './Warning';
 
 export function SpecialErrorView() {
     const [advancedInfoVisible, setAdvancedInfoVisible] = useState(false);
@@ -50,7 +49,7 @@ function PageTitle() {
 
 export function App() {
     const { messaging } = useMessaging();
-    const { isDarkMode } = useEnv()
+    const { isDarkMode } = useEnv();
 
     /**
      * @param {Error} error

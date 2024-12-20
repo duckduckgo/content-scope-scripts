@@ -1,12 +1,12 @@
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import { useMessaging } from '../index';
-import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
-import { ErrorFallback } from './ErrorFallback';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 import { DuckDuckGoLogo } from '../../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo';
-import { ReleaseNotes } from './ReleaseNotes';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider';
+import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
+import { useMessaging } from '../index';
 import styles from './App.module.css';
+import { ErrorFallback } from './ErrorFallback';
+import { ReleaseNotes } from './ReleaseNotes';
 
 /**
  * @typedef {import('../../types/release-notes.js').UpdateMessage} UpdateMessage
