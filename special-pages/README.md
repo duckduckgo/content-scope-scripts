@@ -24,6 +24,10 @@ This allows each respective platform to configure their integrations to use the 
     - http://127.0.0.1:3210/build/integration/pages/duckplayer
     - http://127.0.0.1:3210/build/integration/pages/special-error
 
+### Styles
+
+Instead of dark mode media queries in the CSS, we rely on `data-theme` attribute set at the App level and update properties. This does change the specificity of rules set in this selector vs a media query.
+
 ### Integration Tests
 
 Ensure these commands are run from the `special-pages` folder.
@@ -36,7 +40,7 @@ npm run test-int -- --project ios
 # to *only* run screenshot tests
 npm run test.screenshots
 # to also update screenshots (if you've made changes to anything visual)
-npm run test.screenshots -- --update-snapshots 
+npm run test.screenshots -- --update-snapshots
 ```
 
 The process is as follows:
