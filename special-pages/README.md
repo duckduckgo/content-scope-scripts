@@ -35,7 +35,7 @@ When working in this section of the repo, one tends to be focused on a certain s
 
 ### Styles
 
-Instead of dark mode media queries in the CSS, we rely on `data-theme` attribute set at the App level and update properties. This does change the specificity of rules set in this selector vs a media query.
+Instead of dark mode media queries in the CSS, we rely on `data-theme` attribute set at the App level and update properties inside rules for `[data-theme=dark]` or `[data-theme=dark] &`. This does change the specificity of properties set in this selector vs a media query.
 
 ### Integration Tests
 
