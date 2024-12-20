@@ -1,5 +1,6 @@
 .card {
     background-color: var(--ntp-surface-background-color);
+    backdrop-filter: blur(48px);
     border: 1px solid var(--ntp-surface-border-color);
     padding: var(--sp-2) var(--sp-4);
     border-radius: var(--border-radius-lg);
@@ -9,7 +10,6 @@
     justify-content: flex-start;
     align-items: center;
     text-align: center;
-    backdrop-filter: blur(48px);
     max-width: calc(240 * var(--px-in-rem));
     min-height: calc(166 * var(--px-in-rem));
     font-size: var(--body-font-size);

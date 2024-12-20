@@ -16,10 +16,6 @@
     &.icon {
         padding-left: var(--sp-2);
     }
-
-    [data-theme="dark"] & {
-        background-color: var(--color-white-at-6);
-    }
 }
 
 .iconBlock {
