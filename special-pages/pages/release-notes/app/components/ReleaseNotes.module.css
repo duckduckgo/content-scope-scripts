@@ -1,6 +1,5 @@
-/* Component-specific variables */
-
 .article {
+    /* Component-specific variables */
     --bullet-color: rgba(57, 105, 239, 0.24);
     --sp-4_5: calc(18 * var(--px-in-rem)); /* 18px */
     --sp-2_5: calc(10 * var(--px-in-rem)); /* 10px */
