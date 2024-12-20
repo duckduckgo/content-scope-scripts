@@ -1,5 +1,6 @@
 .card {
     background-color: var(--ntp-surface-background-color);
+    backdrop-filter: blur(48px);
     border: 1px solid var(--ntp-surface-border-color);
     padding: var(--sp-2) var(--sp-4);
     border-radius: var(--border-radius-lg);
@@ -9,7 +10,6 @@
     justify-content: flex-start;
     align-items: center;
     text-align: center;
-    backdrop-filter: blur(48px);
     max-width: calc(240 * var(--px-in-rem));
     min-height: calc(166 * var(--px-in-rem));
     font-size: var(--body-font-size);
@@ -48,7 +48,8 @@
     font-size: calc(11 * var(--px-in-rem));
     line-height: calc(14 * var(--px-in-rem));
     color: var(--ntp-color-primary);
-    text-wrap: wrap; /* needed for some languages */
+    /* needed for some languages */
+    text-wrap: wrap;
 
     /* the active state created an awkward flash, adding transition out */
     &.supressActiveStateForSwitchToConfirmationText {
@@ -91,6 +92,7 @@
                 background-color: var(--color-black-at-9);
             }
         }
+
         &:hover:not(:active) {
             background-color: var(--color-black-at-9);
         }
@@ -188,6 +190,7 @@
 
 .cardGroup {
     transition: opacity .2s;
+
     &:hover {
         .showhide [aria-controls] {
             opacity: 1;

@@ -1,6 +1,7 @@
 .root {
-    --ntp-freemiumPIR-surface-background-color: rgba(0, 0, 0, .06);
-    background: var(--ntp-freemiumPIR-surface-background-color);
+    background-color: var(--ntp-surface-background-color);
+    backdrop-filter: blur(48px);
+    border: 1px solid var(--ntp-surface-border-color);
     padding: calc(14 * var(--px-in-rem)) var(--sp-8) calc(14 * var(--px-in-rem)) var(--sp-4);
     border-radius: var(--border-radius-lg);
     position: relative;
@@ -15,10 +16,6 @@
 
     &.icon {
         padding-left: var(--sp-2);
-    }
-
-    [data-theme="dark"] & {
-        background-color: var(--color-white-at-6);
     }
 }
 
@@ -66,12 +63,13 @@
 
 
 @keyframes animate-fade {
-    0% { 
-        opacity: 0; 
-        scale: 0.98; 
+    0% {
+        opacity: 0;
+        scale: 0.98;
     }
-    100% { 
-        opacity: 1; 
+
+    100% {
+        opacity: 1;
         scale: 1;
     }
 }

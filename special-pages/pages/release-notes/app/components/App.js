@@ -1,12 +1,12 @@
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import { useMessaging } from '../index';
-import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
-import { ErrorFallback } from './ErrorFallback';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 import { DuckDuckGoLogo } from '../../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo';
-import { ReleaseNotes } from './ReleaseNotes';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider';
+import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
+import { useMessaging } from '../index';
 import styles from './App.module.css';
+import { ErrorFallback } from './ErrorFallback';
+import { ReleaseNotes } from './ReleaseNotes';
 
 /**
  * @typedef {import('../../types/release-notes.js').UpdateMessage} UpdateMessage
@@ -18,6 +18,7 @@ import styles from './App.module.css';
  */
 export function App({ children }) {
     const { messages } = useMessaging();
+    const { isDarkMode } = useEnv();
     /** @type {ReturnType<typeof useState<UpdateMessage>>} */
     const [releaseData, setReleaseData] = useState();
 
@@ -37,7 +38,7 @@ export function App({ children }) {
         messages?.reportPageException({ message });
     }
     return (
-        <main className={styles.main}>
+        <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'}>
             <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
                 <header className={styles.header}>
                     <DuckDuckGoLogo />
