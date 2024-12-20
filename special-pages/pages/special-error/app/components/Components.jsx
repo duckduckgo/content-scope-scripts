@@ -7,6 +7,7 @@ import { SpecialErrorView } from './App';
 import { sampleData } from '../../src/sampleData.js';
 
 import styles from './Components.module.css';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 
 /**
  * @typedef {import("../../types/special-error.js").InitialSetupResponse['errorData']} ErrorData
@@ -39,6 +40,7 @@ function idForError(errorData) {
 export function Components() {
     const platformName = usePlatformName();
     const errorData = useErrorData();
+    const { isDarkMode } = useEnv()
 
     const handlePlatformChange = (value) => {
         if (Object.keys(platforms).includes(value)) {
@@ -57,7 +59,7 @@ export function Components() {
     };
 
     return (
-        <div>
+        <div data-theme={isDarkMode ? 'dark' : 'light'}>
             <div className={styles.selector}>
                 <fieldset>
                     <label for="platform-select">Platform:</label>
