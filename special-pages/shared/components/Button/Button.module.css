@@ -152,7 +152,7 @@ body:not([data-platform-name]) {
         /* TODO: No difference on hover according to Figma(?) */
     }
 
-    @media (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         &.standard {
             --button-bg: var(--macos-control-standard-background-rest--dark);
             --button-text: var(--color-white-at-84);
@@ -191,7 +191,7 @@ body:not([data-platform-name]) {
     }
 
 
-    @media (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         &.primary {
             --button-bg: var(--color-blue-30);
             --button-text: var(--color-black-at-84);
@@ -224,7 +224,7 @@ body:not([data-platform-name]) {
 [data-platform-name="windows"] {
     .button {
         /* this is the focus ring used on NTP widgets */
-    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
+        --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
 
         border-radius: var(--border-radius-sm);
         height: var(--sp-8);
@@ -236,83 +236,83 @@ body:not([data-platform-name]) {
             box-shadow: var(--focus-ring);
         }
 
-    &.standard {
-        background-color: var(--color-black-at-6);
-        border-width: 0;
-
-        &:hover {
-            background-color: var(--color-black-at-9);
-            cursor: pointer;
-        }
-
-        &:active {
-            background-color: var(--color-black-at-12);
-        }
-
-        &:disabled {
-            color: var(--color-black-at-84);
-        }
-
-        &:disabled:hover {
-            cursor: not-allowed;
-            background-color: var(--color-white-at-6);
-        }
-    }
-
-    &.accentBrand {
-        background-color: var(--ddg-color-primary);
-        color: var(--color-white);
-
-        &:hover {
-            background-color: var(--color-blue-60);
-        }
-
-        &:active {
-            background-color: var(--color-blue-70);
-        }    
-    }
-
-    @media screen and (prefers-color-scheme: dark) {
-        --focus-ring: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 3px var(--color-white);
-
         &.standard {
-            color: var(--color-white-at-84);
-            background-color: var(--color-white-at-12);
-    
+            background-color: var(--color-black-at-6);
+            border-width: 0;
+
             &:hover {
-                background-color: var(--color-white-at-18);
+                background-color: var(--color-black-at-9);
+                cursor: pointer;
             }
-    
+
             &:active {
-                background-color: var(--color-white-at-24);
+                background-color: var(--color-black-at-12);
             }
-    
+
             &:disabled {
-                color: var(--color-white-at-12);
-                opacity: 0.8;
+                color: var(--color-black-at-84);
             }
-    
+
             &:disabled:hover {
-                background-color: var(--color-white-at-12);
+                cursor: not-allowed;
+                background-color: var(--color-white-at-6);
             }
         }
 
         &.accentBrand {
-            color: var(--color-black-at-84);
-            background-color: var(--color-blue-20);
-    
+            background-color: var(--ddg-color-primary);
+            color: var(--color-white);
+
             &:hover {
-                background-color: var(--color-blue-30);
+                background-color: var(--color-blue-60);
             }
-    
+
             &:active {
-                background-color: var(--color-blue-40);
-            }
+                background-color: var(--color-blue-70);
+            }    
+        }
+
+        [data-theme=dark] & {
+            --focus-ring: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 3px var(--color-white);
+
+            &.standard {
+                color: var(--color-white-at-84);
+                background-color: var(--color-white-at-12);
     
-            &:disabled {
-                background-color: var(--color-white-at-36);
+                &:hover {
+                    background-color: var(--color-white-at-18);
+                }
+    
+                &:active {
+                    background-color: var(--color-white-at-24);
+                }
+    
+                &:disabled {
+                    color: var(--color-white-at-12);
+                    opacity: 0.8;
+                }
+    
+                &:disabled:hover {
+                    background-color: var(--color-white-at-12);
+                }
+            }
+
+            &.accentBrand {
                 color: var(--color-black-at-84);
+                background-color: var(--color-blue-20);
+    
+                &:hover {
+                    background-color: var(--color-blue-30);
+                }
+    
+                &:active {
+                    background-color: var(--color-blue-40);
+                }
+    
+                &:disabled {
+                    background-color: var(--color-white-at-36);
+                    color: var(--color-black-at-84);
+                }
             }
         }
-    }
-}}
+    }}
