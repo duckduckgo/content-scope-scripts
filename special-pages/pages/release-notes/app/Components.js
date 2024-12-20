@@ -1,25 +1,26 @@
 import { h } from 'preact';
-import { DuckDuckGoLogo } from '../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo';
-import {
-    PageTitle,
-    UpdateStatus,
-    ReleaseNotesHeading,
-    ReleaseNotesSubheading,
-    ReleaseNotesList,
-    ReleaseNotesContent,
-    ReleaseNotes,
-} from './components/ReleaseNotes';
+import { useEffect, useState } from 'preact/hooks';
 import { Button } from '../../../shared/components/Button/Button';
 import { Card } from '../../../shared/components/Card/Card';
-import { ContentPlaceholder } from './components/ContentPlaceholder';
+import { DuckDuckGoLogo } from '../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo';
+import { useEnv } from '../../../shared/components/EnvironmentProvider';
 import { useTypedTranslation } from '../app/types';
-
 import styles from './Components.module.css';
+import { ContentPlaceholder } from './components/ContentPlaceholder';
+import {
+    PageTitle,
+    ReleaseNotes,
+    ReleaseNotesContent,
+    ReleaseNotesHeading,
+    ReleaseNotesList,
+    ReleaseNotesSubheading,
+    UpdateStatus,
+} from './components/ReleaseNotes';
 import { sampleData } from './sampleData.js';
-import { useEffect, useState } from 'preact/hooks';
 
 export function Components() {
     const { t } = useTypedTranslation();
+    const { isDarkMode } = useEnv();
     const todayInMilliseconds = Date.now();
     const yesterdayInMilliseconds = new Date(todayInMilliseconds - 24 * 60 * 60 * 1000).getTime();
 
@@ -46,7 +47,7 @@ export function Components() {
     ];
 
     return (
-        <main className={styles.main}>
+        <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'}>
             <h1>Release Notes Components</h1>
 
             <h2>DuckDuckGo Logo</h2>
