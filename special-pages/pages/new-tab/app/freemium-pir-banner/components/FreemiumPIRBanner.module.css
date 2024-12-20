@@ -1,6 +1,6 @@
 .root {
-    --ntp-freemiumPIR-surface-background-color: rgba(0, 0, 0, .06);
-    background: var(--ntp-freemiumPIR-surface-background-color);
+    background-color: var(--ntp-surface-background-color);
+    backdrop-filter: blur(48px);
     padding: calc(14 * var(--px-in-rem)) var(--sp-8) calc(14 * var(--px-in-rem)) var(--sp-4);
     border-radius: var(--border-radius-lg);
     position: relative;
