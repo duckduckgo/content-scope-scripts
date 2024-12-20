@@ -17,9 +17,11 @@ import { useTypedTranslation } from '../app/types';
 import styles from './Components.module.css';
 import { sampleData } from './sampleData.js';
 import { useEffect, useState } from 'preact/hooks';
+import { useEnv } from '../../../shared/components/EnvironmentProvider';
 
 export function Components() {
     const { t } = useTypedTranslation();
+    const { isDarkMode } = useEnv();
     const todayInMilliseconds = Date.now();
     const yesterdayInMilliseconds = new Date(todayInMilliseconds - 24 * 60 * 60 * 1000).getTime();
 
@@ -46,7 +48,7 @@ export function Components() {
     ];
 
     return (
-        <main className={styles.main}>
+        <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'}>
             <h1>Release Notes Components</h1>
 
             <h2>DuckDuckGo Logo</h2>
