@@ -44,6 +44,17 @@ children:
 }
 ```
 
+### {@link "NewTab Messages".OpenNotification `open`}
+  - Sent when the user clicks on a link, such as 'settings'
+  - Sends: {@link "NewTab Messages".OpenAction}
+  - Example:
+
+```json
+{
+  "target": "settings"
+}
+```
+
 ### {@link "NewTab Messages".TelemetryEventNotification `telemetryEvent`}
   - These are generic events that might be useful to observe. For example, you can use these to decide when to send pixels.
   - Sends a standard format `{ attributes: { name: string', value?: any  } }` - see {@link "NewTab Messages".TelemetryEventNotification `telemetryEvent`}

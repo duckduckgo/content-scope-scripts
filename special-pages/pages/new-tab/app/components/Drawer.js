@@ -1,6 +1,7 @@
-import { useRef, useId, useLayoutEffect } from 'preact/hooks';
+import { useRef, useId, useLayoutEffect, useEffect } from 'preact/hooks';
 import { batch, useComputed, useSignal } from '@preact/signals';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
+import { useMessaging } from '../types.js';
 
 const CLOSE_DRAWER_EVENT = 'close-drawer';
 const TOGGLE_DRAWER_EVENT = 'toggle-drawer';
@@ -18,7 +19,7 @@ const REQUEST_VISIBILITY_EVENT = 'request-visibility';
  *  - 1: we make the API available with events (via `useDrawerControls`)
  *  - 2: we use signals to trigger animations for performance (to prevent VDOM diffing)
  *  - 3: we provide a way for child components to render AFTER animations have ended, again for performance.
- *
+ * @param {DrawerVisibility} initial
  * @return {{
  *     wrapperRef: import("preact").RefObject<HTMLDivElement>,
  *     buttonRef: import("preact").RefObject<HTMLButtonElement>,
@@ -30,7 +31,7 @@ const REQUEST_VISIBILITY_EVENT = 'request-visibility';
  *     displayChildren: import("@preact/signals").Signal<boolean>,
  * }}
  */
-export function useDrawer() {
+export function useDrawer(initial) {
     const { isReducedMotion } = useEnv();
     const wrapperRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const buttonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
@@ -123,7 +124,21 @@ export function useDrawer() {
         return () => {
             controller.abort();
         };
-    }, [isReducedMotion]);
+    }, [isReducedMotion, initial]);
+
+    const ntp = useMessaging();
+
+    /**
+     * Open initially if required too
+     */
+    useEffect(() => {
+        if (initial === 'visible') {
+            _open();
+        }
+        return ntp.messaging.subscribe('customizer_autoOpen', () => {
+            _open();
+        });
+    }, [initial, ntp]);
 
     return {
         wrapperRef,
@@ -137,19 +152,25 @@ export function useDrawer() {
     };
 }
 
+function _toggle() {
+    window.dispatchEvent(new CustomEvent(TOGGLE_DRAWER_EVENT));
+}
+
+function _open() {
+    window.dispatchEvent(new CustomEvent(OPEN_DRAWER_EVENT));
+}
+
+function _close() {
+    window.dispatchEvent(new CustomEvent(CLOSE_DRAWER_EVENT));
+}
+
 /**
- *
+ * familiar React-style API
  */
 export function useDrawerControls() {
     return {
-        toggle: () => {
-            window.dispatchEvent(new CustomEvent(TOGGLE_DRAWER_EVENT));
-        },
-        close: () => {
-            window.dispatchEvent(new CustomEvent(CLOSE_DRAWER_EVENT));
-        },
-        open: () => {
-            window.dispatchEvent(new CustomEvent(OPEN_DRAWER_EVENT));
-        },
+        toggle: _toggle,
+        close: _close,
+        open: _open,
     };
 }

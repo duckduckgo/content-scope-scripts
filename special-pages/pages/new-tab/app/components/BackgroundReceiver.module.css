@@ -7,7 +7,7 @@
     pointer-events: none;
 
     &[data-animate="true"] {
-        transition: all .3s ease-in-out;
+        transition: background .3s ease-in-out;
     }
 
     &[data-background-kind="default"][data-theme=dark] {

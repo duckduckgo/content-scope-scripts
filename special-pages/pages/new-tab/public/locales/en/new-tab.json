@@ -200,5 +200,9 @@
   "favorites_add": {
     "title": "Add Favorite",
     "note": "A button that allows a user to add a new 'favorite' bookmark to their existing list"
+  },
+  "customizer_image_privacy": {
+    "title": "Images are stored on your device so DuckDuckGo can’t see or access them.",
+    "note": "Shown near a button that allows a user to upload an image to be used as a background."
   }
 }
