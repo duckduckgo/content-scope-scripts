@@ -3,8 +3,15 @@ import { values } from '../values.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionEventNames
+ * @typedef {import('../../../types/new-tab.js').NewTabMessages['notifications']['method']} NotificationNames
  */
 
+const named = {
+    /** @type {(n: NotificationNames) => NotificationNames} */
+    notification: (n) => n,
+    /** @type {(n: SubscriptionEventNames) => SubscriptionEventNames} */
+    subscription: (n) => n,
+};
 export class CustomizerPage {
     /**
      * @param {import("../../../integration-tests/new-tab.page.js").NewtabPage} ntp
@@ -21,6 +28,23 @@ export class CustomizerPage {
     async opensCustomizer() {
         const { page } = this.ntp;
         await page.getByRole('button', { name: 'Customize' }).click();
+    }
+
+    async closesCustomizer() {
+        const { page } = this.ntp;
+        await page.locator('aside').getByLabel('Close').click();
+        await expect(page.locator('aside')).toHaveAttribute('aria-hidden', 'true');
+        await expect(page.locator('aside')).toHaveCSS('visibility', 'hidden');
+    }
+
+    async opensSettings() {
+        const { page } = this.ntp;
+        await page.locator('aside').getByRole('link', { name: 'Go to Settings' }).click();
+        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('open') });
+        expect(calls[0].payload).toMatchObject({
+            method: 'open',
+            params: { target: 'settings' },
+        });
     }
 
     async hasDefaultBackgroundSelected() {
@@ -71,12 +95,13 @@ export class CustomizerPage {
     async uploadsFirstImage() {
         const { page } = this.ntp;
         await page.getByLabel('Add Background').click();
-        await this.ntp.mocks.waitForCallCount({ count: 1, method: 'customizer_upload' });
+        await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_upload') });
     }
+
     async setsDarkTheme() {
         const { page } = this.ntp;
         await page.getByRole('radio', { name: 'Select dark theme' }).click();
-        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: 'customizer_setTheme' });
+        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_setTheme') });
         expect(calls[0].payload).toMatchObject({
             method: 'customizer_setTheme',
             params: { theme: 'dark' },
@@ -95,7 +120,7 @@ export class CustomizerPage {
     async selectsDefault() {
         const { page } = this.ntp;
         await page.locator('aside').getByLabel('Default').click();
-        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: 'customizer_setBackground' });
+        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_setBackground') });
         expect(calls[0].payload).toMatchObject({
             method: 'customizer_setBackground',
             params: { background: { kind: 'default' } },
@@ -125,7 +150,7 @@ export class CustomizerPage {
         const { page } = this.ntp;
         await this.showsColorSelectionPanel();
         await page.getByRole('radio', { name: 'Select color03' }).click();
-        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: 'customizer_setBackground' });
+        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_setBackground') });
         expect(calls[0].payload).toMatchObject({
             method: 'customizer_setBackground',
             params: { background: { kind: 'color', value: 'color03' } },
@@ -137,7 +162,7 @@ export class CustomizerPage {
         const { page } = this.ntp;
         await page.locator('aside').getByLabel('Gradients').click();
         await page.getByRole('radio', { name: 'Select gradient01' }).click();
-        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: 'customizer_setBackground' });
+        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_setBackground') });
         expect(calls[0].payload).toMatchObject({
             method: 'customizer_setBackground',
             params: { background: { kind: 'gradient', value: 'gradient01' } },
@@ -151,9 +176,7 @@ export class CustomizerPage {
     async acceptsBackgroundUpdate(bg) {
         /** @type {import('../../../types/new-tab.js').BackgroundData} */
         const payload = { background: bg };
-        /** @type {SubscriptionEventNames} */
-        const named = 'customizer_onBackgroundUpdate';
-        await this.ntp.mocks.simulateSubscriptionMessage(named, payload);
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onBackgroundUpdate'), payload);
     }
 
     /**
@@ -163,8 +186,7 @@ export class CustomizerPage {
         /** @type {import('../../../types/new-tab.js').ThemeData} */
         const payload = { theme };
         /** @type {SubscriptionEventNames} */
-        const named = 'customizer_onThemeUpdate';
-        await this.ntp.mocks.simulateSubscriptionMessage(named, payload);
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onThemeUpdate'), payload);
     }
 
     /**
@@ -174,9 +196,7 @@ export class CustomizerPage {
         await test.step('subscription event: customizer_onColorUpdate', async () => {
             /** @type {import('../../../types/new-tab.js').UserColorData} */
             const payload = { userColor: { kind: 'hex', value: color } };
-            /** @type {SubscriptionEventNames} */
-            const named = 'customizer_onColorUpdate';
-            await this.ntp.mocks.simulateSubscriptionMessage(named, payload);
+            await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onColorUpdate'), payload);
         });
     }
 
@@ -193,9 +213,7 @@ export class CustomizerPage {
 
             /** @type {import('../../../types/new-tab.js').UserImageData} */
             const payload = { userImages: [values.userImages['01']] };
-            /** @type {SubscriptionEventNames} */
-            const named = 'customizer_onImagesUpdate';
-            await this.ntp.mocks.simulateSubscriptionMessage(named, payload);
+            await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onImagesUpdate'), payload);
 
             const response = await resPromise;
             await page.pause();
@@ -255,5 +273,89 @@ export class CustomizerPage {
     async hasEmptyImagesPanel() {
         const { page } = this.ntp;
         await page.getByLabel('Add Background').waitFor();
+    }
+
+    async opensImages() {
+        const { page } = this.ntp;
+        await page.getByLabel('My Backgrounds').click();
+    }
+
+    async hasImages(number) {
+        const { page } = this.ntp;
+        await expect(page.locator('aside').getByRole('radio')).toHaveCount(number);
+    }
+
+    async hasPlaceholders(number) {
+        const { page } = this.ntp;
+        await expect(page.locator('aside').getByRole('button', { name: 'Add Background' })).toHaveCount(number);
+    }
+
+    async uploadsAdditional({ existing }) {
+        const { page } = this.ntp;
+        const expectedPlaceholderCount = 8 - existing;
+
+        await this.hasImages(existing);
+        await this.hasPlaceholders(expectedPlaceholderCount);
+        await page.locator('aside').getByRole('button', { name: 'Add Background' }).nth(existing).click();
+        await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_upload') });
+
+        // check the last placeholder element is also clickable
+        await page
+            .locator('aside')
+            .getByRole('button', { name: 'Add Background' })
+            .nth(expectedPlaceholderCount - 1)
+            .click();
+
+        await this.ntp.mocks.waitForCallCount({ count: 2, method: named.notification('customizer_upload') });
+    }
+
+    /**
+     *
+     */
+    async acceptsBadImagesUpdate() {
+        const { page } = this.ntp;
+        await test.step('subscription event with bad data: customizer_onImagesUpdate', async () => {
+            /** @type {import('../../../types/new-tab.js').UserImageData} */
+            // @ts-expect-error - the test is for an error!
+            const payload = { lol: '' };
+            await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onImagesUpdate'), payload);
+            await expect(page.getByRole('complementary')).toContainText('A problem occurred with this feature. DuckDuckGo was notified');
+
+            // sends the report
+            const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('reportPageException') });
+            expect(calls[0].payload).toMatchObject({
+                method: 'reportPageException',
+                params: {
+                    message:
+                        "Customizer section 'Customizer Drawer' threw an exception: TypeError: Cannot read properties of undefined (reading 'length')",
+                },
+            });
+        });
+    }
+
+    /**
+     *
+     */
+    async handlesNestedException() {
+        const { page } = this.ntp;
+        await expect(page.getByRole('complementary')).toContainText('A problem occurred with this feature. DuckDuckGo was notified');
+        await page.getByRole('button', { name: 'My Backgrounds' }).click();
+        await page.getByTestId('dismissBtn').click();
+
+        // sends the report
+        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('reportPageException') });
+        expect(calls[0].payload).toMatchObject({
+            method: 'reportPageException',
+            params: {
+                message: "Customizer section 'Image Selection' threw an exception: Error: Simulated error",
+            },
+        });
+    }
+
+    async customizerOpensAutomatically() {
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_autoOpen'), {});
+
+        // can only close after being opened
+        await this.closesCustomizer();
     }
 }

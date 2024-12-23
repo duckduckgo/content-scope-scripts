@@ -30,6 +30,22 @@ writeTimestamp();
     /** @type {import('esbuild').BuildOptions} */
     const opts = baseEsbuildOptions(args.page, 'integration', 'development');
     opts.dropLabels = [];
+    opts.plugins ??= [];
+    opts.plugins.push({
+        name: 'verbose-logging',
+        setup(build) {
+            if (args.v) {
+                let last = Date.now();
+                build.onStart(() => {
+                    last = Date.now();
+                    console.log('🛠️ + started');
+                });
+                build.onEnd(() => {
+                    console.log('🛠️ - finished', Date.now() - last, 'ms');
+                });
+            }
+        },
+    });
 
     const ctx = await esbuild.context(opts);
     const { host, port } = await ctx.serve({
