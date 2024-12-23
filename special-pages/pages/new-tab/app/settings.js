@@ -1,10 +1,10 @@
 export class Settings {
     /**
      * @param {object} params
-     * @param {{name: ImportMeta['platform']}} [params.platform]
-     * @param {{state: 'enabled' | 'disabled'}} [params.customizerDrawer]
+     * @param {{name: 'macos' | 'windows'}} [params.platform]
+     * @param {{state: 'enabled' | 'disabled', autoOpen: boolean}} [params.customizerDrawer]
      */
-    constructor({ platform = { name: 'macos' }, customizerDrawer = { state: 'disabled' } }) {
+    constructor({ platform = { name: 'macos' }, customizerDrawer = { state: 'disabled', autoOpen: false } }) {
         this.platform = platform;
         this.customizerDrawer = customizerDrawer;
     }

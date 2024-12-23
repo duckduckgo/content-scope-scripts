@@ -37,7 +37,7 @@ export function App() {
         hidden,
         buttonId,
         drawerId
-    } = useDrawer();
+    } = useDrawer(customizerDrawer.autoOpen ? 'visible' : 'hidden');
 
     const tabIndex = useComputed(() => (hidden.value ? -1 : 0));
     const { toggle } = useDrawerControls();
