@@ -30,9 +30,4 @@
     }
 }
 
-[data-platform-name="macos"], [data-platform-name="ios"] {
-    --theme-font: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-}
-
-
 

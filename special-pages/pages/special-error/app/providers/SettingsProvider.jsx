@@ -17,3 +17,8 @@ export function SettingsProvider({ settings, children }) {
 export function usePlatformName() {
     return useContext(SettingsContext).settings.platform?.name;
 }
+
+export function useIsMobile() {
+    const platformName = useContext(SettingsContext).settings.platform?.name;
+    return platformName === 'android' || platformName === 'ios';
+}

@@ -3,13 +3,19 @@ import classNames from 'classnames';
 import styles from './Button.module.css';
 
 /**
- * @param {object} props
- * @param {string} [props.className]
- * @param {'primary'|'standard'|'accent'|'accentBrand'|'ghost'} [props.variant]
- * @param {'button'|'submit'|'reset'} [props.type]
- * @param {import("preact").ComponentChild} props.children
- * @param {import("preact").JSX.MouseEventHandler<EventTarget>} [props.onClick]
- * @param {import('preact').ComponentProps<'button'>} [props.otherProps]
+ * @typedef {object} ButtonProps
+ * @property {string} [className]
+ * @property {'primary'|'standard'|'accent'|'accentBrand'|'ghost'} [variant]
+ * @property {'button'|'submit'|'reset'} [type]
+ * @property {import("preact").ComponentChild} children
+ * @property {import("preact").JSX.MouseEventHandler<EventTarget>} [onClick]
+ * @property {import('preact').ComponentProps<'button'>} [otherProps]
+ */
+
+/**
+ *
+ * @param {ButtonProps} props
+ * @returns
  */
 export function Button({ variant, className, children, onClick, type = 'button' }) {
     return (

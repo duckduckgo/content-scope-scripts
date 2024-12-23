@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useTypedTranslation } from '../types';
 import { useMessaging } from '../providers/MessagingProvider';
 import { useErrorData } from '../providers/SpecialErrorProvider';
-import { usePlatformName } from '../providers/SettingsProvider';
+import { usePlatformName, useIsMobile } from '../providers/SettingsProvider';
 import { useWarningHeading, useWarningContent } from '../hooks/ErrorStrings';
 import { Text } from '../../../../shared/components/Text/Text';
 import { Button } from '../../../../shared/components/Button/Button';
@@ -16,15 +16,12 @@ import styles from './Warning.module.css';
  */
 export function AdvancedInfoButton({ onClick }) {
     const { t } = useTypedTranslation();
-    const platformName = usePlatformName();
+    const isMobile = useIsMobile();
+    const buttonVariant = isMobile ? 'ghost' : 'standard';
 
     return (
-        <Button
-            variant={platformName === 'macos' ? 'standard' : 'ghost'}
-            className={classNames(styles.button, styles.advanced)}
-            onClick={onClick}
-        >
-            {platformName === 'ios' ? t('advancedButton') : t('advancedEllipsisButton')}
+        <Button variant={buttonVariant} className={classNames(styles.button, styles.advanced)} onClick={onClick}>
+            {isMobile ? t('advancedButton') : t('advancedEllipsisButton')}
         </Button>
     );
 }
@@ -34,12 +31,22 @@ export function LeaveSiteButton() {
     const { messaging } = useMessaging();
     const platformName = usePlatformName();
 
+    /** @type {import('../../../../shared/components/Button/Button').ButtonProps['variant']} */
+    let buttonVariant;
+    switch (platformName) {
+        case 'ios':
+        case 'android':
+            buttonVariant = 'primary';
+            break;
+        case 'windows':
+            buttonVariant = 'accentBrand';
+            break;
+        default:
+            buttonVariant = 'accent';
+    }
+
     return (
-        <Button
-            variant={platformName === 'macos' ? 'accent' : 'primary'}
-            className={classNames(styles.button, styles.leaveSite)}
-            onClick={() => messaging?.leaveSite()}
-        >
+        <Button variant={buttonVariant} className={classNames(styles.button, styles.leaveSite)} onClick={() => messaging?.leaveSite()}>
             {t('leaveSiteButton')}
         </Button>
     );
@@ -49,14 +56,29 @@ export function WarningHeading() {
     const { kind } = useErrorData();
     const heading = useWarningHeading();
     const platformName = usePlatformName();
+    const isMobile = useIsMobile();
+
+    /** @type {'title-2'|'title-2-emphasis'|'custom-title-1'} */
+    let textVariant;
+    switch (platformName) {
+        case 'ios':
+        case 'android':
+            textVariant = 'title-2';
+            break;
+        case 'windows':
+            textVariant = 'custom-title-1';
+            break;
+        default:
+            textVariant = 'title-2-emphasis';
+    }
 
     return (
         <header className={classNames(styles.heading, styles[kind])}>
             <i className={styles.icon} aria-hidden="true" />
             <Text
                 as="h1"
-                variant={platformName === 'macos' ? 'title-2-emphasis' : 'title-2'}
-                strictSpacing={platformName !== 'macos'}
+                variant={textVariant}
+                strictSpacing={isMobile}
                 className={styles.title}
             >
                 {heading}
