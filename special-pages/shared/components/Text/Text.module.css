@@ -127,3 +127,21 @@ a {
         }
     }
 }
+
+[data-platform-name="windows"] {
+    /* This is a custom style that does not exist in the Design System
+       It's used by the Special Error page on Windows */
+    & .custom-title-1 { 
+        font-size: calc(18 * var(--px-in-rem));
+        font-weight: 600;
+        line-height: calc(22 * var(--px-in-rem));
+        letter-spacing: normal;
+    }
+
+    & .body {
+        font-size: calc(14 * var(--px-in-rem));
+        font-weight: 400;
+        line-height: calc(20 * var(--px-in-rem));
+        letter-spacing: normal;
+    }
+}
