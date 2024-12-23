@@ -97,7 +97,7 @@ export function mockTransport() {
     }
 
     const transports = {
-        customizer: customizerMockTransport({ read, write, broadcast }),
+        customizer: customizerMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -505,6 +505,10 @@ export function mockTransport() {
                     const settings = {};
                     if (url.searchParams.get('customizerDrawer') === 'enabled') {
                         settings.customizerDrawer = { state: 'enabled' };
+                        if (url.searchParams.get('autoOpen') === 'true') {
+                            settings.customizerDrawer.autoOpen = true;
+                        }
+
                         initial.customizer = customizerData();
                     }
 

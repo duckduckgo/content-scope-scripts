@@ -8,7 +8,7 @@ import { values } from './values.js';
 
 const url = new URL(window.location.href);
 
-export function customizerMockTransport({ read, write, broadcast }) {
+export function customizerMockTransport() {
     const channel = new BroadcastChannel('ntp_customizer');
     /** @type {Map<SubscriptionNames, any>} */
     const subscriptions = new Map();

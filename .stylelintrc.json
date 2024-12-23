@@ -1,7 +1,7 @@
 {
     "extends": ["stylelint-config-standard"],
     "plugins": ["stylelint-csstree-validator"],
-    "ignoreFiles": ["build/**/*.css", "Sources/**/*.css", "docs/**/*.css"],
+    "ignoreFiles": ["build/**/*.css", "Sources/**/*.css", "docs/**/*.css", "special-pages/pages/**/*/dist/*.css"],
     "rules": {
         "csstree/validator": {
             "ignoreProperties": ["text-wrap"]
