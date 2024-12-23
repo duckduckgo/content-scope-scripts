@@ -46,7 +46,7 @@
     "stylelint-csstree-validator": "^3.0.0",
     "typedoc": "^0.27.5",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.0"
+    "typescript-eslint": "^8.18.1"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.1"
