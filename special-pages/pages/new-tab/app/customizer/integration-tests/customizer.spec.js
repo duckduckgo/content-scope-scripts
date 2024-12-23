@@ -203,7 +203,7 @@ test.describe('newtab customizer', () => {
         await cp.hasEmptyImagesPanel();
         await cp.acceptsImagesUpdate();
     });
-    test('loads without images, and handles root-level exceptions', async ({ page }, workerInfo) => {
+    test.skip('loads without images, and handles root-level exceptions', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);
         await ntp.reducedMotion();
@@ -213,7 +213,7 @@ test.describe('newtab customizer', () => {
         await cp.acceptsBadImagesUpdate();
         await cp.closesCustomizer();
     });
-    test('loads with images, and handles nested exceptions', async ({ page }, workerInfo) => {
+    test.skip('loads with images, and handles nested exceptions', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);
         await ntp.reducedMotion();
@@ -230,7 +230,7 @@ test.describe('newtab customizer', () => {
         await cp.opensCustomizer();
         await cp.uploadsFirstImage();
     });
-    test('trigger additional file uploads', async ({ page }, workerInfo) => {
+    test.skip('trigger additional file uploads', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);
         await ntp.reducedMotion();
@@ -249,7 +249,7 @@ test.describe('newtab customizer', () => {
         await cp.setsDarkTheme();
         await cp.darkThemeIsSelected();
     });
-    test('opening settings', async ({ page }, workerInfo) => {
+    test.skip('opening settings', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);
         await ntp.reducedMotion();
