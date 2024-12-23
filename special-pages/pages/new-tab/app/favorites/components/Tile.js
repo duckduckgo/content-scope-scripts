@@ -139,7 +139,7 @@ function PlusIconWrapper({ onClick }) {
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
     return (
         <div class={styles.item} ref={ref} data-edge={'closestEdge' in state && state.closestEdge}>
-            <button class={cn(styles.icon, styles.placeholder, styles.plus)} aria-labelledby={id} onClick={onClick}>
+            <button class={cn(styles.icon, styles.plus, styles.draggable)} aria-labelledby={id} onClick={onClick}>
                 <PlusIcon />
             </button>
             <div class={styles.text} id={id}>

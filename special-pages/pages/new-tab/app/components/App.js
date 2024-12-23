@@ -75,9 +75,7 @@ export function App() {
                         data-browser-panel
                     >
                         <div class={styles.asideContent}>
-                            <div class={styles.asideContentInner}>
-                                <CustomizerDrawer displayChildren={displayChildren} />
-                            </div>
+                            <CustomizerDrawer displayChildren={displayChildren} />
                         </div>
                     </aside>
                 )}
