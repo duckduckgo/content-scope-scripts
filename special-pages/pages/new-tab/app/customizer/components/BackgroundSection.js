@@ -42,40 +42,33 @@ export function BackgroundSection({ data, onNav, onUpload, select }) {
     }
 
     return (
-        <div class={styles.section}>
-            <h3 class={styles.sectionTitle}>Background</h3>
-            <ul class={cn(styles.sectionBody, styles.bgList)} role="radiogroup">
-                <li class={styles.bgListItem}>
-                    <DefaultPanel
-                        checked={data.value.background.kind === 'default'}
-                        onClick={() => select({ background: { kind: 'default' } })}
-                    />
-                </li>
-                <li class={styles.bgListItem}>
-                    <ColorPanel
-                        checked={data.value.background.kind === 'color' || data.value.background.kind === 'hex'}
-                        color={displayColor}
-                        onClick={() => onNav('color')}
-                    />
-                </li>
-                <li class={styles.bgListItem}>
-                    <GradientPanel
-                        checked={data.value.background.kind === 'gradient'}
-                        gradient={gradient}
-                        onClick={() => onNav('gradient')}
-                    />
-                </li>
-                <li class={styles.bgListItem}>
-                    <BackgroundImagePanel
-                        checked={data.value.background.kind === 'userImage'}
-                        onClick={() => onNav('image')}
-                        data={data}
-                        upload={onUpload}
-                        browserTheme={browser}
-                    />
-                </li>
-            </ul>
-        </div>
+        <ul class={cn(styles.bgList)} role="radiogroup">
+            <li class={styles.bgListItem}>
+                <DefaultPanel
+                    checked={data.value.background.kind === 'default'}
+                    onClick={() => select({ background: { kind: 'default' } })}
+                />
+            </li>
+            <li class={styles.bgListItem}>
+                <ColorPanel
+                    checked={data.value.background.kind === 'color' || data.value.background.kind === 'hex'}
+                    color={displayColor}
+                    onClick={() => onNav('color')}
+                />
+            </li>
+            <li class={styles.bgListItem}>
+                <GradientPanel checked={data.value.background.kind === 'gradient'} gradient={gradient} onClick={() => onNav('gradient')} />
+            </li>
+            <li class={styles.bgListItem}>
+                <BackgroundImagePanel
+                    checked={data.value.background.kind === 'userImage'}
+                    onClick={() => onNav('image')}
+                    data={data}
+                    upload={onUpload}
+                    browserTheme={browser}
+                />
+            </li>
+        </ul>
     );
 }
 

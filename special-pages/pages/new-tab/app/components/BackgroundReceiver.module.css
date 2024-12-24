@@ -4,16 +4,23 @@
     inset: 0;
     width: 100vw;
     height: 100vh;
+    object-fit: cover;
     pointer-events: none;
 
     &[data-animate="true"] {
-        transition: all .3s ease-in-out;
+        transition: background .25s ease-in-out;
     }
-
     &[data-background-kind="default"][data-theme=dark] {
         background: var(--default-dark-bg);
     }
     &[data-background-kind="default"][data-theme=light] {
         background: var(--default-light-bg);
     }
+}
+
+.under {
+    opacity: 1;
+}
+.over {
+    opacity: 0;
 }

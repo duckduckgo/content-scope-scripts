@@ -13,16 +13,17 @@ import { Centered } from '../components/Layout.js';
 function placeholderWidget(id) {
     return {
         factory: () => {
-            return <p>Entry point for {id} was not found. This is a bug.</p>;
+            return null;
         },
     };
 }
 
 /**
  * @param {string} id
+ * @param {(e: {message:string}) => void} didCatch
  * @return {Promise<{factory: () => import("preact").ComponentChild}>}
  */
-export async function widgetEntryPoint(id) {
+export async function widgetEntryPoint(id, didCatch) {
     try {
         const mod = await import(`../entry-points/${id}.js`);
         if (typeof mod.factory !== 'function') {
@@ -32,6 +33,7 @@ export async function widgetEntryPoint(id) {
         return mod;
     } catch (e) {
         console.error(e);
+        didCatch(e);
         return placeholderWidget(id);
     }
 }

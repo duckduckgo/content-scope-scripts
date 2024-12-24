@@ -34,8 +34,7 @@ export class CustomizerPage {
         const { page } = this.ntp;
         await page.locator('aside').getByRole('button', { name: 'Close' }).click();
         await expect(page.locator('aside')).toHaveAttribute('aria-hidden', 'true');
-        // todo: This will be added in a follow up
-        // await expect(page.locator('aside')).toHaveCSS('visibility', 'hidden');
+        await expect(page.locator('aside')).toHaveCSS('visibility', 'hidden');
     }
 
     async opensSettings() {

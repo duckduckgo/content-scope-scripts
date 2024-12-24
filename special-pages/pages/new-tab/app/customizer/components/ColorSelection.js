@@ -6,6 +6,7 @@ import styles from './CustomizerDrawerInner.module.css';
 import { BackChevron, Picker } from '../../components/Icons.js';
 import { useComputed } from '@preact/signals';
 import { detectThemeFromHex } from '../utils.js';
+import { InlineError } from '../../InlineError.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, PredefinedColor, BackgroundData } from '../../../types/new-tab.js'
@@ -18,29 +19,17 @@ import { detectThemeFromHex } from '../utils.js';
  * @param {() => void} props.back
  */
 export function ColorSelection({ data, select, back }) {
-    console.log('    RENDER:ColorSelection?');
-
     function onClick(event) {
         let target = /** @type {HTMLElement|null} */ (event.target);
-        while (target && target !== event.currentTarget) {
-            if (target.getAttribute('role') === 'radio') {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                if (target.getAttribute('aria-checked') === 'false') {
-                    if (target.dataset.key) {
-                        const value = /** @type {PredefinedColor} */ (target.dataset.key);
-                        select({ background: { kind: 'color', value } });
-                    } else {
-                        console.warn('missing dataset.key');
-                    }
-                } else {
-                    console.log('ignoring click on selected color');
-                }
-                break;
-            } else {
-                target = target.parentElement;
-            }
+        const selector = `[role="radio"][aria-checked="false"][data-value]`;
+        if (!target?.matches(selector)) {
+            target = /** @type {HTMLElement|null} */ (target?.closest(selector));
         }
+        if (!target) return;
+        const value = /** @type {PredefinedColor} */ (target.dataset.value);
+        // todo: report exception?
+        if (!(value in values.colors)) return console.warn('could not select color', value);
+        select({ background: { kind: 'color', value } });
     }
 
     return (
@@ -50,10 +39,12 @@ export function ColorSelection({ data, select, back }) {
                 Solid Colors
             </button>
             <div class={styles.sectionBody}>
-                <div class={cn(styles.bgList)} role="radiogroup" onClick={onClick}>
-                    <PickerPanel data={data} select={select} />
-                    <ColorGrid data={data} />
-                </div>
+                <InlineError named={'ColorGrid'}>
+                    <div class={cn(styles.bgList)} role="radiogroup" onClick={onClick}>
+                        <PickerPanel data={data} select={select} />
+                        <ColorGrid data={data} />
+                    </div>
+                </InlineError>
             </div>
         </div>
     );
@@ -79,7 +70,7 @@ function ColorGrid({ data }) {
                             style={{ background: entry.hex }}
                             role="radio"
                             aria-checked={key === selected.value}
-                            data-key={key}
+                            data-value={key}
                         >
                             <span class="sr-only">Select {key}</span>
                         </button>
@@ -140,7 +131,7 @@ function PickerPanel({ data, select }) {
                     }
                 }}
             />
-            <span class={cn(styles.colorInputIcon, styles.dynamicIconColor)} data-color-mode={modeSelected}>
+            <span class={cn(styles.colorInputIcon, styles.dynamicPickerIconColor)} data-color-mode={modeSelected}>
                 <Picker />
             </span>
         </div>

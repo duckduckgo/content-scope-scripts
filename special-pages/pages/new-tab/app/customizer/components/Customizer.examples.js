@@ -1,7 +1,7 @@
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 import { noop } from '../../utils.js';
 import { CustomizerButton } from './Customizer.js';
-import { VisibilityMenu } from './VisibilityMenu.js';
+import { EmbeddedVisibilityMenu, VisibilityMenu } from './VisibilityMenu.js';
 import { BackgroundSection } from './BackgroundSection.js';
 import { ColorSelection } from './ColorSelection.js';
 import { GradientSelection } from './GradientSelection.js';
@@ -64,13 +64,32 @@ export const customizerExamples = {
     },
     'customizer-menu': {
         factory: () => (
-            <Fragment>
-                <div>
-                    <CustomizerButton isOpen={true} />
-                </div>
+            <MaxContent>
+                <CustomizerButton isOpen={true} />
                 <br />
-                <MaxContent>
-                    <VisibilityMenu
+                <VisibilityMenu
+                    rows={[
+                        {
+                            id: 'favorites',
+                            title: 'Favorites',
+                            icon: 'star',
+                            toggle: noop('toggle favorites'),
+                            visibility: 'hidden',
+                            index: 0,
+                        },
+                        {
+                            id: 'privacyStats',
+                            title: 'Privacy Stats',
+                            icon: 'shield',
+                            toggle: noop('toggle favorites'),
+                            visibility: 'visible',
+                            index: 1,
+                        },
+                    ]}
+                />
+                <br />
+                <div style="width: 206px; border: 1px dotted black">
+                    <EmbeddedVisibilityMenu
                         rows={[
                             {
                                 id: 'favorites',
@@ -90,8 +109,8 @@ export const customizerExamples = {
                             },
                         ]}
                     />
-                </MaxContent>
-            </Fragment>
+                </div>
+            </MaxContent>
         ),
     },
 };

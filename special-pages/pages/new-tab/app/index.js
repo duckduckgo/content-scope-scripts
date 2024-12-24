@@ -164,7 +164,7 @@ async function resolveEntryPoints(widgets, didCatch) {
     try {
         const loaders = widgets.map((widget) => {
             return (
-                widgetEntryPoint(widget.id)
+                widgetEntryPoint(widget.id, didCatch)
                     // eslint-disable-next-line promise/prefer-await-to-then
                     .then((mod) => [widget.id, mod])
             );

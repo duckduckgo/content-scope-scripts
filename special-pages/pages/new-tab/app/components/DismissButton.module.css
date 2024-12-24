@@ -12,6 +12,13 @@
     border-radius: 50%;
     transition: all .3s;
 
+    svg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
+
     &:hover {
         background-color: var(--color-black-at-9);
         cursor: pointer;
