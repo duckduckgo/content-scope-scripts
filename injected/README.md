@@ -46,7 +46,7 @@ There are three stages that the content scope code is hooked into the platform:
 
 ### Platform specific integration details
 
-The [inject/](https://github.com/duckduckgo/content-scope-scripts/tree/main/inject) directory handles platform specific differences and is glue code into calling the contentScopeFeatures API.
+The [injected/entry-points/](https://github.com/duckduckgo/content-scope-scripts/tree/main/injected/entry-points) directory handles platform specific differences and is glue code into calling the contentScopeFeatures API.
 
 - In Firefox the code is loaded as a standard extension content script.
 - For Apple, Windows and Android the code is a UserScript that has some string replacements for properties and loads in as the page scope.
