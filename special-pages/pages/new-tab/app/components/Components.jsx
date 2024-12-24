@@ -4,6 +4,7 @@ import { mainExamples, otherExamples } from './Examples.jsx';
 import { useThemes } from '../customizer/themes.js';
 import { useSignal } from '@preact/signals';
 import { BackgroundConsumer } from './BackgroundProvider.js';
+import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
 const url = new URL(window.location.href);
 
 const list = {
@@ -32,18 +33,20 @@ export function Components() {
     const { main, browser } = useThemes(dataSignal);
 
     return (
-        <div class={styles.main} data-main-scroller data-theme={main}>
-            <BackgroundConsumer browser={browser} />
-            <div data-content-tube class={styles.contentTube}>
-                {isolated && <Isolated entries={filtered} e2e={e2e} />}
-                {!isolated && (
-                    <Fragment>
-                        <DebugBar id={ids[0]} ids={ids} entries={entries} />
-                        <Stage entries={/** @type {any} */ (filtered)} />
-                    </Fragment>
-                )}
+        <CustomizerThemesContext.Provider value={{ main, browser }}>
+            <div class={styles.main} data-main-scroller data-theme={main}>
+                <BackgroundConsumer browser={browser} />
+                <div data-content-tube class={styles.contentTube}>
+                    {isolated && <Isolated entries={filtered} e2e={e2e} />}
+                    {!isolated && (
+                        <Fragment>
+                            <DebugBar id={ids[0]} ids={ids} entries={entries} />
+                            <Stage entries={/** @type {any} */ (filtered)} />
+                        </Fragment>
+                    )}
+                </div>
             </div>
-        </div>
+        </CustomizerThemesContext.Provider>
     );
 }
 

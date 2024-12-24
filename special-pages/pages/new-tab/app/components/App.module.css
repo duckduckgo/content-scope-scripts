@@ -89,16 +89,16 @@ body:has([data-reset-layout="true"]) .tube {
     .layout[data-animating="true"] & {
         overflow: hidden;
     }
+
+    .layout[data-animating="false"] &[aria-hidden=true] {
+        visibility: hidden;
+        opacity: 0;
+    }
 }
 
 .asideContent {
     opacity: 1;
     width: var(--ntp-drawer-width);
-}
-
-.asideContentInner {
-    padding: 1rem;
-    padding-right: calc(1rem - var(--ntp-drawer-scroll-width));
 }
 
 .asideScroller {

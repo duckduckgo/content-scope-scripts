@@ -5,6 +5,7 @@ import { values } from '../values.js';
 import styles from './CustomizerDrawerInner.module.css';
 import { useComputed } from '@preact/signals';
 import { BackChevron } from '../../components/Icons.js';
+import { InlineError } from '../../InlineError.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, BackgroundData, CustomizerData, PredefinedGradient } from '../../../types/new-tab.js'
@@ -21,25 +22,15 @@ export function GradientSelection({ data, select, back }) {
 
     function onClick(event) {
         let target = /** @type {HTMLElement|null} */ (event.target);
-        while (target && target !== event.currentTarget) {
-            if (target.getAttribute('role') === 'radio') {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                if (target.getAttribute('aria-checked') === 'false') {
-                    if (target.dataset.key) {
-                        const value = /** @type {PredefinedGradient} */ (target.dataset.key);
-                        select({ background: { kind: 'gradient', value } });
-                    } else {
-                        console.warn('missing dataset.key');
-                    }
-                } else {
-                    console.log('ignoring click on selected color');
-                }
-                break;
-            } else {
-                target = target.parentElement;
-            }
+        const selector = `[role="radio"][aria-checked="false"][data-value]`;
+        if (!target?.matches(selector)) {
+            target = /** @type {HTMLElement|null} */ (target?.closest(selector));
         }
+        if (!target) return;
+        const value = /** @type {PredefinedGradient} */ (target.dataset.value);
+        // todo: report exception?
+        if (!(value in values.gradients)) return console.warn('could not select gradient', value);
+        select({ background: { kind: 'gradient', value } });
     }
 
     return (
@@ -49,7 +40,9 @@ export function GradientSelection({ data, select, back }) {
                 Gradients
             </button>
             <div className={styles.sectionBody} onClick={onClick}>
-                <GradientGrid data={data} />
+                <InlineError named={'GradientSelection'}>
+                    <GradientGrid data={data} />
+                </InlineError>
             </div>
         </div>
     );
@@ -73,8 +66,9 @@ function GradientGrid({ data }) {
                             tabIndex={0}
                             role="radio"
                             aria-checked={key === selected.value}
-                            data-key={key}
+                            data-value={key}
                             style={{
+                                backgroundColor: entry.fallback,
                                 backgroundImage: `url(${entry.path})`,
                                 backgroundSize: 'cover',
                                 backgroundRepeat: 'no-repeat',

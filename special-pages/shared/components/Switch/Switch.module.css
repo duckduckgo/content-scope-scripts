@@ -47,6 +47,11 @@
         --track-border-radius: 10px;
     }
 
+    &[data-platform-name="macos"][data-size="medium"] {
+        --switch-width: 32px;
+        --switch-height: 18px;
+        --switch-handle-size: 16px;
+    }
     &[data-platform-name="macos"][data-theme="dark"] {
         --track-bg-color: var(--color-white-at-9);
         --switch-handle-color-checked: #CECECE;

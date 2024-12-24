@@ -25,6 +25,7 @@
 
 .embedded {
     font-size: var(--small-label-font-size);
+    gap: 12px;
 }
 
 .menuItemLabel {
@@ -37,7 +38,21 @@
     > * {
         min-width: 0;
     }
+
+    label {
+        margin-left: auto;
+    }
 }
+
+.menuItemLabelEmbedded {
+    white-space: normal;
+    gap: 6px;
+    height: auto;
+    > * {
+        min-width: auto;
+    }
+}
+
 
 .svg {
     flex-shrink: 0;
