@@ -48,7 +48,7 @@ export function GradientSelection({ data, select, back }) {
     );
 }
 
-const entries = Object.entries(values.gradients);
+const entries = Object.keys(values.gradients);
 /**
  * @param {object} props
  * @param {import("@preact/signals").Signal<CustomizerData>} props.data
@@ -57,7 +57,8 @@ function GradientGrid({ data }) {
     const selected = useComputed(() => data.value.background.kind === 'gradient' && data.value.background.value);
     return (
         <ul className={cn(styles.bgList)}>
-            {entries.map(([key, entry]) => {
+            {entries.map((key) => {
+                const entry = values.gradients[key];
                 return (
                     <li className={styles.bgListItem} key={key}>
                         <button

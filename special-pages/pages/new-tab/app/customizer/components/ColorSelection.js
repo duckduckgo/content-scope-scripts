@@ -50,7 +50,7 @@ export function ColorSelection({ data, select, back }) {
     );
 }
 
-const entries = Object.entries(values.colors);
+const entries = Object.keys(values.colors);
 
 /**
  * @param {object} props
@@ -60,7 +60,8 @@ function ColorGrid({ data }) {
     const selected = useComputed(() => data.value.background.kind === 'color' && data.value.background.value);
     return (
         <Fragment>
-            {entries.map(([key, entry]) => {
+            {entries.map((key) => {
+                const entry = values.colors[key];
                 return (
                     <div class={styles.bgListItem} key={key}>
                         <button
