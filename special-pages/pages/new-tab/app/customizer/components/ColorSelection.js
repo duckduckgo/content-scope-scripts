@@ -7,9 +7,11 @@ import { BackChevron, Picker } from '../../components/Icons.js';
 import { useComputed } from '@preact/signals';
 import { detectThemeFromHex } from '../utils.js';
 import { InlineError } from '../../InlineError.js';
+import { useTypedTranslationWith } from '../../types.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, PredefinedColor, BackgroundData } from '../../../types/new-tab.js'
+ * @import enStrings from '../strings.json';
  */
 
 /**
@@ -19,6 +21,7 @@ import { InlineError } from '../../InlineError.js';
  * @param {() => void} props.back
  */
 export function ColorSelection({ data, select, back }) {
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     function onClick(event) {
         let target = /** @type {HTMLElement|null} */ (event.target);
         const selector = `[role="radio"][aria-checked="false"][data-value]`;
@@ -36,7 +39,7 @@ export function ColorSelection({ data, select, back }) {
         <div>
             <button type={'button'} onClick={back} class={cn(styles.backBtn, styles.sectionTitle)}>
                 <BackChevron />
-                Solid Colors
+                {t('customizer_background_selection_color')}
             </button>
             <div class={styles.sectionBody}>
                 <InlineError named={'ColorGrid'}>
@@ -50,7 +53,7 @@ export function ColorSelection({ data, select, back }) {
     );
 }
 
-const entries = Object.entries(values.colors);
+const entries = Object.keys(values.colors);
 
 /**
  * @param {object} props
@@ -60,7 +63,8 @@ function ColorGrid({ data }) {
     const selected = useComputed(() => data.value.background.kind === 'color' && data.value.background.value);
     return (
         <Fragment>
-            {entries.map(([key, entry]) => {
+            {entries.map((key) => {
+                const entry = values.colors[key];
                 return (
                     <div class={styles.bgListItem} key={key}>
                         <button

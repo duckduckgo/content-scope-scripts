@@ -8,9 +8,11 @@ import { useComputed } from '@preact/signals';
 import { useContext, useId } from 'preact/hooks';
 import { CustomizerThemesContext } from '../CustomizerProvider.js';
 import { detectThemeFromHex } from '../utils.js';
+import { useTypedTranslationWith } from '../../types.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData } from '../../../types/new-tab.js'
+ * @import enStrings from '../strings.json';
  */
 
 /**
@@ -80,6 +82,7 @@ export function BackgroundSection({ data, onNav, onUpload, select }) {
 function DefaultPanel({ checked, onClick }) {
     const id = useId();
     const { main } = useContext(CustomizerThemesContext);
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
 
     return (
         <>
@@ -93,7 +96,7 @@ function DefaultPanel({ checked, onClick }) {
             >
                 {checked && <CircleCheck />}
             </button>
-            <span id={id}>Default</span>
+            <span id={id}>{t('customizer_background_selection_default')}</span>
         </>
     );
 }
@@ -106,6 +109,7 @@ function DefaultPanel({ checked, onClick }) {
  */
 function ColorPanel(props) {
     const id = useId();
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     return (
         <>
             <button
@@ -119,7 +123,7 @@ function ColorPanel(props) {
             >
                 {props.checked && <CircleCheck />}
             </button>
-            <span id={id}>Solid Colors</span>
+            <span id={id}>{t('customizer_background_selection_color')}</span>
         </>
     );
 }
@@ -132,6 +136,7 @@ function ColorPanel(props) {
  */
 function GradientPanel(props) {
     const id = useId();
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     return (
         <>
             <button
@@ -149,7 +154,7 @@ function GradientPanel(props) {
             >
                 {props.checked && <CircleCheck />}
             </button>
-            <span id={id}>Gradients</span>
+            <span id={id}>{t('customizer_background_selection_gradient')}</span>
         </>
     );
 }
@@ -164,6 +169,7 @@ function GradientPanel(props) {
  */
 function BackgroundImagePanel(props) {
     const id = useId();
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const empty = useComputed(() => props.data.value.userImages.length === 0);
     const selectedImage = useComputed(() => {
         const imageId = props.data.value.background.kind === 'userImage' ? props.data.value.background.value : null;
@@ -182,8 +188,8 @@ function BackgroundImagePanel(props) {
 
     // prettier-ignore
     const label = empty.value === true
-        ? <span id={id}>Add Background</span>
-        : <span id={id}>My Backgrounds</span>;
+        ? <span id={id}>{t('customizer_background_selection_image_add')}</span>
+        : <span id={id}>{t('customizer_background_selection_image_existing')}</span>;
 
     if (empty.value === true) {
         return (
