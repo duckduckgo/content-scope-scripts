@@ -249,6 +249,14 @@ test.describe('newtab customizer', () => {
         await cp.setsDarkTheme();
         await cp.darkThemeIsSelected();
     });
+    test('toggles section visibility', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { customizerDrawer: 'enabled', theme: 'light' } });
+        await cp.opensCustomizer();
+        await cp.hidesSection('Tracking Activity');
+    });
     test('opening settings', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);

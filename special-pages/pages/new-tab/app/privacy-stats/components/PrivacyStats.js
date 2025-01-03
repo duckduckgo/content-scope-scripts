@@ -10,6 +10,7 @@ import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useCustomizer } from '../../customizer/components/Customizer.js';
 import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
+import { useCustomizerDrawerSettings } from '../../settings.provider.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -208,10 +209,19 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
  */
 export function PrivacyStatsCustomized() {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const drawer = useCustomizerDrawerSettings();
+
+    /**
+     * The menu title for the stats widget is changes when the menu is in the sidebar.
+     */
+    // prettier-ignore
+    const sectionTitle = drawer.state === 'enabled'
+        ? t('stats_menuTitle_v2')
+        : t('stats_menuTitle');
+
     const { visibility, id, toggle, index } = useVisibility();
 
-    const title = t('stats_menuTitle');
-    useCustomizer({ title, id, icon: 'shield', toggle, visibility: visibility.value, index });
+    useCustomizer({ title: sectionTitle, id, icon: 'shield', toggle, visibility: visibility.value, index });
 
     if (visibility.value === 'hidden') {
         return null;
