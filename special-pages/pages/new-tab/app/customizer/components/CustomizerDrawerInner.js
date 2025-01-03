@@ -13,9 +13,11 @@ import { BorderedSection, CustomizerSection } from './CustomizerSection.js';
 import { SettingsLink } from './SettingsLink.js';
 import { DismissButton } from '../../components/DismissButton.jsx';
 import { InlineError } from '../../InlineError.js';
+import { useTypedTranslationWith } from '../../types.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData } from '../../../types/new-tab.js'
+ * @import enStrings from '../strings.json';
  */
 
 /**
@@ -28,10 +30,11 @@ import { InlineError } from '../../InlineError.js';
  */
 export function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage }) {
     const { close } = useDrawerControls();
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     return (
         <div class={styles.root}>
             <header class={cn(styles.header, styles.internal)}>
-                <h2>Customize</h2>
+                <h2>{t('customizer_drawer_title')}</h2>
                 <DismissButton
                     onClick={close}
                     className={styles.closeBtn}
@@ -51,13 +54,13 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                 <TwoCol
                     left={({ push }) => (
                         <div class={styles.sections}>
-                            <CustomizerSection title={'Background'}>
+                            <CustomizerSection title={t('customizer_section_title_background')}>
                                 <BackgroundSection data={data} onNav={push} onUpload={onUpload} select={select} />
                             </CustomizerSection>
-                            <CustomizerSection title={'Browser Theme'}>
+                            <CustomizerSection title={t('customizer_section_title_theme')}>
                                 <BrowserThemeSection data={data} setTheme={setTheme} />
                             </CustomizerSection>
-                            <CustomizerSection title={'Sections'}>
+                            <CustomizerSection title={t('customizer_section_title_sections')}>
                                 <VisibilityMenuSection />
                             </CustomizerSection>
                             <BorderedSection>
