@@ -29,6 +29,10 @@ title: Privacy Stats
         "expansion": "collapsed"
       }
       ```
+- {@link "NewTab Messages".StatsShowMoreNotification `stats_showMore`}
+    - Sent when the user chooses to show more stats (eg: more than the default 5)
+- {@link "NewTab Messages".StatsShowLessNotification `stats_showLess`}
+    - Sent when the user chooses to show less stats (eg: from a long list back to the default)
 
 ## Example:
 

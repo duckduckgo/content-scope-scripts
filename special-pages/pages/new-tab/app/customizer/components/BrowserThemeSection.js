@@ -2,6 +2,12 @@ import styles from './BrowserThemeSection.module.css';
 import cn from 'classnames';
 import { h } from 'preact';
 import { useComputed } from '@preact/signals';
+import { useTypedTranslationWith } from '../../types.js';
+
+/**
+ * @import enStrings from '../strings.json';
+ * @typedef {enStrings} strings
+ */
 
 /**
  * @param {object} props
@@ -10,6 +16,8 @@ import { useComputed } from '@preact/signals';
  */
 export function BrowserThemeSection(props) {
     const current = useComputed(() => props.data.value.theme);
+    const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
+
     return (
         <ul class={styles.themeList}>
             <li class={styles.themeItem}>
@@ -21,9 +29,9 @@ export function BrowserThemeSection(props) {
                     tabindex={0}
                     onClick={() => props.setTheme({ theme: 'light' })}
                 >
-                    <span class="sr-only">Select light theme</span>
+                    <span class="sr-only">{t('customizer_browser_theme_label', { type: 'light' })}</span>
                 </button>
-                Light
+                {t('customizer_browser_theme_light')}
             </li>
             <li class={styles.themeItem}>
                 <button
@@ -34,9 +42,9 @@ export function BrowserThemeSection(props) {
                     tabindex={0}
                     onClick={() => props.setTheme({ theme: 'dark' })}
                 >
-                    <span class="sr-only">Select dark theme</span>
+                    <span class="sr-only">{t('customizer_browser_theme_label', { type: 'dark' })}</span>
                 </button>
-                Dark
+                {t('customizer_browser_theme_dark')}
             </li>
             <li class={styles.themeItem}>
                 <button
@@ -47,9 +55,9 @@ export function BrowserThemeSection(props) {
                     tabindex={0}
                     onClick={() => props.setTheme({ theme: 'system' })}
                 >
-                    <span class="sr-only">Select system theme</span>
+                    <span class="sr-only">{t('customizer_browser_theme_label', { type: 'system' })}</span>
                 </button>
-                System
+                {t('customizer_browser_theme_system')}
             </li>
         </ul>
     );
