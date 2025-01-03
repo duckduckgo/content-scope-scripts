@@ -11,7 +11,6 @@
  */
 import ContentFeature from '../content-feature';
 import { DDGReflect, stripVersion } from '../utils';
-import { hasMozProxies } from '../wrapper-utils';
 
 /**
  * Blocks some privacy harmful APIs.
@@ -85,16 +84,13 @@ export default class HarmfulApis extends ContentFeature {
                     });
                 }
             }
-            // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
-            if (!hasMozProxies) {
-                this.wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-                    if (eventsToBlock.includes(type) && this === globalThis) {
-                        console.log('blocked event', type);
-                        return;
-                    }
-                    return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
-                });
-            }
+            this.wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
+                if (eventsToBlock.includes(type) && this === globalThis) {
+                    console.log('blocked event', type);
+                    return;
+                }
+                return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
+            });
         }
     }
 
@@ -271,8 +267,7 @@ export default class HarmfulApis extends ContentFeature {
         if (!('Bluetooth' in globalThis)) {
             return;
         }
-        // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
-        if (settings.filterEvents && settings.filterEvents.length > 0 && !hasMozProxies) {
+        if (settings.filterEvents && settings.filterEvents.length > 0) {
             this.wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
                 if (settings.filterEvents?.includes(type) && this instanceof globalThis.Bluetooth) {
                     return;
