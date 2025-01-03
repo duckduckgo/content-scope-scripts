@@ -1,0 +1,11323 @@
+/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */
+(function () {
+    'use strict';
+
+    /* eslint-disable no-redeclare */
+    const Set$1 = globalThis.Set;
+    const Reflect$1 = globalThis.Reflect;
+    const customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
+    const customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
+    const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+    const getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
+    const toString = Object.prototype.toString;
+    const objectKeys = Object.keys;
+    const objectEntries = Object.entries;
+    const objectDefineProperty = Object.defineProperty;
+    const URL$1 = globalThis.URL;
+    const Proxy$1 = globalThis.Proxy;
+    const functionToString = Function.prototype.toString;
+    const TypeError$1 = globalThis.TypeError;
+    const Symbol = globalThis.Symbol;
+    const hasOwnProperty = Object.prototype.hasOwnProperty;
+    const dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+    const addEventListener = globalThis.addEventListener?.bind(globalThis);
+    const removeEventListener = globalThis.removeEventListener?.bind(globalThis);
+    const CustomEvent$1 = globalThis.CustomEvent;
+    const Promise$1 = globalThis.Promise;
+    const String$1 = globalThis.String;
+    const Map$1 = globalThis.Map;
+    const Error$2 = globalThis.Error;
+    const randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+
+    var capturedGlobals = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        CustomEvent: CustomEvent$1,
+        Error: Error$2,
+        Map: Map$1,
+        Promise: Promise$1,
+        Proxy: Proxy$1,
+        Reflect: Reflect$1,
+        Set: Set$1,
+        String: String$1,
+        Symbol: Symbol,
+        TypeError: TypeError$1,
+        URL: URL$1,
+        addEventListener: addEventListener,
+        customElementsDefine: customElementsDefine,
+        customElementsGet: customElementsGet,
+        dispatchEvent: dispatchEvent,
+        functionToString: functionToString,
+        getOwnPropertyDescriptor: getOwnPropertyDescriptor,
+        getOwnPropertyDescriptors: getOwnPropertyDescriptors,
+        hasOwnProperty: hasOwnProperty,
+        objectDefineProperty: objectDefineProperty,
+        objectEntries: objectEntries,
+        objectKeys: objectKeys,
+        randomUUID: randomUUID,
+        removeEventListener: removeEventListener,
+        toString: toString
+    });
+
+    /* eslint-disable no-redeclare, no-global-assign */
+    /* global cloneInto, exportFunction, true */
+
+    // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
+
+    let globalObj$1 = typeof window === 'undefined' ? globalThis : window;
+    let Error$1 = globalObj$1.Error;
+    let messageSecret$1;
+
+    // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
+    const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
+    const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
+    function registerMessageSecret(secret) {
+        messageSecret$1 = secret;
+    }
+
+    /**
+     * @returns {HTMLElement} the element to inject the script into
+     */
+    function getInjectionElement() {
+        return document.head || document.documentElement;
+    }
+
+    /**
+     * Creates a script element with the given code to avoid Firefox CSP restrictions.
+     * @param {string} css
+     * @returns {HTMLLinkElement | HTMLStyleElement}
+     */
+    function createStyleElement(css) {
+        let style;
+        {
+            style = document.createElement('link');
+            style.href = 'data:text/css,' + encodeURIComponent(css);
+            style.setAttribute('rel', 'stylesheet');
+            style.setAttribute('type', 'text/css');
+        }
+        return style;
+    }
+
+    /**
+     * Injects a script into the page, avoiding CSP restrictions if possible.
+     */
+    function injectGlobalStyles(css) {
+        const style = createStyleElement(css);
+        getInjectionElement().appendChild(style);
+    }
+
+    // linear feedback shift register to find a random approximation
+    function nextRandom(v) {
+        return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
+    }
+
+    const exemptionLists = {};
+    function shouldExemptUrl(type, url) {
+        for (const regex of exemptionLists[type]) {
+            if (regex.test(url)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    let debug = false;
+
+    function initStringExemptionLists(args) {
+        const { stringExemptionLists } = args;
+        debug = args.debug;
+        for (const type in stringExemptionLists) {
+            exemptionLists[type] = [];
+            for (const stringExemption of stringExemptionLists[type]) {
+                exemptionLists[type].push(new RegExp(stringExemption));
+            }
+        }
+    }
+
+    /**
+     * Best guess effort if the document is being framed
+     * @returns {boolean} if we infer the document is framed
+     */
+    function isBeingFramed() {
+        if (globalThis.location && 'ancestorOrigins' in globalThis.location) {
+            return globalThis.location.ancestorOrigins.length > 0;
+        }
+        return globalThis.top !== globalThis.window;
+    }
+
+    /**
+     * Best guess effort if the document is third party
+     * @returns {boolean} if we infer the document is third party
+     */
+    function isThirdPartyFrame() {
+        if (!isBeingFramed()) {
+            return false;
+        }
+        const tabHostname = getTabHostname();
+        // If we can't get the tab hostname, assume it's third party
+        if (!tabHostname) {
+            return true;
+        }
+        return !matchHostname(globalThis.location.hostname, tabHostname);
+    }
+
+    /**
+     * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
+     * @returns {string|null} inferred tab hostname
+     */
+    function getTabHostname() {
+        let framingOrigin = null;
+        try {
+            // @ts-expect-error - globalThis.top is possibly 'null' here
+            framingOrigin = globalThis.top.location.href;
+        } catch {
+            framingOrigin = globalThis.document.referrer;
+        }
+
+        // Not supported in Firefox
+        if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+            // ancestorOrigins is reverse order, with the last item being the top frame
+            framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+        }
+
+        try {
+            // @ts-expect-error - framingOrigin is possibly 'null' here
+            framingOrigin = new URL(framingOrigin).hostname;
+        } catch {
+            framingOrigin = null;
+        }
+        return framingOrigin;
+    }
+
+    /**
+     * Returns true if hostname is a subset of exceptionDomain or an exact match.
+     * @param {string} hostname
+     * @param {string} exceptionDomain
+     * @returns {boolean}
+     */
+    function matchHostname(hostname, exceptionDomain) {
+        return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`);
+    }
+
+    const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
+    function getStackTraceUrls(stack) {
+        const urls = new Set$1();
+        try {
+            const errorLines = stack.split('\n');
+            // Should cater for Chrome and Firefox stacks, we only care about https? resources.
+            for (const line of errorLines) {
+                const res = line.match(lineTest);
+                if (res) {
+                    urls.add(new URL(res[2], location.href));
+                }
+            }
+        } catch (e) {
+            // Fall through
+        }
+        return urls;
+    }
+
+    function getStackTraceOrigins(stack) {
+        const urls = getStackTraceUrls(stack);
+        const origins = new Set$1();
+        for (const url of urls) {
+            origins.add(url.hostname);
+        }
+        return origins;
+    }
+
+    // Checks the stack trace if there are known libraries that are broken.
+    function shouldExemptMethod(type) {
+        // Short circuit stack tracing if we don't have checks
+        if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
+            return false;
+        }
+        const stack = getStack();
+        const errorFiles = getStackTraceUrls(stack);
+        for (const path of errorFiles) {
+            if (shouldExemptUrl(type, path.href)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Iterate through the key, passing an item index and a byte to be modified
+    function iterateDataKey(key, callback) {
+        let item = key.charCodeAt(0);
+        for (const i in key) {
+            let byte = key.charCodeAt(i);
+            for (let j = 8; j >= 0; j--) {
+                const res = callback(item, byte);
+                // Exit early if callback returns null
+                if (res === null) {
+                    return;
+                }
+
+                // find next item to perturb
+                item = nextRandom(item);
+
+                // Right shift as we use the least significant bit of it
+                byte = byte >> 1;
+            }
+        }
+    }
+
+    function isFeatureBroken(args, feature) {
+        return isPlatformSpecificFeature(feature)
+            ? !args.site.enabledFeatures.includes(feature)
+            : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
+    }
+
+    function camelcase(dashCaseText) {
+        return dashCaseText.replace(/-(.)/g, (match, letter) => {
+            return letter.toUpperCase();
+        });
+    }
+
+    // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
+    function isAppleSilicon() {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl');
+
+        // Best guess if the device is an Apple Silicon
+        // https://stackoverflow.com/a/65412357
+        // @ts-expect-error - Object is possibly 'null'
+        return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1;
+    }
+
+    /**
+     * Take configSeting which should be an array of possible values.
+     * If a value contains a criteria that is a match for this environment then return that value.
+     * Otherwise return the first value that doesn't have a criteria.
+     *
+     * @param {ConfigSetting[]} configSetting - Config setting which should contain a list of possible values
+     * @returns {*|undefined} - The value from the list that best matches the criteria in the config
+     */
+    function processAttrByCriteria(configSetting) {
+        let bestOption;
+        for (const item of configSetting) {
+            if (item.criteria) {
+                if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {
+                    bestOption = item;
+                    break;
+                }
+            } else {
+                bestOption = item;
+            }
+        }
+
+        return bestOption;
+    }
+
+    const functionMap = {
+        /** Useful for debugging APIs in the wild, shouldn't be used */
+        debug: (...args) => {
+            console.log('debugger', ...args);
+            // eslint-disable-next-line no-debugger
+            debugger;
+        },
+
+        noop: () => {},
+    };
+
+    /**
+     * @typedef {object} ConfigSetting
+     * @property {'undefined' | 'number' | 'string' | 'function' | 'boolean' | 'null' | 'array' | 'object'} type
+     * @property {string} [functionName]
+     * @property {boolean | string | number} value
+     * @property {object} [criteria]
+     * @property {string} criteria.arch
+     */
+
+    /**
+     * Processes a structured config setting and returns the value according to its type
+     * @param {ConfigSetting} configSetting
+     * @param {*} [defaultValue]
+     * @returns
+     */
+    function processAttr(configSetting, defaultValue) {
+        if (configSetting === undefined) {
+            return defaultValue;
+        }
+
+        const configSettingType = typeof configSetting;
+        switch (configSettingType) {
+            case 'object':
+                if (Array.isArray(configSetting)) {
+                    configSetting = processAttrByCriteria(configSetting);
+                    if (configSetting === undefined) {
+                        return defaultValue;
+                    }
+                }
+
+                if (!configSetting.type) {
+                    return defaultValue;
+                }
+
+                if (configSetting.type === 'function') {
+                    if (configSetting.functionName && functionMap[configSetting.functionName]) {
+                        return functionMap[configSetting.functionName];
+                    }
+                }
+
+                if (configSetting.type === 'undefined') {
+                    return undefined;
+                }
+
+                // All JSON expressable types are handled here
+                return configSetting.value;
+            default:
+                return defaultValue;
+        }
+    }
+
+    function getStack() {
+        return new Error$1().stack;
+    }
+
+    /**
+     * @param {*[]} argsArray
+     * @returns {string}
+     */
+    function debugSerialize(argsArray) {
+        const maxSerializedSize = 1000;
+        const serializedArgs = argsArray.map((arg) => {
+            try {
+                const serializableOut = JSON.stringify(arg);
+                if (serializableOut.length > maxSerializedSize) {
+                    return `<truncated, length: ${serializableOut.length}, value: ${serializableOut.substring(0, maxSerializedSize)}...>`;
+                }
+                return serializableOut;
+            } catch (e) {
+                // Sometimes this happens when we can't serialize an object to string but we still wish to log it and make other args readable
+                return '<unserializable>';
+            }
+        });
+        return JSON.stringify(serializedArgs);
+    }
+
+    /**
+     * @template {object} P
+     * @typedef {object} ProxyObject<P>
+     * @property {(target?: object, thisArg?: P, args?: object) => void} apply
+     */
+
+    /**
+     * @template [P=object]
+     */
+    class DDGProxy {
+        /**
+         * @param {import('./content-feature').default} feature
+         * @param {P} objectScope
+         * @param {string} property
+         * @param {ProxyObject<P>} proxyObject
+         */
+        constructor(feature, objectScope, property, proxyObject) {
+            this.objectScope = objectScope;
+            this.property = property;
+            this.feature = feature;
+            this.featureName = feature.name;
+            this.camelFeatureName = camelcase(this.featureName);
+            const outputHandler = (...args) => {
+                this.feature.addDebugFlag();
+                const isExempt = shouldExemptMethod(this.camelFeatureName);
+                // Keep this here as getStack() is expensive
+                if (debug) {
+                    postDebugMessage(this.camelFeatureName, {
+                        isProxy: true,
+                        action: isExempt ? 'ignore' : 'restrict',
+                        kind: this.property,
+                        documentUrl: document.location.href,
+                        stack: getStack(),
+                        args: debugSerialize(args[2]),
+                    });
+                }
+                // The normal return value
+                if (isExempt) {
+                    return DDGReflect.apply(...args);
+                }
+                return proxyObject.apply(...args);
+            };
+            const getMethod = (target, prop, receiver) => {
+                this.feature.addDebugFlag();
+                if (prop === 'toString') {
+                    const method = Reflect.get(target, prop, receiver).bind(target);
+                    Object.defineProperty(method, 'toString', {
+                        value: String.toString.bind(String.toString),
+                        enumerable: false,
+                    });
+                    return method;
+                }
+                return DDGReflect.get(target, prop, receiver);
+            };
+            {
+                this._native = objectScope[property];
+                const handler = new globalObj$1.wrappedJSObject.Object();
+                handler.apply = exportFunction(outputHandler, globalObj$1);
+                handler.get = exportFunction(getMethod, globalObj$1);
+                // @ts-expect-error wrappedJSObject is not a property of objectScope
+                this.internal = new globalObj$1.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler);
+            }
+        }
+
+        // Actually apply the proxy to the native property
+        overload() {
+            {
+                // @ts-expect-error wrappedJSObject is not a property of objectScope
+                exportFunction(this.internal, this.objectScope, { defineAs: this.property });
+            }
+        }
+
+        overloadDescriptor() {
+            // TODO: this is not always correct! Use wrap* or shim* methods instead
+            this.feature.defineProperty(this.objectScope, this.property, {
+                value: this.internal,
+                writable: true,
+                enumerable: true,
+                configurable: true,
+            });
+        }
+    }
+
+    const maxCounter = new Map();
+    function numberOfTimesDebugged(feature) {
+        if (!maxCounter.has(feature)) {
+            maxCounter.set(feature, 1);
+        } else {
+            maxCounter.set(feature, maxCounter.get(feature) + 1);
+        }
+        return maxCounter.get(feature);
+    }
+
+    const DEBUG_MAX_TIMES = 5000;
+
+    function postDebugMessage(feature, message, allowNonDebug = false) {
+        if (!debug && !allowNonDebug) {
+            return;
+        }
+        if (numberOfTimesDebugged(feature) > DEBUG_MAX_TIMES) {
+            return;
+        }
+        if (message.stack) {
+            const scriptOrigins = [...getStackTraceOrigins(message.stack)];
+            message.scriptOrigins = scriptOrigins;
+        }
+        globalObj$1.postMessage({
+            action: feature,
+            message,
+        });
+    }
+
+    let DDGReflect;
+    let DDGPromise;
+
+    // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+    {
+        DDGPromise = globalObj$1.wrappedJSObject.Promise;
+        DDGReflect = globalObj$1.wrappedJSObject.Reflect;
+    }
+
+    /**
+     * @param {string | null} topLevelHostname
+     * @param {object[]} featureList
+     * @returns {boolean}
+     */
+    function isUnprotectedDomain(topLevelHostname, featureList) {
+        let unprotectedDomain = false;
+        if (!topLevelHostname) {
+            return false;
+        }
+        const domainParts = topLevelHostname.split('.');
+
+        // walk up the domain to see if it's unprotected
+        while (domainParts.length > 1 && !unprotectedDomain) {
+            const partialDomain = domainParts.join('.');
+
+            unprotectedDomain = featureList.filter((domain) => domain.domain === partialDomain).length > 0;
+
+            domainParts.shift();
+        }
+
+        return unprotectedDomain;
+    }
+
+    /**
+     * @typedef {object} Platform
+     * @property {'ios' | 'macos' | 'extension' | 'android' | 'windows'} name
+     * @property {string | number } [version]
+     */
+
+    /**
+     * @typedef {object} UserPreferences
+     * @property {Platform} platform
+     * @property {boolean} [debug]
+     * @property {boolean} [globalPrivacyControl]
+     * @property {number} [versionNumber] - Android version number only
+     * @property {string} [versionString] - Non Android version string
+     * @property {string} sessionKey
+     */
+
+    /**
+     * Used to inialize extension code in the load phase
+     */
+    function computeLimitedSiteObject() {
+        const topLevelHostname = getTabHostname();
+        return {
+            domain: topLevelHostname,
+        };
+    }
+
+    function parseVersionString(versionString) {
+        return versionString.split('.').map(Number);
+    }
+
+    /**
+     * @param {string} minVersionString
+     * @param {string} applicationVersionString
+     * @returns {boolean}
+     */
+    function satisfiesMinVersion(minVersionString, applicationVersionString) {
+        const minVersions = parseVersionString(minVersionString);
+        const currentVersions = parseVersionString(applicationVersionString);
+        const maxLength = Math.max(minVersions.length, currentVersions.length);
+        for (let i = 0; i < maxLength; i++) {
+            const minNumberPart = minVersions[i] || 0;
+            const currentVersionPart = currentVersions[i] || 0;
+            if (currentVersionPart > minNumberPart) {
+                return true;
+            }
+            if (currentVersionPart < minNumberPart) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param {string | number | undefined} minSupportedVersion
+     * @param {string | number | undefined} currentVersion
+     * @returns {boolean}
+     */
+    function isSupportedVersion(minSupportedVersion, currentVersion) {
+        if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {
+            if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {
+                return true;
+            }
+        } else if (typeof currentVersion === 'number' && typeof minSupportedVersion === 'number') {
+            if (minSupportedVersion <= currentVersion) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Retutns a list of enabled features
+     * @param {RemoteConfig} data
+     * @param {string | null} topLevelHostname
+     * @param {Platform['version']} platformVersion
+     * @param {string[]} platformSpecificFeatures
+     * @returns {string[]}
+     */
+    function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
+        const remoteFeatureNames = Object.keys(data.features);
+        const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
+            (featureName) => !remoteFeatureNames.includes(featureName),
+        );
+        const enabledFeatures = remoteFeatureNames
+            .filter((featureName) => {
+                const feature = data.features[featureName];
+                // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+                if (feature.minSupportedVersion && platformVersion) {
+                    if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
+                        return false;
+                    }
+                }
+                return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
+            })
+            .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
+        return enabledFeatures;
+    }
+
+    /**
+     * Returns the relevant feature settings for the enabled features
+     * @param {RemoteConfig} data
+     * @param {string[]} enabledFeatures
+     * @returns {Record<string, unknown>}
+     */
+    function parseFeatureSettings(data, enabledFeatures) {
+        /** @type {Record<string, unknown>} */
+        const featureSettings = {};
+        const remoteFeatureNames = Object.keys(data.features);
+        remoteFeatureNames.forEach((featureName) => {
+            if (!enabledFeatures.includes(featureName)) {
+                return;
+            }
+
+            featureSettings[featureName] = data.features[featureName].settings;
+        });
+        return featureSettings;
+    }
+
+    /**
+     * @import {FeatureName} from "./features";
+     * @type {FeatureName[]}
+     */
+    const platformSpecificFeatures = ['windowsPermissionUsage', 'messageBridge'];
+
+    function isPlatformSpecificFeature(featureName) {
+        return platformSpecificFeatures.includes(featureName);
+    }
+
+    function createCustomEvent(eventName, eventDetail) {
+        // By default, Firefox protects the event detail Object from the page,
+        // leading to "Permission denied to access property" errors.
+        // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+        {
+            eventDetail = cloneInto(eventDetail, window);
+        }
+
+        // @ts-expect-error - possibly null
+        return new OriginalCustomEvent(eventName, eventDetail);
+    }
+
+    /** @deprecated */
+    function legacySendMessage(messageType, options) {
+        // FF & Chrome
+        return (
+            originalWindowDispatchEvent &&
+            originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret$1, { detail: { messageType, options } }))
+        );
+        // TBD other platforms
+    }
+
+    const baseFeatures = /** @type {const} */ ([
+        'fingerprintingAudio',
+        'fingerprintingBattery',
+        'fingerprintingCanvas',
+        'googleRejected',
+        'gpc',
+        'fingerprintingHardware',
+        'referrer',
+        'fingerprintingScreenSize',
+        'fingerprintingTemporaryStorage',
+        'navigatorInterface',
+        'elementHiding',
+        'exceptionHandler',
+        'apiManipulation',
+    ]);
+
+    const otherFeatures = /** @type {const} */ ([
+        'clickToLoad',
+        'cookie',
+        'messageBridge',
+        'duckPlayer',
+        'harmfulApis',
+        'webCompat',
+        'windowsPermissionUsage',
+        'brokerProtection',
+        'performanceMetrics',
+        'breakageReporting',
+        'autofillPasswordImport',
+    ]);
+
+    /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
+    /** @type {Record<string, FeatureName[]>} */
+    const platformSupport = {
+        apple: ['webCompat', ...baseFeatures],
+        'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
+        android: [...baseFeatures, 'webCompat', 'clickToLoad', 'breakageReporting', 'duckPlayer'],
+        'android-autofill-password-import': ['autofillPasswordImport'],
+        windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
+        firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
+        chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
+        'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
+        integration: [...baseFeatures, ...otherFeatures],
+    };
+
+    /**
+     * Performance monitor, holds reference to PerformanceMark instances.
+     */
+    class PerformanceMonitor {
+        constructor() {
+            this.marks = [];
+        }
+
+        /**
+         * Create performance marker
+         * @param {string} name
+         * @returns {PerformanceMark}
+         */
+        mark(name) {
+            const mark = new PerformanceMark(name);
+            this.marks.push(mark);
+            return mark;
+        }
+
+        /**
+         * Measure all performance markers
+         */
+        measureAll() {
+            this.marks.forEach((mark) => {
+                mark.measure();
+            });
+        }
+    }
+
+    /**
+     * Tiny wrapper around performance.mark and performance.measure
+     */
+    // eslint-disable-next-line no-redeclare
+    class PerformanceMark {
+        /**
+         * @param {string} name
+         */
+        constructor(name) {
+            this.name = name;
+            performance.mark(this.name + 'Start');
+        }
+
+        end() {
+            performance.mark(this.name + 'End');
+        }
+
+        measure() {
+            performance.measure(this.name, this.name + 'Start', this.name + 'End');
+        }
+    }
+
+    class Cookie {
+        constructor(cookieString) {
+            this.parts = cookieString.split(';');
+            this.parse();
+        }
+
+        parse() {
+            const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
+            this.attrIdx = {};
+            this.parts.forEach((part, index) => {
+                const kv = part.split('=', 1);
+                const attribute = kv[0].trim();
+                const value = part.slice(kv[0].length + 1);
+                if (index === 0) {
+                    this.name = attribute;
+                    this.value = value;
+                } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
+                    this[attribute.toLowerCase()] = value;
+                    // @ts-expect-error - Object is possibly 'undefined'.
+                    this.attrIdx[attribute.toLowerCase()] = index;
+                }
+            });
+        }
+
+        getExpiry() {
+            // @ts-expect-error expires is not defined in the type definition
+            if (!this.maxAge && !this.expires) {
+                return NaN;
+            }
+            const expiry = this.maxAge
+                ? parseInt(this.maxAge)
+                : // @ts-expect-error expires is not defined in the type definition
+                  (new Date(this.expires) - new Date()) / 1000;
+            return expiry;
+        }
+
+        get maxAge() {
+            return this['max-age'];
+        }
+
+        set maxAge(value) {
+            // @ts-expect-error - Object is possibly 'undefined'.
+            if (this.attrIdx['max-age'] > 0) {
+                // @ts-expect-error - Object is possibly 'undefined'.
+                this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`);
+            } else {
+                this.parts.push(`max-age=${value}`);
+            }
+            this.parse();
+        }
+
+        toString() {
+            return this.parts.join(';');
+        }
+    }
+
+    function isJSONArray(value) {
+      return Array.isArray(value);
+    }
+    function isJSONObject(value) {
+      return value !== null && typeof value === 'object' && (value.constructor === undefined ||
+      // for example Object.create(null)
+      value.constructor.name === 'Object') // do not match on classes or Array
+      ;
+    }
+
+    /**
+     * Test deep equality of two JSON values, objects, or arrays
+     */
+    // TODO: write unit tests
+    function isEqual(a, b) {
+      // FIXME: this function will return false for two objects with the same keys
+      //  but different order of keys
+      return JSON.stringify(a) === JSON.stringify(b);
+    }
+
+    /**
+     * Get all but the last items from an array
+     */
+    // TODO: write unit tests
+    function initial(array) {
+      return array.slice(0, array.length - 1);
+    }
+
+    /**
+     * Get the last item from an array
+     */
+    // TODO: write unit tests
+    function last(array) {
+      return array[array.length - 1];
+    }
+
+    /**
+     * Test whether a value is an Object or an Array (and not a primitive JSON value)
+     */
+    // TODO: write unit tests
+    function isObjectOrArray(value) {
+      return typeof value === 'object' && value !== null;
+    }
+
+    /**
+     * Immutability helpers
+     *
+     * inspiration:
+     *
+     * https://www.npmjs.com/package/seamless-immutable
+     * https://www.npmjs.com/package/ih
+     * https://www.npmjs.com/package/mutatis
+     * https://github.com/mariocasciaro/object-path-immutable
+     */
+
+    /**
+     * Shallow clone of an Object, Array, or value
+     * Symbols are cloned too.
+     */
+    function shallowClone(value) {
+      if (isJSONArray(value)) {
+        // copy array items
+        const copy = value.slice();
+
+        // copy all symbols
+        Object.getOwnPropertySymbols(value).forEach(symbol => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          copy[symbol] = value[symbol];
+        });
+        return copy;
+      } else if (isJSONObject(value)) {
+        // copy object properties
+        const copy = {
+          ...value
+        };
+
+        // copy all symbols
+        Object.getOwnPropertySymbols(value).forEach(symbol => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          copy[symbol] = value[symbol];
+        });
+        return copy;
+      } else {
+        return value;
+      }
+    }
+
+    /**
+     * Update a value in an object in an immutable way.
+     * If the value is unchanged, the original object will be returned
+     */
+    function applyProp(object, key, value) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (object[key] === value) {
+        // return original object unchanged when the new value is identical to the old one
+        return object;
+      } else {
+        const updatedObject = shallowClone(object);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        updatedObject[key] = value;
+        return updatedObject;
+      }
+    }
+
+    /**
+     * helper function to get a nested property in an object or array
+     *
+     * @return Returns the field when found, or undefined when the path doesn't exist
+     */
+    function getIn(object, path) {
+      let value = object;
+      let i = 0;
+      while (i < path.length) {
+        if (isJSONObject(value)) {
+          value = value[path[i]];
+        } else if (isJSONArray(value)) {
+          value = value[parseInt(path[i])];
+        } else {
+          value = undefined;
+        }
+        i++;
+      }
+      return value;
+    }
+
+    /**
+     * helper function to replace a nested property in an object with a new value
+     * without mutating the object itself.
+     *
+     * @param object
+     * @param path
+     * @param value
+     * @param [createPath=false]
+     *                    If true, `path` will be created when (partly) missing in
+     *                    the object. For correctly creating nested Arrays or
+     *                    Objects, the function relies on `path` containing number
+     *                    in case of array indexes.
+     *                    If false (default), an error will be thrown when the
+     *                    path doesn't exist.
+     * @return Returns a new, updated object or array
+     */
+    function setIn(object, path, value) {
+      let createPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      if (path.length === 0) {
+        return value;
+      }
+      const key = path[0];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedValue = setIn(object ? object[key] : undefined, path.slice(1), value, createPath);
+      if (isJSONObject(object) || isJSONArray(object)) {
+        return applyProp(object, key, updatedValue);
+      } else {
+        if (createPath) {
+          const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          newObject[key] = updatedValue;
+          return newObject;
+        } else {
+          throw new Error('Path does not exist');
+        }
+      }
+    }
+    const IS_INTEGER_REGEX = /^\d+$/;
+
+    /**
+     * helper function to replace a nested property in an object with a new value
+     * without mutating the object itself.
+     *
+     * @return  Returns a new, updated object or array
+     */
+    function updateIn(object, path, transform) {
+      if (path.length === 0) {
+        return transform(object);
+      }
+      if (!isObjectOrArray(object)) {
+        throw new Error('Path doesn\'t exist');
+      }
+      const key = path[0];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedValue = updateIn(object[key], path.slice(1), transform);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return applyProp(object, key, updatedValue);
+    }
+
+    /**
+     * helper function to delete a nested property in an object
+     * without mutating the object itself.
+     *
+     * @return Returns a new, updated object or array
+     */
+    function deleteIn(object, path) {
+      if (path.length === 0) {
+        return object;
+      }
+      if (!isObjectOrArray(object)) {
+        throw new Error('Path does not exist');
+      }
+      if (path.length === 1) {
+        const key = path[0];
+        if (!(key in object)) {
+          // key doesn't exist. return object unchanged
+          return object;
+        } else {
+          const updatedObject = shallowClone(object);
+          if (isJSONArray(updatedObject)) {
+            updatedObject.splice(parseInt(key), 1);
+          }
+          if (isJSONObject(updatedObject)) {
+            delete updatedObject[key];
+          }
+          return updatedObject;
+        }
+      }
+      const key = path[0];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedValue = deleteIn(object[key], path.slice(1));
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return applyProp(object, key, updatedValue);
+    }
+
+    /**
+     * Insert a new item in an array at a specific index.
+     * Example usage:
+     *
+     *     insertAt({arr: [1,2,3]}, ['arr', '2'], 'inserted')  // [1,2,'inserted',3]
+     */
+    function insertAt(document, path, value) {
+      const parentPath = path.slice(0, path.length - 1);
+      const index = path[path.length - 1];
+      return updateIn(document, parentPath, items => {
+        if (!Array.isArray(items)) {
+          throw new TypeError('Array expected at path ' + JSON.stringify(parentPath));
+        }
+        const updatedItems = shallowClone(items);
+        updatedItems.splice(parseInt(index), 0, value);
+        return updatedItems;
+      });
+    }
+
+    /**
+     * Test whether a path exists in a JSON object
+     * @return Returns true if the path exists, else returns false
+     */
+    function existsIn(document, path) {
+      if (document === undefined) {
+        return false;
+      }
+      if (path.length === 0) {
+        return true;
+      }
+      if (document === null) {
+        return false;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return existsIn(document[path[0]], path.slice(1));
+    }
+
+    /**
+     * Parse a JSON Pointer
+     */
+    function parseJSONPointer(pointer) {
+      const path = pointer.split('/');
+      path.shift(); // remove the first empty entry
+
+      return path.map(p => p.replace(/~1/g, '/').replace(/~0/g, '~'));
+    }
+
+    /**
+     * Compile a JSON Pointer
+     */
+    function compileJSONPointer(path) {
+      return path.map(compileJSONPointerProp).join('');
+    }
+
+    /**
+     * Compile a single path property from a JSONPath
+     */
+    function compileJSONPointerProp(pathProp) {
+      return '/' + String(pathProp).replace(/~/g, '~0').replace(/\//g, '~1');
+    }
+
+    /**
+     * Apply a patch to a JSON object
+     * The original JSON object will not be changed,
+     * instead, the patch is applied in an immutable way
+     */
+    function immutableJSONPatch(document, operations, options) {
+      let updatedDocument = document;
+      for (let i = 0; i < operations.length; i++) {
+        validateJSONPatchOperation(operations[i]);
+        let operation = operations[i];
+        const path = parsePath(updatedDocument, operation.path);
+        if (operation.op === 'add') {
+          updatedDocument = add(updatedDocument, path, operation.value);
+        } else if (operation.op === 'remove') {
+          updatedDocument = remove(updatedDocument, path);
+        } else if (operation.op === 'replace') {
+          updatedDocument = replace(updatedDocument, path, operation.value);
+        } else if (operation.op === 'copy') {
+          updatedDocument = copy(updatedDocument, path, parseFrom(operation.from));
+        } else if (operation.op === 'move') {
+          updatedDocument = move(updatedDocument, path, parseFrom(operation.from));
+        } else if (operation.op === 'test') {
+          test(updatedDocument, path, operation.value);
+        } else {
+          throw new Error('Unknown JSONPatch operation ' + JSON.stringify(operation));
+        }
+      }
+      return updatedDocument;
+    }
+
+    /**
+     * Replace an existing item
+     */
+    function replace(document, path, value) {
+      return setIn(document, path, value);
+    }
+
+    /**
+     * Remove an item or property
+     */
+    function remove(document, path) {
+      return deleteIn(document, path);
+    }
+
+    /**
+     * Add an item or property
+     */
+    function add(document, path, value) {
+      if (isArrayItem(document, path)) {
+        return insertAt(document, path, value);
+      } else {
+        return setIn(document, path, value);
+      }
+    }
+
+    /**
+     * Copy a value
+     */
+    function copy(document, path, from) {
+      const value = getIn(document, from);
+      if (isArrayItem(document, path)) {
+        return insertAt(document, path, value);
+      } else {
+        const value = getIn(document, from);
+        return setIn(document, path, value);
+      }
+    }
+
+    /**
+     * Move a value
+     */
+    function move(document, path, from) {
+      const value = getIn(document, from);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const removedJson = deleteIn(document, from);
+      return isArrayItem(removedJson, path) ? insertAt(removedJson, path, value) : setIn(removedJson, path, value);
+    }
+
+    /**
+     * Test whether the data contains the provided value at the specified path.
+     * Throws an error when the test fails
+     */
+    function test(document, path, value) {
+      if (value === undefined) {
+        throw new Error(`Test failed: no value provided (path: "${compileJSONPointer(path)}")`);
+      }
+      if (!existsIn(document, path)) {
+        throw new Error(`Test failed: path not found (path: "${compileJSONPointer(path)}")`);
+      }
+      const actualValue = getIn(document, path);
+      if (!isEqual(actualValue, value)) {
+        throw new Error(`Test failed, value differs (path: "${compileJSONPointer(path)}")`);
+      }
+    }
+    function isArrayItem(document, path) {
+      if (path.length === 0) {
+        return false;
+      }
+      const parent = getIn(document, initial(path));
+      return Array.isArray(parent);
+    }
+
+    /**
+     * Resolve the path index of an array, resolves indexes '-'
+     * @returns Returns the resolved path
+     */
+    function resolvePathIndex(document, path) {
+      if (last(path) !== '-') {
+        return path;
+      }
+      const parentPath = initial(path);
+      const parent = getIn(document, parentPath);
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return parentPath.concat(parent.length);
+    }
+
+    /**
+     * Validate a JSONPatch operation.
+     * Throws an error when there is an issue
+     */
+    function validateJSONPatchOperation(operation) {
+      // TODO: write unit tests
+      const ops = ['add', 'remove', 'replace', 'copy', 'move', 'test'];
+      if (!ops.includes(operation.op)) {
+        throw new Error('Unknown JSONPatch op ' + JSON.stringify(operation.op));
+      }
+      if (typeof operation.path !== 'string') {
+        throw new Error('Required property "path" missing or not a string in operation ' + JSON.stringify(operation));
+      }
+      if (operation.op === 'copy' || operation.op === 'move') {
+        if (typeof operation.from !== 'string') {
+          throw new Error('Required property "from" missing or not a string in operation ' + JSON.stringify(operation));
+        }
+      }
+    }
+    function parsePath(document, pointer) {
+      return resolvePathIndex(document, parseJSONPointer(pointer));
+    }
+    function parseFrom(fromPointer) {
+      return parseJSONPointer(fromPointer);
+    }
+
+    /* global true, cloneInto, exportFunction */
+
+
+    const globalObj = typeof window === 'undefined' ? globalThis : window;
+
+    /**
+     * Like Object.defineProperty, but with support for Firefox's mozProxies.
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
+     * @param {string} propertyName
+     * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
+     */
+    function defineProperty(object, propertyName, descriptor) {
+        {
+            const usedObj = object.wrappedJSObject || object;
+            const UsedObjectInterface = globalObj.wrappedJSObject.Object;
+            const definedDescriptor = new UsedObjectInterface();
+            ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
+                if (propertyName in descriptor) {
+                    definedDescriptor[propertyName] = cloneInto(descriptor[propertyName], definedDescriptor, { cloneFunctions: true });
+                }
+            });
+            ['get', 'set'].forEach((methodName) => {
+                if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') {
+                    // Firefox returns undefined for missing getters/setters
+                    exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName });
+                }
+            });
+            UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor);
+        }
+    }
+
+    /**
+     * return a proxy to `newFn` that fakes .toString() and .toString.toString() to resemble the `origFn`.
+     * WARNING: do NOT proxy toString multiple times, as it will not work as expected.
+     *
+     * @param {*} newFn
+     * @param {*} origFn
+     * @param {string} [mockValue] - when provided, .toString() will return this value
+     */
+    function wrapToString(newFn, origFn, mockValue) {
+        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
+            return newFn;
+        }
+
+        return new Proxy(newFn, { get: toStringGetTrap(origFn, mockValue) });
+    }
+
+    /**
+     * generate a proxy handler trap that fakes .toString() and .toString.toString() to resemble the `targetFn`.
+     * Note that it should be used as the get() trap.
+     * @param {*} targetFn
+     * @param {string} [mockValue] - when provided, .toString() will return this value
+     * @returns { (target: any, prop: string, receiver: any) => any }
+     */
+    function toStringGetTrap(targetFn, mockValue) {
+        // We wrap two levels deep to handle toString.toString() calls
+        return function get(target, prop, receiver) {
+            if (prop === 'toString') {
+                const origToString = Reflect.get(targetFn, 'toString', targetFn);
+                const toStringProxy = new Proxy(origToString, {
+                    apply(target, thisArg, argumentsList) {
+                        // only mock toString() when called on the proxy itself. If the method is applied to some other object, it should behave as a normal toString()
+                        if (thisArg === receiver) {
+                            if (mockValue) {
+                                return mockValue;
+                            }
+                            return Reflect.apply(target, targetFn, argumentsList);
+                        } else {
+                            return Reflect.apply(target, thisArg, argumentsList);
+                        }
+                    },
+                    get(target, prop, receiver) {
+                        // handle toString.toString() result
+                        if (prop === 'toString') {
+                            const origToStringToString = Reflect.get(origToString, 'toString', origToString);
+                            const toStringToStringProxy = new Proxy(origToStringToString, {
+                                apply(target, thisArg, argumentsList) {
+                                    if (thisArg === toStringProxy) {
+                                        return Reflect.apply(target, origToString, argumentsList);
+                                    } else {
+                                        return Reflect.apply(target, thisArg, argumentsList);
+                                    }
+                                },
+                            });
+                            return toStringToStringProxy;
+                        }
+                        return Reflect.get(target, prop, receiver);
+                    },
+                });
+                return toStringProxy;
+            }
+            return Reflect.get(target, prop, receiver);
+        };
+    }
+
+    /**
+     * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
+     * @param {string} propertyName
+     * @param {Partial<PropertyDescriptor>} descriptor
+     * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
+     * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+     */
+    function wrapProperty(object, propertyName, descriptor, definePropertyFn) {
+        if (!object) {
+            return;
+        }
+        {
+            object = object.wrappedJSObject || object;
+        }
+
+        /** @type {StrictPropertyDescriptor} */
+        // @ts-expect-error - we check for undefined below
+        const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+        if (!origDescriptor) {
+            // this happens if the property is not implemented in the browser
+            return;
+        }
+
+        if (
+            ('value' in origDescriptor && 'value' in descriptor) ||
+            ('get' in origDescriptor && 'get' in descriptor) ||
+            ('set' in origDescriptor && 'set' in descriptor)
+        ) {
+            definePropertyFn(object, propertyName, {
+                ...origDescriptor,
+                ...descriptor,
+            });
+            return origDescriptor;
+        } else {
+            // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
+            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`);
+        }
+    }
+
+    /**
+     * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
+     * @param {string} propertyName
+     * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+     * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
+     * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+     */
+    function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
+        if (!object) {
+            return;
+        }
+        {
+            object = object.wrappedJSObject || object;
+        }
+
+        /** @type {StrictPropertyDescriptor} */
+        // @ts-expect-error - we check for undefined below
+        const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+        if (!origDescriptor) {
+            // this happens if the property is not implemented in the browser
+            return;
+        }
+
+        // @ts-expect-error - we check for undefined below
+        const origFn = origDescriptor.value;
+        if (!origFn || typeof origFn !== 'function') {
+            // method properties are expected to be defined with a `value`
+            throw new Error(`Property ${propertyName} does not look like a method`);
+        }
+
+        const newFn = wrapToString(function () {
+            return wrapperFn.call(this, origFn, ...arguments);
+        }, origFn);
+
+        definePropertyFn(object, propertyName, {
+            ...origDescriptor,
+            value: newFn,
+        });
+        return origDescriptor;
+    }
+
+    /**
+     * @template {keyof typeof globalThis} StandardInterfaceName
+     * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
+     * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
+     * @param {DefineInterfaceOptions} options - options for defining the interface
+     * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
+     */
+    function shimInterface(interfaceName, ImplClass, options, definePropertyFn) {
+
+        /** @type {DefineInterfaceOptions} */
+        const defaultOptions = {
+            allowConstructorCall: false,
+            disallowConstructor: false,
+            constructorErrorMessage: 'Illegal constructor',
+            wrapToString: true,
+        };
+
+        const fullOptions = {
+            interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
+            ...defaultOptions,
+            ...options,
+        };
+
+        // In some cases we can get away without a full proxy, but in many cases below we need it.
+        // For example, we can't redefine `prototype` property on ES6 classes.
+        // Se we just always wrap the class to make the code more maintaibnable
+
+        /** @type {ProxyHandler<Function>} */
+        const proxyHandler = {};
+
+        // handle the case where the constructor is called without new
+        if (fullOptions.allowConstructorCall) {
+            // make the constructor function callable without new
+            proxyHandler.apply = function (target, thisArg, argumentsList) {
+                return Reflect.construct(target, argumentsList, target);
+            };
+        }
+
+        // make the constructor function throw when called without new
+        if (fullOptions.disallowConstructor) {
+            proxyHandler.construct = function () {
+                throw new TypeError(fullOptions.constructorErrorMessage);
+            };
+        }
+
+        if (fullOptions.wrapToString) {
+            // mask toString() on class methods. `ImplClass.prototype` is non-configurable: we can't override or proxy it, so we have to wrap each method individually
+            for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
+                if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
+                    ImplClass.prototype[prop] = new Proxy(descriptor.value, {
+                        get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`),
+                    });
+                }
+            }
+
+            // wrap toString on the constructor function itself
+            Object.assign(proxyHandler, {
+                get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`),
+            });
+        }
+
+        // Note that instanceof should still work, since the `.prototype` object is proxied too:
+        // Interface() instanceof Interface === true
+        // ImplClass() instanceof Interface === true
+        const Interface = new Proxy(ImplClass, proxyHandler);
+
+        // Make sure that Interface().constructor === Interface (not ImplClass)
+        if (ImplClass.prototype?.constructor === ImplClass) {
+            /** @type {StrictDataDescriptor} */
+            // @ts-expect-error - As long as ImplClass is a normal class, it should have the prototype property
+            const descriptor = getOwnPropertyDescriptor(ImplClass.prototype, 'constructor');
+            if (descriptor.writable) {
+                ImplClass.prototype.constructor = Interface;
+            }
+        }
+
+        // mock the name property
+        definePropertyFn(ImplClass, 'name', {
+            value: interfaceName,
+            configurable: true,
+            enumerable: false,
+            writable: false,
+        });
+
+        // interfaces are exposed directly on the global object, not on its prototype
+        definePropertyFn(globalThis, interfaceName, { ...fullOptions.interfaceDescriptorOptions, value: Interface });
+    }
+
+    /**
+     * Define a missing standard property on a global (prototype) object. Only for data properties.
+     * For constructors, use shimInterface().
+     * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
+     * @template Base
+     * @template {keyof Base & string} K
+     * @param {Base} baseObject - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
+     * @param {K} propertyName - name of the property to shim (e.g. 'mediaSession')
+     * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
+     * @param {boolean} readOnly - whether the property should be read-only
+     * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
+     */
+    function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
+        // @ts-expect-error - implInstance is a class instance
+        const ImplClass = implInstance.constructor;
+
+        // mask toString() and toString.toString() on the instance
+        const proxiedInstance = new Proxy(implInstance, {
+            get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`),
+        });
+
+        /** @type {StrictPropertyDescriptor} */
+        let descriptor;
+
+        // Note that we only cover most common cases: a getter for "readonly" properties, and a value descriptor for writable properties.
+        // But there could be other cases, e.g. a property with both a getter and a setter. These could be defined with a raw defineProperty() call.
+        // Important: make sure to cover each new shim with a test that verifies that all descriptors match the standard API.
+        if (readOnly) {
+            const getter = function get() {
+                return proxiedInstance;
+            };
+            const proxiedGetter = new Proxy(getter, {
+                get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`),
+            });
+            descriptor = {
+                configurable: true,
+                enumerable: true,
+                get: proxiedGetter,
+            };
+        } else {
+            descriptor = {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: proxiedInstance,
+            };
+        }
+
+        definePropertyFn(baseObject, propertyName, descriptor);
+    }
+
+    /**
+     * @callback DefinePropertyFn
+     * @param {object} baseObj
+     * @param {PropertyKey} propertyName
+     * @param {StrictPropertyDescriptor} descriptor
+     * @returns {object}
+     */
+
+    /**
+     * @typedef {Object} BaseStrictPropertyDescriptor
+     * @property {boolean} configurable
+     * @property {boolean} enumerable
+     */
+
+    /**
+     * @typedef {BaseStrictPropertyDescriptor & { value: any; writable: boolean }} StrictDataDescriptor
+     * @typedef {BaseStrictPropertyDescriptor & { get: () => any; set: (v: any) => void }} StrictAccessorDescriptor
+     * @typedef {BaseStrictPropertyDescriptor & { get: () => any }} StrictGetDescriptor
+     * @typedef {BaseStrictPropertyDescriptor & { set: (v: any) => void }} StrictSetDescriptor
+     * @typedef {StrictDataDescriptor | StrictAccessorDescriptor | StrictGetDescriptor | StrictSetDescriptor} StrictPropertyDescriptor
+     */
+
+    /**
+     * @typedef {Object} BaseDefineInterfaceOptions
+     * @property {string} [constructorErrorMessage]
+     * @property {boolean} wrapToString
+     */
+
+    /**
+     * @typedef {{ allowConstructorCall: true; disallowConstructor: false }} DefineInterfaceOptionsWithAllowConstructorCallMixin
+     */
+
+    /**
+     * @typedef {{ allowConstructorCall: false; disallowConstructor: true }} DefineInterfaceOptionsWithDisallowConstructorMixin
+     */
+
+    /**
+     * @typedef {{ allowConstructorCall: false; disallowConstructor: false }} DefineInterfaceOptionsDefaultMixin
+     */
+
+    /**
+     * @typedef {BaseDefineInterfaceOptions & (DefineInterfaceOptionsWithAllowConstructorCallMixin | DefineInterfaceOptionsWithDisallowConstructorMixin | DefineInterfaceOptionsDefaultMixin)} DefineInterfaceOptions
+     */
+
+    /**
+     * A wrapper for messaging on Windows.
+     *
+     * This requires 3 methods to be available, see {@link WindowsMessagingConfig} for details
+     *
+     * @document messaging/lib/examples/windows.example.js
+     *
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * An implementation of {@link MessagingTransport} for Windows
+     *
+     * All messages go through `window.chrome.webview` APIs
+     *
+     * @implements {MessagingTransport}
+     */
+    class WindowsMessagingTransport {
+        /**
+         * @param {WindowsMessagingConfig} config
+         * @param {import('../index.js').MessagingContext} messagingContext
+         * @internal
+         */
+        constructor(config, messagingContext) {
+            this.messagingContext = messagingContext;
+            this.config = config;
+            this.globals = {
+                window,
+                JSONparse: window.JSON.parse,
+                JSONstringify: window.JSON.stringify,
+                Promise: window.Promise,
+                Error: window.Error,
+                String: window.String,
+            };
+            for (const [methodName, fn] of Object.entries(this.config.methods)) {
+                if (typeof fn !== 'function') {
+                    throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName);
+                }
+            }
+        }
+
+        /**
+         * @param {import('../index.js').NotificationMessage} msg
+         */
+        notify(msg) {
+            const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+            const notification = WindowsNotification.fromNotification(msg, data);
+            this.config.methods.postMessage(notification);
+        }
+
+        /**
+         * @param {import('../index.js').RequestMessage} msg
+         * @param {{signal?: AbortSignal}} opts
+         * @return {Promise<any>}
+         */
+        request(msg, opts = {}) {
+            // convert the message to window-specific naming
+            const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+            const outgoing = WindowsRequestMessage.fromRequest(msg, data);
+
+            // send the message
+            this.config.methods.postMessage(outgoing);
+
+            // compare incoming messages against the `msg.id`
+            const comparator = (eventData) => {
+                return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
+            };
+
+            /**
+             * @param data
+             * @return {data is import('../index.js').MessageResponse}
+             */
+            function isMessageResponse(data) {
+                if ('result' in data) return true;
+                if ('error' in data) return true;
+                return false;
+            }
+
+            // now wait for a matching message
+            return new this.globals.Promise((resolve, reject) => {
+                try {
+                    this._subscribe(comparator, opts, (value, unsubscribe) => {
+                        unsubscribe();
+
+                        if (!isMessageResponse(value)) {
+                            console.warn('unknown response type', value);
+                            return reject(new this.globals.Error('unknown response'));
+                        }
+
+                        if (value.result) {
+                            return resolve(value.result);
+                        }
+
+                        const message = this.globals.String(value.error?.message || 'unknown error');
+                        reject(new this.globals.Error(message));
+                    });
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }
+
+        /**
+         * @param {import('../index.js').Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe(msg, callback) {
+            // compare incoming messages against the `msg.subscriptionName`
+            const comparator = (eventData) => {
+                return (
+                    eventData.featureName === msg.featureName &&
+                    eventData.context === msg.context &&
+                    eventData.subscriptionName === msg.subscriptionName
+                );
+            };
+
+            // only forward the 'params' from a SubscriptionEvent
+            const cb = (eventData) => {
+                return callback(eventData.params);
+            };
+
+            // now listen for matching incoming messages.
+            return this._subscribe(comparator, {}, cb);
+        }
+
+        /**
+         * @typedef {import('../index.js').MessageResponse | import('../index.js').SubscriptionEvent} Incoming
+         */
+        /**
+         * @param {(eventData: any) => boolean} comparator
+         * @param {{signal?: AbortSignal}} options
+         * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
+         * @internal
+         */
+        _subscribe(comparator, options, callback) {
+            // if already aborted, reject immediately
+            if (options?.signal?.aborted) {
+                throw new DOMException('Aborted', 'AbortError');
+            }
+            /** @type {(()=>void) | undefined} */
+            // eslint-disable-next-line prefer-const
+            let teardown;
+
+            /**
+             * @param {MessageEvent} event
+             */
+            const idHandler = (event) => {
+                if (this.messagingContext.env === 'production') {
+                    if (event.origin !== null && event.origin !== undefined) {
+                        console.warn('ignoring because evt.origin is not `null` or `undefined`');
+                        return;
+                    }
+                }
+                if (!event.data) {
+                    console.warn('data absent from message');
+                    return;
+                }
+                if (comparator(event.data)) {
+                    if (!teardown) throw new Error('unreachable');
+                    callback(event.data, teardown);
+                }
+            };
+
+            // what to do if this promise is aborted
+            const abortHandler = () => {
+                teardown?.();
+                throw new DOMException('Aborted', 'AbortError');
+            };
+
+            // console.log('DEBUG: handler setup', { config, comparator })
+
+            this.config.methods.addEventListener('message', idHandler);
+            options?.signal?.addEventListener('abort', abortHandler);
+
+            teardown = () => {
+                // console.log('DEBUG: handler teardown', { config, comparator })
+
+                this.config.methods.removeEventListener('message', idHandler);
+                options?.signal?.removeEventListener('abort', abortHandler);
+            };
+
+            return () => {
+                teardown?.();
+            };
+        }
+    }
+
+    /**
+     * To construct this configuration object, you need access to 3 methods
+     *
+     * - `postMessage`
+     * - `addEventListener`
+     * - `removeEventListener`
+     *
+     * These would normally be available on Windows via the following:
+     *
+     * - `window.chrome.webview.postMessage`
+     * - `window.chrome.webview.addEventListener`
+     * - `window.chrome.webview.removeEventListener`
+     *
+     * Depending on where the script is running, we may want to restrict access to those globals. On the native
+     * side those handlers `window.chrome.webview` handlers might be deleted and replaces with in-scope variables, such as:
+     *
+     * [Example](./examples/windows.example.js)
+     *
+     */
+    class WindowsMessagingConfig {
+        /**
+         * @param {object} params
+         * @param {WindowsInteropMethods} params.methods
+         * @internal
+         */
+        constructor(params) {
+            /**
+             * The methods required for communication
+             */
+            this.methods = params.methods;
+            /**
+             * @type {'windows'}
+             */
+            this.platform = 'windows';
+        }
+    }
+
+    /**
+     * This data type represents a message sent to the Windows
+     * platform via `window.chrome.webview.postMessage`.
+     *
+     * **NOTE**: This is sent when a response is *not* expected
+     */
+    class WindowsNotification {
+        /**
+         * @param {object} params
+         * @param {string} params.Feature
+         * @param {string} params.SubFeatureName
+         * @param {string} params.Name
+         * @param {Record<string, any>} [params.Data]
+         * @internal
+         */
+        constructor(params) {
+            /**
+             * Alias for: {@link NotificationMessage.context}
+             */
+            this.Feature = params.Feature;
+            /**
+             * Alias for: {@link NotificationMessage.featureName}
+             */
+            this.SubFeatureName = params.SubFeatureName;
+            /**
+             * Alias for: {@link NotificationMessage.method}
+             */
+            this.Name = params.Name;
+            /**
+             * Alias for: {@link NotificationMessage.params}
+             */
+            this.Data = params.Data;
+        }
+
+        /**
+         * Helper to convert a {@link NotificationMessage} to a format that Windows can support
+         * @param {NotificationMessage} notification
+         * @returns {WindowsNotification}
+         */
+        static fromNotification(notification, data) {
+            /** @type {WindowsNotification} */
+            const output = {
+                Data: data,
+                Feature: notification.context,
+                SubFeatureName: notification.featureName,
+                Name: notification.method,
+            };
+            return output;
+        }
+    }
+
+    /**
+     * This data type represents a message sent to the Windows
+     * platform via `window.chrome.webview.postMessage` when it
+     * expects a response
+     */
+    class WindowsRequestMessage {
+        /**
+         * @param {object} params
+         * @param {string} params.Feature
+         * @param {string} params.SubFeatureName
+         * @param {string} params.Name
+         * @param {Record<string, any>} [params.Data]
+         * @param {string} [params.Id]
+         * @internal
+         */
+        constructor(params) {
+            this.Feature = params.Feature;
+            this.SubFeatureName = params.SubFeatureName;
+            this.Name = params.Name;
+            this.Data = params.Data;
+            this.Id = params.Id;
+        }
+
+        /**
+         * Helper to convert a {@link RequestMessage} to a format that Windows can support
+         * @param {RequestMessage} msg
+         * @param {Record<string, any>} data
+         * @returns {WindowsRequestMessage}
+         */
+        static fromRequest(msg, data) {
+            /** @type {WindowsRequestMessage} */
+            const output = {
+                Data: data,
+                Feature: msg.context,
+                SubFeatureName: msg.featureName,
+                Name: msg.method,
+                Id: msg.id,
+            };
+            return output;
+        }
+    }
+
+    /**
+     * These are all the shared data types used throughout. Transports receive these types and
+     * can choose how to deliver the message to their respective native platforms.
+     *
+     * - Notifications via {@link NotificationMessage}
+     * - Request -> Response via {@link RequestMessage} and {@link MessageResponse}
+     * - Subscriptions via {@link Subscription}
+     *
+     * Note: For backwards compatibility, some platforms may alter the data shape within the transport.
+     *
+     * @module Messaging Schema
+     *
+     */
+
+    /**
+     * This is the format of an outgoing message.
+     *
+     * - See {@link MessageResponse} for what's expected in a response
+     *
+     * **NOTE**:
+     * - Windows will alter this before it's sent, see: {@link Messaging.WindowsRequestMessage}
+     */
+    class RequestMessage {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.params]
+         * @internal
+         */
+        constructor(params) {
+            /**
+             * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
+             * @type {string}
+             */
+            this.context = params.context;
+            /**
+             * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
+             * @type {string}
+             */
+            this.featureName = params.featureName;
+            /**
+             * The name of the handler to be executed on the native side
+             */
+            this.method = params.method;
+            /**
+             * The `id` that native sides can use when sending back a response
+             */
+            this.id = params.id;
+            /**
+             * Optional data payload - must be a plain key/value object
+             */
+            this.params = params.params;
+        }
+    }
+
+    /**
+     * **NOTE**:
+     * - Windows will alter this before it's sent, see: {@link Messaging.WindowsNotification}
+     */
+    class NotificationMessage {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {Record<string, any>} [params.params]
+         * @internal
+         */
+        constructor(params) {
+            /**
+             * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
+             */
+            this.context = params.context;
+            /**
+             * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
+             */
+            this.featureName = params.featureName;
+            /**
+             * The name of the handler to be executed on the native side
+             */
+            this.method = params.method;
+            /**
+             * An optional payload
+             */
+            this.params = params.params;
+        }
+    }
+
+    class Subscription {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.subscriptionName
+         * @internal
+         */
+        constructor(params) {
+            this.context = params.context;
+            this.featureName = params.featureName;
+            this.subscriptionName = params.subscriptionName;
+        }
+    }
+
+    /**
+     * @param {RequestMessage} request
+     * @param {Record<string, any>} data
+     * @return {data is MessageResponse}
+     */
+    function isResponseFor(request, data) {
+        if ('result' in data) {
+            return data.featureName === request.featureName && data.context === request.context && data.id === request.id;
+        }
+        if ('error' in data) {
+            if ('message' in data.error) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param {Subscription} sub
+     * @param {Record<string, any>} data
+     * @return {data is SubscriptionEvent}
+     */
+    function isSubscriptionEventFor(sub, data) {
+        if ('subscriptionName' in data) {
+            return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * A wrapper for messaging on WebKit platforms. It supports modern WebKit messageHandlers
+     * along with encryption for older versions (like macOS Catalina)
+     *
+     * Note: If you wish to support Catalina then you'll need to implement the native
+     * part of the message handling, see {@link WebkitMessagingTransport} for details.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * @example
+     * On macOS 11+, this will just call through to `window.webkit.messageHandlers.x.postMessage`
+     *
+     * Eg: for a `foo` message defined in Swift that accepted the payload `{"bar": "baz"}`, the following
+     * would occur:
+     *
+     * ```js
+     * const json = await window.webkit.messageHandlers.foo.postMessage({ bar: "baz" });
+     * const response = JSON.parse(json)
+     * ```
+     *
+     * @example
+     * On macOS 10 however, the process is a little more involved. A method will be appended to `window`
+     * that allows the response to be delivered there instead. It's not exactly this, but you can visualize the flow
+     * as being something along the lines of:
+     *
+     * ```js
+     * // add the window method
+     * window["_0123456"] = (response) => {
+     *    // decrypt `response` and deliver the result to the caller here
+     *    // then remove the temporary method
+     *    delete window['_0123456']
+     * };
+     *
+     * // send the data + `messageHanding` values
+     * window.webkit.messageHandlers.foo.postMessage({
+     *   bar: "baz",
+     *   messagingHandling: {
+     *     methodName: "_0123456",
+     *     secret: "super-secret",
+     *     key: [1, 2, 45, 2],
+     *     iv: [34, 4, 43],
+     *   }
+     * });
+     *
+     * // later in swift, the following JavaScript snippet will be executed
+     * (() => {
+     *   window['_0123456']({
+     *     ciphertext: [12, 13, 4],
+     *     tag: [3, 5, 67, 56]
+     *   })
+     * })()
+     * ```
+     * @implements {MessagingTransport}
+     */
+    class WebkitMessagingTransport {
+        /**
+         * @param {WebkitMessagingConfig} config
+         * @param {import('../index.js').MessagingContext} messagingContext
+         */
+        constructor(config, messagingContext) {
+            this.messagingContext = messagingContext;
+            this.config = config;
+            this.globals = captureGlobals();
+            if (!this.config.hasModernWebkitAPI) {
+                this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
+            }
+        }
+
+        /**
+         * Sends message to the webkit layer (fire and forget)
+         * @param {String} handler
+         * @param {*} data
+         * @internal
+         */
+        wkSend(handler, data = {}) {
+            if (!(handler in this.globals.window.webkit.messageHandlers)) {
+                throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
+            }
+            if (!this.config.hasModernWebkitAPI) {
+                const outgoing = {
+                    ...data,
+                    messageHandling: {
+                        ...data.messageHandling,
+                        secret: this.config.secret,
+                    },
+                };
+                if (!(handler in this.globals.capturedWebkitHandlers)) {
+                    throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
+                } else {
+                    return this.globals.capturedWebkitHandlers[handler](outgoing);
+                }
+            }
+            return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data);
+        }
+
+        /**
+         * Sends message to the webkit layer and waits for the specified response
+         * @param {String} handler
+         * @param {import('../index.js').RequestMessage} data
+         * @returns {Promise<*>}
+         * @internal
+         */
+        async wkSendAndWait(handler, data) {
+            if (this.config.hasModernWebkitAPI) {
+                const response = await this.wkSend(handler, data);
+                return this.globals.JSONparse(response || '{}');
+            }
+
+            try {
+                const randMethodName = this.createRandMethodName();
+                const key = await this.createRandKey();
+                const iv = this.createRandIv();
+
+                const { ciphertext, tag } = await new this.globals.Promise((/** @type {any} */ resolve) => {
+                    this.generateRandomMethod(randMethodName, resolve);
+
+                    // @ts-expect-error - this is a carve-out for catalina that will be removed soon
+                    data.messageHandling = new SecureMessagingParams({
+                        methodName: randMethodName,
+                        secret: this.config.secret,
+                        key: this.globals.Arrayfrom(key),
+                        iv: this.globals.Arrayfrom(iv),
+                    });
+                    this.wkSend(handler, data);
+                });
+
+                const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
+                const decrypted = await this.decrypt(cipher, key, iv);
+                return this.globals.JSONparse(decrypted || '{}');
+            } catch (e) {
+                // re-throw when the error is just a 'MissingHandler'
+                if (e instanceof MissingHandler) {
+                    throw e;
+                } else {
+                    console.error('decryption failed', e);
+                    console.error(e);
+                    return { error: e };
+                }
+            }
+        }
+
+        /**
+         * @param {import('../index.js').NotificationMessage} msg
+         */
+        notify(msg) {
+            this.wkSend(msg.context, msg);
+        }
+
+        /**
+         * @param {import('../index.js').RequestMessage} msg
+         */
+        async request(msg) {
+            const data = await this.wkSendAndWait(msg.context, msg);
+
+            if (isResponseFor(msg, data)) {
+                if (data.result) {
+                    return data.result || {};
+                }
+                // forward the error if one was given explicity
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+            }
+
+            throw new Error('an unknown error occurred');
+        }
+
+        /**
+         * Generate a random method name and adds it to the global scope
+         * The native layer will use this method to send the response
+         * @param {string | number} randomMethodName
+         * @param {Function} callback
+         * @internal
+         */
+        generateRandomMethod(randomMethodName, callback) {
+            this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
+                enumerable: false,
+                // configurable, To allow for deletion later
+                configurable: true,
+                writable: false,
+                /**
+                 * @param {any[]} args
+                 */
+                value: (...args) => {
+                    callback(...args);
+                    delete this.globals.window[randomMethodName];
+                },
+            });
+        }
+
+        /**
+         * @internal
+         * @return {string}
+         */
+        randomString() {
+            return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
+        }
+
+        /**
+         * @internal
+         * @return {string}
+         */
+        createRandMethodName() {
+            return '_' + this.randomString();
+        }
+
+        /**
+         * @type {{name: string, length: number}}
+         * @internal
+         */
+        algoObj = {
+            name: 'AES-GCM',
+            length: 256,
+        };
+
+        /**
+         * @returns {Promise<Uint8Array>}
+         * @internal
+         */
+        async createRandKey() {
+            const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
+            const exportedKey = await this.globals.exportKey('raw', key);
+            return new this.globals.Uint8Array(exportedKey);
+        }
+
+        /**
+         * @returns {Uint8Array}
+         * @internal
+         */
+        createRandIv() {
+            return this.globals.getRandomValues(new this.globals.Uint8Array(12));
+        }
+
+        /**
+         * @param {BufferSource} ciphertext
+         * @param {BufferSource} key
+         * @param {Uint8Array} iv
+         * @returns {Promise<string>}
+         * @internal
+         */
+        async decrypt(ciphertext, key, iv) {
+            const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt']);
+            const algo = {
+                name: 'AES-GCM',
+                iv,
+            };
+
+            const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
+
+            const dec = new this.globals.TextDecoder();
+            return dec.decode(decrypted);
+        }
+
+        /**
+         * When required (such as on macos 10.x), capture the `postMessage` method on
+         * each webkit messageHandler
+         *
+         * @param {string[]} handlerNames
+         */
+        captureWebkitHandlers(handlerNames) {
+            const handlers = window.webkit.messageHandlers;
+            if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all');
+            for (const webkitMessageHandlerName of handlerNames) {
+                if (typeof handlers[webkitMessageHandlerName]?.postMessage === 'function') {
+                    /**
+                     * `bind` is used here to ensure future calls to the captured
+                     * `postMessage` have the correct `this` context
+                     */
+                    const original = handlers[webkitMessageHandlerName];
+                    const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
+                    this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
+                    delete handlers[webkitMessageHandlerName].postMessage;
+                }
+            }
+        }
+
+        /**
+         * @param {import('../index.js').Subscription} msg
+         * @param {(value: unknown) => void} callback
+         */
+        subscribe(msg, callback) {
+            // for now, bail if there's already a handler setup for this subscription
+            if (msg.subscriptionName in this.globals.window) {
+                throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
+            }
+            this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+                enumerable: false,
+                configurable: true,
+                writable: false,
+                value: (data) => {
+                    if (data && isSubscriptionEventFor(msg, data)) {
+                        callback(data.params);
+                    } else {
+                        console.warn('Received a message that did not match the subscription', data);
+                    }
+                },
+            });
+            return () => {
+                this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
+            };
+        }
+    }
+
+    /**
+     * Use this configuration to create an instance of {@link Messaging} for WebKit platforms
+     *
+     * We support modern WebKit environments *and* macOS Catalina.
+     *
+     * Please see {@link WebkitMessagingTransport} for details on how messages are sent/received
+     *
+     * [Example](./examples/webkit.example.js)
+     */
+    class WebkitMessagingConfig {
+        /**
+         * @param {object} params
+         * @param {boolean} params.hasModernWebkitAPI
+         * @param {string[]} params.webkitMessageHandlerNames
+         * @param {string} params.secret
+         * @internal
+         */
+        constructor(params) {
+            /**
+             * Whether or not the current WebKit Platform supports secure messaging
+             * by default (eg: macOS 11+)
+             */
+            this.hasModernWebkitAPI = params.hasModernWebkitAPI;
+            /**
+             * A list of WebKit message handler names that a user script can send.
+             *
+             * For example, if the native platform can receive messages through this:
+             *
+             * ```js
+             * window.webkit.messageHandlers.foo.postMessage('...')
+             * ```
+             *
+             * then, this property would be:
+             *
+             * ```js
+             * webkitMessageHandlerNames: ['foo']
+             * ```
+             */
+            this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
+            /**
+             * A string provided by native platforms to be sent with future outgoing
+             * messages.
+             */
+            this.secret = params.secret;
+        }
+    }
+
+    /**
+     * This is the additional payload that gets appended to outgoing messages.
+     * It's used in the Swift side to encrypt the response that comes back
+     */
+    class SecureMessagingParams {
+        /**
+         * @param {object} params
+         * @param {string} params.methodName
+         * @param {string} params.secret
+         * @param {number[]} params.key
+         * @param {number[]} params.iv
+         */
+        constructor(params) {
+            /**
+             * The method that's been appended to `window` to be called later
+             */
+            this.methodName = params.methodName;
+            /**
+             * The secret used to ensure message sender validity
+             */
+            this.secret = params.secret;
+            /**
+             * The CipherKey as number[]
+             */
+            this.key = params.key;
+            /**
+             * The Initial Vector as number[]
+             */
+            this.iv = params.iv;
+        }
+    }
+
+    /**
+     * Capture some globals used for messaging handling to prevent page
+     * scripts from tampering with this
+     */
+    function captureGlobals() {
+        // Create base with null prototype
+        const globals = {
+            window,
+            getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
+            TextEncoder,
+            TextDecoder,
+            Uint8Array,
+            Uint16Array,
+            Uint32Array,
+            JSONstringify: window.JSON.stringify,
+            JSONparse: window.JSON.parse,
+            Arrayfrom: window.Array.from,
+            Promise: window.Promise,
+            Error: window.Error,
+            ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
+            ObjectDefineProperty: window.Object.defineProperty,
+            addEventListener: window.addEventListener.bind(window),
+            /** @type {Record<string, any>} */
+            capturedWebkitHandlers: {},
+        };
+        if (isSecureContext) {
+            // skip for HTTP content since window.crypto.subtle is unavailable
+            globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
+            globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
+            globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
+            globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
+            globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
+        }
+        return globals;
+    }
+
+    /**
+     *
+     * A wrapper for messaging on Android.
+     *
+     * You must share a {@link AndroidMessagingConfig} instance between features
+     *
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * @typedef {import('../index.js').Subscription} Subscription
+     * @typedef {import('../index.js').MessagingContext} MessagingContext
+     * @typedef {import('../index.js').RequestMessage} RequestMessage
+     * @typedef {import('../index.js').NotificationMessage} NotificationMessage
+     */
+
+    /**
+     * An implementation of {@link MessagingTransport} for Android
+     *
+     * All messages go through `window.chrome.webview` APIs
+     *
+     * @implements {MessagingTransport}
+     */
+    class AndroidMessagingTransport {
+        /**
+         * @param {AndroidMessagingConfig} config
+         * @param {MessagingContext} messagingContext
+         * @internal
+         */
+        constructor(config, messagingContext) {
+            this.messagingContext = messagingContext;
+            this.config = config;
+        }
+
+        /**
+         * @param {NotificationMessage} msg
+         */
+        notify(msg) {
+            try {
+                this.config.sendMessageThrows?.(JSON.stringify(msg));
+            } catch (e) {
+                console.error('.notify failed', e);
+            }
+        }
+
+        /**
+         * @param {RequestMessage} msg
+         * @return {Promise<any>}
+         */
+        request(msg) {
+            return new Promise((resolve, reject) => {
+                // subscribe early
+                const unsub = this.config.subscribe(msg.id, handler);
+
+                try {
+                    this.config.sendMessageThrows?.(JSON.stringify(msg));
+                } catch (e) {
+                    unsub();
+                    reject(new Error('request failed to send: ' + e.message || 'unknown error'));
+                }
+
+                function handler(data) {
+                    if (isResponseFor(msg, data)) {
+                        // success case, forward .result only
+                        if (data.result) {
+                            resolve(data.result || {});
+                            return unsub();
+                        }
+
+                        // error case, forward the error as a regular promise rejection
+                        if (data.error) {
+                            reject(new Error(data.error.message));
+                            return unsub();
+                        }
+
+                        // getting here is undefined behavior
+                        unsub();
+                        throw new Error('unreachable: must have `result` or `error` key by this point');
+                    }
+                }
+            });
+        }
+
+        /**
+         * @param {Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe(msg, callback) {
+            const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
+                if (isSubscriptionEventFor(msg, data)) {
+                    callback(data.params || {});
+                }
+            });
+            return () => {
+                unsub();
+            };
+        }
+    }
+
+    /**
+     * Android shared messaging configuration. This class should be constructed once and then shared
+     * between features (because of the way it modifies globals).
+     *
+     * For example, if Android is injecting a JavaScript module like C-S-S which contains multiple 'sub-features', then
+     * this class would be instantiated once and then shared between all sub-features.
+     *
+     * The following example shows all the fields that are required to be passed in:
+     *
+     * ```js
+     * const config = new AndroidMessagingConfig({
+     *     // a value that native has injected into the script
+     *     messageSecret: 'abc',
+     *
+     *     // the name of the window method that android will deliver responses through
+     *     messageCallback: 'callback_123',
+     *
+     *     // the `@JavascriptInterface` name from native that will be used to receive messages
+     *     javascriptInterface: "ARandomValue",
+     *
+     *     // the global object where methods will be registered
+     *     target: globalThis
+     * });
+     * ```
+     * Once an instance of {@link AndroidMessagingConfig} is created, you can then use it to construct
+     * many instances of {@link Messaging} (one per feature). See `examples/android.example.js` for an example.
+     *
+     *
+     * ## Native integration
+     *
+     * Assuming you have the following:
+     *  - a `@JavascriptInterface` named `"ContentScopeScripts"`
+     *  - a sub-feature called `"featureA"`
+     *  - and a method on `"featureA"` called `"helloWorld"`
+     *
+     * Then delivering a {@link NotificationMessage} to it, would be roughly this in JavaScript (remember `params` is optional though)
+     *
+     * ```
+     * const secret = "abc";
+     * const json = JSON.stringify({
+     *     context: "ContentScopeScripts",
+     *     featureName: "featureA",
+     *     method: "helloWorld",
+     *     params: { "foo": "bar" }
+     * });
+     * window.ContentScopeScripts.process(json, secret)
+     * ```
+     * When you receive the JSON payload (note that it will be a string), you'll need to deserialize/verify it according to {@link "Messaging Implementation Guide"}
+     *
+     *
+     * ## Responding to a {@link RequestMessage}, or pushing a {@link SubscriptionEvent}
+     *
+     * If you receive a {@link RequestMessage}, you'll need to deliver a {@link MessageResponse}.
+     * Similarly, if you want to push new data, you need to deliver a {@link SubscriptionEvent}. In both
+     * cases you'll do this through a global `window` method. Given the snippet below, this is how it would relate
+     * to the {@link AndroidMessagingConfig}:
+     *
+     * - `$messageCallback` matches {@link AndroidMessagingConfig.messageCallback}
+     * - `$messageSecret` matches {@link AndroidMessagingConfig.messageSecret}
+     * - `$message` is JSON string that represents one of {@link MessageResponse} or {@link SubscriptionEvent}
+     *
+     * ```
+     * object ReplyHandler {
+     *     fun constructReply(message: String, messageCallback: String, messageSecret: String): String {
+     *         return """
+     *             (function() {
+     *                 window['$messageCallback']('$messageSecret', $message);
+     *             })();
+     *         """.trimIndent()
+     *     }
+     * }
+     * ```
+     */
+    class AndroidMessagingConfig {
+        /** @type {(json: string, secret: string) => void} */
+        _capturedHandler;
+        /**
+         * @param {object} params
+         * @param {Record<string, any>} params.target
+         * @param {boolean} params.debug
+         * @param {string} params.messageSecret - a secret to ensure that messages are only
+         * processed by the correct handler
+         * @param {string} params.javascriptInterface - the name of the javascript interface
+         * registered on the native side
+         * @param {string} params.messageCallback - the name of the callback that the native
+         * side will use to send messages back to the javascript side
+         */
+        constructor(params) {
+            this.target = params.target;
+            this.debug = params.debug;
+            this.javascriptInterface = params.javascriptInterface;
+            this.messageSecret = params.messageSecret;
+            this.messageCallback = params.messageCallback;
+
+            /**
+             * @type {Map<string, (msg: MessageResponse | SubscriptionEvent) => void>}
+             * @internal
+             */
+            this.listeners = new globalThis.Map();
+
+            /**
+             * Capture the global handler and remove it from the global object.
+             */
+            this._captureGlobalHandler();
+
+            /**
+             * Assign the incoming handler method to the global object.
+             */
+            this._assignHandlerMethod();
+        }
+
+        /**
+         * The transport can call this to transmit a JSON payload along with a secret
+         * to the native Android handler.
+         *
+         * Note: This can throw - it's up to the transport to handle the error.
+         *
+         * @type {(json: string) => void}
+         * @throws
+         * @internal
+         */
+        sendMessageThrows(json) {
+            this._capturedHandler(json, this.messageSecret);
+        }
+
+        /**
+         * A subscription on Android is just a named listener. All messages from
+         * android -> are delivered through a single function, and this mapping is used
+         * to route the messages to the correct listener.
+         *
+         * Note: Use this to implement request->response by unsubscribing after the first
+         * response.
+         *
+         * @param {string} id
+         * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
+         * @returns {() => void}
+         * @internal
+         */
+        subscribe(id, callback) {
+            this.listeners.set(id, callback);
+            return () => {
+                this.listeners.delete(id);
+            };
+        }
+
+        /**
+         * Accept incoming messages and try to deliver it to a registered listener.
+         *
+         * This code is defensive to prevent any single handler from affecting another if
+         * it throws (producer interference).
+         *
+         * @param {MessageResponse | SubscriptionEvent} payload
+         * @internal
+         */
+        _dispatch(payload) {
+            // do nothing if the response is empty
+            // this prevents the next `in` checks from throwing in test/debug scenarios
+            if (!payload) return this._log('no response');
+
+            // if the payload has an 'id' field, then it's a message response
+            if ('id' in payload) {
+                if (this.listeners.has(payload.id)) {
+                    this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
+                } else {
+                    this._log('no listeners for ', payload);
+                }
+            }
+
+            // if the payload has an 'subscriptionName' field, then it's a push event
+            if ('subscriptionName' in payload) {
+                if (this.listeners.has(payload.subscriptionName)) {
+                    this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
+                } else {
+                    this._log('no subscription listeners for ', payload);
+                }
+            }
+        }
+
+        /**
+         *
+         * @param {(...args: any[]) => any} fn
+         * @param {string} [context]
+         */
+        _tryCatch(fn, context = 'none') {
+            try {
+                return fn();
+            } catch (e) {
+                if (this.debug) {
+                    console.error('AndroidMessagingConfig error:', context);
+                    console.error(e);
+                }
+            }
+        }
+
+        /**
+         * @param {...any} args
+         */
+        _log(...args) {
+            if (this.debug) {
+                console.log('AndroidMessagingConfig', ...args);
+            }
+        }
+
+        /**
+         * Capture the global handler and remove it from the global object.
+         */
+        _captureGlobalHandler() {
+            const { target, javascriptInterface } = this;
+
+            if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
+                this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface]);
+                delete target[javascriptInterface];
+            } else {
+                this._capturedHandler = () => {
+                    this._log('Android messaging interface not available', javascriptInterface);
+                };
+            }
+        }
+
+        /**
+         * Assign the incoming handler method to the global object.
+         * This is the method that Android will call to deliver messages.
+         */
+        _assignHandlerMethod() {
+            /**
+             * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
+             */
+            const responseHandler = (providedSecret, response) => {
+                if (providedSecret === this.messageSecret) {
+                    this._dispatch(response);
+                }
+            };
+
+            Object.defineProperty(this.target, this.messageCallback, {
+                value: responseHandler,
+            });
+        }
+    }
+
+    /**
+     *
+     * An abstraction for communications between JavaScript and host platforms.
+     *
+     * 1) First you construct your platform-specific configuration (eg: {@link WebkitMessagingConfig})
+     * 2) Then use that to get an instance of the Messaging utility which allows
+     * you to send and receive data in a unified way
+     * 3) Each platform implements {@link MessagingTransport} along with its own Configuration
+     *     - For example, to learn what configuration is required for Webkit, see: {@link WebkitMessagingConfig}
+     *     - Or, to learn about how messages are sent and received in Webkit, see {@link WebkitMessagingTransport}
+     *
+     * ## Links
+     * Please see the following links for examples
+     *
+     * - Windows: {@link WindowsMessagingConfig}
+     * - Webkit: {@link WebkitMessagingConfig}
+     * - Android: {@link AndroidMessagingConfig}
+     * - Schema: {@link "Messaging Schema"}
+     * - Implementation Guide: {@link "Messaging Implementation Guide"}
+     *
+     * @module Messaging
+     */
+
+    /**
+     * Common options/config that are *not* transport specific.
+     */
+    class MessagingContext {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {"production" | "development"} params.env
+         * @internal
+         */
+        constructor(params) {
+            this.context = params.context;
+            this.featureName = params.featureName;
+            this.env = params.env;
+        }
+    }
+
+    /**
+     * @typedef {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} MessagingConfig
+     */
+
+    /**
+     *
+     */
+    class Messaging {
+        /**
+         * @param {MessagingContext} messagingContext
+         * @param {MessagingConfig} config
+         */
+        constructor(messagingContext, config) {
+            this.messagingContext = messagingContext;
+            this.transport = getTransport(config, this.messagingContext);
+        }
+
+        /**
+         * Send a 'fire-and-forget' message.
+         * @throws {MissingHandler}
+         *
+         * @example
+         *
+         * ```ts
+         * const messaging = new Messaging(config)
+         * messaging.notify("foo", {bar: "baz"})
+         * ```
+         * @param {string} name
+         * @param {Record<string, any>} [data]
+         */
+        notify(name, data = {}) {
+            const message = new NotificationMessage({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                method: name,
+                params: data,
+            });
+            this.transport.notify(message);
+        }
+
+        /**
+         * Send a request, and wait for a response
+         * @throws {MissingHandler}
+         *
+         * @example
+         * ```
+         * const messaging = new Messaging(config)
+         * const response = await messaging.request("foo", {bar: "baz"})
+         * ```
+         *
+         * @param {string} name
+         * @param {Record<string, any>} [data]
+         * @return {Promise<any>}
+         */
+        request(name, data = {}) {
+            const id = globalThis?.crypto?.randomUUID?.() || name + '.response';
+            const message = new RequestMessage({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                method: name,
+                params: data,
+                id,
+            });
+            return this.transport.request(message);
+        }
+
+        /**
+         * @param {string} name
+         * @param {(value: unknown) => void} callback
+         * @return {() => void}
+         */
+        subscribe(name, callback) {
+            const msg = new Subscription({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                subscriptionName: name,
+            });
+            return this.transport.subscribe(msg, callback);
+        }
+    }
+
+    /**
+     * Use this to create testing transport on the fly.
+     * It's useful for debugging, and for enabling scripts to run in
+     * other environments - for example, testing in a browser without the need
+     * for a full integration
+     */
+    class TestTransportConfig {
+        /**
+         * @param {MessagingTransport} impl
+         */
+        constructor(impl) {
+            this.impl = impl;
+        }
+    }
+
+    /**
+     * @implements {MessagingTransport}
+     */
+    class TestTransport {
+        /**
+         * @param {TestTransportConfig} config
+         * @param {MessagingContext} messagingContext
+         */
+        constructor(config, messagingContext) {
+            this.config = config;
+            this.messagingContext = messagingContext;
+        }
+
+        notify(msg) {
+            return this.config.impl.notify(msg);
+        }
+
+        request(msg) {
+            return this.config.impl.request(msg);
+        }
+
+        subscribe(msg, callback) {
+            return this.config.impl.subscribe(msg, callback);
+        }
+    }
+
+    /**
+     * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} config
+     * @param {MessagingContext} messagingContext
+     * @returns {MessagingTransport}
+     */
+    function getTransport(config, messagingContext) {
+        if (config instanceof WebkitMessagingConfig) {
+            return new WebkitMessagingTransport(config, messagingContext);
+        }
+        if (config instanceof WindowsMessagingConfig) {
+            return new WindowsMessagingTransport(config, messagingContext);
+        }
+        if (config instanceof AndroidMessagingConfig) {
+            return new AndroidMessagingTransport(config, messagingContext);
+        }
+        if (config instanceof TestTransportConfig) {
+            return new TestTransport(config, messagingContext);
+        }
+        throw new Error('unreachable');
+    }
+
+    /**
+     * Thrown when a handler cannot be found
+     */
+    class MissingHandler extends Error {
+        /**
+         * @param {string} message
+         * @param {string} handlerName
+         */
+        constructor(message, handlerName) {
+            super(message);
+            this.handlerName = handlerName;
+        }
+    }
+
+    /**
+     * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
+     * @typedef {import('@duckduckgo/messaging').MessagingTransport} MessagingTransport
+     */
+
+    /**
+     * @deprecated - A temporary constructor for the extension to make the messaging config
+     */
+    function extensionConstructMessagingConfig() {
+        const messagingTransport = new SendMessageMessagingTransport();
+        return new TestTransportConfig(messagingTransport);
+    }
+
+    /**
+     * A temporary implementation of {@link MessagingTransport} to communicate with Extensions.
+     * It wraps the current messaging system that calls `sendMessage`
+     *
+     * @implements {MessagingTransport}
+     * @deprecated - Use this only to communicate with Android and the Extension while support to {@link Messaging}
+     * is not ready and we need to use `sendMessage()`.
+     */
+    class SendMessageMessagingTransport {
+        /**
+         * Queue of callbacks to be called with messages sent from the Platform.
+         * This is used to connect requests with responses and to trigger subscriptions callbacks.
+         */
+        _queue = new Set();
+
+        constructor() {
+            this.globals = {
+                window: globalThis,
+                globalThis,
+                JSONparse: globalThis.JSON.parse,
+                JSONstringify: globalThis.JSON.stringify,
+                Promise: globalThis.Promise,
+                Error: globalThis.Error,
+                String: globalThis.String,
+            };
+        }
+
+        /**
+         * Callback for update() handler. This connects messages sent from the Platform
+         * with callback functions in the _queue.
+         * @param {any} response
+         */
+        onResponse(response) {
+            this._queue.forEach((subscription) => subscription(response));
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').NotificationMessage} msg
+         */
+        notify(msg) {
+            let params = msg.params;
+
+            // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
+            // for sendMessage()
+            if (msg.method === 'setYoutubePreviewsEnabled') {
+                params = msg.params?.youtubePreviewsEnabled;
+            }
+            // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
+            // for sendMessage()
+            if (msg.method === 'updateYouTubeCTLAddedFlag') {
+                params = msg.params?.youTubeCTLAddedFlag;
+            }
+
+            legacySendMessage(msg.method, params);
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').RequestMessage} req
+         * @return {Promise<any>}
+         */
+        request(req) {
+            let comparator = (eventData) => {
+                return eventData.responseMessageType === req.method;
+            };
+            let params = req.params;
+
+            // Adapts request for 'getYouTubeVideoDetails' by identifying the correct
+            // response for each request and updating params to expect current
+            // implementation specifications.
+            if (req.method === 'getYouTubeVideoDetails') {
+                comparator = (eventData) => {
+                    return (
+                        eventData.responseMessageType === req.method &&
+                        eventData.response &&
+                        eventData.response.videoURL === req.params?.videoURL
+                    );
+                };
+                params = req.params?.videoURL;
+            }
+
+            legacySendMessage(req.method, params);
+
+            return new this.globals.Promise((resolve) => {
+                this._subscribe(comparator, (msgRes, unsubscribe) => {
+                    unsubscribe();
+
+                    return resolve(msgRes.response);
+                });
+            });
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe(msg, callback) {
+            const comparator = (eventData) => {
+                return eventData.messageType === msg.subscriptionName || eventData.responseMessageType === msg.subscriptionName;
+            };
+
+            // only forward the 'params' ('response' in current format), to match expected
+            // callback from a SubscriptionEvent
+            const cb = (eventData) => {
+                return callback(eventData.response);
+            };
+            return this._subscribe(comparator, cb);
+        }
+
+        /**
+         * @param {(eventData: any) => boolean} comparator
+         * @param {(value: any, unsubscribe: (()=>void)) => void} callback
+         * @internal
+         */
+        _subscribe(comparator, callback) {
+            /** @type {(()=>void) | undefined} */
+            // eslint-disable-next-line prefer-const
+            let teardown;
+
+            /**
+             * @param {MessageEvent} event
+             */
+            const idHandler = (event) => {
+                if (!event) {
+                    console.warn('no message available');
+                    return;
+                }
+                if (comparator(event)) {
+                    if (!teardown) throw new this.globals.Error('unreachable');
+                    callback(event, teardown);
+                }
+            };
+            this._queue.add(idHandler);
+
+            teardown = () => {
+                this._queue.delete(idHandler);
+            };
+
+            return () => {
+                teardown?.();
+            };
+        }
+    }
+
+    /**
+     * @typedef {object} AssetConfig
+     * @property {string} regularFontUrl
+     * @property {string} boldFontUrl
+     */
+
+    /**
+     * @typedef {object} Site
+     * @property {string | null} domain
+     * @property {boolean} [isBroken]
+     * @property {boolean} [allowlisted]
+     * @property {string[]} [enabledFeatures]
+     */
+
+    class ContentFeature {
+        /** @type {import('./utils.js').RemoteConfig | undefined} */
+        #bundledConfig;
+        /** @type {object | undefined} */
+        #trackerLookup;
+        /** @type {boolean | undefined} */
+        #documentOriginIsTracker;
+        /** @type {Record<string, unknown> | undefined} */
+        // eslint-disable-next-line no-unused-private-class-members
+        #bundledfeatureSettings;
+        /** @type {import('../../messaging').Messaging} */
+        // eslint-disable-next-line no-unused-private-class-members
+        #messaging;
+        /** @type {boolean} */
+        #isDebugFlagSet = false;
+
+        /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
+        #args;
+
+        constructor(featureName) {
+            this.name = featureName;
+            this.#args = null;
+            this.monitor = new PerformanceMonitor();
+        }
+
+        get isDebug() {
+            return this.#args?.debug || false;
+        }
+
+        get desktopModeEnabled() {
+            return this.#args?.desktopModeEnabled || false;
+        }
+
+        get forcedZoomEnabled() {
+            return this.#args?.forcedZoomEnabled || false;
+        }
+
+        /**
+         * @param {import('./utils').Platform} platform
+         */
+        set platform(platform) {
+            this._platform = platform;
+        }
+
+        get platform() {
+            // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'
+            return this._platform;
+        }
+
+        /**
+         * @type {AssetConfig | undefined}
+         */
+        get assetConfig() {
+            return this.#args?.assets;
+        }
+
+        /**
+         * @returns {boolean}
+         */
+        get documentOriginIsTracker() {
+            return !!this.#documentOriginIsTracker;
+        }
+
+        /**
+         * @returns {object}
+         **/
+        get trackerLookup() {
+            return this.#trackerLookup || {};
+        }
+
+        /**
+         * @returns {import('./utils.js').RemoteConfig | undefined}
+         **/
+        get bundledConfig() {
+            return this.#bundledConfig;
+        }
+
+        /**
+         * @deprecated as we should make this internal to the class and not used externally
+         * @return {MessagingContext}
+         */
+        _createMessagingContext() {
+            const contextName = 'contentScopeScripts';
+
+            return new MessagingContext({
+                context: contextName,
+                env: this.isDebug ? 'development' : 'production',
+                featureName: this.name,
+            });
+        }
+
+        /**
+         * Lazily create a messaging instance for the given Platform + feature combo
+         *
+         * @return {import('@duckduckgo/messaging').Messaging}
+         */
+        get messaging() {
+            if (this._messaging) return this._messaging;
+            const messagingContext = this._createMessagingContext();
+            let messagingConfig = this.#args?.messagingConfig;
+            if (!messagingConfig) {
+                if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in');
+                messagingConfig = extensionConstructMessagingConfig();
+            }
+            this._messaging = new Messaging(messagingContext, messagingConfig);
+            return this._messaging;
+        }
+
+        /**
+         * Get the value of a config setting.
+         * If the value is not set, return the default value.
+         * If the value is not an object, return the value.
+         * If the value is an object, check its type property.
+         * @param {string} attrName
+         * @param {any} defaultValue - The default value to use if the config setting is not set
+         * @returns The value of the config setting or the default value
+         */
+        getFeatureAttr(attrName, defaultValue) {
+            const configSetting = this.getFeatureSetting(attrName);
+            return processAttr(configSetting, defaultValue);
+        }
+
+        /**
+         * Return a specific setting from the feature settings
+         * If the "settings" key within the config has a "domains" key, it will be used to override the settings.
+         * This uses JSONPatch to apply the patches to settings before getting the setting value.
+         * For example.com getFeatureSettings('val') will return 1:
+         * ```json
+         *  {
+         *      "settings": {
+         *         "domains": [
+         *             {
+         *                "domain": "example.com",
+         *                "patchSettings": [
+         *                    { "op": "replace", "path": "/val", "value": 1 }
+         *                ]
+         *             }
+         *         ]
+         *      }
+         *  }
+         * ```
+         * "domain" can either be a string or an array of strings.
+
+         * For boolean states you should consider using getFeatureSettingEnabled.
+         * @param {string} featureKeyName
+         * @param {string} [featureName]
+         * @returns {any}
+         */
+        getFeatureSetting(featureKeyName, featureName) {
+            let result = this._getFeatureSettings(featureName);
+            if (featureKeyName === 'domains') {
+                throw new Error('domains is a reserved feature setting key name');
+            }
+            const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {
+                return a.domain.length - b.domain.length;
+            });
+            for (const match of domainMatch) {
+                if (match.patchSettings === undefined) {
+                    continue;
+                }
+                try {
+                    result = immutableJSONPatch(result, match.patchSettings);
+                } catch (e) {
+                    console.error('Error applying patch settings', e);
+                }
+            }
+            return result?.[featureKeyName];
+        }
+
+        /**
+         * Return the settings object for a feature
+         * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
+         * @returns {any}
+         */
+        _getFeatureSettings(featureName) {
+            const camelFeatureName = featureName || camelcase(this.name);
+            return this.#args?.featureSettings?.[camelFeatureName];
+        }
+
+        /**
+         * For simple boolean settings, return true if the setting is 'enabled'
+         * For objects, verify the 'state' field is 'enabled'.
+         * This allows for future forwards compatibility with more complex settings if required.
+         * For example:
+         * ```json
+         * {
+         *    "toggle": "enabled"
+         * }
+         * ```
+         * Could become later (without breaking changes):
+         * ```json
+         * {
+         *   "toggle": {
+         *       "state": "enabled",
+         *       "someOtherKey": 1
+         *   }
+         * }
+         * ```
+         * This also supports domain overrides as per `getFeatureSetting`.
+         * @param {string} featureKeyName
+         * @param {string} [featureName]
+         * @returns {boolean}
+         */
+        getFeatureSettingEnabled(featureKeyName, featureName) {
+            const result = this.getFeatureSetting(featureKeyName, featureName);
+            if (typeof result === 'object') {
+                return result.state === 'enabled';
+            }
+            return result === 'enabled';
+        }
+
+        /**
+         * Given a config key, interpret the value as a list of domain overrides, and return the elements that match the current page
+         * Consider using patchSettings instead as per `getFeatureSetting`.
+         * @param {string} featureKeyName
+         * @return {any[]}
+         * @private
+         */
+        matchDomainFeatureSetting(featureKeyName) {
+            const domain = this.#args?.site.domain;
+            if (!domain) return [];
+            const domains = this._getFeatureSettings()?.[featureKeyName] || [];
+            return domains.filter((rule) => {
+                if (Array.isArray(rule.domain)) {
+                    return rule.domain.some((domainRule) => {
+                        return matchHostname(domain, domainRule);
+                    });
+                }
+                return matchHostname(domain, rule.domain);
+            });
+        }
+
+        init(args) {}
+
+        callInit(args) {
+            const mark = this.monitor.mark(this.name + 'CallInit');
+            this.#args = args;
+            this.platform = args.platform;
+            this.init(args);
+            mark.end();
+            this.measure();
+        }
+
+        load(args) {}
+
+        /**
+         * This is a wrapper around `this.messaging.notify` that applies the
+         * auto-generated types from the `src/types` folder. It's used
+         * to provide per-feature type information based on the schemas
+         * in `src/messages`
+         *
+         * @type {import("@duckduckgo/messaging").Messaging['notify']}
+         */
+        notify(...args) {
+            const [name, params] = args;
+            this.messaging.notify(name, params);
+        }
+
+        /**
+         * This is a wrapper around `this.messaging.request` that applies the
+         * auto-generated types from the `src/types` folder. It's used
+         * to provide per-feature type information based on the schemas
+         * in `src/messages`
+         *
+         * @type {import("@duckduckgo/messaging").Messaging['request']}
+         */
+        request(...args) {
+            const [name, params] = args;
+            return this.messaging.request(name, params);
+        }
+
+        /**
+         * This is a wrapper around `this.messaging.subscribe` that applies the
+         * auto-generated types from the `src/types` folder. It's used
+         * to provide per-feature type information based on the schemas
+         * in `src/messages`
+         *
+         * @type {import("@duckduckgo/messaging").Messaging['subscribe']}
+         */
+        subscribe(...args) {
+            const [name, cb] = args;
+            return this.messaging.subscribe(name, cb);
+        }
+
+        /**
+         * @param {import('./content-scope-features.js').LoadArgs} args
+         */
+        callLoad(args) {
+            const mark = this.monitor.mark(this.name + 'CallLoad');
+            this.#args = args;
+            this.platform = args.platform;
+            this.#bundledConfig = args.bundledConfig;
+            // If we have a bundled config, treat it as a regular config
+            // This will be overriden by the remote config if it is available
+            if (this.#bundledConfig && this.#args) {
+                const enabledFeatures = computeEnabledFeatures(args.bundledConfig, args.site.domain, this.platform.version);
+                this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures);
+            }
+            this.#trackerLookup = args.trackerLookup;
+            this.#documentOriginIsTracker = args.documentOriginIsTracker;
+            this.load(args);
+            mark.end();
+        }
+
+        measure() {
+            if (this.#args?.debug) {
+                this.monitor.measureAll();
+            }
+        }
+
+        update() {}
+
+        /**
+         * Register a flag that will be added to page breakage reports
+         */
+        addDebugFlag() {
+            if (this.#isDebugFlagSet) return;
+            this.#isDebugFlagSet = true;
+            this.messaging?.notify('addDebugFlag', {
+                flag: this.name,
+            });
+        }
+
+        /**
+         * Define a property descriptor with debug flags.
+         * Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
+         * @param {string} propertyName
+         * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
+         */
+        defineProperty(object, propertyName, descriptor) {
+            // make sure to send a debug flag when the property is used
+            // NOTE: properties passing data in `value` would not be caught by this
+            ['value', 'get', 'set'].forEach((k) => {
+                const descriptorProp = descriptor[k];
+                if (typeof descriptorProp === 'function') {
+                    const addDebugFlag = this.addDebugFlag.bind(this);
+                    const wrapper = new Proxy$1(descriptorProp, {
+                        apply(target, thisArg, argumentsList) {
+                            addDebugFlag();
+                            return Reflect$1.apply(descriptorProp, thisArg, argumentsList);
+                        },
+                    });
+                    descriptor[k] = wrapToString(wrapper, descriptorProp);
+                }
+            });
+
+            return defineProperty(object, propertyName, descriptor);
+        }
+
+        /**
+         * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
+         * @param {string} propertyName
+         * @param {Partial<PropertyDescriptor>} descriptor
+         * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+         */
+        wrapProperty(object, propertyName, descriptor) {
+            return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this));
+        }
+
+        /**
+         * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
+         * @param {string} propertyName
+         * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+         * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+         */
+        wrapMethod(object, propertyName, wrapperFn) {
+            return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this));
+        }
+
+        /**
+         * @template {keyof typeof globalThis} StandardInterfaceName
+         * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
+         * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
+         * @param {import('./wrapper-utils').DefineInterfaceOptions} options
+         */
+        shimInterface(interfaceName, ImplClass, options) {
+            return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this));
+        }
+
+        /**
+         * Define a missing standard property on a global (prototype) object. Only for data properties.
+         * For constructors, use shimInterface().
+         * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
+         * @template Base
+         * @template {keyof Base & string} K
+         * @param {Base} instanceHost - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
+         * @param {K} instanceProp - name of the property to shim (e.g. 'mediaSession')
+         * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
+         * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
+         */
+        shimProperty(instanceHost, instanceProp, implInstance, readOnly = false) {
+            return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this));
+        }
+    }
+
+    /**
+     * Check if the current document origin is on the tracker list, using the provided lookup trie.
+     * @param {object} trackerLookup Trie lookup of tracker domains
+     * @returns {boolean} True iff the origin is a tracker.
+     */
+    function isTrackerOrigin(trackerLookup, originHostname = document.location.hostname) {
+        const parts = originHostname.split('.').reverse();
+        let node = trackerLookup;
+        for (const sub of parts) {
+            if (node[sub] === 1) {
+                return true;
+            } else if (node[sub]) {
+                node = node[sub];
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @typedef ExtensionCookiePolicy
+     * @property {boolean} isFrame
+     * @property {boolean} isTracker
+     * @property {boolean} shouldBlock
+     * @property {boolean} isThirdPartyFrame
+     */
+
+    function initialShouldBlockTrackerCookie() {
+        const injectName = "firefox";
+        return injectName === 'firefox';
+    }
+
+    // Initial cookie policy pre init
+    let cookiePolicy = {
+        debug: false,
+        isFrame: isBeingFramed(),
+        isTracker: false,
+        shouldBlock: true,
+        shouldBlockTrackerCookie: initialShouldBlockTrackerCookie(),
+        shouldBlockNonTrackerCookie: false,
+        isThirdPartyFrame: isThirdPartyFrame(),
+        policy: {
+            threshold: 604800, // 7 days
+            maxAge: 604800, // 7 days
+        },
+        trackerPolicy: {
+            threshold: 86400, // 1 day
+            maxAge: 86400, // 1 day
+        },
+        allowlist: /** @type {{ host: string }[]} */ ([]),
+    };
+    let trackerLookup = {};
+
+    let loadedPolicyResolve;
+
+    /**
+     * @param {'ignore' | 'block' | 'restrict'} action
+     * @param {string} reason
+     * @param {any} ctx
+     */
+    function debugHelper(action, reason, ctx) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        cookiePolicy.debug &&
+            postDebugMessage('jscookie', {
+                action,
+                reason,
+                stack: ctx.stack,
+                documentUrl: globalThis.document.location.href,
+                value: ctx.value,
+            });
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    function shouldBlockTrackingCookie() {
+        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie();
+    }
+
+    function shouldBlockNonTrackingCookie() {
+        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie();
+    }
+
+    /**
+     * @param {Set<string>} scriptOrigins
+     * @returns {boolean}
+     */
+    function isFirstPartyTrackerScript(scriptOrigins) {
+        let matched = false;
+        for (const scriptOrigin of scriptOrigins) {
+            if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
+                return false;
+            }
+            if (isTrackerOrigin(trackerLookup, scriptOrigin)) {
+                matched = true;
+            }
+        }
+        return matched;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    function isTrackingCookie() {
+        return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame;
+    }
+
+    function isNonTrackingCookie() {
+        return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame;
+    }
+
+    class CookieFeature extends ContentFeature {
+        load() {
+            if (this.documentOriginIsTracker) {
+                cookiePolicy.isTracker = true;
+            }
+            if (this.trackerLookup) {
+                trackerLookup = this.trackerLookup;
+            }
+            if (this.bundledConfig?.features?.cookie) {
+                // use the bundled config to get a best-effort at the policy, before the background sends the real one
+                const { exceptions, settings } = this.bundledConfig.features.cookie;
+                const tabHostname = getTabHostname();
+                let tabExempted = true;
+
+                if (tabHostname != null) {
+                    tabExempted = exceptions.some((exception) => {
+                        return matchHostname(tabHostname, exception.domain);
+                    });
+                }
+                const frameExempted = settings.excludedCookieDomains.some((exception) => {
+                    return matchHostname(globalThis.location.hostname, exception.domain);
+                });
+                cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
+                cookiePolicy.policy = settings.firstPartyCookiePolicy;
+                cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
+                // Allows for ad click conversion detection as described by https://help.duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/.
+                // This only applies when the resources that would set these cookies are unblocked.
+                cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || [];
+            }
+
+            // The cookie policy is injected into every frame immediately so that no cookie will
+            // be missed.
+            const document = globalThis.document;
+            // @ts-expect-error - Object is possibly 'undefined'.
+            const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
+            // @ts-expect-error - Object is possibly 'undefined'.
+            const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
+
+            const loadPolicy = new Promise((resolve) => {
+                loadedPolicyResolve = resolve;
+            });
+            // Create the then callback now - this ensures that Promise.prototype.then changes won't break
+            // this call.
+            const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
+
+            function getCookiePolicy() {
+                let getCookieContext = null;
+                if (cookiePolicy.debug) {
+                    const stack = getStack();
+                    getCookieContext = {
+                        stack,
+                        value: 'getter',
+                    };
+                }
+
+                if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+                    debugHelper('block', '3p frame', getCookieContext);
+                    return '';
+                } else if (isTrackingCookie() || isNonTrackingCookie()) {
+                    debugHelper('ignore', '3p frame', getCookieContext);
+                }
+                // @ts-expect-error - error TS18048: 'cookieGetter' is possibly 'undefined'.
+                return cookieGetter.call(this);
+            }
+
+            /**
+             * @param {any} argValue
+             */
+            function setCookiePolicy(argValue) {
+                let setCookieContext = null;
+                if (!argValue?.toString || typeof argValue.toString() !== 'string') {
+                    // not a string, or string-like
+                    return;
+                }
+                const value = argValue.toString();
+                if (cookiePolicy.debug) {
+                    const stack = getStack();
+                    setCookieContext = {
+                        stack,
+                        value,
+                    };
+                }
+
+                if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+                    debugHelper('block', '3p frame', setCookieContext);
+                    return;
+                } else if (isTrackingCookie() || isNonTrackingCookie()) {
+                    debugHelper('ignore', '3p frame', setCookieContext);
+                }
+                // call the native document.cookie implementation. This will set the cookie immediately
+                // if the value is valid. We will override this set later if the policy dictates that
+                // the expiry should be changed.
+                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
+                cookieSetter.call(this, argValue);
+
+                try {
+                    // wait for config before doing same-site tests
+                    loadPolicyThen(() => {
+                        const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
+                        const stack = getStack();
+                        const scriptOrigins = getStackTraceOrigins(stack);
+                        const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
+                        if (!shouldBlock) {
+                            debugHelper('ignore', 'disabled', setCookieContext);
+                            return;
+                        }
+                        // extract cookie expiry from cookie string
+                        const cookie = new Cookie(value);
+                        // apply cookie policy
+                        if (cookie.getExpiry() > chosenPolicy.threshold) {
+                            // check if the cookie still exists
+                            if (document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+                                cookie.maxAge = chosenPolicy.maxAge;
+
+                                debugHelper('restrict', 'expiry', setCookieContext);
+
+                                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
+                                cookieSetter.apply(document, [cookie.toString()]);
+                            } else {
+                                debugHelper('ignore', 'dissappeared', setCookieContext);
+                            }
+                        } else {
+                            debugHelper('ignore', 'expiry', setCookieContext);
+                        }
+                    });
+                } catch (e) {
+                    debugHelper('ignore', 'error', setCookieContext);
+                    // suppress error in cookie override to avoid breakage
+                    console.warn('Error in cookie override', e);
+                }
+            }
+
+            this.wrapProperty(globalThis.Document.prototype, 'cookie', {
+                set: setCookiePolicy,
+                get: getCookiePolicy,
+            });
+        }
+
+        init(args) {
+            const restOfPolicy = {
+                debug: this.isDebug,
+                shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
+                shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
+                allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
+                policy: this.getFeatureSetting('firstPartyCookiePolicy'),
+                trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy'),
+            };
+            // The extension provides some additional info about the cookie policy, let's use that over our guesses
+            if (args.cookie) {
+                const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */ (args.cookie);
+                cookiePolicy = {
+                    ...extensionCookiePolicy,
+                    ...restOfPolicy,
+                };
+            } else {
+                // copy non-null entries from restOfPolicy to cookiePolicy
+                Object.keys(restOfPolicy).forEach((key) => {
+                    if (restOfPolicy[key]) {
+                        cookiePolicy[key] = restOfPolicy[key];
+                    }
+                });
+            }
+
+            loadedPolicyResolve();
+        }
+    }
+
+    // @ts-nocheck
+    const sjcl = (() => {
+        /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
+        /*global document, window, escape, unescape, module, require, Uint32Array */
+
+        /**
+         * The Stanford Javascript Crypto Library, top-level namespace.
+         * @namespace
+         */
+        var sjcl = {
+            /**
+             * Symmetric ciphers.
+             * @namespace
+             */
+            cipher: {},
+
+            /**
+             * Hash functions.  Right now only SHA256 is implemented.
+             * @namespace
+             */
+            hash: {},
+
+            /**
+             * Key exchange functions.  Right now only SRP is implemented.
+             * @namespace
+             */
+            keyexchange: {},
+
+            /**
+             * Cipher modes of operation.
+             * @namespace
+             */
+            mode: {},
+
+            /**
+             * Miscellaneous.  HMAC and PBKDF2.
+             * @namespace
+             */
+            misc: {},
+
+            /**
+             * Bit array encoders and decoders.
+             * @namespace
+             *
+             * @description
+             * The members of this namespace are functions which translate between
+             * SJCL's bitArrays and other objects (usually strings).  Because it
+             * isn't always clear which direction is encoding and which is decoding,
+             * the method names are "fromBits" and "toBits".
+             */
+            codec: {},
+
+            /**
+             * Exceptions.
+             * @namespace
+             */
+            exception: {
+                /**
+                 * Ciphertext is corrupt.
+                 * @constructor
+                 */
+                corrupt: function (message) {
+                    this.toString = function () {
+                        return 'CORRUPT: ' + this.message;
+                    };
+                    this.message = message;
+                },
+
+                /**
+                 * Invalid parameter.
+                 * @constructor
+                 */
+                invalid: function (message) {
+                    this.toString = function () {
+                        return 'INVALID: ' + this.message;
+                    };
+                    this.message = message;
+                },
+
+                /**
+                 * Bug or missing feature in SJCL.
+                 * @constructor
+                 */
+                bug: function (message) {
+                    this.toString = function () {
+                        return 'BUG: ' + this.message;
+                    };
+                    this.message = message;
+                },
+
+                /**
+                 * Something isn't ready.
+                 * @constructor
+                 */
+                notReady: function (message) {
+                    this.toString = function () {
+                        return 'NOT READY: ' + this.message;
+                    };
+                    this.message = message;
+                },
+            },
+        };
+        /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * Arrays of bits, encoded as arrays of Numbers.
+         * @namespace
+         * @description
+         * <p>
+         * These objects are the currency accepted by SJCL's crypto functions.
+         * </p>
+         *
+         * <p>
+         * Most of our crypto primitives operate on arrays of 4-byte words internally,
+         * but many of them can take arguments that are not a multiple of 4 bytes.
+         * This library encodes arrays of bits (whose size need not be a multiple of 8
+         * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
+         * array of words, 32 bits at a time.  Since the words are double-precision
+         * floating point numbers, they fit some extra data.  We use this (in a private,
+         * possibly-changing manner) to encode the number of bits actually  present
+         * in the last word of the array.
+         * </p>
+         *
+         * <p>
+         * Because bitwise ops clear this out-of-band data, these arrays can be passed
+         * to ciphers like AES which want arrays of words.
+         * </p>
+         */
+        sjcl.bitArray = {
+            /**
+             * Array slices in units of bits.
+             * @param {bitArray} a The array to slice.
+             * @param {Number} bstart The offset to the start of the slice, in bits.
+             * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
+             * slice until the end of the array.
+             * @return {bitArray} The requested slice.
+             */
+            bitSlice: function (a, bstart, bend) {
+                a = sjcl.bitArray._shiftRight(a.slice(bstart / 32), 32 - (bstart & 31)).slice(1);
+                return bend === undefined ? a : sjcl.bitArray.clamp(a, bend - bstart);
+            },
+
+            /**
+             * Extract a number packed into a bit array.
+             * @param {bitArray} a The array to slice.
+             * @param {Number} bstart The offset to the start of the slice, in bits.
+             * @param {Number} blength The length of the number to extract.
+             * @return {Number} The requested slice.
+             */
+            extract: function (a, bstart, blength) {
+                // FIXME: this Math.floor is not necessary at all, but for some reason
+                // seems to suppress a bug in the Chromium JIT.
+                var x,
+                    sh = Math.floor((-bstart - blength) & 31);
+                if (((bstart + blength - 1) ^ bstart) & -32) {
+                    // it crosses a boundary
+                    x = (a[(bstart / 32) | 0] << (32 - sh)) ^ (a[(bstart / 32 + 1) | 0] >>> sh);
+                } else {
+                    // within a single word
+                    x = a[(bstart / 32) | 0] >>> sh;
+                }
+                return x & ((1 << blength) - 1);
+            },
+
+            /**
+             * Concatenate two bit arrays.
+             * @param {bitArray} a1 The first array.
+             * @param {bitArray} a2 The second array.
+             * @return {bitArray} The concatenation of a1 and a2.
+             */
+            concat: function (a1, a2) {
+                if (a1.length === 0 || a2.length === 0) {
+                    return a1.concat(a2);
+                }
+
+                var last = a1[a1.length - 1],
+                    shift = sjcl.bitArray.getPartial(last);
+                if (shift === 32) {
+                    return a1.concat(a2);
+                } else {
+                    return sjcl.bitArray._shiftRight(a2, shift, last | 0, a1.slice(0, a1.length - 1));
+                }
+            },
+
+            /**
+             * Find the length of an array of bits.
+             * @param {bitArray} a The array.
+             * @return {Number} The length of a, in bits.
+             */
+            bitLength: function (a) {
+                var l = a.length,
+                    x;
+                if (l === 0) {
+                    return 0;
+                }
+                x = a[l - 1];
+                return (l - 1) * 32 + sjcl.bitArray.getPartial(x);
+            },
+
+            /**
+             * Truncate an array.
+             * @param {bitArray} a The array.
+             * @param {Number} len The length to truncate to, in bits.
+             * @return {bitArray} A new array, truncated to len bits.
+             */
+            clamp: function (a, len) {
+                if (a.length * 32 < len) {
+                    return a;
+                }
+                a = a.slice(0, Math.ceil(len / 32));
+                var l = a.length;
+                len = len & 31;
+                if (l > 0 && len) {
+                    a[l - 1] = sjcl.bitArray.partial(len, a[l - 1] & (0x80000000 >> (len - 1)), 1);
+                }
+                return a;
+            },
+
+            /**
+             * Make a partial word for a bit array.
+             * @param {Number} len The number of bits in the word.
+             * @param {Number} x The bits.
+             * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
+             * @return {Number} The partial word.
+             */
+            partial: function (len, x, _end) {
+                if (len === 32) {
+                    return x;
+                }
+                return (_end ? x | 0 : x << (32 - len)) + len * 0x10000000000;
+            },
+
+            /**
+             * Get the number of bits used by a partial word.
+             * @param {Number} x The partial word.
+             * @return {Number} The number of bits used by the partial word.
+             */
+            getPartial: function (x) {
+                return Math.round(x / 0x10000000000) || 32;
+            },
+
+            /**
+             * Compare two arrays for equality in a predictable amount of time.
+             * @param {bitArray} a The first array.
+             * @param {bitArray} b The second array.
+             * @return {boolean} true if a == b; false otherwise.
+             */
+            equal: function (a, b) {
+                if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
+                    return false;
+                }
+                var x = 0,
+                    i;
+                for (i = 0; i < a.length; i++) {
+                    x |= a[i] ^ b[i];
+                }
+                return x === 0;
+            },
+
+            /** Shift an array right.
+             * @param {bitArray} a The array to shift.
+             * @param {Number} shift The number of bits to shift.
+             * @param {Number} [carry=0] A byte to carry in
+             * @param {bitArray} [out=[]] An array to prepend to the output.
+             * @private
+             */
+            _shiftRight: function (a, shift, carry, out) {
+                var i,
+                    last2 = 0,
+                    shift2;
+                if (out === undefined) {
+                    out = [];
+                }
+
+                for (; shift >= 32; shift -= 32) {
+                    out.push(carry);
+                    carry = 0;
+                }
+                if (shift === 0) {
+                    return out.concat(a);
+                }
+
+                for (i = 0; i < a.length; i++) {
+                    out.push(carry | (a[i] >>> shift));
+                    carry = a[i] << (32 - shift);
+                }
+                last2 = a.length ? a[a.length - 1] : 0;
+                shift2 = sjcl.bitArray.getPartial(last2);
+                out.push(sjcl.bitArray.partial((shift + shift2) & 31, shift + shift2 > 32 ? carry : out.pop(), 1));
+                return out;
+            },
+
+            /** xor a block of 4 words together.
+             * @private
+             */
+            _xor4: function (x, y) {
+                return [x[0] ^ y[0], x[1] ^ y[1], x[2] ^ y[2], x[3] ^ y[3]];
+            },
+
+            /** byteswap a word array inplace.
+             * (does not handle partial words)
+             * @param {sjcl.bitArray} a word array
+             * @return {sjcl.bitArray} byteswapped array
+             */
+            byteswapM: function (a) {
+                var i,
+                    v,
+                    m = 0xff00;
+                for (i = 0; i < a.length; ++i) {
+                    v = a[i];
+                    a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
+                }
+                return a;
+            },
+        };
+        /** @fileOverview Bit array codec implementations.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * UTF-8 strings
+         * @namespace
+         */
+        sjcl.codec.utf8String = {
+            /** Convert from a bitArray to a UTF-8 string. */
+            fromBits: function (arr) {
+                var out = '',
+                    bl = sjcl.bitArray.bitLength(arr),
+                    i,
+                    tmp;
+                for (i = 0; i < bl / 8; i++) {
+                    if ((i & 3) === 0) {
+                        tmp = arr[i / 4];
+                    }
+                    out += String.fromCharCode(((tmp >>> 8) >>> 8) >>> 8);
+                    tmp <<= 8;
+                }
+                return decodeURIComponent(escape(out));
+            },
+
+            /** Convert from a UTF-8 string to a bitArray. */
+            toBits: function (str) {
+                str = unescape(encodeURIComponent(str));
+                var out = [],
+                    i,
+                    tmp = 0;
+                for (i = 0; i < str.length; i++) {
+                    tmp = (tmp << 8) | str.charCodeAt(i);
+                    if ((i & 3) === 3) {
+                        out.push(tmp);
+                        tmp = 0;
+                    }
+                }
+                if (i & 3) {
+                    out.push(sjcl.bitArray.partial(8 * (i & 3), tmp));
+                }
+                return out;
+            },
+        };
+        /** @fileOverview Bit array codec implementations.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * Hexadecimal
+         * @namespace
+         */
+        sjcl.codec.hex = {
+            /** Convert from a bitArray to a hex string. */
+            fromBits: function (arr) {
+                var out = '',
+                    i;
+                for (i = 0; i < arr.length; i++) {
+                    out += ((arr[i] | 0) + 0xf00000000000).toString(16).substr(4);
+                }
+                return out.substr(0, sjcl.bitArray.bitLength(arr) / 4); //.replace(/(.{8})/g, "$1 ");
+            },
+            /** Convert from a hex string to a bitArray. */
+            toBits: function (str) {
+                var i,
+                    out = [],
+                    len;
+                str = str.replace(/\s|0x/g, '');
+                len = str.length;
+                str = str + '00000000';
+                for (i = 0; i < str.length; i += 8) {
+                    out.push(parseInt(str.substr(i, 8), 16) ^ 0);
+                }
+                return sjcl.bitArray.clamp(out, len * 4);
+            },
+        };
+
+        /** @fileOverview Javascript SHA-256 implementation.
+         *
+         * An older version of this implementation is available in the public
+         * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
+         * Stanford University 2008-2010 and BSD-licensed for liability
+         * reasons.
+         *
+         * Special thanks to Aldo Cortesi for pointing out several bugs in
+         * this code.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /**
+         * Context for a SHA-256 operation in progress.
+         * @constructor
+         */
+        sjcl.hash.sha256 = function (hash) {
+            if (!this._key[0]) {
+                this._precompute();
+            }
+            if (hash) {
+                this._h = hash._h.slice(0);
+                this._buffer = hash._buffer.slice(0);
+                this._length = hash._length;
+            } else {
+                this.reset();
+            }
+        };
+
+        /**
+         * Hash a string or an array of words.
+         * @static
+         * @param {bitArray|String} data the data to hash.
+         * @return {bitArray} The hash value, an array of 16 big-endian words.
+         */
+        sjcl.hash.sha256.hash = function (data) {
+            return new sjcl.hash.sha256().update(data).finalize();
+        };
+
+        sjcl.hash.sha256.prototype = {
+            /**
+             * The hash's block size, in bits.
+             * @constant
+             */
+            blockSize: 512,
+
+            /**
+             * Reset the hash state.
+             * @return this
+             */
+            reset: function () {
+                this._h = this._init.slice(0);
+                this._buffer = [];
+                this._length = 0;
+                return this;
+            },
+
+            /**
+             * Input several words to the hash.
+             * @param {bitArray|String} data the data to hash.
+             * @return this
+             */
+            update: function (data) {
+                if (typeof data === 'string') {
+                    data = sjcl.codec.utf8String.toBits(data);
+                }
+                var i,
+                    b = (this._buffer = sjcl.bitArray.concat(this._buffer, data)),
+                    ol = this._length,
+                    nl = (this._length = ol + sjcl.bitArray.bitLength(data));
+                if (nl > 9007199254740991) {
+                    throw new sjcl.exception.invalid('Cannot hash more than 2^53 - 1 bits');
+                }
+
+                if (typeof Uint32Array !== 'undefined') {
+                    var c = new Uint32Array(b);
+                    var j = 0;
+                    for (i = 512 + ol - ((512 + ol) & 511); i <= nl; i += 512) {
+                        this._block(c.subarray(16 * j, 16 * (j + 1)));
+                        j += 1;
+                    }
+                    b.splice(0, 16 * j);
+                } else {
+                    for (i = 512 + ol - ((512 + ol) & 511); i <= nl; i += 512) {
+                        this._block(b.splice(0, 16));
+                    }
+                }
+                return this;
+            },
+
+            /**
+             * Complete hashing and output the hash value.
+             * @return {bitArray} The hash value, an array of 8 big-endian words.
+             */
+            finalize: function () {
+                var i,
+                    b = this._buffer,
+                    h = this._h;
+
+                // Round out and push the buffer
+                b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]);
+
+                // Round out the buffer to a multiple of 16 words, less the 2 length words.
+                for (i = b.length + 2; i & 15; i++) {
+                    b.push(0);
+                }
+
+                // append the length
+                b.push(Math.floor(this._length / 0x100000000));
+                b.push(this._length | 0);
+
+                while (b.length) {
+                    this._block(b.splice(0, 16));
+                }
+
+                this.reset();
+                return h;
+            },
+
+            /**
+             * The SHA-256 initialization vector, to be precomputed.
+             * @private
+             */
+            _init: [],
+            /*
+      _init:[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],
+      */
+
+            /**
+             * The SHA-256 hash key, to be precomputed.
+             * @private
+             */
+            _key: [],
+            /*
+      _key:
+        [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+         0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+         0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+         0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+         0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+         0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+         0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+         0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
+      */
+
+            /**
+             * Function to precompute _init and _key.
+             * @private
+             */
+            _precompute: function () {
+                var i = 0,
+                    prime = 2,
+                    factor,
+                    isPrime;
+
+                function frac(x) {
+                    return ((x - Math.floor(x)) * 0x100000000) | 0;
+                }
+
+                for (; i < 64; prime++) {
+                    isPrime = true;
+                    for (factor = 2; factor * factor <= prime; factor++) {
+                        if (prime % factor === 0) {
+                            isPrime = false;
+                            break;
+                        }
+                    }
+                    if (isPrime) {
+                        if (i < 8) {
+                            this._init[i] = frac(Math.pow(prime, 1 / 2));
+                        }
+                        this._key[i] = frac(Math.pow(prime, 1 / 3));
+                        i++;
+                    }
+                }
+            },
+
+            /**
+             * Perform one cycle of SHA-256.
+             * @param {Uint32Array|bitArray} w one block of words.
+             * @private
+             */
+            _block: function (w) {
+                var i,
+                    tmp,
+                    a,
+                    b,
+                    h = this._h,
+                    k = this._key,
+                    h0 = h[0],
+                    h1 = h[1],
+                    h2 = h[2],
+                    h3 = h[3],
+                    h4 = h[4],
+                    h5 = h[5],
+                    h6 = h[6],
+                    h7 = h[7];
+
+                /* Rationale for placement of |0 :
+                 * If a value can overflow is original 32 bits by a factor of more than a few
+                 * million (2^23 ish), there is a possibility that it might overflow the
+                 * 53-bit mantissa and lose precision.
+                 *
+                 * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
+                 * propagates around the loop, and on the hash state h[].  I don't believe
+                 * that the clamps on h4 and on h0 are strictly necessary, but it's close
+                 * (for h4 anyway), and better safe than sorry.
+                 *
+                 * The clamps on h[] are necessary for the output to be correct even in the
+                 * common case and for short inputs.
+                 */
+                for (i = 0; i < 64; i++) {
+                    // load up the input word for this round
+                    if (i < 16) {
+                        tmp = w[i];
+                    } else {
+                        a = w[(i + 1) & 15];
+                        b = w[(i + 14) & 15];
+                        tmp = w[i & 15] =
+                            (((a >>> 7) ^ (a >>> 18) ^ (a >>> 3) ^ (a << 25) ^ (a << 14)) +
+                                ((b >>> 17) ^ (b >>> 19) ^ (b >>> 10) ^ (b << 15) ^ (b << 13)) +
+                                w[i & 15] +
+                                w[(i + 9) & 15]) |
+                            0;
+                    }
+
+                    tmp =
+                        tmp +
+                        h7 +
+                        ((h4 >>> 6) ^ (h4 >>> 11) ^ (h4 >>> 25) ^ (h4 << 26) ^ (h4 << 21) ^ (h4 << 7)) +
+                        (h6 ^ (h4 & (h5 ^ h6))) +
+                        k[i]; // | 0;
+
+                    // shift register
+                    h7 = h6;
+                    h6 = h5;
+                    h5 = h4;
+                    h4 = (h3 + tmp) | 0;
+                    h3 = h2;
+                    h2 = h1;
+                    h1 = h0;
+
+                    h0 =
+                        (tmp +
+                            ((h1 & h2) ^ (h3 & (h1 ^ h2))) +
+                            ((h1 >>> 2) ^ (h1 >>> 13) ^ (h1 >>> 22) ^ (h1 << 30) ^ (h1 << 19) ^ (h1 << 10))) |
+                        0;
+                }
+
+                h[0] = (h[0] + h0) | 0;
+                h[1] = (h[1] + h1) | 0;
+                h[2] = (h[2] + h2) | 0;
+                h[3] = (h[3] + h3) | 0;
+                h[4] = (h[4] + h4) | 0;
+                h[5] = (h[5] + h5) | 0;
+                h[6] = (h[6] + h6) | 0;
+                h[7] = (h[7] + h7) | 0;
+            },
+        };
+
+        /** @fileOverview HMAC implementation.
+         *
+         * @author Emily Stark
+         * @author Mike Hamburg
+         * @author Dan Boneh
+         */
+
+        /** HMAC with the specified hash function.
+         * @constructor
+         * @param {bitArray} key the key for HMAC.
+         * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
+         */
+        sjcl.misc.hmac = function (key, Hash) {
+            this._hash = Hash = Hash || sjcl.hash.sha256;
+            var exKey = [[], []],
+                i,
+                bs = Hash.prototype.blockSize / 32;
+            this._baseHash = [new Hash(), new Hash()];
+
+            if (key.length > bs) {
+                key = Hash.hash(key);
+            }
+
+            for (i = 0; i < bs; i++) {
+                exKey[0][i] = key[i] ^ 0x36363636;
+                exKey[1][i] = key[i] ^ 0x5c5c5c5c;
+            }
+
+            this._baseHash[0].update(exKey[0]);
+            this._baseHash[1].update(exKey[1]);
+            this._resultHash = new Hash(this._baseHash[0]);
+        };
+
+        /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
+         * @param {bitArray|String} data The data to mac.
+         */
+        sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
+            if (!this._updated) {
+                this.update(data);
+                return this.digest(data);
+            } else {
+                throw new sjcl.exception.invalid('encrypt on already updated hmac called!');
+            }
+        };
+
+        sjcl.misc.hmac.prototype.reset = function () {
+            this._resultHash = new this._hash(this._baseHash[0]);
+            this._updated = false;
+        };
+
+        sjcl.misc.hmac.prototype.update = function (data) {
+            this._updated = true;
+            this._resultHash.update(data);
+        };
+
+        sjcl.misc.hmac.prototype.digest = function () {
+            var w = this._resultHash.finalize(),
+                result = new this._hash(this._baseHash[1]).update(w).finalize();
+
+            this.reset();
+
+            return result;
+        };
+
+        return sjcl;
+    })();
+
+    function getDataKeySync(sessionKey, domainKey, inputData) {
+        // eslint-disable-next-line new-cap
+        const hmac = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey + domainKey), sjcl.hash.sha256);
+        return sjcl.codec.hex.fromBits(hmac.encrypt(inputData));
+    }
+
+    class FingerprintingAudio extends ContentFeature {
+        init(args) {
+            const { sessionKey, site } = args;
+            const domainKey = site.domain;
+
+            // In place modify array data to remove fingerprinting
+            function transformArrayData(channelData, domainKey, sessionKey, thisArg) {
+                let { audioKey } = getCachedResponse(thisArg, args);
+                if (!audioKey) {
+                    let cdSum = 0;
+                    for (const k in channelData) {
+                        cdSum += channelData[k];
+                    }
+                    // If the buffer is blank, skip adding data
+                    if (cdSum === 0) {
+                        return;
+                    }
+                    audioKey = getDataKeySync(sessionKey, domainKey, cdSum);
+                    setCache(thisArg, args, audioKey);
+                }
+                iterateDataKey(audioKey, (item, byte) => {
+                    const itemAudioIndex = item % channelData.length;
+
+                    let factor = byte * 0.0000001;
+                    if (byte ^ 0x1) {
+                        factor = 0 - factor;
+                    }
+                    channelData[itemAudioIndex] = channelData[itemAudioIndex] + factor;
+                });
+            }
+
+            const copyFromChannelProxy = new DDGProxy(this, AudioBuffer.prototype, 'copyFromChannel', {
+                apply(target, thisArg, args) {
+                    const [source, channelNumber, startInChannel] = args;
+                    // This is implemented in a different way to canvas purely because calling the function copied the original value, which is not ideal
+                    if (
+                        // If channelNumber is longer than arrayBuffer number of channels then call the default method to throw
+                        // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                        channelNumber > thisArg.numberOfChannels ||
+                        // If startInChannel is longer than the arrayBuffer length then call the default method to throw
+                        // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                        startInChannel > thisArg.length
+                    ) {
+                        // The normal return value
+                        return DDGReflect.apply(target, thisArg, args);
+                    }
+                    try {
+                        // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                        // Call the protected getChannelData we implement, slice from the startInChannel value and assign to the source array
+                        thisArg
+                            .getChannelData(channelNumber)
+                            .slice(startInChannel)
+                            .forEach((val, index) => {
+                                source[index] = val;
+                            });
+                    } catch {
+                        return DDGReflect.apply(target, thisArg, args);
+                    }
+                },
+            });
+            copyFromChannelProxy.overload();
+
+            const cacheExpiry = 60;
+            const cacheData = new WeakMap();
+            function getCachedResponse(thisArg, args) {
+                const data = cacheData.get(thisArg);
+                const timeNow = Date.now();
+                if (data && data.args === JSON.stringify(args) && data.expires > timeNow) {
+                    data.expires = timeNow + cacheExpiry;
+                    cacheData.set(thisArg, data);
+                    return data;
+                }
+                return { audioKey: null };
+            }
+
+            function setCache(thisArg, args, audioKey) {
+                cacheData.set(thisArg, { args: JSON.stringify(args), expires: Date.now() + cacheExpiry, audioKey });
+            }
+
+            const getChannelDataProxy = new DDGProxy(this, AudioBuffer.prototype, 'getChannelData', {
+                apply(target, thisArg, args) {
+                    // The normal return value
+                    const channelData = DDGReflect.apply(target, thisArg, args);
+                    // Anything we do here should be caught and ignored silently
+                    try {
+                        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                        transformArrayData(channelData, domainKey, sessionKey, thisArg, args);
+                    } catch {}
+                    return channelData;
+                },
+            });
+            getChannelDataProxy.overload();
+
+            const audioMethods = ['getByteTimeDomainData', 'getFloatTimeDomainData', 'getByteFrequencyData', 'getFloatFrequencyData'];
+            for (const methodName of audioMethods) {
+                const proxy = new DDGProxy(this, AnalyserNode.prototype, methodName, {
+                    apply(target, thisArg, args) {
+                        DDGReflect.apply(target, thisArg, args);
+                        // Anything we do here should be caught and ignored silently
+                        try {
+                            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                            transformArrayData(args[0], domainKey, sessionKey, thisArg, args);
+                        } catch {}
+                    },
+                });
+                proxy.overload();
+            }
+        }
+    }
+
+    /**
+     * Overwrites the Battery API if present in the browser.
+     * It will return the values defined in the getBattery function to the client,
+     * as well as prevent any script from listening to events.
+     */
+    class FingerprintingBattery extends ContentFeature {
+        init() {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            if (globalThis.navigator.getBattery) {
+                const BatteryManager = globalThis.BatteryManager;
+
+                const spoofedValues = {
+                    charging: true,
+                    chargingTime: 0,
+                    dischargingTime: Infinity,
+                    level: 1,
+                };
+                const eventProperties = ['onchargingchange', 'onchargingtimechange', 'ondischargingtimechange', 'onlevelchange'];
+
+                for (const [prop, val] of Object.entries(spoofedValues)) {
+                    try {
+                        this.defineProperty(BatteryManager.prototype, prop, {
+                            enumerable: true,
+                            configurable: true,
+                            get: () => {
+                                return val;
+                            },
+                        });
+                    } catch (e) {}
+                }
+                for (const eventProp of eventProperties) {
+                    try {
+                        this.defineProperty(BatteryManager.prototype, eventProp, {
+                            enumerable: true,
+                            configurable: true,
+                            set: (x) => x, // noop
+                            get: () => {
+                                return null;
+                            },
+                        });
+                    } catch (e) {}
+                }
+            }
+        }
+    }
+
+    function getDefaultExportFromCjs (x) {
+    	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+    }
+
+    var alea$1 = {exports: {}};
+
+    var alea = alea$1.exports;
+
+    var hasRequiredAlea;
+
+    function requireAlea () {
+    	if (hasRequiredAlea) return alea$1.exports;
+    	hasRequiredAlea = 1;
+    	(function (module) {
+    		// A port of an algorithm by Johannes Baagøe <baagoe@baagoe.com>, 2010
+    		// http://baagoe.com/en/RandomMusings/javascript/
+    		// https://github.com/nquinlan/better-random-numbers-for-javascript-mirror
+    		// Original work is under MIT license -
+
+    		// Copyright (C) 2010 by Johannes Baagøe <baagoe@baagoe.org>
+    		//
+    		// Permission is hereby granted, free of charge, to any person obtaining a copy
+    		// of this software and associated documentation files (the "Software"), to deal
+    		// in the Software without restriction, including without limitation the rights
+    		// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    		// copies of the Software, and to permit persons to whom the Software is
+    		// furnished to do so, subject to the following conditions:
+    		//
+    		// The above copyright notice and this permission notice shall be included in
+    		// all copies or substantial portions of the Software.
+    		//
+    		// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    		// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    		// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    		// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    		// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    		// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    		// THE SOFTWARE.
+
+
+
+    		(function(global, module, define) {
+
+    		function Alea(seed) {
+    		  var me = this, mash = Mash();
+
+    		  me.next = function() {
+    		    var t = 2091639 * me.s0 + me.c * 2.3283064365386963e-10; // 2^-32
+    		    me.s0 = me.s1;
+    		    me.s1 = me.s2;
+    		    return me.s2 = t - (me.c = t | 0);
+    		  };
+
+    		  // Apply the seeding algorithm from Baagoe.
+    		  me.c = 1;
+    		  me.s0 = mash(' ');
+    		  me.s1 = mash(' ');
+    		  me.s2 = mash(' ');
+    		  me.s0 -= mash(seed);
+    		  if (me.s0 < 0) { me.s0 += 1; }
+    		  me.s1 -= mash(seed);
+    		  if (me.s1 < 0) { me.s1 += 1; }
+    		  me.s2 -= mash(seed);
+    		  if (me.s2 < 0) { me.s2 += 1; }
+    		  mash = null;
+    		}
+
+    		function copy(f, t) {
+    		  t.c = f.c;
+    		  t.s0 = f.s0;
+    		  t.s1 = f.s1;
+    		  t.s2 = f.s2;
+    		  return t;
+    		}
+
+    		function impl(seed, opts) {
+    		  var xg = new Alea(seed),
+    		      state = opts && opts.state,
+    		      prng = xg.next;
+    		  prng.int32 = function() { return (xg.next() * 0x100000000) | 0; };
+    		  prng.double = function() {
+    		    return prng() + (prng() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
+    		  };
+    		  prng.quick = prng;
+    		  if (state) {
+    		    if (typeof(state) == 'object') copy(state, xg);
+    		    prng.state = function() { return copy(xg, {}); };
+    		  }
+    		  return prng;
+    		}
+
+    		function Mash() {
+    		  var n = 0xefc8249d;
+
+    		  var mash = function(data) {
+    		    data = String(data);
+    		    for (var i = 0; i < data.length; i++) {
+    		      n += data.charCodeAt(i);
+    		      var h = 0.02519603282416938 * n;
+    		      n = h >>> 0;
+    		      h -= n;
+    		      h *= n;
+    		      n = h >>> 0;
+    		      h -= n;
+    		      n += h * 0x100000000; // 2^32
+    		    }
+    		    return (n >>> 0) * 2.3283064365386963e-10; // 2^-32
+    		  };
+
+    		  return mash;
+    		}
+
+
+    		if (module.exports) {
+    		  module.exports = impl;
+    		} else {
+    		  this.alea = impl;
+    		}
+
+    		})(
+    		  alea,
+    		  module); 
+    	} (alea$1));
+    	return alea$1.exports;
+    }
+
+    var xor128$1 = {exports: {}};
+
+    var xor128 = xor128$1.exports;
+
+    var hasRequiredXor128;
+
+    function requireXor128 () {
+    	if (hasRequiredXor128) return xor128$1.exports;
+    	hasRequiredXor128 = 1;
+    	(function (module) {
+    		// A Javascript implementaion of the "xor128" prng algorithm by
+    		// George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
+
+    		(function(global, module, define) {
+
+    		function XorGen(seed) {
+    		  var me = this, strseed = '';
+
+    		  me.x = 0;
+    		  me.y = 0;
+    		  me.z = 0;
+    		  me.w = 0;
+
+    		  // Set up generator function.
+    		  me.next = function() {
+    		    var t = me.x ^ (me.x << 11);
+    		    me.x = me.y;
+    		    me.y = me.z;
+    		    me.z = me.w;
+    		    return me.w ^= (me.w >>> 19) ^ t ^ (t >>> 8);
+    		  };
+
+    		  if (seed === (seed | 0)) {
+    		    // Integer seed.
+    		    me.x = seed;
+    		  } else {
+    		    // String seed.
+    		    strseed += seed;
+    		  }
+
+    		  // Mix in string seed, then discard an initial batch of 64 values.
+    		  for (var k = 0; k < strseed.length + 64; k++) {
+    		    me.x ^= strseed.charCodeAt(k) | 0;
+    		    me.next();
+    		  }
+    		}
+
+    		function copy(f, t) {
+    		  t.x = f.x;
+    		  t.y = f.y;
+    		  t.z = f.z;
+    		  t.w = f.w;
+    		  return t;
+    		}
+
+    		function impl(seed, opts) {
+    		  var xg = new XorGen(seed),
+    		      state = opts && opts.state,
+    		      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    		  prng.double = function() {
+    		    do {
+    		      var top = xg.next() >>> 11,
+    		          bot = (xg.next() >>> 0) / 0x100000000,
+    		          result = (top + bot) / (1 << 21);
+    		    } while (result === 0);
+    		    return result;
+    		  };
+    		  prng.int32 = xg.next;
+    		  prng.quick = prng;
+    		  if (state) {
+    		    if (typeof(state) == 'object') copy(state, xg);
+    		    prng.state = function() { return copy(xg, {}); };
+    		  }
+    		  return prng;
+    		}
+
+    		if (module.exports) {
+    		  module.exports = impl;
+    		} else {
+    		  this.xor128 = impl;
+    		}
+
+    		})(
+    		  xor128,
+    		  module); 
+    	} (xor128$1));
+    	return xor128$1.exports;
+    }
+
+    var xorwow$1 = {exports: {}};
+
+    var xorwow = xorwow$1.exports;
+
+    var hasRequiredXorwow;
+
+    function requireXorwow () {
+    	if (hasRequiredXorwow) return xorwow$1.exports;
+    	hasRequiredXorwow = 1;
+    	(function (module) {
+    		// A Javascript implementaion of the "xorwow" prng algorithm by
+    		// George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
+
+    		(function(global, module, define) {
+
+    		function XorGen(seed) {
+    		  var me = this, strseed = '';
+
+    		  // Set up generator function.
+    		  me.next = function() {
+    		    var t = (me.x ^ (me.x >>> 2));
+    		    me.x = me.y; me.y = me.z; me.z = me.w; me.w = me.v;
+    		    return (me.d = (me.d + 362437 | 0)) +
+    		       (me.v = (me.v ^ (me.v << 4)) ^ (t ^ (t << 1))) | 0;
+    		  };
+
+    		  me.x = 0;
+    		  me.y = 0;
+    		  me.z = 0;
+    		  me.w = 0;
+    		  me.v = 0;
+
+    		  if (seed === (seed | 0)) {
+    		    // Integer seed.
+    		    me.x = seed;
+    		  } else {
+    		    // String seed.
+    		    strseed += seed;
+    		  }
+
+    		  // Mix in string seed, then discard an initial batch of 64 values.
+    		  for (var k = 0; k < strseed.length + 64; k++) {
+    		    me.x ^= strseed.charCodeAt(k) | 0;
+    		    if (k == strseed.length) {
+    		      me.d = me.x << 10 ^ me.x >>> 4;
+    		    }
+    		    me.next();
+    		  }
+    		}
+
+    		function copy(f, t) {
+    		  t.x = f.x;
+    		  t.y = f.y;
+    		  t.z = f.z;
+    		  t.w = f.w;
+    		  t.v = f.v;
+    		  t.d = f.d;
+    		  return t;
+    		}
+
+    		function impl(seed, opts) {
+    		  var xg = new XorGen(seed),
+    		      state = opts && opts.state,
+    		      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    		  prng.double = function() {
+    		    do {
+    		      var top = xg.next() >>> 11,
+    		          bot = (xg.next() >>> 0) / 0x100000000,
+    		          result = (top + bot) / (1 << 21);
+    		    } while (result === 0);
+    		    return result;
+    		  };
+    		  prng.int32 = xg.next;
+    		  prng.quick = prng;
+    		  if (state) {
+    		    if (typeof(state) == 'object') copy(state, xg);
+    		    prng.state = function() { return copy(xg, {}); };
+    		  }
+    		  return prng;
+    		}
+
+    		if (module.exports) {
+    		  module.exports = impl;
+    		} else {
+    		  this.xorwow = impl;
+    		}
+
+    		})(
+    		  xorwow,
+    		  module); 
+    	} (xorwow$1));
+    	return xorwow$1.exports;
+    }
+
+    var xorshift7$1 = {exports: {}};
+
+    var xorshift7 = xorshift7$1.exports;
+
+    var hasRequiredXorshift7;
+
+    function requireXorshift7 () {
+    	if (hasRequiredXorshift7) return xorshift7$1.exports;
+    	hasRequiredXorshift7 = 1;
+    	(function (module) {
+    		// A Javascript implementaion of the "xorshift7" algorithm by
+    		// François Panneton and Pierre L'ecuyer:
+    		// "On the Xorgshift Random Number Generators"
+    		// http://saluc.engr.uconn.edu/refs/crypto/rng/panneton05onthexorshift.pdf
+
+    		(function(global, module, define) {
+
+    		function XorGen(seed) {
+    		  var me = this;
+
+    		  // Set up generator function.
+    		  me.next = function() {
+    		    // Update xor generator.
+    		    var X = me.x, i = me.i, t, v;
+    		    t = X[i]; t ^= (t >>> 7); v = t ^ (t << 24);
+    		    t = X[(i + 1) & 7]; v ^= t ^ (t >>> 10);
+    		    t = X[(i + 3) & 7]; v ^= t ^ (t >>> 3);
+    		    t = X[(i + 4) & 7]; v ^= t ^ (t << 7);
+    		    t = X[(i + 7) & 7]; t = t ^ (t << 13); v ^= t ^ (t << 9);
+    		    X[i] = v;
+    		    me.i = (i + 1) & 7;
+    		    return v;
+    		  };
+
+    		  function init(me, seed) {
+    		    var j, X = [];
+
+    		    if (seed === (seed | 0)) {
+    		      // Seed state array using a 32-bit integer.
+    		      X[0] = seed;
+    		    } else {
+    		      // Seed state using a string.
+    		      seed = '' + seed;
+    		      for (j = 0; j < seed.length; ++j) {
+    		        X[j & 7] = (X[j & 7] << 15) ^
+    		            (seed.charCodeAt(j) + X[(j + 1) & 7] << 13);
+    		      }
+    		    }
+    		    // Enforce an array length of 8, not all zeroes.
+    		    while (X.length < 8) X.push(0);
+    		    for (j = 0; j < 8 && X[j] === 0; ++j);
+    		    if (j == 8) X[7] = -1; else X[j];
+
+    		    me.x = X;
+    		    me.i = 0;
+
+    		    // Discard an initial 256 values.
+    		    for (j = 256; j > 0; --j) {
+    		      me.next();
+    		    }
+    		  }
+
+    		  init(me, seed);
+    		}
+
+    		function copy(f, t) {
+    		  t.x = f.x.slice();
+    		  t.i = f.i;
+    		  return t;
+    		}
+
+    		function impl(seed, opts) {
+    		  if (seed == null) seed = +(new Date);
+    		  var xg = new XorGen(seed),
+    		      state = opts && opts.state,
+    		      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    		  prng.double = function() {
+    		    do {
+    		      var top = xg.next() >>> 11,
+    		          bot = (xg.next() >>> 0) / 0x100000000,
+    		          result = (top + bot) / (1 << 21);
+    		    } while (result === 0);
+    		    return result;
+    		  };
+    		  prng.int32 = xg.next;
+    		  prng.quick = prng;
+    		  if (state) {
+    		    if (state.x) copy(state, xg);
+    		    prng.state = function() { return copy(xg, {}); };
+    		  }
+    		  return prng;
+    		}
+
+    		if (module.exports) {
+    		  module.exports = impl;
+    		} else {
+    		  this.xorshift7 = impl;
+    		}
+
+    		})(
+    		  xorshift7,
+    		  module); 
+    	} (xorshift7$1));
+    	return xorshift7$1.exports;
+    }
+
+    var xor4096$1 = {exports: {}};
+
+    var xor4096 = xor4096$1.exports;
+
+    var hasRequiredXor4096;
+
+    function requireXor4096 () {
+    	if (hasRequiredXor4096) return xor4096$1.exports;
+    	hasRequiredXor4096 = 1;
+    	(function (module) {
+    		// A Javascript implementaion of Richard Brent's Xorgens xor4096 algorithm.
+    		//
+    		// This fast non-cryptographic random number generator is designed for
+    		// use in Monte-Carlo algorithms. It combines a long-period xorshift
+    		// generator with a Weyl generator, and it passes all common batteries
+    		// of stasticial tests for randomness while consuming only a few nanoseconds
+    		// for each prng generated.  For background on the generator, see Brent's
+    		// paper: "Some long-period random number generators using shifts and xors."
+    		// http://arxiv.org/pdf/1004.3115v1.pdf
+    		//
+    		// Usage:
+    		//
+    		// var xor4096 = require('xor4096');
+    		// random = xor4096(1);                        // Seed with int32 or string.
+    		// assert.equal(random(), 0.1520436450538547); // (0, 1) range, 53 bits.
+    		// assert.equal(random.int32(), 1806534897);   // signed int32, 32 bits.
+    		//
+    		// For nonzero numeric keys, this impelementation provides a sequence
+    		// identical to that by Brent's xorgens 3 implementaion in C.  This
+    		// implementation also provides for initalizing the generator with
+    		// string seeds, or for saving and restoring the state of the generator.
+    		//
+    		// On Chrome, this prng benchmarks about 2.1 times slower than
+    		// Javascript's built-in Math.random().
+
+    		(function(global, module, define) {
+
+    		function XorGen(seed) {
+    		  var me = this;
+
+    		  // Set up generator function.
+    		  me.next = function() {
+    		    var w = me.w,
+    		        X = me.X, i = me.i, t, v;
+    		    // Update Weyl generator.
+    		    me.w = w = (w + 0x61c88647) | 0;
+    		    // Update xor generator.
+    		    v = X[(i + 34) & 127];
+    		    t = X[i = ((i + 1) & 127)];
+    		    v ^= v << 13;
+    		    t ^= t << 17;
+    		    v ^= v >>> 15;
+    		    t ^= t >>> 12;
+    		    // Update Xor generator array state.
+    		    v = X[i] = v ^ t;
+    		    me.i = i;
+    		    // Result is the combination.
+    		    return (v + (w ^ (w >>> 16))) | 0;
+    		  };
+
+    		  function init(me, seed) {
+    		    var t, v, i, j, w, X = [], limit = 128;
+    		    if (seed === (seed | 0)) {
+    		      // Numeric seeds initialize v, which is used to generates X.
+    		      v = seed;
+    		      seed = null;
+    		    } else {
+    		      // String seeds are mixed into v and X one character at a time.
+    		      seed = seed + '\0';
+    		      v = 0;
+    		      limit = Math.max(limit, seed.length);
+    		    }
+    		    // Initialize circular array and weyl value.
+    		    for (i = 0, j = -32; j < limit; ++j) {
+    		      // Put the unicode characters into the array, and shuffle them.
+    		      if (seed) v ^= seed.charCodeAt((j + 32) % seed.length);
+    		      // After 32 shuffles, take v as the starting w value.
+    		      if (j === 0) w = v;
+    		      v ^= v << 10;
+    		      v ^= v >>> 15;
+    		      v ^= v << 4;
+    		      v ^= v >>> 13;
+    		      if (j >= 0) {
+    		        w = (w + 0x61c88647) | 0;     // Weyl.
+    		        t = (X[j & 127] ^= (v + w));  // Combine xor and weyl to init array.
+    		        i = (0 == t) ? i + 1 : 0;     // Count zeroes.
+    		      }
+    		    }
+    		    // We have detected all zeroes; make the key nonzero.
+    		    if (i >= 128) {
+    		      X[(seed && seed.length || 0) & 127] = -1;
+    		    }
+    		    // Run the generator 512 times to further mix the state before using it.
+    		    // Factoring this as a function slows the main generator, so it is just
+    		    // unrolled here.  The weyl generator is not advanced while warming up.
+    		    i = 127;
+    		    for (j = 4 * 128; j > 0; --j) {
+    		      v = X[(i + 34) & 127];
+    		      t = X[i = ((i + 1) & 127)];
+    		      v ^= v << 13;
+    		      t ^= t << 17;
+    		      v ^= v >>> 15;
+    		      t ^= t >>> 12;
+    		      X[i] = v ^ t;
+    		    }
+    		    // Storing state as object members is faster than using closure variables.
+    		    me.w = w;
+    		    me.X = X;
+    		    me.i = i;
+    		  }
+
+    		  init(me, seed);
+    		}
+
+    		function copy(f, t) {
+    		  t.i = f.i;
+    		  t.w = f.w;
+    		  t.X = f.X.slice();
+    		  return t;
+    		}
+    		function impl(seed, opts) {
+    		  if (seed == null) seed = +(new Date);
+    		  var xg = new XorGen(seed),
+    		      state = opts && opts.state,
+    		      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    		  prng.double = function() {
+    		    do {
+    		      var top = xg.next() >>> 11,
+    		          bot = (xg.next() >>> 0) / 0x100000000,
+    		          result = (top + bot) / (1 << 21);
+    		    } while (result === 0);
+    		    return result;
+    		  };
+    		  prng.int32 = xg.next;
+    		  prng.quick = prng;
+    		  if (state) {
+    		    if (state.X) copy(state, xg);
+    		    prng.state = function() { return copy(xg, {}); };
+    		  }
+    		  return prng;
+    		}
+
+    		if (module.exports) {
+    		  module.exports = impl;
+    		} else {
+    		  this.xor4096 = impl;
+    		}
+
+    		})(
+    		  xor4096,                                     // window object or global
+    		  module); 
+    	} (xor4096$1));
+    	return xor4096$1.exports;
+    }
+
+    var tychei$1 = {exports: {}};
+
+    var tychei = tychei$1.exports;
+
+    var hasRequiredTychei;
+
+    function requireTychei () {
+    	if (hasRequiredTychei) return tychei$1.exports;
+    	hasRequiredTychei = 1;
+    	(function (module) {
+    		// A Javascript implementaion of the "Tyche-i" prng algorithm by
+    		// Samuel Neves and Filipe Araujo.
+    		// See https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf
+
+    		(function(global, module, define) {
+
+    		function XorGen(seed) {
+    		  var me = this, strseed = '';
+
+    		  // Set up generator function.
+    		  me.next = function() {
+    		    var b = me.b, c = me.c, d = me.d, a = me.a;
+    		    b = (b << 25) ^ (b >>> 7) ^ c;
+    		    c = (c - d) | 0;
+    		    d = (d << 24) ^ (d >>> 8) ^ a;
+    		    a = (a - b) | 0;
+    		    me.b = b = (b << 20) ^ (b >>> 12) ^ c;
+    		    me.c = c = (c - d) | 0;
+    		    me.d = (d << 16) ^ (c >>> 16) ^ a;
+    		    return me.a = (a - b) | 0;
+    		  };
+
+    		  /* The following is non-inverted tyche, which has better internal
+    		   * bit diffusion, but which is about 25% slower than tyche-i in JS.
+    		  me.next = function() {
+    		    var a = me.a, b = me.b, c = me.c, d = me.d;
+    		    a = (me.a + me.b | 0) >>> 0;
+    		    d = me.d ^ a; d = d << 16 ^ d >>> 16;
+    		    c = me.c + d | 0;
+    		    b = me.b ^ c; b = b << 12 ^ d >>> 20;
+    		    me.a = a = a + b | 0;
+    		    d = d ^ a; me.d = d = d << 8 ^ d >>> 24;
+    		    me.c = c = c + d | 0;
+    		    b = b ^ c;
+    		    return me.b = (b << 7 ^ b >>> 25);
+    		  }
+    		  */
+
+    		  me.a = 0;
+    		  me.b = 0;
+    		  me.c = 2654435769 | 0;
+    		  me.d = 1367130551;
+
+    		  if (seed === Math.floor(seed)) {
+    		    // Integer seed.
+    		    me.a = (seed / 0x100000000) | 0;
+    		    me.b = seed | 0;
+    		  } else {
+    		    // String seed.
+    		    strseed += seed;
+    		  }
+
+    		  // Mix in string seed, then discard an initial batch of 64 values.
+    		  for (var k = 0; k < strseed.length + 20; k++) {
+    		    me.b ^= strseed.charCodeAt(k) | 0;
+    		    me.next();
+    		  }
+    		}
+
+    		function copy(f, t) {
+    		  t.a = f.a;
+    		  t.b = f.b;
+    		  t.c = f.c;
+    		  t.d = f.d;
+    		  return t;
+    		}
+    		function impl(seed, opts) {
+    		  var xg = new XorGen(seed),
+    		      state = opts && opts.state,
+    		      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    		  prng.double = function() {
+    		    do {
+    		      var top = xg.next() >>> 11,
+    		          bot = (xg.next() >>> 0) / 0x100000000,
+    		          result = (top + bot) / (1 << 21);
+    		    } while (result === 0);
+    		    return result;
+    		  };
+    		  prng.int32 = xg.next;
+    		  prng.quick = prng;
+    		  if (state) {
+    		    if (typeof(state) == 'object') copy(state, xg);
+    		    prng.state = function() { return copy(xg, {}); };
+    		  }
+    		  return prng;
+    		}
+
+    		if (module.exports) {
+    		  module.exports = impl;
+    		} else {
+    		  this.tychei = impl;
+    		}
+
+    		})(
+    		  tychei,
+    		  module); 
+    	} (tychei$1));
+    	return tychei$1.exports;
+    }
+
+    var seedrandom$2 = {exports: {}};
+
+    /*
+    Copyright 2019 David Bau.
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+    */
+    var seedrandom$1 = seedrandom$2.exports;
+
+    var hasRequiredSeedrandom$1;
+
+    function requireSeedrandom$1 () {
+    	if (hasRequiredSeedrandom$1) return seedrandom$2.exports;
+    	hasRequiredSeedrandom$1 = 1;
+    	(function (module) {
+    		(function (global, pool, math) {
+    		//
+    		// The following constants are related to IEEE 754 limits.
+    		//
+
+    		var width = 256,        // each RC4 output is 0 <= x < 256
+    		    chunks = 6,         // at least six RC4 outputs for each double
+    		    digits = 52,        // there are 52 significant digits in a double
+    		    rngname = 'random', // rngname: name for Math.random and Math.seedrandom
+    		    startdenom = math.pow(width, chunks),
+    		    significance = math.pow(2, digits),
+    		    overflow = significance * 2,
+    		    mask = width - 1,
+    		    nodecrypto;         // node.js crypto module, initialized at the bottom.
+
+    		//
+    		// seedrandom()
+    		// This is the seedrandom function described above.
+    		//
+    		function seedrandom(seed, options, callback) {
+    		  var key = [];
+    		  options = (options == true) ? { entropy: true } : (options || {});
+
+    		  // Flatten the seed string or build one from local entropy if needed.
+    		  var shortseed = mixkey(flatten(
+    		    options.entropy ? [seed, tostring(pool)] :
+    		    (seed == null) ? autoseed() : seed, 3), key);
+
+    		  // Use the seed to initialize an ARC4 generator.
+    		  var arc4 = new ARC4(key);
+
+    		  // This function returns a random double in [0, 1) that contains
+    		  // randomness in every bit of the mantissa of the IEEE 754 value.
+    		  var prng = function() {
+    		    var n = arc4.g(chunks),             // Start with a numerator n < 2 ^ 48
+    		        d = startdenom,                 //   and denominator d = 2 ^ 48.
+    		        x = 0;                          //   and no 'extra last byte'.
+    		    while (n < significance) {          // Fill up all significant digits by
+    		      n = (n + x) * width;              //   shifting numerator and
+    		      d *= width;                       //   denominator and generating a
+    		      x = arc4.g(1);                    //   new least-significant-byte.
+    		    }
+    		    while (n >= overflow) {             // To avoid rounding up, before adding
+    		      n /= 2;                           //   last byte, shift everything
+    		      d /= 2;                           //   right using integer math until
+    		      x >>>= 1;                         //   we have exactly the desired bits.
+    		    }
+    		    return (n + x) / d;                 // Form the number within [0, 1).
+    		  };
+
+    		  prng.int32 = function() { return arc4.g(4) | 0; };
+    		  prng.quick = function() { return arc4.g(4) / 0x100000000; };
+    		  prng.double = prng;
+
+    		  // Mix the randomness into accumulated entropy.
+    		  mixkey(tostring(arc4.S), pool);
+
+    		  // Calling convention: what to return as a function of prng, seed, is_math.
+    		  return (options.pass || callback ||
+    		      function(prng, seed, is_math_call, state) {
+    		        if (state) {
+    		          // Load the arc4 state from the given state if it has an S array.
+    		          if (state.S) { copy(state, arc4); }
+    		          // Only provide the .state method if requested via options.state.
+    		          prng.state = function() { return copy(arc4, {}); };
+    		        }
+
+    		        // If called as a method of Math (Math.seedrandom()), mutate
+    		        // Math.random because that is how seedrandom.js has worked since v1.0.
+    		        if (is_math_call) { math[rngname] = prng; return seed; }
+
+    		        // Otherwise, it is a newer calling convention, so return the
+    		        // prng directly.
+    		        else return prng;
+    		      })(
+    		  prng,
+    		  shortseed,
+    		  'global' in options ? options.global : (this == math),
+    		  options.state);
+    		}
+
+    		//
+    		// ARC4
+    		//
+    		// An ARC4 implementation.  The constructor takes a key in the form of
+    		// an array of at most (width) integers that should be 0 <= x < (width).
+    		//
+    		// The g(count) method returns a pseudorandom integer that concatenates
+    		// the next (count) outputs from ARC4.  Its return value is a number x
+    		// that is in the range 0 <= x < (width ^ count).
+    		//
+    		function ARC4(key) {
+    		  var t, keylen = key.length,
+    		      me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+
+    		  // The empty key [] is treated as [0].
+    		  if (!keylen) { key = [keylen++]; }
+
+    		  // Set up S using the standard key scheduling algorithm.
+    		  while (i < width) {
+    		    s[i] = i++;
+    		  }
+    		  for (i = 0; i < width; i++) {
+    		    s[i] = s[j = mask & (j + key[i % keylen] + (t = s[i]))];
+    		    s[j] = t;
+    		  }
+
+    		  // The "g" method returns the next (count) outputs as one number.
+    		  (me.g = function(count) {
+    		    // Using instance members instead of closure state nearly doubles speed.
+    		    var t, r = 0,
+    		        i = me.i, j = me.j, s = me.S;
+    		    while (count--) {
+    		      t = s[i = mask & (i + 1)];
+    		      r = r * width + s[mask & ((s[i] = s[j = mask & (j + t)]) + (s[j] = t))];
+    		    }
+    		    me.i = i; me.j = j;
+    		    return r;
+    		    // For robust unpredictability, the function call below automatically
+    		    // discards an initial batch of values.  This is called RC4-drop[256].
+    		    // See http://google.com/search?q=rsa+fluhrer+response&btnI
+    		  })(width);
+    		}
+
+    		//
+    		// copy()
+    		// Copies internal state of ARC4 to or from a plain object.
+    		//
+    		function copy(f, t) {
+    		  t.i = f.i;
+    		  t.j = f.j;
+    		  t.S = f.S.slice();
+    		  return t;
+    		}
+    		//
+    		// flatten()
+    		// Converts an object tree to nested arrays of strings.
+    		//
+    		function flatten(obj, depth) {
+    		  var result = [], typ = (typeof obj), prop;
+    		  if (depth && typ == 'object') {
+    		    for (prop in obj) {
+    		      try { result.push(flatten(obj[prop], depth - 1)); } catch (e) {}
+    		    }
+    		  }
+    		  return (result.length ? result : typ == 'string' ? obj : obj + '\0');
+    		}
+
+    		//
+    		// mixkey()
+    		// Mixes a string seed into a key that is an array of integers, and
+    		// returns a shortened string seed that is equivalent to the result key.
+    		//
+    		function mixkey(seed, key) {
+    		  var stringseed = seed + '', smear, j = 0;
+    		  while (j < stringseed.length) {
+    		    key[mask & j] =
+    		      mask & ((smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++));
+    		  }
+    		  return tostring(key);
+    		}
+
+    		//
+    		// autoseed()
+    		// Returns an object for autoseeding, using window.crypto and Node crypto
+    		// module if available.
+    		//
+    		function autoseed() {
+    		  try {
+    		    var out;
+    		    if (nodecrypto && (out = nodecrypto.randomBytes)) {
+    		      // The use of 'out' to remember randomBytes makes tight minified code.
+    		      out = out(width);
+    		    } else {
+    		      out = new Uint8Array(width);
+    		      (global.crypto || global.msCrypto).getRandomValues(out);
+    		    }
+    		    return tostring(out);
+    		  } catch (e) {
+    		    var browser = global.navigator,
+    		        plugins = browser && browser.plugins;
+    		    return [+new Date, global, plugins, global.screen, tostring(pool)];
+    		  }
+    		}
+
+    		//
+    		// tostring()
+    		// Converts an array of charcodes to a string
+    		//
+    		function tostring(a) {
+    		  return String.fromCharCode.apply(0, a);
+    		}
+
+    		//
+    		// When seedrandom.js is loaded, we immediately mix a few bits
+    		// from the built-in RNG into the entropy pool.  Because we do
+    		// not want to interfere with deterministic PRNG state later,
+    		// seedrandom will not call math.random on its own again after
+    		// initialization.
+    		//
+    		mixkey(math.random(), pool);
+
+    		//
+    		// Nodejs and AMD support: export the implementation as a module using
+    		// either convention.
+    		//
+    		if (module.exports) {
+    		  module.exports = seedrandom;
+    		  // When in node.js, try using crypto package for autoseeding.
+    		  try {
+    		    nodecrypto = require('crypto');
+    		  } catch (ex) {}
+    		} else {
+    		  // When included as a plain script, set up Math.seedrandom global.
+    		  math['seed' + rngname] = seedrandom;
+    		}
+
+
+    		// End anonymous scope, and pass initial values.
+    		})(
+    		  // global: `self` in browsers (including strict mode and web workers),
+    		  // otherwise `this` in Node and other environments
+    		  (typeof self !== 'undefined') ? self : seedrandom$1,
+    		  [],     // pool: entropy pool starts empty
+    		  Math    // math: package containing random, pow, and seedrandom
+    		); 
+    	} (seedrandom$2));
+    	return seedrandom$2.exports;
+    }
+
+    var seedrandom;
+    var hasRequiredSeedrandom;
+
+    function requireSeedrandom () {
+    	if (hasRequiredSeedrandom) return seedrandom;
+    	hasRequiredSeedrandom = 1;
+    	// A library of seedable RNGs implemented in Javascript.
+    	//
+    	// Usage:
+    	//
+    	// var seedrandom = require('seedrandom');
+    	// var random = seedrandom(1); // or any seed.
+    	// var x = random();       // 0 <= x < 1.  Every bit is random.
+    	// var x = random.quick(); // 0 <= x < 1.  32 bits of randomness.
+
+    	// alea, a 53-bit multiply-with-carry generator by Johannes Baagøe.
+    	// Period: ~2^116
+    	// Reported to pass all BigCrush tests.
+    	var alea = requireAlea();
+
+    	// xor128, a pure xor-shift generator by George Marsaglia.
+    	// Period: 2^128-1.
+    	// Reported to fail: MatrixRank and LinearComp.
+    	var xor128 = requireXor128();
+
+    	// xorwow, George Marsaglia's 160-bit xor-shift combined plus weyl.
+    	// Period: 2^192-2^32
+    	// Reported to fail: CollisionOver, SimpPoker, and LinearComp.
+    	var xorwow = requireXorwow();
+
+    	// xorshift7, by François Panneton and Pierre L'ecuyer, takes
+    	// a different approach: it adds robustness by allowing more shifts
+    	// than Marsaglia's original three.  It is a 7-shift generator
+    	// with 256 bits, that passes BigCrush with no systmatic failures.
+    	// Period 2^256-1.
+    	// No systematic BigCrush failures reported.
+    	var xorshift7 = requireXorshift7();
+
+    	// xor4096, by Richard Brent, is a 4096-bit xor-shift with a
+    	// very long period that also adds a Weyl generator. It also passes
+    	// BigCrush with no systematic failures.  Its long period may
+    	// be useful if you have many generators and need to avoid
+    	// collisions.
+    	// Period: 2^4128-2^32.
+    	// No systematic BigCrush failures reported.
+    	var xor4096 = requireXor4096();
+
+    	// Tyche-i, by Samuel Neves and Filipe Araujo, is a bit-shifting random
+    	// number generator derived from ChaCha, a modern stream cipher.
+    	// https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf
+    	// Period: ~2^127
+    	// No systematic BigCrush failures reported.
+    	var tychei = requireTychei();
+
+    	// The original ARC4-based prng included in this library.
+    	// Period: ~2^1600
+    	var sr = requireSeedrandom$1();
+
+    	sr.alea = alea;
+    	sr.xor128 = xor128;
+    	sr.xorwow = xorwow;
+    	sr.xorshift7 = xorshift7;
+    	sr.xor4096 = xor4096;
+    	sr.tychei = tychei;
+
+    	seedrandom = sr;
+    	return seedrandom;
+    }
+
+    var seedrandomExports = requireSeedrandom();
+    var Seedrandom = /*@__PURE__*/getDefaultExportFromCjs(seedrandomExports);
+
+    /**
+     * @param {HTMLCanvasElement} canvas
+     * @param {string} domainKey
+     * @param {string} sessionKey
+     * @param {any} getImageDataProxy
+     * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
+     */
+    function computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+        if (!ctx) {
+            // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
+            ctx = canvas.getContext('2d');
+        }
+
+        // Make a off-screen canvas and put the data there
+        const offScreenCanvas = document.createElement('canvas');
+        offScreenCanvas.width = canvas.width;
+        offScreenCanvas.height = canvas.height;
+        const offScreenCtx = offScreenCanvas.getContext('2d');
+
+        let rasterizedCtx = ctx;
+        // If we're not a 2d canvas we need to rasterise first into 2d
+        const rasterizeToCanvas = !(ctx instanceof CanvasRenderingContext2D);
+        if (rasterizeToCanvas) {
+            // @ts-expect-error - Type 'CanvasRenderingContext2D | null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
+            rasterizedCtx = offScreenCtx;
+            // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
+            offScreenCtx.drawImage(canvas, 0, 0);
+        }
+
+        // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
+        let imageData = getImageDataProxy._native.apply(rasterizedCtx, [0, 0, canvas.width, canvas.height]);
+        imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width);
+
+        if (rasterizeToCanvas) {
+            // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D'.
+            clearCanvas(offScreenCtx);
+        }
+
+        // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
+        offScreenCtx.putImageData(imageData, 0, 0);
+
+        return { offScreenCanvas, offScreenCtx };
+    }
+
+    /**
+     * Clears the pixels from the canvas context
+     *
+     * @param {CanvasRenderingContext2D} canvasContext
+     */
+    function clearCanvas(canvasContext) {
+        // Save state and clean the pixels from the canvas
+        canvasContext.save();
+        canvasContext.globalCompositeOperation = 'destination-out';
+        canvasContext.fillStyle = 'rgb(255,255,255)';
+        canvasContext.fillRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
+        canvasContext.restore();
+    }
+
+    /**
+     * @param {import("@canvas/image-data")} imageData
+     * @param {string} sessionKey
+     * @param {string} domainKey
+     * @param {number} width
+     */
+    function modifyPixelData(imageData, domainKey, sessionKey, width) {
+        const d = imageData.data;
+        const length = d.length / 4;
+        let checkSum = 0;
+        const mappingArray = [];
+        for (let i = 0; i < length; i += 4) {
+            if (!shouldIgnorePixel(d, i) && !adjacentSame(d, i, width)) {
+                mappingArray.push(i);
+                checkSum += d[i] + d[i + 1] + d[i + 2] + d[i + 3];
+            }
+        }
+
+        const windowHash = getDataKeySync(sessionKey, domainKey, checkSum);
+        const rng = new Seedrandom(windowHash);
+        for (let i = 0; i < mappingArray.length; i++) {
+            const rand = rng();
+            const byte = Math.floor(rand * 10);
+            const channel = byte % 3;
+            const pixelCanvasIndex = mappingArray[i] + channel;
+
+            d[pixelCanvasIndex] = d[pixelCanvasIndex] ^ (byte & 0x1);
+        }
+
+        return imageData;
+    }
+
+    /**
+     * Ignore pixels that have neighbours that are the same
+     *
+     * @param {Uint8ClampedArray} imageData
+     * @param {number} index
+     * @param {number} width
+     */
+    function adjacentSame(imageData, index, width) {
+        const widthPixel = width * 4;
+        const x = index % widthPixel;
+        const maxLength = imageData.length;
+
+        // Pixels not on the right border of the canvas
+        if (x < widthPixel) {
+            const right = index + 4;
+            if (!pixelsSame(imageData, index, right)) {
+                return false;
+            }
+            const diagonalRightUp = right - widthPixel;
+            if (diagonalRightUp > 0 && !pixelsSame(imageData, index, diagonalRightUp)) {
+                return false;
+            }
+            const diagonalRightDown = right + widthPixel;
+            if (diagonalRightDown < maxLength && !pixelsSame(imageData, index, diagonalRightDown)) {
+                return false;
+            }
+        }
+
+        // Pixels not on the left border of the canvas
+        if (x > 0) {
+            const left = index - 4;
+            if (!pixelsSame(imageData, index, left)) {
+                return false;
+            }
+            const diagonalLeftUp = left - widthPixel;
+            if (diagonalLeftUp > 0 && !pixelsSame(imageData, index, diagonalLeftUp)) {
+                return false;
+            }
+            const diagonalLeftDown = left + widthPixel;
+            if (diagonalLeftDown < maxLength && !pixelsSame(imageData, index, diagonalLeftDown)) {
+                return false;
+            }
+        }
+
+        const up = index - widthPixel;
+        if (up > 0 && !pixelsSame(imageData, index, up)) {
+            return false;
+        }
+
+        const down = index + widthPixel;
+        if (down < maxLength && !pixelsSame(imageData, index, down)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check that a pixel at index and index2 match all channels
+     * @param {Uint8ClampedArray} imageData
+     * @param {number} index
+     * @param {number} index2
+     */
+    function pixelsSame(imageData, index, index2) {
+        return (
+            imageData[index] === imageData[index2] &&
+            imageData[index + 1] === imageData[index2 + 1] &&
+            imageData[index + 2] === imageData[index2 + 2] &&
+            imageData[index + 3] === imageData[index2 + 3]
+        );
+    }
+
+    /**
+     * Returns true if pixel should be ignored
+     * @param {Uint8ClampedArray} imageData
+     * @param {number} index
+     * @returns {boolean}
+     */
+    function shouldIgnorePixel(imageData, index) {
+        // Transparent pixels
+        if (imageData[index + 3] === 0) {
+            return true;
+        }
+        return false;
+    }
+
+    class FingerprintingCanvas extends ContentFeature {
+        init(args) {
+            const { sessionKey, site } = args;
+            const domainKey = site.domain;
+            const supportsWebGl = this.getFeatureSettingEnabled('webGl');
+
+            const unsafeCanvases = new WeakSet();
+            const canvasContexts = new WeakMap();
+            const canvasCache = new WeakMap();
+
+            /**
+             * Clear cache as canvas has changed
+             * @param {OffscreenCanvas | HTMLCanvasElement} canvas
+             */
+            function clearCache(canvas) {
+                canvasCache.delete(canvas);
+            }
+
+            /**
+             * @param {OffscreenCanvas | HTMLCanvasElement} canvas
+             */
+            function treatAsUnsafe(canvas) {
+                unsafeCanvases.add(canvas);
+                clearCache(canvas);
+            }
+
+            const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, 'getContext', {
+                apply(target, thisArg, args) {
+                    const context = DDGReflect.apply(target, thisArg, args);
+                    try {
+                        // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'.
+                        canvasContexts.set(thisArg, context);
+                    } catch {}
+                    return context;
+                },
+            });
+            proxy.overload();
+
+            // Known data methods
+            const safeMethods = ['putImageData', 'drawImage'];
+            for (const methodName of safeMethods) {
+                const safeMethodProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
+                    apply(target, thisArg, args) {
+                        // Don't apply escape hatch for canvases
+                        if (methodName === 'drawImage' && args[0] && args[0] instanceof HTMLCanvasElement) {
+                            treatAsUnsafe(args[0]);
+                        } else {
+                            // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                            clearCache(thisArg.canvas);
+                        }
+                        return DDGReflect.apply(target, thisArg, args);
+                    },
+                });
+                safeMethodProxy.overload();
+            }
+
+            const unsafeMethods = [
+                'strokeRect',
+                'bezierCurveTo',
+                'quadraticCurveTo',
+                'arcTo',
+                'ellipse',
+                'rect',
+                'fill',
+                'stroke',
+                'lineTo',
+                'beginPath',
+                'closePath',
+                'arc',
+                'fillText',
+                'fillRect',
+                'strokeText',
+                'createConicGradient',
+                'createLinearGradient',
+                'createRadialGradient',
+                'createPattern',
+            ];
+            for (const methodName of unsafeMethods) {
+                // Some methods are browser specific
+                if (methodName in CanvasRenderingContext2D.prototype) {
+                    const unsafeProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
+                        apply(target, thisArg, args) {
+                            // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                            treatAsUnsafe(thisArg.canvas);
+                            return DDGReflect.apply(target, thisArg, args);
+                        },
+                    });
+                    unsafeProxy.overload();
+                }
+            }
+
+            if (supportsWebGl) {
+                const unsafeGlMethods = [
+                    'commit',
+                    'compileShader',
+                    'shaderSource',
+                    'attachShader',
+                    'createProgram',
+                    'linkProgram',
+                    'drawElements',
+                    'drawArrays',
+                ];
+                const glContexts = [WebGLRenderingContext];
+                if ('WebGL2RenderingContext' in globalThis) {
+                    glContexts.push(WebGL2RenderingContext);
+                }
+                for (const context of glContexts) {
+                    for (const methodName of unsafeGlMethods) {
+                        // Some methods are browser specific
+                        if (methodName in context.prototype) {
+                            const unsafeProxy = new DDGProxy(this, context.prototype, methodName, {
+                                apply(target, thisArg, args) {
+                                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                                    treatAsUnsafe(thisArg.canvas);
+                                    return DDGReflect.apply(target, thisArg, args);
+                                },
+                            });
+                            unsafeProxy.overload();
+                        }
+                    }
+                }
+            }
+
+            // Using proxies here to swallow calls to toString etc
+            const getImageDataProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, 'getImageData', {
+                apply(target, thisArg, args) {
+                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                    if (!unsafeCanvases.has(thisArg.canvas)) {
+                        return DDGReflect.apply(target, thisArg, args);
+                    }
+                    // Anything we do here should be caught and ignored silently
+                    try {
+                        // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                        const { offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey);
+                        // Call the original method on the modified off-screen canvas
+                        return DDGReflect.apply(target, offScreenCtx, args);
+                    } catch {}
+
+                    return DDGReflect.apply(target, thisArg, args);
+                },
+            });
+            getImageDataProxy.overload();
+
+            /**
+             * Get cached offscreen if one exists, otherwise compute one
+             *
+             * @param {HTMLCanvasElement} canvas
+             * @param {string} domainKey
+             * @param {string} sessionKey
+             */
+            function getCachedOffScreenCanvasOrCompute(canvas, domainKey, sessionKey) {
+                let result;
+                if (canvasCache.has(canvas)) {
+                    result = canvasCache.get(canvas);
+                } else {
+                    const ctx = canvasContexts.get(canvas);
+                    result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx);
+                    canvasCache.set(canvas, result);
+                }
+                return result;
+            }
+
+            const canvasMethods = ['toDataURL', 'toBlob'];
+            for (const methodName of canvasMethods) {
+                const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, methodName, {
+                    apply(target, thisArg, args) {
+                        // Short circuit for low risk canvas calls
+                        // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                        if (!unsafeCanvases.has(thisArg)) {
+                            return DDGReflect.apply(target, thisArg, args);
+                        }
+                        try {
+                            // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
+                            const { offScreenCanvas } = getCachedOffScreenCanvasOrCompute(thisArg, domainKey, sessionKey);
+                            // Call the original method on the modified off-screen canvas
+                            return DDGReflect.apply(target, offScreenCanvas, args);
+                        } catch {
+                            // Something we did caused an exception, fall back to the native
+                            return DDGReflect.apply(target, thisArg, args);
+                        }
+                    },
+                });
+                proxy.overload();
+            }
+        }
+    }
+
+    class GoogleRejected extends ContentFeature {
+        init() {
+            try {
+                if ('browsingTopics' in Document.prototype) {
+                    delete Document.prototype.browsingTopics;
+                }
+                if ('joinAdInterestGroup' in Navigator.prototype) {
+                    delete Navigator.prototype.joinAdInterestGroup;
+                }
+                if ('leaveAdInterestGroup' in Navigator.prototype) {
+                    delete Navigator.prototype.leaveAdInterestGroup;
+                }
+                if ('updateAdInterestGroups' in Navigator.prototype) {
+                    delete Navigator.prototype.updateAdInterestGroups;
+                }
+                if ('runAdAuction' in Navigator.prototype) {
+                    delete Navigator.prototype.runAdAuction;
+                }
+                if ('adAuctionComponents' in Navigator.prototype) {
+                    delete Navigator.prototype.adAuctionComponents;
+                }
+            } catch {
+                // Throw away this exception, it's likely a confict with another extension
+            }
+        }
+    }
+
+    // Set Global Privacy Control property on DOM
+    class GlobalPrivacyControl extends ContentFeature {
+        init(args) {
+            try {
+                // If GPC on, set DOM property prototype to true if not already true
+                if (args.globalPrivacyControlValue) {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    if (navigator.globalPrivacyControl) return;
+                    this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
+                        get: () => true,
+                        configurable: true,
+                        enumerable: true,
+                    });
+                } else {
+                    // If GPC off & unsupported by browser, set DOM property prototype to false
+                    // this may be overwritten by the user agent or other extensions
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    if (typeof navigator.globalPrivacyControl !== 'undefined') return;
+                    this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
+                        get: () => false,
+                        configurable: true,
+                        enumerable: true,
+                    });
+                }
+            } catch {
+                // Ignore exceptions that could be caused by conflicting with other extensions
+            }
+        }
+    }
+
+    class FingerprintingHardware extends ContentFeature {
+        init() {
+            this.wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
+                get: () => {
+                    // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
+                    return this.getFeatureAttr('keyboard');
+                },
+            });
+
+            this.wrapProperty(globalThis.Navigator.prototype, 'hardwareConcurrency', {
+                get: () => {
+                    return this.getFeatureAttr('hardwareConcurrency', 2);
+                },
+            });
+
+            this.wrapProperty(globalThis.Navigator.prototype, 'deviceMemory', {
+                get: () => {
+                    return this.getFeatureAttr('deviceMemory', 8);
+                },
+            });
+        }
+    }
+
+    class Referrer extends ContentFeature {
+        init() {
+            // If the referer is a different host to the current one, trim it.
+            if (document.referrer && new URL(document.URL).hostname !== new URL(document.referrer).hostname) {
+                // trim referrer to origin.
+                const trimmedReferer = new URL(document.referrer).origin + '/';
+                this.wrapProperty(Document.prototype, 'referrer', {
+                    get: () => trimmedReferer,
+                });
+            }
+        }
+    }
+
+    class FingerprintingScreenSize extends ContentFeature {
+        origPropertyValues = {};
+
+        init() {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.origPropertyValues.availTop = globalThis.screen.availTop;
+            this.wrapProperty(globalThis.Screen.prototype, 'availTop', {
+                get: () => this.getFeatureAttr('availTop', 0),
+            });
+
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.origPropertyValues.availLeft = globalThis.screen.availLeft;
+            this.wrapProperty(globalThis.Screen.prototype, 'availLeft', {
+                get: () => this.getFeatureAttr('availLeft', 0),
+            });
+
+            this.origPropertyValues.availWidth = globalThis.screen.availWidth;
+            const forcedAvailWidthValue = globalThis.screen.width;
+            this.wrapProperty(globalThis.Screen.prototype, 'availWidth', {
+                get: () => forcedAvailWidthValue,
+            });
+
+            this.origPropertyValues.availHeight = globalThis.screen.availHeight;
+            const forcedAvailHeightValue = globalThis.screen.height;
+            this.wrapProperty(globalThis.Screen.prototype, 'availHeight', {
+                get: () => forcedAvailHeightValue,
+            });
+
+            this.origPropertyValues.colorDepth = globalThis.screen.colorDepth;
+            this.wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
+                get: () => this.getFeatureAttr('colorDepth', 24),
+            });
+
+            this.origPropertyValues.pixelDepth = globalThis.screen.pixelDepth;
+            this.wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
+                get: () => this.getFeatureAttr('pixelDepth', 24),
+            });
+
+            globalThis.window.addEventListener('resize', () => {
+                this.setWindowDimensions();
+            });
+            this.setWindowDimensions();
+        }
+
+        /**
+         * normalize window dimensions, if more than one monitor is in play.
+         *  X/Y values are set in the browser based on distance to the main monitor top or left, which
+         * can mean second or more monitors have very large or negative values. This function maps a given
+         * given coordinate value to the proper place on the main screen.
+         */
+        normalizeWindowDimension(value, targetDimension) {
+            if (value > targetDimension) {
+                return value % targetDimension;
+            }
+            if (value < 0) {
+                return targetDimension + value;
+            }
+            return value;
+        }
+
+        setWindowPropertyValue(property, value) {
+            // Here we don't update the prototype getter because the values are updated dynamically
+            try {
+                this.defineProperty(globalThis, property, {
+                    get: () => value,
+
+                    set: () => {},
+                    configurable: true,
+                    enumerable: true,
+                });
+            } catch (e) {}
+        }
+
+        /**
+         * Fix window dimensions. The extension runs in a different JS context than the
+         * page, so we can inject the correct screen values as the window is resized,
+         * ensuring that no information is leaked as the dimensions change, but also that the
+         * values change correctly for valid use cases.
+         */
+        setWindowDimensions() {
+            try {
+                const window = globalThis;
+                const top = globalThis.top;
+
+                const normalizedY = this.normalizeWindowDimension(window.screenY, window.screen.height);
+                const normalizedX = this.normalizeWindowDimension(window.screenX, window.screen.width);
+                if (normalizedY <= this.origPropertyValues.availTop) {
+                    this.setWindowPropertyValue('screenY', 0);
+                    this.setWindowPropertyValue('screenTop', 0);
+                } else {
+                    this.setWindowPropertyValue('screenY', normalizedY);
+                    this.setWindowPropertyValue('screenTop', normalizedY);
+                }
+
+                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                if (top.window.outerHeight >= this.origPropertyValues.availHeight - 1) {
+                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                    this.setWindowPropertyValue('outerHeight', top.window.screen.height);
+                } else {
+                    try {
+                        // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                        this.setWindowPropertyValue('outerHeight', top.window.outerHeight);
+                    } catch (e) {
+                        // top not accessible to certain iFrames, so ignore.
+                    }
+                }
+
+                if (normalizedX <= this.origPropertyValues.availLeft) {
+                    this.setWindowPropertyValue('screenX', 0);
+                    this.setWindowPropertyValue('screenLeft', 0);
+                } else {
+                    this.setWindowPropertyValue('screenX', normalizedX);
+                    this.setWindowPropertyValue('screenLeft', normalizedX);
+                }
+
+                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                if (top.window.outerWidth >= this.origPropertyValues.availWidth - 1) {
+                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                    this.setWindowPropertyValue('outerWidth', top.window.screen.width);
+                } else {
+                    try {
+                        // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                        this.setWindowPropertyValue('outerWidth', top.window.outerWidth);
+                    } catch (e) {
+                        // top not accessible to certain iFrames, so ignore.
+                    }
+                }
+            } catch (e) {
+                // in a cross domain iFrame, top.window is not accessible.
+            }
+        }
+    }
+
+    class FingerprintingTemporaryStorage extends ContentFeature {
+        init() {
+            const navigator = globalThis.navigator;
+            const Navigator = globalThis.Navigator;
+
+            /**
+             * Temporary storage can be used to determine hard disk usage and size.
+             * This will limit the max storage to 4GB without completely disabling the
+             * feature.
+             */
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            if (navigator.webkitTemporaryStorage) {
+                try {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    const org = navigator.webkitTemporaryStorage.queryUsageAndQuota;
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    const tStorage = navigator.webkitTemporaryStorage;
+                    tStorage.queryUsageAndQuota = function queryUsageAndQuota(callback, err) {
+                        const modifiedCallback = function (usedBytes, grantedBytes) {
+                            const maxBytesGranted = 4 * 1024 * 1024 * 1024;
+                            const spoofedGrantedBytes = Math.min(grantedBytes, maxBytesGranted);
+                            callback(usedBytes, spoofedGrantedBytes);
+                        };
+                        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                        org.call(navigator.webkitTemporaryStorage, modifiedCallback, err);
+                    };
+                    this.defineProperty(Navigator.prototype, 'webkitTemporaryStorage', {
+                        get: () => tStorage,
+                        enumerable: true,
+                        configurable: true,
+                    });
+                } catch (e) {}
+            }
+        }
+    }
+
+    /**
+     * @param {unknown} input
+     * @return {input is Object}
+     */
+    function isObject(input) {
+        return toString.call(input) === '[object Object]';
+    }
+
+    /**
+     * @param {unknown} input
+     * @return {input is string}
+     */
+    function isString(input) {
+        return typeof input === 'string';
+    }
+
+    /**
+     * @import { Messaging } from "@duckduckgo/messaging";
+     * @typedef {Pick<Messaging, 'notify' | 'request' | 'subscribe'>} MessagingInterface
+     */
+
+    /**
+     * Sending this event
+     */
+    class InstallProxy {
+        static NAME = 'INSTALL_BRIDGE';
+        get name() {
+            return InstallProxy.NAME;
+        }
+
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.id
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.id = params.id;
+        }
+
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.id)) return null;
+            return new InstallProxy({ featureName: params.featureName, id: params.id });
+        }
+    }
+
+    class DidInstall {
+        static NAME = 'DID_INSTALL';
+        get name() {
+            return DidInstall.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.id
+         */
+        constructor(params) {
+            this.id = params.id;
+        }
+
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.id)) return null;
+            return new DidInstall({ id: params.id });
+        }
+    }
+
+    class ProxyRequest {
+        static NAME = 'PROXY_REQUEST';
+        get name() {
+            return ProxyRequest.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.params]
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.method = params.method;
+            this.params = params.params;
+            this.id = params.id;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.method)) return null;
+            if (!isString(params.id)) return null;
+            if (params.params && !isObject(params.params)) return null;
+            return new ProxyRequest({
+                featureName: params.featureName,
+                method: params.method,
+                params: params.params,
+                id: params.id,
+            });
+        }
+    }
+
+    class ProxyResponse {
+        static NAME = 'PROXY_RESPONSE';
+        get name() {
+            return ProxyResponse.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.result]
+         * @param {import("@duckduckgo/messaging").MessageError} [params.error]
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.method = params.method;
+            this.result = params.result;
+            this.error = params.error;
+            this.id = params.id;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.method)) return null;
+            if (!isString(params.id)) return null;
+            if (params.result && !isObject(params.result)) return null;
+            if (params.error && !isObject(params.error)) return null;
+            return new ProxyResponse({
+                featureName: params.featureName,
+                method: params.method,
+                result: params.result,
+                error: params.error,
+                id: params.id,
+            });
+        }
+    }
+
+    /**
+     */
+    class ProxyNotification {
+        static NAME = 'PROXY_NOTIFICATION';
+        get name() {
+            return ProxyNotification.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {Record<string, any>} [params.params]
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.method = params.method;
+            this.params = params.params;
+        }
+
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.method)) return null;
+            if (params.params && !isObject(params.params)) return null;
+            return new ProxyNotification({
+                featureName: params.featureName,
+                method: params.method,
+                params: params.params,
+            });
+        }
+    }
+
+    class SubscriptionRequest {
+        static NAME = 'SUBSCRIPTION_REQUEST';
+        get name() {
+            return SubscriptionRequest.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.subscriptionName
+         * @param {string} params.id
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.subscriptionName = params.subscriptionName;
+            this.id = params.id;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.subscriptionName)) return null;
+            if (!isString(params.id)) return null;
+            return new SubscriptionRequest({
+                featureName: params.featureName,
+                subscriptionName: params.subscriptionName,
+                id: params.id,
+            });
+        }
+    }
+
+    class SubscriptionResponse {
+        static NAME = 'SUBSCRIPTION_RESPONSE';
+        get name() {
+            return SubscriptionResponse.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.featureName
+         * @param {string} params.subscriptionName
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.params]
+         */
+        constructor(params) {
+            this.featureName = params.featureName;
+            this.subscriptionName = params.subscriptionName;
+            this.id = params.id;
+            this.params = params.params;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.featureName)) return null;
+            if (!isString(params.subscriptionName)) return null;
+            if (!isString(params.id)) return null;
+            if (params.params && !isObject(params.params)) return null;
+            return new SubscriptionResponse({
+                featureName: params.featureName,
+                subscriptionName: params.subscriptionName,
+                params: params.params,
+                id: params.id,
+            });
+        }
+    }
+
+    class SubscriptionUnsubscribe {
+        static NAME = 'SUBSCRIPTION_UNSUBSCRIBE';
+        get name() {
+            return SubscriptionUnsubscribe.NAME;
+        }
+        /**
+         * @param {object} params
+         * @param {string} params.id
+         */
+        constructor(params) {
+            this.id = params.id;
+        }
+        /**
+         * @param {unknown} params
+         */
+        static create(params) {
+            if (!isObject(params)) return null;
+            if (!isString(params.id)) return null;
+            return new SubscriptionUnsubscribe({
+                id: params.id,
+            });
+        }
+    }
+
+    /**
+     * @import { MessagingInterface } from "./schema.js"
+     * @typedef {Pick<import("../../captured-globals.js"),
+     *    "dispatchEvent" | "addEventListener" | "removeEventListener" | "CustomEvent" | "String" | "Error" | "randomUUID">
+     * } Captured
+     */
+    /** @type {Captured} */
+    const captured = capturedGlobals;
+
+    const ERROR_MSG = 'Did not install Message Bridge';
+
+    /**
+     * Try to create a message bridge.
+     *
+     * Note: This will throw an exception if the bridge cannot be established.
+     *
+     * @param {string} featureName
+     * @param {string} [token]
+     * @return {MessagingInterface}
+     * @throws {Error}
+     */
+    function createPageWorldBridge(featureName, token) {
+        /**
+         * This feature never operates without a featureName or token
+         */
+        if (typeof featureName !== 'string' || !token) {
+            throw new captured.Error(ERROR_MSG);
+        }
+        /**
+         * This feature never operates in a frame or insecure context
+         */
+        if (isBeingFramed() || !isSecureContext) {
+            throw new captured.Error(ERROR_MSG);
+        }
+
+        /**
+         * @param {string} eventName
+         * @return {`${string}-${string}`}
+         */
+        const appendToken = (eventName) => {
+            return `${eventName}-${token}`;
+        };
+
+        /**
+         * Create the sender to centralize the sending logic
+         * @param {{name: string} & Record<string, any>} incoming
+         */
+        const send = (incoming) => {
+            // when the token is absent, just silently fail
+            if (!token) return;
+            const event = new captured.CustomEvent(appendToken(incoming.name), { detail: incoming });
+            captured.dispatchEvent(event);
+        };
+
+        /**
+         * Events are synchronous (even across contexts), so we can figure out
+         * the result of installing the proxy before we return and give a
+         * better experience for consumers
+         */
+        let installed = false;
+        const id = random();
+        const evt = new InstallProxy({ featureName, id });
+        const evtName = appendToken(DidInstall.NAME + '-' + id);
+        const didInstall = (/** @type {CustomEvent<unknown>} */ e) => {
+            const result = DidInstall.create(e.detail);
+            if (result && result.id === id) {
+                installed = true;
+            }
+            captured.removeEventListener(evtName, didInstall);
+        };
+
+        captured.addEventListener(evtName, didInstall);
+        send(evt);
+
+        if (!installed) {
+            // leaving this as a generic message for now
+            throw new captured.Error(ERROR_MSG);
+        }
+
+        return createMessagingInterface(featureName, send, appendToken);
+    }
+
+    /**
+     * We are executing exclusively in secure contexts, so this should never fail
+     */
+    function random() {
+        if (typeof captured.randomUUID !== 'function') throw new Error('unreachable');
+        return captured.randomUUID();
+    }
+
+    /**
+     * @param {string} featureName
+     * @param {(evt: {name: string} & Record<string, any>) => void} send
+     * @param {(s: string) => string} appendToken
+     * @returns {MessagingInterface}
+     */
+    function createMessagingInterface(featureName, send, appendToken) {
+        return {
+            /**
+             * @param {string} method
+             * @param {Record<string, any>} params
+             */
+            notify(method, params) {
+                send(
+                    new ProxyNotification({
+                        method,
+                        params,
+                        featureName,
+                    }),
+                );
+            },
+
+            /**
+             * @param {string} method
+             * @param {Record<string, any>} params
+             * @returns {Promise<any>}
+             */
+            request(method, params) {
+                const id = random();
+
+                send(
+                    new ProxyRequest({
+                        method,
+                        params,
+                        featureName,
+                        id,
+                    }),
+                );
+
+                return new Promise((resolve, reject) => {
+                    const responseName = appendToken(ProxyResponse.NAME + '-' + id);
+                    const handler = (/** @type {CustomEvent<unknown>} */ e) => {
+                        const response = ProxyResponse.create(e.detail);
+                        if (response && response.id === id) {
+                            if ('error' in response && response.error) {
+                                reject(new Error(response.error.message));
+                            } else if ('result' in response) {
+                                resolve(response.result);
+                            }
+                            captured.removeEventListener(responseName, handler);
+                        }
+                    };
+                    captured.addEventListener(responseName, handler);
+                });
+            },
+
+            /**
+             * @param {string} name
+             * @param {(d: any) => void} callback
+             * @returns {() => void}
+             */
+            subscribe(name, callback) {
+                const id = random();
+
+                send(
+                    new SubscriptionRequest({
+                        subscriptionName: name,
+                        featureName,
+                        id,
+                    }),
+                );
+
+                const handler = (/** @type {CustomEvent<unknown>} */ e) => {
+                    const subscriptionEvent = SubscriptionResponse.create(e.detail);
+                    if (subscriptionEvent) {
+                        const { id: eventId, params } = subscriptionEvent;
+                        if (eventId === id) {
+                            callback(params);
+                        }
+                    }
+                };
+
+                const type = appendToken(SubscriptionResponse.NAME + '-' + id);
+                captured.addEventListener(type, handler);
+
+                return () => {
+                    captured.removeEventListener(type, handler);
+                    const evt = new SubscriptionUnsubscribe({ id });
+                    send(evt);
+                };
+            },
+        };
+    }
+
+    class NavigatorInterface extends ContentFeature {
+        load(args) {
+            // @ts-expect-error: Accessing private method
+            if (this.matchDomainFeatureSetting('privilegedDomains').length) {
+                this.injectNavigatorInterface(args);
+            }
+        }
+
+        init(args) {
+            this.injectNavigatorInterface(args);
+        }
+
+        injectNavigatorInterface(args) {
+            try {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                if (navigator.duckduckgo) {
+                    return;
+                }
+                if (!args.platform || !args.platform.name) {
+                    return;
+                }
+                this.defineProperty(Navigator.prototype, 'duckduckgo', {
+                    value: {
+                        platform: args.platform.name,
+                        isDuckDuckGo() {
+                            return DDGPromise.resolve(true);
+                        },
+                        /**
+                         * @import { MessagingInterface } from "./message-bridge/schema.js"
+                         * @param {string} featureName
+                         * @return {MessagingInterface}
+                         * @throws {Error}
+                         */
+                        createMessageBridge(featureName) {
+                            return createPageWorldBridge(featureName, args.messageSecret);
+                        },
+                    },
+                    enumerable: true,
+                    configurable: false,
+                    writable: false,
+                });
+            } catch {
+                // todo: Just ignore this exception?
+            }
+        }
+    }
+
+    let adLabelStrings = [];
+    const parser = new DOMParser();
+    let hiddenElements = new WeakMap();
+    let modifiedElements = new WeakMap();
+    let appliedRules = new Set();
+    let shouldInjectStyleTag = false;
+    let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
+    let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000];
+    let unhideTimeouts = [1250, 2250, 3000];
+
+    /** @type {ElementHiding} */
+    let featureInstance;
+
+    /**
+     * Hide DOM element if rule conditions met
+     * @param {HTMLElement} element
+     * @param {Object} rule
+     * @param {HTMLElement} [previousElement]
+     */
+    function collapseDomNode(element, rule, previousElement) {
+        if (!element) {
+            return;
+        }
+        const type = rule.type;
+        const alreadyHidden = hiddenElements.has(element);
+        const alreadyModified = modifiedElements.has(element) && modifiedElements.get(element) === rule.type;
+        // return if the element has already been hidden, or modified by the same rule type
+        if (alreadyHidden || alreadyModified) {
+            return;
+        }
+
+        switch (type) {
+            case 'hide':
+                hideNode(element);
+                break;
+            case 'hide-empty':
+                if (isDomNodeEmpty(element)) {
+                    hideNode(element);
+                    appliedRules.add(rule);
+                }
+                break;
+            case 'closest-empty':
+                // hide the outermost empty node so that we may unhide if ad loads
+                if (isDomNodeEmpty(element)) {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    collapseDomNode(element.parentNode, rule, element);
+                } else if (previousElement) {
+                    hideNode(previousElement);
+                    appliedRules.add(rule);
+                }
+                break;
+            case 'modify-attr':
+                modifyAttribute(element, rule.values);
+                break;
+            case 'modify-style':
+                modifyStyle(element, rule.values);
+                break;
+        }
+    }
+
+    /**
+     * Unhide previously hidden DOM element if content loaded into it
+     * @param {HTMLElement} element
+     * @param {Object} rule
+     */
+    function expandNonEmptyDomNode(element, rule) {
+        if (!element) {
+            return;
+        }
+        const type = rule.type;
+
+        const alreadyHidden = hiddenElements.has(element);
+
+        switch (type) {
+            case 'hide':
+                // only care about rule types that specifically apply to empty elements
+                break;
+            case 'hide-empty':
+            case 'closest-empty':
+                if (alreadyHidden && !isDomNodeEmpty(element)) {
+                    unhideNode(element);
+                } else if (type === 'closest-empty') {
+                    // iterate upwards from matching DOM elements until we arrive at previously
+                    // hidden element. Unhide element if it contains visible content.
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    expandNonEmptyDomNode(element.parentNode, rule);
+                }
+                break;
+        }
+    }
+
+    /**
+     * Hide DOM element
+     * @param {HTMLElement} element
+     */
+    function hideNode(element) {
+        // maintain a reference to each hidden element along with the properties
+        // that are being overwritten
+        const cachedDisplayProperties = {
+            display: element.style.display,
+            'min-height': element.style.minHeight,
+            height: element.style.height,
+        };
+        hiddenElements.set(element, cachedDisplayProperties);
+
+        // apply styles to hide element
+        element.style.setProperty('display', 'none', 'important');
+        element.style.setProperty('min-height', '0px', 'important');
+        element.style.setProperty('height', '0px', 'important');
+        element.hidden = true;
+        // add debug flag to site breakage reports
+        featureInstance.addDebugFlag();
+    }
+
+    /**
+     * Show previously hidden DOM element
+     * @param {HTMLElement} element
+     */
+    function unhideNode(element) {
+        const cachedDisplayProperties = hiddenElements.get(element);
+        if (!cachedDisplayProperties) {
+            return;
+        }
+
+        for (const prop in cachedDisplayProperties) {
+            element.style.setProperty(prop, cachedDisplayProperties[prop]);
+        }
+        hiddenElements.delete(element);
+        element.hidden = false;
+    }
+
+    /**
+     * Check if DOM element contains visible content
+     * @param {HTMLElement} node
+     */
+    function isDomNodeEmpty(node) {
+        // no sense wasting cycles checking if the page's body element is empty
+        if (node.tagName === 'BODY') {
+            return false;
+        }
+        // use a DOMParser to remove all metadata elements before checking if
+        // the node is empty.
+        const parsedNode = parser.parseFromString(node.outerHTML, 'text/html').documentElement;
+        parsedNode.querySelectorAll('base,link,meta,script,style,template,title,desc').forEach((el) => {
+            el.remove();
+        });
+
+        const visibleText = parsedNode.innerText.trim().toLocaleLowerCase().replace(/:$/, '');
+        const mediaAndFormContent = parsedNode.querySelector(mediaAndFormSelectors);
+        const frameElements = [...parsedNode.querySelectorAll('iframe')];
+        // query original node instead of parsedNode for img elements since heuristic relies
+        // on size of image elements
+        const imageElements = [...node.querySelectorAll('img,svg')];
+        // about:blank iframes don't count as content, return true if:
+        // - node doesn't contain any iframes
+        // - node contains iframes, all of which are hidden or have src='about:blank'
+        const noFramesWithContent = frameElements.every((frame) => {
+            return frame.hidden || frame.src === 'about:blank';
+        });
+        // ad containers often contain tracking pixels and other small images (eg adchoices logo).
+        // these should be treated as empty and hidden, but real images should not.
+        const visibleImages = imageElements.some((image) => {
+            return image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20;
+        });
+
+        if (
+            (visibleText === '' || adLabelStrings.includes(visibleText)) &&
+            mediaAndFormContent === null &&
+            noFramesWithContent &&
+            !visibleImages
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Modify specified attribute(s) on element
+     * @param {HTMLElement} element
+     * @param {Object[]} values
+     * @param {string} values[].property
+     * @param {string} values[].value
+     */
+    function modifyAttribute(element, values) {
+        values.forEach((item) => {
+            element.setAttribute(item.property, item.value);
+        });
+        modifiedElements.set(element, 'modify-attr');
+    }
+
+    /**
+     * Modify specified style(s) on element
+     * @param {HTMLElement} element
+     * @param {Object[]} values
+     * @param {string} values[].property
+     * @param {string} values[].value
+     */
+    function modifyStyle(element, values) {
+        values.forEach((item) => {
+            element.style.setProperty(item.property, item.value, 'important');
+        });
+        modifiedElements.set(element, 'modify-style');
+    }
+
+    /**
+     * Separate strict hide rules to inject as style tag if enabled
+     * @param {Object[]} rules
+     * @param {string} rules[].selector
+     * @param {string} rules[].type
+     */
+    function extractTimeoutRules(rules) {
+        if (!shouldInjectStyleTag) {
+            return rules;
+        }
+
+        const strictHideRules = [];
+        const timeoutRules = [];
+
+        rules.forEach((rule) => {
+            if (rule.type === 'hide') {
+                strictHideRules.push(rule);
+            } else {
+                timeoutRules.push(rule);
+            }
+        });
+
+        injectStyleTag(strictHideRules);
+        return timeoutRules;
+    }
+
+    /**
+     * Create styletag for strict hide rules and append it to the document
+     * @param {Object[]} rules
+     * @param {string} rules[].selector
+     * @param {string} rules[].type
+     */
+    function injectStyleTag(rules) {
+        // wrap selector list in :is(...) to make it a forgiving selector list. this enables
+        // us to use selectors not supported in all browsers, eg :has in Firefox
+        let selector = '';
+
+        rules.forEach((rule, i) => {
+            if (i !== rules.length - 1) {
+                selector = selector.concat(rule.selector, ',');
+            } else {
+                selector = selector.concat(rule.selector);
+            }
+        });
+        const styleTagProperties = 'display:none!important;min-height:0!important;height:0!important;';
+        const styleTagContents = `${forgivingSelector(selector)} {${styleTagProperties}}`;
+
+        injectGlobalStyles(styleTagContents);
+    }
+
+    /**
+     * Apply list of active element hiding rules to page
+     * @param {Object[]} rules
+     * @param {string} rules[].selector
+     * @param {string} rules[].type
+     */
+    function hideAdNodes(rules) {
+        const document = globalThis.document;
+
+        rules.forEach((rule) => {
+            const selector = forgivingSelector(rule.selector);
+            const matchingElementArray = [...document.querySelectorAll(selector)];
+            matchingElementArray.forEach((element) => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                collapseDomNode(element, rule);
+            });
+        });
+    }
+
+    /**
+     * Iterate over previously hidden elements, unhiding if content has loaded into them
+     */
+    function unhideLoadedAds() {
+        const document = globalThis.document;
+
+        appliedRules.forEach((rule) => {
+            const selector = forgivingSelector(rule.selector);
+            const matchingElementArray = [...document.querySelectorAll(selector)];
+            matchingElementArray.forEach((element) => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                expandNonEmptyDomNode(element, rule);
+            });
+        });
+    }
+
+    /**
+     * Wrap selector(s) in :is(..) to make them forgiving
+     */
+    function forgivingSelector(selector) {
+        return `:is(${selector})`;
+    }
+
+    class ElementHiding extends ContentFeature {
+        init() {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            featureInstance = this;
+
+            if (isBeingFramed()) {
+                return;
+            }
+
+            let activeRules;
+            const globalRules = this.getFeatureSetting('rules');
+            adLabelStrings = this.getFeatureSetting('adLabelStrings');
+            shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag');
+            hideTimeouts = this.getFeatureSetting('hideTimeouts') || hideTimeouts;
+            unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts;
+            mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors;
+
+            // determine whether strict hide rules should be injected as a style tag
+            if (shouldInjectStyleTag) {
+                // @ts-expect-error: Accessing private method
+                shouldInjectStyleTag = this.matchDomainFeatureSetting('styleTagExceptions').length === 0;
+            }
+
+            // collect all matching rules for domain
+            // @ts-expect-error: Accessing private method
+            const activeDomainRules = this.matchDomainFeatureSetting('domains').flatMap((item) => item.rules);
+
+            const overrideRules = activeDomainRules.filter((rule) => {
+                return rule.type === 'override';
+            });
+
+            const disableDefault = activeDomainRules.some((rule) => {
+                return rule.type === 'disable-default';
+            });
+
+            // if rule with type 'disable-default' is present, ignore all global rules
+            if (disableDefault) {
+                activeRules = activeDomainRules.filter((rule) => {
+                    return rule.type !== 'disable-default';
+                });
+            } else {
+                activeRules = activeDomainRules.concat(globalRules);
+            }
+
+            // remove overrides and rules that match overrides from array of rules to be applied to page
+            overrideRules.forEach((override) => {
+                activeRules = activeRules.filter((rule) => {
+                    return rule.selector !== override.selector;
+                });
+            });
+
+            const applyRules = this.applyRules.bind(this);
+
+            // now have the final list of rules to apply, so we apply them when document is loaded
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', () => {
+                    applyRules(activeRules);
+                });
+            } else {
+                applyRules(activeRules);
+            }
+            // single page applications don't have a DOMContentLoaded event on navigations, so
+            // we use proxy/reflect on history.pushState to call applyRules on page navigations
+            const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
+                apply(target, thisArg, args) {
+                    applyRules(activeRules);
+                    return DDGReflect.apply(target, thisArg, args);
+                },
+            });
+            historyMethodProxy.overload();
+            // listen for popstate events in order to run on back/forward navigations
+            window.addEventListener('popstate', () => {
+                applyRules(activeRules);
+            });
+        }
+
+        /**
+         * Apply relevant hiding rules to page at set intervals
+         * @param {Object[]} rules
+         * @param {string} rules[].selector
+         * @param {string} rules[].type
+         */
+        applyRules(rules) {
+            const timeoutRules = extractTimeoutRules(rules);
+            const clearCacheTimer = unhideTimeouts.concat(hideTimeouts).reduce((a, b) => Math.max(a, b), 0) + 100;
+
+            // several passes are made to hide & unhide elements. this is necessary because we're not using
+            // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
+            // frequently take from several hundred milliseconds to several seconds to load
+            hideTimeouts.forEach((timeout) => {
+                setTimeout(() => {
+                    hideAdNodes(timeoutRules);
+                }, timeout);
+            });
+
+            // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
+            // we do this in order to display non-tracking ads that aren't blocked at the request level
+            unhideTimeouts.forEach((timeout) => {
+                setTimeout(() => {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    unhideLoadedAds();
+                }, timeout);
+            });
+
+            // clear appliedRules and hiddenElements caches once all checks have run
+            setTimeout(() => {
+                appliedRules = new Set();
+                hiddenElements = new WeakMap();
+                modifiedElements = new WeakMap();
+            }, clearCacheTimer);
+        }
+    }
+
+    class ExceptionHandler extends ContentFeature {
+        init() {
+            // Report to the debugger panel if an uncaught exception occurs
+            const handleUncaughtException = (e) => {
+                postDebugMessage(
+                    'jsException',
+                    {
+                        documentUrl: document.location.href,
+                        message: e.message,
+                        filename: e.filename,
+                        lineno: e.lineno,
+                        colno: e.colno,
+                        stack: e.error?.stack,
+                    },
+                    true,
+                );
+                this.addDebugFlag();
+            };
+            globalThis.addEventListener('error', handleUncaughtException);
+        }
+    }
+
+    /**
+     * This feature allows remote configuration of APIs that exist within the DOM.
+     * We support removal of APIs and returning different values from getters.
+     *
+     * @module API manipulation
+     */
+
+    /**
+     * @internal
+     */
+    class ApiManipulation extends ContentFeature {
+        init() {
+            const apiChanges = this.getFeatureSetting('apiChanges');
+            if (apiChanges) {
+                for (const scope in apiChanges) {
+                    const change = apiChanges[scope];
+                    if (!this.checkIsValidAPIChange(change)) {
+                        continue;
+                    }
+                    this.applyApiChange(scope, change);
+                }
+            }
+        }
+
+        /**
+         * Checks if the config API change is valid.
+         * @param {any} change
+         * @returns {change is APIChange}
+         */
+        checkIsValidAPIChange(change) {
+            if (typeof change !== 'object') {
+                return false;
+            }
+            if (change.type === 'remove') {
+                return true;
+            }
+            if (change.type === 'descriptor') {
+                if (change.enumerable && typeof change.enumerable !== 'boolean') {
+                    return false;
+                }
+                if (change.configurable && typeof change.configurable !== 'boolean') {
+                    return false;
+                }
+                return typeof change.getterValue !== 'undefined';
+            }
+            return false;
+        }
+
+        // TODO move this to schema definition imported from the privacy-config
+        // Additionally remove checkIsValidAPIChange when this change happens.
+        // See: https://app.asana.com/0/1201614831475344/1208715421518231/f
+        /**
+         * @typedef {Object} APIChange
+         * @property {"remove"|"descriptor"} type
+         * @property {import('../utils.js').ConfigSetting} [getterValue] - The value returned from a getter.
+         * @property {boolean} [enumerable] - Whether the property is enumerable.
+         * @property {boolean} [configurable] - Whether the property is configurable.
+         */
+
+        /**
+         * Applies a change to DOM APIs.
+         * @param {string} scope
+         * @param {APIChange} change
+         * @returns {void}
+         */
+        applyApiChange(scope, change) {
+            const response = this.getGlobalObject(scope);
+            if (!response) {
+                return;
+            }
+            const [obj, key] = response;
+            if (change.type === 'remove') {
+                this.removeApiMethod(obj, key);
+            } else if (change.type === 'descriptor') {
+                this.wrapApiDescriptor(obj, key, change);
+            }
+        }
+
+        /**
+         * Removes a method from an API.
+         * @param {object} api
+         * @param {string} key
+         */
+        removeApiMethod(api, key) {
+            try {
+                if (hasOwnProperty.call(api, key)) {
+                    delete api[key];
+                }
+            } catch (e) {}
+        }
+
+        /**
+         * Wraps a property with descriptor.
+         * @param {object} api
+         * @param {string} key
+         * @param {APIChange} change
+         */
+        wrapApiDescriptor(api, key, change) {
+            const getterValue = change.getterValue;
+            if (getterValue) {
+                const descriptor = {
+                    get: () => processAttr(getterValue, undefined),
+                };
+                if ('enumerable' in change) {
+                    descriptor.enumerable = change.enumerable;
+                }
+                if ('configurable' in change) {
+                    descriptor.configurable = change.configurable;
+                }
+                this.wrapProperty(api, key, descriptor);
+            }
+        }
+
+        /**
+         * Looks up a global object from a scope, e.g. 'Navigator.prototype'.
+         * @param {string} scope the scope of the object to get to.
+         * @returns {[object, string]|null} the object at the scope.
+         */
+        getGlobalObject(scope) {
+            const parts = scope.split('.');
+            // get the last part of the scope
+            const lastPart = parts.pop();
+            if (!lastPart) {
+                return null;
+            }
+            let obj = window;
+            for (const part of parts) {
+                obj = obj[part];
+                if (!obj) {
+                    return null;
+                }
+            }
+            return [obj, lastPart];
+        }
+    }
+
+    const logoImg =
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAABUCAYAAAAcaxDBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAABNTSURBVHgBzV0LcFPXmf6PJFt+gkEY8wrYMSEbgst7m02ywZnOZiEJCQlJC+QB25lNs7OzlEJ2ptmZLGayfUy3EEhmW5rM7gCZBtjJgzxmSTvTRSST9IF5pCE0TUosmmBjHIKNZFmWLN2e78hHPvfqXuleSdfONyNLV7q6uve7//uc85vRlwAda25oTFK8lZGn0UPaLI2okUhrTH/KGnU7M+olTevlL0KaeM3e01LaKa/PE2p64dgpGmMwGgN0rGqtS1Ve2cB/fhk/gVbSqI5KAU4wvxlBTdNe9VJ5sOnAb0I0yhg1QiWJTGN3E0gcHQRTpO0dTXJdJ7RjzZJWflHrGaNVdiTRN2kalTfOIU9VLfnqp5ruM9TTxR+dlIqGKX7uI7IDLrl7PFS2zW1iXSMURGqkbaUc0uiprqWqxa1UOXcxVcxdxAmcRoUApMZDH9HAmeMU+8NxQbYV3Ca25ITCwaRY4immcYk0AUgcv3wtJ3CxeLgBEBw++jpF249akusWsSUltGPNoq0aY5vMVLviusU04b5HbJMoVLo/ItRaBUyBp7rGtjTHuNSGj75BkbdeN/2ckdbWdODENioRSkIopFLThl4hpi0wflZzy0pO5D9aEiDsIFfXQagtf4CAXCqronzWHHFc3CQ/f53rZuGYl198zorYEKOyW0shrUUT2rFu8bc1jdqMUplLIkFi9NhRCvOLA4mp/jCVAjAn+N2qJa1UvXSZkGYjQOylfTu4OQjqPxAhl7atef+JnVQEiiK0Y+2ipzSNq7gCXFT9o1vFRRkB6evnFxJ5642SkWgF4fD4OUxYba4dEW4GLr/0bJY2FGsCCiIUMaVWEX6FDB4cF1D/T1uzJANE4uTxPBaoWbbSlNgcZiDIYsl7mg6d6iWHcEyolb0MPLyFxq1Yq9sXqg31ihx9nb4MsCK298VnxQ3XQaNTjJXd49SuOiJUkEmJIyRy7TSgWg2bf5xlK/sO76defpJuq7ZTgMy61Y9Q7bI7de/Dlndvf8xoAhw7K9uECjX3R46okomTm/rEbt0dh1TixIzqDeI9lSPZD/ZDWDT0uT2PXmqYSSvI7HryUT2pkNTB5K121d82oZ+sWQzJbJXbZmRa3GWBces2UuXX7qOKigryeDy6z0A+wqbosaDIdEYLZtdgSiq3qVcfOH6rnWPaIlQE7MTacp1ImHvuL/Ztz63iE+qpZtN2qp8z13IX6Siix4OjYi7gQCdy+6+aADNSecKys3l/+3fyHc+bb4d0nMl+KLfNyIS9vPTfPyAtEbc8jvjevz5F45r/inIBpqF6aSvV/M1twiTYLX4UCpwzYlIRw17TMnIOS5aJ8E5eE5e8Gza2TO17+nTXb3IdLyehaSeUOsBfVsj3pv77z6hsWmNmH5AJycwFQeb3nqfBqvHU399P4XBYPMfjcWK8DOXz+bK+I4mFCo2GGRh479dZpFbMbhGkSvBzvWHTvFkHd53+zNKe5lR5bjc7SPHoE7h3rOPZjwTU/POftlE+4ORS5ZVEly+OvDm1UTw0bldRsmtoaCC/32/6/SvQgDw3rVSY9GibTv2zfps7qasPHl9o9X1LCYXd5HxnKkbIyQPrt2Q+h325uOOxnGqeOQfsE+vXvxnhN7krROzd/6PUlJkU9nOJrK4mrzf7lPxcaiCt0IxE57msgkkpAQdZNf9G8tYFMr8Ns5PoDKV3YDRl47zp7OnTnUGz75tK6HC82SG3jXbTwhM6Q0U1sZvvFERVz77e1PtbwSptLBVwndN/+PNMxocb+OnGu0acJM/7mVa20Cw+Nb2CFCW2qtsIhFUndPml5wq/mAmTiT2yjep2HKKZ/7CF6r+ylKqqqmyTCdRwlcQNRmXfDeDaEP5JgFjUJzLghSDUfM2+m3UVkE4uthvkNvJz1aZAOgpNJbWv3U/jnnyeZi5bQRMmTHBEohFprfmZa6RC9eFwJcCDmg2igI5RCeP3sq7IKJ2BhzdnXosY0Zjz2gHUm0vltAe/TYFAoCgiVUByQGqhQyf5gBxftddwyiqGh3j056RuGKUTjqhoVR8mc8bf/r2wk6VGmtTdIpIoNWRxRwISCk4UtBqlVEeoUTpRaZcAkYWoOtQ8MG+xaaxZKuCmj1u+ltwArlmtS6icABjRVbczhNqRTqfQFvGM57avU21t6aXnvTOd9PKb79O+l9rpnfYOGn/7WlekFFDNnBxykcDweMeqBZnRigyhmAqjHsSY2xbkiLh0Tpw4MbMZiQ5yAo7T1h2/oG89/iL9aHeQLvQ4jynfaQ8JEqsry6lhUi2dPXeJdr/4vmtSCgnVSalqS+HxK30b5GZGD73E1mvyTcNdKEg6m3hsOeWqjKqDuMf+43VOQA09vHoJNTcGqKbKL0h2ipuWNIqHEaloC115c78rRRUM3UhO8Cyyv+HfYZqG2TBiLEpIaDqQHynNVfHCwMhJhrMHtOzguqUi85GAet52y7W0/Ym7aP7caYJMQD6XAnBQmDjhBhAuqh7foA2tUu0FoVnqrngyjE4WdMeb5upy83uXt3DJdGdigwpjJb5UAJn9nAuJSsMIhVR7QejwBC4BqLsaLPcXIp0Az7vLy8szm1Pq3XEYRoh5US45J3UwT6q9BFf7VjynCfWMqDvGtVUUVDrjhWRx8BIF8FaQTk46OGxD7TEBwg1gQoaq9jrzwkjYSU/H/UsXqJMUVGcEz1aIumt1k/OSibDnP3cfoZ/se7cgTw/8ZN+vRdjUzb+/ekUL/fJouhjtFqFylouETu05h/BFnqQv1ah+ya+czKBL1XKQsIV7/F+89VFGygrx9t09V8RzJBrnEnpEhFOAf9a15BZUTjBjUEWSkq0ebj914+uq/SxmYkIqlbL87J3joczrmqp0Ovpue4icAtGCBGJRue1WwQRQJdRYQ2CkNfpI0+bLqqhRVYod4gWpZqof6R8pSr/85u/F880mcWU+IJ6Fs4NkNs8KZKIIT1UNuQWjTwGpsr6B9QE+D6M6GdAbp9Cod8MJWO9FzL+0JHT1innC/kmAlBsLIBRAbIuHCjte3sMVo2o2FyLuP+N8ZCbyAdmCsTgEIZTv8ZHhRp8mVlukRdQ4Pl0wBqLiCYNwZkWRe5d/RQT0cEwNnMx7V7RQKWE26068P0xi7fXc/l2l/8wuoQC4kVzpfwsqz1gdDYuoOqc9FY1QwcD4USxKiUTCchczySoVZGjjG8clqIGTN4M7qsnZJErEPiVHwPA2pSPDrHUAPquFBEXnw5zUoaEhKhpJfh69PEMZ5BoT78q/L394+H6z/oVLj42sNsWDi543yRFyDBI2ulek5KOEA5OnU8EY4Pb7Uz58Gy4s0rBLZtdBrsJ9VDK4R+jlnsIl9NIbRKE2chNQc0hmKckE3CP0Qkh4eTgmNafPi3ina2RCIsOnecHnT87tpl1wQrVQ1npKoqILDKzjA+HrBgYGnBHamb/2CmLiF7Pf940f/jyW3gfSl+DJ1BB/xP6cfi4FrKIIjNfrJBQr1Ea+VGRwzFUenn5w0OFxon/M+XHPYWchjhvAsh4JlTMuQb08rmchua16r5IMzXZ1UCwWc/adpHW4BiLHmkxAF6/rskkW8nC1PCc3jVMHiya185xwTI6cU611ETrp8N64AWN6rg+htD5O6IiEGrMjY23UMTrOiCfYUdsIWFfcx/PTKZ9MYwqjkKnpOefyFCc0FVJ3UEkttmoDxyR+NJ5/hl4GkNDASsuPpz/Mk5QVY0esWi82ajQv3Z3yeSkV1JRZjQNnTvBxmfRd8BdbqEUKygP8ft9sMQXHNq7azE+EO6eoeXGm5vr0A148zn3f4MW0V0+ZlFSRfiLILxufjgJkwA+v7zRDAlROsopHzBPyNR04Ffpk7eJemYKiBioHuuT4TFFpKFf7IT6+ZFV5MoWXhyXXvcBvxrPcsVnPpfINk4SCh2MUsOQN4ZIqoQNqKY+HTGjRIa5QS1FQvq8OGZdkfIYH+ACmgDvGtEeIWl7LaQIKQR/n4dIRcgzjWixdAV4jMSSaFhkPy4yPwmupO9beUtzFsDPHxLMjO6qinJufxq1pYhvbKOUp7AbDHIBI5O5fHEkH/06hrl+F/VT9Da/WH8KzCOw9/qE9WsybmUCKzgjyblRhVe/zRag97GhvD7ejPmd21AhO7BAfVTn/X9sxeCMKw3BM/vqRDEkFCEOWBBuLrMoss3ICaCtWOEuEs6YmpYL4Kwht2nOqt2PN4qCcPYKJ+hOGFyfgQDW33CneKxgfHKOhm253ZkdNgAmw8sYiF3crHzcDpFNNOdEtYgQsCF+EV5mrSzH2aua1Qe2rTZZqO0IxdlSBKOyOEdRpjMYmCYxSe+XrDKFQe9FkahjqFL5i+4MUbUfHGMapnWFl7VIaaXUHMoRC7bmnykip8S4Yp0M7grSjRUqom8PDuZBr4jGPvvZIdQd0Bo0XSvao2+o0RpPp0M4AO+o0rzfAqo+TEVE/o8MLy+hHd1fQQHlxXUDyTzxO6ro/6AhtOtAe5D8flNvG6dCB9ZsLr5MO5/XFSGmlDbMTvN5H2+73c0J99FmAie1CASKdSCdg4nKZjnHVlsLLFar6Mq93XM5TYMxUVFyqZfTMCj+9/NUynVT+9pq864MtYVyfpS5gSCOZ1Zsk69d2ne4MbWqZhuk5YtkwCqh+brvkglks1Ut378ozAmnEUEJMwk1yUurq9AOtF/o76YVP/ofe7v5/ev/ySUqk+LCJ10/Vvuzi9Nnuk/Re8iy9P8tLA34PNfSlhBTubS2n7rps+QC5X/04RZVxjZwg3R5pRHgw4bbvtT2Z7bR0ntxr/J7F0sQFjRrznpT5PSTjqmde0y3VO//dBxxPhtBu30DE49GpU6dSZWVl5v21h2+niC87cbi69hq6a+b91DJxIb392a/of//8PEWTepMBovq9Gnm81vHtA28nOKn2bbedpZiMkk1GdQdMzwI7ahrbJbdBYM9PR6QbxDZs+bFzezpsR41qf2HA/MZ8Ev6Ydn7wfXrglytp95mdWWQCkMBYbIA0zVoCv6ix75hwTcZ+AMb1Wbzuuc2MTPF9skDzgfY2fhsyDU5RNFGX6qFoEnhoMzmBtKNqwRnqXiwY81Aibj1LxQmhgYe2GMh81rgCJiS4sUDOPJBpyXvUYB+NBlSvj0YoaC9kG4hHOamQUDndcUr1NF7tym/ftBzTI7EkPJkjHBuwOeiKa6lR5uijAILliRlgFTIlc/YeyUmoUP2UpvNkxiYt6NXkiNTO9BCWGj5VeXOPjKLrg1bE53ZiUWPfKeOKZCCXqkvkrVQ0HzyxU2Oks6dGA40TwfJnOzaV/SGdhqpqP6V6ak4bCAlM8LTVah9I+1AiwR/mUjoxYn3sdGu5tiwys5q4cDKb97fn7Ytnq/TTvP/4JjXgN/tBqP/0H/w8/0hpV0iM10ej0cxbC+qXWpIhfo+rM8iMRvqFrcQjPhinAX6MSDhMc88O0sLzTLy+0ttHUS79g7FBcUyQXTFobi7kEvGaPB1xUE3KZTdV2I56Ny1peJWSnuX85RRspxeEHRXdY6Rkym4yObvZIB6dM5+0unqxOrmsrIy+iH1O73QeobLyMt2uIDHGJXmiN0Dfv/lp6rzyKSUScQqU1dOc2rnU0j+RVh3ppjs/9tEN5710z4c+uraH0cRwWmL7tDhFEjF6sJ1R3aBe7TGii4Y0+RthsVNscGjFrg8v2MpIHLZq4/EpeXWt2nBCaNVmLFzkamOh3XgH0R3rafz48aLoHEmE6Y5DN9G4upFKMSQQZK6evY6+Oe+fqaYs25zgpp3/7jpyAtx0ZHvGPn1wtt07HjMW0kNwQvnspgpHedmu0xd6N83jkso8raRIavhXL4lbo+baINhKWhk88l//HSWTSUEqsqKTF39H3dEu7q2TQpUDvkn0vZt20arZ3xCfm558XcBR1obsZ8rjT5v26et55t/0DWkgmSy5wgmZ4tqoAHRsWFBHMe8rmqHdpZO2ktoTe7jeVdGMGTPEZLKPL39IG498U5zQfXMepK9f+5CpVBoByep68ls597FqDisTluy1rCzIYkOj0+5Sxdk1S9qYoU2EVfdDQG3Dlly2WqSh6D2CBwDVt0OiEecfX5c1Rg7VxtBNtaFXiARI7Nm9LWusjJvtXc0Hj2+iAlF0y+Cz31i0iXnYVuPUcozBoF+JmdcXDu2zEEXG1YsYEk2wioHsbgYSy2fO4TdzZXpw0WTaoWVzWNEy2F5olAslamqd7awkrMxAKSGXDMp/KGCGdAOa58wbKQh7yVXcob00Q0kIlTAzARIgtparoFu9662Qs10xpJIXgezGmHZQUkKBYWlt4y/Xm30OSUWDA0ygcLPnEqbJXDls3d2BW5pDpCW/Uwqp1B2XXEI+YgHZigNeGJOwCiUY6hw7c0KQCGeTe1IGwzDPNgz3kAtwjVAJO8SqQFkQzgVk+yZZ/HOVz7sEacbpMJYQveq4RBLb6xaRIz81SgCxSfK0esmzXqN09wP3waWRpV6lgdSeQmLKgn6RxgAZcpnnbkFuCf9BFR8KD3K/f3Q0SdSfwpcAHevQVSLVmNLYAg+j+SBYLOrlNQ0TskP4k15swUIp0s5hFvZY/YcvI/4CeAZjCToTSnsAAAAASUVORK5CYII=';
+    const loadingImages = {
+        darkMode:
+            'data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%40keyframes%20rotate%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20from%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%280deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28359deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%20%20%20%20%3Cg%20style%3D%22transform-origin%3A%2050%25%2050%25%3B%20animation%3A%20rotate%201s%20infinite%20reverse%20linear%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2218.0968%22%20y%3D%2216.0861%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%2018.0968%2016.0861%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2219.9976%22%20y%3D%228.37451%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%2019.9976%208.37451%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2216.1727%22%20y%3D%221.9917%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%2016.1727%201.9917%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.91309%22%20y%3D%226.88501%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%208.91309%206.88501%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%226.79602%22%20y%3D%2210.996%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%206.79602%2010.996%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%227%22%20y%3D%228.62549%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%207%208.62549%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20y%3D%2213%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fsvg%3E',
+        lightMode:
+            'data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%40keyframes%20rotate%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20from%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%280deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28359deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%20%20%20%20%3Cg%20style%3D%22transform-origin%3A%2050%25%2050%25%3B%20animation%3A%20rotate%201s%20infinite%20reverse%20linear%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2218.0968%22%20y%3D%2216.0861%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%2018.0968%2016.0861%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2219.9976%22%20y%3D%228.37451%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%2019.9976%208.37451%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2216.1727%22%20y%3D%221.9917%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%2016.1727%201.9917%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.91309%22%20y%3D%226.88501%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%208.91309%206.88501%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%226.79602%22%20y%3D%2210.996%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%206.79602%2010.996%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%227%22%20y%3D%228.62549%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%207%208.62549%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20y%3D%2213%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fsvg%3E', // 'data:application/octet-stream;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KCTxzdHlsZT4KCQlAa2V5ZnJhbWVzIHJvdGF0ZSB7CgkJCWZyb20gewoJCQkJdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7CgkJCX0KCQkJdG8gewoJCQkJdHJhbnNmb3JtOiByb3RhdGUoMzU5ZGVnKTsKCQkJfQoJCX0KCTwvc3R5bGU+Cgk8ZyBzdHlsZT0idHJhbnNmb3JtLW9yaWdpbjogNTAlIDUwJTsgYW5pbWF0aW9uOiByb3RhdGUgMXMgaW5maW5pdGUgcmV2ZXJzZSBsaW5lYXI7Ij4KCQk8cmVjdCB4PSIxOC4wOTY4IiB5PSIxNi4wODYxIiB3aWR0aD0iMyIgaGVpZ2h0PSI3IiByeD0iMS41IiB0cmFuc2Zvcm09InJvdGF0ZSgxMzYuMTYxIDE4LjA5NjggMTYuMDg2MSkiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIi8+CQoJCTxyZWN0IHg9IjguNDk4NzgiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ii8+CgkJPHJlY3QgeD0iMTkuOTk3NiIgeT0iOC4zNzQ1MSIgd2lkdGg9IjMiIGhlaWdodD0iNyIgcng9IjEuNSIgdHJhbnNmb3JtPSJyb3RhdGUoOTAgMTkuOTk3NiA4LjM3NDUxKSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjIiLz4KCQk8cmVjdCB4PSIxNi4xNzI3IiB5PSIxLjk5MTciIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDQ2LjE2MDcgMTYuMTcyNyAxLjk5MTcpIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMyIvPgoJCTxyZWN0IHg9IjguOTEzMDkiIHk9IjYuODg1MDEiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDEzNi4xNjEgOC45MTMwOSA2Ljg4NTAxKSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjYiLz4KCQk8cmVjdCB4PSI2Ljc5NjAyIiB5PSIxMC45OTYiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDQ2LjE2MDcgNi43OTYwMiAxMC45OTYpIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuNyIvPgoJCTxyZWN0IHg9IjciIHk9IjguNjI1NDkiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDkwIDcgOC42MjU0OSkiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CQkKCQk8cmVjdCB4PSI4LjQ5ODc4IiB5PSIxMyIgd2lkdGg9IjMiIGhlaWdodD0iNyIgcng9IjEuNSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjkiLz4KCTwvZz4KPC9zdmc+Cg=='
+    };
+    const closeIcon =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M5.99998%204.58578L10.2426%200.34314C10.6331%20-0.0473839%2011.2663%20-0.0473839%2011.6568%200.34314C12.0474%200.733665%2012.0474%201.36683%2011.6568%201.75735L7.41419%205.99999L11.6568%2010.2426C12.0474%2010.6332%2012.0474%2011.2663%2011.6568%2011.6568C11.2663%2012.0474%2010.6331%2012.0474%2010.2426%2011.6568L5.99998%207.41421L1.75734%2011.6568C1.36681%2012.0474%200.733649%2012.0474%200.343125%2011.6568C-0.0473991%2011.2663%20-0.0473991%2010.6332%200.343125%2010.2426L4.58577%205.99999L0.343125%201.75735C-0.0473991%201.36683%20-0.0473991%200.733665%200.343125%200.34314C0.733649%20-0.0473839%201.36681%20-0.0473839%201.75734%200.34314L5.99998%204.58578Z%22%20fill%3D%22%23222222%22%2F%3E%0A%3C%2Fsvg%3E';
+
+    const blockedFBLogo =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Ccircle%20cx%3D%2240%22%20cy%3D%2240%22%20r%3D%2240%22%20fill%3D%22white%22%2F%3E%0A%3Cg%20clip-path%3D%22url%28%23clip0%29%22%3E%0A%3Cpath%20d%3D%22M73.8457%2039.974C73.8457%2021.284%2058.7158%206.15405%2040.0258%206.15405C21.3358%206.15405%206.15344%2021.284%206.15344%2039.974C6.15344%2056.884%2018.5611%2070.8622%2034.7381%2073.4275V49.764H26.0999V39.974H34.7381V32.5399C34.7381%2024.0587%2039.764%2019.347%2047.5122%2019.347C51.2293%2019.347%2055.0511%2020.0799%2055.0511%2020.0799V28.3517H50.8105C46.6222%2028.3517%2045.2611%2030.9693%2045.2611%2033.6393V39.974H54.6846L53.1664%2049.764H45.2611V73.4275C61.4381%2070.9146%2073.8457%2056.884%2073.8457%2039.974Z%22%20fill%3D%22%231877F2%22%2F%3E%0A%3C%2Fg%3E%0A%3Crect%20x%3D%223.01295%22%20y%3D%2211.7158%22%20width%3D%2212.3077%22%20height%3D%2292.3077%22%20rx%3D%226.15385%22%20transform%3D%22rotate%28-45%203.01295%2011.7158%29%22%20fill%3D%22%23666666%22%20stroke%3D%22white%22%20stroke-width%3D%226.15385%22%2F%3E%0A%3Cdefs%3E%0A%3CclipPath%20id%3D%22clip0%22%3E%0A%3Crect%20width%3D%2267.6923%22%20height%3D%2267.6923%22%20fill%3D%22white%22%20transform%3D%22translate%286.15344%206.15405%29%22%2F%3E%0A%3C%2FclipPath%3E%0A%3C%2Fdefs%3E%0A%3C%2Fsvg%3E';
+    const facebookLogo =
+        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMSAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTguODUgMTkuOUM0LjEgMTkuMDUgMC41IDE0Ljk1IDAuNSAxMEMwLjUgNC41IDUgMCAxMC41IDBDMTYgMCAyMC41IDQuNSAyMC41IDEwQzIwLjUgMTQuOTUgMTYuOSAxOS4wNSAxMi4xNSAxOS45TDExLjYgMTkuNDVIOS40TDguODUgMTkuOVoiIGZpbGw9IiMxODc3RjIiLz4KPHBhdGggZD0iTTE0LjQgMTIuOEwxNC44NSAxMEgxMi4yVjguMDVDMTIuMiA3LjI1IDEyLjUgNi42NSAxMy43IDYuNjVIMTVWNC4xQzE0LjMgNCAxMy41IDMuOSAxMi44IDMuOUMxMC41IDMuOSA4LjkgNS4zIDguOSA3LjhWMTBINi40VjEyLjhIOC45VjE5Ljg1QzkuNDUgMTkuOTUgMTAgMjAgMTAuNTUgMjBDMTEuMSAyMCAxMS42NSAxOS45NSAxMi4yIDE5Ljg1VjEyLjhIMTQuNFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=';
+
+    const blockedYTVideo =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2275%22%20height%3D%2275%22%20viewBox%3D%220%200%2075%2075%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Crect%20x%3D%226.75%22%20y%3D%2215.75%22%20width%3D%2256.25%22%20height%3D%2239%22%20rx%3D%2213.5%22%20fill%3D%22%23DE5833%22%2F%3E%0A%20%20%3Cmask%20id%3D%22path-2-outside-1_885_11045%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%2223.75%22%20y%3D%2222.5%22%20width%3D%2224%22%20height%3D%2226%22%20fill%3D%22black%22%3E%0A%20%20%3Crect%20fill%3D%22white%22%20x%3D%2223.75%22%20y%3D%2222.5%22%20width%3D%2224%22%20height%3D%2226%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M41.9425%2037.5279C43.6677%2036.492%2043.6677%2033.9914%2041.9425%2032.9555L31.0394%2026.4088C29.262%2025.3416%2027%2026.6218%2027%2028.695L27%2041.7884C27%2043.8615%2029.262%2045.1418%2031.0394%2044.0746L41.9425%2037.5279Z%22%2F%3E%0A%20%20%3C%2Fmask%3E%0A%20%20%3Cpath%20d%3D%22M41.9425%2037.5279C43.6677%2036.492%2043.6677%2033.9914%2041.9425%2032.9555L31.0394%2026.4088C29.262%2025.3416%2027%2026.6218%2027%2028.695L27%2041.7884C27%2043.8615%2029.262%2045.1418%2031.0394%2044.0746L41.9425%2037.5279Z%22%20fill%3D%22white%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M30.0296%2044.6809L31.5739%2047.2529L30.0296%2044.6809ZM30.0296%2025.8024L31.5739%2023.2304L30.0296%2025.8024ZM42.8944%2036.9563L44.4387%2039.5283L42.8944%2036.9563ZM41.35%2036.099L28.4852%2028.3744L31.5739%2023.2304L44.4387%2030.955L41.35%2036.099ZM30%2027.5171L30%2042.9663L24%2042.9663L24%2027.5171L30%2027.5171ZM28.4852%2042.1089L41.35%2034.3843L44.4387%2039.5283L31.5739%2047.2529L28.4852%2042.1089ZM30%2042.9663C30%2042.1888%2029.1517%2041.7087%2028.4852%2042.1089L31.5739%2047.2529C28.2413%2049.2539%2024%2046.8535%2024%2042.9663L30%2042.9663ZM28.4852%2028.3744C29.1517%2028.7746%2030%2028.2945%2030%2027.5171L24%2027.5171C24%2023.6299%2028.2413%2021.2294%2031.5739%2023.2304L28.4852%2028.3744ZM44.4387%2030.955C47.6735%2032.8974%2047.6735%2037.586%2044.4387%2039.5283L41.35%2034.3843C40.7031%2034.7728%2040.7031%2035.7105%2041.35%2036.099L44.4387%2030.955Z%22%20fill%3D%22%23BC4726%22%20mask%3D%22url(%23path-2-outside-1_885_11045)%22%2F%3E%0A%20%20%3Ccircle%20cx%3D%2257.75%22%20cy%3D%2252.5%22%20r%3D%2213.5%22%20fill%3D%22%23E0E0E0%22%2F%3E%0A%20%20%3Crect%20x%3D%2248.75%22%20y%3D%2250.25%22%20width%3D%2218%22%20height%3D%224.5%22%20rx%3D%221.5%22%20fill%3D%22%23666666%22%2F%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M57.9853%2015.8781C58.2046%2016.1015%2058.5052%2016.2262%2058.8181%2016.2238C59.1311%2016.2262%2059.4316%2016.1015%2059.6509%2015.8781L62.9821%2012.5469C63.2974%2012.2532%2063.4272%2011.8107%2063.3206%2011.3931C63.2139%2010.9756%2062.8879%2010.6495%2062.4703%2010.5429C62.0528%2010.4363%2061.6103%2010.5661%2061.3165%2010.8813L57.9853%2014.2125C57.7627%2014.4325%2057.6374%2014.7324%2057.6374%2015.0453C57.6374%2015.3583%2057.7627%2015.6582%2057.9853%2015.8781ZM61.3598%2018.8363C61.388%2019.4872%2061.9385%2019.9919%2062.5893%2019.9637L62.6915%2019.9559L66.7769%2019.6023C67.4278%2019.5459%2067.9097%2018.9726%2067.8533%2018.3217C67.7968%2017.6708%2067.2235%2017.1889%2066.5726%2017.2453L62.4872%2017.6067C61.8363%2017.6349%2061.3316%2018.1854%2061.3598%2018.8363Z%22%20fill%3D%22%23AAAAAA%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10.6535%2015.8781C10.4342%2016.1015%2010.1336%2016.2262%209.82067%2016.2238C9.5077%2016.2262%209.20717%2016.1015%208.98787%2015.8781L5.65667%2012.5469C5.34138%2012.2532%205.2116%2011.8107%205.31823%2011.3931C5.42487%2010.9756%205.75092%2010.6495%206.16847%2010.5429C6.58602%2010.4363%207.02848%2010.5661%207.32227%2010.8813L10.6535%2014.2125C10.8761%2014.4325%2011.0014%2014.7324%2011.0014%2015.0453C11.0014%2015.3583%2010.8761%2015.6582%2010.6535%2015.8781ZM7.2791%2018.8362C7.25089%2019.4871%206.7004%2019.9919%206.04954%2019.9637L5.9474%2019.9558L1.86197%2019.6023C1.44093%2019.5658%201.07135%2019.3074%200.892432%2018.9246C0.713515%2018.5417%200.752449%2018.0924%200.994567%2017.7461C1.23669%2017.3997%201.6452%2017.2088%202.06624%2017.2453L6.15167%2017.6067C6.80254%2017.6349%207.3073%2018.1854%207.2791%2018.8362Z%22%20fill%3D%22%23AAAAAA%22%20fill-opacity%3D%220.6%22%2F%3E%0A%3C%2Fsvg%3E%0A';
+    const videoPlayDark =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23222222%22%2F%3E%0A%3C%2Fsvg%3E%0A';
+    const videoPlayLight =
+        'data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23FFFFFF%22%2F%3E%0A%3C%2Fsvg%3E';
+
+    var localesJSON = `{"bg":{"facebook.json":{"informationalModalMessageTitle":"При влизане разрешавате на Facebook да Ви проследява","informationalModalMessageBody":"След като влезете, DuckDuckGo не може да блокира проследяването от Facebook в съдържанието на този сайт.","informationalModalConfirmButtonText":"Вход","informationalModalRejectButtonText":"Назад","loginButtonText":"Вход във Facebook","loginBodyText":"Facebook проследява Вашата активност в съответния сайт, когато го използвате за вход.","buttonTextUnblockContent":"Разблокиране на съдържание от Facebook","buttonTextUnblockComment":"Разблокиране на коментар във Facebook","buttonTextUnblockComments":"Разблокиране на коментари във Facebook","buttonTextUnblockPost":"Разблокиране на публикация от Facebook","buttonTextUnblockVideo":"Разблокиране на видео от Facebook","buttonTextUnblockLogin":"Разблокиране на вход с Facebook","infoTitleUnblockContent":"DuckDuckGo блокира това съдържание, за да предотврати проследяване от Facebook","infoTitleUnblockComment":"DuckDuckGo блокира този коментар, за да предотврати проследяване от Facebook","infoTitleUnblockComments":"DuckDuckGo блокира тези коментари, за да предотврати проследяване от Facebook","infoTitleUnblockPost":"DuckDuckGo блокира тази публикация, за да предотврати проследяване от Facebook","infoTitleUnblockVideo":"DuckDuckGo блокира това видео, за да предотврати проследяване от Facebook","infoTextUnblockContent":"Блокирахме проследяването от Facebook при зареждане на страницата. Ако разблокирате това съдържание, Facebook ще следи Вашата активност."},"shared.json":{"learnMore":"Научете повече","readAbout":"Прочетете за тази защита на поверителността","shareFeedback":"Споделяне на отзив"},"youtube.json":{"informationalModalMessageTitle":"Активиране на всички прегледи в YouTube?","informationalModalMessageBody":"Показването на преглед позволява на Google (собственик на YouTube) да види част от информацията за Вашето устройство, но все пак осигурява повече поверителност отколкото при възпроизвеждане на видеоклипа.","informationalModalConfirmButtonText":"Активиране на всички прегледи","informationalModalRejectButtonText":"Не, благодаря","buttonTextUnblockVideo":"Разблокиране на видео от YouTube","infoTitleUnblockVideo":"DuckDuckGo блокира този видеоклип в YouTube, за да предотврати проследяване от Google","infoTextUnblockVideo":"Блокирахме проследяването от Google (собственик на YouTube) при зареждане на страницата. Ако разблокирате този видеоклип, Google ще следи Вашата активност.","infoPreviewToggleText":"Прегледите са деактивирани за осигуряване на допълнителна поверителност","infoPreviewToggleEnabledText":"Прегледите са активирани","infoPreviewToggleEnabledDuckDuckGoText":"Визуализациите от YouTube са активирани в DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Научете повече</a> за вградената защита от социални медии на DuckDuckGo"}},"cs":{"facebook.json":{"informationalModalMessageTitle":"Když se přihlásíš přes Facebook, bude tě moct sledovat","informationalModalMessageBody":"Po přihlášení už DuckDuckGo nemůže bránit Facebooku, aby tě na téhle stránce sledoval.","informationalModalConfirmButtonText":"Přihlásit se","informationalModalRejectButtonText":"Zpět","loginButtonText":"Přihlásit se pomocí Facebooku","loginBodyText":"Facebook sleduje tvou aktivitu na webu, když se přihlásíš jeho prostřednictvím.","buttonTextUnblockContent":"Odblokovat obsah na Facebooku","buttonTextUnblockComment":"Odblokovat komentář na Facebooku","buttonTextUnblockComments":"Odblokovat komentáře na Facebooku","buttonTextUnblockPost":"Odblokovat příspěvek na Facebooku","buttonTextUnblockVideo":"Odblokovat video na Facebooku","buttonTextUnblockLogin":"Odblokovat přihlášení k Facebooku","infoTitleUnblockContent":"DuckDuckGo zablokoval tenhle obsah, aby Facebooku zabránil tě sledovat","infoTitleUnblockComment":"Služba DuckDuckGo zablokovala tento komentář, aby Facebooku zabránila ve tvém sledování","infoTitleUnblockComments":"Služba DuckDuckGo zablokovala tyto komentáře, aby Facebooku zabránila ve tvém sledování","infoTitleUnblockPost":"DuckDuckGo zablokoval tenhle příspěvek, aby Facebooku zabránil tě sledovat","infoTitleUnblockVideo":"DuckDuckGo zablokoval tohle video, aby Facebooku zabránil tě sledovat","infoTextUnblockContent":"Při načítání stránky jsme Facebooku zabránili, aby tě sledoval. Když tenhle obsah odblokuješ, Facebook bude mít přístup ke tvé aktivitě."},"shared.json":{"learnMore":"Více informací","readAbout":"Přečti si o téhle ochraně soukromí","shareFeedback":"Podělte se o zpětnou vazbu"},"youtube.json":{"informationalModalMessageTitle":"Zapnout všechny náhledy YouTube?","informationalModalMessageBody":"Zobrazování náhledů umožní společnosti Google (která vlastní YouTube) zobrazit některé informace o tvém zařízení, ale pořád jde o diskrétnější volbu, než je přehrávání videa.","informationalModalConfirmButtonText":"Zapnout všechny náhledy","informationalModalRejectButtonText":"Ne, děkuji","buttonTextUnblockVideo":"Odblokovat video na YouTube","infoTitleUnblockVideo":"DuckDuckGo zablokoval tohle video z YouTube, aby Googlu zabránil tě sledovat","infoTextUnblockVideo":"Zabránili jsme společnosti Google (která vlastní YouTube), aby tě při načítání stránky sledovala. Pokud toto video odblokuješ, Google získá přístup ke tvé aktivitě.","infoPreviewToggleText":"Náhledy jsou pro větší soukromí vypnuté","infoPreviewToggleEnabledText":"Náhledy jsou zapnuté","infoPreviewToggleEnabledDuckDuckGoText":"Náhledy YouTube jsou v DuckDuckGo povolené.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Další informace</a> o ochraně DuckDuckGo před sledováním prostřednictvím vloženého obsahu ze sociálních médií"}},"da":{"facebook.json":{"informationalModalMessageTitle":"Når du logger ind med Facebook, kan de spore dig","informationalModalMessageBody":"Når du er logget ind, kan DuckDuckGo ikke blokere for, at indhold fra Facebook sporer dig på dette websted.","informationalModalConfirmButtonText":"Log på","informationalModalRejectButtonText":"Gå tilbage","loginButtonText":"Log ind med Facebook","loginBodyText":"Facebook sporer din aktivitet på et websted, når du bruger dem til at logge ind.","buttonTextUnblockContent":"Bloker ikke Facebook-indhold","buttonTextUnblockComment":"Bloker ikke Facebook-kommentar","buttonTextUnblockComments":"Bloker ikke Facebook-kommentarer","buttonTextUnblockPost":"Bloker ikke Facebook-opslag","buttonTextUnblockVideo":"Bloker ikke Facebook-video","buttonTextUnblockLogin":"Bloker ikke Facebook-login","infoTitleUnblockContent":"DuckDuckGo har blokeret dette indhold for at forhindre Facebook i at spore dig","infoTitleUnblockComment":"DuckDuckGo har blokeret denne kommentar for at forhindre Facebook i at spore dig","infoTitleUnblockComments":"DuckDuckGo har blokeret disse kommentarer for at forhindre Facebook i at spore dig","infoTitleUnblockPost":"DuckDuckGo blokerede dette indlæg for at forhindre Facebook i at spore dig","infoTitleUnblockVideo":"DuckDuckGo har blokeret denne video for at forhindre Facebook i at spore dig","infoTextUnblockContent":"Vi blokerede for, at Facebook sporede dig, da siden blev indlæst. Hvis du ophæver blokeringen af dette indhold, vil Facebook kende din aktivitet."},"shared.json":{"learnMore":"Mere info","readAbout":"Læs om denne beskyttelse af privatlivet","shareFeedback":"Del feedback"},"youtube.json":{"informationalModalMessageTitle":"Vil du aktivere alle YouTube-forhåndsvisninger?","informationalModalMessageBody":"Med forhåndsvisninger kan Google (som ejer YouTube) se nogle af enhedens oplysninger, men det er stadig mere privat end at afspille videoen.","informationalModalConfirmButtonText":"Aktivér alle forhåndsvisninger","informationalModalRejectButtonText":"Nej tak.","buttonTextUnblockVideo":"Bloker ikke YouTube-video","infoTitleUnblockVideo":"DuckDuckGo har blokeret denne YouTube-video for at forhindre Google i at spore dig","infoTextUnblockVideo":"Vi blokerede Google (som ejer YouTube) fra at spore dig, da siden blev indlæst. Hvis du fjerner blokeringen af denne video, vil Google få kendskab til din aktivitet.","infoPreviewToggleText":"Forhåndsvisninger er deaktiveret for at give yderligere privatliv","infoPreviewToggleEnabledText":"Forhåndsvisninger er deaktiveret","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-forhåndsvisninger er aktiveret i DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Få mere at vide på</a> om DuckDuckGos indbyggede beskyttelse på sociale medier"}},"de":{"facebook.json":{"informationalModalMessageTitle":"Wenn du dich bei Facebook anmeldest, kann Facebook dich tracken","informationalModalMessageBody":"Sobald du angemeldet bist, kann DuckDuckGo nicht mehr verhindern, dass Facebook-Inhalte dich auf dieser Website tracken.","informationalModalConfirmButtonText":"Anmelden","informationalModalRejectButtonText":"Zurück","loginButtonText":"Mit Facebook anmelden","loginBodyText":"Facebook trackt deine Aktivität auf einer Website, wenn du dich über Facebook dort anmeldest.","buttonTextUnblockContent":"Facebook-Inhalt entsperren","buttonTextUnblockComment":"Facebook-Kommentar entsperren","buttonTextUnblockComments":"Facebook-Kommentare entsperren","buttonTextUnblockPost":"Facebook-Beitrag entsperren","buttonTextUnblockVideo":"Facebook-Video entsperren","buttonTextUnblockLogin":"Facebook-Anmeldung entsperren","infoTitleUnblockContent":"DuckDuckGo hat diesen Inhalt blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockComment":"DuckDuckGo hat diesen Kommentar blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockComments":"DuckDuckGo hat diese Kommentare blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockPost":"DuckDuckGo hat diesen Beitrag blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockVideo":"DuckDuckGo hat dieses Video blockiert, um zu verhindern, dass Facebook dich trackt","infoTextUnblockContent":"Wir haben Facebook daran gehindert, dich zu tracken, als die Seite geladen wurde. Wenn du die Blockierung für diesen Inhalt aufhebst, kennt Facebook deine Aktivitäten."},"shared.json":{"learnMore":"Mehr erfahren","readAbout":"Weitere Informationen über diesen Datenschutz","shareFeedback":"Feedback teilen"},"youtube.json":{"informationalModalMessageTitle":"Alle YouTube-Vorschauen aktivieren?","informationalModalMessageBody":"Durch das Anzeigen von Vorschauen kann Google (dem YouTube gehört) einige Informationen zu deinem Gerät sehen. Dies ist aber immer noch privater als das Abspielen des Videos.","informationalModalConfirmButtonText":"Alle Vorschauen aktivieren","informationalModalRejectButtonText":"Nein, danke","buttonTextUnblockVideo":"YouTube-Video entsperren","infoTitleUnblockVideo":"DuckDuckGo hat dieses YouTube-Video blockiert, um zu verhindern, dass Google dich trackt.","infoTextUnblockVideo":"Wir haben Google (dem YouTube gehört) daran gehindert, dich beim Laden der Seite zu tracken. Wenn du die Blockierung für dieses Video aufhebst, kennt Google deine Aktivitäten.","infoPreviewToggleText":"Vorschau für mehr Privatsphäre deaktiviert","infoPreviewToggleEnabledText":"Vorschau aktiviert","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-Vorschauen sind in DuckDuckGo aktiviert.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Erfahre mehr</a> über den DuckDuckGo-Schutz vor eingebetteten Social Media-Inhalten"}},"el":{"facebook.json":{"informationalModalMessageTitle":"Η σύνδεση μέσω Facebook τους επιτρέπει να σας παρακολουθούν","informationalModalMessageBody":"Μόλις συνδεθείτε, το DuckDuckGo δεν μπορεί να εμποδίσει το περιεχόμενο του Facebook από το να σας παρακολουθεί σε αυτόν τον ιστότοπο.","informationalModalConfirmButtonText":"Σύνδεση","informationalModalRejectButtonText":"Επιστροφή","loginButtonText":"Σύνδεση μέσω Facebook","loginBodyText":"Το Facebook παρακολουθεί τη δραστηριότητά σας σε έναν ιστότοπο όταν τον χρησιμοποιείτε για να συνδεθείτε.","buttonTextUnblockContent":"Άρση αποκλεισμού περιεχομένου στο Facebook","buttonTextUnblockComment":"Άρση αποκλεισμού σχόλιου στο Facebook","buttonTextUnblockComments":"Άρση αποκλεισμού σχολίων στο Facebook","buttonTextUnblockPost":"Άρση αποκλεισμού ανάρτησης στο Facebook","buttonTextUnblockVideo":"Άρση αποκλεισμού βίντεο στο Facebook","buttonTextUnblockLogin":"Άρση αποκλεισμού σύνδεσης στο Facebook","infoTitleUnblockContent":"Το DuckDuckGo απέκλεισε το περιεχόμενο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockComment":"Το DuckDuckGo απέκλεισε το σχόλιο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockComments":"Το DuckDuckGo απέκλεισε τα σχόλια αυτά για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockPost":"Το DuckDuckGo απέκλεισε την ανάρτηση αυτή για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockVideo":"Το DuckDuckGo απέκλεισε το βίντεο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTextUnblockContent":"Αποκλείσαμε το Facebook από το να σας παρακολουθεί όταν φορτώθηκε η σελίδα. Εάν κάνετε άρση αποκλεισμού γι' αυτό το περιεχόμενο, το Facebook θα γνωρίζει τη δραστηριότητά σας."},"shared.json":{"learnMore":"Μάθετε περισσότερα","readAbout":"Διαβάστε σχετικά με την παρούσα προστασίας προσωπικών δεδομένων","shareFeedback":"Κοινοποίηση σχολίου"},"youtube.json":{"informationalModalMessageTitle":"Ενεργοποίηση όλων των προεπισκοπήσεων του YouTube;","informationalModalMessageBody":"Η προβολή των προεπισκοπήσεων θα επιτρέψει στην Google (στην οποία ανήκει το YouTube) να βλέπει ορισμένες από τις πληροφορίες της συσκευής σας, ωστόσο εξακολουθεί να είναι πιο ιδιωτική από την αναπαραγωγή του βίντεο.","informationalModalConfirmButtonText":"Ενεργοποίηση όλων των προεπισκοπήσεων","informationalModalRejectButtonText":"Όχι, ευχαριστώ","buttonTextUnblockVideo":"Άρση αποκλεισμού βίντεο YouTube","infoTitleUnblockVideo":"Το DuckDuckGo απέκλεισε το βίντεο αυτό στο YouTube για να εμποδίσει την Google από το να σας παρακολουθεί","infoTextUnblockVideo":"Αποκλείσαμε την Google (στην οποία ανήκει το YouTube) από το να σας παρακολουθεί όταν φορτώθηκε η σελίδα. Εάν κάνετε άρση αποκλεισμού γι' αυτό το βίντεο, η Google θα γνωρίζει τη δραστηριότητά σας.","infoPreviewToggleText":"Οι προεπισκοπήσεις απενεργοποιήθηκαν για πρόσθετη προστασία των προσωπικών δεδομένων","infoPreviewToggleEnabledText":"Οι προεπισκοπήσεις ενεργοποιήθηκαν","infoPreviewToggleEnabledDuckDuckGoText":"Οι προεπισκοπήσεις YouTube ενεργοποιήθηκαν στο DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Μάθετε περισσότερα</a> για την ενσωματωμένη προστασία κοινωνικών μέσων DuckDuckGo"}},"en":{"facebook.json":{"informationalModalMessageTitle":"Logging in with Facebook lets them track you","informationalModalMessageBody":"Once you're logged in, DuckDuckGo can't block Facebook content from tracking you on this site.","informationalModalConfirmButtonText":"Log In","informationalModalRejectButtonText":"Go back","loginButtonText":"Log in with Facebook","loginBodyText":"Facebook tracks your activity on a site when you use them to login.","buttonTextUnblockContent":"Unblock Facebook Content","buttonTextUnblockComment":"Unblock Facebook Comment","buttonTextUnblockComments":"Unblock Facebook Comments","buttonTextUnblockPost":"Unblock Facebook Post","buttonTextUnblockVideo":"Unblock Facebook Video","buttonTextUnblockLogin":"Unblock Facebook Login","infoTitleUnblockContent":"DuckDuckGo blocked this content to prevent Facebook from tracking you","infoTitleUnblockComment":"DuckDuckGo blocked this comment to prevent Facebook from tracking you","infoTitleUnblockComments":"DuckDuckGo blocked these comments to prevent Facebook from tracking you","infoTitleUnblockPost":"DuckDuckGo blocked this post to prevent Facebook from tracking you","infoTitleUnblockVideo":"DuckDuckGo blocked this video to prevent Facebook from tracking you","infoTextUnblockContent":"We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."},"shared.json":{"learnMore":"Learn More","readAbout":"Read about this privacy protection","shareFeedback":"Share Feedback"},"youtube.json":{"informationalModalMessageTitle":"Enable all YouTube previews?","informationalModalMessageBody":"Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.","informationalModalConfirmButtonText":"Enable All Previews","informationalModalRejectButtonText":"No Thanks","buttonTextUnblockVideo":"Unblock YouTube Video","infoTitleUnblockVideo":"DuckDuckGo blocked this YouTube video to prevent Google from tracking you","infoTextUnblockVideo":"We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.","infoPreviewToggleText":"Previews disabled for additional privacy","infoPreviewToggleEnabledText":"Previews enabled","infoPreviewToggleEnabledDuckDuckGoText":"YouTube previews enabled in DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Learn more</a> about DuckDuckGo Embedded Social Media Protection"}},"es":{"facebook.json":{"informationalModalMessageTitle":"Al iniciar sesión en Facebook, les permites que te rastreen","informationalModalMessageBody":"Una vez que hayas iniciado sesión, DuckDuckGo no puede bloquear el contenido de Facebook para que no te rastree en este sitio.","informationalModalConfirmButtonText":"Iniciar sesión","informationalModalRejectButtonText":"Volver atrás","loginButtonText":"Iniciar sesión con Facebook","loginBodyText":"Facebook rastrea tu actividad en un sitio web cuando lo usas para iniciar sesión.","buttonTextUnblockContent":"Desbloquear contenido de Facebook","buttonTextUnblockComment":"Desbloquear comentario de Facebook","buttonTextUnblockComments":"Desbloquear comentarios de Facebook","buttonTextUnblockPost":"Desbloquear publicación de Facebook","buttonTextUnblockVideo":"Desbloquear vídeo de Facebook","buttonTextUnblockLogin":"Desbloquear inicio de sesión de Facebook","infoTitleUnblockContent":"DuckDuckGo ha bloqueado este contenido para evitar que Facebook te rastree","infoTitleUnblockComment":"DuckDuckGo ha bloqueado este comentario para evitar que Facebook te rastree","infoTitleUnblockComments":"DuckDuckGo ha bloqueado estos comentarios para evitar que Facebook te rastree","infoTitleUnblockPost":"DuckDuckGo ha bloqueado esta publicación para evitar que Facebook te rastree","infoTitleUnblockVideo":"DuckDuckGo ha bloqueado este vídeo para evitar que Facebook te rastree","infoTextUnblockContent":"Hemos bloqueado el rastreo de Facebook cuando se ha cargado la página. Si desbloqueas este contenido, Facebook tendrá conocimiento de tu actividad."},"shared.json":{"learnMore":"Más información","readAbout":"Lee acerca de esta protección de privacidad","shareFeedback":"Compartir opiniones"},"youtube.json":{"informationalModalMessageTitle":"¿Habilitar todas las vistas previas de YouTube?","informationalModalMessageBody":"Mostrar vistas previas permitirá a Google (que es el propietario de YouTube) ver parte de la información de tu dispositivo, pero sigue siendo más privado que reproducir el vídeo.","informationalModalConfirmButtonText":"Habilitar todas las vistas previas","informationalModalRejectButtonText":"No, gracias","buttonTextUnblockVideo":"Desbloquear vídeo de YouTube","infoTitleUnblockVideo":"DuckDuckGo ha bloqueado este vídeo de YouTube para evitar que Google te rastree","infoTextUnblockVideo":"Hemos bloqueado el rastreo de Google (que es el propietario de YouTube) al cargarse la página. Si desbloqueas este vídeo, Goggle tendrá conocimiento de tu actividad.","infoPreviewToggleText":"Vistas previas desactivadas para mayor privacidad","infoPreviewToggleEnabledText":"Vistas previas activadas","infoPreviewToggleEnabledDuckDuckGoText":"Vistas previas de YouTube habilitadas en DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Más información</a> sobre la protección integrada de redes sociales DuckDuckGo"}},"et":{"facebook.json":{"informationalModalMessageTitle":"Kui logid Facebookiga sisse, saab Facebook sind jälgida","informationalModalMessageBody":"Kui oled sisse logitud, ei saa DuckDuckGo blokeerida Facebooki sisu sind jälgimast.","informationalModalConfirmButtonText":"Logi sisse","informationalModalRejectButtonText":"Mine tagasi","loginButtonText":"Logi sisse Facebookiga","loginBodyText":"Kui logid sisse Facebookiga, saab Facebook sinu tegevust saidil jälgida.","buttonTextUnblockContent":"Deblokeeri Facebooki sisu","buttonTextUnblockComment":"Deblokeeri Facebooki kommentaar","buttonTextUnblockComments":"Deblokeeri Facebooki kommentaarid","buttonTextUnblockPost":"Deblokeeri Facebooki postitus","buttonTextUnblockVideo":"Deblokeeri Facebooki video","buttonTextUnblockLogin":"Deblokeeri Facebooki sisselogimine","infoTitleUnblockContent":"DuckDuckGo blokeeris selle sisu, et Facebook ei saaks sind jälgida","infoTitleUnblockComment":"DuckDuckGo blokeeris selle kommentaari, et Facebook ei saaks sind jälgida","infoTitleUnblockComments":"DuckDuckGo blokeeris need kommentaarid, et Facebook ei saaks sind jälgida","infoTitleUnblockPost":"DuckDuckGo blokeeris selle postituse, et Facebook ei saaks sind jälgida","infoTitleUnblockVideo":"DuckDuckGo blokeeris selle video, et Facebook ei saaks sind jälgida","infoTextUnblockContent":"Blokeerisime lehe laadimise ajal Facebooki jaoks sinu jälgimise. Kui sa selle sisu deblokeerid, saab Facebook sinu tegevust jälgida."},"shared.json":{"learnMore":"Loe edasi","readAbout":"Loe selle privaatsuskaitse kohta","shareFeedback":"Jaga tagasisidet"},"youtube.json":{"informationalModalMessageTitle":"Kas lubada kõik YouTube’i eelvaated?","informationalModalMessageBody":"Eelvaate näitamine võimaldab Google’il (kellele YouTube kuulub) näha osa sinu seadme teabest, kuid see on siiski privaatsem kui video esitamine.","informationalModalConfirmButtonText":"Luba kõik eelvaated","informationalModalRejectButtonText":"Ei aitäh","buttonTextUnblockVideo":"Deblokeeri YouTube’i video","infoTitleUnblockVideo":"DuckDuckGo blokeeris selle YouTube’i video, et takistada Google’it sind jälgimast","infoTextUnblockVideo":"Me blokeerisime lehe laadimise ajal Google’i (kellele YouTube kuulub) jälgimise. Kui sa selle video deblokeerid, saab Google sinu tegevusest teada.","infoPreviewToggleText":"Eelvaated on täiendava privaatsuse tagamiseks keelatud","infoPreviewToggleEnabledText":"Eelvaated on lubatud","infoPreviewToggleEnabledDuckDuckGoText":"YouTube’i eelvaated on DuckDuckGos lubatud.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Lisateave</a> DuckDuckGo sisseehitatud sotsiaalmeediakaitse kohta"}},"fi":{"facebook.json":{"informationalModalMessageTitle":"Kun kirjaudut sisään Facebook-tunnuksilla, Facebook voi seurata sinua","informationalModalMessageBody":"Kun olet kirjautunut sisään, DuckDuckGo ei voi estää Facebook-sisältöä seuraamasta sinua tällä sivustolla.","informationalModalConfirmButtonText":"Kirjaudu sisään","informationalModalRejectButtonText":"Edellinen","loginButtonText":"Kirjaudu sisään Facebook-tunnuksilla","loginBodyText":"Facebook seuraa toimintaasi sivustolla, kun kirjaudut sisään sen kautta.","buttonTextUnblockContent":"Poista Facebook-sisällön esto","buttonTextUnblockComment":"Poista Facebook-kommentin esto","buttonTextUnblockComments":"Poista Facebook-kommenttien esto","buttonTextUnblockPost":"Poista Facebook-julkaisun esto","buttonTextUnblockVideo":"Poista Facebook-videon esto","buttonTextUnblockLogin":"Poista Facebook-kirjautumisen esto","infoTitleUnblockContent":"DuckDuckGo esti tämän sisällön estääkseen Facebookia seuraamasta sinua","infoTitleUnblockComment":"DuckDuckGo esti tämän kommentin estääkseen Facebookia seuraamasta sinua","infoTitleUnblockComments":"DuckDuckGo esti nämä kommentit estääkseen Facebookia seuraamasta sinua","infoTitleUnblockPost":"DuckDuckGo esti tämän julkaisun estääkseen Facebookia seuraamasta sinua","infoTitleUnblockVideo":"DuckDuckGo esti tämän videon estääkseen Facebookia seuraamasta sinua","infoTextUnblockContent":"Estimme Facebookia seuraamasta sinua, kun sivua ladattiin. Jos poistat tämän sisällön eston, Facebook saa tietää toimintasi."},"shared.json":{"learnMore":"Lue lisää","readAbout":"Lue tästä yksityisyydensuojasta","shareFeedback":"Jaa palaute"},"youtube.json":{"informationalModalMessageTitle":"Otetaanko käyttöön kaikki YouTube-esikatselut?","informationalModalMessageBody":"Kun sallit esikatselun, Google (joka omistaa YouTuben) voi nähdä joitakin laitteesi tietoja, mutta se on silti yksityisempää kuin videon toistaminen.","informationalModalConfirmButtonText":"Ota käyttöön kaikki esikatselut","informationalModalRejectButtonText":"Ei kiitos","buttonTextUnblockVideo":"Poista YouTube-videon esto","infoTitleUnblockVideo":"DuckDuckGo esti tämän YouTube-videon, jotta Google ei voi seurata sinua","infoTextUnblockVideo":"Estimme Googlea (joka omistaa YouTuben) seuraamasta sinua, kun sivua ladattiin. Jos poistat tämän videon eston, Google tietää toimintasi.","infoPreviewToggleText":"Esikatselut on poistettu käytöstä yksityisyyden lisäämiseksi","infoPreviewToggleEnabledText":"Esikatselut käytössä","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-esikatselut käytössä DuckDuckGossa.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Lue lisää</a> DuckDuckGon upotetusta sosiaalisen median suojauksesta"}},"fr":{"facebook.json":{"informationalModalMessageTitle":"L'identification via Facebook leur permet de vous pister","informationalModalMessageBody":"Une fois que vous êtes connecté(e), DuckDuckGo ne peut pas empêcher le contenu Facebook de vous pister sur ce site.","informationalModalConfirmButtonText":"Connexion","informationalModalRejectButtonText":"Revenir en arrière","loginButtonText":"S'identifier avec Facebook","loginBodyText":"Facebook piste votre activité sur un site lorsque vous l'utilisez pour vous identifier.","buttonTextUnblockContent":"Débloquer le contenu Facebook","buttonTextUnblockComment":"Débloquer le commentaire Facebook","buttonTextUnblockComments":"Débloquer les commentaires Facebook","buttonTextUnblockPost":"Débloquer la publication Facebook","buttonTextUnblockVideo":"Débloquer la vidéo Facebook","buttonTextUnblockLogin":"Débloquer la connexion Facebook","infoTitleUnblockContent":"DuckDuckGo a bloqué ce contenu pour empêcher Facebook de vous suivre","infoTitleUnblockComment":"DuckDuckGo a bloqué ce commentaire pour empêcher Facebook de vous suivre","infoTitleUnblockComments":"DuckDuckGo a bloqué ces commentaires pour empêcher Facebook de vous suivre","infoTitleUnblockPost":"DuckDuckGo a bloqué cette publication pour empêcher Facebook de vous pister","infoTitleUnblockVideo":"DuckDuckGo a bloqué cette vidéo pour empêcher Facebook de vous pister","infoTextUnblockContent":"Nous avons empêché Facebook de vous pister lors du chargement de la page. Si vous débloquez ce contenu, Facebook connaîtra votre activité."},"shared.json":{"learnMore":"En savoir plus","readAbout":"En savoir plus sur cette protection de la confidentialité","shareFeedback":"Partagez vos commentaires"},"youtube.json":{"informationalModalMessageTitle":"Activer tous les aperçus YouTube ?","informationalModalMessageBody":"L'affichage des aperçus permettra à Google (propriétaire de YouTube) de voir certaines informations de votre appareil, mais cela reste davantage confidentiel qu'en lisant la vidéo.","informationalModalConfirmButtonText":"Activer tous les aperçus","informationalModalRejectButtonText":"Non merci","buttonTextUnblockVideo":"Débloquer la vidéo YouTube","infoTitleUnblockVideo":"DuckDuckGo a bloqué cette vidéo YouTube pour empêcher Google de vous pister","infoTextUnblockVideo":"Nous avons empêché Google (propriétaire de YouTube) de vous pister lors du chargement de la page. Si vous débloquez cette vidéo, Google connaîtra votre activité.","infoPreviewToggleText":"Aperçus désactivés pour plus de confidentialité","infoPreviewToggleEnabledText":"Aperçus activés","infoPreviewToggleEnabledDuckDuckGoText":"Les aperçus YouTube sont activés dans DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">En savoir plus</a> sur la protection intégrée DuckDuckGo des réseaux sociaux"}},"hr":{"facebook.json":{"informationalModalMessageTitle":"Prijava putem Facebooka omogućuje im da te prate","informationalModalMessageBody":"Nakon što se prijaviš, DuckDuckGo ne može blokirati Facebookov sadržaj da te prati na Facebooku.","informationalModalConfirmButtonText":"Prijavljivanje","informationalModalRejectButtonText":"Vrati se","loginButtonText":"Prijavi se putem Facebooka","loginBodyText":"Facebook prati tvoju aktivnost na toj web lokaciji kad je koristiš za prijavu.","buttonTextUnblockContent":"Deblokiraj sadržaj na Facebooku","buttonTextUnblockComment":"Deblokiraj komentar na Facebooku","buttonTextUnblockComments":"Deblokiraj komentare na Facebooku","buttonTextUnblockPost":"Deblokiraj objavu na Facebooku","buttonTextUnblockVideo":"Deblokiraj videozapis na Facebooku","buttonTextUnblockLogin":"Deblokiraj prijavu na Facebook","infoTitleUnblockContent":"DuckDuckGo je blokirao ovaj sadržaj kako bi spriječio Facebook da te prati","infoTitleUnblockComment":"DuckDuckGo je blokirao ovaj komentar kako bi spriječio Facebook da te prati","infoTitleUnblockComments":"DuckDuckGo je blokirao ove komentare kako bi spriječio Facebook da te prati","infoTitleUnblockPost":"DuckDuckGo je blokirao ovu objavu kako bi spriječio Facebook da te prati","infoTitleUnblockVideo":"DuckDuckGo je blokirao ovaj video kako bi spriječio Facebook da te prati","infoTextUnblockContent":"Blokirali smo Facebook da te prati kad se stranica učita. Ako deblokiraš ovaj sadržaj, Facebook će znati tvoju aktivnost."},"shared.json":{"learnMore":"Saznajte više","readAbout":"Pročitaj više o ovoj zaštiti privatnosti","shareFeedback":"Podijeli povratne informacije"},"youtube.json":{"informationalModalMessageTitle":"Omogućiti sve YouTube pretpreglede?","informationalModalMessageBody":"Prikazivanje pretpregleda omogućit će Googleu (u čijem je vlasništvu YouTube) da vidi neke podatke o tvom uređaju, ali je i dalje privatnija opcija od reprodukcije videozapisa.","informationalModalConfirmButtonText":"Omogući sve pretpreglede","informationalModalRejectButtonText":"Ne, hvala","buttonTextUnblockVideo":"Deblokiraj YouTube videozapis","infoTitleUnblockVideo":"DuckDuckGo je blokirao ovaj YouTube videozapis kako bi spriječio Google da te prati","infoTextUnblockVideo":"Blokirali smo Google (u čijem je vlasništvu YouTube) da te prati kad se stranica učita. Ako deblokiraš ovaj videozapis, Google će znati tvoju aktivnost.","infoPreviewToggleText":"Pretpregledi su onemogućeni radi dodatne privatnosti","infoPreviewToggleEnabledText":"Pretpregledi su omogućeni","infoPreviewToggleEnabledDuckDuckGoText":"YouTube pretpregledi omogućeni su u DuckDuckGou.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Saznaj više</a> o uključenoj DuckDuckGo zaštiti od društvenih medija"}},"hu":{"facebook.json":{"informationalModalMessageTitle":"A Facebookkal való bejelentkezéskor a Facebook nyomon követhet","informationalModalMessageBody":"Miután bejelentkezel, a DuckDuckGo nem fogja tudni blokkolni a Facebook-tartalmat, amely nyomon követ ezen az oldalon.","informationalModalConfirmButtonText":"Bejelentkezés","informationalModalRejectButtonText":"Visszalépés","loginButtonText":"Bejelentkezés Facebookkal","loginBodyText":"Ha a Facebookkal jelentkezel be, nyomon követik a webhelyen végzett tevékenységedet.","buttonTextUnblockContent":"Facebook-tartalom feloldása","buttonTextUnblockComment":"Facebook-hozzászólás feloldása","buttonTextUnblockComments":"Facebook-hozzászólások feloldása","buttonTextUnblockPost":"Facebook-bejegyzés feloldása","buttonTextUnblockVideo":"Facebook-videó feloldása","buttonTextUnblockLogin":"Facebook-bejelentkezés feloldása","infoTitleUnblockContent":"A DuckDuckGo blokkolta ezt a tartalmat, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockComment":"A DuckDuckGo blokkolta ezt a hozzászólást, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockComments":"A DuckDuckGo blokkolta ezeket a hozzászólásokat, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockPost":"A DuckDuckGo blokkolta ezt a bejegyzést, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockVideo":"A DuckDuckGo blokkolta ezt a videót, hogy megakadályozza a Facebookot a nyomon követésedben","infoTextUnblockContent":"Az oldal betöltésekor blokkoltuk a Facebookot a nyomon követésedben. Ha feloldod ezt a tartalmat, a Facebook tudni fogja, hogy milyen tevékenységet végzel."},"shared.json":{"learnMore":"További részletek","readAbout":"Tudj meg többet erről az adatvédelemről","shareFeedback":"Visszajelzés megosztása"},"youtube.json":{"informationalModalMessageTitle":"Engedélyezed minden YouTube-videó előnézetét?","informationalModalMessageBody":"Az előnézetek megjelenítésével a Google (a YouTube tulajdonosa) láthatja a készülék néhány adatát, de ez adatvédelmi szempontból még mindig előnyösebb, mint a videó lejátszása.","informationalModalConfirmButtonText":"Minden előnézet engedélyezése","informationalModalRejectButtonText":"Nem, köszönöm","buttonTextUnblockVideo":"YouTube-videó feloldása","infoTitleUnblockVideo":"A DuckDuckGo blokkolta a YouTube-videót, hogy a Google ne követhessen nyomon","infoTextUnblockVideo":"Blokkoltuk, hogy a Google (a YouTube tulajdonosa) nyomon követhessen az oldal betöltésekor. Ha feloldod a videó blokkolását, a Google tudni fogja, hogy milyen tevékenységet végzel.","infoPreviewToggleText":"Az előnézetek a fokozott adatvédelem érdekében letiltva","infoPreviewToggleEnabledText":"Az előnézetek engedélyezve","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-előnézetek engedélyezve a DuckDuckGo-ban.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">További tudnivalók</a> a DuckDuckGo beágyazott közösségi média elleni védelméről"}},"it":{"facebook.json":{"informationalModalMessageTitle":"L'accesso con Facebook consente di tracciarti","informationalModalMessageBody":"Dopo aver effettuato l'accesso, DuckDuckGo non può bloccare il tracciamento dei contenuti di Facebook su questo sito.","informationalModalConfirmButtonText":"Accedi","informationalModalRejectButtonText":"Torna indietro","loginButtonText":"Accedi con Facebook","loginBodyText":"Facebook tiene traccia della tua attività su un sito quando lo usi per accedere.","buttonTextUnblockContent":"Sblocca i contenuti di Facebook","buttonTextUnblockComment":"Sblocca il commento di Facebook","buttonTextUnblockComments":"Sblocca i commenti di Facebook","buttonTextUnblockPost":"Sblocca post di Facebook","buttonTextUnblockVideo":"Sblocca video di Facebook","buttonTextUnblockLogin":"Sblocca l'accesso a Facebook","infoTitleUnblockContent":"DuckDuckGo ha bloccato questo contenuto per impedire a Facebook di tracciarti","infoTitleUnblockComment":"DuckDuckGo ha bloccato questo commento per impedire a Facebook di tracciarti","infoTitleUnblockComments":"DuckDuckGo ha bloccato questi commenti per impedire a Facebook di tracciarti","infoTitleUnblockPost":"DuckDuckGo ha bloccato questo post per impedire a Facebook di tracciarti","infoTitleUnblockVideo":"DuckDuckGo ha bloccato questo video per impedire a Facebook di tracciarti","infoTextUnblockContent":"Abbiamo impedito a Facebook di tracciarti al caricamento della pagina. Se sblocchi questo contenuto, Facebook conoscerà la tua attività."},"shared.json":{"learnMore":"Ulteriori informazioni","readAbout":"Leggi di più su questa protezione della privacy","shareFeedback":"Condividi feedback"},"youtube.json":{"informationalModalMessageTitle":"Abilitare tutte le anteprime di YouTube?","informationalModalMessageBody":"La visualizzazione delle anteprime consentirà a Google (che possiede YouTube) di vedere alcune delle informazioni del tuo dispositivo, ma è comunque più privato rispetto alla riproduzione del video.","informationalModalConfirmButtonText":"Abilita tutte le anteprime","informationalModalRejectButtonText":"No, grazie","buttonTextUnblockVideo":"Sblocca video YouTube","infoTitleUnblockVideo":"DuckDuckGo ha bloccato questo video di YouTube per impedire a Google di tracciarti","infoTextUnblockVideo":"Abbiamo impedito a Google (che possiede YouTube) di tracciarti quando la pagina è stata caricata. Se sblocchi questo video, Google conoscerà la tua attività.","infoPreviewToggleText":"Anteprime disabilitate per una maggiore privacy","infoPreviewToggleEnabledText":"Anteprime abilitate","infoPreviewToggleEnabledDuckDuckGoText":"Anteprime YouTube abilitate in DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Scopri di più</a> sulla protezione dai social media integrata di DuckDuckGo"}},"lt":{"facebook.json":{"informationalModalMessageTitle":"Prisijungę prie „Facebook“ galite būti sekami","informationalModalMessageBody":"Kai esate prisijungę, „DuckDuckGo“ negali užblokuoti „Facebook“ turinio, todėl esate sekami šioje svetainėje.","informationalModalConfirmButtonText":"Prisijungti","informationalModalRejectButtonText":"Grįžti atgal","loginButtonText":"Prisijunkite su „Facebook“","loginBodyText":"„Facebook“ seka jūsų veiklą svetainėje, kai prisijungiate su šia svetaine.","buttonTextUnblockContent":"Atblokuoti „Facebook“ turinį","buttonTextUnblockComment":"Atblokuoti „Facebook“ komentarą","buttonTextUnblockComments":"Atblokuoti „Facebook“ komentarus","buttonTextUnblockPost":"Atblokuoti „Facebook“ įrašą","buttonTextUnblockVideo":"Atblokuoti „Facebook“ vaizdo įrašą","buttonTextUnblockLogin":"Atblokuoti „Facebook“ prisijungimą","infoTitleUnblockContent":"„DuckDuckGo“ užblokavo šį turinį, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockComment":"„DuckDuckGo“ užblokavo šį komentarą, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockComments":"„DuckDuckGo“ užblokavo šiuos komentarus, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockPost":"„DuckDuckGo“ užblokavo šį įrašą, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockVideo":"„DuckDuckGo“ užblokavo šį vaizdo įrašą, kad „Facebook“ negalėtų jūsų sekti","infoTextUnblockContent":"Užblokavome „Facebook“, kad negalėtų jūsų sekti, kai puslapis buvo įkeltas. Jei atblokuosite šį turinį, „Facebook“ žinos apie jūsų veiklą."},"shared.json":{"learnMore":"Sužinoti daugiau","readAbout":"Skaitykite apie šią privatumo apsaugą","shareFeedback":"Bendrinti atsiliepimą"},"youtube.json":{"informationalModalMessageTitle":"Įjungti visas „YouTube“ peržiūras?","informationalModalMessageBody":"Peržiūrų rodymas leis „Google“ (kuriai priklauso „YouTube“) matyti tam tikrą jūsų įrenginio informaciją, tačiau ji vis tiek bus privatesnė nei leidžiant vaizdo įrašą.","informationalModalConfirmButtonText":"Įjungti visas peržiūras","informationalModalRejectButtonText":"Ne, dėkoju","buttonTextUnblockVideo":"Atblokuoti „YouTube“ vaizdo įrašą","infoTitleUnblockVideo":"„DuckDuckGo“ užblokavo šį „YouTube“ vaizdo įrašą, kad „Google“ negalėtų jūsų sekti","infoTextUnblockVideo":"Užblokavome „Google“ (kuriai priklauso „YouTube“) galimybę sekti jus, kai puslapis buvo įkeltas. Jei atblokuosite šį vaizdo įrašą, „Google“ sužinos apie jūsų veiklą.","infoPreviewToggleText":"Peržiūros išjungtos dėl papildomo privatumo","infoPreviewToggleEnabledText":"Peržiūros įjungtos","infoPreviewToggleEnabledDuckDuckGoText":"„YouTube“ peržiūros įjungtos „DuckDuckGo“.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Sužinokite daugiau</a> apie „DuckDuckGo“ įdėtąją socialinės žiniasklaidos apsaugą"}},"lv":{"facebook.json":{"informationalModalMessageTitle":"Ja pieteiksies ar Facebook, viņi varēs tevi izsekot","informationalModalMessageBody":"Kad tu piesakies, DuckDuckGo nevar novērst, ka Facebook saturs tevi izseko šajā vietnē.","informationalModalConfirmButtonText":"Pieteikties","informationalModalRejectButtonText":"Atgriezties","loginButtonText":"Pieteikties ar Facebook","loginBodyText":"Facebook izseko tavas aktivitātes vietnē, kad esi pieteicies ar Facebook.","buttonTextUnblockContent":"Atbloķēt Facebook saturu","buttonTextUnblockComment":"Atbloķēt Facebook komentāru","buttonTextUnblockComments":"Atbloķēt Facebook komentārus","buttonTextUnblockPost":"Atbloķēt Facebook ziņu","buttonTextUnblockVideo":"Atbloķēt Facebook video","buttonTextUnblockLogin":"Atbloķēt Facebook pieteikšanos","infoTitleUnblockContent":"DuckDuckGo bloķēja šo saturu, lai neļautu Facebook tevi izsekot","infoTitleUnblockComment":"DuckDuckGo bloķēja šo komentāru, lai neļautu Facebook tevi izsekot","infoTitleUnblockComments":"DuckDuckGo bloķēja šos komentārus, lai neļautu Facebook tevi izsekot","infoTitleUnblockPost":"DuckDuckGo bloķēja šo ziņu, lai neļautu Facebook tevi izsekot","infoTitleUnblockVideo":"DuckDuckGo bloķēja šo videoklipu, lai neļautu Facebook tevi izsekot","infoTextUnblockContent":"Mēs bloķējām Facebook iespēju tevi izsekot, ielādējot lapu. Ja atbloķēsi šo saturu, Facebook redzēs, ko tu dari."},"shared.json":{"learnMore":"Uzzināt vairāk","readAbout":"Lasi par šo privātuma aizsardzību","shareFeedback":"Kopīgot atsauksmi"},"youtube.json":{"informationalModalMessageTitle":"Vai iespējot visus YouTube priekšskatījumus?","informationalModalMessageBody":"Priekšskatījumu rādīšana ļaus Google (kam pieder YouTube) redzēt daļu tavas ierīces informācijas, taču tas tāpat ir privātāk par videoklipa atskaņošanu.","informationalModalConfirmButtonText":"Iespējot visus priekšskatījumus","informationalModalRejectButtonText":"Nē, paldies","buttonTextUnblockVideo":"Atbloķēt YouTube videoklipu","infoTitleUnblockVideo":"DuckDuckGo bloķēja šo YouTube videoklipu, lai neļautu Google tevi izsekot","infoTextUnblockVideo":"Mēs neļāvām Google (kam pieder YouTube) tevi izsekot, kad lapa tika ielādēta. Ja atbloķēsi šo videoklipu, Google zinās, ko tu dari.","infoPreviewToggleText":"Priekšskatījumi ir atspējoti, lai nodrošinātu papildu konfidencialitāti","infoPreviewToggleEnabledText":"Priekšskatījumi ir iespējoti","infoPreviewToggleEnabledDuckDuckGoText":"DuckDuckGo iespējoti YouTube priekšskatījumi.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Uzzini vairāk</a> par DuckDuckGo iegulto sociālo mediju aizsardzību"}},"nb":{"facebook.json":{"informationalModalMessageTitle":"Når du logger på med Facebook, kan de spore deg","informationalModalMessageBody":"Når du er logget på, kan ikke DuckDuckGo hindre Facebook-innhold i å spore deg på dette nettstedet.","informationalModalConfirmButtonText":"Logg inn","informationalModalRejectButtonText":"Gå tilbake","loginButtonText":"Logg på med Facebook","loginBodyText":"Når du logger på med Facebook, sporer de aktiviteten din på nettstedet.","buttonTextUnblockContent":"Fjern blokkering av Facebook-innhold","buttonTextUnblockComment":"Fjern blokkering av Facebook-kommentar","buttonTextUnblockComments":"Fjern blokkering av Facebook-kommentarer","buttonTextUnblockPost":"Fjern blokkering av Facebook-innlegg","buttonTextUnblockVideo":"Fjern blokkering av Facebook-video","buttonTextUnblockLogin":"Fjern blokkering av Facebook-pålogging","infoTitleUnblockContent":"DuckDuckGo blokkerte dette innholdet for å hindre Facebook i å spore deg","infoTitleUnblockComment":"DuckDuckGo blokkerte denne kommentaren for å hindre Facebook i å spore deg","infoTitleUnblockComments":"DuckDuckGo blokkerte disse kommentarene for å hindre Facebook i å spore deg","infoTitleUnblockPost":"DuckDuckGo blokkerte dette innlegget for å hindre Facebook i å spore deg","infoTitleUnblockVideo":"DuckDuckGo blokkerte denne videoen for å hindre Facebook i å spore deg","infoTextUnblockContent":"Vi hindret Facebook i å spore deg da siden ble lastet. Hvis du opphever blokkeringen av dette innholdet, får Facebook vite om aktiviteten din."},"shared.json":{"learnMore":"Finn ut mer","readAbout":"Les om denne personvernfunksjonen","shareFeedback":"Del tilbakemelding"},"youtube.json":{"informationalModalMessageTitle":"Vil du aktivere alle YouTube-forhåndsvisninger?","informationalModalMessageBody":"Forhåndsvisninger gjør det mulig for Google (som eier YouTube) å se enkelte opplysninger om enheten din, men det er likevel mer privat enn å spille av videoen.","informationalModalConfirmButtonText":"Aktiver alle forhåndsvisninger","informationalModalRejectButtonText":"Nei takk","buttonTextUnblockVideo":"Fjern blokkering av YouTube-video","infoTitleUnblockVideo":"DuckDuckGo blokkerte denne YouTube-videoen for å hindre Google i å spore deg","infoTextUnblockVideo":"Vi blokkerte Google (som eier YouTube) mot å spore deg da siden ble lastet. Hvis du opphever blokkeringen av denne videoen, får Google vite om aktiviteten din.","infoPreviewToggleText":"Forhåndsvisninger er deaktivert for å gi deg ekstra personvern","infoPreviewToggleEnabledText":"Forhåndsvisninger er aktivert","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-forhåndsvisninger er aktivert i DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Finn ut mer</a> om DuckDuckGos innebygde beskyttelse for sosiale medier"}},"nl":{"facebook.json":{"informationalModalMessageTitle":"Als je inlogt met Facebook, kunnen zij je volgen","informationalModalMessageBody":"Als je eenmaal bent ingelogd, kan DuckDuckGo niet voorkomen dat Facebook je op deze site volgt.","informationalModalConfirmButtonText":"Inloggen","informationalModalRejectButtonText":"Terug","loginButtonText":"Inloggen met Facebook","loginBodyText":"Facebook volgt je activiteit op een site als je Facebook gebruikt om in te loggen.","buttonTextUnblockContent":"Facebook-inhoud deblokkeren","buttonTextUnblockComment":"Facebook-opmerkingen deblokkeren","buttonTextUnblockComments":"Facebook-opmerkingen deblokkeren","buttonTextUnblockPost":"Facebook-bericht deblokkeren","buttonTextUnblockVideo":"Facebook-video deblokkeren","buttonTextUnblockLogin":"Facebook-aanmelding deblokkeren","infoTitleUnblockContent":"DuckDuckGo heeft deze inhoud geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockComment":"DuckDuckGo heeft deze opmerking geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockComments":"DuckDuckGo heeft deze opmerkingen geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockPost":"DuckDuckGo heeft dit bericht geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockVideo":"DuckDuckGo heeft deze video geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTextUnblockContent":"We hebben voorkomen dat Facebook je volgde toen de pagina werd geladen. Als je deze inhoud deblokkeert, kan Facebook je activiteit zien."},"shared.json":{"learnMore":"Meer informatie","readAbout":"Lees meer over deze privacybescherming","shareFeedback":"Feedback delen"},"youtube.json":{"informationalModalMessageTitle":"Alle YouTube-voorbeelden inschakelen?","informationalModalMessageBody":"Bij het tonen van voorbeelden kan Google (eigenaar van YouTube) een deel van de informatie over je apparaat zien, maar blijft je privacy beter beschermd dan als je de video zou afspelen.","informationalModalConfirmButtonText":"Alle voorbeelden inschakelen","informationalModalRejectButtonText":"Nee, bedankt","buttonTextUnblockVideo":"YouTube-video deblokkeren","infoTitleUnblockVideo":"DuckDuckGo heeft deze YouTube-video geblokkeerd om te voorkomen dat Google je kan volgen","infoTextUnblockVideo":"We hebben voorkomen dat Google (eigenaar van YouTube) je volgde toen de pagina werd geladen. Als je deze video deblokkeert, kan Google je activiteit zien.","infoPreviewToggleText":"Voorbeelden uitgeschakeld voor extra privacy","infoPreviewToggleEnabledText":"Voorbeelden ingeschakeld","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-voorbeelden ingeschakeld in DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Meer informatie</a> over DuckDuckGo's bescherming tegen ingesloten social media"}},"pl":{"facebook.json":{"informationalModalMessageTitle":"Jeśli zalogujesz się za pośrednictwem Facebooka, będzie on mógł śledzić Twoją aktywność","informationalModalMessageBody":"Po zalogowaniu się DuckDuckGo nie może zablokować możliwości śledzenia Cię przez Facebooka na tej stronie.","informationalModalConfirmButtonText":"Zaloguj się","informationalModalRejectButtonText":"Wróć","loginButtonText":"Zaloguj się za pośrednictwem Facebooka","loginBodyText":"Facebook śledzi Twoją aktywność na stronie, gdy logujesz się za jego pośrednictwem.","buttonTextUnblockContent":"Odblokuj treść na Facebooku","buttonTextUnblockComment":"Odblokuj komentarz na Facebooku","buttonTextUnblockComments":"Odblokuj komentarze na Facebooku","buttonTextUnblockPost":"Odblokuj post na Facebooku","buttonTextUnblockVideo":"Odblokuj wideo na Facebooku","buttonTextUnblockLogin":"Odblokuj logowanie na Facebooku","infoTitleUnblockContent":"DuckDuckGo zablokował tę treść, aby Facebook nie mógł Cię śledzić","infoTitleUnblockComment":"DuckDuckGo zablokował ten komentarz, aby Facebook nie mógł Cię śledzić","infoTitleUnblockComments":"DuckDuckGo zablokował te komentarze, aby Facebook nie mógł Cię śledzić","infoTitleUnblockPost":"DuckDuckGo zablokował ten post, aby Facebook nie mógł Cię śledzić","infoTitleUnblockVideo":"DuckDuckGo zablokował tę treść wideo, aby Facebook nie mógł Cię śledzić.","infoTextUnblockContent":"Zablokowaliśmy Facebookowi możliwość śledzenia Cię podczas ładowania strony. Jeśli odblokujesz tę treść, Facebook uzyska informacje o Twojej aktywności."},"shared.json":{"learnMore":"Dowiedz się więcej","readAbout":"Dowiedz się więcej o tej ochronie prywatności","shareFeedback":"Podziel się opinią"},"youtube.json":{"informationalModalMessageTitle":"Włączyć wszystkie podglądy w YouTube?","informationalModalMessageBody":"Wyświetlanie podglądu pozwala Google (który jest właścicielem YouTube) zobaczyć niektóre informacje o Twoim urządzeniu, ale nadal jest to bardziej prywatne niż odtwarzanie filmu.","informationalModalConfirmButtonText":"Włącz wszystkie podglądy","informationalModalRejectButtonText":"Nie, dziękuję","buttonTextUnblockVideo":"Odblokuj wideo w YouTube","infoTitleUnblockVideo":"DuckDuckGo zablokował ten film w YouTube, aby uniemożliwić Google śledzenie Twojej aktywności","infoTextUnblockVideo":"Zablokowaliśmy możliwość śledzenia Cię przez Google (właściciela YouTube) podczas ładowania strony. Jeśli odblokujesz ten film, Google zobaczy Twoją aktywność.","infoPreviewToggleText":"Podglądy zostały wyłączone, aby zapewnić większą ptywatność","infoPreviewToggleEnabledText":"Podglądy włączone","infoPreviewToggleEnabledDuckDuckGoText":"Podglądy YouTube włączone w DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Dowiedz się więcej</a> o zabezpieczeniu osadzonych treści społecznościowych DuckDuckGo"}},"pt":{"facebook.json":{"informationalModalMessageTitle":"Iniciar sessão no Facebook permite que este te rastreie","informationalModalMessageBody":"Depois de iniciares sessão, o DuckDuckGo não poderá bloquear o rastreio por parte do conteúdo do Facebook neste site.","informationalModalConfirmButtonText":"Iniciar sessão","informationalModalRejectButtonText":"Retroceder","loginButtonText":"Iniciar sessão com o Facebook","loginBodyText":"O Facebook rastreia a tua atividade num site quando o usas para iniciares sessão.","buttonTextUnblockContent":"Desbloquear Conteúdo do Facebook","buttonTextUnblockComment":"Desbloquear Comentário do Facebook","buttonTextUnblockComments":"Desbloquear Comentários do Facebook","buttonTextUnblockPost":"Desbloquear Publicação no Facebook","buttonTextUnblockVideo":"Desbloquear Vídeo do Facebook","buttonTextUnblockLogin":"Desbloquear Início de Sessão no Facebook","infoTitleUnblockContent":"O DuckDuckGo bloqueou este conteúdo para evitar que o Facebook te rastreie","infoTitleUnblockComment":"O DuckDuckGo bloqueou este comentário para evitar que o Facebook te rastreie","infoTitleUnblockComments":"O DuckDuckGo bloqueou estes comentários para evitar que o Facebook te rastreie","infoTitleUnblockPost":"O DuckDuckGo bloqueou esta publicação para evitar que o Facebook te rastreie","infoTitleUnblockVideo":"O DuckDuckGo bloqueou este vídeo para evitar que o Facebook te rastreie","infoTextUnblockContent":"Bloqueámos o rastreio por parte do Facebook quando a página foi carregada. Se desbloqueares este conteúdo, o Facebook fica a saber a tua atividade."},"shared.json":{"learnMore":"Saiba mais","readAbout":"Ler mais sobre esta proteção de privacidade","shareFeedback":"Partilhar comentários"},"youtube.json":{"informationalModalMessageTitle":"Ativar todas as pré-visualizações do YouTube?","informationalModalMessageBody":"Mostrar visualizações permite à Google (que detém o YouTube) ver algumas das informações do teu dispositivo, mas ainda é mais privado do que reproduzir o vídeo.","informationalModalConfirmButtonText":"Ativar todas as pré-visualizações","informationalModalRejectButtonText":"Não, obrigado","buttonTextUnblockVideo":"Desbloquear Vídeo do YouTube","infoTitleUnblockVideo":"O DuckDuckGo bloqueou este vídeo do YouTube para impedir que a Google te rastreie","infoTextUnblockVideo":"Bloqueámos o rastreio por parte da Google (que detém o YouTube) quando a página foi carregada. Se desbloqueares este vídeo, a Google fica a saber a tua atividade.","infoPreviewToggleText":"Pré-visualizações desativadas para privacidade adicional","infoPreviewToggleEnabledText":"Pré-visualizações ativadas","infoPreviewToggleEnabledDuckDuckGoText":"Pré-visualizações do YouTube ativadas no DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Saiba mais</a> sobre a Proteção contra conteúdos de redes sociais incorporados do DuckDuckGo"}},"ro":{"facebook.json":{"informationalModalMessageTitle":"Conectarea cu Facebook îi permite să te urmărească","informationalModalMessageBody":"Odată ce te-ai conectat, DuckDuckGo nu poate împiedica conținutul Facebook să te urmărească pe acest site.","informationalModalConfirmButtonText":"Autentificare","informationalModalRejectButtonText":"Înapoi","loginButtonText":"Conectează-te cu Facebook","loginBodyText":"Facebook urmărește activitatea ta pe un site atunci când îl utilizezi pentru a te conecta.","buttonTextUnblockContent":"Deblochează conținutul Facebook","buttonTextUnblockComment":"Deblochează comentariul de pe Facebook","buttonTextUnblockComments":"Deblochează comentariile de pe Facebook","buttonTextUnblockPost":"Deblochează postarea de pe Facebook","buttonTextUnblockVideo":"Deblochează videoclipul de pe Facebook","buttonTextUnblockLogin":"Deblochează conectarea cu Facebook","infoTitleUnblockContent":"DuckDuckGo a blocat acest conținut pentru a împiedica Facebook să te urmărească","infoTitleUnblockComment":"DuckDuckGo a blocat acest comentariu pentru a împiedica Facebook să te urmărească","infoTitleUnblockComments":"DuckDuckGo a blocat aceste comentarii pentru a împiedica Facebook să te urmărească","infoTitleUnblockPost":"DuckDuckGo a blocat această postare pentru a împiedica Facebook să te urmărească","infoTitleUnblockVideo":"DuckDuckGo a blocat acest videoclip pentru a împiedica Facebook să te urmărească","infoTextUnblockContent":"Am împiedicat Facebook să te urmărească atunci când pagina a fost încărcată. Dacă deblochezi acest conținut, Facebook îți va cunoaște activitatea."},"shared.json":{"learnMore":"Află mai multe","readAbout":"Citește despre această protecție a confidențialității","shareFeedback":"Partajează feedback"},"youtube.json":{"informationalModalMessageTitle":"Activezi toate previzualizările YouTube?","informationalModalMessageBody":"Afișarea previzualizărilor va permite ca Google (care deține YouTube) să vadă unele dintre informațiile despre dispozitivul tău, dar este totuși mai privată decât redarea videoclipului.","informationalModalConfirmButtonText":"Activează toate previzualizările","informationalModalRejectButtonText":"Nu, mulțumesc","buttonTextUnblockVideo":"Deblochează videoclipul de pe YouTube","infoTitleUnblockVideo":"DuckDuckGo a blocat acest videoclip de pe YouTube pentru a împiedica Google să te urmărească","infoTextUnblockVideo":"Am împiedicat Google (care deține YouTube) să te urmărească atunci când s-a încărcat pagina. Dacă deblochezi acest videoclip, Google va cunoaște activitatea ta.","infoPreviewToggleText":"Previzualizările au fost dezactivate pentru o confidențialitate suplimentară","infoPreviewToggleEnabledText":"Previzualizări activate","infoPreviewToggleEnabledDuckDuckGoText":"Previzualizările YouTube sunt activate în DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Află mai multe</a> despre Protecția integrată DuckDuckGo pentru rețelele sociale"}},"ru":{"facebook.json":{"informationalModalMessageTitle":"Вход через Facebook позволяет этой социальной сети отслеживать вас","informationalModalMessageBody":"После входа DuckDuckGo не сможет блокировать отслеживание ваших действий с контентом на Facebook.","informationalModalConfirmButtonText":"Войти","informationalModalRejectButtonText":"Вернуться","loginButtonText":"Войти через Facebook","loginBodyText":"При использовании учётной записи Facebook для входа на сайты эта социальная сеть сможет отслеживать на них ваши действия.","buttonTextUnblockContent":"Разблокировать контент из Facebook","buttonTextUnblockComment":"Разблокировать комментарий из Facebook","buttonTextUnblockComments":"Разблокировать комментарии из Facebook","buttonTextUnblockPost":"Разблокировать публикацию из Facebook","buttonTextUnblockVideo":"Разблокировать видео из Facebook","buttonTextUnblockLogin":"Разблокировать окно входа в Facebook","infoTitleUnblockContent":"DuckDuckGo заблокировал этот контент, чтобы вас не отслеживал Facebook","infoTitleUnblockComment":"DuckDuckGo заблокировал этот комментарий, чтобы вас не отслеживал Facebook","infoTitleUnblockComments":"DuckDuckGo заблокировал эти комментарии, чтобы вас не отслеживал Facebook","infoTitleUnblockPost":"DuckDuckGo заблокировал эту публикацию, чтобы вас не отслеживал Facebook","infoTitleUnblockVideo":"DuckDuckGo заблокировал это видео, чтобы вас не отслеживал Facebook","infoTextUnblockContent":"Во время загрузки страницы мы помешали Facebook отследить ваши действия. Если разблокировать этот контент, Facebook сможет фиксировать вашу активность."},"shared.json":{"learnMore":"Узнать больше","readAbout":"Подробнее об этом виде защиты конфиденциальности","shareFeedback":"Оставьте нам отзыв"},"youtube.json":{"informationalModalMessageTitle":"Включить предпросмотр видео из YouTube?","informationalModalMessageBody":"Включение предварительного просмотра позволит Google (владельцу YouTube) получить некоторые сведения о вашем устройстве, однако это более безопасный вариант, чем воспроизведение видео целиком.","informationalModalConfirmButtonText":"Включить предпросмотр","informationalModalRejectButtonText":"Нет, спасибо","buttonTextUnblockVideo":"Разблокировать видео из YouTube","infoTitleUnblockVideo":"DuckDuckGo заблокировал это видео из YouTube, чтобы вас не отслеживал Google","infoTextUnblockVideo":"Во время загрузки страницы мы помешали Google (владельцу YouTube) отследить ваши действия. Если разблокировать видео, Google сможет фиксировать вашу активность.","infoPreviewToggleText":"Предварительный просмотр отключён для дополнительной защиты конфиденциальности","infoPreviewToggleEnabledText":"Предварительный просмотр включён","infoPreviewToggleEnabledDuckDuckGoText":"В DuckDuckGo включён предпросмотр видео из YouTube.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Подробнее</a> о защите DuckDuckGo от внедрённого контента соцсетей"}},"sk":{"facebook.json":{"informationalModalMessageTitle":"Prihlásenie cez Facebook mu umožní sledovať vás","informationalModalMessageBody":"DuckDuckGo po prihlásení nemôže na tejto lokalite zablokovať sledovanie vašej osoby obsahom Facebooku.","informationalModalConfirmButtonText":"Prihlásiť sa","informationalModalRejectButtonText":"Prejsť späť","loginButtonText":"Prihláste sa pomocou služby Facebook","loginBodyText":"Keď použijete prihlasovanie cez Facebook, Facebook bude na lokalite sledovať vašu aktivitu.","buttonTextUnblockContent":"Odblokovať obsah Facebooku","buttonTextUnblockComment":"Odblokovať komentár na Facebooku","buttonTextUnblockComments":"Odblokovať komentáre na Facebooku","buttonTextUnblockPost":"Odblokovať príspevok na Facebooku","buttonTextUnblockVideo":"Odblokovanie videa na Facebooku","buttonTextUnblockLogin":"Odblokovať prihlásenie na Facebook","infoTitleUnblockContent":"DuckDuckGo zablokoval tento obsah, aby vás Facebook nesledoval","infoTitleUnblockComment":"DuckDuckGo zablokoval tento komentár, aby zabránil sledovaniu zo strany Facebooku","infoTitleUnblockComments":"DuckDuckGo zablokoval tieto komentáre, aby vás Facebook nesledoval","infoTitleUnblockPost":"DuckDuckGo zablokoval tento príspevok, aby vás Facebook nesledoval","infoTitleUnblockVideo":"DuckDuckGo zablokoval toto video, aby vás Facebook nesledoval","infoTextUnblockContent":"Pri načítaní stránky sme zablokovali Facebook, aby vás nesledoval. Ak tento obsah odblokujete, Facebook bude vedieť o vašej aktivite."},"shared.json":{"learnMore":"Zistite viac","readAbout":"Prečítajte si o tejto ochrane súkromia","shareFeedback":"Zdieľať spätnú väzbu"},"youtube.json":{"informationalModalMessageTitle":"Chcete povoliť všetky ukážky zo služby YouTube?","informationalModalMessageBody":"Zobrazenie ukážok umožní spoločnosti Google (ktorá vlastní YouTube) vidieť niektoré informácie o vašom zariadení, ale stále je to súkromnejšie ako prehrávanie videa.","informationalModalConfirmButtonText":"Povoliť všetky ukážky","informationalModalRejectButtonText":"Nie, ďakujem","buttonTextUnblockVideo":"Odblokovať YouTube video","infoTitleUnblockVideo":"DuckDuckGo toto video v službe YouTube zablokoval s cieľom predísť tomu, aby vás spoločnosť Google mohla sledovať","infoTextUnblockVideo":"Zablokovali sme pre spoločnosť Google (ktorá vlastní YouTube), aby vás nemohla sledovať, keď sa stránka načíta. Ak toto video odblokujete, Google bude poznať vašu aktivitu.","infoPreviewToggleText":"Ukážky sú zakázané s cieľom zvýšiť ochranu súkromia","infoPreviewToggleEnabledText":"Ukážky sú povolené","infoPreviewToggleEnabledDuckDuckGoText":"Ukážky YouTube sú v DuckDuckGo povolené.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Získajte viac informácií</a> o DuckDuckGo, vloženej ochrane sociálnych médií"}},"sl":{"facebook.json":{"informationalModalMessageTitle":"Če se prijavite s Facebookom, vam Facebook lahko sledi","informationalModalMessageBody":"Ko ste enkrat prijavljeni, DuckDuckGo ne more blokirati Facebookove vsebine, da bi vam sledila na tem spletnem mestu.","informationalModalConfirmButtonText":"Prijava","informationalModalRejectButtonText":"Pojdi nazaj","loginButtonText":"Prijavite se s Facebookom","loginBodyText":"Če se prijavite s Facebookom, bo nato spremljal vaša dejanja na spletnem mestu.","buttonTextUnblockContent":"Odblokiraj vsebino na Facebooku","buttonTextUnblockComment":"Odblokiraj komentar na Facebooku","buttonTextUnblockComments":"Odblokiraj komentarje na Facebooku","buttonTextUnblockPost":"Odblokiraj objavo na Facebooku","buttonTextUnblockVideo":"Odblokiraj videoposnetek na Facebooku","buttonTextUnblockLogin":"Odblokiraj prijavo na Facebooku","infoTitleUnblockContent":"DuckDuckGo je blokiral to vsebino, da bi Facebooku preprečil sledenje","infoTitleUnblockComment":"DuckDuckGo je blokiral ta komentar, da bi Facebooku preprečil sledenje","infoTitleUnblockComments":"DuckDuckGo je blokiral te komentarje, da bi Facebooku preprečil sledenje","infoTitleUnblockPost":"DuckDuckGo je blokiral to objavo, da bi Facebooku preprečil sledenje","infoTitleUnblockVideo":"DuckDuckGo je blokiral ta videoposnetek, da bi Facebooku preprečil sledenje","infoTextUnblockContent":"Ko se je stran naložila, smo Facebooku preprečili, da bi vam sledil. Če to vsebino odblokirate, bo Facebook izvedel za vaša dejanja."},"shared.json":{"learnMore":"Več","readAbout":"Preberite več o tej zaščiti zasebnosti","shareFeedback":"Deli povratne informacije"},"youtube.json":{"informationalModalMessageTitle":"Želite omogočiti vse YouTubove predoglede?","informationalModalMessageBody":"Prikaz predogledov omogoča Googlu (ki je lastnik YouTuba) vpogled v nekatere podatke o napravi, vendar je še vedno bolj zasebno kot predvajanje videoposnetka.","informationalModalConfirmButtonText":"Omogoči vse predoglede","informationalModalRejectButtonText":"Ne, hvala","buttonTextUnblockVideo":"Odblokiraj videoposnetek na YouTubu","infoTitleUnblockVideo":"DuckDuckGo je blokiral ta videoposnetek v YouTubu, da bi Googlu preprečil sledenje","infoTextUnblockVideo":"Googlu (ki je lastnik YouTuba) smo preprečili, da bi vam sledil, ko se je stran naložila. Če odblokirate ta videoposnetek, bo Google izvedel za vašo dejavnost.","infoPreviewToggleText":"Predogledi so zaradi dodatne zasebnosti onemogočeni","infoPreviewToggleEnabledText":"Predogledi so omogočeni","infoPreviewToggleEnabledDuckDuckGoText":"YouTubovi predogledi so omogočeni v DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Več</a> o vgrajeni zaščiti družbenih medijev DuckDuckGo"}},"sv":{"facebook.json":{"informationalModalMessageTitle":"Om du loggar in med Facebook kan de spåra dig","informationalModalMessageBody":"När du väl är inloggad kan DuckDuckGo inte hindra Facebooks innehåll från att spåra dig på den här webbplatsen.","informationalModalConfirmButtonText":"Logga in","informationalModalRejectButtonText":"Gå tillbaka","loginButtonText":"Logga in med Facebook","loginBodyText":"Facebook spårar din aktivitet på en webbplats om du använder det för att logga in.","buttonTextUnblockContent":"Avblockera Facebook-innehåll","buttonTextUnblockComment":"Avblockera Facebook-kommentar","buttonTextUnblockComments":"Avblockera Facebook-kommentarer","buttonTextUnblockPost":"Avblockera Facebook-inlägg","buttonTextUnblockVideo":"Avblockera Facebook-video","buttonTextUnblockLogin":"Avblockera Facebook-inloggning","infoTitleUnblockContent":"DuckDuckGo blockerade det här innehållet för att förhindra att Facebook spårar dig","infoTitleUnblockComment":"DuckDuckGo blockerade den här kommentaren för att förhindra att Facebook spårar dig","infoTitleUnblockComments":"DuckDuckGo blockerade de här kommentarerna för att förhindra att Facebook spårar dig","infoTitleUnblockPost":"DuckDuckGo blockerade det här inlägget för att förhindra att Facebook spårar dig","infoTitleUnblockVideo":"DuckDuckGo blockerade den här videon för att förhindra att Facebook spårar dig","infoTextUnblockContent":"Vi hindrade Facebook från att spåra dig när sidan lästes in. Om du avblockerar det här innehållet kommer Facebook att känna till din aktivitet."},"shared.json":{"learnMore":"Läs mer","readAbout":"Läs mer om detta integritetsskydd","shareFeedback":"Berätta vad du tycker"},"youtube.json":{"informationalModalMessageTitle":"Aktivera alla förhandsvisningar för YouTube?","informationalModalMessageBody":"Genom att visa förhandsvisningar kan Google (som äger YouTube) se en del av enhetens information, men det är ändå mer privat än att spela upp videon.","informationalModalConfirmButtonText":"Aktivera alla förhandsvisningar","informationalModalRejectButtonText":"Nej tack","buttonTextUnblockVideo":"Avblockera YouTube-video","infoTitleUnblockVideo":"DuckDuckGo blockerade den här YouTube-videon för att förhindra att Google spårar dig","infoTextUnblockVideo":"Vi hindrade Google (som äger YouTube) från att spåra dig när sidan laddades. Om du tar bort blockeringen av videon kommer Google att känna till din aktivitet.","infoPreviewToggleText":"Förhandsvisningar har inaktiverats för ytterligare integritet","infoPreviewToggleEnabledText":"Förhandsvisningar aktiverade","infoPreviewToggleEnabledDuckDuckGoText":"YouTube-förhandsvisningar aktiverade i DuckDuckGo.","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Läs mer</a> om DuckDuckGos skydd mot inbäddade sociala medier"}},"tr":{"facebook.json":{"informationalModalMessageTitle":"Facebook ile giriş yapmak, sizi takip etmelerini sağlar","informationalModalMessageBody":"Giriş yaptıktan sonra, DuckDuckGo Facebook içeriğinin sizi bu sitede izlemesini engelleyemez.","informationalModalConfirmButtonText":"Oturum Aç","informationalModalRejectButtonText":"Geri dön","loginButtonText":"Facebook ile giriş yapın","loginBodyText":"Facebook, giriş yapmak için kullandığınızda bir sitedeki etkinliğinizi izler.","buttonTextUnblockContent":"Facebook İçeriğinin Engelini Kaldır","buttonTextUnblockComment":"Facebook Yorumunun Engelini Kaldır","buttonTextUnblockComments":"Facebook Yorumlarının Engelini Kaldır","buttonTextUnblockPost":"Facebook Gönderisinin Engelini Kaldır","buttonTextUnblockVideo":"Facebook Videosunun Engelini Kaldır","buttonTextUnblockLogin":"Facebook Girişinin Engelini Kaldır","infoTitleUnblockContent":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu içeriği engelledi","infoTitleUnblockComment":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu yorumu engelledi","infoTitleUnblockComments":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu yorumları engelledi","infoTitleUnblockPost":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu gönderiyi engelledi","infoTitleUnblockVideo":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu videoyu engelledi","infoTextUnblockContent":"Sayfa yüklendiğinde Facebook'un sizi izlemesini engelledik. Bu içeriğin engelini kaldırırsanız Facebook etkinliğinizi öğrenecektir."},"shared.json":{"learnMore":"Daha Fazla Bilgi","readAbout":"Bu gizlilik koruması hakkında bilgi edinin","shareFeedback":"Geri Bildirim Paylaş"},"youtube.json":{"informationalModalMessageTitle":"Tüm YouTube önizlemeleri etkinleştirilsin mi?","informationalModalMessageBody":"Önizlemelerin gösterilmesi Google'ın (YouTube'un sahibi) cihazınızın bazı bilgilerini görmesine izin verir, ancak yine de videoyu oynatmaktan daha özeldir.","informationalModalConfirmButtonText":"Tüm Önizlemeleri Etkinleştir","informationalModalRejectButtonText":"Hayır Teşekkürler","buttonTextUnblockVideo":"YouTube Videosunun Engelini Kaldır","infoTitleUnblockVideo":"DuckDuckGo, Google'ın sizi izlemesini önlemek için bu YouTube videosunu engelledi","infoTextUnblockVideo":"Sayfa yüklendiğinde Google'ın (YouTube'un sahibi) sizi izlemesini engelledik. Bu videonun engelini kaldırırsanız, Google etkinliğinizi öğrenecektir.","infoPreviewToggleText":"Ek gizlilik için önizlemeler devre dışı bırakıldı","infoPreviewToggleEnabledText":"Önizlemeler etkinleştirildi","infoPreviewToggleEnabledDuckDuckGoText":"DuckDuckGo'da YouTube önizlemeleri etkinleştirildi.","infoPreviewInfoText":"DuckDuckGo Yerleşik Sosyal Medya Koruması hakkında <a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">daha fazla bilgi edinin</a>"}}}`;
+
+    /*********************************************************
+     *  Style Definitions
+     *********************************************************/
+    /**
+     * Get CSS style defintions for CTL, using the provided AssetConfig for any non-embedded assets
+     * (e.g. fonts.)
+     * @param {import('../../content-feature.js').AssetConfig} [assets]
+     */
+    function getStyles(assets) {
+        let fontStyle = '';
+        let regularFontFamily =
+            "system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'";
+        let boldFontFamily = regularFontFamily;
+        if (assets?.regularFontUrl && assets?.boldFontUrl) {
+            fontStyle = `
+        @font-face{
+            font-family: DuckDuckGoPrivacyEssentials;
+            src: url(${assets.regularFontUrl});
+        }
+        @font-face{
+            font-family: DuckDuckGoPrivacyEssentialsBold;
+            font-weight: bold;
+            src: url(${assets.boldFontUrl});
+        }
+    `;
+            regularFontFamily = 'DuckDuckGoPrivacyEssentials';
+            boldFontFamily = 'DuckDuckGoPrivacyEssentialsBold';
+        }
+        return {
+            fontStyle,
+            darkMode: {
+                background: `
+            background: #111111;
+        `,
+                textFont: `
+            color: rgba(255, 255, 255, 0.9);
+        `,
+                buttonFont: `
+            color: #111111;
+        `,
+                linkFont: `
+            color: #7295F6;
+        `,
+                buttonBackground: `
+            background: #5784FF;
+        `,
+                buttonBackgroundHover: `
+            background: #557FF3;
+        `,
+                buttonBackgroundPress: `
+            background: #3969EF;
+        `,
+                toggleButtonText: `
+            color: #EEEEEE;
+        `,
+                toggleButtonBgState: {
+                    active: `
+                background: #5784FF;
+            `,
+                    inactive: `
+                background-color: #666666;
+            `,
+                },
+            },
+            lightMode: {
+                background: `
+            background: #FFFFFF;
+        `,
+                textFont: `
+            color: #222222;
+        `,
+                buttonFont: `
+            color: #FFFFFF;
+        `,
+                linkFont: `
+            color: #3969EF;
+        `,
+                buttonBackground: `
+            background: #3969EF;
+        `,
+                buttonBackgroundHover: `
+            background: #2B55CA;
+        `,
+                buttonBackgroundPress: `
+            background: #1E42A4;
+        `,
+                toggleButtonText: `
+            color: #666666;
+        `,
+                toggleButtonBgState: {
+                    active: `
+                background: #3969EF;
+            `,
+                    inactive: `
+                background-color: #666666;
+            `,
+                },
+            },
+            loginMode: {
+                buttonBackground: `
+            background: #666666;
+        `,
+                buttonFont: `
+            color: #FFFFFF;
+        `,
+            },
+            cancelMode: {
+                buttonBackground: `
+            background: rgba(34, 34, 34, 0.1);
+        `,
+                buttonFont: `
+            color: #222222;
+        `,
+                buttonBackgroundHover: `
+            background: rgba(0, 0, 0, 0.12);
+        `,
+                buttonBackgroundPress: `
+            background: rgba(0, 0, 0, 0.18);
+        `,
+            },
+            button: `
+        border-radius: 8px;
+
+        padding: 11px 22px;
+        font-weight: bold;
+        margin: 0px auto;
+        border-color: #3969EF;
+        border: none;
+
+        font-family: ${boldFontFamily};
+        font-size: 14px;
+
+        position: relative;
+        cursor: pointer;
+        box-shadow: none;
+        z-index: 2147483646;
+    `,
+            circle: `
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        background: #E0E0E0;
+        border: 1px solid #E0E0E0;
+        position: absolute;
+        top: -8px;
+        right: -8px;
+    `,
+            loginIcon: `
+        position: absolute;
+        top: -13px;
+        right: -10px;
+        height: 28px;
+        width: 28px;
+    `,
+            rectangle: `
+        width: 12px;
+        height: 3px;
+        background: #666666;
+        position: relative;
+        top: 42.5%;
+        margin: auto;
+    `,
+            textBubble: `
+        background: #FFFFFF;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 8px 16px rgba(0, 0, 0, 0.08);
+        width: 360px;
+        margin-top: 10px;
+        z-index: 2147483647;
+        position: absolute;
+        line-height: normal;
+    `,
+            textBubbleWidth: 360, // Should match the width rule in textBubble
+            textBubbleLeftShift: 100, // Should match the CSS left: rule in textBubble
+            textArrow: `
+        display: inline-block;
+        background: #FFFFFF;
+        border: solid rgba(0, 0, 0, 0.1);
+        border-width: 0 1px 1px 0;
+        padding: 5px;
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+        position: relative;
+        top: -9px;
+    `,
+            arrowDefaultLocationPercent: 50,
+            hoverTextTitle: `
+        padding: 0px 12px 12px;
+        margin-top: -5px;
+    `,
+            hoverTextBody: `
+        font-family: ${regularFontFamily};
+        font-size: 14px;
+        line-height: 21px;
+        margin: auto;
+        padding: 17px;
+        text-align: left;
+    `,
+            hoverContainer: `
+        padding-bottom: 10px;
+    `,
+            buttonTextContainer: `
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border: none;
+        padding: 0;
+        margin: 0;
+    `,
+            headerRow: `
+
+    `,
+            block: `
+        box-sizing: border-box;
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 12px;
+        max-width: 600px;
+        min-height: 300px;
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+
+        font-family: ${regularFontFamily};
+        line-height: 1;
+    `,
+            youTubeDialogBlock: `
+        height: calc(100% - 30px);
+        max-width: initial;
+        min-height: initial;
+    `,
+            imgRow: `
+        display: flex;
+        flex-direction: column;
+        margin: 20px 0px;
+    `,
+            content: `
+        display: flex;
+        flex-direction: column;
+        padding: 16px 0;
+        flex: 1 1 1px;
+    `,
+            feedbackLink: `
+        font-family: ${regularFontFamily};
+        font-style: normal;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 12px;
+        color: #ABABAB;
+        text-decoration: none;
+    `,
+            feedbackRow: `
+        height: 30px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    `,
+            titleBox: `
+        display: flex;
+        padding: 12px;
+        max-height: 44px;
+        border-bottom: 1px solid;
+        border-color: rgba(196, 196, 196, 0.3);
+        margin: 0;
+        margin-bottom: 4px;
+    `,
+            title: `
+        font-family: ${regularFontFamily};
+        line-height: 1.4;
+        font-size: 14px;
+        margin: auto 10px;
+        flex-basis: 100%;
+        height: 1.4em;
+        flex-wrap: wrap;
+        overflow: hidden;
+        text-align: left;
+        border: none;
+        padding: 0;
+    `,
+            buttonRow: `
+        display: flex;
+        height: 100%
+        flex-direction: row;
+        margin: 20px auto 0px;
+        height: 100%;
+        align-items: flex-start;
+    `,
+            modalContentTitle: `
+        font-family: ${boldFontFamily};
+        font-size: 17px;
+        font-weight: bold;
+        line-height: 21px;
+        margin: 10px auto;
+        text-align: center;
+        border: none;
+        padding: 0px 32px;
+    `,
+            modalContentText: `
+        font-family: ${regularFontFamily};
+        font-size: 14px;
+        line-height: 21px;
+        margin: 0px auto 14px;
+        text-align: center;
+        border: none;
+        padding: 0;
+    `,
+            modalButtonRow: `
+        border: none;
+        padding: 0;
+        margin: auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    `,
+            modalButton: `
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    `,
+            modalIcon: `
+        display: block;
+    `,
+            contentTitle: `
+        font-family: ${boldFontFamily};
+        font-size: 17px;
+        font-weight: bold;
+        margin: 20px auto 10px;
+        padding: 0px 30px;
+        text-align: center;
+        margin-top: auto;
+    `,
+            contentText: `
+        font-family: ${regularFontFamily};
+        font-size: 14px;
+        line-height: 21px;
+        padding: 0px 40px;
+        text-align: center;
+        margin: 0 auto auto;
+    `,
+            icon: `
+        height: 80px;
+        width: 80px;
+        margin: auto;
+    `,
+            closeIcon: `
+        height: 12px;
+        width: 12px;
+        margin: auto;
+    `,
+            closeButton: `
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 20px;
+        height: 21px;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+    `,
+            logo: `
+        flex-basis: 0%;
+        min-width: 20px;
+        height: 21px;
+        border: none;
+        padding: 0;
+        margin: 0;
+    `,
+            logoImg: `
+        height: 21px;
+        width: 21px;
+    `,
+            loadingImg: `
+        display: block;
+        margin: 0px 8px 0px 0px;
+        height: 14px;
+        width: 14px;
+    `,
+            modal: `
+        width: 340px;
+        padding: 0;
+        margin: auto;
+        background-color: #FFFFFF;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: block;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.08), 0px 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        border: none;
+    `,
+            modalContent: `
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        border: none;
+        margin: 0;
+    `,
+            overlay: `
+        height: 100%;
+        width: 100%;
+        background-color: #666666;
+        opacity: .5;
+        display: block;
+        position: fixed;
+        top: 0;
+        right: 0;
+        border: none;
+        padding: 0;
+        margin: 0;
+    `,
+            modalContainer: `
+        height: 100vh;
+        width: 100vw;
+        box-sizing: border-box;
+        z-index: 2147483647;
+        display: block;
+        position: fixed;
+        border: 0;
+        margin: 0;
+        padding: 0;
+    `,
+            headerLinkContainer: `
+        flex-basis: 100%;
+        display: grid;
+        justify-content: flex-end;
+    `,
+            headerLink: `
+        line-height: 1.4;
+        font-size: 14px;
+        font-weight: bold;
+        font-family: ${boldFontFamily};
+        text-decoration: none;
+        cursor: pointer;
+        min-width: 100px;
+        text-align: end;
+        float: right;
+        display: none;
+    `,
+            generalLink: `
+        line-height: 1.4;
+        font-size: 14px;
+        font-weight: bold;
+        font-family: ${boldFontFamily};
+        cursor: pointer;
+        text-decoration: none;
+    `,
+            wrapperDiv: `
+        display: inline-block;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        max-width: 600px;
+        min-height: 300px;
+    `,
+            toggleButtonWrapper: `
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    `,
+            toggleButton: `
+        cursor: pointer;
+        position: relative;
+        width: 30px;
+        height: 16px;
+        margin-top: -3px;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background-color: transparent;
+        text-align: left;
+    `,
+            toggleButtonBg: `
+        right: 0;
+        width: 30px;
+        height: 16px;
+        overflow: visible;
+        border-radius: 10px;
+    `,
+            toggleButtonText: `
+        display: inline-block;
+        margin: 0 0 0 7px;
+        padding: 0;
+    `,
+            toggleButtonKnob: `
+        position: absolute;
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 10px;
+        background-color: #ffffff;
+        margin-top: 1px;
+        top: calc(50% - 14px/2 - 1px);
+        box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 1px rgba(0, 0, 0, 0.1);
+    `,
+            toggleButtonKnobState: {
+                active: `
+            right: 1px;
+        `,
+                inactive: `
+            left: 1px;
+        `,
+            },
+            placeholderWrapperDiv: `
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        box-sizing: border-box;
+        max-width: initial;
+        min-width: 380px;
+        min-height: 300px;
+        margin: auto;
+    `,
+            youTubeWrapperDiv: `
+        position: relative;
+        overflow: hidden;
+        max-width: initial;
+        min-width: 380px;
+        min-height: 300px;
+        height: 100%;
+    `,
+            youTubeDialogDiv: `
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        max-width: initial;
+        min-height: initial;
+        height: calc(100% - 30px);
+    `,
+            youTubeDialogBottomRow: `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: auto;
+    `,
+            youTubePlaceholder: `
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: rgba(45, 45, 45, 0.8);
+    `,
+            youTubePreviewWrapperImg: `
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    `,
+            youTubePreviewImg: `
+        min-width: 100%;
+        min-height: 100%;
+        height: auto;
+    `,
+            youTubeTopSection: `
+        font-family: ${boldFontFamily};
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        padding: 18px 12px 0;
+    `,
+            youTubeTitle: `
+        font-size: 14px;
+        font-weight: bold;
+        line-height: 14px;
+        color: #FFFFFF;
+        margin: 0;
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
+    `,
+            youTubePlayButtonRow: `
+        flex: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `,
+            youTubePlayButton: `
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 48px;
+        width: 80px;
+        padding: 0px 24px;
+        border-radius: 8px;
+    `,
+            youTubePreviewToggleRow: `
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0 12px 18px;
+    `,
+            youTubePreviewToggleText: `
+        color: #EEEEEE;
+        font-weight: 400;
+    `,
+            youTubePreviewInfoText: `
+        color: #ABABAB;
+    `,
+        };
+    }
+
+    /**
+     * @param {string} locale UI locale
+     */
+    function getConfig(locale) {
+        const allLocales = JSON.parse(localesJSON);
+        const localeStrings = allLocales[locale] || allLocales.en;
+
+        const fbStrings = localeStrings['facebook.json'];
+        const ytStrings = localeStrings['youtube.json'];
+        const sharedStrings = localeStrings['shared.json'];
+
+        const config = {
+            'Facebook, Inc.': {
+                informationalModal: {
+                    icon: blockedFBLogo,
+                    messageTitle: fbStrings.informationalModalMessageTitle,
+                    messageBody: fbStrings.informationalModalMessageBody,
+                    confirmButtonText: fbStrings.informationalModalConfirmButtonText,
+                    rejectButtonText: fbStrings.informationalModalRejectButtonText,
+                },
+                elementData: {
+                    'FB Like Button': {
+                        selectors: ['.fb-like'],
+                        replaceSettings: {
+                            type: 'blank',
+                        },
+                    },
+                    'FB Button iFrames': {
+                        selectors: [
+                            "iframe[src*='//www.facebook.com/plugins/like.php']",
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/like.php']",
+                            "iframe[src*='//www.facebook.com/plugins/share_button.php']",
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/share_button.php']",
+                        ],
+                        replaceSettings: {
+                            type: 'blank',
+                        },
+                    },
+                    'FB Save Button': {
+                        selectors: ['.fb-save'],
+                        replaceSettings: {
+                            type: 'blank',
+                        },
+                    },
+                    'FB Share Button': {
+                        selectors: ['.fb-share-button'],
+                        replaceSettings: {
+                            type: 'blank',
+                        },
+                    },
+                    'FB Page iFrames': {
+                        selectors: [
+                            "iframe[src*='//www.facebook.com/plugins/page.php']",
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/page.php']",
+                        ],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockContent,
+                            infoTitle: fbStrings.infoTitleUnblockContent,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'originalElement',
+                        },
+                    },
+                    'FB Page Div': {
+                        selectors: ['.fb-page'],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockContent,
+                            infoTitle: fbStrings.infoTitleUnblockContent,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'iFrame',
+                            targetURL:
+                                'https://www.facebook.com/plugins/page.php?href=data-href&tabs=data-tabs&width=data-width&height=data-height',
+                            urlDataAttributesToPreserve: {
+                                'data-href': {
+                                    default: '',
+                                    required: true,
+                                },
+                                'data-tabs': {
+                                    default: 'timeline',
+                                },
+                                'data-height': {
+                                    default: '500',
+                                },
+                                'data-width': {
+                                    default: '500',
+                                },
+                            },
+                            styleDataAttributes: {
+                                width: {
+                                    name: 'data-width',
+                                    unit: 'px',
+                                },
+                                height: {
+                                    name: 'data-height',
+                                    unit: 'px',
+                                },
+                            },
+                        },
+                    },
+                    'FB Comment iFrames': {
+                        selectors: [
+                            "iframe[src*='//www.facebook.com/plugins/comment_embed.php']",
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/comment_embed.php']",
+                        ],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockComment,
+                            infoTitle: fbStrings.infoTitleUnblockComment,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'originalElement',
+                        },
+                    },
+                    'FB Comments': {
+                        selectors: ['.fb-comments', 'fb\\:comments'],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockComments,
+                            infoTitle: fbStrings.infoTitleUnblockComments,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'allowFull',
+                            targetURL:
+                                'https://www.facebook.com/v9.0/plugins/comments.php?href=data-href&numposts=data-numposts&sdk=joey&version=v9.0&width=data-width',
+                            urlDataAttributesToPreserve: {
+                                'data-href': {
+                                    default: '',
+                                    required: true,
+                                },
+                                'data-numposts': {
+                                    default: 10,
+                                },
+                                'data-width': {
+                                    default: '500',
+                                },
+                            },
+                        },
+                    },
+                    'FB Embedded Comment Div': {
+                        selectors: ['.fb-comment-embed'],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockComment,
+                            infoTitle: fbStrings.infoTitleUnblockComment,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'iFrame',
+                            targetURL:
+                                'https://www.facebook.com/v9.0/plugins/comment_embed.php?href=data-href&sdk=joey&width=data-width&include_parent=data-include-parent',
+                            urlDataAttributesToPreserve: {
+                                'data-href': {
+                                    default: '',
+                                    required: true,
+                                },
+                                'data-width': {
+                                    default: '500',
+                                },
+                                'data-include-parent': {
+                                    default: 'false',
+                                },
+                            },
+                            styleDataAttributes: {
+                                width: {
+                                    name: 'data-width',
+                                    unit: 'px',
+                                },
+                            },
+                        },
+                    },
+                    'FB Post iFrames': {
+                        selectors: [
+                            "iframe[src*='//www.facebook.com/plugins/post.php']",
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/post.php']",
+                        ],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockPost,
+                            infoTitle: fbStrings.infoTitleUnblockPost,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'originalElement',
+                        },
+                    },
+                    'FB Posts Div': {
+                        selectors: ['.fb-post'],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockPost,
+                            infoTitle: fbStrings.infoTitleUnblockPost,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'allowFull',
+                            targetURL: 'https://www.facebook.com/v9.0/plugins/post.php?href=data-href&sdk=joey&show_text=true&width=data-width',
+                            urlDataAttributesToPreserve: {
+                                'data-href': {
+                                    default: '',
+                                    required: true,
+                                },
+                                'data-width': {
+                                    default: '500',
+                                },
+                            },
+                            styleDataAttributes: {
+                                width: {
+                                    name: 'data-width',
+                                    unit: 'px',
+                                },
+                                height: {
+                                    name: 'data-height',
+                                    unit: 'px',
+                                    fallbackAttribute: 'data-width',
+                                },
+                            },
+                        },
+                    },
+                    'FB Video iFrames': {
+                        selectors: [
+                            "iframe[src*='//www.facebook.com/plugins/video.php']",
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/video.php']",
+                        ],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockVideo,
+                            infoTitle: fbStrings.infoTitleUnblockVideo,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'originalElement',
+                        },
+                    },
+                    'FB Video': {
+                        selectors: ['.fb-video'],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockVideo,
+                            infoTitle: fbStrings.infoTitleUnblockVideo,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'iFrame',
+                            targetURL: 'https://www.facebook.com/plugins/video.php?href=data-href&show_text=true&width=data-width',
+                            urlDataAttributesToPreserve: {
+                                'data-href': {
+                                    default: '',
+                                    required: true,
+                                },
+                                'data-width': {
+                                    default: '500',
+                                },
+                            },
+                            styleDataAttributes: {
+                                width: {
+                                    name: 'data-width',
+                                    unit: 'px',
+                                },
+                                height: {
+                                    name: 'data-height',
+                                    unit: 'px',
+                                    fallbackAttribute: 'data-width',
+                                },
+                            },
+                        },
+                    },
+                    'FB Group iFrames': {
+                        selectors: [
+                            "iframe[src*='//www.facebook.com/plugins/group.php']",
+                            "iframe[src*='//www.facebook.com/v2.0/plugins/group.php']",
+                        ],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockContent,
+                            infoTitle: fbStrings.infoTitleUnblockContent,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'originalElement',
+                        },
+                    },
+                    'FB Group': {
+                        selectors: ['.fb-group'],
+                        replaceSettings: {
+                            type: 'dialog',
+                            buttonText: fbStrings.buttonTextUnblockContent,
+                            infoTitle: fbStrings.infoTitleUnblockContent,
+                            infoText: fbStrings.infoTextUnblockContent,
+                        },
+                        clickAction: {
+                            type: 'iFrame',
+                            targetURL: 'https://www.facebook.com/plugins/group.php?href=data-href&width=data-width',
+                            urlDataAttributesToPreserve: {
+                                'data-href': {
+                                    default: '',
+                                    required: true,
+                                },
+                                'data-width': {
+                                    default: '500',
+                                },
+                            },
+                            styleDataAttributes: {
+                                width: {
+                                    name: 'data-width',
+                                    unit: 'px',
+                                },
+                            },
+                        },
+                    },
+                    'FB Login Button': {
+                        selectors: ['.fb-login-button'],
+                        replaceSettings: {
+                            type: 'loginButton',
+                            icon: blockedFBLogo,
+                            buttonText: fbStrings.loginButtonText,
+                            buttonTextUnblockLogin: fbStrings.buttonTextUnblockLogin,
+                            popupBodyText: fbStrings.loginBodyText,
+                        },
+                        clickAction: {
+                            type: 'allowFull',
+                            targetURL:
+                                'https://www.facebook.com/v9.0/plugins/login_button.php?app_id=app_id_replace&auto_logout_link=false&button_type=continue_with&sdk=joey&size=large&use_continue_as=false&width=',
+                            urlDataAttributesToPreserve: {
+                                'data-href': {
+                                    default: '',
+                                    required: true,
+                                },
+                                'data-width': {
+                                    default: '500',
+                                },
+                                app_id_replace: {
+                                    default: 'null',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            Youtube: {
+                informationalModal: {
+                    icon: blockedYTVideo,
+                    messageTitle: ytStrings.informationalModalMessageTitle,
+                    messageBody: ytStrings.informationalModalMessageBody,
+                    confirmButtonText: ytStrings.informationalModalConfirmButtonText,
+                    rejectButtonText: ytStrings.informationalModalRejectButtonText,
+                },
+                elementData: {
+                    'YouTube embedded video': {
+                        selectors: [
+                            "iframe[src*='//youtube.com/embed']",
+                            "iframe[src*='//youtube-nocookie.com/embed']",
+                            "iframe[src*='//www.youtube.com/embed']",
+                            "iframe[src*='//www.youtube-nocookie.com/embed']",
+                            "iframe[data-src*='//youtube.com/embed']",
+                            "iframe[data-src*='//youtube-nocookie.com/embed']",
+                            "iframe[data-src*='//www.youtube.com/embed']",
+                            "iframe[data-src*='//www.youtube-nocookie.com/embed']",
+                        ],
+                        replaceSettings: {
+                            type: 'youtube-video',
+                            buttonText: ytStrings.buttonTextUnblockVideo,
+                            infoTitle: ytStrings.infoTitleUnblockVideo,
+                            infoText: ytStrings.infoTextUnblockVideo,
+                            previewToggleText: ytStrings.infoPreviewToggleText,
+                            placeholder: {
+                                previewToggleEnabledText: ytStrings.infoPreviewToggleEnabledText,
+                                previewInfoText: ytStrings.infoPreviewInfoText,
+                                previewToggleEnabledDuckDuckGoText: ytStrings.infoPreviewToggleEnabledText,
+                                videoPlayIcon: {
+                                    lightMode: videoPlayLight,
+                                    darkMode: videoPlayDark,
+                                },
+                            },
+                        },
+                        clickAction: {
+                            type: 'youtube-video',
+                        },
+                    },
+                    'YouTube embedded subscription button': {
+                        selectors: [
+                            "iframe[src*='//youtube.com/subscribe_embed']",
+                            "iframe[src*='//youtube-nocookie.com/subscribe_embed']",
+                            "iframe[src*='//www.youtube.com/subscribe_embed']",
+                            "iframe[src*='//www.youtube-nocookie.com/subscribe_embed']",
+                            "iframe[data-src*='//youtube.com/subscribe_embed']",
+                            "iframe[data-src*='//youtube-nocookie.com/subscribe_embed']",
+                            "iframe[data-src*='//www.youtube.com/subscribe_embed']",
+                            "iframe[data-src*='//www.youtube-nocookie.com/subscribe_embed']",
+                        ],
+                        replaceSettings: {
+                            type: 'blank',
+                        },
+                    },
+                },
+            },
+        };
+
+        return { config, sharedStrings };
+    }
+
+    /**
+     * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
+     */
+    class Template {
+        constructor(strings, values) {
+            this.values = values;
+            this.strings = strings;
+        }
+
+        /**
+         * Escapes any occurrences of &, ", <, > or / with XML entities.
+         *
+         * @param {string} str
+         *        The string to escape.
+         * @return {string} The escaped string.
+         */
+        escapeXML(str) {
+            const replacements = {
+                '&': '&amp;',
+                '"': '&quot;',
+                "'": '&apos;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '/': '&#x2F;',
+            };
+            return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
+        }
+
+        potentiallyEscape(value) {
+            if (typeof value === 'object') {
+                if (value instanceof Array) {
+                    return value.map((val) => this.potentiallyEscape(val)).join('');
+                }
+
+                // If we are an escaped template let join call toString on it
+                if (value instanceof Template) {
+                    return value;
+                }
+
+                throw new Error('Unknown object to escape');
+            }
+            return this.escapeXML(value);
+        }
+
+        toString() {
+            const result = [];
+
+            for (const [i, string] of this.strings.entries()) {
+                result.push(string);
+                if (i < this.values.length) {
+                    result.push(this.potentiallyEscape(this.values[i]));
+                }
+            }
+            return result.join('');
+        }
+    }
+
+    function html(strings, ...values) {
+        return new Template(strings, values);
+    }
+
+    var cssVars = ":host {\n    /* Color palette */\n    --ddg-shade-06: rgba(0, 0, 0, 0.06);\n    --ddg-shade-12: rgba(0, 0, 0, 0.12);\n    --ddg-shade-18: rgba(0, 0, 0, 0.18);\n    --ddg-shade-36: rgba(0, 0, 0, 0.36);\n    --ddg-shade-84: rgba(0, 0, 0, 0.84);\n    --ddg-tint-12: rgba(255, 255, 255, 0.12);\n    --ddg-tint-18: rgba(255, 255, 255, 0.18);\n    --ddg-tint-24: rgba(255, 255, 255, 0.24);\n    --ddg-tint-84: rgba(255, 255, 255, 0.84);\n    /* Tokens */\n    --ddg-color-primary: #3969ef;\n    --ddg-color-bg-01: #ffffff;\n    --ddg-color-bg-02: #ababab;\n    --ddg-color-border: var(--ddg-shade-12);\n    --ddg-color-txt: var(--ddg-shade-84);\n    --ddg-color-txt-link-02: #ababab;\n}\n@media (prefers-color-scheme: dark) {\n    :host {\n        --ddg-color-primary: #7295f6;\n        --ddg-color-bg-01: #222222;\n        --ddg-color-bg-02: #444444;\n        --ddg-color-border: var(--ddg-tint-12);\n        --ddg-color-txt: var(--ddg-tint-84);\n    }\n}\n\n/* SHARED STYLES */\n/* Text Link */\n.ddg-text-link {\n    line-height: 1.4;\n    font-size: 14px;\n    font-weight: 700;\n    cursor: pointer;\n    text-decoration: none;\n    color: var(--ddg-color-primary);\n}\n\n/* Button */\n.DuckDuckGoButton {\n    border-radius: 8px;\n    padding: 8px 16px;\n    border-color: var(--ddg-color-primary);\n    border: none;\n    min-height: 36px;\n\n    position: relative;\n    cursor: pointer;\n    box-shadow: none;\n    z-index: 2147483646;\n}\n.DuckDuckGoButton > div {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    border: none;\n    padding: 0;\n    margin: 0;\n}\n.DuckDuckGoButton,\n.DuckDuckGoButton > div {\n    font-size: 14px;\n    font-family: DuckDuckGoPrivacyEssentialsBold;\n    font-weight: 600;\n}\n.DuckDuckGoButton.tertiary {\n    color: var(--ddg-color-txt);\n    background-color: transparent;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    border: 1px solid var(--ddg-color-border);\n    border-radius: 8px;\n}\n.DuckDuckGoButton.tertiary:hover {\n    background: var(--ddg-shade-06);\n    border-color: var(--ddg-shade-18);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:hover {\n        background: var(--ddg-tint-18);\n        border-color: var(--ddg-tint-24);\n    }\n}\n.DuckDuckGoButton.tertiary:active {\n    background: var(--ddg-shade-12);\n    border-color: var(--ddg-shade-36);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:active {\n        background: var(--ddg-tint-24);\n        border-color: var(--ddg-tint-24);\n    }\n}\n";
+
+    var css$1 = ":host,\n* {\n    font-family: DuckDuckGoPrivacyEssentials, system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto,\n        Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';\n    box-sizing: border-box;\n    font-weight: normal;\n    font-style: normal;\n    margin: 0;\n    padding: 0;\n    text-align: left;\n}\n\n:host,\n.DuckDuckGoSocialContainer {\n    display: inline-block;\n    border: 0;\n    padding: 0;\n    margin: auto;\n    inset: initial;\n    max-width: 600px;\n    min-height: 180px;\n}\n\n/* SHARED STYLES */\n/* Toggle Button */\n.ddg-toggle-button-container {\n    display: flex;\n    align-items: center;\n    cursor: pointer;\n}\n.ddg-toggle-button {\n    cursor: pointer;\n    position: relative;\n    margin-top: -3px;\n    margin: 0;\n    padding: 0;\n    border: none;\n    background-color: transparent;\n    text-align: left;\n}\n.ddg-toggle-button,\n.ddg-toggle-button.md,\n.ddg-toggle-button-bg,\n.ddg-toggle-button.md .ddg-toggle-button-bg {\n    width: 32px;\n    height: 16px;\n    border-radius: 20px;\n}\n.ddg-toggle-button.lg,\n.ddg-toggle-button.lg .ddg-toggle-button-bg {\n    width: 56px;\n    height: 34px;\n    border-radius: 50px;\n}\n.ddg-toggle-button-bg {\n    right: 0;\n    overflow: visible;\n}\n.ddg-toggle-button.active .ddg-toggle-button-bg {\n    background: var(--ddg-color-primary);\n}\n.ddg-toggle-button.inactive .ddg-toggle-button-bg {\n    background: var(--ddg-color-bg-02);\n}\n.ddg-toggle-button-knob {\n    --ddg-toggle-knob-margin: 2px;\n    position: absolute;\n    display: inline-block;\n    border-radius: 50%;\n    background-color: #ffffff;\n    margin-top: var(--ddg-toggle-knob-margin);\n}\n.ddg-toggle-button-knob,\n.ddg-toggle-button.md .ddg-toggle-button-knob {\n    width: 12px;\n    height: 12px;\n    top: calc(50% - 16px / 2);\n}\n.ddg-toggle-button.lg .ddg-toggle-button-knob {\n    --ddg-toggle-knob-margin: 4px;\n    width: 26px;\n    height: 26px;\n    top: calc(50% - 34px / 2);\n}\n.ddg-toggle-button.active .ddg-toggle-button-knob {\n    right: var(--ddg-toggle-knob-margin);\n}\n.ddg-toggle-button.inactive .ddg-toggle-button-knob {\n    left: var(--ddg-toggle-knob-margin);\n}\n.ddg-toggle-button-label {\n    font-size: 14px;\n    line-height: 20px;\n    color: var(--ddg-color-txt);\n    margin-left: 12px;\n}\n\n/* Styles for DDGCtlPlaceholderBlocked */\n.DuckDuckGoButton.ddg-ctl-unblock-btn {\n    width: 100%;\n    margin: 0 auto;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .DuckDuckGoButton.ddg-ctl-unblock-btn {\n    width: auto;\n}\n\n.ddg-ctl-placeholder-card {\n    height: 100%;\n    overflow: auto;\n    padding: 16px;\n    color: var(--ddg-color-txt);\n    background: var(--ddg-color-bg-01);\n    border: 1px solid var(--ddg-color-border);\n    border-radius: 12px;\n    margin: auto;\n    display: grid;\n    justify-content: center;\n    align-items: center;\n    line-height: 1;\n}\n.ddg-ctl-placeholder-card.slim-card {\n    padding: 12px;\n}\n.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-body {\n    margin: auto;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card.with-feedback-link {\n    height: calc(100% - 30px);\n    max-width: initial;\n    min-height: initial;\n}\n\n.ddg-ctl-placeholder-card-header {\n    width: 100%;\n    display: flex;\n    align-items: center;\n    margin: auto;\n    margin-bottom: 8px;\n    text-align: left;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header {\n    flex-direction: column;\n    align-items: center;\n    justify-content: center;\n    margin-bottom: 12px;\n    width: 80%;\n    text-align: center;\n}\n\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header .ddg-ctl-placeholder-card-title,\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header .ddg-text-link {\n    text-align: center;\n}\n\n/* Show Learn More link in the header on mobile and\n * tablet size screens and hide it on desktop size */\n.DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-header .ddg-learn-more {\n    display: none;\n}\n\n.ddg-ctl-placeholder-card-title,\n.ddg-ctl-placeholder-card-title .ddg-text-link {\n    font-family: DuckDuckGoPrivacyEssentialsBold;\n    font-weight: 700;\n    font-size: 16px;\n    line-height: 24px;\n}\n\n.ddg-ctl-placeholder-card-header-dax {\n    align-self: flex-start;\n    width: 48px;\n    height: 48px;\n    margin: 0 8px 0 0;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header-dax {\n    align-self: inherit;\n    margin: 0 0 12px 0;\n}\n\n.DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-header-dax {\n    width: 56px;\n    height: 56px;\n}\n\n.ddg-ctl-placeholder-card-body-text {\n    font-size: 16px;\n    line-height: 24px;\n    text-align: center;\n    margin: 0 auto 12px;\n\n    display: none;\n}\n.DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-body-text {\n    width: 80%;\n    display: block;\n}\n\n.ddg-ctl-placeholder-card-footer {\n    width: 100%;\n    margin-top: 12px;\n    display: flex;\n    align-items: center;\n    justify-content: flex-start;\n    align-self: end;\n}\n\n/* Only display the unblock button on really small placeholders */\n.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-header,\n.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-body-text,\n.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-footer {\n    display: none;\n}\n\n.ddg-ctl-feedback-row {\n    display: none;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-feedback-row {\n    height: 30px;\n    justify-content: flex-end;\n    align-items: center;\n    display: flex;\n}\n\n.ddg-ctl-feedback-link {\n    font-style: normal;\n    font-weight: 400;\n    font-size: 12px;\n    line-height: 12px;\n    color: var(--ddg-color-txt-link-02);\n    text-decoration: none;\n    display: inline;\n    background-color: transparent;\n    border: 0;\n    padding: 0;\n    cursor: pointer;\n}\n";
+
+    /**
+     * Size keys for a placeholder
+     * @typedef { 'size-xs' | 'size-sm' | 'size-md' | 'size-lg'| null } placeholderSize
+     */
+
+    /**
+     * @typedef WithToggleParams - Toggle params
+     * @property {boolean} isActive - Toggle state
+     * @property {string} dataKey - data-key attribute for toggle button
+     * @property {string} label - Text to be presented with toggle
+     * @property {'md' | 'lg'} [size=md] - Toggle size variant, 'md' by default
+     * @property {() => void} onClick - Toggle on click callback
+     */
+    /**
+     * @typedef WithFeedbackParams - Feedback link params
+     * @property {string=} label - "Share Feedback" link text
+     * @property {() => void} onClick - Feedback element on click callback
+     */
+    /**
+     * @typedef LearnMoreParams - "Learn More" link params
+     * @property {string} readAbout - "Learn More" aria-label text
+     * @property {string} learnMore - "Learn More" link text
+     */
+
+    /**
+     * The custom HTML element (Web Component) template with the placeholder for blocked
+     * embedded content. The constructor gets a list of parameters with the
+     * content and event handlers for this template.
+     * This is currently only used in our Mobile Apps, but can be expanded in the future.
+     */
+    class DDGCtlPlaceholderBlockedElement extends HTMLElement {
+        static CUSTOM_TAG_NAME = 'ddg-ctl-placeholder-blocked';
+        /**
+         * Min height that the placeholder needs to have in order to
+         * have enough room to display content.
+         */
+        static MIN_CONTENT_HEIGHT = 110;
+        static MAX_CONTENT_WIDTH_SMALL = 480;
+        static MAX_CONTENT_WIDTH_MEDIUM = 650;
+        /**
+         * Set observed attributes that will trigger attributeChangedCallback()
+         */
+        static get observedAttributes() {
+            return ['style'];
+        }
+
+        /**
+         * Placeholder element for blocked content
+         * @type {HTMLDivElement}
+         */
+        placeholderBlocked;
+
+        /**
+         * Size variant of the latest calculated size of the placeholder.
+         * This is used to add the appropriate CSS class to the placeholder container
+         * and adapt the layout for each size.
+         * @type {placeholderSize}
+         */
+        size = null;
+
+        /**
+         * @param {object} params - Params for building a custom element
+         *                          with a placeholder for blocked content
+         * @param {boolean} params.devMode - Used to create the Shadow DOM on 'open'(true) or 'closed'(false) mode
+         * @param {string} params.title - Card title text
+         * @param {string} params.body - Card body text
+         * @param {string} params.unblockBtnText - Unblock button text
+         * @param {boolean=} params.useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
+         * @param {HTMLElement} params.originalElement - The original element this placeholder is replacing.
+         * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
+         * @param {WithToggleParams=} params.withToggle - Toggle config to be displayed in the bottom of the placeholder
+         * @param {WithFeedbackParams=} params.withFeedback - Shows feedback link on tablet and desktop sizes,
+         * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onButtonClick
+         */
+        constructor(params) {
+            super();
+            this.params = params;
+            /**
+             * Create the shadow root, closed to prevent any outside observers
+             * @type {ShadowRoot}
+             */
+            const shadow = this.attachShadow({
+                mode: this.params.devMode ? 'open' : 'closed',
+            });
+
+            /**
+             * Add our styles
+             * @type {HTMLStyleElement}
+             */
+            const style = document.createElement('style');
+            style.innerText = cssVars + css$1;
+
+            /**
+             * Creates the placeholder for blocked content
+             * @type {HTMLDivElement}
+             */
+            this.placeholderBlocked = this.createPlaceholder();
+            /**
+             * Creates the Share Feedback element
+             * @type {HTMLDivElement | null}
+             */
+            const feedbackLink = this.params.withFeedback ? this.createShareFeedbackLink() : null;
+            /**
+             * Setup the click handlers
+             */
+            this.setupEventListeners(this.placeholderBlocked, feedbackLink);
+
+            /**
+             * Append both to the shadow root
+             */
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            feedbackLink && this.placeholderBlocked.appendChild(feedbackLink);
+            shadow.appendChild(this.placeholderBlocked);
+            shadow.appendChild(style);
+        }
+
+        /**
+         * Creates a placeholder for content blocked by Click to Load.
+         * Note: We're using arrow functions () => {} in this class due to a bug
+         * found in Firefox where it is getting the wrong "this" context on calls in the constructor.
+         * This is a temporary workaround.
+         * @returns {HTMLDivElement}
+         */
+        createPlaceholder = () => {
+            const { title, body, unblockBtnText, useSlimCard, withToggle, withFeedback } = this.params;
+
+            const container = document.createElement('div');
+            container.classList.add('DuckDuckGoSocialContainer');
+            const cardClassNames = [
+                ['slim-card', !!useSlimCard],
+                ['with-feedback-link', !!withFeedback],
+            ]
+                .map(([className, active]) => (active ? className : ''))
+                .join(' ');
+
+            // Only add a card footer if we have the toggle button to display
+            const cardFooterSection = withToggle ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> ` : '';
+            const learnMoreLink = this.createLearnMoreLink();
+
+            container.innerHTML = html`
+            <div class="ddg-ctl-placeholder-card ${cardClassNames}">
+                <div class="ddg-ctl-placeholder-card-header">
+                    <img class="ddg-ctl-placeholder-card-header-dax" src=${logoImg} alt="DuckDuckGo Dax" />
+                    <div class="ddg-ctl-placeholder-card-title">${title}. ${learnMoreLink}</div>
+                </div>
+                <div class="ddg-ctl-placeholder-card-body">
+                    <div class="ddg-ctl-placeholder-card-body-text">${body} ${learnMoreLink}</div>
+                    <button class="DuckDuckGoButton tertiary ddg-ctl-unblock-btn" type="button">
+                        <div>${unblockBtnText}</div>
+                    </button>
+                </div>
+                ${cardFooterSection}
+            </div>
+        `.toString();
+
+            return container;
+        };
+
+        /**
+         * Creates a template string for Learn More link.
+         */
+        createLearnMoreLink = () => {
+            const { learnMore } = this.params;
+
+            return html`<a
+            class="ddg-text-link ddg-learn-more"
+            aria-label="${learnMore.readAbout}"
+            href="https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/"
+            target="_blank"
+            >${learnMore.learnMore}</a
+        >`;
+        };
+
+        /**
+         * Creates a Feedback Link container row
+         * @returns {HTMLDivElement}
+         */
+        createShareFeedbackLink = () => {
+            const { withFeedback } = this.params;
+
+            const container = document.createElement('div');
+            container.classList.add('ddg-ctl-feedback-row');
+
+            container.innerHTML = html`
+            <button class="ddg-ctl-feedback-link" type="button">${withFeedback?.label || 'Share Feedback'}</button>
+        `.toString();
+
+            return container;
+        };
+
+        /**
+         * Creates a template string for a toggle button with text.
+         */
+        createToggleButton = () => {
+            const { withToggle } = this.params;
+            if (!withToggle) return;
+
+            const { isActive, dataKey, label, size: toggleSize = 'md' } = withToggle;
+
+            const toggleButton = html`
+            <div class="ddg-toggle-button-container">
+                <button
+                    class="ddg-toggle-button ${isActive ? 'active' : 'inactive'} ${toggleSize}"
+                    type="button"
+                    aria-pressed=${!!isActive}
+                    data-key=${dataKey}
+                >
+                    <div class="ddg-toggle-button-bg"></div>
+                    <div class="ddg-toggle-button-knob"></div>
+                </button>
+                <div class="ddg-toggle-button-label">${label}</div>
+            </div>
+        `;
+            return toggleButton;
+        };
+
+        /**
+         *
+         * @param {HTMLElement} containerElement
+         * @param {HTMLElement?} feedbackLink
+         */
+        setupEventListeners = (containerElement, feedbackLink) => {
+            const { withToggle, withFeedback, originalElement, onButtonClick } = this.params;
+
+            containerElement.querySelector('button.ddg-ctl-unblock-btn')?.addEventListener('click', onButtonClick(originalElement, this));
+
+            if (withToggle) {
+                containerElement.querySelector('.ddg-toggle-button-container')?.addEventListener('click', withToggle.onClick);
+            }
+            if (withFeedback && feedbackLink) {
+                feedbackLink.querySelector('.ddg-ctl-feedback-link')?.addEventListener('click', withFeedback.onClick);
+            }
+        };
+
+        /**
+         * Use JS to calculate the width and height of the root element placeholder. We could use a CSS Container Query, but full
+         * support to it was only added recently, so we're not using it for now.
+         * https://caniuse.com/css-container-queries
+         */
+        updatePlaceholderSize = () => {
+            /** @type {placeholderSize} */
+            let newSize = null;
+
+            const { height, width } = this.getBoundingClientRect();
+            if (height && height < DDGCtlPlaceholderBlockedElement.MIN_CONTENT_HEIGHT) {
+                newSize = 'size-xs';
+            } else if (width) {
+                if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_SMALL) {
+                    newSize = 'size-sm';
+                } else if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_MEDIUM) {
+                    newSize = 'size-md';
+                } else {
+                    newSize = 'size-lg';
+                }
+            }
+
+            if (newSize && newSize !== this.size) {
+                if (this.size) {
+                    this.placeholderBlocked.classList.remove(this.size);
+                }
+                this.placeholderBlocked.classList.add(newSize);
+                this.size = newSize;
+            }
+        };
+
+        /**
+         * Web Component lifecycle function.
+         * When element is first added to the DOM, trigger this callback and
+         * update the element CSS size class.
+         */
+        connectedCallback() {
+            this.updatePlaceholderSize();
+        }
+
+        /**
+         * Web Component lifecycle function.
+         * When the root element gets the 'style' attribute updated, reflect that in the container
+         * element inside the shadow root. This way, we can copy the size and other styles from the root
+         * element and have the inner context be able to use the same sizes to adapt the template layout.
+         * @param {string} attr Observed attribute key
+         * @param {*} _ Attribute old value, ignored
+         * @param {*} newValue Attribute new value
+         */
+        attributeChangedCallback(attr, _, newValue) {
+            if (attr === 'style') {
+                this.placeholderBlocked[attr].cssText = newValue;
+                this.updatePlaceholderSize();
+            }
+        }
+    }
+
+    var css = ":host,\n* {\n    font-family: DuckDuckGoPrivacyEssentials, system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto,\n        Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';\n    box-sizing: border-box;\n    font-weight: normal;\n    font-style: normal;\n    margin: 0;\n    padding: 0;\n    text-align: left;\n}\n\n/* SHARED STYLES */\n/* Popover */\n.ddg-popover {\n    background: #ffffff;\n    border: 1px solid rgba(0, 0, 0, 0.1);\n    border-radius: 16px;\n    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 8px 16px rgba(0, 0, 0, 0.08);\n    width: 360px;\n    margin-top: 10px;\n    z-index: 2147483647;\n    position: absolute;\n    line-height: normal;\n}\n.ddg-popover-arrow {\n    display: inline-block;\n    background: #ffffff;\n    border: solid rgba(0, 0, 0, 0.1);\n    border-width: 0 1px 1px 0;\n    padding: 5px;\n    transform: rotate(-135deg);\n    -webkit-transform: rotate(-135deg);\n    position: relative;\n    top: -9px;\n}\n.ddg-popover .ddg-title-header {\n    padding: 0px 12px 12px;\n    margin-top: -5px;\n}\n.ddg-popover-body {\n    font-size: 14px;\n    line-height: 21px;\n    margin: auto;\n    padding: 17px;\n    text-align: left;\n}\n\n/* DDG common header */\n.ddg-title-header {\n    display: flex;\n    padding: 12px;\n    max-height: 44px;\n    border-bottom: 1px solid;\n    border-color: rgba(196, 196, 196, 0.3);\n    margin: 0;\n    margin-bottom: 4px;\n}\n.ddg-title-header .ddg-title-text {\n    line-height: 1.4;\n    font-size: 14px;\n    margin: auto 10px;\n    flex-basis: 100%;\n    height: 1.4em;\n    flex-wrap: wrap;\n    overflow: hidden;\n    text-align: left;\n    border: none;\n    padding: 0;\n}\n.ddg-title-header .ddg-logo {\n    flex-basis: 0%;\n    min-width: 20px;\n    height: 21px;\n    border: none;\n    padding: 0;\n    margin: 0;\n}\n.ddg-title-header .ddg-logo .ddg-logo-img {\n    height: 21px;\n    width: 21px;\n}\n\n/* CTL Login Button styles */\n#DuckDuckGoPrivacyEssentialsHoverable {\n    padding-bottom: 10px;\n}\n\n#DuckDuckGoPrivacyEssentialsHoverableText {\n    display: none;\n}\n#DuckDuckGoPrivacyEssentialsHoverable:hover #DuckDuckGoPrivacyEssentialsHoverableText {\n    display: block;\n}\n\n.DuckDuckGoButton.tertiary.ddg-ctl-fb-login-btn {\n    background-color: var(--ddg-color-bg-01);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary.ddg-ctl-fb-login-btn {\n        background: #111111;\n    }\n}\n.DuckDuckGoButton.tertiary:hover {\n    background: rgb(238, 238, 238);\n    border-color: var(--ddg-shade-18);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:hover {\n        background: rgb(39, 39, 39);\n        border-color: var(--ddg-tint-24);\n    }\n}\n.DuckDuckGoButton.tertiary:active {\n    background: rgb(220, 220, 220);\n    border-color: var(--ddg-shade-36);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:active {\n        background: rgb(65, 65, 65);\n        border-color: var(--ddg-tint-24);\n    }\n}\n\n.ddg-ctl-button-login-icon {\n    margin-right: 8px;\n    height: 20px;\n    width: 20px;\n}\n\n.ddg-fb-login-container {\n    position: relative;\n    margin: auto;\n    width: auto;\n}\n";
+
+    /**
+     * @typedef LearnMoreParams - "Learn More" link params
+     * @property {string} readAbout - "Learn More" aria-label text
+     * @property {string} learnMore - "Learn More" link text
+     */
+
+    /**
+     * Template for creating a <div/> element placeholder for blocked login embedded buttons.
+     * The constructor gets a list of parameters with the
+     * content and event handlers for this template.
+     * This is currently only used in our Mobile Apps, but can be expanded in the future.
+     */
+    class DDGCtlLoginButton {
+        /**
+         * Placeholder container element for blocked login button
+         * @type {HTMLDivElement}
+         */
+        #element;
+
+        /**
+         * @param {object} params - Params for building a custom element with
+         *                          a placeholder for a blocked login button
+         * @param {boolean} params.devMode - Used to create the Shadow DOM on 'open'(true) or 'closed'(false) mode
+         * @param {string} params.label - Button text
+         * @param {string} params.logoIcon - Logo image to be displayed in the Login Button to the left of the label text
+         * @param {string} params.hoverText - Text for popover on button hover
+         * @param {boolean=} params.useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
+         * @param {HTMLElement} params.originalElement - The original element this placeholder is replacing.
+         * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
+         * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onClick
+         */
+        constructor(params) {
+            this.params = params;
+
+            /**
+             * Create the placeholder element to be inject in the page
+             * @type {HTMLDivElement}
+             */
+            this.element = document.createElement('div');
+
+            /**
+             * Create the shadow root, closed to prevent any outside observers
+             * @type {ShadowRoot}
+             */
+            const shadow = this.element.attachShadow({
+                mode: this.params.devMode ? 'open' : 'closed',
+            });
+
+            /**
+             * Add our styles
+             * @type {HTMLStyleElement}
+             */
+            const style = document.createElement('style');
+            style.innerText = cssVars + css;
+
+            /**
+             * Create the Facebook login button
+             * @type {HTMLDivElement}
+             */
+            const loginButton = this._createLoginButton();
+
+            /**
+             * Setup the click handlers
+             */
+            this._setupEventListeners(loginButton);
+
+            /**
+             * Append both to the shadow root
+             */
+            shadow.appendChild(loginButton);
+            shadow.appendChild(style);
+        }
+
+        /**
+         * @returns {HTMLDivElement}
+         */
+        get element() {
+            return this.#element;
+        }
+
+        /**
+         * @param {HTMLDivElement} el - New placeholder element
+         */
+        set element(el) {
+            this.#element = el;
+        }
+
+        /**
+         * Creates a placeholder Facebook login button. When clicked, a warning dialog
+         * is displayed to the user. The login flow only continues if the user clicks to
+         * proceed.
+         * @returns {HTMLDivElement}
+         */
+        _createLoginButton() {
+            const { label, hoverText, logoIcon, learnMore } = this.params;
+
+            const { popoverStyle, arrowStyle } = this._calculatePopoverPosition();
+
+            const container = document.createElement('div');
+            // Add our own styles and inherit any local class styles on the button
+            container.classList.add('ddg-fb-login-container');
+
+            container.innerHTML = html`
+            <div id="DuckDuckGoPrivacyEssentialsHoverable">
+                <!-- Login Button -->
+                <button class="DuckDuckGoButton tertiary ddg-ctl-fb-login-btn">
+                    <img class="ddg-ctl-button-login-icon" height="20px" width="20px" src="${logoIcon}" />
+                    <div>${label}</div>
+                </button>
+
+                <!-- Popover - hover box -->
+                <div id="DuckDuckGoPrivacyEssentialsHoverableText" class="ddg-popover" style="${popoverStyle}">
+                    <div class="ddg-popover-arrow" style="${arrowStyle}"></div>
+
+                    <div class="ddg-title-header">
+                        <div class="ddg-logo">
+                            <img class="ddg-logo-img" src="${logoImg}" height="21px" />
+                        </div>
+                        <div id="DuckDuckGoPrivacyEssentialsCTLElementTitle" class="ddg-title-text">DuckDuckGo</div>
+                    </div>
+
+                    <div class="ddg-popover-body">
+                        ${hoverText}
+                        <a
+                            class="ddg-text-link"
+                            aria-label="${learnMore.readAbout}"
+                            href="https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/"
+                            target="_blank"
+                            id="learnMoreLink"
+                        >
+                            ${learnMore.learnMore}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `.toString();
+
+            return container;
+        }
+
+        /**
+         * The left side of the popover may go offscreen if the
+         * login button is all the way on the left side of the page. This
+         * If that is the case, dynamically shift the box right so it shows
+         * properly.
+         * @returns {{
+         *  popoverStyle: string, // CSS styles to be applied in the Popover container
+         *  arrowStyle: string,   // CSS styles to be applied in the Popover arrow
+         * }}
+         */
+        _calculatePopoverPosition() {
+            const { originalElement } = this.params;
+            const rect = originalElement.getBoundingClientRect();
+            const textBubbleWidth = 360; // Should match the width rule in .ddg-popover
+            const textBubbleLeftShift = 100; // Should match the CSS left: rule in .ddg-popover
+            const arrowDefaultLocationPercent = 50;
+
+            let popoverStyle;
+            let arrowStyle;
+
+            if (rect.left < textBubbleLeftShift) {
+                const leftShift = -rect.left + 10; // 10px away from edge of the screen
+                popoverStyle = `left: ${leftShift}px;`;
+                const change = (1 - rect.left / textBubbleLeftShift) * (100 - arrowDefaultLocationPercent);
+                arrowStyle = `left: ${Math.max(10, arrowDefaultLocationPercent - change)}%;`;
+            } else if (rect.left + textBubbleWidth - textBubbleLeftShift > window.innerWidth) {
+                const rightShift = rect.left + textBubbleWidth - textBubbleLeftShift;
+                const diff = Math.min(rightShift - window.innerWidth, textBubbleLeftShift);
+                const rightMargin = 20; // Add some margin to the page, so scrollbar doesn't overlap.
+                popoverStyle = `left: -${textBubbleLeftShift + diff + rightMargin}px;`;
+                const change = (diff / textBubbleLeftShift) * (100 - arrowDefaultLocationPercent);
+                arrowStyle = `left: ${Math.max(10, arrowDefaultLocationPercent + change)}%;`;
+            } else {
+                popoverStyle = `left: -${textBubbleLeftShift}px;`;
+                arrowStyle = `left: ${arrowDefaultLocationPercent}%;`;
+            }
+
+            return { popoverStyle, arrowStyle };
+        }
+
+        /**
+         *
+         * @param {HTMLElement} loginButton
+         */
+        _setupEventListeners(loginButton) {
+            const { originalElement, onClick } = this.params;
+
+            loginButton.querySelector('.ddg-ctl-fb-login-btn')?.addEventListener('click', onClick(originalElement, this.element));
+        }
+    }
+
+    /**
+     * Register custom elements in this wrapper function to be called only when we need to
+     * and also to allow remote-config later if needed.
+     */
+    function registerCustomElements() {
+        if (!customElements.get(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME)) {
+            customElements.define(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME, DDGCtlPlaceholderBlockedElement);
+        }
+    }
+
+    /**
+     * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
+     *   Key for theme value to determine the styling of buttons/placeholders.
+     *   Matches `styles[mode]` keys:
+     *     - `'lightMode'`: Primary colors styling for light theme
+     *     - `'darkMode'`: Primary colors styling for dark theme
+     *     - `'cancelMode'`: Secondary colors styling for all themes
+     */
+
+    let devMode = false;
+    let isYoutubePreviewsEnabled = false;
+    let appID;
+
+    const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle';
+
+    // Configuration for how the placeholder elements should look and behave.
+    // @see {getConfig}
+    let config = null;
+    let sharedStrings = null;
+    let styles = null;
+
+    /**
+     * List of platforms where we can skip showing a Web Modal from C-S-S.
+     * It is generally expected that the platform will show a native modal instead.
+     * @type {import('../utils').Platform["name"][]} */
+    const platformsWithNativeModalSupport = ['android', 'ios'];
+    /**
+     * Platforms supporting the new layout using Web Components.
+     * @type {import('../utils').Platform["name"][]} */
+    const platformsWithWebComponentsEnabled = ['android', 'ios'];
+    /**
+     * Based on the current Platform where the Widget is running, it will
+     * return if it is one of our mobile apps or not. This should be used to
+     * define which layout to use between Mobile and Desktop Platforms variations.
+     * @type {import('../utils').Platform["name"][]} */
+    const mobilePlatforms = ['android', 'ios'];
+
+    // TODO: Remove these redundant data structures and refactor the related code.
+    //       There should be no need to have the entity configuration stored in two
+    //       places.
+    const entities = [];
+    const entityData = {};
+
+    // Used to avoid displaying placeholders for the same tracking element twice.
+    const knownTrackingElements = new WeakSet();
+
+    // Promise that is resolved when the Click to Load feature init() function has
+    // finished its work, enough that it's now safe to replace elements with
+    // placeholders.
+    let readyToDisplayPlaceholdersResolver;
+    const readyToDisplayPlaceholders = new Promise((resolve) => {
+        readyToDisplayPlaceholdersResolver = resolve;
+    });
+
+    // Promise that is resolved when the page has finished loading (and
+    // readyToDisplayPlaceholders has resolved). Wait for this before sending
+    // essential messages to surrogate scripts.
+    let afterPageLoadResolver;
+    const afterPageLoad = new Promise((resolve) => {
+        afterPageLoadResolver = resolve;
+    });
+
+    // Messaging layer for Click to Load. The messaging instance is initialized in
+    // ClickToLoad.init() and updated here to be used outside ClickToLoad class
+    // we need a module scoped reference.
+    /** @type {import("@duckduckgo/messaging").Messaging} */
+    let _messagingModuleScope;
+    /** @type function */
+    let _addDebugFlag;
+    const ctl = {
+        /**
+         * @return {import("@duckduckgo/messaging").Messaging}
+         */
+        get messaging() {
+            if (!_messagingModuleScope) throw new Error('Messaging not initialized');
+            return _messagingModuleScope;
+        },
+
+        addDebugFlag() {
+            if (!_addDebugFlag) throw new Error('addDebugFlag not initialized');
+            return _addDebugFlag();
+        },
+    };
+
+    /*********************************************************
+     *  Widget Replacement logic
+     *********************************************************/
+    class DuckWidget {
+        /**
+         * @param {Object} widgetData
+         *   The configuration for this "widget" as determined in ctl-config.js.
+         * @param {HTMLElement} originalElement
+         *   The original tracking element to replace with a placeholder.
+         * @param {string} entity
+         *   The entity behind the tracking element (e.g. "Facebook, Inc.").
+         * @param {import('../utils').Platform} platform
+         *   The platform where Click to Load and the Duck Widget is running on (ie Extension, Android App, etc)
+         */
+        constructor(widgetData, originalElement, entity, platform) {
+            this.clickAction = { ...widgetData.clickAction }; // shallow copy
+            this.replaceSettings = widgetData.replaceSettings;
+            this.originalElement = originalElement;
+            this.placeholderElement = null;
+            this.dataElements = {};
+            this.gatherDataElements();
+            this.entity = entity;
+            this.widgetID = Math.random();
+            this.autoplay = false;
+            // Boolean if widget is unblocked and content should not be blocked
+            this.isUnblocked = false;
+            this.platform = platform;
+        }
+
+        /**
+         * Dispatch an event on the target element, including the widget's ID and
+         * other details.
+         * @param {EventTarget} eventTarget
+         * @param {string} eventName
+         */
+        dispatchEvent(eventTarget, eventName) {
+            eventTarget.dispatchEvent(
+                createCustomEvent(eventName, {
+                    detail: {
+                        entity: this.entity,
+                        replaceSettings: this.replaceSettings,
+                        widgetID: this.widgetID,
+                    },
+                }),
+            );
+        }
+
+        /**
+         * Take note of some of the tracking element's attributes (as determined by
+         * clickAction.urlDataAttributesToPreserve) and store those in
+         * this.dataElement.
+         */
+        gatherDataElements() {
+            if (!this.clickAction.urlDataAttributesToPreserve) {
+                return;
+            }
+            for (const [attrName, attrSettings] of Object.entries(this.clickAction.urlDataAttributesToPreserve)) {
+                let value = this.originalElement.getAttribute(attrName);
+                if (!value) {
+                    if (attrSettings.required) {
+                        // Missing a required attribute means we won't be able to replace it
+                        // with a light version, replace with full version.
+                        this.clickAction.type = 'allowFull';
+                    }
+
+                    // If the attribute is "width", try first to measure the parent's width and use that as a default value.
+                    if (attrName === 'data-width') {
+                        const windowWidth = window.innerWidth;
+                        const { parentElement } = this.originalElement;
+                        const parentStyles = parentElement ? window.getComputedStyle(parentElement) : null;
+                        let parentInnerWidth = null;
+
+                        // We want to calculate the inner width of the parent element as the iframe, when added back,
+                        // should not be bigger than the space available in the parent element. There is no straightforward way of
+                        // doing this. We need to get the parent's .clientWidth and remove the paddings size from it.
+                        if (parentElement && parentStyles && parentStyles.display !== 'inline') {
+                            parentInnerWidth =
+                                parentElement.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight);
+                        }
+
+                        if (parentInnerWidth && parentInnerWidth < windowWidth) {
+                            value = parentInnerWidth.toString();
+                        } else {
+                            // Our default value for width is often greater than the window size of smaller
+                            // screens (ie mobile). Then use whatever is the smallest value.
+                            value = Math.min(attrSettings.default, windowWidth).toString();
+                        }
+                    } else {
+                        value = attrSettings.default;
+                    }
+                }
+                this.dataElements[attrName] = value;
+            }
+        }
+
+        /**
+         * Return the URL of the Facebook content, for use when a Facebook Click to
+         * Load placeholder has been clicked by the user.
+         * @returns {string}
+         */
+        getTargetURL() {
+            // Copying over data fields should be done lazily, since some required data may not be
+            // captured until after page scripts run.
+            this.copySocialDataFields();
+            return this.clickAction.targetURL;
+        }
+
+        /**
+         * Determines which display mode the placeholder element should render in.
+         * @returns {displayMode}
+         */
+        getMode() {
+            // Login buttons are always the login style types
+            if (this.replaceSettings.type === 'loginButton') {
+                return 'loginMode';
+            }
+            if (window?.matchMedia('(prefers-color-scheme: dark)')?.matches) {
+                return 'darkMode';
+            }
+            return 'lightMode';
+        }
+
+        /**
+         * Take note of some of the tracking element's style attributes (as
+         * determined by clickAction.styleDataAttributes) as a CSS string.
+         *
+         * @returns {string}
+         */
+        getStyle() {
+            let styleString = 'border: none;';
+
+            if (this.clickAction.styleDataAttributes) {
+                // Copy elements from the original div into style attributes as directed by config
+                for (const [attr, valAttr] of Object.entries(this.clickAction.styleDataAttributes)) {
+                    let valueFound = this.dataElements[valAttr.name];
+                    if (!valueFound) {
+                        valueFound = this.dataElements[valAttr.fallbackAttribute];
+                    }
+                    let partialStyleString = '';
+                    if (valueFound) {
+                        partialStyleString += `${attr}: ${valueFound}`;
+                    }
+                    if (!partialStyleString.includes(valAttr.unit)) {
+                        partialStyleString += valAttr.unit;
+                    }
+                    partialStyleString += ';';
+                    styleString += partialStyleString;
+                }
+            }
+
+            return styleString;
+        }
+
+        /**
+         * Store some attributes from the original tracking element, used for both
+         * placeholder element styling, and when restoring the original tracking
+         * element.
+         */
+        copySocialDataFields() {
+            if (!this.clickAction.urlDataAttributesToPreserve) {
+                return;
+            }
+
+            // App ID may be set by client scripts, and is required for some elements.
+            if (this.dataElements.app_id_replace && appID != null) {
+                this.clickAction.targetURL = this.clickAction.targetURL.replace('app_id_replace', appID);
+            }
+
+            for (const key of Object.keys(this.dataElements)) {
+                let attrValue = this.dataElements[key];
+
+                if (!attrValue) {
+                    continue;
+                }
+
+                // The URL for Facebook videos are specified as the data-href
+                // attribute on a div, that is then used to create the iframe.
+                // Some websites omit the protocol part of the URL when doing
+                // that, which then prevents the iframe from loading correctly.
+                if (key === 'data-href' && attrValue.startsWith('//')) {
+                    attrValue = window.location.protocol + attrValue;
+                }
+
+                this.clickAction.targetURL = this.clickAction.targetURL.replace(key, encodeURIComponent(attrValue));
+            }
+        }
+
+        /**
+         * Creates an iFrame for this facebook content.
+         *
+         * @returns {HTMLIFrameElement}
+         */
+        createFBIFrame() {
+            const frame = document.createElement('iframe');
+
+            frame.setAttribute('src', this.getTargetURL());
+            frame.setAttribute('style', this.getStyle());
+
+            return frame;
+        }
+
+        /**
+         * Tweaks an embedded YouTube video element ready for when it's
+         * reloaded.
+         *
+         * @param {HTMLIFrameElement} videoElement
+         * @returns {EventListener?} onError
+         *   Function to be called if the video fails to load.
+         */
+        adjustYouTubeVideoElement(videoElement) {
+            let onError = null;
+
+            if (!videoElement.src) {
+                return onError;
+            }
+            const url = new URL(videoElement.src);
+            const { hostname: originalHostname } = url;
+
+            // Upgrade video to YouTube's "privacy enhanced" mode, but fall back
+            // to standard mode if the video fails to load.
+            // Note:
+            //  1. Changing the iframe's host like this won't cause a CSP
+            //     violation on Chrome, see https://crbug.com/1271196.
+            //  2. The onError event doesn't fire for blocked iframes on Chrome.
+            if (originalHostname !== 'www.youtube-nocookie.com') {
+                url.hostname = 'www.youtube-nocookie.com';
+                onError = (event) => {
+                    url.hostname = originalHostname;
+                    videoElement.src = url.href;
+                    event.stopImmediatePropagation();
+                };
+            }
+
+            // Configure auto-play correctly depending on if the video's preview
+            // loaded, otherwise it doesn't allow autoplay.
+            let allowString = videoElement.getAttribute('allow') || '';
+            const allowed = new Set(allowString.split(';').map((s) => s.trim()));
+            if (this.autoplay) {
+                allowed.add('autoplay');
+                url.searchParams.set('autoplay', '1');
+            } else {
+                allowed.delete('autoplay');
+                url.searchParams.delete('autoplay');
+            }
+            allowString = Array.from(allowed).join('; ');
+            videoElement.setAttribute('allow', allowString);
+
+            videoElement.src = url.href;
+            return onError;
+        }
+
+        /**
+         * Fades the given element in/out.
+         * @param {HTMLElement} element
+         *   The element to fade in or out.
+         * @param {number} interval
+         *   Frequency of opacity updates (ms).
+         * @param {boolean} fadeIn
+         *   True if the element should fade in instead of out.
+         * @returns {Promise<void>}
+         *    Promise that resolves when the fade in/out is complete.
+         */
+        fadeElement(element, interval, fadeIn) {
+            return new Promise((resolve) => {
+                let opacity = fadeIn ? 0 : 1;
+                const originStyle = element.style.cssText;
+                const fadeOut = setInterval(function () {
+                    opacity += fadeIn ? 0.03 : -0.03;
+                    element.style.cssText = originStyle + `opacity: ${opacity};`;
+                    if (opacity <= 0 || opacity >= 1) {
+                        clearInterval(fadeOut);
+                        resolve();
+                    }
+                }, interval);
+            });
+        }
+
+        /**
+         * Fades the given element out.
+         * @param {HTMLElement} element
+         *   The element to fade out.
+         * @returns {Promise<void>}
+         *    Promise that resolves when the fade out is complete.
+         */
+        fadeOutElement(element) {
+            return this.fadeElement(element, 10, false);
+        }
+
+        /**
+         * Fades the given element in.
+         * @param {HTMLElement} element
+         *   The element to fade in.
+         * @returns {Promise<void>}
+         *    Promise that resolves when the fade in is complete.
+         */
+        fadeInElement(element) {
+            return this.fadeElement(element, 10, true);
+        }
+
+        /**
+         * The function that's called when the user clicks to load some content.
+         * Unblocks the content, puts it back in the page, and removes the
+         * placeholder.
+         * @param {HTMLIFrameElement} originalElement
+         *   The original tracking element.
+         * @param {HTMLElement} replacementElement
+         *   The placeholder element.
+         */
+        clickFunction(originalElement, replacementElement) {
+            let clicked = false;
+            const handleClick = (e) => {
+                // Ensure that the click is created by a user event & prevent double clicks from adding more animations
+                if (e.isTrusted && !clicked) {
+                    e.stopPropagation();
+                    this.isUnblocked = true;
+                    clicked = true;
+                    let isLogin = false;
+                    // Logins triggered by user click means they were not triggered by the surrogate
+                    const isSurrogateLogin = false;
+                    const clickElement = e.srcElement; // Object.assign({}, e)
+                    if (this.replaceSettings.type === 'loginButton') {
+                        isLogin = true;
+                    }
+                    const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then((response) => {
+                        // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
+                        if (response && response.type === 'ddg-ctp-user-cancel') {
+                            return abortSurrogateConfirmation(this.entity);
+                        }
+
+                        const parent = replacementElement.parentNode;
+
+                        // The placeholder was removed from the DOM while we loaded
+                        // the original content, give up.
+                        if (!parent) return;
+
+                        // If we allow everything when this element is clicked,
+                        // notify surrogate to enable SDK and replace original element.
+                        if (this.clickAction.type === 'allowFull') {
+                            parent.replaceChild(originalElement, replacementElement);
+                            this.dispatchEvent(window, 'ddg-ctp-load-sdk');
+                            return;
+                        }
+                        // Create a container for the new FB element
+                        const fbContainer = document.createElement('div');
+                        fbContainer.style.cssText = styles.wrapperDiv;
+                        const fadeIn = document.createElement('div');
+                        fadeIn.style.cssText = 'display: none; opacity: 0;';
+
+                        // Loading animation (FB can take some time to load)
+                        const loadingImg = document.createElement('img');
+                        loadingImg.setAttribute('src', loadingImages[this.getMode()]);
+                        loadingImg.setAttribute('height', '14px');
+                        loadingImg.style.cssText = styles.loadingImg;
+
+                        // Always add the animation to the button, regardless of click source
+                        if (clickElement.nodeName === 'BUTTON') {
+                            clickElement.firstElementChild.insertBefore(loadingImg, clickElement.firstElementChild.firstChild);
+                        } else {
+                            // try to find the button
+                            let el = clickElement;
+                            let button = null;
+                            while (button === null && el !== null) {
+                                button = el.querySelector('button');
+                                el = el.parentElement;
+                            }
+                            if (button) {
+                                button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild);
+                            }
+                        }
+
+                        fbContainer.appendChild(fadeIn);
+
+                        let fbElement;
+                        let onError = null;
+                        switch (this.clickAction.type) {
+                            case 'iFrame':
+                                fbElement = this.createFBIFrame();
+                                break;
+                            case 'youtube-video':
+                                onError = this.adjustYouTubeVideoElement(originalElement);
+                                fbElement = originalElement;
+                                break;
+                            default:
+                                fbElement = originalElement;
+                                break;
+                        }
+
+                        // Modify the overlay to include a Facebook iFrame, which
+                        // starts invisible. Once loaded, fade out and remove the
+                        // overlay then fade in the Facebook content.
+                        parent.replaceChild(fbContainer, replacementElement);
+                        fbContainer.appendChild(replacementElement);
+                        fadeIn.appendChild(fbElement);
+                        fbElement.addEventListener(
+                            'load',
+                            async () => {
+                                await this.fadeOutElement(replacementElement);
+                                fbContainer.replaceWith(fbElement);
+                                this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked');
+                                await this.fadeInElement(fadeIn);
+                                // Focus on new element for screen readers.
+                                fbElement.focus();
+                            },
+                            { once: true },
+                        );
+                        // Note: This event only fires on Firefox, on Chrome the frame's
+                        //       load event will always fire.
+                        if (onError) {
+                            fbElement.addEventListener('error', onError, { once: true });
+                        }
+                    });
+                }
+            };
+            // If this is a login button, show modal if needed
+            if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
+                return (e) => {
+                    // Even if the user cancels the login attempt, consider Facebook Click to
+                    // Load to have been active on the page if the user reports the page as broken.
+                    if (this.entity === 'Facebook, Inc.') {
+                        notifyFacebookLogin();
+                    }
+
+                    handleUnblockConfirmation(this.platform.name, this.entity, handleClick, e);
+                };
+            }
+            return handleClick;
+        }
+
+        /**
+         * Based on the current Platform where the Widget is running, it will
+         * return if the new layout using Web Components is supported or not.
+         * @returns {boolean}
+         */
+        shouldUseCustomElement() {
+            return platformsWithWebComponentsEnabled.includes(this.platform.name);
+        }
+
+        /**
+         * Based on the current Platform where the Widget is running, it will
+         * return if it is one of our mobile apps or not. This should be used to
+         * define which layout to use between Mobile and Desktop Platforms variations.
+         * @returns {boolean}
+         */
+        isMobilePlatform() {
+            return mobilePlatforms.includes(this.platform.name);
+        }
+    }
+
+    /**
+     * Replace the given tracking element with the given placeholder.
+     * Notes:
+     *  1. This function also dispatches events targeting the original and
+     *     placeholder elements. That way, the surrogate scripts can use the event
+     *     targets to keep track of which placeholder corresponds to which tracking
+     *     element.
+     *  2. To achieve that, the original and placeholder elements must be in the DOM
+     *     at the time the events are dispatched. Otherwise, the events will not
+     *     bubble up and the surrogate script will miss them.
+     *  3. Placeholder must be shown immediately (to avoid a flicker for the user),
+     *     but the events must only be sent once the document (and therefore
+     *     surrogate scripts) have loaded.
+     *  4. Therefore, we hide the element until the page has loaded, then dispatch
+     *     the events after page load, and then remove the element from the DOM.
+     *  5. The "ddg-ctp-ready" event needs to be dispatched _after_ the element
+     *     replacement events have fired. That is why a setTimeout is required
+     *     before dispatching "ddg-ctp-ready".
+     *
+     *  Also note, this all assumes that the surrogate script that needs these
+     *  events will not be loaded asynchronously after the page has finished
+     *  loading.
+     *
+     * @param {DuckWidget} widget
+     *   The DuckWidget associated with the tracking element.
+     * @param {HTMLElement} trackingElement
+     *   The tracking element on the page to replace.
+     * @param {HTMLElement} placeholderElement
+     *   The placeholder element that should be shown instead.
+     */
+    function replaceTrackingElement(widget, trackingElement, placeholderElement) {
+        // In some situations (e.g. YouTube Click to Load previews are
+        // enabled/disabled), a second placeholder will be shown for a tracking
+        // element.
+        const elementToReplace = widget.placeholderElement || trackingElement;
+
+        // Note the placeholder element, so that it can also be replaced later if
+        // necessary.
+        widget.placeholderElement = placeholderElement;
+
+        // First hide the element, since we need to keep it in the DOM until the
+        // events have been dispatched.
+        const originalDisplay = [elementToReplace.style.getPropertyValue('display'), elementToReplace.style.getPropertyPriority('display')];
+        elementToReplace.style.setProperty('display', 'none', 'important');
+
+        // Add the placeholder element to the page.
+        elementToReplace.parentElement.insertBefore(placeholderElement, elementToReplace);
+
+        // While the placeholder is shown (and original element hidden)
+        // synchronously, the events are dispatched (and original element removed
+        // from the DOM) asynchronously after the page has finished loading.
+        // eslint-disable-next-line promise/prefer-await-to-then
+        afterPageLoad.then(() => {
+            // With page load complete, and both elements in the DOM, the events can
+            // be dispatched.
+            widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element');
+            widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element');
+
+            // Once the events are sent, the tracking element (or previous
+            // placeholder) can finally be removed from the DOM.
+            elementToReplace.remove();
+            elementToReplace.style.setProperty('display', ...originalDisplay);
+        });
+    }
+
+    /**
+     * Creates a placeholder element for the given tracking element and replaces
+     * it on the page.
+     * @param {DuckWidget} widget
+     *   The CTL 'widget' associated with the tracking element.
+     * @param {HTMLIFrameElement} trackingElement
+     *   The tracking element on the page that should be replaced with a placeholder.
+     */
+    function createPlaceholderElementAndReplace(widget, trackingElement) {
+        if (widget.replaceSettings.type === 'blank') {
+            replaceTrackingElement(widget, trackingElement, document.createElement('div'));
+        }
+
+        if (widget.replaceSettings.type === 'loginButton') {
+            const icon = widget.replaceSettings.icon;
+            // Create a button to replace old element
+            if (widget.shouldUseCustomElement()) {
+                const facebookLoginButton = new DDGCtlLoginButton({
+                    devMode,
+                    label: widget.replaceSettings.buttonTextUnblockLogin,
+                    hoverText: widget.replaceSettings.popupBodyText,
+                    logoIcon: facebookLogo,
+                    originalElement: trackingElement,
+                    learnMore: {
+                        // Localized strings for "Learn More" link.
+                        readAbout: sharedStrings.readAbout,
+                        learnMore: sharedStrings.learnMore,
+                    },
+                    onClick: widget.clickFunction.bind(widget),
+                }).element;
+                facebookLoginButton.classList.add('fb-login-button', 'FacebookLogin__button');
+                facebookLoginButton.appendChild(makeFontFaceStyleElement());
+                replaceTrackingElement(widget, trackingElement, facebookLoginButton);
+            } else {
+                const { button, container } = makeLoginButton(
+                    widget.replaceSettings.buttonText,
+                    widget.getMode(),
+                    widget.replaceSettings.popupBodyText,
+                    icon,
+                    trackingElement,
+                );
+                button.addEventListener('click', widget.clickFunction(trackingElement, container));
+                replaceTrackingElement(widget, trackingElement, container);
+            }
+        }
+
+        // Facebook
+        if (widget.replaceSettings.type === 'dialog') {
+            ctl.addDebugFlag();
+            ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookPlaceholderShown: true });
+            if (widget.shouldUseCustomElement()) {
+                /**
+                 * Creates a custom HTML element with the placeholder element for blocked
+                 * embedded content. The constructor gets a list of parameters with the
+                 * content and event handlers for this HTML element.
+                 */
+                const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlockedElement({
+                    devMode,
+                    title: widget.replaceSettings.infoTitle, // Card title text
+                    body: widget.replaceSettings.infoText, // Card body text
+                    unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
+                    useSlimCard: false, // Flag for using less padding on card (ie YT CTL on mobile)
+                    originalElement: trackingElement, // The original element this placeholder is replacing.
+                    learnMore: {
+                        // Localized strings for "Learn More" link.
+                        readAbout: sharedStrings.readAbout,
+                        learnMore: sharedStrings.learnMore,
+                    },
+                    onButtonClick: widget.clickFunction.bind(widget),
+                });
+                mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement());
+
+                replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder);
+                showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder);
+            } else {
+                const icon = widget.replaceSettings.icon;
+                const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
+                const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
+                const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, icon);
+                button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+                textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+
+                replaceTrackingElement(widget, trackingElement, contentBlock);
+                showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock);
+            }
+        }
+
+        // YouTube
+        if (widget.replaceSettings.type === 'youtube-video') {
+            ctl.addDebugFlag();
+            ctl.messaging.notify('updateYouTubeCTLAddedFlag', { youTubeCTLAddedFlag: true });
+            replaceYouTubeCTL(trackingElement, widget);
+
+            // Subscribe to changes to youtubePreviewsEnabled setting
+            // and update the CTL state
+            ctl.messaging.subscribe('setYoutubePreviewsEnabled', ({ value }) => {
+                isYoutubePreviewsEnabled = value;
+                replaceYouTubeCTL(trackingElement, widget);
+            });
+        }
+    }
+
+    /**
+     * @param {HTMLIFrameElement} trackingElement
+     *   The original tracking element (YouTube video iframe)
+     * @param {DuckWidget} widget
+     *   The CTL 'widget' associated with the tracking element.
+     */
+    function replaceYouTubeCTL(trackingElement, widget) {
+        // Skip replacing tracking element if it has already been unblocked
+        if (widget.isUnblocked) {
+            return;
+        }
+
+        if (isYoutubePreviewsEnabled === true) {
+            // Show YouTube Preview for embedded video
+            const oldPlaceholder = widget.placeholderElement;
+            const { youTubePreview, shadowRoot } = createYouTubePreview(trackingElement, widget);
+            resizeElementToMatch(oldPlaceholder || trackingElement, youTubePreview);
+            replaceTrackingElement(widget, trackingElement, youTubePreview);
+            showExtraUnblockIfShortPlaceholder(shadowRoot, youTubePreview);
+        } else {
+            // Block YouTube embedded video and display blocking dialog
+            widget.autoplay = false;
+            const oldPlaceholder = widget.placeholderElement;
+
+            if (widget.shouldUseCustomElement()) {
+                /**
+                 * Creates a custom HTML element with the placeholder element for blocked
+                 * embedded content. The constructor gets a list of parameters with the
+                 * content and event handlers for this HTML element.
+                 */
+                const mobileBlockedPlaceholderElement = new DDGCtlPlaceholderBlockedElement({
+                    devMode,
+                    title: widget.replaceSettings.infoTitle, // Card title text
+                    body: widget.replaceSettings.infoText, // Card body text
+                    unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
+                    useSlimCard: true, // Flag for using less padding on card (ie YT CTL on mobile)
+                    originalElement: trackingElement, // The original element this placeholder is replacing.
+                    learnMore: {
+                        // Localized strings for "Learn More" link.
+                        readAbout: sharedStrings.readAbout,
+                        learnMore: sharedStrings.learnMore,
+                    },
+                    withToggle: {
+                        // Toggle config to be displayed in the bottom of the placeholder
+                        isActive: false, // Toggle state
+                        dataKey: 'yt-preview-toggle', // data-key attribute for button
+                        label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
+                        size: widget.isMobilePlatform() ? 'lg' : 'md',
+                        onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), // Toggle click callback
+                    },
+                    withFeedback: {
+                        label: sharedStrings.shareFeedback,
+                        onClick: () => openShareFeedbackPage(),
+                    },
+                    onButtonClick: widget.clickFunction.bind(widget),
+                });
+                mobileBlockedPlaceholderElement.appendChild(makeFontFaceStyleElement());
+                mobileBlockedPlaceholderElement.id = trackingElement.id;
+                resizeElementToMatch(oldPlaceholder || trackingElement, mobileBlockedPlaceholderElement);
+                replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholderElement);
+                showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholderElement);
+            } else {
+                const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget);
+                resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog);
+                replaceTrackingElement(widget, trackingElement, blockingDialog);
+                showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog);
+                hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460);
+            }
+        }
+    }
+
+    /**
+     * Show the extra unblock link in the header if the placeholder or
+     * its parent is too short for the normal unblock button to be visible.
+     * Note: This does not take into account the placeholder's vertical
+     *       position in the parent element.
+     * @param {ShadowRoot?} shadowRoot
+     * @param {HTMLElement} placeholder Placeholder for tracking element
+     */
+    function showExtraUnblockIfShortPlaceholder(shadowRoot, placeholder) {
+        if (!placeholder.parentElement) {
+            return;
+        }
+        const parentStyles = window.getComputedStyle(placeholder.parentElement);
+        // Inline elements, like span or p, don't have a height value that we can use because they're
+        // not a "block" like element with defined sizes. Because we skip this check on "inline"
+        // parents, it might be necessary to traverse up the DOM tree until we find the nearest non
+        // "inline" parent to get a reliable height for this check.
+        if (parentStyles.display === 'inline') {
+            return;
+        }
+        const { height: placeholderHeight } = placeholder.getBoundingClientRect();
+        const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect();
+
+        if ((placeholderHeight > 0 && placeholderHeight <= 200) || (parentHeight > 0 && parentHeight <= 230)) {
+            if (shadowRoot) {
+                /** @type {HTMLElement?} */
+                const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`);
+                if (titleRowTextButton) {
+                    titleRowTextButton.style.display = 'block';
+                }
+            }
+            // Avoid the placeholder being taller than the containing element
+            // and overflowing.
+            /** @type {HTMLElement?} */
+            const blockedDiv = shadowRoot?.querySelector('.DuckDuckGoSocialContainer') || placeholder;
+            if (blockedDiv) {
+                blockedDiv.style.minHeight = 'initial';
+                blockedDiv.style.maxHeight = parentHeight + 'px';
+                blockedDiv.style.overflow = 'hidden';
+            }
+        }
+    }
+
+    /**
+     * Hide the info text (and move the "Learn More" link) if the placeholder is too
+     * narrow.
+     * @param {ShadowRoot} shadowRoot
+     * @param {HTMLElement} placeholder Placeholder for tracking element
+     * @param {number} narrowWidth
+     *    Maximum placeholder width (in pixels) for the placeholder to be considered
+     *    narrow.
+     */
+    function hideInfoTextIfNarrowPlaceholder(shadowRoot, placeholder, narrowWidth) {
+        const { width: placeholderWidth } = placeholder.getBoundingClientRect();
+        if (placeholderWidth > 0 && placeholderWidth <= narrowWidth) {
+            const buttonContainer = shadowRoot.querySelector('.DuckDuckGoButton.primary')?.parentElement;
+            const contentTitle = shadowRoot.getElementById('contentTitle');
+            const infoText = shadowRoot.getElementById('infoText');
+            /** @type {HTMLElement?} */
+            const learnMoreLink = shadowRoot.getElementById('learnMoreLink');
+
+            // These elements will exist, but this check keeps TypeScript happy.
+            if (!buttonContainer || !contentTitle || !infoText || !learnMoreLink) {
+                return;
+            }
+
+            // Remove the information text.
+            infoText.remove();
+            learnMoreLink.remove();
+
+            // Append the "Learn More" link to the title.
+            contentTitle.innerText += '. ';
+            learnMoreLink.style.removeProperty('font-size');
+            contentTitle.appendChild(learnMoreLink);
+
+            // Improve margin/padding, to ensure as much is displayed as possible.
+            buttonContainer.style.removeProperty('margin');
+        }
+    }
+
+    /*********************************************************
+     *  Messaging to surrogates & extension
+     *********************************************************/
+
+    /**
+     * @typedef unblockClickToLoadContentRequest
+     * @property {string} entity
+     *   The entity to unblock requests for (e.g. "Facebook, Inc.").
+     * @property {boolean} [isLogin=false]
+     *   True if we should "allow social login", defaults to false.
+     * @property {boolean} [isSurrogateLogin=false]
+     *   True if logins triggered by the surrogate (custom login), False if login trigger
+     *   by user clicking in our Login button placeholder.
+     * @property {string} action
+     *   The Click to Load blocklist rule action (e.g. "block-ctl-fb") that should
+     *   be allowed. Important since in the future there might be multiple types of
+     *   embedded content from the same entity that the user can allow
+     *   independently.
+     */
+
+    /**
+     * Send a message to the background to unblock requests for the given entity for
+     * the page.
+     * @param {unblockClickToLoadContentRequest} message
+     * @see {@link ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
+     * @returns {Promise<any>}
+     */
+    function unblockClickToLoadContent(message) {
+        return ctl.messaging.request('unblockClickToLoadContent', message);
+    }
+
+    /**
+     * Handle showing a web modal to request the user for a confirmation or, in some platforms,
+     * proceed with the "acceptFunction" call and let the platform handle with each request
+     * accordingly.
+     * @param {import('../utils').Platform["name"]} platformName
+     *   The current platform name where Click to Load is running
+     * @param {string} entity
+     *   The entity to unblock requests for (e.g. "Facebook, Inc.") if the user
+     *   clicks to proceed.
+     * @param {function} acceptFunction
+     *   The function to call if the user has clicked to proceed.
+     * @param {...any} acceptFunctionParams
+     *   The parameters passed to acceptFunction when it is called.
+     */
+    function handleUnblockConfirmation(platformName, entity, acceptFunction, ...acceptFunctionParams) {
+        // In our mobile platforms, we want to show a native UI to request user unblock
+        // confirmation. In these cases we send directly the unblock request to the platform
+        // and the platform chooses how to best handle it.
+        if (platformsWithNativeModalSupport.includes(platformName)) {
+            acceptFunction(...acceptFunctionParams);
+            // By default, for other platforms (ie Extension), we show a web modal with a
+            // confirmation request to the user before we proceed to unblock the content.
+        } else {
+            makeModal(entity, acceptFunction, ...acceptFunctionParams);
+        }
+    }
+
+    /**
+     * Set the ctlFacebookLogin breakage flag for the page, to indicate that the
+     * Facebook Click to Load login flow had started if the user should then report
+     * the website as broken.
+     */
+    function notifyFacebookLogin() {
+        ctl.addDebugFlag();
+        ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookLogin: true });
+    }
+
+    /**
+     * Unblock the entity, close the login dialog and continue the Facebook login
+     * flow. Called after the user clicks to proceed after the warning dialog is
+     * shown.
+     * @param {string} entity
+     */
+    async function runLogin(entity) {
+        if (entity === 'Facebook, Inc.') {
+            notifyFacebookLogin();
+        }
+
+        const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
+        const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true });
+        // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
+        if (response && response.type === 'ddg-ctp-user-cancel') {
+            return abortSurrogateConfirmation(this.entity);
+        }
+        // Communicate with surrogate to run login
+        originalWindowDispatchEvent(
+            createCustomEvent('ddg-ctp-run-login', {
+                detail: {
+                    entity,
+                },
+            }),
+        );
+    }
+
+    /**
+     * Communicate with the surrogate to abort (ie Abort login when user rejects confirmation dialog)
+     * Called after the user cancel from a warning dialog.
+     * @param {string} entity
+     */
+    function abortSurrogateConfirmation(entity) {
+        originalWindowDispatchEvent(
+            createCustomEvent('ddg-ctp-cancel-modal', {
+                detail: {
+                    entity,
+                },
+            }),
+        );
+    }
+
+    function openShareFeedbackPage() {
+        ctl.messaging.notify('openShareFeedbackPage');
+    }
+
+    /*********************************************************
+     *  Widget building blocks
+     *********************************************************/
+
+    /**
+     * Creates a "Learn more" link element.
+     * @param {displayMode} [mode='lightMode']
+     * @returns {HTMLAnchorElement}
+     */
+    function getLearnMoreLink(mode = 'lightMode') {
+        const linkElement = document.createElement('a');
+        linkElement.style.cssText = styles.generalLink + styles[mode].linkFont;
+        linkElement.ariaLabel = sharedStrings.readAbout;
+        linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/';
+        linkElement.target = '_blank';
+        linkElement.textContent = sharedStrings.learnMore;
+        linkElement.id = 'learnMoreLink';
+        return linkElement;
+    }
+
+    /**
+     * Resizes and positions the target element to match the source element.
+     * @param {HTMLElement} sourceElement
+     * @param {HTMLElement} targetElement
+     */
+    function resizeElementToMatch(sourceElement, targetElement) {
+        const computedStyle = window.getComputedStyle(sourceElement);
+        const stylesToCopy = ['position', 'top', 'bottom', 'left', 'right', 'transform', 'margin'];
+
+        // It's apparently preferable to use the source element's size relative to
+        // the current viewport, when resizing the target element. However, the
+        // declarativeNetRequest API "collapses" (hides) blocked elements. When
+        // that happens, getBoundingClientRect will return all zeros.
+        // TODO: Remove this entirely, and always use the computed height/width of
+        //       the source element instead?
+        const { height, width } = sourceElement.getBoundingClientRect();
+        if (height > 0 && width > 0) {
+            targetElement.style.height = height + 'px';
+            targetElement.style.width = width + 'px';
+        } else {
+            stylesToCopy.push('height', 'width');
+        }
+
+        for (const key of stylesToCopy) {
+            targetElement.style[key] = computedStyle[key];
+        }
+
+        // If the parent element is very small (and its dimensions can be trusted) set a max height/width
+        // to avoid the placeholder overflowing.
+        if (computedStyle.display !== 'inline') {
+            if (targetElement.style.maxHeight < computedStyle.height) {
+                targetElement.style.maxHeight = 'initial';
+            }
+            if (targetElement.style.maxWidth < computedStyle.width) {
+                targetElement.style.maxWidth = 'initial';
+            }
+        }
+    }
+
+    /**
+     * Create a `<style/>` element with DDG font-face styles/CSS
+     * to be attached to DDG wrapper elements
+     * @returns HTMLStyleElement
+     */
+    function makeFontFaceStyleElement() {
+        // Put our custom font-faces inside the wrapper element, since
+        // @font-face does not work inside a shadowRoot.
+        // See https://github.com/mdn/interactive-examples/issues/887.
+        const fontFaceStyleElement = document.createElement('style');
+        fontFaceStyleElement.textContent = styles.fontStyle;
+        return fontFaceStyleElement;
+    }
+
+    /**
+     * Create a `<style/>` element with base styles for DDG social container and
+     * button to be attached to DDG wrapper elements/shadowRoot, also returns a wrapper
+     * class name for Social Container link styles
+     * @param {displayMode} [mode='lightMode']
+     * @returns {{wrapperClass: string, styleElement: HTMLStyleElement; }}
+     */
+    function makeBaseStyleElement(mode = 'lightMode') {
+        // Style element includes our font & overwrites page styles
+        const styleElement = document.createElement('style');
+        const wrapperClass = 'DuckDuckGoSocialContainer';
+        styleElement.textContent = `
+        .${wrapperClass} a {
+            ${styles[mode].linkFont}
+            font-weight: bold;
+        }
+        .${wrapperClass} a:hover {
+            ${styles[mode].linkFont}
+            font-weight: bold;
+        }
+        .DuckDuckGoButton {
+            ${styles.button}
+        }
+        .DuckDuckGoButton > div {
+            ${styles.buttonTextContainer}
+        }
+        .DuckDuckGoButton.primary {
+           ${styles[mode].buttonBackground}
+        }
+        .DuckDuckGoButton.primary > div {
+           ${styles[mode].buttonFont}
+        }
+        .DuckDuckGoButton.primary:hover {
+           ${styles[mode].buttonBackgroundHover}
+        }
+        .DuckDuckGoButton.primary:active {
+           ${styles[mode].buttonBackgroundPress}
+        }
+        .DuckDuckGoButton.secondary {
+           ${styles.cancelMode.buttonBackground}
+        }
+        .DuckDuckGoButton.secondary > div {
+            ${styles.cancelMode.buttonFont}
+         }
+        .DuckDuckGoButton.secondary:hover {
+           ${styles.cancelMode.buttonBackgroundHover}
+        }
+        .DuckDuckGoButton.secondary:active {
+           ${styles.cancelMode.buttonBackgroundPress}
+        }
+    `;
+        return { wrapperClass, styleElement };
+    }
+
+    /**
+     * Creates an anchor element with no destination. It is expected that a click
+     * handler is added to the element later.
+     * @param {string} linkText
+     * @param {displayMode} mode
+     * @returns {HTMLAnchorElement}
+     */
+    function makeTextButton(linkText, mode = 'lightMode') {
+        const linkElement = document.createElement('a');
+        linkElement.style.cssText = styles.headerLink + styles[mode].linkFont;
+        linkElement.textContent = linkText;
+        return linkElement;
+    }
+
+    /**
+     * Create a button element.
+     * @param {string} buttonText
+     *   Text to be displayed inside the button.
+     * @param {displayMode} [mode='lightMode']
+     *   The button is usually styled as the primary call to action, but if
+     *   'cancelMode' is specified the button is styled as a secondary call to
+     *   action.
+     * @returns {HTMLButtonElement} Button element
+     */
+    function makeButton(buttonText, mode = 'lightMode') {
+        const button = document.createElement('button');
+        button.classList.add('DuckDuckGoButton');
+        button.classList.add(mode === 'cancelMode' ? 'secondary' : 'primary');
+        if (buttonText) {
+            const textContainer = document.createElement('div');
+            textContainer.textContent = buttonText;
+            button.appendChild(textContainer);
+        }
+        return button;
+    }
+
+    /**
+     * Create a toggle button.
+     * @param {displayMode} mode
+     * @param {boolean} [isActive=false]
+     *   True if the button should be toggled by default.
+     * @param {string} [classNames='']
+     *   Class names to assign to the button (space delimited).
+     * @param {string} [dataKey='']
+     *   Value to assign to the button's 'data-key' attribute.
+     * @returns {HTMLButtonElement}
+     */
+    function makeToggleButton(mode, isActive = false, classNames = '', dataKey = '') {
+        const toggleButton = document.createElement('button');
+        toggleButton.className = classNames;
+        toggleButton.style.cssText = styles.toggleButton;
+        toggleButton.type = 'button';
+        toggleButton.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        toggleButton.setAttribute('data-key', dataKey);
+
+        const activeKey = isActive ? 'active' : 'inactive';
+
+        const toggleBg = document.createElement('div');
+        toggleBg.style.cssText = styles.toggleButtonBg + styles[mode].toggleButtonBgState[activeKey];
+
+        const toggleKnob = document.createElement('div');
+        toggleKnob.style.cssText = styles.toggleButtonKnob + styles.toggleButtonKnobState[activeKey];
+
+        toggleButton.appendChild(toggleBg);
+        toggleButton.appendChild(toggleKnob);
+
+        return toggleButton;
+    }
+
+    /**
+     * Create a toggle button that's wrapped in a div with some text.
+     * @param {string} text
+     *   Text to display by the button.
+     * @param {displayMode} mode
+     * @param {boolean} [isActive=false]
+     *   True if the button should be toggled by default.
+     * @param {string} [toggleClassNames='']
+     *   Class names to assign to the toggle button.
+     * @param {string} [textCssStyles='']
+     *   Styles to apply to the wrapping div (on top of ones determined by the
+     *   display mode.)
+     * @param {string} [dataKey='']
+     *   Value to assign to the button's 'data-key' attribute.
+     * @returns {HTMLDivElement}
+     */
+    function makeToggleButtonWithText(text, mode, isActive = false, toggleClassNames = '', textCssStyles = '', dataKey = '') {
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = styles.toggleButtonWrapper;
+
+        const toggleButton = makeToggleButton(mode, isActive, toggleClassNames, dataKey);
+
+        const textDiv = document.createElement('div');
+        textDiv.style.cssText = styles.contentText + styles.toggleButtonText + styles[mode].toggleButtonText + textCssStyles;
+        textDiv.textContent = text;
+
+        wrapper.appendChild(toggleButton);
+        wrapper.appendChild(textDiv);
+        return wrapper;
+    }
+
+    /**
+     * Create the default block symbol, for when the image isn't available.
+     * @returns {HTMLDivElement}
+     */
+    function makeDefaultBlockIcon() {
+        const blockedIcon = document.createElement('div');
+        const dash = document.createElement('div');
+        blockedIcon.appendChild(dash);
+        blockedIcon.style.cssText = styles.circle;
+        dash.style.cssText = styles.rectangle;
+        return blockedIcon;
+    }
+
+    /**
+     * Creates a share feedback link element.
+     * @returns {HTMLAnchorElement}
+     */
+    function makeShareFeedbackLink() {
+        const feedbackLink = document.createElement('a');
+        feedbackLink.style.cssText = styles.feedbackLink;
+        feedbackLink.target = '_blank';
+        feedbackLink.href = '#';
+        feedbackLink.text = sharedStrings.shareFeedback;
+        // Open Feedback Form page through background event to avoid browser blocking extension link
+        feedbackLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            openShareFeedbackPage();
+        });
+
+        return feedbackLink;
+    }
+
+    /**
+     * Creates a share feedback link element, wrapped in a styled div.
+     * @returns {HTMLDivElement}
+     */
+    function makeShareFeedbackRow() {
+        const feedbackRow = document.createElement('div');
+        feedbackRow.style.cssText = styles.feedbackRow;
+
+        const feedbackLink = makeShareFeedbackLink();
+        feedbackRow.appendChild(feedbackLink);
+
+        return feedbackRow;
+    }
+
+    /**
+     * Creates a placeholder Facebook login button. When clicked, a warning dialog
+     * is displayed to the user. The login flow only continues if the user clicks to
+     * proceed.
+     * @param {string} buttonText
+     * @param {displayMode} mode
+     * @param {string} hoverTextBody
+     *   The hover text to display for the button.
+     * @param {string?} icon
+     *   The source of the icon to display in the button, if null the default block
+     *   icon is used instead.
+     * @param {HTMLElement} originalElement
+     *   The original Facebook login button that this placeholder is replacing.
+     *   Note: This function does not actually replace the button, the caller is
+     *         expected to do that.
+     * @returns {{ container: HTMLDivElement, button: HTMLButtonElement }}
+     */
+    function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement) {
+        const container = document.createElement('div');
+        container.style.cssText = 'position: relative;';
+        container.appendChild(makeFontFaceStyleElement());
+
+        const shadowRoot = container.attachShadow({ mode: devMode ? 'open' : 'closed' });
+        // inherit any class styles on the button
+        container.className = 'fb-login-button FacebookLogin__button';
+        const { styleElement } = makeBaseStyleElement(mode);
+        styleElement.textContent += `
+        #DuckDuckGoPrivacyEssentialsHoverableText {
+            display: none;
+        }
+        #DuckDuckGoPrivacyEssentialsHoverable:hover #DuckDuckGoPrivacyEssentialsHoverableText {
+            display: block;
+        }
+    `;
+        shadowRoot.appendChild(styleElement);
+
+        const hoverContainer = document.createElement('div');
+        hoverContainer.id = 'DuckDuckGoPrivacyEssentialsHoverable';
+        hoverContainer.style.cssText = styles.hoverContainer;
+        shadowRoot.appendChild(hoverContainer);
+
+        // Make the button
+        const button = makeButton(buttonText, mode);
+        // Add blocked icon
+        if (!icon) {
+            button.appendChild(makeDefaultBlockIcon());
+        } else {
+            const imgElement = document.createElement('img');
+            imgElement.style.cssText = styles.loginIcon;
+            imgElement.setAttribute('src', icon);
+            imgElement.setAttribute('height', '28px');
+            button.appendChild(imgElement);
+        }
+        hoverContainer.appendChild(button);
+
+        // hover action
+        const hoverBox = document.createElement('div');
+        hoverBox.id = 'DuckDuckGoPrivacyEssentialsHoverableText';
+        hoverBox.style.cssText = styles.textBubble;
+        const arrow = document.createElement('div');
+        arrow.style.cssText = styles.textArrow;
+        hoverBox.appendChild(arrow);
+        const branding = createTitleRow('DuckDuckGo');
+        branding.style.cssText += styles.hoverTextTitle;
+        hoverBox.appendChild(branding);
+        const hoverText = document.createElement('div');
+        hoverText.style.cssText = styles.hoverTextBody;
+        hoverText.textContent = hoverTextBody + ' ';
+        hoverText.appendChild(getLearnMoreLink(mode));
+        hoverBox.appendChild(hoverText);
+
+        hoverContainer.appendChild(hoverBox);
+        const rect = originalElement.getBoundingClientRect();
+
+        // The left side of the hover popup may go offscreen if the
+        // login button is all the way on the left side of the page. This
+        // If that is the case, dynamically shift the box right so it shows
+        // properly.
+        if (rect.left < styles.textBubbleLeftShift) {
+            const leftShift = -rect.left + 10; // 10px away from edge of the screen
+            hoverBox.style.cssText += `left: ${leftShift}px;`;
+            const change = (1 - rect.left / styles.textBubbleLeftShift) * (100 - styles.arrowDefaultLocationPercent);
+            arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent - change)}%;`;
+        } else if (rect.left + styles.textBubbleWidth - styles.textBubbleLeftShift > window.innerWidth) {
+            const rightShift = rect.left + styles.textBubbleWidth - styles.textBubbleLeftShift;
+            const diff = Math.min(rightShift - window.innerWidth, styles.textBubbleLeftShift);
+            const rightMargin = 20; // Add some margin to the page, so scrollbar doesn't overlap.
+            hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift + diff + rightMargin}px;`;
+            const change = (diff / styles.textBubbleLeftShift) * (100 - styles.arrowDefaultLocationPercent);
+            arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent + change)}%;`;
+        } else {
+            hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift}px;`;
+            arrow.style.cssText += `left: ${styles.arrowDefaultLocationPercent}%;`;
+        }
+
+        return {
+            button,
+            container,
+        };
+    }
+
+    /**
+     * Creates a privacy warning dialog for the user, so that the user can choose to
+     * proceed/abort.
+     * @param {string} entity
+     *   The entity to unblock requests for (e.g. "Facebook, Inc.") if the user
+     *   clicks to proceed.
+     * @param {function} acceptFunction
+     *   The function to call if the user has clicked to proceed.
+     * @param {...any} acceptFunctionParams
+     *   The parameters passed to acceptFunction when it is called.
+     *   TODO: Have the caller bind these arguments to the function instead.
+     */
+    function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
+        const icon = entityData[entity].modalIcon;
+
+        const modalContainer = document.createElement('div');
+        modalContainer.setAttribute('data-key', 'modal');
+        modalContainer.style.cssText = styles.modalContainer;
+
+        modalContainer.appendChild(makeFontFaceStyleElement());
+
+        const closeModal = () => {
+            document.body.removeChild(modalContainer);
+            abortSurrogateConfirmation(entity);
+        };
+
+        // Protect the contents of our modal inside a shadowRoot, to avoid
+        // it being styled by the website's stylesheets.
+        const shadowRoot = modalContainer.attachShadow({ mode: devMode ? 'open' : 'closed' });
+        const { styleElement } = makeBaseStyleElement('lightMode');
+        shadowRoot.appendChild(styleElement);
+
+        const pageOverlay = document.createElement('div');
+        pageOverlay.style.cssText = styles.overlay;
+
+        const modal = document.createElement('div');
+        modal.style.cssText = styles.modal;
+
+        // Title
+        const modalTitle = createTitleRow('DuckDuckGo', null, closeModal);
+        modal.appendChild(modalTitle);
+
+        const iconElement = document.createElement('img');
+        iconElement.style.cssText = styles.icon + styles.modalIcon;
+        iconElement.setAttribute('src', icon);
+        iconElement.setAttribute('height', '70px');
+
+        const title = document.createElement('div');
+        title.style.cssText = styles.modalContentTitle;
+        title.textContent = entityData[entity].modalTitle;
+
+        // Content
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = styles.modalContent;
+
+        const message = document.createElement('div');
+        message.style.cssText = styles.modalContentText;
+        message.textContent = entityData[entity].modalText + ' ';
+        message.appendChild(getLearnMoreLink());
+
+        modalContent.appendChild(iconElement);
+        modalContent.appendChild(title);
+        modalContent.appendChild(message);
+
+        // Buttons
+        const buttonRow = document.createElement('div');
+        buttonRow.style.cssText = styles.modalButtonRow;
+        const allowButton = makeButton(entityData[entity].modalAcceptText, 'lightMode');
+        allowButton.style.cssText += styles.modalButton + 'margin-bottom: 8px;';
+        allowButton.setAttribute('data-key', 'allow');
+        allowButton.addEventListener('click', function doLogin() {
+            acceptFunction(...acceptFunctionParams);
+            document.body.removeChild(modalContainer);
+        });
+        const rejectButton = makeButton(entityData[entity].modalRejectText, 'cancelMode');
+        rejectButton.setAttribute('data-key', 'reject');
+        rejectButton.style.cssText += styles.modalButton;
+        rejectButton.addEventListener('click', closeModal);
+
+        buttonRow.appendChild(allowButton);
+        buttonRow.appendChild(rejectButton);
+        modalContent.appendChild(buttonRow);
+
+        modal.appendChild(modalContent);
+
+        shadowRoot.appendChild(pageOverlay);
+        shadowRoot.appendChild(modal);
+
+        document.body.insertBefore(modalContainer, document.body.childNodes[0]);
+    }
+
+    /**
+     * Create the "title row" div that contains a placeholder's heading.
+     * @param {string} message
+     *   The title text to display.
+     * @param {HTMLAnchorElement?} [textButton]
+     *   The link to display with the title, if any.
+     * @param {EventListener} [closeBtnFn]
+     *   If provided, a close button is added that calls this function when clicked.
+     * @returns {HTMLDivElement}
+     */
+    function createTitleRow(message, textButton, closeBtnFn) {
+        // Create row container
+        const row = document.createElement('div');
+        row.style.cssText = styles.titleBox;
+
+        // Logo
+        const logoContainer = document.createElement('div');
+        logoContainer.style.cssText = styles.logo;
+        const logoElement = document.createElement('img');
+        logoElement.setAttribute('src', logoImg);
+        logoElement.setAttribute('height', '21px');
+        logoElement.style.cssText = styles.logoImg;
+        logoContainer.appendChild(logoElement);
+        row.appendChild(logoContainer);
+
+        // Content box title
+        const msgElement = document.createElement('div');
+        msgElement.id = titleID; // Ensure we can find this to potentially hide it later.
+        msgElement.textContent = message;
+        msgElement.style.cssText = styles.title;
+        row.appendChild(msgElement);
+
+        // Close Button
+        if (typeof closeBtnFn === 'function') {
+            const closeButton = document.createElement('button');
+            closeButton.style.cssText = styles.closeButton;
+            const closeIconImg = document.createElement('img');
+            closeIconImg.setAttribute('src', closeIcon);
+            closeIconImg.setAttribute('height', '12px');
+            closeIconImg.style.cssText = styles.closeIcon;
+            closeButton.appendChild(closeIconImg);
+            closeButton.addEventListener('click', closeBtnFn);
+            row.appendChild(closeButton);
+        }
+
+        // Text button for very small boxes
+        if (textButton) {
+            textButton.id = titleID + 'TextButton';
+            row.appendChild(textButton);
+        }
+
+        return row;
+    }
+
+    /**
+     * Create a placeholder element (wrapped in a div and shadowRoot), to replace a
+     * tracking element with.
+     * @param {DuckWidget} widget
+     *   Widget corresponding to the tracking element.
+     * @param {HTMLButtonElement} button
+     *   Primary button that loads the original tracking element (and removed this
+     *   placeholder) when clicked.
+     * @param {HTMLAnchorElement?} textButton
+     *   Link to display next to the title, if any.
+     * @param {string?} img
+     *   Source of image to display in the placeholder (if any).
+     * @param {HTMLDivElement} [bottomRow]
+     *   Bottom row to append to the placeholder, if any.
+     * @returns {{ contentBlock: HTMLDivElement, shadowRoot: ShadowRoot }}
+     */
+    function createContentBlock(widget, button, textButton, img, bottomRow) {
+        const contentBlock = document.createElement('div');
+        contentBlock.style.cssText = styles.wrapperDiv;
+
+        contentBlock.appendChild(makeFontFaceStyleElement());
+
+        // Put everything else inside the shadowRoot of the wrapper element to
+        // reduce the chances of the website's stylesheets messing up the
+        // placeholder's appearance.
+        const shadowRootMode = devMode ? 'open' : 'closed';
+        const shadowRoot = contentBlock.attachShadow({ mode: shadowRootMode });
+
+        // Style element includes our font & overwrites page styles
+        const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode());
+        shadowRoot.appendChild(styleElement);
+
+        // Create overall grid structure
+        const element = document.createElement('div');
+        element.style.cssText = styles.block + styles[widget.getMode()].background + styles[widget.getMode()].textFont;
+        if (widget.replaceSettings.type === 'youtube-video') {
+            element.style.cssText += styles.youTubeDialogBlock;
+        }
+        element.className = wrapperClass;
+        shadowRoot.appendChild(element);
+
+        // grid of three rows
+        const titleRow = document.createElement('div');
+        titleRow.style.cssText = styles.headerRow;
+        element.appendChild(titleRow);
+        titleRow.appendChild(createTitleRow('DuckDuckGo', textButton));
+
+        const contentRow = document.createElement('div');
+        contentRow.style.cssText = styles.content;
+
+        if (img) {
+            const imageRow = document.createElement('div');
+            imageRow.style.cssText = styles.imgRow;
+            const imgElement = document.createElement('img');
+            imgElement.style.cssText = styles.icon;
+            imgElement.setAttribute('src', img);
+            imgElement.setAttribute('height', '70px');
+            imageRow.appendChild(imgElement);
+            element.appendChild(imageRow);
+        }
+
+        const contentTitle = document.createElement('div');
+        contentTitle.style.cssText = styles.contentTitle;
+        contentTitle.textContent = widget.replaceSettings.infoTitle;
+        contentTitle.id = 'contentTitle';
+        contentRow.appendChild(contentTitle);
+        const contentText = document.createElement('div');
+        contentText.style.cssText = styles.contentText;
+        const contentTextSpan = document.createElement('span');
+        contentTextSpan.id = 'infoText';
+        contentTextSpan.textContent = widget.replaceSettings.infoText + ' ';
+        contentText.appendChild(contentTextSpan);
+        contentText.appendChild(getLearnMoreLink());
+        contentRow.appendChild(contentText);
+        element.appendChild(contentRow);
+
+        const buttonRow = document.createElement('div');
+        buttonRow.style.cssText = styles.buttonRow;
+        buttonRow.appendChild(button);
+        contentText.appendChild(buttonRow);
+
+        if (bottomRow) {
+            contentRow.appendChild(bottomRow);
+        }
+
+        /** Share Feedback Link */
+        if (widget.replaceSettings.type === 'youtube-video') {
+            const feedbackRow = makeShareFeedbackRow();
+            shadowRoot.appendChild(feedbackRow);
+        }
+
+        return { contentBlock, shadowRoot };
+    }
+
+    /**
+     * Create the content block to replace embedded YouTube videos/iframes with.
+     * @param {HTMLIFrameElement} trackingElement
+     * @param {DuckWidget} widget
+     * @returns {{ blockingDialog: HTMLElement, shadowRoot: ShadowRoot }}
+     */
+    function createYouTubeBlockingDialog(trackingElement, widget) {
+        const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
+        const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
+
+        const bottomRow = document.createElement('div');
+        bottomRow.style.cssText = styles.youTubeDialogBottomRow;
+        const previewToggle = makeToggleButtonWithText(
+            widget.replaceSettings.previewToggleText,
+            widget.getMode(),
+            false,
+            '',
+            '',
+            'yt-preview-toggle',
+        );
+        previewToggle.addEventListener('click', () =>
+            makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), widget.entity),
+        );
+        bottomRow.appendChild(previewToggle);
+
+        const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, null, bottomRow);
+        contentBlock.id = trackingElement.id;
+        contentBlock.style.cssText += styles.wrapperDiv + styles.youTubeWrapperDiv;
+
+        button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+        textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+
+        return {
+            blockingDialog: contentBlock,
+            shadowRoot,
+        };
+    }
+
+    /**
+     * Creates the placeholder element to replace a YouTube video iframe element
+     * with a preview image. Mutates widget Object to set the autoplay property
+     * as the preview details load.
+     * @param {HTMLIFrameElement} originalElement
+     *   The YouTube video iframe element.
+     * @param {DuckWidget} widget
+     *   The widget Object. We mutate this to set the autoplay property.
+     * @returns {{ youTubePreview: HTMLElement, shadowRoot: ShadowRoot }}
+     *   Object containing the YouTube Preview element and its shadowRoot.
+     */
+    function createYouTubePreview(originalElement, widget) {
+        const youTubePreview = document.createElement('div');
+        youTubePreview.id = originalElement.id;
+        youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv;
+
+        youTubePreview.appendChild(makeFontFaceStyleElement());
+
+        // Protect the contents of our placeholder inside a shadowRoot, to avoid
+        // it being styled by the website's stylesheets.
+        const shadowRoot = youTubePreview.attachShadow({ mode: devMode ? 'open' : 'closed' });
+        const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode());
+        shadowRoot.appendChild(styleElement);
+
+        const youTubePreviewDiv = document.createElement('div');
+        youTubePreviewDiv.style.cssText = styles.youTubeDialogDiv;
+        youTubePreviewDiv.classList.add(wrapperClass);
+        shadowRoot.appendChild(youTubePreviewDiv);
+
+        /** Preview Image */
+        const previewImageWrapper = document.createElement('div');
+        previewImageWrapper.style.cssText = styles.youTubePreviewWrapperImg;
+        youTubePreviewDiv.appendChild(previewImageWrapper);
+        // We use an image element for the preview image so that we can ensure
+        // the referrer isn't passed.
+        const previewImageElement = document.createElement('img');
+        previewImageElement.setAttribute('referrerPolicy', 'no-referrer');
+        previewImageElement.style.cssText = styles.youTubePreviewImg;
+        previewImageWrapper.appendChild(previewImageElement);
+
+        const innerDiv = document.createElement('div');
+        innerDiv.style.cssText = styles.youTubePlaceholder;
+
+        /** Top section */
+        const topSection = document.createElement('div');
+        topSection.style.cssText = styles.youTubeTopSection;
+        innerDiv.appendChild(topSection);
+
+        /** Video Title */
+        const titleElement = document.createElement('p');
+        titleElement.style.cssText = styles.youTubeTitle;
+        topSection.appendChild(titleElement);
+
+        /** Text Button on top section */
+        // Use darkMode styles because the preview background is dark and causes poor contrast
+        // with lightMode button, making it hard to read.
+        const textButton = makeTextButton(widget.replaceSettings.buttonText, 'darkMode');
+        textButton.id = titleID + 'TextButton';
+
+        textButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview));
+        topSection.appendChild(textButton);
+
+        /** Play Button */
+        const playButtonRow = document.createElement('div');
+        playButtonRow.style.cssText = styles.youTubePlayButtonRow;
+
+        const playButton = makeButton('', widget.getMode());
+        playButton.style.cssText += styles.youTubePlayButton;
+
+        const videoPlayImg = document.createElement('img');
+        const videoPlayIcon = widget.replaceSettings.placeholder.videoPlayIcon[widget.getMode()];
+        videoPlayImg.setAttribute('src', videoPlayIcon);
+        playButton.appendChild(videoPlayImg);
+
+        playButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview));
+        playButtonRow.appendChild(playButton);
+        innerDiv.appendChild(playButtonRow);
+
+        /** Preview Toggle */
+        const previewToggleRow = document.createElement('div');
+        previewToggleRow.style.cssText = styles.youTubePreviewToggleRow;
+
+        // TODO: Use `widget.replaceSettings.placeholder.previewToggleEnabledDuckDuckGoText` for toggle
+        // copy when implementing mobile YT CTL Preview
+        const previewToggle = makeToggleButtonWithText(
+            widget.replaceSettings.placeholder.previewToggleEnabledText,
+            widget.getMode(),
+            true,
+            '',
+            styles.youTubePreviewToggleText,
+            'yt-preview-toggle',
+        );
+        previewToggle.addEventListener('click', () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: false }));
+
+        /** Preview Info Text */
+        const previewText = document.createElement('div');
+        previewText.style.cssText = styles.contentText + styles.toggleButtonText + styles.youTubePreviewInfoText;
+        // Since this string contains an anchor element, setting innerText won't
+        // work.
+        // Warning: This is not ideal! The translated (and original) strings must be
+        //          checked very carefully! Any HTML they contain will be inserted.
+        //          Ideally, the translation system would allow only certain element
+        //          types to be included, and would avoid the URLs for links being
+        //          included in the translations.
+        previewText.insertAdjacentHTML('beforeend', widget.replaceSettings.placeholder.previewInfoText);
+        const previewTextLink = previewText.querySelector('a');
+        if (previewTextLink) {
+            const newPreviewTextLink = getLearnMoreLink(widget.getMode());
+            newPreviewTextLink.innerText = previewTextLink.innerText;
+            previewTextLink.replaceWith(newPreviewTextLink);
+        }
+
+        previewToggleRow.appendChild(previewToggle);
+        previewToggleRow.appendChild(previewText);
+        innerDiv.appendChild(previewToggleRow);
+
+        youTubePreviewDiv.appendChild(innerDiv);
+
+        // We use .then() instead of await here to show the placeholder right away
+        // while the YouTube endpoint takes it time to respond.
+        const videoURL = originalElement.src || originalElement.getAttribute('data-src');
+        ctl.messaging
+            .request('getYouTubeVideoDetails', { videoURL })
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .then(({ videoURL: videoURLResp, status, title, previewImage }) => {
+                if (!status || videoURLResp !== videoURL) {
+                    return;
+                }
+                if (status === 'success') {
+                    titleElement.innerText = title;
+                    titleElement.title = title;
+                    if (previewImage) {
+                        previewImageElement.setAttribute('src', previewImage);
+                    }
+                    widget.autoplay = true;
+                }
+            });
+
+        /** Share Feedback Link */
+        const feedbackRow = makeShareFeedbackRow();
+        shadowRoot.appendChild(feedbackRow);
+
+        return { youTubePreview, shadowRoot };
+    }
+
+    /**
+     * @typedef {import('@duckduckgo/messaging').MessagingContext} MessagingContext
+     */
+
+    class ClickToLoad extends ContentFeature {
+        /** @type {MessagingContext} */
+        #messagingContext;
+
+        async init(args) {
+            /**
+             * Bail if no messaging backend - this is a debugging feature to ensure we don't
+             * accidentally enabled this
+             */
+            if (!this.messaging) {
+                throw new Error('Cannot operate click to load without a messaging backend');
+            }
+            _messagingModuleScope = this.messaging;
+            _addDebugFlag = this.addDebugFlag.bind(this);
+
+            const websiteOwner = args?.site?.parentEntity;
+            const settings = args?.featureSettings?.clickToLoad || {};
+            const locale = args?.locale || 'en';
+            const localizedConfig = getConfig(locale);
+            config = localizedConfig.config;
+            sharedStrings = localizedConfig.sharedStrings;
+            // update styles if asset config was sent
+            styles = getStyles(this.assetConfig);
+
+            /**
+             * Register Custom Elements only when Click to Load is initialized, to ensure it is only
+             * called when config is ready and any previous context have been appropriately invalidated
+             * prior when applicable (ie Firefox when hot reloading the Extension)
+             */
+            registerCustomElements();
+
+            for (const entity of Object.keys(config)) {
+                // Strip config entities that are first-party, or aren't enabled in the
+                // extension's clickToLoad settings.
+                if ((websiteOwner && entity === websiteOwner) || !settings[entity] || settings[entity].state !== 'enabled') {
+                    delete config[entity];
+                    continue;
+                }
+
+                // Populate the entities and entityData data structures.
+                // TODO: Remove them and this logic, they seem unnecessary.
+
+                entities.push(entity);
+
+                const shouldShowLoginModal = !!config[entity].informationalModal;
+                const currentEntityData = { shouldShowLoginModal };
+
+                if (shouldShowLoginModal) {
+                    const { informationalModal } = config[entity];
+                    currentEntityData.modalIcon = informationalModal.icon;
+                    currentEntityData.modalTitle = informationalModal.messageTitle;
+                    currentEntityData.modalText = informationalModal.messageBody;
+                    currentEntityData.modalAcceptText = informationalModal.confirmButtonText;
+                    currentEntityData.modalRejectText = informationalModal.rejectButtonText;
+                }
+
+                entityData[entity] = currentEntityData;
+            }
+
+            // Listen for window events from "surrogate" scripts.
+            window.addEventListener('ddg-ctp', (/** @type {CustomEvent} */ event) => {
+                if (!('detail' in event)) return;
+
+                const entity = event.detail?.entity;
+                if (!entities.includes(entity)) {
+                    // Unknown entity, reject
+                    return;
+                }
+                if (event.detail?.appID) {
+                    appID = JSON.stringify(event.detail.appID).replace(/"/g, '');
+                }
+                // Handle login call
+                if (event.detail?.action === 'login') {
+                    // Even if the user cancels the login attempt, consider Facebook Click to
+                    // Load to have been active on the page if the user reports the page as broken.
+                    if (entity === 'Facebook, Inc.') {
+                        notifyFacebookLogin();
+                    }
+
+                    if (entityData[entity].shouldShowLoginModal) {
+                        handleUnblockConfirmation(this.platform.name, entity, runLogin, entity);
+                    } else {
+                        runLogin(entity);
+                    }
+                }
+            });
+            // Listen to message from Platform letting CTL know that we're ready to
+            // replace elements in the page
+
+            this.messaging.subscribe(
+                'displayClickToLoadPlaceholders',
+                // TODO: Pass `message.options.ruleAction` through, that way only
+                //       content corresponding to the entity for that ruleAction need to
+                //       be replaced with a placeholder.
+                () => this.replaceClickToLoadElements(),
+            );
+
+            // Request the current state of Click to Load from the platform.
+            // Note: When the response is received, the response handler resolves
+            //       the readyToDisplayPlaceholders Promise.
+            const clickToLoadState = await this.messaging.request('getClickToLoadState');
+            this.onClickToLoadState(clickToLoadState);
+
+            // Then wait for the page to finish loading, and resolve the
+            // afterPageLoad Promise.
+            if (document.readyState === 'complete') {
+                afterPageLoadResolver();
+            } else {
+                window.addEventListener('load', afterPageLoadResolver, { once: true });
+            }
+            await afterPageLoad;
+
+            // On some websites, the "ddg-ctp-ready" event is occasionally
+            // dispatched too early, before the listener is ready to receive it.
+            // To counter that, catch "ddg-ctp-surrogate-load" events dispatched
+            // _after_ page, so the "ddg-ctp-ready" event can be dispatched again.
+            window.addEventListener('ddg-ctp-surrogate-load', () => {
+                originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+            });
+
+            // Then wait for any in-progress element replacements, before letting
+            // the surrogate scripts know to start.
+            window.setTimeout(() => {
+                originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+            }, 0);
+        }
+
+        /**
+         * This is only called by the current integration between Android and Extension and is now
+         * used to connect only these Platforms responses with the temporary implementation of
+         * SendMessageMessagingTransport that wraps this communication.
+         * This can be removed once they have their own Messaging integration.
+         */
+        update(message) {
+            // TODO: Once all Click to Load messages include the feature property, drop
+            //       messages that don't include the feature property too.
+            if (message?.feature && message?.feature !== 'clickToLoad') return;
+
+            const messageType = message?.messageType;
+            if (!messageType) return;
+
+            if (!this._clickToLoadMessagingTransport) {
+                throw new Error('_clickToLoadMessagingTransport not ready. Cannot operate click to load without a messaging backend');
+            }
+
+            // Send to Messaging layer the response or subscription message received
+            // from the Platform.
+            return this._clickToLoadMessagingTransport.onResponse(message);
+        }
+
+        /**
+         * Update Click to Load internal state
+         * @param {Object} state Click to Load state response from the Platform
+         * @param {boolean} state.devMode Developer or Production environment
+         * @param {boolean} state.youtubePreviewsEnabled YouTube Click to Load - YT Previews enabled flag
+         */
+        onClickToLoadState(state) {
+            devMode = state.devMode;
+            isYoutubePreviewsEnabled = state.youtubePreviewsEnabled;
+
+            // Mark the feature as ready, to allow placeholder
+            // replacements to start.
+            readyToDisplayPlaceholdersResolver();
+        }
+
+        /**
+         * Replace the blocked CTL elements on the page with placeholders.
+         * @param {HTMLElement} [targetElement]
+         *   If specified, only this element will be replaced (assuming it matches
+         *   one of the expected CSS selectors). If omitted, all matching elements
+         *   in the document will be replaced instead.
+         */
+        async replaceClickToLoadElements(targetElement) {
+            await readyToDisplayPlaceholders;
+
+            for (const entity of Object.keys(config)) {
+                for (const widgetData of Object.values(config[entity].elementData)) {
+                    const selector = widgetData.selectors.join();
+
+                    let trackingElements = [];
+                    if (targetElement) {
+                        if (targetElement.matches(selector)) {
+                            trackingElements.push(targetElement);
+                        }
+                    } else {
+                        trackingElements = Array.from(document.querySelectorAll(selector));
+                    }
+
+                    await Promise.all(
+                        trackingElements.map((trackingElement) => {
+                            if (knownTrackingElements.has(trackingElement)) {
+                                return Promise.resolve();
+                            }
+
+                            knownTrackingElements.add(trackingElement);
+
+                            const widget = new DuckWidget(widgetData, trackingElement, entity, this.platform);
+                            return createPlaceholderElementAndReplace(widget, trackingElement);
+                        }),
+                    );
+                }
+            }
+        }
+
+        /**
+         * @returns {MessagingContext}
+         */
+        get messagingContext() {
+            if (this.#messagingContext) return this.#messagingContext;
+            this.#messagingContext = this._createMessagingContext();
+            return this.#messagingContext;
+        }
+
+        // Messaging layer between Click to Load and the Platform
+        get messaging() {
+            if (this._messaging) return this._messaging;
+
+            if (this.platform.name === 'android' || this.platform.name === 'extension') {
+                this._clickToLoadMessagingTransport = new SendMessageMessagingTransport();
+                const config = new TestTransportConfig(this._clickToLoadMessagingTransport);
+                this._messaging = new Messaging(this.messagingContext, config);
+                return this._messaging;
+            } else if (this.platform.name === 'ios' || this.platform.name === 'macos') {
+                const config = new WebkitMessagingConfig({
+                    secret: '',
+                    hasModernWebkitAPI: true,
+                    webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
+                });
+                this._messaging = new Messaging(this.messagingContext, config);
+                return this._messaging;
+            } else {
+                throw new Error('Messaging not supported yet on platform: ' + this.name);
+            }
+        }
+    }
+
+    var platformFeatures = {
+        ddg_feature_cookie: CookieFeature,
+        ddg_feature_fingerprintingAudio: FingerprintingAudio,
+        ddg_feature_fingerprintingBattery: FingerprintingBattery,
+        ddg_feature_fingerprintingCanvas: FingerprintingCanvas,
+        ddg_feature_googleRejected: GoogleRejected,
+        ddg_feature_gpc: GlobalPrivacyControl,
+        ddg_feature_fingerprintingHardware: FingerprintingHardware,
+        ddg_feature_referrer: Referrer,
+        ddg_feature_fingerprintingScreenSize: FingerprintingScreenSize,
+        ddg_feature_fingerprintingTemporaryStorage: FingerprintingTemporaryStorage,
+        ddg_feature_navigatorInterface: NavigatorInterface,
+        ddg_feature_elementHiding: ElementHiding,
+        ddg_feature_exceptionHandler: ExceptionHandler,
+        ddg_feature_apiManipulation: ApiManipulation,
+        ddg_feature_clickToLoad: ClickToLoad
+    };
+
+    let initArgs = null;
+    const updates = [];
+    const features = [];
+    const alwaysInitFeatures = new Set(['cookie']);
+    const performanceMonitor = new PerformanceMonitor();
+
+    // It's important to avoid enabling the features for non-HTML documents (such as
+    // XML documents that aren't XHTML). Note that it's necessary to check the
+    // document type in advance, to minimise the risk of a website breaking the
+    // checks by altering document.__proto__. In the future, it might be worth
+    // running the checks even earlier (and in the "isolated world" for the Chrome
+    // extension), to further reduce that risk.
+    const isHTMLDocument =
+        document instanceof HTMLDocument || (document instanceof XMLDocument && document.createElement('div') instanceof HTMLDivElement);
+
+    /**
+     * @typedef {object} LoadArgs
+     * @property {import('./content-feature').Site} site
+     * @property {import('./utils.js').Platform} platform
+     * @property {boolean} documentOriginIsTracker
+     * @property {import('./utils.js').RemoteConfig} bundledConfig
+     * @property {string} [injectName]
+     * @property {object} trackerLookup - provided currently only by the extension
+     * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
+     */
+
+    /**
+     * @param {LoadArgs} args
+     */
+    function load(args) {
+        const mark = performanceMonitor.mark('load');
+        if (!isHTMLDocument) {
+            return;
+        }
+
+        const featureNames = platformSupport["firefox"] ;
+
+        for (const featureName of featureNames) {
+            const ContentFeature = platformFeatures['ddg_feature_' + featureName];
+            const featureInstance = new ContentFeature(featureName);
+            featureInstance.callLoad(args);
+            features.push({ featureName, featureInstance });
+        }
+        mark.end();
+    }
+
+    async function init(args) {
+        const mark = performanceMonitor.mark('init');
+        initArgs = args;
+        if (!isHTMLDocument) {
+            return;
+        }
+        registerMessageSecret(args.messageSecret);
+        initStringExemptionLists(args);
+        const resolvedFeatures = await Promise.all(features);
+        resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+            if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+                featureInstance.callInit(args);
+            }
+        });
+        // Fire off updates that came in faster than the init
+        while (updates.length) {
+            const update = updates.pop();
+            await updateFeaturesInner(update);
+        }
+        mark.end();
+        if (args.debug) {
+            performanceMonitor.measureAll();
+        }
+    }
+
+    function update(args) {
+        if (!isHTMLDocument) {
+            return;
+        }
+        if (initArgs === null) {
+            updates.push(args);
+            return;
+        }
+        updateFeaturesInner(args);
+    }
+
+    function alwaysInitExtensionFeatures(args, featureName) {
+        return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
+    }
+
+    async function updateFeaturesInner(args) {
+        const resolvedFeatures = await Promise.all(features);
+        resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+            if (!isFeatureBroken(initArgs, featureName) && featureInstance.update) {
+                featureInstance.update(args);
+            }
+        });
+    }
+
+    /**
+     * @module Mozilla integration
+     */
+
+    const allowedMessages = [
+        'getClickToLoadState',
+        'getYouTubeVideoDetails',
+        'openShareFeedbackPage',
+        'addDebugFlag',
+        'setYoutubePreviewsEnabled',
+        'unblockClickToLoadContent',
+        'updateYouTubeCTLAddedFlag',
+        'updateFacebookCTLBreakageFlags',
+    ];
+    const messageSecret = randomString();
+
+    function randomString() {
+        const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+        return num.toString().replace('0.', '');
+    }
+
+    function initCode() {
+        const trackerLookup = $TRACKER_LOOKUP$;
+        load({
+            platform: {
+                name: 'extension',
+            },
+            trackerLookup,
+            documentOriginIsTracker: isTrackerOrigin(trackerLookup),
+            site: computeLimitedSiteObject(),
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            bundledConfig: $BUNDLED_CONFIG$,
+        });
+
+        chrome.runtime.sendMessage(
+            {
+                messageType: 'registeredContentScript',
+                options: {
+                    documentUrl: window.location.href,
+                },
+            },
+            (message) => {
+                // Background has disabled features
+                if (!message) {
+                    return;
+                }
+                if (message.debug) {
+                    window.addEventListener('message', (m) => {
+                        if (m.data.action && m.data.message) {
+                            chrome.runtime.sendMessage({
+                                messageType: 'debuggerMessage',
+                                options: m.data,
+                            });
+                        }
+                    });
+                }
+                message.messageSecret = messageSecret;
+                init(message);
+            },
+        );
+
+        chrome.runtime.onMessage.addListener((message) => {
+            // forward update messages to the embedded script
+            if (message && message.type === 'update') {
+                update(message);
+            }
+        });
+
+        window.addEventListener('sendMessageProxy' + messageSecret, (event) => {
+            event.stopImmediatePropagation();
+
+            if (!(event instanceof CustomEvent) || !event?.detail) {
+                return console.warn('no details in sendMessage proxy', event);
+            }
+
+            const messageType = event.detail?.messageType;
+            if (!allowedMessages.includes(messageType)) {
+                return console.warn('Ignoring invalid sendMessage messageType', messageType);
+            }
+
+            chrome.runtime.sendMessage(event.detail, (response) => {
+                const message = {
+                    messageType: 'response',
+                    responseMessageType: messageType,
+                    response,
+                };
+
+                update(message);
+            });
+        });
+    }
+
+    initCode();
+
+})();
+/*# sourceURL=duckduckgo-privacy-protection.js?scope=injectfirefox */
