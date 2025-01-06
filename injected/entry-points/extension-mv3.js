@@ -1,8 +1,8 @@
 /**
- * @module Mozilla MV2 main world integration
+ * @module main world integration for Chrome MV3 and Firefox (enhanced) MV2
  */
 import { load, init, update } from '../src/content-scope-features.js';
-import { isTrackerOrigin } from '../src/trackers';
+import { isTrackerOrigin } from '../src/trackers.js';
 import { computeLimitedSiteObject } from '../src/utils.js';
 
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');

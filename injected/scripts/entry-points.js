@@ -17,7 +17,7 @@ const contentScopeName = 'contentScopeFeatures';
 /** @satisfies {BuildManifest} */
 const builds = {
     firefox: {
-        input: 'entry-points/mozilla.js',
+        input: 'entry-points/extension-mv3.js',
         output: ['../build/firefox/inject.js'],
     },
     apple: {
@@ -50,7 +50,7 @@ const builds = {
         ],
     },
     'chrome-mv3': {
-        input: 'entry-points/chrome-mv3.js',
+        input: 'entry-points/extension-mv3.js',
         output: ['../build/chrome-mv3/inject.js'],
     },
     chrome: {
