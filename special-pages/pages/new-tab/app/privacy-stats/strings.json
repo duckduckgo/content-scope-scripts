@@ -3,6 +3,10 @@
     "title": "Blocked Tracking Attempts",
     "note": "Used as a label in a customization menu"
   },
+  "stats_menuTitle_v2": {
+    "title": "Tracking Activity",
+    "note": "Used as a label in a customization menu"
+  },
   "stats_noActivity": {
     "title": "Blocked tracking attempts will appear here. Keep browsing to see how many we block.",
     "note": "Placeholder for when we cannot report any blocked trackers yet"

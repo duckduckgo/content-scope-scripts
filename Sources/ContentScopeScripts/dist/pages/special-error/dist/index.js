@@ -1699,20 +1699,6 @@
     return x2(EnvironmentContext);
   }
 
-  // pages/special-error/app/providers/MessagingProvider.js
-  var MessagingContext2 = G({
-    messaging: (
-      /** @type {import('../../src/index.js').SpecialErrorPage | null} */
-      null
-    )
-  });
-  function MessagingProvider({ children, messaging: messaging2 }) {
-    return /* @__PURE__ */ _(MessagingContext2.Provider, { value: { messaging: messaging2 } }, children);
-  }
-  function useMessaging() {
-    return x2(MessagingContext2);
-  }
-
   // shared/components/ErrorBoundary.js
   var ErrorBoundary = class extends k {
     /**
@@ -1738,9 +1724,30 @@
     }
   };
 
-  // pages/special-error/app/components/ErrorFallback.js
-  function ErrorFallback() {
-    return /* @__PURE__ */ _("h1", null, "Something went wrong");
+  // pages/special-error/app/providers/MessagingProvider.js
+  var MessagingContext2 = G({
+    messaging: (
+      /** @type {import('../../src/index.js').SpecialErrorPage | null} */
+      null
+    )
+  });
+  function MessagingProvider({ children, messaging: messaging2 }) {
+    return /* @__PURE__ */ _(MessagingContext2.Provider, { value: { messaging: messaging2 } }, children);
+  }
+  function useMessaging() {
+    return x2(MessagingContext2);
+  }
+
+  // pages/special-error/app/providers/SpecialErrorProvider.js
+  var SpecialErrorContext = G(
+    /** @type {import('../specialError.js').SpecialError} */
+    {}
+  );
+  function SpecialErrorProvider({ children, specialError }) {
+    return /* @__PURE__ */ _(SpecialErrorContext.Provider, { value: specialError }, children);
+  }
+  function useErrorData() {
+    return x2(SpecialErrorContext).data;
   }
 
   // shared/translations.js
@@ -1891,55 +1898,28 @@
     };
   }
 
-  // pages/special-error/app/providers/SpecialErrorProvider.js
-  var SpecialErrorContext = G(
-    /** @type {import('../specialError.js').SpecialError} */
-    {}
-  );
-  function SpecialErrorProvider({ children, specialError }) {
-    return /* @__PURE__ */ _(SpecialErrorContext.Provider, { value: specialError }, children);
-  }
-  function useErrorData() {
-    return x2(SpecialErrorContext).data;
-  }
+  // shared/components/Text/Text.js
+  var import_classnames = __toESM(require_classnames(), 1);
 
-  // pages/special-error/app/components/Warning.jsx
-  var import_classnames3 = __toESM(require_classnames(), 1);
-
-  // pages/special-error/app/settings.js
-  var Settings = class _Settings {
-    /**
-     * @param {object} params
-     * @param {{name: ImportMeta['platform']}} [params.platform]
-     */
-    constructor({ platform = { name: "macos" } }) {
-      this.platform = platform;
-    }
-    withPlatformName(name) {
-      const valid = ["windows", "macos", "ios", "android"];
-      if (valid.includes(
-        /** @type {any} */
-        name
-      )) {
-        return new _Settings({
-          ...this,
-          platform: { name }
-        });
-      }
-      return this;
-    }
+  // shared/components/Text/Text.module.css
+  var Text_default = {
+    "title-1": "Text_title-1",
+    strictSpacing: "Text_strictSpacing",
+    "title-2": "Text_title-2",
+    "title-2-emphasis": "Text_title-2-emphasis",
+    headline: "Text_headline",
+    subheadline: "Text_subheadline",
+    body: "Text_body",
+    "body-emphasis": "Text_body-emphasis",
+    "label-small": "Text_label-small",
+    "label-default": "Text_label-default",
+    "label-medium": "Text_label-medium",
+    "caption-2-emphasis": "Text_caption-2-emphasis"
   };
 
-  // pages/special-error/app/providers/SettingsProvider.jsx
-  var SettingsContext = G(
-    /** @type {{settings: Settings}} */
-    {}
-  );
-  function SettingsProvider({ settings, children }) {
-    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
-  }
-  function usePlatformName() {
-    return x2(SettingsContext).settings.platform?.name;
+  // shared/components/Text/Text.js
+  function Text({ as: Comp = "p", variant, strictSpacing = true, className, children }) {
+    return /* @__PURE__ */ _(Comp, { className: (0, import_classnames.default)({ [Text_default[`${variant}`]]: variant, [Text_default.strictSpacing]: strictSpacing }, className) }, children);
   }
 
   // pages/special-error/app/constants.js
@@ -2052,28 +2032,92 @@
     throw new Error(`Unhandled error kind ${kind}`);
   }
 
-  // shared/components/Text/Text.js
-  var import_classnames = __toESM(require_classnames(), 1);
-
-  // shared/components/Text/Text.module.css
-  var Text_default = {
-    "title-1": "Text_title-1",
-    strictSpacing: "Text_strictSpacing",
-    "title-2": "Text_title-2",
-    "title-2-emphasis": "Text_title-2-emphasis",
-    headline: "Text_headline",
-    subheadline: "Text_subheadline",
-    body: "Text_body",
-    "body-emphasis": "Text_body-emphasis",
-    "label-small": "Text_label-small",
-    "label-default": "Text_label-default",
-    "label-medium": "Text_label-medium",
-    "caption-2-emphasis": "Text_caption-2-emphasis"
+  // pages/special-error/app/components/AdvancedInfo.module.css
+  var AdvancedInfo_default = {
+    container: "AdvancedInfo_container",
+    appear: "AdvancedInfo_appear",
+    heading: "AdvancedInfo_heading",
+    content: "AdvancedInfo_content",
+    visitSite: "AdvancedInfo_visitSite",
+    wrapper: "AdvancedInfo_wrapper"
   };
 
-  // shared/components/Text/Text.js
-  function Text({ as: Comp = "p", variant, strictSpacing = true, className, children }) {
-    return /* @__PURE__ */ _(Comp, { className: (0, import_classnames.default)({ [Text_default[`${variant}`]]: variant, [Text_default.strictSpacing]: strictSpacing }, className) }, children);
+  // pages/special-error/app/components/AdvancedInfo.jsx
+  function useScrollTarget() {
+    const linkRef = A2(null);
+    return {
+      ref: linkRef,
+      trigger: () => {
+        linkRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+  }
+  function VisitSiteLink({ elemRef }) {
+    const { t: t3 } = useTypedTranslation();
+    const { messaging: messaging2 } = useMessaging();
+    return /* @__PURE__ */ _("a", { className: AdvancedInfo_default.visitSite, onClick: () => messaging2?.visitSite(), ref: elemRef }, t3("visitSiteButton"));
+  }
+  function AdvancedInfoHeading() {
+    const heading = useAdvancedInfoHeading();
+    return /* @__PURE__ */ _("header", { className: AdvancedInfo_default.heading }, /* @__PURE__ */ _(Text, { as: "h2", variant: "body" }, heading));
+  }
+  function AdvancedInfoContent() {
+    const content = useAdvancedInfoContent();
+    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.content }, content.map((text) => /* @__PURE__ */ _(Text, { as: "p", variant: "body" }, text)));
+  }
+  function AdvancedInfo() {
+    const { ref, trigger } = useScrollTarget();
+    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.wrapper }, /* @__PURE__ */ _("div", { className: AdvancedInfo_default.container, onAnimationEnd: trigger }, /* @__PURE__ */ _(AdvancedInfoHeading, null), /* @__PURE__ */ _(AdvancedInfoContent, null), /* @__PURE__ */ _(VisitSiteLink, { elemRef: ref })));
+  }
+
+  // pages/special-error/app/components/App.module.css
+  var App_default = {
+    main: "App_main",
+    container: "App_container"
+  };
+
+  // pages/special-error/app/components/ErrorFallback.js
+  function ErrorFallback() {
+    return /* @__PURE__ */ _("h1", null, "Something went wrong");
+  }
+
+  // pages/special-error/app/components/Warning.jsx
+  var import_classnames3 = __toESM(require_classnames(), 1);
+
+  // pages/special-error/app/settings.js
+  var Settings = class _Settings {
+    /**
+     * @param {object} params
+     * @param {{name: ImportMeta['platform']}} [params.platform]
+     */
+    constructor({ platform = { name: "macos" } }) {
+      this.platform = platform;
+    }
+    withPlatformName(name) {
+      const valid = ["windows", "macos", "ios", "android"];
+      if (valid.includes(
+        /** @type {any} */
+        name
+      )) {
+        return new _Settings({
+          ...this,
+          platform: { name }
+        });
+      }
+      return this;
+    }
+  };
+
+  // pages/special-error/app/providers/SettingsProvider.jsx
+  var SettingsContext = G(
+    /** @type {{settings: Settings}} */
+    {}
+  );
+  function SettingsProvider({ settings, children }) {
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
+  }
+  function usePlatformName() {
+    return x2(SettingsContext).settings.platform?.name;
   }
 
   // shared/components/Button/Button.js
@@ -2167,50 +2211,6 @@
     return /* @__PURE__ */ _("section", { className: Warning_default.container }, /* @__PURE__ */ _(WarningHeading, null), /* @__PURE__ */ _(WarningContent, null), /* @__PURE__ */ _("div", { className: Warning_default.buttonContainer }, !advancedInfoVisible && /* @__PURE__ */ _(AdvancedInfoButton, { onClick: () => advancedButtonHandler() }), /* @__PURE__ */ _(LeaveSiteButton, null)));
   }
 
-  // pages/special-error/app/components/AdvancedInfo.module.css
-  var AdvancedInfo_default = {
-    container: "AdvancedInfo_container",
-    appear: "AdvancedInfo_appear",
-    heading: "AdvancedInfo_heading",
-    content: "AdvancedInfo_content",
-    visitSite: "AdvancedInfo_visitSite",
-    wrapper: "AdvancedInfo_wrapper"
-  };
-
-  // pages/special-error/app/components/AdvancedInfo.jsx
-  function useScrollTarget() {
-    const linkRef = A2(null);
-    return {
-      ref: linkRef,
-      trigger: () => {
-        linkRef.current?.scrollIntoView({ behavior: "smooth" });
-      }
-    };
-  }
-  function VisitSiteLink({ elemRef }) {
-    const { t: t3 } = useTypedTranslation();
-    const { messaging: messaging2 } = useMessaging();
-    return /* @__PURE__ */ _("a", { className: AdvancedInfo_default.visitSite, onClick: () => messaging2?.visitSite(), ref: elemRef }, t3("visitSiteButton"));
-  }
-  function AdvancedInfoHeading() {
-    const heading = useAdvancedInfoHeading();
-    return /* @__PURE__ */ _("header", { className: AdvancedInfo_default.heading }, /* @__PURE__ */ _(Text, { as: "h2", variant: "body" }, heading));
-  }
-  function AdvancedInfoContent() {
-    const content = useAdvancedInfoContent();
-    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.content }, content.map((text) => /* @__PURE__ */ _(Text, { as: "p", variant: "body" }, text)));
-  }
-  function AdvancedInfo() {
-    const { ref, trigger } = useScrollTarget();
-    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.wrapper }, /* @__PURE__ */ _("div", { className: AdvancedInfo_default.container, onAnimationEnd: trigger }, /* @__PURE__ */ _(AdvancedInfoHeading, null), /* @__PURE__ */ _(AdvancedInfoContent, null), /* @__PURE__ */ _(VisitSiteLink, { elemRef: ref })));
-  }
-
-  // pages/special-error/app/components/App.module.css
-  var App_default = {
-    main: "App_main",
-    container: "App_container"
-  };
-
   // pages/special-error/app/components/App.jsx
   function SpecialErrorView() {
     const [advancedInfoVisible, setAdvancedInfoVisible] = h2(false);
@@ -2240,12 +2240,13 @@
   }
   function App() {
     const { messaging: messaging2 } = useMessaging();
+    const { isDarkMode } = useEnv();
     function didCatch(error) {
       const message = error?.message || "unknown";
       console.error("ErrorBoundary", message);
       messaging2?.reportPageException({ message });
     }
-    return /* @__PURE__ */ _("main", { className: App_default.main }, /* @__PURE__ */ _(PageTitle, null), /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _(SpecialErrorView, null), /* @__PURE__ */ _(WillThrow, null)));
+    return /* @__PURE__ */ _("main", { className: App_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _(PageTitle, null), /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _(SpecialErrorView, null), /* @__PURE__ */ _(WillThrow, null)));
   }
   function WillThrow() {
     const env = useEnv();
@@ -2280,6 +2281,7 @@
   function Components() {
     const platformName = usePlatformName();
     const errorData = useErrorData();
+    const { isDarkMode } = useEnv();
     const handlePlatformChange = (value) => {
       if (Object.keys(platforms).includes(value)) {
         const url = new URL(window.location.href);
@@ -2294,7 +2296,7 @@
         window.location.href = url.toString();
       }
     };
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("div", { className: Components_default.selector }, /* @__PURE__ */ _("fieldset", null, /* @__PURE__ */ _("label", { for: "platform-select" }, "Platform:"), /* @__PURE__ */ _("select", { id: "platform-select", onChange: (e3) => handlePlatformChange(e3.currentTarget?.value) }, Object.entries(platforms).map(([id, name]) => {
+    return /* @__PURE__ */ _("div", { "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _("div", { className: Components_default.selector }, /* @__PURE__ */ _("fieldset", null, /* @__PURE__ */ _("label", { for: "platform-select" }, "Platform:"), /* @__PURE__ */ _("select", { id: "platform-select", onChange: (e3) => handlePlatformChange(e3.currentTarget?.value) }, Object.entries(platforms).map(([id, name]) => {
       return /* @__PURE__ */ _("option", { value: id, selected: id === platformName }, name);
     }))), /* @__PURE__ */ _("fieldset", null, /* @__PURE__ */ _("label", { for: "error-select" }, "Error Type:"), /* @__PURE__ */ _("select", { id: "error-select", onChange: (e3) => handleErrorTypeChange(e3.currentTarget?.value) }, Object.entries(sampleData).map(([id, data]) => {
       return /* @__PURE__ */ _("option", { value: id, selected: id === idForError(errorData) }, data.name);

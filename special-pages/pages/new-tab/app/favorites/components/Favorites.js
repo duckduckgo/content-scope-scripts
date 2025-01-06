@@ -10,6 +10,8 @@ import { usePlatformName } from '../../settings.provider.js';
 import { useDropzoneSafeArea } from '../../dropzone.js';
 import { TileRow } from './TileRow.js';
 import { FavoritesContext } from './FavoritesProvider.js';
+import { CustomizerContext } from '../../customizer/CustomizerProvider.js';
+import { useComputed } from '@preact/signals';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
@@ -46,9 +48,15 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     const hiddenCount = expansion === 'collapsed' ? favorites.length - ROW_CAPACITY : 0;
     const rowHeight = ITEM_HEIGHT + ROW_GAP;
     const canToggleExpansion = favorites.length >= ROW_CAPACITY;
+    const { data } = useContext(CustomizerContext);
+    const kind = useComputed(() => data.value.background.kind);
 
     return (
-        <div class={cn(styles.root, !canToggleExpansion && styles.bottomSpace)} data-testid="FavoritesConfigured">
+        <div
+            class={cn(styles.root, !canToggleExpansion && styles.noExpansionBtn)}
+            data-testid="FavoritesConfigured"
+            data-background-kind={kind}
+        >
             <VirtualizedGridRows
                 WIDGET_ID={WIDGET_ID}
                 favorites={favorites}

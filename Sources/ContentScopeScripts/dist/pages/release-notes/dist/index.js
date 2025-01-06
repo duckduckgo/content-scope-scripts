@@ -498,76 +498,17 @@
     return "function" == typeof t3 ? t3(n2) : t3;
   }
 
-  // shared/components/ErrorBoundary.js
-  var ErrorBoundary = class extends k {
-    /**
-     * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
-     */
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false };
-    }
-    static getDerivedStateFromError() {
-      return { hasError: true };
-    }
-    componentDidCatch(error, info) {
-      console.error(error);
-      console.log(info);
-      this.props.didCatch({ error, info });
-    }
-    render() {
-      if (this.state.hasError) {
-        return this.props.fallback;
-      }
-      return this.props.children;
-    }
+  // shared/components/DuckDuckGoLogo/DuckDuckGoLogo.js
+  var import_classnames = __toESM(require_classnames(), 1);
+
+  // shared/components/DuckDuckGoLogo/DuckDuckGoLogo.module.css
+  var DuckDuckGoLogo_default = {
+    logo: "DuckDuckGoLogo_logo"
   };
 
-  // shared/translations.js
-  function apply(subject, replacements, textLength = 1) {
-    if (typeof subject !== "string" || subject.length === 0) return "";
-    let out = subject;
-    if (replacements) {
-      for (let [name, value] of Object.entries(replacements)) {
-        if (typeof value !== "string") value = "";
-        out = out.replaceAll(`{${name}}`, value);
-      }
-    }
-    if (textLength !== 1 && textLength > 0 && textLength <= 2) {
-      const targetLen = Math.ceil(out.length * textLength);
-      const target = Math.ceil(textLength);
-      const combined = out.repeat(target);
-      return combined.slice(0, targetLen);
-    }
-    return out;
-  }
-
-  // shared/components/TranslationsProvider.js
-  var TranslationContext = G({
-    /** @type {LocalTranslationFn} */
-    t: () => {
-      throw new Error("must implement");
-    }
-  });
-  function TranslationProvider({ children, translationObject, fallback, textLength = 1 }) {
-    function t3(inputKey, replacements) {
-      const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
-      return apply(subject, replacements, textLength);
-    }
-    return /* @__PURE__ */ _(TranslationContext.Provider, { value: { t: t3 } }, children);
-  }
-
-  // pages/release-notes/app/types.js
-  function useTypedTranslation() {
-    return {
-      t: x2(TranslationContext).t
-    };
-  }
-
-  // pages/release-notes/app/components/ErrorFallback.js
-  function ErrorFallback() {
-    const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ _("h1", null, t3("somethingWentWrong"));
+  // shared/components/DuckDuckGoLogo/DuckDuckGoLogo.js
+  function DuckDuckGoLogo() {
+    return /* @__PURE__ */ _("span", { className: DuckDuckGoLogo_default.logo }, /* @__PURE__ */ _("span", { className: (0, import_classnames.default)(DuckDuckGoLogo_default.logo, "offscreen") }, "DuckDuckGo"));
   }
 
   // shared/components/EnvironmentProvider.js
@@ -627,17 +568,83 @@
     return x2(EnvironmentContext);
   }
 
-  // shared/components/DuckDuckGoLogo/DuckDuckGoLogo.js
-  var import_classnames = __toESM(require_classnames(), 1);
-
-  // shared/components/DuckDuckGoLogo/DuckDuckGoLogo.module.css
-  var DuckDuckGoLogo_default = {
-    logo: "DuckDuckGoLogo_logo"
+  // shared/components/ErrorBoundary.js
+  var ErrorBoundary = class extends k {
+    /**
+     * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
+     */
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false };
+    }
+    static getDerivedStateFromError() {
+      return { hasError: true };
+    }
+    componentDidCatch(error, info) {
+      console.error(error);
+      console.log(info);
+      this.props.didCatch({ error, info });
+    }
+    render() {
+      if (this.state.hasError) {
+        return this.props.fallback;
+      }
+      return this.props.children;
+    }
   };
 
-  // shared/components/DuckDuckGoLogo/DuckDuckGoLogo.js
-  function DuckDuckGoLogo() {
-    return /* @__PURE__ */ _("span", { className: DuckDuckGoLogo_default.logo }, /* @__PURE__ */ _("span", { className: (0, import_classnames.default)(DuckDuckGoLogo_default.logo, "offscreen") }, "DuckDuckGo"));
+  // pages/release-notes/app/components/App.module.css
+  var App_default = {
+    main: "App_main",
+    header: "App_header",
+    core: "App_core"
+  };
+
+  // shared/translations.js
+  function apply(subject, replacements, textLength = 1) {
+    if (typeof subject !== "string" || subject.length === 0) return "";
+    let out = subject;
+    if (replacements) {
+      for (let [name, value] of Object.entries(replacements)) {
+        if (typeof value !== "string") value = "";
+        out = out.replaceAll(`{${name}}`, value);
+      }
+    }
+    if (textLength !== 1 && textLength > 0 && textLength <= 2) {
+      const targetLen = Math.ceil(out.length * textLength);
+      const target = Math.ceil(textLength);
+      const combined = out.repeat(target);
+      return combined.slice(0, targetLen);
+    }
+    return out;
+  }
+
+  // shared/components/TranslationsProvider.js
+  var TranslationContext = G({
+    /** @type {LocalTranslationFn} */
+    t: () => {
+      throw new Error("must implement");
+    }
+  });
+  function TranslationProvider({ children, translationObject, fallback, textLength = 1 }) {
+    function t3(inputKey, replacements) {
+      const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
+      return apply(subject, replacements, textLength);
+    }
+    return /* @__PURE__ */ _(TranslationContext.Provider, { value: { t: t3 } }, children);
+  }
+
+  // pages/release-notes/app/types.js
+  function useTypedTranslation() {
+    return {
+      t: x2(TranslationContext).t
+    };
+  }
+
+  // pages/release-notes/app/components/ErrorFallback.js
+  function ErrorFallback() {
+    const { t: t3 } = useTypedTranslation();
+    return /* @__PURE__ */ _("h1", null, t3("somethingWentWrong"));
   }
 
   // pages/release-notes/app/components/ReleaseNotes.js
@@ -877,16 +884,10 @@
     return /* @__PURE__ */ _("article", { className: ReleaseNotes_default.article }, /* @__PURE__ */ _("header", { className: ReleaseNotes_default.heading }, /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _(UpdateStatus, { status, timestamp: timestampInMilliseconds, version: currentVersion, progress }), shouldShowButton && /* @__PURE__ */ _(UpdateButton, { releaseData })), /* @__PURE__ */ _(Card, { className: ReleaseNotes_default.card }, /* @__PURE__ */ _(CardContents, { releaseData })));
   }
 
-  // pages/release-notes/app/components/App.module.css
-  var App_default = {
-    main: "App_main",
-    header: "App_header",
-    core: "App_core"
-  };
-
   // pages/release-notes/app/components/App.js
   function App({ children }) {
     const { messages } = useMessaging();
+    const { isDarkMode } = useEnv();
     const [releaseData, setReleaseData] = h2();
     y2(() => {
       return messages?.onUpdate((data) => {
@@ -899,7 +900,7 @@
       console.error("ErrorBoundary", message);
       messages?.reportPageException({ message });
     }
-    return /* @__PURE__ */ _("main", { className: App_default.main }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _("header", { className: App_default.header }, /* @__PURE__ */ _(DuckDuckGoLogo, null)), /* @__PURE__ */ _("div", { class: App_default.core }, releaseData && /* @__PURE__ */ _(ReleaseNotes, { releaseData })), /* @__PURE__ */ _(WillThrow, null), children));
+    return /* @__PURE__ */ _("main", { className: App_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _("header", { className: App_default.header }, /* @__PURE__ */ _(DuckDuckGoLogo, null)), /* @__PURE__ */ _("div", { class: App_default.core }, releaseData && /* @__PURE__ */ _(ReleaseNotes, { releaseData })), /* @__PURE__ */ _(WillThrow, null), children));
   }
   function WillThrow() {
     const env = useEnv();
@@ -1007,6 +1008,7 @@
   // pages/release-notes/app/Components.js
   function Components() {
     const { t: t3 } = useTypedTranslation();
+    const { isDarkMode } = useEnv();
     const todayInMilliseconds = Date.now();
     const yesterdayInMilliseconds = new Date(todayInMilliseconds - 24 * 60 * 60 * 1e3).getTime();
     const sampleNotesData = [
@@ -1027,7 +1029,7 @@
         ]
       }
     ];
-    return /* @__PURE__ */ _("main", { className: Components_default.main }, /* @__PURE__ */ _("h1", null, "Release Notes Components"), /* @__PURE__ */ _("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ _(DuckDuckGoLogo, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Page Title"), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Status"), /* @__PURE__ */ _(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "criticalUpdateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateError", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateDownloading", version: "1.2.0", timestamp: todayInMilliseconds, progress: 0.35 }), /* @__PURE__ */ _(UpdateStatus, { status: "updatePreparing", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Buttons"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("restartToUpdate"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("updateBrowser"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("retryUpdate"))), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder"), /* @__PURE__ */ _(ContentPlaceholder, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Heading"), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Subheading"), /* @__PURE__ */ _(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ _(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes List"), /* @__PURE__ */ _(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ContentPlaceholder, null)), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ReleaseNotesContent, { title: "May 10 2024", currentVersion: "1.0.1", latestVersion: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateDownloading })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updatePreparing })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.criticalUpdateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("main", { className: Components_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _("h1", null, "Release Notes Components"), /* @__PURE__ */ _("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ _(DuckDuckGoLogo, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Page Title"), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Status"), /* @__PURE__ */ _(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "criticalUpdateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateError", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateDownloading", version: "1.2.0", timestamp: todayInMilliseconds, progress: 0.35 }), /* @__PURE__ */ _(UpdateStatus, { status: "updatePreparing", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Buttons"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("restartToUpdate"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("updateBrowser"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("retryUpdate"))), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder"), /* @__PURE__ */ _(ContentPlaceholder, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Heading"), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Subheading"), /* @__PURE__ */ _(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ _(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes List"), /* @__PURE__ */ _(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ContentPlaceholder, null)), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ReleaseNotesContent, { title: "May 10 2024", currentVersion: "1.0.1", latestVersion: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateDownloading })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updatePreparing })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.criticalUpdateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(
       ReleaseNotes,
       {
         releaseData: (

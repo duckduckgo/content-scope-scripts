@@ -8,6 +8,31 @@
   }
 }
 
+/* pages/release-notes/app/components/App.module.css */
+:root {
+  --sp-145: calc(580 * var(--px-in-rem));
+}
+body {
+  color: var(--theme-text-primary-color);
+  margin: var(--sp-6) 0 var(--sp-8);
+}
+.App_main {
+  padding: var(--sp-6) var(--sp-5);
+  position: relative;
+  display: grid;
+  gap: var(--sp-8);
+}
+.App_header {
+  max-width: var(--sp-320);
+  width: 100%;
+  margin: 0 auto;
+}
+.App_core {
+  width: 100%;
+  max-width: var(--sp-145);
+  margin: 0 auto;
+}
+
 /* shared/components/Text/Text.module.css */
 a {
   color: var(--ddg-color-primary);
@@ -286,7 +311,7 @@ body:not([data-platform-name]) {
     --button-opacity--disabled: 0.4;
     --button-shadow--focus: var(--macos-control-focused-shadow);
   }
-  @media (prefers-color-scheme: dark) {
+  [data-theme=dark] & {
     &.Button_standard {
       --button-bg: var(--macos-control-standard-background-rest--dark);
       --button-text: var(--color-white-at-84);
@@ -310,7 +335,7 @@ body:not([data-platform-name]) {
     --button-bg--disabled: transparent;
     --button-text--disabled: var(--color-black-at-36);
   }
-  @media (prefers-color-scheme: dark) {
+  [data-theme=dark] & {
     &.Button_primary {
       --button-bg: var(--color-blue-30);
       --button-text: var(--color-black-at-84);
@@ -368,7 +393,7 @@ body:not([data-platform-name]) {
         background-color: var(--color-blue-70);
       }
     }
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
       --focus-ring: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 3px var(--color-white);
       &.Button_standard {
         color: var(--color-white-at-84);
@@ -410,7 +435,10 @@ body:not([data-platform-name]) {
   & h2,
   & p {
     background: var(--color-black-at-6);
-    @media (prefers-color-scheme: dark) {
+  }
+  [data-theme=dark] & {
+    & h2,
+    & p {
       background: var(--color-white-at-6);
     }
   }
@@ -444,11 +472,6 @@ body:not([data-platform-name]) {
       top: 0.125rem;
       left: 0;
     }
-    @media (prefers-color-scheme: dark) {
-      &::before {
-        background: var(--color-white-at-6);
-      }
-    }
     p {
       width: 100%;
       &:last-child {
@@ -456,19 +479,22 @@ body:not([data-platform-name]) {
       }
     }
   }
+  [data-theme=dark] & {
+    li::before {
+      background: var(--color-white-at-6);
+    }
+  }
 }
 
 /* pages/release-notes/app/components/ReleaseNotes.module.css */
-:root {
+.ReleaseNotes_article {
   --bullet-color: rgba(57, 105, 239, 0.24);
   --sp-4_5: calc(18 * var(--px-in-rem));
   --sp-2_5: calc(10 * var(--px-in-rem));
   --sp-1_5: calc(6 * var(--px-in-rem));
-  @media (prefers-color-scheme: dark) {
+  [data-theme=dark] & {
     --bullet-color: var(--color-blue-20);
   }
-}
-.ReleaseNotes_article {
   margin: 0 auto;
   width: 100%;
   display: grid;
@@ -614,31 +640,6 @@ body:not([data-platform-name]) {
   line-height: calc(11 * var(--px-in-rem));
 }
 
-/* pages/release-notes/app/components/App.module.css */
-:root {
-  --sp-145: calc(580 * var(--px-in-rem));
-}
-body {
-  color: var(--theme-text-primary-color);
-  margin: var(--sp-6) 0 var(--sp-8);
-}
-.App_main {
-  padding: var(--sp-6) var(--sp-5);
-  position: relative;
-  display: grid;
-  gap: var(--sp-8);
-}
-.App_header {
-  max-width: var(--sp-320);
-  width: 100%;
-  margin: 0 auto;
-}
-.App_core {
-  width: 100%;
-  max-width: var(--sp-145);
-  margin: 0 auto;
-}
-
 /* pages/release-notes/app/Components.module.css */
 .Components_main {
   display: grid;
@@ -648,7 +649,7 @@ body {
     border: 0;
     border-bottom: 1px solid black;
     width: 100%;
-    @media (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
       border-bottom: 1px solid white;
     }
   }

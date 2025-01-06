@@ -45,6 +45,10 @@
     "title": "Blocked Tracking Attempts",
     "note": "Used as a label in a customization menu"
   },
+  "stats_menuTitle_v2": {
+    "title": "Tracking Activity",
+    "note": "Used as a label in a customization menu"
+  },
   "stats_noActivity": {
     "title": "Blocked tracking attempts will appear here. Keep browsing to see how many we block.",
     "note": "Placeholder for when we cannot report any blocked trackers yet"
@@ -200,5 +204,9 @@
   "favorites_add": {
     "title": "Add Favorite",
     "note": "A button that allows a user to add a new 'favorite' bookmark to their existing list"
+  },
+  "customizer_image_privacy": {
+    "title": "Images are stored on your device so DuckDuckGo can’t see or access them.",
+    "note": "Shown near a button that allows a user to upload an image to be used as a background."
   }
 }

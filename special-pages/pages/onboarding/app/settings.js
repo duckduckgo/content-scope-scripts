@@ -7,7 +7,7 @@ import { stepDefinitions as defaultStepDefinitions } from './data';
 export class Settings {
     /**
      * @param {object} params
-     * @param {{name: ImportMeta['platform']}} [params.platform]
+     * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
      * @param {'v1'|'v2'|'v3'} [params.orderName] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude

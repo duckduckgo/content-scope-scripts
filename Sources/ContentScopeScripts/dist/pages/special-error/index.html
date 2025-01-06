@@ -127,6 +127,130 @@ a {
   }
 }
 
+/* pages/special-error/app/components/AdvancedInfo.module.css */
+.AdvancedInfo_container {
+  align-items: flex-start;
+  display: flex;
+  flex-flow: column;
+  gap: var(--sp-4);
+  max-width: var(--ios-content-max-width);
+  width: 100%;
+  animation-duration: 300ms;
+  animation-fill-mode: forwards;
+  animation-name: AdvancedInfo_appear;
+}
+.AdvancedInfo_heading {
+  & a {
+    color: var(--link-color);
+  }
+}
+.AdvancedInfo_content {
+  display: flex;
+  flex-flow: column;
+  gap: var(--sp-5);
+  & a {
+    color: var(--link-color);
+  }
+}
+.AdvancedInfo_visitSite {
+  color: var(--visit-site-color);
+  cursor: pointer;
+  font-size: calc(13 * var(--px-in-rem));
+  letter-spacing: calc(-0.08 * var(--px-in-rem));
+  line-height: calc(16 * var(--px-in-rem));
+  text-decoration: underline;
+}
+@keyframes AdvancedInfo_appear {
+  0% {
+    padding: 0 var(--sp-10);
+    max-height: 0;
+  }
+  100% {
+    padding: var(--sp-6) var(--sp-10);
+    max-height: calc(400 * var(--px-in-rem));
+  }
+}
+[data-platform-name=macos] {
+  & .AdvancedInfo_container {
+    background: var(--advanced-info-bg);
+    box-shadow: inset 0 1px 0 0 var(--border-color);
+  }
+}
+[data-platform-name=ios] {
+  & .AdvancedInfo_wrapper {
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid var(--color-black-at-9);
+    width: 100%;
+    @media (prefers-color-scheme: dark) {
+      border-top: 1px solid var(--color-white-at-9);
+    }
+  }
+  & .AdvancedInfo_container {
+    align-items: center;
+    gap: var(--sp-6);
+  }
+  & .AdvancedInfo_heading {
+    text-align: center;
+  }
+  & .AdvancedInfo_content {
+    text-align: center;
+  }
+  & .AdvancedInfo_visitSite {
+    font-size: calc(16 * var(--px-in-rem));
+    font-weight: 400;
+    letter-spacing: calc(-0.31 * var(--px-in-rem));
+    line-height: calc(21 * var(--px-in-rem));
+  }
+}
+
+/* pages/special-error/app/components/App.module.css */
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+.App_main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  @media (max-height: 400px) {
+    padding-top: var(--sp-10);
+    align-items: flex-start;
+  }
+  @media (max-height: 700px) {
+    [data-platform-name=ios] & {
+      padding-top: var(--sp-10);
+      align-items: flex-start;
+    }
+  }
+}
+.App_container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+}
+[data-platform-name=macos] {
+  & .App_container {
+    background: var(--container-bg);
+    border-radius: var(--sp-4);
+    border: 1px solid var(--border-color);
+    min-width: calc(400 * var(--px-in-rem));
+    width: calc(504 * var(--px-in-rem));
+  }
+}
+[data-platform-name=ios] {
+  & .App_container {
+    align-items: center;
+  }
+}
+
 /* shared/components/Button/Button.module.css */
 .Button_button {
   appearance: none;
@@ -288,7 +412,7 @@ body:not([data-platform-name]) {
     --button-opacity--disabled: 0.4;
     --button-shadow--focus: var(--macos-control-focused-shadow);
   }
-  @media (prefers-color-scheme: dark) {
+  [data-theme=dark] & {
     &.Button_standard {
       --button-bg: var(--macos-control-standard-background-rest--dark);
       --button-text: var(--color-white-at-84);
@@ -312,7 +436,7 @@ body:not([data-platform-name]) {
     --button-bg--disabled: transparent;
     --button-text--disabled: var(--color-black-at-36);
   }
-  @media (prefers-color-scheme: dark) {
+  [data-theme=dark] & {
     &.Button_primary {
       --button-bg: var(--color-blue-30);
       --button-text: var(--color-black-at-84);
@@ -370,7 +494,7 @@ body:not([data-platform-name]) {
         background-color: var(--color-blue-70);
       }
     }
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
       --focus-ring: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 3px var(--color-white);
       &.Button_standard {
         color: var(--color-white-at-84);
@@ -505,130 +629,6 @@ body:not([data-platform-name]) {
   & .Warning_phishing .Warning_icon,
   & .Warning_malware .Warning_icon {
     background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiB2aWV3Qm94PSIwIDAgOTYgOTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGNpcmNsZSBjeD0iNzEiIGN5PSI3MSIgcj0iMTYiIGZpbGw9IiNFQjEwMkQiLz4KICA8Y2lyY2xlIGN4PSI3MSIgY3k9Ijc3LjgiIHI9IjIiIGZpbGw9IiNmZmYiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNNzAuOTYxIDczLjRjLS43MDYgMC0xLjMzNC0uNDktMS40MTItMS4xMmwtLjk0Mi04Ljc1Yy0uMDc5LS43LjU1LTEuMzMgMS40MTItMS4zM2gxLjk2MmMuNzg1IDAgMS40OTIuNjMgMS40MTMgMS4zM2wtLjk0MiA4Ljc1Yy0uMTU3LjYzLS43ODQgMS4xMi0xLjQ5IDEuMTJaIi8+CiAgPHBhdGggZmlsbD0iI0NDQyIgZD0iTTkyLjUwMSA1OWMuMjk4IDAgLjU5NS4xMi44MjMuMzU0LjQ1NC40NjguNDU0IDEuMjMgMCAxLjY5OGwtMi4zMzMgMi40YTEuMTQ1IDEuMTQ1IDAgMCAxLTEuNjUgMCAxLjIyNyAxLjIyNyAwIDAgMSAwLTEuNjk4bDIuMzMzLTIuNGMuMjI3LS4yMzQuNTI0LS4zNTQuODIyLS4zNTR6bS0xLjE2NiAxMC43OThoMy40OTljLjY0MSAwIDEuMTY2LjU0IDEuMTY2IDEuMnMtLjUyNSAxLjItMS4xNjYgMS4yaC0zLjQ5OWMtLjY0MSAwLTEuMTY2LS41NC0xLjE2Ni0xLjJzLjUyNS0xLjIgMS4xNjYtMS4ybS0xLjk4MiA4Ljc1NGMuMjI3LS4yMzQuNTI1LS4zNTQuODIyLS4zNTRoLjAwNmMuMjk3IDAgLjU5NS4xMi44MjIuMzU0bDIuMzMyIDIuNGMuNDU1LjQ2Ny40NTUgMS4yMyAwIDEuNjk3YTEuMTQ1IDEuMTQ1IDAgMCAxLTEuNjUgMGwtMi4zMzItMi40YTEuMjI3IDEuMjI3IDAgMCAxIDAtMS42OTciLz4KICA8cGF0aCBmaWxsPSIjQUFBIiBkPSJNMjYgMjBhNiA2IDAgMCAwLTYgNnY0NGE2IDYgMCAwIDAgNiA2aDIyYTMgMyAwIDAgMCAzLTN2LTJjMC0xMS4wNDYgOC45NTQtMjAgMjAtMjBoNmEzIDMgMCAwIDAgMy0zVjI2YTYgNiAwIDAgMC02LTZ6Ii8+CiAgPHBhdGggZmlsbD0iI0Y1RjVGNSIgZD0iTTIyIDIwYTYgNiAwIDAgMC02IDZ2NDRhNiA2IDAgMCAwIDYgNmgyNmEzIDMgMCAwIDAgMy0zdi0yYzAtMTEuMDQ2IDguOTU0LTIwIDIwLTIwaDVWMjZhNiA2IDAgMCAwLTYtNnoiLz4KICA8cGF0aCBmaWxsPSIjREREIiBkPSJNMTYuMDMxIDI1LjM4N3EtLjAzLjMwMi0uMDMxLjYxM3Y0NGE2IDYgMCAwIDAgNiA2aDI2YTMgMyAwIDAgMCAzLTNIMjJhMyAzIDAgMCAxLTMtM1YyOGg1NHYyM2gzVjI2YTYgNiAwIDAgMC02LTZIMjJhNiA2IDAgMCAwLTUuOTY5IDUuMzg3Ii8+CiAgPHBhdGggZmlsbD0iI0NDQyIgZD0iTTY1LjkxIDM5LjM5M2EyLjE2IDIuMTYgMCAwIDEgMS43NyAxLjA2NmMuNjIzIDEuMDU1LjMxMSAyLjQzMy0uNzEyIDMuMDg1bC0uMzQ3LjIyYTQuNzMgNC43MyAwIDAgMS0zLjY0OC42MDYgNS4yMyA1LjIzIDAgMCAwLTQuMDkyLjY4bC05LjcwNyA2LjE4IDcuNDExIDQuNzJxLjM3OC4yNDIuNzg1LjQxNGEyMCAyMCAwIDAgMC0yLjM2MyAyLjYyNWwtLjE2Ni0uMTEtOC44NDMtNS42MjktOC44NDQgNS42M2E1LjU3IDUuNTcgMCAwIDAtMi40MyAzLjQ3IDQuOTcgNC45NyAwIDAgMS0yLjE2MSAzLjA5NWwtLjM0Ny4yMmMtMS4wMjMuNjQzLTIuMzU4LjMyMi0yLjk5LS43MzRhMi4zIDIuMyAwIDAgMS0uMTI0LTIuMTEyYy4yNDktLjU2LS4xMzQtMS4xOTQtLjcyLTEuMjEyYTIuMTYgMi4xNiAwIDAgMS0xLjc3MS0xLjA2NmMtLjYyMy0xLjA1Ni0uMzEyLTIuNDMzLjcxMi0zLjA4NWwuMzQ2LS4yMmE0LjczIDQuNzMgMCAwIDEgMy42NDgtLjYwNiA1LjIzIDUuMjMgMCAwIDAgNC4wOTMtLjY4bDEuMjEtLjc3MSA2LjIxLTMuOTQ5LTkuNzA3LTYuMThhNS4yNyA1LjI3IDAgMCAwLTQuMDkyLS42OCA0LjcgNC43IDAgMCAxLTMuNjQ4LS42MDZsLS4zNDctLjIyYy0xLjAyMy0uNjUyLTEuMzQ0LTIuMDMtLjcxMi0zLjA4NWEyLjE1IDIuMTUgMCAwIDEgMS43Ny0xLjA2NmMuNTg4LS4wMTguOTctLjY2LjcyMS0xLjIxMmEyLjMgMi4zIDAgMCAxIC4xMjUtMi4xMTJjLjYzMi0xLjA1NiAxLjk2Ni0xLjM4NyAyLjk5LS43MzVsLjM0Ni4yMmE1IDUgMCAwIDEgMi4xNjIgMy4wOTYgNS42IDUuNiAwIDAgMCAyLjQzIDMuNDdsMTEuMTM4IDcuMDkgMTEuMTMtNy4wOWE1LjU3IDUuNTcgMCAwIDAgMi40My0zLjQ3IDQuOTcgNC45NyAwIDAgMSAyLjE2Mi0zLjA5NWwuMzQ3LS4yMmMxLjAyMy0uNjQzIDIuMzU3LS4zMjIgMi45OS43MzQuMzgyLjYzNC40MjYgMS40MzMuMTI0IDIuMTEyLS4yNS41Ni4xMzMgMS4xOTQuNzIgMS4yMTJaIi8+CiAgPHBhdGggZmlsbD0iI0JDQkNCQyIgZD0iTTU3LjEwMiA1Ni4yNjNhNCA0IDAgMCAxLS41MjUtLjI5NGwtMS4yMS0uNzcyLTYuMjAxLTMuOTQ4IDguNDk3LTUuNDA5IDEuMjEtLjc3MWE1LjMgNS4zIDAgMCAxIDEuMTkyLS41NiAxNC4zIDE0LjMgMCAwIDAtMS4zNy0zLjg5NCA1LjQgNS40IDAgMCAxLTEuNTY2IDEuNTE1bC0xLjIxLjc3Mi05LjkyIDYuMzE3LTkuOTMtNi4zMTctMS4yMS0uNzcyYTUuNDUgNS40NSAwIDAgMS0xLjU2Ni0xLjUxNSAxNC4yIDE0LjIgMCAwIDAtMS4zNyAzLjg5NHEuNjE3LjIwMyAxLjE5My41NmwxLjIxLjc3MSA4LjQ5NiA1LjQwOS02LjIxIDMuOTQ4LTEuMjEuNzcyYy0uMTY5LjExLS4zNDcuMjAyLS41MjUuMjk0YTE0LjQgMTQuNCAwIDAgMCAyLjU5IDIuNDQybC44OTgtLjU2OSA3LjYzNC00Ljg1OCA3LjYzMyA0Ljg1OC44OTkuNTdhMTQuNCAxNC40IDAgMCAwIDIuNTg5LTIuNDQzeiIvPgogIDxwYXRoIGZpbGw9IiNDQ0MiIGQ9Ik00Ny42ODggMzVoLTMuMzQ5Yy02LjY2MSAwLTExLjg1IDYuNTUyLTkuOTM4IDEzLjgwMS40MDIgMS41MzQgMS4yNCAyLjkwOSAyLjMyMSA0LjAzNGwyLjI1IDIuMzQyYTIuODggMi44OCAwIDAgMSAuNzk1IDEuOTk4djEuMzU3YzAgLjgwOC42MzQgMS40NjggMS40MTEgMS40NjhhLjgxLjgxIDAgMCAwIC43MzItLjQ3NC44MDMuODAzIDAgMCAxIDEuNDY1IDBjLjE0My4yODguNDIuNDc0LjczMi40NzRoLjQyOWEuODEuODEgMCAwIDAgLjczMi0uNDc0LjgwMy44MDMgMCAwIDEgMS40NjQgMGMuMTQzLjI4OC40Mi40NzQuNzMyLjQ3NGguNDI5YS44MS44MSAwIDAgMCAuNzMyLS40NzQuODAzLjgwMyAwIDAgMSAxLjQ2NSAwYy4xNDIuMjg4LjQyLjQ3NC43MzIuNDc0Ljc3NyAwIDEuNDEtLjY2IDEuNDEtMS40Njh2LTEuMzU3YzAtLjc1My4yODctMS40NjkuNzk1LTEuOTk4bDIuMjUtMi4zNDJjMS4wODEtMS4xMjUgMS45MTEtMi41IDIuMzIyLTQuMDM0QzU5LjUxIDQxLjU1MiA1NC4zMjIgMzUgNDcuNjYxIDM1eiIvPgogIDxwYXRoIGZpbGw9IiM5OTkiIGQ9Ik01MC4yODUgNTEuNjUzYzEuMDU2IDAgMS45MTMtLjg4NCAxLjkxMy0xLjk3NSAwLTEuMDktLjg1Ny0xLjk3NC0xLjkxMy0xLjk3NHMtMS45MTMuODg0LTEuOTEzIDEuOTc0Ljg1NiAxLjk3NSAxLjkxMyAxLjk3NW0tOC42MTIgMGMxLjA1NiAwIDEuOTEzLS44ODQgMS45MTMtMS45NzUgMC0xLjA5LS44NTctMS45NzQtMS45MTMtMS45NzRzLTEuOTEzLjg4NC0xLjkxMyAxLjk3NC44NTYgMS45NzUgMS45MTMgMS45NzVtNS45OTcgMi4wMDFMNDYuNDYgNTEuOWgtLjAxOGEuNTcyLjU3MiAwIDAgMC0uOTUyIDBsLTEuMjEgMS43NTRjLS4yNzYuMzk1IDAgLjk1NS40OC45NTVoMi40M2MuNDggMCAuNzU1LS41NS40OC0uOTU1Ii8+CiAgPHBhdGggZmlsbD0iI0FBQSIgZD0iTTM5Ljg3MiA1OS4wODRjLjE3NS40NDYuNTU1Ljc4NCAxLjAxNy44ODVhLjg0Ljg0IDAgMCAxLS41MTQtLjQ0My44LjggMCAwIDAtLjUwMy0uNDQybTIuOTUzLS4wMTJhLjguOCAwIDAgMSAuNTUuNDU0Yy4xNDMuMjg4LjQyLjQ3NC43MzIuNDc0aC4zNThhLjgyLjgyIDAgMCAxLS43MzMtLjQ3NC44LjggMCAwIDAtLjkwNy0uNDU0bTMuMzU3IDBhLjguOCAwIDAgMSAuNTUuNDU0Yy4xNDMuMjg4LjQyLjQ3NC43MzMuNDc0aC40MjhhLjguOCAwIDAgMCAuMjIzLS4wMzIgMS40IDEuNCAwIDAgMS0uMjk0LjAzMi44Mi44MiAwIDAgMS0uNzMyLS40NzQuOC44IDAgMCAwLS45MDgtLjQ1NG0yLjk0Ni4wMTVhLjc5Ny43OTcgMCAwIDEgLjk2Mi40MzljLjE0My4yODguNDIuNDc0LjczMi40NzQuNzc3IDAgMS40MS0uNjYgMS40MS0xLjQ2OHYtMS4zNTdjMC0uNzUzLjI4Ny0xLjQ2OS43OTYtMS45OThsMi4yNS0yLjM0MmMxLjA4LTEuMTI1IDEuOTEtMi41IDIuMzIyLTQuMDM0QzU5LjUxIDQxLjU1MiA1NC4zMjIgMzUgNDcuNjYgMzVoLTNjNi42NjEgMCAxMS44NSA2LjU1MiA5LjkzOCAxMy44MDEtLjQxIDEuNTM0LTEuMjQgMi45MDktMi4zMjEgNC4wMzRsLTIuMjUgMi4zNDJhMi44OCAyLjg4IDAgMCAwLS43OTUgMS45OTh2MS4zNTdxLS4wMDIuMjk2LS4xMDUuNTU1WiIvPgogIDxwYXRoIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iLjE4IiBkPSJNMjUgMjRhMiAyIDAgMSAwLTQgMCAyIDIgMCAwIDAgNCAwbTYgMGEyIDIgMCAxIDAtNCAwIDIgMiAwIDAgMCA0IDBtNC0yYTIgMiAwIDEgMSAwIDQgMiAyIDAgMCAxIDAtNCIvPgo8L3N2Zz4K");
-  }
-}
-
-/* pages/special-error/app/components/AdvancedInfo.module.css */
-.AdvancedInfo_container {
-  align-items: flex-start;
-  display: flex;
-  flex-flow: column;
-  gap: var(--sp-4);
-  max-width: var(--ios-content-max-width);
-  width: 100%;
-  animation-duration: 300ms;
-  animation-fill-mode: forwards;
-  animation-name: AdvancedInfo_appear;
-}
-.AdvancedInfo_heading {
-  & a {
-    color: var(--link-color);
-  }
-}
-.AdvancedInfo_content {
-  display: flex;
-  flex-flow: column;
-  gap: var(--sp-5);
-  & a {
-    color: var(--link-color);
-  }
-}
-.AdvancedInfo_visitSite {
-  color: var(--visit-site-color);
-  cursor: pointer;
-  font-size: calc(13 * var(--px-in-rem));
-  letter-spacing: calc(-0.08 * var(--px-in-rem));
-  line-height: calc(16 * var(--px-in-rem));
-  text-decoration: underline;
-}
-@keyframes AdvancedInfo_appear {
-  0% {
-    padding: 0 var(--sp-10);
-    max-height: 0;
-  }
-  100% {
-    padding: var(--sp-6) var(--sp-10);
-    max-height: calc(400 * var(--px-in-rem));
-  }
-}
-[data-platform-name=macos] {
-  & .AdvancedInfo_container {
-    background: var(--advanced-info-bg);
-    box-shadow: inset 0 1px 0 0 var(--border-color);
-  }
-}
-[data-platform-name=ios] {
-  & .AdvancedInfo_wrapper {
-    display: flex;
-    justify-content: center;
-    border-top: 1px solid var(--color-black-at-9);
-    width: 100%;
-    @media (prefers-color-scheme: dark) {
-      border-top: 1px solid var(--color-white-at-9);
-    }
-  }
-  & .AdvancedInfo_container {
-    align-items: center;
-    gap: var(--sp-6);
-  }
-  & .AdvancedInfo_heading {
-    text-align: center;
-  }
-  & .AdvancedInfo_content {
-    text-align: center;
-  }
-  & .AdvancedInfo_visitSite {
-    font-size: calc(16 * var(--px-in-rem));
-    font-weight: 400;
-    letter-spacing: calc(-0.31 * var(--px-in-rem));
-    line-height: calc(21 * var(--px-in-rem));
-  }
-}
-
-/* pages/special-error/app/components/App.module.css */
-html,
-body {
-  height: 100%;
-  margin: 0;
-}
-.App_main {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  @media (max-height: 400px) {
-    padding-top: var(--sp-10);
-    align-items: flex-start;
-  }
-  @media (max-height: 700px) {
-    [data-platform-name=ios] & {
-      padding-top: var(--sp-10);
-      align-items: flex-start;
-    }
-  }
-}
-.App_container {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  width: 100%;
-}
-[data-platform-name=macos] {
-  & .App_container {
-    background: var(--container-bg);
-    border-radius: var(--sp-4);
-    border: 1px solid var(--border-color);
-    min-width: calc(400 * var(--px-in-rem));
-    width: calc(504 * var(--px-in-rem));
-  }
-}
-[data-platform-name=ios] {
-  & .App_container {
-    align-items: center;
   }
 }
 
@@ -2591,20 +2591,6 @@ li {
     return x2(EnvironmentContext);
   }
 
-  // pages/special-error/app/providers/MessagingProvider.js
-  var MessagingContext2 = G({
-    messaging: (
-      /** @type {import('../../src/index.js').SpecialErrorPage | null} */
-      null
-    )
-  });
-  function MessagingProvider({ children, messaging: messaging2 }) {
-    return /* @__PURE__ */ _(MessagingContext2.Provider, { value: { messaging: messaging2 } }, children);
-  }
-  function useMessaging() {
-    return x2(MessagingContext2);
-  }
-
   // shared/components/ErrorBoundary.js
   var ErrorBoundary = class extends k {
     /**
@@ -2630,9 +2616,30 @@ li {
     }
   };
 
-  // pages/special-error/app/components/ErrorFallback.js
-  function ErrorFallback() {
-    return /* @__PURE__ */ _("h1", null, "Something went wrong");
+  // pages/special-error/app/providers/MessagingProvider.js
+  var MessagingContext2 = G({
+    messaging: (
+      /** @type {import('../../src/index.js').SpecialErrorPage | null} */
+      null
+    )
+  });
+  function MessagingProvider({ children, messaging: messaging2 }) {
+    return /* @__PURE__ */ _(MessagingContext2.Provider, { value: { messaging: messaging2 } }, children);
+  }
+  function useMessaging() {
+    return x2(MessagingContext2);
+  }
+
+  // pages/special-error/app/providers/SpecialErrorProvider.js
+  var SpecialErrorContext = G(
+    /** @type {import('../specialError.js').SpecialError} */
+    {}
+  );
+  function SpecialErrorProvider({ children, specialError }) {
+    return /* @__PURE__ */ _(SpecialErrorContext.Provider, { value: specialError }, children);
+  }
+  function useErrorData() {
+    return x2(SpecialErrorContext).data;
   }
 
   // shared/translations.js
@@ -2783,55 +2790,28 @@ li {
     };
   }
 
-  // pages/special-error/app/providers/SpecialErrorProvider.js
-  var SpecialErrorContext = G(
-    /** @type {import('../specialError.js').SpecialError} */
-    {}
-  );
-  function SpecialErrorProvider({ children, specialError }) {
-    return /* @__PURE__ */ _(SpecialErrorContext.Provider, { value: specialError }, children);
-  }
-  function useErrorData() {
-    return x2(SpecialErrorContext).data;
-  }
+  // shared/components/Text/Text.js
+  var import_classnames = __toESM(require_classnames(), 1);
 
-  // pages/special-error/app/components/Warning.jsx
-  var import_classnames3 = __toESM(require_classnames(), 1);
-
-  // pages/special-error/app/settings.js
-  var Settings = class _Settings {
-    /**
-     * @param {object} params
-     * @param {{name: ImportMeta['platform']}} [params.platform]
-     */
-    constructor({ platform = { name: "macos" } }) {
-      this.platform = platform;
-    }
-    withPlatformName(name) {
-      const valid = ["windows", "macos", "ios", "android"];
-      if (valid.includes(
-        /** @type {any} */
-        name
-      )) {
-        return new _Settings({
-          ...this,
-          platform: { name }
-        });
-      }
-      return this;
-    }
+  // shared/components/Text/Text.module.css
+  var Text_default = {
+    "title-1": "Text_title-1",
+    strictSpacing: "Text_strictSpacing",
+    "title-2": "Text_title-2",
+    "title-2-emphasis": "Text_title-2-emphasis",
+    headline: "Text_headline",
+    subheadline: "Text_subheadline",
+    body: "Text_body",
+    "body-emphasis": "Text_body-emphasis",
+    "label-small": "Text_label-small",
+    "label-default": "Text_label-default",
+    "label-medium": "Text_label-medium",
+    "caption-2-emphasis": "Text_caption-2-emphasis"
   };
 
-  // pages/special-error/app/providers/SettingsProvider.jsx
-  var SettingsContext = G(
-    /** @type {{settings: Settings}} */
-    {}
-  );
-  function SettingsProvider({ settings, children }) {
-    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
-  }
-  function usePlatformName() {
-    return x2(SettingsContext).settings.platform?.name;
+  // shared/components/Text/Text.js
+  function Text({ as: Comp = "p", variant, strictSpacing = true, className, children }) {
+    return /* @__PURE__ */ _(Comp, { className: (0, import_classnames.default)({ [Text_default[`${variant}`]]: variant, [Text_default.strictSpacing]: strictSpacing }, className) }, children);
   }
 
   // pages/special-error/app/constants.js
@@ -2944,28 +2924,92 @@ li {
     throw new Error(`Unhandled error kind ${kind}`);
   }
 
-  // shared/components/Text/Text.js
-  var import_classnames = __toESM(require_classnames(), 1);
-
-  // shared/components/Text/Text.module.css
-  var Text_default = {
-    "title-1": "Text_title-1",
-    strictSpacing: "Text_strictSpacing",
-    "title-2": "Text_title-2",
-    "title-2-emphasis": "Text_title-2-emphasis",
-    headline: "Text_headline",
-    subheadline: "Text_subheadline",
-    body: "Text_body",
-    "body-emphasis": "Text_body-emphasis",
-    "label-small": "Text_label-small",
-    "label-default": "Text_label-default",
-    "label-medium": "Text_label-medium",
-    "caption-2-emphasis": "Text_caption-2-emphasis"
+  // pages/special-error/app/components/AdvancedInfo.module.css
+  var AdvancedInfo_default = {
+    container: "AdvancedInfo_container",
+    appear: "AdvancedInfo_appear",
+    heading: "AdvancedInfo_heading",
+    content: "AdvancedInfo_content",
+    visitSite: "AdvancedInfo_visitSite",
+    wrapper: "AdvancedInfo_wrapper"
   };
 
-  // shared/components/Text/Text.js
-  function Text({ as: Comp = "p", variant, strictSpacing = true, className, children }) {
-    return /* @__PURE__ */ _(Comp, { className: (0, import_classnames.default)({ [Text_default[`${variant}`]]: variant, [Text_default.strictSpacing]: strictSpacing }, className) }, children);
+  // pages/special-error/app/components/AdvancedInfo.jsx
+  function useScrollTarget() {
+    const linkRef = A2(null);
+    return {
+      ref: linkRef,
+      trigger: () => {
+        linkRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+  }
+  function VisitSiteLink({ elemRef }) {
+    const { t: t3 } = useTypedTranslation();
+    const { messaging: messaging2 } = useMessaging();
+    return /* @__PURE__ */ _("a", { className: AdvancedInfo_default.visitSite, onClick: () => messaging2?.visitSite(), ref: elemRef }, t3("visitSiteButton"));
+  }
+  function AdvancedInfoHeading() {
+    const heading = useAdvancedInfoHeading();
+    return /* @__PURE__ */ _("header", { className: AdvancedInfo_default.heading }, /* @__PURE__ */ _(Text, { as: "h2", variant: "body" }, heading));
+  }
+  function AdvancedInfoContent() {
+    const content = useAdvancedInfoContent();
+    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.content }, content.map((text) => /* @__PURE__ */ _(Text, { as: "p", variant: "body" }, text)));
+  }
+  function AdvancedInfo() {
+    const { ref, trigger } = useScrollTarget();
+    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.wrapper }, /* @__PURE__ */ _("div", { className: AdvancedInfo_default.container, onAnimationEnd: trigger }, /* @__PURE__ */ _(AdvancedInfoHeading, null), /* @__PURE__ */ _(AdvancedInfoContent, null), /* @__PURE__ */ _(VisitSiteLink, { elemRef: ref })));
+  }
+
+  // pages/special-error/app/components/App.module.css
+  var App_default = {
+    main: "App_main",
+    container: "App_container"
+  };
+
+  // pages/special-error/app/components/ErrorFallback.js
+  function ErrorFallback() {
+    return /* @__PURE__ */ _("h1", null, "Something went wrong");
+  }
+
+  // pages/special-error/app/components/Warning.jsx
+  var import_classnames3 = __toESM(require_classnames(), 1);
+
+  // pages/special-error/app/settings.js
+  var Settings = class _Settings {
+    /**
+     * @param {object} params
+     * @param {{name: ImportMeta['platform']}} [params.platform]
+     */
+    constructor({ platform = { name: "macos" } }) {
+      this.platform = platform;
+    }
+    withPlatformName(name) {
+      const valid = ["windows", "macos", "ios", "android"];
+      if (valid.includes(
+        /** @type {any} */
+        name
+      )) {
+        return new _Settings({
+          ...this,
+          platform: { name }
+        });
+      }
+      return this;
+    }
+  };
+
+  // pages/special-error/app/providers/SettingsProvider.jsx
+  var SettingsContext = G(
+    /** @type {{settings: Settings}} */
+    {}
+  );
+  function SettingsProvider({ settings, children }) {
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
+  }
+  function usePlatformName() {
+    return x2(SettingsContext).settings.platform?.name;
   }
 
   // shared/components/Button/Button.js
@@ -3059,50 +3103,6 @@ li {
     return /* @__PURE__ */ _("section", { className: Warning_default.container }, /* @__PURE__ */ _(WarningHeading, null), /* @__PURE__ */ _(WarningContent, null), /* @__PURE__ */ _("div", { className: Warning_default.buttonContainer }, !advancedInfoVisible && /* @__PURE__ */ _(AdvancedInfoButton, { onClick: () => advancedButtonHandler() }), /* @__PURE__ */ _(LeaveSiteButton, null)));
   }
 
-  // pages/special-error/app/components/AdvancedInfo.module.css
-  var AdvancedInfo_default = {
-    container: "AdvancedInfo_container",
-    appear: "AdvancedInfo_appear",
-    heading: "AdvancedInfo_heading",
-    content: "AdvancedInfo_content",
-    visitSite: "AdvancedInfo_visitSite",
-    wrapper: "AdvancedInfo_wrapper"
-  };
-
-  // pages/special-error/app/components/AdvancedInfo.jsx
-  function useScrollTarget() {
-    const linkRef = A2(null);
-    return {
-      ref: linkRef,
-      trigger: () => {
-        linkRef.current?.scrollIntoView({ behavior: "smooth" });
-      }
-    };
-  }
-  function VisitSiteLink({ elemRef }) {
-    const { t: t3 } = useTypedTranslation();
-    const { messaging: messaging2 } = useMessaging();
-    return /* @__PURE__ */ _("a", { className: AdvancedInfo_default.visitSite, onClick: () => messaging2?.visitSite(), ref: elemRef }, t3("visitSiteButton"));
-  }
-  function AdvancedInfoHeading() {
-    const heading = useAdvancedInfoHeading();
-    return /* @__PURE__ */ _("header", { className: AdvancedInfo_default.heading }, /* @__PURE__ */ _(Text, { as: "h2", variant: "body" }, heading));
-  }
-  function AdvancedInfoContent() {
-    const content = useAdvancedInfoContent();
-    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.content }, content.map((text) => /* @__PURE__ */ _(Text, { as: "p", variant: "body" }, text)));
-  }
-  function AdvancedInfo() {
-    const { ref, trigger } = useScrollTarget();
-    return /* @__PURE__ */ _("div", { className: AdvancedInfo_default.wrapper }, /* @__PURE__ */ _("div", { className: AdvancedInfo_default.container, onAnimationEnd: trigger }, /* @__PURE__ */ _(AdvancedInfoHeading, null), /* @__PURE__ */ _(AdvancedInfoContent, null), /* @__PURE__ */ _(VisitSiteLink, { elemRef: ref })));
-  }
-
-  // pages/special-error/app/components/App.module.css
-  var App_default = {
-    main: "App_main",
-    container: "App_container"
-  };
-
   // pages/special-error/app/components/App.jsx
   function SpecialErrorView() {
     const [advancedInfoVisible, setAdvancedInfoVisible] = h2(false);
@@ -3132,12 +3132,13 @@ li {
   }
   function App() {
     const { messaging: messaging2 } = useMessaging();
+    const { isDarkMode } = useEnv();
     function didCatch(error) {
       const message = error?.message || "unknown";
       console.error("ErrorBoundary", message);
       messaging2?.reportPageException({ message });
     }
-    return /* @__PURE__ */ _("main", { className: App_default.main }, /* @__PURE__ */ _(PageTitle, null), /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _(SpecialErrorView, null), /* @__PURE__ */ _(WillThrow, null)));
+    return /* @__PURE__ */ _("main", { className: App_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _(PageTitle, null), /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _(SpecialErrorView, null), /* @__PURE__ */ _(WillThrow, null)));
   }
   function WillThrow() {
     const env = useEnv();
@@ -3172,6 +3173,7 @@ li {
   function Components() {
     const platformName = usePlatformName();
     const errorData = useErrorData();
+    const { isDarkMode } = useEnv();
     const handlePlatformChange = (value) => {
       if (Object.keys(platforms).includes(value)) {
         const url = new URL(window.location.href);
@@ -3186,7 +3188,7 @@ li {
         window.location.href = url.toString();
       }
     };
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("div", { className: Components_default.selector }, /* @__PURE__ */ _("fieldset", null, /* @__PURE__ */ _("label", { for: "platform-select" }, "Platform:"), /* @__PURE__ */ _("select", { id: "platform-select", onChange: (e3) => handlePlatformChange(e3.currentTarget?.value) }, Object.entries(platforms).map(([id, name]) => {
+    return /* @__PURE__ */ _("div", { "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _("div", { className: Components_default.selector }, /* @__PURE__ */ _("fieldset", null, /* @__PURE__ */ _("label", { for: "platform-select" }, "Platform:"), /* @__PURE__ */ _("select", { id: "platform-select", onChange: (e3) => handlePlatformChange(e3.currentTarget?.value) }, Object.entries(platforms).map(([id, name]) => {
       return /* @__PURE__ */ _("option", { value: id, selected: id === platformName }, name);
     }))), /* @__PURE__ */ _("fieldset", null, /* @__PURE__ */ _("label", { for: "error-select" }, "Error Type:"), /* @__PURE__ */ _("select", { id: "error-select", onChange: (e3) => handleErrorTypeChange(e3.currentTarget?.value) }, Object.entries(sampleData).map(([id, data]) => {
       return /* @__PURE__ */ _("option", { value: id, selected: id === idForError(errorData) }, data.name);

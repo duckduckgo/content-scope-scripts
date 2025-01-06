@@ -103,6 +103,130 @@ a {
   }
 }
 
+/* pages/special-error/app/components/AdvancedInfo.module.css */
+.AdvancedInfo_container {
+  align-items: flex-start;
+  display: flex;
+  flex-flow: column;
+  gap: var(--sp-4);
+  max-width: var(--ios-content-max-width);
+  width: 100%;
+  animation-duration: 300ms;
+  animation-fill-mode: forwards;
+  animation-name: AdvancedInfo_appear;
+}
+.AdvancedInfo_heading {
+  & a {
+    color: var(--link-color);
+  }
+}
+.AdvancedInfo_content {
+  display: flex;
+  flex-flow: column;
+  gap: var(--sp-5);
+  & a {
+    color: var(--link-color);
+  }
+}
+.AdvancedInfo_visitSite {
+  color: var(--visit-site-color);
+  cursor: pointer;
+  font-size: calc(13 * var(--px-in-rem));
+  letter-spacing: calc(-0.08 * var(--px-in-rem));
+  line-height: calc(16 * var(--px-in-rem));
+  text-decoration: underline;
+}
+@keyframes AdvancedInfo_appear {
+  0% {
+    padding: 0 var(--sp-10);
+    max-height: 0;
+  }
+  100% {
+    padding: var(--sp-6) var(--sp-10);
+    max-height: calc(400 * var(--px-in-rem));
+  }
+}
+[data-platform-name=macos] {
+  & .AdvancedInfo_container {
+    background: var(--advanced-info-bg);
+    box-shadow: inset 0 1px 0 0 var(--border-color);
+  }
+}
+[data-platform-name=ios] {
+  & .AdvancedInfo_wrapper {
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid var(--color-black-at-9);
+    width: 100%;
+    @media (prefers-color-scheme: dark) {
+      border-top: 1px solid var(--color-white-at-9);
+    }
+  }
+  & .AdvancedInfo_container {
+    align-items: center;
+    gap: var(--sp-6);
+  }
+  & .AdvancedInfo_heading {
+    text-align: center;
+  }
+  & .AdvancedInfo_content {
+    text-align: center;
+  }
+  & .AdvancedInfo_visitSite {
+    font-size: calc(16 * var(--px-in-rem));
+    font-weight: 400;
+    letter-spacing: calc(-0.31 * var(--px-in-rem));
+    line-height: calc(21 * var(--px-in-rem));
+  }
+}
+
+/* pages/special-error/app/components/App.module.css */
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+.App_main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  @media (max-height: 400px) {
+    padding-top: var(--sp-10);
+    align-items: flex-start;
+  }
+  @media (max-height: 700px) {
+    [data-platform-name=ios] & {
+      padding-top: var(--sp-10);
+      align-items: flex-start;
+    }
+  }
+}
+.App_container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+}
+[data-platform-name=macos] {
+  & .App_container {
+    background: var(--container-bg);
+    border-radius: var(--sp-4);
+    border: 1px solid var(--border-color);
+    min-width: calc(400 * var(--px-in-rem));
+    width: calc(504 * var(--px-in-rem));
+  }
+}
+[data-platform-name=ios] {
+  & .App_container {
+    align-items: center;
+  }
+}
+
 /* shared/components/Button/Button.module.css */
 .Button_button {
   appearance: none;
@@ -264,7 +388,7 @@ body:not([data-platform-name]) {
     --button-opacity--disabled: 0.4;
     --button-shadow--focus: var(--macos-control-focused-shadow);
   }
-  @media (prefers-color-scheme: dark) {
+  [data-theme=dark] & {
     &.Button_standard {
       --button-bg: var(--macos-control-standard-background-rest--dark);
       --button-text: var(--color-white-at-84);
@@ -288,7 +412,7 @@ body:not([data-platform-name]) {
     --button-bg--disabled: transparent;
     --button-text--disabled: var(--color-black-at-36);
   }
-  @media (prefers-color-scheme: dark) {
+  [data-theme=dark] & {
     &.Button_primary {
       --button-bg: var(--color-blue-30);
       --button-text: var(--color-black-at-84);
@@ -346,7 +470,7 @@ body:not([data-platform-name]) {
         background-color: var(--color-blue-70);
       }
     }
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
       --focus-ring: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 3px var(--color-white);
       &.Button_standard {
         color: var(--color-white-at-84);
@@ -481,130 +605,6 @@ body:not([data-platform-name]) {
   & .Warning_phishing .Warning_icon,
   & .Warning_malware .Warning_icon {
     background-image: url("./Malware-Site-96-A35AQOKY.svg");
-  }
-}
-
-/* pages/special-error/app/components/AdvancedInfo.module.css */
-.AdvancedInfo_container {
-  align-items: flex-start;
-  display: flex;
-  flex-flow: column;
-  gap: var(--sp-4);
-  max-width: var(--ios-content-max-width);
-  width: 100%;
-  animation-duration: 300ms;
-  animation-fill-mode: forwards;
-  animation-name: AdvancedInfo_appear;
-}
-.AdvancedInfo_heading {
-  & a {
-    color: var(--link-color);
-  }
-}
-.AdvancedInfo_content {
-  display: flex;
-  flex-flow: column;
-  gap: var(--sp-5);
-  & a {
-    color: var(--link-color);
-  }
-}
-.AdvancedInfo_visitSite {
-  color: var(--visit-site-color);
-  cursor: pointer;
-  font-size: calc(13 * var(--px-in-rem));
-  letter-spacing: calc(-0.08 * var(--px-in-rem));
-  line-height: calc(16 * var(--px-in-rem));
-  text-decoration: underline;
-}
-@keyframes AdvancedInfo_appear {
-  0% {
-    padding: 0 var(--sp-10);
-    max-height: 0;
-  }
-  100% {
-    padding: var(--sp-6) var(--sp-10);
-    max-height: calc(400 * var(--px-in-rem));
-  }
-}
-[data-platform-name=macos] {
-  & .AdvancedInfo_container {
-    background: var(--advanced-info-bg);
-    box-shadow: inset 0 1px 0 0 var(--border-color);
-  }
-}
-[data-platform-name=ios] {
-  & .AdvancedInfo_wrapper {
-    display: flex;
-    justify-content: center;
-    border-top: 1px solid var(--color-black-at-9);
-    width: 100%;
-    @media (prefers-color-scheme: dark) {
-      border-top: 1px solid var(--color-white-at-9);
-    }
-  }
-  & .AdvancedInfo_container {
-    align-items: center;
-    gap: var(--sp-6);
-  }
-  & .AdvancedInfo_heading {
-    text-align: center;
-  }
-  & .AdvancedInfo_content {
-    text-align: center;
-  }
-  & .AdvancedInfo_visitSite {
-    font-size: calc(16 * var(--px-in-rem));
-    font-weight: 400;
-    letter-spacing: calc(-0.31 * var(--px-in-rem));
-    line-height: calc(21 * var(--px-in-rem));
-  }
-}
-
-/* pages/special-error/app/components/App.module.css */
-html,
-body {
-  height: 100%;
-  margin: 0;
-}
-.App_main {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  @media (max-height: 400px) {
-    padding-top: var(--sp-10);
-    align-items: flex-start;
-  }
-  @media (max-height: 700px) {
-    [data-platform-name=ios] & {
-      padding-top: var(--sp-10);
-      align-items: flex-start;
-    }
-  }
-}
-.App_container {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  width: 100%;
-}
-[data-platform-name=macos] {
-  & .App_container {
-    background: var(--container-bg);
-    border-radius: var(--sp-4);
-    border: 1px solid var(--border-color);
-    min-width: calc(400 * var(--px-in-rem));
-    width: calc(504 * var(--px-in-rem));
-  }
-}
-[data-platform-name=ios] {
-  & .App_container {
-    align-items: center;
   }
 }
 

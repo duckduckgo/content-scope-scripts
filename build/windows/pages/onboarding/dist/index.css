@@ -696,20 +696,25 @@ h2 {
   left: 0;
 }
 
-/* pages/onboarding/app/components/Switch.module.css */
-:root {
-  --switch-handle-color: var(--color-black-at-60);
-  --track-bg-color: var(--color-black-at-3);
-  --track-border-color: var(--color-black-at-60);
-  --track-bg-color-active: var(--color-black-at-9);
+/* shared/components/Switch/Switch.module.css */
+.Switch_label {
+  --switch-width: 40px;
+  --switch-height: 20px;
+  --switch-handle-size: 12px;
   --switch-handle-color-checked: white;
+  --switch-handle-offset: 4px;
+  --switch-handle-color: var(--color-black-at-60);
+  --switch-checked-offset: translateX(calc(100% + 8px));
+  --track-bg-color: var(--color-black-at-3);
+  --track-border: 1px solid var(--track-border-color);
+  --track-border-color: var(--color-black-at-60);
+  --track-border-radius: 11px;
+  --track-bg-color-active: var(--color-black-at-9);
   --track-bg-color-checked: var(--ddg-color-primary);
   --track-border-color-checked: var(--ddg-color-primary);
   --track-bg-color-checked-active: #2B55CA;
   --track-border-color-checked-active: #2B55CA;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
+  &[data-theme=dark] {
     --track-border-color: var(--color-white-at-60);
     --track-bg-color: var(--color-black-at-9);
     --track-bg-color-active: var(--color-white-at-9);
@@ -720,8 +725,26 @@ h2 {
     --track-bg-color-checked-active: var(--ddg-color-primary);
     --track-border-color-checked-active: var(--ddg-color-primary);
   }
-}
-.Switch_toggleSwitch {
+  &[data-platform-name=macos] {
+    --switch-width: 26px;
+    --switch-height: 15px;
+    --switch-handle-size: 13px;
+    --switch-handle-offset: 1px;
+    --switch-handle-color: var(--color-white-at-84);
+    --switch-checked-offset: translateX(calc(100% - 2px));
+    --track-bg-color: var(--color-black-at-9);
+    --track-border: 0;
+    --track-border-radius: 10px;
+  }
+  &[data-platform-name=macos][data-size=medium] {
+    --switch-width: 32px;
+    --switch-height: 18px;
+    --switch-handle-size: 16px;
+  }
+  &[data-platform-name=macos][data-theme=dark] {
+    --track-bg-color: var(--color-white-at-9);
+    --switch-handle-color-checked: #CECECE;
+  }
   vertical-align: top;
   isolation: isolate;
   align-items: flex-start;
@@ -744,10 +767,38 @@ h2 {
   border: initial;
   appearance: auto;
   background-color: initial;
+  &:active + .Switch_switch:after {
+    background-color: var(--track-bg-color-active);
+  }
+  &:checked + .Switch_switch:before {
+    transform: var(--switch-checked-offset);
+    background-color: var(--switch-handle-color-checked);
+  }
+  [data-theme=dark][data-platform-name=macos] &:checked + .Switch_switch:before {
+    box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
+    filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
+  }
+  &:checked + .Switch_switch:after {
+    background: var(--track-bg-color-checked);
+    border-color: var(--track-border-color-checked);
+  }
+  [data-theme=dark][data-platform-name=macos] &:checked + .Switch_switch:after {
+    background:
+      linear-gradient(
+        180deg,
+        #3969EF 0%,
+        #2C4AAC 0.01%,
+        #3152BF 100%);
+    box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
+  }
+  &:checked:active + .Switch_switch:after {
+    background-color: var(--track-bg-color-checked-active);
+    border-color: var(--track-border-color-checked-active);
+  }
 }
 .Switch_switch {
   box-sizing: border-box;
-  inline-size: 40px;
+  inline-size: var(--switch-width);
   margin: 0;
   vertical-align: middle;
   will-change: transform;
@@ -755,7 +806,7 @@ h2 {
   transition-duration: 0.13s;
   transition-property: background, border;
   transition-timing-function: ease-in-out, ease-in-out;
-  block-size: 20px;
+  block-size: var(--switch-height);
   border-radius: 10px;
   flex-grow: 0;
   flex-shrink: 0;
@@ -763,100 +814,47 @@ h2 {
   position: relative;
   left: 0;
   right: 0;
-}
-[data-variant=apple] .Switch_switch {
-  inline-size: 26px;
-  block-size: 15px;
-}
-.Switch_switch:before {
-  content: "";
-  box-sizing: border-box;
-  inline-size: 12px;
-  block-size: 12px;
-  border-radius: 10px;
-  display: block;
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  z-index: 1;
-  transition: all .3s;
-  background: var(--switch-handle-color);
-}
-[data-variant=apple] .Switch_switch:before {
-  inline-size: 13px;
-  block-size: 13px;
-  top: 1px;
-  left: 1px;
-  background: #fff;
-  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
-  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
-}
-@media (prefers-color-scheme: dark) {
-  [data-variant=apple] .Switch_switch:before {
-    background: #CECECE;
+  &:before {
+    content: "";
+    box-sizing: border-box;
+    inline-size: var(--switch-handle-size);
+    block-size: var(--switch-handle-size);
+    border-radius: 10px;
+    display: block;
+    position: absolute;
+    top: var(--switch-handle-offset);
+    left: var(--switch-handle-offset);
+    z-index: 1;
+    transition: all .3s;
+    background: var(--switch-handle-color);
+  }
+  [data-platform-name=macos] &:before {
     box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
     filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
   }
-}
-.Switch_switch:after {
-  border-radius: 11px;
-  content: "";
-  margin: 0;
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  transform: translateX(0);
-  transition: all .3s;
-  border: 1px solid var(--track-border-color);
-  background-color: var(--track-bg-color);
-}
-[data-variant=apple] .Switch_switch:after {
-  border: 0;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.10);
-  box-shadow: 0px 0.5px 1px 1px rgba(10, 15, 20, 0.04) inset, 0px 0px 0px 0.5px rgba(10, 15, 20, 0.12) inset;
-}
-@media (prefers-color-scheme: dark) {
-  [data-variant=apple] .Switch_switch:after {
-    background: rgba(255, 255, 255, 0.10);
-    box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
-  }
-}
-input:active + .Switch_switch:after {
-  background-color: var(--track-bg-color-active);
-}
-input:checked + .Switch_switch:before {
-  transform: translateX(calc(100% + 8px));
-  background-color: var(--switch-handle-color-checked);
-}
-[data-variant=apple] input:checked + .Switch_switch:before {
-  transform: translateX(calc(100% - 2px));
-  background-color: var(--switch-handle-color-checked);
-}
-input:checked + .Switch_switch:after {
-  background-color: var(--track-bg-color-checked);
-  border-color: var(--track-border-color-checked);
-}
-input:checked:active + .Switch_switch:after {
-  background-color: var(--track-bg-color-checked-active);
-  border-color: var(--track-border-color-checked-active);
-}
-@media (prefers-color-scheme: dark) {
-  [data-variant=apple] input:checked + .Switch_switch:before {
-    background: #CECECE;
+  [data-platform-name=macos][data-theme=dark] &:before {
     box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
     filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
   }
-  [data-variant=apple] input:checked + .Switch_switch:after {
-    background:
-      linear-gradient(
-        180deg,
-        #3969EF 0%,
-        #2C4AAC 0.01%,
-        #3152BF 100%);
+  &:after {
+    border-radius: var(--track-border-radius);
+    content: "";
+    margin: 0;
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateX(0);
+    transition: all .3s;
+    border: var(--track-border);
+    background-color: var(--track-bg-color);
+  }
+  [data-platform-name=macos] &:after {
+    box-shadow: 0px 0.5px 1px 1px rgba(10, 15, 20, 0.04) inset, 0px 0px 0px 0.5px rgba(10, 15, 20, 0.12) inset;
+  }
+  [data-platform-name=macos][data-theme=dark] &:after {
     box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
   }
 }

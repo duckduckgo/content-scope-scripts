@@ -5,6 +5,7 @@ import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js'
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
+import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 
 /**
@@ -95,11 +96,20 @@ export function mockTransport() {
         }
     }
 
+    const transports = {
+        customizer: customizerMockTransport(),
+    };
+
     return new TestTransportConfig({
         notify(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
+            const [namespace] = msg.method.split('_');
+            if (namespace in transports) {
+                transports[namespace]?.impl.notify(_msg);
+                return;
+            }
             switch (msg.method) {
                 case 'widgets_setConfig': {
                     if (!msg.params) throw new Error('unreachable');
@@ -182,6 +192,11 @@ export function mockTransport() {
                 return () => {
                     subscriptions.delete(sub);
                 };
+            }
+
+            const [namespace] = sub.split('_');
+            if (namespace in transports) {
+                return transports[namespace]?.impl.subscribe(_msg, cb);
             }
 
             switch (sub) {
@@ -349,6 +364,12 @@ export function mockTransport() {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/new-tab.ts').NewTabMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
+
+            const [namespace] = msg.method.split('_');
+            if (namespace in transports) {
+                return transports[namespace]?.impl.request(_msg);
+            }
+
             switch (msg.method) {
                 case 'stats_getData': {
                     const statsVariant = url.searchParams.get('stats');
@@ -470,23 +491,29 @@ export function mockTransport() {
                         updateNotification = updateNotificationExamples.populated;
                     }
 
-                    /** @type {import('../types/new-tab').NewTabPageSettings} */
-                    const settings = {};
-
-                    if (url.searchParams.get('customizerDrawer') === 'enabled') {
-                        settings.customizerDrawer = { state: 'enabled' };
-                    }
-
                     /** @type {import('../types/new-tab.ts').InitialSetupResponse} */
                     const initial = {
                         widgets: widgetsFromStorage,
                         widgetConfigs: widgetConfigFromStorage,
-                        settings,
                         platform: { name: 'integration' },
                         env: 'development',
                         locale: 'en',
                         updateNotification,
                     };
+
+                    /** @type {import('../types/new-tab').NewTabPageSettings} */
+                    const settings = {};
+                    if (url.searchParams.get('customizerDrawer') === 'enabled') {
+                        settings.customizerDrawer = { state: 'enabled' };
+                        if (url.searchParams.get('autoOpen') === 'true') {
+                            settings.customizerDrawer.autoOpen = true;
+                        }
+
+                        initial.customizer = customizerData();
+                    }
+
+                    // feature flags
+                    initial.settings = settings;
 
                     return Promise.resolve(initial);
                 }

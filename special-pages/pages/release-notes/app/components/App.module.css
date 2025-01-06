@@ -1,5 +1,6 @@
 :root {
-    --sp-145: calc(580 * var(--px-in-rem));; /* 580px */
+    --sp-145: calc(580 * var(--px-in-rem));
+    /* 580px */
 }
 
 body {
