@@ -1,9 +1,15 @@
 import { Component } from 'preact';
 
+/**
+ * @typedef {{
+ *   fallback: import("preact").ComponentChild,
+ *   didCatch: (params: {error: Error; message: string, info: any}) => void,
+ *   context?: string;
+ * }} Props
+ *
+ * @extends {Component<Props, { hasError: boolean }>}
+ */
 export class ErrorBoundary extends Component {
-    /**
-     * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
-     */
     constructor(props) {
         super(props);
         this.state = { hasError: false };
@@ -17,7 +23,16 @@ export class ErrorBoundary extends Component {
     componentDidCatch(error, info) {
         console.error(error);
         console.log(info);
-        this.props.didCatch({ error, info });
+
+        let message = error.message;
+        if (typeof message !== 'string') message = 'unknown';
+
+        // prettier-ignore
+        const composed = this.props.context
+            ? [this.props.context, message].join(' ')
+            : message;
+
+        this.props.didCatch({ error, message: composed, info });
     }
 
     render() {

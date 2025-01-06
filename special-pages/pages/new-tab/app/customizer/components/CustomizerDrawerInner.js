@@ -12,7 +12,7 @@ import { ImageSelection } from './ImageSelection.js';
 import { BorderedSection, CustomizerSection } from './CustomizerSection.js';
 import { SettingsLink } from './SettingsLink.js';
 import { DismissButton } from '../../components/DismissButton.jsx';
-import { InlineError } from '../../InlineError.js';
+import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
 import { useTypedTranslationWith } from '../../types.js';
 
 /**
@@ -43,8 +43,8 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                     }}
                 />
             </header>
-            <InlineError
-                named="Customizer Drawer"
+            <InlineErrorBoundary
+                format={(message) => `CustomizerDrawerInner threw an exception: ${message}`}
                 fallback={(message) => (
                     <div class={styles.internal}>
                         <p>{message}</p>
@@ -78,7 +78,7 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                         </Fragment>
                     )}
                 />
-            </InlineError>
+            </InlineErrorBoundary>
         </div>
     );
 }
