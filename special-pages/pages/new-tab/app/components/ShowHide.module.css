@@ -18,23 +18,31 @@
         width: 2rem;
         border-radius: 50%;
         padding-inline: 0;
+        background-color: transparent;
+        color: var(--ntp-text-muted);
 
-        svg rect {
-            fill-opacity: 0;
+
+        .iconBlock {
+            backdrop-filter: unset;
+            background-color: transparent;
+            box-shadow: none;
+            transition: all 0.3s ease-in;
+
+            [data-theme=dark] & {
+                box-shadow: none;
+                background-color: transparent;
+            }
         }
 
         &:hover {
-            transition: all 0.3s ease-in;
-            svg rect {
-                fill: black;
-                fill-opacity: 0.06;
-    
-                @media screen and (prefers-color-scheme: dark) {
-                    fill: white;
-                    fill-opacity: 0.12;
+            .iconBlock {
+                background-color: var(--color-black-at-6);
+
+                [data-theme=dark] & {
+                    background-color: var(--color-white-at-12);
                 }
             }
-        } 
+        }
 
         &:focus-visible {
             box-shadow: var(--focus-ring);
@@ -43,6 +51,7 @@
 
     &.withText {
         border: 1px solid var(--color-black-at-9);
+
         svg {
             margin-right: var(--sp-2);
         }
@@ -56,8 +65,30 @@
         }
     }
 
+    >* {
+        pointer-events: none;
+    }
+
     svg {
         transition: transform .3s;
+    }
+
+    .iconBlock {
+        backdrop-filter: blur(48px);
+        background-color: var(--ntp-surface-background-color);
+        border-radius: 50%;
+        height: 1.5rem;
+        width: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0px 2px 4px 0px var(--color-black-at-12), 0px 0px 3px 0px var(--color-black-at-18);
+        color: var(--ntp-text-muted);
+
+
+        [data-theme="dark"] & {
+            box-shadow: 0px 2px 4px 0px var(--color-white-at-6), 0px 0px 3px 0px var(--color-white-at-9);
+        }
     }
 
     &[aria-pressed=true] svg {
@@ -69,17 +100,17 @@
         box-shadow: var(--focus-ring-thin);
     }
 
-    @media (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         &.withText {
             border-color: var(--color-white-at-9);
 
             &:hover {
                 background-color: var(--color-white-at-9);
             }
-    
+
             &:active {
                 background-color: var(--color-white-at-12);
             }
-        } 
+        }
     }
 }

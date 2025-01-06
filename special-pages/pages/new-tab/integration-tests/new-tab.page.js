@@ -40,6 +40,7 @@ export class NewtabPage {
                     name: this.platform.name || 'windows',
                 },
                 updateNotification: { content: null },
+                customizer: { theme: 'system', userImages: [], userColor: null, background: { kind: 'default' } },
             },
             stats_getConfig: {},
             stats_getData: {},
@@ -61,9 +62,20 @@ export class NewtabPage {
      * @param {Record<string, any>} [params.additional] - Optional map of key/values to add
      * @param {string} [params.rmf] - Optional flag to add certain rmf example
      * @param {string} [params.updateNotification] - Optional flag to point to display=components view with certain rmf example visible
+     * @param {string} [params.pir] - Optional flag to add certain Freemium PIR Banner example
      * @param {string} [params.platformName] - Optional parameters for opening the page.
      */
-    async openPage({ mode = 'debug', additional, platformName, willThrow = false, favorites, nextSteps, rmf, updateNotification } = {}) {
+    async openPage({
+        mode = 'debug',
+        additional,
+        platformName,
+        willThrow = false,
+        favorites,
+        nextSteps,
+        rmf,
+        pir,
+        updateNotification,
+    } = {}) {
         await this.mocks.install();
         const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) });
 
@@ -85,6 +97,10 @@ export class NewtabPage {
             }
         }
 
+        if (pir !== undefined) {
+            searchParams.set('pir', pir);
+        }
+
         if (platformName !== undefined) {
             searchParams.set('platform', platformName);
         }
@@ -97,7 +113,12 @@ export class NewtabPage {
             searchParams.set(key, value);
         }
 
-        await this.page.goto('/new-tab' + '?' + searchParams.toString());
+        // eslint-disable-next-line no-undef
+        if (process.env.PAGE) {
+            await this.page.goto('/' + '?' + searchParams.toString());
+        } else {
+            await this.page.goto('/new-tab' + '?' + searchParams.toString());
+        }
     }
 
     /**

@@ -1,5 +1,6 @@
 .card {
     background-color: var(--ntp-surface-background-color);
+    backdrop-filter: blur(48px);
     border: 1px solid var(--ntp-surface-border-color);
     padding: var(--sp-2) var(--sp-4);
     border-radius: var(--border-radius-lg);
@@ -10,7 +11,7 @@
     align-items: center;
     text-align: center;
     max-width: calc(240 * var(--px-in-rem));
-    min-height: calc(150 * var(--px-in-rem));
+    min-height: calc(166 * var(--px-in-rem));
     font-size: var(--body-font-size);
 }
 
@@ -47,6 +48,19 @@
     font-size: calc(11 * var(--px-in-rem));
     line-height: calc(14 * var(--px-in-rem));
     color: var(--ntp-color-primary);
+    /* needed for some languages */
+    text-wrap: wrap;
+
+    /* the active state created an awkward flash, adding transition out */
+    &.supressActiveStateForSwitchToConfirmationText {
+        opacity: 1;
+        transition: opacity .3s ease-out;
+
+        &:active {
+            background-color: var(--color-black-at-6);
+            opacity: 0;
+        }
+    }
 
     &:hover {
         background-color: var(--color-black-at-6);
@@ -72,7 +86,13 @@
         outline: none;
     }
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
+        &.supressActiveStateForSwitchToConfirmationText {
+            &:active {
+                background-color: var(--color-black-at-9);
+            }
+        }
+
         &:hover:not(:active) {
             background-color: var(--color-black-at-9);
         }
@@ -89,6 +109,26 @@
     }
 }
 
+.confirmation {
+    display: flex;
+    align-items: center;
+    transition: all .2s ease-in;
+    min-height: 26px;
+
+    svg {
+        height: 1rem;
+        width: 1rem;
+        margin-right: var(--sp-2);
+    }
+
+    p {
+        font-size: calc(11 * var(--px-in-rem));
+        line-height: calc(14 * var(--px-in-rem));
+        font-weight: 600;
+        max-width: 8rem;
+    }
+}
+
 .dismissBtn {
     position: absolute;
     top: 0.5rem;
@@ -99,6 +139,7 @@
     height: 100%;
     width: 100%;
     position: relative;
+    margin-bottom: var(--sp-4);
 
     &:hover {
         .showhide {
@@ -106,7 +147,7 @@
         }
     }
 
-    &.bottomSpace {
+    &.noExpansionBtn {
         margin-bottom: var(--ntp-gap);
     }
 }
@@ -136,7 +177,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
         h2 {
             color: var(--ntp-text-on-primary);
             letter-spacing: 0.06px;
@@ -149,12 +190,8 @@
 
 .cardGroup {
     transition: opacity .2s;
+
     &:hover {
-        .showhide [aria-controls] {
-            opacity: 1;
-        }
-    }
-    &:focus-within {
         .showhide [aria-controls] {
             opacity: 1;
         }

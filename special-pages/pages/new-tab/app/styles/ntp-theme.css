@@ -1,14 +1,10 @@
 :root {
-    --ntp-background-color: white;
-    --ntp-surface-background-color: white;
-    --ntp-surfaces-panel-background-color: white;
-    --ntp-surface-border-color: var(--color-black-at-6);
-    --ntp-text-normal: var(--color-black-at-84);
-    --ntp-text-muted: var(--color-black-at-60);
-    --ntp-text-on-primary: var(--color-white-at-84);
-    --ntp-color-primary: var(--ddg-color-primary);
+    --default-light-bg: var(--color-gray-0);
+    --default-dark-bg: var(--color-gray-85);
     --ntp-gap: 2rem;
-    --ntp-drawer-width: calc(236 * var(--px-in-rem));
+    --ntp-drawer-width: calc(224 * var(--px-in-rem));
+    --ntp-drawer-scroll-width: 12px;
+    --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
 
     /* Mac/System/Body */
     --body-font-size: 13px;
@@ -25,28 +21,45 @@
     --title-3-em-font-weight: 590;
     --title-3-em-line-height: 20px;
 
-    --ntp-focus-outline-color: black;
+    /* label small */
+    --small-label-font-size: 11px;
+    --small-label-font-weight: 400;
+    --small-label-line-height: 14px;
+
     --border-radius-lg: 12px;
     --border-radius-md: 8px;
     --border-radius-sm: 6px;
     --border-radius-xs: 4px;
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
+}
 
+[data-theme=light] {
+    --ntp-background-color: var(--default-light-bg);
+    --ntp-surface-background-color: var(--color-white-at-30);
+    --ntp-surfaces-panel-background-color: white;
+    --ntp-surface-border-color: var(--color-black-at-9);
+    --ntp-text-normal: var(--color-black-at-84);
+    --ntp-text-muted: var(--color-black-at-60);
+    --ntp-text-on-primary: var(--color-white-at-84);
+    --ntp-color-primary: var(--ddg-color-primary);
+    --ntp-focus-outline-color: black;
+    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
+    --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
+}
 
-    @media (prefers-color-scheme: dark) {
-        --ntp-background-color: var(--color-gray-85);
-        --ntp-surface-background-color: #2a2a2a;
-        --ntp-surfaces-panel-background-color: #222222;
-        --ntp-surface-border-color: var(--color-white-at-6);
-        --ntp-text-normal: var(--color-white-at-84);
-        --ntp-text-muted: var(--color-white-at-60);
-        --ntp-color-primary: var(--color-blue-30);
-        --ntp-text-on-primary: var(--color-black-at-84);
-        --ntp-focus-outline-color: white;
-        --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
-        --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
-    }
+[data-theme=dark] {
+    --ntp-background-color: var(--default-dark-bg);
+    --ntp-surface-background-color: var(--color-black-at-18);
+    --ntp-surfaces-panel-background-color: #222222;
+    --ntp-surface-border-color: var(--color-white-at-12);
+    --ntp-text-normal: var(--color-white-at-84);
+    --ntp-text-muted: var(--color-white-at-60);
+    --ntp-color-primary: var(--color-blue-30);
+    --ntp-text-on-primary: var(--color-black-at-84);
+    --ntp-focus-outline-color: white;
+    --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
+    --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
 }
 
 /* This comes from the application settings */

@@ -37,21 +37,40 @@
 }
 
 .draggable {
-    background-color: var(--color-black-at-3);
+    backdrop-filter: blur(48px);
+    background: var(--ntp-surface-background-color);
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12), 0px 0px 3px 0px rgba(0, 0, 0, 0.16);
 
     &:hover {
-        background-color: var(--color-black-at-9);
+        background-color: var(--color-white-at-18);
+    }
+
+    [data-theme="dark"] & {
+        &:hover {
+            background: rgba(0, 0, 0, 0.24);
+        }
+    }
+
+    [data-background-kind="userImage"] & {
+        border: 1px solid var(--color-black-at-9);
+        background: var(--color-white-at-30);
+
+        &:hover {
+            background: var(--color-white-at-18);
+        }
+    }
+
+    [data-theme="dark"] [data-background-kind="userImage"] & {
+        border: 1px solid var(--color-white-at-9);
+        background: var(--color-black-at-18);
+
+        &:hover {
+            background: rgba(0, 0, 0, 0.24);
+        }
     }
 
     &:active {
         transform: scale(0.95);
-    }
-
-    @media screen and (prefers-color-scheme: dark) {
-        background-color: var(--color-white-at-6);
-        &:hover {
-            background-color: var(--color-white-at-12);
-        }
     }
 }
 
@@ -88,30 +107,18 @@
     background-color: transparent;
     border: 1.5px dashed var(--color-black-at-9);
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         border-color: var(--color-white-at-9);
     }
 }
 
 .plus {
     outline: none;
-    border-style: solid;
+    border: none;
     color: var(--color-black-at-90);
 
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         color: var(--color-white-at-85);
-    }
-
-    &:hover {
-        background: var(--color-black-at-3);
-
-        @media screen and (prefers-color-scheme: dark) {
-            background: var(--color-white-at-9);
-        }
-    }
-
-    &:active {
-        transform: scale(0.95);
     }
 
     &:focus-visible {
@@ -125,7 +132,7 @@
     position: absolute;
     top: 0;
     background-color: var(--color-black-at-12);
-    @media screen and (prefers-color-scheme: dark) {
+    [data-theme=dark] & {
         background-color: var(--color-white-at-12);
     }
 }

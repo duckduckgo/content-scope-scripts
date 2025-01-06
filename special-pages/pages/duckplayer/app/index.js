@@ -5,7 +5,7 @@ import { EnvironmentProvider, UpdateEnvironment, WillThrow } from '../../../shar
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { ErrorBoundary } from '../../../shared/components/ErrorBoundary.js';
 import { EmbedSettings } from './embed-settings.js';
-import enStrings from '../src/locales/en/duckplayer.json';
+import enStrings from '../public/locales/en/duckplayer.json';
 import { Settings } from './settings.js';
 import { SettingsProvider } from './providers/SettingsProvider.jsx';
 import { MessagingContext, TelemetryContext } from './types.js';
@@ -16,8 +16,8 @@ import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
 
 /**
- * @param {import("../src/js/index.js").DuckplayerPage} messaging
- * @param {import("../src/js/index.js").Telemetry} telemetry
+ * @param {import("../src/index.js").DuckplayerPage} messaging
+ * @param {import("../src/index.js").Telemetry} telemetry
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  * @return {Promise<void>}
  */

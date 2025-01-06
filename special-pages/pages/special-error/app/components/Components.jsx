@@ -1,12 +1,12 @@
 import { h } from 'preact';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider';
+import { sampleData } from '../../src/sampleData.js';
 import { usePlatformName } from '../providers/SettingsProvider';
 import { useErrorData } from '../providers/SpecialErrorProvider';
-import { Warning, WarningHeading, WarningContent, AdvancedInfoButton, LeaveSiteButton } from './Warning';
-import { AdvancedInfo, AdvancedInfoHeading, AdvancedInfoContent, VisitSiteLink } from './AdvancedInfo';
+import { AdvancedInfo, AdvancedInfoContent, AdvancedInfoHeading, VisitSiteLink } from './AdvancedInfo';
 import { SpecialErrorView } from './App';
-import { sampleData } from '../../src/js/sampleData';
-
 import styles from './Components.module.css';
+import { AdvancedInfoButton, LeaveSiteButton, Warning, WarningContent, WarningHeading } from './Warning';
 
 /**
  * @typedef {import("../../types/special-error.js").InitialSetupResponse['errorData']} ErrorData
@@ -39,6 +39,7 @@ function idForError(errorData) {
 export function Components() {
     const platformName = usePlatformName();
     const errorData = useErrorData();
+    const { isDarkMode } = useEnv();
 
     const handlePlatformChange = (value) => {
         if (Object.keys(platforms).includes(value)) {
@@ -57,7 +58,7 @@ export function Components() {
     };
 
     return (
-        <div>
+        <div data-theme={isDarkMode ? 'dark' : 'light'}>
             <div className={styles.selector}>
                 <fieldset>
                     <label for="platform-select">Platform:</label>

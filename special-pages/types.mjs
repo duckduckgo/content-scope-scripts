@@ -23,7 +23,7 @@ for (const pageListElement of pageList) {
         typesDir: output,
         exclude: process.platform === 'win32',
         kind: 'single',
-        resolve: (_dirname) => '../src/js/index.js',
+        resolve: (_dirname) => '../src/index.js',
         className: (topLevelType) => topLevelType.replace('Messages', 'Page'),
         filename: `${pageListElement}.ts`,
     };

@@ -7,18 +7,20 @@ import { SettingsProvider } from './settings.provider.js';
 import { InitialSetupContext, MessagingContext, TelemetryContext } from './types';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { WidgetConfigService } from './widget-list/widget-config.service.js';
-import enStrings from '../src/locales/en/new-tab.json';
+import enStrings from '../public/locales/en/new-tab.json';
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js';
 import { Settings } from './settings.js';
 import { Components } from './components/Components.jsx';
 import { widgetEntryPoint } from './widget-list/WidgetList.js';
 import { callWithRetry } from '../../../shared/call-with-retry.js';
+import { CustomizerProvider } from './customizer/CustomizerProvider.js';
+import { CustomizerService } from './customizer/customizer.service.js';
 
 /**
  * @import {Telemetry} from "./telemetry/telemetry.js"
  * @import { Environment } from "../../../shared/environment";
  * @param {Element} root
- * @param {import("../src/js").NewTabPage} messaging
+ * @param {import("../src/index.js").NewTabPage} messaging
  * @param {import("./telemetry/telemetry.js").Telemetry} telemetry
  * @param {Environment} baseEnvironment
  * @throws Error
@@ -32,6 +34,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
     }
 
     const init = result.value;
+    console.log('INITIAL DATA', init);
 
     if (!Array.isArray(init.widgets)) {
         throw new Error('missing critical initialSetup.widgets array');
@@ -83,6 +86,16 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
     // Create an instance of the global widget api
     const widgetConfigAPI = new WidgetConfigService(messaging, init.widgetConfigs);
 
+    /** @type {import('../types/new-tab.js').CustomizerData} */
+    const customizerData = init.customizer || {
+        userColor: null,
+        background: { kind: 'default' },
+        theme: 'system',
+        userImages: [],
+    };
+
+    const customizerApi = new CustomizerService(messaging, customizerData);
+
     render(
         <EnvironmentProvider
             debugState={environment.debugState}
@@ -97,14 +110,16 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                         <TelemetryContext.Provider value={telemetry}>
                             <SettingsProvider settings={settings}>
                                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                                    <WidgetConfigProvider
-                                        api={widgetConfigAPI}
-                                        widgetConfigs={init.widgetConfigs}
-                                        widgets={init.widgets}
-                                        entryPoints={entryPoints}
-                                    >
-                                        <App />
-                                    </WidgetConfigProvider>
+                                    <CustomizerProvider service={customizerApi} initialData={customizerData}>
+                                        <WidgetConfigProvider
+                                            api={widgetConfigAPI}
+                                            widgetConfigs={init.widgetConfigs}
+                                            widgets={init.widgets}
+                                            entryPoints={entryPoints}
+                                        >
+                                            <App />
+                                        </WidgetConfigProvider>
+                                    </CustomizerProvider>
                                 </TranslationProvider>
                             </SettingsProvider>
                         </TelemetryContext.Provider>
@@ -149,7 +164,7 @@ async function resolveEntryPoints(widgets, didCatch) {
     try {
         const loaders = widgets.map((widget) => {
             return (
-                widgetEntryPoint(widget.id)
+                widgetEntryPoint(widget.id, didCatch)
                     // eslint-disable-next-line promise/prefer-await-to-then
                     .then((mod) => [widget.id, mod])
             );

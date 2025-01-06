@@ -1,5 +1,7 @@
-import { useRef, useId, useLayoutEffect } from 'preact/hooks';
-import { computed, effect, useSignal } from '@preact/signals';
+import { useRef, useId, useLayoutEffect, useEffect } from 'preact/hooks';
+import { batch, useComputed, useSignal } from '@preact/signals';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
+import { useMessaging } from '../types.js';
 
 const CLOSE_DRAWER_EVENT = 'close-drawer';
 const TOGGLE_DRAWER_EVENT = 'toggle-drawer';
@@ -17,7 +19,7 @@ const REQUEST_VISIBILITY_EVENT = 'request-visibility';
  *  - 1: we make the API available with events (via `useDrawerControls`)
  *  - 2: we use signals to trigger animations for performance (to prevent VDOM diffing)
  *  - 3: we provide a way for child components to render AFTER animations have ended, again for performance.
- *
+ * @param {DrawerVisibility} initial
  * @return {{
  *     wrapperRef: import("preact").RefObject<HTMLDivElement>,
  *     buttonRef: import("preact").RefObject<HTMLButtonElement>,
@@ -25,10 +27,12 @@ const REQUEST_VISIBILITY_EVENT = 'request-visibility';
  *     buttonId: string,
  *     drawerId: string,
  *     hidden: import("@preact/signals").Signal<boolean>,
+ *     animating: import("@preact/signals").Signal<boolean>,
  *     displayChildren: import("@preact/signals").Signal<boolean>,
  * }}
  */
-export function useDrawer() {
+export function useDrawer(initial) {
+    const { isReducedMotion } = useEnv();
     const wrapperRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const buttonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
 
@@ -42,10 +46,11 @@ export function useDrawer() {
     // The value that determines if it's safe to render children
     // This takes animations into account, which is why is can't be a regular-derived state
     const displayChildren = useSignal(false);
+    const animating = useSignal(false);
 
     // Derive a 'hidden' signal that can be used as an aria-hidden={hidden}
     // it needs to be done this way to `.value` being accessed in the top level of the application
-    const hidden = computed(() => displayChildren.value === false);
+    const hidden = useComputed(() => displayChildren.value === false);
 
     // react to the global API events
     useLayoutEffect(() => {
@@ -58,6 +63,9 @@ export function useDrawer() {
          */
         const update = (value) => {
             visibility.value = value;
+            if (isReducedMotion) {
+                displayChildren.value = visibility.value === 'visible';
+            }
         };
 
         // Event handlers
@@ -88,7 +96,27 @@ export function useDrawer() {
             (e) => {
                 // ignore child animations
                 if (e.target !== e.currentTarget) return;
-                displayChildren.value = visibility.value === 'visible';
+                batch(() => {
+                    displayChildren.value = visibility.value === 'visible';
+                    animating.value = false;
+
+                    // move focus back to the button when the drawer is closed
+                    // this needs to be done otherwise it's a violation of aria rules
+                    if (displayChildren.value === false) {
+                        buttonRef.current?.focus?.();
+                    }
+                });
+            },
+            { signal: controller.signal },
+        );
+
+        // set animating = true when a parent transition starts
+        wrapper?.addEventListener(
+            'transitionstart',
+            (e) => {
+                // ignore child animations
+                if (e.target !== e.currentTarget) return;
+                animating.value = true;
             },
             { signal: controller.signal },
         );
@@ -96,15 +124,21 @@ export function useDrawer() {
         return () => {
             controller.abort();
         };
-    }, []);
+    }, [isReducedMotion, initial]);
 
-    // move focus back to the button when the drawer is closed
-    // this needs to be done otherwise it's a violation of aria rules
-    effect(() => {
-        if (displayChildren.value === false) {
-            buttonRef.current?.focus?.();
+    const ntp = useMessaging();
+
+    /**
+     * Open initially if required too
+     */
+    useEffect(() => {
+        if (initial === 'visible') {
+            _open();
         }
-    });
+        return ntp.messaging.subscribe('customizer_autoOpen', () => {
+            _open();
+        });
+    }, [initial, ntp]);
 
     return {
         wrapperRef,
@@ -114,22 +148,29 @@ export function useDrawer() {
         buttonId,
         drawerId,
         hidden,
+        animating,
     };
 }
 
+function _toggle() {
+    window.dispatchEvent(new CustomEvent(TOGGLE_DRAWER_EVENT));
+}
+
+function _open() {
+    window.dispatchEvent(new CustomEvent(OPEN_DRAWER_EVENT));
+}
+
+function _close() {
+    window.dispatchEvent(new CustomEvent(CLOSE_DRAWER_EVENT));
+}
+
 /**
- *
+ * familiar React-style API
  */
 export function useDrawerControls() {
     return {
-        toggle: () => {
-            window.dispatchEvent(new CustomEvent(TOGGLE_DRAWER_EVENT));
-        },
-        close: () => {
-            window.dispatchEvent(new CustomEvent(CLOSE_DRAWER_EVENT));
-        },
-        open: () => {
-            window.dispatchEvent(new CustomEvent(OPEN_DRAWER_EVENT));
-        },
+        toggle: _toggle,
+        close: _close,
+        open: _open,
     };
 }

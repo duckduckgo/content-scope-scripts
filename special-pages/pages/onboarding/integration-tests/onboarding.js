@@ -1,7 +1,7 @@
 import { Mocks } from '../../../shared/mocks.js';
 import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
-import { join } from 'node:path';
 import { expect } from '@playwright/test';
+import { join } from 'node:path';
 
 /**
  * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
@@ -69,6 +69,7 @@ export class OnboardingPage {
      */
     async openPage({ env = 'app', page = 'welcome', willThrow = false } = {}) {
         await this.mocks.install();
+        const searchParams = new URLSearchParams({ env, page, debugState: 'true', willThrow: String(willThrow) });
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url());
             // try to serve assets, but change `/` to 'index'
@@ -80,25 +81,12 @@ export class OnboardingPage {
                 path: join(this.basePath, filepath),
             });
         });
-        const searchParams = new URLSearchParams({ env, page, debugState: 'true', willThrow: String(willThrow) });
         await this.page.goto('/' + '?' + searchParams.toString());
     }
 
     async skipsOnboarding() {
         await this.page.getByTestId('skip').click({
             clickCount: 5,
-        });
-    }
-
-    /**
-     * We test the fully built artifacts, so for each test run we need to
-     * select the correct HTML file.
-     * @return {string}
-     */
-    get basePath() {
-        return this.build.switch({
-            windows: () => '../build/windows/pages/onboarding',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/onboarding',
         });
     }
 
@@ -140,6 +128,18 @@ export class OnboardingPage {
                 },
             },
         ]);
+    }
+
+    /**
+     * We test the fully built artifacts, so for each test run we need to
+     * select the correct HTML file.
+     * @return {string}
+     */
+    get basePath() {
+        return this.build.switch({
+            windows: () => '../build/windows/pages/onboarding',
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/onboarding',
+        });
     }
 
     async choseToStartBrowsing() {

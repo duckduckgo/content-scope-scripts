@@ -6,9 +6,10 @@ import { ListItem } from '../../components/ListItem';
 import { BounceIn, Check, FadeIn } from '../../components/Icons';
 import { Stack } from '../../components/Stack';
 import { Button, ButtonBar } from './Buttons';
-import { Switch } from '../../components/Switch';
+import { Switch } from '../../../../../shared/components/Switch/Switch.js';
 import { PlainList } from '../../components/List';
 import { SlideIn } from './Animation';
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 
 /**
  * @param {object} props
@@ -73,6 +74,8 @@ export function SettingsStep({ data }) {
 export function SettingListItem({ index, item, dispatch }) {
     const data = item.data;
     const { t } = useTypedTranslation();
+    const { isDarkMode } = useEnv();
+    const platformName = /** @type {'macos'|'windows'} */ (usePlatformName());
 
     const accept = () => {
         dispatch({
@@ -122,6 +125,8 @@ export function SettingListItem({ index, item, dispatch }) {
                             checked={enabled}
                             onChecked={accept}
                             onUnchecked={deny}
+                            platformName={platformName}
+                            theme={isDarkMode ? 'dark' : 'light'}
                         />
                     )}
                 </FadeIn>

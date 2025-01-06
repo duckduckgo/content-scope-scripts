@@ -115,4 +115,35 @@ test.describe('newtab favorites', () => {
         await ntp.reducedMotion();
         await ntp.openPage({ favorites: 'fallbacks' });
     });
+    test('expansion works with expanded items above', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+
+        const favorites = new FavoritesPage(ntp);
+
+        // open the page with enough next-step + favorites for both to be expanded
+        await ntp.openPage({
+            nextSteps: ['bringStuff', 'defaultApp', 'blockCookies', 'duckplayer'],
+            favorites: '16',
+        });
+
+        // expand next-steps
+        // todo: move this to a page-object in next-steps
+        await page.locator('[data-entry-point="nextSteps"]').getByLabel('Show More', { exact: true }).click();
+
+        // first load should have 6
+        await favorites.waitForNumFavorites(6);
+
+        // show more
+        await favorites.showMore(10);
+
+        // now should have 16 rendered
+        await favorites.waitForNumFavorites(16);
+
+        // scroll to the top of the favorites widget
+        await favorites.scrollToContainer();
+
+        // assert there's still 16 showing
+        await favorites.waitForNumFavorites(16);
+    });
 });

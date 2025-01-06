@@ -4,7 +4,7 @@ import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/componen
 import { App } from './components/App.jsx';
 import { Components } from './components/Components.jsx';
 
-import enStrings from '../src/locales/en/special-error.json';
+import enStrings from '../public/locales/en/special-error.json';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { MessagingProvider } from './providers/MessagingProvider.js';
 import { SettingsProvider } from './providers/SettingsProvider.jsx';
@@ -18,7 +18,7 @@ import '../../../shared/styles/global.css'; // global styles
 import './styles/variables.css';
 
 /**
- * @param {import("../src/js/index.js").SpecialErrorPage} messaging
+ * @param {import("../src/index.js").SpecialErrorPage} messaging
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  * @return {Promise<void>}
  */

@@ -12,9 +12,9 @@ import { Settings } from './settings';
 import { callWithRetry } from '../../../shared/call-with-retry';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider';
 import { SettingsProvider } from './components/SettingsProvider';
-import enStrings from '../src/locales/en/onboarding.json';
+import enStrings from '../public/locales/en/onboarding.json';
 import { stepDefinitions as stepDefinitionsV3 } from './components/v3/data';
-import { mockTransport } from '../src/js/mock-transport';
+import { mockTransport } from '../src/mock-transport.js';
 
 const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
 

@@ -9,7 +9,7 @@ import { Service } from '../service.js';
 
 export class FavoritesService {
     /**
-     * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+     * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
      * @internal
      */
     constructor(ntp) {

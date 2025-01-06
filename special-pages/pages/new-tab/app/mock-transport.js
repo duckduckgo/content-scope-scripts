@@ -5,6 +5,8 @@ import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js'
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
+import { customizerData, customizerMockTransport } from './customizer/mocks.js';
+import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -83,6 +85,7 @@ export function mockTransport() {
 
     /** @type {Map<SubscriptionNames, any[]>} */
     const rmfSubscriptions = new Map();
+    const freemiumPIRBannerSubscriptions = new Map();
 
     function clearRmf() {
         const listeners = rmfSubscriptions.get('rmf_onDataUpdate') || [];
@@ -93,11 +96,20 @@ export function mockTransport() {
         }
     }
 
+    const transports = {
+        customizer: customizerMockTransport(),
+    };
+
     return new TestTransportConfig({
         notify(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
+            const [namespace] = msg.method.split('_');
+            if (namespace in transports) {
+                transports[namespace]?.impl.notify(_msg);
+                return;
+            }
             switch (msg.method) {
                 case 'widgets_setConfig': {
                     if (!msg.params) throw new Error('unreachable');
@@ -125,7 +137,14 @@ export function mockTransport() {
                 }
                 case 'rmf_dismiss': {
                     console.log('ignoring rmf_dismiss', msg.params);
-                    clearRmf();
+                    return;
+                }
+                case 'freemiumPIRBanner_action': {
+                    console.log('ignoring freemiumPIRBanner_action', msg.params);
+                    return;
+                }
+                case 'freemiumPIRBanner_dismiss': {
+                    console.log('ignoring freemiumPIRBanner_dismiss', msg.params);
                     return;
                 }
                 case 'favorites_setConfig': {
@@ -175,6 +194,11 @@ export function mockTransport() {
                 };
             }
 
+            const [namespace] = sub.split('_');
+            if (namespace in transports) {
+                return transports[namespace]?.impl.subscribe(_msg, cb);
+            }
+
             switch (sub) {
                 case 'widgets_onConfigUpdated': {
                     const controller = new AbortController();
@@ -207,6 +231,21 @@ export function mockTransport() {
                         { signal: controller.signal },
                     );
                     return () => controller.abort();
+                }
+                case 'freemiumPIRBanner_onDataUpdate': {
+                    // store the callback for later (eg: dismiss)
+                    const prev = freemiumPIRBannerSubscriptions.get('freemiumPIRBanner_onDataUpdate') || [];
+                    const next = [...prev];
+                    next.push(cb);
+                    freemiumPIRBannerSubscriptions.set('freemiumPIRBanner_onDataUpdate', next);
+
+                    const freemiumPIRBannerParam = url.searchParams.get('pir');
+
+                    if (freemiumPIRBannerParam !== null && freemiumPIRBannerParam in freemiumPIRDataExamples) {
+                        const message = freemiumPIRDataExamples[freemiumPIRBannerParam];
+                        cb(message);
+                    }
+                    return () => {};
                 }
                 case 'rmf_onDataUpdate': {
                     // store the callback for later (eg: dismiss)
@@ -255,21 +294,6 @@ export function mockTransport() {
                         },
                         { signal: controller.signal },
                     );
-
-                    // setTimeout(() => {
-                    //     const next = favorites.many.favorites.map(item => {
-                    //         if (item.id === 'id-many-2') {
-                    //             return {
-                    //                 ...item,
-                    //                 favicon: {
-                    //                     src: './company-icons/adform.svg', maxAvailableSize: 32
-                    //                 }
-                    //             }
-                    //         }
-                    //         return item
-                    //     });
-                    //     cb({favorites: next})
-                    // }, 2000)
 
                     return () => controller.abort();
                 }
@@ -340,6 +364,12 @@ export function mockTransport() {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/new-tab.ts').NewTabMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
+
+            const [namespace] = msg.method.split('_');
+            if (namespace in transports) {
+                return transports[namespace]?.impl.request(_msg);
+            }
+
             switch (msg.method) {
                 case 'stats_getData': {
                     const statsVariant = url.searchParams.get('stats');
@@ -403,6 +433,17 @@ export function mockTransport() {
 
                     return Promise.resolve(message);
                 }
+                case 'freemiumPIRBanner_getData': {
+                    /** @type {import('../types/new-tab.ts').FreemiumPIRBannerData} */
+                    let freemiumPIRBannerMessage = { content: null };
+                    const freemiumPIRBannerParam = url.searchParams.get('pir');
+
+                    if (freemiumPIRBannerParam && freemiumPIRBannerParam in freemiumPIRDataExamples) {
+                        freemiumPIRBannerMessage = freemiumPIRDataExamples[freemiumPIRBannerParam];
+                    }
+
+                    return Promise.resolve(freemiumPIRBannerMessage);
+                }
                 case 'favorites_getData': {
                     const param = url.searchParams.get('favorites');
                     let data;
@@ -429,6 +470,7 @@ export function mockTransport() {
                     const widgetsFromStorage = read('widgets') || [
                         { id: 'updateNotification' },
                         { id: 'rmf' },
+                        { id: 'freemiumPIRBanner' },
                         { id: 'nextSteps' },
                         { id: 'favorites' },
                         { id: 'privacyStats' },
@@ -450,23 +492,29 @@ export function mockTransport() {
                         updateNotification = updateNotificationExamples.populated;
                     }
 
-                    /** @type {import('../types/new-tab').NewTabPageSettings} */
-                    const settings = {};
-
-                    if (url.searchParams.get('customizerDrawer') === 'enabled') {
-                        settings.customizerDrawer = { state: 'enabled' };
-                    }
-
                     /** @type {import('../types/new-tab.ts').InitialSetupResponse} */
                     const initial = {
                         widgets: widgetsFromStorage,
                         widgetConfigs: widgetConfigFromStorage,
-                        settings,
                         platform: { name: 'integration' },
                         env: 'development',
                         locale: 'en',
                         updateNotification,
                     };
+
+                    /** @type {import('../types/new-tab').NewTabPageSettings} */
+                    const settings = {};
+                    if (url.searchParams.get('customizerDrawer') === 'enabled') {
+                        settings.customizerDrawer = { state: 'enabled' };
+                        if (url.searchParams.get('autoOpen') === 'true') {
+                            settings.customizerDrawer.autoOpen = true;
+                        }
+
+                        initial.customizer = customizerData();
+                    }
+
+                    // feature flags
+                    initial.settings = settings;
 
                     return Promise.resolve(initial);
                 }

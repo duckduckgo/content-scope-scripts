@@ -4,14 +4,14 @@ import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/componen
 import { App } from './components/App.jsx';
 import { Components } from './components/Components.jsx';
 
-import enStrings from '../src/locales/en/example.json';
+import enStrings from '../public/locales/en/example.json';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { callWithRetry } from '../../../shared/call-with-retry.js';
 
 import '../../../shared/styles/global.css'; // global styles
 
 /**
- * @param {import("../src/js/index.js").ExamplePage} messaging
+ * @param {import("../src/index.js").ExamplePage} messaging
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  * @return {Promise<void>}
  */

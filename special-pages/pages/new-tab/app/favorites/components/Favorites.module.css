@@ -1,23 +1,17 @@
 .root {
     width: 100%;
-    /* 1px bottom margin for focus box-shadow */
-    margin: 0 auto 1px;
+    margin: 0 auto var(--sp-4);
     display: grid;
     grid-template-rows: auto auto;
     grid-template-areas:
         'grid'
         'showhide';
 
-    &.bottomSpace {
+    &.noExpansionBtn {
         margin-bottom: var(--ntp-gap);
     }
 
     &:hover {
-        .showhideVisible [aria-controls] {
-            opacity: 1;
-        }
-    }
-    &:focus-within {
         .showhideVisible [aria-controls] {
             opacity: 1;
         }

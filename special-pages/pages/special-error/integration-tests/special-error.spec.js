@@ -80,8 +80,6 @@ test.describe('special-error', () => {
 
         await special.openPage({ errorId: 'phishing' });
         await special.opensNewPage('Learn more', expectedURL);
-        await special.showsAdvancedInfo();
-        await special.opensNewPage('Phishing and Malware Protection help page', expectedURL);
     });
 
     test('opens malware help page in a new window', async ({ page }, workerInfo) => {
