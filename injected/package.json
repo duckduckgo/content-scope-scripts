@@ -42,7 +42,7 @@
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-replace": "^6.0.1",
-    "@types/chrome": "^0.0.289",
+    "@types/chrome": "^0.0.290",
     "@types/jasmine": "^5.1.5",
     "@types/node": "^22.10.5",
     "@typescript-eslint/eslint-plugin": "^8.19.0",
