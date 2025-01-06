@@ -358,4 +358,11 @@ export class CustomizerPage {
         // can only close after being opened
         await this.closesCustomizer();
     }
+
+    async hidesSection(label) {
+        const { page } = this.ntp;
+        await page.locator('aside').getByLabel(label).uncheck();
+        // await page.getByLabel('Toggle Blocked Tracking').check();
+        // await page.locator('aside').
+    }
 }
