@@ -149,6 +149,7 @@ export class CustomizerPage {
     async selectsColor() {
         const { page } = this.ntp;
         await this.showsColorSelectionPanel();
+        await this.orderOfColorsMatchesMacos();
         await page.getByRole('radio', { name: 'Select color03' }).click();
         const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_setBackground') });
         expect(calls[0].payload).toMatchObject({
@@ -362,7 +363,46 @@ export class CustomizerPage {
     async hidesSection(label) {
         const { page } = this.ntp;
         await page.locator('aside').getByLabel(label).uncheck();
-        // await page.getByLabel('Toggle Blocked Tracking').check();
-        // await page.locator('aside').
+    }
+
+    async orderOfColorsMatchesMacos() {
+        const { page } = this.ntp;
+
+        const styles = await page
+            .locator('aside')
+            .locator('[data-sub="color"]') // wait for sub-screen to show
+            .evaluate((colorSelectionScreen) => {
+                const colorSwatches = colorSelectionScreen.querySelectorAll('[role=radio][data-value]');
+                return Array.from(colorSwatches).map((swatch) => {
+                    return {
+                        style: swatch.getAttribute('style'),
+                        value: swatch.getAttribute('data-value'),
+                    };
+                });
+            });
+
+        // This test is here to prevent changes to the solid colors from impacting the UI
+        // these need to be exact to prevent migrations from becoming a problem
+        expect(styles).toStrictEqual([
+            { style: 'background: rgb(0, 0, 0);', value: 'color01' },
+            { style: 'background: rgb(52, 46, 66);', value: 'color02' },
+            { style: 'background: rgb(77, 95, 127);', value: 'color03' },
+            { style: 'background: rgb(154, 151, 157);', value: 'color04' },
+            { style: 'background: rgb(219, 221, 223);', value: 'color05' },
+            { style: 'background: rgb(87, 125, 228);', value: 'color06' },
+            { style: 'background: rgb(117, 185, 240);', value: 'color07' },
+            { style: 'background: rgb(85, 82, 172);', value: 'color08' },
+            { style: 'background: rgb(183, 158, 212);', value: 'color09' },
+            { style: 'background: rgb(228, 222, 242);', value: 'color10' },
+            { style: 'background: rgb(181, 226, 206);', value: 'color11' },
+            { style: 'background: rgb(91, 199, 135);', value: 'color12' },
+            { style: 'background: rgb(69, 148, 167);', value: 'color13' },
+            { style: 'background: rgb(233, 220, 205);', value: 'color14' },
+            { style: 'background: rgb(243, 187, 68);', value: 'color15' },
+            { style: 'background: rgb(229, 114, 79);', value: 'color16' },
+            { style: 'background: rgb(213, 81, 84);', value: 'color17' },
+            { style: 'background: rgb(247, 222, 229);', value: 'color18' },
+            { style: 'background: rgb(226, 132, 153);', value: 'color19' },
+        ]);
     }
 }

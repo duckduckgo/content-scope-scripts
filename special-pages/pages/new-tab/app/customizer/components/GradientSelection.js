@@ -6,9 +6,11 @@ import styles from './CustomizerDrawerInner.module.css';
 import { useComputed } from '@preact/signals';
 import { BackChevron } from '../../components/Icons.js';
 import { InlineError } from '../../InlineError.js';
+import { useTypedTranslationWith } from '../../types.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, BackgroundData, CustomizerData, PredefinedGradient } from '../../../types/new-tab.js'
+ * @import enStrings from '../strings.json';
  */
 
 /**
@@ -19,6 +21,7 @@ import { InlineError } from '../../InlineError.js';
  */
 export function GradientSelection({ data, select, back }) {
     // const gradient = values.gradients.gradient02;
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
 
     function onClick(event) {
         let target = /** @type {HTMLElement|null} */ (event.target);
@@ -37,7 +40,7 @@ export function GradientSelection({ data, select, back }) {
         <div>
             <button type={'button'} onClick={back} class={cn(styles.backBtn, styles.sectionTitle)}>
                 <BackChevron />
-                Gradients
+                {t('customizer_background_selection_gradient')}
             </button>
             <div className={styles.sectionBody} onClick={onClick}>
                 <InlineError named={'GradientSelection'}>
@@ -48,7 +51,7 @@ export function GradientSelection({ data, select, back }) {
     );
 }
 
-const entries = Object.entries(values.gradients);
+const entries = Object.keys(values.gradients);
 /**
  * @param {object} props
  * @param {import("@preact/signals").Signal<CustomizerData>} props.data
@@ -57,7 +60,8 @@ function GradientGrid({ data }) {
     const selected = useComputed(() => data.value.background.kind === 'gradient' && data.value.background.value);
     return (
         <ul className={cn(styles.bgList)}>
-            {entries.map(([key, entry]) => {
+            {entries.map((key) => {
+                const entry = values.gradients[key];
                 return (
                     <li className={styles.bgListItem} key={key}>
                         <button
