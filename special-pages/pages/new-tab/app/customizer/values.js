@@ -31,6 +31,11 @@ export const values = {
     gradients: {
         gradient01: { path: 'gradients/gradient01.svg', fallback: '#f2e5d4', colorScheme: 'light' },
         gradient02: { path: 'gradients/gradient02.svg', fallback: '#d5bcd1', colorScheme: 'light' },
+        /**
+         * Note: the following name `gradient02.01` is used to allow migration for existing macOS users.
+         * When switching to the web-based NTP, we introduced an eight gradient to round-out the columns, but
+         * the colors in the gradient meant it needed to be wedged in between 02 and 03.
+         */
         'gradient02.01': { path: 'gradients/gradient02.01.svg', fallback: '#f4ca78', colorScheme: 'light' },
         gradient03: { path: 'gradients/gradient03.svg', fallback: '#e6a356', colorScheme: 'light' },
         gradient04: { path: 'gradients/gradient04.svg', fallback: '#4448ae', colorScheme: 'dark' },
