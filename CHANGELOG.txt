@@ -1,6 +1,1 @@
-- Remove XRay code and switch to main world content script in Firefox (#1314)
-- build(deps-dev): bump @duckduckgo/privacy-configuration (#1366)
-- build(deps-dev): bump typescript-eslint from 8.18.2 to 8.19.1 (#1371)
-- ntp: better error boundaries (#1369)
-- build(deps-dev): bump chokidar from 4.0.1 to 4.0.3 (#1347)
-- ntp: match solid colors to macos (#1364)
+- ntp: fixed gradients to match macOS (#1374)

@@ -35,12 +35,12 @@ export type PredefinedColor =
 export type PredefinedGradient =
   | "gradient01"
   | "gradient02"
+  | "gradient02.01"
   | "gradient03"
   | "gradient04"
   | "gradient05"
   | "gradient06"
-  | "gradient07"
-  | "gradient08";
+  | "gradient07";
 /**
  * Note: this is different to the Browser Theme
  */
