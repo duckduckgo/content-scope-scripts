@@ -1,5 +1,3 @@
-/* global mozProxies, cloneInto, exportFunction */
-
 import {
     functionToString,
     getOwnPropertyDescriptor,
@@ -9,40 +7,18 @@ import {
     objectKeys,
 } from './captured-globals.js';
 
-const globalObj = typeof window === 'undefined' ? globalThis : window;
-
-// Tests don't define this variable so fallback to behave like chrome
-export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false;
-
 // special property that is set on classes used to shim standard interfaces
 export const ddgShimMark = Symbol('ddgShimMark');
 
 /**
+ * FIXME: this function is not needed anymore after FF xray removal
  * Like Object.defineProperty, but with support for Firefox's mozProxies.
  * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
  * @param {string} propertyName
  * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
  */
 export function defineProperty(object, propertyName, descriptor) {
-    if (hasMozProxies) {
-        const usedObj = object.wrappedJSObject || object;
-        const UsedObjectInterface = globalObj.wrappedJSObject.Object;
-        const definedDescriptor = new UsedObjectInterface();
-        ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
-            if (propertyName in descriptor) {
-                definedDescriptor[propertyName] = cloneInto(descriptor[propertyName], definedDescriptor, { cloneFunctions: true });
-            }
-        });
-        ['get', 'set'].forEach((methodName) => {
-            if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') {
-                // Firefox returns undefined for missing getters/setters
-                exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName });
-            }
-        });
-        UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor);
-    } else {
-        objectDefineProperty(object, propertyName, descriptor);
-    }
+    objectDefineProperty(object, propertyName, descriptor);
 }
 
 /**
@@ -147,9 +123,6 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
     if (!object) {
         return;
     }
-    if (hasMozProxies) {
-        object = object.wrappedJSObject || object;
-    }
 
     /** @type {StrictPropertyDescriptor} */
     // @ts-expect-error - we check for undefined below
@@ -186,9 +159,6 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
 export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
     if (!object) {
         return;
-    }
-    if (hasMozProxies) {
-        object = object.wrappedJSObject || object;
     }
 
     /** @type {StrictPropertyDescriptor} */

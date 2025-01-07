@@ -1309,6 +1309,9 @@
   function Centered({ children, ...rest }) {
     return /* @__PURE__ */ _("div", { ...rest, class: "layout-centered" }, children);
   }
+  function VerticalSpace({ children, ...rest }) {
+    return /* @__PURE__ */ _("div", { ...rest, class: "vertical-space" }, children);
+  }
   var init_Layout = __esm({
     "pages/new-tab/app/components/Layout.js"() {
       "use strict";
@@ -1557,24 +1560,24 @@
       values = {
         colors: {
           color01: { hex: "#000000", colorScheme: "dark" },
-          color02: { hex: "#342E42", colorScheme: "dark" },
-          color03: { hex: "#4D5F7F", colorScheme: "dark" },
-          color04: { hex: "#E28499", colorScheme: "light" },
-          color05: { hex: "#F7DEE5", colorScheme: "light" },
-          color06: { hex: "#D55154", colorScheme: "dark" },
-          color07: { hex: "#E5724F", colorScheme: "dark" },
-          color08: { hex: "#F3BB44", colorScheme: "light" },
-          color09: { hex: "#E9DCCD", colorScheme: "light" },
-          color10: { hex: "#5BC787", colorScheme: "light" },
-          color11: { hex: "#4594A7", colorScheme: "dark" },
-          color12: { hex: "#B5E2CE", colorScheme: "light" },
-          color13: { hex: "#E4DEF2", colorScheme: "light" },
-          color14: { hex: "#B79ED4", colorScheme: "light" },
-          color15: { hex: "#5552AC", colorScheme: "dark" },
-          color16: { hex: "#75B9F0", colorScheme: "light" },
-          color17: { hex: "#577DE4", colorScheme: "dark" },
-          color18: { hex: "#DBDDDF", colorScheme: "light" },
-          color19: { hex: "#9A979D", colorScheme: "dark" }
+          color02: { hex: "#342e42", colorScheme: "dark" },
+          color03: { hex: "#4d5f7f", colorScheme: "dark" },
+          color04: { hex: "#9a979d", colorScheme: "dark" },
+          color05: { hex: "#dbdddf", colorScheme: "light" },
+          color06: { hex: "#577de4", colorScheme: "dark" },
+          color07: { hex: "#75b9f0", colorScheme: "light" },
+          color08: { hex: "#5552ac", colorScheme: "dark" },
+          color09: { hex: "#b79ed4", colorScheme: "light" },
+          color10: { hex: "#e4def2", colorScheme: "light" },
+          color11: { hex: "#b5e2ce", colorScheme: "light" },
+          color12: { hex: "#5bc787", colorScheme: "light" },
+          color13: { hex: "#4594a7", colorScheme: "dark" },
+          color14: { hex: "#e9dccd", colorScheme: "light" },
+          color15: { hex: "#f3bb44", colorScheme: "light" },
+          color16: { hex: "#e5724f", colorScheme: "light" },
+          color17: { hex: "#d55154", colorScheme: "dark" },
+          color18: { hex: "#f7dee5", colorScheme: "light" },
+          color19: { hex: "#e28499", colorScheme: "light" }
         },
         gradients: {
           gradient01: { path: "gradients/gradient01.svg", fallback: "#f2e5d4", colorScheme: "light" },
@@ -7287,7 +7290,7 @@
     factory: () => factory5
   });
   function factory5() {
-    return /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _(RMFProvider, null, /* @__PURE__ */ _(RMFConsumer, null)));
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "rmf" }, /* @__PURE__ */ _(RMFProvider, null, /* @__PURE__ */ _(RMFConsumer, null)));
   }
   var init_rmf = __esm({
     "pages/new-tab/app/entry-points/rmf.js"() {
@@ -7502,7 +7505,7 @@
     factory: () => factory6
   });
   function factory6() {
-    return /* @__PURE__ */ _(UpdateNotificationProvider, null, /* @__PURE__ */ _(UpdateNotificationConsumer, null));
+    return /* @__PURE__ */ _(UpdateNotificationProvider, { "data-entry-point": "updateNotification" }, /* @__PURE__ */ _(UpdateNotificationConsumer, null));
   }
   var init_updateNotification = __esm({
     "pages/new-tab/app/entry-points/updateNotification.js"() {
@@ -7537,7 +7540,9 @@
     content: "App_content",
     aside: "App_aside",
     asideContent: "App_asideContent",
-    asideScroller: "App_asideScroller"
+    asideScroller: "App_asideScroller",
+    paddedError: "App_paddedError",
+    paddedErrorRecovery: "App_paddedErrorRecovery"
   };
 
   // pages/new-tab/app/components/App.js
@@ -7552,9 +7557,6 @@
   // shared/components/ErrorBoundary.js
   init_preact_module();
   var ErrorBoundary = class extends k {
-    /**
-     * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
-     */
     constructor(props) {
       super(props);
       this.state = { hasError: false };
@@ -7565,7 +7567,10 @@
     componentDidCatch(error, info) {
       console.error(error);
       console.log(info);
-      this.props.didCatch({ error, info });
+      let message = error.message;
+      if (typeof message !== "string") message = "unknown";
+      const composed = this.props.context ? [this.props.context, message].join(" ") : message;
+      this.props.didCatch({ error, message: composed, info });
     }
     render() {
       if (this.state.hasError) {
@@ -7575,21 +7580,22 @@
     }
   };
 
-  // shared/components/Fallback/Fallback.jsx
-  init_preact_module();
-
-  // shared/components/Fallback/Fallback.module.css
-  var Fallback_default = {
-    fallback: "Fallback_fallback"
-  };
-
-  // shared/components/Fallback/Fallback.jsx
-  function Fallback({ showDetails, children }) {
-    return /* @__PURE__ */ _("div", { class: Fallback_default.fallback }, /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("p", null, "Something went wrong!"), children, showDetails && /* @__PURE__ */ _("p", null, "Please check logs for a message called ", /* @__PURE__ */ _("code", null, "reportPageException"))));
-  }
-
   // pages/new-tab/app/widget-list/WidgetList.js
   init_Layout();
+
+  // pages/new-tab/app/InlineErrorBoundary.js
+  init_preact_module();
+  init_types();
+  var INLINE_ERROR = "A problem occurred with this feature. DuckDuckGo was notified";
+  function InlineErrorBoundary({ children, format, context, fallback }) {
+    const messaging2 = useMessaging();
+    const didCatch = (message) => {
+      const formatted = format?.(message) || message;
+      messaging2.reportPageException({ message: formatted });
+    };
+    const fallbackElement = fallback?.(INLINE_ERROR) || /* @__PURE__ */ _("p", null, INLINE_ERROR);
+    return /* @__PURE__ */ _(ErrorBoundary, { context, didCatch: ({ message }) => didCatch(message), fallback: fallbackElement }, children);
+  }
 
   // import("../entry-points/**/*.js") in pages/new-tab/app/widget-list/WidgetList.js
   var globImport_entry_points_js = __glob({
@@ -7619,15 +7625,14 @@
       return mod;
     } catch (e4) {
       console.error(e4);
-      didCatch(e4);
+      didCatch(e4.toString());
       return placeholderWidget(id);
     }
   }
   function WidgetList() {
     const { widgets, widgetConfigItems, entryPoints } = x2(WidgetConfigContext);
     const messaging2 = useMessaging();
-    const didCatch = (error, id) => {
-      const message = error?.message || error?.error || "unknown";
+    const didCatch = (message, id) => {
       const composed = `Widget '${id}' threw an exception: ` + message;
       messaging2.reportPageException({ message: composed });
     };
@@ -7635,18 +7640,22 @@
       const isUserConfigurable = widgetConfigItems.find((item) => item.id === widget.id);
       const matchingEntryPoint = entryPoints[widget.id];
       if (!isUserConfigurable) {
-        return /* @__PURE__ */ _(ErrorBoundary, { key: widget.id, didCatch: (error) => didCatch(error, widget.id), fallback: null }, matchingEntryPoint.factory?.());
+        return /* @__PURE__ */ _(ErrorBoundary, { key: widget.id, didCatch: ({ message }) => didCatch(message, widget.id), fallback: null }, /* @__PURE__ */ _(WidgetLoader, { fn: matchingEntryPoint.factory }));
       }
       return /* @__PURE__ */ _(WidgetVisibilityProvider, { key: widget.id, id: widget.id, index }, /* @__PURE__ */ _(
         ErrorBoundary,
         {
           key: widget.id,
-          didCatch: (error) => didCatch(error, widget.id),
-          fallback: /* @__PURE__ */ _(Centered, null, /* @__PURE__ */ _(Fallback, { showDetails: true }, "Widget id: ", widget.id))
+          didCatch: ({ message }) => didCatch(message, widget.id),
+          fallback: /* @__PURE__ */ _(Centered, { "data-entry-point": widget.id }, /* @__PURE__ */ _(VerticalSpace, null, /* @__PURE__ */ _("p", null, INLINE_ERROR), /* @__PURE__ */ _("p", null, "Widget ID: ", widget.id)))
         },
-        matchingEntryPoint.factory?.()
+        /* @__PURE__ */ _(WidgetLoader, { fn: matchingEntryPoint.factory })
       ));
     }));
+  }
+  function WidgetLoader({ fn }) {
+    const result = fn?.();
+    return result;
   }
 
   // pages/new-tab/app/components/App.js
@@ -7895,6 +7904,7 @@
   init_hooks_module();
   init_CustomizerProvider();
   init_utils();
+  init_types();
   function BackgroundSection({ data, onNav, onUpload, select }) {
     const { browser } = x2(CustomizerThemesContext);
     let displayColor;
@@ -7939,6 +7949,10 @@
   function DefaultPanel({ checked, onClick }) {
     const id = g2();
     const { main } = x2(CustomizerThemesContext);
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
       "button",
       {
@@ -7950,10 +7964,14 @@
         onClick
       },
       checked && /* @__PURE__ */ _(CircleCheck, null)
-    ), /* @__PURE__ */ _("span", { id }, "Default"));
+    ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_default")));
   }
   function ColorPanel(props) {
     const id = g2();
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
       "button",
       {
@@ -7966,10 +7984,14 @@
         style: { background: props.color.hex }
       },
       props.checked && /* @__PURE__ */ _(CircleCheck, null)
-    ), /* @__PURE__ */ _("span", { id }, "Solid Colors"));
+    ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_color")));
   }
   function GradientPanel(props) {
     const id = g2();
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
       "button",
       {
@@ -7986,10 +8008,14 @@
         }
       },
       props.checked && /* @__PURE__ */ _(CircleCheck, null)
-    ), /* @__PURE__ */ _("span", { id }, "Gradients"));
+    ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_gradient")));
   }
   function BackgroundImagePanel(props) {
     const id = g2();
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     const empty = useComputed(() => props.data.value.userImages.length === 0);
     const selectedImage = useComputed(() => {
       const imageId = props.data.value.background.kind === "userImage" ? props.data.value.background.value : null;
@@ -8004,7 +8030,7 @@
     const firstImage = useComputed(() => {
       return props.data.value.userImages[0] ?? null;
     });
-    const label = empty.value === true ? /* @__PURE__ */ _("span", { id }, "Add Background") : /* @__PURE__ */ _("span", { id }, "My Backgrounds");
+    const label = empty.value === true ? /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_image_add")) : /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_image_existing"));
     if (empty.value === true) {
       return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
         "button",
@@ -8053,8 +8079,13 @@
   var import_classnames16 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
+  init_types();
   function BrowserThemeSection(props) {
     const current = useComputed(() => props.data.value.theme);
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {strings} */
+      {}
+    );
     return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
@@ -8065,8 +8096,8 @@
         tabindex: 0,
         onClick: () => props.setTheme({ theme: "light" })
       },
-      /* @__PURE__ */ _("span", { class: "sr-only" }, "Select light theme")
-    ), "Light"), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
+      /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "light" }))
+    ), t4("customizer_browser_theme_light")), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
@@ -8076,8 +8107,8 @@
         tabindex: 0,
         onClick: () => props.setTheme({ theme: "dark" })
       },
-      /* @__PURE__ */ _("span", { class: "sr-only" }, "Select dark theme")
-    ), "Dark"), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
+      /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "dark" }))
+    ), t4("customizer_browser_theme_dark")), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
@@ -8087,8 +8118,8 @@
         tabindex: 0,
         onClick: () => props.setTheme({ theme: "system" })
       },
-      /* @__PURE__ */ _("span", { class: "sr-only" }, "Select system theme")
-    ), "System"));
+      /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "system" }))
+    ), t4("customizer_browser_theme_system")));
   }
 
   // pages/new-tab/app/customizer/components/VisibilityMenuSection.js
@@ -8123,24 +8154,12 @@
   init_Icons2();
   init_signals_module();
   init_utils();
-
-  // pages/new-tab/app/InlineError.js
-  init_preact_module();
   init_types();
-  function InlineError({ children, named, fallback }) {
-    const messaging2 = useMessaging();
-    const didCatch = (error, id) => {
-      const message = error?.message || error?.error || "unknown";
-      const composed = `Customizer section '${id}' threw an exception: ` + message;
-      messaging2.reportPageException({ message: composed });
-    };
-    const inlineMessage = "A problem occurred with this feature. DuckDuckGo was notified";
-    const fallbackElement = fallback?.(inlineMessage) || /* @__PURE__ */ _("p", null, inlineMessage);
-    return /* @__PURE__ */ _(ErrorBoundary, { didCatch: (error) => didCatch(error, named), fallback: fallbackElement }, children);
-  }
-
-  // pages/new-tab/app/customizer/components/ColorSelection.js
   function ColorSelection({ data, select, back }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     function onClick(event) {
       let target = (
         /** @type {HTMLElement|null} */
@@ -8159,12 +8178,13 @@
       if (!(value in values.colors)) return console.warn("could not select color", value);
       select({ background: { kind: "color", value } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), "Solid Colors"), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineError, { named: "ColorGrid" }, /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data, select }), /* @__PURE__ */ _(ColorGrid, { data })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data, select }), /* @__PURE__ */ _(ColorGrid, { data })))));
   }
-  var entries = Object.entries(values.colors);
+  var entries = Object.keys(values.colors);
   function ColorGrid({ data }) {
     const selected = useComputed(() => data.value.background.kind === "color" && data.value.background.value);
-    return /* @__PURE__ */ _(b, null, entries.map(([key, entry]) => {
+    return /* @__PURE__ */ _(b, null, entries.map((key) => {
+      const entry = values.colors[key];
       return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem, key }, /* @__PURE__ */ _(
         "button",
         {
@@ -8229,7 +8249,12 @@
   init_values();
   init_signals_module();
   init_Icons2();
+  init_types();
   function GradientSelection({ data, select, back }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     function onClick(event) {
       let target = (
         /** @type {HTMLElement|null} */
@@ -8248,12 +8273,13 @@
       if (!(value in values.gradients)) return console.warn("could not select gradient", value);
       select({ background: { kind: "gradient", value } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), "Gradients"), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineError, { named: "GradientSelection" }, /* @__PURE__ */ _(GradientGrid, { data }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data }))));
   }
-  var entries2 = Object.entries(values.gradients);
+  var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data }) {
     const selected = useComputed(() => data.value.background.kind === "gradient" && data.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries2.map(([key, entry]) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key) => {
+      const entry = values.gradients[key];
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key }, /* @__PURE__ */ _(
         "button",
         {
@@ -8289,7 +8315,7 @@
   init_types();
   function ImageSelection({ data, select, back, onUpload, deleteImage }) {
     const { t: t4 } = useTypedTranslationWith(
-      /** @type {strings} */
+      /** @type {enStrings} */
       {}
     );
     function onClick(event) {
@@ -8311,9 +8337,13 @@
       if (!match) return console.warn("could not find matching image", value);
       select({ background: { kind: "userImage", value: match } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), "My Backgrounds"), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineError, { named: "Image Selection" }, /* @__PURE__ */ _(ImageGrid, { data, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data, deleteImage, onUpload }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     const { browser } = x2(CustomizerThemesContext);
     const selected = useComputed(() => data.value.background.kind === "userImage" && data.value.background.value.id);
     const entries4 = useComputed(() => {
@@ -8341,7 +8371,7 @@
             backgroundRepeat: "no-repeat"
           }
         },
-        /* @__PURE__ */ _("span", { class: "sr-only" }, "Select image ", index + 1)
+        /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_image_select", { number: String(index + 1) }))
       ), /* @__PURE__ */ _(
         DismissButton,
         {
@@ -8349,7 +8379,7 @@
           onClick: () => deleteImage(entry.id),
           buttonProps: {
             "data-color-mode": String(entry.colorScheme),
-            "aria-label": `Delete image ${index + 1}`
+            "aria-label": t4("customizer_image_delete", { number: String(index + 1) })
           }
         }
       ));
@@ -8363,7 +8393,7 @@
           "data-color-mode": browser
         },
         /* @__PURE__ */ _(PlusIcon, null),
-        /* @__PURE__ */ _("span", { class: "sr-only" }, "Add Background")
+        /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_background_selection_image_add"))
       ));
     }));
   }
@@ -8404,18 +8434,27 @@
   // pages/new-tab/app/customizer/components/SettingsLink.js
   function SettingsLink() {
     const messaging2 = useMessaging();
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
     function onClick(e4) {
       e4.preventDefault();
       messaging2.open({ target: "settings" });
     }
-    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames21.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, "Go to Settings"), /* @__PURE__ */ _(Open, null));
+    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames21.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, t4("customizer_settings_link")), /* @__PURE__ */ _(Open, null));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_DismissButton2();
+  init_types();
   function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage }) {
     const { close } = useDrawerControls();
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, "Customize"), /* @__PURE__ */ _(
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -8425,15 +8464,15 @@
         }
       }
     )), /* @__PURE__ */ _(
-      InlineError,
+      InlineErrorBoundary,
       {
-        named: "Customizer Drawer",
+        format: (message) => `CustomizerDrawerInner threw an exception: ${message}`,
         fallback: (message) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.internal }, /* @__PURE__ */ _("p", null, message))
       },
       /* @__PURE__ */ _(
         TwoCol,
         {
-          left: ({ push }) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sections }, /* @__PURE__ */ _(CustomizerSection, { title: "Background" }, /* @__PURE__ */ _(BackgroundSection, { data, onNav: push, onUpload, select })), /* @__PURE__ */ _(CustomizerSection, { title: "Browser Theme" }, /* @__PURE__ */ _(BrowserThemeSection, { data, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: "Sections" }, /* @__PURE__ */ _(VisibilityMenuSection, null)), /* @__PURE__ */ _(BorderedSection, null, /* @__PURE__ */ _(SettingsLink, null))),
+          left: ({ push }) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sections }, /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ _(BackgroundSection, { data, onNav: push, onUpload, select })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ _(BrowserThemeSection, { data, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ _(VisibilityMenuSection, null)), /* @__PURE__ */ _(BorderedSection, null, /* @__PURE__ */ _(SettingsLink, null))),
           right: ({ id, pop }) => /* @__PURE__ */ _(b, null, id === "color" && /* @__PURE__ */ _(ColorSelection, { data, select, back: pop }), id === "gradient" && /* @__PURE__ */ _(GradientSelection, { data, select, back: pop }), id === "image" && /* @__PURE__ */ _(ImageSelection, { data, select, back: pop, onUpload, deleteImage }))
         }
       )
@@ -8466,22 +8505,6 @@
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
   function CustomizerDrawer({ displayChildren }) {
-    const { open, close } = useDrawerControls();
-    y2(() => {
-      const checker = () => {
-        const shouldOpen = window.location.hash.startsWith("#/customizer");
-        if (shouldOpen) {
-          open();
-        } else {
-          close();
-        }
-      };
-      checker();
-      window.addEventListener("hashchange", checker);
-      return () => {
-        window.removeEventListener("hashchange", checker);
-      };
-    }, []);
     return /* @__PURE__ */ _("div", { class: CustomizerDrawer_default.root }, displayChildren.value === true && /* @__PURE__ */ _(CustomizerConsumer, null));
   }
   function CustomizerConsumer() {
@@ -8531,8 +8554,18 @@
         "data-theme": browser,
         "data-browser-panel": true
       },
-      /* @__PURE__ */ _("div", { class: App_default.asideContent }, /* @__PURE__ */ _(CustomizerDrawer, { displayChildren }))
+      /* @__PURE__ */ _("div", { class: App_default.asideContent }, /* @__PURE__ */ _(
+        InlineErrorBoundary,
+        {
+          context: "Customizer Drawer",
+          fallback: (message) => /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, message))
+        },
+        /* @__PURE__ */ _(CustomizerDrawer, { displayChildren })
+      ))
     )));
+  }
+  function AppLevelErrorBoundaryFallback({ children }) {
+    return /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, children), /* @__PURE__ */ _("div", { class: App_default.paddedErrorRecovery }, "You can try to ", /* @__PURE__ */ _("button", { onClick: () => location.reload() }, "Reload this page")));
   }
 
   // pages/new-tab/app/index.js
@@ -8802,6 +8835,70 @@
     customizer_image_privacy: {
       title: "Images are stored on your device so DuckDuckGo can\u2019t see or access them.",
       note: "Shown near a button that allows a user to upload an image to be used as a background."
+    },
+    customizer_drawer_title: {
+      title: "Customize",
+      note: "Title in a slide-out drawer that contains options for customizing the browser."
+    },
+    customizer_section_title_background: {
+      title: "Background",
+      note: ""
+    },
+    customizer_section_title_theme: {
+      title: "Browser Theme",
+      note: ""
+    },
+    customizer_section_title_sections: {
+      title: "Sections",
+      note: ""
+    },
+    customizer_browser_theme_light: {
+      title: "Light",
+      note: "The label for a button that sets the browser theme to 'light' mode"
+    },
+    customizer_browser_theme_dark: {
+      title: "Dark",
+      note: "The label for a button that sets the browser theme to 'dark' mode"
+    },
+    customizer_browser_theme_system: {
+      title: "System",
+      note: "The label for a button that sets the browser theme to 'system', which matches the operating system setting"
+    },
+    customizer_browser_theme_label: {
+      title: "Select {type} theme",
+      note: "The label text on a button, for assistive technologies. {type} will be replace with 'light', 'dark' or 'system'"
+    },
+    customizer_settings_link: {
+      title: "Go to Settings",
+      note: "The label text on a link that opens the Settings"
+    },
+    customizer_background_selection_default: {
+      title: "Default",
+      note: "Label text below a button that selects a 'default' background"
+    },
+    customizer_background_selection_color: {
+      title: "Solid Colors",
+      note: "Label text below a button that allows a color background"
+    },
+    customizer_background_selection_gradient: {
+      title: "Gradients",
+      note: "Label text below a button that allows a gradient background"
+    },
+    customizer_background_selection_image_add: {
+      title: "Add Background",
+      note: "Label text shown on a button that allows an image to be uploaded"
+    },
+    customizer_background_selection_image_existing: {
+      title: "My Backgrounds",
+      note: "Label text shown on a button navigates to list of existing background (that the user previously uploaded)"
+    },
+    customizer_image_select: {
+      title: "Select image {number}",
+      note: "Label text on a button, for assistive technologies. {number} will be replaced with a numeric reference of 1-8, eg: 'Select image 1'"
+    },
+    customizer_image_delete: {
+      title: "Delete image {number}",
+      note: "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
     }
   };
 
@@ -10109,8 +10206,7 @@
       console.log("settings:", settings);
       console.log("locale:", environment.locale);
     }
-    const didCatch = (error) => {
-      const message = error?.message || error?.error || "unknown";
+    const didCatch = (message) => {
       messaging2.reportPageException({ message });
     };
     installGlobalSideEffects(environment, settings);
@@ -10135,16 +10231,24 @@
           willThrow: environment.willThrow,
           env: environment.env
         },
-        /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ _(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ _(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ _(CustomizerProvider, { service: customizerApi, initialData: customizerData2 }, /* @__PURE__ */ _(
-          WidgetConfigProvider,
+        /* @__PURE__ */ _(
+          InlineErrorBoundary,
           {
-            api: widgetConfigAPI,
-            widgetConfigs: init2.widgetConfigs,
-            widgets: init2.widgets,
-            entryPoints
+            context: "App entry point",
+            fallback: (message) => /* @__PURE__ */ _(AppLevelErrorBoundaryFallback, null, message)
           },
-          /* @__PURE__ */ _(App, null)
-        ))))))))
+          /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }),
+          /* @__PURE__ */ _(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ _(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ _(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ _(CustomizerProvider, { service: customizerApi, initialData: customizerData2 }, /* @__PURE__ */ _(
+            WidgetConfigProvider,
+            {
+              api: widgetConfigAPI,
+              widgetConfigs: init2.widgetConfigs,
+              widgets: init2.widgets,
+              entryPoints
+            },
+            /* @__PURE__ */ _(App, null)
+          )))))))
+        )
       ),
       root2
     );
@@ -10168,7 +10272,7 @@
       return Object.fromEntries(entryPoints);
     } catch (e4) {
       const error = new Error("Error loading widget entry points:" + e4.message);
-      didCatch(error);
+      didCatch(error.message);
       console.error(error);
       return {};
     }

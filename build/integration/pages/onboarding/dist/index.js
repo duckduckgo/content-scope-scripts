@@ -9011,9 +9011,6 @@
 
   // shared/components/ErrorBoundary.js
   var ErrorBoundary = class extends k {
-    /**
-     * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
-     */
     constructor(props) {
       super(props);
       this.state = { hasError: false };
@@ -9024,7 +9021,10 @@
     componentDidCatch(error, info) {
       console.error(error);
       console.log(info);
-      this.props.didCatch({ error, info });
+      let message = error.message;
+      if (typeof message !== "string") message = "unknown";
+      const composed = this.props.context ? [this.props.context, message].join(" ") : message;
+      this.props.didCatch({ error, message: composed, info });
     }
     render() {
       if (this.state.hasError) {

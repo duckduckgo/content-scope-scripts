@@ -59,7 +59,6 @@
     });
 
     /* eslint-disable no-redeclare, no-global-assign */
-    /* global cloneInto, exportFunction, false */
 
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 
@@ -87,11 +86,8 @@
      * @returns {HTMLLinkElement | HTMLStyleElement}
      */
     function createStyleElement(css) {
-        let style;
-        {
-            style = document.createElement('style');
-            style.innerText = css;
-        }
+        const style = document.createElement('style');
+        style.innerText = css;
         return style;
     }
 
@@ -432,7 +428,7 @@
                 }
                 // The normal return value
                 if (isExempt) {
-                    return DDGReflect.apply(...args);
+                    return DDGReflect.apply(args[0], args[1], args[2]);
                 }
                 return proxyObject.apply(...args);
             };
@@ -448,20 +444,16 @@
                 }
                 return DDGReflect.get(target, prop, receiver);
             };
-            {
-                this._native = objectScope[property];
-                const handler = {};
-                handler.apply = outputHandler;
-                handler.get = getMethod;
-                this.internal = new globalObj.Proxy(objectScope[property], handler);
-            }
+            this._native = objectScope[property];
+            const handler = {};
+            handler.apply = outputHandler;
+            handler.get = getMethod;
+            this.internal = new globalObj.Proxy(objectScope[property], handler);
         }
 
         // Actually apply the proxy to the native property
         overload() {
-            {
-                this.objectScope[this.property] = this.internal;
-            }
+            this.objectScope[this.property] = this.internal;
         }
 
         overloadDescriptor() {
@@ -504,14 +496,8 @@
         });
     }
 
-    let DDGReflect;
-    let DDGPromise;
-
-    // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-    {
-        DDGPromise = globalObj.Promise;
-        DDGReflect = globalObj.Reflect;
-    }
+    const DDGPromise = globalObj.Promise;
+    const DDGReflect = globalObj.Reflect;
 
     /**
      * @param {string | null} topLevelHostname
@@ -662,7 +648,6 @@
     }
 
     function createCustomEvent(eventName, eventDetail) {
-
         // @ts-expect-error - possibly null
         return new OriginalCustomEvent(eventName, eventDetail);
     }
@@ -672,7 +657,9 @@
         // FF & Chrome
         return (
             originalWindowDispatchEvent &&
-            originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+            originalWindowDispatchEvent(
+                createCustomEvent('sendMessageProxy' + messageSecret, { detail: JSON.stringify({ messageType, options }) }),
+            )
         );
         // TBD other platforms
     }
@@ -1983,25 +1970,18 @@
       return parseJSONPointer(fromPointer);
     }
 
-    /* global false, cloneInto, exportFunction */
-
-
-    // Tests don't define this variable so fallback to behave like chrome
-    const hasMozProxies = false ;
-
     // special property that is set on classes used to shim standard interfaces
     const ddgShimMark = Symbol('ddgShimMark');
 
     /**
+     * FIXME: this function is not needed anymore after FF xray removal
      * Like Object.defineProperty, but with support for Firefox's mozProxies.
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
      * @param {string} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
     function defineProperty(object, propertyName, descriptor) {
-        {
-            objectDefineProperty(object, propertyName, descriptor);
-        }
+        objectDefineProperty(object, propertyName, descriptor);
     }
 
     /**
@@ -13697,16 +13677,13 @@
                         });
                     }
                 }
-                // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
-                {
-                    this.wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-                        if (eventsToBlock.includes(type) && this === globalThis) {
-                            console.log('blocked event', type);
-                            return;
-                        }
-                        return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
-                    });
-                }
+                this.wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
+                    if (eventsToBlock.includes(type) && this === globalThis) {
+                        console.log('blocked event', type);
+                        return;
+                    }
+                    return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
+                });
             }
         }
 
@@ -13883,8 +13860,7 @@
             if (!('Bluetooth' in globalThis)) {
                 return;
             }
-            // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
-            if (settings.filterEvents && settings.filterEvents.length > 0 && !hasMozProxies) {
+            if (settings.filterEvents && settings.filterEvents.length > 0) {
                 this.wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
                     if (settings.filterEvents?.includes(type) && this instanceof globalThis.Bluetooth) {
                         return;

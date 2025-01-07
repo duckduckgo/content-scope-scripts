@@ -59,19 +59,18 @@
     });
 
     /* eslint-disable no-redeclare, no-global-assign */
-    /* global cloneInto, exportFunction, true */
 
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 
-    let globalObj$1 = typeof window === 'undefined' ? globalThis : window;
-    let Error$1 = globalObj$1.Error;
-    let messageSecret$1;
+    let globalObj = typeof window === 'undefined' ? globalThis : window;
+    let Error$1 = globalObj.Error;
+    let messageSecret;
 
     // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
     const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
     const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
     function registerMessageSecret(secret) {
-        messageSecret$1 = secret;
+        messageSecret = secret;
     }
 
     /**
@@ -87,13 +86,8 @@
      * @returns {HTMLLinkElement | HTMLStyleElement}
      */
     function createStyleElement(css) {
-        let style;
-        {
-            style = document.createElement('link');
-            style.href = 'data:text/css,' + encodeURIComponent(css);
-            style.setAttribute('rel', 'stylesheet');
-            style.setAttribute('type', 'text/css');
-        }
+        const style = document.createElement('style');
+        style.innerText = css;
         return style;
     }
 
@@ -434,7 +428,7 @@
                 }
                 // The normal return value
                 if (isExempt) {
-                    return DDGReflect.apply(...args);
+                    return DDGReflect.apply(args[0], args[1], args[2]);
                 }
                 return proxyObject.apply(...args);
             };
@@ -450,22 +444,16 @@
                 }
                 return DDGReflect.get(target, prop, receiver);
             };
-            {
-                this._native = objectScope[property];
-                const handler = new globalObj$1.wrappedJSObject.Object();
-                handler.apply = exportFunction(outputHandler, globalObj$1);
-                handler.get = exportFunction(getMethod, globalObj$1);
-                // @ts-expect-error wrappedJSObject is not a property of objectScope
-                this.internal = new globalObj$1.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler);
-            }
+            this._native = objectScope[property];
+            const handler = {};
+            handler.apply = outputHandler;
+            handler.get = getMethod;
+            this.internal = new globalObj.Proxy(objectScope[property], handler);
         }
 
         // Actually apply the proxy to the native property
         overload() {
-            {
-                // @ts-expect-error wrappedJSObject is not a property of objectScope
-                exportFunction(this.internal, this.objectScope, { defineAs: this.property });
-            }
+            this.objectScope[this.property] = this.internal;
         }
 
         overloadDescriptor() {
@@ -502,20 +490,14 @@
             const scriptOrigins = [...getStackTraceOrigins(message.stack)];
             message.scriptOrigins = scriptOrigins;
         }
-        globalObj$1.postMessage({
+        globalObj.postMessage({
             action: feature,
             message,
         });
     }
 
-    let DDGReflect;
-    let DDGPromise;
-
-    // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-    {
-        DDGPromise = globalObj$1.wrappedJSObject.Promise;
-        DDGReflect = globalObj$1.wrappedJSObject.Reflect;
-    }
+    const DDGPromise = globalObj.Promise;
+    const DDGReflect = globalObj.Reflect;
 
     /**
      * @param {string | null} topLevelHostname
@@ -670,13 +652,6 @@
     }
 
     function createCustomEvent(eventName, eventDetail) {
-        // By default, Firefox protects the event detail Object from the page,
-        // leading to "Permission denied to access property" errors.
-        // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-        {
-            eventDetail = cloneInto(eventDetail, window);
-        }
-
         // @ts-expect-error - possibly null
         return new OriginalCustomEvent(eventName, eventDetail);
     }
@@ -686,7 +661,9 @@
         // FF & Chrome
         return (
             originalWindowDispatchEvent &&
-            originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret$1, { detail: { messageType, options } }))
+            originalWindowDispatchEvent(
+                createCustomEvent('sendMessageProxy' + messageSecret, { detail: JSON.stringify({ messageType, options }) }),
+            )
         );
         // TBD other platforms
     }
@@ -1280,35 +1257,15 @@
       return parseJSONPointer(fromPointer);
     }
 
-    /* global true, cloneInto, exportFunction */
-
-
-    const globalObj = typeof window === 'undefined' ? globalThis : window;
-
     /**
+     * FIXME: this function is not needed anymore after FF xray removal
      * Like Object.defineProperty, but with support for Firefox's mozProxies.
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
      * @param {string} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
     function defineProperty(object, propertyName, descriptor) {
-        {
-            const usedObj = object.wrappedJSObject || object;
-            const UsedObjectInterface = globalObj.wrappedJSObject.Object;
-            const definedDescriptor = new UsedObjectInterface();
-            ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
-                if (propertyName in descriptor) {
-                    definedDescriptor[propertyName] = cloneInto(descriptor[propertyName], definedDescriptor, { cloneFunctions: true });
-                }
-            });
-            ['get', 'set'].forEach((methodName) => {
-                if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') {
-                    // Firefox returns undefined for missing getters/setters
-                    exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName });
-                }
-            });
-            UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor);
-        }
+        objectDefineProperty(object, propertyName, descriptor);
     }
 
     /**
@@ -1387,9 +1344,6 @@
         if (!object) {
             return;
         }
-        {
-            object = object.wrappedJSObject || object;
-        }
 
         /** @type {StrictPropertyDescriptor} */
         // @ts-expect-error - we check for undefined below
@@ -1426,9 +1380,6 @@
     function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
         if (!object) {
             return;
-        }
-        {
-            object = object.wrappedJSObject || object;
         }
 
         /** @type {StrictPropertyDescriptor} */
@@ -3669,7 +3620,7 @@
         },
         allowlist: /** @type {{ host: string }[]} */ ([]),
     };
-    let trackerLookup = {};
+    let trackerLookup$1 = {};
 
     let loadedPolicyResolve;
 
@@ -3711,7 +3662,7 @@
             if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
                 return false;
             }
-            if (isTrackerOrigin(trackerLookup, scriptOrigin)) {
+            if (isTrackerOrigin(trackerLookup$1, scriptOrigin)) {
                 matched = true;
             }
         }
@@ -3735,7 +3686,7 @@
                 cookiePolicy.isTracker = true;
             }
             if (this.trackerLookup) {
-                trackerLookup = this.trackerLookup;
+                trackerLookup$1 = this.trackerLookup;
             }
             if (this.bundledConfig?.features?.cookie) {
                 // use the bundled config to get a best-effort at the policy, before the background sends the real one
@@ -11226,98 +11177,47 @@
     }
 
     /**
-     * @module Mozilla integration
+     * @module main world integration for Chrome MV3 and Firefox (enhanced) MV2
      */
 
-    const allowedMessages = [
-        'getClickToLoadState',
-        'getYouTubeVideoDetails',
-        'openShareFeedbackPage',
-        'addDebugFlag',
-        'setYoutubePreviewsEnabled',
-        'unblockClickToLoadContent',
-        'updateYouTubeCTLAddedFlag',
-        'updateFacebookCTLBreakageFlags',
-    ];
-    const messageSecret = randomString();
+    const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
 
-    function randomString() {
-        const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
-        return num.toString().replace('0.', '');
-    }
+    const trackerLookup = $TRACKER_LOOKUP$;
 
-    function initCode() {
-        const trackerLookup = $TRACKER_LOOKUP$;
-        load({
-            platform: {
-                name: 'extension',
-            },
-            trackerLookup,
-            documentOriginIsTracker: isTrackerOrigin(trackerLookup),
-            site: computeLimitedSiteObject(),
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            bundledConfig: $BUNDLED_CONFIG$,
-        });
+    load({
+        platform: {
+            name: 'extension',
+        },
+        trackerLookup,
+        documentOriginIsTracker: isTrackerOrigin(trackerLookup),
+        site: computeLimitedSiteObject(),
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        bundledConfig: $BUNDLED_CONFIG$,
+    });
 
-        chrome.runtime.sendMessage(
-            {
-                messageType: 'registeredContentScript',
-                options: {
-                    documentUrl: window.location.href,
-                },
-            },
-            (message) => {
-                // Background has disabled features
-                if (!message) {
-                    return;
-                }
-                if (message.debug) {
-                    window.addEventListener('message', (m) => {
-                        if (m.data.action && m.data.message) {
-                            chrome.runtime.sendMessage({
-                                messageType: 'debuggerMessage',
-                                options: m.data,
-                            });
-                        }
-                    });
-                }
-                message.messageSecret = messageSecret;
-                init(message);
-            },
-        );
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+    window.addEventListener(secret, ({ detail: encodedMessage }) => {
+        if (!encodedMessage) return;
+        const message = JSON.parse(encodedMessage);
 
-        chrome.runtime.onMessage.addListener((message) => {
-            // forward update messages to the embedded script
-            if (message && message.type === 'update') {
+        switch (message.type) {
+            case 'update':
                 update(message);
-            }
-        });
+                break;
+            case 'register':
+                if (message.argumentsObject) {
+                    message.argumentsObject.messageSecret = secret;
+                    init(message.argumentsObject);
+                }
+                break;
+        }
+    });
 
-        window.addEventListener('sendMessageProxy' + messageSecret, (event) => {
-            event.stopImmediatePropagation();
-
-            if (!(event instanceof CustomEvent) || !event?.detail) {
-                return console.warn('no details in sendMessage proxy', event);
-            }
-
-            const messageType = event.detail?.messageType;
-            if (!allowedMessages.includes(messageType)) {
-                return console.warn('Ignoring invalid sendMessage messageType', messageType);
-            }
-
-            chrome.runtime.sendMessage(event.detail, (response) => {
-                const message = {
-                    messageType: 'response',
-                    responseMessageType: messageType,
-                    response,
-                };
-
-                update(message);
-            });
-        });
-    }
-
-    initCode();
+    window.dispatchEvent(
+        new CustomEvent('ddg-secret', {
+            detail: secret,
+        }),
+    );
 
 })();
 /*# sourceURL=duckduckgo-privacy-protection.js?scope=injectfirefox */

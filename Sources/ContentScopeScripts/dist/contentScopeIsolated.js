@@ -59,7 +59,6 @@
     });
 
     /* eslint-disable no-redeclare, no-global-assign */
-    /* global cloneInto, exportFunction, false */
     let messageSecret;
 
     // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
@@ -452,7 +451,6 @@
     }
 
     function createCustomEvent(eventName, eventDetail) {
-
         // @ts-expect-error - possibly null
         return new OriginalCustomEvent(eventName, eventDetail);
     }
@@ -462,7 +460,9 @@
         // FF & Chrome
         return (
             originalWindowDispatchEvent &&
-            originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+            originalWindowDispatchEvent(
+                createCustomEvent('sendMessageProxy' + messageSecret, { detail: JSON.stringify({ messageType, options }) }),
+            )
         );
         // TBD other platforms
     }
@@ -1000,19 +1000,15 @@
       return parseJSONPointer(fromPointer);
     }
 
-    /* global false, cloneInto, exportFunction */
-
-
     /**
+     * FIXME: this function is not needed anymore after FF xray removal
      * Like Object.defineProperty, but with support for Firefox's mozProxies.
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
      * @param {string} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
     function defineProperty(object, propertyName, descriptor) {
-        {
-            objectDefineProperty(object, propertyName, descriptor);
-        }
+        objectDefineProperty(object, propertyName, descriptor);
     }
 
     /**

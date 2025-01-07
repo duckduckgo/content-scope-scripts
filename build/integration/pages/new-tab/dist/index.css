@@ -300,6 +300,9 @@ body:has([data-reset-layout=true]) .App_tube {
   width: 100%;
   max-width: calc(504 * var(--px-in-rem));
 }
+.vertical-space {
+  padding-block: 1rem;
+}
 .layout-centered:empty {
   display: contents;
 }
@@ -377,11 +380,11 @@ body:has([data-reset-layout=true]) .App_tube {
     border-radius: 6px;
   }
 }
-
-/* shared/components/Fallback/Fallback.module.css */
-.Fallback_fallback {
-  height: 100%;
-  width: 100%;
+.App_paddedError {
+  padding: 1rem;
+}
+.App_paddedErrorRecovery {
+  margin-top: 1rem;
 }
 
 /* pages/new-tab/app/customizer/components/Customizer.module.css */

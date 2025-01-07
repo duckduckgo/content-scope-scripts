@@ -570,9 +570,6 @@
 
   // shared/components/ErrorBoundary.js
   var ErrorBoundary = class extends k {
-    /**
-     * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
-     */
     constructor(props) {
       super(props);
       this.state = { hasError: false };
@@ -583,7 +580,10 @@
     componentDidCatch(error, info) {
       console.error(error);
       console.log(info);
-      this.props.didCatch({ error, info });
+      let message = error.message;
+      if (typeof message !== "string") message = "unknown";
+      const composed = this.props.context ? [this.props.context, message].join(" ") : message;
+      this.props.didCatch({ error, message: composed, info });
     }
     render() {
       if (this.state.hasError) {
@@ -900,7 +900,7 @@
       console.error("ErrorBoundary", message);
       messages?.reportPageException({ message });
     }
-    return /* @__PURE__ */ _("main", { className: App_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _("header", { className: App_default.header }, /* @__PURE__ */ _(DuckDuckGoLogo, null)), /* @__PURE__ */ _("div", { class: App_default.core }, releaseData && /* @__PURE__ */ _(ReleaseNotes, { releaseData })), /* @__PURE__ */ _(WillThrow, null), children));
+    return /* @__PURE__ */ _("main", { className: App_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _(ErrorBoundary, { didCatch: ({ error }) => didCatch(error), fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _("header", { className: App_default.header }, /* @__PURE__ */ _(DuckDuckGoLogo, null)), /* @__PURE__ */ _("div", { class: App_default.core }, releaseData && /* @__PURE__ */ _(ReleaseNotes, { releaseData })), /* @__PURE__ */ _(WillThrow, null), children));
   }
   function WillThrow() {
     const env = useEnv();

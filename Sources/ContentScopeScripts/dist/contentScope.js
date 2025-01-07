@@ -78,11 +78,8 @@
       return document.head || document.documentElement;
     }
     function createStyleElement(css) {
-      let style;
-      {
-        style = document.createElement("style");
-        style.innerText = css;
-      }
+      const style = document.createElement("style");
+      style.innerText = css;
       return style;
     }
     function injectGlobalStyles(css) {
@@ -298,7 +295,7 @@
             });
           }
           if (isExempt) {
-            return DDGReflect.apply(...args);
+            return DDGReflect.apply(args[0], args[1], args[2]);
           }
           return proxyObject.apply(...args);
         };
@@ -314,19 +311,15 @@
           }
           return DDGReflect.get(target, prop, receiver);
         };
-        {
-          this._native = objectScope[property];
-          const handler = {};
-          handler.apply = outputHandler;
-          handler.get = getMethod;
-          this.internal = new globalObj.Proxy(objectScope[property], handler);
-        }
+        this._native = objectScope[property];
+        const handler = {};
+        handler.apply = outputHandler;
+        handler.get = getMethod;
+        this.internal = new globalObj.Proxy(objectScope[property], handler);
       }
       // Actually apply the proxy to the native property
       overload() {
-        {
-          this.objectScope[this.property] = this.internal;
-        }
+        this.objectScope[this.property] = this.internal;
       }
       overloadDescriptor() {
         this.feature.defineProperty(this.objectScope, this.property, {
@@ -363,12 +356,8 @@
         message
       });
     }
-    let DDGReflect;
-    let DDGPromise;
-    {
-      DDGPromise = globalObj.Promise;
-      DDGReflect = globalObj.Reflect;
-    }
+    const DDGPromise = globalObj.Promise;
+    const DDGReflect = globalObj.Reflect;
     function isUnprotectedDomain(topLevelHostname, featureList) {
       let unprotectedDomain = false;
       if (!topLevelHostname) {
@@ -489,7 +478,9 @@
       return new OriginalCustomEvent(eventName, eventDetail);
     }
     function legacySendMessage(messageType, options) {
-      return originalWindowDispatchEvent && originalWindowDispatchEvent(createCustomEvent("sendMessageProxy" + messageSecret, { detail: { messageType, options } }));
+      return originalWindowDispatchEvent && originalWindowDispatchEvent(
+        createCustomEvent("sendMessageProxy" + messageSecret, { detail: JSON.stringify({ messageType, options }) })
+      );
     }
     const baseFeatures = (
       /** @type {const} */
@@ -827,9 +818,7 @@
       return parseJSONPointer(fromPointer);
     }
     function defineProperty(object, propertyName, descriptor) {
-      {
-        objectDefineProperty(object, propertyName, descriptor);
-      }
+      objectDefineProperty(object, propertyName, descriptor);
     }
     function wrapToString(newFn, origFn, mockValue) {
       if (typeof newFn !== "function" || typeof origFn !== "function") {
