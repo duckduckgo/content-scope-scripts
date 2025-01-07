@@ -31,12 +31,17 @@ export const values = {
     gradients: {
         gradient01: { path: 'gradients/gradient01.svg', fallback: '#f2e5d4', colorScheme: 'light' },
         gradient02: { path: 'gradients/gradient02.svg', fallback: '#d5bcd1', colorScheme: 'light' },
-        gradient03: { path: 'gradients/gradient03.svg', fallback: '#f4ca78', colorScheme: 'light' },
-        gradient04: { path: 'gradients/gradient04.svg', fallback: '#e6a356', colorScheme: 'light' },
-        gradient05: { path: 'gradients/gradient05.svg', fallback: '#4448ae', colorScheme: 'dark' },
-        gradient06: { path: 'gradients/gradient06.svg', fallback: '#a55778', colorScheme: 'dark' },
-        gradient07: { path: 'gradients/gradient07.svg', fallback: '#222566', colorScheme: 'dark' },
-        gradient08: { path: 'gradients/gradient08.svg', fallback: '#0e0e3d', colorScheme: 'dark' },
+        /**
+         * Note: the following name `gradient02.01` is used to allow migration for existing macOS users.
+         * When switching to the web-based NTP, we introduced an eight gradient to round-out the columns, but
+         * the colors in the gradient meant it needed to be wedged in between 02 and 03.
+         */
+        'gradient02.01': { path: 'gradients/gradient02.01.svg', fallback: '#f4ca78', colorScheme: 'light' },
+        gradient03: { path: 'gradients/gradient03.svg', fallback: '#e6a356', colorScheme: 'light' },
+        gradient04: { path: 'gradients/gradient04.svg', fallback: '#4448ae', colorScheme: 'dark' },
+        gradient05: { path: 'gradients/gradient05.svg', fallback: '#a55778', colorScheme: 'dark' },
+        gradient06: { path: 'gradients/gradient06.svg', fallback: '#222566', colorScheme: 'dark' },
+        gradient07: { path: 'gradients/gradient07.svg', fallback: '#0e0e3d', colorScheme: 'dark' },
     },
     userImages: {
         '01': {

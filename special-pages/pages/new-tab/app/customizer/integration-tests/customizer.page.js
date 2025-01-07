@@ -162,6 +162,7 @@ export class CustomizerPage {
     async selectsGradient() {
         const { page } = this.ntp;
         await page.locator('aside').getByLabel('Gradients').click();
+        await this.orderOfGradientsMatchesMacos();
         await page.getByRole('radio', { name: 'Select gradient01' }).click();
         const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_setBackground') });
         expect(calls[0].payload).toMatchObject({
@@ -406,6 +407,39 @@ export class CustomizerPage {
             { style: 'background: rgb(213, 81, 84);', value: 'color17' },
             { style: 'background: rgb(247, 222, 229);', value: 'color18' },
             { style: 'background: rgb(226, 132, 153);', value: 'color19' },
+        ]);
+    }
+
+    async orderOfGradientsMatchesMacos() {
+        const { page } = this.ntp;
+        const subscreen = page.locator('aside').locator('[data-sub="gradient"]');
+
+        // wait for the elements to show, before getting any values
+        await subscreen.locator('[role=radio][data-value]').nth(0).waitFor();
+
+        const styles = await page
+            .locator('aside')
+            .locator('[data-sub="gradient"]') // wait for sub-screen to show
+            .evaluate((colorSelectionScreen) => {
+                const colorSwatches = colorSelectionScreen.querySelectorAll('[role=radio][data-value]');
+                return Array.from(colorSwatches).map((swatch) => {
+                    return {
+                        value: swatch.getAttribute('data-value'),
+                    };
+                });
+            });
+
+        // This test is here to prevent changes to the gradients colors from impacting the UI
+        // these need to be exact to prevent migrations from becoming a problem
+        expect(styles).toStrictEqual([
+            { value: 'gradient01' },
+            { value: 'gradient02' },
+            { value: 'gradient02.01' },
+            { value: 'gradient03' },
+            { value: 'gradient04' },
+            { value: 'gradient05' },
+            { value: 'gradient06' },
+            { value: 'gradient07' },
         ]);
     }
 }
