@@ -7,7 +7,7 @@ import { DismissButton } from '../../components/DismissButton.jsx';
 import { BackChevron, PlusIcon } from '../../components/Icons.js';
 import { useContext } from 'preact/hooks';
 import { CustomizerThemesContext } from '../CustomizerProvider.js';
-import { InlineError } from '../../InlineError.js';
+import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
 import { useTypedTranslationWith } from '../../types.js';
 
 /**
@@ -45,9 +45,9 @@ export function ImageSelection({ data, select, back, onUpload, deleteImage }) {
                 {t('customizer_background_selection_image_existing')}
             </button>
             <div className={styles.sectionBody} onClick={onClick}>
-                <InlineError named={'Image Selection'}>
+                <InlineErrorBoundary format={(message) => `Customizer section 'ImageSelection' threw an exception: ` + message}>
                     <ImageGrid data={data} deleteImage={deleteImage} onUpload={onUpload} />
-                </InlineError>
+                </InlineErrorBoundary>
             </div>
             <div className={styles.sectionBody}>
                 <p>{t('customizer_image_privacy')}</p>

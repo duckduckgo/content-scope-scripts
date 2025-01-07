@@ -5,7 +5,7 @@ import { values } from '../values.js';
 import styles from './CustomizerDrawerInner.module.css';
 import { useComputed } from '@preact/signals';
 import { BackChevron } from '../../components/Icons.js';
-import { InlineError } from '../../InlineError.js';
+import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
 import { useTypedTranslationWith } from '../../types.js';
 
 /**
@@ -43,9 +43,9 @@ export function GradientSelection({ data, select, back }) {
                 {t('customizer_background_selection_gradient')}
             </button>
             <div className={styles.sectionBody} onClick={onClick}>
-                <InlineError named={'GradientSelection'}>
+                <InlineErrorBoundary format={(message) => `Customizer section 'GradientSelection' threw an exception: ` + message}>
                     <GradientGrid data={data} />
-                </InlineError>
+                </InlineErrorBoundary>
             </div>
         </div>
     );

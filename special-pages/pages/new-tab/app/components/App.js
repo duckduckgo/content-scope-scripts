@@ -11,6 +11,7 @@ import { BackgroundConsumer } from './BackgroundProvider.js';
 import { useComputed } from '@preact/signals';
 import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
 import { useContext } from 'preact/hooks';
+import { InlineErrorBoundary } from '../InlineErrorBoundary.js';
 
 /**
  * Renders the App component.
@@ -75,11 +76,31 @@ export function App() {
                         data-browser-panel
                     >
                         <div class={styles.asideContent}>
-                            <CustomizerDrawer displayChildren={displayChildren} />
+                            <InlineErrorBoundary
+                                context={'Customizer Drawer'}
+                                fallback={(message) => (
+                                    <div class={styles.paddedError}>
+                                        <p>{message}</p>
+                                    </div>
+                                )}
+                            >
+                                <CustomizerDrawer displayChildren={displayChildren} />
+                            </InlineErrorBoundary>
                         </div>
                     </aside>
                 )}
             </div>
         </Fragment>
+    );
+}
+
+export function AppLevelErrorBoundaryFallback({ children }) {
+    return (
+        <div class={styles.paddedError}>
+            <p>{children}</p>
+            <div class={styles.paddedErrorRecovery}>
+                You can try to <button onClick={() => location.reload()}>Reload this page</button>
+            </div>
+        </div>
     );
 }

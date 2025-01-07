@@ -39,7 +39,7 @@ export function App({ children }) {
     }
     return (
         <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'}>
-            <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
+            <ErrorBoundary didCatch={({ error }) => didCatch(error)} fallback={<ErrorFallback />}>
                 <header className={styles.header}>
                     <DuckDuckGoLogo />
                 </header>

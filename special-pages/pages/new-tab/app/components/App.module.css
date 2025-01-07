@@ -27,6 +27,10 @@ body:has([data-reset-layout="true"]) .tube {
     max-width: calc(504 * var(--px-in-rem));
 }
 
+:global(.vertical-space) {
+    padding-block: 1rem;
+}
+
 /** Don't affect layout if empty (eg: if a widget was toggled) **/
 :global(.layout-centered:empty) {
     display: contents;
@@ -115,4 +119,12 @@ body:has([data-reset-layout="true"]) .tube {
         border: 4px solid var(--ntp-surfaces-panel-background-color);
         border-radius: 6px;
     }
+}
+
+.paddedError {
+    padding: 1rem;
+}
+.paddedErrorRecovery {
+    margin-top: 1rem;
+
 }
