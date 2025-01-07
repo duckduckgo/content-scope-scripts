@@ -165,7 +165,7 @@ export class ReleaseNotesPage {
                     featureName: 'release-notes',
                     method: 'reportPageException',
                     params: {
-                        message: 'unknown',
+                        message: 'Simulated Exception',
                     },
                 },
             },

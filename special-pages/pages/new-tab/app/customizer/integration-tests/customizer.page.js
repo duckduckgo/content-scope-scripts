@@ -327,8 +327,7 @@ export class CustomizerPage {
             expect(calls[0].payload).toMatchObject({
                 method: 'reportPageException',
                 params: {
-                    message:
-                        "Customizer section 'Customizer Drawer' threw an exception: TypeError: Cannot read properties of undefined (reading 'length')",
+                    message: "CustomizerDrawerInner threw an exception: Cannot read properties of undefined (reading 'length')",
                 },
             });
         });
@@ -348,7 +347,7 @@ export class CustomizerPage {
         expect(calls[0].payload).toMatchObject({
             method: 'reportPageException',
             params: {
-                message: "Customizer section 'Image Selection' threw an exception: Error: Simulated error",
+                message: "Customizer section 'ImageSelection' threw an exception: Simulated error",
             },
         });
     }
@@ -367,6 +366,10 @@ export class CustomizerPage {
 
     async orderOfColorsMatchesMacos() {
         const { page } = this.ntp;
+        const subscreen = page.locator('aside').locator('[data-sub="color"]');
+
+        // wait for the elements to show, before getting any values
+        await subscreen.locator('[role=radio][data-value]').nth(0).waitFor();
 
         const styles = await page
             .locator('aside')

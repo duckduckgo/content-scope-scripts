@@ -3,8 +3,8 @@ import { WidgetConfigContext, WidgetVisibilityProvider } from './widget-config.p
 import { useContext } from 'preact/hooks';
 import { useMessaging } from '../types.js';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary.js';
-import { Fallback } from '../../../../shared/components/Fallback/Fallback.jsx';
-import { Centered } from '../components/Layout.js';
+import { Centered, VerticalSpace } from '../components/Layout.js';
+import { INLINE_ERROR } from '../InlineErrorBoundary.js';
 
 /**
  * @param {string} id
@@ -20,7 +20,7 @@ function placeholderWidget(id) {
 
 /**
  * @param {string} id
- * @param {(e: {message:string}) => void} didCatch
+ * @param {(message: string) => void} didCatch
  * @return {Promise<{factory: () => import("preact").ComponentChild}>}
  */
 export async function widgetEntryPoint(id, didCatch) {
@@ -33,7 +33,7 @@ export async function widgetEntryPoint(id, didCatch) {
         return mod;
     } catch (e) {
         console.error(e);
-        didCatch(e);
+        didCatch(e.toString());
         return placeholderWidget(id);
     }
 }
@@ -43,11 +43,10 @@ export function WidgetList() {
     const messaging = useMessaging();
 
     /**
-     * @param {any} error
+     * @param {string} message
      * @param {string} id
      */
-    const didCatch = (error, id) => {
-        const message = error?.message || error?.error || 'unknown';
+    const didCatch = (message, id) => {
         const composed = `Widget '${id}' threw an exception: ` + message;
         messaging.reportPageException({ message: composed });
     };
@@ -62,8 +61,8 @@ export function WidgetList() {
                  */
                 if (!isUserConfigurable) {
                     return (
-                        <ErrorBoundary key={widget.id} didCatch={(error) => didCatch(error, widget.id)} fallback={null}>
-                            {matchingEntryPoint.factory?.()}
+                        <ErrorBoundary key={widget.id} didCatch={({ message }) => didCatch(message, widget.id)} fallback={null}>
+                            <WidgetLoader fn={matchingEntryPoint.factory} />
                         </ErrorBoundary>
                     );
                 }
@@ -75,18 +74,33 @@ export function WidgetList() {
                     <WidgetVisibilityProvider key={widget.id} id={widget.id} index={index}>
                         <ErrorBoundary
                             key={widget.id}
-                            didCatch={(error) => didCatch(error, widget.id)}
+                            didCatch={({ message }) => didCatch(message, widget.id)}
                             fallback={
-                                <Centered>
-                                    <Fallback showDetails={true}>Widget id: {widget.id}</Fallback>
+                                <Centered data-entry-point={widget.id}>
+                                    <VerticalSpace>
+                                        <p>{INLINE_ERROR}</p>
+                                        <p>Widget ID: {widget.id}</p>
+                                    </VerticalSpace>
                                 </Centered>
                             }
                         >
-                            {matchingEntryPoint.factory?.()}
+                            <WidgetLoader fn={matchingEntryPoint.factory} />
                         </ErrorBoundary>
                     </WidgetVisibilityProvider>
                 );
             })}
         </Fragment>
     );
+}
+
+/**
+ * This defers the call to `.factory`, which would otherwise not be caught
+ * by the error boundaries.
+ *
+ * @param {object} props
+ * @return {any}
+ */
+function WidgetLoader({ fn }) {
+    const result = fn?.();
+    return result;
 }

@@ -6,7 +6,7 @@ import styles from './CustomizerDrawerInner.module.css';
 import { BackChevron, Picker } from '../../components/Icons.js';
 import { useComputed } from '@preact/signals';
 import { detectThemeFromHex } from '../utils.js';
-import { InlineError } from '../../InlineError.js';
+import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
 import { useTypedTranslationWith } from '../../types.js';
 
 /**
@@ -42,12 +42,12 @@ export function ColorSelection({ data, select, back }) {
                 {t('customizer_background_selection_color')}
             </button>
             <div class={styles.sectionBody}>
-                <InlineError named={'ColorGrid'}>
+                <InlineErrorBoundary format={(message) => `Customizer section 'ColorGrid' threw an exception: ` + message}>
                     <div class={cn(styles.bgList)} role="radiogroup" onClick={onClick}>
                         <PickerPanel data={data} select={select} />
                         <ColorGrid data={data} />
                     </div>
-                </InlineError>
+                </InlineErrorBoundary>
             </div>
         </div>
     );
