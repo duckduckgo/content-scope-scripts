@@ -63,7 +63,7 @@ export function App() {
     return (
         <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'}>
             <PageTitle />
-            <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
+            <ErrorBoundary didCatch={({ error }) => didCatch(error)} fallback={<ErrorFallback />}>
                 <SpecialErrorView />
                 <WillThrow />
             </ErrorBoundary>

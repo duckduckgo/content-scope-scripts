@@ -7,13 +7,11 @@ import { DismissButton } from '../../components/DismissButton.jsx';
 import { BackChevron, PlusIcon } from '../../components/Icons.js';
 import { useContext } from 'preact/hooks';
 import { CustomizerThemesContext } from '../CustomizerProvider.js';
-import { InlineError } from '../../InlineError.js';
+import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
 import { useTypedTranslationWith } from '../../types.js';
 
 /**
  * @import enStrings from '../strings.json';
- * @import ntpStrings from '../../strings.json';
- * @typedef {enStrings & ntpStrings} strings
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, PredefinedGradient } from '../../../types/new-tab.js'
  */
 
@@ -26,7 +24,7 @@ import { useTypedTranslationWith } from '../../types.js';
  * @param {(id: string) => void} props.deleteImage
  */
 export function ImageSelection({ data, select, back, onUpload, deleteImage }) {
-    const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     function onClick(event) {
         let target = /** @type {HTMLElement|null} */ (event.target);
         const selector = `[role="radio"][aria-checked="false"][data-id]`;
@@ -44,12 +42,12 @@ export function ImageSelection({ data, select, back, onUpload, deleteImage }) {
         <div>
             <button type={'button'} onClick={back} class={cn(styles.backBtn, styles.sectionTitle)}>
                 <BackChevron />
-                My Backgrounds
+                {t('customizer_background_selection_image_existing')}
             </button>
             <div className={styles.sectionBody} onClick={onClick}>
-                <InlineError named={'Image Selection'}>
+                <InlineErrorBoundary format={(message) => `Customizer section 'ImageSelection' threw an exception: ` + message}>
                     <ImageGrid data={data} deleteImage={deleteImage} onUpload={onUpload} />
-                </InlineError>
+                </InlineErrorBoundary>
             </div>
             <div className={styles.sectionBody}>
                 <p>{t('customizer_image_privacy')}</p>
@@ -65,6 +63,7 @@ export function ImageSelection({ data, select, back, onUpload, deleteImage }) {
  * @param {() => void} props.onUpload
  */
 function ImageGrid({ data, deleteImage, onUpload }) {
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { browser } = useContext(CustomizerThemesContext);
     const selected = useComputed(() => data.value.background.kind === 'userImage' && data.value.background.value.id);
     const entries = useComputed(() => {
@@ -96,14 +95,14 @@ function ImageGrid({ data, deleteImage, onUpload }) {
                                 backgroundRepeat: 'no-repeat',
                             }}
                         >
-                            <span class="sr-only">Select image {index + 1}</span>
+                            <span class="sr-only">{t('customizer_image_select', { number: String(index + 1) })}</span>
                         </button>
                         <DismissButton
                             className={styles.deleteBtn}
                             onClick={() => deleteImage(entry.id)}
                             buttonProps={{
                                 'data-color-mode': String(entry.colorScheme),
-                                'aria-label': `Delete image ${index + 1}`,
+                                'aria-label': t('customizer_image_delete', { number: String(index + 1) }),
                             }}
                         />
                     </li>
@@ -119,7 +118,7 @@ function ImageGrid({ data, deleteImage, onUpload }) {
                             data-color-mode={browser}
                         >
                             <PlusIcon />
-                            <span class="sr-only">Add Background</span>
+                            <span class="sr-only">{t('customizer_background_selection_image_add')}</span>
                         </button>
                     </li>
                 );

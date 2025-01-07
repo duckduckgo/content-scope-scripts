@@ -313,7 +313,7 @@ export class SpecialErrorPage {
                     featureName: 'special-error',
                     method: 'reportPageException',
                     params: {
-                        message: 'unknown',
+                        message: 'Simulated Exception',
                     },
                 },
             },

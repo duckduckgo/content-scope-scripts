@@ -5,7 +5,7 @@ import { RMFProvider } from '../remote-messaging-framework/RMFProvider.js';
 
 export function factory() {
     return (
-        <Centered>
+        <Centered data-entry-point="rmf">
             <RMFProvider>
                 <RMFConsumer />
             </RMFProvider>

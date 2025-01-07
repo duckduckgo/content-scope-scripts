@@ -1,8 +1,6 @@
 import { render, h } from 'preact';
-import { App } from './components/App.js';
+import { App, AppLevelErrorBoundaryFallback } from './components/App.js';
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider.js';
-import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx';
-import { ErrorBoundary } from '../../../shared/components/ErrorBoundary.js';
 import { SettingsProvider } from './settings.provider.js';
 import { InitialSetupContext, MessagingContext, TelemetryContext } from './types';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
@@ -15,6 +13,7 @@ import { widgetEntryPoint } from './widget-list/WidgetList.js';
 import { callWithRetry } from '../../../shared/call-with-retry.js';
 import { CustomizerProvider } from './customizer/CustomizerProvider.js';
 import { CustomizerService } from './customizer/customizer.service.js';
+import { InlineErrorBoundary } from './InlineErrorBoundary.js';
 
 /**
  * @import {Telemetry} from "./telemetry/telemetry.js"
@@ -67,8 +66,10 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
         console.log('locale:', environment.locale);
     }
 
-    const didCatch = (error) => {
-        const message = error?.message || error?.error || 'unknown';
+    /**
+     * @param {string} message
+     */
+    const didCatch = (message) => {
         messaging.reportPageException({ message });
     };
 
@@ -103,7 +104,10 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
             willThrow={environment.willThrow}
             env={environment.env}
         >
-            <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'} />}>
+            <InlineErrorBoundary
+                context={'App entry point'}
+                fallback={(message) => <AppLevelErrorBoundaryFallback>{message}</AppLevelErrorBoundaryFallback>}
+            >
                 <UpdateEnvironment search={window.location.search} />
                 <MessagingContext.Provider value={messaging}>
                     <InitialSetupContext.Provider value={init}>
@@ -125,7 +129,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                         </TelemetryContext.Provider>
                     </InitialSetupContext.Provider>
                 </MessagingContext.Provider>
-            </ErrorBoundary>
+            </InlineErrorBoundary>
         </EnvironmentProvider>,
         root,
     );
@@ -157,7 +161,7 @@ function installGlobalSideEffects(environment, settings) {
 /**
  *
  * @param {import('../types/new-tab.js').InitialSetupResponse['widgets']} widgets
- * @param {(e: {message:string}) => void} didCatch
+ * @param {(message: string) => void} didCatch
  * @return {Promise<{[p: string]: any}|{}>}
  */
 async function resolveEntryPoints(widgets, didCatch) {
@@ -173,7 +177,7 @@ async function resolveEntryPoints(widgets, didCatch) {
         return Object.fromEntries(entryPoints);
     } catch (e) {
         const error = new Error('Error loading widget entry points:' + e.message);
-        didCatch(error);
+        didCatch(error.message);
         console.error(error);
         return {};
     }
