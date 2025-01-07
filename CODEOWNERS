@@ -13,7 +13,7 @@ injected/src/features/broker-protection/ @duckduckgo/content-scope-scripts-owner
 # Platform owners
 Sources/ @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs
 injected/entry-points/android.js @duckduckgo/content-scope-scripts-owners @duckduckgo/android-devs
-injected/entry-points/chrome-mv3.js @duckduckgo/content-scope-scripts-owners @kzar @sammacbeth
+injected/entry-points/extension-mv3.js @duckduckgo/content-scope-scripts-owners @kzar @sammacbeth
 injected/entry-points/chrome.js @duckduckgo/content-scope-scripts-owners @kzar @sammacbeth
 injected/entry-points/windows.js @duckduckgo/content-scope-scripts-owners @duckduckgo/team-windows-development
 
