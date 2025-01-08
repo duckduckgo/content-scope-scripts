@@ -2646,11 +2646,11 @@
                       c3 = oc(c3);
                       var d3 = [].slice, e3 = b2.i, f3 = e3.N, g2 = e3.A.N, n2 = e3.A.constructor;
                       a3 = lc(a3, function() {
-                        e3.A.qb.forEach(function(l3) {
+                        e3.A.qb.forEach((function(l3) {
                           if (this[l3] === g2[l3]) {
                             throw new rc(`Pure virtual function ${l3} must be implemented in JavaScript`);
                           }
-                        }.bind(this));
+                        }).bind(this));
                         Object.defineProperty(this, "__parent", { value: f3 });
                         this.__construct.apply(this, d3.call(arguments));
                       });
@@ -9917,7 +9917,7 @@
         clearTimeout(debounce);
         window.removeEventListener("resize", handleResize);
       };
-    });
+    }, []);
     const onTransitionEnd = () => {
       setAnimationState((state) => {
         if (state === "animating") return "animation-done";

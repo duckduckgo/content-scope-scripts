@@ -118,14 +118,16 @@
   --theme-text-primary-color: var(--color-black-at-84);
   --theme-text-secondary-color: var(--color-black-at-60);
   --theme-text-link-color: var(--ddg-color-primary);
-  @media (prefers-color-scheme: dark) {
+  --macos-text-primary: var(--color-black-at-84);
+  --ios-content-max-width: calc(794 * var(--px-in-rem));
+}
+@media (prefers-color-scheme: dark) {
+  :root {
     --theme-background-color: var(--color-gray-95);
     --theme-text-primary-color: var(--color-white-at-85);
     --theme-text-secondary-color: var(--color-white-at-50);
     --theme-text-link-color: var(--ddg-color-primary-dark);
   }
-  --macos-text-primary: var(--color-black-at-84);
-  --ios-content-max-width: calc(794 * var(--px-in-rem));
 }
 
 /* shared/styles/reset.css */

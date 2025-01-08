@@ -6,6 +6,7 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __glob = (map) => (path) => {
     var fn = map[path];
     if (fn) return fn();
@@ -37,6 +38,7 @@
     isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
     mod
   ));
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
   // ../node_modules/preact/dist/preact.module.js
   function d(n3, l5) {
@@ -11086,13 +11088,7 @@
   var url3 = new URL(window.location.href);
 
   // pages/new-tab/app/telemetry/telemetry.js
-  var Telemetry = class _Telemetry {
-    static EVENT_REQUEST = "TELEMETRY_EVENT_REQUEST";
-    static EVENT_RESPONSE = "TELEMETRY_EVENT_RESPONSE";
-    static EVENT_SUBSCRIPTION = "TELEMETRY_EVENT_SUBSCRIPTION";
-    static EVENT_SUBSCRIPTION_DATA = "TELEMETRY_EVENT_SUBSCRIPTION_DATA";
-    static EVENT_NOTIFICATION = "TELEMETRY_EVENT_NOTIFICATION";
-    static EVENT_BROADCAST = "TELEMETRY_*";
+  var _Telemetry = class _Telemetry {
     eventTarget = new EventTarget();
     /** @type {any[]} */
     eventStore = [];
@@ -11150,6 +11146,13 @@
       }
     }
   };
+  __publicField(_Telemetry, "EVENT_REQUEST", "TELEMETRY_EVENT_REQUEST");
+  __publicField(_Telemetry, "EVENT_RESPONSE", "TELEMETRY_EVENT_RESPONSE");
+  __publicField(_Telemetry, "EVENT_SUBSCRIPTION", "TELEMETRY_EVENT_SUBSCRIPTION");
+  __publicField(_Telemetry, "EVENT_SUBSCRIPTION_DATA", "TELEMETRY_EVENT_SUBSCRIPTION_DATA");
+  __publicField(_Telemetry, "EVENT_NOTIFICATION", "TELEMETRY_EVENT_NOTIFICATION");
+  __publicField(_Telemetry, "EVENT_BROADCAST", "TELEMETRY_*");
+  var Telemetry = _Telemetry;
   var MessagingObserver = class {
     /** @type {Map<string, number>} */
     observed = /* @__PURE__ */ new Map();

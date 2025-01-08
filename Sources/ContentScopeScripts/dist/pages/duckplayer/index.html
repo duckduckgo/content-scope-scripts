@@ -153,10 +153,10 @@ body[data-display=app] {
   line-height: 32px;
   font-size: 13px;
   font-weight: 600;
-  .Button_icon {
-    width: 16px;
-    height: 16px;
-  }
+}
+.Button_desktop .Button_icon {
+  width: 16px;
+  height: 16px;
 }
 .Button_iconOnly {
   width: 44px;
@@ -244,13 +244,13 @@ body[data-display=app] {
   height: 44px;
   position: relative;
   width: 100%;
-  > * {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
+}
+.SwitchBarMobile_placeholder > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 /* pages/duckplayer/app/components/Switch.module.css */
@@ -344,18 +344,18 @@ body[data-display=app] {
   padding: 0;
   margin: 0;
   position: relative;
-  &:focus-visible {
-    outline: none;
-  }
-  &:focus-visible[aria-expanded=true] {
-    outline: 1px solid white;
-    outline-offset: 2px;
-    border-radius: 50%;
-  }
-  img {
-    display: block;
-    width: 100%;
-  }
+}
+.InfoBar_info:focus-visible {
+  outline: none;
+}
+.InfoBar_info:focus-visible[aria-expanded=true] {
+  outline: 1px solid white;
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+.InfoBar_info img {
+  display: block;
+  width: 100%;
 }
 .InfoBar_lhs {
   display: flex;
@@ -420,18 +420,18 @@ body[data-display=app] {
 }
 .SwitchBarDesktop_input {
   display: block;
-  &:focus-visible {
-    outline: 1px solid white;
-    outline-offset: 2px;
-  }
+}
+.SwitchBarDesktop_input:focus-visible {
+  outline: 1px solid white;
+  outline-offset: 2px;
 }
 .SwitchBarDesktop_input[disabled] {
 }
 .SwitchBarDesktop_text {
   line-height: 1;
-  &:hover {
-    cursor: pointer;
-  }
+}
+.SwitchBarDesktop_text:hover {
+  cursor: pointer;
 }
 
 /* pages/duckplayer/app/components/Tooltip.module.css */
@@ -446,6 +446,7 @@ body[data-display=app] {
   background-blend-mode: normal, luminosity;
   box-shadow: inset 0px 0px 1px #ffffff;
   filter: drop-shadow(0px 0px 1px #000000) drop-shadow(0px 0px 1px #000000) drop-shadow(0px 0px 1px #000000) drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.2));
+  -webkit-backdrop-filter: blur(76px);
   backdrop-filter: blur(76px);
   border-radius: 10px;
   width: 300px;
@@ -570,7 +571,10 @@ body[data-display=app] {
 .Background_bg::before {
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   height: 100%;
   background:
     linear-gradient(
@@ -583,7 +587,10 @@ body[data-display=app] {
 .Background_bg::after {
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   height: 100%;
   background:
     linear-gradient(
@@ -927,7 +934,9 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
   background: rgba(0, 0, 0, 0.3);
   border-radius: var(--outer-radius);
   padding: 8px;
-  @media screen and (max-width: 700px) {
+}
+@media screen and (max-width: 700px) {
+  .DesktopApp_landscape .DesktopApp_wrapper {
     grid-template-columns: 50% 1fr;
   }
 }
@@ -953,7 +962,9 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
 .DesktopApp_header {
   grid-area: header;
   padding-top: 48px;
-  @media screen and (max-height: 500px) {
+}
+@media screen and (max-height: 500px) {
+  .DesktopApp_header {
     padding-top: 32px;
   }
 }
@@ -986,6 +997,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
@@ -1005,6 +1017,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
     isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
     mod
   ));
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
   // ../node_modules/classnames/index.js
   var require_classnames = __commonJS({
@@ -3751,7 +3764,7 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
   };
 
   // ../injected/src/features/duckplayer/util.js
-  var VideoParams = class _VideoParams {
+  var _VideoParams = class _VideoParams {
     /**
      * @param {string} id - the YouTube video ID
      * @param {string|null|undefined} time - an optional time
@@ -3760,8 +3773,6 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
       this.id = id;
       this.time = time;
     }
-    static validVideoId = /^[a-zA-Z0-9-_]+$/;
-    static validTimestamp = /^[0-9hms]+$/;
     /**
      * @returns {string}
      */
@@ -3837,6 +3848,9 @@ body:has([data-state=completed] [aria-checked=true]) .MobileApp_switch {
       return new _VideoParams(id, time);
     }
   };
+  __publicField(_VideoParams, "validVideoId", /^[a-zA-Z0-9-_]+$/);
+  __publicField(_VideoParams, "validTimestamp", /^[0-9hms]+$/);
+  var VideoParams = _VideoParams;
 
   // pages/duckplayer/src/utils.js
   function createYoutubeURLForError(href, urlBase) {

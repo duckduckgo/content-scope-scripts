@@ -3,7 +3,9 @@
   background: url("./Logo-Horizontal-A4FFOYBB.svg") no-repeat;
   height: var(--sp-10);
   display: block;
-  @media (prefers-color-scheme: dark) {
+}
+@media (prefers-color-scheme: dark) {
+  .DuckDuckGoLogo_logo {
     background: url("./Logo-Horizontal-Dark-BQCDSFDZ.svg") no-repeat;
   }
 }
@@ -40,102 +42,100 @@ a {
 .Text_title-1 {
   font-size: calc(22 * var(--px-in-rem));
   line-height: calc(26 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(-0.26 * var(--px-in-rem));
-  }
+}
+.Text_title-1.Text_strictSpacing {
+  letter-spacing: calc(-0.26 * var(--px-in-rem));
 }
 .Text_title-2 {
   font-size: calc(17 * var(--px-in-rem));
   font-weight: 600;
   line-height: calc(22 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(-0.43 * var(--px-in-rem));
-  }
+}
+.Text_title-2.Text_strictSpacing {
+  letter-spacing: calc(-0.43 * var(--px-in-rem));
 }
 .Text_title-2-emphasis {
   font-size: calc(17 * var(--px-in-rem));
   font-weight: 700;
   line-height: calc(22 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(-0.43 * var(--px-in-rem));
-  }
+}
+.Text_title-2-emphasis.Text_strictSpacing {
+  letter-spacing: calc(-0.43 * var(--px-in-rem));
 }
 .Text_headline {
   font-size: calc(13 * var(--px-in-rem));
   font-weight: 600;
   line-height: calc(16 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(-0.08 * var(--px-in-rem));
-  }
+}
+.Text_headline.Text_strictSpacing {
+  letter-spacing: calc(-0.08 * var(--px-in-rem));
 }
 .Text_subheadline {
   font-size: calc(11 * var(--px-in-rem));
   line-height: calc(14 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(0.06 * var(--px-in-rem));
-  }
+}
+.Text_subheadline.Text_strictSpacing {
+  letter-spacing: calc(0.06 * var(--px-in-rem));
 }
 .Text_body {
   font-size: calc(13 * var(--px-in-rem));
   line-height: calc(16 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(-0.08 * var(--px-in-rem));
-  }
+}
+.Text_body.Text_strictSpacing {
+  letter-spacing: calc(-0.08 * var(--px-in-rem));
 }
 .Text_body-emphasis {
   font-size: calc(13 * var(--px-in-rem));
   font-weight: 600;
   line-height: calc(16 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(-0.08 * var(--px-in-rem));
-  }
+}
+.Text_body-emphasis.Text_strictSpacing {
+  letter-spacing: calc(-0.08 * var(--px-in-rem));
 }
 .Text_label-small {
   font-size: calc(11 * var(--px-in-rem));
   line-height: calc(11 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(0.06 * var(--px-in-rem));
-  }
+}
+.Text_label-small.Text_strictSpacing {
+  letter-spacing: calc(0.06 * var(--px-in-rem));
 }
 .Text_label-default {
   font-size: calc(13 * var(--px-in-rem));
   line-height: calc(13 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(-0.08 * var(--px-in-rem));
-  }
+}
+.Text_label-default.Text_strictSpacing {
+  letter-spacing: calc(-0.08 * var(--px-in-rem));
 }
 .Text_label-medium {
   font-size: calc(13 * var(--px-in-rem));
   font-weight: 500;
   line-height: calc(13 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(-0.25 * var(--px-in-rem));
-  }
+}
+.Text_label-medium.Text_strictSpacing {
+  letter-spacing: calc(-0.25 * var(--px-in-rem));
 }
 .Text_caption-2-emphasis {
   font-size: calc(10 * var(--px-in-rem));
   line-height: calc(13 * var(--px-in-rem));
-  &.Text_strictSpacing {
-    letter-spacing: calc(0.12 * var(--px-in-rem));
-  }
 }
-[data-platform-name=ios] {
-  & .Text_title-2 {
-    font-size: calc(22 * var(--px-in-rem));
-    font-weight: 600;
-    line-height: calc(28 * var(--px-in-rem));
-    &.Text_strictSpacing {
-      letter-spacing: calc(0.35 * var(--px-in-rem));
-    }
-  }
-  & .Text_body {
-    font-size: calc(16 * var(--px-in-rem));
-    font-weight: 400;
-    line-height: calc(21 * var(--px-in-rem));
-    &.Text_strictSpacing {
-      letter-spacing: calc(-0.31 * var(--px-in-rem));
-    }
-  }
+.Text_caption-2-emphasis.Text_strictSpacing {
+  letter-spacing: calc(0.12 * var(--px-in-rem));
+}
+[data-platform-name=ios] .Text_title-2 {
+  font-size: calc(22 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: calc(28 * var(--px-in-rem));
+}
+[data-platform-name=ios] .Text_title-2.Text_strictSpacing {
+  letter-spacing: calc(0.35 * var(--px-in-rem));
+}
+[data-platform-name=ios] .Text_body {
+  font-size: calc(16 * var(--px-in-rem));
+  font-weight: 400;
+  line-height: calc(21 * var(--px-in-rem));
+}
+[data-platform-name=ios] .Text_body.Text_strictSpacing {
+  letter-spacing: calc(-0.31 * var(--px-in-rem));
 }
 
 /* shared/components/Card/Card.module.css */
@@ -144,7 +144,9 @@ a {
   border: 1px solid var(--color-black-at-9);
   border-radius: var(--sp-3);
   padding: var(--sp-6) var(--sp-6) var(--sp-8);
-  @media (prefers-color-scheme: dark) {
+}
+@media (prefers-color-scheme: dark) {
+  .Card_card {
     background: var(--color-white-at-3);
     border-color: var(--color-white-at-9);
   }
@@ -152,6 +154,7 @@ a {
 
 /* shared/components/Button/Button.module.css */
 .Button_button {
+  -webkit-appearance: none;
   appearance: none;
   background: var(--button-bg);
   color: var(--button-text);
@@ -166,30 +169,30 @@ a {
   height: var(--sp-5);
   opacity: var(--button-opacity);
   padding: 0 var(--sp-3);
-  &:active {
-    background: var(--button-bg--active, var(--button-bg));
-    box-shadow: var(--button-shadow--active, var(--button-shadow));
-    color: var(--button-text--active, var(--button-text));
-    opacity: var(--button-opacity--active, var(--button-opacity));
-  }
-  &:disabled {
-    background: var(--button-bg--disabled, var(--button-bg));
-    box-shadow: var(--button-shadow--disabled, var(--button-shadow));
-    color: var(--button-text--disabled, var(--button-text));
-    opacity: var(--button-opacity--disabled, var(--button-opacity));
-  }
-  &:focus {
-    background: var(--button-bg--focus, var(--button-bg));
-    box-shadow: var(--button-shadow--focus, var(--button-shadow));
-    color: var(--button-text--focus, var(--button-text));
-    opacity: var(--button-opacity--focus, var(--button-opacity));
-  }
-  &:hover {
-    background: var(--button-bg);
-    box-shadow: var(--button-shadow--hover, var(--button-shadow));
-    color: var(--button-text--hover, var(--button-text));
-    opacity: var(--button-opacity--hover, var(--button-opacity));
-  }
+}
+[data-platform-name=macos] .Button_button:active {
+  background: var(--button-bg--active, var(--button-bg));
+  box-shadow: var(--button-shadow--active, var(--button-shadow));
+  color: var(--button-text--active, var(--button-text));
+  opacity: var(--button-opacity--active, var(--button-opacity));
+}
+[data-platform-name=macos] .Button_button:disabled {
+  background: var(--button-bg--disabled, var(--button-bg));
+  box-shadow: var(--button-shadow--disabled, var(--button-shadow));
+  color: var(--button-text--disabled, var(--button-text));
+  opacity: var(--button-opacity--disabled, var(--button-opacity));
+}
+[data-platform-name=macos] .Button_button:focus {
+  background: var(--button-bg--focus, var(--button-bg));
+  box-shadow: var(--button-shadow--focus, var(--button-shadow));
+  color: var(--button-text--focus, var(--button-text));
+  opacity: var(--button-opacity--focus, var(--button-opacity));
+}
+[data-platform-name=macos] .Button_button:hover {
+  background: var(--button-bg);
+  box-shadow: var(--button-shadow--hover, var(--button-shadow));
+  color: var(--button-text--hover, var(--button-text));
+  opacity: var(--button-opacity--hover, var(--button-opacity));
 }
 [data-platform-name=ios] .Button_button {
   border-radius: var(--sp-2);
@@ -200,56 +203,54 @@ a {
   letter-spacing: calc(-0.23 * var(--px-in-rem));
   padding: 0 var(--sp-6);
   text-align: center;
-  &:active {
-    background: var(--button-bg--active, var(--button-bg));
-    color: var(--button-text--active, var(--button-text));
-  }
-  &:disabled {
-    background: var(--button-bg--disabled, var(--button-bg));
-    color: var(--button-text--disabled, var(--button-text));
-  }
 }
-body:not([data-platform-name]) {
-  & .Button_button {
-    background-blend-mode:
-      normal,
-      color-burn,
-      normal;
-    background:
-      linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(255, 255, 255, 0) 100%),
-      linear-gradient(
-        180deg,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.06) 100%),
-      #007aff;
-    border-radius: var(--sp-2);
-    border: 1px solid rgba(40, 145, 255, 0.05);
-    box-shadow: 0 0 1px 0 rgba(40, 145, 255, 0.05), 0 1px 1px 0 rgba(40, 145, 255, 0.1);
-    color: white;
-    font-size: calc(13 * var(--px-in-rem));
-    font-weight: 600;
-    line-height: var(--sp-8);
-    padding: 0 var(--sp-4);
-    &:hover {
-      background:
-        linear-gradient(
-          0deg,
-          rgba(255, 255, 255, 0) 0%,
-          rgba(255, 255, 255, 0.16) 100%),
-        #2749db;
-    }
-    &:active {
-      background:
-        linear-gradient(
-          0deg,
-          rgba(255, 255, 255, 0) 0%,
-          rgba(255, 255, 255, 0.16) 100%),
-        #1743d1;
-    }
-  }
+[data-platform-name=ios] .Button_button:active {
+  background: var(--button-bg--active, var(--button-bg));
+  color: var(--button-text--active, var(--button-text));
+}
+[data-platform-name=ios] .Button_button:disabled {
+  background: var(--button-bg--disabled, var(--button-bg));
+  color: var(--button-text--disabled, var(--button-text));
+}
+body:not([data-platform-name]) .Button_button {
+  background-blend-mode:
+    normal,
+    color-burn,
+    normal;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0) 100%),
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.06) 100%),
+    #007aff;
+  border-radius: var(--sp-2);
+  border: 1px solid rgba(40, 145, 255, 0.05);
+  box-shadow: 0 0 1px 0 rgba(40, 145, 255, 0.05), 0 1px 1px 0 rgba(40, 145, 255, 0.1);
+  color: white;
+  font-size: calc(13 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: var(--sp-8);
+  padding: 0 var(--sp-4);
+}
+body:not([data-platform-name]) .Button_button:hover {
+  background:
+    linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.16) 100%),
+    #2749db;
+}
+body:not([data-platform-name]) .Button_button:active {
+  background:
+    linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.16) 100%),
+    #1743d1;
 }
 [data-platform-name=macos] {
   --macos-control-standard-background-rest: #fff;
@@ -285,205 +286,186 @@ body:not([data-platform-name]) {
     0 0 1px 0 rgba(0, 0, 0, 0.05),
     0 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
-[data-platform-name=macos] .Button_button {
-  &.Button_standard {
-    --button-bg: var(--macos-control-standard-background-rest);
-    --button-text: var(--macos-text-primary);
-    --button-shadow: var(--macos-control-standard-shadow);
-    --button-opacity: 1;
-    --button-bg--active: var(--macos-control-standard-background-pressed);
-    --button-bg--disabled: var(--macos-control-standard-background-rest);
-    --button-text--disabled: var(--macos-text-primary);
-    --button-shadow--disabled: var(--macos-control-standard-shadow);
-    --button-opacity--disabled: 0.4;
-    --button-shadow--focus: var(--macos-control-focused-shadow);
-  }
-  &.Button_accent,
-  &.Button_accentBrand {
-    --button-bg: var(--macos-control-accent-branded-background-rest);
-    --button-text: var(--color-white);
-    --button-shadow: var(--macos-control-accent-shadow);
-    --button-opacity: 1;
-    --button-bg--active: var(--macos-control-accent-branded-background-pressed);
-    --button-bg--disabled: var(--macos-control-standard-background-rest);
-    --button-text--disabled: var(--macos-text-primary);
-    --button-shadow--disabled: var(--macos-control-standard-shadow);
-    --button-opacity--disabled: 0.4;
-    --button-shadow--focus: var(--macos-control-focused-shadow);
-  }
-  [data-theme=dark] & {
-    &.Button_standard {
-      --button-bg: var(--macos-control-standard-background-rest--dark);
-      --button-text: var(--color-white-at-84);
-    }
-  }
+[data-platform-name=macos] .Button_button.Button_standard {
+  --button-bg: var(--macos-control-standard-background-rest);
+  --button-text: var(--macos-text-primary);
+  --button-shadow: var(--macos-control-standard-shadow);
+  --button-opacity: 1;
+  --button-bg--active: var(--macos-control-standard-background-pressed);
+  --button-bg--disabled: var(--macos-control-standard-background-rest);
+  --button-text--disabled: var(--macos-text-primary);
+  --button-shadow--disabled: var(--macos-control-standard-shadow);
+  --button-opacity--disabled: 0.4;
+  --button-shadow--focus: var(--macos-control-focused-shadow);
 }
-[data-platform-name=ios] .Button_button {
-  &.Button_primary {
-    --button-bg: var(--color-blue-50);
-    --button-text: var(--color-white);
-    --button-bg--active: var(--color-blue-70);
-    --button-text--active: var(--color-white);
-    --button-bg--disabled: var(--color-black-at-6);
-    --button-text--disabled: var(--color-black-at-36);
-  }
-  &.Button_ghost {
-    --button-bg: transparent;
-    --button-text: var(--color-blue-50);
-    --button-bg--active: rgba(57, 105, 239, 0.12);
-    --button-text--active: var(--color-blue-70);
-    --button-bg--disabled: transparent;
-    --button-text--disabled: var(--color-black-at-36);
-  }
-  [data-theme=dark] & {
-    &.Button_primary {
-      --button-bg: var(--color-blue-30);
-      --button-text: var(--color-black-at-84);
-      --button-bg--active: var(--color-blue-50);
-      --button-text--active: var(--color-black-at-84);
-      --button-bg--disabled: var(--color-black-at-6);
-      --button-text--disabled: var(--color-black-at-36);
-    }
-    &.Button_ghost {
-      --button-bg: transparent;
-      --button-text: var(--color-blue-30);
-      --button-bg--active: rgba(114, 149, 246, 0.2);
-      --button-text--active: var(--color-blue-20);
-      --button-bg--disabled: transparent;
-      --button-text--disabled: var(--color-black-at-36);
-    }
-  }
+[data-platform-name=macos] .Button_button:is(.Button_accent, .Button_accentBrand) {
+  --button-bg: var(--macos-control-accent-branded-background-rest);
+  --button-text: var(--color-white);
+  --button-shadow: var(--macos-control-accent-shadow);
+  --button-opacity: 1;
+  --button-bg--active: var(--macos-control-accent-branded-background-pressed);
+  --button-bg--disabled: var(--macos-control-standard-background-rest);
+  --button-text--disabled: var(--macos-text-primary);
+  --button-shadow--disabled: var(--macos-control-standard-shadow);
+  --button-opacity--disabled: 0.4;
+  --button-shadow--focus: var(--macos-control-focused-shadow);
 }
-[data-platform-name=windows] {
-  .Button_button {
-    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
-    border-radius: var(--border-radius-sm);
-    height: var(--sp-8);
-    border-width: 0;
-    padding-inline: var(--sp-3);
-    &:focus-visible {
-      outline: none;
-      box-shadow: var(--focus-ring);
-    }
-    &.Button_standard {
-      background-color: var(--color-black-at-6);
-      border-width: 0;
-      &:hover {
-        background-color: var(--color-black-at-9);
-        cursor: pointer;
-      }
-      &:active {
-        background-color: var(--color-black-at-12);
-      }
-      &:disabled {
-        color: var(--color-black-at-84);
-      }
-      &:disabled:hover {
-        cursor: not-allowed;
-        background-color: var(--color-white-at-6);
-      }
-    }
-    &.Button_accentBrand {
-      background-color: var(--ddg-color-primary);
-      color: var(--color-white);
-      &:hover {
-        background-color: var(--color-blue-60);
-      }
-      &:active {
-        background-color: var(--color-blue-70);
-      }
-    }
-    [data-theme=dark] & {
-      --focus-ring: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 3px var(--color-white);
-      &.Button_standard {
-        color: var(--color-white-at-84);
-        background-color: var(--color-white-at-12);
-        &:hover {
-          background-color: var(--color-white-at-18);
-        }
-        &:active {
-          background-color: var(--color-white-at-24);
-        }
-        &:disabled {
-          color: var(--color-white-at-12);
-          opacity: 0.8;
-        }
-        &:disabled:hover {
-          background-color: var(--color-white-at-12);
-        }
-      }
-      &.Button_accentBrand {
-        color: var(--color-black-at-84);
-        background-color: var(--color-blue-20);
-        &:hover {
-          background-color: var(--color-blue-30);
-        }
-        &:active {
-          background-color: var(--color-blue-40);
-        }
-        &:disabled {
-          background-color: var(--color-white-at-36);
-          color: var(--color-black-at-84);
-        }
-      }
-    }
-  }
+[data-theme=dark] :is([data-platform-name=macos] .Button_button).Button_standard {
+  --button-bg: var(--macos-control-standard-background-rest--dark);
+  --button-text: var(--color-white-at-84);
+}
+[data-platform-name=ios] .Button_button.Button_primary {
+  --button-bg: var(--color-blue-50);
+  --button-text: var(--color-white);
+  --button-bg--active: var(--color-blue-70);
+  --button-text--active: var(--color-white);
+  --button-bg--disabled: var(--color-black-at-6);
+  --button-text--disabled: var(--color-black-at-36);
+}
+[data-platform-name=ios] .Button_button.Button_ghost {
+  --button-bg: transparent;
+  --button-text: var(--color-blue-50);
+  --button-bg--active: rgba(57, 105, 239, 0.12);
+  --button-text--active: var(--color-blue-70);
+  --button-bg--disabled: transparent;
+  --button-text--disabled: var(--color-black-at-36);
+}
+[data-theme=dark] :is([data-platform-name=ios] .Button_button).Button_primary {
+  --button-bg: var(--color-blue-30);
+  --button-text: var(--color-black-at-84);
+  --button-bg--active: var(--color-blue-50);
+  --button-text--active: var(--color-black-at-84);
+  --button-bg--disabled: var(--color-black-at-6);
+  --button-text--disabled: var(--color-black-at-36);
+}
+[data-theme=dark] :is([data-platform-name=ios] .Button_button).Button_ghost {
+  --button-bg: transparent;
+  --button-text: var(--color-blue-30);
+  --button-bg--active: rgba(114, 149, 246, 0.2);
+  --button-text--active: var(--color-blue-20);
+  --button-bg--disabled: transparent;
+  --button-text--disabled: var(--color-black-at-36);
+}
+[data-platform-name=windows] .Button_button {
+  --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
+  border-radius: var(--border-radius-sm);
+  height: var(--sp-8);
+  border-width: 0;
+  padding-inline: var(--sp-3);
+}
+[data-platform-name=windows] .Button_button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+[data-platform-name=windows] .Button_button.Button_standard {
+  background-color: var(--color-black-at-6);
+  border-width: 0;
+}
+[data-platform-name=windows] .Button_button.Button_standard:hover {
+  background-color: var(--color-black-at-9);
+  cursor: pointer;
+}
+[data-platform-name=windows] .Button_button.Button_standard:active {
+  background-color: var(--color-black-at-12);
+}
+[data-platform-name=windows] .Button_button.Button_standard:disabled {
+  color: var(--color-black-at-84);
+}
+[data-platform-name=windows] .Button_button.Button_standard:disabled:hover {
+  cursor: not-allowed;
+  background-color: var(--color-white-at-6);
+}
+[data-platform-name=windows] .Button_button.Button_accentBrand {
+  background-color: var(--ddg-color-primary);
+  color: var(--color-white);
+}
+[data-platform-name=windows] .Button_button.Button_accentBrand:hover {
+  background-color: var(--color-blue-60);
+}
+[data-platform-name=windows] .Button_button.Button_accentBrand:active {
+  background-color: var(--color-blue-70);
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button) {
+  --focus-ring: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 3px var(--color-white);
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button).Button_standard {
+  color: var(--color-white-at-84);
+  background-color: var(--color-white-at-12);
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button).Button_standard:hover {
+  background-color: var(--color-white-at-18);
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button).Button_standard:active {
+  background-color: var(--color-white-at-24);
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button).Button_standard:disabled {
+  color: var(--color-white-at-12);
+  opacity: 0.8;
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button).Button_standard:disabled:hover {
+  background-color: var(--color-white-at-12);
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button).Button_accentBrand {
+  color: var(--color-black-at-84);
+  background-color: var(--color-blue-20);
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button).Button_accentBrand:hover {
+  background-color: var(--color-blue-30);
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button).Button_accentBrand:active {
+  background-color: var(--color-blue-40);
+}
+[data-theme=dark] :is([data-platform-name=windows] .Button_button).Button_accentBrand:disabled {
+  background-color: var(--color-white-at-36);
+  color: var(--color-black-at-84);
 }
 
 /* pages/release-notes/app/components/ContentPlaceholder.module.css */
-.ContentPlaceholder_contentPlaceholder {
-  & h2,
-  & p {
-    background: var(--color-black-at-6);
-  }
-  [data-theme=dark] & {
-    & h2,
-    & p {
-      background: var(--color-white-at-6);
-    }
-  }
-  h2 {
-    border-radius: var(--sp-3);
-    height: var(--sp-6);
-    width: 75%;
-  }
-  p {
-    border-radius: var(--sp-2);
-    height: var(--sp-4);
-    margin-top: var(--sp-2);
-    width: 50%;
-  }
-  ul {
-    margin-top: var(--sp-6);
-  }
-  li {
-    margin-top: var(--sp-4);
-    padding-left: var(--sp-5);
-    position: relative;
-    padding-left: var(--sp-6);
-    &::before {
-      background: var(--color-black-at-6);
-      border-radius: 0.375rem;
-      content: "";
-      display: inline-block;
-      width: var(--sp-3);
-      height: var(--sp-3);
-      position: absolute;
-      top: 0.125rem;
-      left: 0;
-    }
-    p {
-      width: 100%;
-      &:last-child {
-        width: 50%;
-      }
-    }
-  }
-  [data-theme=dark] & {
-    li::before {
-      background: var(--color-white-at-6);
-    }
-  }
+.ContentPlaceholder_contentPlaceholder :is(h2, p) {
+  background: var(--color-black-at-6);
+}
+[data-theme=dark] .ContentPlaceholder_contentPlaceholder :is(h2, p) {
+  background: var(--color-white-at-6);
+}
+.ContentPlaceholder_contentPlaceholder h2 {
+  border-radius: var(--sp-3);
+  height: var(--sp-6);
+  width: 75%;
+}
+.ContentPlaceholder_contentPlaceholder p {
+  border-radius: var(--sp-2);
+  height: var(--sp-4);
+  margin-top: var(--sp-2);
+  width: 50%;
+}
+.ContentPlaceholder_contentPlaceholder ul {
+  margin-top: var(--sp-6);
+}
+.ContentPlaceholder_contentPlaceholder li {
+  margin-top: var(--sp-4);
+  padding-left: var(--sp-5);
+  position: relative;
+  padding-left: var(--sp-6);
+}
+.ContentPlaceholder_contentPlaceholder li::before {
+  background: var(--color-black-at-6);
+  border-radius: 0.375rem;
+  content: "";
+  display: inline-block;
+  width: var(--sp-3);
+  height: var(--sp-3);
+  position: absolute;
+  top: 0.125rem;
+  left: 0;
+}
+.ContentPlaceholder_contentPlaceholder li p {
+  width: 100%;
+}
+.ContentPlaceholder_contentPlaceholder li p:last-child {
+  width: 50%;
+}
+[data-theme=dark] .ContentPlaceholder_contentPlaceholder li::before {
+  background: var(--color-white-at-6);
 }
 
 /* pages/release-notes/app/components/ReleaseNotes.module.css */
@@ -492,14 +474,14 @@ body:not([data-platform-name]) {
   --sp-4_5: calc(18 * var(--px-in-rem));
   --sp-2_5: calc(10 * var(--px-in-rem));
   --sp-1_5: calc(6 * var(--px-in-rem));
-  [data-theme=dark] & {
-    --bullet-color: var(--color-blue-20);
-  }
   margin: 0 auto;
   width: 100%;
   display: grid;
   gap: var(--sp-9);
   padding-top: var(--sp-6);
+}
+[data-theme=dark] .ReleaseNotes_article {
+  --bullet-color: var(--color-blue-20);
 }
 .ReleaseNotes_heading {
   display: grid;
@@ -540,9 +522,11 @@ body:not([data-platform-name]) {
   background: url("./Exclamation-High-Color-24-6LOXQFBN.svg") no-repeat;
 }
 .ReleaseNotes_spinnerIcon {
-  mask: url("./Spinner-16-YPLGMJ6P.svg") no-repeat;
-  background: var(--theme-text-primary-color);
+  background: url("./Spinner-16-PX3I3MW3.svg") no-repeat;
   animation: ReleaseNotes_spinner 1500ms infinite linear;
+}
+[data-theme=dark] .ReleaseNotes_spinnerIcon {
+  background-image: url("./Spinner-16-Dark-CEPTUYIF.svg");
 }
 @keyframes ReleaseNotes_spinner {
   0% {
@@ -607,25 +591,25 @@ body:not([data-platform-name]) {
   padding: 0;
   margin: 0;
   width: 100%;
-  &:last-of-type {
-    margin-bottom: 0;
-  }
+}
+.ReleaseNotes_list:last-of-type {
+  margin-bottom: 0;
 }
 .ReleaseNotes_listItem {
   margin: 0 0 0;
   position: relative;
   padding-left: var(--sp-7);
-  &::before {
-    background: var(--bullet-color);
-    border-radius: var(--sp-1_5);
-    content: "";
-    display: inline-block;
-    width: var(--sp-3);
-    height: var(--sp-3);
-    position: absolute;
-    top: var(--sp-0_5);
-    left: var(--sp-0_5);
-  }
+}
+.ReleaseNotes_listItem::before {
+  background: var(--bullet-color);
+  border-radius: var(--sp-1_5);
+  content: "";
+  display: inline-block;
+  width: var(--sp-3);
+  height: var(--sp-3);
+  position: absolute;
+  top: var(--sp-0_5);
+  left: var(--sp-0_5);
 }
 .ReleaseNotes_newTag {
   background-color: var(--color-yellow-60);
@@ -645,14 +629,14 @@ body:not([data-platform-name]) {
   display: grid;
   gap: var(--sp-10);
   padding: var(--sp-10);
-  & hr {
-    border: 0;
-    border-bottom: 1px solid black;
-    width: 100%;
-    [data-theme=dark] & {
-      border-bottom: 1px solid white;
-    }
-  }
+}
+.Components_main hr {
+  border: 0;
+  border-bottom: 1px solid black;
+  width: 100%;
+}
+[data-theme=dark] :is(.Components_main hr) {
+  border-bottom: 1px solid white;
 }
 .Components_card {
   display: grid;
@@ -772,14 +756,16 @@ body:not([data-platform-name]) {
   --theme-text-primary-color: var(--color-black-at-84);
   --theme-text-secondary-color: var(--color-black-at-60);
   --theme-text-link-color: var(--ddg-color-primary);
-  @media (prefers-color-scheme: dark) {
+  --macos-text-primary: var(--color-black-at-84);
+  --ios-content-max-width: calc(794 * var(--px-in-rem));
+}
+@media (prefers-color-scheme: dark) {
+  :root {
     --theme-background-color: var(--color-gray-95);
     --theme-text-primary-color: var(--color-white-at-85);
     --theme-text-secondary-color: var(--color-white-at-50);
     --theme-text-link-color: var(--ddg-color-primary-dark);
   }
-  --macos-text-primary: var(--color-black-at-84);
-  --ios-content-max-width: calc(794 * var(--px-in-rem));
 }
 
 /* shared/styles/reset.css */
