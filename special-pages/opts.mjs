@@ -21,7 +21,7 @@ export function baseEsbuildOptions(page, injectName, nodeEnv, output) {
         bundle: true,
         format: 'iife',
         sourcemap: nodeEnv === 'development',
-        target: 'safari11',
+        target: 'safari14',
         logOverride: { 'unsupported-css-nesting': 'silent' },
         loader: {
             '.js': 'jsx',
