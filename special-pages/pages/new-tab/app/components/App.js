@@ -31,7 +31,7 @@ export function App() {
     // prettier-ignore
     const {
         buttonRef,
-        wrapperRef,
+        asideRef,
         visibility,
         displayChildren,
         animating,
@@ -47,8 +47,8 @@ export function App() {
     return (
         <Fragment>
             <BackgroundConsumer browser={browser} />
-            <div class={styles.layout} ref={wrapperRef} data-animating={animating} data-drawer-visibility={visibility}>
-                <main class={cn(styles.main, styles.mainScroller)} data-main-scroller data-theme={main}>
+            <div class={styles.layout} data-animating={animating} data-drawer-visibility={visibility}>
+                <main class={cn(styles.main, styles.mainLayout, styles.mainScroller)} data-main-scroller data-theme={main}>
                     <div class={styles.content}>
                         <div className={styles.tube} data-content-tube data-platform={platformName}>
                             <WidgetList />
@@ -69,11 +69,12 @@ export function App() {
                 </main>
                 {customizerKind === 'drawer' && (
                     <aside
-                        class={cn(styles.aside, styles.asideScroller)}
+                        class={cn(styles.aside, styles.asideLayout, styles.asideScroller)}
                         tabindex={tabIndex}
                         aria-hidden={hidden}
                         data-theme={browser}
                         data-browser-panel
+                        ref={asideRef}
                     >
                         <div class={styles.asideContent}>
                             <InlineErrorBoundary
