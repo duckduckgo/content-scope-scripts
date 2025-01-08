@@ -28,7 +28,8 @@ body:has([data-reset-layout="true"]) .tube {
 }
 
 :global(.vertical-space) {
-    padding-block: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 /** Don't affect layout if empty (eg: if a widget was toggled) **/
@@ -37,16 +38,8 @@ body:has([data-reset-layout="true"]) .tube {
 }
 
 .layout {
-    display: grid;
-    grid-template-columns: auto 0 0;
-    grid-template-areas: "main gap aside";
-    transition: all .3s ease-in-out;
     position: relative;
     z-index: 1;
-
-    &[data-drawer-visibility='visible'] {
-        grid-template-columns: auto 4px var(--ntp-combined-width);
-    }
 }
 
 .main {
@@ -54,6 +47,14 @@ body:has([data-reset-layout="true"]) .tube {
     overflow: auto;
     grid-area: main;
     color: var(--ntp-text-normal);
+}
+
+.mainLayout {
+    padding-right: 0;
+    transition: padding-right .3s;
+    [data-drawer-visibility='visible'] & {
+        padding-right: var(--ntp-combined-width);
+    }
 }
 
 .mainScroller {
@@ -82,6 +83,7 @@ body:has([data-reset-layout="true"]) .tube {
     height: 100vh;
     z-index: 1;
     overflow: auto;
+    width: var(--ntp-combined-width);
 
     /** todo: is this re-usable in any way, or unique? */
     box-shadow: 0px 0px 1px 0px #FFF inset, 0px 0px 2px 0px rgba(0, 0, 0, 0.08), 0px 8px 12px 0px rgba(0, 0, 0, 0.12);
@@ -97,6 +99,19 @@ body:has([data-reset-layout="true"]) .tube {
     .layout[data-animating="false"] &[aria-hidden=true] {
         visibility: hidden;
         opacity: 0;
+    }
+}
+
+.asideLayout {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1;
+    transform: translateX(100%);
+    transition: transform .3s;
+
+    [data-drawer-visibility="visible"] & {
+        transform: translateX(0)
     }
 }
 

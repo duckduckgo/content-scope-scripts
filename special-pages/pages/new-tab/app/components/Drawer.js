@@ -6,7 +6,6 @@ import { useMessaging } from '../types.js';
 const CLOSE_DRAWER_EVENT = 'close-drawer';
 const TOGGLE_DRAWER_EVENT = 'toggle-drawer';
 const OPEN_DRAWER_EVENT = 'open-drawer';
-const REQUEST_VISIBILITY_EVENT = 'request-visibility';
 
 /**
  * @typedef {'hidden' | 'visible'} DrawerVisibility
@@ -21,8 +20,8 @@ const REQUEST_VISIBILITY_EVENT = 'request-visibility';
  *  - 3: we provide a way for child components to render AFTER animations have ended, again for performance.
  * @param {DrawerVisibility} initial
  * @return {{
- *     wrapperRef: import("preact").RefObject<HTMLDivElement>,
  *     buttonRef: import("preact").RefObject<HTMLButtonElement>,
+ *     asideRef: import("preact").RefObject<HTMLDivElement>,
  *     visibility: import("@preact/signals").Signal<DrawerVisibility>,
  *     buttonId: string,
  *     drawerId: string,
@@ -33,7 +32,7 @@ const REQUEST_VISIBILITY_EVENT = 'request-visibility';
  */
 export function useDrawer(initial) {
     const { isReducedMotion } = useEnv();
-    const wrapperRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const asideRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const buttonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
 
     // id's for accessibility
@@ -55,8 +54,8 @@ export function useDrawer(initial) {
     // react to the global API events
     useLayoutEffect(() => {
         const controller = new AbortController();
-        const wrapper = wrapperRef.current;
-        if (!wrapper) return;
+        const aside = asideRef.current;
+        if (!aside) return;
 
         /**
          * @param {DrawerVisibility} value
@@ -81,17 +80,8 @@ export function useDrawer(initial) {
         window.addEventListener(TOGGLE_DRAWER_EVENT, toggle, { signal: controller.signal });
         window.addEventListener(OPEN_DRAWER_EVENT, open, { signal: controller.signal });
 
-        // allow anywhere in the application to read the current state
-        wrapper.addEventListener(
-            REQUEST_VISIBILITY_EVENT,
-            (/** @type {CustomEvent} */ e) => {
-                e.detail.value = visibility.value;
-            },
-            { signal: controller.signal },
-        );
-
         // update `displayChildren` when animations complete.
-        wrapper?.addEventListener(
+        aside?.addEventListener(
             'transitionend',
             (e) => {
                 // ignore child animations
@@ -111,12 +101,15 @@ export function useDrawer(initial) {
         );
 
         // set animating = true when a parent transition starts
-        wrapper?.addEventListener(
+        aside?.addEventListener(
             'transitionstart',
             (e) => {
                 // ignore child animations
                 if (e.target !== e.currentTarget) return;
-                animating.value = true;
+                batch(() => {
+                    animating.value = true;
+                    displayChildren.value = true;
+                });
             },
             { signal: controller.signal },
         );
@@ -141,7 +134,6 @@ export function useDrawer(initial) {
     }, [initial, ntp]);
 
     return {
-        wrapperRef,
         buttonRef,
         visibility,
         displayChildren,
@@ -149,6 +141,7 @@ export function useDrawer(initial) {
         drawerId,
         hidden,
         animating,
+        asideRef,
     };
 }
 

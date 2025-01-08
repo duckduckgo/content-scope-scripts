@@ -26,7 +26,12 @@ const VERSION_PREFIX = '__ntp_29__.';
 const url = new URL(window.location.href);
 
 export function mockTransport() {
-    const channel = new BroadcastChannel('ntp');
+    let channel;
+
+    if (typeof globalThis.BroadcastChannel !== 'undefined') {
+        channel = new BroadcastChannel('ntp');
+    }
+
     /** @type {Map<string, (d: any)=>void>} */
     const subscriptions = new Map();
     if ('__playwright_01' in window) {
@@ -39,7 +44,7 @@ export function mockTransport() {
 
     function broadcast(named) {
         setTimeout(() => {
-            channel.postMessage({
+            channel?.postMessage({
                 change: named,
             });
         }, 100);
@@ -202,7 +207,7 @@ export function mockTransport() {
             switch (sub) {
                 case 'widgets_onConfigUpdated': {
                     const controller = new AbortController();
-                    channel.addEventListener(
+                    channel?.addEventListener(
                         'message',
                         (msg) => {
                             if (msg.data.change === 'widget_config') {
@@ -218,7 +223,7 @@ export function mockTransport() {
                 }
                 case 'stats_onConfigUpdate': {
                     const controller = new AbortController();
-                    channel.addEventListener(
+                    channel?.addEventListener(
                         'message',
                         (msg) => {
                             if (msg.data.change === 'stats_config') {
@@ -282,7 +287,7 @@ export function mockTransport() {
                 }
                 case 'favorites_onDataUpdate': {
                     const controller = new AbortController();
-                    channel.addEventListener(
+                    channel?.addEventListener(
                         'message',
                         (msg) => {
                             if (msg.data.change === 'favorites_data') {
@@ -342,7 +347,7 @@ export function mockTransport() {
                 }
                 case 'favorites_onConfigUpdate': {
                     const controller = new AbortController();
-                    channel.addEventListener(
+                    channel?.addEventListener(
                         'message',
                         (msg) => {
                             if (msg.data.change === 'favorites_config') {
@@ -411,6 +416,7 @@ export function mockTransport() {
                                     return true;
                                 })
                                 .map((id) => {
+                                    // eslint-disable-next-line object-shorthand
                                     return { id: /** @type {any} */ (id) };
                                 }),
                         };

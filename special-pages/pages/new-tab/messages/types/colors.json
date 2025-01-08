@@ -6,12 +6,12 @@
       "enum": [
         "gradient01",
         "gradient02",
+        "gradient02.01",
         "gradient03",
         "gradient04",
         "gradient05",
         "gradient06",
-        "gradient07",
-        "gradient08"
+        "gradient07"
       ]
     },
     "colors": {

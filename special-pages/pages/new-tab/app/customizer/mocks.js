@@ -9,7 +9,10 @@ import { values } from './values.js';
 const url = new URL(window.location.href);
 
 export function customizerMockTransport() {
-    const channel = new BroadcastChannel('ntp_customizer');
+    let channel;
+    if (typeof globalThis.BroadcastChannel !== 'undefined') {
+        channel = new BroadcastChannel('ntp_customizer');
+    }
     /** @type {Map<SubscriptionNames, any>} */
     const subscriptions = new Map();
 
@@ -19,14 +22,14 @@ export function customizerMockTransport() {
      */
     function broadcastHere(named, data) {
         setTimeout(() => {
-            channel.postMessage({
+            channel?.postMessage({
                 subscriptionName: named,
                 params: data,
             });
         }, 100);
     }
 
-    channel.addEventListener('message', (msg) => {
+    channel?.addEventListener('message', (msg) => {
         if (msg.data.subscriptionName) {
             const cb = subscriptions.get(msg.data.subscriptionName);
             if (!cb) return console.warn(`missing subscription for ${msg.data.subscriptionName}`);
