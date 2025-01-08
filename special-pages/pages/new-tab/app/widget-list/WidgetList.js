@@ -19,13 +19,31 @@ function placeholderWidget(id) {
 }
 
 /**
+ * Note: This is a temporary work-around for the esbuild target of safari11 not allowing dynamic imports
+ * @type {Record<string, () => {factory: () => import("preact").ComponentChild}>}
+ */
+const lazyLookup = {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports,no-undef
+    favorites: () => require('../entry-points/favorites.js'),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports,no-undef
+    freemiumPIRBanner: () => require('../entry-points/freemiumPIRBanner.js'),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports,no-undef
+    nextSteps: () => require('../entry-points/nextSteps.js'),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports,no-undef
+    privacyStats: () => require('../entry-points/privacyStats.js'),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports,no-undef
+    rmf: () => require('../entry-points/rmf.js'),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports,no-undef
+    updateNotification: () => require('../entry-points/updateNotification.js'),
+};
+/**
  * @param {string} id
  * @param {(message: string) => void} didCatch
- * @return {Promise<{factory: () => import("preact").ComponentChild}>}
+ * @return {{factory: () => import("preact").ComponentChild}}
  */
-export async function widgetEntryPoint(id, didCatch) {
+export function widgetEntryPoint(id, didCatch) {
     try {
-        const mod = await import(`../entry-points/${id}.js`);
+        const mod = lazyLookup[id]?.();
         if (typeof mod.factory !== 'function') {
             console.error(`module found for ${id}, but missing 'factory' export`);
             return placeholderWidget(id);

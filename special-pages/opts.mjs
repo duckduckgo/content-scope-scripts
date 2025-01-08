@@ -22,6 +22,7 @@ export function baseEsbuildOptions(page, injectName, nodeEnv, output) {
         format: 'iife',
         sourcemap: nodeEnv === 'development',
         target: 'safari11',
+        logOverride: { 'unsupported-css-nesting': 'silent' },
         loader: {
             '.js': 'jsx',
             '.module.css': 'local-css',

@@ -167,11 +167,8 @@ function installGlobalSideEffects(environment, settings) {
 async function resolveEntryPoints(widgets, didCatch) {
     try {
         const loaders = widgets.map((widget) => {
-            return (
-                widgetEntryPoint(widget.id, didCatch)
-                    // eslint-disable-next-line promise/prefer-await-to-then
-                    .then((mod) => [widget.id, mod])
-            );
+            const mod = widgetEntryPoint(widget.id, didCatch);
+            return [widget.id, mod];
         });
         const entryPoints = await Promise.all(loaders);
         return Object.fromEntries(entryPoints);
