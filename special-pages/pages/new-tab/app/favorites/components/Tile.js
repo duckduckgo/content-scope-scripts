@@ -90,7 +90,7 @@ function ImageLoader({ faviconSrc, faviconMax, title, url }) {
     return (
         <img
             src={src}
-            className={styles.favicon}
+            class={styles.favicon}
             alt={`favicon for ${title}`}
             onLoad={imgLoaded}
             onError={imgError}
@@ -122,8 +122,8 @@ export function Placeholder() {
     const id = useId();
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
     return (
-        <div className={styles.item} ref={ref} data-edge={'closestEdge' in state && state.closestEdge}>
-            <div className={cn(styles.icon, styles.placeholder)} />
+        <div class={styles.item} ref={ref} data-edge={'closestEdge' in state && state.closestEdge}>
+            <div class={cn(styles.icon, styles.placeholder)} />
             {state.type === 'is-dragging-over' && state.closestEdge ? <div class={styles.dropper} data-edge={state.closestEdge} /> : null}
         </div>
     );

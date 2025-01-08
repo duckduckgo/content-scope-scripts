@@ -16,13 +16,11 @@
     border-radius: 50%;
 
     &[aria-checked="true"] {
-        outline: 2px solid var(--ntp-color-primary);
-        outline-offset: 2px;
+        box-shadow: var(--focus-ring-primary);
     }
 
     &:focus-visible {
-        outline: 2px solid var(--ntp-focus-outline-color);
-        outline-offset: 2px;
+        box-shadow: var(--focus-ring-primary);
     }
 
     &:active {

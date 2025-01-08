@@ -46,6 +46,7 @@
     --ntp-focus-outline-color: black;
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
+    --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-color-primary);
 }
 
 [data-theme=dark] {
@@ -60,6 +61,7 @@
     --ntp-focus-outline-color: white;
     --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
+    --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-bg), 0px 0px 0px 3px var(--ntp-color-primary);
 }
 
 /* This comes from the application settings */

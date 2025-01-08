@@ -230,7 +230,7 @@ export function useItemState(url, id) {
                         },
                     );
                 },
-                getIsSticky: () => true,
+                getIsSticky: () => false,
                 canDrop: ({ source }) => {
                     return source.data.instanceId === instanceId && source.data.type === 'grid-item' && source.data.id !== id;
                 },
