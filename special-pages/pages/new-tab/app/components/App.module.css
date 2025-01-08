@@ -28,7 +28,8 @@ body:has([data-reset-layout="true"]) .tube {
 }
 
 :global(.vertical-space) {
-    padding-block: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 /** Don't affect layout if empty (eg: if a widget was toggled) **/

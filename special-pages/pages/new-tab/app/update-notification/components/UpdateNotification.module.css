@@ -14,7 +14,8 @@
     position: relative;
     text-align: center;
     width: 100%;
-    padding-block: var(--sp-6);
+    padding-top: var(--sp-6);
+    padding-bottom: var(--sp-6);
 }
 .details {
     width: 100%;
