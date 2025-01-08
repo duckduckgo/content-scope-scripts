@@ -1,13 +1,11 @@
 .item {
-    display: grid;
-    grid-row-gap: calc(6 * var(--px-in-rem));
-    align-content: center;
-    justify-content: center;
+    display: block;
     position: relative;
     text-decoration: none;
     color: currentColor;
-    padding-inline: var(--sp-3);
     outline: none;
+    padding-left: var(--sp-3);
+    padding-right: var(--sp-3);
 
     &:focus-visible .icon {
         box-shadow: var(--focus-ring);
@@ -33,6 +31,7 @@
     justify-items: center;
     width: 4rem;
     height: 4rem;
+    margin-bottom: 4px;
     border-radius: var(--border-radius-lg);
 }
 
@@ -92,9 +91,8 @@
 .text {
     text-align: center;
     font-size: calc(10 * var(--px-in-rem));
-    line-height: calc(13 * var(--px-in-rem));
+    line-height: 1.1;
     font-weight: 400;
-    min-height: 2.8em;
     overflow: hidden;
     text-overflow: ellipsis;
     line-clamp: 2;
