@@ -129,7 +129,7 @@ function SpeechBubble({ title, subtitle, onComplete, children }) {
             clearTimeout(debounce);
             window.removeEventListener('resize', handleResize);
         };
-    });
+    }, []);
 
     const onTransitionEnd = () => {
         setAnimationState((state) => {
