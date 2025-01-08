@@ -21,6 +21,7 @@ export function baseEsbuildOptions(page, injectName, nodeEnv, output) {
         bundle: true,
         format: 'iife',
         sourcemap: nodeEnv === 'development',
+        target: 'safari11',
         loader: {
             '.js': 'jsx',
             '.module.css': 'local-css',
