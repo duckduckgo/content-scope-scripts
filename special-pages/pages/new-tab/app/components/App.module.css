@@ -20,6 +20,9 @@ body {
 body:has([data-reset-layout="true"]) .tube {
     padding-top: 0;
 }
+body[data-animate-background="true"] {
+    transition: background-color .3s;
+}
 
 :global(.layout-centered) {
     margin-inline: auto;
