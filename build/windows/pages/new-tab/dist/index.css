@@ -299,6 +299,9 @@ body {
 body:has([data-reset-layout=true]) .App_tube {
   padding-top: 0;
 }
+body[data-animate-background=true] {
+  transition: background-color .3s;
+}
 .layout-centered {
   margin-inline: auto;
   width: 100%;
@@ -803,13 +806,7 @@ body:has([data-reset-layout=true]) .App_tube {
   pointer-events: none;
 }
 .BackgroundReceiver_root[data-animate=true] {
-  transition: background .25s ease-in-out;
-}
-.BackgroundReceiver_root[data-background-kind=default][data-theme=dark] {
-  background: var(--default-dark-bg);
-}
-.BackgroundReceiver_root[data-background-kind=default][data-theme=light] {
-  background: var(--default-light-bg);
+  transition: background .3s;
 }
 .BackgroundReceiver_under {
   opacity: 1;
@@ -949,6 +946,7 @@ body:has([data-reset-layout=true]) .App_tube {
 
 /* pages/new-tab/app/favorites/components/Tile.module.css */
 .Tile_item {
+  --icon-width: 4rem;
   display: block;
   position: relative;
   text-decoration: none;
@@ -981,8 +979,8 @@ body:has([data-reset-layout=true]) .App_tube {
   display: grid;
   align-content: center;
   justify-items: center;
-  width: 4rem;
-  height: 4rem;
+  width: var(--icon-width);
+  height: var(--icon-width);
   margin-bottom: 4px;
   border-radius: var(--border-radius-lg);
 }
@@ -1029,6 +1027,7 @@ body:has([data-reset-layout=true]) .App_tube {
   width: calc(32 * var(--px-in-rem));
 }
 .Tile_text {
+  width: var(--icon-width);
   text-align: center;
   font-size: calc(10 * var(--px-in-rem));
   line-height: 1.1;

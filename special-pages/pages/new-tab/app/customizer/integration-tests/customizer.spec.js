@@ -80,7 +80,7 @@ test.describe('newtab customizer', () => {
             kind: 'color',
             value: 'color01',
         });
-        await cp.hasColorBackground('color01');
+        await cp.hasColorBackground('rgb(0, 0, 0)');
     });
     test('loads with the default background and accepts theme update', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);

@@ -129,21 +129,20 @@ export class CustomizerPage {
 
     async hasDefaultBackground() {
         const { page } = this.ntp;
-        await expect(page.getByTestId('BackgroundConsumer')).toHaveCSS('background-color', 'rgb(250, 250, 250)');
+        await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(250, 250, 250)');
     }
 
     async hasDefaultDarkBackground() {
         const { page } = this.ntp;
-        await expect(page.getByTestId('BackgroundConsumer')).toHaveCSS('background-color', 'rgb(51, 51, 51)');
+        await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(51, 51, 51)');
     }
 
     /**
-     * @param {keyof typeof values.colors} color
+     * @param {string} expectedRGB
      */
-    async hasColorBackground(color) {
+    async hasColorBackground(expectedRGB) {
         const { page } = this.ntp;
-        const value = values.colors[color];
-        await expect(page.getByTestId('BackgroundConsumer')).toHaveAttribute('data-background-color', value.hex);
+        await expect(page.locator('body')).toHaveCSS('background-color', expectedRGB);
     }
 
     async selectsColor() {

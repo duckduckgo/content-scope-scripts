@@ -1664,41 +1664,48 @@
   function BackgroundConsumer({ browser }) {
     const { data } = x2(CustomizerContext);
     const background = data.value.background;
+    useSignalEffect(() => {
+      const background2 = data.value.background;
+      document.body.dataset.backgroundKind = background2.kind;
+      let nextBodyBackground = "";
+      if (background2.kind === "gradient") {
+        const gradient = values.gradients[background2.value];
+        nextBodyBackground = gradient.fallback;
+      }
+      if (background2.kind === "color") {
+        const color = values.colors[background2.value];
+        nextBodyBackground = color.hex;
+      }
+      if (background2.kind === "hex") {
+        nextBodyBackground = background2.value;
+      }
+      if (background2.kind === "userImage") {
+        const isDark = background2.value.colorScheme === "dark";
+        nextBodyBackground = isDark ? "var(--default-dark-bg)" : "var(--default-light-bg)";
+      }
+      if (background2.kind === "default") {
+        nextBodyBackground = browser.value === "dark" ? "var(--default-dark-bg)" : "var(--default-light-bg)";
+      }
+      document.body.style.setProperty("background-color", nextBodyBackground);
+      if (!document.body.dataset.animateBackground) {
+        requestAnimationFrame(() => {
+          document.body.dataset.animateBackground = "true";
+        });
+      }
+    });
     switch (background.kind) {
-      case "default": {
-        return /* @__PURE__ */ _("div", { className: BackgroundReceiver_default.root, "data-testid": "BackgroundConsumer", "data-background-kind": "default", "data-theme": browser });
-      }
+      case "color":
+      case "default":
       case "hex": {
-        return /* @__PURE__ */ _(
-          "div",
-          {
-            class: BackgroundReceiver_default.root,
-            "data-animate": "true",
-            "data-testid": "BackgroundConsumer",
-            style: {
-              backgroundColor: background.value
-            }
-          }
-        );
+        return null;
       }
-      case "color": {
-        const color = values.colors[background.value];
-        return /* @__PURE__ */ _(
-          "div",
-          {
-            class: BackgroundReceiver_default.root,
-            "data-animate": "true",
-            "data-background-color": color.hex,
-            "data-testid": "BackgroundConsumer",
-            style: {
-              backgroundColor: color.hex
-            }
-          }
-        );
+      case "userImage": {
+        const img = background.value;
+        return /* @__PURE__ */ _(ImageCrossFade, { src: img.src });
       }
       case "gradient": {
         const gradient = values.gradients[background.value];
-        return /* @__PURE__ */ _(b, { key: "gradient" }, /* @__PURE__ */ _(ImageCrossFade, { src: gradient.path }), /* @__PURE__ */ _(
+        return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(ImageCrossFade, { src: gradient.path }), /* @__PURE__ */ _(
           "div",
           {
             className: BackgroundReceiver_default.root,
@@ -1711,13 +1718,9 @@
           }
         ));
       }
-      case "userImage": {
-        const img = background.value;
-        return /* @__PURE__ */ _(ImageCrossFade, { src: img.src });
-      }
       default: {
         console.warn("Unreachable!");
-        return /* @__PURE__ */ _("div", { className: BackgroundReceiver_default.root });
+        return null;
       }
     }
   }
@@ -1758,6 +1761,7 @@
       init_hooks_module();
       init_CustomizerProvider();
       init_utils();
+      init_signals_module();
     }
   });
 

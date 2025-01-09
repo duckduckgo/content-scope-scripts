@@ -1,3 +1,1 @@
-- Fix CTL messaging in the MV2 extension (#1378)
-- build(deps-dev): bump the rollup group across 1 directory with 5 updates (#1375)
-- ntp: support big sur (#1380)
+- ntp: prevent gradients bleeding through (#1382)
