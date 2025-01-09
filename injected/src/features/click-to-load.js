@@ -1991,7 +1991,7 @@ export default class ClickToLoad extends ContentFeature {
     get messaging() {
         if (this._messaging) return this._messaging;
 
-        if (this.platform.name === 'android' || this.platform.name === 'extension') {
+        if (this.platform.name === 'extension') {
             this._clickToLoadMessagingTransport = new SendMessageMessagingTransport();
             const config = new TestTransportConfig(this._clickToLoadMessagingTransport);
             this._messaging = new Messaging(this.messagingContext, config);
@@ -2005,6 +2005,7 @@ export default class ClickToLoad extends ContentFeature {
             this._messaging = new Messaging(this.messagingContext, config);
             return this._messaging;
         } else {
+            // TODO: Android does support Messaging now, but CTL is not yet integrated there.
             throw new Error('Messaging not supported yet on platform: ' + this.name);
         }
     }
