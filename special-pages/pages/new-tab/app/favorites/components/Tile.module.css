@@ -1,4 +1,6 @@
 .item {
+    --icon-width: 4rem;
+
     display: block;
     position: relative;
     text-decoration: none;
@@ -29,8 +31,8 @@
     display: grid;
     align-content: center;
     justify-items: center;
-    width: 4rem;
-    height: 4rem;
+    width: var(--icon-width);
+    height: var(--icon-width);
     margin-bottom: 4px;
     border-radius: var(--border-radius-lg);
 }
@@ -89,6 +91,7 @@
 }
 
 .text {
+    width: var(--icon-width);
     text-align: center;
     font-size: calc(10 * var(--px-in-rem));
     line-height: 1.1;
