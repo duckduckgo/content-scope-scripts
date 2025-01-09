@@ -502,7 +502,7 @@
     const platformSupport = {
         apple: ['webCompat', ...baseFeatures],
         'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
-        android: [...baseFeatures, 'webCompat', 'clickToLoad', 'breakageReporting', 'duckPlayer'],
+        android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer'],
         'android-autofill-password-import': ['autofillPasswordImport'],
         windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
         firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
@@ -15587,7 +15587,7 @@
         get messaging() {
             if (this._messaging) return this._messaging;
 
-            if (this.platform.name === 'android' || this.platform.name === 'extension') {
+            if (this.platform.name === 'extension') {
                 this._clickToLoadMessagingTransport = new SendMessageMessagingTransport();
                 const config = new TestTransportConfig(this._clickToLoadMessagingTransport);
                 this._messaging = new Messaging(this.messagingContext, config);
@@ -15601,6 +15601,7 @@
                 this._messaging = new Messaging(this.messagingContext, config);
                 return this._messaging;
             } else {
+                // TODO: Android does support Messaging now, but CTL is not yet integrated there.
                 throw new Error('Messaging not supported yet on platform: ' + this.name);
             }
         }

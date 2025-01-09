@@ -5072,7 +5072,7 @@
               }
             );
           },
-          getIsSticky: () => true,
+          getIsSticky: () => false,
           canDrop: ({ source }) => {
             return source.data.instanceId === instanceId && source.data.type === "grid-item" && source.data.id !== id;
           },
@@ -5568,7 +5568,7 @@
       "img",
       {
         src,
-        className: Tile_default.favicon,
+        class: Tile_default.favicon,
         alt: `favicon for ${title}`,
         onLoad: imgLoaded,
         onError: imgError,
@@ -5592,7 +5592,7 @@
   function Placeholder() {
     const id = g2();
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
-    return /* @__PURE__ */ _("div", { className: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { className: (0, import_classnames5.default)(Tile_default.icon, Tile_default.placeholder) }), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.placeholder) }), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
   }
   function PlusIconWrapper({ onClick }) {
     const id = g2();
@@ -5890,7 +5890,7 @@
       init_signals_module();
       FavoritesMemo = C3(Favorites);
       ROW_CAPACITY = 6;
-      ITEM_HEIGHT = 98;
+      ITEM_HEIGHT = 90;
       ROW_GAP = 8;
     }
   });
@@ -6680,10 +6680,10 @@
         root: "PrivacyStats_root",
         listExpander: "PrivacyStats_listExpander",
         heading: "PrivacyStats_heading",
-        subtitle: "PrivacyStats_subtitle",
         headingIcon: "PrivacyStats_headingIcon",
         title: "PrivacyStats_title",
         widgetExpander: "PrivacyStats_widgetExpander",
+        subtitle: "PrivacyStats_subtitle",
         uppercase: "PrivacyStats_uppercase",
         list: "PrivacyStats_list",
         entering: "PrivacyStats_entering",
@@ -7543,9 +7543,11 @@
     tube: "App_tube",
     layout: "App_layout",
     main: "App_main",
+    mainLayout: "App_mainLayout",
     mainScroller: "App_mainScroller",
     content: "App_content",
     aside: "App_aside",
+    asideLayout: "App_asideLayout",
     asideContent: "App_asideContent",
     asideScroller: "App_asideScroller",
     paddedError: "App_paddedError",
@@ -7748,10 +7750,9 @@
   var CLOSE_DRAWER_EVENT = "close-drawer";
   var TOGGLE_DRAWER_EVENT = "toggle-drawer";
   var OPEN_DRAWER_EVENT = "open-drawer";
-  var REQUEST_VISIBILITY_EVENT = "request-visibility";
   function useDrawer(initial) {
     const { isReducedMotion } = useEnv();
-    const wrapperRef = A2(
+    const asideRef = A2(
       /** @type {HTMLDivElement|null} */
       null
     );
@@ -7770,8 +7771,8 @@
     const hidden = useComputed(() => displayChildren.value === false);
     _2(() => {
       const controller = new AbortController();
-      const wrapper = wrapperRef.current;
-      if (!wrapper) return;
+      const aside = asideRef.current;
+      if (!aside) return;
       const update = (value) => {
         visibility.value = value;
         if (isReducedMotion) {
@@ -7787,14 +7788,7 @@
       window.addEventListener(CLOSE_DRAWER_EVENT, close, { signal: controller.signal });
       window.addEventListener(TOGGLE_DRAWER_EVENT, toggle, { signal: controller.signal });
       window.addEventListener(OPEN_DRAWER_EVENT, open, { signal: controller.signal });
-      wrapper.addEventListener(
-        REQUEST_VISIBILITY_EVENT,
-        (e4) => {
-          e4.detail.value = visibility.value;
-        },
-        { signal: controller.signal }
-      );
-      wrapper?.addEventListener(
+      aside?.addEventListener(
         "transitionend",
         (e4) => {
           if (e4.target !== e4.currentTarget) return;
@@ -7808,11 +7802,14 @@
         },
         { signal: controller.signal }
       );
-      wrapper?.addEventListener(
+      aside?.addEventListener(
         "transitionstart",
         (e4) => {
           if (e4.target !== e4.currentTarget) return;
-          animating.value = true;
+          r3(() => {
+            animating.value = true;
+            displayChildren.value = true;
+          });
         },
         { signal: controller.signal }
       );
@@ -7830,14 +7827,14 @@
       });
     }, [initial, ntp]);
     return {
-      wrapperRef,
       buttonRef,
       visibility,
       displayChildren,
       buttonId,
       drawerId,
       hidden,
-      animating
+      animating,
+      asideRef
     };
   }
   function _toggle() {
@@ -8532,7 +8529,7 @@
     useContextMenu();
     const {
       buttonRef,
-      wrapperRef,
+      asideRef,
       visibility,
       displayChildren,
       animating,
@@ -8543,7 +8540,7 @@
     const tabIndex = useComputed(() => hidden.value ? -1 : 0);
     const { toggle } = useDrawerControls();
     const { main, browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, ref: wrapperRef, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames23.default)(App_default.main, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null))), /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, customizerKind === "menu" && /* @__PURE__ */ _(Customizer, null), customizerKind === "drawer" && /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames23.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null))), /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, customizerKind === "menu" && /* @__PURE__ */ _(Customizer, null), customizerKind === "drawer" && /* @__PURE__ */ _(
       CustomizerButton,
       {
         buttonId,
@@ -8555,11 +8552,12 @@
     ))), customizerKind === "drawer" && /* @__PURE__ */ _(
       "aside",
       {
-        class: (0, import_classnames23.default)(App_default.aside, App_default.asideScroller),
+        class: (0, import_classnames23.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
         tabindex: tabIndex,
         "aria-hidden": hidden,
         "data-theme": browser,
-        "data-browser-panel": true
+        "data-browser-panel": true,
+        ref: asideRef
       },
       /* @__PURE__ */ _("div", { class: App_default.asideContent }, /* @__PURE__ */ _(
         InlineErrorBoundary,

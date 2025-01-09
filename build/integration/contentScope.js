@@ -101,7 +101,7 @@
 
     // linear feedback shift register to find a random approximation
     function nextRandom(v) {
-        return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
+        return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (2147483647 << 62)));
     }
 
     const exemptionLists = {};
@@ -733,7 +733,7 @@
     const platformSupport = {
         apple: ['webCompat', ...baseFeatures],
         'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
-        android: [...baseFeatures, 'webCompat', 'clickToLoad', 'breakageReporting', 'duckPlayer'],
+        android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer'],
         'android-autofill-password-import': ['autofillPasswordImport'],
         windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
         firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
@@ -4582,7 +4582,7 @@
     		}
 
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.alea = impl;
@@ -4671,7 +4671,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xor128 = impl;
@@ -4765,7 +4765,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xorwow = impl;
@@ -4871,7 +4871,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xorshift7 = impl;
@@ -5026,7 +5026,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xor4096 = impl;
@@ -5136,7 +5136,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.tychei = impl;
@@ -10792,7 +10792,7 @@
         get messaging() {
             if (this._messaging) return this._messaging;
 
-            if (this.platform.name === 'android' || this.platform.name === 'extension') {
+            if (this.platform.name === 'extension') {
                 this._clickToLoadMessagingTransport = new SendMessageMessagingTransport();
                 const config = new TestTransportConfig(this._clickToLoadMessagingTransport);
                 this._messaging = new Messaging(this.messagingContext, config);
@@ -10806,6 +10806,7 @@
                 this._messaging = new Messaging(this.messagingContext, config);
                 return this._messaging;
             } else {
+                // TODO: Android does support Messaging now, but CTL is not yet integrated there.
                 throw new Error('Messaging not supported yet on platform: ' + this.name);
             }
         }
@@ -14504,9 +14505,7 @@
 
         mediaSessionFix() {
             try {
-                if (window.navigator.mediaSession && "integration" !== 'integration') {
-                    return;
-                }
+                if (window.navigator.mediaSession && "integration" !== 'integration') ;
 
                 class MyMediaSession {
                     metadata = null;
@@ -14550,9 +14549,7 @@
         presentationFix() {
             try {
                 // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-                if (window.navigator.presentation && "integration" !== 'integration') {
-                    return;
-                }
+                if (window.navigator.presentation && "integration" !== 'integration') ;
 
                 const MyPresentation = class {
                     get defaultRequest() {

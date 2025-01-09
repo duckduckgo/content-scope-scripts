@@ -23,7 +23,7 @@ export const ROW_CAPACITY = 6;
 /**
  * Note: These values MUST match exactly what's defined in the CSS.
  */
-const ITEM_HEIGHT = 98;
+const ITEM_HEIGHT = 90;
 const ROW_GAP = 8;
 
 /**

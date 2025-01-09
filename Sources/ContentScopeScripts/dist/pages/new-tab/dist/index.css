@@ -254,6 +254,7 @@ button {
   --ntp-focus-outline-color: black;
   --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
   --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px var(--color-white);
+  --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-color-primary);
 }
 [data-theme=dark] {
   --ntp-background-color: var(--default-dark-bg);
@@ -267,6 +268,7 @@ button {
   --ntp-focus-outline-color: white;
   --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
   --focus-ring-thin: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
+  --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-bg), 0px 0px 0px 3px var(--ntp-color-primary);
 }
 :root:has(body[data-platform-name=windows]) {
   --body-font-size: 14px;
@@ -303,27 +305,28 @@ body:has([data-reset-layout=true]) .App_tube {
   max-width: calc(504 * var(--px-in-rem));
 }
 .vertical-space {
-  padding-block: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 .layout-centered:empty {
   display: contents;
 }
 .App_layout {
-  display: grid;
-  grid-template-columns: auto 0 0;
-  grid-template-areas: "main gap aside";
-  transition: all .3s ease-in-out;
   position: relative;
   z-index: 1;
-}
-.App_layout[data-drawer-visibility=visible] {
-  grid-template-columns: auto 4px var(--ntp-combined-width);
 }
 .App_main {
   height: 100vh;
   overflow: auto;
   grid-area: main;
   color: var(--ntp-text-normal);
+}
+.App_mainLayout {
+  padding-right: 0;
+  transition: padding-right .3s;
+}
+[data-drawer-visibility=visible] .App_mainLayout {
+  padding-right: var(--ntp-combined-width);
 }
 .App_mainScroller::-webkit-scrollbar {
   width: 4px;
@@ -345,6 +348,7 @@ body:has([data-reset-layout=true]) .App_tube {
   height: 100vh;
   z-index: 1;
   overflow: auto;
+  width: var(--ntp-combined-width);
   box-shadow:
     0px 0px 1px 0px #FFF inset,
     0px 0px 2px 0px rgba(0, 0, 0, 0.08),
@@ -362,6 +366,17 @@ body:has([data-reset-layout=true]) .App_tube {
 .App_layout[data-animating=false] .App_aside[aria-hidden=true] {
   visibility: hidden;
   opacity: 0;
+}
+.App_asideLayout {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+  transform: translateX(100%);
+  transition: transform .3s;
+}
+[data-drawer-visibility=visible] .App_asideLayout {
+  transform: translateX(0);
 }
 .App_asideContent {
   opacity: 1;
@@ -934,15 +949,13 @@ body:has([data-reset-layout=true]) .App_tube {
 
 /* pages/new-tab/app/favorites/components/Tile.module.css */
 .Tile_item {
-  display: grid;
-  grid-row-gap: calc(6 * var(--px-in-rem));
-  align-content: center;
-  justify-content: center;
+  display: block;
   position: relative;
   text-decoration: none;
   color: currentColor;
-  padding-inline: var(--sp-3);
   outline: none;
+  padding-left: var(--sp-3);
+  padding-right: var(--sp-3);
 }
 .Tile_item:focus-visible .Tile_icon {
   box-shadow: var(--focus-ring);
@@ -970,6 +983,7 @@ body:has([data-reset-layout=true]) .App_tube {
   justify-items: center;
   width: 4rem;
   height: 4rem;
+  margin-bottom: 4px;
   border-radius: var(--border-radius-lg);
 }
 .Tile_draggable {
@@ -1017,9 +1031,8 @@ body:has([data-reset-layout=true]) .App_tube {
 .Tile_text {
   text-align: center;
   font-size: calc(10 * var(--px-in-rem));
-  line-height: calc(13 * var(--px-in-rem));
+  line-height: 1.1;
   font-weight: 400;
-  min-height: 2.8em;
   overflow: hidden;
   text-overflow: ellipsis;
   line-clamp: 2;
@@ -1267,7 +1280,8 @@ body:not([data-platform-name]) .Button_button:active {
   border-radius: var(--border-radius-sm);
   height: var(--sp-8);
   border-width: 0;
-  padding-inline: var(--sp-3);
+  padding-left: var(--sp-3);
+  padding-right: var(--sp-3);
 }
 [data-platform-name=windows] .Button_button:focus-visible {
   outline: none;
@@ -1654,10 +1668,6 @@ body:not([data-platform-name]) .Button_button:active {
   grid-template-columns: 1.5rem auto 2rem;
   grid-column-gap: var(--sp-2);
   grid-row-gap: var(--sp-1);
-  grid-template-rows: auto;
-  grid-template-areas: "icon title expander";
-}
-.PrivacyStats_heading:has(.PrivacyStats_subtitle) {
   grid-template-rows: auto auto;
   grid-template-areas: "icon title expander" "empty label label";
 }
@@ -1918,7 +1928,8 @@ body:not([data-platform-name]) .Button_button:active {
   position: relative;
   text-align: center;
   width: 100%;
-  padding-block: var(--sp-6);
+  padding-top: var(--sp-6);
+  padding-bottom: var(--sp-6);
 }
 .UpdateNotification_details {
   width: 100%;
@@ -2070,7 +2081,8 @@ body:not([data-platform-name]) .Button_button:active {
 }
 .CustomizerDrawerInner_bgPanel {
   display: grid;
-  aspect-ratio: 16/10.6;
+  width: 100%;
+  height: 4rem;
   border-radius: 4px;
   align-items: center;
   justify-content: center;
@@ -2079,12 +2091,10 @@ body:not([data-platform-name]) .Button_button:active {
   box-shadow: 0 0 0 1px var(--ntp-surface-border-color) inset;
 }
 .CustomizerDrawerInner_bgPanel[aria-checked=true] {
-  outline: 2px solid var(--ntp-color-primary);
-  outline-offset: 2px;
+  box-shadow: var(--focus-ring-primary);
 }
 .CustomizerDrawerInner_bgPanel:focus-visible {
-  outline: 2px solid var(--ntp-focus-outline-color);
-  outline-offset: 2px;
+  box-shadow: var(--focus-ring-primary);
 }
 .CustomizerDrawerInner_bgPanel:active {
   opacity: .9;
@@ -2231,12 +2241,10 @@ body:not([data-platform-name]) .Button_button:active {
   border-radius: 50%;
 }
 .BrowserThemeSection_themeButton[aria-checked=true] {
-  outline: 2px solid var(--ntp-color-primary);
-  outline-offset: 2px;
+  box-shadow: var(--focus-ring-primary);
 }
 .BrowserThemeSection_themeButton:focus-visible {
-  outline: 2px solid var(--ntp-focus-outline-color);
-  outline-offset: 2px;
+  box-shadow: var(--focus-ring-primary);
 }
 .BrowserThemeSection_themeButton:active {
   opacity: .9;

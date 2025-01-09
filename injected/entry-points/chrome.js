@@ -146,12 +146,13 @@ function init() {
             return console.warn('no details in sendMessage proxy', event);
         }
 
-        const messageType = event.detail?.messageType;
+        const eventDetail = JSON.parse(event.detail);
+        const messageType = eventDetail.messageType;
         if (!allowedMessages.includes(messageType)) {
             return console.warn('Ignoring invalid sendMessage messageType', messageType);
         }
 
-        chrome.runtime.sendMessage(event.detail, (response) => {
+        chrome.runtime.sendMessage(eventDetail, (response) => {
             const message = {
                 messageType: 'response',
                 responseMessageType: messageType,

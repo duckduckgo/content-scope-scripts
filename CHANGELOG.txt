@@ -1,3 +1,3 @@
-- Fixes release notes spinner on Safari 14 (#1379)
-- lower build target for special pages (#1377)
-- onboarding: fixed a memory leak due a missing dependency array (#1376)
+- Fix CTL messaging in the MV2 extension (#1378)
+- build(deps-dev): bump the rollup group across 1 directory with 5 updates (#1375)
+- ntp: support big sur (#1380)

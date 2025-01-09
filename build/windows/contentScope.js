@@ -101,7 +101,7 @@
 
     // linear feedback shift register to find a random approximation
     function nextRandom(v) {
-        return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
+        return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (2147483647 << 62)));
     }
 
     const exemptionLists = {};
@@ -762,7 +762,7 @@
     const platformSupport = {
         apple: ['webCompat', ...baseFeatures],
         'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
-        android: [...baseFeatures, 'webCompat', 'clickToLoad', 'breakageReporting', 'duckPlayer'],
+        android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer'],
         'android-autofill-password-import': ['autofillPasswordImport'],
         windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
         firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
@@ -4914,7 +4914,7 @@
     		}
 
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.alea = impl;
@@ -5003,7 +5003,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xor128 = impl;
@@ -5097,7 +5097,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xorwow = impl;
@@ -5203,7 +5203,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xorshift7 = impl;
@@ -5358,7 +5358,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xor4096 = impl;
@@ -5468,7 +5468,7 @@
     		  return prng;
     		}
 
-    		if (module && module.exports) {
+    		if (module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.tychei = impl;
