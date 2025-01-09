@@ -5,6 +5,7 @@ import { values } from '../customizer/values.js';
 import { useContext, useState } from 'preact/hooks';
 import { CustomizerContext } from '../customizer/CustomizerProvider.js';
 import { detectThemeFromHex } from '../customizer/utils.js';
+import { useSignalEffect } from '@preact/signals';
 
 /**
  * @import { BackgroundVariant, BrowserTheme } from "../../types/new-tab"
@@ -59,40 +60,56 @@ export function BackgroundConsumer({ browser }) {
     const { data } = useContext(CustomizerContext);
     const background = data.value.background;
 
-    switch (background.kind) {
-        case 'default': {
-            return <div className={styles.root} data-testid="BackgroundConsumer" data-background-kind="default" data-theme={browser} />;
+    useSignalEffect(() => {
+        const background = data.value.background;
+
+        // reflect some values onto the <body> tag
+        document.body.dataset.backgroundKind = background.kind;
+        let nextBodyBackground = '';
+
+        if (background.kind === 'gradient') {
+            const gradient = values.gradients[background.value];
+            nextBodyBackground = gradient.fallback;
         }
-        case 'hex': {
-            return (
-                <div
-                    class={styles.root}
-                    data-animate="true"
-                    data-testid="BackgroundConsumer"
-                    style={{
-                        backgroundColor: background.value,
-                    }}
-                ></div>
-            );
-        }
-        case 'color': {
+        if (background.kind === 'color') {
             const color = values.colors[background.value];
-            return (
-                <div
-                    class={styles.root}
-                    data-animate="true"
-                    data-background-color={color.hex}
-                    data-testid="BackgroundConsumer"
-                    style={{
-                        backgroundColor: color.hex,
-                    }}
-                ></div>
-            );
+            nextBodyBackground = color.hex;
+        }
+        if (background.kind === 'hex') {
+            nextBodyBackground = background.value;
+        }
+        if (background.kind === 'userImage') {
+            const isDark = background.value.colorScheme === 'dark';
+            nextBodyBackground = isDark ? 'var(--default-dark-bg)' : 'var(--default-light-bg)';
+        }
+        if (background.kind === 'default') {
+            nextBodyBackground = browser.value === 'dark' ? 'var(--default-dark-bg)' : 'var(--default-light-bg)';
+        }
+
+        document.body.style.setProperty('background-color', nextBodyBackground);
+
+        // let animations occur, after properties above have been flushed to the DOM
+        if (!document.body.dataset.animateBackground) {
+            requestAnimationFrame(() => {
+                document.body.dataset.animateBackground = 'true';
+            });
+        }
+    });
+
+    switch (background.kind) {
+        case 'color':
+        case 'default':
+        case 'hex': {
+            return null;
+        }
+        case 'userImage': {
+            const img = background.value;
+            return <ImageCrossFade src={img.src} />;
         }
         case 'gradient': {
             const gradient = values.gradients[background.value];
             return (
-                <Fragment key="gradient">
+                <Fragment>
                     <ImageCrossFade src={gradient.path}></ImageCrossFade>
                     <div
                         className={styles.root}
@@ -102,17 +119,13 @@ export function BackgroundConsumer({ browser }) {
                             opacity: 0.5,
                             mixBlendMode: 'soft-light',
                         }}
-                    ></div>
+                    />
                 </Fragment>
             );
         }
-        case 'userImage': {
-            const img = background.value;
-            return <ImageCrossFade src={img.src} />;
-        }
         default: {
             console.warn('Unreachable!');
-            return <div className={styles.root}></div>;
+            return null;
         }
     }
 }

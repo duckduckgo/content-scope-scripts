@@ -8,13 +8,7 @@
     pointer-events: none;
 
     &[data-animate="true"] {
-        transition: background .25s ease-in-out;
-    }
-    &[data-background-kind="default"][data-theme=dark] {
-        background: var(--default-dark-bg);
-    }
-    &[data-background-kind="default"][data-theme=light] {
-        background: var(--default-light-bg);
+        transition: background .3s;
     }
 }
 
