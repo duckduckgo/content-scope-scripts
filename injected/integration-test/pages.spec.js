@@ -56,4 +56,14 @@ test.describe('Test integration pages', () => {
             `./integration-test/test-pages/webcompat/config/modify-localstorage.json`,
         );
     });
+
+    test('Properly modifies cookies', async ({ page }, testInfo) => {
+        // prettier-ignore
+        await testPage(
+            page,
+            testInfo,
+            'webcompat/pages/modify-cookies.html',
+            `./integration-test/test-pages/webcompat/config/modify-cookies.json`,
+        );
+    });
 });

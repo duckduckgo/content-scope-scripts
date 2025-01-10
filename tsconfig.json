@@ -29,7 +29,6 @@
     "playwright.config.js",
     "injected",
     "injected/src/globals.d.ts",
-    "injected/src/features/duckplayer/duckplayer-settings.ts",
     "typedoc.js",
     ".github/scripts"
   ],
