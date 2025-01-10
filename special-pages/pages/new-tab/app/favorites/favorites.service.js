@@ -18,6 +18,7 @@ export class FavoritesService {
         /** @type {Service<FavoritesData>} */
         this.dataService = new Service({
             initial: () => ntp.messaging.request('favorites_getData'),
+            get: () => ntp.messaging.request('favorites_getData'),
             subscribe: (cb) => ntp.messaging.subscribe('favorites_onDataUpdate', cb),
         });
 

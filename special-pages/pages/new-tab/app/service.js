@@ -16,6 +16,7 @@ export class Service {
     /**
      * @param {object} props
      * @param {() => Promise<Data>} [props.initial]
+     * @param {() => Promise<Data>} [props.get]
      * @param {(fn: (t: Data) => void) => () => void} [props.subscribe] - optional subscribe
      * @param {(t: Data) => void} [props.persist] - optional persist method
      * @param {(old: Data) => Data} [props.update] - optional updater
@@ -38,6 +39,16 @@ export class Service {
         if (!this.impl.initial) throw new Error('unreachable');
         const initial = await this.impl.initial();
         this._accept(initial, 'initial');
+        return /** @type {Data} */ (this.data);
+    }
+
+    /**
+     * @return {Promise<Data>}
+     */
+    async get() {
+        if (!this.impl.get) throw new Error('unreachable - `get` not implemented');
+        const initial = await this.impl.get();
+        this._accept(initial, 'get');
         return /** @type {Data} */ (this.data);
     }
 
@@ -102,7 +113,7 @@ export class Service {
 
     /**
      * @param {Data} data
-     * @param {'initial' | 'subscription' | 'manual'} source
+     * @param {'initial' | 'subscription' | 'manual' | 'get'} source
      * @private
      */
     _accept(data, source) {

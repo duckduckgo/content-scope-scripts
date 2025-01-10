@@ -68,6 +68,7 @@ export function FavoritesProvider({ children }) {
     const [state, dispatch] = useReducer(reducer, initial);
 
     const service = useService();
+    const messaging = useMessaging();
 
     // get initial data
     useInitialDataAndConfig({ dispatch, service });
@@ -123,6 +124,25 @@ export function FavoritesProvider({ children }) {
         },
         [service],
     );
+
+    useEffect(() => {
+        let prev = document.visibilityState;
+        const handler = () => {
+            const current = document.visibilityState;
+            if (prev !== current) {
+                prev = current;
+                if (current === 'visible') {
+                    if (!service.current) return console.warn('missing service');
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    service.current.dataService.get().catch(console.error);
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', handler);
+        return () => {
+            document.removeEventListener('visibilitychange', handler);
+        };
+    }, [messaging, service]);
 
     return (
         <FavoritesContext.Provider value={{ state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add, onConfigChanged }}>
