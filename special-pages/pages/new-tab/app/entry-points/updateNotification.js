@@ -4,8 +4,10 @@ import { UpdateNotificationProvider } from '../update-notification/UpdateNotific
 
 export function factory() {
     return (
-        <UpdateNotificationProvider data-entry-point="updateNotification">
-            <UpdateNotificationConsumer />
-        </UpdateNotificationProvider>
+        <div data-entry-point="updateNotification">
+            <UpdateNotificationProvider>
+                <UpdateNotificationConsumer />
+            </UpdateNotificationProvider>
+        </div>
     );
 }

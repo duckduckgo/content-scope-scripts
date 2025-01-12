@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './UpdateNotification.module.css';
 import { useContext, useId, useRef } from 'preact/hooks';
@@ -25,6 +25,11 @@ export function UpdateNotification({ notes, dismiss, version }) {
     );
 }
 
+/**
+ * @param {object} props
+ * @param {string[]} props.notes
+ * @param {string} props.version
+ */
 export function WithNotes({ notes, version }) {
     const id = useId();
     const ref = useRef(/** @type {HTMLDetailsElement|null} */ (null));
@@ -45,27 +50,46 @@ export function WithNotes({ notes, version }) {
             }}
         />
     );
+    /** @type {{title: string, notes:string[]}[]} */
+    const chunks = [{ title: '', notes: [] }];
+    let index = 0;
+
+    for (const note of notes) {
+        const trimmed = note.trim();
+        if (!trimmed) continue;
+        if (trimmed.startsWith('•')) {
+            /**
+             * Note: Doing this here as a very specific 'view' concern
+             * Note: using the `if` + `.slice` to avoid regex
+             * Note: `.slice` is safe on `•` because it is a single Unicode character
+             *       and is represented by a single UTF-16 code unit.
+             */
+            const bullet = trimmed.slice(1).trim();
+            chunks[index].notes.push(bullet);
+        } else {
+            chunks.push({ title: trimmed, notes: [] });
+            index += 1;
+        }
+    }
+
     return (
         <details ref={ref}>
             <summary tabIndex={-1} className={styles.summary}>
                 {t('updateNotification_updated_version', { version })} {inlineLink}
             </summary>
             <div id={id} class={styles.detailsContent}>
-                <ul class={styles.list}>
-                    {notes.map((note, index) => {
-                        /**
-                         * Note: Doing this here as a very specific 'view' concern
-                         * Note: using the `if` + `.slice` to avoid regex
-                         * Note: `.slice` is safe on `•` because it is a single Unicode character
-                         *       and is represented by a single UTF-16 code unit.
-                         */
-                        let trimmed = note.trim();
-                        if (trimmed.startsWith('•')) {
-                            trimmed = trimmed.slice(1).trim();
-                        }
-                        return <li key={note + index}>{trimmed}</li>;
-                    })}
-                </ul>
+                {chunks.map((chunk, index) => {
+                    return (
+                        <Fragment key={chunk.title + index}>
+                            {chunk.title && <p class={styles.title}>{chunk.title}</p>}
+                            <ul class={styles.list}>
+                                {chunk.notes.map((note, index) => {
+                                    return <li key={note + index}>{note}</li>;
+                                })}
+                            </ul>
+                        </Fragment>
+                    );
+                })}
             </div>
         </details>
     );

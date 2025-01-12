@@ -490,11 +490,11 @@ export function mockTransport() {
                     let updateNotification = { content: null };
                     const isDelayed = url.searchParams.has('update-notification-delay');
 
-                    if (!isDelayed && url.searchParams.get('update-notification') === 'empty') {
-                        updateNotification = updateNotificationExamples.empty;
-                    }
-                    if (!isDelayed && url.searchParams.get('update-notification') === 'populated') {
-                        updateNotification = updateNotificationExamples.populated;
+                    if (!isDelayed && url.searchParams.has('update-notification')) {
+                        const value = url.searchParams.get('update-notification');
+                        if (value && value in updateNotificationExamples) {
+                            updateNotification = updateNotificationExamples[value];
+                        }
                     }
 
                     /** @type {import('../types/new-tab.ts').InitialSetupResponse} */
