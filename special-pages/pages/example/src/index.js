@@ -1,5 +1,5 @@
 /**
- * Special Page example. Used as a template for new special pages.
+ * Example Special Page
  *
  * @module Example Page
  */
