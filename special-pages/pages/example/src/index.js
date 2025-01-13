@@ -60,11 +60,11 @@ const messaging = createSpecialPageMessaging({
     pageName: /** @type {string} */ (import.meta.pageName),
 });
 
-const example = new ExamplePage(messaging);
+const page = new ExamplePage(messaging);
 
-init(example, baseEnvironment).catch((e) => {
+init(page, baseEnvironment).catch((e) => {
     // messages.
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
-    example.reportInitException({ message: msg });
+    page.reportInitException({ message: msg });
 });

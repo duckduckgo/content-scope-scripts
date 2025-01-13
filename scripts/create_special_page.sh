@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Path to special pages relative to this script
+BASE_PATH="../special-pages/pages"
+EXAMPLE_PATH="$BASE_PATH/example"
+
+# Function to convert dashed words to Pascal Case
+to_pascal_case() {
+  echo "$1" | awk -F'-' '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2); print $0}' | tr -d ' '
+}
+
+# Check if the parameter is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <new-page-name>"
+  exit 1
+fi
+
+# Define the new folder name
+NEW_PAGE="$1"
+NEW_PAGE_PATH="$BASE_PATH/$NEW_PAGE"
+
+# Change to script directory
+cd "$(dirname "$0")"
+
+# Copy the "example" folder to the new folder
+cp -r "$EXAMPLE_PATH" "$NEW_PAGE_PATH"
+
+# The following sed commands are optimized for the sed version of macOS. 
+# GNU sed may have a different syntax.
+
+# Replace occurrences of "example" with the new folder name in all files except readme.md
+find "$NEW_PAGE_PATH" -type f ! -name "readme.md" -exec sed -i "" -e "s/example/$NEW_PAGE/g" {} +
+
+# Get the Pascal Case version of the new folder name
+PASCAL_CASE_NAME=$(to_pascal_case "$NEW_PAGE")
+
+# Replace occurrences of "Example" with the Pascal Case value in all files except readme.md
+find "$NEW_PAGE_PATH" -type f ! -name "readme.md" -exec sed -i "" -e "s/Example/$PASCAL_CASE_NAME/g" {} +
+
+# Rename translations file
+mv "$NEW_PAGE_PATH/public/locales/en/example.json" "$NEW_PAGE_PATH/public/locales/en/${NEW_PAGE}.json"
+
+# Reset readme to boilerplate text
+echo "# $PASCAL_CASE_NAME" > "$NEW_PAGE_PATH/readme.md\n\nA brand new special page"
+
+echo "Special Page '$NEW_PAGE' created"
