@@ -76,3 +76,7 @@ children:
 ### {@link "NewTab Messages".ReportPageExceptionNotification `reportPageException`}
   - Sent when the application failed after initialization (for example, a JavaScript exception prevented it)
   - Sends: `{ message: string }` - see {@link "NewTab Messages".ReportPageExceptionNotify}
+
+### {@link "NewTab Messages".SurveySubmitNotification `survey_submit`}
+  - Sent when the survey is filled out
+  - Sends: `{ feedback: string }`

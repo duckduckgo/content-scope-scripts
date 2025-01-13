@@ -18,5 +18,9 @@
   "widgets_visibility_menu_title": {
     "title": "Customize New Tab Page",
     "note": "Heading text describing that there's a list of toggles for customizing the page layout."
+  },
+  "survey_submit_btn": {
+    "title": "Submit Feedback!",
+    "note": "Button text for submitting a feedback survey"
   }
 }

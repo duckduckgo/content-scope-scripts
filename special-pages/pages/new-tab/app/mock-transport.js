@@ -479,6 +479,7 @@ export function mockTransport() {
                         { id: 'nextSteps' },
                         { id: 'favorites' },
                         { id: 'privacyStats' },
+                        { id: 'survey' },
                     ];
 
                     const widgetConfigFromStorage = read('widget_config') || [

@@ -95,4 +95,20 @@ test.describe('newtab widgets', () => {
             },
         });
     });
+    test('survey', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage();
+        await page.locator('#feedback').fill('hello world!');
+        await page.getByRole('button', { name: 'Submit Feedback!' }).click();
+        const outgoing = await ntp.mocks.outgoing({ names: ['survey_submit'] });
+        expect(outgoing[0].payload).toStrictEqual({
+            context: 'specialPages',
+            featureName: 'newTabPage',
+            method: 'survey_submit',
+            params: {
+                feedback: 'hello world!',
+            },
+        });
+    });
 });

@@ -29,6 +29,10 @@
     "title": "Customize New Tab Page",
     "note": "Heading text describing that there's a list of toggles for customizing the page layout."
   },
+  "survey_submit_btn": {
+    "title": "Submit Feedback!",
+    "note": "Button text for submitting a feedback survey"
+  },
   "updateNotification_updated_version": {
     "title": "Browser Updated to version {version}.",
     "note": "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"

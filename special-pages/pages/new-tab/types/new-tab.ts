@@ -109,6 +109,7 @@ export interface NewTabMessages {
     | StatsSetConfigNotification
     | StatsShowLessNotification
     | StatsShowMoreNotification
+    | SurveySubmitNotification
     | TelemetryEventNotification
     | UpdateNotificationDismissNotification
     | WidgetsSetConfigNotification;
@@ -434,6 +435,16 @@ export interface StatsShowLessNotification {
  */
 export interface StatsShowMoreNotification {
   method: "stats_showMore";
+}
+/**
+ * Generated from @see "../messages/survey_submit.notify.json"
+ */
+export interface SurveySubmitNotification {
+  method: "survey_submit";
+  params: SurveySubmitNotify;
+}
+export interface SurveySubmitNotify {
+  feedback: string;
 }
 /**
  * Generated from @see "../messages/telemetryEvent.notify.json"
