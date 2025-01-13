@@ -954,6 +954,7 @@ body[data-animate-background=true] {
   outline: none;
   padding-left: var(--sp-3);
   padding-right: var(--sp-3);
+  height: 96px;
 }
 .Tile_item:focus-visible .Tile_icon {
   box-shadow: var(--focus-ring);
@@ -981,7 +982,7 @@ body[data-animate-background=true] {
   justify-items: center;
   width: var(--icon-width);
   height: var(--icon-width);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   border-radius: var(--border-radius-lg);
 }
 .Tile_draggable {
@@ -1030,7 +1031,7 @@ body[data-animate-background=true] {
   width: var(--icon-width);
   text-align: center;
   font-size: calc(10 * var(--px-in-rem));
-  line-height: 1.1;
+  line-height: calc(13 * var(--px-in-rem));
   font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1965,12 +1966,17 @@ body:not([data-platform-name]) .Button_button:active {
   display: none;
 }
 .UpdateNotification_detailsContent {
-  padding-inline: var(--sp-2);
-  margin-top: var(--sp-2);
+  margin-top: var(--sp-4);
   text-align: left;
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.UpdateNotification_title {
+  padding: 0.5rem 0;
 }
 .UpdateNotification_list {
-  margin-left: var(--sp-20);
+  margin-left: 1.5rem;
 }
 .UpdateNotification_list li {
   list-style: disc;

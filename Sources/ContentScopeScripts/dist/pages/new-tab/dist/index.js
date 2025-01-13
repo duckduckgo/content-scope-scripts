@@ -2525,9 +2525,7 @@
       (cb) => {
         if (!service.current) return;
         return service.current.onConfig((event) => {
-          if (event.source === "manual") {
-            cb(event.data);
-          }
+          cb(event.data);
         });
       },
       [service]
@@ -5889,7 +5887,7 @@
       init_signals_module();
       FavoritesMemo = C3(Favorites);
       ROW_CAPACITY = 6;
-      ITEM_HEIGHT = 90;
+      ITEM_HEIGHT = 96;
       ROW_GAP = 8;
     }
   });
@@ -7320,6 +7318,7 @@
         inlineLink: "UpdateNotification_inlineLink",
         summary: "UpdateNotification_summary",
         detailsContent: "UpdateNotification_detailsContent",
+        title: "UpdateNotification_title",
         list: "UpdateNotification_list",
         dismiss: "UpdateNotification_dismiss"
       };
@@ -7468,13 +7467,24 @@
         }
       }
     );
-    return /* @__PURE__ */ _("details", { ref }, /* @__PURE__ */ _("summary", { tabIndex: -1, className: UpdateNotification_default.summary }, t4("updateNotification_updated_version", { version }), " ", inlineLink), /* @__PURE__ */ _("div", { id, class: UpdateNotification_default.detailsContent }, /* @__PURE__ */ _("ul", { class: UpdateNotification_default.list }, notes.map((note, index) => {
-      let trimmed = note.trim();
+    const chunks = [{ title: "", notes: [] }];
+    let index = 0;
+    for (const note of notes) {
+      const trimmed = note.trim();
+      if (!trimmed) continue;
       if (trimmed.startsWith("\u2022")) {
-        trimmed = trimmed.slice(1).trim();
+        const bullet = trimmed.slice(1).trim();
+        chunks[index].notes.push(bullet);
+      } else {
+        chunks.push({ title: trimmed, notes: [] });
+        index += 1;
       }
-      return /* @__PURE__ */ _("li", { key: note + index }, trimmed);
-    }))));
+    }
+    return /* @__PURE__ */ _("details", { ref }, /* @__PURE__ */ _("summary", { tabIndex: -1, className: UpdateNotification_default.summary }, t4("updateNotification_updated_version", { version }), " ", inlineLink), /* @__PURE__ */ _("div", { id, class: UpdateNotification_default.detailsContent }, chunks.map((chunk, index2) => {
+      return /* @__PURE__ */ _(b, { key: chunk.title + index2 }, chunk.title && /* @__PURE__ */ _("p", { class: UpdateNotification_default.title }, chunk.title), /* @__PURE__ */ _("ul", { class: UpdateNotification_default.list }, chunk.notes.map((note, index3) => {
+        return /* @__PURE__ */ _("li", { key: note + index3 }, note);
+      })));
+    })));
   }
   function WithoutNotes({ version }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -7511,7 +7521,7 @@
     factory: () => factory6
   });
   function factory6() {
-    return /* @__PURE__ */ _(UpdateNotificationProvider, { "data-entry-point": "updateNotification" }, /* @__PURE__ */ _(UpdateNotificationConsumer, null));
+    return /* @__PURE__ */ _("div", { "data-entry-point": "updateNotification" }, /* @__PURE__ */ _(UpdateNotificationProvider, null, /* @__PURE__ */ _(UpdateNotificationConsumer, null)));
   }
   var init_updateNotification = __esm({
     "pages/new-tab/app/entry-points/updateNotification.js"() {

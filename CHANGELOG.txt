@@ -1,1 +1,4 @@
-- ntp: prevent gradients bleeding through (#1382)
+- ntp: ensure cross-window sections collapse (#1387)
+- Revert "removed the restriction on config subscription"
+- removed the restriction on config subscription
+- ntp: support multiple release-note lists (#1385)

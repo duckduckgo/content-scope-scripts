@@ -33,4 +33,21 @@ test.describe('newtab update notifications', () => {
         await page.getByRole('button', { name: 'Dismiss' }).click();
         await ntp.mocks.waitForCallCount({ method: 'updateNotification_dismiss', count: 1 });
     });
+    test('handles multiple lists', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ updateNotification: 'multipleSections' });
+        await page.getByRole('link', { name: "what's new" }).click();
+        await expect(page.locator('[data-entry-point="updateNotification"]')).toMatchAriaSnapshot(`
+        - group:
+          - list:
+            - listitem: We're excited to introduce a new browsing feature - Fire Windows. These special windows work the same way as normal windows, except they isolate your activity from other browsing data and self-destruct when closed. This means you can use a Fire Window to browse without saving local history or to sign into a site with a different account. You can open a new Fire Window anytime from the Fire Button menu.
+            - listitem: Try the new bookmark management view that opens in a tab for more robust bookmark organization.
+          - paragraph: For Privacy Pro subscribers
+          - list:
+            - listitem: VPN notifications are now available to help communicate VPN status.
+            - listitem: Some apps aren't compatible with VPNs. You can now exclude these apps to use them while connected to the VPN.
+            - listitem: Visit https://duckduckgo.com/pro for more information.
+        `);
+    });
 });
