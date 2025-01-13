@@ -19,7 +19,7 @@ export class ExamplePage {
 
     /**
      * Sends an initial message to the native layer. This is the opportunity for the native layer
-     * to provide the initial state of the application or any configuration, for example:
+     * to provide the initial state of the application or any configuration, e.g.:
      *
      * ```json
      * {
