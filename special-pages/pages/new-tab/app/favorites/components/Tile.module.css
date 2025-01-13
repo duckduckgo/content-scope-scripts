@@ -8,6 +8,7 @@
     outline: none;
     padding-left: var(--sp-3);
     padding-right: var(--sp-3);
+    height: 96px;
 
     &:focus-visible .icon {
         box-shadow: var(--focus-ring);
@@ -33,7 +34,7 @@
     justify-items: center;
     width: var(--icon-width);
     height: var(--icon-width);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     border-radius: var(--border-radius-lg);
 }
 
@@ -88,13 +89,25 @@
         height: calc(32 * var(--px-in-rem));
         width: calc(32 * var(--px-in-rem));
     }
+
+    /*&[data-state="loading favicon-src"] {*/
+    /*    outline: 1px solid blue;*/
+    /*}*/
+
+    /*&[data-state="did load favicon-src"] {*/
+    /*    outline: 1px solid green;*/
+    /*}*/
+
+    /*&[data-state="did load fallback"] {*/
+    /*    outline: 1px dotted orange;*/
+    /*}*/
 }
 
 .text {
     width: var(--icon-width);
     text-align: center;
     font-size: calc(10 * var(--px-in-rem));
-    line-height: 1.1;
+    line-height: calc(13 * var(--px-in-rem));
     font-weight: 400;
     overflow: hidden;
     text-overflow: ellipsis;
