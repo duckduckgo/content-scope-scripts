@@ -12,13 +12,16 @@ const EXAMPLE_PATH = path.join(BASE_PATH, 'example');
 
 // Function to convert dashed words to Pascal Case
 const toPascalCase = (str) => {
-    return str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+    return str
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join('');
 };
 
 // Function to recursively replace occurrences in files
 const replaceInFiles = (dir, searchValue, replaceValue) => {
     const files = fs.readdirSync(dir);
-    files.forEach(file => {
+    files.forEach((file) => {
         const filePath = path.join(dir, file);
         const stat = fs.statSync(filePath);
         if (stat.isDirectory()) {
