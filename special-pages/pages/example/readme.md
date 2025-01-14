@@ -8,6 +8,15 @@ Special Page IDs must use kebab-case. For the examples below, we'll assume your 
 
 You may create a special page manually or using a script. See below for each method.
 
+### Scripted method
+
+```sh
+cd special-pages
+npm run create -- my-feature
+# Preview your new page at http://localhost:8000/
+npm run watch -- --page my-feature 
+```
+
 ### Manual method
 
 1. Switch to the `special-pages` folder
@@ -17,15 +26,6 @@ You may create a special page manually or using a script. See below for each met
 4. Delete the type definitions file `./types/example.ts` -- a new file will be generated the next time you build the project
 5. Update `./readme.md`
 6. From the `special-pages` folder, run `npm run watch -- --page my-feature` to preview your new page at http://localhost:8000/
-
-### Scripted method
-
-```sh
-cd special-pages
-npm run create -- my-feature
-# Preview your new page at http://localhost:8000/
-npm run watch -- --page my-feature 
-```
 
 ## Integration
 
