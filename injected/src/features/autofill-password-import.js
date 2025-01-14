@@ -23,6 +23,7 @@ export const DELAY_BEFORE_ANIMATION = 300;
  * @property {ButtonAnimationStyle} animationStyle
  * @property {boolean} shouldTap
  * @property {boolean} shouldWatchForRemoval
+ * @property {boolean} animateOnce
  */
 
 /**
@@ -49,6 +50,9 @@ export default class AutofillPasswordImport extends ContentFeature {
     #currentElementConfig;
 
     #domLoaded;
+
+    /** @type {Set<string>} */
+    #animatedPaths = new Set();
 
     /**
      * @returns {ButtonAnimationStyle}
@@ -140,6 +144,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                       element,
                       shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
                       shouldWatchForRemoval: false,
+                      animateOnce: false,
                   }
                 : null;
         } else if (path === '/options') {
@@ -150,6 +155,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                       element,
                       shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
                       shouldWatchForRemoval: true,
+                      animateOnce: true,
                   }
                 : null;
         } else if (path === '/intro') {
@@ -160,6 +166,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                       element,
                       shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
                       shouldWatchForRemoval: false,
+                      animateOnce: false,
                   }
                 : null;
         } else {
@@ -398,7 +405,10 @@ export default class AutofillPasswordImport extends ContentFeature {
         if (this.isSupportedPath(path)) {
             try {
                 this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
-                await this.animateOrTapElement();
+                if (this.currentElementConfig?.animateOnce && !this.#animatedPaths.has(path)) {
+                    this.#animatedPaths.add(path);
+                    await this.animateOrTapElement();
+                }
             } catch {
                 console.error('password-import: failed for path:', path);
             }
