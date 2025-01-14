@@ -13,14 +13,12 @@ You may create a special page manually or using a script. See below for each met
 ```sh
 cd special-pages
 npm run create -- my-feature
-# Preview your new page at http://localhost:8000/
-npm run watch -- --page my-feature 
+npm run watch -- --page my-feature # Preview at http://localhost:8000/
 ```
 
 ### Manual method
 
-1. Switch to the `special-pages` folder
-2. Duplicate the folder `./pages/example` under the new page id `./pages/my-feature`
+1. Duplicate the folder `/special-pages/pages/example` under the new page id `/special-pages/pages/my-feature`
 2. Within the new folder `./pages/my-feature`, find and replace all occurrences of `example` with `my-feature`, and `Example` with `MyFeature`
 3. Rename the translations file `./public/locales/en/example.json` to `my-feature.json`
 4. Delete the type definitions file `./types/example.ts` -- a new file will be generated the next time you build the project
