@@ -1,4 +1,2 @@
-- ntp: ensure cross-window sections collapse (#1387)
-- Revert "removed the restriction on config subscription"
-- removed the restriction on config subscription
-- ntp: support multiple release-note lists (#1385)
+- Support modifying cookies (#1384)
+- build(deps-dev): bump @duckduckgo/privacy-configuration (#1396)
