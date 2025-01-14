@@ -25,6 +25,23 @@
                 "op": "add",
                 "path": "/modifyCookies/changes/-",
                 "value": {
+                  "key": "pathCookie",
+                  "action": "delete"
+                }
+              },
+              {
+                "op": "add",
+                "path": "/modifyCookies/changes/-",
+                "value": {
+                  "key": "pathCookieWithPath",
+                  "path": "/webcompat/pages/",
+                  "action": "delete"
+                }
+              },
+              {
+                "op": "add",
+                "path": "/modifyCookies/changes/-",
+                "value": {
                   "key": "nonexistentKey",
                   "action": "delete"
                 }
