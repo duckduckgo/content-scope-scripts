@@ -23,6 +23,7 @@ export const DELAY_BEFORE_ANIMATION = 300;
  * @property {ButtonAnimationStyle} animationStyle
  * @property {boolean} shouldTap
  * @property {boolean} shouldWatchForRemoval
+ * @property {boolean} tapOnce
  */
 
 /**
@@ -49,6 +50,9 @@ export default class AutofillPasswordImport extends ContentFeature {
     #currentElementConfig;
 
     #domLoaded;
+
+    /** @type {Set<string>} */
+    #animatedPaths = new Set();
 
     /**
      * @returns {ButtonAnimationStyle}
@@ -136,31 +140,34 @@ export default class AutofillPasswordImport extends ContentFeature {
             const element = await this.findSettingsElement();
             return element != null
                 ? {
-                      animationStyle: this.settingsButtonAnimationStyle,
-                      element,
-                      shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
-                      shouldWatchForRemoval: false,
-                  }
+                    animationStyle: this.settingsButtonAnimationStyle,
+                    element,
+                    shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
+                    shouldWatchForRemoval: false,
+                    tapOnce: false,
+                }
                 : null;
         } else if (path === '/options') {
             const element = await this.findExportElement();
             return element != null
                 ? {
-                      animationStyle: this.exportButtonAnimationStyle,
-                      element,
-                      shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
-                      shouldWatchForRemoval: true,
-                  }
+                    animationStyle: this.exportButtonAnimationStyle,
+                    element,
+                    shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
+                    shouldWatchForRemoval: true,
+                    tapOnce: true,
+                }
                 : null;
         } else if (path === '/intro') {
             const element = await this.findSignInButton();
             return element != null
                 ? {
-                      animationStyle: this.signInButtonAnimationStyle,
-                      element,
-                      shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
-                      shouldWatchForRemoval: false,
-                  }
+                    animationStyle: this.signInButtonAnimationStyle,
+                    element,
+                    shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
+                    shouldWatchForRemoval: false,
+                    tapOnce: false,
+                }
                 : null;
         } else {
             return null;
@@ -398,7 +405,12 @@ export default class AutofillPasswordImport extends ContentFeature {
         if (this.isSupportedPath(path)) {
             try {
                 this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
-                await this.animateOrTapElement();
+                if (!this.#animatedPaths.has(path)) {
+                    await this.animateOrTapElement();
+                    if (this.currentElementConfig?.shouldTap && this.currentElementConfig?.tapOnce) {
+                        this.#animatedPaths.add(path);
+                    }
+                }
             } catch {
                 console.error('password-import: failed for path:', path);
             }

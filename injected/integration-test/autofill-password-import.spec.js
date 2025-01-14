@@ -5,7 +5,7 @@ import { ResultsCollector } from './page-objects/results-collector.js';
 const HTML = '/autofill-password-import/index.html';
 const CONFIG = './integration-test/test-pages/autofill-password-import/config/config.json';
 
-test('Password import feature', async ({ page }, testInfo) => {
+test.only('Password import feature', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, CONFIG);
 
