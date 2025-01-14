@@ -17,9 +17,9 @@ You may create a special page manually or using a shell script. See below for ea
 5. Update `./readme.md`
 6. From the `special-pages` folder, run `npm run watch -- --page my-feature` to preview your new page at http://localhost:8000/
 
-### Using create_special_page.sh
+### Using create-special-page.sh
 
-1. From the root folder, run `./scripts/create_special_page.sh my-feature`
+1. From the root folder, run `./scripts/create-special-page.sh my-feature`
 2. From the `special-pages` folder, run `npm run watch -- --page my-feature` to preview your new page at http://localhost:8000/
 
 ## Integration
