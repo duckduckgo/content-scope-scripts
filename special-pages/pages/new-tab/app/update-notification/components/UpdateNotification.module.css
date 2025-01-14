@@ -56,13 +56,17 @@
 }
 
 .detailsContent {
-    padding-inline: var(--sp-2);
-    margin-top: var(--sp-2);
+    margin-top: var(--sp-4);
     text-align: left;
+    max-width: 380px; /* just a value that looks below it's centered heading */
+    margin-left: auto;
+    margin-right: auto;
 }
-
+.title {
+    padding: 0.5rem 0;
+}
 .list {
-    margin-left: var(--sp-20);
+    margin-left: 1.5rem;
     li {
         list-style: disc
     }

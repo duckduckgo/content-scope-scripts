@@ -116,9 +116,7 @@ export function FavoritesProvider({ children }) {
         (cb) => {
             if (!service.current) return;
             return service.current.onConfig((event) => {
-                if (event.source === 'manual') {
-                    cb(event.data);
-                }
+                cb(event.data);
             });
         },
         [service],
