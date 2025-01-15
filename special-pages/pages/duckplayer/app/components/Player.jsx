@@ -1,11 +1,15 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './Player.module.css';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { useSettings } from '../providers/SettingsProvider.jsx';
 import { createIframeFeatures } from '../features/iframe.js';
 import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
+
+/**
+ * @typedef {'invalid-id'|'bot-detected'} PlayerError
+ */
 
 /**
  * Player component renders an embedded media player.
@@ -16,6 +20,7 @@ import { useTypedTranslation } from '../types.js';
  */
 export function Player({ src, layout }) {
     const { ref, didLoad } = useIframeEffects(src);
+
     const wrapperClasses = cn({
         [styles.root]: true,
         [styles.player]: true,
@@ -46,12 +51,13 @@ export function Player({ src, layout }) {
 /**
  * @param {object} props
  * @param {Settings['layout']} props.layout
- * @param {'invalid-id'} props.kind
+ * @param {PlayerError} props.kind
  */
 export function PlayerError({ kind, layout }) {
     const { t } = useTypedTranslation();
     const errors = {
         ['invalid-id']: <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />,
+        ['bot-detected']: <span dangerouslySetInnerHTML={{ __html: t('botDetectedError') }} />,
     };
     const text = errors[kind] || errors['invalid-id'];
     return (

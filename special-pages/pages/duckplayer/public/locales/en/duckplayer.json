@@ -33,6 +33,10 @@
     "title": "<b>ERROR:</b> Invalid video id",
     "note": "Shown when the page URL doesn't match a known video ID. Note for translators: The <b> tag makes the word 'ERROR:' bold. Depending on the grammar of the target language, you might need to move it so that the correct word is emphasized."
   },
+  "botDetectedError": {
+    "title": "<b>ERROR:</b> Bot detected",
+    "note": "Message for bot detected"
+  },
   "tooltipInfo": {
     "title": "Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations."
   }

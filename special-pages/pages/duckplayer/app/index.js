@@ -10,6 +10,7 @@ import { Settings } from './settings.js';
 import { SettingsProvider } from './providers/SettingsProvider.jsx';
 import { MessagingContext, TelemetryContext } from './types.js';
 import { UserValuesProvider } from './providers/UserValuesProvider.jsx';
+import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
 import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx';
 import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
@@ -79,27 +80,29 @@ export async function init(messaging, telemetry, baseEnvironment) {
                     <TelemetryContext.Provider value={telemetry}>
                         <MessagingContext.Provider value={messaging}>
                             <SettingsProvider settings={settings}>
-                                <UserValuesProvider initial={init.userValues}>
-                                    {settings.layout === 'desktop' && (
-                                        <TranslationProvider
-                                            translationObject={enStrings}
-                                            fallback={enStrings}
-                                            textLength={environment.textLength}
-                                        >
-                                            <DesktopApp embed={embed} />
-                                        </TranslationProvider>
-                                    )}
-                                    {settings.layout === 'mobile' && (
-                                        <TranslationProvider
-                                            translationObject={strings}
-                                            fallback={enStrings}
-                                            textLength={environment.textLength}
-                                        >
-                                            <MobileApp embed={embed} />
-                                        </TranslationProvider>
-                                    )}
-                                    <WillThrow />
-                                </UserValuesProvider>
+                                <YouTubeErrorProvider>
+                                    <UserValuesProvider initial={init.userValues}>
+                                        {settings.layout === 'desktop' && (
+                                            <TranslationProvider
+                                                translationObject={enStrings}
+                                                fallback={enStrings}
+                                                textLength={environment.textLength}
+                                            >
+                                                <DesktopApp embed={embed} />
+                                            </TranslationProvider>
+                                        )}
+                                        {settings.layout === 'mobile' && (
+                                            <TranslationProvider
+                                                translationObject={strings}
+                                                fallback={enStrings}
+                                                textLength={environment.textLength}
+                                            >
+                                                <MobileApp embed={embed} />
+                                            </TranslationProvider>
+                                        )}
+                                        <WillThrow />
+                                    </UserValuesProvider>
+                                </YouTubeErrorProvider>
                             </SettingsProvider>
                         </MessagingContext.Provider>
                     </TelemetryContext.Provider>

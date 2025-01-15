@@ -6,6 +6,7 @@ import { Player, PlayerError } from './Player.jsx';
 import { useSettings } from '../providers/SettingsProvider.jsx';
 import { createAppFeaturesFrom } from '../features/app.js';
 import { HideInFocusMode } from './FocusMode.jsx';
+import { useYouTubeError } from '../providers/YouTubeErrorProvider';
 
 /**
  * @param {object} props
@@ -29,6 +30,12 @@ export function DesktopApp({ embed }) {
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
 function DesktopLayout({ embed }) {
+    const error = useYouTubeError();
+
+    if (error) {
+        return <PlayerError layout={'desktop'} kind={'invalid-id'} />;
+    }
+
     return (
         <div class={styles.desktop}>
             <PlayerContainer>
