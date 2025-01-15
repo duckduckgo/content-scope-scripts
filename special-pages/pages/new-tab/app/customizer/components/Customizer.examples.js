@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { noop } from '../../utils.js';
-import { CustomizerButton } from './Customizer.js';
+import { CustomizerButton } from './CustomizerMenu.js';
 import { EmbeddedVisibilityMenu, VisibilityMenu } from './VisibilityMenu.js';
 import { BackgroundSection } from './BackgroundSection.js';
 import { ColorSelection } from './ColorSelection.js';
@@ -66,7 +66,7 @@ export const customizerExamples = {
     'customizer-menu': {
         factory: () => (
             <MaxContent>
-                <CustomizerButton isOpen={true} />
+                <CustomizerButton isOpen={true} kind="menu" />
                 <br />
                 <VisibilityMenu
                     rows={[

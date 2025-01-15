@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useTelemetry } from '../types.js';
-import { useCustomizer } from '../customizer/components/Customizer.js';
+import { useCustomizer } from '../customizer/components/CustomizerMenu.js';
 import { Telemetry } from './telemetry.js';
 
 export function DebugCustomized({ index }) {

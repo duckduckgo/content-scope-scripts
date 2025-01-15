@@ -139,7 +139,7 @@ title: Customizer
         "background": { "kind": "color", "value": "color01" }
       } 
       ```
-
+  
 - {@link "NewTab Messages".CustomizerSetThemeNotification `customizer_setTheme`}.
     - Sends {@link "NewTab Messages".CustomizerSetBackgroundNotify} whenever needed.
     - For example:
@@ -151,8 +151,7 @@ title: Customizer
 
 - {@link "NewTab Messages".CustomizerUploadNotification `customizer_upload`}.
     - Sent to trigger a file upload
-
-
+  
 - {@link "NewTab Messages".CustomizerDeleteImageNotification `customizer_deleteImage`}.
     - Sends {@link "NewTab Messages".CustomizerDeleteImageNotify} whenever needed.
     - For example:
