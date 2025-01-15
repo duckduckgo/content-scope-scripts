@@ -1,0 +1,36 @@
+.root {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.controls {
+    display: flex;
+    gap: 8px;
+}
+.largeButton {
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+    border: none;
+
+    svg {
+        flex-shrink: 0
+    }
+
+    &:hover {
+        background-color: var(--history-surface-color)
+    }
+}
+.search {
+    margin-left: auto;
+}
+.searchInput {
+    width: 238px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--history-surface-border-color);
+    padding-left: 9px;
+    padding-right: 9px;
+}
