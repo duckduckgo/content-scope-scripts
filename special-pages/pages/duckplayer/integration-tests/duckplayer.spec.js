@@ -39,6 +39,16 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.openWithVideoID('UNSUPPORTED');
         await duckplayer.opensInYoutubeFromError({ videoID: 'UNSUPPORTED' });
     });
+    test('supports "watch on youtube" for videos that require sign-in', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithVideoID('SIGN_IN_REQUIRED');
+        await duckplayer.opensInYoutubeFromError({ videoID: 'SIGN_IN_REQUIRED' });
+    });
+    test('shows error screen for videos that require sign-in', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithVideoID('SIGN_IN_REQUIRED');
+        await duckplayer.hasShownErrorMessage('ERROR: Bot detected');
+    });
     test('clears storage', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithVideoID();

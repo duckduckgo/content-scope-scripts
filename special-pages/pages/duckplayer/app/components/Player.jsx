@@ -1,14 +1,19 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './Player.module.css';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 import { useSettings } from '../providers/SettingsProvider.jsx';
 import { createIframeFeatures } from '../features/iframe.js';
 import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
 
+export const PLAYER_ERRORS = {
+    invalidId: 'invalid-id',
+    botDetected: 'bot-detected',
+}
+
 /**
- * @typedef {'invalid-id'|'bot-detected'} PlayerError
+ * @typedef {typeof PLAYER_ERRORS[keyof typeof PLAYER_ERRORS]} PlayerError
  */
 
 /**
@@ -20,7 +25,6 @@ import { useTypedTranslation } from '../types.js';
  */
 export function Player({ src, layout }) {
     const { ref, didLoad } = useIframeEffects(src);
-
     const wrapperClasses = cn({
         [styles.root]: true,
         [styles.player]: true,
@@ -60,6 +64,7 @@ export function PlayerError({ kind, layout }) {
         ['bot-detected']: <span dangerouslySetInnerHTML={{ __html: t('botDetectedError') }} />,
     };
     const text = errors[kind] || errors['invalid-id'];
+
     return (
         <div
             class={cn(styles.root, {
@@ -108,6 +113,7 @@ function useIframeEffects(src) {
             features.clickCapture(),
             features.titleCapture(),
             features.mouseCapture(),
+            features.errorDetection(),
         ];
 
         /**

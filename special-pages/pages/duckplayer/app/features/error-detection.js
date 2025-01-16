@@ -17,6 +17,13 @@ export class ErrorDetection {
     iframeDidLoad(iframe) {
         const documentBody = iframe.contentWindow?.document?.body;
         if (documentBody) {
+            // Check if iframe already contains error
+            const error = nodeContainsError(documentBody);
+            if (error) {
+                window.dispatchEvent(new CustomEvent(IFRAME_ERROR_EVENT, { detail: { error } }));
+                return null;
+            }
+
             // Create a MutationObserver instance
             const observer = new MutationObserver(handleMutation);
 
@@ -40,11 +47,11 @@ const handleMutation = (mutationsList) => {
         if (mutation.type === 'childList') {
             mutation.addedNodes.forEach((node) => {
                 // Check if the added node is a div with the class ytp-error
-                const error = errorForNode(node);
+                const error = nodeIsError(node);
                 if (error) {
                     console.log('A node with an error has been added to the document:', node);
 
-                    window.dispatchEvent(new CustomEvent(IFRAME_ERROR_EVENT, { detail: error }));
+                    window.dispatchEvent(new CustomEvent(IFRAME_ERROR_EVENT, { detail: { error } }));
                 }
             });
         }
@@ -52,17 +59,36 @@ const handleMutation = (mutationsList) => {
 };
 
 /**
+ * Analyses children of a node to determine if it contains an error state
+ *
+ * @param {Node} [node]
+ * @returns {PlayerError|null}
+ */
+const nodeContainsError = (node) => {
+    if (node?.nodeType === Node.ELEMENT_NODE) {
+        const element = /** @type {HTMLElement} */ (node);
+        const errorElement = element.querySelector('ytp-error');
+
+        if (errorElement) {
+            return 'bot-detected'; // TODO: More generic naming 
+        }
+    }
+
+    return null;
+}
+
+/**
  * Analyses attributes of a node to determine if it contains an error state
  *
  * @param {Node} [node]
  * @returns {PlayerError|null}
  */
-const errorForNode = (node) => {
+const nodeIsError = (node) => {
     // if (node.nodeType === Node.ELEMENT_NODE && /** @type {HTMLElement} */(node).classList.contains('ytp-error')) {
     if (node?.nodeType === Node.ELEMENT_NODE) {
         const element = /** @type {HTMLElement} */ (node);
         if (element.classList.contains('ytp-error')) {
-            return 'bot-detected';
+            return 'bot-detected'; // TODO: More generic naming 
         }
         // Add other error detection logic here
     }

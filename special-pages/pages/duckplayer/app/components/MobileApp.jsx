@@ -11,6 +11,7 @@ import { MobileButtons } from './MobileButtons.jsx';
 import { OrientationProvider } from '../providers/OrientationProvider.jsx';
 import { FocusMode } from './FocusMode.jsx';
 import { useTelemetry } from '../types.js';
+import { useYouTubeError } from '../providers/YouTubeErrorProvider';
 
 const DISABLED_HEIGHT = 450;
 
@@ -51,12 +52,17 @@ export function MobileApp({ embed }) {
  */
 function MobileLayout({ embed }) {
     const platformName = usePlatformName();
+    const error = useYouTubeError();
+
+    // TODO: Better conditionals for showing error or player
+
     return (
         <main class={styles.main}>
             <div class={cn(styles.filler, styles.hideInFocus)} />
             <div class={styles.embed}>
                 {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'} />}
-                {embed !== null && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
+                {embed !== null && !error && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
+                {embed !== null && error && <PlayerError layout={'mobile'} kind={error} />}
             </div>
             <div class={cn(styles.logo, styles.hideInFocus)}>
                 <MobileWordmark />

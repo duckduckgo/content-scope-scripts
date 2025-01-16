@@ -1,6 +1,7 @@
 import { useContext, useState } from 'preact/hooks';
 import { h, createContext } from 'preact';
 import { useEffect } from 'preact/hooks';
+import { PLAYER_ERRORS } from '../components/Player';
 
 export const IFRAME_ERROR_EVENT = 'iframe-error';
 
@@ -26,8 +27,9 @@ export function YouTubeErrorProvider({ initial = null, children }) {
     useEffect(() => {
         /** @type {(event: CustomEvent) => void} */
         const errorEventHandler = (event) => {
-            if (event.detail) {
-                setError(event.detail.error || null);
+            const error = event.detail?.error
+            if (Object.values(PLAYER_ERRORS).includes(error) || error === null) {
+                setError(error);
             }
         };
 

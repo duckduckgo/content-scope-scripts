@@ -23,6 +23,26 @@ const html = {
 </div>
 </body>
 </html>`,
+    signInRequired: `<html><head><title>${MOCK_VIDEO_TITLE}</title></head>
+<body>
+<div class="ytp-error" role="alert" data-layer="4">
+  <div class="ytp-error-content" style="padding-top: 165px">
+    <div class="ytp-error-content-wrap">
+      <div class="ytp-error-content-wrap-reason"><span>Sign in to confirm you’re not a bot</span></div>
+      <div class="ytp-error-content-wrap-subreason">
+        <span
+          ><span>This helps protect our community. </span
+          ><a
+            href="https://support.google.com/youtube/answer/3037019#zippy=%2Ccheck-that-youre-signed-into-youtube"
+            >Learn more</a
+          ></span
+        >
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>`,
 };
 
 /**
@@ -152,6 +172,14 @@ export class DuckPlayerPage {
                 return request.fulfill({
                     status: 200,
                     body: html.unsupported,
+                    contentType: 'text/html',
+                });
+            }
+
+            if (urlParams.get('videoID') === 'SIGN_IN_REQUIRED') {
+                return request.fulfill({
+                    status: 200,
+                    body: html.signInRequired,
                     contentType: 'text/html',
                 });
             }
@@ -306,8 +334,12 @@ export class DuckPlayerPage {
         await expect(this.page.locator('iframe')).toHaveAttribute('src', expected);
     }
 
-    async hasShownErrorMessage() {
-        await expect(this.page.getByText('ERROR: Invalid video id')).toBeVisible();
+    /**
+     * 
+     * @param {string} text 
+     */
+    async hasShownErrorMessage(text = 'ERROR: Invalid video id') {
+        await expect(this.page.getByText(text)).toBeVisible();
     }
 
     async hasNotAddedIframe() {

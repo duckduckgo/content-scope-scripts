@@ -32,15 +32,14 @@ export function DesktopApp({ embed }) {
 function DesktopLayout({ embed }) {
     const error = useYouTubeError();
 
-    if (error) {
-        return <PlayerError layout={'desktop'} kind={'invalid-id'} />;
-    }
+    // TODO: Better conditionals for showing error or player
 
     return (
         <div class={styles.desktop}>
             <PlayerContainer>
                 {embed === null && <PlayerError layout={'desktop'} kind={'invalid-id'} />}
-                {embed !== null && <Player src={embed.toEmbedUrl()} layout={'desktop'} />}
+                {embed !== null && !error && <Player src={embed.toEmbedUrl()} layout={'desktop'} />}
+                {embed !== null && error && <PlayerError layout={'desktop'} kind={error} />}
                 <HideInFocusMode style={'slide'}>
                     <InfoBarContainer>
                         <InfoBar embed={embed} />
