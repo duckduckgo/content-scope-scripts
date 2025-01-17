@@ -12,6 +12,13 @@ When dragging - the follow data is available:
  - `"application/vnd.duckduckgo.bookmark-by-id": "<favorite id>"`
  - See this link for the actual value used in code: {@link "New Tab Constants".DDG_MIME_TYPE}
 
+## Favicons
+
+There are three representations of a favicon: image source, letters, or fallback icon
+
+- if the favicon image source is absent, or it fails to load (404), we'll then try to use 'letters'
+- if the `etldPlusOne` field is `null` though, we won't use any letters, and we'll load a default globe icon instead 
+
 # Messages
 
 ## Requests:

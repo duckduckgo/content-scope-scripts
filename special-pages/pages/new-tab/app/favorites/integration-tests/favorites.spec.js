@@ -109,11 +109,11 @@ test.describe('newtab favorites', () => {
         await ntp.openPage({ favorites: 'small-icon' });
         await favorites.requestsSmallFavicon();
     });
-    test('requests loads fallbacks', async ({ page }, workerInfo) => {
+    test('handling icon fallbacks', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
-        // const favorites = new FavoritesPage(ntp)
+        const favorites = new FavoritesPage(ntp);
         await ntp.reducedMotion();
-        await ntp.openPage({ favorites: 'fallbacks' });
+        await favorites.hasFallbackIcons(() => ntp.openPage({ favorites: 'fallbacks' }));
     });
     test('expansion works with expanded items above', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
