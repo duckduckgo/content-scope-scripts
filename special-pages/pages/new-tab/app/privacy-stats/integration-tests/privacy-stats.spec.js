@@ -75,7 +75,7 @@ test.describe('newtab privacy stats', () => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
             await ntp.openPage({ additional: { stats: 'none' } });
-            await page.getByText('No recent tracking activity').waitFor();
+            await page.getByText('Tracking protections active').waitFor();
             await expect(page.getByLabel('Hide recent activity')).not.toBeVisible();
             await expect(page.getByLabel('Show recent activity')).not.toBeVisible();
         },
@@ -143,6 +143,23 @@ test.describe('newtab privacy stats', () => {
 
             await psp.receive({ count: 2 });
             await psp.hasRows(2);
+        },
+    );
+    test(
+        'when all trackers are not within the top 100 companies',
+        {
+            annotation: {
+                type: 'issue',
+                description: 'https://app.asana.com/0/1201141132935289/1209123210947322/f',
+            },
+        },
+        async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const psp = new PrivacyStatsPage(page, ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { stats: 'onlyother' } });
+            await psp.hasRows(0);
+            await psp.hasHeading('2 tracking attempts blocked');
         },
     );
 });
