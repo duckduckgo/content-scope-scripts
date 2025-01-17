@@ -19,7 +19,18 @@ export function FavoritesConsumer() {
     if (state.status === 'ready') {
         telemetry.measureFromPageLoad('favorites-will-render', 'time to favorites');
         return (
-            <PragmaticDND items={state.data.favorites} itemsDidReOrder={favoritesDidReOrder}>
+            <PragmaticDND
+                items={state.data.favorites}
+                itemsDidReOrder={(params) => {
+                    if (state.config.animation?.kind === 'view-transitions') {
+                        document.startViewTransition(() => {
+                            favoritesDidReOrder(params);
+                        });
+                    } else {
+                        favoritesDidReOrder(params);
+                    }
+                }}
+            >
                 <FavoritesMemo
                     favorites={state.data.favorites}
                     expansion={state.config.expansion}

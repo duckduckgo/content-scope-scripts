@@ -46,6 +46,7 @@ export function Tile_({ url, etldPlusOne, faviconSrc, faviconMax, index, title, 
             data-index={index}
             data-dropped={String(dropped)}
             data-edge={'closestEdge' in state && state.closestEdge}
+            style={{ viewTransitionName: `tile-${id}` }}
             ref={ref}
         >
             <div class={cn(styles.icon, styles.draggable)}>

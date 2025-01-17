@@ -23,17 +23,6 @@
           "const": "view-transitions"
         }
       }
-    },
-    {
-      "title": "Auto",
-      "description": "Use the auto-animate library to provide default animation styles",
-      "type": "object",
-      "required": ["kind"],
-      "properties": {
-        "kind": {
-          "const": "auto-animate"
-        }
-      }
     }
   ]
 }
