@@ -139,7 +139,7 @@ title: Customizer
         "background": { "kind": "color", "value": "color01" }
       } 
       ```
-
+  
 - {@link "NewTab Messages".CustomizerSetThemeNotification `customizer_setTheme`}.
     - Sends {@link "NewTab Messages".CustomizerSetBackgroundNotify} whenever needed.
     - For example:
@@ -151,13 +151,23 @@ title: Customizer
 
 - {@link "NewTab Messages".CustomizerUploadNotification `customizer_upload`}.
     - Sent to trigger a file upload
-
-
+  
 - {@link "NewTab Messages".CustomizerDeleteImageNotification `customizer_deleteImage`}.
     - Sends {@link "NewTab Messages".CustomizerDeleteImageNotify} whenever needed.
     - For example:
     - ```json
       {
         "id": "abc"
+      } 
+      ```
+  
+- {@link "NewTab Messages".CustomizerContextMenuNotification `customizer_contextMenu`}.
+    - Sends {@link "NewTab Messages".UserImageContextMenu} 
+    - Note: only sent for right-clicks on user images in the selection screen.
+    - For example:
+    - ```json
+      {
+        "target": "userImage",
+        "id": "01"
       } 
       ```

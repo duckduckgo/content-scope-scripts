@@ -233,6 +233,42 @@ export class FavoritesPage {
     }
 
     /**
+     * @param {() => Promise<void>} setup
+     */
+    async hasFallbackIcons(setup) {
+        const { page } = this.ntp;
+
+        // watch for the fallback icon response
+        const req = page.waitForResponse((res) => res.url().endsWith('other.svg'));
+
+        // load the page
+        await setup();
+
+        // wait for the image to be loaded
+        await req;
+
+        // grab all the styles of the fallback icons
+        const wrapper = page.locator('[data-entry-point="favorites"]');
+        const letterFallbacks = await wrapper.evaluate((wrapper) => {
+            const icons = wrapper.querySelectorAll('[data-state="using_fallback_text"]');
+            return Array.from(icons).map((/** @type {HTMLElement} */ icon) => icon.style?.backgroundColor);
+        });
+
+        // These are known to be correct, and exist here to prevent accidental changes
+        // see the `fallbacks` sample data in `favorites.data.js`
+        // prettier-ignore
+        expect(letterFallbacks).toStrictEqual([
+            "rgb(231, 165, 56)",
+            "rgb(153, 219, 122)",
+            "rgb(107, 180, 239)"
+        ]);
+
+        // grab the fallback image from the grid. This will fail if there's more than 1
+        const imgFallback = await wrapper.locator('[data-state="did_load_fallback_img"]').getAttribute('src');
+        expect(imgFallback?.endsWith('other.svg')).toBe(true);
+    }
+
+    /**
      * Accepts an external drop at a specified index on the page.
      *
      * @param {Object} param

@@ -324,12 +324,15 @@ body[data-animate-background=true] {
   grid-area: main;
   color: var(--ntp-text-normal);
 }
+.App_themeContext {
+  color: var(--ntp-text-normal);
+}
 .App_mainLayout {
-  padding-right: 0;
-  transition: padding-right .3s;
+  will-change: transform;
+  transition: transform .3s;
 }
 [data-drawer-visibility=visible] .App_mainLayout {
-  padding-right: var(--ntp-combined-width);
+  transform: translateX(calc(0px - var(--ntp-combined-width) / 2));
 }
 .App_mainScroller::-webkit-scrollbar {
   width: 4px;
@@ -375,6 +378,7 @@ body[data-animate-background=true] {
   right: 0;
   top: 0;
   z-index: 1;
+  will-change: transform;
   transform: translateX(100%);
   transition: transform .3s;
 }
@@ -408,7 +412,7 @@ body[data-animate-background=true] {
   position: relative;
 }
 .Customizer_lowerRightFixed {
-  position: fixed;
+  position: absolute;
   bottom: 1rem;
   right: 1rem;
 }
@@ -453,6 +457,14 @@ body[data-animate-background=true] {
 [data-theme=dark] .Customizer_customizeButton:active {
   background-color: var(--color-white-at-24);
   border-color: var(--color-white-at-50);
+}
+.Customizer_customizeButton[data-kind=drawer][aria-expanded=true] {
+  visibility: hidden;
+}
+@media screen and (max-width: 800px) {
+  .Customizer_customizeButton span {
+    display: none;
+  }
 }
 
 /* pages/new-tab/app/components/Icons.module.css */
@@ -504,7 +516,7 @@ body[data-animate-background=true] {
   font-size: var(--title-3-em-font-size);
 }
 .VisibilityMenu_embedded {
-  font-size: var(--small-label-font-size);
+  font-size: var(--body-font-size);
   gap: 12px;
 }
 .VisibilityMenu_menuItemLabel {
@@ -514,19 +526,16 @@ body[data-animate-background=true] {
   white-space: nowrap;
   height: calc(28 * var(--px-in-rem));
 }
-.VisibilityMenu_menuItemLabel > * {
-  min-width: 0;
-}
-.VisibilityMenu_menuItemLabel label {
-  margin-left: auto;
-}
 .VisibilityMenu_menuItemLabelEmbedded {
   white-space: normal;
   gap: 6px;
   height: auto;
 }
-.VisibilityMenu_menuItemLabelEmbedded > * {
-  min-width: auto;
+.VisibilityMenu_menuItemLabelEmbedded *:last-child {
+  margin-left: auto;
+}
+.VisibilityMenu_menuItemLabelEmbedded input:focus-visible + * {
+  box-shadow: var(--focus-ring);
 }
 .VisibilityMenu_svg {
   flex-shrink: 0;
@@ -805,14 +814,19 @@ body[data-animate-background=true] {
   object-fit: cover;
   pointer-events: none;
 }
-.BackgroundReceiver_root[data-animate=true] {
-  transition: background .3s;
+.BackgroundReceiver_root[data-state=loadingFirst] {
+  animation-name: BackgroundReceiver_fade-in;
+  animation-fill-mode: both;
+  animation-duration: .25s;
+  animation-iteration-count: 1;
 }
-.BackgroundReceiver_under {
-  opacity: 1;
-}
-.BackgroundReceiver_over {
-  opacity: 0;
+@keyframes BackgroundReceiver_fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* pages/new-tab/app/favorites/components/Favorites.module.css */
@@ -985,6 +999,13 @@ body[data-animate-background=true] {
   margin-bottom: 6px;
   border-radius: var(--border-radius-lg);
 }
+.Tile_preview {
+  color: var(--ntp-text-normal);
+  transform: scale(0.8);
+}
+.Tile_preview img {
+  opacity: 0.8;
+}
 .Tile_draggable {
   -webkit-backdrop-filter: blur(48px);
   backdrop-filter: blur(48px);
@@ -1022,10 +1043,20 @@ body[data-animate-background=true] {
   background-size: contain;
   pointer-events: none;
 }
-.Tile_favicon[data-loaded][data-did-try-fallback] {
+.Tile_faviconText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: lowercase;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
   border-radius: var(--border-radius-md);
   height: calc(32 * var(--px-in-rem));
   width: calc(32 * var(--px-in-rem));
+}
+.Tile_faviconText span:first-child {
+  text-transform: uppercase;
 }
 .Tile_text {
   width: var(--icon-width);
@@ -1681,6 +1712,49 @@ body:not([data-platform-name]) .Button_button:active {
   justify-content: center;
   padding-top: 0.5px;
 }
+[data-animation=heart02] .PrivacyStats_headingIcon {
+  animation: PrivacyStats_heart02 2s infinite;
+}
+[data-animation=heart01] .PrivacyStats_headingIcon {
+  animation: PrivacyStats_heart01 1.483s infinite cubic-bezier(0.67, 0, 0.33, 1);
+}
+@keyframes PrivacyStats_heart01 {
+  0% {
+    transform: scale(1);
+  }
+  4.5% {
+    transform: scale(1.25);
+  }
+  16.85% {
+    transform: scale(1);
+  }
+  23.6% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes PrivacyStats_heart02 {
+  0% {
+    transform: scale(1);
+  }
+  5.6% {
+    transform: scale(1.2);
+  }
+  11.2% {
+    transform: scale(1);
+  }
+  22.4% {
+    transform: scale(1.1);
+  }
+  33.7% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 .PrivacyStats_title {
   grid-area: title;
   font-size: var(--title-2-font-size);
@@ -1803,6 +1877,7 @@ body:not([data-platform-name]) .Button_button:active {
 .PrivacyStats_name {
   font-size: var(--title-3-em-font-size);
   font-weight: var(--title-3-em-font-weight);
+  line-height: var(--title-3-em-line-height);
   text-overflow: ellipsis;
   display: block;
   overflow: hidden;
@@ -2052,7 +2127,7 @@ body:not([data-platform-name]) .Button_button:active {
   opacity: .8;
 }
 .CustomizerDrawerInner_backBtn:focus-visible {
-  outline: 1px solid var(--ntp-focus-outline-color);
+  box-shadow: var(--focus-ring);
 }
 .CustomizerDrawerInner_section {
   width: 100%;

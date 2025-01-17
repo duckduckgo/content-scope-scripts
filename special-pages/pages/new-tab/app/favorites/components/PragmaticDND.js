@@ -9,6 +9,8 @@ import { monitorForExternal, dropTargetForExternal } from '@atlaskit/pragmatic-d
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { getHTML } from '@atlaskit/pragmatic-drag-and-drop/external/html';
 import { DDG_MIME_TYPE } from '../constants.js';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
+import { centerUnderPointer } from '@atlaskit/pragmatic-drag-and-drop/element/center-under-pointer';
 
 /** @type {import("preact").Context<symbol>} */
 const InstanceIdContext = createContext(getInstanceId());
@@ -93,23 +95,19 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                     }
 
                     const destinationSrc = target.data.url;
-                    const startSrc = source.data.url;
+                    const destinationId = target.data.id;
                     const startId = source.data.id;
 
                     if (typeof startId !== 'string') {
-                        return console.warn('could not access the id');
+                        return console.warn('could not access startId');
                     }
 
                     if (typeof destinationSrc !== 'string') {
                         return console.warn('could not access the destinationSrc');
                     }
 
-                    if (typeof startSrc !== 'string') {
-                        return console.warn('could not access the startSrc');
-                    }
-
-                    const startIndex = favorites.findIndex((item) => item.url === startSrc);
-                    let indexOfTarget = favorites.findIndex((item) => item.url === destinationSrc);
+                    const startIndex = favorites.findIndex((item) => item.id === startId);
+                    let indexOfTarget = favorites.findIndex((item) => item.id === destinationId);
 
                     if (indexOfTarget === -1 && destinationSrc.includes('PLACEHOLDER-URL')) {
                         indexOfTarget = favorites.length;
@@ -164,9 +162,10 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
 /**
  * @param {string} url
  * @param {string} id
+ * @param {{kind: "draggable"; onPreview: (div: HTMLDivElement) => void} | {kind: "target"}} opts
  * @return {{ ref: import("preact").RefObject<any>; state: DNDState }}
  */
-export function useItemState(url, id) {
+export function useItemState(url, id, opts) {
     const instanceId = useContext(InstanceIdContext);
     /** @type {import("preact").Ref<HTMLAnchorElement>} */
     const ref = useRef(null);
@@ -175,9 +174,10 @@ export function useItemState(url, id) {
     useEffect(() => {
         const el = ref.current;
         if (!el) throw new Error('unreachable');
+        let draggableCleanup = () => {};
 
-        return combine(
-            draggable({
+        if (opts.kind === 'draggable') {
+            draggableCleanup = draggable({
                 element: el,
                 getInitialData: () => ({ type: 'grid-item', url, id, instanceId }),
                 getInitialDataForExternal: () => ({
@@ -186,7 +186,27 @@ export function useItemState(url, id) {
                 }),
                 onDragStart: () => setState({ type: 'dragging' }),
                 onDrop: () => setState({ type: 'idle' }),
-            }),
+                onGenerateDragPreview: ({ nativeSetDragImage, source }) => {
+                    setCustomNativeDragPreview({
+                        getOffset: ({ container }) => centerUnderPointer({ container }),
+                        render: ({ container }) => {
+                            const clone = /** @type {HTMLElement} */ (source.element.cloneNode(true));
+                            const outer = document.createElement('div');
+                            opts.onPreview(outer);
+                            outer.appendChild(clone);
+                            container.appendChild(outer);
+                            return () => {
+                                container.removeChild(outer);
+                            };
+                        },
+                        nativeSetDragImage,
+                    });
+                },
+            });
+        }
+
+        return combine(
+            draggableCleanup,
             dropTargetForExternal({
                 element: el,
                 canDrop: ({ source }) => {

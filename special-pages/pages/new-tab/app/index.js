@@ -156,6 +156,7 @@ async function getStrings(environment) {
 function installGlobalSideEffects(environment, settings) {
     document.body.dataset.platformName = settings.platform.name;
     document.body.dataset.display = environment.display;
+    document.body.dataset.animation = environment.urlParams.get('animation') || '';
 }
 
 /**

@@ -26,7 +26,7 @@ export function BrowserThemeSection(props) {
                     role="radio"
                     type="button"
                     aria-checked={current.value === 'light'}
-                    tabindex={0}
+                    tabindex={current.value === 'light' ? -1 : 0}
                     onClick={() => props.setTheme({ theme: 'light' })}
                 >
                     <span class="sr-only">{t('customizer_browser_theme_label', { type: 'light' })}</span>
@@ -39,7 +39,7 @@ export function BrowserThemeSection(props) {
                     role="radio"
                     type="button"
                     aria-checked={current.value === 'dark'}
-                    tabindex={0}
+                    tabindex={current.value === 'dark' ? -1 : 0}
                     onClick={() => props.setTheme({ theme: 'dark' })}
                 >
                     <span class="sr-only">{t('customizer_browser_theme_label', { type: 'dark' })}</span>
@@ -52,7 +52,7 @@ export function BrowserThemeSection(props) {
                     role="radio"
                     type="button"
                     aria-checked={current.value === 'system'}
-                    tabindex={0}
+                    tabindex={current.value === 'system' ? -1 : 0}
                     onClick={() => props.setTheme({ theme: 'system' })}
                 >
                     <span class="sr-only">{t('customizer_browser_theme_label', { type: 'system' })}</span>

@@ -93,6 +93,7 @@ function DefaultPanel({ checked, onClick }) {
                 aria-labelledby={id}
                 role="radio"
                 onClick={onClick}
+                tabindex={checked ? -1 : 0}
             >
                 {checked && <CircleCheck />}
             </button>
@@ -117,6 +118,7 @@ function ColorPanel(props) {
                 data-color-mode={props.color.colorScheme}
                 onClick={props.onClick}
                 aria-checked={props.checked}
+                tabindex={props.checked ? -1 : 0}
                 aria-labelledby={id}
                 role="radio"
                 style={{ background: props.color.hex }}
@@ -144,6 +146,7 @@ function GradientPanel(props) {
                 class={cn(styles.bgPanel, styles.dynamicIconColor)}
                 data-color-mode={props.gradient.colorScheme}
                 aria-checked={props.checked}
+                tabindex={props.checked ? -1 : 0}
                 aria-labelledby={id}
                 style={{
                     background: `url(${props.gradient.path})`,

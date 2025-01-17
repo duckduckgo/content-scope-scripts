@@ -1,4 +1,4 @@
-import { Fragment, h } from 'preact';
+import { createContext, Fragment, h } from 'preact';
 import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import cn from 'classnames';
@@ -10,7 +10,7 @@ import { usePlatformName } from '../../settings.provider.js';
 import { useDropzoneSafeArea } from '../../dropzone.js';
 import { TileRow } from './TileRow.js';
 import { FavoritesContext } from './FavoritesProvider.js';
-import { CustomizerContext } from '../../customizer/CustomizerProvider.js';
+import { CustomizerContext, CustomizerThemesContext } from '../../customizer/CustomizerProvider.js';
 import { useComputed } from '@preact/signals';
 
 /**
@@ -25,6 +25,7 @@ export const ROW_CAPACITY = 6;
  */
 const ITEM_HEIGHT = 96;
 const ROW_GAP = 8;
+export const FavoritesThemeContext = createContext(/** @type {"light"|"dark"} */ ('light'));
 
 /**
  * Favorites Grid.
@@ -49,45 +50,50 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     const rowHeight = ITEM_HEIGHT + ROW_GAP;
     const canToggleExpansion = favorites.length >= ROW_CAPACITY;
     const { data } = useContext(CustomizerContext);
+    const { main } = useContext(CustomizerThemesContext);
     const kind = useComputed(() => data.value.background.kind);
 
     return (
-        <div
-            class={cn(styles.root, !canToggleExpansion && styles.noExpansionBtn)}
-            data-testid="FavoritesConfigured"
-            data-background-kind={kind}
-        >
-            <VirtualizedGridRows
-                WIDGET_ID={WIDGET_ID}
-                favorites={favorites}
-                rowHeight={rowHeight}
-                add={add}
-                expansion={expansion}
-                openFavorite={openFavorite}
-                openContextMenu={openContextMenu}
-            />
-            {canToggleExpansion && (
-                <div
-                    className={cn({
-                        [styles.showhide]: true,
-                        [styles.showhideVisible]: canToggleExpansion,
-                    })}
-                >
-                    <ShowHideButton
-                        buttonAttrs={{
-                            'aria-expanded': expansion === 'expanded',
-                            'aria-pressed': expansion === 'expanded',
-                            'aria-controls': WIDGET_ID,
-                            id: TOGGLE_ID,
-                        }}
-                        text={
-                            expansion === 'expanded' ? t('favorites_show_less') : t('favorites_show_more', { count: String(hiddenCount) })
-                        }
-                        onClick={toggle}
-                    />
-                </div>
-            )}
-        </div>
+        <FavoritesThemeContext.Provider value={main.value}>
+            <div
+                class={cn(styles.root, !canToggleExpansion && styles.noExpansionBtn)}
+                data-testid="FavoritesConfigured"
+                data-background-kind={kind}
+            >
+                <VirtualizedGridRows
+                    WIDGET_ID={WIDGET_ID}
+                    favorites={favorites}
+                    rowHeight={rowHeight}
+                    add={add}
+                    expansion={expansion}
+                    openFavorite={openFavorite}
+                    openContextMenu={openContextMenu}
+                />
+                {canToggleExpansion && (
+                    <div
+                        className={cn({
+                            [styles.showhide]: true,
+                            [styles.showhideVisible]: canToggleExpansion,
+                        })}
+                    >
+                        <ShowHideButton
+                            buttonAttrs={{
+                                'aria-expanded': expansion === 'expanded',
+                                'aria-pressed': expansion === 'expanded',
+                                'aria-controls': WIDGET_ID,
+                                id: TOGGLE_ID,
+                            }}
+                            text={
+                                expansion === 'expanded'
+                                    ? t('favorites_show_less')
+                                    : t('favorites_show_more', { count: String(hiddenCount) })
+                            }
+                            onClick={toggle}
+                        />
+                    </div>
+                )}
+            </div>
+        </FavoritesThemeContext.Provider>
     );
 }
 
@@ -145,7 +151,7 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
             onContextMenu={getContextMenuHandler(openContextMenu)}
             onClick={getOnClickHandler(openFavorite, platformName)}
         >
-            {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} topOffset={0} add={add} />}
+            {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} topOffset={0} add={add} visibility={'visible'} />}
             {rows.length > 0 && <Inner rows={rows} safeAreaRef={safeAreaRef} rowHeight={rowHeight} add={add} />}
         </div>
     );
@@ -166,6 +172,7 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
 function Inner({ rows, safeAreaRef, rowHeight, add }) {
     const { onConfigChanged, state } = useContext(FavoritesContext);
     const [expansion, setExpansion] = useState(state.config?.expansion || 'collapsed');
+    const documentVisibility = useDocumentVisibility();
 
     // force the children to be rendered after the main thread is cleared
     useEffect(() => {
@@ -242,12 +249,17 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
             { signal: controller.signal },
         );
 
-        // when the content-tube grows, re-calc the layout
-        const resizer = new ResizeObserver(() => {
-            requestAnimationFrame(() => {
-                updateGlobals(mainScroller.scrollTop);
-                setVisibleRowsForOffset(mainScroller.scrollTop);
-            });
+        let lastHeight;
+        const resizer = new ResizeObserver((entries) => {
+            const first = entries[0];
+            if (!first) return;
+            if (first.contentRect.height !== lastHeight) {
+                lastHeight = first.contentRect.height;
+                requestAnimationFrame(() => {
+                    updateGlobals(mainScroller.scrollTop);
+                    setVisibleRowsForOffset(mainScroller.scrollTop);
+                });
+            }
         });
         resizer.observe(contentTube);
 
@@ -285,10 +297,32 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
             {subsetOfRowsToRender.map((items, rowIndex) => {
                 const topOffset = expansion === 'expanded' ? (start + rowIndex) * rowHeight : 0;
                 const keyed = `-${start + rowIndex}-`;
-                return <TileRow key={keyed} dropped={dropped} items={items} topOffset={topOffset} add={add} />;
+                return (
+                    <TileRow key={keyed} dropped={dropped} items={items} topOffset={topOffset} add={add} visibility={documentVisibility} />
+                );
             })}
         </Fragment>
     );
+}
+
+function useDocumentVisibility() {
+    /** @type {Document['visibilityState']} */
+    const initial = document.visibilityState;
+    const [documentVisibility, setDocumentVisibility] = useState(/** @type {Document['visibilityState']} */ (initial));
+
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            setDocumentVisibility(document.visibilityState);
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
+
+    return documentVisibility;
 }
 
 /**

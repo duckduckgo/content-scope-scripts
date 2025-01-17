@@ -549,6 +549,10 @@
   function useCustomizerDrawerSettings() {
     return x2(SettingsContext).settings.customizerDrawer;
   }
+  function useCustomizerKind() {
+    const settings = x2(SettingsContext).settings;
+    return settings.customizerDrawer.state === "enabled" ? "drawer" : "menu";
+  }
   var SettingsContext;
   var init_settings_provider = __esm({
     "pages/new-tab/app/settings.provider.js"() {
@@ -1548,8 +1552,7 @@
     "pages/new-tab/app/components/BackgroundReceiver.module.css"() {
       BackgroundReceiver_default = {
         root: "BackgroundReceiver_root",
-        under: "BackgroundReceiver_under",
-        over: "BackgroundReceiver_over"
+        "fade-in": "BackgroundReceiver_fade-in"
       };
     }
   });
@@ -1632,6 +1635,195 @@
   var init_utils = __esm({
     "pages/new-tab/app/customizer/utils.js"() {
       "use strict";
+    }
+  });
+
+  // ../node_modules/preact/compat/dist/compat.module.js
+  function g4(n3, t4) {
+    for (var e4 in n3) if ("__source" !== e4 && !(e4 in t4)) return true;
+    for (var r4 in t4) if ("__source" !== r4 && n3[r4] !== t4[r4]) return true;
+    return false;
+  }
+  function E3(n3, t4) {
+    this.props = n3, this.context = t4;
+  }
+  function C3(n3, e4) {
+    function r4(n4) {
+      var t4 = this.props.ref, r5 = t4 == n4.ref;
+      return !r5 && t4 && (t4.call ? t4(null) : t4.current = null), e4 ? !e4(this.props, n4) || !r5 : g4(this.props, n4);
+    }
+    function u4(e5) {
+      return this.shouldComponentUpdate = r4, _(n3, e5);
+    }
+    return u4.displayName = "Memo(" + (n3.displayName || n3.name) + ")", u4.prototype.isReactComponent = true, u4.__f = true, u4;
+  }
+  function T3(n3, t4, e4) {
+    return n3 && (n3.__c && n3.__c.__H && (n3.__c.__H.__.forEach(function(n4) {
+      "function" == typeof n4.__c && n4.__c();
+    }), n3.__c.__H = null), null != (n3 = function(n4, t5) {
+      for (var e5 in t5) n4[e5] = t5[e5];
+      return n4;
+    }({}, n3)).__c && (n3.__c.__P === e4 && (n3.__c.__P = t4), n3.__c = null), n3.__k = n3.__k && n3.__k.map(function(n4) {
+      return T3(n4, t4, e4);
+    })), n3;
+  }
+  function A3(n3, t4, e4) {
+    return n3 && e4 && (n3.__v = null, n3.__k = n3.__k && n3.__k.map(function(n4) {
+      return A3(n4, t4, e4);
+    }), n3.__c && n3.__c.__P === t4 && (n3.__e && e4.appendChild(n3.__e), n3.__c.__e = true, n3.__c.__P = e4)), n3;
+  }
+  function D3() {
+    this.__u = 0, this.t = null, this.__b = null;
+  }
+  function L2(n3) {
+    var t4 = n3.__.__c;
+    return t4 && t4.__a && t4.__a(n3);
+  }
+  function F3() {
+    this.u = null, this.o = null;
+  }
+  function J() {
+  }
+  function K() {
+    return this.cancelBubble;
+  }
+  function Q() {
+    return this.defaultPrevented;
+  }
+  var x3, R, N2, M2, U, j3, z3, B3, H2, Z, Y, G2, X, nn, tn, en, rn;
+  var init_compat_module = __esm({
+    "../node_modules/preact/compat/dist/compat.module.js"() {
+      init_preact_module();
+      init_preact_module();
+      init_hooks_module();
+      init_hooks_module();
+      (E3.prototype = new k()).isPureReactComponent = true, E3.prototype.shouldComponentUpdate = function(n3, t4) {
+        return g4(this.props, n3) || g4(this.state, t4);
+      };
+      x3 = l.__b;
+      l.__b = function(n3) {
+        n3.type && n3.type.__f && n3.ref && (n3.props.ref = n3.ref, n3.ref = null), x3 && x3(n3);
+      };
+      R = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.forward_ref") || 3911;
+      N2 = l.__e;
+      l.__e = function(n3, t4, e4, r4) {
+        if (n3.then) {
+          for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k), u4.__c(n3, t4);
+        }
+        N2(n3, t4, e4, r4);
+      };
+      M2 = l.unmount;
+      l.unmount = function(n3) {
+        var t4 = n3.__c;
+        t4 && t4.__R && t4.__R(), t4 && 32 & n3.__u && (n3.type = null), M2 && M2(n3);
+      }, (D3.prototype = new k()).__c = function(n3, t4) {
+        var e4 = t4.__c, r4 = this;
+        null == r4.t && (r4.t = []), r4.t.push(e4);
+        var u4 = L2(r4.__v), o4 = false, i5 = function() {
+          o4 || (o4 = true, e4.__R = null, u4 ? u4(c4) : c4());
+        };
+        e4.__R = i5;
+        var c4 = function() {
+          if (!--r4.__u) {
+            if (r4.state.__a) {
+              var n4 = r4.state.__a;
+              r4.__v.__k[0] = A3(n4, n4.__c.__P, n4.__c.__O);
+            }
+            var t5;
+            for (r4.setState({ __a: r4.__b = null }); t5 = r4.t.pop(); ) t5.forceUpdate();
+          }
+        };
+        r4.__u++ || 32 & t4.__u || r4.setState({ __a: r4.__b = r4.__v.__k[0] }), n3.then(i5, i5);
+      }, D3.prototype.componentWillUnmount = function() {
+        this.t = [];
+      }, D3.prototype.render = function(n3, e4) {
+        if (this.__b) {
+          if (this.__v.__k) {
+            var r4 = document.createElement("div"), o4 = this.__v.__k[0].__c;
+            this.__v.__k[0] = T3(this.__b, r4, o4.__O = o4.__P);
+          }
+          this.__b = null;
+        }
+        var i5 = e4.__a && _(b, null, n3.fallback);
+        return i5 && (i5.__u &= -33), [_(b, null, e4.__a ? null : n3.children), i5];
+      };
+      U = function(n3, t4, e4) {
+        if (++e4[1] === e4[0] && n3.o.delete(t4), n3.props.revealOrder && ("t" !== n3.props.revealOrder[0] || !n3.o.size)) for (e4 = n3.u; e4; ) {
+          for (; e4.length > 3; ) e4.pop()();
+          if (e4[1] < e4[0]) break;
+          n3.u = e4 = e4[2];
+        }
+      };
+      (F3.prototype = new k()).__a = function(n3) {
+        var t4 = this, e4 = L2(t4.__v), r4 = t4.o.get(n3);
+        return r4[0]++, function(u4) {
+          var o4 = function() {
+            t4.props.revealOrder ? (r4.push(u4), U(t4, n3, r4)) : u4();
+          };
+          e4 ? e4(o4) : o4();
+        };
+      }, F3.prototype.render = function(n3) {
+        this.u = null, this.o = /* @__PURE__ */ new Map();
+        var t4 = H(n3.children);
+        n3.revealOrder && "b" === n3.revealOrder[0] && t4.reverse();
+        for (var e4 = t4.length; e4--; ) this.o.set(t4[e4], this.u = [1, 0, this.u]);
+        return n3.children;
+      }, F3.prototype.componentDidUpdate = F3.prototype.componentDidMount = function() {
+        var n3 = this;
+        this.o.forEach(function(t4, e4) {
+          U(n3, e4, t4);
+        });
+      };
+      j3 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
+      z3 = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;
+      B3 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
+      H2 = /[A-Z0-9]/g;
+      Z = "undefined" != typeof document;
+      Y = function(n3) {
+        return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n3);
+      };
+      k.prototype.isReactComponent = {}, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t4) {
+        Object.defineProperty(k.prototype, t4, { configurable: true, get: function() {
+          return this["UNSAFE_" + t4];
+        }, set: function(n3) {
+          Object.defineProperty(this, t4, { configurable: true, writable: true, value: n3 });
+        } });
+      });
+      G2 = l.event;
+      l.event = function(n3) {
+        return G2 && (n3 = G2(n3)), n3.persist = J, n3.isPropagationStopped = K, n3.isDefaultPrevented = Q, n3.nativeEvent = n3;
+      };
+      nn = { enumerable: false, configurable: true, get: function() {
+        return this.class;
+      } };
+      tn = l.vnode;
+      l.vnode = function(n3) {
+        "string" == typeof n3.type && function(n4) {
+          var t4 = n4.props, e4 = n4.type, u4 = {}, o4 = -1 === e4.indexOf("-");
+          for (var i5 in t4) {
+            var c4 = t4[i5];
+            if (!("value" === i5 && "defaultValue" in t4 && null == c4 || Z && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
+              var f4 = i5.toLowerCase();
+              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === c4 ? c4 = "" : "translate" === f4 && "no" === c4 ? c4 = false : "o" === f4[0] && "n" === f4[1] ? "ondoubleclick" === f4 ? i5 = "ondblclick" : "onchange" !== f4 || "input" !== e4 && "textarea" !== e4 || Y(t4.type) ? "onfocus" === f4 ? i5 = "onfocusin" : "onblur" === f4 ? i5 = "onfocusout" : B3.test(i5) && (i5 = f4) : f4 = i5 = "oninput" : o4 && z3.test(i5) ? i5 = i5.replace(H2, "-$&").toLowerCase() : null === c4 && (c4 = void 0), "oninput" === f4 && u4[i5 = f4] && (i5 = "oninputCapture"), u4[i5] = c4;
+            }
+          }
+          "select" == e4 && u4.multiple && Array.isArray(u4.value) && (u4.value = H(t4.children).forEach(function(n5) {
+            n5.props.selected = -1 != u4.value.indexOf(n5.props.value);
+          })), "select" == e4 && null != u4.defaultValue && (u4.value = H(t4.children).forEach(function(n5) {
+            n5.props.selected = u4.multiple ? -1 != u4.defaultValue.indexOf(n5.props.value) : u4.defaultValue == n5.props.value;
+          })), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", nn)) : (t4.className && !t4.class || t4.class && t4.className) && (u4.class = u4.className = t4.className), n4.props = u4;
+        }(n3), n3.$$typeof = j3, tn && tn(n3);
+      };
+      en = l.__r;
+      l.__r = function(n3) {
+        en && en(n3), X = n3.__c;
+      };
+      rn = l.diffed;
+      l.diffed = function(n3) {
+        rn && rn(n3);
+        var t4 = n3.props, e4 = n3.__e;
+        null != e4 && "textarea" === n3.type && "value" in t4 && t4.value !== e4.value && (e4.value = null == t4.value ? "" : t4.value), X = null;
+      };
     }
   });
 
@@ -1724,44 +1916,95 @@
       }
     }
   }
-  function ImageCrossFade({ src }) {
-    const [stable, setStable] = h2(src);
-    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("img", { src: stable, class: BackgroundReceiver_default.root, style: { display: src === stable ? "none" : "block" } }), /* @__PURE__ */ _(
-      "img",
-      {
-        src,
-        class: (0, import_classnames.default)(BackgroundReceiver_default.root, BackgroundReceiver_default.over),
-        onLoad: (e4) => {
-          const elem = (
-            /** @type {HTMLImageElement} */
-            e4.target
-          );
-          elem.style.opacity = "0";
-          const anim = elem.animate([{ opacity: "0" }, { opacity: "1" }], {
-            duration: 250,
-            iterations: 1,
-            easing: "ease-in-out",
-            fill: "both"
-          });
-          anim.onfinish = () => {
-            setStable(src);
-          };
+  function ImageCrossFade_({ src }) {
+    const [state, setState] = h2({
+      /** @type {ImgState} */
+      value: states.idle,
+      current: src,
+      next: src
+    });
+    y2(() => {
+      let img = new Image();
+      let cancelled = false;
+      setState((prev) => {
+        const nextState = prev.value === states.idle ? states.loadingFirst : states.loading;
+        return { ...prev, value: nextState };
+      });
+      let handler = () => {
+        if (cancelled) return;
+        setState((prev) => {
+          if (prev.value === states.loading) {
+            return { ...prev, value: states.fading, next: src };
+          }
+          return prev;
+        });
+      };
+      img.addEventListener("load", handler);
+      img.src = src;
+      return () => {
+        cancelled = true;
+        if (img && handler) {
+          img.removeEventListener("load", handler);
+          img = void 0;
+          handler = void 0;
         }
-      }
-    ));
+      };
+    }, [src]);
+    switch (state.value) {
+      case states.settled:
+      case states.loadingFirst:
+        return /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" });
+      case states.loading:
+      case states.fading:
+        return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" }), /* @__PURE__ */ _(
+          "img",
+          {
+            class: BackgroundReceiver_default.root,
+            "data-state": state.value,
+            src: state.next,
+            onLoad: (e4) => {
+              const elem = (
+                /** @type {HTMLImageElement} */
+                e4.target
+              );
+              elem.style.opacity = "0";
+              const anim = elem.animate([{ opacity: "0" }, { opacity: "1" }], {
+                duration: 250,
+                iterations: 1,
+                fill: "both"
+              });
+              anim.onfinish = () => {
+                setState((prev) => {
+                  return { ...prev, value: states.settled, current: prev.next, next: prev.next };
+                });
+              };
+            }
+          }
+        ));
+      default:
+        return null;
+    }
   }
-  var import_classnames;
+  var states, ImageCrossFade;
   var init_BackgroundProvider = __esm({
     "pages/new-tab/app/components/BackgroundProvider.js"() {
       "use strict";
       init_preact_module();
-      import_classnames = __toESM(require_classnames(), 1);
       init_BackgroundReceiver();
       init_values();
       init_hooks_module();
       init_CustomizerProvider();
       init_utils();
       init_signals_module();
+      init_compat_module();
+      states = {
+        idle: "idle",
+        loadingFirst: "loadingFirst",
+        loading: "loading",
+        fading: "fading",
+        settled: "settled"
+      };
+      ImageCrossFade = C3(ImageCrossFade_);
     }
   });
 
@@ -1798,7 +2041,7 @@
   function CustomizerProvider({ service, initialData, children }) {
     const data = useSignal(initialData);
     const { main, browser } = useThemes(data);
-    E(() => {
+    useSignalEffect(() => {
       const unsub = service.onBackground((evt) => {
         data.value = { ...data.value, background: evt.data.background };
       });
@@ -1839,7 +2082,8 @@
       },
       [service]
     );
-    return /* @__PURE__ */ _(CustomizerContext.Provider, { value: { data, select, upload, setTheme, deleteImage } }, /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser } }, children));
+    const customizerContextMenu = q2((params) => service.contextMenu(params), [service]);
+    return /* @__PURE__ */ _(CustomizerContext.Provider, { value: { data, select, upload, setTheme, deleteImage, customizerContextMenu } }, /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser } }, children));
   }
   var CustomizerThemesContext, CustomizerContext;
   var init_CustomizerProvider = __esm({
@@ -1877,6 +2121,11 @@
          * @type {(id: string) => void}
          */
         deleteImage: (id) => {
+        },
+        /**
+         * @param {UserImageContextMenu} params
+         */
+        customizerContextMenu: (params) => {
         }
       });
     }
@@ -1885,7 +2134,7 @@
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
   function VisibilityMenu({ rows }) {
     const MENU_ID = g2();
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames2.default)(VisibilityMenu_default.list) }, rows.map((row) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames.default)(VisibilityMenu_default.list) }, rows.map((row) => {
       return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("label", { className: VisibilityMenu_default.menuItemLabel, htmlFor: MENU_ID + row.id }, /* @__PURE__ */ _(
         "input",
         {
@@ -1910,8 +2159,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames2.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames2.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -1929,12 +2178,12 @@
   function VisibilityMenuPopover({ children }) {
     return /* @__PURE__ */ _("div", { className: VisibilityMenu_default.dropdownInner }, children);
   }
-  var import_classnames2;
+  var import_classnames;
   var init_VisibilityMenu2 = __esm({
     "pages/new-tab/app/customizer/components/VisibilityMenu.js"() {
       "use strict";
       init_preact_module();
-      import_classnames2 = __toESM(require_classnames(), 1);
+      import_classnames = __toESM(require_classnames(), 1);
       init_hooks_module();
       init_Icons2();
       init_VisibilityMenu();
@@ -1945,8 +2194,8 @@
     }
   });
 
-  // pages/new-tab/app/customizer/components/Customizer.js
-  function Customizer() {
+  // pages/new-tab/app/customizer/components/CustomizerMenu.js
+  function CustomizerMenu() {
     const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown();
     const [rowData, setRowData] = h2(
       /** @type {VisibilityRowData[]} */
@@ -1962,14 +2211,24 @@
       function handler() {
         setRowData(getItems());
       }
-      window.addEventListener(Customizer.UPDATE_EVENT, handler);
+      window.addEventListener(CustomizerMenu.UPDATE_EVENT, handler);
       return () => {
-        window.removeEventListener(Customizer.UPDATE_EVENT, handler);
+        window.removeEventListener(CustomizerMenu.UPDATE_EVENT, handler);
       };
     }, [isOpen]);
     const MENU_ID = g2();
     const BUTTON_ID = g2();
-    return /* @__PURE__ */ _("div", { class: Customizer_default.root, ref: dropdownRef }, /* @__PURE__ */ _(CustomizerButton, { buttonId: BUTTON_ID, menuId: MENU_ID, toggleMenu, buttonRef, isOpen }), /* @__PURE__ */ _("div", { id: MENU_ID, class: (0, import_classnames3.default)(Customizer_default.dropdownMenu, { [Customizer_default.show]: isOpen }), "aria-labelledby": BUTTON_ID }, /* @__PURE__ */ _(VisibilityMenuPopover, null, /* @__PURE__ */ _(VisibilityMenu, { rows: rowData }))));
+    return /* @__PURE__ */ _("div", { class: Customizer_default.root, ref: dropdownRef }, /* @__PURE__ */ _(
+      CustomizerButton,
+      {
+        buttonId: BUTTON_ID,
+        menuId: MENU_ID,
+        toggleMenu,
+        buttonRef,
+        isOpen,
+        kind: "menu"
+      }
+    ), /* @__PURE__ */ _("div", { id: MENU_ID, class: (0, import_classnames2.default)(Customizer_default.dropdownMenu, { [Customizer_default.show]: isOpen }), "aria-labelledby": BUTTON_ID }, /* @__PURE__ */ _(VisibilityMenuPopover, null, /* @__PURE__ */ _(VisibilityMenu, { rows: rowData }))));
   }
   function getItems() {
     const next = [];
@@ -1978,7 +2237,7 @@
         next.push(incoming);
       }
     };
-    const event = new CustomEvent(Customizer.OPEN_EVENT, { detail });
+    const event = new CustomEvent(CustomizerMenu.OPEN_EVENT, { detail });
     window.dispatchEvent(event);
     next.sort((a4, b3) => a4.index - b3.index);
     return next;
@@ -2004,17 +2263,18 @@
       };
     }, [messaging2]);
   }
-  function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef }) {
+  function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef, kind }) {
     const { t: t4 } = useTypedTranslation();
     return /* @__PURE__ */ _(
       "button",
       {
         ref: buttonRef,
-        className: Customizer_default.customizeButton,
+        class: Customizer_default.customizeButton,
         onClick: toggleMenu,
         "aria-haspopup": "true",
         "aria-expanded": isOpen,
         "aria-controls": menuId,
+        "data-kind": kind,
         id: buttonId
       },
       /* @__PURE__ */ _(CustomizeIcon, null),
@@ -2062,26 +2322,26 @@
       const handler = (e4) => {
         e4.detail.register({ title, id, icon, toggle, visibility, index });
       };
-      window.addEventListener(Customizer.OPEN_EVENT, handler);
-      return () => window.removeEventListener(Customizer.OPEN_EVENT, handler);
+      window.addEventListener(CustomizerMenu.OPEN_EVENT, handler);
+      return () => window.removeEventListener(CustomizerMenu.OPEN_EVENT, handler);
     }, [title, id, icon, toggle, visibility, index]);
     y2(() => {
-      window.dispatchEvent(new Event(Customizer.UPDATE_EVENT));
+      window.dispatchEvent(new Event(CustomizerMenu.UPDATE_EVENT));
     }, [visibility]);
   }
-  var import_classnames3;
-  var init_Customizer2 = __esm({
-    "pages/new-tab/app/customizer/components/Customizer.js"() {
+  var import_classnames2;
+  var init_CustomizerMenu = __esm({
+    "pages/new-tab/app/customizer/components/CustomizerMenu.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_Customizer();
       init_Icons2();
-      import_classnames3 = __toESM(require_classnames(), 1);
+      import_classnames2 = __toESM(require_classnames(), 1);
       init_types();
       init_VisibilityMenu2();
-      Customizer.OPEN_EVENT = "ntp-customizer-open";
-      Customizer.UPDATE_EVENT = "ntp-customizer-update";
+      CustomizerMenu.OPEN_EVENT = "ntp-customizer-open";
+      CustomizerMenu.UPDATE_EVENT = "ntp-customizer-update";
     }
   });
 
@@ -4909,13 +5169,117 @@
   });
 
   // pages/new-tab/app/favorites/constants.js
-  var DDG_MIME_TYPE, DDG_FALLBACK_ICON, DDG_DEFAULT_ICON_SIZE;
+  var DDG_MIME_TYPE, DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK, DDG_DEFAULT_ICON_SIZE;
   var init_constants = __esm({
     "pages/new-tab/app/favorites/constants.js"() {
       "use strict";
       DDG_MIME_TYPE = "application/vnd.duckduckgo.bookmark-by-id";
       DDG_FALLBACK_ICON = "./company-icons/other.svg";
+      DDG_FALLBACK_ICON_DARK = "./company-icons/other-dark.svg";
       DDG_DEFAULT_ICON_SIZE = 64;
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/set-custom-native-drag-preview.js
+  function defaultOffset() {
+    return {
+      x: 0,
+      y: 0
+    };
+  }
+  function setCustomNativeDragPreview(_ref) {
+    var render = _ref.render, nativeSetDragImage = _ref.nativeSetDragImage, _ref$getOffset = _ref.getOffset, getOffset = _ref$getOffset === void 0 ? defaultOffset : _ref$getOffset;
+    var container = document.createElement("div");
+    Object.assign(container.style, {
+      // Ensuring we don't cause reflow when adding the element to the page
+      // Using `position:fixed` rather than `position:absolute` so we are
+      // positioned on the current viewport.
+      // `position:fixed` also creates a new stacking context, so we don't need to do that here
+      position: "fixed",
+      // According to `mdn`, the element can be offscreen:
+      // https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/setDragImage#imgelement
+      //
+      // However, that  information does not appear in the specs:
+      // https://html.spec.whatwg.org/multipage/dnd.html#dom-datatransfer-setdragimage-dev
+      //
+      // If the element is _completely_ offscreen, Safari@17.1 will cancel the drag
+      top: 0,
+      left: 0,
+      // Using maximum possible z-index so that this element will always be on top
+      // https://stackoverflow.com/questions/491052/minimum-and-maximum-value-of-z-index
+      // Did not use `layers` in `@atlaskit/theme` because:
+      // 1. This element is not a 'layer' in the conventional sense, as this element
+      //    is only created for a single frame for the browser to take a photo of it,
+      //    and then it is destroyed
+      // 2. Did not want to add a dependency onto `@atlaskit/theme`
+      // 3. Want to always be on top of product UI which might have higher z-index's
+      zIndex: maxZIndex,
+      // Avoiding any additional events caused by the new element (being super safe)
+      pointerEvents: "none"
+    });
+    document.body.append(container);
+    var unmount = render({
+      container
+    });
+    queueMicrotask(function() {
+      var previewOffset = getOffset({
+        container
+      });
+      if (isSafari()) {
+        var rect = container.getBoundingClientRect();
+        if (rect.width === 0) {
+          return;
+        }
+        container.style.left = "-".concat(rect.width - 1e-4, "px");
+      }
+      nativeSetDragImage === null || nativeSetDragImage === void 0 || nativeSetDragImage(container, previewOffset.x, previewOffset.y);
+    });
+    function cleanup() {
+      unbindMonitor();
+      unmount === null || unmount === void 0 || unmount();
+      document.body.removeChild(container);
+    }
+    var unbindMonitor = monitorForElements({
+      // Remove portal in the dragstart event so that the user will never see it
+      onDragStart: cleanup,
+      // Backup: remove portal when the drop finishes (this would be an error case)
+      onDrop: cleanup
+    });
+  }
+  var init_set_custom_native_drag_preview = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/set-custom-native-drag-preview.js"() {
+      init_element_adapter();
+      init_is_safari();
+      init_max_z_index();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/set-custom-native-drag-preview.js
+  var init_set_custom_native_drag_preview2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/set-custom-native-drag-preview.js"() {
+      init_set_custom_native_drag_preview();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/center-under-pointer.js
+  var centerUnderPointer;
+  var init_center_under_pointer = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/center-under-pointer.js"() {
+      centerUnderPointer = function centerUnderPointer2(_ref) {
+        var container = _ref.container;
+        var rect = container.getBoundingClientRect();
+        return {
+          x: rect.width / 2,
+          y: rect.height / 2
+        };
+      };
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/center-under-pointer.js
+  var init_center_under_pointer2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/center-under-pointer.js"() {
+      init_center_under_pointer();
     }
   });
 
@@ -4967,19 +5331,16 @@
               return;
             }
             const destinationSrc = target.data.url;
-            const startSrc = source.data.url;
+            const destinationId = target.data.id;
             const startId = source.data.id;
             if (typeof startId !== "string") {
-              return console.warn("could not access the id");
+              return console.warn("could not access startId");
             }
             if (typeof destinationSrc !== "string") {
               return console.warn("could not access the destinationSrc");
             }
-            if (typeof startSrc !== "string") {
-              return console.warn("could not access the startSrc");
-            }
-            const startIndex = favorites2.findIndex((item) => item.url === startSrc);
-            let indexOfTarget = favorites2.findIndex((item) => item.url === destinationSrc);
+            const startIndex = favorites2.findIndex((item) => item.id === startId);
+            let indexOfTarget = favorites2.findIndex((item) => item.id === destinationId);
             if (indexOfTarget === -1 && destinationSrc.includes("PLACEHOLDER-URL")) {
               indexOfTarget = favorites2.length;
             }
@@ -5012,7 +5373,7 @@
       );
     }, [instanceId, favorites2]);
   }
-  function useItemState(url4, id) {
+  function useItemState(url4, id, opts) {
     const instanceId = x2(InstanceIdContext);
     const ref = A2(null);
     const [state, setState] = h2(
@@ -5022,8 +5383,10 @@
     y2(() => {
       const el = ref.current;
       if (!el) throw new Error("unreachable");
-      return combine(
-        draggable({
+      let draggableCleanup = () => {
+      };
+      if (opts.kind === "draggable") {
+        draggableCleanup = draggable({
           element: el,
           getInitialData: () => ({ type: "grid-item", url: url4, id, instanceId }),
           getInitialDataForExternal: () => ({
@@ -5031,8 +5394,30 @@
             [DDG_MIME_TYPE]: id
           }),
           onDragStart: () => setState({ type: "dragging" }),
-          onDrop: () => setState({ type: "idle" })
-        }),
+          onDrop: () => setState({ type: "idle" }),
+          onGenerateDragPreview: ({ nativeSetDragImage, source }) => {
+            setCustomNativeDragPreview({
+              getOffset: ({ container }) => centerUnderPointer({ container }),
+              render: ({ container }) => {
+                const clone = (
+                  /** @type {HTMLElement} */
+                  source.element.cloneNode(true)
+                );
+                const outer = document.createElement("div");
+                opts.onPreview(outer);
+                outer.appendChild(clone);
+                container.appendChild(outer);
+                return () => {
+                  container.removeChild(outer);
+                };
+              },
+              nativeSetDragImage
+            });
+          }
+        });
+      }
+      return combine(
+        draggableCleanup,
         dropTargetForExternal({
           element: el,
           canDrop: ({ source }) => {
@@ -5128,196 +5513,9 @@
       init_combine2();
       init_html2();
       init_constants();
+      init_set_custom_native_drag_preview2();
+      init_center_under_pointer2();
       InstanceIdContext = G(getInstanceId());
-    }
-  });
-
-  // ../node_modules/preact/compat/dist/compat.module.js
-  function g4(n3, t4) {
-    for (var e4 in n3) if ("__source" !== e4 && !(e4 in t4)) return true;
-    for (var r4 in t4) if ("__source" !== r4 && n3[r4] !== t4[r4]) return true;
-    return false;
-  }
-  function E3(n3, t4) {
-    this.props = n3, this.context = t4;
-  }
-  function C3(n3, e4) {
-    function r4(n4) {
-      var t4 = this.props.ref, r5 = t4 == n4.ref;
-      return !r5 && t4 && (t4.call ? t4(null) : t4.current = null), e4 ? !e4(this.props, n4) || !r5 : g4(this.props, n4);
-    }
-    function u4(e5) {
-      return this.shouldComponentUpdate = r4, _(n3, e5);
-    }
-    return u4.displayName = "Memo(" + (n3.displayName || n3.name) + ")", u4.prototype.isReactComponent = true, u4.__f = true, u4;
-  }
-  function T3(n3, t4, e4) {
-    return n3 && (n3.__c && n3.__c.__H && (n3.__c.__H.__.forEach(function(n4) {
-      "function" == typeof n4.__c && n4.__c();
-    }), n3.__c.__H = null), null != (n3 = function(n4, t5) {
-      for (var e5 in t5) n4[e5] = t5[e5];
-      return n4;
-    }({}, n3)).__c && (n3.__c.__P === e4 && (n3.__c.__P = t4), n3.__c = null), n3.__k = n3.__k && n3.__k.map(function(n4) {
-      return T3(n4, t4, e4);
-    })), n3;
-  }
-  function A3(n3, t4, e4) {
-    return n3 && e4 && (n3.__v = null, n3.__k = n3.__k && n3.__k.map(function(n4) {
-      return A3(n4, t4, e4);
-    }), n3.__c && n3.__c.__P === t4 && (n3.__e && e4.appendChild(n3.__e), n3.__c.__e = true, n3.__c.__P = e4)), n3;
-  }
-  function D3() {
-    this.__u = 0, this.t = null, this.__b = null;
-  }
-  function L2(n3) {
-    var t4 = n3.__.__c;
-    return t4 && t4.__a && t4.__a(n3);
-  }
-  function F3() {
-    this.u = null, this.o = null;
-  }
-  function J() {
-  }
-  function K() {
-    return this.cancelBubble;
-  }
-  function Q() {
-    return this.defaultPrevented;
-  }
-  var x3, R, N2, M2, U, j3, z3, B3, H2, Z, Y, G2, X, nn, tn, en, rn;
-  var init_compat_module = __esm({
-    "../node_modules/preact/compat/dist/compat.module.js"() {
-      init_preact_module();
-      init_preact_module();
-      init_hooks_module();
-      init_hooks_module();
-      (E3.prototype = new k()).isPureReactComponent = true, E3.prototype.shouldComponentUpdate = function(n3, t4) {
-        return g4(this.props, n3) || g4(this.state, t4);
-      };
-      x3 = l.__b;
-      l.__b = function(n3) {
-        n3.type && n3.type.__f && n3.ref && (n3.props.ref = n3.ref, n3.ref = null), x3 && x3(n3);
-      };
-      R = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.forward_ref") || 3911;
-      N2 = l.__e;
-      l.__e = function(n3, t4, e4, r4) {
-        if (n3.then) {
-          for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k), u4.__c(n3, t4);
-        }
-        N2(n3, t4, e4, r4);
-      };
-      M2 = l.unmount;
-      l.unmount = function(n3) {
-        var t4 = n3.__c;
-        t4 && t4.__R && t4.__R(), t4 && 32 & n3.__u && (n3.type = null), M2 && M2(n3);
-      }, (D3.prototype = new k()).__c = function(n3, t4) {
-        var e4 = t4.__c, r4 = this;
-        null == r4.t && (r4.t = []), r4.t.push(e4);
-        var u4 = L2(r4.__v), o4 = false, i5 = function() {
-          o4 || (o4 = true, e4.__R = null, u4 ? u4(c4) : c4());
-        };
-        e4.__R = i5;
-        var c4 = function() {
-          if (!--r4.__u) {
-            if (r4.state.__a) {
-              var n4 = r4.state.__a;
-              r4.__v.__k[0] = A3(n4, n4.__c.__P, n4.__c.__O);
-            }
-            var t5;
-            for (r4.setState({ __a: r4.__b = null }); t5 = r4.t.pop(); ) t5.forceUpdate();
-          }
-        };
-        r4.__u++ || 32 & t4.__u || r4.setState({ __a: r4.__b = r4.__v.__k[0] }), n3.then(i5, i5);
-      }, D3.prototype.componentWillUnmount = function() {
-        this.t = [];
-      }, D3.prototype.render = function(n3, e4) {
-        if (this.__b) {
-          if (this.__v.__k) {
-            var r4 = document.createElement("div"), o4 = this.__v.__k[0].__c;
-            this.__v.__k[0] = T3(this.__b, r4, o4.__O = o4.__P);
-          }
-          this.__b = null;
-        }
-        var i5 = e4.__a && _(b, null, n3.fallback);
-        return i5 && (i5.__u &= -33), [_(b, null, e4.__a ? null : n3.children), i5];
-      };
-      U = function(n3, t4, e4) {
-        if (++e4[1] === e4[0] && n3.o.delete(t4), n3.props.revealOrder && ("t" !== n3.props.revealOrder[0] || !n3.o.size)) for (e4 = n3.u; e4; ) {
-          for (; e4.length > 3; ) e4.pop()();
-          if (e4[1] < e4[0]) break;
-          n3.u = e4 = e4[2];
-        }
-      };
-      (F3.prototype = new k()).__a = function(n3) {
-        var t4 = this, e4 = L2(t4.__v), r4 = t4.o.get(n3);
-        return r4[0]++, function(u4) {
-          var o4 = function() {
-            t4.props.revealOrder ? (r4.push(u4), U(t4, n3, r4)) : u4();
-          };
-          e4 ? e4(o4) : o4();
-        };
-      }, F3.prototype.render = function(n3) {
-        this.u = null, this.o = /* @__PURE__ */ new Map();
-        var t4 = H(n3.children);
-        n3.revealOrder && "b" === n3.revealOrder[0] && t4.reverse();
-        for (var e4 = t4.length; e4--; ) this.o.set(t4[e4], this.u = [1, 0, this.u]);
-        return n3.children;
-      }, F3.prototype.componentDidUpdate = F3.prototype.componentDidMount = function() {
-        var n3 = this;
-        this.o.forEach(function(t4, e4) {
-          U(n3, e4, t4);
-        });
-      };
-      j3 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
-      z3 = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;
-      B3 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
-      H2 = /[A-Z0-9]/g;
-      Z = "undefined" != typeof document;
-      Y = function(n3) {
-        return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n3);
-      };
-      k.prototype.isReactComponent = {}, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t4) {
-        Object.defineProperty(k.prototype, t4, { configurable: true, get: function() {
-          return this["UNSAFE_" + t4];
-        }, set: function(n3) {
-          Object.defineProperty(this, t4, { configurable: true, writable: true, value: n3 });
-        } });
-      });
-      G2 = l.event;
-      l.event = function(n3) {
-        return G2 && (n3 = G2(n3)), n3.persist = J, n3.isPropagationStopped = K, n3.isDefaultPrevented = Q, n3.nativeEvent = n3;
-      };
-      nn = { enumerable: false, configurable: true, get: function() {
-        return this.class;
-      } };
-      tn = l.vnode;
-      l.vnode = function(n3) {
-        "string" == typeof n3.type && function(n4) {
-          var t4 = n4.props, e4 = n4.type, u4 = {}, o4 = -1 === e4.indexOf("-");
-          for (var i5 in t4) {
-            var c4 = t4[i5];
-            if (!("value" === i5 && "defaultValue" in t4 && null == c4 || Z && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
-              var f4 = i5.toLowerCase();
-              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === c4 ? c4 = "" : "translate" === f4 && "no" === c4 ? c4 = false : "o" === f4[0] && "n" === f4[1] ? "ondoubleclick" === f4 ? i5 = "ondblclick" : "onchange" !== f4 || "input" !== e4 && "textarea" !== e4 || Y(t4.type) ? "onfocus" === f4 ? i5 = "onfocusin" : "onblur" === f4 ? i5 = "onfocusout" : B3.test(i5) && (i5 = f4) : f4 = i5 = "oninput" : o4 && z3.test(i5) ? i5 = i5.replace(H2, "-$&").toLowerCase() : null === c4 && (c4 = void 0), "oninput" === f4 && u4[i5 = f4] && (i5 = "oninputCapture"), u4[i5] = c4;
-            }
-          }
-          "select" == e4 && u4.multiple && Array.isArray(u4.value) && (u4.value = H(t4.children).forEach(function(n5) {
-            n5.props.selected = -1 != u4.value.indexOf(n5.props.value);
-          })), "select" == e4 && null != u4.defaultValue && (u4.value = H(t4.children).forEach(function(n5) {
-            n5.props.selected = u4.multiple ? -1 != u4.defaultValue.indexOf(n5.props.value) : u4.defaultValue == n5.props.value;
-          })), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", nn)) : (t4.className && !t4.class || t4.class && t4.className) && (u4.class = u4.className = t4.className), n4.props = u4;
-        }(n3), n3.$$typeof = j3, tn && tn(n3);
-      };
-      en = l.__r;
-      l.__r = function(n3) {
-        en && en(n3), X = n3.__c;
-      };
-      rn = l.diffed;
-      l.diffed = function(n3) {
-        rn && rn(n3);
-        var t4 = n3.props, e4 = n3.__e;
-        null != e4 && "textarea" === n3.type && "value" in t4 && t4.value !== e4.value && (e4.value = null == t4.value ? "" : t4.value), X = null;
-      };
     }
   });
 
@@ -5355,19 +5553,19 @@
       "button",
       {
         ...buttonAttrs,
-        class: (0, import_classnames4.default)(ShowHide_default.button, shape === "round" && ShowHide_default.round, !!showText && ShowHide_default.withText),
+        class: (0, import_classnames3.default)(ShowHide_default.button, shape === "round" && ShowHide_default.round, !!showText && ShowHide_default.withText),
         "aria-label": text,
         onClick
       },
       showText ? /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(Chevron, null), text) : /* @__PURE__ */ _("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ _(Chevron, null))
     );
   }
-  var import_classnames4;
+  var import_classnames3;
   var init_ShowHideButton = __esm({
     "pages/new-tab/app/components/ShowHideButton.jsx"() {
       "use strict";
       init_ShowHide();
-      import_classnames4 = __toESM(require_classnames(), 1);
+      import_classnames3 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_preact_module();
     }
@@ -5464,8 +5662,10 @@
         item: "Tile_item",
         icon: "Tile_icon",
         pulse: "Tile_pulse",
+        preview: "Tile_preview",
         draggable: "Tile_draggable",
         favicon: "Tile_favicon",
+        faviconText: "Tile_faviconText",
         text: "Tile_text",
         placeholder: "Tile_placeholder",
         plus: "Tile_plus",
@@ -5474,30 +5674,31 @@
     }
   });
 
-  // pages/new-tab/app/favorites/color.js
+  // pages/new-tab/app/favorites/getColorForString.js
+  function getArrayIndex(str, arrayLength) {
+    const utf8Encoder = new TextEncoder();
+    const bytes = utf8Encoder.encode(str);
+    let hash = BigInt(5381);
+    for (const byte of bytes) {
+      hash = (hash << BigInt(5)) + hash + BigInt(byte);
+      hash = BigInt.asIntN(64, hash);
+    }
+    const index = hash % BigInt(arrayLength);
+    return Number(index < 0 ? -index : index);
+  }
   function urlToColor(url4) {
-    const host = getHost(url4);
-    const index = Math.abs(getDJBHash(host) % EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
-    return EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index];
-  }
-  function getDJBHash(str) {
-    let hash = 5381;
-    for (let i5 = 0; i5 < str.length; i5++) {
-      hash = (hash << 5) + hash + str.charCodeAt(i5);
+    if (typeof url4 !== "string") return null;
+    if (urlToColorCache.has(url4)) {
+      return urlToColorCache.get(url4);
     }
-    return hash;
+    const index = getArrayIndex(url4, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
+    const color = EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index];
+    urlToColorCache.set(url4, color);
+    return color;
   }
-  function getHost(url4) {
-    try {
-      const urlObj = new URL(url4);
-      return urlObj.hostname.replace(/^www\./, "");
-    } catch (e4) {
-      return "?";
-    }
-  }
-  var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES;
-  var init_color = __esm({
-    "pages/new-tab/app/favorites/color.js"() {
+  var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES, urlToColorCache;
+  var init_getColorForString = __esm({
+    "pages/new-tab/app/favorites/getColorForString.js"() {
       "use strict";
       EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES = [
         "#94B3AF",
@@ -5517,12 +5718,19 @@
         "#DD6B4C",
         "#D65D62"
       ];
+      urlToColorCache = /* @__PURE__ */ new Map();
     }
   });
 
   // pages/new-tab/app/favorites/components/Tile.js
-  function Tile_({ url: url4, faviconSrc, faviconMax, index, title, id, dropped }) {
-    const { state, ref } = useItemState(url4, id);
+  function Tile_({ url: url4, etldPlusOne, faviconSrc, faviconMax, index, title, id, dropped, visibility, theme }) {
+    const { state, ref } = useItemState(url4, id, {
+      kind: "draggable",
+      onPreview: (elem) => {
+        elem.classList.add(Tile_default.preview);
+        elem.dataset.theme = theme;
+      }
+    });
     return /* @__PURE__ */ _(
       "a",
       {
@@ -5536,65 +5744,104 @@
         "data-edge": "closestEdge" in state && state.closestEdge,
         ref
       },
-      /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.draggable) }, /* @__PURE__ */ _(ImageLoader, { faviconSrc: faviconSrc || "n/a", faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE, title, url: url4 })),
+      /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ _(
+        ImageWithState,
+        {
+          faviconSrc,
+          faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE,
+          title,
+          theme,
+          etldPlusOne
+        }
+      )),
       /* @__PURE__ */ _("div", { class: Tile_default.text }, title),
       state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
     );
   }
-  function ImageLoader({ faviconSrc, faviconMax, title, url: url4 }) {
-    const imgError = (e4) => {
-      if (!e4.target) return;
-      if (!(e4.target instanceof HTMLImageElement)) return;
-      if (e4.target.src === e4.target.dataset.fallback) return console.warn("refusing to load same fallback");
-      if (e4.target.dataset.didTryFallback) {
-        e4.target.dataset.errored = String(true);
-        return;
-      }
-      e4.target.dataset.didTryFallback = String(true);
-      e4.target.src = e4.target.dataset.fallback;
-    };
-    const imgLoaded = (e4) => {
-      if (!e4.target) return;
-      if (!(e4.target instanceof HTMLImageElement)) return;
-      e4.target.dataset.loaded = String(true);
-      if (e4.target.src.endsWith("other.svg")) {
-        return;
-      }
-      if (e4.target.dataset.didTryFallback) {
-        e4.target.style.background = urlToColor(url4);
-      }
-    };
+  function ImageWithState({ faviconSrc, faviconMax, title, etldPlusOne, theme }) {
     const size = Math.min(faviconMax, DDG_DEFAULT_ICON_SIZE);
-    const src = faviconSrc + "?preferredSize=" + size;
-    return /* @__PURE__ */ _(
-      "img",
-      {
-        src,
-        class: Tile_default.favicon,
-        alt: `favicon for ${title}`,
-        onLoad: imgLoaded,
-        onError: imgError,
-        "data-src": faviconSrc,
-        "data-fallback": fallbackSrcFor(url4) || DDG_FALLBACK_ICON
-      }
+    const imgsrc = faviconSrc ? faviconSrc + "?preferredSize=" + size : null;
+    const initialState = (() => {
+      if (imgsrc) return states2.loading_favicon_src;
+      if (etldPlusOne) return states2.using_fallback_text;
+      return states2.loading_fallback_img;
+    })();
+    const [state, setState] = h2(
+      /** @type {ImgState} */
+      initialState
     );
-  }
-  function fallbackSrcFor(url4) {
-    if (!url4) return null;
-    try {
-      const parsed = new URL(url4);
-      const char1 = parsed.hostname.match(/[a-z]/i)?.[0];
-      if (char1) {
-        return `./letters/${char1}.svg`;
+    switch (state) {
+      /**
+       * These are the happy paths, where we are loading the favicon source and it does not 404
+       */
+      case states2.loading_favicon_src:
+      case states2.did_load_favicon_src: {
+        if (!imgsrc) {
+          console.warn("unreachable - must have imgsrc here");
+          return null;
+        }
+        return /* @__PURE__ */ _(
+          "img",
+          {
+            src: imgsrc,
+            class: Tile_default.favicon,
+            alt: `favicon for ${title}`,
+            "data-state": state,
+            onLoad: () => setState(states2.did_load_favicon_src),
+            onError: () => {
+              if (etldPlusOne) {
+                setState(states2.using_fallback_text);
+              } else {
+                setState(states2.loading_fallback_img);
+              }
+            }
+          }
+        );
       }
-    } catch (e4) {
+      /**
+       * A fallback can be applied when the `etldPlusOne` is there. For example,
+       * if `etldPlusOne = 'example.com'`, we can display `Ex` and use the domain name
+       * to select a background color.
+       */
+      case states2.using_fallback_text: {
+        if (!etldPlusOne) {
+          console.warn("unreachable - must have etld+1 here");
+          return null;
+        }
+        let style;
+        const fallbackColor = urlToColor(etldPlusOne);
+        if (fallbackColor) {
+          style = { background: fallbackColor };
+        }
+        const chars = etldPlusOne.slice(0, 2);
+        return /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(Tile_default.favicon, Tile_default.faviconText), style, "data-state": state }, /* @__PURE__ */ _("span", null, chars[0]), /* @__PURE__ */ _("span", null, chars[1]));
+      }
+      /**
+       * If we get here, we couldn't load the favicon source OR the fallback text
+       * So, we default to a globe icon
+       */
+      case states2.loading_fallback_img:
+      case states2.did_load_fallback_img: {
+        return /* @__PURE__ */ _(
+          "img",
+          {
+            src: theme === "light" ? DDG_FALLBACK_ICON : DDG_FALLBACK_ICON_DARK,
+            class: Tile_default.favicon,
+            alt: `favicon for ${title}`,
+            "data-state": state,
+            onLoad: () => setState(states2.did_load_fallback_img),
+            onError: () => setState(states2.fallback_img_failed)
+          }
+        );
+      }
+      default:
+        return null;
     }
-    return null;
   }
   function Placeholder() {
     const id = g2();
-    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.placeholder) }), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(Tile_default.icon, Tile_default.placeholder) }), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
   }
   function PlusIconWrapper({ onClick }) {
     const id = g2();
@@ -5602,43 +5849,56 @@
       /** @type {import('../strings.json')} */
       {}
     );
-    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`);
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ _(PlusIcon, null)), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ _(PlusIcon, null)), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
   }
-  var import_classnames5, Tile, PlusIconMemo;
+  var import_classnames4, Tile, states2, PlusIconMemo;
   var init_Tile2 = __esm({
     "pages/new-tab/app/favorites/components/Tile.js"() {
       "use strict";
       init_preact_module();
-      import_classnames5 = __toESM(require_classnames(), 1);
+      import_classnames4 = __toESM(require_classnames(), 1);
       init_hooks_module();
       init_compat_module();
       init_Tile();
-      init_color();
       init_constants();
       init_PragmaticDND();
       init_types();
       init_Icons2();
+      init_getColorForString();
       Tile = C3(Tile_);
+      states2 = /** @type {Record<ImgState, ImgState>} */
+      {
+        loading_favicon_src: "loading_favicon_src",
+        did_load_favicon_src: "did_load_favicon_src",
+        loading_fallback_img: "loading_fallback_img",
+        did_load_fallback_img: "did_load_fallback_img",
+        fallback_img_failed: "fallback_img_failed",
+        using_fallback_text: "using_fallback_text"
+      };
       PlusIconMemo = C3(PlusIconWrapper);
     }
   });
 
   // pages/new-tab/app/favorites/components/TileRow.js
-  function TileRow_({ topOffset, items, add, dropped }) {
+  function TileRow_({ topOffset, items, add, dropped, visibility }) {
     const fillers = ROW_CAPACITY - items.length;
+    const theme = x2(FavoritesThemeContext);
     return /* @__PURE__ */ _("ul", { className: Favorites_default.gridRow, style: { top: topOffset + "px" } }, items.map((item, index) => {
       return /* @__PURE__ */ _(
         Tile,
         {
           url: item.url,
+          etldPlusOne: item.etldPlusOne,
           faviconSrc: item.favicon?.src,
           faviconMax: item.favicon?.maxAvailableSize,
           title: item.title,
-          key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize,
+          key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize + visibility,
           id: item.id,
           index,
-          dropped: dropped === item.id
+          dropped: dropped === item.id,
+          visibility,
+          theme
         }
       );
     }), fillers > 0 && Array.from({ length: fillers }).map((_5, fillerIndex) => {
@@ -5657,6 +5917,7 @@
       init_preact_module();
       init_compat_module();
       init_Favorites2();
+      init_hooks_module();
       TileRow = C3(TileRow_);
     }
   });
@@ -5673,11 +5934,12 @@
     const rowHeight = ITEM_HEIGHT + ROW_GAP;
     const canToggleExpansion = favorites2.length >= ROW_CAPACITY;
     const { data } = x2(CustomizerContext);
+    const { main } = x2(CustomizerThemesContext);
     const kind = useComputed(() => data.value.background.kind);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(FavoritesThemeContext.Provider, { value: main.value }, /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames6.default)(Favorites_default.root, !canToggleExpansion && Favorites_default.noExpansionBtn),
+        class: (0, import_classnames5.default)(Favorites_default.root, !canToggleExpansion && Favorites_default.noExpansionBtn),
         "data-testid": "FavoritesConfigured",
         "data-background-kind": kind
       },
@@ -5696,7 +5958,7 @@
       canToggleExpansion && /* @__PURE__ */ _(
         "div",
         {
-          className: (0, import_classnames6.default)({
+          className: (0, import_classnames5.default)({
             [Favorites_default.showhide]: true,
             [Favorites_default.showhideVisible]: canToggleExpansion
           })
@@ -5715,7 +5977,7 @@
           }
         )
       )
-    );
+    ));
   }
   function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites: favorites2, expansion, openFavorite, openContextMenu, add }) {
     const platformName = usePlatformName();
@@ -5750,13 +6012,14 @@
         onContextMenu: getContextMenuHandler(openContextMenu),
         onClick: getOnClickHandler(openFavorite, platformName)
       },
-      rows.length === 0 && /* @__PURE__ */ _(TileRow, { key: "empty-rows", items: [], topOffset: 0, add }),
+      rows.length === 0 && /* @__PURE__ */ _(TileRow, { key: "empty-rows", items: [], topOffset: 0, add, visibility: "visible" }),
       rows.length > 0 && /* @__PURE__ */ _(Inner, { rows, safeAreaRef, rowHeight, add })
     );
   }
   function Inner({ rows, safeAreaRef, rowHeight, add }) {
     const { onConfigChanged, state } = x2(FavoritesContext);
     const [expansion, setExpansion] = h2(state.config?.expansion || "collapsed");
+    const documentVisibility = useDocumentVisibility();
     y2(() => {
       return onConfigChanged((config) => {
         if (config.expansion === "expanded") {
@@ -5806,11 +6069,17 @@
         },
         { signal: controller.signal }
       );
-      const resizer = new ResizeObserver(() => {
-        requestAnimationFrame(() => {
-          updateGlobals(mainScroller.scrollTop);
-          setVisibleRowsForOffset(mainScroller.scrollTop);
-        });
+      let lastHeight;
+      const resizer = new ResizeObserver((entries4) => {
+        const first = entries4[0];
+        if (!first) return;
+        if (first.contentRect.height !== lastHeight) {
+          lastHeight = first.contentRect.height;
+          requestAnimationFrame(() => {
+            updateGlobals(mainScroller.scrollTop);
+            setVisibleRowsForOffset(mainScroller.scrollTop);
+          });
+        }
       });
       resizer.observe(contentTube);
       mainScroller.addEventListener(
@@ -5830,8 +6099,25 @@
     return /* @__PURE__ */ _(b, null, subsetOfRowsToRender.map((items, rowIndex) => {
       const topOffset = expansion === "expanded" ? (start2 + rowIndex) * rowHeight : 0;
       const keyed = `-${start2 + rowIndex}-`;
-      return /* @__PURE__ */ _(TileRow, { key: keyed, dropped, items, topOffset, add });
+      return /* @__PURE__ */ _(TileRow, { key: keyed, dropped, items, topOffset, add, visibility: documentVisibility });
     }));
+  }
+  function useDocumentVisibility() {
+    const initial = document.visibilityState;
+    const [documentVisibility, setDocumentVisibility] = h2(
+      /** @type {Document['visibilityState']} */
+      initial
+    );
+    y2(() => {
+      const handleVisibilityChange = () => {
+        setDocumentVisibility(document.visibilityState);
+      };
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }, []);
+    return documentVisibility;
   }
   function getContextMenuHandler(openContextMenu) {
     return (event) => {
@@ -5873,14 +6159,14 @@
       }
     };
   }
-  var import_classnames6, FavoritesMemo, ROW_CAPACITY, ITEM_HEIGHT, ROW_GAP;
+  var import_classnames5, FavoritesMemo, ROW_CAPACITY, ITEM_HEIGHT, ROW_GAP, FavoritesThemeContext;
   var init_Favorites2 = __esm({
     "pages/new-tab/app/favorites/components/Favorites.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_compat_module();
-      import_classnames6 = __toESM(require_classnames(), 1);
+      import_classnames5 = __toESM(require_classnames(), 1);
       init_Favorites();
       init_ShowHideButton();
       init_types();
@@ -5894,6 +6180,10 @@
       ROW_CAPACITY = 6;
       ITEM_HEIGHT = 96;
       ROW_GAP = 8;
+      FavoritesThemeContext = G(
+        /** @type {"light"|"dark"} */
+        "light"
+      );
     }
   });
 
@@ -5937,7 +6227,7 @@
       init_hooks_module();
       init_types();
       init_widget_config_provider();
-      init_Customizer2();
+      init_CustomizerMenu();
       init_FavoritesProvider();
       init_PragmaticDND();
       init_Favorites2();
@@ -5981,7 +6271,7 @@
     return /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames7.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
+        className: (0, import_classnames6.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
         type,
         onClick: (
           /**
@@ -5997,12 +6287,12 @@
       children
     );
   }
-  var import_classnames7;
+  var import_classnames6;
   var init_Button2 = __esm({
     "shared/components/Button/Button.js"() {
       "use strict";
       init_preact_module();
-      import_classnames7 = __toESM(require_classnames(), 1);
+      import_classnames6 = __toESM(require_classnames(), 1);
       init_Button();
     }
   });
@@ -6020,14 +6310,14 @@
   // pages/new-tab/app/components/DismissButton.jsx
   function DismissButton({ className, onClick, buttonProps = {} }) {
     const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ _("button", { class: (0, import_classnames8.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ _(Cross, null));
+    return /* @__PURE__ */ _("button", { class: (0, import_classnames7.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ _(Cross, null));
   }
-  var import_classnames8;
+  var import_classnames7;
   var init_DismissButton2 = __esm({
     "pages/new-tab/app/components/DismissButton.jsx"() {
       "use strict";
       init_preact_module();
-      import_classnames8 = __toESM(require_classnames(), 1);
+      import_classnames7 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_types();
       init_DismissButton();
@@ -6210,7 +6500,7 @@
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js
   function FreemiumPIRBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames9.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames8.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = x2(FreemiumPIRBannerContext);
@@ -6219,11 +6509,11 @@
     }
     return null;
   }
-  var import_classnames9;
+  var import_classnames8;
   var init_FreemiumPIRBanner2 = __esm({
     "pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js"() {
       "use strict";
-      import_classnames9 = __toESM(require_classnames(), 1);
+      import_classnames8 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -6544,18 +6834,18 @@
     return /* @__PURE__ */ _("div", { class: NextSteps_default.card }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ _("h3", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ _("p", { class: NextSteps_default.description }, message.summary), hasConfirmationState && !!showConfirmation ? /* @__PURE__ */ _("div", { class: NextSteps_default.confirmation }, /* @__PURE__ */ _(CheckColor, null), /* @__PURE__ */ _("p", null, message.confirmationText)) : /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames10.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
+        class: (0, import_classnames9.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
         onClick: handleClick
       },
       message.actionText
     ), /* @__PURE__ */ _(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
-  var import_classnames10;
+  var import_classnames9;
   var init_NextStepsCard = __esm({
     "pages/new-tab/app/next-steps/components/NextStepsCard.js"() {
       "use strict";
       init_preact_module();
-      import_classnames10 = __toESM(require_classnames(), 1);
+      import_classnames9 = __toESM(require_classnames(), 1);
       init_hooks_module();
       init_DismissButton2();
       init_Icons2();
@@ -6574,10 +6864,10 @@
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(NextSteps_default.cardGroup, types.length <= 2 && NextSteps_default.noExpansionBtn), id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames10.default)(NextSteps_default.cardGroup, types.length <= 2 && NextSteps_default.noExpansionBtn), id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(
       "div",
       {
-        className: (0, import_classnames11.default)({
+        className: (0, import_classnames10.default)({
           [NextSteps_default.showhide]: types.length > 2,
           [NextSteps_default.showhideVisible]: types.length > 2
         })
@@ -6619,12 +6909,12 @@
       }
     )));
   }
-  var import_classnames11;
+  var import_classnames10;
   var init_NextStepsGroup = __esm({
     "pages/new-tab/app/next-steps/components/NextStepsGroup.js"() {
       "use strict";
       init_preact_module();
-      import_classnames11 = __toESM(require_classnames(), 1);
+      import_classnames10 = __toESM(require_classnames(), 1);
       init_hooks_module();
       init_ShowHideButton();
       init_types();
@@ -6683,6 +6973,8 @@
         listExpander: "PrivacyStats_listExpander",
         heading: "PrivacyStats_heading",
         headingIcon: "PrivacyStats_headingIcon",
+        heart02: "PrivacyStats_heart02",
+        heart01: "PrivacyStats_heart01",
         title: "PrivacyStats_title",
         widgetExpander: "PrivacyStats_widgetExpander",
         subtitle: "PrivacyStats_subtitle",
@@ -6904,34 +7196,44 @@
   }
   function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
     const expanded = expansion === "expanded";
-    const someCompanies = data.trackerCompanies.length > 0;
+    const { hasNamedCompanies, recent } = T2(() => {
+      let recent2 = 0;
+      let hasNamedCompanies2 = false;
+      for (let i5 = 0; i5 < data.trackerCompanies.length; i5++) {
+        recent2 += data.trackerCompanies[i5].count;
+        if (!hasNamedCompanies2 && data.trackerCompanies[i5].displayName !== DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
+          hasNamedCompanies2 = true;
+        }
+      }
+      return { hasNamedCompanies: hasNamedCompanies2, recent: recent2 };
+    }, [data.trackerCompanies]);
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
     return /* @__PURE__ */ _("div", { class: PrivacyStats_default.root, ref: parentRef }, /* @__PURE__ */ _(
       Heading,
       {
-        trackerCompanies: data.trackerCompanies,
+        recent,
         onToggle: toggle,
         expansion,
+        canExpand: hasNamedCompanies,
         buttonAttrs: {
           "aria-controls": WIDGET_ID,
           id: TOGGLE_ID
         }
       }
-    ), expanded && someCompanies && /* @__PURE__ */ _(PrivacyStatsBody, { trackerCompanies: data.trackerCompanies, listAttrs: { id: WIDGET_ID } }));
+    ), hasNamedCompanies && expanded && /* @__PURE__ */ _(PrivacyStatsBody, { trackerCompanies: data.trackerCompanies, listAttrs: { id: WIDGET_ID } }));
   }
-  function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {} }) {
+  function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = {} }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
     const [formatter] = h2(() => new Intl.NumberFormat());
-    const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0);
     const none = recent === 0;
     const some = recent > 0;
     const alltime = formatter.format(recent);
     const alltimeTitle = recent === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural", { count: alltime });
-    return /* @__PURE__ */ _("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, t4("stats_noRecent")), some && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, alltimeTitle), recent > 0 && /* @__PURE__ */ _("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, t4("stats_noRecent")), some && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, alltimeTitle), recent > 0 && canExpand && /* @__PURE__ */ _("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
       ShowHideButton,
       {
         buttonAttrs: {
@@ -6943,7 +7245,7 @@
         text: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel"),
         shape: "round"
       }
-    )), recent === 0 && /* @__PURE__ */ _("p", { className: PrivacyStats_default.subtitle }, t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ _("p", { className: (0, import_classnames12.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t4("stats_feedCountBlockedPeriod")));
+    )), recent === 0 && /* @__PURE__ */ _("p", { className: PrivacyStats_default.subtitle }, t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ _("p", { className: (0, import_classnames11.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t4("stats_feedCountBlockedPeriod")));
   }
   function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -7054,12 +7356,12 @@
       }
     ));
   }
-  var import_classnames12;
+  var import_classnames11;
   var init_PrivacyStats2 = __esm({
     "pages/new-tab/app/privacy-stats/components/PrivacyStats.js"() {
       "use strict";
       init_preact_module();
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames11 = __toESM(require_classnames(), 1);
       init_PrivacyStats();
       init_types();
       init_hooks_module();
@@ -7067,7 +7369,7 @@
       init_widget_config_provider();
       init_utils2();
       init_ShowHideButton();
-      init_Customizer2();
+      init_CustomizerMenu();
       init_constants2();
       init_privacy_stats_utils();
       init_settings_provider();
@@ -7261,7 +7563,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames13.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(b, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(b, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames12.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(b, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(b, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -7278,12 +7580,12 @@
     }
     return null;
   }
-  var import_classnames13;
+  var import_classnames12;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames12 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -7443,7 +7745,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -7505,12 +7807,12 @@
     }
     return null;
   }
-  var import_classnames14;
+  var import_classnames13;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames14 = __toESM(require_classnames(), 1);
+      import_classnames13 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -7550,13 +7852,14 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
     tube: "App_tube",
     layout: "App_layout",
     main: "App_main",
+    themeContext: "App_themeContext",
     mainLayout: "App_mainLayout",
     mainScroller: "App_mainScroller",
     content: "App_content",
@@ -7683,7 +7986,7 @@
 
   // pages/new-tab/app/components/App.js
   init_dropzone();
-  init_Customizer2();
+  init_CustomizerMenu();
 
   // pages/new-tab/app/components/Drawer.js
   init_hooks_module();
@@ -7882,7 +8185,7 @@
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -7915,7 +8218,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames15 = __toESM(require_classnames(), 1);
+  var import_classnames14 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -7940,7 +8243,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ _("ul", { class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       DefaultPanel,
       {
         checked: data.value.background.kind === "default",
@@ -7974,12 +8277,13 @@
     return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
         role: "radio",
-        onClick
+        onClick,
+        tabindex: checked ? -1 : 0
       },
       checked && /* @__PURE__ */ _(CircleCheck, null)
     ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_default")));
@@ -7993,10 +8297,11 @@
     return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
+        tabindex: props.checked ? -1 : 0,
         "aria-labelledby": id,
         role: "radio",
         style: { background: props.color.hex }
@@ -8014,9 +8319,10 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
+        tabindex: props.checked ? -1 : 0,
         "aria-labelledby": id,
         style: {
           background: `url(${props.gradient.path})`,
@@ -8053,7 +8359,7 @@
       return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
         "button",
         {
-          class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -8068,7 +8374,7 @@
     return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -8094,7 +8400,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames16 = __toESM(require_classnames(), 1);
+  var import_classnames15 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -8107,33 +8413,33 @@
     return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
-        tabindex: 0,
+        tabindex: current.value === "light" ? -1 : 0,
         onClick: () => props.setTheme({ theme: "light" })
       },
       /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "light" }))
     ), t4("customizer_browser_theme_light")), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
-        tabindex: 0,
+        tabindex: current.value === "dark" ? -1 : 0,
         onClick: () => props.setTheme({ theme: "dark" })
       },
       /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "dark" }))
     ), t4("customizer_browser_theme_dark")), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
-        tabindex: 0,
+        tabindex: current.value === "system" ? -1 : 0,
         onClick: () => props.setTheme({ theme: "system" })
       },
       /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "system" }))
@@ -8142,13 +8448,13 @@
 
   // pages/new-tab/app/customizer/components/VisibilityMenuSection.js
   init_hooks_module();
-  init_Customizer2();
+  init_CustomizerMenu();
   init_VisibilityMenu2();
   init_preact_module();
   function VisibilityMenuSection() {
     const [rowData, setRowData] = h2(() => {
       const items = (
-        /** @type {import("./Customizer.js").VisibilityRowData[]} */
+        /** @type {import("./CustomizerMenu.js").VisibilityRowData[]} */
         getItems()
       );
       return items;
@@ -8157,9 +8463,9 @@
       function handler() {
         setRowData(getItems());
       }
-      window.addEventListener(Customizer.UPDATE_EVENT, handler);
+      window.addEventListener(CustomizerMenu.UPDATE_EVENT, handler);
       return () => {
-        window.removeEventListener(Customizer.UPDATE_EVENT, handler);
+        window.removeEventListener(CustomizerMenu.UPDATE_EVENT, handler);
       };
     }, []);
     return /* @__PURE__ */ _(EmbeddedVisibilityMenu, { rows: rowData });
@@ -8167,7 +8473,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames17 = __toESM(require_classnames(), 1);
+  var import_classnames16 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -8196,7 +8502,7 @@
       if (!(value in values.colors)) return console.warn("could not select color", value);
       select({ background: { kind: "color", value } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data, select }), /* @__PURE__ */ _(ColorGrid, { data })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames16.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data, select }), /* @__PURE__ */ _(ColorGrid, { data })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data }) {
@@ -8233,7 +8539,7 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -8258,12 +8564,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ _("span", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
+    ), /* @__PURE__ */ _("span", { class: (0, import_classnames16.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames18 = __toESM(require_classnames(), 1);
+  var import_classnames17 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -8291,12 +8597,12 @@
       if (!(value in values.gradients)) return console.warn("could not select gradient", value);
       select({ background: { kind: "gradient", value } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data }) {
     const selected = useComputed(() => data.value.background.kind === "gradient" && data.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key) => {
       const entry = values.gradients[key];
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key }, /* @__PURE__ */ _(
         "button",
@@ -8324,14 +8630,14 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames19 = __toESM(require_classnames(), 1);
+  var import_classnames18 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
   init_hooks_module();
   init_CustomizerProvider();
   init_types();
-  function ImageSelection({ data, select, back, onUpload, deleteImage }) {
+  function ImageSelection({ data, select, back, onUpload, deleteImage, customizerContextMenu }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
@@ -8355,7 +8661,20 @@
       if (!match) return console.warn("could not find matching image", value);
       select({ background: { kind: "userImage", value: match } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    function onContextMenu(event) {
+      const target = (
+        /** @type {HTMLElement|null} */
+        event.target
+      );
+      if (!(target instanceof HTMLElement)) return;
+      const id = target.closest("button")?.dataset.id;
+      if (typeof id === "string") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        customizerContextMenu({ id, target: "userImage" });
+      }
+    }
+    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -8370,7 +8689,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
@@ -8407,7 +8726,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ _(PlusIcon, null),
@@ -8418,16 +8737,16 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames20 = __toESM(require_classnames(), 1);
+  var import_classnames19 = __toESM(require_classnames(), 1);
   function CustomizerSection({ title, children }) {
     return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, title), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames19.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames20 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_types();
 
@@ -8460,19 +8779,19 @@
       e4.preventDefault();
       messaging2.open({ target: "settings" });
     }
-    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames21.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, t4("customizer_settings_link")), /* @__PURE__ */ _(Open, null));
+    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames20.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, t4("customizer_settings_link")), /* @__PURE__ */ _(Open, null));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_DismissButton2();
   init_types();
-  function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage }) {
+  function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage, customizerContextMenu }) {
     const { close } = useDrawerControls();
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -8491,7 +8810,17 @@
         TwoCol,
         {
           left: ({ push }) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sections }, /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ _(BackgroundSection, { data, onNav: push, onUpload, select })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ _(BrowserThemeSection, { data, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ _(VisibilityMenuSection, null)), /* @__PURE__ */ _(BorderedSection, null, /* @__PURE__ */ _(SettingsLink, null))),
-          right: ({ id, pop }) => /* @__PURE__ */ _(b, null, id === "color" && /* @__PURE__ */ _(ColorSelection, { data, select, back: pop }), id === "gradient" && /* @__PURE__ */ _(GradientSelection, { data, select, back: pop }), id === "image" && /* @__PURE__ */ _(ImageSelection, { data, select, back: pop, onUpload, deleteImage }))
+          right: ({ id, pop }) => /* @__PURE__ */ _(b, null, id === "color" && /* @__PURE__ */ _(ColorSelection, { data, select, back: pop }), id === "gradient" && /* @__PURE__ */ _(GradientSelection, { data, select, back: pop }), id === "image" && /* @__PURE__ */ _(
+            ImageSelection,
+            {
+              data,
+              select,
+              back: pop,
+              onUpload,
+              deleteImage,
+              customizerContextMenu
+            }
+          ))
         }
       )
     ));
@@ -8518,7 +8847,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -8526,8 +8855,18 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawer_default.root }, displayChildren.value === true && /* @__PURE__ */ _(CustomizerConsumer, null));
   }
   function CustomizerConsumer() {
-    const { data, select, upload, setTheme, deleteImage } = x2(CustomizerContext);
-    return /* @__PURE__ */ _(CustomizerDrawerInner, { data, select, onUpload: upload, setTheme, deleteImage });
+    const { data, select, upload, setTheme, deleteImage, customizerContextMenu } = x2(CustomizerContext);
+    return /* @__PURE__ */ _(
+      CustomizerDrawerInner,
+      {
+        data,
+        select,
+        onUpload: upload,
+        setTheme,
+        deleteImage,
+        customizerContextMenu
+      }
+    );
   }
 
   // pages/new-tab/app/components/App.js
@@ -8538,7 +8877,7 @@
   function App() {
     const platformName = usePlatformName();
     const customizerDrawer = useCustomizerDrawerSettings();
-    const customizerKind = customizerDrawer.state === "enabled" ? "drawer" : "menu";
+    const customizerKind = useCustomizerKind();
     useGlobalDropzone();
     useContextMenu();
     const {
@@ -8552,21 +8891,23 @@
       drawerId
     } = useDrawer(customizerDrawer.autoOpen ? "visible" : "hidden");
     const tabIndex = useComputed(() => hidden.value ? -1 : 0);
+    const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames23.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null))), /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, customizerKind === "menu" && /* @__PURE__ */ _(Customizer, null), customizerKind === "drawer" && /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames22.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, customizerKind === "menu" && /* @__PURE__ */ _(CustomizerMenu, null), customizerKind === "drawer" && /* @__PURE__ */ _(
       CustomizerButton,
       {
         buttonId,
         menuId: drawerId,
         toggleMenu: toggle,
         buttonRef,
-        isOpen: false
+        isOpen,
+        kind: "drawer"
       }
     ))), customizerKind === "drawer" && /* @__PURE__ */ _(
       "aside",
       {
-        class: (0, import_classnames23.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+        class: (0, import_classnames22.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
         tabindex: tabIndex,
         "aria-hidden": hidden,
         "data-theme": browser,
@@ -8692,15 +9033,15 @@
       note: "Used as a label in a customization menu"
     },
     stats_menuTitle_v2: {
-      title: "Tracking Activity",
+      title: "Protection Stats",
       note: "Used as a label in a customization menu"
     },
     stats_noActivity: {
-      title: "Blocked tracking attempts will appear here. Keep browsing to see how many we block.",
+      title: "DuckDuckGo blocks tracking attempts as you browse. Visit a few sites to see how many we block!",
       note: "Placeholder for when we cannot report any blocked trackers yet"
     },
     stats_noRecent: {
-      title: "No recent tracking activity",
+      title: "Tracking protections active",
       note: "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
     },
     stats_countBlockedSingular: {
@@ -8990,7 +9331,7 @@
   // pages/new-tab/app/customizer/components/Customizer.examples.js
   init_preact_module();
   init_utils2();
-  init_Customizer2();
+  init_CustomizerMenu();
   init_VisibilityMenu2();
   init_signals_module();
   var customizerExamples = {
@@ -9025,14 +9366,15 @@
               select,
               back: noop("back"),
               onUpload: noop("onUpload"),
-              deleteImage: noop("deleteImage")
+              deleteImage: noop("deleteImage"),
+              customizerContextMenu: noop("customizerContextMenu")
             }
           );
         });
       }
     },
     "customizer-menu": {
-      factory: () => /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true }), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true, kind: "menu" }), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(
         VisibilityMenu,
         {
           rows: [
@@ -9108,30 +9450,30 @@
       // prettier-ignore
       /** @type {Favorite[]} */
       favorites: [
-        { id: "id-many-1", url: "https://example.com?id=id-many-1", title: "Amazon", favicon: { src: "./company-icons/amazon.svg", maxAvailableSize: 16 } },
-        { id: "id-many-2", url: "https://example.com?id=id-many-2", title: "Adform", favicon: null },
-        { id: "id-many-3", url: "https://a.example.com?id=id-many-3", title: "Adobe", favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 } },
-        { id: "id-many-4", url: "https://b.example.com?id=id-many-3", title: "Adobe", favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 } },
-        { id: "id-many-31", url: "https://b.example.com?id=id-many-4", title: "A Beautiful Mess", favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 } },
-        { id: "id-many-5", url: "https://222?id=id-many-3", title: "Gmail", favicon: null },
-        { id: "id-many-6", url: "https://example.com?id=id-many-5", title: "TikTok", favicon: { src: "./company-icons/bytedance.svg", maxAvailableSize: 16 } },
-        { id: "id-many-7", url: "https://example.com?id=id-many-6", title: "DoorDash", favicon: { src: "./company-icons/d.svg", maxAvailableSize: 16 } },
-        { id: "id-many-8", url: "https://example.com?id=id-many-7", title: "Facebook", favicon: { src: "./company-icons/facebook.svg", maxAvailableSize: 16 } },
-        { id: "id-many-9", url: "https://example.com?id=id-many-8", title: "Beeswax", favicon: { src: "./company-icons/beeswax.svg", maxAvailableSize: 16 } },
-        { id: "id-many-10", url: "https://example.com?id=id-many-9", title: "Adobe", favicon: { src: "./company-icons/adobe.svg", maxAvailableSize: 16 } },
-        { id: "id-many-11", url: "https://example.com?id=id-many-10", title: "Beeswax", favicon: { src: "./company-icons/beeswax.svg", maxAvailableSize: 16 } },
-        { id: "id-many-12", url: "https://example.com?id=id-many-11", title: "Facebook", favicon: { src: "./company-icons/facebook.svg", maxAvailableSize: 16 } },
-        { id: "id-many-13", url: "https://example.com?id=id-many-12", title: "Gmail", favicon: { src: "./company-icons/google.svg", maxAvailableSize: 16 } },
-        { id: "id-many-14", url: "https://example.com?id=id-many-13", title: "TikTok", favicon: { src: "./company-icons/bytedance.svg", maxAvailableSize: 16 } },
-        { id: "id-many-15", url: "https://example.com?id=id-many-14", title: "yeti", favicon: { src: "./company-icons/d.svg", maxAvailableSize: 16 } }
+        { id: "id-many-1", etldPlusOne: "example.com", url: "https://example.com?id=id-many-1", title: "Amazon", favicon: { src: "./company-icons/amazon.svg", maxAvailableSize: 16 } },
+        { id: "id-many-2", etldPlusOne: "adform.com", url: "https://adform.com?id=id-many-2", title: "Adform", favicon: null },
+        { id: "id-many-3", etldPlusOne: "adobe.com", url: "https://adobe.com?id=id-many-3", title: "Adobe", favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 } },
+        { id: "id-many-4", etldPlusOne: "adobe.com", url: "https://b.adobe.com?id=id-many-3", title: "Adobe sub", favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 } },
+        { id: "id-many-31", etldPlusOne: "example.com", url: "https://b.example.com?id=id-many-4", title: "A Beautiful Mess", favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 } },
+        { id: "id-many-5", etldPlusOne: "google.com", url: "https://mail.google.com?id=id-many-3", title: "Gmail", favicon: null },
+        { id: "id-many-6", etldPlusOne: "example.com", url: "https://example.com?id=id-many-5", title: "TikTok", favicon: { src: "./company-icons/bytedance.svg", maxAvailableSize: 16 } },
+        { id: "id-many-7", etldPlusOne: "doordash.com", url: "https://doordash.com?id=id-many-6", title: "DoorDash", favicon: null },
+        { id: "id-many-8", etldPlusOne: "example.com", url: "https://example.com?id=id-many-7", title: "Facebook", favicon: { src: "./company-icons/facebook.svg", maxAvailableSize: 16 } },
+        { id: "id-many-9", etldPlusOne: "example.com", url: "https://example.com?id=id-many-8", title: "Beeswax", favicon: { src: "./company-icons/beeswax.svg", maxAvailableSize: 16 } },
+        { id: "id-many-10", etldPlusOne: "example.com", url: "https://example.com?id=id-many-9", title: "Adobe", favicon: { src: "./company-icons/adobe.svg", maxAvailableSize: 16 } },
+        { id: "id-many-11", etldPlusOne: "example.com", url: "https://example.com?id=id-many-10", title: "Beeswax", favicon: { src: "./company-icons/beeswax.svg", maxAvailableSize: 16 } },
+        { id: "id-many-12", etldPlusOne: "example.com", url: "https://example.com?id=id-many-11", title: "Facebook", favicon: { src: "./company-icons/facebook.svg", maxAvailableSize: 16 } },
+        { id: "id-many-13", etldPlusOne: "example.com", url: "https://example.com?id=id-many-12", title: "Gmail", favicon: { src: "./company-icons/google.svg", maxAvailableSize: 64 } },
+        { id: "id-many-14", etldPlusOne: "example.com", url: "https://example.com?id=id-many-13", title: "TikTok", favicon: { src: "./company-icons/bytedance.svg", maxAvailableSize: 16 } },
+        { id: "id-many-15", etldPlusOne: "example.com", url: "https://example.com?id=id-many-14", title: "yeti", favicon: null }
       ]
     },
     two: {
       // prettier-ignore
       /** @type {Favorite[]} */
       favorites: [
-        { id: "id-two-1", url: "https://example.com?id=id-two-1", title: "Amazon", favicon: { src: "./company-icons/amazon.svg", maxAvailableSize: 32 } },
-        { id: "id-two-2", url: "https://example.com?id=id-two-2", title: "Adform", favicon: { src: "./company-icons/adform.svg", maxAvailableSize: 32 } }
+        { id: "id-two-1", etldPlusOne: "example.com", url: "https://example.com?id=id-two-1", title: "Amazon", favicon: { src: "./company-icons/amazon.svg", maxAvailableSize: 32 } },
+        { id: "id-two-2", etldPlusOne: "example.com", url: "https://example.com?id=id-two-2", title: "Adform", favicon: { src: "./company-icons/adform.svg", maxAvailableSize: 32 } }
       ]
     },
     single: {
@@ -9140,6 +9482,7 @@
         {
           id: "id-single-1",
           url: "https://example.com?id=id-single-1",
+          etldPlusOne: "example.com",
           title: "Amazon",
           favicon: { src: "./company-icons/amazon.svg", maxAvailableSize: 32 }
         }
@@ -9155,6 +9498,7 @@
         {
           id: "id-small-icon-1",
           url: "https://duckduckgo.com",
+          etldPlusOne: "duckduckgo.com",
           title: "DuckDuckGo",
           favicon: { src: "./icons/favicon@2x.png", maxAvailableSize: 16 }
         }
@@ -9164,17 +9508,32 @@
       /** @type {Favorite[]} */
       favorites: [
         {
-          id: "id-fallbacks-1",
-          url: "https://example.com?id=id-many-1",
-          title: "Amazon",
-          favicon: { src: "./company-icons/amazon.svg", maxAvailableSize: 64 }
-        },
-        { id: "id-fallbacks-2", url: "https://example.com?id=id-many-2", title: "Adform", favicon: null },
-        {
           id: "id-fallbacks-3",
-          url: "https://a.example.com?id=id-many-3",
-          title: "Adobe",
+          url: "https://adobe.com?id=id-many-3",
+          etldPlusOne: "adobe.com",
+          title: "404 favicon.src",
           favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 }
+        },
+        {
+          id: "id-fallbacks-4",
+          url: "https://revoked.badssl.com",
+          etldPlusOne: "badssl.com",
+          title: "missing favicon + subdomain",
+          favicon: null
+        },
+        {
+          id: "id-fallbacks-5",
+          url: "https://wikipedia.com",
+          etldPlusOne: "wikipedia.com",
+          title: "missing favicon",
+          favicon: null
+        },
+        {
+          id: "id-fallbacks-6",
+          url: "https://wikipedia.com",
+          etldPlusOne: null,
+          title: "missing etld+1",
+          favicon: null
         }
       ]
     }
@@ -9320,6 +9679,7 @@
         const out = {
           id: `id-many-${index}`,
           url: `https://${alpha[index % 7]}.example.com?id=${index}`,
+          etldPlusOne: `example.com`,
           title: `Example ${index + 1}`,
           favicon: { src: joined, maxAvailableSize: 64 }
         };
@@ -9570,7 +9930,6 @@
 
   // pages/new-tab/app/privacy-stats/components/PrivacyStats.examples.js
   init_preact_module();
-  init_utils2();
 
   // pages/new-tab/app/privacy-stats/mocks/PrivacyStatsMockProvider.js
   init_hooks_module();
@@ -9621,6 +9980,15 @@
     none: {
       totalCount: 0,
       trackerCompanies: []
+    },
+    onlyother: {
+      totalCount: 2,
+      trackerCompanies: [
+        {
+          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+          count: 2
+        }
+      ]
     },
     willUpdate: {
       totalCount: 481113,
@@ -9767,12 +10135,6 @@
     },
     "stats.list": {
       factory: () => /* @__PURE__ */ _(PrivacyStatsBody, { trackerCompanies: stats.few.trackerCompanies, listAttrs: { id: "example-stats.list" } })
-    },
-    "stats.heading": {
-      factory: () => /* @__PURE__ */ _(Heading, { trackerCompanies: stats.few.trackerCompanies, expansion: "expanded", onToggle: noop("stats.heading onToggle") })
-    },
-    "stats.heading.none": {
-      factory: () => /* @__PURE__ */ _(Heading, { trackerCompanies: stats.none.trackerCompanies, expansion: "expanded", onToggle: noop("stats.heading onToggle") })
     }
   };
   var otherPrivacyStatsExamples = {
@@ -10201,6 +10563,12 @@
       });
       this.ntp.messaging.notify("customizer_setTheme", theme);
     }
+    /**
+     * @param {import('../../types/new-tab.js').UserImageContextMenu} params
+     */
+    contextMenu(params) {
+      this.ntp.messaging.notify("customizer_contextMenu", params);
+    }
   };
 
   // pages/new-tab/app/index.js
@@ -10281,6 +10649,7 @@
   function installGlobalSideEffects(environment, settings) {
     document.body.dataset.platformName = settings.platform.name;
     document.body.dataset.display = environment.display;
+    document.body.dataset.animation = environment.urlParams.get("animation") || "";
   }
   async function resolveEntryPoints(widgets, didCatch) {
     try {

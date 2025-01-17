@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { CustomizerPage } from './customizer.page.js';
 
@@ -255,7 +255,7 @@ test.describe('newtab customizer', () => {
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { customizerDrawer: 'enabled', theme: 'light' } });
         await cp.opensCustomizer();
-        await cp.hidesSection('Tracking Activity');
+        await cp.hidesSection('Protection Stats');
     });
     test('opening settings', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -264,5 +264,24 @@ test.describe('newtab customizer', () => {
         await ntp.openPage({ additional: { customizerDrawer: 'enabled', theme: 'light' } });
         await cp.opensCustomizer();
         await cp.opensSettings();
+    });
+    test('context menu for image selections', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        const cp = new CustomizerPage(ntp);
+        await ntp.openPage({ additional: { customizerDrawer: 'enabled', userImages: 'true' } });
+        await cp.opensCustomizer();
+        await cp.opensImages();
+        await cp.rightClicksFirstImage();
+        const calls = await ntp.mocks.waitForCallCount({ method: 'customizer_contextMenu', count: 1 });
+        expect(calls[0].payload).toStrictEqual({
+            context: 'specialPages',
+            featureName: 'newTabPage',
+            method: 'customizer_contextMenu',
+            params: {
+                target: 'userImage',
+                id: '01',
+            },
+        });
     });
 });

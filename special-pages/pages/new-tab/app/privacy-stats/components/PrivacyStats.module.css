@@ -41,6 +41,56 @@
     align-items: center;
     justify-content: center;
     padding-top: 0.5px;
+
+    [data-animation="heart02"] & {
+        animation: heart02 2s infinite;
+    }
+    [data-animation="heart01"] & {
+        animation: heart01 1.483s infinite cubic-bezier(0.67, 0, 0.33, 1);
+    }
+}
+
+@keyframes heart01 {
+    0% {
+        transform: scale(1);
+    }
+
+    4.5% { /* 4/89 frames */
+        transform: scale(1.25);
+    }
+
+    16.85% { /* 15/89 frames */
+        transform: scale(1);
+    }
+
+    23.6% { /* 21/89 frames */
+        transform: scale(1.1);
+    }
+
+    100% { /* 89/89 frames */
+        transform: scale(1);
+    }
+}
+
+@keyframes heart02 {
+    0% {
+        transform: scale(1);
+    }
+    5.6% {
+        transform: scale(1.2);
+    }
+    11.2% {
+        transform: scale(1);
+    }
+    22.4% {
+        transform: scale(1.1);
+    }
+    33.7% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .title {
@@ -189,6 +239,7 @@
 .name {
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
+    line-height: var(--title-3-em-line-height);
     text-overflow: ellipsis;
     display: block;
     overflow: hidden;
