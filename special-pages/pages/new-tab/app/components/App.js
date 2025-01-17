@@ -1,10 +1,15 @@
 import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './App.module.css';
-import { useCustomizerDrawerSettings, usePlatformName } from '../settings.provider.js';
+import { useCustomizerDrawerSettings, useCustomizerKind, usePlatformName } from '../settings.provider.js';
 import { WidgetList } from '../widget-list/WidgetList.js';
 import { useGlobalDropzone } from '../dropzone.js';
-import { Customizer, CustomizerButton, CustomizerMenuPositionedFixed, useContextMenu } from '../customizer/components/Customizer.js';
+import {
+    CustomizerMenu,
+    CustomizerButton,
+    CustomizerMenuPositionedFixed,
+    useContextMenu,
+} from '../customizer/components/CustomizerMenu.js';
 import { useDrawer, useDrawerControls } from './Drawer.js';
 import { CustomizerDrawer } from '../customizer/components/CustomizerDrawer.js';
 import { BackgroundConsumer } from './BackgroundProvider.js';
@@ -23,7 +28,7 @@ export function App() {
     const platformName = usePlatformName();
     const customizerDrawer = useCustomizerDrawerSettings();
 
-    const customizerKind = customizerDrawer.state === 'enabled' ? 'drawer' : 'menu';
+    const customizerKind = useCustomizerKind();
 
     useGlobalDropzone();
     useContextMenu();
@@ -41,6 +46,7 @@ export function App() {
     } = useDrawer(customizerDrawer.autoOpen ? 'visible' : 'hidden');
 
     const tabIndex = useComputed(() => (hidden.value ? -1 : 0));
+    const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser } = useContext(CustomizerThemesContext);
 
@@ -54,19 +60,22 @@ export function App() {
                             <WidgetList />
                         </div>
                     </div>
+                </main>
+                <div data-theme={main}>
                     <CustomizerMenuPositionedFixed>
-                        {customizerKind === 'menu' && <Customizer />}
+                        {customizerKind === 'menu' && <CustomizerMenu />}
                         {customizerKind === 'drawer' && (
                             <CustomizerButton
                                 buttonId={buttonId}
                                 menuId={drawerId}
                                 toggleMenu={toggle}
                                 buttonRef={buttonRef}
-                                isOpen={false}
+                                isOpen={isOpen}
+                                kind={'drawer'}
                             />
                         )}
                     </CustomizerMenuPositionedFixed>
-                </main>
+                </div>
                 {customizerKind === 'drawer' && (
                     <aside
                         class={cn(styles.aside, styles.asideLayout, styles.asideScroller)}

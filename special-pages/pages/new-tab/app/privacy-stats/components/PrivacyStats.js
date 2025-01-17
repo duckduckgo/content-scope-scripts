@@ -7,7 +7,7 @@ import { PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvid
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { viewTransition } from '../../utils.js';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
-import { useCustomizer } from '../../customizer/components/Customizer.js';
+import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 import { useCustomizerDrawerSettings } from '../../settings.provider.js';

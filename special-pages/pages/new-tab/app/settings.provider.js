@@ -19,3 +19,11 @@ export function usePlatformName() {
 export function useCustomizerDrawerSettings() {
     return useContext(SettingsContext).settings.customizerDrawer;
 }
+
+/**
+ * @returns {"menu" | "drawer"}
+ */
+export function useCustomizerKind() {
+    const settings = useContext(SettingsContext).settings;
+    return settings.customizerDrawer.state === 'enabled' ? 'drawer' : 'menu';
+}

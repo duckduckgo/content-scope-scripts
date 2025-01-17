@@ -11,7 +11,7 @@ import { CustomizerThemesContext } from '../CustomizerProvider.js';
 
 /**
  * @import { Widgets, WidgetConfigItem } from '../../../types/new-tab.js'
- * @import { VisibilityRowData, VisibilityRowState } from './Customizer.js'
+ * @import { VisibilityRowData, VisibilityRowState } from './CustomizerMenu.js'
  */
 
 /**

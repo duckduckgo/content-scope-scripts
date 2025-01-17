@@ -24,7 +24,7 @@
 }
 
 .embedded {
-    font-size: var(--small-label-font-size);
+    font-size: var(--body-font-size);
     gap: 12px;
 }
 
@@ -34,22 +34,21 @@
     gap: 10px;
     white-space: nowrap;
     height: calc(28 * var(--px-in-rem));
-
-    > * {
-        min-width: 0;
-    }
-
-    label {
-        margin-left: auto;
-    }
 }
 
 .menuItemLabelEmbedded {
     white-space: normal;
     gap: 6px;
     height: auto;
-    > * {
-        min-width: auto;
+
+    /* push the input over to the RHS */
+    *:last-child {
+        margin-left: auto;
+    }
+
+    /* Apply a theme-specific focus ring on the switch **/
+    input:focus-visible + * {
+        box-shadow: var(--focus-ring)
     }
 }
 
