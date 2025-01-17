@@ -52,7 +52,9 @@ body[data-animate-background="true"] {
     color: var(--ntp-text-normal);
 }
 
-
+.themeContext {
+    color: var(--ntp-text-normal);
+}
 
 .mainLayout {
     will-change: transform;
