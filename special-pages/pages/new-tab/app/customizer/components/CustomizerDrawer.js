@@ -13,6 +13,15 @@ export function CustomizerDrawer({ displayChildren }) {
 }
 
 function CustomizerConsumer() {
-    const { data, select, upload, setTheme, deleteImage } = useContext(CustomizerContext);
-    return <CustomizerDrawerInner data={data} select={select} onUpload={upload} setTheme={setTheme} deleteImage={deleteImage} />;
+    const { data, select, upload, setTheme, deleteImage, customizerContextMenu } = useContext(CustomizerContext);
+    return (
+        <CustomizerDrawerInner
+            data={data}
+            select={select}
+            onUpload={upload}
+            setTheme={setTheme}
+            deleteImage={deleteImage}
+            customizerContextMenu={customizerContextMenu}
+        />
+    );
 }

@@ -16,7 +16,7 @@ import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
 import { useTypedTranslationWith } from '../../types.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData } from '../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, UserImageContextMenu } from '../../../types/new-tab.js'
  * @import enStrings from '../strings.json';
  */
 
@@ -27,8 +27,9 @@ import { useTypedTranslationWith } from '../../types.js';
  * @param {() => void} props.onUpload
  * @param {(theme: import('../../../types/new-tab').ThemeData) => void} props.setTheme
  * @param {(id: string) => void} props.deleteImage
+ * @param {(p: UserImageContextMenu) => void} props.customizerContextMenu
  */
-export function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage }) {
+export function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage, customizerContextMenu }) {
     const { close } = useDrawerControls();
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     return (
@@ -73,7 +74,14 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                             {id === 'color' && <ColorSelection data={data} select={select} back={pop} />}
                             {id === 'gradient' && <GradientSelection data={data} select={select} back={pop} />}
                             {id === 'image' && (
-                                <ImageSelection data={data} select={select} back={pop} onUpload={onUpload} deleteImage={deleteImage} />
+                                <ImageSelection
+                                    data={data}
+                                    select={select}
+                                    back={pop}
+                                    onUpload={onUpload}
+                                    deleteImage={deleteImage}
+                                    customizerContextMenu={customizerContextMenu}
+                                />
                             )}
                         </Fragment>
                     )}
