@@ -1,7 +1,6 @@
 import { h } from 'preact';
-import { noop } from '../../utils.js';
 import { PrivacyStatsMockProvider } from '../mocks/PrivacyStatsMockProvider.js';
-import { PrivacyStatsConsumer, PrivacyStatsBody, Heading } from './PrivacyStats.js';
+import { PrivacyStatsConsumer, PrivacyStatsBody } from './PrivacyStats.js';
 import { stats } from '../mocks/stats.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
@@ -44,16 +43,6 @@ export const privacyStatsExamples = {
     },
     'stats.list': {
         factory: () => <PrivacyStatsBody trackerCompanies={stats.few.trackerCompanies} listAttrs={{ id: 'example-stats.list' }} />,
-    },
-    'stats.heading': {
-        factory: () => (
-            <Heading trackerCompanies={stats.few.trackerCompanies} expansion={'expanded'} onToggle={noop('stats.heading onToggle')} />
-        ),
-    },
-    'stats.heading.none': {
-        factory: () => (
-            <Heading trackerCompanies={stats.none.trackerCompanies} expansion={'expanded'} onToggle={noop('stats.heading onToggle')} />
-        ),
     },
 };
 

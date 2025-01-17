@@ -189,6 +189,7 @@
 .name {
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
+    line-height: var(--title-3-em-line-height);
     text-overflow: ellipsis;
     display: block;
     overflow: hidden;
