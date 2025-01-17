@@ -63,7 +63,7 @@
         opacity: .8;
     }
     &:focus-visible {
-        outline: 1px solid var(--ntp-focus-outline-color)
+        box-shadow: var(--focus-ring);
     }
 }
 .section {

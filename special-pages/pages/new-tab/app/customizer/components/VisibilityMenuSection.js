@@ -1,11 +1,11 @@
 import { useLayoutEffect, useState } from 'preact/hooks';
-import { Customizer, getItems } from './Customizer.js';
+import { CustomizerMenu, getItems } from './CustomizerMenu.js';
 import { EmbeddedVisibilityMenu } from './VisibilityMenu.js';
 import { h } from 'preact';
 
 export function VisibilityMenuSection() {
     const [rowData, setRowData] = useState(() => {
-        const items = /** @type {import("./Customizer.js").VisibilityRowData[]} */ (getItems());
+        const items = /** @type {import("./CustomizerMenu.js").VisibilityRowData[]} */ (getItems());
         return items;
     });
     useLayoutEffect(() => {
@@ -13,9 +13,9 @@ export function VisibilityMenuSection() {
             setRowData(getItems());
         }
 
-        window.addEventListener(Customizer.UPDATE_EVENT, handler);
+        window.addEventListener(CustomizerMenu.UPDATE_EVENT, handler);
         return () => {
-            window.removeEventListener(Customizer.UPDATE_EVENT, handler);
+            window.removeEventListener(CustomizerMenu.UPDATE_EVENT, handler);
         };
     }, []);
 

@@ -3,7 +3,7 @@ import { useContext } from 'preact/hooks';
 
 import { useTelemetry, useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
-import { useCustomizer } from '../../customizer/components/Customizer.js';
+import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 
 import { FavoritesContext, FavoritesProvider } from './FavoritesProvider.js';
 import { PragmaticDND } from './PragmaticDND.js';
