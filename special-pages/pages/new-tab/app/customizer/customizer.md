@@ -161,3 +161,14 @@ title: Customizer
         "id": "abc"
       } 
       ```
+  
+- {@link "NewTab Messages".CustomizerContextMenuNotification `customizer_contextMenu`}.
+    - Sends {@link "NewTab Messages".UserImageContextMenu} 
+    - Note: only sent for right-clicks on user images in the selection screen.
+    - For example:
+    - ```json
+      {
+        "target": "userImage",
+        "id": "01"
+      } 
+      ```

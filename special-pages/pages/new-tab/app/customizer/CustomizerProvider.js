@@ -1,6 +1,6 @@
 import { createContext, h } from 'preact';
 import { useCallback } from 'preact/hooks';
-import { effect, signal, useSignal } from '@preact/signals';
+import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useThemes } from './themes.js';
 
 /**
@@ -8,6 +8,7 @@ import { useThemes } from './themes.js';
  * @typedef {import('../../types/new-tab.js').BackgroundData} BackgroundData
  * @typedef {import('../../types/new-tab.js').ThemeData} ThemeData
  * @typedef {import('../../types/new-tab.js').UserImageData} UserImageData
+ * @typedef {import('../../types/new-tab.js').UserImageContextMenu} UserImageContextMenu
  * @typedef {import('../service.hooks.js').State<CustomizerData, undefined>} State
  * @typedef {import('../service.hooks.js').Events<CustomizerData, undefined>} Events
  */
@@ -41,6 +42,10 @@ export const CustomizerContext = createContext({
      * @type {(id: string) => void}
      */
     deleteImage: (id) => {},
+    /**
+     * @param {UserImageContextMenu} params
+     */
+    customizerContextMenu: (params) => {},
 });
 
 /**
@@ -57,7 +62,7 @@ export function CustomizerProvider({ service, initialData, children }) {
     const data = useSignal(initialData);
     const { main, browser } = useThemes(data);
 
-    effect(() => {
+    useSignalEffect(() => {
         const unsub = service.onBackground((evt) => {
             data.value = { ...data.value, background: evt.data.background };
         });
@@ -105,8 +110,11 @@ export function CustomizerProvider({ service, initialData, children }) {
         [service],
     );
 
+    /** @type {(p: UserImageContextMenu) => void} */
+    const customizerContextMenu = useCallback((params) => service.contextMenu(params), [service]);
+
     return (
-        <CustomizerContext.Provider value={{ data, select, upload, setTheme, deleteImage }}>
+        <CustomizerContext.Provider value={{ data, select, upload, setTheme, deleteImage, customizerContextMenu }}>
             <CustomizerThemesContext.Provider value={{ main, browser }}>{children}</CustomizerThemesContext.Provider>
         </CustomizerContext.Provider>
     );

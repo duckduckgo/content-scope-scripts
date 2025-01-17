@@ -86,6 +86,7 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
 export interface NewTabMessages {
   notifications:
     | ContextMenuNotification
+    | CustomizerContextMenuNotification
     | CustomizerDeleteImageNotification
     | CustomizerSetBackgroundNotification
     | CustomizerSetThemeNotification
@@ -155,6 +156,17 @@ export interface VisibilityMenuItem {
    * Translated name of the section
    */
   title: string;
+}
+/**
+ * Generated from @see "../messages/customizer_contextMenu.notify.json"
+ */
+export interface CustomizerContextMenuNotification {
+  method: "customizer_contextMenu";
+  params: UserImageContextMenu;
+}
+export interface UserImageContextMenu {
+  id: string;
+  target: "userImage";
 }
 /**
  * Generated from @see "../messages/customizer_deleteImage.notify.json"
