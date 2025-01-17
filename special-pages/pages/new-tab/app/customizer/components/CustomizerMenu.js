@@ -112,10 +112,9 @@ export function useContextMenu() {
  * @param {import("@preact/signals").Signal<boolean>|boolean} props.isOpen
  * @param {() => void} [props.toggleMenu]
  * @param {import("preact").Ref<HTMLButtonElement>} [props.buttonRef]
- * @param {import('@preact/signals').Signal<'light' | 'dark'>} [props.theme]
  * @param {"menu" | "drawer"} props.kind
  */
-export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef, kind, theme }) {
+export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef, kind }) {
     const { t } = useTypedTranslation();
     return (
         <button
@@ -126,7 +125,6 @@ export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonR
             aria-expanded={isOpen}
             aria-controls={menuId}
             data-kind={kind}
-            data-theme={theme}
             id={buttonId}
         >
             <CustomizeIcon />

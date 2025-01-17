@@ -61,20 +61,21 @@ export function App() {
                         </div>
                     </div>
                 </main>
-                <CustomizerMenuPositionedFixed>
-                    {customizerKind === 'menu' && <CustomizerMenu />}
-                    {customizerKind === 'drawer' && (
-                        <CustomizerButton
-                            buttonId={buttonId}
-                            menuId={drawerId}
-                            toggleMenu={toggle}
-                            buttonRef={buttonRef}
-                            isOpen={isOpen}
-                            kind={'drawer'}
-                            theme={main}
-                        />
-                    )}
-                </CustomizerMenuPositionedFixed>
+                <div data-theme={main}>
+                    <CustomizerMenuPositionedFixed>
+                        {customizerKind === 'menu' && <CustomizerMenu />}
+                        {customizerKind === 'drawer' && (
+                            <CustomizerButton
+                                buttonId={buttonId}
+                                menuId={drawerId}
+                                toggleMenu={toggle}
+                                buttonRef={buttonRef}
+                                isOpen={isOpen}
+                                kind={'drawer'}
+                            />
+                        )}
+                    </CustomizerMenuPositionedFixed>
+                </div>
                 {customizerKind === 'drawer' && (
                     <aside
                         class={cn(styles.aside, styles.asideLayout, styles.asideScroller)}
