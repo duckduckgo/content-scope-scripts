@@ -47,6 +47,15 @@ export const stats = {
         totalCount: 0,
         trackerCompanies: [],
     },
+    onlyother: {
+        totalCount: 2,
+        trackerCompanies: [
+            {
+                displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+                count: 2,
+            },
+        ],
+    },
     willUpdate: {
         totalCount: 481_113,
         trackerCompanies: [

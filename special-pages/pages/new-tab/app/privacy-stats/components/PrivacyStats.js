@@ -2,7 +2,7 @@ import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './PrivacyStats.module.css';
 import { useMessaging, useTypedTranslationWith } from '../../types.js';
-import { useContext, useState, useId, useCallback } from 'preact/hooks';
+import { useContext, useState, useId, useCallback, useMemo } from 'preact/hooks';
 import { PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvider.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { viewTransition } from '../../utils.js';
@@ -60,7 +60,18 @@ function WithViewTransitions({ expansion, data, toggle }) {
  */
 function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
     const expanded = expansion === 'expanded';
-    const someCompanies = data.trackerCompanies.length > 0;
+
+    const { hasNamedCompanies, recent } = useMemo(() => {
+        let recent = 0;
+        let hasNamedCompanies = false;
+        for (let i = 0; i < data.trackerCompanies.length; i++) {
+            recent += data.trackerCompanies[i].count;
+            if (!hasNamedCompanies && data.trackerCompanies[i].displayName !== DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
+                hasNamedCompanies = true;
+            }
+        }
+        return { hasNamedCompanies, recent };
+    }, [data.trackerCompanies]);
 
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId();
@@ -69,15 +80,16 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
     return (
         <div class={styles.root} ref={parentRef}>
             <Heading
-                trackerCompanies={data.trackerCompanies}
+                recent={recent}
                 onToggle={toggle}
                 expansion={expansion}
+                canExpand={hasNamedCompanies}
                 buttonAttrs={{
                     'aria-controls': WIDGET_ID,
                     id: TOGGLE_ID,
                 }}
             />
-            {expanded && someCompanies && <PrivacyStatsBody trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />}
+            {hasNamedCompanies && expanded && <PrivacyStatsBody trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />}
         </div>
     );
 }
@@ -85,14 +97,14 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
 /**
  * @param {object} props
  * @param {Expansion} props.expansion
- * @param {TrackerCompany[]} props.trackerCompanies
+ * @param {number} props.recent
+ * @param {boolean} props.canExpand
  * @param {() => void} props.onToggle
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
-export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {} }) {
+export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
-    const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0);
 
     const none = recent === 0;
     const some = recent > 0;
@@ -106,7 +118,7 @@ export function Heading({ expansion, trackerCompanies, onToggle, buttonAttrs = {
             </span>
             {none && <h2 className={styles.title}>{t('stats_noRecent')}</h2>}
             {some && <h2 className={styles.title}>{alltimeTitle}</h2>}
-            {recent > 0 && (
+            {recent > 0 && canExpand && (
                 <span className={styles.widgetExpander}>
                     <ShowHideButton
                         buttonAttrs={{

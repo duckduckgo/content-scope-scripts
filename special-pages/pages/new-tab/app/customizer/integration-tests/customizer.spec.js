@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { CustomizerPage } from './customizer.page.js';
 
@@ -255,7 +255,7 @@ test.describe('newtab customizer', () => {
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { customizerDrawer: 'enabled', theme: 'light' } });
         await cp.opensCustomizer();
-        await cp.hidesSection('Tracking Activity');
+        await cp.hidesSection('Protection Stats');
     });
     test('opening settings', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
