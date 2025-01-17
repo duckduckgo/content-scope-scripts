@@ -441,4 +441,11 @@ export class CustomizerPage {
             { value: 'gradient07' },
         ]);
     }
+
+    async rightClicksFirstImage() {
+        const { page } = this.ntp;
+        await page.getByRole('radio', { name: 'Select image 1' }).click({
+            button: 'right',
+        });
+    }
 }

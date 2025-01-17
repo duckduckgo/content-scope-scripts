@@ -55,6 +55,7 @@ export const customizerExamples = {
                                 back={noop('back')}
                                 onUpload={noop('onUpload')}
                                 deleteImage={noop('deleteImage')}
+                                customizerContextMenu={noop('customizerContextMenu')}
                             />
                         );
                     }}
