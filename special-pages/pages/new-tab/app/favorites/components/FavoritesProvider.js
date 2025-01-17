@@ -12,11 +12,10 @@ import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndC
  * @typedef {import('../../../types/new-tab.ts').FavoritesOpenAction['target']} OpenTarget
  * @typedef {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} State
  * @typedef {import('../../service.hooks.js').Events<FavoritesData, FavoritesConfig>} Events
- * @typedef {{id: string; url: string}} BaseFavoriteType
  */
 
 /**
- * @template {BaseFavoriteType} ItemType - allow any type that extends BaseFavoriteType
+ * @template ItemType
  * @typedef {(params: { list: ItemType[], id: string, fromIndex: number, targetIndex: number }) => void} ReorderFn
  */
 

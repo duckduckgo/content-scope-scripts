@@ -466,7 +466,7 @@ export function mockTransport() {
                     /** @type {FavoritesConfig} */
                     const defaultConfig = { expansion: 'collapsed', animation: { kind: 'none' } };
                     const fromStorage = read('favorites_config') || defaultConfig;
-                    if (url.searchParams.get('animation') === 'view-transitions') {
+                    if (url.searchParams.get('favorites.animation') === 'view-transitions') {
                         fromStorage.animation = { kind: 'view-transitions' };
                     }
                     return Promise.resolve(fromStorage);

@@ -53,7 +53,7 @@ export type Expansion = "expanded" | "collapsed";
 /**
  * Generic Animation configuration
  */
-export type Animation = None | ViewTransitions | Auto;
+export type Animation = None | ViewTransitions;
 /**
  * The visibility state of the widget, as configured by the user
  */
@@ -306,12 +306,6 @@ export interface None {
  */
 export interface ViewTransitions {
   kind: "view-transitions";
-}
-/**
- * Use the auto-animate library to provide default animation styles
- */
-export interface Auto {
-  kind: "auto-animate";
 }
 /**
  * Generated from @see "../messages/freemiumPIRBanner_action.notify.json"
