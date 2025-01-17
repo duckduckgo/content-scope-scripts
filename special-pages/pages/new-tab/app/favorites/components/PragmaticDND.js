@@ -95,23 +95,19 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                     }
 
                     const destinationSrc = target.data.url;
-                    const startSrc = source.data.url;
+                    const destinationId = target.data.id;
                     const startId = source.data.id;
 
                     if (typeof startId !== 'string') {
-                        return console.warn('could not access the id');
+                        return console.warn('could not access startId');
                     }
 
                     if (typeof destinationSrc !== 'string') {
                         return console.warn('could not access the destinationSrc');
                     }
 
-                    if (typeof startSrc !== 'string') {
-                        return console.warn('could not access the startSrc');
-                    }
-
-                    const startIndex = favorites.findIndex((item) => item.url === startSrc);
-                    let indexOfTarget = favorites.findIndex((item) => item.url === destinationSrc);
+                    const startIndex = favorites.findIndex((item) => item.id === startId);
+                    let indexOfTarget = favorites.findIndex((item) => item.id === destinationId);
 
                     if (indexOfTarget === -1 && destinationSrc.includes('PLACEHOLDER-URL')) {
                         indexOfTarget = favorites.length;
