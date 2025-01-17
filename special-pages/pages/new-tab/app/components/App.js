@@ -61,7 +61,7 @@ export function App() {
                         </div>
                     </div>
                 </main>
-                <div data-theme={main}>
+                <div class={styles.themeContext} data-theme={main}>
                     <CustomizerMenuPositionedFixed>
                         {customizerKind === 'menu' && <CustomizerMenu />}
                         {customizerKind === 'drawer' && (
