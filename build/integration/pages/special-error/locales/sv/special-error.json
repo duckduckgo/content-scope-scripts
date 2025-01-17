@@ -1,0 +1,79 @@
+{
+  "smartling" : {
+    "string_format" : "icu",
+    "translate_paths" : [
+    {
+      "path" : "*/title",
+      "key" : "{*}/title",
+      "instruction" : "*/note"
+    }]
+  },
+  "advancedButton" : {
+    "title" : "Avancerat",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click."
+  },
+  "advancedEllipsisButton" : {
+    "title" : "Avancerat ...",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+  },
+  "leaveSiteButton" : {
+    "title" : "Lämna denna webbplats",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to leave the website and navigate to previous page."
+  },
+  "visitSiteButton" : {
+    "title" : "Acceptera risken och besök webbplatsen",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
+  },
+  "malwarePageHeading" : {
+    "title" : "Varning: Den här webbplatsen kan utsätta din personliga information för risker",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+  },
+  "malwareWarningText" : {
+    "title" : "DuckDuckGo har blockerat den här sidan eftersom den kan distribuera skadlig programvara avsedd att göra intrång på din enhet eller stjäla din personliga information. <a>Läs mer</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "malwareAdvancedInfoHeading" : {
+    "title" : "Om du tror att den här webbplatsen är säker kan du <a>rapportera ett fel</a>. Du kan fortfarande besöka webbplatsen på egen risk.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "phishingPageHeading" : {
+    "title" : "Varning: Den här webbplatsen kan utsätta din personliga information för risker",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+  },
+  "phishingWarningText" : {
+    "title" : "Den här webbplatsen kan utge sig för att vara en legitim webbplats för att lura dig att lämna ut personlig information som lösenord eller kortnummer. <a>Läs mer</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoHeading" : {
+    "title" : "Om du tror att den här webbplatsen är säker kan du <a>rapportera ett fel</a>. Du kan fortfarande besöka webbplatsen på egen risk.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "sslPageHeading" : {
+    "title" : "Varning: Denna webbplats kan vara osäker",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to SSL issues"
+  },
+  "sslWarningText" : {
+    "title" : "Certifikatet för denna webbplats är ogiltigt. Du kanske ansluter till en server som låtsas vara <b>{domain}</b>. Detta kan utgöra en risk för din konfidentiella information.",
+    "note" : "Describes an SSL error where a website’s security certificate is invalid. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslAdvancedInfoHeading" : {
+    "title" : "DuckDuckGo varnar dig när en webbplats har ett ogiltigt certifikat.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslExpiredAdvancedInfoText" : {
+    "title" : "Säkerhetscertifikatet för <b>{domain}</b> har löpt ut. Det är möjligt att webbplatsen är felkonfigurerad, att en angripare har gjort intrång i din anslutning eller att din systemklocka är felaktig.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslInvalidAdvancedInfoText" : {
+    "title" : "Din enhets operativsystem litar inte på säkerhetscertifikatet för <b>{domain}</b>. Det är möjligt att webbplatsen är felkonfigurerad eller att en angripare har gjort intrång i din anslutning.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslSelfSignedAdvancedInfoText" : {
+    "title" : "Din enhets operativsystem litar inte på säkerhetscertifikatet för <b>{domain}</b>. Det är möjligt att webbplatsen är felkonfigurerad eller att en angripare har gjort intrång i din anslutning.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslWrongHostAdvancedInfoText" : {
+    "title" : "Säkerhetscertifikatet för <b>{domain}</b> matchar inte <b>*.{eTldPlus1}</b>. Det är möjligt att webbplatsen är felkonfigurerad eller att en angripare har gjort intrång i din anslutning.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The two placeholders are website domain names (example: duckduckgo.com)."
+  }
+}
