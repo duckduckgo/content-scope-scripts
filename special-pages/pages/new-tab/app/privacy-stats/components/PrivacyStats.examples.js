@@ -15,7 +15,7 @@ export const privacyStatsExamples = {
     },
     'stats.few.collapsed': {
         factory: () => (
-            <PrivacyStatsMockProvider config={{ expansion: 'collapsed' }}>
+            <PrivacyStatsMockProvider config={{ expansion: 'collapsed', onboarding: 'history' }}>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
         ),
@@ -54,6 +54,7 @@ export const otherPrivacyStatsExamples = {
                 config={{
                     expansion: 'expanded',
                     animation: { kind: 'none' },
+                    onboarding: 'history',
                 }}
             >
                 <PrivacyStatsConsumer />
@@ -67,6 +68,7 @@ export const otherPrivacyStatsExamples = {
                 config={{
                     expansion: 'expanded',
                     animation: { kind: 'view-transitions' },
+                    onboarding: null,
                 }}
             >
                 <PrivacyStatsConsumer />

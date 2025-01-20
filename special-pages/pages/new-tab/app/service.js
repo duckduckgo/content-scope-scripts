@@ -101,11 +101,31 @@ export class Service {
     }
 
     /**
+     * Apply a function over the current state.
+     *
+     * The change will be broadcast to observers immediately,
+     * and then persists after a debounced period.
+     *
+     * @param {(prev: Data) => Data} updaterFn - the function that returns the next state
+     * @param {((prev: Data) => void) | null} [persister] - the function the performs the persistence
+     */
+    updateWith(updaterFn, persister = null) {
+        if (this.data === null) return;
+        const next = updaterFn(this.data);
+        if (next) {
+            this._accept(next, 'manual', persister);
+        } else {
+            console.warn('could not update');
+        }
+    }
+
+    /**
      * @param {Data} data
      * @param {'initial' | 'subscription' | 'manual'} source
+     * @param {((d: Data) => void) | null} persister
      * @private
      */
-    _accept(data, source) {
+    _accept(data, source, persister = null) {
         this.data = /** @type {NonNullable<Data>} */ (data);
 
         // do nothing when it's the initial data
@@ -127,7 +147,7 @@ export class Service {
         if (source === 'manual') {
             const time = window.location.search.includes('p2') ? this.DEBOUNCE_TIME_MS * 20.5 : this.DEBOUNCE_TIME_MS;
             this.debounceTimer = setTimeout(() => {
-                this.persist();
+                this.persist(persister);
             }, time);
         }
     }
@@ -144,15 +164,20 @@ export class Service {
 
     /**
      * Persists the current in-memory widget configuration state to the internal data feed.
+     * @param {((d: Data) => void) | null} persister
      */
-    persist() {
+    persist(persister = null) {
         // some services will not implement persistence
-        if (!this.impl.persist) return;
+        if (!this.impl.persist && !persister) return;
 
         // if the data was never set, there's nothing to persist
         if (this.data === null) return;
 
         // send the data
-        this.impl.persist(this.data);
+        if (persister) {
+            persister(this.data);
+        } else if (this.impl.persist) {
+            this.impl.persist(this.data);
+        }
     }
 }

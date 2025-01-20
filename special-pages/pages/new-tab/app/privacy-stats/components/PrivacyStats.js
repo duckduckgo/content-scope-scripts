@@ -3,7 +3,7 @@ import cn from 'classnames';
 import styles from './PrivacyStats.module.css';
 import { useMessaging, useTypedTranslationWith } from '../../types.js';
 import { useContext, useState, useId, useCallback, useMemo } from 'preact/hooks';
-import { PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvider.js';
+import { HistoryOnboardingContext, PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvider.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { viewTransition } from '../../utils.js';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
@@ -29,24 +29,14 @@ import { DismissButton } from '../../components/DismissButton';
  * @param {PrivacyStatsData} props.data
  * @param {()=>void} props.toggle
  * @param {Animation['kind']} [props.animation] - optionally configure animations
- * @param {()=>void} [props.dismissHistoryMsg]
- * @param {()=>void} [props.openHistory]
  */
-export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animate', dismissHistoryMsg, openHistory }) {
+export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animate' }) {
     if (animation === 'view-transitions') {
         return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />;
     }
 
     // no animations
-    return (
-        <PrivacyStatsConfigured
-            expansion={expansion}
-            data={data}
-            toggle={toggle}
-            dismissHistoryMsg={dismissHistoryMsg}
-            openHistory={openHistory}
-        />
-    );
+    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={toggle} />;
 }
 
 /**
@@ -54,22 +44,12 @@ export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animat
  * @param {Expansion} props.expansion
  * @param {PrivacyStatsData} props.data
  * @param {()=>void} props.toggle
- * @param {()=>void} [props.dismissHistoryMsg]
- * @param {()=>void} [props.openHistory]
  */
-function WithViewTransitions({ expansion, data, toggle, dismissHistoryMsg, openHistory }) {
+function WithViewTransitions({ expansion, data, toggle }) {
     const willToggle = useCallback(() => {
         viewTransition(toggle);
     }, [toggle]);
-    return (
-        <PrivacyStatsConfigured
-            expansion={expansion}
-            data={data}
-            toggle={willToggle}
-            dismissHistoryMsg={dismissHistoryMsg}
-            openHistory={openHistory}
-        />
-    );
+    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={willToggle} />;
 }
 
 /**
@@ -78,10 +58,8 @@ function WithViewTransitions({ expansion, data, toggle, dismissHistoryMsg, openH
  * @param {Expansion} props.expansion
  * @param {PrivacyStatsData} props.data
  * @param {()=>void} props.toggle
- * @param {()=>void} [props.openHistory]
- * @param {()=>void} [props.dismissHistoryMsg]
  */
-function PrivacyStatsConfigured({ parentRef, expansion, data, toggle, openHistory, dismissHistoryMsg }) {
+function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
     const expanded = expansion === 'expanded';
 
     const { hasNamedCompanies, recent } = useMemo(() => {
@@ -111,8 +89,6 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle, openHistor
                     'aria-controls': WIDGET_ID,
                     id: TOGGLE_ID,
                 }}
-                openHistory={openHistory}
-                dismissHistoryMsg={dismissHistoryMsg}
             />
             {hasNamedCompanies && expanded && <PrivacyStatsBody trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />}
         </div>
@@ -126,10 +102,8 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle, openHistor
  * @param {boolean} props.canExpand
  * @param {() => void} props.onToggle
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
- * @param {()=>void} [props.openHistory]
- * @param {()=>void} [props.dismissHistoryMsg]
  */
-export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = {}, openHistory, dismissHistoryMsg }) {
+export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
 
@@ -161,22 +135,34 @@ export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = 
             )}
             {recent === 0 && <p className={cn(styles.subtitle)}>{t('stats_noActivity')}</p>}
             {recent > 0 && <p className={cn(styles.subtitle, styles.uppercase)}>{t('stats_feedCountBlockedPeriod')}</p>}
-            <div class={styles.historyMsg}>
-                <p>
-                    {t('stats_historyMovedMessage')}{' '}
-                    <a onClick={openHistory} className={styles.historyLink} href="#">
-                        {t('stats_history')}
-                    </a>
-                </p>
-                <DismissButton className={styles.dismissBtn} onClick={dismissHistoryMsg} />
-            </div>
+            <HistoryOnboarding />
+        </div>
+    );
+}
+
+function HistoryOnboarding() {
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const { state } = useContext(PrivacyStatsContext);
+    const { openHistory, dismiss } = useContext(HistoryOnboardingContext);
+
+    if (!state.config) return null;
+    if (state.config.onboarding !== 'history') return null;
+    return (
+        <div className={styles.historyMsg}>
+            <p>
+                {t('stats_historyMovedMessage')}{' '}
+                <a onClick={openHistory} className={styles.historyLink} href="#">
+                    {t('stats_history')}
+                </a>
+            </p>
+            <DismissButton className={styles.dismissBtn} onClick={dismiss} />
         </div>
     );
 }
 
 /**
  * @param {object} props
- * @param {import("preact").ComponentProps<'ul'>} [props.listAttrs]
+ * @param {import('preact').ComponentProps<'ul'>} [props.listAttrs]
  * @param {TrackerCompany[]} props.trackerCompanies
  */
 

@@ -22,7 +22,7 @@ import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIR
  * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
  */
 
-const VERSION_PREFIX = '__ntp_29__.';
+const VERSION_PREFIX = '__ntp_30__.';
 const url = new URL(window.location.href);
 
 export function mockTransport() {
@@ -385,7 +385,11 @@ export function mockTransport() {
                 }
                 case 'stats_getConfig': {
                     /** @type {StatsConfig} */
-                    const defaultConfig = { expansion: 'expanded', animation: { kind: 'auto-animate' } };
+                    const defaultConfig = {
+                        expansion: 'expanded',
+                        animation: { kind: 'auto-animate' },
+                        onboarding: 'history',
+                    };
                     const fromStorage = read('stats_config') || defaultConfig;
                     if (url.searchParams.get('animation') === 'none') {
                         fromStorage.animation = { kind: 'none' };

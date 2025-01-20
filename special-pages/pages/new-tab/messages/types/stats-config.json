@@ -5,6 +5,17 @@
   "required": ["expansion"],
   "properties": {
     "expansion": {"$ref": "expansion.json"},
-    "animation": {"$ref": "animation.json"}
+    "animation": {"$ref": "animation.json"},
+    "onboarding": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "enum": ["history"]
+        }
+      ]
+    }
   }
 }

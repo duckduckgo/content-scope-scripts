@@ -456,6 +456,7 @@ export interface StatsSetConfigNotification {
 export interface StatsConfig {
   expansion: Expansion;
   animation?: Animation;
+  onboarding?: null | "history";
 }
 /**
  * Generated from @see "../messages/stats_showLess.notify.json"

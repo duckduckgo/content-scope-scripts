@@ -10,6 +10,7 @@ export class PrivacyStatsService {
      * @internal
      */
     constructor(ntp) {
+        this.ntp = ntp;
         /** @type {Service<PrivacyStatsData>} */
         this.dataService = new Service({
             initial: () => ntp.messaging.request('stats_getData'),
@@ -76,5 +77,26 @@ export class PrivacyStatsService {
                 return { ...old, expansion: /** @type {const} */ ('expanded') };
             }
         });
+    }
+
+    /**
+     *
+     */
+    openHistory() {
+        this.ntp.messaging.notify('stats_openHistory', {});
+    }
+
+    /**
+     *
+     */
+    dismiss() {
+        this.configService.updateWith(
+            (old) => {
+                return { ...old, onboarding: null };
+            },
+            (_) => {
+                this.ntp.messaging.notify('stats_dismissHistoryMsg', {});
+            },
+        );
     }
 }

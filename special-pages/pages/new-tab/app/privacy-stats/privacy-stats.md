@@ -10,6 +10,13 @@ title: Privacy Stats
 - {@link "NewTab Messages".StatsGetDataRequest `stats_getConfig`}
     - Used to fetch the initial config data (eg: expanded vs collapsed)
     - returns {@link "NewTab Messages".StatsConfig}
+  
+```json
+{
+  "expansion": "expanded",
+  "onboarding": "history"
+}
+```
 
 ## Subscriptions:
 - {@link "NewTab Messages".StatsOnDataUpdateSubscription `stats_onDataUpdate`}.
@@ -33,6 +40,30 @@ title: Privacy Stats
     - Sent when the user chooses to show more stats (eg: more than the default 5)
 - {@link "NewTab Messages".StatsShowLessNotification `stats_showLess`}
     - Sent when the user chooses to show less stats (eg: from a long list back to the default)
+- {@link "NewTab Messages".StatsOpenHistoryNotification `stats_openHistory`}
+    - Sent when the user clicks the `openHistory` button in the history onboarding
+- {@link "NewTab Messages".StatsDismissHistoryMsgNotification `stats_dismissHistoryMsg`}
+    - Sent when the user dismisses the history onboarding 
+    - This call should update the widget config associated with the stats widget, setting `onboarding` to `null`
+    - In turn, the subscription `stats_onConfigUpdate` will occur in other tabs/windows
+
+Example config, from the first load 
+
+```json
+{
+  "expansion": "expanded",
+  "onboarding": "history"
+}
+```
+
+Example config, delivered via subscription, after the history onboarding was dismissed
+
+```json
+{
+  "expansion": "expanded",
+  "onboarding": null
+}
+```
 
 ## Example:
 
