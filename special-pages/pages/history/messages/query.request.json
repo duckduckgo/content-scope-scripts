@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["term", "offset", "limit"],
+  "title": "History Query",
+  "properties": {
+    "term": {
+      "type": "string"
+    },
+    "offset": {
+      "type": "number"
+    },
+    "limit": {
+      "type": "number"
+    }
+  }
+}

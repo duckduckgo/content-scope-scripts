@@ -1,0 +1,27 @@
+:root {
+    /* H1 title */
+    --title-font-size: 20px;
+    --title-font-weight: 600;
+    --title-line-height: 18px;
+
+    /* Mac/System/Body */
+    --body-font-size: 13px;
+    --body-font-weight: 400;
+    --body-line-height: 16px;
+}
+
+/* This comes from the application settings */
+:root:has(body[data-platform-name="windows"]) {
+    /* Windows/System/Body */
+    --body-font-size: 14px;
+    --body-font-weight: 400;
+    --body-line-height: 20px;
+}
+
+[data-theme=light] {
+    --history-surface-border-color: var(--color-black-at-9);
+}
+
+[data-theme=dark] {
+    --ntp-surface-border-color: var(--color-white-at-12);
+}
