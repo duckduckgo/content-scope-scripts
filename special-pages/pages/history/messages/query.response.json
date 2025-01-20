@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "History Query Response",
+  "required": ["info", "value"],
+  "properties": {
+    "info": {
+      "type": "object",
+      "required": ["finished", "term"],
+      "title": "History Query Info",
+      "properties": {
+        "finished": {
+          "description": "Indicates whether there are more items outside of the current query",
+          "type": "boolean"
+        },
+        "term": {
+          "description": "Indicates the search term used in the query",
+          "type": "string"
+        }
+      }
+    },
+    "value": {
+      "type": "array",
+      "items": {"$ref": "./types/history-item.json"}
+    }
+  }
+}

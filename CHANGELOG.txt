@@ -1,6 +1,2 @@
-- ntp: fix regression with theme context/text color (#1409)
-- ntp: Fixed animation jitter of customizer drawer (#1386)
-- ntp: privacy stats ship review feedback (#1406)
-- ntp: shipreview changes to favorites (#1405)
-- ntp: improved background fades (#1404)
-- ntp: support right-click on images (#1403)
+- history: initial build (#1401)
+- build(deps-dev): bump the typescript group across 1 directory with 3 updates (#1408)
