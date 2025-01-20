@@ -29,7 +29,8 @@
     grid-template-rows: auto auto;
     grid-template-areas:
         'icon title expander'
-        'empty label label';
+        'empty label label'
+        'history history history';
 }
 
 .headingIcon {
@@ -47,6 +48,32 @@
     }
     [data-animation="heart01"] & {
         animation: heart01 1.483s infinite cubic-bezier(0.67, 0, 0.33, 1);
+    }
+}
+
+.historyMsg {
+    grid-area: history;
+    padding: 14px 1rem;
+    position: relative;
+    border-radius: var(--border-radius-lg);
+    background-color: var(--color-black-at-6);
+    margin-top: 24px;
+
+    .dismissBtn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+    }
+
+    .historyLink {
+        /* appearance: none; */
+        cursor: pointer;
+        text-decoration: underline;
+        color: var(--theme-text-link-color);
+    }
+
+    [data-theme='dark'] & {
+        background-color: var(--color-white-at-3);
     }
 }
 

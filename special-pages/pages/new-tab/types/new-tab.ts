@@ -107,6 +107,8 @@ export interface NewTabMessages {
     | RmfDismissNotification
     | RmfPrimaryActionNotification
     | RmfSecondaryActionNotification
+    | StatsDismissHistoryMsgNotification
+    | StatsOpenHistoryNotification
     | StatsSetConfigNotification
     | StatsShowLessNotification
     | StatsShowMoreNotification
@@ -425,6 +427,26 @@ export interface RMFSecondaryAction {
   id: string;
 }
 /**
+ * Generated from @see "../messages/stats_dismissHistoryMsg.notify.json"
+ */
+export interface StatsDismissHistoryMsgNotification {
+  method: "stats_dismissHistoryMsg";
+  params: PrivacyStatsHistoryMessageDismissAction;
+}
+export interface PrivacyStatsHistoryMessageDismissAction {
+  [k: string]: unknown;
+}
+/**
+ * Generated from @see "../messages/stats_openHistory.notify.json"
+ */
+export interface StatsOpenHistoryNotification {
+  method: "stats_openHistory";
+  params: PrivacyStatsHistoryMessageOpenHistoryAction;
+}
+export interface PrivacyStatsHistoryMessageOpenHistoryAction {
+  [k: string]: unknown;
+}
+/**
  * Generated from @see "../messages/stats_setConfig.notify.json"
  */
 export interface StatsSetConfigNotification {
@@ -434,6 +456,7 @@ export interface StatsSetConfigNotification {
 export interface StatsConfig {
   expansion: Expansion;
   animation?: Animation;
+  onboarding?: null | "history";
 }
 /**
  * Generated from @see "../messages/stats_showLess.notify.json"

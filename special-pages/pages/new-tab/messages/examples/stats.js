@@ -16,6 +16,7 @@ const privacyStatsData = {
  */
 const minimumConfig = {
     expansion: 'expanded',
+    onboarding: null,
     animation: { kind: 'none' },
 };
 
@@ -24,7 +25,16 @@ const minimumConfig = {
  */
 const withAnimation = {
     expansion: 'expanded',
+    onboarding: null,
     animation: { kind: 'view-transitions' },
+};
+
+/**
+ * @type {import("../../types/new-tab.js").StatsConfig}
+ */
+const withHistoryOnboarding = {
+    expansion: 'expanded',
+    onboarding: 'history',
 };
 
 export {};

@@ -3,7 +3,7 @@ import cn from 'classnames';
 import styles from './PrivacyStats.module.css';
 import { useMessaging, useTypedTranslationWith } from '../../types.js';
 import { useContext, useState, useId, useCallback, useMemo } from 'preact/hooks';
-import { PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvider.js';
+import { HistoryOnboardingContext, PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvider.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { viewTransition } from '../../utils.js';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
@@ -11,6 +11,7 @@ import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 import { useCustomizerDrawerSettings } from '../../settings.provider.js';
+import { DismissButton } from '../../components/DismissButton';
 
 /**
  * @import enStrings from "../strings.json"
@@ -132,15 +133,36 @@ export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = 
                     />
                 </span>
             )}
-            {recent === 0 && <p className={styles.subtitle}>{t('stats_noActivity')}</p>}
+            {recent === 0 && <p className={cn(styles.subtitle)}>{t('stats_noActivity')}</p>}
             {recent > 0 && <p className={cn(styles.subtitle, styles.uppercase)}>{t('stats_feedCountBlockedPeriod')}</p>}
+            <HistoryOnboarding />
+        </div>
+    );
+}
+
+function HistoryOnboarding() {
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const { state } = useContext(PrivacyStatsContext);
+    const { openHistory, dismiss } = useContext(HistoryOnboardingContext);
+
+    if (!state.config) return null;
+    if (state.config.onboarding !== 'history') return null;
+    return (
+        <div className={styles.historyMsg}>
+            <p>
+                {t('stats_historyMovedMessage')}{' '}
+                <a onClick={openHistory} className={styles.historyLink} href="#">
+                    {t('stats_history')}
+                </a>
+            </p>
+            <DismissButton className={styles.dismissBtn} onClick={dismiss} />
         </div>
     );
 }
 
 /**
  * @param {object} props
- * @param {import("preact").ComponentProps<'ul'>} [props.listAttrs]
+ * @param {import('preact').ComponentProps<'ul'>} [props.listAttrs]
  * @param {TrackerCompany[]} props.trackerCompanies
  */
 

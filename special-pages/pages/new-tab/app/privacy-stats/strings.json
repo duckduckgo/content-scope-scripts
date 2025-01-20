@@ -50,5 +50,13 @@
   "stats_otherCount": {
     "title": "{count} attempts from other networks",
     "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
+  },
+  "stats_historyMovedMessage": {
+    "title": "You can now see the tracking attempts we block while you browse. Access your recent activity anytime in",
+    "note": "Body text pointing user to a History menu"
+  },
+  "stats_history": {
+    "title": "History",
+    "note": "Link text that finishes the stats_historyMovedMessage text"
   }
 }

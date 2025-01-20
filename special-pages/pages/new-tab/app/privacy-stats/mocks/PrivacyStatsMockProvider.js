@@ -26,7 +26,7 @@ import { reducer } from '../../service.hooks.js';
  */
 export function PrivacyStatsMockProvider({
     data = stats.few,
-    config = { expansion: 'expanded', animation: { kind: 'auto-animate' } },
+    config = { expansion: 'expanded', animation: { kind: 'auto-animate' }, onboarding: null },
     ticker = false,
     children,
 }) {

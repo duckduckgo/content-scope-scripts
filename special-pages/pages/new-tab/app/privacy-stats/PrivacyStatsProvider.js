@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../types.js';
 import { PrivacyStatsService } from './privacy-stats.service.js';
 import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../service.hooks.js';
@@ -24,6 +24,11 @@ export const PrivacyStatsContext = createContext({
 });
 
 export const PrivacyStatsDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}));
+
+export const HistoryOnboardingContext = createContext({
+    openHistory: () => {},
+    dismiss: () => {},
+});
 
 /**
  * A data provider that will use `PrivacyStatsService` to fetch data, subscribe
@@ -54,9 +59,19 @@ export function PrivacyStatsProvider(props) {
     // subscribe to toggle + expose a fn for sync toggling
     const { toggle } = useConfigSubscription({ dispatch, service });
 
+    const openHistory = useCallback(() => {
+        service.current?.openHistory();
+    }, [service]);
+
+    const dismiss = useCallback(() => {
+        service.current?.dismiss();
+    }, [service]);
+
     return (
         <PrivacyStatsContext.Provider value={{ state, toggle }}>
-            <PrivacyStatsDispatchContext.Provider value={dispatch}>{props.children}</PrivacyStatsDispatchContext.Provider>
+            <PrivacyStatsDispatchContext.Provider value={dispatch}>
+                <HistoryOnboardingContext.Provider value={{ openHistory, dismiss }}>{props.children}</HistoryOnboardingContext.Provider>
+            </PrivacyStatsDispatchContext.Provider>
         </PrivacyStatsContext.Provider>
     );
 }
