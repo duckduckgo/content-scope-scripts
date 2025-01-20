@@ -11,6 +11,7 @@ import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 import { useCustomizerDrawerSettings } from '../../settings.provider.js';
+import { DismissButton } from '../../components/DismissButton';
 
 /**
  * @import enStrings from "../strings.json"
@@ -111,6 +112,9 @@ export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = 
     const alltime = formatter.format(recent);
     const alltimeTitle = recent === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural', { count: alltime });
 
+    const handleHistoryLinkClick = () => {};
+    const handleHistoryMsgClose = () => {};
+
     return (
         <div className={styles.heading}>
             <span className={styles.headingIcon}>
@@ -132,8 +136,17 @@ export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = 
                     />
                 </span>
             )}
-            {recent === 0 && <p className={styles.subtitle}>{t('stats_noActivity')}</p>}
+            {recent === 0 && <p className={cn(styles.subtitle)}>{t('stats_noActivity')}</p>}
             {recent > 0 && <p className={cn(styles.subtitle, styles.uppercase)}>{t('stats_feedCountBlockedPeriod')}</p>}
+            <div class={styles.historyMsg}>
+                <p>
+                    {t('stats_historyMovedMessage')}{' '}
+                    <a onClick={handleHistoryLinkClick} className={styles.historyLink}>
+                        {t('stats_history')}
+                    </a>
+                </p>
+                <DismissButton className={styles.dismissBtn} onClick={handleHistoryMsgClose} />
+            </div>
         </div>
     );
 }
