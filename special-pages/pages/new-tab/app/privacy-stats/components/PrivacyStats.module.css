@@ -69,6 +69,7 @@
         /* appearance: none; */
         cursor: pointer;
         text-decoration: underline;
+        color: var(--theme-text-link-color);
     }
 
     [data-theme='dark'] & {

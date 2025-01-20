@@ -29,14 +29,24 @@ import { DismissButton } from '../../components/DismissButton';
  * @param {PrivacyStatsData} props.data
  * @param {()=>void} props.toggle
  * @param {Animation['kind']} [props.animation] - optionally configure animations
+ * @param {()=>void} [props.dismissHistoryMsg]
+ * @param {()=>void} [props.openHistory]
  */
-export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animate' }) {
+export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animate', dismissHistoryMsg, openHistory }) {
     if (animation === 'view-transitions') {
         return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />;
     }
 
     // no animations
-    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={toggle} />;
+    return (
+        <PrivacyStatsConfigured
+            expansion={expansion}
+            data={data}
+            toggle={toggle}
+            dismissHistoryMsg={dismissHistoryMsg}
+            openHistory={openHistory}
+        />
+    );
 }
 
 /**
@@ -44,12 +54,22 @@ export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animat
  * @param {Expansion} props.expansion
  * @param {PrivacyStatsData} props.data
  * @param {()=>void} props.toggle
+ * @param {()=>void} [props.dismissHistoryMsg]
+ * @param {()=>void} [props.openHistory]
  */
-function WithViewTransitions({ expansion, data, toggle }) {
+function WithViewTransitions({ expansion, data, toggle, dismissHistoryMsg, openHistory }) {
     const willToggle = useCallback(() => {
         viewTransition(toggle);
     }, [toggle]);
-    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={willToggle} />;
+    return (
+        <PrivacyStatsConfigured
+            expansion={expansion}
+            data={data}
+            toggle={willToggle}
+            dismissHistoryMsg={dismissHistoryMsg}
+            openHistory={openHistory}
+        />
+    );
 }
 
 /**
@@ -58,8 +78,10 @@ function WithViewTransitions({ expansion, data, toggle }) {
  * @param {Expansion} props.expansion
  * @param {PrivacyStatsData} props.data
  * @param {()=>void} props.toggle
+ * @param {()=>void} [props.openHistory]
+ * @param {()=>void} [props.dismissHistoryMsg]
  */
-function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
+function PrivacyStatsConfigured({ parentRef, expansion, data, toggle, openHistory, dismissHistoryMsg }) {
     const expanded = expansion === 'expanded';
 
     const { hasNamedCompanies, recent } = useMemo(() => {
@@ -89,6 +111,8 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
                     'aria-controls': WIDGET_ID,
                     id: TOGGLE_ID,
                 }}
+                openHistory={openHistory}
+                dismissHistoryMsg={dismissHistoryMsg}
             />
             {hasNamedCompanies && expanded && <PrivacyStatsBody trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />}
         </div>
@@ -102,8 +126,10 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
  * @param {boolean} props.canExpand
  * @param {() => void} props.onToggle
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
+ * @param {()=>void} [props.openHistory]
+ * @param {()=>void} [props.dismissHistoryMsg]
  */
-export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = {} }) {
+export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = {}, openHistory, dismissHistoryMsg }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
 
@@ -111,9 +137,6 @@ export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = 
     const some = recent > 0;
     const alltime = formatter.format(recent);
     const alltimeTitle = recent === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural', { count: alltime });
-
-    const handleHistoryLinkClick = () => {};
-    const handleHistoryMsgClose = () => {};
 
     return (
         <div className={styles.heading}>
@@ -141,11 +164,11 @@ export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = 
             <div class={styles.historyMsg}>
                 <p>
                     {t('stats_historyMovedMessage')}{' '}
-                    <a onClick={handleHistoryLinkClick} className={styles.historyLink}>
+                    <a onClick={openHistory} className={styles.historyLink} href="#">
                         {t('stats_history')}
                     </a>
                 </p>
-                <DismissButton className={styles.dismissBtn} onClick={handleHistoryMsgClose} />
+                <DismissButton className={styles.dismissBtn} onClick={dismissHistoryMsg} />
             </div>
         </div>
     );
