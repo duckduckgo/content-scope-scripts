@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 import { join, basename } from 'node:path';
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const paths = [join('pages', 'new-tab')];
+const paths = [join('pages', 'new-tab'), join('pages', 'history')];
 const base = {
     smartling: {
         string_format: 'icu',

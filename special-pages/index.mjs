@@ -57,6 +57,12 @@ export const support = {
         windows: ['copy', 'build-js'],
         apple: ['copy', 'build-js'],
     },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    history: {
+        integration: ['copy', 'build-js'],
+        windows: ['copy', 'build-js'],
+        apple: ['copy', 'build-js'],
+    },
 };
 
 /** @type {{src: string, dest: string, dist: string, injectName: string}[]} */
