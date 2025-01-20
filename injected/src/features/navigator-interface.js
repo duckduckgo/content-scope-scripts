@@ -36,7 +36,7 @@ export default class NavigatorInterface extends ContentFeature {
                      * @throws {Error}
                      */
                     createMessageBridge(featureName) {
-                        return createPageWorldBridge(featureName, args.messageSecret);
+                        return createPageWorldBridge(featureName, args.messageSecret || args.messagingConfig.messageSecret);
                     },
                 },
                 enumerable: true,
