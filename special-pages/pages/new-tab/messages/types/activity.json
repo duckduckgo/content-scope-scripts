@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Activity Data",
+  "properties": {
+    "activity": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/DomainActivity"
+      }
+    }
+  },
+  "required": ["activity"],
+  "definitions": {
+    "DomainActivity": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique identifier for the site entity"
+        },
+        "favicon": {
+          "type": "string",
+          "description": "URL or base64 of the site favicon"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Website domain name"
+        },
+        "title": {
+          "type": "string",
+          "description": "Current page title"
+        },
+        "trackingStatus": {
+          "$ref": "#/definitions/TrackingStatus"
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HistoryEntry"
+          }
+        }
+      },
+      "required": ["entityId", "domain", "title", "trackingStatus", "history"]
+    },
+    "TrackingStatus": {
+      "type": "object",
+      "properties": {
+        "trackers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Name of the tracking company (e.g., 'Google', 'Microsoft')"
+          }
+        },
+        "trackerCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "HistoryEntry": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Platform-dependent page identifier - could be HTML title, URL pathname, or other identifier. Examples: 'YouTube - Homepage', '/users/settings', 'Netflix', '/v2/api/analytics'"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Full page URL"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "relativeTime": {
+          "type": "string",
+          "description": "Human readable relative time"
+        }
+      },
+      "required": ["title", "url", "timestamp", "relativeTime"]
+    }
+  },
+  "examples": [{
+    "activity": [
+      {
+        "entityId": "550e8400-e29b-41d4-a716-446655440000",
+        "favicon": "selco-icon.png",
+        "domain": "selcobw.com",
+        "title": "Toilets, Cubicles, Cisterns & Urinals | Selco",
+        "trackingStatus": {
+          "trackers": ["Google", "DuckDuckGo"],
+          "trackerCount": 56
+        },
+        "history": [
+          {
+            "title": "/bathrooms/toilets",
+            "url": "https://selcobw.com/bathrooms/toilets",
+            "timestamp": "2025-01-21T10:39:00Z",
+            "relativeTime": "21 mins ago"
+          },
+          {
+            "title": "Homepage",
+            "url": "https://selcobw.com",
+            "timestamp": "2025-01-21T10:39:00Z",
+            "relativeTime": "21 mins ago"
+          }
+        ]
+      },
+      {
+        "entityId": "550e8400-e29b-41d4-a716-446655440001",
+        "favicon": "youtube-icon.png",
+        "domain": "youtube.com",
+        "title": "YouTube",
+        "trackingStatus": {
+          "trackers": [],
+          "trackerCount": 0
+        },
+        "history": [
+          {
+            "title": "YouTube",
+            "url": "https://youtube.com",
+            "timestamp": "2025-01-18T10:00:00Z",
+            "relativeTime": "3 days ago"
+          }
+        ]
+      }
+    ]
+  }]
+}
