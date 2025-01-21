@@ -4,8 +4,8 @@ import { useTelemetry } from '../types.js';
 import { useCustomizer } from '../customizer/components/CustomizerMenu.js';
 import { Telemetry } from './telemetry.js';
 
-export function DebugCustomized({ index }) {
-    const [isOpen, setOpen] = useState(false);
+export function DebugCustomized({ index, isOpenInitially = false }) {
+    const [isOpen, setOpen] = useState(isOpenInitially);
     const telemetry = useTelemetry();
     useCustomizer({
         title: '🐞 Debug',
@@ -47,11 +47,13 @@ function useEvents(ref, telemetry) {
     useEffect(() => {
         if (!ref.current) return;
         const elem = ref.current;
+        const pre = '```json\n';
+        const post = '\n```\n';
         function handle(/** @type {CustomEvent<any>} */ { detail }) {
-            elem.value += JSON.stringify(detail, null, 2) + '\n\n';
+            elem.value += pre + JSON.stringify(detail, null, 2) + post;
         }
         for (const beforeElement of telemetry.eventStore) {
-            elem.value += JSON.stringify(beforeElement, null, 2) + '\n\n';
+            elem.value += pre + JSON.stringify(beforeElement, null, 2) + post;
         }
         telemetry.eventStore = [];
         telemetry.storeEnabled = false;

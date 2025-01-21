@@ -42,6 +42,16 @@ export class Service {
     }
 
     /**
+     * @return {Promise<Data>}
+     */
+    async triggerFetch() {
+        if (!this.impl.initial) throw new Error('unreachable');
+        const next = await this.impl.initial();
+        this._accept(next, 'trigger-fetch');
+        return /** @type {Data} */ (this.data);
+    }
+
+    /**
      * This is convenience to prevent the boilerplate of dealing with the
      * eventTarget directly.
      *
@@ -102,7 +112,7 @@ export class Service {
 
     /**
      * @param {Data} data
-     * @param {'initial' | 'subscription' | 'manual'} source
+     * @param {'initial' | 'subscription' | 'manual' | 'trigger-fetch'} source
      * @private
      */
     _accept(data, source) {

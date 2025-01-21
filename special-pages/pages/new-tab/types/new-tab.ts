@@ -91,6 +91,7 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
 export interface NewTabMessages {
   notifications:
     | ActivityAddFavoriteNotification
+    | ActivityBurnNotification
     | ActivityOpenNotification
     | ActivityRemoveFavoriteNotification
     | ActivityRemoveItemNotification
@@ -169,6 +170,19 @@ export interface ActivityAddFavoriteNotification {
 export interface ActivityAddFavoriteNotify {
   /**
    * The History Entry url to be added to favorites
+   */
+  url: string;
+}
+/**
+ * Generated from @see "../messages/activity_burn.notify.json"
+ */
+export interface ActivityBurnNotification {
+  method: "activity_burn";
+  params: ActivityBurnNotify;
+}
+export interface ActivityBurnNotify {
+  /**
+   * The History Entry url to be burned
    */
   url: string;
 }
