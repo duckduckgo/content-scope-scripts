@@ -6,6 +6,15 @@
  * @module NewTab Messages
  */
 
+export type OpenTarget = "same-tab" | "new-tab" | "new-window";
+/**
+ * Represents the expansion state of a widget
+ */
+export type Expansion = "expanded" | "collapsed";
+/**
+ * Generic Animation configuration
+ */
+export type Animation = None | ViewTransitions | Auto;
 export type BackgroundVariant =
   | DefaultBackground
   | SolidColorBackground
@@ -48,14 +57,6 @@ export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
 export type OpenTarget = "same-tab" | "new-tab" | "new-window";
 /**
- * Represents the expansion state of a widget
- */
-export type Expansion = "expanded" | "collapsed";
-/**
- * Generic Animation configuration
- */
-export type Animation = None | ViewTransitions | Auto;
-/**
  * The visibility state of the widget, as configured by the user
  */
 export type WidgetVisibility = "visible" | "hidden";
@@ -90,6 +91,12 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
  */
 export interface NewTabMessages {
   notifications:
+    | ActivityAddFavoriteNotification
+    | ActivityBurnNotification
+    | ActivityOpenNotification
+    | ActivityRemoveFavoriteNotification
+    | ActivityRemoveItemNotification
+    | ActivitySetConfigNotification
     | ContextMenuNotification
     | CustomizerContextMenuNotification
     | CustomizerDeleteImageNotification
@@ -119,6 +126,9 @@ export interface NewTabMessages {
     | UpdateNotificationDismissNotification
     | WidgetsSetConfigNotification;
   requests:
+    | ActivityConfirmBurnRequest
+    | ActivityGetConfigRequest
+    | ActivityGetDataRequest
     | FavoritesGetConfigRequest
     | FavoritesGetDataRequest
     | FreemiumPIRBannerGetDataRequest
@@ -129,6 +139,8 @@ export interface NewTabMessages {
     | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
+    | ActivityOnConfigUpdateSubscription
+    | ActivityOnDataUpdateSubscription
     | CustomizerAutoOpenSubscription
     | CustomizerOnBackgroundUpdateSubscription
     | CustomizerOnColorUpdateSubscription
@@ -144,6 +156,98 @@ export interface NewTabMessages {
     | StatsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription;
+}
+/**
+ * Generated from @see "../messages/activity_addFavorite.notify.json"
+ */
+export interface ActivityAddFavoriteNotification {
+  method: "activity_addFavorite";
+  params: ActivityAddFavoriteNotify;
+}
+export interface ActivityAddFavoriteNotify {
+  /**
+   * The History Entry url to be added to favorites
+   */
+  url: string;
+}
+/**
+ * Generated from @see "../messages/activity_burn.notify.json"
+ */
+export interface ActivityBurnNotification {
+  method: "activity_burn";
+  params: ActivityBurnNotify;
+}
+export interface ActivityBurnNotify {
+  /**
+   * The History Entry url to be burned
+   */
+  url: string;
+}
+/**
+ * Generated from @see "../messages/activity_open.notify.json"
+ */
+export interface ActivityOpenNotification {
+  method: "activity_open";
+  params: ActivityOpenAction;
+}
+export interface ActivityOpenAction {
+  /**
+   * The url to open
+   */
+  url: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/activity_removeFavorite.notify.json"
+ */
+export interface ActivityRemoveFavoriteNotification {
+  method: "activity_removeFavorite";
+  params: ActivityRemoveFavoriteNotify;
+}
+export interface ActivityRemoveFavoriteNotify {
+  /**
+   * The History Entry url to be removed from favorites
+   */
+  url: string;
+}
+/**
+ * Generated from @see "../messages/activity_removeItem.notify.json"
+ */
+export interface ActivityRemoveItemNotification {
+  method: "activity_removeItem";
+  params: ActivityRemoveItemNotify;
+}
+export interface ActivityRemoveItemNotify {
+  /**
+   * The History Entry url to be removed
+   */
+  url: string;
+}
+/**
+ * Generated from @see "../messages/activity_setConfig.notify.json"
+ */
+export interface ActivitySetConfigNotification {
+  method: "activity_setConfig";
+  params: ActivityConfig;
+}
+export interface ActivityConfig {
+  expansion: Expansion;
+  animation?: Animation;
+}
+export interface None {
+  kind: "none";
+}
+/**
+ * Use CSS view transitions where available
+ */
+export interface ViewTransitions {
+  kind: "view-transitions";
+}
+/**
+ * Use the auto-animate library to provide default animation styles
+ */
+export interface Auto {
+  kind: "auto-animate";
 }
 /**
  * Generated from @see "../messages/contextMenu.notify.json"
@@ -302,21 +406,6 @@ export interface FavoritesSetConfigNotification {
 export interface FavoritesConfig {
   expansion: Expansion;
   animation?: Animation;
-}
-export interface None {
-  kind: "none";
-}
-/**
- * Use CSS view transitions where available
- */
-export interface ViewTransitions {
-  kind: "view-transitions";
-}
-/**
- * Use the auto-animate library to provide default animation styles
- */
-export interface Auto {
-  kind: "auto-animate";
 }
 /**
  * Generated from @see "../messages/freemiumPIRBanner_action.notify.json"
@@ -488,6 +577,86 @@ export interface WidgetConfigItem {
    */
   id: string;
   visibility: WidgetVisibility;
+}
+/**
+ * Generated from @see "../messages/activity_confirmBurn.request.json"
+ */
+export interface ActivityConfirmBurnRequest {
+  method: "activity_confirmBurn";
+  params: ConfirmBurnParams;
+  result: ConfirmBurnResponse;
+}
+export interface ConfirmBurnParams {
+  /**
+   * The History Entry url that will be burned
+   */
+  url: string;
+}
+export interface ConfirmBurnResponse {
+  action: "burn" | "none";
+}
+/**
+ * Generated from @see "../messages/activity_getConfig.request.json"
+ */
+export interface ActivityGetConfigRequest {
+  method: "activity_getConfig";
+  result: ActivityConfig;
+}
+/**
+ * Generated from @see "../messages/activity_getData.request.json"
+ */
+export interface ActivityGetDataRequest {
+  method: "activity_getData";
+  result: ActivityData;
+}
+export interface ActivityData {
+  activity: DomainActivity[];
+}
+export interface DomainActivity {
+  /**
+   * Current page title
+   */
+  title: string;
+  /**
+   * The full URL to be used for the favicon + title link. This is normally just the domain, but a fully qualified URL.
+   */
+  url: string;
+  /**
+   * Effective top-level domain plus one (eTLD+1) of the URL. Used to infer colors/fallbacks
+   */
+  etldPlusOne: string;
+  favicon: Favicon;
+  trackingStatus: TrackingStatus;
+  /**
+   * Indicates whether trackers were found
+   */
+  trackersFound: boolean;
+  history: HistoryEntry[];
+  favorite: boolean;
+  fireproof: boolean;
+}
+export interface TrackingStatus {
+  trackerCompanies: {
+    /**
+     * Name of the tracking company (e.g., 'Google', 'Microsoft')
+     */
+    displayName: string;
+  }[];
+  totalCount: number;
+}
+export interface HistoryEntry {
+  /**
+   * Platform-dependent page identifier - could be HTML title, URL pathname, or other identifier. Examples: 'YouTube - Homepage', '/users/settings', 'Netflix', '/v2/api/analytics'
+   */
+  title: string;
+  /**
+   * Full page URL
+   */
+  url: string;
+  /**
+   * Human readable relative time
+   */
+  relativeTime: string;
 }
 /**
  * Generated from @see "../messages/favorites_getConfig.request.json"
@@ -667,6 +836,20 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/activity_onConfigUpdate.subscribe.json"
+ */
+export interface ActivityOnConfigUpdateSubscription {
+  subscriptionEvent: "activity_onConfigUpdate";
+  params: ActivityConfig;
+}
+/**
+ * Generated from @see "../messages/activity_onDataUpdate.subscribe.json"
+ */
+export interface ActivityOnDataUpdateSubscription {
+  subscriptionEvent: "activity_onDataUpdate";
+  params: ActivityData;
 }
 /**
  * Generated from @see "../messages/customizer_autoOpen.subscribe.json"
