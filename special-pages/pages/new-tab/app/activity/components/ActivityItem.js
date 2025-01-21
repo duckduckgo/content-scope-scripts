@@ -1,0 +1,103 @@
+import { h } from 'preact';
+import { useTypedTranslationWith } from '../../types.js';
+import cn from 'classnames';
+import styles from './Activity.module.css';
+import { ImageWithState } from '../../components/ImageWithState.js';
+import { ACTION_ADD_FAVORITE, ACTION_BURN, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
+import { Star, StarFilled } from '../../components/icons/Star.js';
+import { Fire } from '../../components/icons/Fire.js';
+import { Cross } from '../../components/Icons.js';
+import { useContext } from 'preact/hooks';
+import { memo } from 'preact/compat';
+import { useComputed } from '@preact/signals';
+import { SignalStateContext } from '../ActivityProvider.js';
+
+export const ActivityItem = memo(
+    /**
+     * @param {object} props
+     * @param {boolean} props.canBurn
+     * @param {"visible"|"hidden"} props.documentVisibility
+     * @param {import("preact").ComponentChild} props.children
+     * @param {string} props.title
+     * @param {string} props.url
+     * @param {string|null|undefined} props.favoriteSrc
+     * @param {number} props.faviconMax
+     * @param {string} props.etldPlusOne
+     * @param {boolean} props.fireproof
+     */
+    function ActivityItem({ canBurn, documentVisibility, title, url, favoriteSrc, faviconMax, etldPlusOne, fireproof, children }) {
+        return (
+            <li key={url} class={cn(styles.item)} data-testid="ActivityItem">
+                <div class={styles.heading}>
+                    <a class={styles.favicon} href={url} title={title} data-url={url}>
+                        {documentVisibility === 'visible' && (
+                            <ImageWithState
+                                faviconSrc={favoriteSrc}
+                                faviconMax={faviconMax}
+                                title={title}
+                                etldPlusOne={etldPlusOne}
+                                theme={'light'}
+                                displayKind={'history-favicon'}
+                            />
+                        )}
+                    </a>
+                    <a class={styles.title} href={url} data-url={url}>
+                        {title}
+                    </a>
+                    <Controls canBurn={canBurn} url={url} title={title} fireproof={fireproof} />
+                </div>
+                <div class={styles.body}>{children}</div>
+            </li>
+        );
+    },
+);
+
+/**
+ * Renders a set of control buttons that handle actions related to favorites and burn/removal features.
+ *
+ * @import enStrings from "../strings.json"
+ * @param {Object} props - The input properties for the control buttons.
+ * @param {boolean} props.canBurn - Indicates whether the burn action is allowed.
+ * @param {string} props.url - The unique URL identifier for the associated item.
+ * @param {string} props.title - The title or domain name displayed in the button tooltips.
+ * @param {boolean} props.fireproof - Whether this item is fireproof
+ */
+function Controls({ canBurn, url, title, fireproof }) {
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const { activity } = useContext(SignalStateContext);
+    const favorite = useComputed(() => activity.value.favorites[url]);
+
+    // prettier-ignore
+    const favoriteTitle = favorite.value
+        ? t('activity_favoriteRemove', { domain: title })
+        : t('activity_favoriteAdd', { domain: title });
+
+    // prettier-ignore
+    const secondaryTitle = canBurn
+        ? t('activity_burn', { domain: title })
+        : t('activity_itemRemove', { domain: title });
+    return (
+        <div className={styles.controls}>
+            <button
+                className={cn(styles.icon, styles.controlIcon)}
+                title={favoriteTitle}
+                data-action={favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE}
+                data-title={title}
+                value={url}
+                type="button"
+            >
+                {favorite.value ? <StarFilled /> : <Star />}
+            </button>
+            <button
+                className={cn(styles.icon, styles.controlIcon)}
+                title={secondaryTitle}
+                data-action={canBurn ? ACTION_BURN : ACTION_REMOVE}
+                data-fireproof={String(fireproof)}
+                value={url}
+                type="button"
+            >
+                {canBurn ? <Fire /> : <Cross />}
+            </button>
+        </div>
+    );
+}

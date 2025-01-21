@@ -5,6 +5,8 @@ import { useMessaging } from '../types.js';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary.js';
 import { Centered, VerticalSpace } from '../components/Layout.js';
 import { INLINE_ERROR } from '../InlineErrorBoundary.js';
+import { DebugCustomized } from '../telemetry/Debug.js';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 
 /**
  * @param {string} id
@@ -41,6 +43,7 @@ export async function widgetEntryPoint(id, didCatch) {
 export function WidgetList() {
     const { widgets, widgetConfigItems, entryPoints } = useContext(WidgetConfigContext);
     const messaging = useMessaging();
+    const { env } = useEnv();
 
     /**
      * @param {string} message
@@ -89,6 +92,11 @@ export function WidgetList() {
                     </WidgetVisibilityProvider>
                 );
             })}
+            {env === 'development' && (
+                <Centered data-entry-point="debug">
+                    <DebugCustomized index={widgets.length} isOpenInitially={false} />
+                </Centered>
+            )}
         </Fragment>
     );
 }

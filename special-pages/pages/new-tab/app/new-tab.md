@@ -5,6 +5,7 @@ children:
   - ./remote-messaging-framework/rmf.md
   - ./update-notification/update-notification.md
   - ./privacy-stats/privacy-stats.md
+  - ./activity/activity.md
   - ./favorites/favorites.md
   - ./next-steps/next-steps.md
   - ./customizer/customizer.md

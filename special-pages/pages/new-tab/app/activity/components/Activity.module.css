@@ -1,0 +1,276 @@
+.root {
+
+    --favicon-width: 32px;
+    --heading-gap: 12px;
+
+
+    background: var(--ntp-surface-background-color);
+    backdrop-filter: blur(48px);
+    border: 1px solid var(--ntp-surface-border-color);
+    padding: var(--sp-6);
+    border-radius: var(--border-radius-lg);
+    display: grid;
+    align-items: start;
+    grid-template-columns: auto;
+    width: 100%;
+    margin-bottom: var(--ntp-gap);
+
+    &:hover {
+        .listExpander * {
+            opacity: 1;
+        }
+    }
+
+    [data-theme=dark] & {
+        border-color: var(--color-white-at-9);
+    }
+}
+
+.activity {
+    width: 100%;
+    overflow: hidden;
+}
+
+.activity:not(:empty) {
+    margin-top: 18px;
+}
+
+.anim {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--border-radius-lg);
+
+    lottie-player {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        position: absolute;
+        bottom: -50%;
+        left: 0;
+    }
+}
+
+.item {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.burning {
+    > *:not(lottie-player) {
+        transition: opacity .2s;
+        transition-delay: .3s;
+        opacity: 0;
+    }
+}
+
+.heading {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.favicon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--border-radius-sm);
+    flex-shrink: 0;
+    text-decoration: none;
+    position: relative;
+
+    background: var(--color-black-at-12);
+    &:hover, &:focus-visible {
+        background: var(--color-black-at-18);
+    }
+
+    [data-theme="dark"] & {
+        background: var(--color-white-at-6);
+        &:hover, &:focus-visible {
+            background: var(--color-white-at-9);
+        }
+    }
+
+    > *:first-child {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
+}
+
+.title {
+    font-size: var(--title-3-em-font-size);
+    font-weight: var(--title-3-em-font-weight);
+    line-height: var(--title-3-em-line-height);
+    display: block;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    white-space: normal;
+    padding-top: 4px;
+    text-decoration: none;
+    color: var(--ntp-text-normal);
+
+    &:hover, &:focus-visible {
+        text-decoration: underline;
+    }
+}
+
+.controls {
+    display: flex;
+    margin-left: auto;
+    flex-shrink: 0;
+    position: relative;
+    top: 4px;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    color: var(--ntp-text-normal);
+    svg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
+}
+
+.controlIcon {
+    border-radius: 4px;
+    &:hover {
+        background-color: var(--color-black-at-12);
+    }
+    [data-theme="dark"] &:hover {
+        background-color: var(--color-white-at-6);
+    }
+    svg {
+        fill-opacity: 0.6;
+    }
+}
+
+.body {
+    padding-left: calc(var(--favicon-width) + var(--heading-gap));
+    padding-right: calc(var(--favicon-width) + var(--heading-gap) * 2);
+    position: relative;
+
+    &:before {
+        content: " ";
+        width: 1px;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 15px;
+        background: var(--color-black-at-12);
+    }
+    [data-theme="dark"] &:before {
+        background: var(--color-white-at-6);
+    }
+}
+.otherIcon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.5rem;
+    color: var(--color-black-at-84);
+    background: var(--color-black-at-12);
+    text-align: center;
+
+    [data-theme="dark"] & {
+        color: var(--color-black-at-84);
+        background: var(--color-white-at-60);
+    }
+}
+
+.companiesIconRow {
+    display: flex;
+    gap: 6px;
+}
+
+.companiesIcons {
+    display: flex;
+    gap: 2px;
+    > * {
+        flex-shrink: 0;
+        min-width: 0;
+    }
+}
+.companiesText {}
+
+.history {
+    margin-top: 6px;
+}
+.historyItem {
+    display: flex;
+    width: 100%;
+}
+.historyLink {
+    font-size: var(--small-label-font-size);
+    font-weight: var(--small-label-font-weight);
+    line-height: var(--small-label-line-height);
+    color: var(--ntp-text-muted);
+    text-decoration: none;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover, &:focus-visible {
+        text-decoration: underline;
+    }
+
+    &:hover .time {
+        text-decoration: none;
+    }
+}
+
+.time {
+    flex-shrink: 0;
+    margin-left: 8px;
+    color: var(--ntp-text-muted-more);
+}
+
+.historyBtn {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 4px;
+    position: relative;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    margin-left: 8px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ntp-text-normal);
+
+    &:hover {
+        background-color: var(--color-black-at-12)
+    }
+
+    [data-theme="dark"] &:hover {
+        background-color: var(--color-white-at-6);
+    }
+
+    svg {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        position: relative;
+        top: 1px;
+        transform: rotate(0);
+    }
+
+    &[data-action="hide"] {
+        svg {
+            transform: rotate(180deg)
+        }
+    }
+}
