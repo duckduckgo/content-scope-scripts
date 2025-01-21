@@ -1,0 +1,179 @@
+import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
+import { Mocks } from '../../../shared/mocks.js';
+import { expect } from '@playwright/test';
+
+/**
+ * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
+ * @typedef {import('injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
+ */
+
+export class HistoryTestPage {
+    entries = 200;
+    /**
+     * Sets the number of entries stored in memory
+     * @param {number} count - The number of entries to set.
+     */
+    withEntries(count) {
+        this.entries = count;
+        return this;
+    }
+    /**
+     * @param {import("@playwright/test").Page} page
+     * @param {Build} build
+     * @param {PlatformInfo} platform
+     */
+    constructor(page, build, platform) {
+        this.page = page;
+        this.build = build;
+        this.platform = platform;
+        this.mocks = new Mocks(page, build, platform, {
+            context: 'specialPages',
+            featureName: 'history',
+            env: 'development',
+        });
+        this.page.on('console', console.log);
+        if (this.platform.name === 'extension') throw new Error('unreachable - not supported in extension platform');
+        this.mocks.defaultResponses({
+            /** @type {import('../types/history.ts').InitialSetupResponse} */
+            initialSetup: {
+                env: 'development',
+                locale: 'en',
+                platform: {
+                    name: this.platform.name || 'windows',
+                },
+            },
+        });
+    }
+
+    /**
+     * Opens a page with optional parameters.
+     * This method ensures that mocks are installed and routes are set up before navigating to the page.
+     * @param {Object} [params] - Optional parameters for opening the page.
+     * @param {'debug' | 'production'} [params.mode] - Optional parameters for opening the page.
+     * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
+     * @param {Record<string, any>} [params.additional] - Optional map of key/values to add
+     */
+    async openPage({ mode = 'debug', additional, willThrow = false } = {}) {
+        await this.mocks.install();
+        const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) });
+        for (const [key, value] of Object.entries(additional || {})) {
+            searchParams.set(key, value);
+        }
+
+        searchParams.set('history', String(this.entries));
+
+        // eslint-disable-next-line no-undef
+        if (process.env.PAGE) {
+            await this.page.goto('/' + '?' + searchParams.toString());
+        } else {
+            await this.page.goto('/history' + '?' + searchParams.toString());
+        }
+    }
+
+    /**
+     * We test the fully built artifacts, so for each test run we need to
+     * select the correct HTML file.
+     * @return {string}
+     */
+    get basePath() {
+        return this.build.switch({
+            windows: () => '../build/windows/pages/history',
+            integration: () => '../build/integration/pages/history',
+        });
+    }
+
+    /**
+     * @param {import("@playwright/test").Page} page
+     * @param {import("@playwright/test").TestInfo} testInfo
+     */
+    static create(page, testInfo) {
+        // Read the configuration object to determine which platform we're testing against
+        const { platformInfo, build } = perPlatform(testInfo.project.use);
+        return new HistoryTestPage(page, build, platformInfo);
+    }
+
+    async reducedMotion() {
+        await this.page.emulateMedia({ reducedMotion: 'reduce' });
+    }
+
+    async darkMode() {
+        await this.page.emulateMedia({ colorScheme: 'dark' });
+    }
+
+    /**
+     * @param {import('../types/history.ts').QueryKind} query
+     */
+    async didMakeInitialQueries(query) {
+        const rangesCall = await this.mocks.waitForCallCount({ method: 'getRanges', count: 1 });
+        const calls = await this.mocks.waitForCallCount({ method: 'query', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ query, limit: 150, offset: 0 });
+        expect(rangesCall[0].payload.params).toStrictEqual({});
+    }
+
+    /**
+     * @param {object} props
+     * @param {number} props.nth
+     * @param {import('../types/history.ts').QueryKind} props.query
+     */
+    async didMakeNthQuery({ nth, query }) {
+        const calls = await this.mocks.waitForCallCount({ method: 'query', count: nth + 1 });
+        const params = calls[nth].payload.params;
+
+        expect(params).toStrictEqual({ query, limit: 150, offset: 0 });
+    }
+
+    /**
+     * @param {object} props
+     * @param {number} props.nth
+     * @param {import('../types/history.ts').QueryKind} props.query
+     * @param {number} props.offset
+     */
+    async didMakeNthPagingQuery({ nth, query, offset }) {
+        const calls = await this.mocks.waitForCallCount({ method: 'query', count: nth + 1 });
+        const params = calls[nth].payload.params;
+
+        expect(params).toStrictEqual({ query, limit: 150, offset });
+    }
+
+    /**
+     * @param {string} linkText
+     */
+    async selectsRange(linkText) {
+        const { page } = this;
+        await page.getByRole('link', { name: linkText }).click();
+    }
+
+    async onlyRangeIsShown(s) {}
+
+    /**
+     * @param {string} term
+     */
+    async types(term) {
+        const { page } = this;
+        await page.getByPlaceholder('Search').fill(term);
+    }
+
+    async clearsInput() {
+        const { page } = this;
+        await page.getByPlaceholder('Search').fill('');
+    }
+
+    async scrollsToEnd() {
+        const { page } = this;
+        await page.getByRole('main').evaluate(() => {
+            const scrollableItem = document.querySelector('main');
+            if (scrollableItem) {
+                scrollableItem.scrollTop = scrollableItem.scrollHeight;
+            }
+        });
+    }
+
+    async didResetScroll() {
+        const { page } = this;
+        const scrollPosition = await page.waitForFunction(() => {
+            const scrollableItem = document.querySelector('main');
+            return scrollableItem ? scrollableItem.scrollTop === 0 : false;
+        });
+        expect(scrollPosition).toBeTruthy();
+    }
+}

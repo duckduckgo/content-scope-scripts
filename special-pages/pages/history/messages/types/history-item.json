@@ -2,16 +2,20 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "required": [
+    "id",
     "dateRelativeDay",
     "dateShort",
     "dateTimeOfDay",
     "domain",
-    "fallbackFaviconText",
     "time",
     "title",
     "url"
   ],
   "properties": {
+    "id": {
+      "type": "string",
+      "description": "A unique identifier for the entry."
+    },
     "dateRelativeDay": {
       "type": "string",
       "description": "A relative day with a detailed date (e.g., 'Today - Wednesday 15 January 2025')."
@@ -24,18 +28,10 @@
       "type": "string",
       "description": "The time of day in 24-hour format (e.g., '11:01')."
     },
-    "domain": {
+    "etldPlusOne": {
       "type": "string",
       "format": "hostname",
-      "description": "The domain name of the URL (e.g., 'localhost:8000')."
-    },
-    "fallbackFaviconText": {
-      "type": "string",
-      "description": "A single uppercase letter used as favicon text."
-    },
-    "time": {
-      "type": "number",
-      "description": "A timestamp in milliseconds (e.g., 1736938916867.863)."
+      "description": "The eTLD+1 version of the domain, representing the domain and its top-level domain (e.g., 'example.com', 'localhost'). This differs from 'domain', which may include subdomains (e.g., 'www.youtube.com')."
     },
     "title": {
       "type": "string",

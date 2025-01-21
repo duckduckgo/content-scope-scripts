@@ -1,0 +1,135 @@
+.item {
+}
+
+.title {
+    height: 32px;
+    width: 100%;
+    font-size: var(--title-3-em-font-size);
+    font-weight: var(--title-3-em-font-weight);
+    line-height: var(--title-3-em-line-height);
+    white-space: nowrap;
+    color: var(--history-text-normal);
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    border-radius: 5px;
+    position: relative;
+
+    &:hover {
+        background: var(--color-black-at-6);
+    }
+    [data-theme="dark"] &:hover {
+        background: var(--color-white-at-6);
+        .titleDots {
+            color: var(--color-white-at-84)
+        }
+    }
+}
+
+.row {
+    height: 28px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--history-text-normal);
+    border-radius: 5px;
+    padding-left: 9px;
+    padding-right: 5px;
+    position: relative;
+
+    &:hover, &:focus-visible {
+        background: #2565D9;
+        color: var(--color-white-at-84);
+    }
+}
+
+.entryTitle {
+    white-space: nowrap;
+    font-weight: 510;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.url {
+    font-weight: 400;
+    display: block;
+    white-space: nowrap;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:before {
+        content: "- "
+    }
+}
+
+.time {
+    margin-left: auto;
+    flex-shrink: 0;
+    opacity: 0.6;
+
+    .row:hover &, .row:focus-visible & {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+.dots {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: transparent;
+    border: 0;
+    z-index:1;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        background: var(--color-white-at-9);
+    }
+    &:active {
+        background: var(--color-white-at-18);
+    }
+
+    .row:hover &, .row:focus-visible & {
+        opacity: 1;
+        visibility: visible;
+        color: var(--color-white-at-84);
+    }
+
+    .title:hover & {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .title &:hover {
+        background: var(--color-black-at-6);
+    }
+
+    .title &:active {
+        background: var(--color-black-at-9);
+    }
+}
+
+.titleDots {
+    width: 28px;
+    height: 20px;
+    right: 6px;
+    /*color: */
+}
+
+.last {
+    margin-bottom: 24px;
+}

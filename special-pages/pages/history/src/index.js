@@ -4,12 +4,13 @@
  * @module History Page
  */
 
+import 'preact/devtools';
 import { createTypedMessages } from '@duckduckgo/messaging';
 import { Environment } from '../../../shared/environment.js';
 import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging.js';
 import { init } from '../app/index.js';
 import '../../../shared/live-reload.js';
-import { mockTransport } from '../app/mock-transport.js';
+import { mockTransport } from '../app/mocks/mock-transport.js';
 import { render } from 'preact';
 
 export class HistoryPage {
