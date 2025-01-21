@@ -6,6 +6,14 @@
  * @module NewTab Messages
  */
 
+/**
+ * Represents the expansion state of a widget
+ */
+export type Expansion = "expanded" | "collapsed";
+/**
+ * Generic Animation configuration
+ */
+export type Animation = None | ViewTransitions | Auto;
 export type BackgroundVariant =
   | DefaultBackground
   | SolidColorBackground
@@ -47,14 +55,6 @@ export type PredefinedGradient =
 export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
 /**
- * Represents the expansion state of a widget
- */
-export type Expansion = "expanded" | "collapsed";
-/**
- * Generic Animation configuration
- */
-export type Animation = None | ViewTransitions | Auto;
-/**
  * The visibility state of the widget, as configured by the user
  */
 export type WidgetVisibility = "visible" | "hidden";
@@ -85,6 +85,7 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
  */
 export interface NewTabMessages {
   notifications:
+    | ActivitySetConfigNotification
     | ContextMenuNotification
     | CustomizerContextMenuNotification
     | CustomizerDeleteImageNotification
@@ -114,6 +115,8 @@ export interface NewTabMessages {
     | UpdateNotificationDismissNotification
     | WidgetsSetConfigNotification;
   requests:
+    | ActivityGetConfigRequest
+    | ActivityGetDataRequest
     | FavoritesGetConfigRequest
     | FavoritesGetDataRequest
     | FreemiumPIRBannerGetDataRequest
@@ -124,6 +127,8 @@ export interface NewTabMessages {
     | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
+    | ActivityOnConfigUpdateSubscription
+    | ActivityOnDataUpdateSubscription
     | CustomizerAutoOpenSubscription
     | CustomizerOnBackgroundUpdateSubscription
     | CustomizerOnColorUpdateSubscription
@@ -139,6 +144,32 @@ export interface NewTabMessages {
     | StatsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription;
+}
+/**
+ * Generated from @see "../messages/activity_setConfig.notify.json"
+ */
+export interface ActivitySetConfigNotification {
+  method: "activity_setConfig";
+  params: ActivityConfig;
+}
+export interface ActivityConfig {
+  expansion: Expansion;
+  animation?: Animation;
+}
+export interface None {
+  kind: "none";
+}
+/**
+ * Use CSS view transitions where available
+ */
+export interface ViewTransitions {
+  kind: "view-transitions";
+}
+/**
+ * Use the auto-animate library to provide default animation styles
+ */
+export interface Auto {
+  kind: "auto-animate";
 }
 /**
  * Generated from @see "../messages/contextMenu.notify.json"
@@ -297,21 +328,6 @@ export interface FavoritesSetConfigNotification {
 export interface FavoritesConfig {
   expansion: Expansion;
   animation?: Animation;
-}
-export interface None {
-  kind: "none";
-}
-/**
- * Use CSS view transitions where available
- */
-export interface ViewTransitions {
-  kind: "view-transitions";
-}
-/**
- * Use the auto-animate library to provide default animation styles
- */
-export interface Auto {
-  kind: "auto-animate";
 }
 /**
  * Generated from @see "../messages/freemiumPIRBanner_action.notify.json"
@@ -483,6 +499,62 @@ export interface WidgetConfigItem {
    */
   id: string;
   visibility: WidgetVisibility;
+}
+/**
+ * Generated from @see "../messages/activity_getConfig.request.json"
+ */
+export interface ActivityGetConfigRequest {
+  method: "activity_getConfig";
+  result: ActivityConfig;
+}
+/**
+ * Generated from @see "../messages/activity_getData.request.json"
+ */
+export interface ActivityGetDataRequest {
+  method: "activity_getData";
+  result: ActivityData;
+}
+export interface ActivityData {
+  activity: DomainActivity[];
+}
+export interface DomainActivity {
+  /**
+   * Unique identifier for the site entity
+   */
+  entityId: string;
+  /**
+   * URL or base64 of the site favicon
+   */
+  favicon?: string;
+  /**
+   * Website domain name
+   */
+  domain: string;
+  /**
+   * Current page title
+   */
+  title: string;
+  trackingStatus: TrackingStatus;
+  history: HistoryEntry[];
+}
+export interface TrackingStatus {
+  trackers?: string[];
+  trackerCount?: number;
+}
+export interface HistoryEntry {
+  /**
+   * Platform-dependent page identifier - could be HTML title, URL pathname, or other identifier. Examples: 'YouTube - Homepage', '/users/settings', 'Netflix', '/v2/api/analytics'
+   */
+  title: string;
+  /**
+   * Full page URL
+   */
+  url: string;
+  timestamp: string;
+  /**
+   * Human readable relative time
+   */
+  relativeTime: string;
 }
 /**
  * Generated from @see "../messages/favorites_getConfig.request.json"
@@ -666,6 +738,20 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/activity_onConfigUpdate.subscribe.json"
+ */
+export interface ActivityOnConfigUpdateSubscription {
+  subscriptionEvent: "activity_onConfigUpdate";
+  params: ActivityConfig;
+}
+/**
+ * Generated from @see "../messages/activity_onDataUpdate.subscribe.json"
+ */
+export interface ActivityOnDataUpdateSubscription {
+  subscriptionEvent: "activity_onDataUpdate";
+  params: ActivityData;
 }
 /**
  * Generated from @see "../messages/customizer_autoOpen.subscribe.json"

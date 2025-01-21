@@ -272,5 +272,57 @@
   "customizer_image_delete": {
     "title": "Delete image {number}",
     "note": "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
+  },
+  "activity_menuTitle": {
+    "title": "Blocked Tracking Attempts",
+    "note": "Used as a label in a customization menu"
+  },
+  "activity_menuTitle_v2": {
+    "title": "Protection Stats",
+    "note": "Used as a label in a customization menu"
+  },
+  "activity_noActivity": {
+    "title": "DuckDuckGo blocks tracking attempts as you browse. Visit a few sites to see how many we block!",
+    "note": "Placeholder for when we cannot report any blocked trackers yet"
+  },
+  "activity_noRecent": {
+    "title": "Tracking protections active",
+    "note": "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
+  },
+  "activity_countBlockedSingular": {
+    "title": "1 tracking attempt blocked",
+    "note": "The main headline indicating that a single tracker was blocked"
+  },
+  "activity_countBlockedPlural": {
+    "title": "{count} tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_feedCountBlockedSingular": {
+    "title": "1 attempt blocked by DuckDuckGo in the last 7 days",
+    "note": "A summary description of how many tracking attempts where blocked, when only one exists."
+  },
+  "activity_feedCountBlockedPeriod": {
+    "title": "Past 7 days",
+    "note": "A summary description indicating the time period of the blocked tracking attempts, which is the past 7 days."
+  },
+  "activity_feedCountBlockedPlural": {
+    "title": "{count} tracking attempts blocked",
+    "note": "A summary description of how many tracking attempts were blocked by DuckDuckGo in the last 7 days when there is more than one. E.g., '1,028 tracking attempts blocked."
+  },
+  "activity_toggleLabel": {
+    "title": "Show recent activity",
+    "note": "The aria-label text for a toggle button that shows the detailed activity feed"
+  },
+  "activity_hideLabel": {
+    "title": "Hide recent activity",
+    "note": "The aria-label text for a toggle button that hides the detailed activity feed"
+  },
+  "activity_otherCompanyName": {
+    "title": "Other",
+    "note": "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
+  },
+  "activity_otherCount": {
+    "title": "{count} attempts from other networks",
+    "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
   }
 }
