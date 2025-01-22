@@ -27,7 +27,7 @@ html[data-focus-mode="on"] .hideInFocus {
     display: none;
 }
 .main {
-    --bg-color: rgba(0, 0, 0, 0.3);
+    --bg-color: #222;
     --logo-spacing: 185px;
     --gutter-width: 8px;
     --outer-radius: 16px;
