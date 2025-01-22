@@ -335,8 +335,8 @@ export class DuckPlayerPage {
     }
 
     /**
-     * 
-     * @param {string} text 
+     *
+     * @param {string} text
      */
     async hasShownErrorMessage(text = 'ERROR: Invalid video id') {
         await expect(this.page.getByText(text)).toBeVisible();

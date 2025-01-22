@@ -12,7 +12,7 @@ export const PLAYER_ERRORS = {
     botDetected: 'bot-detected',
     ageRestricted: 'age-restricted',
     noEmbed: 'no-embed',
-}
+};
 
 export const PLAYER_ERROR_IDS = Object.values(PLAYER_ERRORS);
 
@@ -57,7 +57,7 @@ export function Player({ src, layout }) {
 }
 
 /**
- * @param {PlayerError} kind 
+ * @param {PlayerError} kind
  * @returns {{heading: Element, message: Element, solutions: Element[]}}
  */
 function useErrorStrings(kind) {
@@ -70,15 +70,15 @@ function useErrorStrings(kind) {
     const solutionsMap = {
         ['invalid-id']: [],
         ['bot-detected']: [
-        <span dangerouslySetInnerHTML={{ __html: t('botDetectedErrorTip1') }} />,
-        <span dangerouslySetInnerHTML={{ __html: t('botDetectedErrorTip2') }} />,
-        ]
-    }
+            <span dangerouslySetInnerHTML={{ __html: t('botDetectedErrorTip1') }} />,
+            <span dangerouslySetInnerHTML={{ __html: t('botDetectedErrorTip2') }} />,
+        ],
+    };
     const messageMap = {
         ['invalid-id']: '',
         ['age-restricted']: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage') }} />,
-    }
-    
+    };
+
     const heading = headingsMap[kind] || headingsMap['invalid-id'];
     const solutions = solutionsMap[kind] || solutionsMap['invalid-id'];
     const message = messageMap[kind] || messageMap['invalid-id'];
@@ -98,8 +98,8 @@ export function PlayerError({ kind, layout }) {
                 [styles.mobile]: layout === 'mobile',
             })}
         >
-            { kind === 'invalid-id' && <InvalidIdError kind={kind} />}
-            { kind !== 'invalid-id' && <YouTubeError kind={kind} /> }
+            {kind === 'invalid-id' && <InvalidIdError kind={kind} />}
+            {kind !== 'invalid-id' && <YouTubeError kind={kind} />}
         </div>
     );
 }
@@ -131,15 +131,18 @@ export function YouTubeError({ kind }) {
         <div className={classes}>
             <div className={styles.youtubeErrorContainer}>
                 <span className={styles.youtubeErrorIcon}></span>
-                
+
                 <h1 className={styles.youtubeErrorHeading}>{heading}</h1>
-                
+
                 {message && <p className={styles.youtubeErrorMessage}>{message}</p>}
 
-                {solutions && 
+                {solutions && (
                     <ul className={styles.youtubeErrorList}>
-                        {solutions.map(item => <li>{item}</li>)}
-                    </ul>}
+                        {solutions.map((item) => (
+                            <li>{item}</li>
+                        ))}
+                    </ul>
+                )}
             </div>
         </div>
     );

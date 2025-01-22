@@ -70,12 +70,12 @@ const nodeContainsError = (node) => {
         const errorElement = element.querySelector('ytp-error');
 
         if (errorElement) {
-            return 'bot-detected'; // TODO: More generic naming 
+            return 'bot-detected'; // TODO: More generic naming
         }
     }
 
     return null;
-}
+};
 
 /**
  * Analyses attributes of a node to determine if it contains an error state
@@ -88,7 +88,7 @@ const nodeIsError = (node) => {
     if (node?.nodeType === Node.ELEMENT_NODE) {
         const element = /** @type {HTMLElement} */ (node);
         if (element.classList.contains('ytp-error')) {
-            return 'bot-detected'; // TODO: More generic naming 
+            return 'bot-detected'; // TODO: More generic naming
         }
         // Add other error detection logic here
     }

@@ -27,7 +27,7 @@ export function YouTubeErrorProvider({ initial = null, children }) {
     useEffect(() => {
         /** @type {(event: CustomEvent) => void} */
         const errorEventHandler = (event) => {
-            const error = event.detail?.error
+            const error = event.detail?.error;
             if (PLAYER_ERROR_IDS.includes(error) || error === null) {
                 setError(error);
             }

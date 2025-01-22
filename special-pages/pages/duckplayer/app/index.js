@@ -65,7 +65,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
     let initialYouTubeError = null;
     const ytErrorParam = baseEnvironment.urlParams.get('youtubeError');
     if (ytErrorParam && PLAYER_ERROR_IDS.includes(ytErrorParam)) {
-        initialYouTubeError = /** @type {import('./components/Player').PlayerError} */(ytErrorParam);
+        initialYouTubeError = /** @type {import('./components/Player').PlayerError} */ (ytErrorParam);
     }
 
     const embed = createEmbedSettings(window.location.href, settings);

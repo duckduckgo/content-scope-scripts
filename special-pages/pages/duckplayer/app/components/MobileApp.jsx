@@ -23,7 +23,7 @@ export function MobileApp({ embed }) {
     const settings = useSettings();
     const telemetry = useTelemetry();
     const ytError = useYouTubeError();
-    
+
     const features = createAppFeaturesFrom(settings);
     return (
         <>
