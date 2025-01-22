@@ -44,12 +44,14 @@ it's normal for the `widgets` and `widgetConfigs` arrays to be different, for ex
 ```
 
 ## Subscriptions:
-- {@link "NewTab Messages".WidgetsOnConfigUpdatedSubscription `widgets_onConfigUpdated`}
+### `widgets_onConfigUpdated`
+- {@link "NewTab Messages".WidgetsOnConfigUpdatedSubscription}
 - returns {@link "NewTab Messages".WidgetConfigs}.
 
 
 ## Notifications:
-- {@link "NewTab Messages".WidgetsOnConfigUpdatedSubscription `widgets_setConfig`}
+### `widgets_setConfig`
+- {@link "NewTab Messages".WidgetsOnConfigUpdatedSubscription}
 - sends {@link "NewTab Messages".WidgetConfigs}
 
   If the user toggles the visibility of a section in the frontend, then the entire structure is sent to the

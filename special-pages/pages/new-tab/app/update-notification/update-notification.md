@@ -46,11 +46,13 @@ If your platform does not support Update Notifications, you can set this initial
 nothing to show. This mirrors how RMF is designed
 
 ## Subscriptions:
-- {@link "NewTab Messages".UpdateNotificationOnDataUpdateSubscription `updateNotification_onDataUpdate`}.
-    - Sends fresh {@link "NewTab Messages".UpdateNotificationData} whenever needed.
-    - For example, it might send `{ content: null }` to remove existing notes
-    - Or, it might send fresh at any point
+### `updateNotification_onDataUpdate`
+- {@link "NewTab Messages".UpdateNotificationOnDataUpdateSubscription}.
+- Sends fresh {@link "NewTab Messages".UpdateNotificationData} whenever needed.
+- For example, it might send `{ content: null }` to remove existing notes
+- Or, it might send fresh at any point
 
 ## Notifications:
-- {@link "NewTab Messages".UpdateNotificationDismissNotification `updateNotification_dismiss`}
-    - Sent when the user chooses to dismiss the release notes
+### `updateNotification_dismiss`
+- {@link "NewTab Messages".UpdateNotificationDismissNotification}
+- Sent when the user chooses to dismiss the release notes
