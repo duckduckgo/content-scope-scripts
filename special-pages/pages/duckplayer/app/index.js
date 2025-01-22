@@ -15,6 +15,7 @@ import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx';
 import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
+import { PLAYER_ERROR_IDS } from './components/Player';
 
 /**
  * @param {import("../src/index.js").DuckplayerPage} messaging
@@ -60,6 +61,13 @@ export async function init(messaging, telemetry, baseEnvironment) {
 
     console.log(settings);
 
+    // TODO: Refactor
+    let initialYouTubeError = null;
+    const ytErrorParam = baseEnvironment.urlParams.get('youtubeError');
+    if (ytErrorParam && PLAYER_ERROR_IDS.includes(ytErrorParam)) {
+        initialYouTubeError = /** @type {import('./components/Player').PlayerError} */(ytErrorParam);
+    }
+
     const embed = createEmbedSettings(window.location.href, settings);
 
     const didCatch = (error) => {
@@ -80,7 +88,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
                     <TelemetryContext.Provider value={telemetry}>
                         <MessagingContext.Provider value={messaging}>
                             <SettingsProvider settings={settings}>
-                                <YouTubeErrorProvider>
+                                <YouTubeErrorProvider initial={initialYouTubeError}>
                                     <UserValuesProvider initial={init.userValues}>
                                         {settings.layout === 'desktop' && (
                                             <TranslationProvider

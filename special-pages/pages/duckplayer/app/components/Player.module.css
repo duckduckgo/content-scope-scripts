@@ -47,6 +47,69 @@
     background: #2f2f2f;
 }
 
+.youtubeError {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.youtubeErrorContainer {
+    display: grid;
+    column-gap: 24px;
+    row-gap: 8px;
+    grid-template-areas: 
+    "icon heading"
+    "icon message"
+    "icon list";
+    max-width: 680px;
+    padding: 0 40px;
+}
+
+.youtubeErrorIcon {
+    align-self: start;
+    background: url('../img/warning-96.data.svg') no-repeat;
+    display: block;
+    height: 48px;
+    width: 48px;
+
+    grid-area: icon;
+
+    @media screen and (min-width: 600px) {
+        align-self: start;
+        background-image: url('../img/warning-128.data.svg');
+        height: 96px;
+        width: 128px;
+    }
+}
+
+.youtubeErrorHeading {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: calc(24 / 20);
+    margin: 0;
+
+    grid-area: heading;
+}
+
+.youtubeErrorMessage {
+    color: #ccc;
+    font-size: 14px;
+    line-height: calc(20 / 14);
+
+    grid-area: message;
+}
+
+.youtubeErrorList {
+    color: #ccc;
+    font-size: 14px;
+    line-height: calc(20 / 14);
+
+    li {
+        list-style: disc;
+        margin-left: 20px;
+    }
+
+    grid-area: list
+}
+
 @media screen and (min-width: 600px) and (max-height: 450px) {
     .root.mobile {
         max-height: 100%;

@@ -10,10 +10,14 @@ import { useTypedTranslation } from '../types.js';
 export const PLAYER_ERRORS = {
     invalidId: 'invalid-id',
     botDetected: 'bot-detected',
+    ageRestricted: 'age-restricted',
+    noEmbed: 'no-embed',
 }
 
+export const PLAYER_ERROR_IDS = Object.values(PLAYER_ERRORS);
+
 /**
- * @typedef {typeof PLAYER_ERRORS[keyof typeof PLAYER_ERRORS]} PlayerError
+ * @typedef {'invalid-id'|'bot-detected'|'age-restricted'|'no-embed'} PlayerError
  */
 
 /**
@@ -53,18 +57,40 @@ export function Player({ src, layout }) {
 }
 
 /**
+ * @param {PlayerError} kind 
+ * @returns {{heading: Element, message: Element, solutions: Element[]}}
+ */
+function useErrorStrings(kind) {
+    const { t } = useTypedTranslation();
+    const headingsMap = {
+        ['invalid-id']: <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />,
+        ['bot-detected']: <span dangerouslySetInnerHTML={{ __html: t('botDetectedError') }} />,
+        ['age-restricted']: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoError') }} />,
+    };
+    const solutionsMap = {
+        ['invalid-id']: [],
+        ['bot-detected']: [
+        <span dangerouslySetInnerHTML={{ __html: t('botDetectedErrorTip1') }} />,
+        <span dangerouslySetInnerHTML={{ __html: t('botDetectedErrorTip2') }} />,
+        ]
+    }
+    const messageMap = {
+        ['invalid-id']: '',
+        ['age-restricted']: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage') }} />,
+    }
+    
+    const heading = headingsMap[kind] || headingsMap['invalid-id'];
+    const solutions = solutionsMap[kind] || solutionsMap['invalid-id'];
+    const message = messageMap[kind] || messageMap['invalid-id'];
+    return { heading, message, solutions };
+}
+
+/**
  * @param {object} props
  * @param {Settings['layout']} props.layout
  * @param {PlayerError} props.kind
  */
 export function PlayerError({ kind, layout }) {
-    const { t } = useTypedTranslation();
-    const errors = {
-        ['invalid-id']: <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />,
-        ['bot-detected']: <span dangerouslySetInnerHTML={{ __html: t('botDetectedError') }} />,
-    };
-    const text = errors[kind] || errors['invalid-id'];
-
     return (
         <div
             class={cn(styles.root, {
@@ -72,8 +98,48 @@ export function PlayerError({ kind, layout }) {
                 [styles.mobile]: layout === 'mobile',
             })}
         >
-            <div className={styles.error}>
-                <p>{text}</p>
+            { kind === 'invalid-id' && <InvalidIdError kind={kind} />}
+            { kind !== 'invalid-id' && <YouTubeError kind={kind} /> }
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {PlayerError} props.kind
+ */
+export function InvalidIdError({ kind }) {
+    const { heading } = useErrorStrings(kind);
+    const classes = cn(styles.error, styles.invalidError);
+
+    return (
+        <div className={classes}>
+            <p>{heading}</p>
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {PlayerError} props.kind
+ */
+export function YouTubeError({ kind }) {
+    const { heading, message, solutions } = useErrorStrings(kind);
+    const classes = cn(styles.error, styles.youtubeError);
+
+    return (
+        <div className={classes}>
+            <div className={styles.youtubeErrorContainer}>
+                <span className={styles.youtubeErrorIcon}></span>
+                
+                <h1 className={styles.youtubeErrorHeading}>{heading}</h1>
+                
+                {message && <p className={styles.youtubeErrorMessage}>{message}</p>}
+
+                {solutions && 
+                    <ul className={styles.youtubeErrorList}>
+                        {solutions.map(item => <li>{item}</li>)}
+                    </ul>}
             </div>
         </div>
     );

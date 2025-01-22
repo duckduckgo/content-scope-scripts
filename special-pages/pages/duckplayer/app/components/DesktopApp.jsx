@@ -15,9 +15,11 @@ import { useYouTubeError } from '../providers/YouTubeErrorProvider';
 export function DesktopApp({ embed }) {
     const settings = useSettings();
     const features = createAppFeaturesFrom(settings);
+    const ytError = useYouTubeError();
+
     return (
         <>
-            {features.focusMode()}
+            {!ytError && features.focusMode()}
             <main class={styles.app}>
                 <DesktopLayout embed={embed} />
             </main>
