@@ -54,7 +54,7 @@
 .youtubeErrorContainer {
     display: grid;
     column-gap: 24px;
-    row-gap: 8px;
+    row-gap: 4px;
     grid-template-areas: 
     "icon heading"
     "icon message"
@@ -93,6 +93,7 @@
     color: #ccc;
     font-size: 14px;
     line-height: calc(20 / 14);
+    margin: 0;
 
     grid-area: message;
 }
