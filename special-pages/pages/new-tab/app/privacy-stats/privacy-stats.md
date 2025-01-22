@@ -3,36 +3,43 @@ title: Privacy Stats
 ---
 
 ## Requests:
-- {@link "NewTab Messages".StatsGetDataRequest `stats_getData`}
-    - Used to fetch the initial data (during the first render)
-    - returns {@link "NewTab Messages".PrivacyStatsData}
+### `stats_getData` 
+- {@link "NewTab Messages".StatsGetDataRequest}
+- Used to fetch the initial data (during the first render)
+- returns {@link "NewTab Messages".PrivacyStatsData}
 
-- {@link "NewTab Messages".StatsGetDataRequest `stats_getConfig`}
-    - Used to fetch the initial config data (eg: expanded vs collapsed)
-    - returns {@link "NewTab Messages".StatsConfig}
+### `stats_getConfig` 
+- {@link "NewTab Messages".StatsGetDataRequest}
+- Used to fetch the initial config data (eg: expanded vs collapsed)
+- returns {@link "NewTab Messages".StatsConfig}
 
 ## Subscriptions:
-- {@link "NewTab Messages".StatsOnDataUpdateSubscription `stats_onDataUpdate`}.
-    - The tracker/company data used in the feed.
-    - returns {@link "NewTab Messages".PrivacyStatsData}
-- {@link "NewTab Messages".StatsOnDataUpdateSubscription `stats_onConfigUpdate`}.
-    - The widget config
-    - returns {@link "NewTab Messages".StatsConfig}
+### `stats_onDataUpdate` 
+- {@link "NewTab Messages".StatsOnDataUpdateSubscription}.
+- The tracker/company data used in the feed.
+- returns {@link "NewTab Messages".PrivacyStatsData}
+### `stats_onConfigUpdate` 
+- {@link "NewTab Messages".StatsOnDataUpdateSubscription}.
+- The widget config
+- returns {@link "NewTab Messages".StatsConfig}
 
 ## Notifications:
-- {@link "NewTab Messages".StatsSetConfigNotification `stats_setConfig`}
-    - Sent when the user toggles the expansion of the stats
-    - sends {@link "NewTab Messages".StatsConfig}
-    - example payload:
+### `stats_setConfig` 
+- {@link "NewTab Messages".StatsSetConfigNotification}
+- Sent when the user toggles the expansion of the stats
+- sends {@link "NewTab Messages".StatsConfig}
+- example payload:
       ```json
       {
         "expansion": "collapsed"
       }
       ```
-- {@link "NewTab Messages".StatsShowMoreNotification `stats_showMore`}
-    - Sent when the user chooses to show more stats (eg: more than the default 5)
-- {@link "NewTab Messages".StatsShowLessNotification `stats_showLess`}
-    - Sent when the user chooses to show less stats (eg: from a long list back to the default)
+### `stats_showMore` 
+- {@link "NewTab Messages".StatsShowMoreNotification}
+- Sent when the user chooses to show more stats (eg: more than the default 5)
+### `stats_showLess` 
+- {@link "NewTab Messages".StatsShowLessNotification}
+- Sent when the user chooses to show less stats (eg: from a long list back to the default)
 
 ## Example:
 
