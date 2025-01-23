@@ -9,11 +9,16 @@
     padding: 0 20px;
     flex-shrink: 0;
     box-shadow: none;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.18);
     border-radius: var(--inner-radius);
     color: rgba(255, 255, 255, 1);
     text-decoration: none;
+
+    [data-layout="mobile"] & {
+        background-color: #2f2f2f;
+    }
 }
+
 
 .button:hover, .button:focus-visible {
     cursor: pointer;

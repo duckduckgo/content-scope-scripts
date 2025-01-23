@@ -8,7 +8,6 @@ import { FloatingBar } from './FloatingBar.jsx';
 import { SwitchBarMobile } from './SwitchBarMobile.jsx';
 import { InfoBar, InfoBarContainer, InfoIcon } from './InfoBar.jsx';
 import { Wordmark } from './Wordmark.jsx';
-import { Background } from './Background.jsx';
 import { Player, PlayerError } from './Player.jsx';
 import { SettingsProvider } from '../providers/SettingsProvider.jsx';
 import { Settings } from '../settings.js';
@@ -25,9 +24,6 @@ export function Components() {
     if (!url) throw new Error('unreachable');
     return (
         <>
-            <div data-layout="mobile">
-                <Background />
-            </div>
             <main class={styles.main}>
                 <div class={styles.tube}>
                     <Wordmark />

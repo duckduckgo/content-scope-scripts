@@ -1,6 +1,5 @@
 import { h, Fragment } from 'preact';
 import styles from './DesktopApp.module.css';
-import { Background } from './Background.jsx';
 import { InfoBar, InfoBarContainer } from './InfoBar.jsx';
 import { PlayerContainer } from './PlayerContainer.jsx';
 import { Player, PlayerError } from './Player.jsx';
@@ -17,7 +16,6 @@ export function DesktopApp({ embed }) {
     const features = createAppFeaturesFrom(settings);
     return (
         <>
-            <Background />
             {features.focusMode()}
             <main class={styles.app}>
                 <DesktopLayout embed={embed} />

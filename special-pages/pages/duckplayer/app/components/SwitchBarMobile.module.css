@@ -1,7 +1,7 @@
 .switchBar {
     display: grid;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
+    background: #2f2f2f;
     padding-inline: 16px;
     height: 100%;
     line-height: 1.1;
