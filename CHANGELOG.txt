@@ -1,2 +1,5 @@
-- history: initial build (#1401)
-- build(deps-dev): bump the typescript group across 1 directory with 3 updates (#1408)
+- Black background on Duck Player (#1422)
+- ntp: updated docs to support deeplinks (#1420)
+- build(deps-dev): bump json-schema-to-typescript from 15.0.3 to 15.0.4 (#1414)
+- build(deps-dev): bump typescript-eslint from 8.19.1 to 8.21.0 (#1417)
+- build(deps-dev): bump the eslint group across 1 directory with 2 updates (#1410)
