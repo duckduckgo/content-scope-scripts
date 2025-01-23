@@ -1,7 +1,6 @@
 import { h, Fragment } from 'preact';
 import cn from 'classnames';
 import styles from './MobileApp.module.css';
-import { Background } from './Background.jsx';
 import { Player, PlayerError } from './Player.jsx';
 import { usePlatformName, useSettings } from '../providers/SettingsProvider.jsx';
 import { SwitchBarMobile } from './SwitchBarMobile.jsx';
@@ -25,7 +24,6 @@ export function MobileApp({ embed }) {
     const features = createAppFeaturesFrom(settings);
     return (
         <>
-            <Background />
             {features.focusMode()}
             <OrientationProvider
                 onChange={(orientation) => {
