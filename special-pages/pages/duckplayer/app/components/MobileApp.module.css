@@ -87,6 +87,12 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
     padding-bottom: 0;
     border-top-left-radius: var(--outer-radius);
     border-top-right-radius: var(--outer-radius);
+
+    transition: background-color .3s;
+
+    html[data-focus-mode="on"] & {
+        transition: none;
+    }
 }
 
 .logo {
