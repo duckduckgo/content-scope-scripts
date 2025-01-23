@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useOpenInfoHandler, useOpenOnYoutubeHandler, useOpenSettingsHandler } from '../providers/SettingsProvider.jsx';
+import { usePlaybackControl } from './PlaybackControl.jsx';
 import { useTypedTranslation } from '../types.js';
 import { Button, Icon } from './Button.jsx';
 
@@ -15,6 +16,7 @@ export function MobileButtons({ embed }) {
     const openSettings = useOpenSettingsHandler();
     const openInfo = useOpenInfoHandler();
     const openOnYoutube = useOpenOnYoutubeHandler();
+    const { pauseVideo } = usePlaybackControl();
     const { t } = useTypedTranslation();
     return (
         <div class={styles.buttons}>
@@ -40,7 +42,10 @@ export function MobileButtons({ embed }) {
                 fill={true}
                 buttonProps={{
                     onClick: () => {
-                        if (embed) openOnYoutube(embed);
+                        if (embed) {
+                            pauseVideo();
+                            openOnYoutube(embed);
+                        }
                     },
                 }}
             >
