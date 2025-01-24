@@ -5633,7 +5633,8 @@
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig
+        messagingConfig: processedConfig.messagingConfig,
+        messageSecret: processedConfig.messageSecret
       });
       init(processedConfig);
     }
