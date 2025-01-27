@@ -155,7 +155,7 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
 /**
  * @param {string} url
  * @param {string} id
- * @param {{kind: "draggable"; onPreview: (div: HTMLDivElement) => void} | {kind: "target"}} opts
+ * @param {{kind: "draggable" | "target"; class?: string; theme?: string}} opts
  * @return {{ ref: import("preact").RefObject<any>; state: DNDState }}
  */
 export function useItemState(url, id, opts) {
@@ -185,7 +185,8 @@ export function useItemState(url, id, opts) {
                         render: ({ container }) => {
                             const clone = /** @type {HTMLElement} */ (source.element.cloneNode(true));
                             const outer = document.createElement('div');
-                            opts.onPreview(outer);
+                            outer.classList.add(opts.class ?? '');
+                            outer.dataset.theme = opts.theme;
                             outer.appendChild(clone);
                             container.appendChild(outer);
                             return () => {
@@ -266,7 +267,7 @@ export function useItemState(url, id, opts) {
                 onDrop: () => setState({ type: 'idle' }),
             }),
         );
-    }, [instanceId, url, id]);
+    }, [instanceId, url, id, opts.kind, opts.class, opts.theme]);
 
     return { ref, state };
 }

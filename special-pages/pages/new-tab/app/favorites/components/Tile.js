@@ -8,6 +8,8 @@ import { useItemState } from './PragmaticDND.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { PlusIcon } from '../../components/Icons.js';
 import { ImageWithState } from '../../components/ImageWithState.js';
+import { useContext } from 'preact/hooks';
+import { FavoritesThemeContext } from './Favorites.js';
 
 /**
  * @import {Favorite} from '../../../types/new-tab'
@@ -26,14 +28,13 @@ export const Tile = memo(
      * @param {Document['visibilityState']} props.visibility - whether this item is actually visible on screen, or not
      * @param {"dark"|"light"} props.theme
      * @param {number} props.index
+     * @param {boolean} props.animateItems
      */
-    function Tile({ url, etldPlusOne, faviconSrc, faviconMax, index, title, id, visibility, theme }) {
+    function Tile({ url, etldPlusOne, faviconSrc, faviconMax, theme, index, title, id, visibility, animateItems }) {
         const { state, ref } = useItemState(url, id, {
             kind: 'draggable',
-            onPreview: (elem) => {
-                elem.classList.add(styles.preview);
-                elem.dataset.theme = theme;
-            },
+            class: styles.preview,
+            theme,
         });
 
         const tileId = useId();
@@ -47,7 +48,7 @@ export const Tile = memo(
                 data-index={index}
                 data-edge={'closestEdge' in state && state.closestEdge}
                 aria-labelledby={tileId}
-                style={{ viewTransitionName: `Tile-${id}` }}
+                style={animateItems ? { viewTransitionName: `Tile-${id}` } : undefined}
                 ref={ref}
             >
                 <div class={cn(styles.icon, styles.draggable)}>

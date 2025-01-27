@@ -20,7 +20,7 @@ export const TileRow = memo(
      */
     function TileRow({ topOffset, items, add, visibility }) {
         const fillers = ROW_CAPACITY - items.length;
-        const theme = useContext(FavoritesThemeContext);
+        const { theme, animateItems } = useContext(FavoritesThemeContext);
         return (
             <ul className={styles.gridRow} style={{ transform: `translateY(${topOffset}px)` }}>
                 {items.map((item, index) => {
@@ -36,6 +36,7 @@ export const TileRow = memo(
                             index={index}
                             visibility={visibility}
                             theme={theme}
+                            animateItems={animateItems.value}
                         />
                     );
                 })}

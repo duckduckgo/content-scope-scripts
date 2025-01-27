@@ -11,7 +11,7 @@ import { useDropzoneSafeArea } from '../../dropzone.js';
 import { TileRow } from './TileRow.js';
 import { FavoritesContext } from './FavoritesProvider.js';
 import { CustomizerContext, CustomizerThemesContext } from '../../customizer/CustomizerProvider.js';
-import { useComputed } from '@preact/signals';
+import { signal, useComputed } from '@preact/signals';
 import { eventToTarget, useDocumentVisibility } from '../../utils.js';
 
 /**
@@ -26,7 +26,10 @@ export const ROW_CAPACITY = 6;
  */
 const ITEM_HEIGHT = 96;
 const ROW_GAP = 8;
-export const FavoritesThemeContext = createContext(/** @type {"light"|"dark"} */ ('light'));
+export const FavoritesThemeContext = createContext({
+    theme: /** @type {"light"|"dark"} */ ('light'),
+    animateItems: signal(false),
+});
 
 /**
  * Favorites Grid.
@@ -42,6 +45,7 @@ export const FavoritesThemeContext = createContext(/** @type {"light"|"dark"} */
  */
 export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add }) {
     const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
+    const platformName = usePlatformName();
 
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId();
@@ -54,8 +58,17 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     const { main } = useContext(CustomizerThemesContext);
     const kind = useComputed(() => data.value.background.kind);
 
+    // A flag to determine if animations are available. This is needed
+    // because in webkit applying 'view-transition' css properties causes an odd experience
+    // with filters.
+    const animateItems = useComputed(() => {
+        if (platformName === 'windows' && animateItems) return true;
+        if (platformName === 'macos' && animateItems && kind.value !== 'userImage') return true;
+        return false;
+    });
+
     return (
-        <FavoritesThemeContext.Provider value={main.value}>
+        <FavoritesThemeContext.Provider value={{ theme: main.value, animateItems }}>
             <div
                 class={cn(styles.root, !canToggleExpansion && styles.noExpansionBtn)}
                 data-testid="FavoritesConfigured"
