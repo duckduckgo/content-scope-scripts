@@ -8,8 +8,6 @@ import { useItemState } from './PragmaticDND.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { PlusIcon } from '../../components/Icons.js';
 import { ImageWithState } from '../../components/ImageWithState.js';
-import { useContext } from 'preact/hooks';
-import { FavoritesThemeContext } from './Favorites.js';
 
 /**
  * @import {Favorite} from '../../../types/new-tab'
