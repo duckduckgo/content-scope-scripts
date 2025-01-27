@@ -46,7 +46,7 @@
     transition: transform .2s;
 
     &:hover {
-        transform: scale(1.05)
+        transform: scale(1.08)
     }
 
     [data-theme="dark"] & {
