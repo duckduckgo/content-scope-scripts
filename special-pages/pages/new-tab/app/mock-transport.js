@@ -22,7 +22,7 @@ import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIR
  * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
  */
 
-const VERSION_PREFIX = '__ntp_29__.';
+const VERSION_PREFIX = '__ntp_30__.';
 const url = new URL(window.location.href);
 
 export function mockTransport() {
@@ -466,7 +466,7 @@ export function mockTransport() {
                     /** @type {FavoritesConfig} */
                     const defaultConfig = { expansion: 'collapsed', animation: { kind: 'none' } };
                     const fromStorage = read('favorites_config') || defaultConfig;
-                    if (url.searchParams.get('animation') === 'view-transitions') {
+                    if (url.searchParams.get('favorites.animation') === 'view-transitions') {
                         fromStorage.animation = { kind: 'view-transitions' };
                     }
                     return Promise.resolve(fromStorage);

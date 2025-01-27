@@ -25,7 +25,7 @@ const InstanceIdContext = createContext(getInstanceId());
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  * @param {T[]} props.items
- * @param {import('./FavoritesProvider.js').ReorderFn<{id: string; url: string}>} props.itemsDidReOrder
+ * @param {(args: {id: string; list: T[], fromIndex: number, targetIndex: number}) => void} props.itemsDidReOrder
  */
 export function PragmaticDND({ children, items, itemsDidReOrder }) {
     /**
@@ -44,7 +44,7 @@ export function PragmaticDND({ children, items, itemsDidReOrder }) {
 /**
  * @template {{id: string; url: string}} T
  * @param {T[]} favorites
- * @param {import('./FavoritesProvider.js').ReorderFn<{id: string; url: string}>} itemsDidReOrder
+ * @param {(args: {id: string; list: T[], fromIndex: number, targetIndex: number}) => void} itemsDidReOrder
  * @param {symbol} instanceId
  */
 function useGridState(favorites, itemsDidReOrder, instanceId) {
@@ -132,13 +132,6 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                         closestEdgeOfTarget,
                         axis: 'horizontal',
                     });
-
-                    // mark an element as dropped globally.
-                    // todo: not happy with this, but it's working for launch.
-                    document.documentElement.dataset.dropped = String(startId);
-                    setTimeout(() => {
-                        document.documentElement.dataset.dropped = '';
-                    }, 0);
 
                     itemsDidReOrder({
                         list: reorderedList,

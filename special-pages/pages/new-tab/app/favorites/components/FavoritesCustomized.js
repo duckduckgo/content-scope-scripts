@@ -8,18 +8,47 @@ import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { FavoritesContext, FavoritesProvider } from './FavoritesProvider.js';
 import { PragmaticDND } from './PragmaticDND.js';
 import { FavoritesMemo } from './Favorites.js';
+import { viewTransition } from '../../utils.js';
+import { CustomizerContext } from '../../customizer/CustomizerProvider.js';
+import { usePlatformName } from '../../settings.provider.js';
 
 /**
+ * @typedef {import('../../../types/new-tab.ts').Favorite} Favorite
  * Component that consumes FavoritesContext for displaying favorites list.
  */
 export function FavoritesConsumer() {
     const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add } = useContext(FavoritesContext);
     const telemetry = useTelemetry();
+    const platformName = usePlatformName();
+    const { data: backgroundData } = useContext(CustomizerContext);
+
+    /**
+     * Checks if view transitions are supported and initiates reordering of favorites accordingly.
+     *
+     * @param {{id: string; list: Favorite[], fromIndex: number, targetIndex: number}} data
+     */
+    function didReorder(data) {
+        const background = backgroundData.value.background;
+        let supportsViewTransitions = false;
+
+        if (state.config?.animation?.kind === 'view-transitions') {
+            if (platformName === 'windows') supportsViewTransitions = true;
+            if (platformName === 'macos' && background.kind !== 'userImage') supportsViewTransitions = true;
+        }
+
+        if (supportsViewTransitions) {
+            viewTransition(() => {
+                favoritesDidReOrder(data);
+            });
+        } else {
+            favoritesDidReOrder(data);
+        }
+    }
 
     if (state.status === 'ready') {
         telemetry.measureFromPageLoad('favorites-will-render', 'time to favorites');
         return (
-            <PragmaticDND items={state.data.favorites} itemsDidReOrder={favoritesDidReOrder}>
+            <PragmaticDND items={state.data.favorites} itemsDidReOrder={didReorder}>
                 <FavoritesMemo
                     favorites={state.data.favorites}
                     expansion={state.config.expansion}

@@ -13,13 +13,6 @@
     &:focus-visible .icon {
         box-shadow: var(--focus-ring);
     }
-
-    &[data-dropped="true"] {
-        animation-name: pulse;
-        animation-duration: 500ms;
-        animation-fill-mode: forwards;
-        animation-timing-function: ease-in-out;
-    }
 }
 
 @keyframes pulse {
@@ -50,9 +43,10 @@
     backdrop-filter: blur(48px);
     background: var(--ntp-surface-background-color);
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12), 0px 0px 3px 0px rgba(0, 0, 0, 0.16);
+    transition: transform .2s;
 
     &:hover {
-        background-color: var(--color-white-at-18);
+        transform: scale(1.05)
     }
 
     [data-theme="dark"] & {
@@ -81,16 +75,25 @@
 
     &:active {
         transform: scale(0.95);
+        opacity: .75;
     }
 }
 
 .favicon {
     display: block;
-    max-height: calc(32 * var(--px-in-rem));
-    max-width: calc(32 * var(--px-in-rem));
     background-repeat: no-repeat;
     background-size: contain;
     pointer-events: none;
+}
+
+.faviconLarge {
+    max-height: calc(32 * var(--px-in-rem));
+    max-width: calc(32 * var(--px-in-rem));
+}
+
+.faviconSmall {
+    max-height: calc(24 * var(--px-in-rem));
+    max-width: calc(24 * var(--px-in-rem));
 }
 
 .faviconText {
@@ -108,6 +111,13 @@
     span:first-child {
         text-transform: uppercase;
     }
+
+    &.faviconSmall {
+        font-size: 0.8rem;
+        border-radius: var(--border-radius-xs);
+        height: calc(24 * var(--px-in-rem));
+        width: calc(24 * var(--px-in-rem));
+    }
 }
 
 .text {
@@ -118,6 +128,7 @@
     font-weight: 400;
     overflow: hidden;
     text-overflow: ellipsis;
+    overflow-wrap: anywhere;
     line-clamp: 2;
     -webkit-line-clamp: 2;
     display: -webkit-box;

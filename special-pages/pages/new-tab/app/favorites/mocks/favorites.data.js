@@ -9,9 +9,9 @@
  *    many: {favorites: Favorite[]};
  *    single: {favorites: Favorite[]};
  *    none: {favorites: Favorite[]};
- *    two: {favorites: Favorite[]};
  *    "small-icon": {favorites: Favorite[]};
  *    "fallbacks": {favorites: Favorite[]};
+ *    "titles": {favorites: Favorite[]};
  * }}
  */
 export const favorites = {
@@ -37,14 +37,6 @@ export const favorites = {
             { id: 'id-many-15', etldPlusOne: "example.com", url: 'https://example.com?id=id-many-14', title: 'yeti', favicon: null }
         ],
     },
-    two: {
-        // prettier-ignore
-        /** @type {Favorite[]} */
-        favorites: [
-            { id: 'id-two-1', etldPlusOne: "example.com", url: 'https://example.com?id=id-two-1', title: 'Amazon', favicon: { src: './company-icons/amazon.svg', maxAvailableSize: 32 } },
-            { id: 'id-two-2', etldPlusOne: "example.com", url: 'https://example.com?id=id-two-2', title: 'Adform', favicon: { src: './company-icons/adform.svg', maxAvailableSize: 32 } }
-        ],
-    },
     single: {
         /** @type {Favorite[]} */
         favorites: [
@@ -60,6 +52,18 @@ export const favorites = {
     none: {
         /** @type {Favorite[]} */
         favorites: [],
+    },
+    titles: {
+        /** @type {Favorite[]} */
+        favorites: [
+            {
+                id: 'id-titles-1',
+                url: 'https://duckduckgo.com',
+                etldPlusOne: 'google.com',
+                title: 'accounts.google.com',
+                favicon: null,
+            },
+        ],
     },
     'small-icon': {
         /** @type {Favorite[]} */
@@ -243,7 +247,7 @@ export function gen(count = 1000) {
     ];
     return {
         favorites: Array.from({ length: max }).map((_, index) => {
-            const randomFavicon = icons[Math.floor(Math.random() * icons.length)];
+            const randomFavicon = icons[index];
             const joined = `./company-icons/${randomFavicon}`;
             const alpha = 'abcdefghijklmnopqrstuvwxyz';
 
