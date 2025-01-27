@@ -42,8 +42,9 @@ export const FavoritesThemeContext = createContext({
  * @param {(id: string) => void} props.openContextMenu
  * @param {(id: string, url: string, target: OpenTarget) => void} props.openFavorite
  * @param {() => void} props.add
+ * @param {boolean} props.canAnimateItems
  */
-export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add }) {
+export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add, canAnimateItems }) {
     const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
     const platformName = usePlatformName();
 
@@ -62,8 +63,8 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     // because in webkit applying 'view-transition' css properties causes an odd experience
     // with filters.
     const animateItems = useComputed(() => {
-        if (platformName === 'windows' && animateItems) return true;
-        if (platformName === 'macos' && animateItems && kind.value !== 'userImage') return true;
+        if (platformName === 'windows' && canAnimateItems) return true;
+        if (platformName === 'macos' && canAnimateItems && kind.value !== 'userImage') return true;
         return false;
     });
 

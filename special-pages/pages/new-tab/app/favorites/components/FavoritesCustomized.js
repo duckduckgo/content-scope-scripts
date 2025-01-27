@@ -52,6 +52,7 @@ export function FavoritesConsumer() {
                 <FavoritesMemo
                     favorites={state.data.favorites}
                     expansion={state.config.expansion}
+                    canAnimateItems={state.config?.animation?.kind === 'view-transitions'}
                     openContextMenu={openContextMenu}
                     openFavorite={openFavorite}
                     add={add}
