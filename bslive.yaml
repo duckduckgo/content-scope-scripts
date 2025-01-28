@@ -1,0 +1,9 @@
+servers:
+  - bind_address: 0.0.0.0:3000
+    routes:
+      - path: /
+        dir: Sources/ContentScopeScripts/dist/pages/new-tab
+        cors: true
+      - path: /windows
+        dir: build/windows/pages/new-tab
+        cors: true
