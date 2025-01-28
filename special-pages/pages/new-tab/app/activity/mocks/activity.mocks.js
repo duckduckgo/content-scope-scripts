@@ -3,6 +3,27 @@
  * @type {Record<string, ActivityData>}
  */
 export const activityMocks = {
+    empty: {
+        activity: [],
+    },
+    onlyTopLevel: {
+        activity: [
+            {
+                favicon: { src: 'selco-icon.png' },
+                url: 'https://example.com',
+                title: 'example.com',
+                etldPlusOne: 'example.com',
+                favorite: false,
+                fireproof: false,
+                trackersFound: false,
+                trackingStatus: {
+                    trackerCompanies: [],
+                    totalCount: 0,
+                },
+                history: [],
+            },
+        ],
+    },
     few: {
         activity: [
             {

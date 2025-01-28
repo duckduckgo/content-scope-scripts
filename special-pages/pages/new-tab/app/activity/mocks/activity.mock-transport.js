@@ -1,20 +1,27 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
 import { activityMocks } from './activity.mocks.js';
 
-const url = new URL(window.location.href);
+const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
 export function activityMockTransport() {
-    console.log('will mock', url);
+    /** @type {import('../../../types/new-tab.ts').ActivityData} */
+    let dataset = structuredClone(activityMocks.few);
+
+    if (url.searchParams.has('activity')) {
+        const key = url.searchParams.get('activity');
+        if (key && key in activityMocks) {
+            console.log('setting dataset to', key, activityMocks[key]);
+            dataset = structuredClone(activityMocks[key]);
+        }
+    }
+
     return new TestTransportConfig({
         notify(_msg) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
-                case 'customizer_setTheme': {
-                    return;
-                }
                 default: {
-                    console.warn('unhandled customizer notification', msg);
+                    console.warn('unhandled notification', msg);
                 }
             }
         },
@@ -24,10 +31,9 @@ export function activityMockTransport() {
             console.warn('unhandled sub', sub);
             if (sub === 'activity_onDataUpdate' && url.searchParams.has('flood')) {
                 let count = 0;
-                const next = structuredClone(activityMocks.few);
                 const int = setInterval(() => {
                     if (count === 10) return clearInterval(int);
-                    next.activity.push({
+                    dataset.activity.push({
                         url: `https://${count}.example.com`,
                         etldPlusOne: 'example.com',
                         favicon: null,
@@ -39,16 +45,15 @@ export function activityMockTransport() {
                         title: 'example.com',
                     });
                     count += 1;
-                    cb(next);
+                    cb(dataset);
                 }, 100);
                 return () => {};
             }
             if (sub === 'activity_onDataUpdate' && url.searchParams.has('nested')) {
                 let count = 0;
-                const next = structuredClone(activityMocks.few);
                 const int = setInterval(() => {
                     if (count === 10) return clearInterval(int);
-                    next.activity[1].history.push({
+                    dataset.activity[1].history.push({
                         url: `https://${count}.example.com`,
                         title: 'example.com',
                         relativeTime: 'just now',
@@ -61,7 +66,7 @@ export function activityMockTransport() {
                     // });
                     // next.activity[0].trackingStatus.totalCount += 1;
                     count += 1;
-                    cb(next);
+                    cb(dataset);
                 }, 500);
                 return () => {};
             }
@@ -73,12 +78,33 @@ export function activityMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'activity_confirmBurn': {
+                    const url = msg.params.url;
                     /** @type {import('../../../types/new-tab.ts').ConfirmBurnResponse} */
-                    const response = { action: 'burn' };
+                    let response = { action: 'none' };
+
+                    /**
+                     * When not in automated tests, use a confirmation window to mimic the native modal
+                     */
+                    if (!window.__playwright_01) {
+                        const fireproof = dataset.activity.find((x) => x.url === url)?.fireproof ?? false;
+                        if (fireproof && confirm('are you sure?')) {
+                            response = { action: 'burn' };
+                        }
+                    }
                     return Promise.resolve(response);
                 }
                 case 'activity_getData':
-                    return Promise.resolve({ activity: activityMocks.few.activity });
+                    // return fetch('/200-items.json')
+                    //     .then((x) => x.json())
+                    //     .then((x) => {
+                    //         const next = {
+                    //             activity: x.activity.slice(0, 100),
+                    //         };
+                    //         dataset = next;
+                    //         return next;
+                    //     })
+                    //     .then((x) => x);
+                    return Promise.resolve(dataset);
                 case 'activity_getConfig': {
                     /** @type {import('../../../types/new-tab.ts').ActivityConfig} */
                     const config = {

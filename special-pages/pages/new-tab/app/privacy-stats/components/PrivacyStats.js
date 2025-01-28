@@ -119,7 +119,7 @@ export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = 
             </span>
             {none && <h2 className={styles.title}>{t('stats_noRecent')}</h2>}
             {some && <h2 className={styles.title}>{alltimeTitle}</h2>}
-            {recent > 0 && canExpand && (
+            {canExpand && (
                 <span className={styles.widgetExpander}>
                     <ShowHideButton
                         buttonAttrs={{
