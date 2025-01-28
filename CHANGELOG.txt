@@ -1,1 +1,1 @@
-- ntp: favorites ship review (#1432)
+- enable messageBridge on Android + tests (#1395)

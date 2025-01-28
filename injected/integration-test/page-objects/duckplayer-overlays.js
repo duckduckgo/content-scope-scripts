@@ -80,6 +80,11 @@ export class DuckplayerOverlays {
             },
             sendDuckPlayerPixel: {},
         });
+        this.collector.withUserPreferences({
+            messageSecret: 'ABC',
+            javascriptInterface: 'javascriptInterface',
+            messageCallback: 'messageCallback',
+        });
         page.on('console', (msg) => {
             console.log(msg.type(), msg.text());
         });
