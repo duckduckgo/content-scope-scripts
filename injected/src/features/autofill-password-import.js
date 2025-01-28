@@ -51,8 +51,8 @@ export default class AutofillPasswordImport extends ContentFeature {
 
     #domLoaded;
 
-    /** @type {Set<string>} */
-    #animatedPaths = new Set();
+    /** @type {Set<Element>} */
+    #tappedElements = new Set();
 
     /**
      * @returns {ButtonAnimationStyle}
@@ -183,6 +183,9 @@ export default class AutofillPasswordImport extends ContentFeature {
             this.currentOverlay.remove();
             this.currentOverlay = null;
             document.removeEventListener('scroll', this);
+            if (this.currentElementConfig?.element) {
+                this.#tappedElements.delete(this.currentElementConfig?.element);
+            }
         }
     }
 
@@ -405,10 +408,10 @@ export default class AutofillPasswordImport extends ContentFeature {
         if (this.isSupportedPath(path)) {
             try {
                 this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
-                if (!this.#animatedPaths.has(path)) {
+                if (this.currentElementConfig?.element && !this.#tappedElements.has(this.currentElementConfig?.element)) {
                     await this.animateOrTapElement();
                     if (this.currentElementConfig?.shouldTap && this.currentElementConfig?.tapOnce) {
-                        this.#animatedPaths.add(path);
+                        this.#tappedElements.add(this.currentElementConfig.element);
                     }
                 }
             } catch {
