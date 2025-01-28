@@ -51,10 +51,6 @@ export const favoritesExamples = {
                     <FavoritesConsumer />
                 </MockFavoritesProvider>
                 <br />
-                <MockFavoritesProvider data={favorites.two}>
-                    <FavoritesConsumer />
-                </MockFavoritesProvider>
-                <br />
                 <MockFavoritesProvider data={favorites.single}>
                     <FavoritesConsumer />
                 </MockFavoritesProvider>

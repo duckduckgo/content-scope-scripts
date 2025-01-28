@@ -16,6 +16,13 @@ test.describe('newtab favorites', () => {
         expect(calls2.length).toBe(1);
         expect(calls3.length).toBe(1);
     });
+    test('receiving an update', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const favorites = new FavoritesPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ favorites: 5 });
+        await favorites.favoriteWasRemoved(5, 4);
+    });
     test('Toggles expansion', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const favorites = new FavoritesPage(ntp);

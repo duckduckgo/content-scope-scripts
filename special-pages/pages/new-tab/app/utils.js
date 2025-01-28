@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'preact/hooks';
+
 /**
  * Use this to verify the result of updating some local state.
  *
@@ -57,4 +59,39 @@ export function noop(named) {
     return () => {
         console.log(named, 'noop');
     };
+}
+
+/**
+ * @param {MouseEvent} event
+ * @param {ImportMeta['platform']} platformName
+ * @return {import("../types/new-tab").OpenTarget}
+ */
+export function eventToTarget(event, platformName) {
+    const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
+    if (isControlClick) {
+        return 'new-tab';
+    } else if (event.shiftKey) {
+        return 'new-window';
+    }
+    return 'same-tab';
+}
+
+export function useDocumentVisibility() {
+    /** @type {Document['visibilityState']} */
+    const initial = document.visibilityState;
+    const [documentVisibility, setDocumentVisibility] = useState(/** @type {Document['visibilityState']} */ (initial));
+
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            setDocumentVisibility(document.visibilityState);
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
+
+    return documentVisibility;
 }
