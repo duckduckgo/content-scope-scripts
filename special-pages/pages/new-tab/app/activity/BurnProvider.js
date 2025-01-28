@@ -4,7 +4,6 @@ import { ActivityApiContext, ActivityServiceContext } from './ActivityProvider';
 import { ACTION_BURN } from './constants.js';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { batch, signal, useSignal, useSignalEffect } from '@preact/signals';
-import { useMessaging } from '../types.js';
 
 export const ActivityBurningSignalContext = createContext({
     /** @type {import("@preact/signals").Signal<string[]>} */
@@ -32,28 +31,20 @@ export function BurnProvider({ children }) {
         e.stopImmediatePropagation();
 
         const value = button.value;
-        const fireproof = button.dataset.fireproof === 'true';
-        function doBurn() {
-            if (isReducedMotion) {
-                service?.burn(value);
-            } else {
-                burning.value = burning.value.concat(value);
-            }
-        }
-        if (fireproof) {
-            service
-                ?.confirmBurn(value)
-                // eslint-disable-next-line promise/prefer-await-to-then
-                .then((response) => {
-                    if (response.action === 'burn') {
-                        doBurn();
+        service
+            ?.confirmBurn(value)
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .then((response) => {
+                if (response.action === 'burn') {
+                    if (isReducedMotion) {
+                        service.burnAnimationComplete(e.detail.url);
+                    } else {
+                        burning.value = burning.value.concat(value);
                     }
-                })
-                // eslint-disable-next-line promise/prefer-await-to-then
-                .catch((e) => console.error(e));
-        } else {
-            doBurn();
-        }
+                }
+            })
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .catch((e) => console.error(e));
     }
 
     useSignalEffect(() => {
@@ -77,7 +68,7 @@ export function BurnProvider({ children }) {
             if (!e.detail.url) return console.warn('missing detail.url on the custom event');
 
             exiting.value = exiting.value.filter((x) => x !== e.detail.url);
-            service.burn(e.detail.url);
+            service.burnAnimationComplete(e.detail.url);
         };
         window.addEventListener('done-exiting', handler);
         return () => {

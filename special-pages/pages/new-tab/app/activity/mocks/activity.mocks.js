@@ -14,7 +14,6 @@ export const activityMocks = {
                 title: 'example.com',
                 etldPlusOne: 'example.com',
                 favorite: false,
-                fireproof: false,
                 trackersFound: false,
                 trackingStatus: {
                     trackerCompanies: [],
@@ -32,7 +31,6 @@ export const activityMocks = {
                 title: 'example.com',
                 etldPlusOne: 'example.com',
                 favorite: false,
-                fireproof: false,
                 trackersFound: true,
                 trackingStatus: {
                     trackerCompanies: [{ displayName: 'Google' }, { displayName: 'Facebook' }, { displayName: 'Amazon' }],
@@ -63,11 +61,10 @@ export const activityMocks = {
             },
             {
                 favicon: { src: 'youtube-icon.png' },
-                url: 'https://www.youtube.com',
+                url: 'https://fireproof.youtube.com',
                 title: 'youtube.com',
                 etldPlusOne: 'youtube.com',
                 favorite: true,
-                fireproof: true,
                 trackersFound: true,
                 trackingStatus: {
                     trackerCompanies: [
@@ -92,7 +89,6 @@ export const activityMocks = {
                 title: 'amazon.com',
                 etldPlusOne: 'amazon.com',
                 favorite: false,
-                fireproof: false,
                 trackersFound: true,
                 trackingStatus: {
                     trackerCompanies: [{ displayName: 'Adobe Analytics' }, { displayName: 'Facebook' }],
@@ -112,7 +108,6 @@ export const activityMocks = {
                 title: 'twitter.com',
                 etldPlusOne: 'twitter.com',
                 favorite: false,
-                fireproof: false,
                 trackersFound: true,
                 trackingStatus: {
                     trackerCompanies: [],
@@ -132,7 +127,6 @@ export const activityMocks = {
                 title: 'app.linkedin.com',
                 etldPlusOne: 'linkedin.com',
                 favorite: false,
-                fireproof: false,
                 trackersFound: false,
                 trackingStatus: {
                     trackerCompanies: [],

@@ -91,7 +91,7 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
 export interface NewTabMessages {
   notifications:
     | ActivityAddFavoriteNotification
-    | ActivityBurnNotification
+    | ActivityBurnAnimationCompleteNotification
     | ActivityOpenNotification
     | ActivityRemoveFavoriteNotification
     | ActivityRemoveItemNotification
@@ -170,17 +170,10 @@ export interface ActivityAddFavoriteNotify {
   url: string;
 }
 /**
- * Generated from @see "../messages/activity_burn.notify.json"
+ * Generated from @see "../messages/activity_burnAnimationComplete.notify.json"
  */
-export interface ActivityBurnNotification {
-  method: "activity_burn";
-  params: ActivityBurnNotify;
-}
-export interface ActivityBurnNotify {
-  /**
-   * The History Entry url to be burned
-   */
-  url: string;
+export interface ActivityBurnAnimationCompleteNotification {
+  method: "activity_burnAnimationComplete";
 }
 /**
  * Generated from @see "../messages/activity_open.notify.json"
@@ -632,7 +625,6 @@ export interface DomainActivity {
   trackersFound: boolean;
   history: HistoryEntry[];
   favorite: boolean;
-  fireproof: boolean;
 }
 export interface TrackingStatus {
   trackerCompanies: {

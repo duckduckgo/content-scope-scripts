@@ -39,7 +39,6 @@ export function activityMockTransport() {
                         favicon: null,
                         history: [],
                         favorite: false,
-                        fireproof: false,
                         trackersFound: false,
                         trackingStatus: { trackerCompanies: [], totalCount: 0 },
                         title: 'example.com',
@@ -86,7 +85,7 @@ export function activityMockTransport() {
                      * When not in automated tests, use a confirmation window to mimic the native modal
                      */
                     if (!window.__playwright_01) {
-                        const fireproof = dataset.activity.find((x) => x.url === url)?.fireproof ?? false;
+                        const fireproof = url.startsWith('https://fireproof.');
                         if (fireproof) {
                             if (!confirm('are you sure?')) {
                                 response = { action: 'none' };
