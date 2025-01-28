@@ -59,6 +59,7 @@ export class Mocks {
                     messagingContext: this.messagingContext,
                     responses: this._defaultResponses,
                     messageCallback: 'messageCallback',
+                    javascriptInterface: this.messagingContext.context,
                 });
             },
             integration: async () => {
