@@ -973,12 +973,6 @@ body[data-animate-background=true] {
 .Tile_item:focus-visible .Tile_icon {
   box-shadow: var(--focus-ring);
 }
-.Tile_item[data-dropped=true] {
-  animation-name: Tile_pulse;
-  animation-duration: 500ms;
-  animation-fill-mode: forwards;
-  animation-timing-function: ease-in-out;
-}
 @keyframes Tile_pulse {
   0% {
     scale: 1;
@@ -1011,9 +1005,10 @@ body[data-animate-background=true] {
   backdrop-filter: blur(48px);
   background: var(--ntp-surface-background-color);
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12), 0px 0px 3px 0px rgba(0, 0, 0, 0.16);
+  transition: transform .2s;
 }
 .Tile_draggable:hover {
-  background-color: var(--color-white-at-18);
+  transform: scale(1.08);
 }
 [data-theme=dark] .Tile_draggable:hover {
   background: rgba(0, 0, 0, 0.24);
@@ -1034,14 +1029,21 @@ body[data-animate-background=true] {
 }
 .Tile_draggable:active {
   transform: scale(0.95);
+  opacity: .75;
 }
 .Tile_favicon {
   display: block;
-  max-height: calc(32 * var(--px-in-rem));
-  max-width: calc(32 * var(--px-in-rem));
   background-repeat: no-repeat;
   background-size: contain;
   pointer-events: none;
+}
+.Tile_faviconLarge {
+  max-height: calc(32 * var(--px-in-rem));
+  max-width: calc(32 * var(--px-in-rem));
+}
+.Tile_faviconSmall {
+  max-height: calc(24 * var(--px-in-rem));
+  max-width: calc(24 * var(--px-in-rem));
 }
 .Tile_faviconText {
   display: flex;
@@ -1058,6 +1060,12 @@ body[data-animate-background=true] {
 .Tile_faviconText span:first-child {
   text-transform: uppercase;
 }
+.Tile_faviconText.Tile_faviconSmall {
+  font-size: 0.8rem;
+  border-radius: var(--border-radius-xs);
+  height: calc(24 * var(--px-in-rem));
+  width: calc(24 * var(--px-in-rem));
+}
 .Tile_text {
   width: var(--icon-width);
   text-align: center;
@@ -1066,6 +1074,7 @@ body[data-animate-background=true] {
   font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
+  overflow-wrap: anywhere;
   line-clamp: 2;
   -webkit-line-clamp: 2;
   display: -webkit-box;

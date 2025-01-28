@@ -25,7 +25,7 @@ const InstanceIdContext = createContext(getInstanceId());
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  * @param {T[]} props.items
- * @param {import('./FavoritesProvider.js').ReorderFn<{id: string; url: string}>} props.itemsDidReOrder
+ * @param {(args: {id: string; list: T[], fromIndex: number, targetIndex: number}) => void} props.itemsDidReOrder
  */
 export function PragmaticDND({ children, items, itemsDidReOrder }) {
     /**
@@ -44,7 +44,7 @@ export function PragmaticDND({ children, items, itemsDidReOrder }) {
 /**
  * @template {{id: string; url: string}} T
  * @param {T[]} favorites
- * @param {import('./FavoritesProvider.js').ReorderFn<{id: string; url: string}>} itemsDidReOrder
+ * @param {(args: {id: string; list: T[], fromIndex: number, targetIndex: number}) => void} itemsDidReOrder
  * @param {symbol} instanceId
  */
 function useGridState(favorites, itemsDidReOrder, instanceId) {
@@ -133,13 +133,6 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                         axis: 'horizontal',
                     });
 
-                    // mark an element as dropped globally.
-                    // todo: not happy with this, but it's working for launch.
-                    document.documentElement.dataset.dropped = String(startId);
-                    setTimeout(() => {
-                        document.documentElement.dataset.dropped = '';
-                    }, 0);
-
                     itemsDidReOrder({
                         list: reorderedList,
                         id: startId,
@@ -162,7 +155,7 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
 /**
  * @param {string} url
  * @param {string} id
- * @param {{kind: "draggable"; onPreview: (div: HTMLDivElement) => void} | {kind: "target"}} opts
+ * @param {{kind: "draggable" | "target"; class?: string; theme?: string}} opts
  * @return {{ ref: import("preact").RefObject<any>; state: DNDState }}
  */
 export function useItemState(url, id, opts) {
@@ -192,7 +185,8 @@ export function useItemState(url, id, opts) {
                         render: ({ container }) => {
                             const clone = /** @type {HTMLElement} */ (source.element.cloneNode(true));
                             const outer = document.createElement('div');
-                            opts.onPreview(outer);
+                            outer.classList.add(opts.class ?? '');
+                            outer.dataset.theme = opts.theme;
                             outer.appendChild(clone);
                             container.appendChild(outer);
                             return () => {
@@ -273,7 +267,7 @@ export function useItemState(url, id, opts) {
                 onDrop: () => setState({ type: 'idle' }),
             }),
         );
-    }, [instanceId, url, id]);
+    }, [instanceId, url, id, opts.kind, opts.class, opts.theme]);
 
     return { ref, state };
 }

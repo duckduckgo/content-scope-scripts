@@ -1,1 +1,1 @@
-- pass message value to  so it applies for priviledged domains (#1425)
+- ntp: favorites ship review (#1432)

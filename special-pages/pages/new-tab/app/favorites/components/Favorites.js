@@ -11,7 +11,8 @@ import { useDropzoneSafeArea } from '../../dropzone.js';
 import { TileRow } from './TileRow.js';
 import { FavoritesContext } from './FavoritesProvider.js';
 import { CustomizerContext, CustomizerThemesContext } from '../../customizer/CustomizerProvider.js';
-import { useComputed } from '@preact/signals';
+import { signal, useComputed } from '@preact/signals';
+import { eventToTarget, useDocumentVisibility } from '../../utils.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
@@ -25,7 +26,10 @@ export const ROW_CAPACITY = 6;
  */
 const ITEM_HEIGHT = 96;
 const ROW_GAP = 8;
-export const FavoritesThemeContext = createContext(/** @type {"light"|"dark"} */ ('light'));
+export const FavoritesThemeContext = createContext({
+    theme: /** @type {"light"|"dark"} */ ('light'),
+    animateItems: signal(false),
+});
 
 /**
  * Favorites Grid.
@@ -38,9 +42,11 @@ export const FavoritesThemeContext = createContext(/** @type {"light"|"dark"} */
  * @param {(id: string) => void} props.openContextMenu
  * @param {(id: string, url: string, target: OpenTarget) => void} props.openFavorite
  * @param {() => void} props.add
+ * @param {boolean} props.canAnimateItems
  */
-export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add }) {
+export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add, canAnimateItems }) {
     const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
+    const platformName = usePlatformName();
 
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId();
@@ -53,8 +59,17 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     const { main } = useContext(CustomizerThemesContext);
     const kind = useComputed(() => data.value.background.kind);
 
+    // A flag to determine if animations are available. This is needed
+    // because in webkit applying 'view-transition' css properties causes an odd experience
+    // with filters.
+    const animateItems = useComputed(() => {
+        if (platformName === 'windows' && canAnimateItems) return true;
+        if (platformName === 'macos' && canAnimateItems && kind.value !== 'userImage') return true;
+        return false;
+    });
+
     return (
-        <FavoritesThemeContext.Provider value={main.value}>
+        <FavoritesThemeContext.Provider value={{ theme: main.value, animateItems }}>
             <div
                 class={cn(styles.root, !canToggleExpansion && styles.noExpansionBtn)}
                 data-testid="FavoritesConfigured"
@@ -173,6 +188,7 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
     const { onConfigChanged, state } = useContext(FavoritesContext);
     const [expansion, setExpansion] = useState(state.config?.expansion || 'collapsed');
     const documentVisibility = useDocumentVisibility();
+    const { start, end } = useVisibleRows(rows, rowHeight, safeAreaRef);
 
     // force the children to be rendered after the main thread is cleared
     useEffect(() => {
@@ -188,96 +204,6 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
         });
     }, [onConfigChanged]);
 
-    // set the start/end indexes of the elements
-    const [{ start, end }, setVisibleRange] = useState({ start: 0, end: 1 });
-
-    // hold a mutable value that we update on resize
-    const gridOffset = useRef(0);
-
-    useLayoutEffect(() => {
-        const mainScroller = document.querySelector('[data-main-scroller]') || document.documentElement;
-        const contentTube = document.querySelector('[data-content-tube]') || document.body;
-        if (!mainScroller) return console.warn('cannot find scrolling element');
-        if (!contentTube) return console.warn('cannot find content tube');
-
-        /**
-         * When called, make the expensive call to `getBoundingClientRect` to determine the offset of
-         * the grid wrapper.
-         * @param {number} scrollY
-         */
-        function updateGlobals(scrollY) {
-            if (!safeAreaRef.current) return;
-            const rec = safeAreaRef.current.getBoundingClientRect();
-            gridOffset.current = rec.y + scrollY;
-        }
-
-        /**
-         * decide which the start/end indexes should be, based on scroll position.
-         * NOTE: this is called on scroll, so must not incur expensive checks/measurements - math only!
-         * @param {number} scrollY
-         */
-        function setVisibleRowsForOffset(scrollY) {
-            if (!safeAreaRef.current) return console.warn('cannot access ref');
-            if (!gridOffset.current) return console.warn('cannot access ref');
-            const offset = gridOffset.current;
-            const end = scrollY + window.innerHeight - offset;
-            let start;
-            if (offset > scrollY) {
-                start = 0;
-            } else {
-                start = scrollY - offset;
-            }
-            const startIndex = Math.floor(start / rowHeight);
-            const endIndex = Math.min(Math.ceil(end / rowHeight), rows.length);
-            setVisibleRange({ start: startIndex, end: endIndex });
-        }
-
-        // always update globals first
-        updateGlobals(mainScroller.scrollTop);
-
-        // and set visible rows once the size is known
-        setVisibleRowsForOffset(mainScroller.scrollTop);
-
-        const controller = new AbortController();
-
-        window.addEventListener(
-            'resize',
-            () => {
-                updateGlobals(mainScroller.scrollTop);
-                setVisibleRowsForOffset(mainScroller.scrollTop);
-            },
-            { signal: controller.signal },
-        );
-
-        let lastHeight;
-        const resizer = new ResizeObserver((entries) => {
-            const first = entries[0];
-            if (!first) return;
-            if (first.contentRect.height !== lastHeight) {
-                lastHeight = first.contentRect.height;
-                requestAnimationFrame(() => {
-                    updateGlobals(mainScroller.scrollTop);
-                    setVisibleRowsForOffset(mainScroller.scrollTop);
-                });
-            }
-        });
-        resizer.observe(contentTube);
-
-        // when the main area is scrolled, update the visible offset for the rows.
-        mainScroller.addEventListener(
-            'scroll',
-            () => {
-                setVisibleRowsForOffset(mainScroller.scrollTop);
-            },
-            { signal: controller.signal },
-        );
-
-        return () => {
-            controller.abort();
-            resizer.disconnect();
-        };
-    }, [rows.length]);
-
     // now, we decide which items to show based on the widget expansion
     // prettier-ignore
     const subsetOfRowsToRender = expansion === 'collapsed'
@@ -287,42 +213,125 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
         // the '+ 1' is an additional row to render offscreen - which helps with keyboard navigation.
         : rows.slice(start, end + 1);
 
-    // read a global property on <html> to determine if an element was recently dropped.
-    // this is used for animation (the pulse) - it's easier this way because the act of dropping
-    // a tile can cause it to render inside a different row, meaning the `key` is invalidated and so the dom-node is recreated
-    const dropped = document.documentElement.dataset.dropped;
-
     return (
         <Fragment>
             {subsetOfRowsToRender.map((items, rowIndex) => {
                 const topOffset = expansion === 'expanded' ? (start + rowIndex) * rowHeight : 0;
                 const keyed = `-${start + rowIndex}-`;
-                return (
-                    <TileRow key={keyed} dropped={dropped} items={items} topOffset={topOffset} add={add} visibility={documentVisibility} />
-                );
+                return <TileRow key={keyed} items={items} topOffset={topOffset} add={add} visibility={documentVisibility} />;
             })}
         </Fragment>
     );
 }
 
-function useDocumentVisibility() {
-    /** @type {Document['visibilityState']} */
-    const initial = document.visibilityState;
-    const [documentVisibility, setDocumentVisibility] = useState(/** @type {Document['visibilityState']} */ (initial));
+/**
+ * Calculates and provides the start and end indices of visible rows within a given container
+ * based on the specified row height and scroll position. The function is optimized for
+ * performance and is designed to work with dynamic resizing and scrolling of the container.
+ *
+ * @param {Array} rows - The array of rows to be virtually rendered. Each row represents an item in the list.
+ * @param {number} rowHeight - The fixed height of each row in pixels.
+ * @param {Object} safeAreaRef - A React ref object pointing to the DOM element that serves as the virtualized list’s container.
+ * @return {Object} An object containing the calculated `start` and `end` indices of the visible rows.
+ */
+function useVisibleRows(rows, rowHeight, safeAreaRef) {
+    // set the start/end indexes of the elements
+    const [{ start, end }, setVisibleRange] = useState({ start: 0, end: 1 });
 
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            setDocumentVisibility(document.visibilityState);
-        };
+    // hold a mutable value that we update on resize
+    const gridOffsetRef = useRef(0);
+    const mainScrollerRef = useRef(/** @type {Element|null} */ (null));
+    const contentTubeRef = useRef(/** @type {Element|null} */ (null));
+    /**
+     * When called, make the expensive call to `getBoundingClientRect` to determine the offset of
+     * the grid wrapper.
+     */
+    function updateGlobals() {
+        if (!safeAreaRef.current) return;
+        const rec = safeAreaRef.current.getBoundingClientRect();
+        gridOffsetRef.current = rec.y + mainScrollerRef.current?.scrollTop;
+    }
 
-        document.addEventListener('visibilitychange', handleVisibilityChange);
+    /**
+     * decide which the start/end indexes should be, based on scroll position.
+     * NOTE: this is called on scroll, so must not incur expensive checks/measurements - math only!
+     */
+    function setVisibleRowsForOffset() {
+        if (!safeAreaRef.current) return console.warn('cannot access ref');
+        const scrollY = mainScrollerRef.current?.scrollTop ?? 0;
+        const offset = gridOffsetRef.current;
+        const end = scrollY + window.innerHeight - offset;
+        let start;
+        if (offset > scrollY) {
+            start = 0;
+        } else {
+            start = scrollY - offset;
+        }
+        const startIndex = Math.floor(start / rowHeight);
+        const endIndex = Math.min(Math.ceil(end / rowHeight), rows.length);
+        setVisibleRange({ start: startIndex, end: endIndex });
+    }
+
+    useLayoutEffect(() => {
+        mainScrollerRef.current = document.querySelector('[data-main-scroller]') || document.documentElement;
+        contentTubeRef.current = document.querySelector('[data-content-tube]') || document.body;
+        if (!contentTubeRef.current || !mainScrollerRef.current) console.warn('missing elements');
+
+        // always update globals first
+        updateGlobals();
+
+        // and set visible rows once the size is known
+        setVisibleRowsForOffset();
+
+        const controller = new AbortController();
+
+        // when the main area is scrolled, update the visible offset for the rows.
+        mainScrollerRef.current?.addEventListener('scroll', setVisibleRowsForOffset, { signal: controller.signal });
 
         return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            controller.abort();
+        };
+    }, [rows.length]);
+
+    useEffect(() => {
+        let lastWindowHeight = window.innerHeight;
+        function handler() {
+            if (lastWindowHeight === window.innerHeight) return;
+            lastWindowHeight = window.innerHeight;
+            updateGlobals();
+            setVisibleRowsForOffset();
+        }
+        window.addEventListener('resize', handler);
+        return () => {
+            return window.removeEventListener('resize', handler);
         };
     }, []);
 
-    return documentVisibility;
+    useEffect(() => {
+        if (!contentTubeRef.current) return console.warn('cannot find content tube');
+        let lastHeight;
+        let debounceTimer;
+        const resizer = new ResizeObserver((entries) => {
+            const first = entries[0];
+            if (!first || !first.contentRect) return;
+            if (first.contentRect.height !== lastHeight) {
+                lastHeight = first.contentRect.height;
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    updateGlobals();
+                    setVisibleRowsForOffset();
+                }, 50);
+            }
+        });
+
+        resizer.observe(contentTubeRef.current);
+        return () => {
+            resizer.disconnect();
+            clearTimeout(debounceTimer);
+        };
+    }, []);
+
+    return { start, end };
 }
 
 /**
@@ -360,21 +369,14 @@ function getOnClickHandler(openFavorite, platformName) {
      * @param {MouseEvent} event
      */
     return (event) => {
-        let target = /** @type {HTMLElement|null} */ (event.target);
-        while (target && target !== event.currentTarget) {
-            if (typeof target.dataset.id === 'string' && 'href' in target && typeof target.href === 'string') {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
-                if (isControlClick) {
-                    return openFavorite(target.dataset.id, target.href, 'new-tab');
-                } else if (event.shiftKey) {
-                    return openFavorite(target.dataset.id, target.href, 'new-window');
-                }
-                return openFavorite(target.dataset.id, target.href, 'same-tab');
-            } else {
-                target = target.parentElement;
-            }
+        const target = /** @type {HTMLElement|null} */ (event.target);
+        if (!target) return;
+        const anchor = /** @type {HTMLAnchorElement|null} */ (target.closest('a[href][data-id]'));
+        if (anchor && anchor.dataset.id) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            const openTarget = eventToTarget(event, platformName);
+            return openFavorite(anchor.dataset.id, anchor.href, openTarget);
         }
     };
 }

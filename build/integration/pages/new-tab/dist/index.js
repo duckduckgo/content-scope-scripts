@@ -5358,10 +5358,6 @@
               closestEdgeOfTarget,
               axis: "horizontal"
             });
-            document.documentElement.dataset.dropped = String(startId);
-            setTimeout(() => {
-              document.documentElement.dataset.dropped = "";
-            }, 0);
             itemsDidReOrder({
               list: reorderedList,
               id: startId,
@@ -5404,7 +5400,8 @@
                   source.element.cloneNode(true)
                 );
                 const outer = document.createElement("div");
-                opts.onPreview(outer);
+                outer.classList.add(opts.class ?? "");
+                outer.dataset.theme = opts.theme;
                 outer.appendChild(clone);
                 container.appendChild(outer);
                 return () => {
@@ -5480,7 +5477,7 @@
           onDrop: () => setState({ type: "idle" })
         })
       );
-    }, [instanceId, url4, id]);
+    }, [instanceId, url4, id, opts.kind, opts.class, opts.theme]);
     return { ref, state };
   }
   function getInstanceId() {
@@ -5665,6 +5662,8 @@
         preview: "Tile_preview",
         draggable: "Tile_draggable",
         favicon: "Tile_favicon",
+        faviconLarge: "Tile_faviconLarge",
+        faviconSmall: "Tile_faviconSmall",
         faviconText: "Tile_faviconText",
         text: "Tile_text",
         placeholder: "Tile_placeholder",
@@ -5722,44 +5721,10 @@
     }
   });
 
-  // pages/new-tab/app/favorites/components/Tile.js
-  function Tile_({ url: url4, etldPlusOne, faviconSrc, faviconMax, index, title, id, dropped, visibility, theme }) {
-    const { state, ref } = useItemState(url4, id, {
-      kind: "draggable",
-      onPreview: (elem) => {
-        elem.classList.add(Tile_default.preview);
-        elem.dataset.theme = theme;
-      }
-    });
-    return /* @__PURE__ */ _(
-      "a",
-      {
-        class: Tile_default.item,
-        tabindex: 0,
-        role: "button",
-        href: url4,
-        "data-id": id,
-        "data-index": index,
-        "data-dropped": String(dropped),
-        "data-edge": "closestEdge" in state && state.closestEdge,
-        ref
-      },
-      /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ _(
-        ImageWithState,
-        {
-          faviconSrc,
-          faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE,
-          title,
-          theme,
-          etldPlusOne
-        }
-      )),
-      /* @__PURE__ */ _("div", { class: Tile_default.text }, title),
-      state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
-    );
-  }
-  function ImageWithState({ faviconSrc, faviconMax, title, etldPlusOne, theme }) {
+  // pages/new-tab/app/components/ImageWithState.js
+  function ImageWithState({ faviconSrc, faviconMax, title, etldPlusOne, theme, displayKind }) {
     const size = Math.min(faviconMax, DDG_DEFAULT_ICON_SIZE);
+    const sizeClass = displayKind === "favorite-tile" ? Tile_default.faviconLarge : Tile_default.faviconSmall;
     const imgsrc = faviconSrc ? faviconSrc + "?preferredSize=" + size : null;
     const initialState = (() => {
       if (imgsrc) return states2.loading_favicon_src;
@@ -5784,8 +5749,8 @@
           "img",
           {
             src: imgsrc,
-            class: Tile_default.favicon,
-            alt: `favicon for ${title}`,
+            class: (0, import_classnames4.default)(Tile_default.favicon, sizeClass),
+            alt: "",
             "data-state": state,
             onLoad: () => setState(states2.did_load_favicon_src),
             onError: () => {
@@ -5814,7 +5779,7 @@
           style = { background: fallbackColor };
         }
         const chars = etldPlusOne.slice(0, 2);
-        return /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(Tile_default.favicon, Tile_default.faviconText), style, "data-state": state }, /* @__PURE__ */ _("span", null, chars[0]), /* @__PURE__ */ _("span", null, chars[1]));
+        return /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(Tile_default.favicon, sizeClass, Tile_default.faviconText), style, "data-state": state }, /* @__PURE__ */ _("span", null, chars[0]), /* @__PURE__ */ _("span", null, chars[1]));
       }
       /**
        * If we get here, we couldn't load the favicon source OR the fallback text
@@ -5826,8 +5791,8 @@
           "img",
           {
             src: theme === "light" ? DDG_FALLBACK_ICON : DDG_FALLBACK_ICON_DARK,
-            class: Tile_default.favicon,
-            alt: `favicon for ${title}`,
+            class: (0, import_classnames4.default)(Tile_default.favicon, sizeClass),
+            alt: "",
             "data-state": state,
             onLoad: () => setState(states2.did_load_fallback_img),
             onError: () => setState(states2.fallback_img_failed)
@@ -5838,35 +5803,16 @@
         return null;
     }
   }
-  function Placeholder() {
-    const id = g2();
-    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(Tile_default.icon, Tile_default.placeholder) }), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
-  }
-  function PlusIconWrapper({ onClick }) {
-    const id = g2();
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {import('../strings.json')} */
-      {}
-    );
-    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames4.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ _(PlusIcon, null)), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
-  }
-  var import_classnames4, Tile, states2, PlusIconMemo;
-  var init_Tile2 = __esm({
-    "pages/new-tab/app/favorites/components/Tile.js"() {
+  var import_classnames4, states2;
+  var init_ImageWithState = __esm({
+    "pages/new-tab/app/components/ImageWithState.js"() {
       "use strict";
       init_preact_module();
-      import_classnames4 = __toESM(require_classnames(), 1);
       init_hooks_module();
-      init_compat_module();
-      init_Tile();
       init_constants();
-      init_PragmaticDND();
-      init_types();
-      init_Icons2();
+      init_Tile();
       init_getColorForString();
-      Tile = C3(Tile_);
+      import_classnames4 = __toESM(require_classnames(), 1);
       states2 = /** @type {Record<ImgState, ImgState>} */
       {
         loading_favicon_src: "loading_favicon_src",
@@ -5876,38 +5822,93 @@
         fallback_img_failed: "fallback_img_failed",
         using_fallback_text: "using_fallback_text"
       };
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/Tile.js
+  function Placeholder() {
+    const id = g2();
+    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.placeholder) }, "\xA0"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+  }
+  function PlusIconWrapper({ onClick }) {
+    const id = g2();
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {import('../strings.json')} */
+      {}
+    );
+    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ _(PlusIcon, null)), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+  }
+  var import_classnames5, Tile, PlusIconMemo;
+  var init_Tile2 = __esm({
+    "pages/new-tab/app/favorites/components/Tile.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames5 = __toESM(require_classnames(), 1);
+      init_hooks_module();
+      init_compat_module();
+      init_Tile();
+      init_constants();
+      init_PragmaticDND();
+      init_types();
+      init_Icons2();
+      init_ImageWithState();
+      Tile = C3(
+        /**
+         * @param {object} props
+         * @param {Favorite['url']} props.url
+         * @param {Favorite['etldPlusOne']} props.etldPlusOne
+         * @param {Favorite['id']} props.id
+         * @param {Favorite['title']} props.title
+         * @param {string|null|undefined} props.faviconSrc
+         * @param {number|null|undefined} props.faviconMax
+         * @param {Document['visibilityState']} props.visibility - whether this item is actually visible on screen, or not
+         * @param {"dark"|"light"} props.theme
+         * @param {number} props.index
+         * @param {boolean} props.animateItems
+         */
+        function Tile2({ url: url4, etldPlusOne, faviconSrc, faviconMax, theme, index, title, id, visibility, animateItems }) {
+          const { state, ref } = useItemState(url4, id, {
+            kind: "draggable",
+            class: Tile_default.preview,
+            theme
+          });
+          const tileId = g2();
+          return /* @__PURE__ */ _(
+            "a",
+            {
+              class: Tile_default.item,
+              tabindex: 0,
+              href: url4,
+              "data-id": id,
+              "data-index": index,
+              "data-edge": "closestEdge" in state && state.closestEdge,
+              "aria-labelledby": tileId,
+              style: animateItems ? { viewTransitionName: `Tile-${id}` } : void 0,
+              ref
+            },
+            /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ _(
+              ImageWithState,
+              {
+                faviconSrc,
+                faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE,
+                title,
+                theme,
+                etldPlusOne,
+                displayKind: "favorite-tile"
+              }
+            )),
+            /* @__PURE__ */ _("div", { class: Tile_default.text, id: tileId }, title),
+            state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
+          );
+        }
+      );
       PlusIconMemo = C3(PlusIconWrapper);
     }
   });
 
   // pages/new-tab/app/favorites/components/TileRow.js
-  function TileRow_({ topOffset, items, add, dropped, visibility }) {
-    const fillers = ROW_CAPACITY - items.length;
-    const theme = x2(FavoritesThemeContext);
-    return /* @__PURE__ */ _("ul", { className: Favorites_default.gridRow, style: { top: topOffset + "px" } }, items.map((item, index) => {
-      return /* @__PURE__ */ _(
-        Tile,
-        {
-          url: item.url,
-          etldPlusOne: item.etldPlusOne,
-          faviconSrc: item.favicon?.src,
-          faviconMax: item.favicon?.maxAvailableSize,
-          title: item.title,
-          key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize + visibility,
-          id: item.id,
-          index,
-          dropped: dropped === item.id,
-          visibility,
-          theme
-        }
-      );
-    }), fillers > 0 && Array.from({ length: fillers }).map((_5, fillerIndex) => {
-      if (fillerIndex === 0) {
-        return /* @__PURE__ */ _(PlusIconMemo, { key: "placeholder-plus", onClick: add });
-      }
-      return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${fillerIndex}` });
-    }));
-  }
   var TileRow;
   var init_TileRow = __esm({
     "pages/new-tab/app/favorites/components/TileRow.js"() {
@@ -5918,16 +5919,98 @@
       init_compat_module();
       init_Favorites2();
       init_hooks_module();
-      TileRow = C3(TileRow_);
+      TileRow = C3(
+        /**
+         * Represents a row of tiles with optional placeholders to fill empty spaces in the first row.
+         * @param {object} props - An object containing parameters for the TileRow_ function.
+         * @param {number} props.topOffset - The top offset position of the row (relative to the container)
+         * @param {Favorite[]} props.items - An array of favorites to be displayed as tiles in the row.
+         * @param {Document['visibilityState']} props.visibility - whether this item is actually visible
+         * @param {() => void} props.add - A function to be called when a new item is added to the row.
+         */
+        function TileRow2({ topOffset, items, add, visibility }) {
+          const fillers = ROW_CAPACITY - items.length;
+          const { theme, animateItems } = x2(FavoritesThemeContext);
+          return /* @__PURE__ */ _("ul", { className: Favorites_default.gridRow, style: { transform: `translateY(${topOffset}px)` } }, items.map((item, index) => {
+            return /* @__PURE__ */ _(
+              Tile,
+              {
+                url: item.url,
+                etldPlusOne: item.etldPlusOne,
+                faviconSrc: item.favicon?.src,
+                faviconMax: item.favicon?.maxAvailableSize,
+                title: item.title,
+                key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize + visibility,
+                id: item.id,
+                index,
+                visibility,
+                theme,
+                animateItems: animateItems.value
+              }
+            );
+          }), fillers > 0 && Array.from({ length: fillers }).map((_5, fillerIndex) => {
+            if (fillerIndex === 0) {
+              return /* @__PURE__ */ _(PlusIconMemo, { key: "placeholder-plus", onClick: add });
+            }
+            return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${fillerIndex}` });
+          }));
+        }
+      );
+    }
+  });
+
+  // pages/new-tab/app/utils.js
+  function viewTransition(fn) {
+    if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
+      return document.startViewTransition(fn);
+    }
+    return fn();
+  }
+  function noop(named) {
+    return () => {
+      console.log(named, "noop");
+    };
+  }
+  function eventToTarget(event, platformName) {
+    const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
+    if (isControlClick) {
+      return "new-tab";
+    } else if (event.shiftKey) {
+      return "new-window";
+    }
+    return "same-tab";
+  }
+  function useDocumentVisibility() {
+    const initial = document.visibilityState;
+    const [documentVisibility, setDocumentVisibility] = h2(
+      /** @type {Document['visibilityState']} */
+      initial
+    );
+    y2(() => {
+      const handleVisibilityChange = () => {
+        setDocumentVisibility(document.visibilityState);
+      };
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }, []);
+    return documentVisibility;
+  }
+  var init_utils2 = __esm({
+    "pages/new-tab/app/utils.js"() {
+      "use strict";
+      init_hooks_module();
     }
   });
 
   // pages/new-tab/app/favorites/components/Favorites.js
-  function Favorites({ gridRef, favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add }) {
+  function Favorites({ gridRef, favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add, canAnimateItems }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {import('../strings.json')} */
       {}
     );
+    const platformName = usePlatformName();
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
     const hiddenCount = expansion === "collapsed" ? favorites2.length - ROW_CAPACITY : 0;
@@ -5936,10 +6019,15 @@
     const { data } = x2(CustomizerContext);
     const { main } = x2(CustomizerThemesContext);
     const kind = useComputed(() => data.value.background.kind);
-    return /* @__PURE__ */ _(FavoritesThemeContext.Provider, { value: main.value }, /* @__PURE__ */ _(
+    const animateItems = useComputed(() => {
+      if (platformName === "windows" && canAnimateItems) return true;
+      if (platformName === "macos" && canAnimateItems && kind.value !== "userImage") return true;
+      return false;
+    });
+    return /* @__PURE__ */ _(FavoritesThemeContext.Provider, { value: { theme: main.value, animateItems } }, /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames5.default)(Favorites_default.root, !canToggleExpansion && Favorites_default.noExpansionBtn),
+        class: (0, import_classnames6.default)(Favorites_default.root, !canToggleExpansion && Favorites_default.noExpansionBtn),
         "data-testid": "FavoritesConfigured",
         "data-background-kind": kind
       },
@@ -5958,7 +6046,7 @@
       canToggleExpansion && /* @__PURE__ */ _(
         "div",
         {
-          className: (0, import_classnames5.default)({
+          className: (0, import_classnames6.default)({
             [Favorites_default.showhide]: true,
             [Favorites_default.showhideVisible]: canToggleExpansion
           })
@@ -6020,6 +6108,7 @@
     const { onConfigChanged, state } = x2(FavoritesContext);
     const [expansion, setExpansion] = h2(state.config?.expansion || "collapsed");
     const documentVisibility = useDocumentVisibility();
+    const { start: start2, end } = useVisibleRows(rows, rowHeight, safeAreaRef);
     y2(() => {
       return onConfigChanged((config) => {
         if (config.expansion === "expanded") {
@@ -6031,93 +6120,92 @@
         }
       });
     }, [onConfigChanged]);
-    const [{ start: start2, end }, setVisibleRange] = h2({ start: 0, end: 1 });
-    const gridOffset = A2(0);
-    _2(() => {
-      const mainScroller = document.querySelector("[data-main-scroller]") || document.documentElement;
-      const contentTube = document.querySelector("[data-content-tube]") || document.body;
-      if (!mainScroller) return console.warn("cannot find scrolling element");
-      if (!contentTube) return console.warn("cannot find content tube");
-      function updateGlobals(scrollY) {
-        if (!safeAreaRef.current) return;
-        const rec = safeAreaRef.current.getBoundingClientRect();
-        gridOffset.current = rec.y + scrollY;
-      }
-      function setVisibleRowsForOffset(scrollY) {
-        if (!safeAreaRef.current) return console.warn("cannot access ref");
-        if (!gridOffset.current) return console.warn("cannot access ref");
-        const offset = gridOffset.current;
-        const end2 = scrollY + window.innerHeight - offset;
-        let start3;
-        if (offset > scrollY) {
-          start3 = 0;
-        } else {
-          start3 = scrollY - offset;
-        }
-        const startIndex = Math.floor(start3 / rowHeight);
-        const endIndex = Math.min(Math.ceil(end2 / rowHeight), rows.length);
-        setVisibleRange({ start: startIndex, end: endIndex });
-      }
-      updateGlobals(mainScroller.scrollTop);
-      setVisibleRowsForOffset(mainScroller.scrollTop);
-      const controller = new AbortController();
-      window.addEventListener(
-        "resize",
-        () => {
-          updateGlobals(mainScroller.scrollTop);
-          setVisibleRowsForOffset(mainScroller.scrollTop);
-        },
-        { signal: controller.signal }
-      );
-      let lastHeight;
-      const resizer = new ResizeObserver((entries4) => {
-        const first = entries4[0];
-        if (!first) return;
-        if (first.contentRect.height !== lastHeight) {
-          lastHeight = first.contentRect.height;
-          requestAnimationFrame(() => {
-            updateGlobals(mainScroller.scrollTop);
-            setVisibleRowsForOffset(mainScroller.scrollTop);
-          });
-        }
-      });
-      resizer.observe(contentTube);
-      mainScroller.addEventListener(
-        "scroll",
-        () => {
-          setVisibleRowsForOffset(mainScroller.scrollTop);
-        },
-        { signal: controller.signal }
-      );
-      return () => {
-        controller.abort();
-        resizer.disconnect();
-      };
-    }, [rows.length]);
     const subsetOfRowsToRender = expansion === "collapsed" ? [rows[0]] : rows.slice(start2, end + 1);
-    const dropped = document.documentElement.dataset.dropped;
     return /* @__PURE__ */ _(b, null, subsetOfRowsToRender.map((items, rowIndex) => {
       const topOffset = expansion === "expanded" ? (start2 + rowIndex) * rowHeight : 0;
       const keyed = `-${start2 + rowIndex}-`;
-      return /* @__PURE__ */ _(TileRow, { key: keyed, dropped, items, topOffset, add, visibility: documentVisibility });
+      return /* @__PURE__ */ _(TileRow, { key: keyed, items, topOffset, add, visibility: documentVisibility });
     }));
   }
-  function useDocumentVisibility() {
-    const initial = document.visibilityState;
-    const [documentVisibility, setDocumentVisibility] = h2(
-      /** @type {Document['visibilityState']} */
-      initial
+  function useVisibleRows(rows, rowHeight, safeAreaRef) {
+    const [{ start: start2, end }, setVisibleRange] = h2({ start: 0, end: 1 });
+    const gridOffsetRef = A2(0);
+    const mainScrollerRef = A2(
+      /** @type {Element|null} */
+      null
     );
-    y2(() => {
-      const handleVisibilityChange = () => {
-        setDocumentVisibility(document.visibilityState);
-      };
-      document.addEventListener("visibilitychange", handleVisibilityChange);
+    const contentTubeRef = A2(
+      /** @type {Element|null} */
+      null
+    );
+    function updateGlobals() {
+      if (!safeAreaRef.current) return;
+      const rec = safeAreaRef.current.getBoundingClientRect();
+      gridOffsetRef.current = rec.y + mainScrollerRef.current?.scrollTop;
+    }
+    function setVisibleRowsForOffset() {
+      if (!safeAreaRef.current) return console.warn("cannot access ref");
+      const scrollY = mainScrollerRef.current?.scrollTop ?? 0;
+      const offset = gridOffsetRef.current;
+      const end2 = scrollY + window.innerHeight - offset;
+      let start3;
+      if (offset > scrollY) {
+        start3 = 0;
+      } else {
+        start3 = scrollY - offset;
+      }
+      const startIndex = Math.floor(start3 / rowHeight);
+      const endIndex = Math.min(Math.ceil(end2 / rowHeight), rows.length);
+      setVisibleRange({ start: startIndex, end: endIndex });
+    }
+    _2(() => {
+      mainScrollerRef.current = document.querySelector("[data-main-scroller]") || document.documentElement;
+      contentTubeRef.current = document.querySelector("[data-content-tube]") || document.body;
+      if (!contentTubeRef.current || !mainScrollerRef.current) console.warn("missing elements");
+      updateGlobals();
+      setVisibleRowsForOffset();
+      const controller = new AbortController();
+      mainScrollerRef.current?.addEventListener("scroll", setVisibleRowsForOffset, { signal: controller.signal });
       return () => {
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        controller.abort();
+      };
+    }, [rows.length]);
+    y2(() => {
+      let lastWindowHeight = window.innerHeight;
+      function handler() {
+        if (lastWindowHeight === window.innerHeight) return;
+        lastWindowHeight = window.innerHeight;
+        updateGlobals();
+        setVisibleRowsForOffset();
+      }
+      window.addEventListener("resize", handler);
+      return () => {
+        return window.removeEventListener("resize", handler);
       };
     }, []);
-    return documentVisibility;
+    y2(() => {
+      if (!contentTubeRef.current) return console.warn("cannot find content tube");
+      let lastHeight;
+      let debounceTimer;
+      const resizer = new ResizeObserver((entries4) => {
+        const first = entries4[0];
+        if (!first || !first.contentRect) return;
+        if (first.contentRect.height !== lastHeight) {
+          lastHeight = first.contentRect.height;
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            updateGlobals();
+            setVisibleRowsForOffset();
+          }, 50);
+        }
+      });
+      resizer.observe(contentTubeRef.current);
+      return () => {
+        resizer.disconnect();
+        clearTimeout(debounceTimer);
+      };
+    }, []);
+    return { start: start2, end };
   }
   function getContextMenuHandler(openContextMenu) {
     return (event) => {
@@ -6138,35 +6226,31 @@
   }
   function getOnClickHandler(openFavorite, platformName) {
     return (event) => {
-      let target = (
+      const target = (
         /** @type {HTMLElement|null} */
         event.target
       );
-      while (target && target !== event.currentTarget) {
-        if (typeof target.dataset.id === "string" && "href" in target && typeof target.href === "string") {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
-          if (isControlClick) {
-            return openFavorite(target.dataset.id, target.href, "new-tab");
-          } else if (event.shiftKey) {
-            return openFavorite(target.dataset.id, target.href, "new-window");
-          }
-          return openFavorite(target.dataset.id, target.href, "same-tab");
-        } else {
-          target = target.parentElement;
-        }
+      if (!target) return;
+      const anchor = (
+        /** @type {HTMLAnchorElement|null} */
+        target.closest("a[href][data-id]")
+      );
+      if (anchor && anchor.dataset.id) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const openTarget = eventToTarget(event, platformName);
+        return openFavorite(anchor.dataset.id, anchor.href, openTarget);
       }
     };
   }
-  var import_classnames5, FavoritesMemo, ROW_CAPACITY, ITEM_HEIGHT, ROW_GAP, FavoritesThemeContext;
+  var import_classnames6, FavoritesMemo, ROW_CAPACITY, ITEM_HEIGHT, ROW_GAP, FavoritesThemeContext;
   var init_Favorites2 = __esm({
     "pages/new-tab/app/favorites/components/Favorites.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_compat_module();
-      import_classnames5 = __toESM(require_classnames(), 1);
+      import_classnames6 = __toESM(require_classnames(), 1);
       init_Favorites();
       init_ShowHideButton();
       init_types();
@@ -6176,14 +6260,18 @@
       init_FavoritesProvider();
       init_CustomizerProvider();
       init_signals_module();
+      init_utils2();
       FavoritesMemo = C3(Favorites);
       ROW_CAPACITY = 6;
       ITEM_HEIGHT = 96;
       ROW_GAP = 8;
-      FavoritesThemeContext = G(
-        /** @type {"light"|"dark"} */
-        "light"
-      );
+      FavoritesThemeContext = G({
+        theme: (
+          /** @type {"light"|"dark"} */
+          "light"
+        ),
+        animateItems: d3(false)
+      });
     }
   });
 
@@ -6191,13 +6279,31 @@
   function FavoritesConsumer() {
     const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add } = x2(FavoritesContext);
     const telemetry2 = useTelemetry();
+    const platformName = usePlatformName();
+    const { data: backgroundData } = x2(CustomizerContext);
+    function didReorder(data) {
+      const background = backgroundData.value.background;
+      let supportsViewTransitions = false;
+      if (state.config?.animation?.kind === "view-transitions") {
+        if (platformName === "windows") supportsViewTransitions = true;
+        if (platformName === "macos" && background.kind !== "userImage") supportsViewTransitions = true;
+      }
+      if (supportsViewTransitions) {
+        viewTransition(() => {
+          favoritesDidReOrder(data);
+        });
+      } else {
+        favoritesDidReOrder(data);
+      }
+    }
     if (state.status === "ready") {
       telemetry2.measureFromPageLoad("favorites-will-render", "time to favorites");
-      return /* @__PURE__ */ _(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: favoritesDidReOrder }, /* @__PURE__ */ _(
+      return /* @__PURE__ */ _(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: didReorder }, /* @__PURE__ */ _(
         FavoritesMemo,
         {
           favorites: state.data.favorites,
           expansion: state.config.expansion,
+          canAnimateItems: state.config?.animation?.kind === "view-transitions",
           openContextMenu,
           openFavorite,
           add,
@@ -6231,6 +6337,9 @@
       init_FavoritesProvider();
       init_PragmaticDND();
       init_Favorites2();
+      init_utils2();
+      init_CustomizerProvider();
+      init_settings_provider();
     }
   });
 
@@ -6271,7 +6380,7 @@
     return /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames6.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
+        className: (0, import_classnames7.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
         type,
         onClick: (
           /**
@@ -6287,12 +6396,12 @@
       children
     );
   }
-  var import_classnames6;
+  var import_classnames7;
   var init_Button2 = __esm({
     "shared/components/Button/Button.js"() {
       "use strict";
       init_preact_module();
-      import_classnames6 = __toESM(require_classnames(), 1);
+      import_classnames7 = __toESM(require_classnames(), 1);
       init_Button();
     }
   });
@@ -6310,14 +6419,14 @@
   // pages/new-tab/app/components/DismissButton.jsx
   function DismissButton({ className, onClick, buttonProps = {} }) {
     const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ _("button", { class: (0, import_classnames7.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ _(Cross, null));
+    return /* @__PURE__ */ _("button", { class: (0, import_classnames8.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ _(Cross, null));
   }
-  var import_classnames7;
+  var import_classnames8;
   var init_DismissButton2 = __esm({
     "pages/new-tab/app/components/DismissButton.jsx"() {
       "use strict";
       init_preact_module();
-      import_classnames7 = __toESM(require_classnames(), 1);
+      import_classnames8 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_types();
       init_DismissButton();
@@ -6500,7 +6609,7 @@
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js
   function FreemiumPIRBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames8.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames9.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = x2(FreemiumPIRBannerContext);
@@ -6509,11 +6618,11 @@
     }
     return null;
   }
-  var import_classnames8;
+  var import_classnames9;
   var init_FreemiumPIRBanner2 = __esm({
     "pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js"() {
       "use strict";
-      import_classnames8 = __toESM(require_classnames(), 1);
+      import_classnames9 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -6834,18 +6943,18 @@
     return /* @__PURE__ */ _("div", { class: NextSteps_default.card }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ _("h3", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ _("p", { class: NextSteps_default.description }, message.summary), hasConfirmationState && !!showConfirmation ? /* @__PURE__ */ _("div", { class: NextSteps_default.confirmation }, /* @__PURE__ */ _(CheckColor, null), /* @__PURE__ */ _("p", null, message.confirmationText)) : /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames9.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
+        class: (0, import_classnames10.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
         onClick: handleClick
       },
       message.actionText
     ), /* @__PURE__ */ _(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
-  var import_classnames9;
+  var import_classnames10;
   var init_NextStepsCard = __esm({
     "pages/new-tab/app/next-steps/components/NextStepsCard.js"() {
       "use strict";
       init_preact_module();
-      import_classnames9 = __toESM(require_classnames(), 1);
+      import_classnames10 = __toESM(require_classnames(), 1);
       init_hooks_module();
       init_DismissButton2();
       init_Icons2();
@@ -6864,10 +6973,10 @@
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames10.default)(NextSteps_default.cardGroup, types.length <= 2 && NextSteps_default.noExpansionBtn), id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(NextSteps_default.cardGroup, types.length <= 2 && NextSteps_default.noExpansionBtn), id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(
       "div",
       {
-        className: (0, import_classnames10.default)({
+        className: (0, import_classnames11.default)({
           [NextSteps_default.showhide]: types.length > 2,
           [NextSteps_default.showhideVisible]: types.length > 2
         })
@@ -6909,12 +7018,12 @@
       }
     )));
   }
-  var import_classnames10;
+  var import_classnames11;
   var init_NextStepsGroup = __esm({
     "pages/new-tab/app/next-steps/components/NextStepsGroup.js"() {
       "use strict";
       init_preact_module();
-      import_classnames10 = __toESM(require_classnames(), 1);
+      import_classnames11 = __toESM(require_classnames(), 1);
       init_hooks_module();
       init_ShowHideButton();
       init_types();
@@ -7134,24 +7243,6 @@
     }
   });
 
-  // pages/new-tab/app/utils.js
-  function viewTransition(fn) {
-    if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
-      return document.startViewTransition(fn);
-    }
-    return fn();
-  }
-  function noop(named) {
-    return () => {
-      console.log(named, "noop");
-    };
-  }
-  var init_utils2 = __esm({
-    "pages/new-tab/app/utils.js"() {
-      "use strict";
-    }
-  });
-
   // pages/new-tab/app/privacy-stats/constants.js
   var DDG_STATS_OTHER_COMPANY_IDENTIFIER;
   var init_constants2 = __esm({
@@ -7245,7 +7336,7 @@
         text: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel"),
         shape: "round"
       }
-    )), recent === 0 && /* @__PURE__ */ _("p", { className: PrivacyStats_default.subtitle }, t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ _("p", { className: (0, import_classnames11.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t4("stats_feedCountBlockedPeriod")));
+    )), recent === 0 && /* @__PURE__ */ _("p", { className: PrivacyStats_default.subtitle }, t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ _("p", { className: (0, import_classnames12.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t4("stats_feedCountBlockedPeriod")));
   }
   function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -7356,12 +7447,12 @@
       }
     ));
   }
-  var import_classnames11;
+  var import_classnames12;
   var init_PrivacyStats2 = __esm({
     "pages/new-tab/app/privacy-stats/components/PrivacyStats.js"() {
       "use strict";
       init_preact_module();
-      import_classnames11 = __toESM(require_classnames(), 1);
+      import_classnames12 = __toESM(require_classnames(), 1);
       init_PrivacyStats();
       init_types();
       init_hooks_module();
@@ -7563,7 +7654,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames12.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(b, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(b, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames13.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(b, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(b, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -7580,12 +7671,12 @@
     }
     return null;
   }
-  var import_classnames12;
+  var import_classnames13;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames13 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -7745,7 +7836,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -7807,12 +7898,12 @@
     }
     return null;
   }
-  var import_classnames13;
+  var import_classnames14;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames14 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -7852,7 +7943,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames23 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -8185,7 +8276,7 @@
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -8218,7 +8309,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames14 = __toESM(require_classnames(), 1);
+  var import_classnames15 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -8243,7 +8334,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ _("ul", { class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       DefaultPanel,
       {
         checked: data.value.background.kind === "default",
@@ -8277,7 +8368,7 @@
     return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -8297,7 +8388,7 @@
     return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -8319,7 +8410,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -8359,7 +8450,7 @@
       return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
         "button",
         {
-          class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -8374,7 +8465,7 @@
     return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -8400,7 +8491,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames15 = __toESM(require_classnames(), 1);
+  var import_classnames16 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -8413,7 +8504,7 @@
     return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -8424,7 +8515,7 @@
     ), t4("customizer_browser_theme_light")), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -8435,7 +8526,7 @@
     ), t4("customizer_browser_theme_dark")), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -8473,7 +8564,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames16 = __toESM(require_classnames(), 1);
+  var import_classnames17 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -8502,7 +8593,7 @@
       if (!(value in values.colors)) return console.warn("could not select color", value);
       select({ background: { kind: "color", value } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames16.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data, select }), /* @__PURE__ */ _(ColorGrid, { data })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data, select }), /* @__PURE__ */ _(ColorGrid, { data })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data }) {
@@ -8539,7 +8630,7 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -8564,12 +8655,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ _("span", { class: (0, import_classnames16.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
+    ), /* @__PURE__ */ _("span", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames17 = __toESM(require_classnames(), 1);
+  var import_classnames18 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -8597,12 +8688,12 @@
       if (!(value in values.gradients)) return console.warn("could not select gradient", value);
       select({ background: { kind: "gradient", value } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data }) {
     const selected = useComputed(() => data.value.background.kind === "gradient" && data.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key) => {
       const entry = values.gradients[key];
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key }, /* @__PURE__ */ _(
         "button",
@@ -8630,7 +8721,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames18 = __toESM(require_classnames(), 1);
+  var import_classnames19 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -8674,7 +8765,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -8689,7 +8780,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
@@ -8726,7 +8817,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ _(PlusIcon, null),
@@ -8737,16 +8828,16 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames19 = __toESM(require_classnames(), 1);
+  var import_classnames20 = __toESM(require_classnames(), 1);
   function CustomizerSection({ title, children }) {
     return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, title), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames19.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames20 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_types();
 
@@ -8779,7 +8870,7 @@
       e4.preventDefault();
       messaging2.open({ target: "settings" });
     }
-    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames20.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, t4("customizer_settings_link")), /* @__PURE__ */ _(Open, null));
+    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames21.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, t4("customizer_settings_link")), /* @__PURE__ */ _(Open, null));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
@@ -8791,7 +8882,7 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -8847,7 +8938,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -8894,7 +8985,7 @@
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames22.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, customizerKind === "menu" && /* @__PURE__ */ _(CustomizerMenu, null), customizerKind === "drawer" && /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames23.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, customizerKind === "menu" && /* @__PURE__ */ _(CustomizerMenu, null), customizerKind === "drawer" && /* @__PURE__ */ _(
       CustomizerButton,
       {
         buttonId,
@@ -8907,7 +8998,7 @@
     ))), customizerKind === "drawer" && /* @__PURE__ */ _(
       "aside",
       {
-        class: (0, import_classnames22.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+        class: (0, import_classnames23.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
         tabindex: tabIndex,
         "aria-hidden": hidden,
         "data-theme": browser,
@@ -9468,14 +9559,6 @@
         { id: "id-many-15", etldPlusOne: "example.com", url: "https://example.com?id=id-many-14", title: "yeti", favicon: null }
       ]
     },
-    two: {
-      // prettier-ignore
-      /** @type {Favorite[]} */
-      favorites: [
-        { id: "id-two-1", etldPlusOne: "example.com", url: "https://example.com?id=id-two-1", title: "Amazon", favicon: { src: "./company-icons/amazon.svg", maxAvailableSize: 32 } },
-        { id: "id-two-2", etldPlusOne: "example.com", url: "https://example.com?id=id-two-2", title: "Adform", favicon: { src: "./company-icons/adform.svg", maxAvailableSize: 32 } }
-      ]
-    },
     single: {
       /** @type {Favorite[]} */
       favorites: [
@@ -9491,6 +9574,18 @@
     none: {
       /** @type {Favorite[]} */
       favorites: []
+    },
+    titles: {
+      /** @type {Favorite[]} */
+      favorites: [
+        {
+          id: "id-titles-1",
+          url: "https://duckduckgo.com",
+          etldPlusOne: "google.com",
+          title: "accounts.google.com",
+          favicon: null
+        }
+      ]
     },
     "small-icon": {
       /** @type {Favorite[]} */
@@ -9673,7 +9768,7 @@
     ];
     return {
       favorites: Array.from({ length: max }).map((_5, index) => {
-        const randomFavicon = icons[Math.floor(Math.random() * icons.length)];
+        const randomFavicon = icons[index];
         const joined = `./company-icons/${randomFavicon}`;
         const alpha = "abcdefghijklmnopqrstuvwxyz";
         const out = {
@@ -9769,7 +9864,7 @@
       factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 12) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
     },
     "favorites.multi": {
-      factory: () => /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.two }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ _(FavoritesConsumer, null)))
+      factory: () => /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ _(FavoritesConsumer, null)))
     },
     "favorites.single": {
       factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ _(FavoritesConsumer, null))
@@ -11937,7 +12032,7 @@
   }
 
   // pages/new-tab/app/mock-transport.js
-  var VERSION_PREFIX = "__ntp_29__.";
+  var VERSION_PREFIX = "__ntp_30__.";
   var url3 = new URL(window.location.href);
   function mockTransport() {
     let channel;
@@ -12339,7 +12434,7 @@
           case "favorites_getConfig": {
             const defaultConfig = { expansion: "collapsed", animation: { kind: "none" } };
             const fromStorage = read("favorites_config") || defaultConfig;
-            if (url3.searchParams.get("animation") === "view-transitions") {
+            if (url3.searchParams.get("favorites.animation") === "view-transitions") {
               fromStorage.animation = { kind: "view-transitions" };
             }
             return Promise.resolve(fromStorage);

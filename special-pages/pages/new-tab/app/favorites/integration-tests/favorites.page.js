@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test';
+import { gen } from '../mocks/favorites.data.js';
 
 export class FavoritesPage {
     static ENTRY_POINT = '[data-entry-point="favorites"]';
@@ -316,5 +317,24 @@ export class FavoritesPage {
 
         // give chance for any DOM changes to occur
         await page.waitForTimeout(500);
+    }
+
+    /**
+     * @param {number} from
+     * @param {number} to
+     */
+    async favoriteWasRemoved(from, to) {
+        const { page } = this.ntp;
+
+        // verify the DOM is in the expected state first
+        await expect(page.getByTestId('FavoritesConfigured').locator('a[href]')).toHaveCount(from);
+
+        const fourItems = gen(to);
+
+        // deliver the update
+        await this.ntp.mocks.simulateSubscriptionMessage('favorites_onDataUpdate', fourItems);
+
+        // verify the DOM is updated
+        await expect(page.getByTestId('FavoritesConfigured').locator('a[href]')).toHaveCount(to);
     }
 }

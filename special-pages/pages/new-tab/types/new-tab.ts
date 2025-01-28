@@ -46,6 +46,7 @@ export type PredefinedGradient =
  */
 export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
+export type OpenTarget = "same-tab" | "new-tab" | "new-window";
 /**
  * Represents the expansion state of a widget
  */
@@ -62,6 +63,10 @@ export type WidgetVisibility = "visible" | "hidden";
  * Configuration settings for widgets
  */
 export type WidgetConfigs = WidgetConfigItem[];
+export type Favicon = null | {
+  src: string;
+  maxAvailableSize?: number;
+};
 /**
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
@@ -272,7 +277,7 @@ export interface FavoritesOpenAction {
    * The url to open
    */
   url: string;
-  target: "same-tab" | "new-tab" | "new-window";
+  target: OpenTarget;
 }
 /**
  * Generated from @see "../messages/favorites_openContextMenu.notify.json"
@@ -512,11 +517,7 @@ export interface Favorite {
   etldPlusOne: null | string;
   id: string;
   title: string;
-  favicon: null | FavoriteFavicon;
-}
-export interface FavoriteFavicon {
-  src: string;
-  maxAvailableSize: number;
+  favicon: Favicon;
 }
 /**
  * Generated from @see "../messages/freemiumPIRBanner_getData.request.json"

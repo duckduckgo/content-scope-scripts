@@ -17,8 +17,7 @@
       "type": "string"
     },
     "target": {
-      "type": "string",
-      "enum": ["same-tab", "new-tab", "new-window"]
+      "$ref": "./types/open-target.json"
     }
   }
 }
