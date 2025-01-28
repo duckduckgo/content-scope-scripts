@@ -46,8 +46,6 @@ export const FavoritesThemeContext = createContext({
  */
 export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add, canAnimateItems }) {
     const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
-    const platformName = usePlatformName();
-
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
@@ -60,12 +58,10 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     const kind = useComputed(() => data.value.background.kind);
 
     // A flag to determine if animations are available. This is needed
-    // because in webkit applying 'view-transition' css properties causes an odd experience
+    // because 'view-transition' CSS properties causes an odd experience
     // with filters.
     const animateItems = useComputed(() => {
-        if (platformName === 'windows' && canAnimateItems) return true;
-        if (platformName === 'macos' && canAnimateItems && kind.value !== 'userImage') return true;
-        return false;
+        return canAnimateItems && kind.value !== 'userImage';
     });
 
     return (

@@ -19,7 +19,6 @@ import { usePlatformName } from '../../settings.provider.js';
 export function FavoritesConsumer() {
     const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add } = useContext(FavoritesContext);
     const telemetry = useTelemetry();
-    const platformName = usePlatformName();
     const { data: backgroundData } = useContext(CustomizerContext);
 
     /**
@@ -29,12 +28,7 @@ export function FavoritesConsumer() {
      */
     function didReorder(data) {
         const background = backgroundData.value.background;
-        let supportsViewTransitions = false;
-
-        if (state.config?.animation?.kind === 'view-transitions') {
-            if (platformName === 'windows') supportsViewTransitions = true;
-            if (platformName === 'macos' && background.kind !== 'userImage') supportsViewTransitions = true;
-        }
+        const supportsViewTransitions = state.config?.animation?.kind === 'view-transitions' && background.kind !== 'userImage';
 
         if (supportsViewTransitions) {
             viewTransition(() => {
