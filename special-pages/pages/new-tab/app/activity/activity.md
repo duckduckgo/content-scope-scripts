@@ -129,12 +129,6 @@ by sending the notification `activity_burnAnimationComplete`
 - sends {@link "NewTab Messages".ActivityRemoveItemNotify}
 - example payload: `{ "url": "..." }`
 
-### `activity_burn`
-- {@link "NewTab Messages".ActivityBurnNotification}
-- (macos only) Sent when the user clicks the burn icon
-- sends {@link "NewTab Messages".ActivityBurnNotify}
-- example payload: `{ "url": "..." }`
-
 ### `activity_open`
 - {@link "NewTab Messages".ActivityOpenNotification}
 - Sent when a user clicks a link, sends {@link "NewTab Messages".ActivityOpenAction}
