@@ -80,15 +80,17 @@ export function activityMockTransport() {
                 case 'activity_confirmBurn': {
                     const url = msg.params.url;
                     /** @type {import('../../../types/new-tab.ts').ConfirmBurnResponse} */
-                    let response = { action: 'none' };
+                    let response = { action: 'burn' };
 
                     /**
                      * When not in automated tests, use a confirmation window to mimic the native modal
                      */
                     if (!window.__playwright_01) {
                         const fireproof = dataset.activity.find((x) => x.url === url)?.fireproof ?? false;
-                        if (fireproof && confirm('are you sure?')) {
-                            response = { action: 'burn' };
+                        if (fireproof) {
+                            if (!confirm('are you sure?')) {
+                                response = { action: 'none' };
+                            }
                         }
                     }
                     return Promise.resolve(response);
