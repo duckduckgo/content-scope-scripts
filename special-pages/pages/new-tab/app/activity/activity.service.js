@@ -116,12 +116,14 @@ export class ActivityService {
      * @return {Promise<import('../../types/new-tab.js').ConfirmBurnResponse>}
      */
     confirmBurn(url) {
+        this.dataService.disableBroadcast();
         return this.ntp.messaging.request('activity_confirmBurn', { url });
     }
     /**
      * @param {string} url
      */
     burnAnimationComplete(url) {
+        this.dataService.enableBroadcast();
         this.dataService.update((old) => {
             return {
                 ...old,

@@ -13,6 +13,7 @@
 export class Service {
     eventTarget = new EventTarget();
     DEBOUNCE_TIME_MS = 200;
+    _broadcast = true;
     /**
      * @param {object} props
      * @param {() => Promise<Data>} [props.initial]
@@ -110,9 +111,20 @@ export class Service {
         }
     }
 
+    disableBroadcast() {
+        this._broadcast = false;
+    }
+
+    /**
+     *
+     */
+    enableBroadcast() {
+        this._broadcast = true;
+    }
+
     /**
      * @param {Data} data
-     * @param {'initial' | 'subscription' | 'manual' | 'trigger-fetch'} source
+     * @param {'initial' | 'subscription' | 'manual' | 'trigger-fetch' | 'flush'} source
      * @private
      */
     _accept(data, source) {
@@ -124,6 +136,8 @@ export class Service {
         // always cancel any existing debounced timers
         this.clearDebounceTimer();
 
+        if (!this._broadcast) return;
+
         // always broadcast the change on the event target
         const dataEvent = new CustomEvent('data', {
             detail: {
@@ -131,6 +145,7 @@ export class Service {
                 source,
             },
         });
+
         this.eventTarget.dispatchEvent(dataEvent);
 
         // try to persist if the last try was 'manual' update
