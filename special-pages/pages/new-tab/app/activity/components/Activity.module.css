@@ -176,6 +176,7 @@
     border-radius: 50%;
     font-weight: bold;
     font-size: 0.5rem;
+    line-height: 16px;
     color: var(--color-black-at-84);
     background: var(--color-black-at-12);
     text-align: center;
@@ -188,6 +189,7 @@
 
 .companiesIconRow {
     display: flex;
+    align-items: center;
     gap: 6px;
 }
 
@@ -207,6 +209,9 @@
 .historyItem {
     display: flex;
     width: 100%;
+    + .historyItem {
+        margin-top: var(--sp-1);
+    }
 }
 .historyLink {
     font-size: var(--small-label-font-size);
@@ -225,6 +230,7 @@
 
     &:hover .time {
         text-decoration: none;
+        display: inline-block;
     }
 }
 
@@ -232,6 +238,9 @@
     flex-shrink: 0;
     margin-left: 8px;
     color: var(--ntp-text-muted-more);
+    font-size: var(--small-label-font-size);
+    font-weight: var(--small-label-font-weight);
+    line-height: var(--small-label-line-height);
 }
 
 .historyBtn {

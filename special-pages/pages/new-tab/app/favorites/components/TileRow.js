@@ -44,11 +44,11 @@ export const TileRow = memo(
                     Array.from({ length: fillers }).map((_, fillerIndex) => {
                         // first is always the + (plus) button
                         if (fillerIndex === 0) {
-                            return <PlusIconMemo key="placeholder-plus" onClick={add} />;
+                            return <PlusIconMemo key={`placeholder-plus-${items.length}`} onClick={add} />;
                         }
 
                         // for all the rest, just fill the row with dotted outlines
-                        return <Placeholder key={`placeholder-${fillerIndex}`} />;
+                        return <Placeholder key={`placeholder-${items.length}`} />;
                     })}
             </ul>
         );

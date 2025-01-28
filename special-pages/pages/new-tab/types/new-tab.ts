@@ -55,7 +55,6 @@ export type PredefinedGradient =
  */
 export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
-export type OpenTarget = "same-tab" | "new-tab" | "new-window";
 /**
  * The visibility state of the widget, as configured by the user
  */
