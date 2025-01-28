@@ -65,7 +65,7 @@ Notes:
 - 
 ### `activity_confirmBurn`
 - {@link "NewTab Messages".ActivityConfirmBurnRequest}
-- Used to confirm the burn action
+- Used to confirm the burn action - native side may or may not show a modal
 - sends {@link "NewTab Messages".ConfirmBurnParams}
 - returns {@link "NewTab Messages".ConfirmBurnResponse}
 
