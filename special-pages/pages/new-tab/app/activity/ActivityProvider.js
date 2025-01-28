@@ -237,8 +237,8 @@ export function SignalStateProvider({ children }) {
     useSignalEffect(() => {
         if (!service) return console.warn('could not access service');
         const unsub = service.onData((evt) => {
+            const next = normalize(keys.value, evt.data);
             batch(() => {
-                const next = normalize(keys.value, evt.data);
                 keys.value = next;
                 activity.value = normalizeItems(activity.value, evt.data);
             });
