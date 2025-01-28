@@ -63,6 +63,25 @@ export class ActivityPage {
         await this.context().waitFor();
     }
 
+    async cannotExpandListWhenEmpty() {
+        const { page } = this;
+
+        // control: ensure it can be collapsed first
+        await page.getByLabel('Hide recent activity').waitFor();
+
+        // now deliver new data
+        await this.ntp.mocks.simulateSubscriptionMessage('activity_onDataUpdate', { activity: [] });
+
+        // and assert the collapse button is now absent
+        await expect(page.getByLabel('Hide recent activity')).not.toBeVisible();
+    }
+
+    async canCollapseList() {
+        const { page } = this;
+        await page.getByLabel('Hide recent activity').click();
+        await page.getByLabel('Show recent activity').click();
+    }
+
     async addsFavorite() {
         await this.context().getByRole('button', { name: 'Add example.com to favorites' }).click();
         const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_addFavorite', count: 1 });
@@ -101,6 +120,7 @@ export class ActivityPage {
             },
         });
     }
+
     async removesItem() {
         await this.context().getByRole('button', { name: 'Remove example.com from history' }).click();
         const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_removeItem', count: 1 });
@@ -113,7 +133,6 @@ export class ActivityPage {
             },
         });
     }
-
     async opensLinkFromTitle() {
         const { page } = this;
         await page.getByText('example.com').click();
@@ -147,6 +166,7 @@ export class ActivityPage {
             target: 'new-window',
         });
     }
+
     async opensLinkFromHistory() {
         const { page } = this;
         await page.getByRole('link', { name: '/kitchen/sinks' }).click();
@@ -208,7 +228,6 @@ export class ActivityPage {
         // if the update was accepted, there should be 2 showing + 8 more to show (from the 10 above)
         await this.context().getByLabel('Show 8 more').click();
     }
-
     async listsAtMost3TrackerCompanies() {
         const { page } = this;
         await page.pause();
@@ -224,6 +243,7 @@ export class ActivityPage {
         //         - text: 1 day ago
         // `);
     }
+
     async showsEmptyTrackerState() {
         await expect(this.context().getByTestId('ActivityItem').nth(3)).toMatchAriaSnapshot(`
           - listitem:
