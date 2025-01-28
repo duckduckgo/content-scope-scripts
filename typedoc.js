@@ -5,6 +5,7 @@ const config = {
     // prettier-ignore
     projectDocuments: [
         'special-pages/pages/new-tab/app/new-tab.md',
+        'special-pages/pages/history/app/history.md',
         'injected/docs/*.md',
     ],
     entryPoints: [

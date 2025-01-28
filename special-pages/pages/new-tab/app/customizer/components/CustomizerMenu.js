@@ -13,7 +13,7 @@ import { VisibilityMenu, VisibilityMenuPopover } from './VisibilityMenu.js';
 /**
  * Represents the NTP customizer. For now it's just the ability to toggle sections.
  */
-export function Customizer() {
+export function CustomizerMenu() {
     const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown();
     const [rowData, setRowData] = useState(/** @type {VisibilityRowData[]} */ ([]));
 
@@ -32,9 +32,9 @@ export function Customizer() {
         function handler() {
             setRowData(getItems());
         }
-        window.addEventListener(Customizer.UPDATE_EVENT, handler);
+        window.addEventListener(CustomizerMenu.UPDATE_EVENT, handler);
         return () => {
-            window.removeEventListener(Customizer.UPDATE_EVENT, handler);
+            window.removeEventListener(CustomizerMenu.UPDATE_EVENT, handler);
         };
     }, [isOpen]);
 
@@ -43,7 +43,14 @@ export function Customizer() {
 
     return (
         <div class={styles.root} ref={dropdownRef}>
-            <CustomizerButton buttonId={BUTTON_ID} menuId={MENU_ID} toggleMenu={toggleMenu} buttonRef={buttonRef} isOpen={isOpen} />
+            <CustomizerButton
+                buttonId={BUTTON_ID}
+                menuId={MENU_ID}
+                toggleMenu={toggleMenu}
+                buttonRef={buttonRef}
+                isOpen={isOpen}
+                kind={'menu'}
+            />
             <div id={MENU_ID} class={cn(styles.dropdownMenu, { [styles.show]: isOpen })} aria-labelledby={BUTTON_ID}>
                 <VisibilityMenuPopover>
                     <VisibilityMenu rows={rowData} />
@@ -53,8 +60,8 @@ export function Customizer() {
     );
 }
 
-Customizer.OPEN_EVENT = 'ntp-customizer-open';
-Customizer.UPDATE_EVENT = 'ntp-customizer-update';
+CustomizerMenu.OPEN_EVENT = 'ntp-customizer-open';
+CustomizerMenu.UPDATE_EVENT = 'ntp-customizer-update';
 
 export function getItems() {
     /** @type {VisibilityRowData[]} */
@@ -64,7 +71,7 @@ export function getItems() {
             next.push(incoming);
         },
     };
-    const event = new CustomEvent(Customizer.OPEN_EVENT, { detail });
+    const event = new CustomEvent(CustomizerMenu.OPEN_EVENT, { detail });
     window.dispatchEvent(event);
     next.sort((a, b) => a.index - b.index);
     return next;
@@ -102,20 +109,22 @@ export function useContextMenu() {
  * @param {object} props
  * @param {string} [props.menuId]
  * @param {string} [props.buttonId]
- * @param {boolean} props.isOpen
+ * @param {import("@preact/signals").Signal<boolean>|boolean} props.isOpen
  * @param {() => void} [props.toggleMenu]
  * @param {import("preact").Ref<HTMLButtonElement>} [props.buttonRef]
+ * @param {"menu" | "drawer"} props.kind
  */
-export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef }) {
+export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef, kind }) {
     const { t } = useTypedTranslation();
     return (
         <button
             ref={buttonRef}
-            className={styles.customizeButton}
+            class={styles.customizeButton}
             onClick={toggleMenu}
             aria-haspopup="true"
             aria-expanded={isOpen}
             aria-controls={menuId}
+            data-kind={kind}
             id={buttonId}
         >
             <CustomizeIcon />
@@ -210,11 +219,11 @@ export function useCustomizer({ title, id, icon, toggle, visibility, index }) {
         const handler = (/** @type {CustomEvent<any>} */ e) => {
             e.detail.register({ title, id, icon, toggle, visibility, index });
         };
-        window.addEventListener(Customizer.OPEN_EVENT, handler);
-        return () => window.removeEventListener(Customizer.OPEN_EVENT, handler);
+        window.addEventListener(CustomizerMenu.OPEN_EVENT, handler);
+        return () => window.removeEventListener(CustomizerMenu.OPEN_EVENT, handler);
     }, [title, id, icon, toggle, visibility, index]);
 
     useEffect(() => {
-        window.dispatchEvent(new Event(Customizer.UPDATE_EVENT));
+        window.dispatchEvent(new Event(CustomizerMenu.UPDATE_EVENT));
     }, [visibility]);
 }

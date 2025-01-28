@@ -52,11 +52,16 @@ body[data-animate-background="true"] {
     color: var(--ntp-text-normal);
 }
 
+.themeContext {
+    color: var(--ntp-text-normal);
+}
+
 .mainLayout {
-    padding-right: 0;
-    transition: padding-right .3s;
+    will-change: transform;
+    transition: transform .3s;
+
     [data-drawer-visibility='visible'] & {
-        padding-right: var(--ntp-combined-width);
+        transform: translateX(calc(0px - var(--ntp-combined-width) / 2));
     }
 }
 
@@ -110,6 +115,7 @@ body[data-animate-background="true"] {
     right: 0;
     top: 0;
     z-index: 1;
+    will-change: transform;
     transform: translateX(100%);
     transition: transform .3s;
 

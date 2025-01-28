@@ -27,7 +27,7 @@ html[data-focus-mode="on"] .hideInFocus {
     display: none;
 }
 .main {
-    --bg-color: rgba(0, 0, 0, 0.3);
+    --bg-color: #222;
     --logo-spacing: 185px;
     --gutter-width: 8px;
     --outer-radius: 16px;
@@ -87,6 +87,12 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
     padding-bottom: 0;
     border-top-left-radius: var(--outer-radius);
     border-top-right-radius: var(--outer-radius);
+
+    transition: background-color .3s;
+
+    html[data-focus-mode="on"] & {
+        transition: none;
+    }
 }
 
 .logo {

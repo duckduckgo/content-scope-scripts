@@ -2,6 +2,7 @@
  * @typedef {import("../../types/new-tab.js").CustomizerData} CustomizerData
  * @typedef {import("../../types/new-tab.js").UserImageData} UserImageData
  * @typedef {import("../../types/new-tab.js").UserColorData} UserColorData
+ * @typedef {import("../../types/new-tab.js").UserImageContextMenu} UserImageContextMenu
  * @typedef {import("../../types/new-tab.js").ThemeData} ThemeData
  * @typedef {import("../../types/new-tab.js").BackgroundData} BackgroundData
  */
@@ -134,5 +135,12 @@ export class CustomizerService {
             return theme;
         });
         this.ntp.messaging.notify('customizer_setTheme', theme);
+    }
+
+    /**
+     * @param {import('../../types/new-tab.js').UserImageContextMenu} params
+     */
+    contextMenu(params) {
+        this.ntp.messaging.notify('customizer_contextMenu', params);
     }
 }

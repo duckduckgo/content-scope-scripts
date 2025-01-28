@@ -9,7 +9,7 @@ html:has(body[data-display="app"]) {
 
 body[data-display="app"] {
     color: rgba(242, 242, 242, 1);
-    background: #101010;
+    background: #000;
     height: 100vh;
     overflow: hidden;
     padding: 16px;

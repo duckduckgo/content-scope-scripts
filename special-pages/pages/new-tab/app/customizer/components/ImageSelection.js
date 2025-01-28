@@ -12,7 +12,7 @@ import { useTypedTranslationWith } from '../../types.js';
 
 /**
  * @import enStrings from '../strings.json';
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, PredefinedGradient } from '../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, PredefinedGradient, UserImageContextMenu } from '../../../types/new-tab.js'
  */
 
 /**
@@ -22,8 +22,9 @@ import { useTypedTranslationWith } from '../../types.js';
  * @param {() => void} props.back
  * @param {() => void} props.onUpload
  * @param {(id: string) => void} props.deleteImage
+ * @param {(p: UserImageContextMenu) => void} props.customizerContextMenu
  */
-export function ImageSelection({ data, select, back, onUpload, deleteImage }) {
+export function ImageSelection({ data, select, back, onUpload, deleteImage, customizerContextMenu }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     function onClick(event) {
         let target = /** @type {HTMLElement|null} */ (event.target);
@@ -38,8 +39,19 @@ export function ImageSelection({ data, select, back, onUpload, deleteImage }) {
         select({ background: { kind: 'userImage', value: match } });
     }
 
+    function onContextMenu(event) {
+        const target = /** @type {HTMLElement|null} */ (event.target);
+        if (!(target instanceof HTMLElement)) return;
+        const id = target.closest('button')?.dataset.id;
+        if (typeof id === 'string') {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            customizerContextMenu({ id, target: 'userImage' });
+        }
+    }
+
     return (
-        <div>
+        <div onContextMenu={onContextMenu}>
             <button type={'button'} onClick={back} class={cn(styles.backBtn, styles.sectionTitle)}>
                 <BackChevron />
                 {t('customizer_background_selection_image_existing')}

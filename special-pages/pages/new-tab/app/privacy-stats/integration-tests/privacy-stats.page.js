@@ -44,6 +44,13 @@ export class PrivacyStatsPage {
         expect(await rows.count()).toBe(count);
     }
 
+    /**
+     * @param {string} heading
+     */
+    async hasHeading(heading) {
+        await expect(this.context().getByRole('heading')).toContainText(heading);
+    }
+
     async showMoreSecondary() {
         await this.context().getByLabel('Show More', { exact: true }).click();
     }

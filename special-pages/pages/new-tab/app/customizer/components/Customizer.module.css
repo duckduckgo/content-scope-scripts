@@ -3,7 +3,7 @@
 }
 
 .lowerRightFixed {
-    position: fixed;
+    position: absolute;
     bottom: 1rem;
     right: 1rem;
 }
@@ -54,6 +54,16 @@
         [data-theme=dark] & {
             background-color: var(--color-white-at-24);
             border-color: var(--color-white-at-50);
+        }
+    }
+
+    &[data-kind="drawer"][aria-expanded="true"] {
+        visibility: hidden;
+    }
+
+    @media screen and (max-width: 800px) {
+        span {
+            display: none;
         }
     }
 }

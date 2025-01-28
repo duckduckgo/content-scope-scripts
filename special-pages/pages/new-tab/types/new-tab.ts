@@ -86,6 +86,7 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
 export interface NewTabMessages {
   notifications:
     | ContextMenuNotification
+    | CustomizerContextMenuNotification
     | CustomizerDeleteImageNotification
     | CustomizerSetBackgroundNotification
     | CustomizerSetThemeNotification
@@ -155,6 +156,17 @@ export interface VisibilityMenuItem {
    * Translated name of the section
    */
   title: string;
+}
+/**
+ * Generated from @see "../messages/customizer_contextMenu.notify.json"
+ */
+export interface CustomizerContextMenuNotification {
+  method: "customizer_contextMenu";
+  params: UserImageContextMenu;
+}
+export interface UserImageContextMenu {
+  id: string;
+  target: "userImage";
 }
 /**
  * Generated from @see "../messages/customizer_deleteImage.notify.json"
@@ -490,7 +502,14 @@ export interface FavoritesData {
   favorites: Favorite[];
 }
 export interface Favorite {
+  /**
+   * The full url that will be navigated to (including path, query params and hash)
+   */
   url: string;
+  /**
+   * The eTLD+1 of the URL, representing the effective top-level domain and one second-level domain
+   */
+  etldPlusOne: null | string;
   id: string;
   title: string;
   favicon: null | FavoriteFavicon;
