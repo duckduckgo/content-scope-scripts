@@ -44,24 +44,7 @@
             "type": "string"
           },
           "favicon": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "object",
-                "title": "Favorite Favicon",
-                "required": ["src", "maxAvailableSize"],
-                "properties": {
-                  "src": {
-                    "type": "string"
-                  },
-                  "maxAvailableSize": {
-                    "type": "number"
-                  }
-                }
-              }
-            ]
+            "$ref": "./favicon.json"
           }
         }
       }
