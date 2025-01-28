@@ -45,12 +45,9 @@
         },
         "favorite": {
           "type": "boolean"
-        },
-        "fireproof": {
-          "type": "boolean"
         }
       },
-      "required": ["etldPlusOne", "title", "url", "trackingStatus", "trackersFound", "history", "favorite", "fireproof", "favicon"]
+      "required": ["etldPlusOne", "title", "url", "trackingStatus", "trackersFound", "history", "favorite", "favicon"]
     },
     "TrackingStatus": {
       "type": "object",

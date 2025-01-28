@@ -102,22 +102,39 @@ export class ActivityPage {
             featureName: 'newTabPage',
             method: 'activity_removeFavorite',
             params: {
-                url: 'https://www.youtube.com',
+                url: 'https://fireproof.youtube.com',
             },
         });
     }
     async burnsItem() {
-        // const { page } = this;
-        // await page.pause();
+        const { page } = this;
+        /** @type {import('../../../types/new-tab.js').ConfirmBurnResponse} */
+        const response = {
+            action: 'burn',
+        };
+
+        await page.evaluate((response) => {
+            window.__playwright_01.mockResponses = {
+                ...window.__playwright_01.mockResponses,
+                activity_confirmBurn: /** @type {any} */ (response),
+            };
+        }, response);
+
         await this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' }).click();
-        const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_burn', count: 1 });
-        expect(result[0].payload).toStrictEqual({
+        const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_confirmBurn', count: 1 });
+        expect(result[0].payload).toMatchObject({
             context: 'specialPages',
             featureName: 'newTabPage',
-            method: 'activity_burn',
+            method: 'activity_confirmBurn',
             params: {
                 url: 'https://example.com',
             },
+        });
+        const animResult = await this.ntp.mocks.waitForCallCount({ method: 'activity_burnAnimationComplete', count: 1 });
+        expect(animResult[0].payload).toMatchObject({
+            context: 'specialPages',
+            featureName: 'newTabPage',
+            method: 'activity_burnAnimationComplete',
         });
     }
 
@@ -231,17 +248,6 @@ export class ActivityPage {
     async listsAtMost3TrackerCompanies() {
         const { page } = this;
         await page.pause();
-        // const first = this.context().getByTestId('TrackerStatus').nth(0);
-        // const second = this.context().getByTestId('TrackerStatus').nth(1);
-        // await expect(second).toMatchAriaSnapshot(`
-        //     - img "google icon"
-        //     - img "facebook icon"
-        //     - text: +2 89 tracking attempts blocked
-        //     - list:
-        //       - listitem:
-        //         - link "Electronics Store"
-        //         - text: 1 day ago
-        // `);
     }
 
     async showsEmptyTrackerState() {
@@ -273,42 +279,5 @@ export class ActivityPage {
                   - link "Profile Page"
                   - text: 2 hrs ago
         `);
-    }
-
-    async burnsFireproofItem() {
-        const { page } = this;
-
-        /** @type {import('../../../types/new-tab.js').ConfirmBurnResponse} */
-        const response = {
-            action: 'burn',
-        };
-
-        await page.evaluate((response) => {
-            window.__playwright_01.mockResponses = {
-                ...window.__playwright_01.mockResponses,
-                activity_confirmBurn: /** @type {any} */ (response),
-            };
-        }, response);
-
-        // trigger the burn (on an item marked as fireproof)
-        await this.context().getByRole('button', { name: 'Clear browsing history and data for youtube.com' }).click();
-
-        // trigger the burn (on an item marked as fireproof)
-        const confirm = await this.ntp.mocks.waitForCallCount({ method: 'activity_confirmBurn', count: 1 });
-        const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_burn', count: 1 });
-
-        expect(confirm[0].payload).toMatchObject({
-            context: 'specialPages',
-            featureName: 'newTabPage',
-            method: 'activity_confirmBurn',
-            params: { url: 'https://www.youtube.com' },
-        });
-
-        expect(result[0].payload).toMatchObject({
-            context: 'specialPages',
-            featureName: 'newTabPage',
-            method: 'activity_burn',
-            params: { url: 'https://www.youtube.com' },
-        });
     }
 }

@@ -121,7 +121,7 @@ export class ActivityService {
     /**
      * @param {string} url
      */
-    burn(url) {
+    burnAnimationComplete(url) {
         this.dataService.update((old) => {
             return {
                 ...old,
@@ -130,7 +130,7 @@ export class ActivityService {
                 }),
             };
         });
-        this.ntp.messaging.notify('activity_burn', { url });
+        this.ntp.messaging.notify('activity_burnAnimationComplete');
     }
     /**
      * @param {string} url

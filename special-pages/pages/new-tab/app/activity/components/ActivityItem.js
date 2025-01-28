@@ -23,9 +23,8 @@ export const ActivityItem = memo(
      * @param {string|null|undefined} props.favoriteSrc
      * @param {number} props.faviconMax
      * @param {string} props.etldPlusOne
-     * @param {boolean} props.fireproof
      */
-    function ActivityItem({ canBurn, documentVisibility, title, url, favoriteSrc, faviconMax, etldPlusOne, fireproof, children }) {
+    function ActivityItem({ canBurn, documentVisibility, title, url, favoriteSrc, faviconMax, etldPlusOne, children }) {
         return (
             <li key={url} class={cn(styles.item)} data-testid="ActivityItem">
                 <div class={styles.heading}>
@@ -44,7 +43,7 @@ export const ActivityItem = memo(
                     <a class={styles.title} href={url} data-url={url}>
                         {title}
                     </a>
-                    <Controls canBurn={canBurn} url={url} title={title} fireproof={fireproof} />
+                    <Controls canBurn={canBurn} url={url} title={title} />
                 </div>
                 <div class={styles.body}>{children}</div>
             </li>
@@ -60,9 +59,8 @@ export const ActivityItem = memo(
  * @param {boolean} props.canBurn - Indicates whether the burn action is allowed.
  * @param {string} props.url - The unique URL identifier for the associated item.
  * @param {string} props.title - The title or domain name displayed in the button tooltips.
- * @param {boolean} props.fireproof - Whether this item is fireproof
  */
-function Controls({ canBurn, url, title, fireproof }) {
+function Controls({ canBurn, url, title }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(SignalStateContext);
     const favorite = useComputed(() => activity.value.favorites[url]);
@@ -92,7 +90,6 @@ function Controls({ canBurn, url, title, fireproof }) {
                 className={cn(styles.icon, styles.controlIcon)}
                 title={secondaryTitle}
                 data-action={canBurn ? ACTION_BURN : ACTION_REMOVE}
-                data-fireproof={String(fireproof)}
                 value={url}
                 type="button"
             >
