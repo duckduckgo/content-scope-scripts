@@ -37,7 +37,7 @@
   ],
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
-    "@playwright/test": "^1.49.1",
+    "@playwright/test": "^1.50.0",
     "@types/eslint__js": "^8.42.3",
     "eslint": "^9.18.0",
     "minimist": "^1.2.8",
