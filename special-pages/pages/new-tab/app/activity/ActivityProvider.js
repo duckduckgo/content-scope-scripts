@@ -124,7 +124,6 @@ export function ActivityProvider(props) {
  * @property {number} props.faviconMax
  * @property {string} props.etldPlusOne
  * @property {boolean} props.trackersFound
- * @property {boolean} props.fireproof
  */
 
 /**
@@ -158,7 +157,6 @@ function normalizeItems(prev, data) {
                     faviconMax: x.favicon?.maxAvailableSize ?? DDG_DEFAULT_ICON_SIZE,
                     favoriteSrc: x.favicon?.src,
                     trackersFound: x.trackersFound,
-                    fireproof: x.fireproof,
                 };
                 const differs = shallowDiffers(next, prev.items[x.url] || {});
                 return [x.url, differs ? next : prev.items[x.url] || {}];

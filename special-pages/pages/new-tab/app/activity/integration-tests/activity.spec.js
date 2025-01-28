@@ -66,14 +66,6 @@ test.describe('activity widget', () => {
         await ap.didRender();
         await ap.burnsItem();
     });
-    test('burns fireproof', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const ap = new ActivityPage(page, ntp);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { feed: 'activity' } });
-        await ap.didRender();
-        await ap.burnsFireproofItem();
-    });
     test('removes item (windows)', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);

@@ -37,7 +37,6 @@ title: Activity
       "title": "youtube.com",
       "etldPlusOne": "youtube.com",
       "favorite": true,
-      "fireproof": true,
       "trackersFound": true,
       "trackingStatus": {
         "trackerCompanies": [{ "displayName": "Adobe Analytics" }],
@@ -66,7 +65,7 @@ Notes:
 - 
 ### `activity_confirmBurn`
 - {@link "NewTab Messages".ActivityConfirmBurnRequest}
-- Used when an item is fireproof to confirm the action is desired
+- Used to confirm the burn action
 - sends {@link "NewTab Messages".ConfirmBurnParams}
 - returns {@link "NewTab Messages".ConfirmBurnResponse}
 
@@ -84,6 +83,9 @@ Response (do nothing)
 ```json
 { "action": "none" }
 ```
+
+If `{ "action": "burn" }` is returned, the burn animation will play, and will follow 
+by sending the notification `activity_burnAnimationComplete` 
 
 ## Subscriptions:
 ### `activity_onDataUpdate`
@@ -152,3 +154,6 @@ example payload without id (for example, on history items)
   "target": "same-tab"
 }
 ```
+
+### `activity_burnAnimationComplete`
+- Sent when the burn animation completes

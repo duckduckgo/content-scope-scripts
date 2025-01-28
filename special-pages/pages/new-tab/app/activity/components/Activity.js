@@ -109,7 +109,6 @@ const BurnableItem = memo(
                     etldPlusOne={item.value.etldPlusOne}
                     canBurn={true}
                     documentVisibility={documentVisibility}
-                    fireproof={item.value.fireproof}
                 >
                     <TrackerStatus id={id} trackersFound={item.value.trackersFound} />
                     <HistoryItems id={id} />
@@ -136,7 +135,6 @@ const RemovableItem = memo(
                 favoriteSrc={item.value.favoriteSrc}
                 faviconMax={item.value.faviconMax}
                 etldPlusOne={item.value.etldPlusOne}
-                fireproof={item.value.fireproof}
                 canBurn={canBurn}
                 documentVisibility={documentVisibility}
             >
