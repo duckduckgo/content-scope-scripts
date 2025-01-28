@@ -28,6 +28,20 @@ test.describe('activity widget', () => {
         await ap.acceptsUpdatedFavorite();
         await ap.acceptsUpdatedHistoryPaths();
     });
+    test('can expand with entries', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel' } });
+        await ap.canCollapseList();
+    });
+    test('empty state', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel' } });
+        await ap.cannotExpandListWhenEmpty();
+    });
     test('favorite item', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
