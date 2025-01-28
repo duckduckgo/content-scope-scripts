@@ -10,7 +10,6 @@ import { PragmaticDND } from './PragmaticDND.js';
 import { FavoritesMemo } from './Favorites.js';
 import { viewTransition } from '../../utils.js';
 import { CustomizerContext } from '../../customizer/CustomizerProvider.js';
-import { usePlatformName } from '../../settings.provider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.ts').Favorite} Favorite
