@@ -172,6 +172,7 @@ export class ResultsCollector {
             messagingContext: this.messagingContext('n/a'),
             responses: this.#mockResponses,
             messageCallback: 'messageCallback',
+            javascriptInterface: this.#userPreferences.javascriptInterface,
         });
 
         const wrapFn = this.build.switch({
@@ -234,6 +235,8 @@ export class ResultsCollector {
             name,
             payload,
             injectName: this.build.name,
+            messageCallback: this.#userPreferences.messageCallback,
+            messageSecret: this.#userPreferences.messageSecret,
         });
     }
 
