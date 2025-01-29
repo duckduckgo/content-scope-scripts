@@ -104,17 +104,18 @@ export function activityMockTransport() {
                         }
                     }
 
-                    if (response.action === 'burn') {
+                    if (response.action === 'burn' && !window.__playwright_01) {
                         setTimeout(() => {
                             const cb = subs.get('activity_onDataUpdate');
-                            console.log('wills send new data for', url);
+                            console.log('will send updated data after 500ms', url);
                             const next = activityMocks.few.activity.filter((x) => x.url !== url);
                             cb?.({ activity: next });
                         }, 500);
                         setTimeout(() => {
                             const cb = subs.get('activity_onBurnComplete');
+                            console.log('will send updated data after 600ms', url);
                             cb?.();
-                        }, 550);
+                        }, 600);
                     }
 
                     return Promise.resolve(response);
