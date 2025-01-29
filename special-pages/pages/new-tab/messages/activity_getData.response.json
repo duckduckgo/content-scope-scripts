@@ -5,7 +5,7 @@
       "$ref": "types/activity.json"
     },
     {
-      "$ref": "types/activity-paged.json"
+      "$ref": "types/activity-fetched.json"
     }
   ]
 }

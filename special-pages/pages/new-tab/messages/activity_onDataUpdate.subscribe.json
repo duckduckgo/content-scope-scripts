@@ -6,7 +6,7 @@
     },
     {
       "allOf": [
-        { "$ref": "types/activity-paged.json" },
+        { "$ref": "types/activity-fetched.json" },
         {
           "type": "object",
           "properties": {
