@@ -96,6 +96,7 @@ export function PlayerError({ kind, layout }) {
             class={cn(styles.root, {
                 [styles.desktop]: layout === 'desktop',
                 [styles.mobile]: layout === 'mobile',
+                [styles.errorContainer]: true,
             })}
         >
             {kind === 'invalid-id' && <InvalidIdError kind={kind} />}
@@ -132,17 +133,19 @@ export function YouTubeError({ kind }) {
             <div className={styles.youtubeErrorContainer}>
                 <span className={styles.youtubeErrorIcon}></span>
 
-                <h1 className={styles.youtubeErrorHeading}>{heading}</h1>
+                <div className={styles.youtubeErrorText}>
+                    <h1 className={styles.youtubeErrorHeading}>{heading}</h1>
 
-                {message && <p className={styles.youtubeErrorMessage}>{message}</p>}
+                    {message && <p className={styles.youtubeErrorMessage}>{message}</p>}
 
-                {solutions && (
-                    <ul className={styles.youtubeErrorList}>
-                        {solutions.map((item) => (
-                            <li>{item}</li>
-                        ))}
-                    </ul>
-                )}
+                    {solutions && (
+                        <ul className={styles.youtubeErrorList}>
+                            {solutions.map((item) => (
+                                <li>{item}</li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -56,59 +56,101 @@
     column-gap: 24px;
     row-gap: 4px;
     grid-template-areas: 
-    "icon heading"
-    "icon message"
-    "icon list";
+        "icon"
+        "text";
     max-width: 680px;
-    padding: 0 40px;
+    padding: 0 24px;
+    margin: 16px 0;
+
+    @media screen and (min-width: 600px) {
+        grid-template-areas: 
+            "icon text";
+        padding: 0 40px;
+        margin: 0;
+    }
+}
+
+.youtubeErrorText {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    grid-area: text;
+    margin: 16px 0;
+
+    @media screen and (min-width: 600px) {
+        margin: 24px 0;
+    }
 }
 
 .youtubeErrorIcon {
-    align-self: start;
-    background: url('../img/warning-96.data.svg') no-repeat;
-    display: block;
-    height: 48px;
-    width: 48px;
-
+    align-self: center;
+    display: flex;
     grid-area: icon;
+    justify-content: center;
+
+    &::before {
+        content: ' ';
+        display: block;
+        background: url('../img/warning-96.data.svg') no-repeat;
+        height: 48px;
+        width: 48px;
+    }
 
     @media screen and (min-width: 600px) {
-        align-self: start;
-        background-image: url('../img/warning-128.data.svg');
-        height: 96px;
-        width: 128px;
+        justify-content: start;
+
+        &::before {
+            background-image: url('../img/warning-128.data.svg');
+            height: 96px;
+            width: 128px;
+        }
     }
 }
 
 .youtubeErrorHeading {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
-    line-height: calc(24 / 20);
+    line-height: calc(20 / 16);
     margin: 0;
 
     grid-area: heading;
+
+    @media screen and (min-width: 600px) {
+        font-size: 20px;
+        line-height: calc(24 / 20);
+    }
 }
 
 .youtubeErrorMessage {
     color: #ccc;
-    font-size: 14px;
-    line-height: calc(20 / 14);
+    font-size: 13px;
+    line-height: calc(18 / 13);
     margin: 0;
 
     grid-area: message;
+
+    @media screen and (min-width: 600px) {
+        font-size: 14px;
+        line-height: calc(20 / 14);
+    }
 }
 
 .youtubeErrorList {
     color: #ccc;
-    font-size: 14px;
-    line-height: calc(20 / 14);
+    font-size: 13px;
+    line-height: calc(18 / 13);
+
+    grid-area: list;
 
     li {
         list-style: disc;
         margin-left: 20px;
     }
 
-    grid-area: list
+    @media screen and (min-width: 600px) {
+        font-size: 14px;
+        line-height: calc(20 / 14);
+    }
 }
 
 @media screen and (min-width: 600px) and (max-height: 450px) {
@@ -126,5 +168,11 @@
     .error {
         overflow: hidden;
         border-radius: 0;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .errorContainer.errorContainer {
+        aspect-ratio: unset;
     }
 }
