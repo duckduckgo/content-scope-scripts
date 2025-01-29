@@ -95,6 +95,7 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.focusModeIsAbsent();
     });
     test('fires pause when clicking on Watch on YouTube', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo));
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         // load as normal
         await duckplayer.openWithVideoID();

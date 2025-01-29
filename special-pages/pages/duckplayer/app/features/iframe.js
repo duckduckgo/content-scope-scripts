@@ -79,7 +79,10 @@ export function createIframeFeatures(settings) {
          * @return {IframeFeature}
          */
         playbackEvents: () => {
-            return new PlaybackEvents();
+            if (settings.playbackEvents) {
+                return new PlaybackEvents();
+            }
+            return IframeFeature.noop();
         },
     };
 }

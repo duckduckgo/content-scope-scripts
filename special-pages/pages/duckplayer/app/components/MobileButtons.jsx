@@ -43,7 +43,6 @@ export function MobileButtons({ embed }) {
                 buttonProps={{
                     onClick: () => {
                         if (embed) {
-                            pauseVideo();
                             openOnYoutube(embed);
                         }
                     },
