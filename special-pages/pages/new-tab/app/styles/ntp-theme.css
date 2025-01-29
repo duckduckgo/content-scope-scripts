@@ -41,7 +41,6 @@
     --ntp-surface-border-color: var(--color-black-at-9);
     --ntp-text-normal: var(--color-black-at-84);
     --ntp-text-muted: var(--color-black-at-60);
-    --ntp-text-muted-more: var(--color-black-at-40);
     --ntp-text-on-primary: var(--color-white-at-84);
     --ntp-color-primary: var(--ddg-color-primary);
     --ntp-focus-outline-color: black;
@@ -57,7 +56,6 @@
     --ntp-surface-border-color: var(--color-white-at-12);
     --ntp-text-normal: var(--color-white-at-84);
     --ntp-text-muted: var(--color-white-at-60);
-    --ntp-text-muted-more: var(--color-white-at-36);
     --ntp-color-primary: var(--color-blue-30);
     --ntp-text-on-primary: var(--color-black-at-84);
     --ntp-focus-outline-color: white;

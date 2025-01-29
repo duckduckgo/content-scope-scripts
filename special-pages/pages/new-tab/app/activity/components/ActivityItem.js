@@ -28,19 +28,19 @@ export const ActivityItem = memo(
         return (
             <li key={url} class={cn(styles.item)} data-testid="ActivityItem">
                 <div class={styles.heading}>
-                    <a class={styles.favicon} href={url} title={title} data-url={url}>
-                        {documentVisibility === 'visible' && (
-                            <ImageWithState
-                                faviconSrc={favoriteSrc}
-                                faviconMax={faviconMax}
-                                title={title}
-                                etldPlusOne={etldPlusOne}
-                                theme={'light'}
-                                displayKind={'history-favicon'}
-                            />
-                        )}
-                    </a>
                     <a class={styles.title} href={url} data-url={url}>
+                        <span className={styles.favicon} data-url={url}>
+                            {documentVisibility === 'visible' && (
+                                <ImageWithState
+                                    faviconSrc={favoriteSrc}
+                                    faviconMax={faviconMax}
+                                    title={title}
+                                    etldPlusOne={etldPlusOne}
+                                    theme={'light'}
+                                    displayKind={'history-favicon'}
+                                />
+                            )}
+                        </span>
                         {title}
                     </a>
                     <Controls canBurn={canBurn} url={url} title={title} />
