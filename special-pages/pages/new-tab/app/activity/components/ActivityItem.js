@@ -77,7 +77,7 @@ function Controls({ canBurn, url, title }) {
     return (
         <div className={styles.controls}>
             <button
-                className={cn(styles.icon, styles.controlIcon)}
+                class={cn(styles.icon, styles.controlIcon, styles.disableWhenBusy)}
                 title={favoriteTitle}
                 data-action={favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE}
                 data-title={title}
@@ -87,7 +87,7 @@ function Controls({ canBurn, url, title }) {
                 {favorite.value ? <StarFilled /> : <Star />}
             </button>
             <button
-                className={cn(styles.icon, styles.controlIcon)}
+                class={cn(styles.icon, styles.controlIcon, styles.disableWhenBusy)}
                 title={secondaryTitle}
                 data-action={canBurn ? ACTION_BURN : ACTION_REMOVE}
                 value={url}

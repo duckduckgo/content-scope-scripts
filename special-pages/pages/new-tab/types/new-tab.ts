@@ -91,7 +91,6 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
 export interface NewTabMessages {
   notifications:
     | ActivityAddFavoriteNotification
-    | ActivityBurnAnimationCompleteNotification
     | ActivityOpenNotification
     | ActivityRemoveFavoriteNotification
     | ActivityRemoveItemNotification
@@ -138,6 +137,7 @@ export interface NewTabMessages {
     | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
+    | ActivityOnBurnCompleteSubscription
     | ActivityOnConfigUpdateSubscription
     | ActivityOnDataUpdateSubscription
     | CustomizerAutoOpenSubscription
@@ -168,12 +168,6 @@ export interface ActivityAddFavoriteNotify {
    * The History Entry url to be added to favorites
    */
   url: string;
-}
-/**
- * Generated from @see "../messages/activity_burnAnimationComplete.notify.json"
- */
-export interface ActivityBurnAnimationCompleteNotification {
-  method: "activity_burnAnimationComplete";
 }
 /**
  * Generated from @see "../messages/activity_open.notify.json"
@@ -827,6 +821,12 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/activity_onBurnComplete.subscribe.json"
+ */
+export interface ActivityOnBurnCompleteSubscription {
+  subscriptionEvent: "activity_onBurnComplete";
 }
 /**
  * Generated from @see "../messages/activity_onConfigUpdate.subscribe.json"

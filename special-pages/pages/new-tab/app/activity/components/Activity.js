@@ -13,7 +13,7 @@ import { Chevron } from '../../components/Icons.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ActivityItem } from './ActivityItem.js';
-import { BurnProvider } from '../BurnProvider.js';
+import { ActivityBurningSignalContext, BurnProvider } from '../BurnProvider.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { useComputed } from '@preact/signals';
 import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js';
@@ -79,9 +79,10 @@ function ActivityBody({ canBurn }) {
     const documentVisibility = useDocumentVisibility();
     const { isReducedMotion } = useEnv();
     const { keys } = useContext(SignalStateContext);
-
+    const { burning, exiting } = useContext(ActivityBurningSignalContext);
+    const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
     return (
-        <ul class={styles.activity} onClick={didClick}>
+        <ul class={styles.activity} onClick={didClick} data-busy={busy}>
             {keys.value.map((id, index) => {
                 if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={documentVisibility} />;
                 return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={documentVisibility} />;

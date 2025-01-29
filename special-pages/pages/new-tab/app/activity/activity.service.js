@@ -23,6 +23,12 @@ export class ActivityService {
             subscribe: (cb) => ntp.messaging.subscribe('activity_onConfigUpdate', cb),
             persist: (data) => ntp.messaging.notify('activity_setConfig', data),
         });
+
+        /** @type {EventTarget|null} */
+        this.burns = new EventTarget();
+        this.burnUnsub = this.ntp.messaging.subscribe('activity_onBurnComplete', () => {
+            this.burns?.dispatchEvent(new CustomEvent('activity_onBurnComplete'));
+        });
     }
 
     name() {
@@ -46,6 +52,8 @@ export class ActivityService {
     destroy() {
         this.configService.destroy();
         this.dataService.destroy();
+        this.burnUnsub();
+        this.burns = null;
     }
 
     /**
@@ -116,21 +124,8 @@ export class ActivityService {
      * @return {Promise<import('../../types/new-tab.js').ConfirmBurnResponse>}
      */
     confirmBurn(url) {
+        this.dataService.disableBroadcast();
         return this.ntp.messaging.request('activity_confirmBurn', { url });
-    }
-    /**
-     * @param {string} url
-     */
-    burnAnimationComplete(url) {
-        this.dataService.update((old) => {
-            return {
-                ...old,
-                activity: old.activity.filter((item) => {
-                    return item.url !== url;
-                }),
-            };
-        });
-        this.ntp.messaging.notify('activity_burnAnimationComplete');
     }
     /**
      * @param {string} url
@@ -152,5 +147,19 @@ export class ActivityService {
      */
     openUrl(url, target) {
         this.ntp.messaging.notify('activity_open', { url, target });
+    }
+
+    onBurnComplete(cb) {
+        if (!this.burns) throw new Error('unreachable');
+        this.burns.addEventListener('activity_onBurnComplete', cb);
+        return () => {
+            if (!this.burns) throw new Error('unreachable');
+            this.burns.removeEventListener('activity_onBurnComplete', cb);
+        };
+    }
+
+    enableBroadcast() {
+        this.dataService.enableBroadcast();
+        this.dataService.flush();
     }
 }

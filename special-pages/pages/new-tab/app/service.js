@@ -13,6 +13,7 @@
 export class Service {
     eventTarget = new EventTarget();
     DEBOUNCE_TIME_MS = 200;
+    _broadcast = true;
     /**
      * @param {object} props
      * @param {() => Promise<Data>} [props.initial]
@@ -92,6 +93,18 @@ export class Service {
         });
     }
 
+    disableBroadcast() {
+        this._broadcast = false;
+    }
+
+    enableBroadcast() {
+        this._broadcast = true;
+    }
+
+    flush() {
+        if (this.data) this._accept(this.data, 'manual');
+    }
+
     /**
      * Apply a function over the current state.
      *
@@ -123,6 +136,8 @@ export class Service {
 
         // always cancel any existing debounced timers
         this.clearDebounceTimer();
+
+        if (!this._broadcast) return console.warn('not broadcasting');
 
         // always broadcast the change on the event target
         const dataEvent = new CustomEvent('data', {
