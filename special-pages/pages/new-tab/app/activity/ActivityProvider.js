@@ -189,13 +189,17 @@ function normalizeItems(prev, data) {
 }
 
 /**
- * @param {string[]} prev
+ * @param {{ available: string[]; max: number }} prev
  * @param {ActivityData} data
- * @return {string[]}
+ * @return {{ available: string[]; max: number }}
  */
-function normalize(prev, data) {
+function normalizeKeys(prev, data) {
     const keys = data.activity.map((x) => x.url);
-    return shallowDiffers(prev, keys) ? keys : prev;
+    const next = shallowDiffers(prev, keys) ? keys : prev.available;
+    return {
+        available: next,
+        max: keys.length,
+    };
 }
 
 /**
@@ -212,7 +216,7 @@ export function shallowDiffers(a, b) {
 
 export const SignalStateContext = createContext({
     activity: signal(/** @type {NormalizedActivity} */ ({})),
-    keys: signal(/** @type {string[]} */ ([])),
+    keys: signal(/** @type {{available: string[]; max: number}} */ ({ available: [], max: 0 })),
 });
 
 export function SignalStateProvider({ children }) {
@@ -221,7 +225,7 @@ export function SignalStateProvider({ children }) {
     if (state.status !== 'ready') throw new Error('must have ready status here');
     if (!service) throw new Error('must have service here');
 
-    const keys = useSignal(normalize([], state.data));
+    const keys = useSignal(normalizeKeys({ available: [], max: 0 }, state.data));
     const activity = useSignal(
         normalizeItems(
             {
@@ -237,9 +241,8 @@ export function SignalStateProvider({ children }) {
     useSignalEffect(() => {
         if (!service) return console.warn('could not access service');
         const unsub = service.onData((evt) => {
-            const next = normalize(keys.value, evt.data);
             batch(() => {
-                keys.value = next;
+                keys.value = normalizeKeys(keys.value, evt.data);
                 activity.value = normalizeItems(activity.value, evt.data);
             });
         });
