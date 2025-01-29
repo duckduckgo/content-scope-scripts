@@ -10,7 +10,7 @@
         {
           "type": "object",
           "properties": {
-            "record": {
+            "patched": {
               "$ref": "types/activity-domain-activity.json"
             }
           }
