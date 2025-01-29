@@ -25,6 +25,7 @@ export function BurnProvider({ children }) {
     async function didClick(e) {
         const button = /** @type {HTMLButtonElement|null} */ (e.target?.closest(`button[value][data-action="${ACTION_BURN}"]`));
         if (!button) return originalDidClick(e);
+        if (!service) throw new Error('unreachable');
 
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -34,6 +35,7 @@ export function BurnProvider({ children }) {
         const value = button.value;
         const response = await service?.confirmBurn(value);
         if (response && response.action === 'none') return console.log('action: none');
+        service.disableBroadcast();
         burning.value = burning.value.concat(value);
         const p1 = new Promise((resolve) => {
             window.addEventListener(
