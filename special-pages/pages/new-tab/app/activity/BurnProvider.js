@@ -21,38 +21,52 @@ export function BurnProvider({ children }) {
     const exiting = useSignal(/** @type {string[]} */ ([]));
     const { didClick: originalDidClick } = useContext(ActivityApiContext);
     const service = useContext(ActivityServiceContext);
-    const { isReducedMotion } = useEnv();
 
-    function didClick(e) {
+    async function didClick(e) {
         const button = /** @type {HTMLButtonElement|null} */ (e.target?.closest(`button[value][data-action="${ACTION_BURN}"]`));
         if (!button) return originalDidClick(e);
 
         e.preventDefault();
         e.stopImmediatePropagation();
 
+        if (burning.value.length > 0 || exiting.value.length > 0) return console.warn('ignoring additional burn');
+
         const value = button.value;
-        service
-            ?.confirmBurn(value)
-            // eslint-disable-next-line promise/prefer-await-to-then
-            .then((response) => {
-                if (response.action === 'burn') {
-                    if (isReducedMotion) {
-                        service.burnAnimationComplete(e.detail.url);
-                    } else {
-                        burning.value = burning.value.concat(value);
-                    }
-                }
-            })
-            // eslint-disable-next-line promise/prefer-await-to-then
-            .catch((e) => console.error(e));
+        const response = await service?.confirmBurn(value);
+        if (response && response.action === 'none') return console.log('action: none');
+        burning.value = burning.value.concat(value);
+        const p1 = new Promise((resolve) => {
+            window.addEventListener(
+                'done-exiting',
+                () => {
+                    exiting.value = [];
+                    console.log('WAIT:✅done-exiting');
+                    resolve(null);
+                },
+                { once: true },
+            );
+        });
+        const p2 = new Promise((resolve) => {
+            const unsub = service?.onBurnComplete(() => {
+                resolve(null);
+                unsub?.();
+                console.log('WAIT:✅onBurnComplete');
+            });
+        });
+        const all = Promise.all([p1, p2]);
+        await Promise.race([all, new Promise((resolve) => setTimeout(resolve, 3000))]);
+        service?.enableBroadcast();
     }
 
-    useSignalEffect(() => {
+    useEffect(() => {
         const handler = (e) => {
             if (e.detail.url) {
                 batch(() => {
                     burning.value = burning.value.filter((x) => x !== e.detail.url);
                     exiting.value = exiting.value.concat(e.detail.url);
+                    console.log('[done-burning]', e.detail.url, e.detail.reason);
+                    console.log(' ╰ [exiting]', exiting.value);
+                    console.log(' ╰ [burning]', burning.value);
                 });
             }
         };
@@ -60,21 +74,7 @@ export function BurnProvider({ children }) {
         return () => {
             window.removeEventListener('done-burning', handler);
         };
-    });
-
-    useEffect(() => {
-        const handler = (e) => {
-            if (!service) return console.warn('could not access the service');
-            if (!e.detail.url) return console.warn('missing detail.url on the custom event');
-
-            exiting.value = exiting.value.filter((x) => x !== e.detail.url);
-            service.burnAnimationComplete(e.detail.url);
-        };
-        window.addEventListener('done-exiting', handler);
-        return () => {
-            window.removeEventListener('done-exiting', handler);
-        };
-    }, [service]);
+    }, [burning, exiting]);
 
     return (
         <ActivityBurningSignalContext.Provider value={{ burning, exiting }}>

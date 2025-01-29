@@ -152,6 +152,12 @@
     }
 }
 
+.disableWhenBusy {
+    [data-busy="true"] & {
+        cursor: not-allowed;
+    }
+}
+
 .body {
     padding-left: calc(var(--favicon-width) + var(--heading-gap));
     padding-right: calc(var(--favicon-width) + var(--heading-gap) * 2);

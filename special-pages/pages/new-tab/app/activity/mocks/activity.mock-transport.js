@@ -15,6 +15,8 @@ export function activityMockTransport() {
         }
     }
 
+    const subs = new Map();
+
     return new TestTransportConfig({
         notify(_msg) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
@@ -28,7 +30,15 @@ export function activityMockTransport() {
         subscribe(_msg, cb) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
             const sub = /** @type {any} */ (_msg.subscriptionName);
-            console.warn('unhandled sub', sub);
+            if (sub === 'activity_onBurnComplete') {
+                subs.set('activity_onBurnComplete', cb);
+                return () => {
+                    subs.delete('activity_onBurnComplete');
+                };
+            }
+            if (sub === 'activity_onDataUpdate') {
+                subs.set('activity_onDataUpdate', cb);
+            }
             if (sub === 'activity_onDataUpdate' && url.searchParams.has('flood')) {
                 let count = 0;
                 const int = setInterval(() => {
@@ -69,6 +79,7 @@ export function activityMockTransport() {
                 }, 500);
                 return () => {};
             }
+            console.warn('unhandled sub', sub);
             return () => {};
         },
         // eslint-ignore-next-line require-await
@@ -92,6 +103,20 @@ export function activityMockTransport() {
                             }
                         }
                     }
+
+                    if (response.action === 'burn') {
+                        setTimeout(() => {
+                            const cb = subs.get('activity_onDataUpdate');
+                            console.log('wills send new data for', url);
+                            const next = activityMocks.few.activity.filter((x) => x.url !== url);
+                            cb?.({ activity: next });
+                        }, 500);
+                        setTimeout(() => {
+                            const cb = subs.get('activity_onBurnComplete');
+                            cb?.();
+                        }, 550);
+                    }
+
                     return Promise.resolve(response);
                 }
                 case 'activity_getData':
