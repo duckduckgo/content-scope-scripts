@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["url"],
+  "title": "Get Data For URL Params",
+  "properties": {
+    "url": {
+      "description": "The History Entry url that should be returned",
+      "type": "string"
+    }
+  }
+}
