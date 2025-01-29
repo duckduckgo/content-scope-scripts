@@ -2,8 +2,7 @@ import { h, createContext } from 'preact';
 import { useContext, useEffect } from 'preact/hooks';
 import { ActivityApiContext, ActivityServiceContext } from './ActivityProvider';
 import { ACTION_BURN } from './constants.js';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
-import { batch, signal, useSignal, useSignalEffect } from '@preact/signals';
+import { batch, signal, useSignal } from '@preact/signals';
 
 export const ActivityBurningSignalContext = createContext({
     /** @type {import("@preact/signals").Signal<string[]>} */
@@ -35,28 +34,35 @@ export function BurnProvider({ children }) {
         const value = button.value;
         const response = await service?.confirmBurn(value);
         if (response && response.action === 'none') return console.log('action: none');
+
+        // stop the service broadcasting any updates for a mo
         service.disableBroadcast();
+
+        // mark this item as burning - this will prevent further events until we're done
         burning.value = burning.value.concat(value);
-        const p1 = new Promise((resolve) => {
-            window.addEventListener(
-                'done-exiting',
-                () => {
-                    exiting.value = [];
-                    console.log('WAIT:✅done-exiting');
-                    resolve(null);
-                },
-                { once: true },
-            );
+
+        // wait for either the animation to be finished, or the document visibility changed
+        const feSignals = any(animationExit(), didChangeDocumentVisibility());
+
+        // the signal from native that burning was complete
+        const nativeSignal = didCompleteNatively(service);
+
+        // at least 1 FE signal + 1 native signal is required to continue
+        const required = all(feSignals, nativeSignal);
+
+        // but don't wait any longer than 3 seconds
+        const withTimer = any(required, timer(3000));
+
+        // exec the chain
+        await toPromise(withTimer);
+
+        // when we get here, clear out all state
+        batch(() => {
+            exiting.value = [];
+            burning.value = [];
         });
-        const p2 = new Promise((resolve) => {
-            const unsub = service?.onBurnComplete(() => {
-                resolve(null);
-                unsub?.();
-                console.log('WAIT:✅onBurnComplete');
-            });
-        });
-        const all = Promise.all([p1, p2]);
-        await Promise.race([all, new Promise((resolve) => setTimeout(resolve, 3000))]);
+
+        // and re-enable the data broadcasting
         service?.enableBroadcast();
     }
 
@@ -83,4 +89,131 @@ export function BurnProvider({ children }) {
             <ActivityApiContext.Provider value={{ didClick }}>{children}</ActivityApiContext.Provider>
         </ActivityBurningSignalContext.Provider>
     );
+}
+
+function toPromise(fn) {
+    return new Promise((resolve) => {
+        const cleanup = fn({
+            next: (v) => {
+                resolve(v);
+                cleanup();
+            },
+        });
+    });
+}
+
+function animationExit() {
+    return (subject) => {
+        console.log('+[didExit] setup');
+        const handler = () => {
+            console.log('  -> [didExit] resolve .next()');
+            subject.next();
+        };
+        window.addEventListener('done-exiting', handler, { once: true });
+        return () => {
+            console.log('-[didExit] teardown');
+            window.removeEventListener('done-exiting', handler);
+        };
+    };
+}
+
+function timer(ms) {
+    return (subject) => {
+        console.log('+[timer] setup');
+        const int = setTimeout(() => {
+            console.log(' -> [timer] .next()');
+            return subject.next();
+        }, ms);
+        return () => {
+            console.log('-[timer] teardown');
+            clearTimeout(int);
+        };
+    };
+}
+
+function didCompleteNatively(service) {
+    return (subject) => {
+        console.log('+[didCompleteNatively] setup');
+        const unsub = service?.onBurnComplete(() => {
+            console.log('  -> [didCompleteNatively] .next()');
+            subject.next();
+        });
+        return () => {
+            console.log('-[didCompleteNatively] teardown');
+            unsub();
+        };
+    };
+}
+
+function didChangeDocumentVisibility() {
+    return (subject) => {
+        console.log('+[didChangeVisibilty] setup');
+        const handler = () => {
+            console.log('  -> [didChangeVisibilty] resolve .next()');
+            return subject.next(document.visibilityState);
+        };
+        document.addEventListener('visibilitychange', handler, { once: true });
+        return () => {
+            console.log('-[didChangeVisibilty] teardown');
+            window.removeEventListener('visibilitychange', handler);
+        };
+    };
+}
+
+function any(...fns) {
+    return (subject) => {
+        const work = fns.map((factory) => {
+            const subject = {
+                /** @type {any} */
+                next: undefined,
+            };
+            const promise = new Promise((resolve) => (subject.next = resolve));
+            const cleanup = factory(subject);
+            return {
+                promise: promise,
+                cleanup: cleanup,
+            };
+        });
+
+        Promise.any(work.map((x) => x.promise))
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .then((d) => subject.next(d))
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .catch(console.error);
+
+        return () => {
+            for (const workItem of work) {
+                workItem.cleanup();
+            }
+        };
+    };
+}
+
+function all(...fns) {
+    return (subject) => {
+        const work = fns.map((factory) => {
+            const subject = {
+                /** @type {any} */
+                next: undefined,
+            };
+            const promise = new Promise((resolve) => (subject.next = resolve));
+            const cleanup = factory(subject);
+            return {
+                promise: promise,
+                cleanup: cleanup,
+            };
+        });
+
+        Promise.all(work.map((x) => x.promise))
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .then((d) => subject.next(d))
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .catch(console.error);
+
+        return () => {
+            for (const workItem of work) {
+                workItem.cleanup();
+            }
+        };
+    };
 }
