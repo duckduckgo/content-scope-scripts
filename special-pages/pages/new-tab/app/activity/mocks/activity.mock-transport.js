@@ -43,19 +43,23 @@ export function activityMockTransport() {
                 let count = 0;
                 const int = setInterval(() => {
                     if (count === 10) return clearInterval(int);
-                    dataset.activity.push({
-                        url: `https://${count}.example.com`,
-                        etldPlusOne: 'example.com',
-                        favicon: null,
-                        history: [],
-                        favorite: false,
-                        trackersFound: false,
-                        trackingStatus: { trackerCompanies: [], totalCount: 0 },
-                        title: 'example.com',
-                    });
+                    if (count < 5) {
+                        dataset.activity.push({
+                            url: `https://${count}.example.com`,
+                            etldPlusOne: 'example.com',
+                            favicon: null,
+                            history: [],
+                            favorite: false,
+                            trackersFound: false,
+                            trackingStatus: { trackerCompanies: [], totalCount: 0 },
+                            title: 'example.com',
+                        });
+                    } else {
+                        dataset.activity.pop();
+                    }
                     count += 1;
                     cb(dataset);
-                }, 100);
+                }, 1000);
                 return () => {};
             }
             if (sub === 'activity_onDataUpdate' && url.searchParams.has('nested')) {

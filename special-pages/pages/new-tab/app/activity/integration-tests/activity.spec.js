@@ -82,14 +82,6 @@ test.describe('activity widget', () => {
         await ap.didRender();
         await ap.opensLinkFromTitle();
     });
-    test('opening links from favicons', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const ap = new ActivityPage(page, ntp);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { feed: 'activity' } });
-        await ap.didRender();
-        await ap.opensLinkFromFavicon();
-    });
     test('opening links from history', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);

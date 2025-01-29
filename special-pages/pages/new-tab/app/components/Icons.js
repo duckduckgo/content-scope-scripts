@@ -28,6 +28,19 @@ export function Chevron() {
     );
 }
 
+export function ChevronSmall() {
+    return (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M3.93057 6.51191C4.20014 6.19741 4.67361 6.16099 4.98811 6.43056L8.00001 9.01219L11.0119 6.43056C11.3264 6.16099 11.7999 6.19741 12.0695 6.51191C12.339 6.8264 12.3026 7.29988 11.9881 7.56944L8.48811 10.5694C8.20724 10.8102 7.79279 10.8102 7.51192 10.5694L4.01192 7.56944C3.69743 7.29988 3.661 6.8264 3.93057 6.51191Z"
+                fill="currentColor"
+            />
+        </svg>
+    );
+}
+
 export function CustomizeIcon() {
     return (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class={styles.customize}>
