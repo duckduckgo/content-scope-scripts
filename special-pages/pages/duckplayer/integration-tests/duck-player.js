@@ -397,20 +397,21 @@ export class DuckPlayerPage {
     }
 
     async firesPauseEventWhenOpeningInYoutube() {
+        const expectedEvent = 'ddg-duckplayer-pause';
         /**
-         * @type {Promise<void>}
+         * @type {Promise<boolean>}
          */
-        const consolePromise = new Promise((resolve) => {
-            this.page.on('console', (msg) => {
-                if (msg.type() === 'log' && msg.text() === 'ddg-duckplayer-pause') {
-                    resolve();
-                }
-            });
-        });
+        const evaluatePromise = this.page.evaluate((event) => {
+           return new Promise((resolve) => {
+                window.addEventListener(event, () => {
+                    resolve(true);
+                });
+           });
+        }, expectedEvent);
 
         await this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
 
-        await consolePromise;
+        await evaluatePromise;
     }
 
     /**
