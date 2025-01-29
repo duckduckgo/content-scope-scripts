@@ -3,6 +3,7 @@ import { useContext, useEffect } from 'preact/hooks';
 import { ActivityApiContext, ActivityServiceContext } from './ActivityProvider';
 import { ACTION_BURN } from './constants.js';
 import { batch, signal, useSignal } from '@preact/signals';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 
 export const ActivityBurningSignalContext = createContext({
     /** @type {import("@preact/signals").Signal<string[]>} */
@@ -20,6 +21,7 @@ export function BurnProvider({ children }) {
     const exiting = useSignal(/** @type {string[]} */ ([]));
     const { didClick: originalDidClick } = useContext(ActivityApiContext);
     const service = useContext(ActivityServiceContext);
+    const { isReducedMotion } = useEnv();
 
     async function didClick(e) {
         const button = /** @type {HTMLButtonElement|null} */ (e.target?.closest(`button[value][data-action="${ACTION_BURN}"]`));
@@ -41,8 +43,8 @@ export function BurnProvider({ children }) {
         // mark this item as burning - this will prevent further events until we're done
         burning.value = burning.value.concat(value);
 
-        // wait for either the animation to be finished, or the document visibility changed
-        const feSignals = any(animationExit(), didChangeDocumentVisibility());
+        // wait for a signal from the FE that we can continue
+        const feSignals = any(reducedMotion(isReducedMotion), animationExit(), didChangeDocumentVisibility());
 
         // the signal from native that burning was complete
         const nativeSignal = didCompleteNatively(service);
@@ -102,11 +104,21 @@ function toPromise(fn) {
     });
 }
 
+function reducedMotion(isReducedMotion) {
+    console.log('+[reducedMotion] setup');
+    return (subject) => {
+        if (isReducedMotion) {
+            console.log('  .next() [reducedMotion] setup');
+            subject.next();
+        }
+    };
+}
+
 function animationExit() {
     return (subject) => {
         console.log('+[didExit] setup');
         const handler = () => {
-            console.log('  -> [didExit] resolve .next()');
+            console.log('  .next() -> [didExit]');
             subject.next();
         };
         window.addEventListener('done-exiting', handler, { once: true });
@@ -121,7 +133,7 @@ function timer(ms) {
     return (subject) => {
         console.log('+[timer] setup');
         const int = setTimeout(() => {
-            console.log(' -> [timer] .next()');
+            console.log('  .next() -> [timer]');
             return subject.next();
         }, ms);
         return () => {
@@ -135,7 +147,7 @@ function didCompleteNatively(service) {
     return (subject) => {
         console.log('+[didCompleteNatively] setup');
         const unsub = service?.onBurnComplete(() => {
-            console.log('  -> [didCompleteNatively] .next()');
+            console.log('  .next() -> [didCompleteNatively] ');
             subject.next();
         });
         return () => {
@@ -147,14 +159,14 @@ function didCompleteNatively(service) {
 
 function didChangeDocumentVisibility() {
     return (subject) => {
-        console.log('+[didChangeVisibilty] setup');
+        console.log('+[didChangeVisibility] setup');
         const handler = () => {
-            console.log('  -> [didChangeVisibilty] resolve .next()');
+            console.log('  .next() -> [didChangeVisibility] resolve ');
             return subject.next(document.visibilityState);
         };
         document.addEventListener('visibilitychange', handler, { once: true });
         return () => {
-            console.log('-[didChangeVisibilty] teardown');
+            console.log('-[didChangeVisibility] teardown');
             window.removeEventListener('visibilitychange', handler);
         };
     };
@@ -162,7 +174,7 @@ function didChangeDocumentVisibility() {
 
 function any(...fns) {
     return (subject) => {
-        const work = fns.map((factory) => {
+        const jobs = fns.map((factory) => {
             const subject = {
                 /** @type {any} */
                 next: undefined,
@@ -170,20 +182,20 @@ function any(...fns) {
             const promise = new Promise((resolve) => (subject.next = resolve));
             const cleanup = factory(subject);
             return {
-                promise: promise,
-                cleanup: cleanup,
+                promise,
+                cleanup,
             };
         });
 
-        Promise.any(work.map((x) => x.promise))
+        Promise.any(jobs.map((x) => x.promise))
             // eslint-disable-next-line promise/prefer-await-to-then
             .then((d) => subject.next(d))
             // eslint-disable-next-line promise/prefer-await-to-then
             .catch(console.error);
 
         return () => {
-            for (const workItem of work) {
-                workItem.cleanup();
+            for (const job of jobs) {
+                job.cleanup?.();
             }
         };
     };
@@ -191,7 +203,7 @@ function any(...fns) {
 
 function all(...fns) {
     return (subject) => {
-        const work = fns.map((factory) => {
+        const jobs = fns.map((factory) => {
             const subject = {
                 /** @type {any} */
                 next: undefined,
@@ -199,20 +211,20 @@ function all(...fns) {
             const promise = new Promise((resolve) => (subject.next = resolve));
             const cleanup = factory(subject);
             return {
-                promise: promise,
-                cleanup: cleanup,
+                promise,
+                cleanup,
             };
         });
 
-        Promise.all(work.map((x) => x.promise))
+        Promise.all(jobs.map((x) => x.promise))
             // eslint-disable-next-line promise/prefer-await-to-then
             .then((d) => subject.next(d))
             // eslint-disable-next-line promise/prefer-await-to-then
             .catch(console.error);
 
         return () => {
-            for (const workItem of work) {
-                workItem.cleanup();
+            for (const job of jobs) {
+                job.cleanup?.();
             }
         };
     };

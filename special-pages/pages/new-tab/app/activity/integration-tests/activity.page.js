@@ -1,6 +1,15 @@
 import { activityMocks } from '../mocks/activity.mocks.js';
 import { expect } from '@playwright/test';
 
+/**
+ * @typedef {import('../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionEventNames
+ */
+
+/**
+ * @param {SubscriptionEventNames} n
+ */
+const sub = (n) => n;
+
 export class ActivityPage {
     /**
      * @param {import("@playwright/test").Page} page
@@ -120,7 +129,13 @@ export class ActivityPage {
             };
         }, response);
 
+        // control: ensure we have 5 first
+        await expect(this.context().getByTestId('ActivityItem')).toHaveCount(5);
+
+        // burn 1 item in the list
         await this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' }).click();
+
+        // assert the confirm was sent
         const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_confirmBurn', count: 1 });
         expect(result[0].payload).toMatchObject({
             context: 'specialPages',
@@ -130,12 +145,17 @@ export class ActivityPage {
                 url: 'https://example.com',
             },
         });
-        const animResult = await this.ntp.mocks.waitForCallCount({ method: 'activity_burnAnimationComplete', count: 1 });
-        expect(animResult[0].payload).toMatchObject({
-            context: 'specialPages',
-            featureName: 'newTabPage',
-            method: 'activity_burnAnimationComplete',
-        });
+
+        // simulate a small delay from native
+        await page.waitForTimeout(50);
+
+        // deliver both updates from native
+        const nextData = activityMocks.few.activity.filter((x) => x.url !== 'https://example.com');
+        await this.ntp.mocks.simulateSubscriptionMessage(sub('activity_onDataUpdate'), { activity: nextData });
+        await this.ntp.mocks.simulateSubscriptionMessage(sub('activity_onBurnComplete'), {});
+
+        // now assert only 4 items are there
+        await expect(this.context().getByTestId('ActivityItem')).toHaveCount(4);
     }
 
     async removesItem() {
