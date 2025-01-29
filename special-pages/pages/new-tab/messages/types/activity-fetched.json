@@ -3,7 +3,7 @@
     "type": "object",
     "title": "Activity Data (Fetched)",
     "properties": {
-      "totalCount": {
+      "totalTrackersBlocked": {
         "type": "integer"
       },
       "urls": {
@@ -13,5 +13,5 @@
         }
       }
     },
-    "required": ["urls", "totalCount"]
+    "required": ["urls", "totalTrackersBlocked"]
   }
