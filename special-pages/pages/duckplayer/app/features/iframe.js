@@ -3,6 +3,7 @@ import { AutoFocus } from './autofocus.js';
 import { ClickCapture } from './click-capture.js';
 import { TitleCapture } from './title-capture.js';
 import { MouseCapture } from './mouse-capture.js';
+import { PlaybackEvents } from './playback-events.js';
 
 /**
  * Represents an individual piece of functionality in the iframe.
@@ -73,6 +74,15 @@ export function createIframeFeatures(settings) {
          */
         mouseCapture: () => {
             return new MouseCapture();
+        },
+        /**
+         * @return {IframeFeature}
+         */
+        playbackEvents: () => {
+            if (settings.playbackEvents) {
+                return new PlaybackEvents();
+            }
+            return IframeFeature.noop();
         },
     };
 }
