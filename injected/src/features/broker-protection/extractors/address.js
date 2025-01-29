@@ -53,6 +53,9 @@ function getCityStateCombos(inputList) {
         // Strip out the zip code since we're only interested in city/state here.
         item = item.replace(/,?\s*\d{5}(-\d{4})?/, '');
 
+        // Replace any commas at the end of the string that could confuse the city/state split.
+        item = item.replace(/,$/, '');
+
         if (item.includes(',')) {
             words = item.split(',').map((item) => item.trim());
         } else {
