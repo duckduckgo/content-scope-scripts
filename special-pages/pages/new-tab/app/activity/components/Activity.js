@@ -56,6 +56,7 @@ function ActivityConfigured({ expansion, toggle }) {
     return (
         <div class={styles.root}>
             <ActivityHeading
+                className={styles.activityHeading}
                 trackerCount={count.value}
                 itemCount={itemCount.value}
                 onToggle={toggle}

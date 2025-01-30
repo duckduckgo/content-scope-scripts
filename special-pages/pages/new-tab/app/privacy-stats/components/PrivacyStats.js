@@ -148,10 +148,11 @@ export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = 
  * @param {number} props.itemCount
  * @param {boolean} props.canExpand
  * @param {() => void} props.onToggle
+ * @param {string} [props.className]
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
-export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount, onToggle, buttonAttrs = {} }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount, onToggle, className, buttonAttrs = {} }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
 
     const none = itemCount === 0;
@@ -161,7 +162,7 @@ export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount,
         trackerCount === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural', { count: trackerCountFormatted });
 
     return (
-        <div className={styles.heading} data-testid={'ActivityHeading'}>
+        <div className={cn(styles.heading, className)} data-testid={'ActivityHeading'}>
             <span className={styles.headingIcon}>
                 <img src="./icons/shield.svg" alt="Privacy Shield" />
             </span>
