@@ -1,11 +1,11 @@
 import { Fragment, h } from 'preact';
 import styles from './Activity.module.css';
-import { useContext, useId, useState } from 'preact/hooks';
+import { useContext, useId, useRef, useState } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { ActivityApiContext, ActivityContext, ActivityProvider, SignalStateContext, SignalStateProvider } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
-import { useDocumentVisibility } from '../../utils.js';
+import { useOnMiddleClick, useDocumentVisibility } from '../../utils.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { ActivityHeading } from '../../privacy-stats/components/PrivacyStats.js';
@@ -56,6 +56,7 @@ function ActivityConfigured({ expansion, toggle }) {
     return (
         <div class={styles.root}>
             <ActivityHeading
+                className={styles.activityHeading}
                 trackerCount={count.value}
                 itemCount={itemCount.value}
                 onToggle={toggle}
@@ -77,6 +78,10 @@ function ActivityConfigured({ expansion, toggle }) {
  */
 function ActivityBody({ canBurn }) {
     const { didClick } = useContext(ActivityApiContext);
+    
+    const ref = useRef(/** @type {HTMLUListElement|null} */ (null));
+    useOnMiddleClick(ref, didClick);
+
     const documentVisibility = useDocumentVisibility();
     const { isReducedMotion } = useEnv();
     const { keys } = useContext(SignalStateContext);
@@ -85,7 +90,7 @@ function ActivityBody({ canBurn }) {
 
     return (
         <Fragment>
-            <ul class={styles.activity} onClick={didClick} data-busy={busy}>
+            <ul class={styles.activity} ref={ref} onClick={didClick} data-busy={busy}>
                 {keys.value.available.map((id, index) => {
                     if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={documentVisibility} />;
                     return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={documentVisibility} />;
@@ -160,7 +165,7 @@ function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(SignalStateContext);
     const status = useComputed(() => activity.value.trackingStatus[id]);
-    const other = status.value.trackerCompanies.length - DDG_MAX_TRACKER_ICONS;
+    const other = status.value.trackerCompanies.slice(DDG_MAX_TRACKER_ICONS);
     // const { env } = useEnv();
     // if (env === 'development') {
     //     console.groupCollapsed(`trackingStatus ${id}`);
@@ -169,12 +174,12 @@ function TrackerStatus({ id, trackersFound }) {
     //     console.groupEnd();
     // }
 
-    const companyIconsMax = other === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
+    const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
     const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, index) => {
         return <CompanyIcon displayName={item.displayName} key={item} />;
     });
 
-    const otherIcon = other > 0 ? <span class={styles.otherIcon}>+{other + 1}</span> : null;
+    const otherIcon = other.length > 0 ? <span title={other.map(item => item.displayName).join('\n')} class={styles.otherIcon}>+{other.length}</span> : null;
 
     if (status.value.totalCount === 0) {
         if (trackersFound) return <p>{t('activity_no_trackers_blocked')}</p>;

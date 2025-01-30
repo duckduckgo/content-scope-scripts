@@ -70,7 +70,7 @@ export function eventToTarget(event, platformName) {
     const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
     if (isControlClick) {
         return 'new-tab';
-    } else if (event.shiftKey) {
+    } else if (event.shiftKey || event.button === 1 /* middle click */) {
         return 'new-window';
     }
     return 'same-tab';
@@ -94,4 +94,24 @@ export function useDocumentVisibility() {
     }, []);
 
     return documentVisibility;
+}
+
+/**
+ * Custom hook to handle middle click event on an element. This is required because Preact doens't support the auxclick event.
+ * @param {import('preact').RefObject<HTMLElement>} ref - The ref of the element to attach the event listener to.
+ * @param {Function} handler - The function to execute on the middle click event.
+ */
+export function useOnMiddleClick(ref, handler) {
+    useEffect(() => {
+        const element = ref.current;
+        if (!element) return;
+
+        const handleAuxClick = (event) => event.button === 1 /* middle button */ && handler(event);
+
+        element.addEventListener('auxclick', handleAuxClick);
+
+        return () => {
+            element.removeEventListener('auxclick', handleAuxClick);
+        };
+    }, [ref, handler]);
 }
