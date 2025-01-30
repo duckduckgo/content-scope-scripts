@@ -62,11 +62,11 @@ export function useWarningHeading() {
     const { kind } = useErrorData();
 
     if (kind === 'phishing') {
-        return t('phishingPageHeading');
+        return t('phishingPageHeading').replace('{newline}', '\n');
     }
 
     if (kind === 'malware') {
-        return t('malwarePageHeading');
+        return t('malwarePageHeading').replace('{newline}', '\n');
     }
 
     if (kind === 'ssl') {

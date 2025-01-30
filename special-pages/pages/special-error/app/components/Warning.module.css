@@ -125,4 +125,13 @@
         content: ' ';
         display: block;
     }
+
+    /* Forces a line break in the title on smaller screens */
+    & .title {
+        white-space: pre-line;
+
+        @media (min-width: 600px) {
+            white-space: normal;
+        }
+    }
 }
