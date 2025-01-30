@@ -160,21 +160,25 @@ export function createProfile(elementFactory, extractData) {
 }
 
 /**
- * @param {(HTMLElement | { innerText: string })[]} elements
+ * @param {({ textContent: string } | { innerText: string })[]} elements
  * @param {string} key
  * @param {ExtractProfileProperty} extractField
  * @return {string[]}
  */
-function stringValuesFromElements(elements, key, extractField) {
+export function stringValuesFromElements(elements, key, extractField) {
     return elements.map((element) => {
         let elementValue;
 
-        if (element?.innerText) {
+        if ('innerText' in element) {
             elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
-        
-        // In instances where we use the text() node test, innerText will be undefined, and we fall back to textContent
-        } else if ('nodeType' in element && element.nodeType === Node.TEXT_NODE) {
+
+            // In instances where we use the text() node test, innerText will be undefined, and we fall back to textContent
+        } else if ('textContent' in element) {
             elementValue = rules[key]?.(element) ?? element?.textContent ?? null;
+        }
+
+        if (!elementValue) {
+            return elementValue;
         }
 
         if (extractField?.afterText) {
