@@ -33,6 +33,10 @@
     "title": "Warning: Security Risk",
     "note": "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
+  "malwareTabTitle": {
+    "title": "Warning: Security Risk",
+    "note": "Title shown in the browser window or tab when the current page may be a security risk due to malware"
+  },
   "malwareWarningText": {
     "title": "DuckDuckGo blocked this page because it may be distributing malware designed to compromise your device or steal your personal information.{newline}<a>Learn more</a>",
     "note": "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
@@ -44,6 +48,10 @@
   "phishingPageHeading": {
     "title": "Warning: This site may be a{newline}security risk",
     "note": "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "phishingTabTitle": {
+    "title": "Warning: Security Risk",
+    "note": "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
   },
   "phishingTabTitle": {
     "title": "Warning: Security Risk",
