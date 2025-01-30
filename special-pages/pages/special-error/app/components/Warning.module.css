@@ -117,7 +117,7 @@
     }
 
     & .phishing .icon, & .malware .icon {
-        background-image: url(../../../../shared/assets/img/icons/Malware-Site-96.svg);
+        background-image: url(../../../../shared/assets/img/icons/Malware-Site-128.svg);
     }
 
     /* Inserts line break before an inline element. Used for the Learn More link in the Warning text */
