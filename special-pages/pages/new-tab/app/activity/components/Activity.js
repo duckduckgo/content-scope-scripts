@@ -156,7 +156,7 @@ function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(SignalStateContext);
     const status = useComputed(() => activity.value.trackingStatus[id]);
-    const other = status.value.trackerCompanies.length - DDG_MAX_TRACKER_ICONS;
+    const other = status.value.trackerCompanies.slice(DDG_MAX_TRACKER_ICONS);
     // const { env } = useEnv();
     // if (env === 'development') {
     //     console.groupCollapsed(`trackingStatus ${id}`);
@@ -165,12 +165,12 @@ function TrackerStatus({ id, trackersFound }) {
     //     console.groupEnd();
     // }
 
-    const companyIconsMax = other === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
+    const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
     const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, index) => {
         return <CompanyIcon displayName={item.displayName} key={item} />;
     });
 
-    const otherIcon = other > 0 ? <span class={styles.otherIcon}>+{other + 1}</span> : null;
+    const otherIcon = other.length > 0 ? <span title={other.map(item => item.displayName).join('\n')} class={styles.otherIcon}>+{other.length}</span> : null;
 
     if (status.value.totalCount === 0) {
         if (trackersFound) return <p>{t('activity_no_trackers_blocked')}</p>;

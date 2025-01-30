@@ -5,6 +5,7 @@ import { useState } from 'preact/hooks';
 
 const mappings = {
     'google-analytics-google': 'google-analytics',
+    'google-ads-google': 'google-ads',
 };
 
 const states = /** @type {const} */ ({
@@ -46,7 +47,7 @@ export function CompanyIcon({ displayName }) {
     }
 
     return (
-        <span className={styles.icon}>
+        <span className={styles.icon} title={displayName}>
             <img
                 src={src}
                 alt={''}
