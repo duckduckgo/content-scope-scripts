@@ -8,8 +8,8 @@ import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useAuxClick, useDocumentVisibility } from '../../utils.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { usePlatformName } from '../../settings.provider.js';
-import { Heading } from '../../privacy-stats/components/PrivacyStats.js';
-import { Chevron } from '../../components/Icons.js';
+import { ActivityHeading } from '../../privacy-stats/components/PrivacyStats.js';
+import { ChevronSmall } from '../../components/Icons.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ActivityItem } from './ActivityItem.js';
@@ -44,8 +44,8 @@ function ActivityConfigured({ expansion, toggle }) {
             return acc + item.totalCount;
         }, 0);
     });
-    const canExpand = useComputed(() => {
-        return Object.keys(activity.value.items).length > 0;
+    const itemCount = useComputed(() => {
+        return Object.keys(activity.value.items).length;
     });
 
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
@@ -55,17 +55,18 @@ function ActivityConfigured({ expansion, toggle }) {
 
     return (
         <div class={styles.root}>
-            <Heading
-                recent={count.value}
+            <ActivityHeading
+                trackerCount={count.value}
+                itemCount={itemCount.value}
                 onToggle={toggle}
                 expansion={expansion}
-                canExpand={canExpand.value}
+                canExpand={itemCount.value > 0}
                 buttonAttrs={{
                     'aria-controls': WIDGET_ID,
                     id: TOGGLE_ID,
                 }}
             />
-            {canExpand && expanded && <ActivityBody canBurn={canBurn} />}
+            {itemCount.value > 0 && expanded && <ActivityBody canBurn={canBurn} />}
         </div>
     );
 }
@@ -88,12 +89,14 @@ function ActivityBody({ canBurn }) {
     const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
 
     return (
-        <ul class={styles.activity} ref={auxClickRef} onClick={didClick} data-busy={busy}>
-            {keys.value.map((id, index) => {
-                if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={documentVisibility} />;
-                return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={documentVisibility} />;
-            })}
-        </ul>
+        <Fragment>
+            <ul class={styles.activity} ref={auxClickRef} onClick={didClick} data-busy={busy}>
+                {keys.value.available.map((id, index) => {
+                    if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={documentVisibility} />;
+                    return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={documentVisibility} />;
+                })}
+            </ul>
+        </Fragment>
     );
 }
 
@@ -101,7 +104,7 @@ const BurnableItem = memo(
     /**
      * @param {object} props
      * @param {string} props.id
-     * @param {"visible" | "hidden"} props.documentVisibility
+     * @param {'visible' | 'hidden'} props.documentVisibility
      */
     function BurnableItem({ id, documentVisibility }) {
         const { activity } = useContext(SignalStateContext);
@@ -246,7 +249,7 @@ function HistoryItems({ id }) {
                                             : t('activity_show_less_history')
                                     }
                                 >
-                                    <Chevron />
+                                    <ChevronSmall />
                                 </button>
                             )}
                         </li>

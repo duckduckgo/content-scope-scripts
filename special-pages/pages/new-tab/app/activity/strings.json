@@ -1,4 +1,12 @@
 {
+  "activity_noRecent_title": {
+    "title": "No recent browsing activity",
+    "note": "Placeholder to indicate that no browsing activity was seen in the last 7 days"
+  },
+  "activity_noRecent_subtitle": {
+    "title": "Recently visited sites will appear here. Keep browsing to see how many trackers we block.",
+    "note": "Shown in the place a list of browsing history entries will be displayed."
+  },
   "activity_no_trackers": {
     "title": "No trackers found",
     "note": "Placeholder message indicating that no trackers are detected"
@@ -28,7 +36,7 @@
     "note": "Button label for clearing browsing history and data exclusively for the specified domain"
   },
   "activity_menuTitle": {
-    "title": "Activity",
+    "title": "Recent Activity",
     "note": "Used as a label in a customization menu"
   },
   "activity_show_more_history": {

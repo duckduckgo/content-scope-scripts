@@ -177,13 +177,6 @@ export class ActivityPage {
         await page.getByText('example.com').click({ modifiers: ['Shift'] });
         await this._opensMainLink();
     }
-    async opensLinkFromFavicon() {
-        const { page } = this;
-        await page.getByTitle('example.com', { exact: true }).click();
-        await page.getByTitle('example.com', { exact: true }).click({ modifiers: ['Meta'] });
-        await page.getByTitle('example.com', { exact: true }).click({ modifiers: ['Shift'] });
-        await this._opensMainLink();
-    }
     async _opensMainLink() {
         const calls = await this.ntp.mocks.waitForCallCount({ method: 'activity_open', count: 3 });
         const url = 'https://example.com';
@@ -273,8 +266,7 @@ export class ActivityPage {
     async showsEmptyTrackerState() {
         await expect(this.context().getByTestId('ActivityItem').nth(3)).toMatchAriaSnapshot(`
           - listitem:
-            - link "t w"
-            - link "twitter.com"
+            - link "t w twitter.com"
             - button "Add twitter.com to favorites":
               - img
             - button "Clear browsing history and data for twitter.com":
@@ -287,8 +279,7 @@ export class ActivityPage {
 
         await expect(this.context().getByTestId('ActivityItem').nth(4)).toMatchAriaSnapshot(`
             - listitem:
-              - link "l i"
-              - link "app.linkedin.com"
+              - link "l i app.linkedin.com"
               - button "Add app.linkedin.com to favorites":
                 - img
               - button "Clear browsing history and data for app.linkedin.com":
@@ -298,6 +289,25 @@ export class ActivityPage {
                 - listitem:
                   - link "Profile Page"
                   - text: 2 hrs ago
+        `);
+    }
+
+    async hasEmptyTitle() {
+        const { page } = this;
+        await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
+            - img "Privacy Shield"
+            - heading "No recent browsing activity" [level=2]
+            - paragraph: Recently visited sites will appear here. Keep browsing to see how many trackers we block.
+        `);
+    }
+    async hasPopuplatedTitle() {
+        const { page } = this;
+        await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
+            - img "Privacy Shield"
+            - heading "0 tracking attempts blocked" [level=2]
+            - button "Hide recent activity" [expanded] [pressed]:
+              - img
+            - paragraph: Past 7 days
         `);
     }
 }
