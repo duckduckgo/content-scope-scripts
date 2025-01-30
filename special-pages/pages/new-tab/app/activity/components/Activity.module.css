@@ -30,6 +30,13 @@
     margin-left: -6px;
 }
 
+.loader {
+    height: 40px;
+    border: 1px dotted black;
+    border-radius: 5px;
+    opacity: 0;
+}
+
 .activity:not(:empty) {
     margin-top: 18px;
 }

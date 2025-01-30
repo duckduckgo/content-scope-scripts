@@ -38,6 +38,7 @@ export const ActivityItem = memo(
                                     etldPlusOne={etldPlusOne}
                                     theme={'light'}
                                     displayKind={'history-favicon'}
+                                    key={`${favoriteSrc}:${faviconMax}`}
                                 />
                             )}
                         </span>

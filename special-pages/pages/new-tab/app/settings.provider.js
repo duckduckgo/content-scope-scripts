@@ -27,3 +27,11 @@ export function useCustomizerKind() {
     const settings = useContext(SettingsContext).settings;
     return settings.customizerDrawer.state === 'enabled' ? 'drawer' : 'menu';
 }
+
+/**
+ * @returns {boolean}
+ */
+export function useBatchedActivityApi() {
+    const settings = useContext(SettingsContext).settings;
+    return settings.batchedActivityApi.state === 'enabled';
+}

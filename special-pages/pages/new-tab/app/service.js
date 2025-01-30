@@ -1,4 +1,7 @@
 /**
+ * @typedef {'initial' | 'subscription' | 'manual' | 'trigger-fetch'} InvocationSource
+ */
+/**
  * @template Data - the data format this service produces/stores
  *
  * This implements a 'last push wins' strategy for
@@ -14,12 +17,14 @@ export class Service {
     eventTarget = new EventTarget();
     DEBOUNCE_TIME_MS = 200;
     _broadcast = true;
+    /** @type {undefined|((old: Data, next: Data, trigger: InvocationSource) => Data)} */
+    accept;
     /**
      * @param {object} props
-     * @param {() => Promise<Data>} [props.initial]
+     * @param {(arg?: any) => Promise<Data>} [props.initial]
      * @param {(fn: (t: Data) => void) => () => void} [props.subscribe] - optional subscribe
      * @param {(t: Data) => void} [props.persist] - optional persist method
-     * @param {(old: Data) => Data} [props.update] - optional updater
+     * @param {(old: Data, next: Data) => Data} [props.update] - optional updater
      * @param {Data|null} [initial] - optional initial data
      */
     constructor(props, initial) {
@@ -33,21 +38,31 @@ export class Service {
     }
 
     /**
+     * @param {(old: Data, next: Data, trigger: string) => Data} fn
+     */
+    withUpdater(fn) {
+        this.accept = fn;
+        return this;
+    }
+
+    /**
+     * @param {any} [params]
      * @return {Promise<Data>}
      */
-    async fetchInitial() {
+    async fetchInitial(params) {
         if (!this.impl.initial) throw new Error('unreachable');
-        const initial = await this.impl.initial();
+        const initial = await this.impl.initial(params);
         this._accept(initial, 'initial');
         return /** @type {Data} */ (this.data);
     }
 
     /**
+     * @param {any} [params]
      * @return {Promise<Data>}
      */
-    async triggerFetch() {
+    async triggerFetch(params) {
         if (!this.impl.initial) throw new Error('unreachable');
-        const next = await this.impl.initial();
+        const next = await this.impl.initial(params);
         this._accept(next, 'trigger-fetch');
         return /** @type {Data} */ (this.data);
     }
@@ -60,14 +75,14 @@ export class Service {
      *
      * A function is returned, which can be used to remove the event listener
      *
-     * @param {(evt: {data: Data, source: 'manual' | 'subscription'}) => void} cb
+     * @param {(evt: {data: Data, source: InvocationSource}) => void} cb
      */
     onData(cb) {
         this._setupSubscription();
         const controller = new AbortController();
         this.eventTarget.addEventListener(
             'data',
-            (/** @type {CustomEvent<{data: Data, source: 'manual' | 'subscription'}>} */ evt) => {
+            (/** @type {CustomEvent<{data: Data, source: InvocationSource}>} */ evt) => {
                 cb(evt.detail);
             },
             { signal: controller.signal },
@@ -122,14 +137,17 @@ export class Service {
             console.warn('could not update');
         }
     }
-
     /**
      * @param {Data} data
-     * @param {'initial' | 'subscription' | 'manual' | 'trigger-fetch'} source
+     * @param {InvocationSource} source
      * @private
      */
     _accept(data, source) {
-        this.data = /** @type {NonNullable<Data>} */ (data);
+        if (this.accept && source !== 'initial') {
+            this.data = /** @type {NonNullable<Data>} */ (this.accept(/** @type {NonNullable<Data>} */ (this.data), data, source));
+        } else {
+            this.data = /** @type {NonNullable<Data>} */ (data);
+        }
 
         // do nothing when it's the initial data
         if (source === 'initial') return;

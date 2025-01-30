@@ -1,13 +1,13 @@
 import { Fragment, h } from 'preact';
 import styles from './Activity.module.css';
-import { useContext, useId, useState } from 'preact/hooks';
+import { useContext, useId, useState, useEffect, useRef } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { ActivityApiContext, ActivityContext, ActivityProvider, SignalStateContext, SignalStateProvider } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
-import { useDocumentVisibility } from '../../utils.js';
+import { useOnMiddleClick } from '../../utils.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
-import { usePlatformName } from '../../settings.provider.js';
+import { useBatchedActivityApi, usePlatformName } from '../../settings.provider.js';
 import { ActivityHeading } from '../../privacy-stats/components/PrivacyStats.js';
 import { ChevronSmall } from '../../components/Icons.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
@@ -17,6 +17,7 @@ import { ActivityBurningSignalContext, BurnProvider } from '../BurnProvider.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { useComputed } from '@preact/signals';
 import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js';
+import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -37,13 +38,19 @@ import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js'
  */
 function ActivityConfigured({ expansion, toggle }) {
     const platformName = usePlatformName();
+    const batched = useBatchedActivityApi();
     const expanded = expansion === 'expanded';
     const { activity } = useContext(SignalStateContext);
+    const { didClick } = useContext(ActivityApiContext);
+    const visibility = useDocumentVisibility();
+
+    const ref = useRef(/** @type {HTMLUListElement|null} */ (null));
+    useOnMiddleClick(ref, didClick);
+
     const count = useComputed(() => {
-        return Object.values(activity.value.trackingStatus).reduce((acc, item) => {
-            return acc + item.totalCount;
-        }, 0);
+        return activity.value.totalTrackers;
     });
+
     const itemCount = useComputed(() => {
         return Object.keys(activity.value.items).length;
     });
@@ -54,44 +61,72 @@ function ActivityConfigured({ expansion, toggle }) {
     const canBurn = platformName === 'macos';
 
     return (
-        <div class={styles.root}>
-            <ActivityHeading
-                trackerCount={count.value}
-                itemCount={itemCount.value}
-                onToggle={toggle}
-                expansion={expansion}
-                canExpand={itemCount.value > 0}
-                buttonAttrs={{
-                    'aria-controls': WIDGET_ID,
-                    id: TOGGLE_ID,
-                }}
-            />
-            {itemCount.value > 0 && expanded && <ActivityBody canBurn={canBurn} />}
-        </div>
+        <Fragment>
+            <div class={styles.root} onClick={didClick}>
+                <ActivityHeading
+                    trackerCount={count.value}
+                    itemCount={itemCount.value}
+                    onToggle={toggle}
+                    expansion={expansion}
+                    canExpand={itemCount.value > 0}
+                    buttonAttrs={{
+                        'aria-controls': WIDGET_ID,
+                        id: TOGGLE_ID,
+                    }}
+                />
+                {itemCount.value > 0 && expanded && <ActivityBody canBurn={canBurn} visibility={visibility} />}
+            </div>
+            {batched && itemCount.value > 0 && expanded && <Loader />}
+        </Fragment>
     );
 }
 
 /**
  * @param {object} props
  * @param {boolean} props.canBurn
+ * @param {DocumentVisibilityState} props.visibility
  */
-function ActivityBody({ canBurn }) {
-    const { didClick } = useContext(ActivityApiContext);
-    const documentVisibility = useDocumentVisibility();
+function ActivityBody({ canBurn, visibility }) {
     const { isReducedMotion } = useEnv();
     const { keys } = useContext(SignalStateContext);
     const { burning, exiting } = useContext(ActivityBurningSignalContext);
     const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
 
     return (
-        <Fragment>
-            <ul class={styles.activity} onClick={didClick} data-busy={busy}>
-                {keys.value.available.map((id, index) => {
-                    if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={documentVisibility} />;
-                    return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={documentVisibility} />;
-                })}
-            </ul>
-        </Fragment>
+        <ul class={styles.activity} data-busy={busy}>
+            {keys.value.map((id, index) => {
+                if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={visibility} />;
+                return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={visibility} />;
+            })}
+        </ul>
+    );
+}
+
+function Loader() {
+    const loaderRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                window.dispatchEvent(new Event('activity.next'));
+            }
+        });
+
+        if (loaderRef.current) {
+            observer.observe(loaderRef.current);
+        }
+
+        return () => {
+            if (loaderRef.current) {
+                observer.unobserve(loaderRef.current);
+            }
+        };
+    }, []);
+
+    return (
+        <div class={styles.loader} ref={loaderRef}>
+            Loading...
+        </div>
     );
 }
 
@@ -104,6 +139,9 @@ const BurnableItem = memo(
     function BurnableItem({ id, documentVisibility }) {
         const { activity } = useContext(SignalStateContext);
         const item = useComputed(() => activity.value.items[id]);
+        if (!item.value) {
+            return null;
+        }
         return (
             <ActivityItemAnimationWrapper url={id}>
                 <ActivityItem
@@ -133,6 +171,13 @@ const RemovableItem = memo(
     function RemovableItem({ id, canBurn, documentVisibility }) {
         const { activity } = useContext(SignalStateContext);
         const item = useComputed(() => activity.value.items[id]);
+        if (!item.value) {
+            return (
+                <p data-testid="ActivityItem" data-state="loading" data-id={id} hidden>
+                    Loading: {id}
+                </p>
+            );
+        }
         return (
             <ActivityItem
                 title={item.value.title}
@@ -160,7 +205,7 @@ function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(SignalStateContext);
     const status = useComputed(() => activity.value.trackingStatus[id]);
-    const other = status.value.trackerCompanies.length - DDG_MAX_TRACKER_ICONS;
+    const other = status.value.trackerCompanies.slice(DDG_MAX_TRACKER_ICONS - 1);
     // const { env } = useEnv();
     // if (env === 'development') {
     //     console.groupCollapsed(`trackingStatus ${id}`);
@@ -169,12 +214,21 @@ function TrackerStatus({ id, trackersFound }) {
     //     console.groupEnd();
     // }
 
-    const companyIconsMax = other === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
+    const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
+
     const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, index) => {
         return <CompanyIcon displayName={item.displayName} key={item} />;
     });
 
-    const otherIcon = other > 0 ? <span class={styles.otherIcon}>+{other + 1}</span> : null;
+    let otherIcon = null;
+    if (other.length > 0) {
+        const title = other.map((item) => item.displayName).join('\n');
+        otherIcon = (
+            <span title={title} class={styles.otherIcon}>
+                +{other.length}
+            </span>
+        );
+    }
 
     if (status.value.totalCount === 0) {
         if (trackersFound) return <p>{t('activity_no_trackers_blocked')}</p>;
@@ -263,7 +317,6 @@ function HistoryItems({ id }) {
  */
 export function ActivityCustomized() {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
-    const platformName = usePlatformName();
 
     /**
      * The menu title for the stats widget is changes when the menu is in the sidebar.
@@ -281,12 +334,7 @@ export function ActivityCustomized() {
 
     return (
         <ActivityProvider>
-            {platformName === 'macos' && (
-                <BurnProvider>
-                    <ActivityConsumer />
-                </BurnProvider>
-            )}
-            {platformName === 'windows' && <ActivityConsumer />}
+            <ActivityConsumer />
         </ActivityProvider>
     );
 }
@@ -305,10 +353,20 @@ export function ActivityCustomized() {
  */
 export function ActivityConsumer() {
     const { state, toggle } = useContext(ActivityContext);
+    const platformName = usePlatformName();
     if (state.status === 'ready') {
+        if (platformName === 'windows') {
+            return (
+                <SignalStateProvider>
+                    <ActivityConfigured expansion={state.config.expansion} toggle={toggle} />
+                </SignalStateProvider>
+            );
+        }
         return (
             <SignalStateProvider>
-                <ActivityConfigured expansion={state.config.expansion} toggle={toggle} />
+                <BurnProvider>
+                    <ActivityConfigured expansion={state.config.expansion} toggle={toggle} />
+                </BurnProvider>
             </SignalStateProvider>
         );
     }

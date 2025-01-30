@@ -127,6 +127,8 @@ export interface NewTabMessages {
     | ActivityConfirmBurnRequest
     | ActivityGetConfigRequest
     | ActivityGetDataRequest
+    | ActivityGetDataForUrlsRequest
+    | ActivityGetUrlsRequest
     | FavoritesGetConfigRequest
     | FavoritesGetDataRequest
     | FreemiumPIRBannerGetDataRequest
@@ -139,6 +141,7 @@ export interface NewTabMessages {
   subscriptions:
     | ActivityOnBurnCompleteSubscription
     | ActivityOnConfigUpdateSubscription
+    | ActivityOnDataPatchSubscription
     | ActivityOnDataUpdateSubscription
     | CustomizerAutoOpenSubscription
     | CustomizerOnBackgroundUpdateSubscription
@@ -644,6 +647,28 @@ export interface HistoryEntry {
   relativeTime: string;
 }
 /**
+ * Generated from @see "../messages/activity_getDataForUrls.request.json"
+ */
+export interface ActivityGetDataForUrlsRequest {
+  method: "activity_getDataForUrls";
+  params: DataForUrlsParams;
+  result: ActivityData;
+}
+export interface DataForUrlsParams {
+  urls: string[];
+}
+/**
+ * Generated from @see "../messages/activity_getUrls.request.json"
+ */
+export interface ActivityGetUrlsRequest {
+  method: "activity_getUrls";
+  result: UrlInfo;
+}
+export interface UrlInfo {
+  urls: string[];
+  totalTrackersBlocked: number;
+}
+/**
  * Generated from @see "../messages/favorites_getConfig.request.json"
  */
 export interface FavoritesGetConfigRequest {
@@ -834,6 +859,16 @@ export interface ActivityOnBurnCompleteSubscription {
 export interface ActivityOnConfigUpdateSubscription {
   subscriptionEvent: "activity_onConfigUpdate";
   params: ActivityConfig;
+}
+/**
+ * Generated from @see "../messages/activity_onDataPatch.subscribe.json"
+ */
+export interface ActivityOnDataPatchSubscription {
+  subscriptionEvent: "activity_onDataPatch";
+  params: UrlInfo & PatchData;
+}
+export interface PatchData {
+  patch?: DomainActivity;
 }
 /**
  * Generated from @see "../messages/activity_onDataUpdate.subscribe.json"

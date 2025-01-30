@@ -62,7 +62,35 @@ Notes:
 - {@link "NewTab Messages".ActivityGetConfigRequest}
 - Used to fetch the initial config data (eg: expanded vs collapsed)
 - returns {@link "NewTab Messages".ActivityConfig}
-- 
+
+### `activity_getUrls`
+- {@link "NewTab Messages".ActivityGetUrlsRequest}
+- Used to fetch the initial config data (eg: expanded vs collapsed)
+- returns {@link "NewTab Messages".UrlInfo}
+
+```json
+{
+  "urls": ["..."],
+  "totalTrackersBlocked": 123
+}
+```
+
+### `activity_getDataForUrls`
+- {@link "NewTab Messages".ActivityGetDataForUrlsRequest}
+- Used to confirm the burn action - native side may or may not show a modal
+- sends {@link "NewTab Messages".DataForUrlsParams}
+- returns {@link "NewTab Messages".ActivityData}
+- Note: This response is the same format as `activity_getData`, where DomainActivity items are delivered under `.activity`
+
+```json
+{
+  "activity": [
+    {"...":  "..."}
+  ]
+}
+```
+
+
 ### `activity_confirmBurn`
 - {@link "NewTab Messages".ActivityConfirmBurnRequest}
 - Used to confirm the burn action - native side may or may not show a modal
@@ -92,6 +120,27 @@ by sending the notification `activity_burnAnimationComplete`
 - {@link "NewTab Messages".ActivityOnDataUpdateSubscription}
 - The activity data used in the feed.
 - returns {@link "NewTab Messages".ActivityData}
+
+### `activity_onDataPatch`
+- {@link "NewTab Messages".ActivityOnDataPatchSubscription}
+- The activity data used in the feed.
+- returns {@link "NewTab Messages".UrlInfo} + optional {@link "NewTab Messages".PatchData}
+
+```json
+{
+  "urls": ["..."],
+  "totalTrackersBlocked": 123
+}
+```
+```json
+{
+  "urls": ["..."],
+  "totalTrackersBlocked": 123,
+  "patch": {
+    "...": "..."
+  }
+}
+```
 
 ### `activity_onConfigUpdate` 
 - {@link "NewTab Messages".ActivityOnDataUpdateSubscription }

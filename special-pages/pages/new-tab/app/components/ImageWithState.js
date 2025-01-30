@@ -111,8 +111,8 @@ export function ImageWithState({ faviconSrc, faviconMax, title, etldPlusOne, the
             const chars = etldPlusOne.slice(0, 2);
             return (
                 <div class={cn(styles.favicon, sizeClass, styles.faviconText)} style={style} data-state={state}>
-                    <span>{chars[0]}</span>
-                    <span>{chars[1]}</span>
+                    <span aria-hidden={true}>{chars[0]}</span>
+                    <span aria-hidden={true}>{chars[1]}</span>
                 </div>
             );
         }
