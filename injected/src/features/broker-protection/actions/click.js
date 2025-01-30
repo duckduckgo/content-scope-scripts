@@ -51,6 +51,10 @@ export function click(action, userData, root = document) {
         const elements = getElements(rootElement, element.selector);
 
         if (!elements?.length) {
+            if (action.failSilently) {
+                return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
+            }
+
             return new ErrorResponse({
                 actionID: action.id,
                 message: `could not find element to click with selector '${element.selector}'!`,
@@ -63,7 +67,7 @@ export function click(action, userData, root = document) {
             const elem = elements[i];
 
             if ('disabled' in elem) {
-                if (elem.disabled) {
+                if (elem.disabled && !action.failSilently) {
                     return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` });
                 }
             }
