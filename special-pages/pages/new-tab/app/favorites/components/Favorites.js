@@ -12,7 +12,7 @@ import { TileRow } from './TileRow.js';
 import { FavoritesContext } from './FavoritesProvider.js';
 import { CustomizerContext, CustomizerThemesContext } from '../../customizer/CustomizerProvider.js';
 import { signal, useComputed } from '@preact/signals';
-import { eventToTarget, useDocumentVisibility } from '../../utils.js';
+import { eventToTarget, useAuxClick, useDocumentVisibility } from '../../utils.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
@@ -153,6 +153,10 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         ? rowHeight
         : rows.length * rowHeight;
 
+    // handle middle clicks (preact doesn't seem to support `onAuxClick` out of the box)
+    const clickHandler = getOnClickHandler(openFavorite, platformName);
+    useAuxClick(safeAreaRef, clickHandler);
+
     return (
         <div
             className={styles.grid}
@@ -160,7 +164,7 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
             id={WIDGET_ID}
             ref={safeAreaRef}
             onContextMenu={getContextMenuHandler(openContextMenu)}
-            onClick={getOnClickHandler(openFavorite, platformName)}
+            onClick={clickHandler}
         >
             {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} topOffset={0} add={add} visibility={'visible'} />}
             {rows.length > 0 && <Inner rows={rows} safeAreaRef={safeAreaRef} rowHeight={rowHeight} add={add} />}
