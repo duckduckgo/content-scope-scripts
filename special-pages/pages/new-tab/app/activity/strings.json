@@ -28,7 +28,7 @@
     "note": "Button label for clearing browsing history and data exclusively for the specified domain"
   },
   "activity_menuTitle": {
-    "title": "Activity",
+    "title": "Recent Activity",
     "note": "Used as a label in a customization menu"
   },
   "activity_show_more_history": {
