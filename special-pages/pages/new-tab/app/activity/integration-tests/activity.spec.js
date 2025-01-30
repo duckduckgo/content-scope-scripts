@@ -42,6 +42,15 @@ test.describe('activity widget', () => {
         await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel' } });
         await ap.cannotExpandListWhenEmpty();
     });
+    test('titles', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { feed: 'activity', activity: 'empty' } });
+        await ap.hasEmptyTitle();
+        await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel' } });
+        await ap.hasPopuplatedTitle();
+    });
     test('favorite item', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);

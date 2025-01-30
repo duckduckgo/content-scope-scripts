@@ -15,6 +15,8 @@ import { CompanyIcon } from '../../components/CompanyIcon.js';
 
 /**
  * @import enStrings from "../strings.json"
+ * @import activityStrings from "../../activity/strings.json"
+ * @typedef {enStrings & activityStrings} Strings
  * @typedef {import('../../../types/new-tab').TrackerCompany} TrackerCompany
  * @typedef {import('../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../types/new-tab').Animation} Animation
@@ -104,7 +106,7 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
 export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = {} }) {
-    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
 
     const none = recent === 0;
@@ -141,12 +143,58 @@ export function Heading({ expansion, canExpand, recent, onToggle, buttonAttrs = 
 
 /**
  * @param {object} props
+ * @param {Expansion} props.expansion
+ * @param {number} props.trackerCount
+ * @param {number} props.itemCount
+ * @param {boolean} props.canExpand
+ * @param {() => void} props.onToggle
+ * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
+ */
+export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount, onToggle, buttonAttrs = {} }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const [formatter] = useState(() => new Intl.NumberFormat());
+
+    const none = itemCount === 0;
+    const someItems = itemCount > 0;
+    const trackerCountFormatted = formatter.format(trackerCount);
+    const allTimeString =
+        trackerCount === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural', { count: trackerCountFormatted });
+
+    return (
+        <div className={styles.heading} data-testid={'ActivityHeading'}>
+            <span className={styles.headingIcon}>
+                <img src="./icons/shield.svg" alt="Privacy Shield" />
+            </span>
+            {none && <h2 className={styles.title}>{t('activity_noRecent_title')}</h2>}
+            {someItems && <h2 className={styles.title}>{allTimeString}</h2>}
+            {canExpand && (
+                <span className={styles.widgetExpander}>
+                    <ShowHideButton
+                        buttonAttrs={{
+                            ...buttonAttrs,
+                            'aria-expanded': expansion === 'expanded',
+                            'aria-pressed': expansion === 'expanded',
+                        }}
+                        onClick={onToggle}
+                        text={expansion === 'expanded' ? t('stats_hideLabel') : t('stats_toggleLabel')}
+                        shape="round"
+                    />
+                </span>
+            )}
+            {itemCount === 0 && <p className={styles.subtitle}>{t('activity_noRecent_subtitle')}</p>}
+            {itemCount > 0 && <p className={cn(styles.subtitle, styles.uppercase)}>{t('stats_feedCountBlockedPeriod')}</p>}
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
  * @param {import("preact").ComponentProps<'ul'>} [props.listAttrs]
  * @param {TrackerCompany[]} props.trackerCompanies
  */
 
 export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
-    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const messaging = useMessaging();
     const [formatter] = useState(() => new Intl.NumberFormat());
     const defaultRowMax = 5;
@@ -221,7 +269,7 @@ export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
  * whether to incur the side effects (data fetching).
  */
 export function PrivacyStatsCustomized() {
-    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const drawer = useCustomizerDrawerSettings();
 
     /**
