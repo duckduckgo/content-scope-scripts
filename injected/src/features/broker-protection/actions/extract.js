@@ -169,10 +169,12 @@ function stringValuesFromElements(elements, key, extractField) {
     return elements.map((element) => {
         let elementValue;
 
-        if ('nodeType' in element && element.nodeType === Node.TEXT_NODE) {
-            elementValue = element.textContent;
-        } else {
+        if (element?.innerText) {
             elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
+        
+        // In instances where we use the text() node test, innerText will be undefined, and we fall back to textContent
+        } else if ('nodeType' in element && element.nodeType === Node.TEXT_NODE) {
+            elementValue = rules[key]?.(element) ?? element?.textContent ?? null;
         }
 
         if (extractField?.afterText) {
