@@ -26,7 +26,7 @@
     "note": "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
   "malwarePageHeading": {
-    "title": "Warning: This site may put your personal information at risk",
+    "title": "Warning: This site may be a security risk",
     "note": "Title shown in an error page that warn users of security risks on a website due to malware distribution"
   },
   "malwareWarningText": {
@@ -38,7 +38,7 @@
     "note": "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading": {
-    "title": "Warning: This site may put your personal information at risk",
+    "title": "Warning: This site may be a security risk",
     "note": "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
   },
   "phishingWarningText": {
