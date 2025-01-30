@@ -9,8 +9,8 @@ import { reducer } from '../../service.hooks.js';
  * @typedef {import('../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../types/new-tab').ActivityData} ActivityData
  * @typedef {import('../../../types/new-tab').ActivityConfig} ActivityConfig
- * @typedef {import('../../service.hooks.js').State<ActivityData, ActivityConfig>} State
- * @typedef {import('../../service.hooks.js').Events<ActivityData, ActivityConfig>} Events
+ * @typedef {import('../../service.hooks.js').State<import('../batched-activity.service.js').Incoming, ActivityConfig>} State
+ * @typedef {import('../../service.hooks.js').Events<import('../batched-activity.service.js').Incoming, ActivityConfig>} Events
  */
 
 /**
@@ -20,12 +20,16 @@ import { reducer } from '../../service.hooks.js';
  * @param {Object} props - The props object containing the data.
  * @param {import("preact").ComponentChild} [props.children] - The children elements to be rendered.
  * @param {ActivityConfig} [props.config]
- * @param {ActivityData} [props.data]
+ * @param {import('../batched-activity.service.js').Incoming} [props.data]
  * @param {boolean} [props.ticker] - if true, gradually increment the count of the first company, for testing
  *
  */
 export function ActivityMockProvider({
-    data = activityMocks.few,
+    data = {
+        activity: activityMocks.few.activity,
+        urls: activityMocks.few.activity.map((x) => x.url),
+        totalTrackers: activityMocks.few.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0),
+    },
     config = { expansion: 'expanded', animation: { kind: 'auto-animate' } },
     children,
 }) {

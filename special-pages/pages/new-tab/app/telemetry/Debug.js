@@ -12,7 +12,6 @@ export function DebugCustomized({ index, isOpenInitially = false }) {
         id: 'debug',
         icon: 'shield',
         visibility: isOpen ? 'visible' : 'hidden',
-
         toggle: (_id) => setOpen((prev) => !prev),
         index,
     });

@@ -11,6 +11,15 @@ import { expect } from '@playwright/test';
 const sub = (n) => n;
 
 export class ActivityPage {
+    entries = 200;
+    /**
+     * Sets the number of entries and returns the current instance for chaining.
+     * @param {number} count - The number of entries to set.
+     */
+    withEntries(count) {
+        this.entries = count;
+        return this;
+    }
     /**
      * @param {import("@playwright/test").Page} page
      * @param {import("../../../integration-tests/new-tab.page.js").NewtabPage} ntp
@@ -42,15 +51,14 @@ export class ActivityPage {
     }
 
     rows() {
-        return this.context().getByTestId('CompanyList').locator('li');
+        return this.context().getByTestId('ActivityItem');
     }
 
     /**
      * @param {number} count
      */
     async hasRows(count) {
-        const rows = this.rows();
-        expect(await rows.count()).toBe(count);
+        await expect(this.rows()).toHaveCount(count);
     }
 
     /**
@@ -88,6 +96,15 @@ export class ActivityPage {
     async canCollapseList() {
         const { page } = this;
         await page.getByLabel('Hide recent activity').click();
+        await page.getByLabel('Show recent activity').click();
+    }
+
+    async collapsesList() {
+        const { page } = this;
+        await page.getByLabel('Hide recent activity').click();
+    }
+    async expandsList() {
+        const { page } = this;
         await page.getByLabel('Show recent activity').click();
     }
 
@@ -266,7 +283,7 @@ export class ActivityPage {
     async showsEmptyTrackerState() {
         await expect(this.context().getByTestId('ActivityItem').nth(3)).toMatchAriaSnapshot(`
           - listitem:
-            - link "t w twitter.com"
+            - link "twitter.com"
             - button "Add twitter.com to favorites":
               - img
             - button "Clear browsing history and data for twitter.com":
@@ -279,7 +296,7 @@ export class ActivityPage {
 
         await expect(this.context().getByTestId('ActivityItem').nth(4)).toMatchAriaSnapshot(`
             - listitem:
-              - link "l i app.linkedin.com"
+              - link "app.linkedin.com"
               - button "Add app.linkedin.com to favorites":
                 - img
               - button "Clear browsing history and data for app.linkedin.com":
