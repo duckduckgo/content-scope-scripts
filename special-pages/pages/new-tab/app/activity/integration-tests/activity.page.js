@@ -291,4 +291,23 @@ export class ActivityPage {
                   - text: 2 hrs ago
         `);
     }
+
+    async hasEmptyTitle() {
+        const { page } = this;
+        await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
+            - img "Privacy Shield"
+            - heading "No recent browsing activity" [level=2]
+            - paragraph: Recently visited sites will appear here. Keep browsing to see how many trackers we block.
+        `);
+    }
+    async hasPopuplatedTitle() {
+        const { page } = this;
+        await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
+            - img "Privacy Shield"
+            - heading "0 tracking attempts blocked" [level=2]
+            - button "Hide recent activity" [expanded] [pressed]:
+              - img
+            - paragraph: Past 7 days
+        `);
+    }
 }
