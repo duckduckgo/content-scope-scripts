@@ -141,11 +141,20 @@
         }
     }
 
-    /* Forces a line break in the title on smaller screens */
+    /* Forces a line break in the title on smaller screens. Fallback for browsers that don't support text-wrap: balance */
     & .title {
         white-space: pre-line;
 
         @media (min-width: 600px) {
+            white-space: normal;
+        }
+    }
+}
+
+@supports (text-wrap: balance) {
+    [data-platform-name="ios"] {
+        & .title {
+            text-wrap: balance;
             white-space: normal;
         }
     }
