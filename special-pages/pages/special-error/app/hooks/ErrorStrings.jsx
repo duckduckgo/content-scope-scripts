@@ -27,6 +27,7 @@ const sanitizeURL = (urlString) => {
  */
 
 const helpPageAnchorTagParams = {
+    'data-line-break': true,
     href: phishingMalwareHelpPageURL,
     target: '_blank',
 };
