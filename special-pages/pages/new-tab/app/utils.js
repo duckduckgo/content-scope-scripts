@@ -97,16 +97,16 @@ export function useDocumentVisibility() {
 }
 
 /**
- * Custom hook to handle auxclick event on an element.
+ * Custom hook to handle middle click event on an element. This is required because Preact doens't support the auxclick event.
  * @param {import('preact').RefObject<HTMLElement>} ref - The ref of the element to attach the event listener to.
- * @param {Function} handler - The function to execute on auxclick event.
+ * @param {Function} handler - The function to execute on the middle click event.
  */
-export function useAuxClick(ref, handler) {
+export function useOnMiddleClick(ref, handler) {
     useEffect(() => {
         const element = ref.current;
         if (!element) return;
 
-        const handleAuxClick = (event) => handler(event);
+        const handleAuxClick = (event) => event.button === 1 /* middle button */ && handler(event);
 
         element.addEventListener('auxclick', handleAuxClick);
 

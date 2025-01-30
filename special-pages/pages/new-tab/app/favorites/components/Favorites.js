@@ -12,7 +12,7 @@ import { TileRow } from './TileRow.js';
 import { FavoritesContext } from './FavoritesProvider.js';
 import { CustomizerContext, CustomizerThemesContext } from '../../customizer/CustomizerProvider.js';
 import { signal, useComputed } from '@preact/signals';
-import { eventToTarget, useAuxClick, useDocumentVisibility } from '../../utils.js';
+import { eventToTarget, useOnMiddleClick, useDocumentVisibility } from '../../utils.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
@@ -153,9 +153,8 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         ? rowHeight
         : rows.length * rowHeight;
 
-    // handle middle clicks (preact doesn't seem to support `onAuxClick` out of the box)
     const clickHandler = getOnClickHandler(openFavorite, platformName);
-    useAuxClick(safeAreaRef, clickHandler);
+    useOnMiddleClick(safeAreaRef, clickHandler);
 
     return (
         <div

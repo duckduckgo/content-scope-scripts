@@ -5,7 +5,7 @@ import { memo } from 'preact/compat';
 import { ActivityApiContext, ActivityContext, ActivityProvider, SignalStateContext, SignalStateProvider } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
-import { useAuxClick, useDocumentVisibility } from '../../utils.js';
+import { useOnMiddleClick, useDocumentVisibility } from '../../utils.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { ActivityHeading } from '../../privacy-stats/components/PrivacyStats.js';
@@ -78,9 +78,8 @@ function ActivityConfigured({ expansion, toggle }) {
 function ActivityBody({ canBurn }) {
     const { didClick } = useContext(ActivityApiContext);
     
-    // handle middle clicks (preact doesn't seem to support `onAuxClick` out of the box)
-    const auxClickRef = useRef(/** @type {HTMLUListElement|null} */ (null));
-    useAuxClick(auxClickRef, didClick);
+    const ref = useRef(/** @type {HTMLUListElement|null} */ (null));
+    useOnMiddleClick(ref, didClick);
 
     const documentVisibility = useDocumentVisibility();
     const { isReducedMotion } = useEnv();
@@ -90,7 +89,7 @@ function ActivityBody({ canBurn }) {
 
     return (
         <Fragment>
-            <ul class={styles.activity} ref={auxClickRef} onClick={didClick} data-busy={busy}>
+            <ul class={styles.activity} ref={ref} onClick={didClick} data-busy={busy}>
                 {keys.value.available.map((id, index) => {
                     if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={documentVisibility} />;
                     return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={documentVisibility} />;
