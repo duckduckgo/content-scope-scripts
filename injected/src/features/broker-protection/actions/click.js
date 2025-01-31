@@ -51,7 +51,7 @@ export function click(action, userData, root = document) {
         const elements = getElements(rootElement, element.selector);
 
         if (!elements?.length) {
-            if (action.failSilently) {
+            if (element.failSilently) {
                 return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
             }
 
@@ -67,7 +67,7 @@ export function click(action, userData, root = document) {
             const elem = elements[i];
 
             if ('disabled' in elem) {
-                if (elem.disabled && !action.failSilently) {
+                if (elem.disabled && !element.failSilently) {
                     return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` });
                 }
             }

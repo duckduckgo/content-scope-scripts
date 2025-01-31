@@ -3,11 +3,11 @@
       "action": {
         "actionType": "click",
         "id": "1",
-        "failSilently": true,
         "elements": [
           {
             "type": "button",
-            "selector": ".test"
+            "selector": ".test",
+            "failSilently": true
           }
         ]
       }
