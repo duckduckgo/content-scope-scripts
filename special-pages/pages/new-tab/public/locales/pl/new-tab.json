@@ -44,12 +44,16 @@
     "title" : "Zablokowane próby śledzenia",
     "note" : "Used as a label in a customization menu"
   },
+  "stats_menuTitle_v2" : {
+    "title" : "Statystyki ochrony",
+    "note" : "Used as a label in a customization menu"
+  },
   "stats_noActivity" : {
-    "title" : "Tutaj pojawią się zablokowane próby śledzenia. Przeglądaj dalej, aby zobaczyć, ile zablokujemy.",
+    "title" : "DuckDuckGo blokuje próby śledzenia, gdy korzystasz z przeglądarki. Odwiedź kilka stron, aby przekonać się, ile mechanizmów śledzących zablokujemy!",
     "note" : "Placeholder for when we cannot report any blocked trackers yet"
   },
   "stats_noRecent" : {
-    "title" : "Brak ostatniej aktywności w zakresie śledzenia",
+    "title" : "Ochrona przed śledzeniem aktywna",
     "note" : "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedSingular" : {
@@ -199,5 +203,73 @@
   "favorites_add" : {
     "title" : "Dodaj do Ulubionych",
     "note" : "A button that allows a user to add a new 'favorite' bookmark to their existing list"
+  },
+  "customizer_image_privacy" : {
+    "title" : "Obrazy są przechowywane na Twoim urządzeniu, więc DuckDuckGo nie może ich zobaczyć ani uzyskać do nich dostępu.",
+    "note" : "Shown near a button that allows a user to upload an image to be used as a background."
+  },
+  "customizer_drawer_title" : {
+    "title" : "Spersonalizuj",
+    "note" : "Title in a slide-out drawer that contains options for customizing the browser."
+  },
+  "customizer_section_title_background" : {
+    "title" : "Tło",
+    "note" : "Section title displayed in the UI for customizing the background."
+  },
+  "customizer_section_title_theme" : {
+    "title" : "Motyw przeglądarki",
+    "note" : "Section title for a section where users can customize the browser theme. (for example, 'light' or 'dark')"
+  },
+  "customizer_section_title_sections" : {
+    "title" : "Sekcje",
+    "note" : "Section title for a list of toggles for showing/hiding certain sections of the page."
+  },
+  "customizer_browser_theme_light" : {
+    "title" : "Jasny",
+    "note" : "The label for a button that sets the browser theme to 'light' mode"
+  },
+  "customizer_browser_theme_dark" : {
+    "title" : "Ciemny",
+    "note" : "The label for a button that sets the browser theme to 'dark' mode"
+  },
+  "customizer_browser_theme_system" : {
+    "title" : "Systemowy",
+    "note" : "The label for a button that sets the browser theme to 'system', which matches the operating system setting"
+  },
+  "customizer_browser_theme_label" : {
+    "title" : "Wybierz {type} motyw",
+    "note" : "The label text on a button, for assistive technologies (like screen readers). {type} will be replace with 'light', 'dark' or 'system'"
+  },
+  "customizer_settings_link" : {
+    "title" : "Przejdź do ustawień",
+    "note" : "The label text on a link that opens the Settings"
+  },
+  "customizer_background_selection_default" : {
+    "title" : "Domyślne",
+    "note" : "Label text below a button that selects a 'default' background"
+  },
+  "customizer_background_selection_color" : {
+    "title" : "Jednolite kolory",
+    "note" : "Label text below a button that allows a color background"
+  },
+  "customizer_background_selection_gradient" : {
+    "title" : "Gradienty",
+    "note" : "Label text below a button that allows a gradient background"
+  },
+  "customizer_background_selection_image_add" : {
+    "title" : "Dodaj tło",
+    "note" : "Label text shown on a button that allows an image to be uploaded"
+  },
+  "customizer_background_selection_image_existing" : {
+    "title" : "Moje tła",
+    "note" : "Label text shown on a button navigates to list of existing background (that the user previously uploaded)"
+  },
+  "customizer_image_select" : {
+    "title" : "Wybierz zdjęcie {number}",
+    "note" : "Label text on a button, for assistive technologies (like screen readers). {number} will be replaced with a numeric reference of 1-8, eg: 'Select image 1'"
+  },
+  "customizer_image_delete" : {
+    "title" : "Usuń obraz {number}",
+    "note" : "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
   }
 }
