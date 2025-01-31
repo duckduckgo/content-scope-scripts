@@ -123,7 +123,7 @@
 
     /* Preserves line breaks on smaller screens to avoid orfan words.
        This is a fallback for browsers that don't support text-wrap: balance */
-    & .title {
+       & .title {
         white-space: pre-line;
 
         @media (min-width: 600px) {
@@ -134,24 +134,6 @@
 
 @supports (text-wrap: balance) {
     /* Balanced line breaks on title for browsers that support it */
-    [data-platform-name="ios"] {
-        & .title {
-            text-wrap: balance;
-            white-space: normal;
-        }
-    }
-
-    /* Forces a line break in the title on smaller screens. Fallback for browsers that don't support text-wrap: balance */
-    & .title {
-        white-space: pre-line;
-
-        @media (min-width: 600px) {
-            white-space: normal;
-        }
-    }
-}
-
-@supports (text-wrap: balance) {
     [data-platform-name="ios"] {
         & .title {
             text-wrap: balance;
