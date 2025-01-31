@@ -87,6 +87,7 @@
 
     & .content {
         text-align: center;
+        white-space: pre-line; /* Preserve line breaks on all screen sizes */
     }
 
     & .buttonContainer {
@@ -120,13 +121,8 @@
         background-image: url(../../../../shared/assets/img/icons/Malware-Site-128.svg);
     }
 
-    /* Inserts line break before an inline element. Used for the Learn More link in the Warning text */
-    & [data-line-break]::before {
-        content: ' ';
-        display: block;
-    }
-
-    /* Forces a line break in the title on smaller screens. Fallback for browsers that don't support text-wrap: balance */
+    /* Preserves line breaks on smaller screens to avoid orfan words.
+       This is a fallback for browsers that don't support text-wrap: balance */
     & .title {
         white-space: pre-line;
 
@@ -137,6 +133,7 @@
 }
 
 @supports (text-wrap: balance) {
+    /* Balanced line breaks on title for browsers that support it */
     [data-platform-name="ios"] {
         & .title {
             text-wrap: balance;
