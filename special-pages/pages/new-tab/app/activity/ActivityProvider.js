@@ -5,7 +5,7 @@ import { reducer, useConfigSubscription, useInitialDataAndConfig } from '../serv
 import { eventToTarget } from '../utils.js';
 import { useBatchedActivityApi, usePlatformName } from '../settings.provider.js';
 import { ACTION_ADD_FAVORITE, ACTION_BURN, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from './constants.js';
-import { batch, signal, useSignal, useSignalEffect } from '@preact/signals';
+import { batch, signal, useSignal } from '@preact/signals';
 import { DDG_DEFAULT_ICON_SIZE } from '../favorites/constants.js';
 import { BatchedActivityService } from './batched-activity.service.js';
 
