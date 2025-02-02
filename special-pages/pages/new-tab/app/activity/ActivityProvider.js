@@ -227,14 +227,14 @@ export function SignalStateProvider({ children }) {
                 console.warn('unhandled action:', action);
             }
         } else if (toggle) {
-            if (state.config?.expansion === 'collapsed') {
+            if (state.config?.expansion === 'collapsed' && batched) {
                 const next = activity.value.urls.slice(0, Math.min(service.INITIAL, activity.value.urls.length));
                 setVisibleRange(next);
             }
         }
     }
 
-    const didClick = useCallback(didClick_, [service, state.config.expansion]);
+    const didClick = useCallback(didClick_, [service, batched, state.config.expansion]);
     const firstUrls = state.data.activity.map((x) => x.url);
     const keys = useSignal(normalizeKeys([], firstUrls));
 
@@ -276,7 +276,7 @@ export function SignalStateProvider({ children }) {
         fillHoles();
     }
 
-    useSignalEffect(() => {
+    useEffect(() => {
         if (!service) return console.warn('could not access service');
         const src = /** @type {BatchedActivityService} */ (service);
         const unsub = src.onData((evt) => {
@@ -288,7 +288,12 @@ export function SignalStateProvider({ children }) {
                 });
                 const visible = keys.value;
                 const all = activity.value.urls;
-                const nextVisibleRange = all.slice(0, Math.max(service.INITIAL, Math.max(service.INITIAL, visible.length)));
+
+                // prettier-ignore
+                const nextVisibleRange = batched
+                    ? all.slice(0, Math.max(service.INITIAL, Math.max(service.INITIAL, visible.length)))
+                    : all
+
                 setVisibleRange(nextVisibleRange);
                 fillHoles();
             });
@@ -297,7 +302,7 @@ export function SignalStateProvider({ children }) {
         return () => {
             unsub();
         };
-    });
+    }, [service, batched, activity, keys]);
 
     useEffect(() => {
         window.addEventListener('activity.next', showNextChunk);
