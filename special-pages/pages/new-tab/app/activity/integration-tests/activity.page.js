@@ -1,5 +1,6 @@
 import { activityMocks } from '../mocks/activity.mocks.js';
 import { expect } from '@playwright/test';
+import { generateSampleData } from '../mocks/activity.mock-transport.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionEventNames
@@ -232,6 +233,16 @@ export class ActivityPage {
             url: 'https://example.com/kitchen/sinks',
             target: 'new-window',
         });
+    }
+
+    /**
+     * Simulates the subscription message with a new list of activity data.
+     *
+     * @param {number} count - The number of items to generate in the new list.
+     */
+    async acceptsNewList(count) {
+        const next = generateSampleData(count);
+        await this.ntp.mocks.simulateSubscriptionMessage('activity_onDataUpdate', { activity: next });
     }
 
     async acceptsUpdatedFavorite() {

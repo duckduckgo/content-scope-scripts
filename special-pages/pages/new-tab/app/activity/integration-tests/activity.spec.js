@@ -20,6 +20,17 @@ test.describe('activity widget', () => {
 
         await ap.didRender();
     });
+    test('Accepts update (pushing items to front)', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const widget = new ActivityPage(page, ntp).withEntries(5);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { feed: 'activity', activity: widget.entries } });
+        await widget.didRender();
+        await widget.acceptsNewList(6);
+        await widget.hasRows(6);
+        await widget.canCollapseList();
+        await widget.hasRows(6);
+    });
     test('Accepts update (subscription)', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
@@ -175,8 +186,9 @@ test.describe('activity widget', () => {
             await widget.hasRows(5);
             await batching.triggerNext();
             await widget.hasRows(15);
+            await page.waitForTimeout(500);
             await batching.triggerNext();
-            await page.waitForTimeout(100);
+            await page.waitForTimeout(500);
             await widget.hasRows(25);
         });
         test('patching in place', async ({ page }, workerInfo) => {
