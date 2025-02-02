@@ -8,7 +8,6 @@ import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useOnMiddleClick } from '../../utils.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { useBatchedActivityApi, usePlatformName } from '../../settings.provider.js';
-import { ActivityHeading } from '../../privacy-stats/components/PrivacyStats.js';
 import { ChevronSmall } from '../../components/Icons.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
@@ -18,6 +17,7 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js'
 import { useComputed } from '@preact/signals';
 import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js';
 import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility.js';
+import { ActivityHeading } from '../../privacy-stats/components/ActivityHeading.js';
 
 /**
  * @import enStrings from "../strings.json"
