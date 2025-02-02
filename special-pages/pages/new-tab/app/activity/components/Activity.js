@@ -1,6 +1,6 @@
 import { Fragment, h } from 'preact';
 import styles from './Activity.module.css';
-import { useContext, useId, useState, useEffect, useRef } from 'preact/hooks';
+import { useContext, useEffect, useId, useRef } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { ActivityApiContext, ActivityContext, ActivityProvider, SignalStateContext, SignalStateProvider } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
@@ -8,7 +8,6 @@ import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useOnMiddleClick } from '../../utils.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { useBatchedActivityApi, usePlatformName } from '../../settings.provider.js';
-import { ChevronSmall } from '../../components/Icons.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ActivityItem } from './ActivityItem.js';
@@ -18,6 +17,7 @@ import { useComputed } from '@preact/signals';
 import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js';
 import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility.js';
 import { ActivityHeading } from '../../privacy-stats/components/ActivityHeading.js';
+import { HistoryItems } from './HistoryItems.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -245,67 +245,6 @@ function TrackerStatus({ id, trackersFound }) {
                 <Trans str={t('activity_countBlockedPlural', { count: String(status.value.totalCount) })} values={{}} />
             </div>
         </div>
-    );
-}
-
-const MIN_SHOW_AMOUNT = 2;
-const MAX_SHOW_AMOUNT = 10;
-// const HistoryItems = memo(HistoryItems_);
-/**
- * @param {object} props
- * @param {string} props.id
- */
-function HistoryItems({ id }) {
-    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
-    const { activity } = useContext(SignalStateContext);
-    const history = useComputed(() => activity.value.history[id]);
-    const [expansion, setExpansion] = useState(/** @type {Expansion} */ ('collapsed'));
-    const max = Math.min(history.value.length, MAX_SHOW_AMOUNT);
-    const min = Math.min(MIN_SHOW_AMOUNT, max);
-    const current = expansion === 'collapsed' ? min : max;
-    const hasMore = current < max;
-    const hasLess = current > min;
-    const hiddenCount = max - current;
-    const showButton = hasMore || hasLess;
-
-    function onClick(event) {
-        const btn = event.target?.closest('button[data-action]');
-        if (btn?.dataset.action === 'hide') {
-            setExpansion('collapsed');
-        } else if (btn?.dataset.action === 'show') {
-            setExpansion('expanded');
-        }
-    }
-
-    return (
-        <Fragment>
-            <ul class={styles.history} onClick={onClick}>
-                {history.value.slice(0, current).map((item, index) => {
-                    const isLast = index === current - 1;
-                    return (
-                        <li class={styles.historyItem} key={item.url + item.title}>
-                            <a href={item.url} class={styles.historyLink} title={item.url} data-url={item.url}>
-                                {item.title}
-                            </a>
-                            <small class={styles.time}>{item.relativeTime}</small>
-                            {isLast && showButton && (
-                                <button
-                                    data-action={hasMore && isLast ? 'show' : 'hide'}
-                                    class={styles.historyBtn}
-                                    aria-label={
-                                        hasMore && isLast
-                                            ? t('activity_show_more_history', { count: String(hiddenCount) })
-                                            : t('activity_show_less_history')
-                                    }
-                                >
-                                    <ChevronSmall />
-                                </button>
-                            )}
-                        </li>
-                    );
-                })}
-            </ul>
-        </Fragment>
     );
 }
 
