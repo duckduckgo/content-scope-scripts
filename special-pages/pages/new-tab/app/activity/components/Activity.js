@@ -2,7 +2,7 @@ import { Fragment, h } from 'preact';
 import styles from './Activity.module.css';
 import { useContext, useEffect, useId, useRef } from 'preact/hooks';
 import { memo } from 'preact/compat';
-import { ActivityContext, ActivityProvider } from '../ActivityProvider.js';
+import { ActivityContext, ActivityProvider, ActivityServiceContext } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useOnMiddleClick } from '../../utils.js';
@@ -18,7 +18,8 @@ import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js'
 import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility.js';
 import { ActivityHeading } from '../../privacy-stats/components/ActivityHeading.js';
 import { HistoryItems } from './HistoryItems.js';
-import { ActivityInteractionsContext, NormalizedDataContext, SignalStateProvider } from '../NormalizeDataProvider.js';
+import { NormalizedDataContext, SignalStateProvider } from '../NormalizeDataProvider.js';
+import { ActivityInteractionsContext } from '../ActivityInteractionsContext.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -310,9 +311,10 @@ export function ActivityCustomized() {
  */
 export function ActivityConsumer() {
     const { state, toggle } = useContext(ActivityContext);
+    const service = useContext(ActivityServiceContext);
     const platformName = usePlatformName();
     const visibility = useDocumentVisibility();
-    if (state.status === 'ready') {
+    if (service && state.status === 'ready') {
         if (platformName === 'windows') {
             return (
                 <SignalStateProvider>
@@ -324,7 +326,7 @@ export function ActivityConsumer() {
         }
         return (
             <SignalStateProvider>
-                <BurnProvider>
+                <BurnProvider service={service}>
                     <ActivityConfigured expansion={state.config.expansion} toggle={toggle}>
                         <ActivityBody canBurn={true} visibility={visibility} />
                     </ActivityConfigured>

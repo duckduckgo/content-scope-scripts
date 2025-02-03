@@ -3,7 +3,7 @@ import { useTypedTranslationWith } from '../../types.js';
 import cn from 'classnames';
 import styles from './Activity.module.css';
 import { ImageWithState } from '../../components/ImageWithState.js';
-import { ACTION_ADD_FAVORITE, ACTION_BURN, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
+import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
 import { Fire } from '../../components/icons/Fire.js';
 import { Cross } from '../../components/Icons.js';
@@ -11,6 +11,7 @@ import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { useComputed } from '@preact/signals';
 import { NormalizedDataContext } from '../NormalizeDataProvider.js';
+import { ACTION_BURN } from '../BurnProvider.js';
 
 export const ActivityItem = memo(
     /**

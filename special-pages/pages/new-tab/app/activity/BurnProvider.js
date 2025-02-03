@@ -1,10 +1,10 @@
 import { h, createContext } from 'preact';
 import { useContext, useEffect } from 'preact/hooks';
-import { ActivityServiceContext } from './ActivityProvider';
-import { ACTION_BURN } from './constants.js';
 import { batch, signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
-import { ActivityInteractionsContext } from './NormalizeDataProvider.js';
+import { ActivityInteractionsContext } from './ActivityInteractionsContext.js';
+
+export const ACTION_BURN = 'burn';
 
 export const ActivityBurningSignalContext = createContext({
     /** @type {import("@preact/signals").Signal<string[]>} */
@@ -18,13 +18,14 @@ export const ActivityBurningSignalContext = createContext({
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
+ * @param {{confirmBurn: (url: string) => Promise<{action: 'burn' | 'none'}>; disableBroadcast: () => void; enableBroadcast: () => void }} props.service
+ *
  */
-export function BurnProvider({ children }) {
+export function BurnProvider({ children, service }) {
     const burning = useSignal(/** @type {string[]} */ ([]));
     const exiting = useSignal(/** @type {string[]} */ ([]));
     const animation = useSignal({ state: /** @type {'loading' | 'ready' | 'error'} */ ('loading'), data: null });
     const { didClick: originalDidClick } = useContext(ActivityInteractionsContext);
-    const service = useContext(ActivityServiceContext);
     const { isReducedMotion } = useEnv();
 
     async function didClick(e) {

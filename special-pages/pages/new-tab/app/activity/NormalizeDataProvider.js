@@ -2,10 +2,12 @@ import { createContext, h } from 'preact';
 import { useCallback, useContext, useEffect } from 'preact/hooks';
 import { eventToTarget } from '../utils.js';
 import { useBatchedActivityApi, usePlatformName } from '../settings.provider.js';
-import { ACTION_ADD_FAVORITE, ACTION_BURN, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from './constants.js';
+import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from './constants.js';
 import { batch, signal, useSignal } from '@preact/signals';
 import { DDG_DEFAULT_ICON_SIZE } from '../favorites/constants.js';
 import { ActivityContext, ActivityServiceContext } from './ActivityProvider.js';
+import { ActivityInteractionsContext } from './ActivityInteractionsContext.js';
+import { ACTION_BURN } from './BurnProvider.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').ActivityData} ActivityData
@@ -122,13 +124,6 @@ export function shallowDiffers(a, b) {
 export const NormalizedDataContext = createContext({
     activity: signal(/** @type {NormalizedActivity} */ ({})),
     keys: signal(/** @type {string[]} */ ([])),
-});
-
-export const ActivityInteractionsContext = createContext({
-    /**
-     * @type {(evt: MouseEvent) => void} event
-     */
-    didClick(event) {},
 });
 
 export function SignalStateProvider({ children }) {
