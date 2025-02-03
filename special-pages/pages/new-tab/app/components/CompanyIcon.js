@@ -1,68 +1,44 @@
 import styles from './CompanyIcon.module.css';
 import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../privacy-stats/constants.js';
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { memo } from 'preact/compat';
 
 const mappings = {
     'google-analytics-google': 'google-analytics',
+    'google-ads-google': 'google-ads',
 };
 
-const states = /** @type {const} */ ({
-    loading: 'loading',
-    loaded: 'loaded',
-    loadingFallback: 'loadingFallback',
-    loadedFallback: 'loadedFallback',
-    errored: 'errored',
-});
+export const CompanyIcon = memo(
+    /**
+     * @param {object} props
+     * @param {string} props.displayName
+     */
+    function CompanyIcon({ displayName }) {
+        const icon = displayName.toLowerCase().split('.')[0];
+        const cleaned = icon.replace(/[^a-z ]/g, '').replace(/ /g, '-');
+        const id = cleaned in mappings ? mappings[cleaned] : cleaned;
+        const firstChar = id[0];
 
-/**
- * @typedef {states[keyof states]} State
- */
+        if (icon === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
+            return (
+                <span className={styles.icon}>
+                    <Other />
+                </span>
+            );
+        }
 
-/**
- * @param {object} props
- * @param {string} props.displayName
- */
-export function CompanyIcon({ displayName }) {
-    const icon = displayName.toLowerCase().split('.')[0];
-    const cleaned = icon.replace(/[^a-z ]/g, '').replace(/ /g, '-');
-    const id = cleaned in mappings ? mappings[cleaned] : cleaned;
-    const firstChar = id[0];
-    const [state, setState] = useState(/** @type {State} */ (states.loading));
-
-    const src =
-        state === 'loading' || state === 'loaded'
+        // prettier-ignore
+        const src = names.has(id)
             ? `./company-icons/${id}.svg`
-            : state === 'loadingFallback' || state === 'loadedFallback'
-              ? `./company-icons/${firstChar}.svg`
-              : null;
+            : `./company-icons/${firstChar}.svg`;
 
-    if (src === null || icon === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
         return (
-            <span className={styles.icon}>
-                <Other />
+            <span className={styles.icon} title={displayName}>
+                <img src={src} alt={''} class={styles.companyImgIcon} data-loaded="true" />
             </span>
         );
-    }
-
-    return (
-        <span className={styles.icon}>
-            <img
-                src={src}
-                alt={''}
-                class={styles.companyImgIcon}
-                data-loaded={state === states.loaded || state === states.loadedFallback}
-                onLoad={() => setState((prev) => (prev === states.loading ? states.loaded : states.loadedFallback))}
-                onError={() => {
-                    setState((prev) => {
-                        if (prev === states.loading) return states.loadingFallback;
-                        return states.errored;
-                    });
-                }}
-            />
-        </span>
-    );
-}
+    },
+);
 
 function Other() {
     return (
@@ -76,3 +52,143 @@ function Other() {
         </svg>
     );
 }
+
+/**
+ * A static list of names representing the icons in `./public/company-icons`
+ * We don't want the bundler to crawl through that folder, or include the SVGs in JS,
+ * so this static list have to do for now. Perhaps it can be generated later.
+ *
+ * @type {Set<string>}
+ */
+const names = new Set([
+    '33across',
+    'a',
+    'acuityads',
+    'adform',
+    'adjust',
+    'adobe',
+    'akamai',
+    'amazon',
+    'amplitude',
+    'appsflyer',
+    'automattic',
+    'b',
+    'beeswax',
+    'bidtellect',
+    'branch-metrics',
+    'braze',
+    'bugsnag',
+    'bytedance',
+    'c',
+    'chartbeat',
+    'cloudflare',
+    'cognitiv',
+    'comscore',
+    'crimtan-holdings',
+    'criteo',
+    'd',
+    'deepintent',
+    'e',
+    'exoclick',
+    'eyeota',
+    'f',
+    'facebook',
+    'g',
+    'google',
+    'google-ads',
+    'google-analytics',
+    'gumgum',
+    'h',
+    'hotjar',
+    'i',
+    'id5',
+    'improve-digital',
+    'index-exchange',
+    'inmar',
+    'instagram',
+    'intent-iq',
+    'iponweb',
+    'j',
+    'k',
+    'kargo',
+    'kochava',
+    'l',
+    'line',
+    'linkedin',
+    'liveintent',
+    'liveramp',
+    'loopme-ltd',
+    'lotame-solutions',
+    'm',
+    'magnite',
+    'mediamath',
+    'medianet-advertising',
+    'mediavine',
+    'merkle',
+    'microsoft',
+    'mixpanel',
+    'n',
+    'narrative',
+    'nativo',
+    'neustar',
+    'new-relic',
+    'o',
+    'onetrust',
+    'openjs-foundation',
+    'openx',
+    'opera-software',
+    'oracle',
+    'other',
+    'other-dark',
+    'outbrain',
+    'p',
+    'pinterest',
+    'prospect-one',
+    'pubmatic',
+    'pulsepoint',
+    'q',
+    'quantcast',
+    'r',
+    'rhythmone',
+    'roku',
+    'rtb-house',
+    'rubicon',
+    's',
+    'salesforce',
+    'semasio',
+    'sharethrough',
+    'simplifi-holdings',
+    'smaato',
+    'snap',
+    'sonobi',
+    'sovrn-holdings',
+    'spotx',
+    'supership',
+    'synacor',
+    't',
+    'taboola',
+    'tapad',
+    'teads',
+    'the-nielsen-company',
+    'the-trade-desk',
+    'triplelift',
+    'twitter',
+    'u',
+    'unruly-group',
+    'urban-airship',
+    'v',
+    'verizon-media',
+    'w',
+    'warnermedia',
+    'wpp',
+    'x',
+    'xaxis',
+    'y',
+    'yahoo-japan',
+    'yandex',
+    'yieldmo',
+    'youtube',
+    'z',
+    'zeotap',
+    'zeta-global',
+]);

@@ -92,8 +92,8 @@
 }
 
 .faviconSmall {
-    max-height: calc(24 * var(--px-in-rem));
-    max-width: calc(24 * var(--px-in-rem));
+    max-height: calc(16 * var(--px-in-rem));
+    max-width: calc(16 * var(--px-in-rem));
 }
 
 .faviconText {
@@ -113,10 +113,10 @@
     }
 
     &.faviconSmall {
-        font-size: 0.8rem;
+        font-size: 0.5rem;
         border-radius: var(--border-radius-xs);
-        height: calc(24 * var(--px-in-rem));
-        width: calc(24 * var(--px-in-rem));
+        height: calc(16 * var(--px-in-rem));
+        width: calc(16 * var(--px-in-rem));
     }
 }
 
