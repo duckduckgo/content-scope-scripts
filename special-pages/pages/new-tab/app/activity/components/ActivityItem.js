@@ -11,7 +11,7 @@ import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { useComputed } from '@preact/signals';
 import { NormalizedDataContext } from '../NormalizeDataProvider.js';
-import { ACTION_BURN } from '../BurnProvider.js';
+import { ACTION_BURN } from '../../burning/BurnProvider.js';
 
 export const ActivityItem = memo(
     /**

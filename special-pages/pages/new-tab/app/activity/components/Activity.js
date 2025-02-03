@@ -11,7 +11,7 @@ import { useBatchedActivityApi, usePlatformName } from '../../settings.provider.
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ActivityItem } from './ActivityItem.js';
-import { ActivityBurningSignalContext, BurnProvider } from '../BurnProvider.js';
+import { ActivityBurningSignalContext, BurnProvider } from '../../burning/BurnProvider.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { useComputed } from '@preact/signals';
 import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js';
@@ -19,7 +19,7 @@ import { useDocumentVisibility } from '../../../../../shared/components/Document
 import { ActivityHeading } from '../../privacy-stats/components/ActivityHeading.js';
 import { HistoryItems } from './HistoryItems.js';
 import { NormalizedDataContext, SignalStateProvider } from '../NormalizeDataProvider.js';
-import { ActivityInteractionsContext } from '../ActivityInteractionsContext.js';
+import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsContext.js';
 
 /**
  * @import enStrings from "../strings.json"

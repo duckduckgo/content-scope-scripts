@@ -6,8 +6,8 @@ import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from './co
 import { batch, signal, useSignal } from '@preact/signals';
 import { DDG_DEFAULT_ICON_SIZE } from '../favorites/constants.js';
 import { ActivityContext, ActivityServiceContext } from './ActivityProvider.js';
-import { ActivityInteractionsContext } from './ActivityInteractionsContext.js';
-import { ACTION_BURN } from './BurnProvider.js';
+import { ActivityInteractionsContext } from '../burning/ActivityInteractionsContext.js';
+import { ACTION_BURN } from '../burning/BurnProvider.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').ActivityData} ActivityData

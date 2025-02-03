@@ -1,5 +1,5 @@
 import { useContext, useLayoutEffect, useRef } from 'preact/hooks';
-import { ActivityBurningSignalContext } from '../BurnProvider.js';
+import { ActivityBurningSignalContext } from '../../burning/BurnProvider.js';
 import { useComputed } from '@preact/signals';
 import cn from 'classnames';
 import styles from './Activity.module.css';
@@ -7,7 +7,7 @@ import { lazy, Suspense } from 'preact/compat';
 import { h } from 'preact';
 
 // eslint-disable-next-line promise/prefer-await-to-then
-const BurnAnimationLazy = lazy(() => import('./BurnAnimationLottieWeb.js').then((x) => x.BurnAnimation));
+const BurnAnimationLazy = lazy(() => import('../../burning/BurnAnimationLottieWeb.js').then((x) => x.BurnAnimation));
 
 /**
  * A wrapper component that provides animation effects for activity items. It handles
