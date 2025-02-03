@@ -10,28 +10,12 @@ import { normalizeData, NormalizedDataContext } from '../NormalizeDataProvider.j
 export const activityExamples = {
     'activity.empty': {
         factory: () => {
-            return (
-                <Activity
-                    expansion={'expanded'}
-                    itemCount={0}
-                    trackerCount={0}
-                    toggle={noop('toggle')}
-                    didClick={noop('did click')}
-                    batched={false}
-                />
-            );
+            return <Activity expansion={'expanded'} itemCount={0} trackerCount={0} toggle={noop('toggle')} batched={false} />;
         },
     },
     'activity.few': {
         factory: () => (
-            <Activity
-                expansion={'expanded'}
-                itemCount={10}
-                trackerCount={20}
-                toggle={noop('toggle')}
-                didClick={noop('did click')}
-                batched={false}
-            >
+            <Activity expansion={'expanded'} itemCount={10} trackerCount={20} toggle={noop('toggle')} batched={false}>
                 <Mock size={3}>
                     <ActivityBody canBurn={false} visibility={'visible'} />
                 </Mock>
@@ -40,14 +24,7 @@ export const activityExamples = {
     },
     'activity.noTrackers': {
         factory: () => (
-            <Activity
-                expansion={'expanded'}
-                itemCount={20}
-                trackerCount={0}
-                toggle={noop('toggle')}
-                didClick={noop('did click')}
-                batched={false}
-            >
+            <Activity expansion={'expanded'} itemCount={20} trackerCount={0} toggle={noop('toggle')} batched={false}>
                 <Mock size={1}>
                     <ActivityBody canBurn={false} visibility={'visible'} />
                 </Mock>
