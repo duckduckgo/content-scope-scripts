@@ -210,9 +210,9 @@ function TrackerStatus({ id, trackersFound }) {
             ? t('activity_no_trackers_blocked')
             : t('activity_no_trackers')
         return (
-            <div class={styles.companiesIconRow} data-testid="TrackerStatus">
+            <p class={styles.companiesIconRow} data-testid="TrackerStatus">
                 {text}
-            </div>
+            </p>
         );
     }
 
