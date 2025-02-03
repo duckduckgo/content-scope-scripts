@@ -5,9 +5,16 @@
     --chip-size-half: calc(var(--chip-size) / 2);
 }
 .themeItem {
-    display: grid;
-    justify-items: center;
-    grid-row-gap: 4px;
+    width: 42px;
+
+    span {
+        margin-top: 6px;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        width: 100%;
+    }
 }
 .themeButton {
     display: block;

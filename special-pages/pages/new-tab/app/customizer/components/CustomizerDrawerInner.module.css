@@ -18,6 +18,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 6px;
+
+    > * {
+        overflow: hidden;
+    }
 }
 
 .internal {
@@ -30,6 +35,7 @@
     width: 24px;
     height: 24px;
     position: relative;
+    flex-shrink: 0;
 
     color: var(--color-black-at-84);
     background-color: var(--color-black-at-9);
@@ -91,7 +97,6 @@
 .bgListItem {
     display: grid;
     grid-row-gap: 4px;
-    white-space: nowrap;
     position: relative;
 
     &:hover {
