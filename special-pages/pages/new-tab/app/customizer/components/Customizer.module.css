@@ -21,6 +21,7 @@
 
 /** todo: is this a re-usable button, yet? */
 .customizeButton {
+    backdrop-filter: blur(48px);
     background-color: var(--ntp-surface-background-color);
     border: 1px solid var(--ntp-surface-border-color);
     border-radius: var(--border-radius-sm);

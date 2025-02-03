@@ -5,6 +5,7 @@ import { nextStepsExamples, otherNextStepsExamples } from '../next-steps/compone
 import { otherPrivacyStatsExamples, privacyStatsExamples } from '../privacy-stats/components/PrivacyStats.examples.js';
 import { otherRMFExamples, RMFExamples } from '../remote-messaging-framework/components/RMF.examples.js';
 import { updateNotificationExamples } from '../update-notification/components/UpdateNotification.examples.js';
+import { activityExamples } from '../activity/components/Activity.examples.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -21,4 +22,5 @@ export const otherExamples = {
     ...otherRMFExamples,
     ...customizerExamples,
     ...updateNotificationExamples,
+    ...activityExamples,
 };

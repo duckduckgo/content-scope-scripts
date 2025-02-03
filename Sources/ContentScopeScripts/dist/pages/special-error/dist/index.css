@@ -582,6 +582,10 @@ body:not([data-platform-name]) .Button_button:active {
 [data-platform-name=ios] :is(.Warning_phishing .Warning_icon, .Warning_malware .Warning_icon) {
   background-image: url("./Malware-Site-96-A35AQOKY.svg");
 }
+[data-platform-name=ios] [data-line-break]::before {
+  content: " ";
+  display: block;
+}
 
 /* pages/special-error/app/components/Components.module.css */
 .Components_selector {

@@ -12,7 +12,8 @@ import { TileRow } from './TileRow.js';
 import { FavoritesContext } from './FavoritesProvider.js';
 import { CustomizerContext, CustomizerThemesContext } from '../../customizer/CustomizerProvider.js';
 import { signal, useComputed } from '@preact/signals';
-import { eventToTarget, useDocumentVisibility } from '../../utils.js';
+import { eventToTarget, useOnMiddleClick } from '../../utils.js';
+import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
@@ -46,8 +47,6 @@ export const FavoritesThemeContext = createContext({
  */
 export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add, canAnimateItems }) {
     const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
-    const platformName = usePlatformName();
-
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
@@ -60,12 +59,10 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
     const kind = useComputed(() => data.value.background.kind);
 
     // A flag to determine if animations are available. This is needed
-    // because in webkit applying 'view-transition' css properties causes an odd experience
+    // because 'view-transition' CSS properties causes an odd experience
     // with filters.
     const animateItems = useComputed(() => {
-        if (platformName === 'windows' && canAnimateItems) return true;
-        if (platformName === 'macos' && canAnimateItems && kind.value !== 'userImage') return true;
-        return false;
+        return canAnimateItems && kind.value !== 'userImage';
     });
 
     return (
@@ -129,6 +126,7 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
  */
 function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openFavorite, openContextMenu, add }) {
     const platformName = usePlatformName();
+    const visibility = useDocumentVisibility();
 
     // convert the list of favorites into chunks of length ROW_CAPACITY
     const rows = useMemo(() => {
@@ -157,6 +155,9 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
         ? rowHeight
         : rows.length * rowHeight;
 
+    const clickHandler = getOnClickHandler(openFavorite, platformName);
+    useOnMiddleClick(safeAreaRef, clickHandler);
+
     return (
         <div
             className={styles.grid}
@@ -164,10 +165,10 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
             id={WIDGET_ID}
             ref={safeAreaRef}
             onContextMenu={getContextMenuHandler(openContextMenu)}
-            onClick={getOnClickHandler(openFavorite, platformName)}
+            onClick={clickHandler}
         >
             {rows.length === 0 && <TileRow key={'empty-rows'} items={[]} topOffset={0} add={add} visibility={'visible'} />}
-            {rows.length > 0 && <Inner rows={rows} safeAreaRef={safeAreaRef} rowHeight={rowHeight} add={add} />}
+            {rows.length > 0 && <Inner rows={rows} safeAreaRef={safeAreaRef} rowHeight={rowHeight} add={add} visibility={visibility} />}
         </div>
     );
 }
@@ -182,13 +183,13 @@ function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites, expansion, openF
  * @param {Favorite[][]} props.rows
  * @param {import("preact").RefObject<HTMLDivElement>} props.safeAreaRef
  * @param {number} props.rowHeight
+ * @param {DocumentVisibilityState} props.visibility
  * @param {()=>void} props.add
  */
-function Inner({ rows, safeAreaRef, rowHeight, add }) {
+function Inner({ rows, safeAreaRef, rowHeight, add, visibility }) {
     const { onConfigChanged, state } = useContext(FavoritesContext);
     const [expansion, setExpansion] = useState(state.config?.expansion || 'collapsed');
-    const documentVisibility = useDocumentVisibility();
-    const { start, end } = useVisibleRows(rows, rowHeight, safeAreaRef);
+    const { start, end } = useVisibleRows(rows, rowHeight, safeAreaRef, expansion);
 
     // force the children to be rendered after the main thread is cleared
     useEffect(() => {
@@ -218,7 +219,7 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
             {subsetOfRowsToRender.map((items, rowIndex) => {
                 const topOffset = expansion === 'expanded' ? (start + rowIndex) * rowHeight : 0;
                 const keyed = `-${start + rowIndex}-`;
-                return <TileRow key={keyed} items={items} topOffset={topOffset} add={add} visibility={documentVisibility} />;
+                return <TileRow key={keyed} items={items} topOffset={topOffset} add={add} visibility={visibility} />;
             })}
         </Fragment>
     );
@@ -232,9 +233,10 @@ function Inner({ rows, safeAreaRef, rowHeight, add }) {
  * @param {Array} rows - The array of rows to be virtually rendered. Each row represents an item in the list.
  * @param {number} rowHeight - The fixed height of each row in pixels.
  * @param {Object} safeAreaRef - A React ref object pointing to the DOM element that serves as the virtualized list’s container.
+ * @param {Expansion} expansion - A React ref object pointing to the DOM element that serves as the virtualized list’s container.
  * @return {Object} An object containing the calculated `start` and `end` indices of the visible rows.
  */
-function useVisibleRows(rows, rowHeight, safeAreaRef) {
+function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
     // set the start/end indexes of the elements
     const [{ start, end }, setVisibleRange] = useState({ start: 0, end: 1 });
 
@@ -269,10 +271,20 @@ function useVisibleRows(rows, rowHeight, safeAreaRef) {
         }
         const startIndex = Math.floor(start / rowHeight);
         const endIndex = Math.min(Math.ceil(end / rowHeight), rows.length);
-        setVisibleRange({ start: startIndex, end: endIndex });
+
+        // don't set state if the offset didn't change
+        setVisibleRange((prev) => {
+            if (startIndex !== prev.start || endIndex !== prev.end) {
+                return { start: startIndex, end: endIndex };
+            }
+            return prev;
+        });
     }
 
     useLayoutEffect(() => {
+        // ignore scrolling events if collapsed
+        if (expansion === 'collapsed') return;
+
         mainScrollerRef.current = document.querySelector('[data-main-scroller]') || document.documentElement;
         contentTubeRef.current = document.querySelector('[data-content-tube]') || document.body;
         if (!contentTubeRef.current || !mainScrollerRef.current) console.warn('missing elements');
@@ -291,7 +303,7 @@ function useVisibleRows(rows, rowHeight, safeAreaRef) {
         return () => {
             controller.abort();
         };
-    }, [rows.length]);
+    }, [rows.length, expansion]);
 
     useEffect(() => {
         let lastWindowHeight = window.innerHeight;

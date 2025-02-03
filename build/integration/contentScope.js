@@ -734,6 +734,7 @@
         apple: ['webCompat', ...baseFeatures],
         'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
         android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
+        'android-broker-protection': ['brokerProtection'],
         'android-autofill-password-import': ['autofillPasswordImport'],
         windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
         firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
@@ -20066,6 +20067,9 @@
             // Strip out the zip code since we're only interested in city/state here.
             item = item.replace(/,?\s*\d{5}(-\d{4})?/, '');
 
+            // Replace any commas at the end of the string that could confuse the city/state split.
+            item = item.replace(/,$/, '');
+
             if (item.includes(',')) {
                 words = item.split(',').map((item) => item.trim());
             } else {
@@ -20350,15 +20354,26 @@
     }
 
     /**
-     * @param {{innerText: string}[]} elements
+     * @param {({ textContent: string } | { innerText: string })[]} elements
      * @param {string} key
      * @param {ExtractProfileProperty} extractField
      * @return {string[]}
      */
     function stringValuesFromElements(elements, key, extractField) {
         return elements.map((element) => {
-            // todo: should we use textContent here?
-            let elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
+            let elementValue;
+
+            if ('innerText' in element) {
+                elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
+
+                // In instances where we use the text() node test, innerText will be undefined, and we fall back to textContent
+            } else if ('textContent' in element) {
+                elementValue = rules[key]?.(element) ?? element?.textContent ?? null;
+            }
+
+            if (!elementValue) {
+                return elementValue;
+            }
 
             if (extractField?.afterText) {
                 elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue;
@@ -21099,6 +21114,10 @@
             const elements = getElements(rootElement, element.selector);
 
             if (!elements?.length) {
+                if (element.failSilently) {
+                    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
+                }
+
                 return new ErrorResponse({
                     actionID: action.id,
                     message: `could not find element to click with selector '${element.selector}'!`,
@@ -21111,7 +21130,7 @@
                 const elem = elements[i];
 
                 if ('disabled' in elem) {
-                    if (elem.disabled) {
+                    if (elem.disabled && !element.failSilently) {
                         return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` });
                     }
                 }

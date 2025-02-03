@@ -30,6 +30,11 @@
     grid-template-areas:
         'icon title expander'
         'empty label label';
+
+    &.activityVariant {
+        padding-left: 6px;
+        grid-column-gap: 10px;
+    }
 }
 
 .headingIcon {
@@ -47,6 +52,18 @@
     }
     [data-animation="heart01"] & {
         animation: heart01 1.483s infinite cubic-bezier(0.67, 0, 0.33, 1);
+    }
+
+    /* In this variant, everything is moved over to align with the body items (which are different to the stats */
+    .activityVariant & {
+        width: 24px;
+        height: 24px;
+
+        img {
+            display: block;
+            width: 20px;
+            height: 20px;
+        }
     }
 }
 
@@ -120,6 +137,7 @@
 .subtitle {
     grid-area: label;
     color: var(--ntp-text-muted);
+    padding-left: 2px;
     &.uppercase {
         line-height: 1;
         text-transform: uppercase;
@@ -204,36 +222,6 @@
     gap: var(--sp-2);
     padding-left: var(--sp-1);
     overflow: hidden;
-}
-
-.icon {
-    display: block;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    flex-shrink: 0;
-
-    img, svg {
-        display: block;
-        font-size: 0;
-        width: 1rem;
-        height: 1rem;
-    }
-
-    &:has([data-errored=true]) {
-        outline: 1px solid var(--ntp-surface-border-color);
-        [data-theme=dark] & {
-            outline-color: var(--color-white-at-9);
-        }
-    }
-}
-
-.companyImgIcon {
-    opacity: 0;
-}
-
-.companyImgIcon[data-loaded=true] {
-    opacity: 1;
 }
 
 .name {

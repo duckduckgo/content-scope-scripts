@@ -469,6 +469,46 @@ test.describe('Broker Protection communications', () => {
             await page.waitForURL((url) => url.hash === '#no', { timeout: 2000 });
         });
 
+        test('clicking selectors that do not exists should fail', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('clicks.html');
+            await dbp.receivesAction('click-nonexistent-selector.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+
+            dbp.isErrorMessage(response);
+        });
+
+        test('clicking buttons that are disabled should fail', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('clicks.html');
+            await dbp.receivesAction('click-disabled-button.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+
+            dbp.isErrorMessage(response);
+        });
+
+        test('clicking selectors that do not exist when failSilently is enabled should not fail', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('clicks.html');
+            await dbp.receivesAction('click-nonexistent-selector-failSilently.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+
+            dbp.isSuccessMessage(response);
+        });
+
+        test('clicking buttons that are disabled when failSilently is enabled should not fail', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('clicks.html');
+            await dbp.receivesAction('click-disabled-button-failSilently.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+
+            dbp.isSuccessMessage(response);
+        });
+
         test('getCaptchaInfo', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();

@@ -14,6 +14,7 @@ import { callWithRetry } from '../../../shared/call-with-retry.js';
 import { CustomizerProvider } from './customizer/CustomizerProvider.js';
 import { CustomizerService } from './customizer/customizer.service.js';
 import { InlineErrorBoundary } from './InlineErrorBoundary.js';
+import { DocumentVisibilityProvider } from '../../../shared/components/DocumentVisibility.js';
 
 /**
  * @import {Telemetry} from "./telemetry/telemetry.js"
@@ -115,14 +116,16 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                             <SettingsProvider settings={settings}>
                                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                                     <CustomizerProvider service={customizerApi} initialData={customizerData}>
-                                        <WidgetConfigProvider
-                                            api={widgetConfigAPI}
-                                            widgetConfigs={init.widgetConfigs}
-                                            widgets={init.widgets}
-                                            entryPoints={entryPoints}
-                                        >
-                                            <App />
-                                        </WidgetConfigProvider>
+                                        <DocumentVisibilityProvider>
+                                            <WidgetConfigProvider
+                                                api={widgetConfigAPI}
+                                                widgetConfigs={init.widgetConfigs}
+                                                widgets={init.widgets}
+                                                entryPoints={entryPoints}
+                                            >
+                                                <App />
+                                            </WidgetConfigProvider>
+                                        </DocumentVisibilityProvider>
                                     </CustomizerProvider>
                                 </TranslationProvider>
                             </SettingsProvider>
