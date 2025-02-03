@@ -12,6 +12,7 @@
 
 /**
  * @typedef {'entering' | 'exiting' | 'entered'} Ui
+ * @typedef {import('./service.js').InvocationSource} InvocationSource
  */
 
 /**
@@ -186,7 +187,7 @@ export function useDataSubscription({ dispatch, service }) {
  * @param {object} params
  * @param {import("preact/hooks").Dispatch<Events<any, Config>>} params.dispatch
  * @param {import("preact").RefObject<{
- *    onConfig: (cb: (event: { data:Config, source: 'manual' | 'subscription'}) => void) => () => void;
+ *    onConfig: (cb: (event: { data: Config, source: InvocationSource}) => void) => () => void;
  *    toggleExpansion: () => void;
  * }>} params.service
  */
