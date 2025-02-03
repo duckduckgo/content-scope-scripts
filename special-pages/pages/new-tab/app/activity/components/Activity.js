@@ -231,8 +231,15 @@ function TrackerStatus({ id, trackersFound }) {
     }
 
     if (status.value.totalCount === 0) {
-        if (trackersFound) return <p>{t('activity_no_trackers_blocked')}</p>;
-        return <p>{t('activity_no_trackers')}</p>;
+        // prettier-ignore
+        const text = trackersFound
+            ? t('activity_no_trackers_blocked')
+            : t('activity_no_trackers')
+        return (
+            <div class={styles.companiesIconRow} data-testid="TrackerStatus">
+                {text}
+            </div>
+        );
     }
 
     return (

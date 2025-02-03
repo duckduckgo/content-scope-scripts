@@ -57,8 +57,8 @@
 }
 
 .item {
-    padding-top: 16px;
-    padding-bottom: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     padding-left: 6px;
     padding-right: 6px;
 }
@@ -80,6 +80,8 @@
 .favicon {
     width: 32px;
     height: 32px;
+    /* adding a margin to prevent needing an extra dom node for spacing */
+    margin: 3px;
     display: block;
     backdrop-filter: blur(24px);
     border-radius: var(--border-radius-sm);
@@ -120,7 +122,8 @@
     height: 35px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    /* Note: This is not a 1:1 value from figma, I reduced it for perfect visual alignment */
+    gap: 4px;
 
     &:hover, &:focus-visible {
         color: var(--ntp-color-primary);
@@ -193,13 +196,13 @@
     font-weight: bold;
     font-size: 0.5rem;
     line-height: 16px;
-    color: var(--color-black-at-84);
-    background: var(--color-black-at-12);
+    color: var(--color-black-at-60);
+    background: var(--color-black-at-6);
     text-align: center;
 
     [data-theme="dark"] & {
-        color: var(--color-black-at-84);
-        background: var(--color-white-at-60);
+        color: var(--color-white-at-50);
+        background: var(--color-white-at-9);
     }
 }
 
@@ -207,6 +210,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    padding-left: 1px; /* visual alignment */
 }
 
 .companiesIcons {
@@ -220,14 +224,14 @@
 .companiesText {}
 
 .history {
-    margin-top: 12px;
+    margin-top: 10px;
 }
 .historyItem {
     display: flex;
     align-items: center;
     width: 100%;
     + .historyItem {
-        margin-top: 6px;
+        margin-top: 5px;
     }
 }
 .historyLink {
@@ -235,6 +239,7 @@
     font-weight: var(--small-label-font-weight);
     line-height: var(--small-label-line-height);
     color: var(--ntp-text-normal);
+    height: 16px;
     text-decoration: none;
     min-width: 0;
     white-space: nowrap;
@@ -255,6 +260,7 @@
     flex-shrink: 0;
     margin-left: 8px;
     color: var(--ntp-text-muted);
+    opacity: 0.6;
     font-size: var(--small-label-font-size);
     font-weight: var(--small-label-font-weight);
     line-height: var(--small-label-line-height);

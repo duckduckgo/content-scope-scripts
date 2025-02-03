@@ -28,7 +28,7 @@ export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount,
         trackerCount === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural', { count: trackerCountFormatted });
 
     return (
-        <div className={styles.heading} data-testid={'ActivityHeading'}>
+        <div className={cn(styles.heading, styles.activityVariant)} data-testid={'ActivityHeading'}>
             <span className={styles.headingIcon}>
                 <img src="./icons/shield.svg" alt="Privacy Shield" />
             </span>
