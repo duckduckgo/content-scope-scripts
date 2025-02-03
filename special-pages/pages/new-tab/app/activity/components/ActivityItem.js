@@ -10,7 +10,7 @@ import { Cross } from '../../components/Icons.js';
 import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { useComputed } from '@preact/signals';
-import { SignalStateContext } from '../ActivityProvider.js';
+import { NormalizedDataContext } from '../NormalizeDataProvider.js';
 
 export const ActivityItem = memo(
     /**
@@ -63,7 +63,7 @@ export const ActivityItem = memo(
  */
 function Controls({ canBurn, url, title }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
-    const { activity } = useContext(SignalStateContext);
+    const { activity } = useContext(NormalizedDataContext);
     const favorite = useComputed(() => activity.value.favorites[url]);
 
     // prettier-ignore

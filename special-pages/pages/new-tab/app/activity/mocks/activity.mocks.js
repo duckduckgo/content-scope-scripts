@@ -143,3 +143,15 @@ export const activityMocks = {
         ],
     },
 };
+
+/**
+ * @param {ActivityData} data
+ * @return {import('../batched-activity.service.js').Incoming}
+ */
+export function intoServiceData(data) {
+    return {
+        activity: data.activity,
+        urls: data.activity.map((x) => x.url),
+        totalTrackers: data.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0),
+    };
+}

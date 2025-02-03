@@ -1,6 +1,6 @@
 import { useTypedTranslationWith } from '../../types.js';
 import { useContext, useState } from 'preact/hooks';
-import { SignalStateContext } from '../ActivityProvider.js';
+import { NormalizedDataContext } from '../NormalizeDataProvider.js';
 import { useComputed } from '@preact/signals';
 import styles from './Activity.module.css';
 import { ChevronSmall } from '../../components/Icons.js';
@@ -19,7 +19,7 @@ export const MAX_SHOW_AMOUNT = 10;
  * @param {string} props.id
  */
 export function HistoryItems({ id }) {
-    const { activity } = useContext(SignalStateContext);
+    const { activity } = useContext(NormalizedDataContext);
     const history = useComputed(() => activity.value.history[id]);
     const [expansion, setExpansion] = useState(/** @type {Expansion} */ ('collapsed'));
     const max = Math.min(history.value.length, MAX_SHOW_AMOUNT);

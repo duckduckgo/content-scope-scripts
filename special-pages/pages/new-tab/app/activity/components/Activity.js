@@ -2,7 +2,7 @@ import { Fragment, h } from 'preact';
 import styles from './Activity.module.css';
 import { useContext, useEffect, useId, useRef } from 'preact/hooks';
 import { memo } from 'preact/compat';
-import { ActivityApiContext, ActivityContext, ActivityProvider, SignalStateContext, SignalStateProvider } from '../ActivityProvider.js';
+import { ActivityContext, ActivityProvider } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useOnMiddleClick } from '../../utils.js';
@@ -18,65 +18,47 @@ import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js'
 import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility.js';
 import { ActivityHeading } from '../../privacy-stats/components/ActivityHeading.js';
 import { HistoryItems } from './HistoryItems.js';
+import { ActivityInteractionsContext, NormalizedDataContext, SignalStateProvider } from '../NormalizeDataProvider.js';
 
 /**
  * @import enStrings from "../strings.json"
- * @typedef {import('../../../types/new-tab').TrackerCompany} TrackerCompany
  * @typedef {import('../../../types/new-tab').Expansion} Expansion
- * @typedef {import('../../../types/new-tab').Animation} Animation
- * @typedef {import('../../../types/new-tab').ActivityData} ActivityData
- * @typedef {import('../../../types/new-tab').ActivityConfig} ActivityConfig
- * @typedef {import('../../../types/new-tab').TrackingStatus} TrackingStatus
- * @typedef {import('../../../types/new-tab').HistoryEntry} HistoryEntry
- * @typedef {import("../ActivityProvider.js").Events} Events
  */
 
 /**
- * @param {object} props
- * @param {Expansion} props.expansion
- * @param {()=>void} props.toggle
+ * Renders the Activity component with associated heading and body, managing interactivity and state.
+ *
+ * @param {Object} props - Object containing all properties required by the Activity component.
+ * @param {(evt: MouseEvent) => void} props.didClick - Callback function triggered when the root element is clicked.
+ * @param {Expansion} props.expansion - String indicating the expansion state of the activity, such as 'expanded' or 'collapsed'.
+ * @param {() => void} props.toggle - Callback function to handle the expansion/collapse action.
+ * @param {number} props.trackerCount - Object representing the tracker count for the activity.
+ * @param {number} props.itemCount - Object representing the count of items in the activity.
+ * @param {boolean} props.batched - Boolean indicating whether the activity uses batched loading.
+ * @param {import("preact").ComponentChild} [props.children]
  */
-function ActivityConfigured({ expansion, toggle }) {
-    const platformName = usePlatformName();
-    const batched = useBatchedActivityApi();
-    const expanded = expansion === 'expanded';
-    const { activity } = useContext(SignalStateContext);
-    const { didClick } = useContext(ActivityApiContext);
-    const visibility = useDocumentVisibility();
-
-    const ref = useRef(/** @type {HTMLUListElement|null} */ (null));
-    useOnMiddleClick(ref, didClick);
-
-    const count = useComputed(() => {
-        return activity.value.totalTrackers;
-    });
-
-    const itemCount = useComputed(() => {
-        return Object.keys(activity.value.items).length;
-    });
-
+export function Activity({ didClick, expansion, toggle, trackerCount, itemCount, batched, children }) {
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
+    const expanded = expansion === 'expanded';
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
-    const canBurn = platformName === 'macos';
-
     return (
         <Fragment>
             <div class={styles.root} onClick={didClick}>
                 <ActivityHeading
-                    trackerCount={count.value}
-                    itemCount={itemCount.value}
+                    trackerCount={trackerCount}
+                    itemCount={itemCount}
                     onToggle={toggle}
                     expansion={expansion}
-                    canExpand={itemCount.value > 0}
+                    canExpand={itemCount > 0}
                     buttonAttrs={{
                         'aria-controls': WIDGET_ID,
                         id: TOGGLE_ID,
                     }}
                 />
-                {itemCount.value > 0 && expanded && <ActivityBody canBurn={canBurn} visibility={visibility} />}
+                {itemCount > 0 && expanded && children}
             </div>
-            {batched && itemCount.value > 0 && expanded && <Loader />}
+            {batched && itemCount > 0 && expanded && <Loader />}
         </Fragment>
     );
 }
@@ -86,9 +68,9 @@ function ActivityConfigured({ expansion, toggle }) {
  * @param {boolean} props.canBurn
  * @param {DocumentVisibilityState} props.visibility
  */
-function ActivityBody({ canBurn, visibility }) {
+export function ActivityBody({ canBurn, visibility }) {
     const { isReducedMotion } = useEnv();
-    const { keys } = useContext(SignalStateContext);
+    const { keys } = useContext(NormalizedDataContext);
     const { burning, exiting } = useContext(ActivityBurningSignalContext);
     const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
 
@@ -137,7 +119,7 @@ const BurnableItem = memo(
      * @param {'visible' | 'hidden'} props.documentVisibility
      */
     function BurnableItem({ id, documentVisibility }) {
-        const { activity } = useContext(SignalStateContext);
+        const { activity } = useContext(NormalizedDataContext);
         const item = useComputed(() => activity.value.items[id]);
         if (!item.value) {
             return null;
@@ -169,7 +151,7 @@ const RemovableItem = memo(
      * @param {"visible" | "hidden"} props.documentVisibility
      */
     function RemovableItem({ id, canBurn, documentVisibility }) {
-        const { activity } = useContext(SignalStateContext);
+        const { activity } = useContext(NormalizedDataContext);
         const item = useComputed(() => activity.value.items[id]);
         if (!item.value) {
             return (
@@ -203,17 +185,9 @@ const DDG_MAX_TRACKER_ICONS = 3;
  */
 function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
-    const { activity } = useContext(SignalStateContext);
+    const { activity } = useContext(NormalizedDataContext);
     const status = useComputed(() => activity.value.trackingStatus[id]);
     const other = status.value.trackerCompanies.slice(DDG_MAX_TRACKER_ICONS - 1);
-    // const { env } = useEnv();
-    // if (env === 'development') {
-    //     console.groupCollapsed(`trackingStatus ${id}`);
-    //     console.log('    [total]', status.value.totalCount);
-    //     console.log('[companies]', status.value.trackerCompanies);
-    //     console.groupEnd();
-    // }
-
     const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
 
     const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, index) => {
@@ -256,6 +230,43 @@ function TrackerStatus({ id, trackersFound }) {
 }
 
 /**
+ * @param {object} props
+ * @param {Expansion} props.expansion
+ * @param {()=>void} props.toggle
+ * @param {import("preact").ComponentChild} props.children
+ */
+export function ActivityConfigured({ expansion, toggle, children }) {
+    const batched = useBatchedActivityApi();
+
+    const { activity } = useContext(NormalizedDataContext);
+    const { didClick } = useContext(ActivityInteractionsContext);
+
+    const ref = useRef(/** @type {HTMLUListElement|null} */ (null));
+    useOnMiddleClick(ref, didClick);
+
+    const count = useComputed(() => {
+        return activity.value.totalTrackers;
+    });
+
+    const itemCount = useComputed(() => {
+        return Object.keys(activity.value.items).length;
+    });
+
+    return (
+        <Activity
+            batched={batched}
+            itemCount={itemCount.value}
+            trackerCount={count.value}
+            expansion={expansion}
+            toggle={toggle}
+            didClick={didClick}
+        >
+            {children}
+        </Activity>
+    );
+}
+
+/**
  * Use this when rendered within a widget list.
  *
  * It reaches out to access this widget's global visibility, and chooses
@@ -287,7 +298,7 @@ export function ActivityCustomized() {
 
 /**
  * Use this when you want to render the UI from a context where
- * the service is available.
+ * the service is available + initial data is ready
  *
  * for example:
  *
@@ -300,18 +311,23 @@ export function ActivityCustomized() {
 export function ActivityConsumer() {
     const { state, toggle } = useContext(ActivityContext);
     const platformName = usePlatformName();
+    const visibility = useDocumentVisibility();
     if (state.status === 'ready') {
         if (platformName === 'windows') {
             return (
                 <SignalStateProvider>
-                    <ActivityConfigured expansion={state.config.expansion} toggle={toggle} />
+                    <ActivityConfigured expansion={state.config.expansion} toggle={toggle}>
+                        <ActivityBody canBurn={false} visibility={visibility} />
+                    </ActivityConfigured>
                 </SignalStateProvider>
             );
         }
         return (
             <SignalStateProvider>
                 <BurnProvider>
-                    <ActivityConfigured expansion={state.config.expansion} toggle={toggle} />
+                    <ActivityConfigured expansion={state.config.expansion} toggle={toggle}>
+                        <ActivityBody canBurn={true} visibility={visibility} />
+                    </ActivityConfigured>
                 </BurnProvider>
             </SignalStateProvider>
         );
