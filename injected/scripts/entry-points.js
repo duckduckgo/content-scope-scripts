@@ -33,6 +33,10 @@ const builds = {
         input: 'entry-points/android.js',
         output: ['../build/android/contentScope.js'],
     },
+    'android-broker-protection': {
+        input: 'entry-points/android',
+        output: ['../build/android/brokerProtection.js'],
+    },
     'android-autofill-password-import': {
         input: 'entry-points/android',
         output: ['../build/android/autofillPasswordImport.js'],
