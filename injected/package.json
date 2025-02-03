@@ -10,7 +10,7 @@
     "build-chrome": "node scripts/entry-points.js --platform chrome",
     "build-chrome-mv3": "node scripts/entry-points.js --platform chrome-mv3",
     "build-apple": "node scripts/entry-points.js --platform apple && node scripts/entry-points.js --platform apple-isolated",
-    "build-android": "node scripts/entry-points.js --platform android && node scripts/entry-points.js --platform android-autofill-password-import",
+    "build-android": "node scripts/entry-points.js --platform android && node scripts/entry-points.js --platform android-autofill-password-import && node scripts/entry-points.js --platform android-broker-protection",
     "build-windows": "node scripts/entry-points.js --platform windows",
     "build-integration": "node scripts/entry-points.js --platform integration",
     "build-types": "node scripts/types.mjs",
