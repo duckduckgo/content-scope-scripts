@@ -46,7 +46,7 @@
     overflow: hidden;
     border-radius: var(--border-radius-lg);
 
-    lottie-player {
+    [data-lottie-player] {
         width: 100%;
         height: auto;
         object-fit: cover;
@@ -64,7 +64,7 @@
 }
 
 .burning {
-    > *:not(lottie-player) {
+    > *:not([data-lottie-player]) {
         transition: opacity .2s;
         transition-delay: .3s;
         opacity: 0;

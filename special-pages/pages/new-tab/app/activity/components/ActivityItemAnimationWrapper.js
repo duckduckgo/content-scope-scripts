@@ -7,7 +7,7 @@ import { lazy, Suspense } from 'preact/compat';
 import { h } from 'preact';
 
 // eslint-disable-next-line promise/prefer-await-to-then
-const BurnAnimationLazy = lazy(() => import('./BurnAnimation.js').then((x) => x.BurnAnimation));
+const BurnAnimationLazy = lazy(() => import('./BurnAnimationLottieWeb.js').then((x) => x.BurnAnimation));
 
 /**
  * A wrapper component that provides animation effects for activity items. It handles

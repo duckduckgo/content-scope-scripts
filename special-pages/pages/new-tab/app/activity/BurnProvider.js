@@ -2,7 +2,7 @@ import { h, createContext } from 'preact';
 import { useContext, useEffect } from 'preact/hooks';
 import { ActivityApiContext, ActivityServiceContext } from './ActivityProvider';
 import { ACTION_BURN } from './constants.js';
-import { batch, signal, useSignal } from '@preact/signals';
+import { batch, signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 
 export const ActivityBurningSignalContext = createContext({
@@ -10,6 +10,8 @@ export const ActivityBurningSignalContext = createContext({
     burning: signal([]),
     /** @type {import("@preact/signals").Signal<string[]>} */
     exiting: signal([]),
+    /** @type {import("@preact/signals").Signal<{state: 'loading' | 'ready' | 'error', data: null | Record<string, any>}>} */
+    animation: signal({ state: 'loading', data: null }),
 });
 
 /**
@@ -19,6 +21,7 @@ export const ActivityBurningSignalContext = createContext({
 export function BurnProvider({ children }) {
     const burning = useSignal(/** @type {string[]} */ ([]));
     const exiting = useSignal(/** @type {string[]} */ ([]));
+    const animation = useSignal({ state: /** @type {'loading' | 'ready' | 'error'} */ ('loading'), data: null });
     const { didClick: originalDidClick } = useContext(ActivityApiContext);
     const service = useContext(ActivityServiceContext);
     const { isReducedMotion } = useEnv();
@@ -68,6 +71,27 @@ export function BurnProvider({ children }) {
         service?.enableBroadcast();
     }
 
+    useSignalEffect(() => {
+        let cancelled = false;
+        async function fetchAnimation() {
+            const resp = await fetch('burn.json');
+            if (!resp.ok) {
+                animation.value = { state: /** @type {const} */ ('error'), data: null };
+                return;
+            }
+            const json = await resp.json();
+            if (!cancelled) animation.value = { state: 'ready', data: json };
+        }
+        fetchAnimation()
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .catch((e) => {
+                animation.value = { state: /** @type {const} */ ('error'), data: null };
+            });
+        return () => {
+            cancelled = true;
+        };
+    });
+
     useEffect(() => {
         const handler = (e) => {
             if (e.detail.url) {
@@ -87,7 +111,7 @@ export function BurnProvider({ children }) {
     }, [burning, exiting]);
 
     return (
-        <ActivityBurningSignalContext.Provider value={{ burning, exiting }}>
+        <ActivityBurningSignalContext.Provider value={{ burning, exiting, animation }}>
             <ActivityApiContext.Provider value={{ didClick }}>{children}</ActivityApiContext.Provider>
         </ActivityBurningSignalContext.Provider>
     );
