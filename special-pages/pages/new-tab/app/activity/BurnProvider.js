@@ -35,13 +35,13 @@ export function BurnProvider({ children }) {
         e.preventDefault();
         e.stopImmediatePropagation();
 
-        if (burning.value.length > 0 || exiting.value.length > 0) return console.warn('ignoring additional burn');
+        if (burning.value.length > 0 || exiting.value.length > 0) return;
 
         const value = button.value;
         const response = await service?.confirmBurn(value);
-        if (response && response.action === 'none') return console.log('action: none');
+        if (response && response.action === 'none') return;
 
-        // stop the service broadcasting any updates for a mo
+        // stop the service broadcasting any updates for a moment
         service.disableBroadcast();
 
         // mark this item as burning - this will prevent further events until we're done
@@ -99,9 +99,6 @@ export function BurnProvider({ children }) {
                 batch(() => {
                     burning.value = burning.value.filter((x) => x !== e.detail.url);
                     exiting.value = exiting.value.concat(e.detail.url);
-                    console.log('[done-burning]', e.detail.url, e.detail.reason);
-                    console.log(' ╰ [exiting]', exiting.value);
-                    console.log(' ╰ [burning]', burning.value);
                 });
             }
         };
@@ -130,10 +127,8 @@ function toPromise(fn) {
 }
 
 function reducedMotion(isReducedMotion) {
-    console.log('+[reducedMotion] setup');
     return (subject) => {
         if (isReducedMotion) {
-            console.log('  .next() [reducedMotion] setup');
             subject.next();
         }
     };
@@ -141,14 +136,11 @@ function reducedMotion(isReducedMotion) {
 
 function animationExit() {
     return (subject) => {
-        console.log('+[didExit] setup');
         const handler = () => {
-            console.log('  .next() -> [didExit]');
             subject.next();
         };
         window.addEventListener('done-exiting', handler, { once: true });
         return () => {
-            console.log('-[didExit] teardown');
             window.removeEventListener('done-exiting', handler);
         };
     };
@@ -156,13 +148,10 @@ function animationExit() {
 
 function timer(ms) {
     return (subject) => {
-        console.log('+[timer] setup');
         const int = setTimeout(() => {
-            console.log('  .next() -> [timer]');
             return subject.next();
         }, ms);
         return () => {
-            console.log('-[timer] teardown');
             clearTimeout(int);
         };
     };
@@ -170,13 +159,10 @@ function timer(ms) {
 
 function didCompleteNatively(service) {
     return (subject) => {
-        console.log('+[didCompleteNatively] setup');
         const unsub = service?.onBurnComplete(() => {
-            console.log('  .next() -> [didCompleteNatively] ');
             subject.next();
         });
         return () => {
-            console.log('-[didCompleteNatively] teardown');
             unsub();
         };
     };
@@ -184,14 +170,11 @@ function didCompleteNatively(service) {
 
 function didChangeDocumentVisibility() {
     return (subject) => {
-        console.log('+[didChangeVisibility] setup');
         const handler = () => {
-            console.log('  .next() -> [didChangeVisibility] resolve ');
             return subject.next(document.visibilityState);
         };
         document.addEventListener('visibilitychange', handler, { once: true });
         return () => {
-            console.log('-[didChangeVisibility] teardown');
             window.removeEventListener('visibilitychange', handler);
         };
     };
