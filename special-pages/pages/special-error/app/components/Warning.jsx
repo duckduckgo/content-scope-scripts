@@ -75,12 +75,7 @@ export function WarningHeading() {
     return (
         <header className={classNames(styles.heading, styles[kind])}>
             <i className={styles.icon} aria-hidden="true" />
-            <Text
-                as="h1"
-                variant={textVariant}
-                strictSpacing={isMobile}
-                className={styles.title}
-            >
+            <Text as="h1" variant={textVariant} strictSpacing={isMobile} className={styles.title}>
                 {heading}
             </Text>
         </header>
