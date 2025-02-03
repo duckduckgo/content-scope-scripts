@@ -10,12 +10,13 @@ import { Settings } from './settings.js';
 import { SettingsProvider } from './providers/SettingsProvider.jsx';
 import { MessagingContext, TelemetryContext } from './types.js';
 import { UserValuesProvider } from './providers/UserValuesProvider.jsx';
-import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
 import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx';
 import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
-import { PLAYER_ERROR_IDS } from './components/Player';
+import { YOUTUBE_ERROR_IDS, YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
+
+/** @typedef {import('../types/duckplayer').YouTubeError} YouTubeError */
 
 /**
  * @param {import("../src/index.js").DuckplayerPage} messaging
@@ -57,16 +58,20 @@ export async function init(messaging, telemetry, baseEnvironment) {
         .withFeatureState('pip', init.settings.pip)
         .withFeatureState('autoplay', init.settings.autoplay)
         .withFeatureState('focusMode', init.settings.focusMode)
-        .withDisabledFocusMode(baseEnvironment.urlParams.get('focusMode'));
+        .withFeatureState('customError', init.settings.customError)
+        .withDisabledFocusMode(baseEnvironment.urlParams.get('focusMode'))
+        .withCustomError(baseEnvironment.urlParams.get('customError'));
 
     console.log(settings);
 
     // TODO: Refactor
     let initialYouTubeError = null;
-    const ytErrorParam = baseEnvironment.urlParams.get('youtubeError');
-    if (ytErrorParam && PLAYER_ERROR_IDS.includes(ytErrorParam)) {
-        initialYouTubeError = /** @type {import('./components/Player').PlayerError} */ (ytErrorParam);
+    const ytErrorParam = /** @type {YouTubeError} */ (baseEnvironment.urlParams.get('youtubeError'));
+    if (ytErrorParam && YOUTUBE_ERROR_IDS.includes(ytErrorParam)) {
+        initialYouTubeError = ytErrorParam;
     }
+
+    console.log('YTERROR', initialYouTubeError);
 
     const embed = createEmbedSettings(window.location.href, settings);
 

@@ -1,41 +1,58 @@
 import { useContext, useState } from 'preact/hooks';
 import { h, createContext } from 'preact';
 import { useEffect } from 'preact/hooks';
-import { PLAYER_ERROR_IDS } from '../components/Player';
+import { useMessaging } from '../types';
 
-export const IFRAME_ERROR_EVENT = 'iframe-error';
+export const YOUTUBE_ERROR_EVENT = 'ddg-duckplayer-youtube-error';
 
 /**
- * @typedef {import("../components/Player").PlayerError} PlayerError
+ * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
  */
 
+/** @type {Record<string,YouTubeError>} */
+export const YOUTUBE_ERRORS = {
+    ageRestricted: 'age-restricted',
+    signInRequired: 'sign-in-required',
+    invalidId: 'invalid-id',
+    noEmbed: 'no-embed',
+    unknown: 'unknown',
+};
+
+/** @type {YouTubeError[]} */
+export const YOUTUBE_ERROR_IDS = Object.values(YOUTUBE_ERRORS);
+
 const YouTubeErrorContext = createContext({
-    /** @type {PlayerError|null} */
+    /** @type {YouTubeError|null} */
     error: null,
 });
 
 /**
  * @param {object} props
- * @param {PlayerError|null} [props.initial=null]
+ * @param {YouTubeError|null} [props.initial=null]
  * @param {import("preact").ComponentChild} props.children
  */
 export function YouTubeErrorProvider({ initial = null, children }) {
     // initial state
     const [error, setError] = useState(initial);
+    const messaging = useMessaging();
 
     // listen for updates
     useEffect(() => {
         /** @type {(event: CustomEvent) => void} */
         const errorEventHandler = (event) => {
-            const error = event.detail?.error;
-            if (PLAYER_ERROR_IDS.includes(error) || error === null) {
-                setError(error);
+            const eventError = event.detail?.error;
+            if (YOUTUBE_ERROR_IDS.includes(eventError) || eventError === null) {
+                if (eventError !== error) {
+                    // TODO: Native implementation
+                    // messaging.reportYouTubeError({ error });
+                }
+                setError(eventError);
             }
         };
 
-        window.addEventListener(IFRAME_ERROR_EVENT, errorEventHandler);
+        window.addEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
 
-        return () => window.removeEventListener(IFRAME_ERROR_EVENT, errorEventHandler);
+        return () => window.removeEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
     }, []);
 
     return <YouTubeErrorContext.Provider value={{ error }}>{children}</YouTubeErrorContext.Provider>;

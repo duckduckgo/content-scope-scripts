@@ -33,15 +33,15 @@
     "title": "<b>ERROR:</b> Invalid video id",
     "note": "Shown when the page URL doesn't match a known video ID. Note for translators: The <b> tag makes the word 'ERROR:' bold. Depending on the grammar of the target language, you might need to move it so that the correct word is emphasized."
   },
-  "botDetectedError": {
+  "signInRequiredError": {
     "title": "We are not able to connect you with this video",
     "note": "Message for bot detected"
   },
-  "botDetectedErrorTip1": {
+  "signInRequiredErrorTip1": {
     "title": "If you use a VPN, try turning it off and reload the video.",
     "note": "A tip on how to solve the bot detected error"
   },
-  "botDetectedErrorTip2": {
+  "signInRequiredErrorTip2": {
     "title": "If turning off the VPN doesn’t work, you can view this video on YouTube without the added privacy features of Duck Player.",
     "note": "A tip on how to solve the bot detected error"
   },

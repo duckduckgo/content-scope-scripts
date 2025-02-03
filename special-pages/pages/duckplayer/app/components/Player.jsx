@@ -7,17 +7,8 @@ import { createIframeFeatures } from '../features/iframe.js';
 import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
 
-export const PLAYER_ERRORS = {
-    invalidId: 'invalid-id',
-    botDetected: 'bot-detected',
-    ageRestricted: 'age-restricted',
-    noEmbed: 'no-embed',
-};
-
-export const PLAYER_ERROR_IDS = Object.values(PLAYER_ERRORS);
-
 /**
- * @typedef {'invalid-id'|'bot-detected'|'age-restricted'|'no-embed'} PlayerError
+ * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
  */
 
 /**
@@ -57,21 +48,21 @@ export function Player({ src, layout }) {
 }
 
 /**
- * @param {PlayerError} kind
+ * @param {YouTubeError} kind
  * @returns {{heading: Element, message: Element, solutions: Element[]}}
  */
 function useErrorStrings(kind) {
     const { t } = useTypedTranslation();
     const headingsMap = {
         ['invalid-id']: <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />,
-        ['bot-detected']: <span dangerouslySetInnerHTML={{ __html: t('botDetectedError') }} />,
+        ['sign-in-required']: <span dangerouslySetInnerHTML={{ __html: t('signInRequiredError') }} />,
         ['age-restricted']: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoError') }} />,
     };
     const solutionsMap = {
         ['invalid-id']: [],
-        ['bot-detected']: [
-            <span dangerouslySetInnerHTML={{ __html: t('botDetectedErrorTip1') }} />,
-            <span dangerouslySetInnerHTML={{ __html: t('botDetectedErrorTip2') }} />,
+        ['sign-in-required']: [
+            <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorTip1') }} />,
+            <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorTip2') }} />,
         ],
     };
     const messageMap = {
@@ -88,7 +79,7 @@ function useErrorStrings(kind) {
 /**
  * @param {object} props
  * @param {Settings['layout']} props.layout
- * @param {PlayerError} props.kind
+ * @param {YouTubeError} props.kind
  */
 export function PlayerError({ kind, layout }) {
     return (
@@ -107,7 +98,7 @@ export function PlayerError({ kind, layout }) {
 
 /**
  * @param {object} props
- * @param {PlayerError} props.kind
+ * @param {YouTubeError} props.kind
  */
 export function InvalidIdError({ kind }) {
     const { heading } = useErrorStrings(kind);
@@ -122,7 +113,7 @@ export function InvalidIdError({ kind }) {
 
 /**
  * @param {object} props
- * @param {PlayerError} props.kind
+ * @param {YouTubeError} props.kind
  */
 export function YouTubeError({ kind }) {
     const { heading, message, solutions } = useErrorStrings(kind);

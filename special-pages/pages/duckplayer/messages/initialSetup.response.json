@@ -38,6 +38,17 @@
               "enum": ["enabled", "disabled"]
             }
           }
+        },
+        "customError": {
+          "type": "object",
+          "description": "Whether to show a custom message to the user on YouTube errors. When disabled, shows the original YouTube error screen.",
+          "required": ["state"],
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": ["enabled", "disabled"]
+            }
+          }
         }
       }
     },
