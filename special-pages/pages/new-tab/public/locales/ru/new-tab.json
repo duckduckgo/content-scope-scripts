@@ -271,5 +271,53 @@
   "customizer_image_delete" : {
     "title" : "Удалить изображение {number}",
     "note" : "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
+  },
+  "activity_noRecent_title" : {
+    "title" : "Нет недавней истории просмотра сайтов",
+    "note" : "Placeholder to indicate that no browsing activity was seen in the last 7 days"
+  },
+  "activity_noRecent_subtitle" : {
+    "title" : "Недавно посещенные сайты появятся здесь. Продолжайте бродить по интернету и узнайте, сколько трекеров поймал DuckDuckGo!",
+    "note" : "Shown in the place a list of browsing history entries will be displayed."
+  },
+  "activity_no_trackers" : {
+    "title" : "Ни одного трекера не найдено",
+    "note" : "Placeholder message indicating that no trackers are detected"
+  },
+  "activity_no_trackers_blocked" : {
+    "title" : "Заблокированных трекеров пока нет",
+    "note" : "Placeholder message indicating that no trackers are blocked"
+  },
+  "activity_countBlockedPlural" : {
+    "title" : "Пресечено попыток отслеживания: <b>{count}</b>",
+    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_favoriteAdd" : {
+    "title" : "Добавить {domain} в избранное",
+    "note" : "Button label, allows the user to add the specified domain to their favorites"
+  },
+  "activity_favoriteRemove" : {
+    "title" : "Удалить {domain} из избранного",
+    "note" : "Button label, allows the user to remove the specified domain from their favorites"
+  },
+  "activity_itemRemove" : {
+    "title" : "Удалить {domain} из истории",
+    "note" : "Button label for clearing browsing history for a given domain."
+  },
+  "activity_burn" : {
+    "title" : "Стереть историю просмотров и данные сайта {domain}",
+    "note" : "Button label for clearing browsing history and data exclusively for the specified domain"
+  },
+  "activity_menuTitle" : {
+    "title" : "Недавняя активность",
+    "note" : "Used as a label in a customization menu"
+  },
+  "activity_show_more_history" : {
+    "title" : "Показать еще {count}",
+    "note" : "Button label that expands the list of browsing history with the specified count of additional items. Example: 'Show 5 more'"
+  },
+  "activity_show_less_history" : {
+    "title" : "Свернуть",
+    "note" : "Button label that hides the expanded browsing history items."
   }
 }
