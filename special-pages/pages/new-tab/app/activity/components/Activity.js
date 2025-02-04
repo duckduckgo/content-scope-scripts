@@ -30,7 +30,6 @@ import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsC
  * Renders the Activity component with associated heading and body, managing interactivity and state.
  *
  * @param {Object} props - Object containing all properties required by the Activity component.
- * @param {(evt: MouseEvent) => void} props.didClick - Callback function triggered when the root element is clicked.
  * @param {Expansion} props.expansion - String indicating the expansion state of the activity, such as 'expanded' or 'collapsed'.
  * @param {() => void} props.toggle - Callback function to handle the expansion/collapse action.
  * @param {number} props.trackerCount - Object representing the tracker count for the activity.
@@ -38,14 +37,19 @@ import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsC
  * @param {boolean} props.batched - Boolean indicating whether the activity uses batched loading.
  * @param {import("preact").ComponentChild} [props.children]
  */
-export function Activity({ didClick, expansion, toggle, trackerCount, itemCount, batched, children }) {
+export function Activity({ expansion, toggle, trackerCount, itemCount, batched, children }) {
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const expanded = expansion === 'expanded';
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
+    const { didClick } = useContext(ActivityInteractionsContext);
+
+    const ref = useRef(null);
+    useOnMiddleClick(ref, didClick);
+
     return (
         <Fragment>
-            <div class={styles.root} onClick={didClick}>
+            <div class={styles.root} onClick={didClick} ref={ref}>
                 <ActivityHeading
                     trackerCount={trackerCount}
                     itemCount={itemCount}
@@ -240,10 +244,6 @@ export function ActivityConfigured({ expansion, toggle, children }) {
     const batched = useBatchedActivityApi();
 
     const { activity } = useContext(NormalizedDataContext);
-    const { didClick } = useContext(ActivityInteractionsContext);
-
-    const ref = useRef(/** @type {HTMLUListElement|null} */ (null));
-    useOnMiddleClick(ref, didClick);
 
     const count = useComputed(() => {
         return activity.value.totalTrackers;
@@ -254,14 +254,7 @@ export function ActivityConfigured({ expansion, toggle, children }) {
     });
 
     return (
-        <Activity
-            batched={batched}
-            itemCount={itemCount.value}
-            trackerCount={count.value}
-            expansion={expansion}
-            toggle={toggle}
-            didClick={didClick}
-        >
+        <Activity batched={batched} itemCount={itemCount.value} trackerCount={count.value} expansion={expansion} toggle={toggle}>
             {children}
         </Activity>
     );
