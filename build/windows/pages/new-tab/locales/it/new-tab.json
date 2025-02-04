@@ -9,315 +9,315 @@
     }]
   },
   "ntp_show_less" : {
-    "title" : "Weniger anzeigen",
+    "title" : "Mostra meno",
     "note" : "Button that reduces the number of items or content displayed."
   },
   "ntp_show_more" : {
-    "title" : "Mehr anzeigen",
+    "title" : "Mostra altro",
     "note" : "Button that increases the number of items or content displayed."
   },
   "ntp_dismiss" : {
-    "title" : "Verwerfen",
+    "title" : "Ignora",
     "note" : "Button that closes or hides the current popup or notification."
   },
   "ntp_customizer_button" : {
-    "title" : "Anpassen",
+    "title" : "Personalizza",
     "note" : "Button opens a menu. The menu allows the user to customize the page, such as showing/hiding sections."
   },
   "widgets_visibility_menu_title" : {
-    "title" : "Neuen Tab anpassen",
+    "title" : "Personalizza pagina Nuova scheda",
     "note" : "Heading text describing that there's a list of toggles for customizing the page layout."
   },
   "updateNotification_updated_version" : {
-    "title" : "Browser auf Version {version} aktualisiert.",
+    "title" : "Browser aggiornato alla versione {version}.",
     "note" : "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
   },
   "updateNotification_whats_new" : {
-    "title" : "Sieh dir an, was es in dieser Version <a>Neues</a> gibt.",
+    "title" : "See <a>what's new</a> in this release.",
     "note" : "The `<a>` tag represents a clickable link, please preserve it."
   },
   "updateNotification_dismiss_btn" : {
-    "title" : "Verwerfen",
+    "title" : "Ignora",
     "note" : "Button label text for an action that removes the widget from the screen."
   },
   "stats_menuTitle" : {
-    "title" : "Blockierte Tracking-Versuche",
+    "title" : "Tentativi di tracciamento bloccati",
     "note" : "Used as a label in a customization menu"
   },
   "stats_menuTitle_v2" : {
-    "title" : "Schutzstatistiken",
+    "title" : "Statistiche sulla protezione",
     "note" : "Used as a label in a customization menu"
   },
   "stats_noActivity" : {
-    "title" : "DuckDuckGo blockiert Tracking-Versuche, während du browst. Besuche ein paar Seiten, um zu sehen, wie viele wir blockieren!",
+    "title" : "DuckDuckGo blocks tracking attempts as you browse. Visit a few sites to see how many we block!",
     "note" : "Placeholder for when we cannot report any blocked trackers yet"
   },
   "stats_noRecent" : {
-    "title" : "Tracking-Schutz aktiv",
+    "title" : "Protezioni di tracciamento attive",
     "note" : "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedSingular" : {
-    "title" : "1 Tracking-Versuch blockiert",
+    "title" : "1 tentativo di tracciamento bloccato",
     "note" : "The main headline indicating that a single tracker was blocked"
   },
   "stats_countBlockedPlural" : {
-    "title" : "{count} Tracking-Versuche blockiert",
+    "title" : "{count} tentativi di tracciamento bloccati",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
   "stats_feedCountBlockedSingular" : {
-    "title" : "1 Versuch von DuckDuckGo in den letzten 7 Tagen blockiert",
+    "title" : "1 tentativo bloccato da DuckDuckGo negli ultimi 7 giorni",
     "note" : "A summary description of how many tracking attempts where blocked, when only one exists."
   },
   "stats_feedCountBlockedPeriod" : {
-    "title" : "Vergangene 7 Tage",
+    "title" : "Ultimi 7 giorni",
     "note" : "A summary description indicating the time period of the blocked tracking attempts, which is the past 7 days."
   },
   "stats_feedCountBlockedPlural" : {
-    "title" : "{count} Tracking-Versuche blockiert",
+    "title" : "{count} tentativi di tracciamento bloccati",
     "note" : "A summary description of how many tracking attempts were blocked by DuckDuckGo in the last 7 days when there is more than one. E.g., '1,028 tracking attempts blocked."
   },
   "stats_toggleLabel" : {
-    "title" : "Aktuelle Aktivität anzeigen",
+    "title" : "Mostra attività recente",
     "note" : "The aria-label text for a toggle button that shows the detailed activity feed"
   },
   "stats_hideLabel" : {
-    "title" : "Letzte Aktivitäten ausblenden",
+    "title" : "Nascondi attività recente",
     "note" : "The aria-label text for a toggle button that hides the detailed activity feed"
   },
   "stats_otherCompanyName" : {
-    "title" : "Anderes",
+    "title" : "Altro",
     "note" : "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
   },
   "stats_otherCount" : {
-    "title" : "{count} Versuche von anderen Netzwerken",
+    "title" : "{count} tentativi da altre reti",
     "note" : "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
   },
   "nextSteps_sectionTitle" : {
-    "title" : "Nächste Schritte",
+    "title" : "Passaggi successivi",
     "note" : "Text that goes in the Next Steps bubble above the first card"
   },
   "nextSteps_bringStuff_title" : {
-    "title" : "Bring deine Sachen",
+    "title" : "Importa i tuoi file",
     "note" : "Title of the Next Steps card for importing bookmarks and favorites"
   },
   "nextSteps_bringStuff_summary" : {
-    "title" : "Importiere Lesezeichen, Favoriten und Passwörter für einen reibungslosen Übergang von deinem alten Browser.",
+    "title" : "Import bookmarks, favorites, and passwords for a smooth transition from your old browser.",
     "note" : "Summary of the Next Steps card for importing bookmarks and favorites"
   },
   "nextSteps_bringStuff_actionText" : {
-    "title" : "Jetzt importieren",
+    "title" : "Importa ora",
     "note" : "Button text of the Next Steps card for importing bookmarks and favorites"
   },
   "nextSteps_defaultApp_title" : {
-    "title" : "Als Standard-Browser festlegen",
+    "title" : "Imposta come Browser predefinito",
     "note" : "Title of the Next Steps card for making DDG the user's default browser"
   },
   "nextSteps_defaultApp_summary" : {
-    "title" : "Wir blockieren automatisch Tracker, während du browst. Das ist Datenschutz, vereinfacht.",
+    "title" : "Blocchiamo automaticamente i sistemi di tracciamento mentre navighi. Tutelare la privacy, ora è semplice.",
     "note" : "Summary of the Next Steps card for making DDG the user's default browser"
   },
   "nextSteps_defaultApp_actionText" : {
-    "title" : "Standardbrowser erstellen",
+    "title" : "Rendi il browser predefinito",
     "note" : "Button text of the Next Steps card for making DDG the user's default browser"
   },
   "nextSteps_blockCookies_title" : {
-    "title" : "Cookie-Pop-ups blockieren",
+    "title" : "Blocca i popup dei cookie",
     "note" : "Title of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_blockCookies_summary" : {
-    "title" : "Wir brauchen deine Erlaubnis, um in deinem Namen Cookies abzulehnen. Leichte Entscheidung.",
+    "title" : "We need your permission to say no to cookies on your behalf. Easy choice.",
     "note" : "Summary of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_blockCookies_actionText" : {
-    "title" : "Cookie-Pop-ups blockieren",
+    "title" : "Blocca i popup dei cookie",
     "note" : "Button text of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_emailProtection_title" : {
-    "title" : "Schütze deinen Posteingang",
+    "title" : "Proteggi la tua casella di posta",
     "note" : "Title of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_summary" : {
-    "title" : "Erstelle @duck.com-Adressen, die Tracker aus E-Mails entfernen und an deinen Posteingang weiterleiten.",
+    "title" : "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
     "note" : "Summary of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_actionText" : {
-    "title" : "Email-Schutz erhalten",
+    "title" : "Get Email Protection",
     "note" : "Button text of the Next Steps card for email protection"
   },
   "nextSteps_duckPlayer_title" : {
-    "title" : "YouTube ohne aufdringliche Werbung",
+    "title" : "YouTube senza annunci inquietanti",
     "note" : "Title of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_duckPlayer_summary" : {
-    "title" : "Genieße ein sauberes Seherlebnis ohne personalisierte Werbung.",
+    "title" : "Usufruisci di un'esperienza di visione lineare, senza annunci personalizzati.",
     "note" : "Summary of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_duckPlayer_actionText" : {
-    "title" : "Duck Player testen",
+    "title" : "Prova Duck Player",
     "note" : "Button text of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_addAppDockMac_title" : {
-    "title" : "App zum Dock hinzufügen",
+    "title" : "Add App to the Dock",
     "note" : "Title of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_addAppDockMac_summary" : {
-    "title" : "Greife schneller auf DuckDuckGo zu, indem du es zum Dock hinzufügst.",
+    "title" : "Access DuckDuckGo faster by adding it to the Dock.",
     "note" : "Summary of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_addAppDockMac_actionText" : {
-    "title" : "Zum Dock hinzufügen",
+    "title" : "Aggiungi al dock",
     "note" : "Initial button text of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_addAppDockMac_confirmationText" : {
-    "title" : "Zum Dock hinzugefügt!",
+    "title" : "Aggiunto al dock!",
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_title" : {
-    "title" : "App an die Taskleiste anheften",
+    "title" : "Pin App to the Taskbar",
     "note" : "Title of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_summary" : {
-    "title" : "Greife schneller auf DuckDuckGo zu, indem du es an die Taskleiste heftest.",
+    "title" : "Access DuckDuckGo faster by pinning it to the Taskbar.",
     "note" : "Summary of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_actionText" : {
-    "title" : "An Taskleiste pinnen",
+    "title" : "Aggiungi alla barra delle applicazioni",
     "note" : "Initial button text of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_confirmationText" : {
-    "title" : "An die Taskleiste angeheftet!",
+    "title" : "Pinned to Taskbar!",
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
   },
   "favorites_show_less" : {
-    "title" : "Weniger anzeigen",
+    "title" : "Mostra meno",
     "note" : "Button label to display fewer items"
   },
   "favorites_show_more" : {
-    "title" : "Mehr anzeigen ({count} verbleibend)",
+    "title" : "Show more ({count} remaining)",
     "note" : "Button text to show hidden items. {count} will be replaced with the number of remaining favorite items to show, including the parentheses. Example: 'Show more (18 remaining)'"
   },
   "favorites_menu_title" : {
-    "title" : "Favoriten",
+    "title" : "Preferiti",
     "note" : "Used as a label in a customization menu"
   },
   "favorites_add" : {
-    "title" : "Favorit hinzufügen",
+    "title" : "Aggiungi preferito",
     "note" : "A button that allows a user to add a new 'favorite' bookmark to their existing list"
   },
   "customizer_image_privacy" : {
-    "title" : "Die Bilder werden auf deinem Gerät gespeichert, sodass DuckDuckGo sie nicht sehen oder darauf zugreifen kann.",
+    "title" : "Images are stored on your device so DuckDuckGo can’t see or access them.",
     "note" : "Shown near a button that allows a user to upload an image to be used as a background."
   },
   "customizer_drawer_title" : {
-    "title" : "Anpassen",
+    "title" : "Personalizza",
     "note" : "Title in a slide-out drawer that contains options for customizing the browser."
   },
   "customizer_section_title_background" : {
-    "title" : "Hintergrund",
+    "title" : "Sfondo",
     "note" : "Section title displayed in the UI for customizing the background."
   },
   "customizer_section_title_theme" : {
-    "title" : "Browser-Thema",
+    "title" : "Tema del browser",
     "note" : "Section title for a section where users can customize the browser theme. (for example, 'light' or 'dark')"
   },
   "customizer_section_title_sections" : {
-    "title" : "Abschnitte",
+    "title" : "Sezioni",
     "note" : "Section title for a list of toggles for showing/hiding certain sections of the page."
   },
   "customizer_browser_theme_light" : {
-    "title" : "Hell",
+    "title" : "Chiaro",
     "note" : "The label for a button that sets the browser theme to 'light' mode"
   },
   "customizer_browser_theme_dark" : {
-    "title" : "Dunkel",
+    "title" : "Scuro",
     "note" : "The label for a button that sets the browser theme to 'dark' mode"
   },
   "customizer_browser_theme_system" : {
-    "title" : "Standard",
+    "title" : "Sistema",
     "note" : "The label for a button that sets the browser theme to 'system', which matches the operating system setting"
   },
   "customizer_browser_theme_label" : {
-    "title" : "Design {type} auswählen",
+    "title" : "Seleziona il tema {type}",
     "note" : "The label text on a button, for assistive technologies (like screen readers). {type} will be replace with 'light', 'dark' or 'system'"
   },
   "customizer_settings_link" : {
-    "title" : "Gehe zu Einstellungen",
+    "title" : "Vai a Impostazioni",
     "note" : "The label text on a link that opens the Settings"
   },
   "customizer_background_selection_default" : {
-    "title" : "Standard",
+    "title" : "Predefinito",
     "note" : "Label text below a button that selects a 'default' background"
   },
   "customizer_background_selection_color" : {
-    "title" : "Solide Farben",
+    "title" : "Colori a tinta unita",
     "note" : "Label text below a button that allows a color background"
   },
   "customizer_background_selection_gradient" : {
-    "title" : "Farbverläufe",
+    "title" : "Gradienti",
     "note" : "Label text below a button that allows a gradient background"
   },
   "customizer_background_selection_image_add" : {
-    "title" : "Hintergrund hinzufügen",
+    "title" : "Aggiungi sfondo",
     "note" : "Label text shown on a button that allows an image to be uploaded"
   },
   "customizer_background_selection_image_existing" : {
-    "title" : "Meine Hintergründe",
+    "title" : "I miei sfondi",
     "note" : "Label text shown on a button navigates to list of existing background (that the user previously uploaded)"
   },
   "customizer_image_select" : {
-    "title" : "Bild {number} auswählen",
+    "title" : "Seleziona immagine {number}",
     "note" : "Label text on a button, for assistive technologies (like screen readers). {number} will be replaced with a numeric reference of 1-8, eg: 'Select image 1'"
   },
   "customizer_image_delete" : {
-    "title" : "Bild {number} löschen",
+    "title" : "Elimina immagine {number}",
     "note" : "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
   },
   "activity_noRecent_title" : {
-    "title" : "Keine kürzliche Browsing-Aktivität",
+    "title" : "Nessuna attività di navigazione recente",
     "note" : "Placeholder to indicate that no browsing activity was seen in the last 7 days"
   },
   "activity_noRecent_subtitle" : {
-    "title" : "Zuletzt besuchte Seiten werden hier angezeigt. Browse weiter, um zu sehen, wie viele Tracker wir blockieren.",
+    "title" : "I siti visitati di recente appariranno qui. Continua la navigazione per vedere quanti sistemi di tracciamento vengono bloccati.",
     "note" : "Shown in the place a list of browsing history entries will be displayed."
   },
   "activity_no_trackers" : {
-    "title" : "Keine Tracker gefunden",
+    "title" : "Nessun sistema di tracciamento trovato",
     "note" : "Placeholder message indicating that no trackers are detected"
   },
   "activity_no_trackers_blocked" : {
-    "title" : "Keine Tracker blockiert",
+    "title" : "Nessun sistema di tracciamento bloccato",
     "note" : "Placeholder message indicating that no trackers are blocked"
   },
   "activity_countBlockedPlural" : {
-    "title" : "<b>{count}</b> Tracking-Versuche blockiert",
+    "title" : "<b>{count}</b> tentativi di tracciamento bloccati",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
   "activity_favoriteAdd" : {
-    "title" : "{domain} zu Favoriten hinzufügen",
+    "title" : "Aggiungi {domain} ai Preferiti",
     "note" : "Button label, allows the user to add the specified domain to their favorites"
   },
   "activity_favoriteRemove" : {
-    "title" : "{domain} aus Favoriten entfernen",
+    "title" : "Rimuovi {domain} dai preferiti",
     "note" : "Button label, allows the user to remove the specified domain from their favorites"
   },
   "activity_itemRemove" : {
-    "title" : "{domain} aus dem Verlauf entfernen",
+    "title" : "Rimuovi {domain} dalla cronologia",
     "note" : "Button label for clearing browsing history for a given domain."
   },
   "activity_burn" : {
-    "title" : "Browserverlauf und Daten für {domain} löschen",
+    "title" : "Cancella la cronologia di navigazione e i dati per {domain}",
     "note" : "Button label for clearing browsing history and data exclusively for the specified domain"
   },
   "activity_menuTitle" : {
-    "title" : "Aktuelle Aktivitäten",
+    "title" : "Attività recente",
     "note" : "Used as a label in a customization menu"
   },
   "activity_show_more_history" : {
-    "title" : "{count} weitere anzeigen",
+    "title" : "Mostra altri {count}",
     "note" : "Button label that expands the list of browsing history with the specified count of additional items. Example: 'Show 5 more'"
   },
   "activity_show_less_history" : {
-    "title" : "Zusätzliches ausblenden",
+    "title" : "Nascondi altro",
     "note" : "Button label that hides the expanded browsing history items."
   }
 }

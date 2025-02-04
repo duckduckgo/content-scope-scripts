@@ -193,6 +193,7 @@ export class ActivityPage {
         await page.getByText('example.com').click();
         await page.getByText('example.com').click({ modifiers: ['Meta'] });
         await page.getByText('example.com').click({ modifiers: ['Shift'] });
+        await page.getByText('example.com').click({ button: 'middle' });
         await this._opensMainLink();
     }
     async _opensMainLink() {
@@ -210,6 +211,11 @@ export class ActivityPage {
         });
 
         expect(calls[2].payload.params).toStrictEqual({
+            url,
+            target: 'new-window',
+        });
+
+        expect(calls[3].payload.params).toStrictEqual({
             url,
             target: 'new-window',
         });

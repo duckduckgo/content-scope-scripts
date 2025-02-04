@@ -2384,6 +2384,10 @@ body:not([data-platform-name]) .Button_button:active {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 6px;
+}
+.CustomizerDrawerInner_header > * {
+  overflow: hidden;
 }
 .CustomizerDrawerInner_internal {
   padding-top: 1rem;
@@ -2394,6 +2398,7 @@ body:not([data-platform-name]) .Button_button:active {
   width: 24px;
   height: 24px;
   position: relative;
+  flex-shrink: 0;
   color: var(--color-black-at-84);
   background-color: var(--color-black-at-9);
 }
@@ -2452,7 +2457,6 @@ body:not([data-platform-name]) .Button_button:active {
 .CustomizerDrawerInner_bgListItem {
   display: grid;
   grid-row-gap: 4px;
-  white-space: nowrap;
   position: relative;
 }
 .CustomizerDrawerInner_bgListItem:hover .CustomizerDrawerInner_deleteBtn {
@@ -2609,9 +2613,14 @@ body:not([data-platform-name]) .Button_button:active {
   --chip-size-half: calc(var(--chip-size) / 2);
 }
 .BrowserThemeSection_themeItem {
-  display: grid;
-  justify-items: center;
-  grid-row-gap: 4px;
+  width: 42px;
+}
+.BrowserThemeSection_themeItem span {
+  margin-top: 6px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 .BrowserThemeSection_themeButton {
   display: block;

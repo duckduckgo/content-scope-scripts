@@ -271,5 +271,53 @@
   "customizer_image_delete" : {
     "title" : "Bild {number} löschen",
     "note" : "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
+  },
+  "activity_noRecent_title" : {
+    "title" : "Keine kürzliche Browsing-Aktivität",
+    "note" : "Placeholder to indicate that no browsing activity was seen in the last 7 days"
+  },
+  "activity_noRecent_subtitle" : {
+    "title" : "Zuletzt besuchte Seiten werden hier angezeigt. Browse weiter, um zu sehen, wie viele Tracker wir blockieren.",
+    "note" : "Shown in the place a list of browsing history entries will be displayed."
+  },
+  "activity_no_trackers" : {
+    "title" : "Keine Tracker gefunden",
+    "note" : "Placeholder message indicating that no trackers are detected"
+  },
+  "activity_no_trackers_blocked" : {
+    "title" : "Keine Tracker blockiert",
+    "note" : "Placeholder message indicating that no trackers are blocked"
+  },
+  "activity_countBlockedPlural" : {
+    "title" : "<b>{count}</b> Tracking-Versuche blockiert",
+    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_favoriteAdd" : {
+    "title" : "{domain} zu Favoriten hinzufügen",
+    "note" : "Button label, allows the user to add the specified domain to their favorites"
+  },
+  "activity_favoriteRemove" : {
+    "title" : "{domain} aus Favoriten entfernen",
+    "note" : "Button label, allows the user to remove the specified domain from their favorites"
+  },
+  "activity_itemRemove" : {
+    "title" : "{domain} aus dem Verlauf entfernen",
+    "note" : "Button label for clearing browsing history for a given domain."
+  },
+  "activity_burn" : {
+    "title" : "Browserverlauf und Daten für {domain} löschen",
+    "note" : "Button label for clearing browsing history and data exclusively for the specified domain"
+  },
+  "activity_menuTitle" : {
+    "title" : "Aktuelle Aktivitäten",
+    "note" : "Used as a label in a customization menu"
+  },
+  "activity_show_more_history" : {
+    "title" : "{count} weitere anzeigen",
+    "note" : "Button label that expands the list of browsing history with the specified count of additional items. Example: 'Show 5 more'"
+  },
+  "activity_show_less_history" : {
+    "title" : "Zusätzliches ausblenden",
+    "note" : "Button label that hides the expanded browsing history items."
   }
 }

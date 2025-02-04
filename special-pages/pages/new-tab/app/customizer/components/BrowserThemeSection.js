@@ -31,7 +31,7 @@ export function BrowserThemeSection(props) {
                 >
                     <span class="sr-only">{t('customizer_browser_theme_label', { type: 'light' })}</span>
                 </button>
-                {t('customizer_browser_theme_light')}
+                <span>{t('customizer_browser_theme_light')}</span>
             </li>
             <li class={styles.themeItem}>
                 <button
@@ -44,7 +44,7 @@ export function BrowserThemeSection(props) {
                 >
                     <span class="sr-only">{t('customizer_browser_theme_label', { type: 'dark' })}</span>
                 </button>
-                {t('customizer_browser_theme_dark')}
+                <span>{t('customizer_browser_theme_dark')}</span>
             </li>
             <li class={styles.themeItem}>
                 <button
@@ -57,7 +57,7 @@ export function BrowserThemeSection(props) {
                 >
                     <span class="sr-only">{t('customizer_browser_theme_label', { type: 'system' })}</span>
                 </button>
-                {t('customizer_browser_theme_system')}
+                <span>{t('customizer_browser_theme_system')}</span>
             </li>
         </ul>
     );

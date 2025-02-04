@@ -20819,11 +20819,14 @@
   });
 
   // pages/new-tab/app/activity/components/Activity.js
-  function Activity({ didClick, expansion, toggle, trackerCount, itemCount, batched, children }) {
+  function Activity({ expansion, toggle, trackerCount, itemCount, batched, children }) {
     const expanded = expansion === "expanded";
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("div", { class: Activity_default.root, onClick: didClick }, /* @__PURE__ */ g(
+    const { didClick } = x2(ActivityInteractionsContext);
+    const ref = A2(null);
+    useOnMiddleClick(ref, didClick);
+    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("div", { class: Activity_default.root, onClick: didClick, ref }, /* @__PURE__ */ g(
       ActivityHeading,
       {
         trackerCount,
@@ -20896,30 +20899,13 @@
   function ActivityConfigured({ expansion, toggle, children }) {
     const batched = useBatchedActivityApi();
     const { activity } = x2(NormalizedDataContext);
-    const { didClick } = x2(ActivityInteractionsContext);
-    const ref = A2(
-      /** @type {HTMLUListElement|null} */
-      null
-    );
-    useOnMiddleClick(ref, didClick);
     const count = useComputed(() => {
       return activity.value.totalTrackers;
     });
     const itemCount = useComputed(() => {
       return Object.keys(activity.value.items).length;
     });
-    return /* @__PURE__ */ g(
-      Activity,
-      {
-        batched,
-        itemCount: itemCount.value,
-        trackerCount: count.value,
-        expansion,
-        toggle,
-        didClick
-      },
-      children
-    );
+    return /* @__PURE__ */ g(Activity, { batched, itemCount: itemCount.value, trackerCount: count.value, expansion, toggle }, children);
   }
   function ActivityCustomized() {
     const { t: t4 } = useTypedTranslationWith(
@@ -26744,7 +26730,7 @@
         onClick: () => props.setTheme({ theme: "light" })
       },
       /* @__PURE__ */ g("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "light" }))
-    ), t4("customizer_browser_theme_light")), /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
+    ), /* @__PURE__ */ g("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
       "button",
       {
         class: (0, import_classnames19.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
@@ -26755,7 +26741,7 @@
         onClick: () => props.setTheme({ theme: "dark" })
       },
       /* @__PURE__ */ g("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "dark" }))
-    ), t4("customizer_browser_theme_dark")), /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
+    ), /* @__PURE__ */ g("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
       "button",
       {
         class: (0, import_classnames19.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
@@ -26766,7 +26752,7 @@
         onClick: () => props.setTheme({ theme: "system" })
       },
       /* @__PURE__ */ g("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "system" }))
-    ), t4("customizer_browser_theme_system")));
+    ), /* @__PURE__ */ g("span", null, t4("customizer_browser_theme_system"))));
   }
 
   // pages/new-tab/app/customizer/components/VisibilityMenuSection.js
@@ -29993,46 +29979,14 @@
   var activityExamples = {
     "activity.empty": {
       factory: () => {
-        return /* @__PURE__ */ g(
-          Activity,
-          {
-            expansion: "expanded",
-            itemCount: 0,
-            trackerCount: 0,
-            toggle: noop("toggle"),
-            didClick: noop("did click"),
-            batched: false
-          }
-        );
+        return /* @__PURE__ */ g(Activity, { expansion: "expanded", itemCount: 0, trackerCount: 0, toggle: noop("toggle"), batched: false });
       }
     },
     "activity.few": {
-      factory: () => /* @__PURE__ */ g(
-        Activity,
-        {
-          expansion: "expanded",
-          itemCount: 10,
-          trackerCount: 20,
-          toggle: noop("toggle"),
-          didClick: noop("did click"),
-          batched: false
-        },
-        /* @__PURE__ */ g(Mock, { size: 3 }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility: "visible" }))
-      )
+      factory: () => /* @__PURE__ */ g(Activity, { expansion: "expanded", itemCount: 10, trackerCount: 20, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ g(Mock, { size: 3 }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility: "visible" })))
     },
     "activity.noTrackers": {
-      factory: () => /* @__PURE__ */ g(
-        Activity,
-        {
-          expansion: "expanded",
-          itemCount: 20,
-          trackerCount: 0,
-          toggle: noop("toggle"),
-          didClick: noop("did click"),
-          batched: false
-        },
-        /* @__PURE__ */ g(Mock, { size: 1 }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility: "visible" }))
-      )
+      factory: () => /* @__PURE__ */ g(Activity, { expansion: "expanded", itemCount: 20, trackerCount: 0, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ g(Mock, { size: 1 }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility: "visible" })))
     }
   };
   function Mock({ children, size }) {
