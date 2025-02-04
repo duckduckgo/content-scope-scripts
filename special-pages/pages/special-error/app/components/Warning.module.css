@@ -122,7 +122,7 @@
 
     /* Preserves line breaks on smaller screens to avoid orfan words.
        This is a fallback for browsers that don't support text-wrap: balance */
-       & .title {
+    & .title {
         white-space: pre-line;
 
         @media (min-width: 600px) {
