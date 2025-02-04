@@ -25,24 +25,32 @@
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
   "malwarePageHeading" : {
-    "title" : "Uyarı: Bu site kişisel bilgilerinizi riske atabilir",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+    "title" : "Uyarı: Bu site yeni bir{newline}güvenlik riski olabilir",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "malwareTabTitle" : {
+    "title" : "Uyarı: Güvenlik Riski",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
   "malwareWarningText" : {
-    "title" : "Cihazınızı tehlikeye atmak veya kişisel bilgilerinizi çalmak için tasarlanmış kötü amaçlı yazılım dağıtıyor olabileceğinden, DuckDuckGo bu sayfayı engelledi. <a>Daha fazla bilgi</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+    "title" : "Cihazınızı tehlikeye atmak veya kişisel bilgilerinizi çalmak için tasarlanmış kötü amaçlı yazılım dağıtıyor olabileceğinden, DuckDuckGo bu sayfayı engelledi.{newline}<a>Daha fazla bilgi edinin</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
     "title" : "Bu web sitesinin güvenli olduğuna inanıyorsanız <a>bir hata bildirebilirsiniz</a>. Riski göze alabiliyorsanız web sitesini yine de ziyaret edebilirsiniz.",
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading" : {
-    "title" : "Uyarı: Bu site kişisel bilgilerinizi riske atabilir",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+    "title" : "Uyarı: Bu site yeni bir{newline}güvenlik riski olabilir",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "phishingTabTitle" : {
+    "title" : "Uyarı: Güvenlik Riski",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
   },
   "phishingWarningText" : {
-    "title" : "Bu web sitesi, şifre veya kredi kartı numarası gibi kişisel bilgilerinizi vermeniz için sizi kandırmak amacıyla meşru bir siteyi taklit ediyor olabilir. <a>Daha fazla bilgi</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+    "title" : "Bu web sitesi, şifreler veya kredi kartı numaraları gibi kişisel bilgilerinizi ele geçirmek için meşru bir siteyi taklit ediyor olabilir.{newline}<a>Daha fazla bilgi edinin</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
     "title" : "Bu web sitesinin güvenli olduğuna inanıyorsanız <a>bir hata bildirebilirsiniz</a>. Riski göze alabiliyorsanız web sitesini yine de ziyaret edebilirsiniz.",

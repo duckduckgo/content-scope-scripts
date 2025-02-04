@@ -25,24 +25,32 @@
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
   "malwarePageHeading" : {
-    "title" : "Įspėjimas: ši svetainė gali kelti pavojų jūsų asmeninei informacijai",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+    "title" : "Įspėjimas: ši svetainė gali kelti{newline}saugumo riziką",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "malwareTabTitle" : {
+    "title" : "Įspėjimas: saugumo rizika",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
   "malwareWarningText" : {
-    "title" : "„DuckDuckGo“ užblokavo šį puslapį, nes jame gali būti platinama kenkėjiška programinė įranga, kuria siekiama pakenkti jūsų įrenginiui arba pavogti jūsų asmeninę informaciją. <a>Sužinokite daugiau</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+    "title" : "„DuckDuckGo“ užblokavo šį puslapį, nes jame gali būti platinama kenkėjiška programinė įranga, kuria siekiama pakenkti jūsų įrenginiui arba pavogti jūsų asmeninę informaciją.{newline}<a>Sužinokite daugiau</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
     "title" : "Jei manote, kad ši svetainė yra saugi, galite <a>pranešti apie klaidą</a>. Vis dar galite apsilankyti svetainėje savo rizika.",
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading" : {
-    "title" : "Įspėjimas: ši svetainė gali kelti pavojų jūsų asmeninei informacijai",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+    "title" : "Įspėjimas: ši svetainė gali kelti{newline}saugumo riziką",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "phishingTabTitle" : {
+    "title" : "Įspėjimas: saugumo rizika",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
   },
   "phishingWarningText" : {
-    "title" : "Ši svetainė gali apsimesti teisėta svetaine, siekiant apgauti jus pateikti asmeninę informaciją, pvz., slaptažodžius ar kredito kortelių numerius. <a>Sužinokite daugiau</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+    "title" : "Ši svetainė gali apsimesti teisėta svetaine, siekiant apgauti jus pateikti asmeninę informaciją, pvz., slaptažodžius ar kredito kortelių numerius.{newline}<a>Sužinokite daugiau</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
     "title" : "Jei manote, kad ši svetainė yra saugi, galite <a>pranešti apie klaidą</a>. Vis dar galite apsilankyti svetainėje savo rizika.",

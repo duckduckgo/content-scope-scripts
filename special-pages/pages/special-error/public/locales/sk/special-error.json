@@ -25,24 +25,32 @@
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
   "malwarePageHeading" : {
-    "title" : "Upozornenie: Táto stránka môže ohroziť tvoje osobné údaje",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+    "title" : "Varovanie: Táto stránka môže predstavovať{newline}bezpečnostné riziko",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "malwareTabTitle" : {
+    "title" : "Upozornenie: Bezpečnostné riziko",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
   "malwareWarningText" : {
-    "title" : "DuckDuckGo zablokoval túto stránku, pretože môže šíriť škodlivý softvér určený na ohrozenie tvojho zariadenia alebo krádež tvojich osobných údajov. <a>Zistiť viac</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+    "title" : "DuckDuckGo zablokoval túto stránku, pretože môže šíriť škodlivý softvér určený na ohrozenie tvojho zariadenia alebo krádež tvojich osobných údajov.{newline}<a>Zistiť viac</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
     "title" : "Ak si myslíš, že táto webová stránka je bezpečná, môžeš <a>nahlásiť chybu</a>. Webovú stránku môžeš stále navštíviť na vlastné riziko.",
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading" : {
-    "title" : "Upozornenie: Táto stránka môže ohroziť tvoje osobné údaje",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+    "title" : "Varovanie: Táto lokalita môže predstavovať{newline}riziko pre zabezpečenie",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "phishingTabTitle" : {
+    "title" : "Upozornenie: Riziko pre zabezpečenie",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
   },
   "phishingWarningText" : {
-    "title" : "Táto webová lokalita sa môže vydávať za legitímnu lokalitu s cieľom oklamať vás k poskytnutiu osobných údajov, ako sú heslá alebo čísla kreditných kariet. <a>Zistiť viac</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+    "title" : "Táto webová lokalita sa môže vydávať za legitímnu lokalitu s cieľom vylákať od teba poskytnutie osobných údajov, ako sú heslá alebo čísla kreditných kariet.{newline}<a>Zistiť viac</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
     "title" : "Ak si myslíš, že táto webová stránka je bezpečná, môžeš <a>nahlásiť chybu</a>. Webovú stránku môžeš stále navštíviť na vlastné riziko.",

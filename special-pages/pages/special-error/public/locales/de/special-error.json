@@ -25,24 +25,32 @@
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
   "malwarePageHeading" : {
-    "title" : "Warnung: Diese Seite könnte deine persönlichen Daten gefährden",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+    "title" : "Warnung: Diese Website stellt möglicherweise ein{newline}Sicherheitsrisiko dar",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "malwareTabTitle" : {
+    "title" : "Warnung: Sicherheitsrisiko",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
   "malwareWarningText" : {
-    "title" : "DuckDuckGo hat diese Seite blockiert, weil sie möglicherweise Malware verbreitet, die darauf abzielt, dein Gerät zu kompromittieren oder deine persönlichen Daten zu stehlen. <a>Mehr erfahren</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+    "title" : "DuckDuckGo hat diese Seite blockiert, weil sie möglicherweise Malware verbreitet, die darauf abzielt, dein Gerät zu kompromittieren oder deine persönlichen Daten zu stehlen.{newline}<a>Mehr erfahren</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
     "title" : "Wenn du glaubst, dass diese Website sicher ist, kannst du <a>einen Fehler melden</a>. Du kannst die Website weiterhin auf eigenes Risiko besuchen.",
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading" : {
-    "title" : "Warnung: Diese Seite könnte deine persönlichen Daten gefährden",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+    "title" : "Warnung: Diese Website stellt möglicherweise ein{newline}Sicherheitsrisiko dar",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "phishingTabTitle" : {
+    "title" : "Warnung: Sicherheitsrisiko",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
   },
   "phishingWarningText" : {
-    "title" : "Diese Website gibt sich möglicherweise als legitime Website aus, um dich dazu zu verleiten, personenbezogene Daten wie Passwörter oder Kreditkartennummern preiszugeben. <a>Mehr erfahren</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+    "title" : "Diese Website gibt sich möglicherweise als legitime Website aus, um dich dazu zu verleiten, personenbezogene Daten wie Passwörter oder Kreditkartennummern preiszugeben.{newline}<a>Mehr erfahren</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
     "title" : "Wenn du glaubst, dass diese Website sicher ist, kannst du <a>einen Fehler melden</a>. Du kannst die Website weiterhin auf eigenes Risiko besuchen.",
