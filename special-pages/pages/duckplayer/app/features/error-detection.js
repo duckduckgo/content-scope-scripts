@@ -115,28 +115,35 @@ const getErrorType = (iframe) => {
         console.log('Could not parse player response', e);
     }
 
+    console.log('PLAYER RESPONSE', playerResponse);
+
     if (typeof playerResponse === 'object') {
         const {
             previewPlayabilityStatus: { desktopLegacyAgeGateReason, status },
         } = playerResponse;
 
+        console.log('STATUS', status);
+
+        // 1. Check for UNPLAYABLE status
         if (status === 'UNPLAYABLE') {
-            // Check for age-restricted video
+            // 1.1. Check for presence of desktopLegacyAgeGateReason
             if (desktopLegacyAgeGateReason === 1) {
+                console.log('AGE RESTRICTED');
                 return YOUTUBE_ERRORS.ageRestricted;
             }
 
-            // Fall back to embed not allowed error
+            // 1.2. Fall back to embed not allowed error
+            console.log('NO EMBED');
             return YOUTUBE_ERRORS.noEmbed;
         }
 
-        if (status === 'OK') {
-            // Check for sign-in support link
-            if (iframeWindow.document.querySelector('[href="//support.google.com/youtube/answer/3037019"]')) {
-                return YOUTUBE_ERRORS.signInRequired;
-            }
+        // 2. Check for sign-in support link
+        if (iframeWindow.document.querySelector('[href*="//support.google.com/youtube/answer/3037019"]')) {
+            console.log('SIGN IN REQUIRED');
+            return YOUTUBE_ERRORS.signInRequired;
         }
     }
 
-    return YOUTUBE_ERRORS.unknowne;
+    // 3. Fall back to unknown error
+    return YOUTUBE_ERRORS.unknown;
 };

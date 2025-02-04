@@ -1,7 +1,7 @@
 import { h, Fragment } from 'preact';
 import cn from 'classnames';
 import styles from './MobileApp.module.css';
-import { Player, PlayerError } from './Player.jsx';
+import { Player, PlayerError, YouTubeError } from './Player.jsx';
 import { usePlatformName, useSettings } from '../providers/SettingsProvider.jsx';
 import { SwitchBarMobile } from './SwitchBarMobile.jsx';
 import { MobileWordmark } from './Wordmark.jsx';
@@ -55,6 +55,8 @@ export function MobileApp({ embed }) {
 function MobileLayout({ embed }) {
     const platformName = usePlatformName();
     const error = useYouTubeError();
+    const settings = useSettings();
+    const showCustomError = error && settings.customError?.state === 'enabled';
 
     // TODO: Better conditionals for showing error or player
 
@@ -62,9 +64,9 @@ function MobileLayout({ embed }) {
         <main class={styles.main}>
             <div class={cn(styles.filler, styles.hideInFocus)} />
             <div class={styles.embed}>
-                {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'} />}
-                {embed !== null && !error && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
-                {embed !== null && error && <PlayerError layout={'mobile'} kind={error} />}
+                {embed === null && <PlayerError layout={'mobile'} />}
+                {embed !== null && showCustomError && <YouTubeError layout={'mobile'} kind={error} />}
+                {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
             </div>
             <div class={cn(styles.logo, styles.hideInFocus)}>
                 <MobileWordmark />
