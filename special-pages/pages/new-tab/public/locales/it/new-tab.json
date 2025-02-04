@@ -9,27 +9,27 @@
     }]
   },
   "ntp_show_less" : {
-    "title" : "Show Less",
+    "title" : "Mostra meno",
     "note" : "Button that reduces the number of items or content displayed."
   },
   "ntp_show_more" : {
-    "title" : "Show More",
+    "title" : "Mostra altro",
     "note" : "Button that increases the number of items or content displayed."
   },
   "ntp_dismiss" : {
-    "title" : "Dismiss",
+    "title" : "Ignora",
     "note" : "Button that closes or hides the current popup or notification."
   },
   "ntp_customizer_button" : {
-    "title" : "Customize",
+    "title" : "Personalizza",
     "note" : "Button opens a menu. The menu allows the user to customize the page, such as showing/hiding sections."
   },
   "widgets_visibility_menu_title" : {
-    "title" : "Customize New Tab Page",
+    "title" : "Personalizza pagina Nuova scheda",
     "note" : "Heading text describing that there's a list of toggles for customizing the page layout."
   },
   "updateNotification_updated_version" : {
-    "title" : "Browser Updated to version {version}.",
+    "title" : "Browser aggiornato alla versione {version}.",
     "note" : "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
   },
   "updateNotification_whats_new" : {
@@ -37,15 +37,15 @@
     "note" : "The `<a>` tag represents a clickable link, please preserve it."
   },
   "updateNotification_dismiss_btn" : {
-    "title" : "Dismiss",
+    "title" : "Ignora",
     "note" : "Button label text for an action that removes the widget from the screen."
   },
   "stats_menuTitle" : {
-    "title" : "Blocked Tracking Attempts",
+    "title" : "Tentativi di tracciamento bloccati",
     "note" : "Used as a label in a customization menu"
   },
   "stats_menuTitle_v2" : {
-    "title" : "Protection Stats",
+    "title" : "Statistiche sulla protezione",
     "note" : "Used as a label in a customization menu"
   },
   "stats_noActivity" : {
@@ -53,51 +53,51 @@
     "note" : "Placeholder for when we cannot report any blocked trackers yet"
   },
   "stats_noRecent" : {
-    "title" : "Tracking protections active",
+    "title" : "Protezioni di tracciamento attive",
     "note" : "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedSingular" : {
-    "title" : "1 tracking attempt blocked",
+    "title" : "1 tentativo di tracciamento bloccato",
     "note" : "The main headline indicating that a single tracker was blocked"
   },
   "stats_countBlockedPlural" : {
-    "title" : "{count} tracking attempts blocked",
+    "title" : "{count} tentativi di tracciamento bloccati",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
   "stats_feedCountBlockedSingular" : {
-    "title" : "1 attempt blocked by DuckDuckGo in the last 7 days",
+    "title" : "1 tentativo bloccato da DuckDuckGo negli ultimi 7 giorni",
     "note" : "A summary description of how many tracking attempts where blocked, when only one exists."
   },
   "stats_feedCountBlockedPeriod" : {
-    "title" : "Past 7 days",
+    "title" : "Ultimi 7 giorni",
     "note" : "A summary description indicating the time period of the blocked tracking attempts, which is the past 7 days."
   },
   "stats_feedCountBlockedPlural" : {
-    "title" : "{count} tracking attempts blocked",
+    "title" : "{count} tentativi di tracciamento bloccati",
     "note" : "A summary description of how many tracking attempts were blocked by DuckDuckGo in the last 7 days when there is more than one. E.g., '1,028 tracking attempts blocked."
   },
   "stats_toggleLabel" : {
-    "title" : "Show recent activity",
+    "title" : "Mostra attività recente",
     "note" : "The aria-label text for a toggle button that shows the detailed activity feed"
   },
   "stats_hideLabel" : {
-    "title" : "Hide recent activity",
+    "title" : "Nascondi attività recente",
     "note" : "The aria-label text for a toggle button that hides the detailed activity feed"
   },
   "stats_otherCompanyName" : {
-    "title" : "Other",
+    "title" : "Altro",
     "note" : "A placeholder to represent an aggregated count of entries, not present in the rest of the list. For example, 'Other: 200', which would mean 200 entries excluding the ones already shown"
   },
   "stats_otherCount" : {
-    "title" : "{count} attempts from other networks",
+    "title" : "{count} tentativi da altre reti",
     "note" : "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
   },
   "nextSteps_sectionTitle" : {
-    "title" : "Next Steps",
+    "title" : "Passaggi successivi",
     "note" : "Text that goes in the Next Steps bubble above the first card"
   },
   "nextSteps_bringStuff_title" : {
-    "title" : "Bring Your Stuff",
+    "title" : "Importa i tuoi file",
     "note" : "Title of the Next Steps card for importing bookmarks and favorites"
   },
   "nextSteps_bringStuff_summary" : {
@@ -105,23 +105,23 @@
     "note" : "Summary of the Next Steps card for importing bookmarks and favorites"
   },
   "nextSteps_bringStuff_actionText" : {
-    "title" : "Import Now",
+    "title" : "Importa ora",
     "note" : "Button text of the Next Steps card for importing bookmarks and favorites"
   },
   "nextSteps_defaultApp_title" : {
-    "title" : "Set as Default Browser",
+    "title" : "Imposta come Browser predefinito",
     "note" : "Title of the Next Steps card for making DDG the user's default browser"
   },
   "nextSteps_defaultApp_summary" : {
-    "title" : "We automatically block trackers as you browse. It’s privacy, simplified.",
+    "title" : "Blocchiamo automaticamente i sistemi di tracciamento mentre navighi. Tutelare la privacy, ora è semplice.",
     "note" : "Summary of the Next Steps card for making DDG the user's default browser"
   },
   "nextSteps_defaultApp_actionText" : {
-    "title" : "Make Default Browser",
+    "title" : "Rendi il browser predefinito",
     "note" : "Button text of the Next Steps card for making DDG the user's default browser"
   },
   "nextSteps_blockCookies_title" : {
-    "title" : "Block Cookie Pop-ups",
+    "title" : "Blocca i popup dei cookie",
     "note" : "Title of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_blockCookies_summary" : {
@@ -129,11 +129,11 @@
     "note" : "Summary of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_blockCookies_actionText" : {
-    "title" : "Block Cookie Pop-ups",
+    "title" : "Blocca i popup dei cookie",
     "note" : "Button text of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_emailProtection_title" : {
-    "title" : "Protect Your Inbox",
+    "title" : "Proteggi la tua casella di posta",
     "note" : "Title of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_summary" : {
@@ -145,15 +145,15 @@
     "note" : "Button text of the Next Steps card for email protection"
   },
   "nextSteps_duckPlayer_title" : {
-    "title" : "YouTube Without Creepy Ads",
+    "title" : "YouTube senza annunci inquietanti",
     "note" : "Title of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_duckPlayer_summary" : {
-    "title" : "Enjoy a clean viewing experience without personalized ads.",
+    "title" : "Usufruisci di un'esperienza di visione lineare, senza annunci personalizzati.",
     "note" : "Summary of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_duckPlayer_actionText" : {
-    "title" : "Try DuckPlayer",
+    "title" : "Prova Duck Player",
     "note" : "Button text of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_addAppDockMac_title" : {
@@ -165,11 +165,11 @@
     "note" : "Summary of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_addAppDockMac_actionText" : {
-    "title" : "Add to Dock",
+    "title" : "Aggiungi al dock",
     "note" : "Initial button text of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_addAppDockMac_confirmationText" : {
-    "title" : "Added to Dock!",
+    "title" : "Aggiunto al dock!",
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_title" : {
@@ -181,7 +181,7 @@
     "note" : "Summary of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_actionText" : {
-    "title" : "Pin to Taskbar",
+    "title" : "Aggiungi alla barra delle applicazioni",
     "note" : "Initial button text of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_confirmationText" : {
@@ -189,7 +189,7 @@
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
   },
   "favorites_show_less" : {
-    "title" : "Show less",
+    "title" : "Mostra meno",
     "note" : "Button label to display fewer items"
   },
   "favorites_show_more" : {
@@ -197,11 +197,11 @@
     "note" : "Button text to show hidden items. {count} will be replaced with the number of remaining favorite items to show, including the parentheses. Example: 'Show more (18 remaining)'"
   },
   "favorites_menu_title" : {
-    "title" : "Favorites",
+    "title" : "Preferiti",
     "note" : "Used as a label in a customization menu"
   },
   "favorites_add" : {
-    "title" : "Add Favorite",
+    "title" : "Aggiungi preferito",
     "note" : "A button that allows a user to add a new 'favorite' bookmark to their existing list"
   },
   "customizer_image_privacy" : {
@@ -209,67 +209,67 @@
     "note" : "Shown near a button that allows a user to upload an image to be used as a background."
   },
   "customizer_drawer_title" : {
-    "title" : "Customize",
+    "title" : "Personalizza",
     "note" : "Title in a slide-out drawer that contains options for customizing the browser."
   },
   "customizer_section_title_background" : {
-    "title" : "Background",
+    "title" : "Sfondo",
     "note" : "Section title displayed in the UI for customizing the background."
   },
   "customizer_section_title_theme" : {
-    "title" : "Browser Theme",
+    "title" : "Tema del browser",
     "note" : "Section title for a section where users can customize the browser theme. (for example, 'light' or 'dark')"
   },
   "customizer_section_title_sections" : {
-    "title" : "Sections",
+    "title" : "Sezioni",
     "note" : "Section title for a list of toggles for showing/hiding certain sections of the page."
   },
   "customizer_browser_theme_light" : {
-    "title" : "Light",
+    "title" : "Chiaro",
     "note" : "The label for a button that sets the browser theme to 'light' mode"
   },
   "customizer_browser_theme_dark" : {
-    "title" : "Dark",
+    "title" : "Scuro",
     "note" : "The label for a button that sets the browser theme to 'dark' mode"
   },
   "customizer_browser_theme_system" : {
-    "title" : "System",
+    "title" : "Sistema",
     "note" : "The label for a button that sets the browser theme to 'system', which matches the operating system setting"
   },
   "customizer_browser_theme_label" : {
-    "title" : "Select {type} theme",
+    "title" : "Seleziona il tema {type}",
     "note" : "The label text on a button, for assistive technologies (like screen readers). {type} will be replace with 'light', 'dark' or 'system'"
   },
   "customizer_settings_link" : {
-    "title" : "Go to Settings",
+    "title" : "Vai a Impostazioni",
     "note" : "The label text on a link that opens the Settings"
   },
   "customizer_background_selection_default" : {
-    "title" : "Default",
+    "title" : "Predefinito",
     "note" : "Label text below a button that selects a 'default' background"
   },
   "customizer_background_selection_color" : {
-    "title" : "Solid Colors",
+    "title" : "Colori a tinta unita",
     "note" : "Label text below a button that allows a color background"
   },
   "customizer_background_selection_gradient" : {
-    "title" : "Gradients",
+    "title" : "Gradienti",
     "note" : "Label text below a button that allows a gradient background"
   },
   "customizer_background_selection_image_add" : {
-    "title" : "Add Background",
+    "title" : "Aggiungi sfondo",
     "note" : "Label text shown on a button that allows an image to be uploaded"
   },
   "customizer_background_selection_image_existing" : {
-    "title" : "My Backgrounds",
+    "title" : "I miei sfondi",
     "note" : "Label text shown on a button navigates to list of existing background (that the user previously uploaded)"
   },
   "customizer_image_select" : {
-    "title" : "Select image {number}",
+    "title" : "Seleziona immagine {number}",
     "note" : "Label text on a button, for assistive technologies (like screen readers). {number} will be replaced with a numeric reference of 1-8, eg: 'Select image 1'"
   },
   "customizer_image_delete" : {
-    "title" : "Delete image {number}",
+    "title" : "Elimina immagine {number}",
     "note" : "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
   },
   "activity_noRecent_title" : {
