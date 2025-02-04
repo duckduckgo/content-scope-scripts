@@ -150,6 +150,10 @@ export class SpecialErrorPage {
 
     async showsExpiredPage() {
         const { page } = this;
+
+        const title = await page.locator('title').textContent();
+        expect(title).toBe('Warning: This site may be insecure');
+
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
             page.getByText(
@@ -174,6 +178,10 @@ export class SpecialErrorPage {
 
     async showsInvalidPage() {
         const { page } = this;
+
+        const title = await page.locator('title').textContent();
+        expect(title).toBe('Warning: This site may be insecure');
+
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
             page.getByText(
@@ -193,6 +201,10 @@ export class SpecialErrorPage {
 
     async showsSelfSignedPage() {
         const { page } = this;
+
+        const title = await page.locator('title').textContent();
+        expect(title).toBe('Warning: This site may be insecure');
+
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
             page.getByText(
@@ -212,6 +224,10 @@ export class SpecialErrorPage {
 
     async showsWrongHostPage() {
         const { page } = this;
+
+        const title = await page.locator('title').textContent();
+        expect(title).toBe('Warning: This site may be insecure');
+
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
             page.getByText(
@@ -231,7 +247,11 @@ export class SpecialErrorPage {
 
     async showsPhishingPage() {
         const { page } = this;
-        await expect(page.getByText('Warning: This site may put your personal information at risk', { exact: true })).toBeVisible();
+
+        const title = await page.locator('title').textContent();
+        expect(title).toBe('Warning: Security Risk');
+
+        await expect(page.getByText('Warning: This site may be a security risk', { exact: true })).toBeVisible();
         await expect(
             page.getByText(
                 'This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. Learn more',
@@ -249,7 +269,11 @@ export class SpecialErrorPage {
 
     async showsMalwarePage() {
         const { page } = this;
-        await expect(page.getByText('Warning: This site may put your personal information at risk', { exact: true })).toBeVisible();
+
+        const title = await page.locator('title').textContent();
+        expect(title).toBe('Warning: Security Risk');
+
+        await expect(page.getByText('Warning: This site may be a security risk', { exact: true })).toBeVisible();
         await expect(
             page.getByText(
                 'DuckDuckGo blocked this page because it may be distributing malware designed to compromise your device or steal your personal information. Learn more',
