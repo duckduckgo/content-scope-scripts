@@ -2,6 +2,7 @@ import { useContext, useState } from 'preact/hooks';
 import { h, createContext } from 'preact';
 import { useEffect } from 'preact/hooks';
 import { useMessaging } from '../types';
+import { usePlatformName } from './SettingsProvider';
 
 export const YOUTUBE_ERROR_EVENT = 'ddg-duckplayer-youtube-error';
 
@@ -34,6 +35,7 @@ export function YouTubeErrorProvider({ initial = null, children }) {
     // initial state
     const [error, setError] = useState(initial);
     const messaging = useMessaging();
+    const platformName = usePlatformName();
 
     // listen for updates
     useEffect(() => {
@@ -42,7 +44,9 @@ export function YouTubeErrorProvider({ initial = null, children }) {
             const eventError = event.detail?.error;
             if (YOUTUBE_ERROR_IDS.includes(eventError) || eventError === null) {
                 if (eventError && eventError !== error) {
-                    messaging.reportYouTubeError({ error: eventError });
+                    if (platformName === 'macos') { // TODO: Better feature flagging?
+                        messaging.reportYouTubeError({ error: eventError });
+                    }
                 }
                 setError(eventError);
             }
