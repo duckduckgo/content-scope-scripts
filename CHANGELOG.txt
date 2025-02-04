@@ -1,1 +1,1 @@
-- ntp: final italian translations (#1462)
+- Malicious site protection - iOS Ship review feedback (#1443)

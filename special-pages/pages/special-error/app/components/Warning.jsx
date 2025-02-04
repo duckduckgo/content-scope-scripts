@@ -53,7 +53,12 @@ export function WarningHeading() {
     return (
         <header className={classNames(styles.heading, styles[kind])}>
             <i className={styles.icon} aria-hidden="true" />
-            <Text as="h1" variant={platformName === 'macos' ? 'title-2-emphasis' : 'title-2'} strictSpacing={platformName !== 'macos'}>
+            <Text
+                as="h1"
+                variant={platformName === 'macos' ? 'title-2-emphasis' : 'title-2'}
+                strictSpacing={platformName !== 'macos'}
+                className={styles.title}
+            >
                 {heading}
             </Text>
         </header>

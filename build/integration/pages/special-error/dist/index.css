@@ -556,6 +556,7 @@ body:not([data-platform-name]) .Button_button:active {
 }
 [data-platform-name=ios] .Warning_content {
   text-align: center;
+  white-space: pre-line;
 }
 [data-platform-name=ios] .Warning_buttonContainer {
   flex-flow: column-reverse;
@@ -580,11 +581,21 @@ body:not([data-platform-name]) .Button_button:active {
   background-image: url("./Shield-Alert-128-NGB6TVH6.svg");
 }
 [data-platform-name=ios] :is(.Warning_phishing .Warning_icon, .Warning_malware .Warning_icon) {
-  background-image: url("./Malware-Site-96-A35AQOKY.svg");
+  background-image: url("./Malware-Site-128-YUDZDGMR.svg");
 }
-[data-platform-name=ios] [data-line-break]::before {
-  content: " ";
-  display: block;
+[data-platform-name=ios] .Warning_title {
+  white-space: pre-line;
+}
+@media (min-width: 600px) {
+  [data-platform-name=ios] .Warning_title {
+    white-space: normal;
+  }
+}
+@supports (text-wrap: balance) {
+  [data-platform-name=ios] .Warning_title {
+    text-wrap: balance;
+    white-space: normal;
+  }
 }
 
 /* pages/special-error/app/components/Components.module.css */

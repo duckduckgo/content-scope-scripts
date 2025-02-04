@@ -1894,24 +1894,32 @@
       note: "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
     },
     malwarePageHeading: {
-      title: "Warning: This site may put your personal information at risk",
-      note: "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+      title: "Warning: This site may be a{newline}security risk",
+      note: "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+    },
+    malwareTabTitle: {
+      title: "Warning: Security Risk",
+      note: "Title shown in the browser window or tab when the current page may be a security risk due to malware"
     },
     malwareWarningText: {
-      title: "DuckDuckGo blocked this page because it may be distributing malware designed to compromise your device or steal your personal information. <a>Learn more</a>",
-      note: "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+      title: "DuckDuckGo blocked this page because it may be distributing malware designed to compromise your device or steal your personal information.{newline}<a>Learn more</a>",
+      note: "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
     },
     malwareAdvancedInfoHeading: {
       title: "If you believe this website is safe, you can <a>report an error</a>. You can still visit the website at your own risk.",
       note: "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
     },
     phishingPageHeading: {
-      title: "Warning: This site may put your personal information at risk",
-      note: "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+      title: "Warning: This site may be a{newline}security risk",
+      note: "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+    },
+    phishingTabTitle: {
+      title: "Warning: Security Risk",
+      note: "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
     },
     phishingWarningText: {
-      title: "This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. <a>Learn more</a>",
-      note: "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+      title: "This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers.{newline}<a>Learn more</a>",
+      note: "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
     },
     phishingAdvancedInfoHeading: {
       title: "If you believe this website is safe, you can <a>report an error</a>. You can still visit the website at your own risk.",
@@ -1993,7 +2001,6 @@
     }
   };
   var helpPageAnchorTagParams = {
-    "data-line-break": true,
     href: phishingMalwareHelpPageURL,
     target: "_blank"
   };
@@ -2010,10 +2017,10 @@
     const { t: t3 } = useTypedTranslation();
     const { kind } = useErrorData();
     if (kind === "phishing") {
-      return t3("phishingPageHeading");
+      return t3("phishingPageHeading").replace("{newline}", "\n");
     }
     if (kind === "malware") {
-      return t3("malwarePageHeading");
+      return t3("malwarePageHeading").replace("{newline}", "\n");
     }
     if (kind === "ssl") {
       return t3("sslPageHeading");
@@ -2025,10 +2032,12 @@
     const errorData = useErrorData();
     const { kind } = useErrorData();
     if (kind === "phishing") {
-      return [/* @__PURE__ */ g(Trans, { str: t3("phishingWarningText"), values: { a: helpPageAnchorTagParams } })];
+      const text = t3("phishingWarningText").replace("{newline}", "\n");
+      return [/* @__PURE__ */ g(Trans, { str: text, values: { a: helpPageAnchorTagParams } })];
     }
     if (kind === "malware") {
-      return [/* @__PURE__ */ g(Trans, { str: t3("malwareWarningText"), values: { a: helpPageAnchorTagParams } })];
+      const text = t3("malwareWarningText").replace("{newline}", "\n");
+      return [/* @__PURE__ */ g(Trans, { str: text, values: { a: helpPageAnchorTagParams } })];
     }
     if (kind === "ssl") {
       const { domain } = (
@@ -2223,7 +2232,8 @@
     phishing: "Warning_phishing",
     malware: "Warning_malware",
     button: "Warning_button",
-    advanced: "Warning_advanced"
+    advanced: "Warning_advanced",
+    title: "Warning_title"
   };
 
   // pages/special-error/app/components/Warning.jsx
@@ -2258,7 +2268,16 @@
     const { kind } = useErrorData();
     const heading = useWarningHeading();
     const platformName = usePlatformName();
-    return /* @__PURE__ */ g("header", { className: (0, import_classnames3.default)(Warning_default.heading, Warning_default[kind]) }, /* @__PURE__ */ g("i", { className: Warning_default.icon, "aria-hidden": "true" }), /* @__PURE__ */ g(Text, { as: "h1", variant: platformName === "macos" ? "title-2-emphasis" : "title-2", strictSpacing: platformName !== "macos" }, heading));
+    return /* @__PURE__ */ g("header", { className: (0, import_classnames3.default)(Warning_default.heading, Warning_default[kind]) }, /* @__PURE__ */ g("i", { className: Warning_default.icon, "aria-hidden": "true" }), /* @__PURE__ */ g(
+      Text,
+      {
+        as: "h1",
+        variant: platformName === "macos" ? "title-2-emphasis" : "title-2",
+        strictSpacing: platformName !== "macos",
+        className: Warning_default.title
+      },
+      heading
+    ));
   }
   function WarningContent() {
     const content = useWarningContent();
@@ -2284,10 +2303,10 @@
     y2(() => {
       switch (kind) {
         case "malware":
-          document.title = t3("malwarePageHeading");
+          document.title = t3("malwareTabTitle");
           break;
         case "phishing":
-          document.title = t3("phishingPageHeading");
+          document.title = t3("phishingTabTitle");
           break;
         default:
           document.title = t3("sslPageHeading");
