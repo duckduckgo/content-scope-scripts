@@ -1,1 +1,1 @@
-- ntp: activity translations (RC1) (#1459)
+- ntp: final italian translations (#1462)
