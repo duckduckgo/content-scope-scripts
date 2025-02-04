@@ -2,5 +2,5 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "YouTubeError",
   "type": "string",
-  "enum": ["age-restricted", "sign-in-required", "invalid-id", "no-embed", "unknown"]
+  "enum": ["age-restricted", "sign-in-required", "no-embed", "unknown"]
 }

@@ -33,25 +33,25 @@
     "title": "<b>ERROR:</b> Invalid video id",
     "note": "Shown when the page URL doesn't match a known video ID. Note for translators: The <b> tag makes the word 'ERROR:' bold. Depending on the grammar of the target language, you might need to move it so that the correct word is emphasized."
   },
-  "signInRequiredError": {
-    "title": "We are not able to connect you with this video",
-    "note": "Message for bot detected"
+  "blockedVideoErrorHeading": {
+    "title": "YouTube won’t let Duck Player load this video",
+    "note": "Message shown when YouTube has blocked playback of a video"
   },
-  "signInRequiredErrorTip1": {
-    "title": "If you use a VPN, try turning it off and reload the video.",
-    "note": "A tip on how to solve the bot detected error"
+  "blockedVideoErrorMessage1": {
+    "title": "YouTube doesn’t allow this video to be viewed on other sites.",
+    "note": "Explanation on why the error is happening."
   },
-  "signInRequiredErrorTip2": {
-    "title": "If turning off the VPN doesn’t work, you can view this video on YouTube without the added privacy features of Duck Player.",
-    "note": "A tip on how to solve the bot detected error"
+  "blockedVideoErrorMessage2": {
+    "title": "You can still watch this video on YouTube, but without the added privacy of Duck Player.",
+    "note": "A message explaining that the blocked video can be watched directly on YouTube."
   },
-  "blockedVideoError": {
-    "title": "YouTube has blocked this video in Duck Player",
-    "note": "Message for when the video is blocked by YouTube"
+  "signInRequiredErrorMessage1": {
+    "title": "YouTube is blocking this video from loading. If you’re using a VPN, try turning it off and reloading this page.",
+    "note": "Explanation on why the error is happening and a suggestions on how to solve it."
   },
-  "blockedVideoErrorMessage": {
-    "title": "View this video on YouTube without the added privacy features of Duck Player.",
-    "note": "A suggested solution to the blocked video error is to watch it directly on YouTube. This message suggests that as a solution to the user."
+  "signInRequiredErrorMessage2": {
+    "title": "If this doesn’t work, you can still watch this video on YouTube, but without the added privacy of Duck Player.",
+    "note": "More troubleshooting tips for this specific error"
   },
   "tooltipInfo": {
     "title": "Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations."

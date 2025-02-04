@@ -6,7 +6,7 @@
  * @module Duckplayer Messages
  */
 
-export type YouTubeError = "age-restricted" | "sign-in-required" | "invalid-id" | "no-embed" | "unknown";
+export type YouTubeError = "age-restricted" | "sign-in-required" | "no-embed" | "unknown";
 export type PrivatePlayerMode =
   | {
       enabled: unknown;

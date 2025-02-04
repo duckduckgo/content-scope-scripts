@@ -51,34 +51,37 @@ export function Player({ src, layout }) {
 
 /**
  * @param {YouTubeError} kind
- * @returns {{heading: Element, message: Element, solutions: Element[]}}
+ * @returns {{heading: Element, messages: Element[]}}
  */
 function useErrorStrings(kind) {
     const { t } = useTypedTranslation();
 
     const translationsMap = {
         ['sign-in-required']: {
-            heading: <span dangerouslySetInnerHTML={{ __html: t('signInRequiredError') }} />,
-            solutions: [
-                <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorTip1') }} />,
-                <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorTip2') }} />,
+            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
+            messages: [
+                <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage1') }} />,
+                <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage2') }} />,
             ],
-            message: null
         },
         ['age-restricted']: {
-            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoError') }} />,
-            solutions: null,
-            message: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage') }} />,
+            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
+            messages: [
+                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage1') }} />,
+                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage2') }} />,
+            ],
         },
         ['no-embed']: {
-            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoError') }} />,
-            solutions: null,
-            message: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage') }} />,
+            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
+            messages: [
+                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage1') }} />,
+                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage2') }} />,
+            ],
         },
     };
 
     if (!translationsMap[kind]) {
-        throw (new Error(`Missing translations for ${kind}`));
+        throw new Error(`Missing translations for ${kind}`);
     }
 
     return translationsMap[kind];
@@ -114,7 +117,9 @@ export function PlayerError({ layout }) {
     return (
         <ErrorWrapper layout={layout}>
             <div className={classes}>
-                <p><span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} /></p>
+                <p>
+                    <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />
+                </p>
             </div>
         </ErrorWrapper>
     );
@@ -126,9 +131,9 @@ export function PlayerError({ layout }) {
  * @param {Settings['layout']} props.layout
  */
 export function YouTubeError({ kind, layout }) {
-    const { heading, message, solutions } = useErrorStrings(kind);
+    const { heading, messages } = useErrorStrings(kind);
     const classes = cn(styles.error, styles.youtubeError);
-    
+
     return (
         <ErrorWrapper layout={layout}>
             <div className={classes}>
@@ -138,15 +143,7 @@ export function YouTubeError({ kind, layout }) {
                     <div className={styles.youtubeErrorText}>
                         <h1 className={styles.youtubeErrorHeading}>{heading}</h1>
 
-                        {message && <p className={styles.youtubeErrorMessage}>{message}</p>}
-
-                        {solutions && (
-                            <ul className={styles.youtubeErrorList}>
-                                {solutions.map((item) => (
-                                    <li>{item}</li>
-                                ))}
-                            </ul>
-                        )}
+                        <div className={styles.youtubeErrorMessages}>{messages && messages.map((item) => <p>{item}</p>)}</div>
                     </div>
                 </div>
             </div>

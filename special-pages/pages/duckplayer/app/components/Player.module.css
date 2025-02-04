@@ -82,6 +82,16 @@
     }
 }
 
+.youtubeErrorMessages {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    & p {
+        margin: 0;
+    }
+}
+
 .youtubeErrorIcon {
     align-self: center;
     display: flex;

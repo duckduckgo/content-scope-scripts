@@ -13,7 +13,6 @@ export const YOUTUBE_ERROR_EVENT = 'ddg-duckplayer-youtube-error';
 export const YOUTUBE_ERRORS = {
     ageRestricted: 'age-restricted',
     signInRequired: 'sign-in-required',
-    invalidId: 'invalid-id',
     noEmbed: 'no-embed',
     unknown: 'unknown',
 };
@@ -42,9 +41,8 @@ export function YouTubeErrorProvider({ initial = null, children }) {
         const errorEventHandler = (event) => {
             const eventError = event.detail?.error;
             if (YOUTUBE_ERROR_IDS.includes(eventError) || eventError === null) {
-                if (eventError !== error) {
-                    // TODO: Native implementation
-                    // messaging.reportYouTubeError({ error });
+                if (eventError && eventError !== error) {
+                    messaging.reportYouTubeError({ error: eventError });
                 }
                 setError(eventError);
             }
