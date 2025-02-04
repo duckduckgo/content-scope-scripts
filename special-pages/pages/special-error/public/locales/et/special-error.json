@@ -25,24 +25,32 @@
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
   "malwarePageHeading" : {
-    "title" : "Hoiatus! See sait võib teie isikuandmed ohtu seada",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution"
+    "title" : "Hoiatus: see sait võib olla{newline}turvaoht",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "malwareTabTitle" : {
+    "title" : "Hoiatus: turvaroht",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
   "malwareWarningText" : {
-    "title" : "DuckDuckGo blokeeris selle saidi, kuna see võib levitada pahavara, mis on loodud teie seadme kahjustamiseks või teie isikuandmete varastamiseks. <a>Vaata lähemalt</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution."
+    "title" : "DuckDuckGo blokeeris selle saidi, kuna see võib levitada pahavara, mis on loodud teie seadme kahjustamiseks või teie isikuandmete varastamiseks.{newline}<a>Vaata lähemalt</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
     "title" : "Kui arvate, et see veebisait on turvaline, võite <a>teatada veast</a>. Võite siiski külastada veebisaiti omal vastutusel.",
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
   },
   "phishingPageHeading" : {
-    "title" : "Hoiatus! See sait võib teie isikuandmed ohtu seada",
-    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+    "title" : "Hoiatus: see sait võib olla{newline}turvaoht",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "phishingTabTitle" : {
+    "title" : "Hoiatus: turvaoht",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
   },
   "phishingWarningText" : {
-    "title" : "See veebisait võib imiteerida seaduslikku veebisaiti, et sinult välja petta isiklikke andmeid, näiteks paroole või krediitkaardi numbreid. <a>Vaata lähemalt</a>",
-    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+    "title" : "See veebisait võib imiteerida seaduslikku veebisaiti, et teilt isiklikke andmeid välja petta, näiteks paroole või krediitkaardi numbreid.{newline}<a>Vaata lähemalt</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
     "title" : "Kui arvate, et see veebisait on turvaline, võite <a>teatada veast</a>. Võite siiski külastada veebisaiti omal vastutusel.",
