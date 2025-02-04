@@ -33,7 +33,7 @@
     "note" : "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
   },
   "updateNotification_whats_new" : {
-    "title" : "See <a>what's new</a> in this release.",
+    "title" : "Scopri <a>le novità</a> in questa versione.",
     "note" : "The `<a>` tag represents a clickable link, please preserve it."
   },
   "updateNotification_dismiss_btn" : {
@@ -49,7 +49,7 @@
     "note" : "Used as a label in a customization menu"
   },
   "stats_noActivity" : {
-    "title" : "DuckDuckGo blocks tracking attempts as you browse. Visit a few sites to see how many we block!",
+    "title" : "DuckDuckGo blocca i tentativi di tracciamento durante la navigazione. Visita alcuni siti per vedere quanti ne blocchiamo!",
     "note" : "Placeholder for when we cannot report any blocked trackers yet"
   },
   "stats_noRecent" : {
@@ -101,7 +101,7 @@
     "note" : "Title of the Next Steps card for importing bookmarks and favorites"
   },
   "nextSteps_bringStuff_summary" : {
-    "title" : "Import bookmarks, favorites, and passwords for a smooth transition from your old browser.",
+    "title" : "Importa segnalibri, preferiti e password per una transizione senza problemi dal vecchio browser.",
     "note" : "Summary of the Next Steps card for importing bookmarks and favorites"
   },
   "nextSteps_bringStuff_actionText" : {
@@ -125,7 +125,7 @@
     "note" : "Title of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_blockCookies_summary" : {
-    "title" : "We need your permission to say no to cookies on your behalf. Easy choice.",
+    "title" : "Abbiamo bisogno del tuo permesso per rifiutare i cookie a tuo nome. Scelta facile.",
     "note" : "Summary of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_blockCookies_actionText" : {
@@ -137,11 +137,11 @@
     "note" : "Title of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_summary" : {
-    "title" : "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
+    "title" : "Genera indirizzi @duck.com che rimuovono i sistemi di tracciamento dalle email e li inoltrano alla tua casella di posta.",
     "note" : "Summary of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_actionText" : {
-    "title" : "Get Email Protection",
+    "title" : "Ottieni Email Protection",
     "note" : "Button text of the Next Steps card for email protection"
   },
   "nextSteps_duckPlayer_title" : {
@@ -157,11 +157,11 @@
     "note" : "Button text of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_addAppDockMac_title" : {
-    "title" : "Add App to the Dock",
+    "title" : "Aggiungi app al Dock",
     "note" : "Title of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_addAppDockMac_summary" : {
-    "title" : "Access DuckDuckGo faster by adding it to the Dock.",
+    "title" : "Accedi a DuckDuckGo più velocemente aggiungendolo al Dock.",
     "note" : "Summary of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_addAppDockMac_actionText" : {
@@ -173,11 +173,11 @@
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_title" : {
-    "title" : "Pin App to the Taskbar",
+    "title" : "Aggiungi l'app alla barra delle applicazioni",
     "note" : "Title of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_summary" : {
-    "title" : "Access DuckDuckGo faster by pinning it to the Taskbar.",
+    "title" : "Accedi a DuckDuckGo più velocemente aggiungendolo alla barra delle applicazioni.",
     "note" : "Summary of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_actionText" : {
@@ -185,7 +185,7 @@
     "note" : "Initial button text of the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_pinAppToTaskbarWindows_confirmationText" : {
-    "title" : "Pinned to Taskbar!",
+    "title" : "Aggiunto alla barra delle applicazioni!",
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
   },
   "favorites_show_less" : {
@@ -193,7 +193,7 @@
     "note" : "Button label to display fewer items"
   },
   "favorites_show_more" : {
-    "title" : "Show more ({count} remaining)",
+    "title" : "Mostra di più ({count} rimasti)",
     "note" : "Button text to show hidden items. {count} will be replaced with the number of remaining favorite items to show, including the parentheses. Example: 'Show more (18 remaining)'"
   },
   "favorites_menu_title" : {
@@ -205,7 +205,7 @@
     "note" : "A button that allows a user to add a new 'favorite' bookmark to their existing list"
   },
   "customizer_image_privacy" : {
-    "title" : "Images are stored on your device so DuckDuckGo can’t see or access them.",
+    "title" : "Le immagini sono memorizzate sul tuo dispositivo e DuckDuckGo non può vederle o accedervi.",
     "note" : "Shown near a button that allows a user to upload an image to be used as a background."
   },
   "customizer_drawer_title" : {
