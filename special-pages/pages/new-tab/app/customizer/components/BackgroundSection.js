@@ -43,6 +43,8 @@ export function BackgroundSection({ data, onNav, onUpload, select }) {
         gradient = values.gradients.gradient02;
     }
 
+    throw new Error('Something went wrong!');
+
     return (
         <ul class={cn(styles.bgList)} role="radiogroup">
             <li class={styles.bgListItem}>
