@@ -66,18 +66,18 @@ export class VideoOverlay {
      */
     init(trigger) {
         if (trigger === 'page-load') {
-            this.handleFirstPageLoad();
+            this.handleFirstPageLoad2();
         } else if (trigger === 'preferences-changed') {
-            this.watchForVideoBeingAdded({ via: 'user notification', ignoreCache: true });
+            this.watchForVideoBeingAdded2({ via: 'user notification', ignoreCache: true });
         } else if (trigger === 'href-changed') {
-            this.watchForVideoBeingAdded({ via: 'href changed' });
+            this.watchForVideoBeingAdded2({ via: 'href changed' });
         }
     }
 
     /**
      * Special handling of a first-page, an attempt to load our overlay as quickly as possible
      */
-    handleFirstPageLoad() {
+    handleFirstPageLoad2() {
         // don't continue unless we're in 'alwaysAsk' mode
         if ('disabled' in this.userValues.privatePlayerMode) return;
 
@@ -86,34 +86,11 @@ export class VideoOverlay {
         if (!validParams) return;
 
         /**
-         * If we get here, we know the following:
-         *
-         * 1) we're going to show the overlay because of user settings/state
-         * 2) we're on a valid `/watch` page
-         * 3) we have at _least_ a valid video id
-         *
-         * So, in that case we append some css quickly to the head to ensure player items are not showing
-         * Later, when our overlay loads that CSS will be removed in the cleanup.
-         */
-        this.sideEffects.add('add css to head', () => {
-            const style = document.createElement('style');
-            style.innerText = this.settings.selectors.videoElementContainer + ' { opacity: 0!important }';
-            if (document.head) {
-                document.head.appendChild(style);
-            }
-            return () => {
-                if (style.isConnected) {
-                    document.head.removeChild(style);
-                }
-            };
-        });
-
-        /**
          * Keep trying to find the video element every 100 ms
          */
         this.sideEffects.add('wait for first video element', () => {
             const int = setInterval(() => {
-                this.watchForVideoBeingAdded({ via: 'first page load' });
+                this.watchForVideoBeingAdded2({ via: 'first page load 2' });
             }, 100);
             return () => {
                 clearInterval(int);
@@ -148,7 +125,7 @@ export class VideoOverlay {
     /**
      * @param {{ignoreCache?: boolean, via?: string}} [opts]
      */
-    watchForVideoBeingAdded(opts = {}) {
+    watchForVideoBeingAdded2(opts = {}) {
         const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
 
         if (!params) {
@@ -173,15 +150,6 @@ export class VideoOverlay {
         ];
 
         if (conditions.some(Boolean)) {
-            /**
-             * Don't continue until we've been able to find the HTML elements that we inject into
-             */
-            const videoElement = document.querySelector(this.settings.selectors.videoElement);
-            const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
-            if (!videoElement || !playerContainer) {
-                return null;
-            }
-
             /**
              * If we get here, it's a valid situation
              */
@@ -215,9 +183,8 @@ export class VideoOverlay {
                     return this.addSmallDaxOverlay(params);
                 }
 
-                // if we get here, we're trying to prevent the video playing
-                this.stopVideoFromPlaying();
-                this.appendOverlayToPage(playerContainer, params);
+                // if we get here, we're trying to display the modal
+                this.appendOverlayToPage(document.body, params);
             }
         }
     }
@@ -355,7 +322,7 @@ export class VideoOverlay {
                 .then((values) => {
                     this.userValues = values;
                 })
-                .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
+                .then(() => this.watchForVideoBeingAdded2({ ignoreCache: true, via: 'userOptOut' }))
                 .catch((e) => console.error('could not set userChoice for opt-out', e));
         } else {
             this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '0' }));

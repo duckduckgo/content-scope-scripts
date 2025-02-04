@@ -1,12 +1,12 @@
 /* -- VIDEO PLAYER OVERLAY */
 :host {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     color: white;
     z-index: 10000;
+    position: fixed;
+    bottom: 0;
+    min-height: 300px;
+    width: 100%;
+    color: white;
     --title-size: 16px;
     --title-line-height: 20px;
     --title-gap: 16px;

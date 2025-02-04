@@ -25,7 +25,7 @@
     "lint-fix": "eslint . --fix && npx prettier . --write && npm run tsc",
     "stylelint": "npx stylelint \"**/*.css\"",
     "stylelint-fix": "npx stylelint \"**/*.css\" --fix",
-    "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
+    "serve": "http-server -c-1 --port 3220 injected/integration-test/test-pages",
     "serve-special-pages": "http-server -c-1 --port 3221 build/integration/pages"
   },
   "type": "module",
