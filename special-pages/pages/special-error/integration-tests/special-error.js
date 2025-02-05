@@ -94,6 +94,7 @@ export class SpecialErrorPage {
      */
     get basePath() {
         return this.build.switch({
+            windows: () => '../build/windows/pages/special-error',
             apple: () => '../Sources/ContentScopeScripts/dist/pages/special-error',
         });
     }
@@ -151,8 +152,7 @@ export class SpecialErrorPage {
     async showsExpiredPage() {
         const { page } = this;
 
-        const title = await page.locator('title').textContent();
-        expect(title).toBe('Warning: This site may be insecure');
+        this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -161,6 +161,7 @@ export class SpecialErrorPage {
                 { exact: true },
             ),
         ).toBeVisible();
+
         await this.showsAdvancedInfo();
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible();
         await expect(
@@ -171,6 +172,17 @@ export class SpecialErrorPage {
         ).toBeVisible();
     }
 
+    /**
+     *
+     * @param {string} pageTitle
+     */
+    async showsPageTitle(pageTitle) {
+        const { page } = this;
+
+        const title = await page.locator('title').textContent();
+        expect(title).toBe(pageTitle);
+    }
+
     async showsExpiredPageInPolish() {
         const { page } = this;
         await expect(page.getByRole('heading')).toContainText('Ostrzeżenie: ta witryna może być niebezpieczna');
@@ -179,8 +191,7 @@ export class SpecialErrorPage {
     async showsInvalidPage() {
         const { page } = this;
 
-        const title = await page.locator('title').textContent();
-        expect(title).toBe('Warning: This site may be insecure');
+        this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -202,8 +213,7 @@ export class SpecialErrorPage {
     async showsSelfSignedPage() {
         const { page } = this;
 
-        const title = await page.locator('title').textContent();
-        expect(title).toBe('Warning: This site may be insecure');
+        this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -225,8 +235,7 @@ export class SpecialErrorPage {
     async showsWrongHostPage() {
         const { page } = this;
 
-        const title = await page.locator('title').textContent();
-        expect(title).toBe('Warning: This site may be insecure');
+        this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -291,10 +300,13 @@ export class SpecialErrorPage {
 
     /**
      * Clicks on advanced link to show expanded info
+     *
+     * @param {string} [buttonTitle] Localized title of Advanced button
      */
-    async showsAdvancedInfo() {
+    async showsAdvancedInfo(buttonTitle = 'Advanced') {
         const { page } = this;
-        await page.getByRole('button', { name: 'Advanced...' }).click();
+        await page.getByRole('button', { name: buttonTitle }).click();
+
         const calls = await this.mocks.waitForCallCount({ method: 'advancedInfo', count: 1 });
         expect(calls).toMatchObject([
             {
