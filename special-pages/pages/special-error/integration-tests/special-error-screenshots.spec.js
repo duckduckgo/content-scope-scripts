@@ -88,7 +88,7 @@ test.describe('screenshots @screenshots', () => {
         await special.reducedMotion();
         await special.openPage({ errorId: 'phishing' });
         await special.showsAdvancedInfo();
-        await expect(page).toHaveScreenshot('phishing-warning-advanced.png', { maxDiffPixels });
+        await expect(page).toHaveScreenshot('phishing-warning-advanced-reduced-motion.png', { maxDiffPixels });
     });
 
     test('Phishing warning in Portuguese', async ({ page }, workerInfo) => {
