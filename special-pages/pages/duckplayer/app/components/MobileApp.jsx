@@ -1,7 +1,8 @@
 import { h, Fragment } from 'preact';
 import cn from 'classnames';
 import styles from './MobileApp.module.css';
-import { Player, PlayerError, YouTubeError } from './Player.jsx';
+import { Player, PlayerError } from './Player.jsx';
+import { YouTubeError } from './YouTubeError';
 import { usePlatformName, useSettings } from '../providers/SettingsProvider.jsx';
 import { SwitchBarMobile } from './SwitchBarMobile.jsx';
 import { MobileWordmark } from './Wordmark.jsx';

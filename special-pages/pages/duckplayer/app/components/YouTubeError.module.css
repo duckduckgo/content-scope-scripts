@@ -1,0 +1,126 @@
+.error {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    display: grid;
+    height: 100%;
+    justify-items: center;
+}
+
+.error.desktop {
+    z-index: 1;
+    position: relative;
+    overflow: hidden;
+    height: var(--frame-height);
+}
+
+.error.mobile {
+    border-radius: var(--inner-radius);
+    overflow: hidden;
+    height: auto;
+
+    @media screen and (min-width: 600px) {
+        aspect-ratio: 16 / 9;
+    }
+}
+
+.desktop {
+    border-top-left-radius: var(--outer-radius);
+    border-top-right-radius: var(--outer-radius);
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.container {
+    display: flex;
+    column-gap: 24px;
+    row-gap: 4px;
+    flex-flow: column;
+    max-width: 680px;
+    padding: 0 24px;
+    margin: 16px 0;
+
+    @media screen and (min-width: 376px) {
+        margin: 36px 0;
+    }
+
+    @media screen and (min-width: 600px) {
+        flex-flow: row;
+        padding: 0 40px;
+        margin: 0;
+    }
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 16px 0;
+
+    @media screen and (min-width: 600px) {
+        margin: 24px 0;
+    }
+}
+
+
+.icon {
+    align-self: center;
+    display: none;
+    justify-content: center;
+
+    &::before {
+        content: ' ';
+        display: block;
+        background: url('../img/warning-96.data.svg') no-repeat;
+        height: 48px;
+        width: 48px;
+    }
+
+    @media screen and (min-width: 376px) {
+        display: flex;
+    }
+
+    @media screen and (min-width: 600px) {
+        justify-content: start;
+
+        &::before {
+            background-image: url('../img/warning-128.data.svg');
+            height: 96px;
+            width: 128px;
+        }
+    }
+}
+
+.heading {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: calc(24 / 20);
+    margin: 0;
+}
+
+.messages {
+    color: #ccc;
+    font-size: 16px;
+    line-height: calc(24 / 16);
+}
+
+div.messages {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    & p {
+        margin: 0;
+    }
+}
+
+p.messages {
+    margin: 0;
+}
+
+ul.messages {
+    li {
+        list-style: disc;
+        margin-left: 24px;
+    }
+}

@@ -38,7 +38,7 @@
     "note": "Message shown when YouTube has blocked playback of a video"
   },
   "blockedVideoErrorMessage1": {
-    "title": "YouTube doesn’t allow this video to be viewed on other sites.",
+    "title": "YouTube doesn’t allow this video to be viewed outside of YouTube.",
     "note": "Explanation on why the error is happening."
   },
   "blockedVideoErrorMessage2": {

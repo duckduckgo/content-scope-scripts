@@ -47,107 +47,28 @@ export function Player({ src, layout }) {
     );
 }
 
-/* TODO: REFACTOR useErrorString */
-
-/**
- * @param {YouTubeError} kind
- * @returns {{heading: Element, messages: Element[]}}
- */
-function useErrorStrings(kind) {
-    const { t } = useTypedTranslation();
-
-    const translationsMap = {
-        ['sign-in-required']: {
-            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
-            messages: [
-                <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage1') }} />,
-                <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage2') }} />,
-            ],
-        },
-        ['age-restricted']: {
-            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
-            messages: [
-                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage1') }} />,
-                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage2') }} />,
-            ],
-        },
-        ['no-embed']: {
-            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
-            messages: [
-                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage1') }} />,
-                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage2') }} />,
-            ],
-        },
-    };
-
-    if (!translationsMap[kind]) {
-        throw new Error(`Missing translations for ${kind}`);
-    }
-
-    return translationsMap[kind];
-}
-
 /**
  * @param {object} props
  * @param {Settings['layout']} props.layout
- * @param {import('preact').ComponentChild} props.children
+ * @param {'invalid-id'} props.kind
  */
-export function ErrorWrapper({ layout, children }) {
+export function PlayerError({ kind, layout }) {
+    const { t } = useTypedTranslation();
+    const errors = {
+        ['invalid-id']: <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />,
+    };
+    const text = errors[kind] || errors['invalid-id'];
     return (
         <div
             class={cn(styles.root, {
                 [styles.desktop]: layout === 'desktop',
                 [styles.mobile]: layout === 'mobile',
-                [styles.errorContainer]: true,
             })}
         >
-            {children}
+            <div className={styles.error}>
+                <p>{text}</p>
+            </div>
         </div>
-    );
-}
-
-/**
- * @param {object} props
- * @param {Settings['layout']} props.layout
- */
-export function PlayerError({ layout }) {
-    const { t } = useTypedTranslation();
-    const classes = cn(styles.error, styles.invalidError);
-
-    return (
-        <ErrorWrapper layout={layout}>
-            <div className={classes}>
-                <p>
-                    <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />
-                </p>
-            </div>
-        </ErrorWrapper>
-    );
-}
-
-/**
- * @param {object} props
- * @param {YouTubeError} props.kind
- * @param {Settings['layout']} props.layout
- */
-export function YouTubeError({ kind, layout }) {
-    const { heading, messages } = useErrorStrings(kind);
-    const classes = cn(styles.error, styles.youtubeError);
-
-    return (
-        <ErrorWrapper layout={layout}>
-            <div className={classes}>
-                <div className={styles.youtubeErrorContainer}>
-                    <span className={styles.youtubeErrorIcon}></span>
-
-                    <div className={styles.youtubeErrorText}>
-                        <h1 className={styles.youtubeErrorHeading}>{heading}</h1>
-
-                        <div className={styles.youtubeErrorMessages}>{messages && messages.map((item) => <p>{item}</p>)}</div>
-                    </div>
-                </div>
-            </div>
-        </ErrorWrapper>
     );
 }
 
