@@ -38,17 +38,20 @@ export class SpecialErrorPage {
      * @param {'app'|'components'} [params.env] - Optional parameters for opening the page.
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {keyof sampleData} [params.errorId] - ID of the error to be mocked (see sampleData.js)
-     * @param {'macos'|'ios'} [params.platformName] - platform name
+     * @param {PlatformInfo['name']} [params.platformName] - platform name
      * @param {string} [params.locale] - locale
      */
-    async openPage({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = 'macos', locale } = {}) {
+    async openPage({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = this.platform.name, locale } = {}) {
+
+        if (platformName === "extension") {
+            throw new Error(`Unsupported platform ${platformName}`);
+        }
+
         /** @type {import('../types/special-error.ts').InitialSetupResponse} */
         const initialSetup = {
             env: 'development',
             locale: 'en',
-            platform: {
-                name: platformName,
-            },
+            platform: { name: platformName },
             errorData: sampleData[errorId].data,
         };
 
