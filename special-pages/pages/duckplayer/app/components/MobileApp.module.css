@@ -259,6 +259,10 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
             border-radius: var(--outer-radius);
             padding: 4px;
         }
+
+        & .buttons {
+            padding: 0;
+        }
     }
 
     /* Hide chrome on smaller screens */
@@ -270,8 +274,6 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
             0
             auto
             16px
-            0
-            0
             max-content;
 
         & .logo,
