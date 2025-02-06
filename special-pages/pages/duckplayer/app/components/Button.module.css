@@ -15,7 +15,7 @@
     text-decoration: none;
 
     [data-layout="mobile"] & {
-        background-color: #2f2f2f;
+        background-color: rgba(255, 255, 255, 0.12);
     }
 }
 

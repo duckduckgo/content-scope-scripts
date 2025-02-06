@@ -35,6 +35,7 @@ html[data-focus-mode="on"] .hideInFocus {
     --logo-width: 157px;
     --inner-padding: 8px;
     --mobile-buttons-padding: 8px;
+
     position: relative;
     max-width: 100vh;
     margin: 0 auto;
@@ -112,6 +113,16 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
 .switch {
     grid-area: switch;
     height: 44px;
+}
+
+.detachedControls {
+    grid-area: detached;
+    display: flex;
+    flex-flow: column;
+    gap: 8px;
+    padding: 8px;
+    background: #2f2f2f;
+    border-radius: 12px;
 }
 
 @media screen and (min-width: 425px) and (max-height: 600px) {
@@ -225,31 +236,26 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
 }
 
 /* Different layout for YouTube Errors on mobile */
-.main[data-youtube-error]:not([data-youtube-error=""]) {
+.main[data-youtube-error="true"] {
     @media screen and (max-width: 599px) {
         --bg-color: transparent;
-        --inner-padding: 0;
+        --inner-padding: 4px;
 
         grid-template-areas:
             'logo'
             'gap3'
             'embed'
             'gap4'
-            'switch'
-            'gap5'
-            'buttons';
-
+            'detached';
         grid-template-rows:
             max-content
             16px
             auto
-            16px
-            max-content
-            16px
+            12px
             max-content;
 
         & .embed {
-            background: #222;
+            background: #2f2f2f;
             border-radius: var(--outer-radius);
             padding: 4px;
         }
@@ -267,10 +273,10 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
             0
             0
             max-content;
-                        
+
         & .logo,
         & .switch {
             display: none;
-        }    
+        }
     }
 }
