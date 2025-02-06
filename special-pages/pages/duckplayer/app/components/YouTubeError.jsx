@@ -41,7 +41,7 @@ function useErrorStrings(kind) {
                 <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage1') }} />,
                 <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage2') }} />,
             ],
-            variant: 'inline'
+            variant: 'inline',
         },
     };
 
@@ -72,20 +72,29 @@ export function YouTubeError({ kind, layout }) {
                 <div className={styles.content}>
                     <h1 className={styles.heading}>{heading}</h1>
 
-                    {messages && variant === 'inline' &&
-                    <p className={styles.messages}>
-                        {messages.map((item) => <span>{item}</span>)}
-                    </p>}
+                    {messages && variant === 'inline' && (
+                        <p className={styles.messages}>
+                            {messages.map((item) => (
+                                <span>{item}</span>
+                            ))}
+                        </p>
+                    )}
 
-                    {messages && variant === 'paragraphs' &&
-                    <div className={styles.messages}>
-                        {messages.map((item) => <p>{item}</p>)}
-                    </div>}
+                    {messages && variant === 'paragraphs' && (
+                        <div className={styles.messages}>
+                            {messages.map((item) => (
+                                <p>{item}</p>
+                            ))}
+                        </div>
+                    )}
 
-                    {messages && variant === 'list' &&
-                    <ul className={styles.messages}>
-                        {messages.map((item) => <li>{item}</li>)}
-                    </ul>}
+                    {messages && variant === 'list' && (
+                        <ul className={styles.messages}>
+                            {messages.map((item) => (
+                                <li>{item}</li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
             </div>
         </div>

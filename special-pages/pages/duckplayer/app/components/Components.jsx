@@ -86,7 +86,7 @@ export function Components() {
                 </h2>
                 <PlayerContainer inset>
                     <PlayerInternal inset>
-                        <PlayerError layout={'mobile'} />
+                        <PlayerError layout={'mobile'} kind={'invalid-id'} />
                         <SwitchBarMobile platformName={'ios'} />
                     </PlayerInternal>
                 </PlayerContainer>

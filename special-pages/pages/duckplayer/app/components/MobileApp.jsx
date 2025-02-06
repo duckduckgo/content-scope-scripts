@@ -23,14 +23,16 @@ const DISABLED_HEIGHT = 450;
 export function MobileApp({ embed }) {
     const settings = useSettings();
     const telemetry = useTelemetry();
-    const ytError = useYouTubeError();
+    const youtubeError = useYouTubeError();
 
     const features = createAppFeaturesFrom(settings);
     return (
         <>
-            {!ytError && features.focusMode()}
+            {!youtubeError && features.focusMode()}
             <OrientationProvider
                 onChange={(orientation) => {
+                    if (youtubeError) return;
+
                     if (orientation === 'portrait') {
                         return FocusMode.enable();
                     }
@@ -55,18 +57,18 @@ export function MobileApp({ embed }) {
  */
 function MobileLayout({ embed }) {
     const platformName = usePlatformName();
-    const error = useYouTubeError();
+    const youtubeError = useYouTubeError();
     const settings = useSettings();
-    const showCustomError = error && settings.customError?.state === 'enabled';
+    const showCustomError = youtubeError && settings.customError?.state === 'enabled';
 
     // TODO: Better conditionals for showing error or player
 
     return (
-        <main class={styles.main}>
+        <main class={styles.main} data-youtube-error={youtubeError}>
             <div class={cn(styles.filler, styles.hideInFocus)} />
             <div class={styles.embed}>
-                {embed === null && <PlayerError layout={'mobile'} />}
-                {embed !== null && showCustomError && <YouTubeError layout={'mobile'} kind={error} />}
+                {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'} />}
+                {embed !== null && showCustomError && <YouTubeError layout={'mobile'} kind={youtubeError} />}
                 {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
             </div>
             <div class={cn(styles.logo, styles.hideInFocus)}>

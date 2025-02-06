@@ -34,6 +34,7 @@ html[data-focus-mode="on"] .hideInFocus {
     --inner-radius: 12px;
     --logo-width: 157px;
     --inner-padding: 8px;
+    --mobile-buttons-padding: 8px;
     position: relative;
     max-width: 100vh;
     margin: 0 auto;
@@ -220,5 +221,56 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
 @media screen and (min-width: 1100px) {
     .switch {
         justify-content: end;
+    }
+}
+
+/* Different layout for YouTube Errors on mobile */
+.main[data-youtube-error]:not([data-youtube-error=""]) {
+    @media screen and (max-width: 599px) {
+        --bg-color: transparent;
+        --inner-padding: 0;
+
+        grid-template-areas:
+            'logo'
+            'gap3'
+            'embed'
+            'gap4'
+            'switch'
+            'gap5'
+            'buttons';
+
+        grid-template-rows:
+            max-content
+            16px
+            auto
+            16px
+            max-content
+            16px
+            max-content;
+
+        & .embed {
+            background: #222;
+            border-radius: var(--outer-radius);
+            padding: 4px;
+        }
+    }
+
+    /* Hide chrome on smaller screens */
+    @media screen and (max-width: 599px) and (max-height: 599px) {
+        max-width: unset;
+
+        grid-template-rows:
+            0
+            0
+            auto
+            16px
+            0
+            0
+            max-content;
+                        
+        & .logo,
+        & .switch {
+            display: none;
+        }    
     }
 }

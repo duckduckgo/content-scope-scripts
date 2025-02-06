@@ -16,12 +16,12 @@ import { useYouTubeError } from '../providers/YouTubeErrorProvider';
 export function DesktopApp({ embed }) {
     const settings = useSettings();
     const features = createAppFeaturesFrom(settings);
-    const ytError = useYouTubeError();
+    const youtubeError = useYouTubeError();
 
     return (
         <>
-            {!ytError && features.focusMode()}
-            <main class={styles.app}>
+            {!youtubeError && features.focusMode()}
+            <main class={styles.app} data-youtube-error={youtubeError}>
                 <DesktopLayout embed={embed} />
             </main>
         </>
@@ -33,17 +33,17 @@ export function DesktopApp({ embed }) {
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
 function DesktopLayout({ embed }) {
-    const error = useYouTubeError();
+    const youtubeError = useYouTubeError();
     const settings = useSettings();
-    const showCustomError = error && settings.customError?.state === 'enabled';
+    const showCustomError = youtubeError && settings.customError?.state === 'enabled';
 
     // TODO: Better conditionals for showing error or player
 
     return (
         <div class={styles.desktop}>
             <PlayerContainer>
-                {embed === null && <PlayerError layout={'desktop'} />}
-                {embed !== null && showCustomError && <YouTubeError layout={'desktop'} kind={error} />}
+                {embed === null && <PlayerError layout={'desktop'} kind={'invalid-id'} />}
+                {embed !== null && showCustomError && <YouTubeError layout={'desktop'} kind={youtubeError} />}
                 {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'desktop'} />}
                 <HideInFocusMode style={'slide'}>
                     <InfoBarContainer>
