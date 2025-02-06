@@ -1,5 +1,4 @@
 import { h, Fragment } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './MobileApp.module.css';
 import { Player, PlayerError } from './Player.jsx';
@@ -53,31 +52,6 @@ export function MobileApp({ embed }) {
 }
 
 /**
- *
- * @param {number} maxWidth
- * @returns
- */
-function useMaxWidth(maxWidth) {
-    const [isMaxWidth, setIsMaxWidth] = useState(window.innerWidth <= maxWidth);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMaxWidth(window.innerWidth <= maxWidth);
-        };
-
-        // Set up the event listener for window resize
-        window.addEventListener('resize', handleResize);
-
-        // Clean up the event listener on component unmount
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
-
-    return isMaxWidth;
-}
-
-/**
  * @param {object} props
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
@@ -86,7 +60,6 @@ function MobileLayout({ embed }) {
     const youtubeError = useYouTubeError();
     const settings = useSettings();
     const showCustomError = youtubeError && settings.customError?.state === 'enabled';
-    const isMobile = useMaxWidth(600);
 
     // TODO: Better conditionals for showing error or player
 
@@ -101,30 +74,14 @@ function MobileLayout({ embed }) {
             <div class={cn(styles.logo, styles.hideInFocus)}>
                 <MobileWordmark />
             </div>
-            {(!showCustomError || !isMobile) && (
-                <>
-                    <div class={cn(styles.switch, styles.hideInFocus)}>
-                        <SwitchProvider>
-                            <SwitchBarMobile platformName={platformName} />
-                        </SwitchProvider>
-                    </div>
-                    <div class={cn(styles.buttons, styles.hideInFocus)}>
-                        <MobileButtons embed={embed} />
-                    </div>
-                </>
-            )}
-            {showCustomError && isMobile && (
-                <div className={styles.detachedControls}>
-                    <div class={cn(styles.switch, styles.hideInFocus)}>
-                        <SwitchProvider>
-                            <SwitchBarMobile platformName={platformName} />
-                        </SwitchProvider>
-                    </div>
-                    <div class={cn(styles.buttons, styles.hideInFocus)}>
-                        <MobileButtons embed={embed} />
-                    </div>
-                </div>
-            )}
+            <div class={cn(styles.switch, styles.hideInFocus)}>
+                <SwitchProvider>
+                    <SwitchBarMobile platformName={platformName} />
+                </SwitchProvider>
+            </div>
+            <div class={cn(styles.buttons, styles.hideInFocus)}>
+                <MobileButtons embed={embed} />
+            </div>
         </main>
     );
 }

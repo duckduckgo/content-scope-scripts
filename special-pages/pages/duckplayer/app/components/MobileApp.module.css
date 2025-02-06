@@ -246,12 +246,14 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
             'gap3'
             'embed'
             'gap4'
-            'detached';
+            'switch'
+            'buttons';
         grid-template-rows:
             max-content
             16px
             auto
             12px
+            max-content
             max-content;
 
         & .embed {
@@ -260,8 +262,33 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
             padding: 4px;
         }
 
+        & .switch {
+            background: #2f2f2f;
+            padding: 8px 8px 0 8px;
+            height: 60px;
+            max-height: 60px;
+            border-top-left-radius: var(--outer-radius);
+            border-top-right-radius: var(--outer-radius);
+
+            transition: all 0.3s;
+        }
+
         & .buttons {
-            padding: 0;
+            background: #2f2f2f;
+            padding: 8px;
+
+            transition: all 0.3s;
+        }
+
+        &:has([data-state="completed"]) {
+            & .buttons {
+                border-radius: var(--outer-radius);
+            }
+
+            & .switch {
+                background: transparent;
+                max-height: 0;
+            }
         }
     }
 
@@ -273,12 +300,17 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
             0
             0
             auto
-            16px
+            12px
+            0
             max-content;
 
         & .logo,
         & .switch {
             display: none;
+        }
+
+        & .buttons {
+            border-radius: var(--outer-radius);
         }
     }
 }
