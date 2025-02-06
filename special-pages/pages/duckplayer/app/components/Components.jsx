@@ -121,7 +121,6 @@ export function Components() {
                 </PlayerContainer>
                 <br />
 
-
                 <PlayerContainer inset>
                     <PlayerInternal inset>
                         <YouTubeError layout={'mobile'} kind={'no-embed'} />
