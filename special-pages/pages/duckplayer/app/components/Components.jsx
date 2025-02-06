@@ -14,6 +14,7 @@ import { Settings } from '../settings.js';
 import { EmbedSettings } from '../embed-settings.js';
 import { SwitchBarDesktop } from './SwitchBarDesktop.jsx';
 import { SwitchProvider } from '../providers/SwitchProvider.jsx';
+import { YouTubeError } from './YouTubeError';
 
 export function Components() {
     const settings = new Settings({
@@ -81,6 +82,26 @@ export function Components() {
                 </SettingsProvider>
                 <br />
 
+                <SettingsProvider settings={settings}>
+                    <PlayerContainer>
+                        <YouTubeError layout={'desktop'} kind={'sign-in-required'} />
+                        <InfoBarContainer>
+                            <InfoBar embed={embed} />
+                        </InfoBarContainer>
+                    </PlayerContainer>
+                </SettingsProvider>
+                <br />
+
+                <SettingsProvider settings={settings}>
+                    <PlayerContainer>
+                        <YouTubeError layout={'desktop'} kind={'no-embed'} />
+                        <InfoBarContainer>
+                            <InfoBar embed={embed} />
+                        </InfoBarContainer>
+                    </PlayerContainer>
+                </SettingsProvider>
+                <br />
+
                 <h2>
                     <code>inset=true (mobile)</code>
                 </h2>
@@ -90,7 +111,23 @@ export function Components() {
                         <SwitchBarMobile platformName={'ios'} />
                     </PlayerInternal>
                 </PlayerContainer>
+                <br />
 
+                <PlayerContainer inset>
+                    <PlayerInternal inset>
+                        <YouTubeError layout={'mobile'} kind={'sign-in-required'} />
+                        <SwitchBarMobile platformName={'ios'} />
+                    </PlayerInternal>
+                </PlayerContainer>
+                <br />
+
+
+                <PlayerContainer inset>
+                    <PlayerInternal inset>
+                        <YouTubeError layout={'mobile'} kind={'no-embed'} />
+                        <SwitchBarMobile platformName={'ios'} />
+                    </PlayerInternal>
+                </PlayerContainer>
                 <br />
             </main>
         </>
