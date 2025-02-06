@@ -1,3 +1,5 @@
+const DEFAULT_SIGN_IN_REQURED_HREF = '[href*="//support.google.com/youtube/answer/3037019"]';
+
 export class Settings {
     /**
      * @param {object} params
@@ -5,14 +7,14 @@ export class Settings {
      * @param {{state: 'enabled' | 'disabled'}} [params.pip]
      * @param {{state: 'enabled' | 'disabled'}} [params.autoplay]
      * @param {{state: 'enabled' | 'disabled'}} [params.focusMode]
-     * @param {{state: 'enabled' | 'disabled'}} [params.customError]
+     * @param {import("../types/duckplayer.js").InitialSetupResponse['settings']['customError']} [params.customError]
      */
     constructor({
         platform = { name: 'macos' },
         pip = { state: 'disabled' },
         autoplay = { state: 'enabled' },
         focusMode = { state: 'enabled' },
-        customError = { state: 'enabled' }, // TODO: Revert to disabled
+        customError = { state: 'enabled', signInRequiredSelector: DEFAULT_SIGN_IN_REQURED_HREF }, // TODO: Revert to disabled
     }) {
         this.platform = platform;
         this.pip = pip;
@@ -76,10 +78,20 @@ export class Settings {
      * @return {Settings}
      */
     withCustomError(newState) {
-        if (newState === 'disabled' || newState === 'enabled') {
+        if (newState === 'disabled') {
             return new Settings({
                 ...this,
-                customError: { state: newState },
+                customError: { state: 'disabled' },
+            });
+        }
+
+        if (newState === 'enabled') {
+            return new Settings({
+                ...this,
+                customError: {
+                    state: 'enabled',
+                    signOnRequiredSelector: DEFAULT_SIGN_IN_REQURED_HREF,
+                },
             });
         }
 

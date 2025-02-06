@@ -137,6 +137,8 @@ const getErrorType = (iframe) => {
             return YOUTUBE_ERRORS.noEmbed;
         }
 
+        // TODO: Get this from initial setup
+
         // 2. Check for sign-in support link
         if (iframeWindow.document.querySelector('[href*="//support.google.com/youtube/answer/3037019"]')) {
             console.log('SIGN IN REQUIRED');
