@@ -24,7 +24,8 @@ export default defineConfig({
                 'rmf.spec.js',
                 'update-notification.spec.js',
                 'customizer.spec.js',
-                'activity.spec.js'
+                'activity.spec.js',
+                'history.spec.js'
             ],
             use: {
                 ...devices['Desktop Chrome'],

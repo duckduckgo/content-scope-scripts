@@ -1,0 +1,51 @@
+:root {
+    --default-light-bg: var(--color-gray-0);
+    --default-dark-bg: var(--color-gray-85);
+
+    /* H1 title */
+    --title-font-size: 20px;
+    --title-font-weight: 600;
+    --title-line-height: 18px;
+
+    /* Mac/System/Body */
+    --body-font-size: 13px;
+    --body-font-weight: 400;
+    --body-line-height: 16px;
+
+    /* title 3 em */
+    --title-3-em-font-size: 15px;
+    --title-3-em-font-weight: 590;
+    --title-3-em-line-height: 20px;
+}
+
+/* This comes from the application settings */
+:root:has(body[data-platform-name="windows"]) {
+    /* Windows/System/Body */
+    --body-font-size: 14px;
+    --body-font-weight: 400;
+    --body-line-height: 20px;
+
+    /* Windows/Title 3 (Emphasis); */
+    --title-3-em-font-size: 16px;
+    --title-3-em-font-weight: 600;
+    --title-3-em-line-height: 20px;
+}
+
+[data-theme=light] {
+    --history-background-color: var(--default-light-bg);
+    --history-surface-background-color: var(--color-white-at-30);
+    --history-surface-border-color: var(--color-black-at-9);
+    --history-text-normal: var(--color-black-at-84);
+    --history-text-invert: var(--color-white-at-84);
+    --history-text-muted: var(--color-black-at-60);
+}
+
+[data-theme=dark] {
+    --history-background-color: var(--default-dark-bg);
+    --history-surface-background-color: var(--color-black-at-18);
+    --history-surface-border-color: var(--color-white-at-12);
+    --history-surface-color: var(--color-white-at-12);
+    --history-text-normal: var(--color-white-at-84);
+    --history-text-invert: var(--color-black-at-84);
+    --history-text-muted: var(--color-white-at-60);
+}

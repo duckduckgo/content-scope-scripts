@@ -113,17 +113,16 @@
 .title {
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
-    line-height: var(--title-3-em-line-height);
-    word-break: break-all;
-    overflow-wrap: break-word;
-    white-space: nowrap;
     text-decoration: none;
     color: var(--ntp-text-normal);
     height: 35px;
     display: flex;
     align-items: center;
+    line-height: 1;
+
     /* Note: This is not a 1:1 value from figma, I reduced it for perfect visual alignment */
     gap: 4px;
+    min-width: 0;
 
     &:hover, &:focus-visible {
         color: var(--ntp-color-primary);

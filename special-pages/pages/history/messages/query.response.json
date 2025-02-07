@@ -6,22 +6,23 @@
   "properties": {
     "info": {
       "type": "object",
-      "required": ["finished", "term"],
+      "required": ["finished", "query"],
       "title": "History Query Info",
       "properties": {
         "finished": {
           "description": "Indicates whether there are more items outside of the current query",
           "type": "boolean"
         },
-        "term": {
-          "description": "Indicates the search term used in the query",
-          "type": "string"
+        "query": {
+          "$ref": "types/query.json"
         }
       }
     },
     "value": {
       "type": "array",
-      "items": {"$ref": "./types/history-item.json"}
+      "items": {
+        "$ref": "./types/history-item.json"
+      }
     }
   }
 }

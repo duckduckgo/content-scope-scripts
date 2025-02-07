@@ -6,12 +6,42 @@
  * @module History Messages
  */
 
+export type OpenTarget = "same-tab" | "new-tab" | "new-window";
+export type Range =
+  | "all"
+  | "today"
+  | "yesterday"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday"
+  | "older"
+  | "recentlyOpened";
+export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
+
 /**
  * Requests, Notifications and Subscriptions from the History feature
  */
 export interface HistoryMessages {
-  notifications: ReportInitExceptionNotification | ReportPageExceptionNotification;
-  requests: InitialSetupRequest | QueryRequest;
+  notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
+  requests: GetRangesRequest | InitialSetupRequest | QueryRequest;
+}
+/**
+ * Generated from @see "../messages/open.notify.json"
+ */
+export interface OpenNotification {
+  method: "open";
+  params: HistoryOpenAction;
+}
+export interface HistoryOpenAction {
+  /**
+   * The url to open
+   */
+  url: string;
+  target: OpenTarget;
 }
 /**
  * Generated from @see "../messages/reportInitException.notify.json"
@@ -32,6 +62,16 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/getRanges.request.json"
+ */
+export interface GetRangesRequest {
+  method: "getRanges";
+  result: GetRangesResponse;
+}
+export interface GetRangesResponse {
+  ranges: Range[];
 }
 /**
  * Generated from @see "../messages/initialSetup.request.json"
@@ -56,9 +96,24 @@ export interface QueryRequest {
   result: HistoryQueryResponse;
 }
 export interface HistoryQuery {
-  term: string;
+  query: QueryKind;
+  /**
+   * The starting point of records to query (zero-indexed); used for paging through large datasets
+   */
   offset: number;
+  /**
+   * Maximum number of records to return
+   */
   limit: number;
+}
+export interface SearchTerm {
+  term: string;
+}
+export interface DomainFilter {
+  domain: string;
+}
+export interface RangeFilter {
+  range: Range;
 }
 export interface HistoryQueryResponse {
   info: HistoryQueryInfo;
@@ -69,12 +124,13 @@ export interface HistoryQueryInfo {
    * Indicates whether there are more items outside of the current query
    */
   finished: boolean;
-  /**
-   * Indicates the search term used in the query
-   */
-  term: string;
+  query: QueryKind;
 }
 export interface HistoryItem {
+  /**
+   * A unique identifier for the entry.
+   */
+  id: string;
   /**
    * A relative day with a detailed date (e.g., 'Today - Wednesday 15 January 2025').
    */
@@ -88,17 +144,13 @@ export interface HistoryItem {
    */
   dateTimeOfDay: string;
   /**
-   * The domain name of the URL (e.g., 'localhost:8000').
+   * The eTLD+1 version of the domain, representing the domain and its top-level domain (e.g., 'example.com', 'localhost'). This differs from 'domain', which may include subdomains (e.g., 'www.youtube.com').
+   */
+  etldPlusOne?: string;
+  /**
+   * The full domain to show beside the site title, eg: 'www.youtube.com'
    */
   domain: string;
-  /**
-   * A single uppercase letter used as favicon text.
-   */
-  fallbackFaviconText: string;
-  /**
-   * A timestamp in milliseconds (e.g., 1736938916867.863).
-   */
-  time: number;
   /**
    * Title of the page (e.g., 'YouTube').
    */

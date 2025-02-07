@@ -1,54 +1,141 @@
 ---
-title: History Page
+title: History View
 ---
 
+# History view
+
 ## Requests
 
-- {@link "History Messages".InitialSetupRequest `initialSetup`}
-    - Returns {@link "History Messages".InitialSetupResponse}
-    
-## Requests
+### `initialSetup`
+{@link "History Messages".InitialSetupRequest}
 
-### {@link "History Messages".QueryRequest `query`}
-- Sends {@link "History Messages".HistoryQuery}
-- Receives {@link "History Messages".HistoryQueryResponse}
-- Note: if an empty term is sent, you should reply with as many items as the limit allows.
+Configures initial history system settings.
 
-The FE will send: 
+**Types:**
+- Response: {@link "History Messages".InitialSetupResponse}
+
 ```json
-{ "term": "", "limit": 150, "offset": 0 }
+{
+  "locale": "en",
+  "env": "production",
+  "platform": {
+    "name": "macos"
+  }
+}
 ```
 
-The response will be:
+### `getRanges`
+{@link "History Messages".GetRangesRequest}
+
+Retrieves available time ranges for history filtering.
+
+**Types:**
+- Response: {@link "History Messages".GetRangesResponse}
+
+```json
+{
+  "ranges": ["today", "yesterday", "monday", "recentlyOpened"]
+}
+```
+
+
+### `query`
+{@link "History Messages".QueryRequest}
+
+Queries history items with filtering and pagination.
+
+**Types:**
+- Parameters: {@link "History Messages".HistoryQuery}
+- Response: {@link "History Messages".HistoryQueryResponse}
+
+params for a query: (note: can be an empty string!)
+
+```json
+{
+  "query": {
+    "term": "example.com"
+  },
+  "offset": 0,
+  "limit": 50
+}
+```
+
+params for a range, note: the values here will match what you returned from `getRanges`
+
+```json
+{
+  "query": {
+    "range": "today"
+  },
+  "offset": 0,
+  "limit": 50
+}
+```
+
+Response, note: always return the same query I sent: 
 
 ```json
 {
   "info": {
     "finished": false,
-    "term": ""
+    "query": {
+      "term": "example.com"
+    }
   },
   "value": [
     {
+      "id": "12345",
       "dateRelativeDay": "Today - Wednesday 15 January 2025",
       "dateShort": "15 Jan 2025",
-      "dateTimeOfDay": "11:10",
-      "domain": "youtube.com",
-      "fallbackFaviconText": "L",
-      "time": 1736939416961.617,
-      "title": "Electric Callboy - Hypa Hypa (OFFICIAL VIDEO) - YouTube",
-      "url": "https://www.youtube.com/watch?v=75Mw8r5gW8E"
-    },
-    {"...":  "..."}
+      "dateTimeOfDay": "11:01",
+      "domain": "example.com",
+      "etldPlusOne": "example.com",
+      "title": "Example Website",
+      "url": "https://example.com/page"
+    }
   ]
 }
 ```
 
 ## Notifications
 
-### {@link "History Messages".ReportInitExceptionNotification `reportInitException`}
-- Sent when the application fails to initialize (for example, a JavaScript exception prevented it)
-- Sends: `{ message: string }` - see {@link "History Messages".ReportInitExceptionNotify}
+### `open`
+- {@link "History Messages".OpenNotification}
+- Sent when a user clicks a link, sends {@link "History Messages".OpenNotification}
+- Target is one of {@link "History Messages".OpenTarget}
 
-### {@link "History Messages".ReportPageExceptionNotification `reportPageException`}
-- Sent when the application failed after initialization (for example, a JavaScript exception prevented it)
-- Sends: `{ message: string }` - see {@link "History Messages".ReportPageExceptionNotify}
+example payload
+```json
+{ 
+  "url": "https://example.com/path", 
+  "target": "same-tab" 
+}
+```
+```json
+{ 
+  "url": "https://example.com/path", 
+  "target": "new-tab" 
+}
+```
+
+### `reportInitException`
+{@link "History Messages".ReportInitExceptionNotification}
+
+Reports initialization errors in the history system.
+
+```json
+{
+  "message": "Failed to initialize history database"
+}
+```
+
+### `reportPageException`
+{@link "History Messages".ReportPageExceptionNotification}
+
+Reports errors during page history operations.
+
+```json
+{
+  "message": "Failed to load page history"
+}
+```
