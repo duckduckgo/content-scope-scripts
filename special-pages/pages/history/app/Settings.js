@@ -4,7 +4,7 @@ export class Settings {
      * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {number} [params.typingDebounce=500] how long to debounce typing in the search field
      */
-    constructor({ platform = { name: 'macos' }, typingDebounce = 500 }) {
+    constructor({ platform = { name: 'macos' }, typingDebounce = 100 }) {
         this.platform = platform;
         this.typingDebounce = typingDebounce;
     }
