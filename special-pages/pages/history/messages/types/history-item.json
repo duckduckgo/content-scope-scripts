@@ -33,6 +33,10 @@
       "format": "hostname",
       "description": "The eTLD+1 version of the domain, representing the domain and its top-level domain (e.g., 'example.com', 'localhost'). This differs from 'domain', which may include subdomains (e.g., 'www.youtube.com')."
     },
+    "domain": {
+      "type": "string",
+      "description": "The full domain to show beside the site title, eg: 'www.youtube.com'"
+    },
     "title": {
       "type": "string",
       "description": "Title of the page (e.g., 'YouTube')."

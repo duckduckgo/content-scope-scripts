@@ -148,6 +148,10 @@ export interface HistoryItem {
    */
   etldPlusOne?: string;
   /**
+   * The full domain to show beside the site title, eg: 'www.youtube.com'
+   */
+  domain: string;
+  /**
    * Title of the page (e.g., 'YouTube').
    */
   title: string;

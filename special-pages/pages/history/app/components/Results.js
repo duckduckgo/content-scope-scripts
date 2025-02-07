@@ -24,6 +24,7 @@ export function Results({ results }) {
                                 id={item.id}
                                 kind={results.value.heights[index]}
                                 url={item.url}
+                                domain={item.domain}
                                 title={item.title}
                                 dateRelativeDay={item.dateRelativeDay}
                                 dateTimeOfDay={item.dateTimeOfDay}
