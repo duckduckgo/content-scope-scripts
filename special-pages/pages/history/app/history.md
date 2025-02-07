@@ -111,6 +111,12 @@ example payload
   "target": "same-tab" 
 }
 ```
+```json
+{ 
+  "url": "https://example.com/path", 
+  "target": "new-tab" 
+}
+```
 
 ### `reportInitException`
 {@link "History Messages".ReportInitExceptionNotification}
