@@ -1,13 +1,11 @@
-import { Fragment, h } from 'preact';
+import { h } from 'preact';
 import styles from './App.module.css';
-import { useTypedTranslation } from '../types.js';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { Header } from './Header.js';
 import { useSignal } from '@preact/signals';
 import { Results } from './Results.js';
 
 export function App() {
-    const { t } = useTypedTranslation();
     const { isDarkMode } = useEnv();
     const results = useSignal({
         info: {
@@ -25,7 +23,7 @@ export function App() {
                 <h1 class={styles.pageTitle}>History</h1>
             </aside>
             <main class={styles.main}>
-                <Results results={results} />
+                <Results />
             </main>
         </div>
     );
