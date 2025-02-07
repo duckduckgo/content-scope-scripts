@@ -85,6 +85,14 @@ export class HistoryService {
         this.query.triggerFetch(query);
         // console.log('next query', query);
     }
+
+    /**
+     * @param {string} url
+     * @param {import('../types/history.js').OpenTarget} target
+     */
+    openUrl(url, target) {
+        this.history.messaging.notify('open', { url, target });
+    }
 }
 
 /**

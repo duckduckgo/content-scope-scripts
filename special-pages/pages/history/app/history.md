@@ -99,6 +99,19 @@ Response, note: always return the same query I sent:
 
 ## Notifications
 
+### `open`
+- {@link "History Messages".OpenNotification}
+- Sent when a user clicks a link, sends {@link "History Messages".OpenNotification}
+- Target is one of {@link "History Messages".OpenTarget}
+
+example payload
+```json
+{ 
+  "url": "https://example.com/path", 
+  "target": "same-tab" 
+}
+```
+
 ### `reportInitException`
 {@link "History Messages".ReportInitExceptionNotification}
 

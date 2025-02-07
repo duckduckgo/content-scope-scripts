@@ -29,7 +29,9 @@ export const Item = memo(
                     </div>
                 )}
                 <div class={cn(styles.row, kind === END_KIND && styles.last)} tabindex={0}>
-                    <span class={styles.entryTitle}>{title}</span>
+                    <a href={url} data-url={url} class={styles.entryLink}>
+                        {title}
+                    </a>
                     <span class={styles.url}>{url}</span>
                     <span class={styles.time}>{dateTimeOfDay}</span>
                     <button class={styles.dots} data-row-menu={id}>

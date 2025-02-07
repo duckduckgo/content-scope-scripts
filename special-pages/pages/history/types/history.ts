@@ -6,6 +6,7 @@
  * @module History Messages
  */
 
+export type OpenTarget = "same-tab" | "new-tab" | "new-window";
 export type Range =
   | "all"
   | "today"
@@ -25,8 +26,22 @@ export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
  * Requests, Notifications and Subscriptions from the History feature
  */
 export interface HistoryMessages {
-  notifications: ReportInitExceptionNotification | ReportPageExceptionNotification;
+  notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
   requests: GetRangesRequest | InitialSetupRequest | QueryRequest;
+}
+/**
+ * Generated from @see "../messages/open.notify.json"
+ */
+export interface OpenNotification {
+  method: "open";
+  params: HistoryOpenAction;
+}
+export interface HistoryOpenAction {
+  /**
+   * The url to open
+   */
+  url: string;
+  target: OpenTarget;
 }
 /**
  * Generated from @see "../messages/reportInitException.notify.json"

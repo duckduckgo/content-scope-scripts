@@ -86,4 +86,9 @@ test.describe('history', () => {
         // ensure it's a full reset
         await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
     });
+    test('opening links', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(5);
+        await hp.openPage({});
+        await hp.opensLinks();
+    });
 });

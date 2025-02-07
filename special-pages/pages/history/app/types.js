@@ -19,3 +19,7 @@ export const MessagingContext = createContext(/** @type {import("../src/index.js
 export const useMessaging = () => useContext(MessagingContext);
 export const SettingsContext = createContext(new Settings({ platform: { name: 'macos' } }));
 export const useSettings = () => useContext(SettingsContext);
+
+export function usePlatformName() {
+    return useContext(SettingsContext).platform.name;
+}

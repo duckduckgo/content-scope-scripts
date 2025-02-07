@@ -3,6 +3,8 @@ import { useContext } from 'preact/hooks';
 import { useSignalEffect } from '@preact/signals';
 import { paramsToQuery } from './history.service.js';
 import { OVERSCAN_AMOUNT } from './constants.js';
+import { usePlatformName } from './types.js';
+import { eventToTarget } from '../../../shared/handlers.js';
 
 // Create the context
 const HistoryServiceContext = createContext({
@@ -20,6 +22,7 @@ const HistoryServiceContext = createContext({
  * @param {import("preact").ComponentChild} props.children - The child components that will consume the history service context.
  */
 export function HistoryServiceProvider({ service, initial, children }) {
+    const platFormName = usePlatformName();
     useSignalEffect(() => {
         // Add a listener for the 'search-commit' event
         window.addEventListener('search-commit', (/** @type {CustomEvent<{params: URLSearchParams}>} */ event) => {
@@ -57,30 +60,55 @@ export function HistoryServiceProvider({ service, initial, children }) {
         function handler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
             const btn = /** @type {HTMLButtonElement|null} */ (event.target.closest('button'));
-            if (btn?.dataset.titleMenu) {
-                event.stopImmediatePropagation();
+            const anchor = /** @type {HTMLButtonElement|null} */ (event.target.closest('a[href][data-url]'));
+            if (btn) {
+                if (btn?.dataset.titleMenu) {
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    return confirm(`todo: title menu for ${btn.dataset.titleMenu}`);
+                }
+                if (btn?.dataset.rowMenu) {
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    return confirm(`todo: row menu for ${btn.dataset.rowMenu}`);
+                }
+                if (btn?.dataset.deleteRange) {
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    return confirm(`todo: delete range for ${btn.dataset.deleteRange}`);
+                }
+                if (btn?.dataset.deleteAll) {
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    return confirm(`todo: delete all`);
+                }
+            } else if (anchor) {
+                const url = anchor.dataset.url;
+                if (!url) return;
                 event.preventDefault();
-                return confirm(`todo: title menu for ${btn.dataset.titleMenu}`);
-            }
-            if (btn?.dataset.rowMenu) {
                 event.stopImmediatePropagation();
-                event.preventDefault();
-                return confirm(`todo: row menu for ${btn.dataset.rowMenu}`);
-            }
-            if (btn?.dataset.deleteRange) {
-                event.stopImmediatePropagation();
-                event.preventDefault();
-                return confirm(`todo: delete range for ${btn.dataset.deleteRange}`);
-            }
-            if (btn?.dataset.deleteAll) {
-                event.stopImmediatePropagation();
-                event.preventDefault();
-                return confirm(`todo: delete all`);
+                const target = eventToTarget(event, platFormName);
+                service.openUrl(url, target);
+                return;
             }
             return null;
         }
         document.addEventListener('click', handler);
+
+        const handleAuxClick = (event) => {
+            const anchor = /** @type {HTMLButtonElement|null} */ (event.target.closest('a[href][data-url]'));
+            const url = anchor?.dataset.url;
+            if (anchor && url && event.button === 1) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                const target = eventToTarget(event, platFormName);
+                service.openUrl(url, target);
+            }
+        };
+        document.addEventListener('auxclick', handleAuxClick);
+
         return () => {
+            document.removeEventListener('auxclick', handleAuxClick);
             document.removeEventListener('click', handler);
         };
     });

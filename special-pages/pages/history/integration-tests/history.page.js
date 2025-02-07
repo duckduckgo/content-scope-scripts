@@ -176,4 +176,38 @@ export class HistoryTestPage {
         });
         expect(scrollPosition).toBeTruthy();
     }
+
+    async opensLinks() {
+        const { page } = this;
+        const link = page.locator('a[href][data-url]').nth(0);
+        await link.click();
+        await link.click({ modifiers: ['Meta'] });
+        await link.click({ modifiers: ['Shift'] });
+        await link.click({ button: 'middle' });
+        await this._opensMainLink();
+    }
+    async _opensMainLink() {
+        const calls = await this.mocks.waitForCallCount({ method: 'open', count: 3 });
+        const url = 'https://www.youtube.com/watch?v=75Mw8r5gW8E';
+
+        expect(calls[0].payload.params).toStrictEqual({
+            url,
+            target: 'same-tab',
+        });
+
+        expect(calls[1].payload.params).toStrictEqual({
+            url,
+            target: 'new-tab',
+        });
+
+        expect(calls[2].payload.params).toStrictEqual({
+            url,
+            target: 'new-window',
+        });
+
+        expect(calls[3].payload.params).toStrictEqual({
+            url,
+            target: 'new-window',
+        });
+    }
 }

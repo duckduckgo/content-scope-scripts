@@ -43,13 +43,15 @@
     }
 }
 
-.entryTitle {
+.entryLink {
     white-space: nowrap;
     font-weight: 510;
     flex-shrink: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-decoration: none;
+    color: inherit;
 }
 
 .url {
