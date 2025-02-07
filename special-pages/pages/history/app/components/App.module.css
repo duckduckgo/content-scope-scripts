@@ -1,6 +1,6 @@
 @import url("../../../../shared/styles/variables.css");
 @import url("../../styles/base.css");
-@import url("../../styles/theme.css");
+@import url("../../styles/history-theme.css");
 
 body {
     font-size: var(--body-font-size);
@@ -11,19 +11,18 @@ body {
 .layout {
     display: grid;
     grid-template-columns: 250px 1fr;
-    grid-template-rows: 64px auto;
+    grid-template-rows: max-content 1fr;
     grid-template-areas:
             'aside header'
             'aside main';
     overflow: hidden;
     height: 100vh;
+    background-color: var(--history-background-color);
 }
 .header {
     grid-area: header;
     padding-left: 48px;
     padding-right: 76px;
-    padding-top: 16px;
-    padding-bottom: 16px;
 }
 .search {
     justify-self: flex-end;
@@ -33,15 +32,10 @@ body {
     padding: 10px 16px;
     border-right: 1px solid var(--history-surface-border-color);
 }
-.pageTitle {
-    font-size: var(--title-font-size);
-    font-weight: var(--title-font-weight);
-    line-height: var(--title-line-height);
-    padding: 10px 6px 10px 10px;
-}
 .main {
     grid-area: main;
     overflow: auto;
     padding-left: 48px;
     padding-right: 76px;
+    padding-top: 24px;
 }

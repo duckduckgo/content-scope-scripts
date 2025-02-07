@@ -1,17 +1,24 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["term", "offset", "limit"],
+  "required": [
+    "query",
+    "offset",
+    "limit"
+  ],
   "title": "History Query",
   "properties": {
-    "term": {
-      "type": "string"
+    "query": {
+      "$ref": "types/query.json"
     },
     "offset": {
+      "description": "The starting point of records to query (zero-indexed); used for paging through large datasets",
       "type": "number"
     },
     "limit": {
+      "description": "Maximum number of records to return",
       "type": "number"
     }
   }
 }
+

@@ -8,8 +8,11 @@ import enStrings from '../public/locales/en/history.json';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { callWithRetry } from '../../../shared/call-with-retry.js';
 
-import '../../../shared/styles/global.css';
-import { MessagingContext } from './types.js'; // global styles
+import { MessagingContext, SettingsContext } from './types.js';
+import { HistoryService, paramsToQuery } from './history.service.js';
+import { HistoryServiceProvider } from './HistoryProvider.js';
+import { SearchProvider } from './components/SearchForm.js';
+import { Settings } from './Settings.js'; // global styles
 
 /**
  * @param {Element} root
@@ -25,8 +28,6 @@ export async function init(root, messaging, baseEnvironment) {
 
     const init = result.value;
 
-    console.log('initialSetup', init);
-
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
         .withEnv(init.env)
@@ -34,6 +35,17 @@ export async function init(root, messaging, baseEnvironment) {
         .withLocale(baseEnvironment.urlParams.get('locale'))
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
         .withDisplay(baseEnvironment.urlParams.get('display'));
+
+    // create app-specific settings
+    const settings = new Settings({})
+        .withPlatformName(baseEnvironment.injectName)
+        .withPlatformName(init.platform?.name)
+        .withPlatformName(baseEnvironment.urlParams.get('platform'))
+        .withDebounce(baseEnvironment.urlParams.get('debounce'));
+
+    console.log('initialSetup', init);
+    console.log('environment', environment);
+    console.log('settings', settings);
 
     const strings =
         environment.locale === 'en'
@@ -50,13 +62,23 @@ export async function init(root, messaging, baseEnvironment) {
                       return enStrings;
                   });
 
+    const service = new HistoryService(messaging);
+    const query = paramsToQuery(environment.urlParams);
+    const initial = await service.getInitial(query);
+
     if (environment.display === 'app') {
         render(
             <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
                 <UpdateEnvironment search={window.location.search} />
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingContext.Provider value={messaging}>
-                        <App />
+                        <SettingsContext.Provider value={settings}>
+                            <SearchProvider query={query.query}>
+                                <HistoryServiceProvider service={service} initial={initial}>
+                                    <App />
+                                </HistoryServiceProvider>
+                            </SearchProvider>
+                        </SettingsContext.Provider>
                     </MessagingContext.Provider>
                 </TranslationProvider>
             </EnvironmentProvider>,

@@ -930,16 +930,14 @@ body[data-animate-background=true] {
 .Activity_title {
   font-size: var(--title-3-em-font-size);
   font-weight: var(--title-3-em-font-weight);
-  line-height: var(--title-3-em-line-height);
-  word-break: break-all;
-  overflow-wrap: break-word;
-  white-space: nowrap;
   text-decoration: none;
   color: var(--ntp-text-normal);
   height: 35px;
   display: flex;
   align-items: center;
+  line-height: 1;
   gap: 4px;
+  min-width: 0;
 }
 .Activity_title:is(:hover, :focus-visible) {
   color: var(--ntp-color-primary);

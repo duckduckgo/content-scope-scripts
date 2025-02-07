@@ -29578,6 +29578,23 @@
         }
       ]
     },
+    longTitle: {
+      activity: [
+        {
+          favicon: { src: "selco-icon.png" },
+          url: "https://deploy-preview-1468--content-scope-scripts.netlify.app",
+          title: "deploy-preview-1468--content-scope-scripts.netlify.app",
+          etldPlusOne: "deploy-preview-1468--content-scope-scripts.netlify.app",
+          favorite: false,
+          trackersFound: false,
+          trackingStatus: {
+            trackerCompanies: [],
+            totalCount: 0
+          },
+          history: []
+        }
+      ]
+    },
     few: {
       activity: [
         {

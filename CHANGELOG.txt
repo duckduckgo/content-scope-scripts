@@ -1,1 +1,4 @@
-- Malicious site protection - iOS Ship review feedback (#1443)
+- history: documenting the data model (#1468)
+- history: create specialized list component/hooks (#1470)
+- build(deps-dev): bump typescript-eslint from 8.21.0 to 8.23.0 (#1460)
+- build(deps-dev): bump the typescript group across 1 directory with 2 updates (#1457)

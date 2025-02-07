@@ -1,6 +1,62 @@
 {
+  "page_title": {
+    "title": "History",
+    "note": ""
+  },
   "search": {
     "title": "Search",
     "note": ""
+  },
+  "search_your_history": {
+    "title": "Search your history",
+    "note": ""
+  },
+  "range_all": {
+    "title": "All",
+    "note": ""
+  },
+  "range_today": {
+    "title": "Today",
+    "note":  ""
+  },
+  "range_yesterday":  {
+    "title": "Yesterday",
+    "note":  ""
+  },
+  "range_monday": {
+    "title": "Monday",
+    "note":  ""
+  },
+  "range_tuesday":  {
+    "title": "Tuesday",
+    "note":  ""
+  },
+  "range_wednesday": {
+    "title": "Wednesday",
+    "note":  ""
+  },
+  "range_thursday":  {
+    "title": "Thursday",
+    "note":  ""
+  },
+  "range_friday": {
+    "title": "Friday",
+    "note":  ""
+  },
+  "range_saturday":  {
+    "title": "Saturday",
+    "note":  ""
+  },
+  "range_sunday": {
+    "title": "Sunday",
+    "note":  ""
+  },
+  "range_recentlyOpened":  {
+    "title": "Recently Closed Tabs",
+    "note":  ""
+  },
+  "range_older":  {
+    "title": "Older",
+    "note":  ""
   }
 }
