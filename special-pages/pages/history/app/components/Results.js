@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { OVERSCAN_AMOUNT } from '../constants.js';
 import { Item } from './Item.js';
-import styles from './VirtualizedHistoryList.module.css';
+import styles from './VirtualizedList.module.css';
 import { VisibleItems } from './VirtualizedList.js';
 
 /**
