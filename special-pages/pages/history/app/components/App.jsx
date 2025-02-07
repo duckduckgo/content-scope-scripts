@@ -1,4 +1,4 @@
-import { Fragment, h } from 'preact';
+import { h } from 'preact';
 import styles from './App.module.css';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { Header } from './Header.js';
@@ -59,7 +59,7 @@ export function App() {
                 <Sidebar ranges={initial.ranges.ranges} />
             </aside>
             <main class={styles.main} ref={containerRef} data-main-scroller data-term={term}>
-                <Results results={results} term={term} containerRef={containerRef} />
+                <Results results={results} />
             </main>
         </div>
     );
