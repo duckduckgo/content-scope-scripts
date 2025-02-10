@@ -210,4 +210,60 @@ export class HistoryTestPage {
             target: 'new-window',
         });
     }
+
+    /**
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async deletesHistoryForToday(resp = { action: 'delete' }) {
+        const { page } = this;
+        await page.getByLabel('Show history for today').hover();
+        if (resp.action === 'delete') {
+            page.on('dialog', (dialog) => dialog.accept());
+        } else {
+            page.on('dialog', (dialog) => dialog.dismiss());
+        }
+        await page.getByLabel('Delete history for today').click();
+        const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ range: 'today' });
+    }
+
+    /**
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async deletesHistoryForYesterday(resp = { action: 'delete' }) {
+        const { page } = this;
+        await page.getByLabel('Show history for yesterday').hover();
+        if (resp.action === 'delete') {
+            page.on('dialog', (dialog) => dialog.accept());
+        } else {
+            page.on('dialog', (dialog) => dialog.dismiss());
+        }
+        await page.getByLabel('Delete history for yesterday').click();
+    }
+
+    async sideBarItemWasRemoved(label) {
+        const { page } = this;
+        await expect(page.getByLabel(label)).not.toBeVisible({ timeout: 1000 });
+    }
+
+    async sidebarHasItem(label) {
+        const { page } = this;
+        await expect(page.getByLabel(label)).toBeVisible({ timeout: 1000 });
+    }
+
+    /**
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async deletesAllHistoryFromHeader(resp) {
+        const { page } = this;
+        if (resp.action === 'delete') {
+            page.on('dialog', (dialog) => dialog.accept());
+        } else {
+            page.on('dialog', (dialog) => dialog.dismiss());
+        }
+        await page.getByRole('button', { name: 'Delete All', exact: true }).click();
+        const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ range: 'all' });
+        await expect(page.getByRole('heading', { level: 2, name: 'Nothing to see here!' })).toBeVisible();
+    }
 }

@@ -1,7 +1,7 @@
 import { h, createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import { useSignalEffect } from '@preact/signals';
-import { paramsToQuery } from './history.service.js';
+import { paramsToQuery, toRange } from './history.service.js';
 import { OVERSCAN_AMOUNT } from './constants.js';
 import { usePlatformName } from './types.js';
 import { eventToTarget } from '../../../shared/handlers.js';
@@ -75,12 +75,17 @@ export function HistoryServiceProvider({ service, initial, children }) {
                 if (btn?.dataset.deleteRange) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
-                    return confirm(`todo: delete range for ${btn.dataset.deleteRange}`);
+                    const range = toRange(btn.value);
+                    if (range) {
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        service.deleteRange(range).catch(console.error);
+                    }
                 }
                 if (btn?.dataset.deleteAll) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
-                    return confirm(`todo: delete all`);
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    service.deleteRange('all').catch(console.error);
                 }
             } else if (anchor) {
                 const url = anchor.dataset.url;
