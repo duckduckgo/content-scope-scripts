@@ -105,7 +105,9 @@ export function paramsToQuery(params) {
     const range = toRange(params.get('range'));
     const domain = params.get('domain');
 
-    if (range) {
+    if (range === 'all') {
+        query = { term: '' };
+    } else if (range) {
         query = { range };
     } else if (domain) {
         query = { domain };

@@ -77,7 +77,7 @@ export function mockTransport() {
                     return Promise.resolve(response);
                 }
                 case 'query': {
-                    console.log('📤 [outoging]: ', JSON.stringify(msg.params));
+                    console.log('📤 [outgoing]: ', JSON.stringify(msg.params));
                     if ('term' in msg.params.query) {
                         const { term } = msg.params.query;
                         if (term !== '') {
