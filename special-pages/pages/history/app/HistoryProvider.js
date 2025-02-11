@@ -61,12 +61,14 @@ export function HistoryServiceProvider({ service, initial, children }) {
             if (!(event.target instanceof Element)) return;
             const btn = /** @type {HTMLButtonElement|null} */ (event.target.closest('button'));
             const anchor = /** @type {HTMLButtonElement|null} */ (event.target.closest('a[href][data-url]'));
+            if (btn?.dataset.titleMenu) {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.menuTitle(btn.value).catch(console.error);
+                return;
+            }
             if (btn) {
-                if (btn?.dataset.titleMenu) {
-                    event.stopImmediatePropagation();
-                    event.preventDefault();
-                    return confirm(`todo: title menu for ${btn.dataset.titleMenu}`);
-                }
                 if (btn?.dataset.rowMenu) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
@@ -112,9 +114,35 @@ export function HistoryServiceProvider({ service, initial, children }) {
         };
         document.addEventListener('auxclick', handleAuxClick);
 
+        function contextMenu(event) {
+            const target = /** @type {HTMLElement|null} */ (event.target);
+            if (!(target instanceof HTMLElement)) return;
+
+            const actions = {
+                '[data-section-title]': (elem) => elem.querySelector('button')?.value,
+            };
+
+            for (const [selector, valueFn] of Object.entries(actions)) {
+                const match = event.target.closest(selector);
+                if (match) {
+                    const value = valueFn(match);
+                    if (value) {
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        service.menuTitle(value).catch(console.error);
+                    }
+                    break;
+                }
+            }
+        }
+
+        document.addEventListener('contextmenu', contextMenu);
+
         return () => {
             document.removeEventListener('auxclick', handleAuxClick);
             document.removeEventListener('click', handler);
+            document.removeEventListener('contextmenu', contextMenu);
         };
     });
     return <HistoryServiceContext.Provider value={{ service, initial }}>{children}</HistoryServiceContext.Provider>;

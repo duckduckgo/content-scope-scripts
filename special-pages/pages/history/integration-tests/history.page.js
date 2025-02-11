@@ -266,4 +266,40 @@ export class HistoryTestPage {
         expect(calls[0].payload.params).toStrictEqual({ range: 'all' });
         await expect(page.getByRole('heading', { level: 2, name: 'Nothing to see here!' })).toBeVisible();
     }
+
+    /**
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async deletesFromSectionTitle(resp) {
+        const { page } = this;
+
+        // Handle dialog interaction based on response action
+        if (resp.action === 'delete') {
+            page.on('dialog', (dialog) => {
+                return dialog.accept();
+            });
+        } else {
+            page.on('dialog', (dialog) => dialog.dismiss());
+        }
+
+        // Hover over the "Today" section and open the menu
+        const title = page.getByRole('list').getByText('Today');
+        await title.hover();
+        await title.getByLabel('Show menu for Today').click();
+
+        // Verify the call to "menu_title" with expected parameters
+        const calls = await this.mocks.waitForCallCount({ method: 'menu_title', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ dateRelativeDay: 'Today' });
+
+        // verify the section is gone
+        await expect(title.getByLabel('Show menu for Today')).not.toBeVisible();
+    }
+
+    async rightClicksSectionTitle() {
+        const { page } = this;
+        const title = page.getByRole('list').getByText('Today');
+        await title.click({ button: 'right' });
+        const calls = await this.mocks.waitForCallCount({ method: 'menu_title', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ dateRelativeDay: 'Today' });
+    }
 }

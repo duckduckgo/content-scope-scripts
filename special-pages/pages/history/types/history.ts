@@ -19,6 +19,7 @@ export type Range =
   | "saturday"
   | "sunday"
   | "older";
+export type ActionResponse = (DeleteAction | NoneAction) & string;
 /**
  * Confirms the user deleted this
  */
@@ -27,6 +28,10 @@ export type DeleteAction = "delete";
  * The user cancelled the action, or did not agree to it
  */
 export type NoneAction = "none";
+/**
+ * This value matches the section headings
+ */
+export type RelativeDay = string;
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
 
 /**
@@ -34,7 +39,7 @@ export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
  */
 export interface HistoryMessages {
   notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
-  requests: DeleteRangeRequest | GetRangesRequest | InitialSetupRequest | QueryRequest;
+  requests: DeleteRangeRequest | GetRangesRequest | InitialSetupRequest | MenuTitleRequest | QueryRequest;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -82,7 +87,7 @@ export interface DeleteRangeParams {
   range: Range;
 }
 export interface DeleteRangeResponse {
-  action: DeleteAction | NoneAction;
+  action: ActionResponse;
 }
 /**
  * Generated from @see "../messages/getRanges.request.json"
@@ -107,6 +112,20 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
+}
+/**
+ * Generated from @see "../messages/menu_title.request.json"
+ */
+export interface MenuTitleRequest {
+  method: "menu_title";
+  params: MenuTitleParams;
+  result: MenuTitleResponse;
+}
+export interface MenuTitleParams {
+  dateRelativeDay: RelativeDay;
+}
+export interface MenuTitleResponse {
+  action: ActionResponse;
 }
 /**
  * Generated from @see "../messages/query.request.json"
