@@ -119,13 +119,13 @@ Response, note: always return the same query I sent:
 ```
 
 ### `title_menu`
-{@link "History Messages".MenuTitleRequest}
+{@link "History Messages".TitleMenuRequest}
 
 Sent when a right-click is issued on a section title (or when the three-dots button is clicked)  
 
 **Types:**
-- Parameters: {@link "History Messages".MenuTitleParams}
-- Response: {@link "History Messages".MenuTitleResponse}
+- Parameters: {@link "History Messages".TitleMenuParams}
+- Response: {@link "History Messages".TitleMenuResponse}
 
 **params**
 ```json
