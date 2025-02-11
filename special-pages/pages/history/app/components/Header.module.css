@@ -54,4 +54,9 @@
     border: 1px solid var(--history-surface-border-color);
     padding-left: 9px;
     padding-right: 9px;
+    background: inherit;
+    color: inherit;
+    &:focus {
+        outline: none;
+    }
 }

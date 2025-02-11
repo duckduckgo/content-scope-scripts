@@ -1,6 +1,6 @@
 import styles from './Header.module.css';
 import { createContext, h } from 'preact';
-import { useSettings, useTypedTranslation } from '../types.js';
+import { usePlatformName, useSettings, useTypedTranslation } from '../types.js';
 import { signal, useComputed, useSignal, useSignalEffect } from '@preact/signals';
 import { useContext } from 'preact/hooks';
 import { toRange } from '../history.service.js';
@@ -54,6 +54,7 @@ export function SearchProvider({ children, query = { term: '' } }) {
     const derivedTerm = useComputed(() => searchState.value.term);
     const derivedRange = useComputed(() => searchState.value.range);
     const settings = useSettings();
+    const platformName = usePlatformName();
     // todo: domain search
     // const derivedDomain = useComputed(() => searchState.value.domain);
     useSignalEffect(() => {
@@ -113,7 +114,24 @@ export function SearchProvider({ children, query = { term: '' } }) {
             }
         });
 
+        const keydown = (e) => {
+            const isMacOS = platformName === 'macos';
+            const isFindShortcutMacOS = isMacOS && e.metaKey && e.key === 'f';
+            const isFindShortcutWindows = !isMacOS && e.ctrlKey && e.key === 'f';
+
+            if (isFindShortcutMacOS || isFindShortcutWindows) {
+                e.preventDefault();
+                const searchInput = /** @type {HTMLInputElement|null} */ (document.querySelector(`input[type="search"]`));
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }
+        };
+
+        document.addEventListener('keydown', keydown);
+
         return () => {
+            document.removeEventListener('keydown', keydown);
             controller.abort();
         };
     });
