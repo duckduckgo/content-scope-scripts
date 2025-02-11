@@ -58,6 +58,18 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
 
             switch (msg.method) {
+                case 'entries_menu': {
+                    console.log('📤 [entries_menu]: ', JSON.stringify(msg.params));
+                    // prettier-ignore
+                    const lines = [
+                        `entries_menu: ${JSON.stringify(msg.params)}`,
+                        `To simulate deleting these items, press confirm`
+                    ].join('\n');
+                    if (confirm(lines)) {
+                        return Promise.resolve({ action: 'delete' });
+                    }
+                    return Promise.resolve({ action: 'none' });
+                }
                 case 'title_menu': {
                     console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
                     // prettier-ignore

@@ -118,4 +118,9 @@ test.describe('history', () => {
         await hp.openPage({});
         await hp.rightClicksSectionTitle();
     });
+    test('3 dots menu on history entry', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesFromHistoryEntry({ action: 'delete' });
+    });
 });

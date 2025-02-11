@@ -18,8 +18,9 @@ export const Item = memo(
      * @param {number} props.kind - The kind or type of the item that determines its visual style.
      * @param {string} props.dateRelativeDay - The relative day information to display (shown when kind is equal to TITLE_KIND).
      * @param {string} props.dateTimeOfDay - the time of day, like 11.00am.
+     * @param {number} props.index - original index
      */
-    function Item({ id, url, domain, title, kind, dateRelativeDay, dateTimeOfDay }) {
+    function Item({ id, url, domain, title, kind, dateRelativeDay, dateTimeOfDay, index }) {
         const { t } = useTypedTranslation();
         return (
             <Fragment>
@@ -36,13 +37,13 @@ export const Item = memo(
                         </button>
                     </div>
                 )}
-                <div class={cn(styles.row, kind === END_KIND && styles.last)} tabindex={0}>
+                <div class={cn(styles.row, kind === END_KIND && styles.last)} tabindex={0} data-history-entry={id}>
                     <a href={url} data-url={url} class={styles.entryLink}>
                         {title}
                     </a>
                     <span class={styles.domain}>{domain}</span>
                     <span class={styles.time}>{dateTimeOfDay}</span>
-                    <button class={styles.dots} data-row-menu={id}>
+                    <button class={styles.dots} data-row-menu data-index={index} value={id}>
                         <Dots />
                     </button>
                 </div>

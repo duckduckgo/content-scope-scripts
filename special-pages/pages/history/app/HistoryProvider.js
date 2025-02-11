@@ -72,7 +72,9 @@ export function HistoryServiceProvider({ service, initial, children }) {
                 if (btn?.dataset.rowMenu) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
-                    return confirm(`todo: row menu for ${btn.dataset.rowMenu}`);
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    service.entriesMenu([btn.value], [Number(btn.dataset.index)]).catch(console.error);
+                    return;
                 }
                 if (btn?.dataset.deleteRange) {
                     event.stopImmediatePropagation();
@@ -120,6 +122,7 @@ export function HistoryServiceProvider({ service, initial, children }) {
 
             const actions = {
                 '[data-section-title]': (elem) => elem.querySelector('button')?.value,
+                '[data-history-entry]': (elem) => elem.querySelector('button')?.value,
             };
 
             for (const [selector, valueFn] of Object.entries(actions)) {
@@ -129,8 +132,13 @@ export function HistoryServiceProvider({ service, initial, children }) {
                     if (value) {
                         event.preventDefault();
                         event.stopImmediatePropagation();
-                        // eslint-disable-next-line promise/prefer-await-to-then
-                        service.menuTitle(value).catch(console.error);
+                        if (match.dataset.sectionTitle) {
+                            // eslint-disable-next-line promise/prefer-await-to-then
+                            service.menuTitle(value).catch(console.error);
+                        } else if (match.dataset.historyEntry) {
+                            // eslint-disable-next-line promise/prefer-await-to-then
+                            service.entriesMenu([value], [Number(match.dataset.index)]).catch(console.error);
+                        }
                     }
                     break;
                 }

@@ -39,7 +39,12 @@ export type RelativeDay = string;
  */
 export interface HistoryMessages {
   notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
-  requests: DeleteRangeRequest | GetRangesRequest | InitialSetupRequest | QueryRequest | TitleMenuRequest;
+  requests:
+    | DeleteRangeRequest
+    | EntriesMenuRequest
+    | GetRangesRequest
+    | InitialSetupRequest
+    | QueryRequest | TitleMenuRequest;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -87,6 +92,20 @@ export interface DeleteRangeParams {
   range: Range;
 }
 export interface DeleteRangeResponse {
+  action: ActionResponse;
+}
+/**
+ * Generated from @see "../messages/entries_menu.request.json"
+ */
+export interface EntriesMenuRequest {
+  method: "entries_menu";
+  params: EntriesMenuParams;
+  result: EntriesMenuResponse;
+}
+export interface EntriesMenuParams {
+  ids: string[];
+}
+export interface EntriesMenuResponse {
   action: ActionResponse;
 }
 /**
