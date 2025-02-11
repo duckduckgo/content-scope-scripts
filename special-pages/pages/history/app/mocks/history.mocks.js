@@ -1,3 +1,5 @@
+import { HistoryService } from '../history.service.js';
+
 /**
  * @type {Record<string, import("../../types/history").HistoryQueryResponse>}
  */
@@ -100,7 +102,7 @@ export function generateSampleData({ count, offset }) {
  * @param {number} chunkSize
  * @return {import("../../types/history").HistoryQueryResponse}
  */
-export function asResponse(items, offset, chunkSize = 150) {
+export function asResponse(items, offset, chunkSize = HistoryService.CHUNK_SIZE) {
     // console.log(items.slice(offset, chunkSize));
     const sliced = items.slice(offset, offset + chunkSize);
     const finished = sliced.length < chunkSize;

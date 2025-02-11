@@ -10,6 +10,7 @@ import { Service } from '../../new-tab/app/service.js';
  */
 
 export class HistoryService {
+    static CHUNK_SIZE = 150;
     /**
      * @param {import("../src/index.js").HistoryPage} history
      */
@@ -23,13 +24,15 @@ export class HistoryService {
                     return { info: resp.info, results: resp.value };
                 });
             },
-        }).withUpdater((old, next) => {
+        }).withUpdater((old, next, trigger) => {
+            if (trigger === 'manual') {
+                // console.log('manual trigger, always accepting next:', next);
+                return next;
+            }
             if (eq(old.info.query, next.info.query)) {
+                // console.log('Query did match', [trigger], old.info.query);
                 const results = old.results.concat(next.results);
-                console.log('next length', results.length);
-                return { info: next.info, results: old.results.concat(next.results) };
-            } else {
-                console.log('saving new data', next);
+                return { info: next.info, results };
             }
             return next;
         });
@@ -59,7 +62,6 @@ export class HistoryService {
     onResults(cb) {
         return this.query.onData(({ data, source }) => cb(data));
     }
-
     /**
      * @param {import('../types/history.js').HistoryQuery} query
      */
@@ -78,12 +80,11 @@ export class HistoryService {
         /** @type {import('../types/history.js').HistoryQuery} */
         const query = {
             query: lastquery,
-            limit: 150,
+            limit: HistoryService.CHUNK_SIZE,
             offset: this.query.data.results.length,
         };
 
         this.query.triggerFetch(query);
-        // console.log('next query', query);
     }
 
     /**
@@ -92,6 +93,54 @@ export class HistoryService {
      */
     openUrl(url, target) {
         this.history.messaging.notify('open', { url, target });
+    }
+
+    /**
+     * @param {(data: RangeData) => void} cb
+     */
+    onRanges(cb) {
+        return this.ranges.onData(({ data, source }) => cb(data));
+    }
+
+    /**
+     * @param {Range} range
+     */
+    deleteRange(range) {
+        return (
+            this.history.messaging
+                .request('deleteRange', { range })
+                // eslint-disable-next-line promise/prefer-await-to-then
+                .then((resp) => {
+                    if (resp.action === 'delete') {
+                        if (range === 'all') {
+                            this.ranges.update((_old) => {
+                                return {
+                                    ranges: ['all'],
+                                };
+                            });
+                            this.query.update((_old) => {
+                                /** @type {QueryData} */
+                                const query = {
+                                    info: {
+                                        query: { term: '' },
+                                        finished: true,
+                                    },
+                                    results: [],
+                                };
+                                return query;
+                            });
+                        } else {
+                            this.ranges.update((old) => {
+                                return {
+                                    ...old,
+                                    ranges: old.ranges.filter((x) => x !== range),
+                                };
+                            });
+                        }
+                    }
+                    return resp;
+                })
+        );
     }
 }
 
@@ -117,7 +166,7 @@ export function paramsToQuery(params) {
 
     return {
         query,
-        limit: 150,
+        limit: HistoryService.CHUNK_SIZE,
         offset: 0,
     };
 }

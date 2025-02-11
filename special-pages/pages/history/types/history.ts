@@ -18,8 +18,15 @@ export type Range =
   | "friday"
   | "saturday"
   | "sunday"
-  | "older"
-  | "recentlyOpened";
+  | "older";
+/**
+ * Confirms the user deleted this
+ */
+export type DeleteAction = "delete";
+/**
+ * The user cancelled the action, or did not agree to it
+ */
+export type NoneAction = "none";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
 
 /**
@@ -27,7 +34,7 @@ export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
  */
 export interface HistoryMessages {
   notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
-  requests: GetRangesRequest | InitialSetupRequest | QueryRequest;
+  requests: DeleteRangeRequest | GetRangesRequest | InitialSetupRequest | QueryRequest;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -62,6 +69,20 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/deleteRange.request.json"
+ */
+export interface DeleteRangeRequest {
+  method: "deleteRange";
+  params: DeleteRangeParams;
+  result: DeleteRangeResponse;
+}
+export interface DeleteRangeParams {
+  range: Range;
+}
+export interface DeleteRangeResponse {
+  action: DeleteAction | NoneAction;
 }
 /**
  * Generated from @see "../messages/getRanges.request.json"

@@ -58,6 +58,13 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
 
             switch (msg.method) {
+                case 'deleteRange': {
+                    console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
+                    if (confirm(`Delete range ${msg.params.range}?`)) {
+                        return Promise.resolve({ action: 'delete' });
+                    }
+                    return Promise.resolve({ action: 'none' });
+                }
                 case 'initialSetup': {
                     /** @type {import('../../types/history.ts').InitialSetupResponse} */
                     const initial = {
@@ -72,12 +79,12 @@ export function mockTransport() {
                 case 'getRanges': {
                     /** @type {import('../../types/history.ts').GetRangesResponse} */
                     const response = {
-                        ranges: ['all', 'today', 'yesterday', 'tuesday', 'monday', 'friday', 'older', 'recentlyOpened'],
+                        ranges: ['all', 'today', 'yesterday', 'tuesday', 'monday', 'friday', 'older'],
                     };
                     return Promise.resolve(response);
                 }
                 case 'query': {
-                    console.log('📤 [outgoing]: ', JSON.stringify(msg.params));
+                    console.log('📤 [query]: ', JSON.stringify(msg.params));
                     if ('term' in msg.params.query) {
                         const { term } = msg.params.query;
                         if (term !== '') {
