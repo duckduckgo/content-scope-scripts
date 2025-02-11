@@ -135,15 +135,15 @@ export class HistoryTestPage {
         expect(params).toStrictEqual({ query, limit: 150, offset });
     }
 
-    /**
-     * @param {string} linkText
-     */
-    async selectsRange(linkText) {
+    async selectsToday() {
         const { page } = this;
-        await page.getByRole('link', { name: linkText }).click();
+        await page.getByLabel('Show history for today').click();
     }
 
-    async onlyRangeIsShown(s) {}
+    async selectsAll() {
+        const { page } = this;
+        await page.getByLabel('Show all history').click();
+    }
 
     /**
      * @param {string} term
