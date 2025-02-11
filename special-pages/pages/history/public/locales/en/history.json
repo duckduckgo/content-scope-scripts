@@ -9,6 +9,10 @@
       }
     ]
   },
+  "menu_sectionTitle": {
+    "title": "Show menu for {relativeTime}",
+    "note": "Button text in a section heading to show a menu. The placeholder {relativeTime} will dynamically be replaced with values such as 'Today', 'Tomorrow', 'Yesterday', 'In 2 days', etc. For example, if {relativeTime} = 'Tomorrow', the title will become 'Show menu for Tomorrow'."
+  },
   "empty_title": {
     "title": "Nothing to see here!",
     "note": "Text shown where there are no remaining history items"
