@@ -58,11 +58,11 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
 
             switch (msg.method) {
-                case 'menu_title': {
+                case 'title_menu': {
                     console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
                     // prettier-ignore
                     const lines = [
-                        `menu_title: ${JSON.stringify(msg.params)}`,
+                        `title_menu: ${JSON.stringify(msg.params)}`,
                         `To simulate deleting this item, press confirm`
                     ].join('\n');
                     if (confirm(lines)) {

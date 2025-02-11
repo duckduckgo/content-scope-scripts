@@ -118,7 +118,7 @@ Response, note: always return the same query I sent:
 }
 ```
 
-### `menu_title`
+### `title_menu`
 {@link "History Messages".MenuTitleRequest}
 
 Sent when a right-click is issued on a section title (or when the three-dots button is clicked)  

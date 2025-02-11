@@ -106,7 +106,7 @@ export class HistoryService {
      * @param {string} dateRelativeDay
      */
     async menuTitle(dateRelativeDay) {
-        const response = await this.history.messaging.request('menu_title', { dateRelativeDay });
+        const response = await this.history.messaging.request('title_menu', { dateRelativeDay });
         if (response.action === 'none') return;
         this.query.update((old) => {
             // find the first item

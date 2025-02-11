@@ -28,18 +28,18 @@ export type DeleteAction = "delete";
  * The user cancelled the action, or did not agree to it
  */
 export type NoneAction = "none";
+export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
 /**
  * This value matches the section headings
  */
 export type RelativeDay = string;
-export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
 
 /**
  * Requests, Notifications and Subscriptions from the History feature
  */
 export interface HistoryMessages {
   notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
-  requests: DeleteRangeRequest | GetRangesRequest | InitialSetupRequest | MenuTitleRequest | QueryRequest;
+  requests: DeleteRangeRequest | GetRangesRequest | InitialSetupRequest | QueryRequest | TitleMenuRequest;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -114,20 +114,6 @@ export interface InitialSetupResponse {
   };
 }
 /**
- * Generated from @see "../messages/menu_title.request.json"
- */
-export interface MenuTitleRequest {
-  method: "menu_title";
-  params: MenuTitleParams;
-  result: MenuTitleResponse;
-}
-export interface MenuTitleParams {
-  dateRelativeDay: RelativeDay;
-}
-export interface MenuTitleResponse {
-  action: ActionResponse;
-}
-/**
  * Generated from @see "../messages/query.request.json"
  */
 export interface QueryRequest {
@@ -199,6 +185,20 @@ export interface HistoryItem {
    * A complete URL including query parameters.
    */
   url: string;
+}
+/**
+ * Generated from @see "../messages/title_menu.request.json"
+ */
+export interface TitleMenuRequest {
+  method: "title_menu";
+  params: TitleMenuParams;
+  result: TitleMenuResponse;
+}
+export interface TitleMenuParams {
+  dateRelativeDay: RelativeDay;
+}
+export interface TitleMenuResponse {
+  action: ActionResponse;
 }
 
 declare module "../src/index.js" {
