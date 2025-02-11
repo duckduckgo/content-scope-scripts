@@ -13,16 +13,8 @@
 }
 .nav {}
 .item {
-    height: 40px;
     position: relative;
-    display: flex;
-    align-items: center;
     border-radius: 8px;
-    padding-left: 16px;
-    text-decoration: none;
-    font-weight: 510;
-    color: var(--history-text-normal);
-    gap: 6px;
 
     &:hover, &:focus-visible {
         background: var(--color-black-at-6);
@@ -33,6 +25,17 @@
             background: var(--color-white-at-6);
         }
     }
+}
+.link {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    padding-left: 16px;
+    text-decoration: none;
+    font-weight: 510;
+    color: var(--history-text-normal);
+    gap: 6px;
 }
 
 .delete {
@@ -49,16 +52,18 @@
     border-bottom-left-radius: 0;
     background: transparent;
     border: none;
+    cursor: pointer;
     opacity: 0;
-    visibility: hidden;
     color: inherit;
 
-    &:hover {
+    &:hover, &:focus-visible {
         background: var(--color-black-at-9);
+        opacity: 1;
     }
     &:active {
         background: var(--color-black-at-12);
     }
+
     [data-theme="dark"] & {
         &:hover {
             background: var(--color-white-at-9);
@@ -70,7 +75,10 @@
 
     .item:hover & {
         opacity: 1;
-        visibility: visible;
+    }
+
+    .link:focus-visible + & {
+        opacity: 1;
     }
 
     svg path {

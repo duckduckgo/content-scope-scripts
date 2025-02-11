@@ -9,6 +9,18 @@
       }
     ]
   },
+  "menu_sectionTitle": {
+    "title": "Show menu for {relativeTime}",
+    "note": "Button text in a section heading to show a menu. The placeholder {relativeTime} will dynamically be replaced with values such as 'Today', 'Tomorrow', 'Yesterday', 'In 2 days', etc. For example, if {relativeTime} = 'Tomorrow', the title will become 'Show menu for Tomorrow'."
+  },
+  "empty_title": {
+    "title": "Nothing to see here!",
+    "note": "Text shown where there are no remaining history items"
+  },
+  "delete_all": {
+    "title": "Delete All",
+    "note": "Text for a button that deletes all items or entries."
+  },
   "page_title": {
     "title": "History",
     "note": ""
@@ -16,6 +28,30 @@
   "search": {
     "title": "Search",
     "note": ""
+  },
+  "show_history_all": {
+    "title": "Show all history",
+    "note": "Button text for an action that removes all filters and searches, and replaces the list will all history."
+  },
+  "show_history_older": {
+    "title": "Show older history",
+    "note": "Button that shows older history entries"
+  },
+  "show_history_for": {
+    "title": "Show history for {range}",
+    "note": "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Show history for Today'."
+  },
+  "delete_history_all": {
+    "title": "Delete all history",
+    "note": "Button text for an action that removes all history entries."
+  },
+  "delete_history_older": {
+    "title": "Delete older history",
+    "note": "Button that deletes older history entries."
+  },
+  "delete_history_for": {
+    "title": "Delete history for {range}",
+    "note": "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Delete history for Today'."
   },
   "search_your_history": {
     "title": "Search your history",
@@ -59,10 +95,6 @@
   },
   "range_sunday": {
     "title": "Sunday",
-    "note": ""
-  },
-  "range_recentlyOpened": {
-    "title": "Recently Closed Tabs",
     "note": ""
   },
   "range_older": {

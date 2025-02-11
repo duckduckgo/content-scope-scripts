@@ -58,6 +58,42 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
 
             switch (msg.method) {
+                case 'entries_menu': {
+                    console.log('📤 [entries_menu]: ', JSON.stringify(msg.params));
+                    // prettier-ignore
+                    const lines = [
+                        `entries_menu: ${JSON.stringify(msg.params)}`,
+                        `To simulate deleting these items, press confirm`
+                    ].join('\n');
+                    if (confirm(lines)) {
+                        return Promise.resolve({ action: 'delete' });
+                    }
+                    return Promise.resolve({ action: 'none' });
+                }
+                case 'title_menu': {
+                    console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
+                    // prettier-ignore
+                    const lines = [
+                        `title_menu: ${JSON.stringify(msg.params)}`,
+                        `To simulate deleting this item, press confirm`
+                    ].join('\n');
+                    if (confirm(lines)) {
+                        return Promise.resolve({ action: 'delete' });
+                    }
+                    return Promise.resolve({ action: 'none' });
+                }
+                case 'deleteRange': {
+                    console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
+                    // prettier-ignore
+                    const lines = [
+                        `deleteRange: ${JSON.stringify(msg.params)}`,
+                        `To simulate deleting this item, press confirm`
+                    ].join('\n',);
+                    if (confirm(lines)) {
+                        return Promise.resolve({ action: 'delete' });
+                    }
+                    return Promise.resolve({ action: 'none' });
+                }
                 case 'initialSetup': {
                     /** @type {import('../../types/history.ts').InitialSetupResponse} */
                     const initial = {
@@ -72,12 +108,12 @@ export function mockTransport() {
                 case 'getRanges': {
                     /** @type {import('../../types/history.ts').GetRangesResponse} */
                     const response = {
-                        ranges: ['all', 'today', 'yesterday', 'tuesday', 'monday', 'friday', 'older', 'recentlyOpened'],
+                        ranges: ['all', 'today', 'yesterday', 'tuesday', 'monday', 'friday', 'older'],
                     };
                     return Promise.resolve(response);
                 }
                 case 'query': {
-                    console.log('📤 [outoging]: ', JSON.stringify(msg.params));
+                    console.log('📤 [query]: ', JSON.stringify(msg.params));
                     if ('term' in msg.params.query) {
                         const { term } = msg.params.query;
                         if (term !== '') {

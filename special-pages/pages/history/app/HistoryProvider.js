@@ -1,7 +1,7 @@
 import { h, createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import { useSignalEffect } from '@preact/signals';
-import { paramsToQuery } from './history.service.js';
+import { paramsToQuery, toRange } from './history.service.js';
 import { OVERSCAN_AMOUNT } from './constants.js';
 import { usePlatformName } from './types.js';
 import { eventToTarget } from '../../../shared/handlers.js';
@@ -61,26 +61,35 @@ export function HistoryServiceProvider({ service, initial, children }) {
             if (!(event.target instanceof Element)) return;
             const btn = /** @type {HTMLButtonElement|null} */ (event.target.closest('button'));
             const anchor = /** @type {HTMLButtonElement|null} */ (event.target.closest('a[href][data-url]'));
+            if (btn?.dataset.titleMenu) {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.menuTitle(btn.value).catch(console.error);
+                return;
+            }
             if (btn) {
-                if (btn?.dataset.titleMenu) {
-                    event.stopImmediatePropagation();
-                    event.preventDefault();
-                    return confirm(`todo: title menu for ${btn.dataset.titleMenu}`);
-                }
                 if (btn?.dataset.rowMenu) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
-                    return confirm(`todo: row menu for ${btn.dataset.rowMenu}`);
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    service.entriesMenu([btn.value], [Number(btn.dataset.index)]).catch(console.error);
+                    return;
                 }
                 if (btn?.dataset.deleteRange) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
-                    return confirm(`todo: delete range for ${btn.dataset.deleteRange}`);
+                    const range = toRange(btn.value);
+                    if (range) {
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        service.deleteRange(range).catch(console.error);
+                    }
                 }
                 if (btn?.dataset.deleteAll) {
                     event.stopImmediatePropagation();
                     event.preventDefault();
-                    return confirm(`todo: delete all`);
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    service.deleteRange('all').catch(console.error);
                 }
             } else if (anchor) {
                 const url = anchor.dataset.url;
@@ -107,9 +116,41 @@ export function HistoryServiceProvider({ service, initial, children }) {
         };
         document.addEventListener('auxclick', handleAuxClick);
 
+        function contextMenu(event) {
+            const target = /** @type {HTMLElement|null} */ (event.target);
+            if (!(target instanceof HTMLElement)) return;
+
+            const actions = {
+                '[data-section-title]': (elem) => elem.querySelector('button')?.value,
+                '[data-history-entry]': (elem) => elem.querySelector('button')?.value,
+            };
+
+            for (const [selector, valueFn] of Object.entries(actions)) {
+                const match = event.target.closest(selector);
+                if (match) {
+                    const value = valueFn(match);
+                    if (value) {
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+                        if (match.dataset.sectionTitle) {
+                            // eslint-disable-next-line promise/prefer-await-to-then
+                            service.menuTitle(value).catch(console.error);
+                        } else if (match.dataset.historyEntry) {
+                            // eslint-disable-next-line promise/prefer-await-to-then
+                            service.entriesMenu([value], [Number(match.dataset.index)]).catch(console.error);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        document.addEventListener('contextmenu', contextMenu);
+
         return () => {
             document.removeEventListener('auxclick', handleAuxClick);
             document.removeEventListener('click', handler);
+            document.removeEventListener('contextmenu', contextMenu);
         };
     });
     return <HistoryServiceContext.Provider value={{ service, initial }}>{children}</HistoryServiceContext.Provider>;

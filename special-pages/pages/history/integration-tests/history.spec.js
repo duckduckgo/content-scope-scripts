@@ -21,7 +21,7 @@ test.describe('history', () => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(100);
         await hp.openPage({ additional: { q: 'youtube' } });
         await hp.didMakeInitialQueries({ term: 'youtube' });
-        await hp.selectsRange('today');
+        await hp.selectsToday();
         await hp.didMakeNthQuery({ nth: 1, query: { range: 'today' } });
     });
     test('switches from initial range to term', async ({ page }, workerInfo) => {
@@ -72,16 +72,16 @@ test.describe('history', () => {
         // and assert we're back at the top of the container
         await hp.didResetScroll();
     });
-    test.fail('selecting `all` resets to an empty query', async ({ page }, workerInfo) => {
+    test('selecting `all` resets to an empty query', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(300);
         await hp.openPage({});
 
         // start with a fresh range query
-        await hp.selectsRange('today');
+        await hp.selectsToday();
         await hp.didMakeNthQuery({ nth: 1, query: { range: 'today' } });
 
         // click 'all' (to reset)
-        await hp.selectsRange('all');
+        await hp.selectsAll();
 
         // ensure it's a full reset
         await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
@@ -90,5 +90,37 @@ test.describe('history', () => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(5);
         await hp.openPage({});
         await hp.opensLinks();
+    });
+    test('deleting sidebar items', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesHistoryForToday({ action: 'delete' });
+        await hp.sideBarItemWasRemoved('Show history for today');
+    });
+    test('deleting sidebar items, but dismissing modal', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesHistoryForYesterday({ action: 'none' });
+        await hp.sidebarHasItem('Show history for today');
+    });
+    test('deleting from the header', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesAllHistoryFromHeader({ action: 'delete' });
+    });
+    test('3 dots menu on Section title', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesFromSectionTitle({ action: 'delete' });
+    });
+    test('right-click on Section title', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.rightClicksSectionTitle();
+    });
+    test('3 dots menu on history entry', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesFromHistoryEntry({ action: 'delete' });
     });
 });
