@@ -287,8 +287,8 @@ export class HistoryTestPage {
         await title.hover();
         await title.getByLabel('Show menu for Today').click();
 
-        // Verify the call to "menu_title" with expected parameters
-        const calls = await this.mocks.waitForCallCount({ method: 'menu_title', count: 1 });
+        // Verify the call to "title_menu" with expected parameters
+        const calls = await this.mocks.waitForCallCount({ method: 'title_menu', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ dateRelativeDay: 'Today' });
 
         // verify the section is gone
@@ -302,7 +302,7 @@ export class HistoryTestPage {
         const { page } = this;
         const title = page.getByRole('list').getByText('Today');
         await title.click({ button: 'right' });
-        const calls = await this.mocks.waitForCallCount({ method: 'menu_title', count: 1 });
+        const calls = await this.mocks.waitForCallCount({ method: 'title_menu', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ dateRelativeDay: 'Today' });
     }
 }
