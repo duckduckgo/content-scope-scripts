@@ -148,6 +148,36 @@ Sent when a right-click is issued on a section title (or when the three-dots but
 }
 ```
 
+### `entries_menu`
+{@link "History Messages".EntriesMenuRequest}
+
+Sent when a right-click is issued on a section title (or when the three-dots button is clicked)  
+
+**Types:**
+- Parameters: {@link "History Messages".EntriesMenuParams}
+- Response: {@link "History Messages".EntriesMenuResponse}
+
+**params**
+```json
+{
+  "ids": ["abc", "def"]
+}
+```
+
+**response, if deleted**
+```json
+{
+  "action": "delete" 
+}
+```
+
+**response, otherwise**
+```json
+{
+  "action": "none" 
+}
+```
+
 ## Notifications
 
 ### `open`

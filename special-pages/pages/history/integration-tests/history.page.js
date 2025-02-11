@@ -1,6 +1,7 @@
 import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
 import { Mocks } from '../../../shared/mocks.js';
 import { expect } from '@playwright/test';
+import { generateSampleData } from '../app/mocks/history.mocks.js';
 
 /**
  * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
@@ -296,6 +297,31 @@ export class HistoryTestPage {
 
         // todo: re-enable this if it's required
         // await this.sideBarItemWasRemoved('Today');
+    }
+
+    /**
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async deletesFromHistoryEntry(resp) {
+        const { page } = this;
+
+        // Handle dialog interaction based on response action
+        if (resp.action === 'delete') {
+            page.on('dialog', (dialog) => {
+                return dialog.accept();
+            });
+        } else {
+            page.on('dialog', (dialog) => dialog.dismiss());
+        }
+        // console.log(data[0].title);
+        const data = generateSampleData({ count: this.entries, offset: 0 });
+        const first = data[0];
+        const row = page.getByText(first.title);
+        await row.hover();
+        await page.locator(`[data-row-menu][value=${data[0].id}]`).click();
+
+        const calls = await this.mocks.waitForCallCount({ method: 'entries_menu', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ ids: [data[0].id] });
     }
 
     async rightClicksSectionTitle() {
