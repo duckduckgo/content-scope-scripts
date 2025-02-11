@@ -20,12 +20,13 @@ export function App() {
     const containerRef = useRef(/** @type {HTMLElement|null} */ (null));
     const { initial, service } = useHistory();
 
+    // NOTE: These states will get extracted out later, once I know all the use-cases
+    const ranges = useSignal(initial.ranges.ranges);
+    const term = useSignal('term' in initial.query.info.query ? initial.query.info.query.term : '');
     const results = useSignal({
         items: initial.query.results,
         heights: generateHeights(initial.query.results),
     });
-
-    const term = useSignal('term' in initial.query.info.query ? initial.query.info.query.term : '');
 
     useSignalEffect(() => {
         const unsub = service.onResults((data) => {
@@ -39,8 +40,14 @@ export function App() {
                 };
             });
         });
+
+        // Subscribe to changes in the 'ranges' data and reflect the updates into the UI
+        const unsubRanges = service.onRanges((data) => {
+            ranges.value = data.ranges;
+        });
         return () => {
             unsub();
+            unsubRanges();
         };
     });
 
@@ -56,7 +63,7 @@ export function App() {
                 <Header />
             </header>
             <aside class={styles.aside}>
-                <Sidebar ranges={initial.ranges.ranges} />
+                <Sidebar ranges={ranges} />
             </aside>
             <main class={styles.main} ref={containerRef} data-main-scroller data-term={term}>
                 <Results results={results} />

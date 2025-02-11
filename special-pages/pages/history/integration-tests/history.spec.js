@@ -91,4 +91,21 @@ test.describe('history', () => {
         await hp.openPage({});
         await hp.opensLinks();
     });
+    test('deleting sidebar items', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesHistoryForToday({ action: 'delete' });
+        await hp.sideBarItemWasRemoved('Show history for today');
+    });
+    test('deleting sidebar items, but dismissing modal', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesHistoryForYesterday({ action: 'none' });
+        await hp.sidebarHasItem('Show history for today');
+    });
+    test('deleting from the header', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesAllHistoryFromHeader({ action: 'delete' });
+    });
 });

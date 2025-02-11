@@ -38,7 +38,7 @@ export class Service {
     }
 
     /**
-     * @param {(old: Data, next: Data, trigger: string) => Data} fn
+     * @param {(old: Data, next: Data, trigger: InvocationSource) => Data} fn
      */
     withUpdater(fn) {
         this.accept = fn;

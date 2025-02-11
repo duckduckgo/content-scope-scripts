@@ -97,6 +97,27 @@ Response, note: always return the same query I sent:
 }
 ```
 
+### `deleteRange`
+- Sent to delete a range as displayed in the sidebar.
+- Parameters: {@link "History Messages".DeleteRangeParams}
+- If the user confirms, respond with `{ action: 'delete' }`
+- otherwise `{ action: 'none' }`
+  - Response: {@link "History Messages".DeleteRangeResponse}
+
+**params**
+```json
+{
+  "range": "today" 
+}
+```
+
+**response**
+```json
+{
+  "action": "delete" 
+}
+```
+
 ## Notifications
 
 ### `open`
