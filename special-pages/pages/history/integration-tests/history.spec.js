@@ -108,4 +108,14 @@ test.describe('history', () => {
         await hp.openPage({});
         await hp.deletesAllHistoryFromHeader({ action: 'delete' });
     });
+    test('3 dots menu on Section title', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesFromSectionTitle({ action: 'delete' });
+    });
+    test('right-click on Section title', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.rightClicksSectionTitle();
+    });
 });
