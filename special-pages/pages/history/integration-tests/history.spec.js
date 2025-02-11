@@ -21,7 +21,7 @@ test.describe('history', () => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(100);
         await hp.openPage({ additional: { q: 'youtube' } });
         await hp.didMakeInitialQueries({ term: 'youtube' });
-        await hp.selectsRange('today');
+        await hp.selectsToday();
         await hp.didMakeNthQuery({ nth: 1, query: { range: 'today' } });
     });
     test('switches from initial range to term', async ({ page }, workerInfo) => {
@@ -72,16 +72,16 @@ test.describe('history', () => {
         // and assert we're back at the top of the container
         await hp.didResetScroll();
     });
-    test.fail('selecting `all` resets to an empty query', async ({ page }, workerInfo) => {
+    test('selecting `all` resets to an empty query', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(300);
         await hp.openPage({});
 
         // start with a fresh range query
-        await hp.selectsRange('today');
+        await hp.selectsToday();
         await hp.didMakeNthQuery({ nth: 1, query: { range: 'today' } });
 
         // click 'all' (to reset)
-        await hp.selectsRange('all');
+        await hp.selectsAll();
 
         // ensure it's a full reset
         await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });

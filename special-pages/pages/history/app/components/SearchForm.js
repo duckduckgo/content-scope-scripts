@@ -96,7 +96,14 @@ export function SearchProvider({ children, query = { term: '' } }) {
             if (anchor) {
                 e.preventDefault();
                 const range = toRange(anchor.dataset.filter);
-                if (range) {
+                // todo: where should this rule live?
+                if (range === 'all') {
+                    searchState.value = {
+                        term: '',
+                        domain: null,
+                        range: null,
+                    };
+                } else if (range) {
                     searchState.value = {
                         term: null,
                         domain: null,

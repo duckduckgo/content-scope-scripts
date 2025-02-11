@@ -5,6 +5,7 @@ import { useSearchContext } from './SearchForm.js';
 import { useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { Trash } from '../icons/Trash.js';
+import { useTypedTranslationWith } from '../../../new-tab/app/types.js';
 
 /**
  * @import json from "../strings.json"
@@ -69,9 +70,38 @@ export function Sidebar({ ranges }) {
     );
 }
 
+/**
+ * Renders an item component with additional properties and functionality.
+ *
+ * @param {Object} props
+ * @param {import('../../types/history.js').Range} props.range The range value used for filtering and identification.
+ * @param {string} props.title The title or label of the item.
+ * @param {import("@preact/signals").Signal<import('../../types/history.js').Range|null>} props.current The current state object used to determine active item styling.
+ */
 function Item({ range, title, current }) {
+    const { t } = useTypedTranslationWith(/** @type {json} */ ({}));
+    const label = (() => {
+        switch (range) {
+            case 'all':
+                return t('show_history_all');
+            case 'today':
+            case 'yesterday':
+            case 'monday':
+            case 'tuesday':
+            case 'wednesday':
+            case 'thursday':
+            case 'friday':
+            case 'saturday':
+            case 'sunday':
+                return t('show_history_for', { range });
+            case 'older':
+                return t('show_history_older');
+            case 'recentlyOpened':
+                return t('show_history_closed');
+        }
+    })();
     return (
-        <a href="#" data-filter={range} class={cn(styles.item, current.value === range && styles.active)}>
+        <a href="#" aria-label={label} data-filter={range} class={cn(styles.item, current.value === range && styles.active)}>
             <span class={styles.icon}>
                 <img src={iconMap[range]} />
             </span>
