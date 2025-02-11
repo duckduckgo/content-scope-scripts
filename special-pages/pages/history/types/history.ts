@@ -44,7 +44,8 @@ export interface HistoryMessages {
     | EntriesMenuRequest
     | GetRangesRequest
     | InitialSetupRequest
-    | QueryRequest | TitleMenuRequest;
+    | QueryRequest
+    | TitleMenuRequest;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
