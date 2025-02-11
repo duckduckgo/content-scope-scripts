@@ -108,28 +108,29 @@ export class HistoryService {
     async menuTitle(dateRelativeDay) {
         const response = await this.history.messaging.request('menu_title', { dateRelativeDay });
         if (response.action === 'none') return;
-        this.query.update((_old) => {
+        this.query.update((old) => {
             // find the first item
             // todo: this can be optimized by passing the index in the call
-            const start = _old.results.findIndex((x) => x.dateRelativeDay === dateRelativeDay);
+            const start = old.results.findIndex((x) => x.dateRelativeDay === dateRelativeDay);
             if (start > -1) {
                 // now find the last item matching, starting with the first
                 let end = start;
-                for (let i = start; i < _old.results.length; i++) {
-                    if (_old.results[i]?.dateRelativeDay === dateRelativeDay) continue;
+                for (let i = start; i < old.results.length; i++) {
+                    if (old.results[i]?.dateRelativeDay === dateRelativeDay) continue;
                     end = i;
                     break;
                 }
-                const next = _old.results.slice();
+                const next = old.results.slice();
                 const removed = next.splice(start, end - start);
                 console.log('did remove items:', removed);
                 return {
-                    ..._old,
+                    ...old,
                     results: next,
                 };
             }
-            return _old;
+            return old;
         });
+        // todo: should we refresh the ranges here?
     }
 
     /**

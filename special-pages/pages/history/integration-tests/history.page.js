@@ -293,6 +293,9 @@ export class HistoryTestPage {
 
         // verify the section is gone
         await expect(title.getByLabel('Show menu for Today')).not.toBeVisible();
+
+        // todo: re-enable this if it's required
+        // await this.sideBarItemWasRemoved('Today');
     }
 
     async rightClicksSectionTitle() {
