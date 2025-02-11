@@ -42,8 +42,7 @@ export class SpecialErrorPage {
      * @param {string} [params.locale] - locale
      */
     async openPage({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = this.platform.name, locale } = {}) {
-
-        if (platformName === "extension") {
+        if (platformName === 'extension') {
             throw new Error(`Unsupported platform ${platformName}`);
         }
 
