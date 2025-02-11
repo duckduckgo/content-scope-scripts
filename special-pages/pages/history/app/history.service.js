@@ -26,7 +26,7 @@ export class HistoryService {
             },
         }).withUpdater((old, next, trigger) => {
             if (trigger === 'manual') {
-                // console.log('manual trigger, always accepting next:', next);
+                console.log('manual trigger, always accepting next:', next);
                 return next;
             }
             if (eq(old.info.query, next.info.query)) {
@@ -100,6 +100,30 @@ export class HistoryService {
      */
     onRanges(cb) {
         return this.ranges.onData(({ data, source }) => cb(data));
+    }
+
+    /**
+     * @param {string[]} ids
+     * @param {number[]} indexes
+     */
+    async entriesMenu(ids, indexes) {
+        const response = await this.history.messaging.request('entries_menu', { ids });
+        if (response.action === 'none') return;
+        if (response.action !== 'delete') return;
+        this.query.update((old) => {
+            const inverted = indexes.sort((a, b) => b - a);
+            const removed = [];
+            const next = old.results.slice();
+
+            // remove items in reverse that that splice works multiple times
+            for (let i = 0; i < inverted.length; i++) {
+                removed.push(next.splice(inverted[i], 1));
+            }
+
+            /** @type {QueryData} */
+            const nextStats = { ...old, results: next };
+            return nextStats;
+        });
     }
 
     /**

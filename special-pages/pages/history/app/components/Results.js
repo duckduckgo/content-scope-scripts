@@ -33,6 +33,7 @@ export function Results({ results }) {
                                 title={item.title}
                                 dateRelativeDay={item.dateRelativeDay}
                                 dateTimeOfDay={item.dateTimeOfDay}
+                                index={index}
                             />
                         </li>
                     );
