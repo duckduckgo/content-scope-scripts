@@ -51,6 +51,9 @@ export default class AutofillPasswordImport extends ContentFeature {
 
     #domLoaded;
 
+    /** @type {Set<Element>} */
+    #tappedElements = new Set();
+
     /**
      * @returns {ButtonAnimationStyle}
      */
@@ -137,34 +140,34 @@ export default class AutofillPasswordImport extends ContentFeature {
             const element = await this.findSettingsElement();
             return element != null
                 ? {
-                    animationStyle: this.settingsButtonAnimationStyle,
-                    element,
-                    shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
-                    shouldWatchForRemoval: false,
-                    tapOnce: false,
-                }
+                      animationStyle: this.settingsButtonAnimationStyle,
+                      element,
+                      shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
+                      shouldWatchForRemoval: false,
+                      tapOnce: false,
+                  }
                 : null;
         } else if (path === '/options') {
             const element = await this.findExportElement();
             return element != null
                 ? {
-                    animationStyle: this.exportButtonAnimationStyle,
-                    element,
-                    shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
-                    shouldWatchForRemoval: true,
-                    tapOnce: true,
-                }
+                      animationStyle: this.exportButtonAnimationStyle,
+                      element,
+                      shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
+                      shouldWatchForRemoval: true,
+                      tapOnce: true,
+                  }
                 : null;
         } else if (path === '/intro') {
             const element = await this.findSignInButton();
             return element != null
                 ? {
-                    animationStyle: this.signInButtonAnimationStyle,
-                    element,
-                    shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
-                    shouldWatchForRemoval: false,
-                    tapOnce: false,
-                }
+                      animationStyle: this.signInButtonAnimationStyle,
+                      element,
+                      shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
+                      shouldWatchForRemoval: false,
+                      tapOnce: false,
+                  }
                 : null;
         } else {
             return null;
@@ -181,7 +184,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             this.currentOverlay = null;
             document.removeEventListener('scroll', this);
             if (this.currentElementConfig?.element) {
-                this.currentElementConfig.shouldTap = false;
+                this.#tappedElements.delete(this.currentElementConfig?.element);
             }
         }
     }
@@ -405,10 +408,10 @@ export default class AutofillPasswordImport extends ContentFeature {
         if (this.isSupportedPath(path)) {
             try {
                 this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
-                if (this.currentElementConfig?.element) {
+                if (this.currentElementConfig?.element && !this.#tappedElements.has(this.currentElementConfig?.element)) {
                     await this.animateOrTapElement();
                     if (this.currentElementConfig?.shouldTap && this.currentElementConfig?.tapOnce) {
-                        this.currentElementConfig.shouldTap = false;
+                        this.#tappedElements.add(this.currentElementConfig.element);
                     }
                 }
             } catch {
