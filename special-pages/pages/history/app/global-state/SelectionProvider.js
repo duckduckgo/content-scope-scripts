@@ -17,10 +17,15 @@ export function SelectionProvider({ children }) {
     useSignalEffect(() => {
         function handler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
+            if (event.target.matches('a')) return;
             const itemRow = /** @type {HTMLElement|null} */ (event.target.closest('[data-history-entry][data-index]'));
             const selection = toRowSelection(itemRow);
             if (selection) {
-                console.log('SELECTION:', selection);
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                // MVP for getting the tests to pass. Next PRs will expand functionality
+                selected.value = [selection.id];
             }
         }
         document.addEventListener('click', handler);

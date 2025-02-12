@@ -331,4 +331,16 @@ export class HistoryTestPage {
         const calls = await this.mocks.waitForCallCount({ method: 'title_menu', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ dateRelativeDay: 'Today' });
     }
+
+    /**
+     * @param {number} nth
+     */
+    async selectsRow(nth) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        const selected = page.locator('main').locator('[aria-selected="true"]');
+        await rows.nth(nth).click();
+        await expect(rows.nth(nth)).toHaveAttribute('aria-selected', 'true');
+        await expect(selected).toHaveCount(1);
+    }
 }
