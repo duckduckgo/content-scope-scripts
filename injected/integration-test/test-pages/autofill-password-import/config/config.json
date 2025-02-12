@@ -17,6 +17,7 @@
                 "value": {
                   "settingsButton": {
                     "shouldAutotap": false,
+                    "tapOnce": false,
                     "path": "/",
                     "selectors": [
                       "a[href*='options']"
@@ -27,6 +28,7 @@
                   },
                   "exportButton": {
                     "shouldAutotap": false,
+                    "tapOnce": false,
                     "path": "/options",
                     "selectors": [
                       "c-wiz[data-node-index*='2;0'][data-p*='options']",
@@ -38,6 +40,7 @@
                   },
                   "signInButton": {
                     "shouldAutotap": false,
+                    "tapOnce": false,
                     "path": "/intro",
                     "selectors": [
                       "a[href*='ServiceLogin']:not([target='_top'])",
