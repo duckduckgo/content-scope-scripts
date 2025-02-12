@@ -46,13 +46,13 @@ export function YouTubeErrorProvider({ initial = null, children }) {
             const eventError = event.detail?.error;
             if (YOUTUBE_ERROR_IDS.includes(eventError) || eventError === null) {
                 if (eventError && eventError !== error) {
-                    setFocusMode("paused");
+                    setFocusMode('paused');
                     if (platformName === 'macos') {
                         // TODO: Better feature flagging?
                         messaging.reportYouTubeError({ error: eventError });
                     }
                 } else {
-                    setFocusMode("enabled");
+                    setFocusMode('enabled');
                 }
                 setError(eventError);
             }
