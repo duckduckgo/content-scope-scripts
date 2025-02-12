@@ -5,6 +5,7 @@ import { Fragment, h } from 'preact';
 import styles from './Item.module.css';
 import { Dots } from '../icons/dots.js';
 import { useTypedTranslation } from '../types.js';
+import { BTN_ACTION_ENTRIES_MENU, BTN_ACTION_TITLE_MENU } from '../constants.js';
 
 export const Item = memo(
     /**
@@ -19,8 +20,9 @@ export const Item = memo(
      * @param {string} props.dateRelativeDay - The relative day information to display (shown when kind is equal to TITLE_KIND).
      * @param {string} props.dateTimeOfDay - the time of day, like 11.00am.
      * @param {number} props.index - original index
+     * @param {boolean} props.selected - whether this item is selected
      */
-    function Item({ id, url, domain, title, kind, dateRelativeDay, dateTimeOfDay, index }) {
+    function Item({ id, url, domain, title, kind, dateRelativeDay, dateTimeOfDay, index, selected }) {
         const { t } = useTypedTranslation();
         return (
             <Fragment>
@@ -29,7 +31,7 @@ export const Item = memo(
                         {dateRelativeDay}
                         <button
                             class={cn(styles.dots, styles.titleDots)}
-                            data-title-menu
+                            data-action={BTN_ACTION_TITLE_MENU}
                             value={dateRelativeDay}
                             aria-label={t('menu_sectionTitle', { relativeTime: dateRelativeDay })}
                             tabindex={0}
@@ -38,13 +40,18 @@ export const Item = memo(
                         </button>
                     </div>
                 )}
-                <div class={cn(styles.row, styles.hover, kind === END_KIND && styles.last)} data-history-entry={id}>
+                <div
+                    class={cn(styles.row, styles.hover, kind === END_KIND && styles.last)}
+                    data-history-entry={id}
+                    data-index={index}
+                    aria-selected={selected}
+                >
                     <a href={url} data-url={url} class={styles.entryLink}>
                         {title}
                     </a>
                     <span class={styles.domain}>{domain}</span>
                     <span class={styles.time}>{dateTimeOfDay}</span>
-                    <button class={styles.dots} data-row-menu data-index={index} value={id} tabindex={0}>
+                    <button class={styles.dots} data-action={BTN_ACTION_ENTRIES_MENU} data-index={index} value={id} tabindex={0}>
                         <Dots />
                     </button>
                 </div>

@@ -2,60 +2,17 @@ import { h } from 'preact';
 import styles from './App.module.css';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { Header } from './Header.js';
-import { batch, useSignal, useSignalEffect } from '@preact/signals';
 import { Results } from './Results.js';
 import { useRef } from 'preact/hooks';
-import { useHistory } from '../HistoryProvider.js';
-import { generateHeights } from '../utils.js';
 import { Sidebar } from './Sidebar.js';
-
-/**
- * @typedef {object} Results
- * @property {import('../../types/history').HistoryItem[]} items
- * @property {number[]} heights
- */
+import { useGlobalState } from '../global-state/GlobalStateProvider.js';
+import { useSelected } from '../global-state/SelectionProvider.js';
 
 export function App() {
     const { isDarkMode } = useEnv();
     const containerRef = useRef(/** @type {HTMLElement|null} */ (null));
-    const { initial, service } = useHistory();
-
-    // NOTE: These states will get extracted out later, once I know all the use-cases
-    const ranges = useSignal(initial.ranges.ranges);
-    const term = useSignal('term' in initial.query.info.query ? initial.query.info.query.term : '');
-    const results = useSignal({
-        items: initial.query.results,
-        heights: generateHeights(initial.query.results),
-    });
-
-    useSignalEffect(() => {
-        const unsub = service.onResults((data) => {
-            batch(() => {
-                if ('term' in data.info.query && data.info.query.term !== null) {
-                    term.value = data.info.query.term;
-                }
-                results.value = {
-                    items: data.results,
-                    heights: generateHeights(data.results),
-                };
-            });
-        });
-
-        // Subscribe to changes in the 'ranges' data and reflect the updates into the UI
-        const unsubRanges = service.onRanges((data) => {
-            ranges.value = data.ranges;
-        });
-        return () => {
-            unsub();
-            unsubRanges();
-        };
-    });
-
-    useSignalEffect(() => {
-        term.subscribe((t) => {
-            containerRef.current?.scrollTo(0, 0);
-        });
-    });
+    const { ranges, term, results } = useGlobalState();
+    const selected = useSelected();
 
     return (
         <div class={styles.layout} data-theme={isDarkMode ? 'dark' : 'light'}>
@@ -66,7 +23,7 @@ export function App() {
                 <Sidebar ranges={ranges} />
             </aside>
             <main class={styles.main} ref={containerRef} data-main-scroller data-term={term}>
-                <Results results={results} />
+                <Results results={results} selected={selected} />
             </main>
         </div>
     );

@@ -2,6 +2,7 @@ import { Fragment, h } from 'preact';
 import { memo } from 'preact/compat';
 import styles from './VirtualizedList.module.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { EVENT_RANGE_CHANGE } from '../constants.js';
 
 /**
  * @template T
@@ -90,7 +91,7 @@ function useVisibleRows(rows, heights, scrollerSelector, overscan = 5) {
         setVisibleRange((prev) => {
             if (withOverScan.start !== prev.start || withOverScan.end !== prev.end) {
                 // todo: find a better place to emit this!
-                window.dispatchEvent(new CustomEvent('range-change', { detail: { start: withOverScan.start, end: withOverScan.end } }));
+                window.dispatchEvent(new CustomEvent(EVENT_RANGE_CHANGE, { detail: { start: withOverScan.start, end: withOverScan.end } }));
                 return { start: withOverScan.start, end: withOverScan.end };
             }
             return prev;

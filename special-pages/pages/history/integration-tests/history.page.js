@@ -318,7 +318,7 @@ export class HistoryTestPage {
         const first = data[0];
         const row = page.getByText(first.title);
         await row.hover();
-        await page.locator(`[data-row-menu][value=${data[0].id}]`).click();
+        await page.locator(`[data-action="entries_menu"][value=${data[0].id}]`).click();
 
         const calls = await this.mocks.waitForCallCount({ method: 'entries_menu', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ ids: [data[0].id] });

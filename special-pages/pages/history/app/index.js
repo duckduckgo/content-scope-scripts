@@ -10,9 +10,11 @@ import { callWithRetry } from '../../../shared/call-with-retry.js';
 
 import { MessagingContext, SettingsContext } from './types.js';
 import { HistoryService, paramsToQuery } from './history.service.js';
-import { HistoryServiceProvider } from './HistoryProvider.js';
-import { SearchProvider } from './components/SearchForm.js';
-import { Settings } from './Settings.js'; // global styles
+import { HistoryServiceProvider } from './global-state/HistoryServiceProvider.js';
+import { Settings } from './Settings.js';
+import { SelectionProvider } from './global-state/SelectionProvider.js';
+import { QueryProvider } from './global-state/QueryProvider.js';
+import { GlobalStateProvider } from './global-state/GlobalStateProvider.js'; // global styles
 
 /**
  * @param {Element} root
@@ -73,11 +75,15 @@ export async function init(root, messaging, baseEnvironment) {
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingContext.Provider value={messaging}>
                         <SettingsContext.Provider value={settings}>
-                            <SearchProvider query={query.query}>
+                            <QueryProvider query={query.query}>
                                 <HistoryServiceProvider service={service} initial={initial}>
-                                    <App />
+                                    <GlobalStateProvider service={service} initial={initial}>
+                                        <SelectionProvider>
+                                            <App />
+                                        </SelectionProvider>
+                                    </GlobalStateProvider>
                                 </HistoryServiceProvider>
-                            </SearchProvider>
+                            </QueryProvider>
                         </SettingsContext.Provider>
                     </MessagingContext.Provider>
                 </TranslationProvider>
