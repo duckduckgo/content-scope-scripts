@@ -1,10 +1,25 @@
 import { h, createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import { signal, useSignal, useSignalEffect } from '@preact/signals';
+import { useQueryContext } from './QueryProvider.js';
+import { eventToIntention } from '../../../../shared/handlers.js';
+import { usePlatformName } from '../types.js';
+import { useGlobalState } from './GlobalStateProvider.js';
 
-const SelectionContext = createContext({
-    selected: signal(/** @type {string[]} */ ([])),
-});
+/**
+ * @typedef SelectionState
+ * @property {import("@preact/signals").Signal<number[]>} selected
+ */
+
+/**
+ * @typedef {(s: (d: number[]) => number[]) => void} UpdateSelected
+ */
+
+const SelectionContext = createContext(
+    /** @type {SelectionState} */ ({
+        selected: signal(/** @type {number[]} */ ([])),
+    }),
+);
 
 /**
  * Provides a context for the selections
@@ -13,24 +28,96 @@ const SelectionContext = createContext({
  * @param {import("preact").ComponentChild} props.children - The child components that will consume the history service context.
  */
 export function SelectionProvider({ children }) {
-    const selected = useSignal(/** @type {string[]} */ ([]));
+    const selected = useSignal(/** @type {number[]} */ ([]));
+    /** @type {UpdateSelected} */
+    const update = (fn) => {
+        selected.value = fn(selected.value);
+        console.log(selected.value);
+    };
+
+    useResetOnQueryChange(update);
+    useRowClick(update, selected);
+
+    return <SelectionContext.Provider value={{ selected }}>{children}</SelectionContext.Provider>;
+}
+
+/**
+ * @param {UpdateSelected} update
+ */
+function useResetOnQueryChange(update) {
+    const query = useQueryContext();
+    useSignalEffect(() => {
+        const unsubs = [
+            // when anything about the query changes, reset selections
+            query.subscribe(() => {
+                update((prev) => []);
+            }),
+        ];
+
+        return () => {
+            for (const unsub of unsubs) {
+                unsub();
+            }
+        };
+    });
+}
+
+/**
+ * @param {UpdateSelected} update
+ * @param {import("@preact/signals").Signal<number[]>} selected
+ */
+function useRowClick(update, selected) {
+    const platformName = usePlatformName();
+    const { results } = useGlobalState();
+    const lastSelected = useSignal(/** @type {{index: number; id: string}|null} */ (null));
     useSignalEffect(() => {
         function handler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
-            if (event.target.matches('a')) return;
             const itemRow = /** @type {HTMLElement|null} */ (event.target.closest('[data-history-entry][data-index]'));
             const selection = toRowSelection(itemRow);
-            if (selection) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
+            if (!itemRow || !selection) return;
 
-                // MVP for getting the tests to pass. Next PRs will expand functionality
-                selected.value = [selection.id];
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            const intention = eventToIntention(event, platformName);
+            const currentSelected = itemRow.getAttribute('aria-selected') === 'true';
+
+            switch (intention) {
+                case 'click': {
+                    // MVP for getting the tests to pass. Next PRs will expand functionality
+                    update((prev) => [selection.index]);
+                    lastSelected.value = selection;
+                    break;
+                }
+                case 'ctrl+click': {
+                    update((prev) => {
+                        const index = prev.indexOf(selection.index);
+                        if (index > -1) {
+                            const next = prev.slice();
+                            next.splice(index, 1);
+                            return next;
+                        }
+                        return prev.concat(selection.index);
+                    });
+                    if (!currentSelected) {
+                        lastSelected.value = selection;
+                    } else {
+                        lastSelected.value = null;
+                    }
+                    break;
+                }
+                case 'shift+click': {
+                    // todo
+                    break;
+                }
             }
         }
         document.addEventListener('click', handler);
+        return () => {
+            document.removeEventListener('click', handler);
+        };
     });
-    return <SelectionContext.Provider value={{ selected }}>{children}</SelectionContext.Provider>;
 }
 
 // Hook for consuming the context

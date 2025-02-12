@@ -12,3 +12,18 @@ export function eventToTarget(event, platformName) {
     }
     return 'same-tab';
 }
+
+/**
+ * @param {MouseEvent} event
+ * @param {ImportMeta['platform']} platformName
+ * @return {'ctrl+click' | 'shift+click' | 'click'}
+ */
+export function eventToIntention(event, platformName) {
+    const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
+    if (isControlClick) {
+        return 'ctrl+click';
+    } else if (event.shiftKey) {
+        return 'shift+click';
+    }
+    return 'click';
+}

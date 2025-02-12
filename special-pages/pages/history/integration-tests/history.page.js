@@ -343,4 +343,31 @@ export class HistoryTestPage {
         await expect(rows.nth(nth)).toHaveAttribute('aria-selected', 'true');
         await expect(selected).toHaveCount(1);
     }
+
+    /**
+     * @param {number} nth
+     */
+    async rowIsSelected(nth) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        await expect(rows.nth(nth)).toHaveAttribute('aria-selected', 'true');
+    }
+
+    /**
+     * @param {number} nth
+     */
+    async rowIsNotSelected(nth) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        await expect(rows.nth(nth)).toHaveAttribute('aria-selected', 'false');
+    }
+
+    /**
+     * @param {number} nth
+     */
+    async selectsRowWithCtrl(nth) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        await rows.nth(nth).click({ modifiers: ['ControlOrMeta'] });
+    }
 }

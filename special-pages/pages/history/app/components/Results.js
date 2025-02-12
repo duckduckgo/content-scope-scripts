@@ -8,7 +8,7 @@ import { Empty } from './Empty.js';
 /**
  * @param {object} props
  * @param {import("@preact/signals").Signal<import("../global-state/GlobalStateProvider.js").Results>} props.results
- * @param {import("@preact/signals").Signal<string[]>} props.selected
+ * @param {import("@preact/signals").Signal<number[]>} props.selected
  */
 export function Results({ results, selected }) {
     if (results.value.items.length === 0) {
@@ -23,7 +23,7 @@ export function Results({ results, selected }) {
                 heights={results.value.heights}
                 overscan={OVERSCAN_AMOUNT}
                 renderItem={({ item, cssClassName, style, index }) => {
-                    const isSelected = selected.value.includes(item.id);
+                    const isSelected = selected.value.includes(index);
                     return (
                         <li key={item.id} data-id={item.id} class={cssClassName} style={style}>
                             <Item
