@@ -20,8 +20,8 @@ export function DesktopApp({ embed }) {
 
     return (
         <>
-            {!youtubeError && features.focusMode()}
-            <main class={styles.app} data-youtube-error={youtubeError}>
+            {features.focusMode()}
+            <main class={styles.app} data-youtube-error={!!youtubeError}>
                 <DesktopLayout embed={embed} />
             </main>
         </>
