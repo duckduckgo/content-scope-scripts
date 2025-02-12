@@ -76,7 +76,7 @@ export async function init(root, messaging, baseEnvironment) {
                     <MessagingContext.Provider value={messaging}>
                         <SettingsContext.Provider value={settings}>
                             <QueryProvider query={query.query}>
-                                <HistoryServiceProvider service={service} initial={initial}>
+                                <HistoryServiceProvider service={service}>
                                     <GlobalStateProvider service={service} initial={initial}>
                                         <SelectionProvider>
                                             <App />

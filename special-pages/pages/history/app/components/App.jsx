@@ -7,12 +7,15 @@ import { useRef } from 'preact/hooks';
 import { Sidebar } from './Sidebar.js';
 import { useGlobalState } from '../global-state/GlobalStateProvider.js';
 import { useSelected } from '../global-state/SelectionProvider.js';
+import { useGlobalHandlers } from '../global-state/HistoryServiceProvider.js';
 
 export function App() {
     const { isDarkMode } = useEnv();
     const containerRef = useRef(/** @type {HTMLElement|null} */ (null));
     const { ranges, term, results } = useGlobalState();
     const selected = useSelected();
+
+    useGlobalHandlers();
 
     return (
         <div class={styles.layout} data-theme={isDarkMode ? 'dark' : 'light'}>

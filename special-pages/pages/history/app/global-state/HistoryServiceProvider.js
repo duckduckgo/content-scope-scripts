@@ -4,9 +4,12 @@ import { paramsToQuery, toRange } from '../history.service.js';
 import { EVENT_RANGE_CHANGE, EVENT_SEARCH_COMMIT, KNOWN_ACTIONS, OVERSCAN_AMOUNT } from '../constants.js';
 import { usePlatformName } from '../types.js';
 import { eventToTarget } from '../../../../shared/handlers.js';
+import { useContext } from 'preact/hooks';
 
 // Create the context
-const HistoryServiceContext = createContext({});
+const HistoryServiceContext = createContext({
+    service: /** @type {import("../history.service.js").HistoryService} */ ({}),
+});
 
 /**
  * Provides a context for the history service, allowing dependent components to access it.
@@ -14,20 +17,21 @@ const HistoryServiceContext = createContext({});
  *
  * @param {Object} props
  * @param {import("../history.service.js").HistoryService} props.service
- * @param {import("../history.service.js").ServiceData} props.initial
  * @param {import("preact").ComponentChild} props.children
  */
-export function HistoryServiceProvider({ service, initial, children }) {
-    const platformName = usePlatformName();
+export function HistoryServiceProvider({ service, children }) {
+    return <HistoryServiceContext.Provider value={{ service }}>{children}</HistoryServiceContext.Provider>;
+}
 
+export function useGlobalHandlers() {
+    const { service } = useContext(HistoryServiceContext);
+    const platformName = usePlatformName();
     useSearchCommit(service);
     useRangeChange(service);
     useLinkClickHandler(service, platformName);
     useButtonClickHandler(service);
     useAuxClickHandler(service, platformName);
     useContextMenu(service);
-
-    return <HistoryServiceContext.Provider value={{ service, initial }}>{children}</HistoryServiceContext.Provider>;
 }
 
 /**
