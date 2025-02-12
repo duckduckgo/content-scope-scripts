@@ -51,8 +51,8 @@ export default class AutofillPasswordImport extends ContentFeature {
 
     #domLoaded;
 
-    /** @type {Set<Element>} */
-    #tappedElements = new Set();
+    /** @type {WeakSet<Element>} */
+    #tappedElements = new WeakSet();
 
     /**
      * @returns {ButtonAnimationStyle}
