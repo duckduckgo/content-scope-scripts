@@ -97,6 +97,87 @@ Response, note: always return the same query I sent:
 }
 ```
 
+### `deleteRange`
+- Sent to delete a range as displayed in the sidebar.
+- Parameters: {@link "History Messages".DeleteRangeParams}
+- If the user confirms, respond with `{ action: 'delete' }`
+- otherwise `{ action: 'none' }`
+  - Response: {@link "History Messages".DeleteRangeResponse}
+
+**params**
+```json
+{
+  "range": "today" 
+}
+```
+
+**response**
+```json
+{
+  "action": "delete" 
+}
+```
+
+### `title_menu`
+{@link "History Messages".TitleMenuRequest}
+
+Sent when a right-click is issued on a section title (or when the three-dots button is clicked)  
+
+**Types:**
+- Parameters: {@link "History Messages".TitleMenuParams}
+- Response: {@link "History Messages".TitleMenuResponse}
+
+**params**
+```json
+{
+  "dateRelativeDay": "Today - Wednesday 15 January 2025"
+}
+```
+
+**response, if deleted**
+```json
+{
+  "action": "delete" 
+}
+```
+
+**response, otherwise**
+```json
+{
+  "action": "none" 
+}
+```
+
+### `entries_menu`
+{@link "History Messages".EntriesMenuRequest}
+
+Sent when a right-click is issued on a section title (or when the three-dots button is clicked)  
+
+**Types:**
+- Parameters: {@link "History Messages".EntriesMenuParams}
+- Response: {@link "History Messages".EntriesMenuResponse}
+
+**params**
+```json
+{
+  "ids": ["abc", "def"]
+}
+```
+
+**response, if deleted**
+```json
+{
+  "action": "delete" 
+}
+```
+
+**response, otherwise**
+```json
+{
+  "action": "none" 
+}
+```
+
 ## Notifications
 
 ### `open`

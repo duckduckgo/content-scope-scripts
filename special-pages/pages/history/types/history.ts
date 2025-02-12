@@ -18,16 +18,34 @@ export type Range =
   | "friday"
   | "saturday"
   | "sunday"
-  | "older"
-  | "recentlyOpened";
+  | "older";
+export type ActionResponse = (DeleteAction | NoneAction) & string;
+/**
+ * Confirms the user deleted this
+ */
+export type DeleteAction = "delete";
+/**
+ * The user cancelled the action, or did not agree to it
+ */
+export type NoneAction = "none";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
+/**
+ * This value matches the section headings
+ */
+export type RelativeDay = string;
 
 /**
  * Requests, Notifications and Subscriptions from the History feature
  */
 export interface HistoryMessages {
   notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
-  requests: GetRangesRequest | InitialSetupRequest | QueryRequest;
+  requests:
+    | DeleteRangeRequest
+    | EntriesMenuRequest
+    | GetRangesRequest
+    | InitialSetupRequest
+    | QueryRequest
+    | TitleMenuRequest;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -62,6 +80,34 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/deleteRange.request.json"
+ */
+export interface DeleteRangeRequest {
+  method: "deleteRange";
+  params: DeleteRangeParams;
+  result: DeleteRangeResponse;
+}
+export interface DeleteRangeParams {
+  range: Range;
+}
+export interface DeleteRangeResponse {
+  action: ActionResponse;
+}
+/**
+ * Generated from @see "../messages/entries_menu.request.json"
+ */
+export interface EntriesMenuRequest {
+  method: "entries_menu";
+  params: EntriesMenuParams;
+  result: EntriesMenuResponse;
+}
+export interface EntriesMenuParams {
+  ids: string[];
+}
+export interface EntriesMenuResponse {
+  action: ActionResponse;
 }
 /**
  * Generated from @see "../messages/getRanges.request.json"
@@ -159,6 +205,20 @@ export interface HistoryItem {
    * A complete URL including query parameters.
    */
   url: string;
+}
+/**
+ * Generated from @see "../messages/title_menu.request.json"
+ */
+export interface TitleMenuRequest {
+  method: "title_menu";
+  params: TitleMenuParams;
+  result: TitleMenuResponse;
+}
+export interface TitleMenuParams {
+  dateRelativeDay: RelativeDay;
+}
+export interface TitleMenuResponse {
+  action: ActionResponse;
 }
 
 declare module "../src/index.js" {

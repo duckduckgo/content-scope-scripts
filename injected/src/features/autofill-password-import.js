@@ -23,6 +23,7 @@ export const DELAY_BEFORE_ANIMATION = 300;
  * @property {ButtonAnimationStyle} animationStyle
  * @property {boolean} shouldTap
  * @property {boolean} shouldWatchForRemoval
+ * @property {boolean} tapOnce
  */
 
 /**
@@ -49,6 +50,9 @@ export default class AutofillPasswordImport extends ContentFeature {
     #currentElementConfig;
 
     #domLoaded;
+
+    /** @type {WeakSet<Element>} */
+    #tappedElements = new WeakSet();
 
     /**
      * @returns {ButtonAnimationStyle}
@@ -140,6 +144,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                       element,
                       shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false,
                       shouldWatchForRemoval: false,
+                      tapOnce: false,
                   }
                 : null;
         } else if (path === '/options') {
@@ -150,6 +155,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                       element,
                       shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
                       shouldWatchForRemoval: true,
+                      tapOnce: true,
                   }
                 : null;
         } else if (path === '/intro') {
@@ -160,6 +166,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                       element,
                       shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false,
                       shouldWatchForRemoval: false,
+                      tapOnce: false,
                   }
                 : null;
         } else {
@@ -176,6 +183,9 @@ export default class AutofillPasswordImport extends ContentFeature {
             this.currentOverlay.remove();
             this.currentOverlay = null;
             document.removeEventListener('scroll', this);
+            if (this.currentElementConfig?.element) {
+                this.#tappedElements.delete(this.currentElementConfig?.element);
+            }
         }
     }
 
@@ -398,7 +408,12 @@ export default class AutofillPasswordImport extends ContentFeature {
         if (this.isSupportedPath(path)) {
             try {
                 this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
-                await this.animateOrTapElement();
+                if (this.currentElementConfig?.element && !this.#tappedElements.has(this.currentElementConfig?.element)) {
+                    await this.animateOrTapElement();
+                    if (this.currentElementConfig?.shouldTap && this.currentElementConfig?.tapOnce) {
+                        this.#tappedElements.add(this.currentElementConfig.element);
+                    }
+                }
             } catch {
                 console.error('password-import: failed for path:', path);
             }

@@ -6,6 +6,7 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
@@ -25,6 +26,7 @@
     isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
     mod
   ));
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
   // ../node_modules/classnames/index.js
   var require_classnames = __commonJS({
@@ -2294,6 +2296,18 @@
         }
       ]
     },
+    menu_sectionTitle: {
+      title: "Show menu for {relativeTime}",
+      note: "Button text in a section heading to show a menu. The placeholder {relativeTime} will dynamically be replaced with values such as 'Today', 'Tomorrow', 'Yesterday', 'In 2 days', etc. For example, if {relativeTime} = 'Tomorrow', the title will become 'Show menu for Tomorrow'."
+    },
+    empty_title: {
+      title: "Nothing to see here!",
+      note: "Text shown where there are no remaining history items"
+    },
+    delete_all: {
+      title: "Delete All",
+      note: "Text for a button that deletes all items or entries."
+    },
     page_title: {
       title: "History",
       note: ""
@@ -2301,6 +2315,30 @@
     search: {
       title: "Search",
       note: ""
+    },
+    show_history_all: {
+      title: "Show all history",
+      note: "Button text for an action that removes all filters and searches, and replaces the list will all history."
+    },
+    show_history_older: {
+      title: "Show older history",
+      note: "Button that shows older history entries"
+    },
+    show_history_for: {
+      title: "Show history for {range}",
+      note: "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Show history for Today'."
+    },
+    delete_history_all: {
+      title: "Delete all history",
+      note: "Button text for an action that removes all history entries."
+    },
+    delete_history_older: {
+      title: "Delete older history",
+      note: "Button that deletes older history entries."
+    },
+    delete_history_for: {
+      title: "Delete history for {range}",
+      note: "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Delete history for Today'."
     },
     search_your_history: {
       title: "Search your history",
@@ -2344,10 +2382,6 @@
     },
     range_sunday: {
       title: "Sunday",
-      note: ""
-    },
-    range_recentlyOpened: {
-      title: "Recently Closed Tabs",
       note: ""
     },
     range_older: {
@@ -2436,7 +2470,7 @@
       }
     }
     /**
-     * @param {(old: Data, next: Data, trigger: string) => Data} fn
+     * @param {(old: Data, next: Data, trigger: InvocationSource) => Data} fn
      */
     withUpdater(fn2) {
       this.accept = fn2;
@@ -2587,7 +2621,7 @@
   };
 
   // pages/history/app/history.service.js
-  var HistoryService = class {
+  var _HistoryService = class _HistoryService {
     /**
      * @param {import("../src/index.js").HistoryPage} history
      */
@@ -2599,13 +2633,14 @@
             return { info: resp.info, results: resp.value };
           });
         }
-      }).withUpdater((old, next) => {
+      }).withUpdater((old, next, trigger) => {
+        if (trigger === "manual") {
+          console.log("manual trigger, always accepting next:", next);
+          return next;
+        }
         if (eq(old.info.query, next.info.query)) {
           const results = old.results.concat(next.results);
-          console.log("next length", results.length);
-          return { info: next.info, results: old.results.concat(next.results) };
-        } else {
-          console.log("saving new data", next);
+          return { info: next.info, results };
         }
         return next;
       });
@@ -2646,7 +2681,7 @@
       const lastquery = this.query.data.info.query;
       const query = {
         query: lastquery,
-        limit: 150,
+        limit: _HistoryService.CHUNK_SIZE,
         offset: this.query.data.results.length
       };
       this.query.triggerFetch(query);
@@ -2658,12 +2693,101 @@
     openUrl(url2, target) {
       this.history.messaging.notify("open", { url: url2, target });
     }
+    /**
+     * @param {(data: RangeData) => void} cb
+     */
+    onRanges(cb) {
+      return this.ranges.onData(({ data, source }) => cb(data));
+    }
+    /**
+     * @param {string[]} ids
+     * @param {number[]} indexes
+     */
+    async entriesMenu(ids, indexes) {
+      const response = await this.history.messaging.request("entries_menu", { ids });
+      if (response.action === "none") return;
+      if (response.action !== "delete") return;
+      this.query.update((old) => {
+        const inverted = indexes.sort((a4, b4) => b4 - a4);
+        const removed = [];
+        const next = old.results.slice();
+        for (let i5 = 0; i5 < inverted.length; i5++) {
+          removed.push(next.splice(inverted[i5], 1));
+        }
+        const nextStats = { ...old, results: next };
+        return nextStats;
+      });
+    }
+    /**
+     * @param {string} dateRelativeDay
+     */
+    async menuTitle(dateRelativeDay) {
+      const response = await this.history.messaging.request("title_menu", { dateRelativeDay });
+      if (response.action === "none") return;
+      this.query.update((old) => {
+        const start = old.results.findIndex((x4) => x4.dateRelativeDay === dateRelativeDay);
+        if (start > -1) {
+          let end = start;
+          for (let i5 = start; i5 < old.results.length; i5++) {
+            if (old.results[i5]?.dateRelativeDay === dateRelativeDay) continue;
+            end = i5;
+            break;
+          }
+          const next = old.results.slice();
+          const removed = next.splice(start, end - start);
+          console.log("did remove items:", removed);
+          return {
+            ...old,
+            results: next
+          };
+        }
+        return old;
+      });
+    }
+    /**
+     * @param {Range} range
+     */
+    deleteRange(range) {
+      return this.history.messaging.request("deleteRange", { range }).then((resp) => {
+        if (resp.action === "delete") {
+          if (range === "all") {
+            this.ranges.update((_old) => {
+              return {
+                ranges: ["all"]
+              };
+            });
+            this.query.update((_old) => {
+              const query = {
+                info: {
+                  query: { term: "" },
+                  finished: true
+                },
+                results: []
+              };
+              return query;
+            });
+          } else {
+            this.ranges.update((old) => {
+              return {
+                ...old,
+                ranges: old.ranges.filter((x4) => x4 !== range)
+              };
+            });
+          }
+        }
+        return resp;
+      });
+    }
   };
+  __publicField(_HistoryService, "CHUNK_SIZE", 150);
+  var HistoryService = _HistoryService;
   function paramsToQuery(params) {
     let query;
     const range = toRange(params.get("range"));
     const domain = params.get("domain");
-    if (range) {
+    if (range === "all") {
+      query = { term: "" };
+    } else if (range) {
       query = { range };
     } else if (domain) {
       query = { domain };
@@ -2672,7 +2796,7 @@
     }
     return {
       query,
-      limit: 150,
+      limit: HistoryService.CHUNK_SIZE,
       offset: 0
     };
   }
@@ -2735,6 +2859,7 @@
     const derivedTerm = useComputed(() => searchState.value.term);
     const derivedRange = useComputed(() => searchState.value.range);
     const settings = useSettings();
+    const platformName = usePlatformName();
     useSignalEffect(() => {
       const controller = new AbortController();
       window._accept = (v4) => {
@@ -2773,7 +2898,13 @@
         if (anchor) {
           e4.preventDefault();
           const range = toRange(anchor.dataset.filter);
-          if (range) {
+          if (range === "all") {
+            searchState.value = {
+              term: "",
+              domain: null,
+              range: null
+            };
+          } else if (range) {
             searchState.value = {
               term: null,
               domain: null,
@@ -2782,7 +2913,24 @@
           }
         }
       });
+      const keydown = (e4) => {
+        const isMacOS = platformName === "macos";
+        const isFindShortcutMacOS = isMacOS && e4.metaKey && e4.key === "f";
+        const isFindShortcutWindows = !isMacOS && e4.ctrlKey && e4.key === "f";
+        if (isFindShortcutMacOS || isFindShortcutWindows) {
+          e4.preventDefault();
+          const searchInput = (
+            /** @type {HTMLInputElement|null} */
+            document.querySelector(`input[type="search"]`)
+          );
+          if (searchInput) {
+            searchInput.focus();
+          }
+        }
+      };
+      document.addEventListener("keydown", keydown);
       return () => {
+        document.removeEventListener("keydown", keydown);
         controller.abort();
       };
     });
@@ -2872,10 +3020,14 @@
 
   // pages/history/app/components/Header.js
   function Header() {
+    const { t: t4 } = useTypedTranslation();
     const search = useSearchContext();
     const term = useComputed(() => search.value.term);
-    return /* @__PURE__ */ g("div", { class: Header_default.root }, /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g("button", { class: Header_default.largeButton, "data-delete-all": true }, /* @__PURE__ */ g("span", null, "Delete All"), /* @__PURE__ */ g(Trash, null))), /* @__PURE__ */ g("div", { class: Header_default.search }, /* @__PURE__ */ g(SearchForm, { term })));
+    return /* @__PURE__ */ g("div", { class: Header_default.root }, /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g("button", { class: Header_default.largeButton, "data-delete-all": true }, /* @__PURE__ */ g("span", null, t4("delete_all")), /* @__PURE__ */ g(Trash, null))), /* @__PURE__ */ g("div", { class: Header_default.search }, /* @__PURE__ */ g(SearchForm, { term })));
   }
+
+  // pages/history/app/components/Results.js
+  var import_classnames2 = __toESM(require_classnames(), 1);
 
   // pages/history/app/constants.js
   var OVERSCAN_AMOUNT = 5;
@@ -3140,16 +3292,31 @@
      * @param {number} props.kind - The kind or type of the item that determines its visual style.
      * @param {string} props.dateRelativeDay - The relative day information to display (shown when kind is equal to TITLE_KIND).
      * @param {string} props.dateTimeOfDay - the time of day, like 11.00am.
+     * @param {number} props.index - original index
      */
-    function Item2({ id, url: url2, domain, title, kind, dateRelativeDay, dateTimeOfDay }) {
-      return /* @__PURE__ */ g(k, null, kind === TITLE_KIND && /* @__PURE__ */ g("div", { class: Item_default.title, tabindex: 0 }, dateRelativeDay, /* @__PURE__ */ g("button", { class: (0, import_classnames.default)(Item_default.dots, Item_default.titleDots), "data-title-menu": id }, /* @__PURE__ */ g(Dots, null))), /* @__PURE__ */ g("div", { class: (0, import_classnames.default)(Item_default.row, kind === END_KIND && Item_default.last), tabindex: 0 }, /* @__PURE__ */ g("a", { href: url2, "data-url": url2, class: Item_default.entryLink }, title), /* @__PURE__ */ g("span", { class: Item_default.domain }, domain), /* @__PURE__ */ g("span", { class: Item_default.time }, dateTimeOfDay), /* @__PURE__ */ g("button", { class: Item_default.dots, "data-row-menu": id }, /* @__PURE__ */ g(Dots, null))));
+    function Item2({ id, url: url2, domain, title, kind, dateRelativeDay, dateTimeOfDay, index }) {
+      const { t: t4 } = useTypedTranslation();
+      return /* @__PURE__ */ g(k, null, kind === TITLE_KIND && /* @__PURE__ */ g("div", { class: Item_default.title, tabindex: 0, "data-section-title": true }, dateRelativeDay, /* @__PURE__ */ g(
+        "button",
+        {
+          class: (0, import_classnames.default)(Item_default.dots, Item_default.titleDots),
+          "data-title-menu": true,
+          value: dateRelativeDay,
+          "aria-label": t4("menu_sectionTitle", { relativeTime: dateRelativeDay })
+        },
+        /* @__PURE__ */ g(Dots, null)
+      )), /* @__PURE__ */ g("div", { class: (0, import_classnames.default)(Item_default.row, kind === END_KIND && Item_default.last), tabindex: 0, "data-history-entry": id }, /* @__PURE__ */ g("a", { href: url2, "data-url": url2, class: Item_default.entryLink }, title), /* @__PURE__ */ g("span", { class: Item_default.domain }, domain), /* @__PURE__ */ g("span", { class: Item_default.time }, dateTimeOfDay), /* @__PURE__ */ g("button", { class: Item_default.dots, "data-row-menu": true, "data-index": index, value: id }, /* @__PURE__ */ g(Dots, null))));
     }
   );
 
   // pages/history/app/components/VirtualizedList.module.css
   var VirtualizedList_default = {
     container: "VirtualizedList_container",
-    listItem: "VirtualizedList_listItem"
+    listItem: "VirtualizedList_listItem",
+    emptyState: "VirtualizedList_emptyState",
+    emptyStateOffset: "VirtualizedList_emptyStateOffset",
+    emptyStateImage: "VirtualizedList_emptyStateImage",
+    emptyTitle: "VirtualizedList_emptyTitle"
   };
 
   // pages/history/app/components/VirtualizedList.js
@@ -3254,6 +3421,9 @@
 
   // pages/history/app/components/Results.js
   function Results({ results }) {
+    if (results.value.items.length === 0) {
+      return /* @__PURE__ */ g(Empty, null);
+    }
     const totalHeight = results.value.heights.reduce((acc, item) => acc + item, 0);
     return /* @__PURE__ */ g("ul", { class: VirtualizedList_default.container, style: { height: totalHeight + "px" } }, /* @__PURE__ */ g(
       VisibleItems,
@@ -3272,12 +3442,17 @@
               domain: item.domain,
               title: item.title,
               dateRelativeDay: item.dateRelativeDay,
-              dateTimeOfDay: item.dateTimeOfDay
+              dateTimeOfDay: item.dateTimeOfDay,
+              index
             }
           ));
         }
       }
     ));
+  }
+  function Empty() {
+    const { t: t4 } = useTypedTranslation();
+    return /* @__PURE__ */ g("div", { class: (0, import_classnames2.default)(VirtualizedList_default.emptyState, VirtualizedList_default.emptyStateOffset) }, /* @__PURE__ */ g("img", { src: "icons/clock.svg", width: 128, height: 96, alt: "", class: VirtualizedList_default.emptyStateImage }), /* @__PURE__ */ g("h2", { class: VirtualizedList_default.emptyTitle }, t4("empty_title")));
   }
 
   // shared/handlers.js
@@ -3343,26 +3518,31 @@
           /** @type {HTMLButtonElement|null} */
           event.target.closest("a[href][data-url]")
         );
+        if (btn?.dataset.titleMenu) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          service.menuTitle(btn.value).catch(console.error);
+          return;
+        }
         if (btn) {
-          if (btn?.dataset.titleMenu) {
-            event.stopImmediatePropagation();
-            event.preventDefault();
-            return confirm(`todo: title menu for ${btn.dataset.titleMenu}`);
-          }
           if (btn?.dataset.rowMenu) {
             event.stopImmediatePropagation();
             event.preventDefault();
-            return confirm(`todo: row menu for ${btn.dataset.rowMenu}`);
+            service.entriesMenu([btn.value], [Number(btn.dataset.index)]).catch(console.error);
+            return;
           }
           if (btn?.dataset.deleteRange) {
             event.stopImmediatePropagation();
             event.preventDefault();
-            return confirm(`todo: delete range for ${btn.dataset.deleteRange}`);
+            const range = toRange(btn.value);
+            if (range) {
+              service.deleteRange(range).catch(console.error);
+            }
           }
           if (btn?.dataset.deleteAll) {
             event.stopImmediatePropagation();
             event.preventDefault();
-            return confirm(`todo: delete all`);
+            service.deleteRange("all").catch(console.error);
           }
         } else if (anchor) {
           const url2 = anchor.dataset.url;
@@ -3390,9 +3570,38 @@
         }
       };
       document.addEventListener("auxclick", handleAuxClick);
+      function contextMenu(event) {
+        const target = (
+          /** @type {HTMLElement|null} */
+          event.target
+        );
+        if (!(target instanceof HTMLElement)) return;
+        const actions = {
+          "[data-section-title]": (elem) => elem.querySelector("button")?.value,
+          "[data-history-entry]": (elem) => elem.querySelector("button")?.value
+        };
+        for (const [selector, valueFn] of Object.entries(actions)) {
+          const match = event.target.closest(selector);
+          if (match) {
+            const value = valueFn(match);
+            if (value) {
+              event.preventDefault();
+              event.stopImmediatePropagation();
+              if (match.dataset.sectionTitle) {
+                service.menuTitle(value).catch(console.error);
+              } else if (match.dataset.historyEntry) {
+                service.entriesMenu([value], [Number(match.dataset.index)]).catch(console.error);
+              }
+            }
+            break;
+          }
+        }
+      }
+      document.addEventListener("contextmenu", contextMenu);
       return () => {
         document.removeEventListener("auxclick", handleAuxClick);
         document.removeEventListener("click", handler);
+        document.removeEventListener("contextmenu", contextMenu);
       };
     });
     return /* @__PURE__ */ g(HistoryServiceContext.Provider, { value: { service, initial } }, children);
@@ -3406,7 +3615,7 @@
   }
 
   // pages/history/app/components/Sidebar.js
-  var import_classnames2 = __toESM(require_classnames(), 1);
+  var import_classnames3 = __toESM(require_classnames(), 1);
 
   // pages/history/app/components/Sidebar.module.css
   var Sidebar_default = {
@@ -3414,10 +3623,34 @@
     pageTitle: "Sidebar_pageTitle",
     nav: "Sidebar_nav",
     item: "Sidebar_item",
+    link: "Sidebar_link",
     delete: "Sidebar_delete",
     active: "Sidebar_active",
     icon: "Sidebar_icon"
   };
+
+  // pages/new-tab/app/types.js
+  function useTypedTranslationWith(context) {
+    return {
+      /** @type {any} */
+      t: x2(TranslationContext).t
+    };
+  }
+  var MessagingContext3 = J(
+    /** @type {import("../src/index.js").NewTabPage} */
+    {}
+  );
+  var TelemetryContext = J(
+    /** @type {import("./telemetry/telemetry.js").Telemetry} */
+    {
+      measureFromPageLoad: () => {
+      }
+    }
+  );
+  var InitialSetupContext = J(
+    /** @type {InitialSetupResponse} */
+    {}
+  );
 
   // pages/history/app/components/Sidebar.js
   var iconMap = {
@@ -3431,7 +3664,6 @@
     friday: "icons/day.svg",
     saturday: "icons/day.svg",
     sunday: "icons/day.svg",
-    recentlyOpened: "icons/closed.svg",
     older: "icons/older.svg"
   };
   var titleMap = {
@@ -3445,23 +3677,51 @@
     friday: (t4) => t4("range_friday"),
     saturday: (t4) => t4("range_saturday"),
     sunday: (t4) => t4("range_sunday"),
-    recentlyOpened: (t4) => t4("range_recentlyOpened"),
     older: (t4) => t4("range_older")
   };
   function Sidebar({ ranges }) {
     const { t: t4 } = useTypedTranslation();
     const search = useSearchContext();
     const current = useComputed(() => search.value.range);
-    const others = ranges.filter((x4) => x4 === "recentlyOpened");
-    const main = ranges.filter((x4) => x4 !== "recentlyOpened");
-    return /* @__PURE__ */ g("div", { class: Sidebar_default.stack }, /* @__PURE__ */ g("h1", { class: Sidebar_default.pageTitle }, t4("page_title")), /* @__PURE__ */ g("nav", { class: Sidebar_default.nav }, main.map((range) => {
+    return /* @__PURE__ */ g("div", { class: Sidebar_default.stack }, /* @__PURE__ */ g("h1", { class: Sidebar_default.pageTitle }, t4("page_title")), /* @__PURE__ */ g("nav", { class: Sidebar_default.nav }, ranges.value.map((range) => {
       return /* @__PURE__ */ g(Item3, { range, key: range, current, title: titleMap[range](t4) });
-    })), others.map((range) => {
-      return /* @__PURE__ */ g(Item3, { range, key: range, current, title: titleMap[range](t4) });
-    }));
+    })));
   }
   function Item3({ range, title, current }) {
-    return /* @__PURE__ */ g("a", { href: "#", "data-filter": range, class: (0, import_classnames2.default)(Sidebar_default.item, current.value === range && Sidebar_default.active) }, /* @__PURE__ */ g("span", { class: Sidebar_default.icon }, /* @__PURE__ */ g("img", { src: iconMap[range] })), title, /* @__PURE__ */ g("button", { class: Sidebar_default.delete, "data-delete-range": range }, /* @__PURE__ */ g(Trash, null)));
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {json} */
+      {}
+    );
+    const [linkLabel, deleteLabel] = (() => {
+      switch (range) {
+        case "all":
+          return [t4("show_history_all"), t4("delete_history_all")];
+        case "today":
+        case "yesterday":
+        case "monday":
+        case "tuesday":
+        case "wednesday":
+        case "thursday":
+        case "friday":
+        case "saturday":
+        case "sunday":
+          return [t4("show_history_for", { range }), t4("delete_history_for", { range })];
+        case "older":
+          return [t4("show_history_older"), t4("delete_history_older")];
+      }
+    })();
+    return /* @__PURE__ */ g("div", { class: Sidebar_default.item }, /* @__PURE__ */ g(
+      "a",
+      {
+        href: "#",
+        "aria-label": linkLabel,
+        "data-filter": range,
+        class: (0, import_classnames3.default)(Sidebar_default.link, current.value === range && Sidebar_default.active),
+        tabindex: 0
+      },
+      /* @__PURE__ */ g("span", { class: Sidebar_default.icon }, /* @__PURE__ */ g("img", { src: iconMap[range] })),
+      title
+    ), /* @__PURE__ */ g("button", { class: Sidebar_default.delete, "data-delete-range": range, "aria-label": deleteLabel, tabindex: 0, value: range }, /* @__PURE__ */ g(Trash, null)));
   }
 
   // pages/history/app/components/App.jsx
@@ -3472,11 +3732,12 @@
       null
     );
     const { initial, service } = useHistory();
+    const ranges = useSignal(initial.ranges.ranges);
+    const term = useSignal("term" in initial.query.info.query ? initial.query.info.query.term : "");
     const results = useSignal({
       items: initial.query.results,
       heights: generateHeights(initial.query.results)
     });
-    const term = useSignal("term" in initial.query.info.query ? initial.query.info.query.term : "");
     useSignalEffect(() => {
       const unsub = service.onResults((data) => {
         r3(() => {
@@ -3489,8 +3750,12 @@
           };
         });
       });
+      const unsubRanges = service.onRanges((data) => {
+        ranges.value = data.ranges;
+      });
       return () => {
         unsub();
+        unsubRanges();
       };
     });
     useSignalEffect(() => {
@@ -3498,7 +3763,7 @@
         containerRef.current?.scrollTo(0, 0);
       });
     });
-    return /* @__PURE__ */ g("div", { class: App_default.layout, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)), /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges: initial.ranges.ranges })), /* @__PURE__ */ g("main", { class: App_default.main, ref: containerRef, "data-main-scroller": true, "data-term": term }, /* @__PURE__ */ g(Results, { results })));
+    return /* @__PURE__ */ g("div", { class: App_default.layout, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)), /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges })), /* @__PURE__ */ g("main", { class: App_default.main, ref: containerRef, "data-main-scroller": true, "data-term": term }, /* @__PURE__ */ g(Results, { results })));
   }
 
   // pages/history/app/components/Components.module.css
