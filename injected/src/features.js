@@ -33,7 +33,8 @@ const otherFeatures = /** @type {const} */ ([
 export const platformSupport = {
     apple: ['webCompat', ...baseFeatures],
     'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
-    android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer'],
+    android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
+    'android-broker-protection': ['brokerProtection'],
     'android-autofill-password-import': ['autofillPasswordImport'],
     windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],

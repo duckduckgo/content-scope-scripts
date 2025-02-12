@@ -1,4 +1,4 @@
-import { aggregateFields, createProfile } from '../src/features/broker-protection/actions/extract.js';
+import { aggregateFields, createProfile, stringValuesFromElements } from '../src/features/broker-protection/actions/extract.js';
 import { cleanArray } from '../src/features/broker-protection/utils.js';
 
 describe('create profiles from extracted data', () => {
@@ -359,5 +359,20 @@ describe('create profiles from extracted data', () => {
         const actual = aggregateFields(scraped);
 
         expect(actual.alternativeNames).toEqual(['Fred Firth', 'Jerry Doug', 'Marvin Smith', 'Roger Star']);
+    });
+
+    it('should extract innerText by default', () => {
+        const element = {
+            innerText: 'John Smith, 39',
+            textContent: 'Ignore me',
+        };
+        expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
+    });
+
+    it('should extract textElement if innerText is not present', () => {
+        const element = {
+            textContent: 'John Smith, 39',
+        };
+        expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
     });
 });

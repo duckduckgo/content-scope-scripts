@@ -274,6 +274,7 @@ export function mockWebkitMessaging(params) {
  *  messagingContext: import('../index.js').MessagingContext,
  *  responses: Record<string, any>,
  *  messageCallback: string
+ *  javascriptInterface?: string
  * }} params
  */
 export function mockAndroidMessaging(params) {
@@ -284,7 +285,8 @@ export function mockAndroidMessaging(params) {
             outgoing: [],
         },
     };
-    window[params.messagingContext.context] = {
+    if (!params.javascriptInterface) throw new Error('`javascriptInterface` is required for Android mocking');
+    window[params.javascriptInterface] = {
         /**
          * @param {string} jsonString
          * @param {string} secret
@@ -322,7 +324,7 @@ export function mockAndroidMessaging(params) {
                 id: msg.id,
             };
 
-            globalThis.messageCallback?.(secret, r);
+            globalThis[params.messageCallback]?.(secret, r);
         },
     };
 }
@@ -406,6 +408,8 @@ export function wrapWebkitScripts(js, replacements) {
  * @param {string} params.name
  * @param {Record<string, any>} params.payload
  * @param {NonNullable<ImportMeta['injectName']>} params.injectName
+ * @param {string} [params.messageCallback] - optional name of a global method where messages can be delivered (android)
+ * @param {string} [params.messageSecret] - optional message secret for platforms that require it (android)
  */
 export function simulateSubscriptionMessage(params) {
     const subscriptionEvent = {
@@ -419,6 +423,13 @@ export function simulateSubscriptionMessage(params) {
             // @ts-expect-error DDG custom global
             const fn = window.chrome?.webview?.postMessage || window.windowsInteropPostMessage;
             fn(subscriptionEvent);
+            break;
+        }
+        case 'android': {
+            if (!params.messageCallback || !params.messageSecret)
+                throw new Error('`messageCallback` + `messageSecret` needed to simulate subscription event on Android');
+
+            window[params.messageCallback]?.(params.messageSecret, subscriptionEvent);
             break;
         }
         case 'apple':

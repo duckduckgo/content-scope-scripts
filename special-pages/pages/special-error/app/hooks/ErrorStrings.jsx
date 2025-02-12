@@ -61,11 +61,11 @@ export function useWarningHeading() {
     const { kind } = useErrorData();
 
     if (kind === 'phishing') {
-        return t('phishingPageHeading');
+        return t('phishingPageHeading').replace('{newline}', '\n');
     }
 
     if (kind === 'malware') {
-        return t('malwarePageHeading');
+        return t('malwarePageHeading').replace('{newline}', '\n');
     }
 
     if (kind === 'ssl') {
@@ -84,11 +84,13 @@ export function useWarningContent() {
     const { kind } = useErrorData();
 
     if (kind === 'phishing') {
-        return [<Trans str={t('phishingWarningText')} values={{ a: helpPageAnchorTagParams }} />];
+        const text = t('phishingWarningText').replace('{newline}', '\n');
+        return [<Trans str={text} values={{ a: helpPageAnchorTagParams }} />];
     }
 
     if (kind === 'malware') {
-        return [<Trans str={t('malwareWarningText')} values={{ a: helpPageAnchorTagParams }} />];
+        const text = t('malwareWarningText').replace('{newline}', '\n');
+        return [<Trans str={text} values={{ a: helpPageAnchorTagParams }} />];
     }
 
     if (kind === 'ssl') {

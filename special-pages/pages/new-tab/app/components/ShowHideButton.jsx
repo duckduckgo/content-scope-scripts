@@ -19,6 +19,7 @@ export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none'
             {...buttonAttrs}
             class={cn(styles.button, shape === 'round' && styles.round, !!showText && styles.withText)}
             aria-label={text}
+            data-toggle="true"
             onClick={onClick}
         >
             {showText ? (

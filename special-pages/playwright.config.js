@@ -23,7 +23,9 @@ export default defineConfig({
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
                 'update-notification.spec.js',
-                'customizer.spec.js'
+                'customizer.spec.js',
+                'activity.spec.js',
+                'history.spec.js'
             ],
             use: {
                 ...devices['Desktop Chrome'],

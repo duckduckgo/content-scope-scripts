@@ -7,6 +7,7 @@ import { updateNotificationExamples } from './update-notification/mocks/update-n
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
+import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -22,7 +23,7 @@ import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIR
  * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
  */
 
-const VERSION_PREFIX = '__ntp_29__.';
+const VERSION_PREFIX = '__ntp_30__.';
 const url = new URL(window.location.href);
 
 export function mockTransport() {
@@ -103,6 +104,7 @@ export function mockTransport() {
 
     const transports = {
         customizer: customizerMockTransport(),
+        activity: activityMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -466,7 +468,7 @@ export function mockTransport() {
                     /** @type {FavoritesConfig} */
                     const defaultConfig = { expansion: 'collapsed', animation: { kind: 'none' } };
                     const fromStorage = read('favorites_config') || defaultConfig;
-                    if (url.searchParams.get('animation') === 'view-transitions') {
+                    if (url.searchParams.get('favorites.animation') === 'view-transitions') {
                         fromStorage.animation = { kind: 'view-transitions' };
                     }
                     return Promise.resolve(fromStorage);
@@ -478,13 +480,9 @@ export function mockTransport() {
                         { id: 'freemiumPIRBanner' },
                         { id: 'nextSteps' },
                         { id: 'favorites' },
-                        { id: 'privacyStats' },
                     ];
 
-                    const widgetConfigFromStorage = read('widget_config') || [
-                        { id: 'favorites', visibility: 'visible' },
-                        { id: 'privacyStats', visibility: 'visible' },
-                    ];
+                    const widgetConfigFromStorage = read('widget_config') || [{ id: 'favorites', visibility: 'visible' }];
 
                     /** @type {UpdateNotificationData} */
                     let updateNotification = { content: null };
@@ -506,6 +504,16 @@ export function mockTransport() {
                         locale: 'en',
                         updateNotification,
                     };
+
+                    const feed = url.searchParams.get('feed') || 'stats';
+                    if (feed === 'stats' || feed === 'both') {
+                        widgetsFromStorage.push({ id: 'privacyStats' });
+                        widgetConfigFromStorage.push({ id: 'privacyStats', visibility: 'visible' });
+                    }
+                    if (feed === 'activity' || feed === 'both') {
+                        widgetsFromStorage.push({ id: 'activity' });
+                        widgetConfigFromStorage.push({ id: 'activity', visibility: 'visible' });
+                    }
 
                     /** @type {import('../types/new-tab').NewTabPageSettings} */
                     const settings = {};

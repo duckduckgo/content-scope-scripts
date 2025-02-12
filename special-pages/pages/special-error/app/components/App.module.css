@@ -14,7 +14,6 @@ body {
     top: 0;
     left: 0;
 
-
     @media (max-height: 400px) {
         padding-top: var(--sp-10);
         align-items: flex-start;
