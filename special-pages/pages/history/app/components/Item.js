@@ -25,25 +25,26 @@ export const Item = memo(
         return (
             <Fragment>
                 {kind === TITLE_KIND && (
-                    <div class={styles.title} tabindex={0} data-section-title>
+                    <div class={cn(styles.title, styles.hover)} data-section-title>
                         {dateRelativeDay}
                         <button
                             class={cn(styles.dots, styles.titleDots)}
                             data-title-menu
                             value={dateRelativeDay}
                             aria-label={t('menu_sectionTitle', { relativeTime: dateRelativeDay })}
+                            tabindex={0}
                         >
                             <Dots />
                         </button>
                     </div>
                 )}
-                <div class={cn(styles.row, kind === END_KIND && styles.last)} tabindex={0} data-history-entry={id}>
+                <div class={cn(styles.row, styles.hover, kind === END_KIND && styles.last)} data-history-entry={id}>
                     <a href={url} data-url={url} class={styles.entryLink}>
                         {title}
                     </a>
                     <span class={styles.domain}>{domain}</span>
                     <span class={styles.time}>{dateTimeOfDay}</span>
-                    <button class={styles.dots} data-row-menu data-index={index} value={id}>
+                    <button class={styles.dots} data-row-menu data-index={index} value={id} tabindex={0}>
                         <Dots />
                     </button>
                 </div>
