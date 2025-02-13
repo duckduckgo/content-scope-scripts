@@ -8,16 +8,16 @@ import { useGlobalState } from './GlobalStateProvider.js';
 
 /**
  * @typedef SelectionState
- * @property {import("@preact/signals").Signal<number[]>} selected
+ * @property {import("@preact/signals").Signal<Set<number>>} selected
  */
 
 /**
- * @typedef {(s: (d: number[]) => number[]) => void} UpdateSelected
+ * @typedef {(s: (d: Set<number>) => Set<number>) => void} UpdateSelected
  */
 
 const SelectionContext = createContext(
     /** @type {SelectionState} */ ({
-        selected: signal(/** @type {number[]} */ ([])),
+        selected: signal(/** @type {Set<number>} */ (new Set([]))),
     }),
 );
 
@@ -28,7 +28,7 @@ const SelectionContext = createContext(
  * @param {import("preact").ComponentChild} props.children - The child components that will consume the history service context.
  */
 export function SelectionProvider({ children }) {
-    const selected = useSignal(/** @type {number[]} */ ([]));
+    const selected = useSignal(new Set(/** @type {number[]} */ ([])));
     /** @type {UpdateSelected} */
     const update = (fn) => {
         selected.value = fn(selected.value);
@@ -50,7 +50,7 @@ function useResetOnQueryChange(update) {
         const unsubs = [
             // when anything about the query changes, reset selections
             query.subscribe(() => {
-                update((prev) => []);
+                update((prev) => new Set([]));
             }),
         ];
 
@@ -64,12 +64,14 @@ function useResetOnQueryChange(update) {
 
 /**
  * @param {UpdateSelected} update
- * @param {import("@preact/signals").Signal<number[]>} selected
+ * @param {import("@preact/signals").Signal<Set<number>>} selected
  */
 function useRowClick(update, selected) {
     const platformName = usePlatformName();
-    const { results } = useGlobalState();
-    const lastSelected = useSignal(/** @type {{index: number; id: string}|null} */ (null));
+
+    const anchorIndex = useSignal(/** @type {null|number} */ (null));
+    const lastShiftRange = useSignal({ start: /** @type {null|number} */ (null), end: /** @type {null|number} */ (null) });
+
     useSignalEffect(() => {
         function handler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
@@ -81,34 +83,48 @@ function useRowClick(update, selected) {
             event.stopImmediatePropagation();
 
             const intention = eventToIntention(event, platformName);
-            const currentSelected = itemRow.getAttribute('aria-selected') === 'true';
+            const { index } = selection;
 
             switch (intention) {
                 case 'click': {
-                    // MVP for getting the tests to pass. Next PRs will expand functionality
-                    update((prev) => [selection.index]);
-                    lastSelected.value = selection;
+                    selected.value = new Set([index]);
+                    anchorIndex.value = index;
+                    lastShiftRange.value = { start: null, end: null };
                     break;
                 }
                 case 'ctrl+click': {
-                    update((prev) => {
-                        const index = prev.indexOf(selection.index);
-                        if (index > -1) {
-                            const next = prev.slice();
-                            next.splice(index, 1);
-                            return next;
-                        }
-                        return prev.concat(selection.index);
-                    });
-                    if (!currentSelected) {
-                        lastSelected.value = selection;
+                    const newSelected = new Set(selected.value);
+                    if (newSelected.has(index)) {
+                        newSelected.delete(index);
                     } else {
-                        lastSelected.value = null;
+                        newSelected.add(index);
                     }
+                    selected.value = newSelected;
+                    anchorIndex.value = index;
+                    lastShiftRange.value = { start: null, end: null };
                     break;
                 }
                 case 'shift+click': {
-                    // todo
+                    const newSelected = new Set(selected.value);
+
+                    // If there was a previous shift selection, remove it first
+                    if (lastShiftRange.value.start !== null && lastShiftRange.value.end !== null) {
+                        for (let i = lastShiftRange.value.start; i <= lastShiftRange.value.end; i++) {
+                            newSelected.delete(i);
+                        }
+                    }
+
+                    // Calculate new range bounds from the anchor point
+                    const start = Math.min(anchorIndex.value ?? 0, index);
+                    const end = Math.max(anchorIndex.value ?? 0, index);
+
+                    // Add all items in new range to selection
+                    for (let i = start; i <= end; i++) {
+                        newSelected.add(i);
+                    }
+
+                    lastShiftRange.value = { start, end };
+                    selected.value = newSelected;
                     break;
                 }
             }

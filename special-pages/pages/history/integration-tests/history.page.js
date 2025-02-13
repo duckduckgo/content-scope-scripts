@@ -370,4 +370,12 @@ export class HistoryTestPage {
         const rows = page.locator('main').locator('[aria-selected]');
         await rows.nth(nth).click({ modifiers: ['ControlOrMeta'] });
     }
+    /**
+     * @param {number} nth
+     */
+    async selectsRowWithShift(nth) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        await rows.nth(nth).click({ modifiers: ['Shift'] });
+    }
 }
