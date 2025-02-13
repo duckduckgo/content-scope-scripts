@@ -10,7 +10,6 @@ import styles from './YouTubeError.module.css';
  * @typedef {import('preact').ComponentChild} ComponentChild
  */
 
-
 /**
  * @param {YouTubeError} kind
  * @returns {{heading: ComponentChild, messages: ComponentChild[], variant: 'list'|'inline'|'paragraphs'}}
