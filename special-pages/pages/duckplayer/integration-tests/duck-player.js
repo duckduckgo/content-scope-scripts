@@ -396,6 +396,24 @@ export class DuckPlayerPage {
         });
     }
 
+    async firesPauseEventWhenOpeningInYoutube() {
+        const expectedEvent = 'ddg-duckplayer-pause';
+        /**
+         * @type {Promise<boolean>}
+         */
+        const evaluatePromise = this.page.evaluate((event) => {
+            return new Promise((resolve) => {
+                window.addEventListener(event, () => {
+                    resolve(true);
+                });
+            });
+        }, expectedEvent);
+
+        await this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
+
+        await evaluatePromise;
+    }
+
     /**
      * @return {Promise<void>}
      */

@@ -103,4 +103,13 @@ export class Settings {
                 return 'desktop';
         }
     }
+
+    /**
+     * Enables sending events to video embed
+     *
+     * @returns {boolean}
+     */
+    get playbackEvents() {
+        return this.layout === 'desktop';
+    }
 }

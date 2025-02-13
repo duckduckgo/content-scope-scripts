@@ -11,6 +11,7 @@ import { SwitchContext, SwitchProvider } from '../providers/SwitchProvider.jsx';
 import { Tooltip } from './Tooltip.jsx';
 import { useSetFocusMode } from './FocusMode.jsx';
 import { useTypedTranslation } from '../types.js';
+import { usePlaybackControl } from './PlaybackControl';
 
 /**
  * @param {object} props
@@ -99,6 +100,7 @@ export function InfoIcon({ debugStyles = false }) {
  */
 function ControlBarDesktop({ embed }) {
     const settingsUrl = useSettingsUrl();
+    const { pauseVideo } = usePlaybackControl();
     const openOnYoutube = useOpenOnYoutubeHandler();
     const { t } = useTypedTranslation();
     const { state } = useContext(SwitchContext);
@@ -120,7 +122,10 @@ function ControlBarDesktop({ embed }) {
                 formfactor={'desktop'}
                 buttonProps={{
                     onClick: () => {
-                        if (embed) openOnYoutube(embed);
+                        if (embed) {
+                            pauseVideo();
+                            openOnYoutube(embed);
+                        }
                     },
                 }}
             >
