@@ -5,6 +5,8 @@ import { EVENT_RANGE_CHANGE, EVENT_SEARCH_COMMIT, KNOWN_ACTIONS, OVERSCAN_AMOUNT
 import { usePlatformName } from '../types.js';
 import { eventToTarget } from '../../../../shared/handlers.js';
 import { useContext } from 'preact/hooks';
+import { useSelected } from './SelectionProvider.js';
+import { useGlobalState } from './GlobalStateProvider.js';
 
 // Create the context
 const HistoryServiceContext = createContext({
@@ -91,30 +93,56 @@ function useSearchCommit(service) {
  * @param {import('../history.service.js').HistoryService} service
  */
 function useContextMenu(service) {
+    const selected = useSelected();
+    const results = useGlobalState();
     useSignalEffect(() => {
         function contextMenu(event) {
             const target = /** @type {HTMLElement|null} */ (event.target);
             if (!(target instanceof HTMLElement)) return;
 
             const actions = {
-                '[data-section-title]': (elem) => elem.querySelector('button')?.value,
-                '[data-history-entry]': (elem) => elem.querySelector('button')?.value,
+                '[data-section-title]': (elem) => {
+                    const value = elem?.querySelector('button')?.value || '';
+                    if (!value) throw new Error('unreachable');
+                    if (elem.dataset.sectionTitle) {
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        service.menuTitle(value).catch(console.error);
+                        return true;
+                    }
+                    return null;
+                },
+                '[data-history-entry]': (elem) => {
+                    const isSelected = elem.getAttribute('aria-selected') === 'true';
+                    if (elem.dataset.historyEntry) {
+                        if (isSelected) {
+                            const indexes = [...selected.value];
+                            const ids = [];
+                            for (let i = 0; i < indexes.length; i++) {
+                                const current = results.results.value.items[indexes[i]];
+                                if (!current) throw new Error('unreachable');
+                                ids.push(current.id);
+                            }
+                            // eslint-disable-next-line promise/prefer-await-to-then
+                            service.entriesMenu(ids, indexes).catch(console.error);
+                            return true;
+                        } else {
+                            const value = elem.querySelector('button[value]')?.value ?? '';
+                            if (!value) throw new Error('unreachable');
+                            service.entriesMenu([value], [Number(elem.dataset.index)]).catch(console.error);
+                            return true;
+                        }
+                    }
+                    return null;
+                },
             };
 
             for (const [selector, valueFn] of Object.entries(actions)) {
                 const match = event.target.closest(selector);
                 if (match) {
                     const value = valueFn(match);
-                    if (value) {
+                    if (value !== null) {
                         event.preventDefault();
                         event.stopImmediatePropagation();
-                        if (match.dataset.sectionTitle) {
-                            // eslint-disable-next-line promise/prefer-await-to-then
-                            service.menuTitle(value).catch(console.error);
-                        } else if (match.dataset.historyEntry) {
-                            // eslint-disable-next-line promise/prefer-await-to-then
-                            service.entriesMenu([value], [Number(match.dataset.index)]).catch(console.error);
-                        }
                     }
                     break;
                 }
