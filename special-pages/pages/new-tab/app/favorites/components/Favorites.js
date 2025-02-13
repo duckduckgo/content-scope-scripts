@@ -4,7 +4,6 @@ import { memo } from 'preact/compat';
 import cn from 'classnames';
 
 import styles from './Favorites.module.css';
-import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import { useTypedTranslationWith } from '../../types.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { useDropzoneSafeArea } from '../../dropzone.js';
