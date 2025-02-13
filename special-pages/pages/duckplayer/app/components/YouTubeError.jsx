@@ -7,49 +7,37 @@ import styles from './YouTubeError.module.css';
 
 /**
  * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
+ * @typedef {import('preact').ComponentChild} ComponentChild
  */
 
-/* TODO: REFACTOR useErrorString */
 
 /**
  * @param {YouTubeError} kind
- * @returns {{heading: Element, messages: Element[], variant: 'list'|'inline'|'paragraphs'}}
+ * @returns {{heading: ComponentChild, messages: ComponentChild[], variant: 'list'|'inline'|'paragraphs'}}
  */
 function useErrorStrings(kind) {
     const { t } = useTypedTranslation();
 
-    const translationsMap = {
-        ['sign-in-required']: {
-            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
-            messages: [
-                <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage1') }} />,
-                <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage2') }} />,
-            ],
-            variant: 'list',
-        },
-        ['age-restricted']: {
-            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
-            messages: [
-                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage1') }} />,
-                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage2') }} />,
-            ],
-            variant: 'inline',
-        },
-        ['no-embed']: {
-            heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
-            messages: [
-                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage1') }} />,
-                <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage2') }} />,
-            ],
-            variant: 'inline',
-        },
-    };
-
-    if (!translationsMap[kind]) {
-        throw new Error(`Missing translations for ${kind}`);
+    switch (kind) {
+        case 'sign-in-required':
+            return {
+                heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
+                messages: [
+                    <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage1') }} />,
+                    <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage2') }} />,
+                ],
+                variant: 'list',
+            };
+        default:
+            return {
+                heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
+                messages: [
+                    <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage1') }} />,
+                    <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage2') }} />,
+                ],
+                variant: 'inline',
+            };
     }
-
-    return translationsMap[kind];
 }
 
 /**

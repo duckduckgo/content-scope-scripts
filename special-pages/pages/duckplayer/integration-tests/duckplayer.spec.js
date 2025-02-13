@@ -39,16 +39,6 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.openWithVideoID('UNSUPPORTED');
         await duckplayer.opensInYoutubeFromError({ videoID: 'UNSUPPORTED' });
     });
-    test('supports "watch on youtube" for videos that require sign-in', async ({ page }, workerInfo) => {
-        const duckplayer = DuckPlayerPage.create(page, workerInfo);
-        await duckplayer.openWithVideoID('SIGN_IN_REQUIRED');
-        await duckplayer.opensInYoutubeFromError({ videoID: 'SIGN_IN_REQUIRED' });
-    });
-    test('shows error screen for videos that require sign-in', async ({ page }, workerInfo) => {
-        const duckplayer = DuckPlayerPage.create(page, workerInfo);
-        await duckplayer.openWithVideoID('SIGN_IN_REQUIRED');
-        await duckplayer.hasShownErrorMessage('ERROR: Bot detected');
-    });
     test('clears storage', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithVideoID();
@@ -103,6 +93,53 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.openWithVideoID();
         await duckplayer.hasLoadedIframe();
         await duckplayer.focusModeIsAbsent();
+    });
+});
+
+test.describe('duckplayer custom error', () => {
+    test('shows custom error screen for videos that require sign-in', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('sign-in-required', 'e90eWYPNtJ8');
+        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
+        await duckplayer.hasShownErrorMessage('If you’re using a VPN, try turning it off');
+    });
+    test('supports "watch on youtube" for videos that require sign-in', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('sign-in-required', 'e90eWYPNtJ8');
+        await duckplayer.opensDuckPlayerYouTubeLinkFromError({ videoID: 'e90eWYPNtJ8' });
+    });
+    test('shows custom error screen for videos that are age-restricted', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('age-restricted', 'e90eWYPNtJ8');
+        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
+        await duckplayer.hasShownErrorMessage('YouTube doesn’t allow this video to be viewed');
+    });
+    test('supports "watch on youtube" for videos that are age-restricted', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('age-restricted', 'e90eWYPNtJ8');
+        await duckplayer.opensDuckPlayerYouTubeLinkFromError({ videoID: 'e90eWYPNtJ8' });
+    });
+    test('shows custom error screen for videos that can’t be embedded', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('no-embed', 'e90eWYPNtJ8');
+        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
+        await duckplayer.hasShownErrorMessage('YouTube doesn’t allow this video to be viewed');
+    });
+    test('supports "watch on youtube" for videos that can’t be embedded', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('no-embed', 'e90eWYPNtJ8');
+        await duckplayer.opensDuckPlayerYouTubeLinkFromError({ videoID: 'e90eWYPNtJ8' });
+    });
+    test('shows custom error screen for videos with unknown errors', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('unknown', 'e90eWYPNtJ8');
+        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
+        await duckplayer.hasShownErrorMessage('YouTube doesn’t allow this video to be viewed');
+    });
+    test('supports "watch on youtube" for videos with unknown errors', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('unknown', 'e90eWYPNtJ8');
+        await duckplayer.opensDuckPlayerYouTubeLinkFromError({ videoID: 'e90eWYPNtJ8' });
     });
 });
 

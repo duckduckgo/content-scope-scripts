@@ -242,6 +242,16 @@ export class DuckPlayerPage {
         await this.openPage(params);
     }
 
+    /**
+     * @param {import('../types/duckplayer.ts').YouTubeError} [youtubeError]
+     * @param {string} [videoID]
+     * @returns {Promise<void>}
+     */
+    async openWithYouTubeError(youtubeError = 'unknown', videoID = 'e90eWYPNtJ8') {
+        const params = new URLSearchParams({ youtubeError, videoID, customError: 'enabled', focusMode: 'disabled' });
+        await this.openPage(params);
+    }
+
     async openWithException() {
         const params = new URLSearchParams({ willThrow: String(true) });
         await this.openPage(params);
@@ -396,6 +406,40 @@ export class DuckPlayerPage {
 
     async opensInYoutubeFromError({ videoID = 'UNSUPPORTED' }) {
         const action = () => this.page.frameLocator('#player').getByRole('link', { name: 'Watch on YouTube' }).click();
+        await this.build.switch({
+            windows: async () => {
+                const failure = new Promise((resolve) => {
+                    this.page.context().on('requestfailed', (f) => {
+                        resolve(f.url());
+                    });
+                });
+                await action();
+                expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+            },
+            apple: async () => {
+                if (this.platform.name === 'ios') {
+                    // todo: why does this not work on ios??
+                    await action();
+                    return;
+                }
+                await action();
+                await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
+            },
+            android: async () => {
+                // const failure = new Promise(resolve => {
+                //     this.page.context().on('requestfailed', f => {
+                //         resolve(f.url())
+                //     })
+                // })
+                // todo: why does this not work on android?
+                await action();
+                // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
+            },
+        });
+    }
+
+    async opensDuckPlayerYouTubeLinkFromError({ videoID = 'UNSUPPORTED' }) {
+        const action = () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
         await this.build.switch({
             windows: async () => {
                 const failure = new Promise((resolve) => {

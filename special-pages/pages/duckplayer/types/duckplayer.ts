@@ -132,17 +132,13 @@ export interface DuckPlayerPageSettings {
   /**
    * Configures a custom error message for YouTube errors
    */
-  customError?:
-    | {
-        state: "disabled";
-      }
-    | {
-        state: "enabled";
-        /**
-         * A selector that, when not empty, indicates a sign-in required error
-         */
-        signInRequiredSelector: string;
-      };
+  customError?: {
+    state: "enabled" | "disabled";
+    /**
+     * A selector that, when not empty, indicates a sign-in required error
+     */
+    signInRequiredSelector: string;
+  };
 }
 /**
  * Generated from @see "../messages/setUserValues.request.json"
