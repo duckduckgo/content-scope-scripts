@@ -106,4 +106,9 @@ test.describe('history selections', () => {
         await hp.openPage({});
         await hp.deletesFromHistoryEntry({ action: 'delete' });
     });
+    test.skip('removes all selections with ESC key', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesFromHistoryEntry({ action: 'delete' });
+    });
 });
