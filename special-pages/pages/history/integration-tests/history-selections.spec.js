@@ -70,4 +70,40 @@ test.describe('history selections', () => {
         await hp.rowIsNotSelected(5);
         await hp.rowIsNotSelected(6);
     });
+    test.skip('removes all selection when any item was deleted', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+    });
+    test.skip('issues context menu for selected group', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+    });
+    test.skip('when multiple selected, issues context menu for a single row, when a non-selected item is the target', async ({
+        page,
+    }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+    });
+    test.skip('expands selection up with shift+arrows', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+    });
+    test.skip('expands selection down with shift+arrows', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+    });
+    test.skip('changes `deleteAll` button text when selections are made', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+    });
+    test.skip('deletes a single row item without confirmation', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesFromHistoryEntry({ action: 'delete' });
+    });
+    test.skip('deletes multiple rows with confirmation', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.deletesFromHistoryEntry({ action: 'delete' });
+    });
 });
