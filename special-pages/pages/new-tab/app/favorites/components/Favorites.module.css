@@ -4,25 +4,27 @@
     display: grid;
     grid-template-rows: auto auto;
     grid-template-areas:
-        'grid'
-        'showhide';
+        'showhide'
+        'grid';
 
     &.noExpansionBtn {
         margin-bottom: var(--ntp-gap);
     }
 
-    &:hover {
-        .showhideVisible [aria-controls] {
-            opacity: 1;
-        }
-    }
+
 }
 
 .showhide {
     grid-area: showhide;
     height: var(--ntp-gap);
-    display: grid;
-    justify-items: center;
+    margin-left: auto;
+}
+
+.showhideVisible {
+    [aria-controls] {
+        opacity: 1;
+        visibility: visible;
+    }
 }
 
 .grid {

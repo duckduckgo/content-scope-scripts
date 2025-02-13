@@ -1,16 +1,14 @@
 .button {
-    opacity: 0;
-    transition: opacity 0.3s;
     cursor: pointer;
     background: none;
     border: none;
     outline: none;
-    display: flex;
+    /*display: flex;*/
     justify-content: center;
     align-items: center;
     color: var(--ntp-text-normal);
     height: var(--ntp-gap);
-    width: 100%;
+    /*width: 100%;*/
     border-radius: var(--border-radius-sm);
 
     &.round {
@@ -96,7 +94,6 @@
     }
 
     &:focus-visible {
-        opacity: 1;
         box-shadow: var(--focus-ring-thin);
     }
 

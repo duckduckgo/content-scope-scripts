@@ -1,0 +1,24 @@
+.root {
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+    [aria-controls] {
+        opacity: 0;
+        visibility: hidden;
+        margin-left: auto;
+    }
+}
+
+.title {
+    /* title 3 em */
+    font-size: var(--title-3-em-font-size);
+    font-weight: var(--title-3-em-font-weight);
+    line-height: var(--title-3-em-line-height);
+}
+
+.canExpand {
+    [aria-controls] {
+        opacity: 1;
+        visibility: visible;
+    }
+}

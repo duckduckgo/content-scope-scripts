@@ -14,6 +14,7 @@ import { CustomizerContext, CustomizerThemesContext } from '../../customizer/Cus
 import { signal, useComputed } from '@preact/signals';
 import { eventToTarget, useOnMiddleClick } from '../../utils.js';
 import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility';
+import { SectionHeading } from '../../components/SectionHeading.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
@@ -72,6 +73,17 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
                 data-testid="FavoritesConfigured"
                 data-background-kind={kind}
             >
+                <SectionHeading
+                    title={t('favorites_menu_title')}
+                    toggle={toggle}
+                    expansion={expansion}
+                    canExpand={canToggleExpansion}
+                    toggleId={TOGGLE_ID}
+                    widgetId={WIDGET_ID}
+                    buttonLabel={
+                        expansion === 'expanded' ? t('favorites_show_less') : t('favorites_show_more', { count: String(hiddenCount) })
+                    }
+                />
                 <VirtualizedGridRows
                     WIDGET_ID={WIDGET_ID}
                     favorites={favorites}
@@ -81,29 +93,6 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
                     openFavorite={openFavorite}
                     openContextMenu={openContextMenu}
                 />
-                {canToggleExpansion && (
-                    <div
-                        className={cn({
-                            [styles.showhide]: true,
-                            [styles.showhideVisible]: canToggleExpansion,
-                        })}
-                    >
-                        <ShowHideButton
-                            buttonAttrs={{
-                                'aria-expanded': expansion === 'expanded',
-                                'aria-pressed': expansion === 'expanded',
-                                'aria-controls': WIDGET_ID,
-                                id: TOGGLE_ID,
-                            }}
-                            text={
-                                expansion === 'expanded'
-                                    ? t('favorites_show_less')
-                                    : t('favorites_show_more', { count: String(hiddenCount) })
-                            }
-                            onClick={toggle}
-                        />
-                    </div>
-                )}
             </div>
         </FavoritesThemeContext.Provider>
     );
