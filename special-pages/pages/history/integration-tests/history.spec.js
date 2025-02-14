@@ -94,8 +94,16 @@ test.describe('history', () => {
     test('deleting sidebar items', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+
+        await hp.selectsToday();
+        await hp.didMakeNthQuery({ nth: 1, query: { range: 'today' } });
+
         await hp.deletesHistoryForToday({ action: 'delete' });
         await hp.sideBarItemWasRemoved('Show history for today');
+
+        // makes a new query for default data
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
     });
     test('deleting sidebar items, but dismissing modal', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);

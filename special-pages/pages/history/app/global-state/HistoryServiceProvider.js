@@ -7,6 +7,7 @@ import { eventToTarget } from '../../../../shared/handlers.js';
 import { useContext } from 'preact/hooks';
 import { eventToIntention, useSelected } from './SelectionProvider.js';
 import { useGlobalState } from './GlobalStateProvider.js';
+import { useReset } from './QueryProvider.js';
 
 // Create the context
 const HistoryServiceContext = createContext({
@@ -215,6 +216,7 @@ function useAuxClickHandler(service, platformName) {
  * @param {import('../history.service.js').HistoryService} service - The history service instance.
  */
 function useButtonClickHandler(service) {
+    const resetQuery = useReset();
     useSignalEffect(() => {
         function clickHandler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
@@ -240,7 +242,12 @@ function useButtonClickHandler(service) {
                     const range = toRange(btn.value);
                     if (range) {
                         // eslint-disable-next-line promise/prefer-await-to-then
-                        service.deleteRange(range).catch(console.error);
+                        service
+                            .deleteRange(range)
+                            // eslint-disable-next-line promise/prefer-await-to-then
+                            .then(resetQuery)
+                            // eslint-disable-next-line promise/prefer-await-to-then
+                            .catch(console.error);
                     }
                     return;
                 }

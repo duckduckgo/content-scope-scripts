@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useContext } from 'preact/hooks';
+import { useCallback, useContext } from 'preact/hooks';
 import { signal, useComputed, useSignal, useSignalEffect } from '@preact/signals';
 import { usePlatformName, useSettings } from '../types.js';
 import { toRange } from '../history.service.js';
@@ -24,6 +24,8 @@ const QueryContext = createContext(
     ),
 );
 
+const QueryResetContext = createContext(() => {});
+
 /**
  * A custom hook to access the SearchContext.
  */
@@ -44,22 +46,38 @@ export function QueryProvider({ children, query = { term: '' } }) {
         range: 'range' in query ? query.range : null,
         domain: 'domain' in query ? query.domain : null,
     };
-    const searchState = useSignal(initial);
-    const derivedTerm = useComputed(() => searchState.value.term);
+    const queryState = useSignal(initial);
+    const derivedTerm = useComputed(() => queryState.value.term);
     const derivedRange = useComputed(() => {
-        return /** @type {Range|null} */ (searchState.value.range);
+        return /** @type {Range|null} */ (queryState.value.range);
     });
     const settings = useSettings();
     const platformName = usePlatformName();
 
-    useClickHandlerForFilters(searchState);
-    useInputHandler(searchState);
+    useClickHandlerForFilters(queryState);
+    useInputHandler(queryState);
     useSearchShortcut(platformName);
     useFormSubmit();
     useURLReflection(derivedTerm, settings);
     useSearchCommitForRange(derivedRange);
 
-    return <QueryContext.Provider value={searchState}>{children}</QueryContext.Provider>;
+    const reset = useCallback(() => {
+        queryState.value = {
+            term: '',
+            domain: null,
+            range: null,
+        };
+    }, [queryState]);
+
+    return (
+        <QueryContext.Provider value={queryState}>
+            <QueryResetContext.Provider value={reset}>{children}</QueryResetContext.Provider>
+        </QueryContext.Provider>
+    );
+}
+
+export function useReset() {
+    return useContext(QueryResetContext);
 }
 
 /**
