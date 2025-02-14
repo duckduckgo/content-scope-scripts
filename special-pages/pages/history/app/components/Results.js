@@ -25,7 +25,7 @@ export function Results({ results, selected }) {
                 renderItem={({ item, cssClassName, style, index }) => {
                     const isSelected = selected.value.has(index);
                     return (
-                        <li key={item.id} data-id={item.id} class={cssClassName} style={style}>
+                        <li key={item.id} data-id={item.id} class={cssClassName} style={style} data-is-selected={isSelected}>
                             <Item
                                 id={item.id}
                                 kind={results.value.heights[index]}

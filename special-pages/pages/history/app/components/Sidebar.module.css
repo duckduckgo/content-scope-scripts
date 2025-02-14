@@ -86,6 +86,11 @@
     }
 }
 
+.delete[aria-disabled="true"]:hover, .item:hover .delete[aria-disabled="true"] {
+    opacity: 0.3;
+    cursor: default;
+}
+
 .active {
     background: var(--color-black-at-6);
     [data-theme="dark"] &  {

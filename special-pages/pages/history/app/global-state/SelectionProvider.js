@@ -1,6 +1,6 @@
 import { createContext, h } from 'preact';
 import { useContext } from 'preact/hooks';
-import { signal, useSignal, useSignalEffect } from '@preact/signals';
+import { signal, useComputed, useSignal, useSignalEffect } from '@preact/signals';
 import { useQueryContext } from './QueryProvider.js';
 import { usePlatformName } from '../types.js';
 import { useGlobalState } from './GlobalStateProvider.js';
@@ -11,7 +11,7 @@ import { useGlobalState } from './GlobalStateProvider.js';
  */
 
 /**
- * @typedef {(s: (d: Set<number>) => Set<number>) => void} UpdateSelected
+ * @typedef {(s: (d: Set<number>) => Set<number>, reason: string) => void} UpdateSelected
  */
 
 const SelectionContext = createContext(
@@ -29,7 +29,8 @@ const SelectionContext = createContext(
 export function SelectionProvider({ children }) {
     const selected = useSignal(new Set(/** @type {number[]} */ ([])));
     /** @type {UpdateSelected} */
-    const update = (fn) => {
+    const update = (fn, reason) => {
+        console.log('[❌] clearing selections because', reason);
         selected.value = fn(selected.value);
     };
 
@@ -44,17 +45,22 @@ export function SelectionProvider({ children }) {
 function useResetOnQueryChange(update) {
     const query = useQueryContext();
     const { results } = useGlobalState();
+    const length = useComputed(() => results.value.items.length);
 
     useSignalEffect(() => {
+        let prevLength = 0;
         const unsubs = [
             // when anything about the query changes, reset selections
             // todo: this should not fire on the first value too
             query.subscribe((old) => {
-                update((prev) => new Set([]));
+                update((prev) => new Set([]), 'query changed');
             }),
             // todo: this should not fire on the first value too
-            results.subscribe(() => {
-                update((prev) => new Set([]));
+            length.subscribe((newLength) => {
+                if (newLength < prevLength) {
+                    update((prev) => new Set([]), `items length shrank from ${prevLength} to ${newLength}`);
+                }
+                prevLength = newLength;
             }),
         ];
 
@@ -195,7 +201,9 @@ function useRowClick(update, selected) {
             }
         }
         function handler(/** @type {MouseEvent} */ event) {
+            const main = document.querySelector('main');
             if (!(event.target instanceof Element)) return;
+            if (!main?.contains(event.target)) return;
             const itemRow = /** @type {HTMLElement|null} */ (event.target.closest('[data-history-entry][data-index]'));
             const selection = toRowSelection(itemRow);
             if (!itemRow || !selection) return;
@@ -205,7 +213,10 @@ function useRowClick(update, selected) {
             handleClickIntentions(intention, selection);
         }
         function keyHandler(/** @type {KeyboardEvent} */ event) {
+            const main = document.querySelector('main');
+            if (!(event.target instanceof Element)) return;
             const intention = eventToIntention(event, platformName);
+            if (!main?.contains(event.target)) return;
             if (intention === 'unknown') return;
             if (focusedIndex.value === null) return console.log('ignoring keys - nothing was selected');
             event.preventDefault();

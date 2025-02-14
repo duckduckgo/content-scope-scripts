@@ -402,4 +402,9 @@ export class HistoryTestPage {
 
         expect(calls[0].payload.params).toStrictEqual({ ids: expectedIds });
     }
+
+    async deletesAllWhenEmpty() {
+        const { page } = this;
+        await expect(page.getByRole('button', { name: 'Delete All', exact: true })).toHaveAttribute('aria-disabled', 'true');
+    }
 }

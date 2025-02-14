@@ -42,6 +42,10 @@
             background-color: var(--color-white-at-12)
         }
     }
+
+    &[aria-disabled="true"] {
+        opacity: .3;
+    }
 }
 
 .search {

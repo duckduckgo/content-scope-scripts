@@ -7,6 +7,7 @@ import { Trash } from '../icons/Trash.js';
 import { useTypedTranslationWith } from '../../../new-tab/app/types.js';
 import { useQueryContext } from '../global-state/QueryProvider.js';
 import { BTN_ACTION_DELETE_RANGE } from '../constants.js';
+import { useGlobalState } from '../global-state/GlobalStateProvider.js';
 
 /**
  * @import json from "../strings.json"
@@ -53,12 +54,14 @@ export function Sidebar({ ranges }) {
     const { t } = useTypedTranslation();
     const search = useQueryContext();
     const current = useComputed(() => search.value.range);
+    const { results } = useGlobalState();
+    const count = useComputed(() => results.value.items.length);
     return (
         <div class={styles.stack}>
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
             <nav class={styles.nav}>
                 {ranges.value.map((range) => {
-                    return <Item range={range} key={range} current={current} title={titleMap[range](t)} />;
+                    return <Item range={range} key={range} current={current} title={titleMap[range](t)} count={count} />;
                 })}
             </nav>
         </div>
@@ -72,9 +75,16 @@ export function Sidebar({ ranges }) {
  * @param {Range} props.range The range value used for filtering and identification.
  * @param {string} props.title The title or label of the item.
  * @param {import("@preact/signals").Signal<Range|null>} props.current The current state object used to determine active item styling.
+ * @param {import("@preact/signals").Signal<number>} props.count
  */
-function Item({ range, title, current }) {
+function Item({ range, title, current, count }) {
     const { t } = useTypedTranslationWith(/** @type {json} */ ({}));
+    const ariaDisabled = useComputed(() => {
+        return range === 'all' && count.value === 0 ? 'true' : 'false';
+    });
+    const buttonTitle = useComputed(() => {
+        return range === 'all' && count.value === 0 ? t('delete_none') : '';
+    });
     const [linkLabel, deleteLabel] = (() => {
         switch (range) {
             case 'all':
@@ -107,7 +117,15 @@ function Item({ range, title, current }) {
                 </span>
                 {title}
             </a>
-            <button class={styles.delete} data-action={BTN_ACTION_DELETE_RANGE} aria-label={deleteLabel} tabindex={0} value={range}>
+            <button
+                class={styles.delete}
+                data-action={BTN_ACTION_DELETE_RANGE}
+                aria-label={deleteLabel}
+                tabindex={0}
+                value={range}
+                title={buttonTitle}
+                aria-disabled={ariaDisabled}
+            >
                 <Trash />
             </button>
         </div>

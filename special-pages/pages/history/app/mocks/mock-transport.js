@@ -110,6 +110,9 @@ export function mockTransport() {
                     const response = {
                         ranges: ['all', 'today', 'yesterday', 'tuesday', 'monday', 'friday', 'older'],
                     };
+                    if (url.searchParams.get('history') === '0') {
+                        response.ranges = ['all'];
+                    }
                     return Promise.resolve(response);
                 }
                 case 'query': {

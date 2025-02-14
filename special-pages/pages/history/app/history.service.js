@@ -26,7 +26,6 @@ export class HistoryService {
             },
         }).withUpdater((old, next, trigger) => {
             if (trigger === 'manual') {
-                console.log('manual trigger, always accepting next:', next);
                 return next;
             }
             if (eq(old.info.query, next.info.query)) {
@@ -110,6 +109,8 @@ export class HistoryService {
         const response = await this.history.messaging.request('entries_menu', { ids });
         if (response.action === 'none') return;
         if (response.action !== 'delete') return;
+
+        // if we get here, the entries were removed
         this.query.update((old) => {
             const inverted = indexes.sort((a, b) => b - a);
             const removed = [];

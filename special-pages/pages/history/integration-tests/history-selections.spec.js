@@ -107,8 +107,8 @@ test.describe('history selections', () => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
         await hp.selectsRowIndex(0);
-        await page.locator('body').press('Shift+ArrowDown');
-        await page.locator('body').press('Shift+ArrowDown');
+        await page.locator('main').press('Shift+ArrowDown');
+        await page.locator('main').press('Shift+ArrowDown');
 
         // control, making sure the element became selected
         await hp.rowIsSelected(0);
@@ -116,15 +116,20 @@ test.describe('history selections', () => {
         await hp.rowIsSelected(2);
 
         // now go bac kup
-        await page.locator('body').press('Shift+ArrowUp');
-        await page.locator('body').press('Shift+ArrowUp');
+        await page.locator('main').press('Shift+ArrowUp');
+        await page.locator('main').press('Shift+ArrowUp');
 
         // only the first should be selected now
         await hp.rowIsSelected(0);
         await hp.rowIsNotSelected(1);
         await hp.rowIsNotSelected(2);
     });
-    test.skip('changes `deleteAll` button text when selections are made', async ({ page }, workerInfo) => {
+    test('`deleteAll` does nothing in the empty state', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+        await hp.openPage({});
+        await hp.deletesAllWhenEmpty();
+    });
+    test.skip('`deleteAll` button text changes when selections are made', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
     });

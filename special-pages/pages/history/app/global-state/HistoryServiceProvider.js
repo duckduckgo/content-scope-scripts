@@ -198,6 +198,7 @@ function useButtonClickHandler(service) {
         function clickHandler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
             const btn = /** @type {HTMLButtonElement|null} */ (event.target.closest('button[data-action]'));
+            if (btn?.getAttribute('aria-disabled') === 'true') return;
             const action = toKnownAction(btn);
             if (btn === null || action === null) return;
             event.stopImmediatePropagation();

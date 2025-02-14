@@ -21,6 +21,10 @@
     "title": "Delete All",
     "note": "Text for a button that deletes all items or entries."
   },
+  "delete_none": {
+    "title": "Nothing to delete",
+    "note": "Title/tooltip text on a button that does nothing when there is no browsing history to delete"
+  },
   "page_title": {
     "title": "History",
     "note": ""
