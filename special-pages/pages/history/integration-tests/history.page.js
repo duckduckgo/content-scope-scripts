@@ -403,8 +403,13 @@ export class HistoryTestPage {
         expect(calls[0].payload.params).toStrictEqual({ ids: expectedIds });
     }
 
-    async deletesAllWhenEmpty() {
+    async cannotDeleteAllWhenEmpty() {
         const { page } = this;
         await expect(page.getByRole('button', { name: 'Delete All', exact: true })).toHaveAttribute('aria-disabled', 'true');
+    }
+
+    async deleteAllButtonReflectsSelection() {
+        const { page } = this;
+        await page.locator('header').getByRole('button', { name: 'Delete', exact: true }).click();
     }
 }

@@ -127,11 +127,13 @@ test.describe('history selections', () => {
     test('`deleteAll` does nothing in the empty state', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
         await hp.openPage({});
-        await hp.deletesAllWhenEmpty();
+        await hp.cannotDeleteAllWhenEmpty();
     });
-    test.skip('`deleteAll` button text changes when selections are made', async ({ page }, workerInfo) => {
+    test('`deleteAll` button text changes when selections are made', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
+        await hp.selectsRowIndex(0);
+        await hp.deleteAllButtonReflectsSelection();
     });
     test.skip('deletes a single row item without confirmation', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
