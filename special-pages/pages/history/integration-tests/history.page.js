@@ -218,11 +218,7 @@ export class HistoryTestPage {
     async deletesHistoryForToday(resp = { action: 'delete' }) {
         const { page } = this;
         await page.getByLabel('Show history for today').hover();
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => dialog.accept());
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
+        this._withDialogHandling(resp);
         await page.getByLabel('Delete history for today').click();
         const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ range: 'today' });
@@ -234,11 +230,7 @@ export class HistoryTestPage {
     async deletesHistoryForYesterday(resp = { action: 'delete' }) {
         const { page } = this;
         await page.getByLabel('Show history for yesterday').hover();
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => dialog.accept());
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
+        this._withDialogHandling(resp);
         await page.getByLabel('Delete history for yesterday').click();
     }
 
@@ -257,11 +249,7 @@ export class HistoryTestPage {
      */
     async deletesAllHistoryFromHeader(resp) {
         const { page } = this;
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => dialog.accept());
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
+        this._withDialogHandling(resp);
         await page.getByRole('button', { name: 'Delete All', exact: true }).click();
         const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ range: 'all' });
@@ -274,15 +262,7 @@ export class HistoryTestPage {
     async deletesFromSectionTitle(resp) {
         const { page } = this;
 
-        // Handle dialog interaction based on response action
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => {
-                return dialog.accept();
-            });
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
-
+        this._withDialogHandling(resp);
         // Hover over the "Today" section and open the menu
         const title = page.getByRole('list').getByText('Today');
         await title.hover();
@@ -306,14 +286,7 @@ export class HistoryTestPage {
     async deletesFromHistoryEntry(nth, resp) {
         const { page } = this;
 
-        // Handle dialog interaction based on response action
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => {
-                return dialog.accept();
-            });
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
+        this._withDialogHandling(resp);
         // console.log(data[0].title);
         const data = generateSampleData({ count: this.entries, offset: 0 });
         const nthItem = data[nth];
@@ -420,16 +393,35 @@ export class HistoryTestPage {
     }
 
     /**
-     * @param {string[]} ids
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
      */
-    async deletesWithKeyboard(ids) {
+    _withDialogHandling(resp) {
         const { page } = this;
+
+        // Handle dialog interaction based on response action
+        if (resp.action === 'delete') {
+            page.on('dialog', (dialog) => {
+                return dialog.accept();
+            });
+        } else {
+            page.on('dialog', (dialog) => dialog.dismiss());
+        }
+    }
+
+    /**
+     * @param {string[]} ids
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async deletesWithKeyboard(ids, resp) {
+        const { page } = this;
+        this._withDialogHandling(resp);
 
         // Simulate pressing the 'Delete' key
         await page.keyboard.press('Delete');
 
         const calls = await this.mocks.waitForCallCount({ method: 'entries_delete', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ ids: ids });
+
         for (const id of ids) {
             await expect(page.locator(`main [aria-selected] button[value=${id}]`)).not.toBeVisible();
         }

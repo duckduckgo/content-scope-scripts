@@ -152,13 +152,14 @@ test.describe('history selections', () => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2);
         await hp.openPage({});
         await hp.selectsRowIndex(0);
-        await hp.deletesWithKeyboard(hp.ids(1));
+        await hp.deletesWithKeyboard(hp.ids(1), { action: 'delete' });
     });
-    test.skip('deletes multiple rows with confirmation', async ({ page }, workerInfo) => {
+    test('deletes multiple rows with confirmation', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
         await hp.selectsRowIndex(0);
-        await hp.deletesWithKeyboard(hp.ids(1));
+        await hp.selectsRowIndexWithShift(2);
+        await hp.deletesWithKeyboard(hp.ids(3), { action: 'delete' });
     });
     test.skip('resets underlying state when elements are removed', () => {});
 });
