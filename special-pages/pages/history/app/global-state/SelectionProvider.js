@@ -4,7 +4,6 @@ import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useQueryContext } from './QueryProvider.js';
 import { eventToIntention } from '../../../../shared/handlers.js';
 import { usePlatformName } from '../types.js';
-import { useGlobalState } from './GlobalStateProvider.js';
 
 /**
  * @typedef SelectionState

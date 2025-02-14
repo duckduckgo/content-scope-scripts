@@ -128,6 +128,7 @@ function useContextMenu(service) {
                         } else {
                             const value = elem.querySelector('button[value]')?.value ?? '';
                             if (!value) throw new Error('unreachable');
+                            // eslint-disable-next-line promise/prefer-await-to-then
                             service.entriesMenu([value], [Number(elem.dataset.index)]).catch(console.error);
                             return true;
                         }
