@@ -78,8 +78,8 @@ export function createIframeFeatures(settings) {
         /**
          * @return {IframeFeature}
          */
-        errorDetection: (signInRequiredSelector) => {
-            return new ErrorDetection();
+        errorDetection: () => {
+            return new ErrorDetection(settings.customError);
         },
     };
 }

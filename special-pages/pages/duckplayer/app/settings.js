@@ -14,7 +14,7 @@ export class Settings {
         pip = { state: 'disabled' },
         autoplay = { state: 'enabled' },
         focusMode = { state: 'enabled' },
-        customError = { state: 'disabled', signInRequiredSelector: DEFAULT_SIGN_IN_REQURED_HREF },
+        customError = { state: 'disabled', signInRequiredSelector: '' },
     }) {
         this.platform = platform;
         this.pip = pip;
