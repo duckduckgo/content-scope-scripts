@@ -71,8 +71,6 @@ export async function init(messaging, telemetry, baseEnvironment) {
         initialYouTubeError = ytErrorParam;
     }
 
-    console.log('YTERROR', initialYouTubeError);
-
     const embed = createEmbedSettings(window.location.href, settings);
 
     const didCatch = (error) => {
