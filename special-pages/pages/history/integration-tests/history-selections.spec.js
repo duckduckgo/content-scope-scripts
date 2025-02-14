@@ -103,19 +103,26 @@ test.describe('history selections', () => {
         // double-check
         await hp.rowIsNotSelected(0);
     });
-    test('expands selection up with shift+arrows', async ({ page }, workerInfo) => {
+    test('expands selection up/down with shift+arrows', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.selectsRowIndex(2);
-        await hp.selectsRowIndexWithShift(0);
+        await hp.selectsRowIndex(0);
+        await page.locator('body').press('Shift+ArrowDown');
+        await page.locator('body').press('Shift+ArrowDown');
 
+        // control, making sure the element became selected
         await hp.rowIsSelected(0);
         await hp.rowIsSelected(1);
         await hp.rowIsSelected(2);
-    });
-    test.skip('expands selection down with shift+arrows', async ({ page }, workerInfo) => {
-        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
-        await hp.openPage({});
+
+        // now go bac kup
+        await page.locator('body').press('Shift+ArrowUp');
+        await page.locator('body').press('Shift+ArrowUp');
+
+        // only the first should be selected now
+        await hp.rowIsSelected(0);
+        await hp.rowIsNotSelected(1);
+        await hp.rowIsNotSelected(2);
     });
     test.skip('changes `deleteAll` button text when selections are made', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
