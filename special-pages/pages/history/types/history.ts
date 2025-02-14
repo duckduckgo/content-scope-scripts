@@ -41,6 +41,7 @@ export interface HistoryMessages {
   notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
   requests:
     | DeleteRangeRequest
+    | EntriesDeleteRequest
     | EntriesMenuRequest
     | GetRangesRequest
     | InitialSetupRequest
@@ -93,6 +94,20 @@ export interface DeleteRangeParams {
   range: Range;
 }
 export interface DeleteRangeResponse {
+  action: ActionResponse;
+}
+/**
+ * Generated from @see "../messages/entries_delete.request.json"
+ */
+export interface EntriesDeleteRequest {
+  method: "entries_delete";
+  params: EntriesDeleteParams;
+  result: EntriesDeleteResponse;
+}
+export interface EntriesDeleteParams {
+  ids: string[];
+}
+export interface EntriesDeleteResponse {
   action: ActionResponse;
 }
 /**

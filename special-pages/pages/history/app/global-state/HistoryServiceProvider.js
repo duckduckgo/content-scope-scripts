@@ -5,7 +5,7 @@ import { EVENT_RANGE_CHANGE, EVENT_SEARCH_COMMIT, KNOWN_ACTIONS, OVERSCAN_AMOUNT
 import { usePlatformName } from '../types.js';
 import { eventToTarget } from '../../../../shared/handlers.js';
 import { useContext } from 'preact/hooks';
-import { useSelected } from './SelectionProvider.js';
+import { eventToIntention, useSelected } from './SelectionProvider.js';
 import { useGlobalState } from './GlobalStateProvider.js';
 
 // Create the context
@@ -32,6 +32,7 @@ export function useGlobalHandlers() {
     useRangeChange(service);
     useLinkClickHandler(service, platformName);
     useButtonClickHandler(service);
+    useDeleteItems(service);
     useAuxClickHandler(service, platformName);
     useContextMenu(service);
 }
@@ -55,6 +56,26 @@ function useRangeChange(service) {
         window.addEventListener(EVENT_RANGE_CHANGE, handler);
         return () => {
             window.removeEventListener(EVENT_RANGE_CHANGE, handler);
+        };
+    });
+}
+
+/**
+ * @param {import('../history.service.js').HistoryService} service
+ */
+function useDeleteItems(service) {
+    const selected = useSelected();
+    const platformName = usePlatformName();
+    useSignalEffect(() => {
+        function handler(event) {
+            if (eventToIntention(event, platformName) === 'delete' && selected.value.size > 0) {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.entriesDelete([...selected.value]).catch(console.error);
+            }
+        }
+        document.addEventListener('keydown', handler);
+        return () => {
+            document.removeEventListener('keydown', handler);
         };
     });
 }

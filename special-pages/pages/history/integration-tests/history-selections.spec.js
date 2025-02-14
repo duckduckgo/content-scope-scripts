@@ -148,14 +148,17 @@ test.describe('history selections', () => {
         await hp.pressesEscape();
         await hp.rowIsNotSelected(0);
     });
-    test.skip('deletes a single row item without confirmation', async ({ page }, workerInfo) => {
-        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+    test('deletes a single row item without confirmation', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2);
         await hp.openPage({});
-        await hp.deletesFromHistoryEntry(0, { action: 'delete' });
+        await hp.selectsRowIndex(0);
+        await hp.deletesWithKeyboard(hp.ids(1));
     });
     test.skip('deletes multiple rows with confirmation', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.deletesFromHistoryEntry(0, { action: 'delete' });
+        await hp.selectsRowIndex(0);
+        await hp.deletesWithKeyboard(hp.ids(1));
     });
+    test.skip('resets underlying state when elements are removed', () => {});
 });

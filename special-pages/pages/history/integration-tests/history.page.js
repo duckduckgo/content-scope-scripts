@@ -418,4 +418,20 @@ export class HistoryTestPage {
         const main = page.locator('body');
         await main.press('Escape');
     }
+
+    /**
+     * @param {string[]} ids
+     */
+    async deletesWithKeyboard(ids) {
+        const { page } = this;
+
+        // Simulate pressing the 'Delete' key
+        await page.keyboard.press('Delete');
+
+        const calls = await this.mocks.waitForCallCount({ method: 'entries_delete', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ ids: ids });
+        for (const id of ids) {
+            await expect(page.locator(`main [aria-selected] button[value=${id}]`)).not.toBeVisible();
+        }
+    }
 }

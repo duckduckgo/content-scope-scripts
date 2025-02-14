@@ -109,7 +109,38 @@ export class HistoryService {
         const response = await this.history.messaging.request('entries_menu', { ids });
         if (response.action === 'none') return;
         if (response.action !== 'delete') return;
+        this._postdelete(indexes);
+    }
 
+    /**
+     * @param {number[]} indexes
+     */
+    async entriesDelete(indexes) {
+        const ids = this._collectIds(indexes);
+        const response = await this.history.messaging.request('entries_delete', { ids });
+        if (response.action === 'none') return;
+        if (response.action !== 'delete') return;
+        this._postdelete(indexes);
+    }
+
+    /**
+     * @param {number[]} indexes
+     * @return {string[]}
+     */
+    _collectIds(indexes) {
+        const ids = [];
+        for (let i = 0; i < indexes.length; i++) {
+            const current = this.query.data?.results[indexes[i]];
+            if (!current) throw new Error('unreachable');
+            ids.push(current.id);
+        }
+        return ids;
+    }
+
+    /**
+     * @param {number[]} indexes
+     */
+    _postdelete(indexes) {
         // if we get here, the entries were removed
         this.query.update((old) => {
             const inverted = indexes.sort((a, b) => b - a);
