@@ -12,16 +12,11 @@ import { useSelected } from '../global-state/SelectionProvider.js';
 /**
  */
 export function Header() {
-    const { t } = useTypedTranslation();
     const search = useQueryContext();
-    const { results } = useGlobalState();
-
-    const ariaDisabled = useComputed(() => (results.value.items.length === 0 ? 'true' : 'false'));
-    const title = useComputed(() => (results.value.items.length === 0 ? t('delete_none') : ''));
     const term = useComputed(() => search.value.term);
     return (
         <div class={styles.root}>
-            <Controls ariaDisabled={ariaDisabled} title={title} />
+            <Controls term={term} />
             <div class={styles.search}>
                 <SearchForm term={term} />
             </div>
@@ -29,15 +24,26 @@ export function Header() {
     );
 }
 
-function Controls(props) {
+/**
+ * Renders the Controls component that displays a button for deletion functionality.
+ *
+ * @param {Object} props - Properties passed to the component.
+ * @param {import("@preact/signals").Signal<string|null>} props.term
+ */
+function Controls({ term }) {
     const { t } = useTypedTranslation();
     const selected = useSelected();
     const buttonTxt = useComputed(() => {
-        return selected.value.size > 0 ? t('delete_some') : t('delete_all');
+        const hasTerm = term.value !== null && term.value.trim() !== '';
+        const hasSelections = selected.value.size > 0;
+        return hasTerm || hasSelections ? t('delete_some') : t('delete_all');
     });
+    const { results } = useGlobalState();
+    const ariaDisabled = useComputed(() => (results.value.items.length === 0 ? 'true' : 'false'));
+    const title = useComputed(() => (results.value.items.length === 0 ? t('delete_none') : ''));
     return (
         <div class={styles.controls}>
-            <button class={styles.largeButton} data-action={BTN_ACTION_DELETE_ALL} aria-disabled={props.ariaDisabled} title={props.title}>
+            <button class={styles.largeButton} data-action={BTN_ACTION_DELETE_ALL} aria-disabled={ariaDisabled} title={title}>
                 <span>{buttonTxt}</span>
                 <Trash />
             </button>

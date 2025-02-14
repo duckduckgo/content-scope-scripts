@@ -6,7 +6,7 @@ import { Results } from './Results.js';
 import { useRef } from 'preact/hooks';
 import { Sidebar } from './Sidebar.js';
 import { useGlobalState } from '../global-state/GlobalStateProvider.js';
-import { useSelected } from '../global-state/SelectionProvider.js';
+import { useSelectionEvents, useSelected } from '../global-state/SelectionProvider.js';
 import { useGlobalHandlers } from '../global-state/HistoryServiceProvider.js';
 
 export function App() {
@@ -16,6 +16,7 @@ export function App() {
     const selected = useSelected();
 
     useGlobalHandlers();
+    useSelectionEvents(containerRef);
 
     return (
         <div class={styles.layout} data-theme={isDarkMode ? 'dark' : 'light'}>

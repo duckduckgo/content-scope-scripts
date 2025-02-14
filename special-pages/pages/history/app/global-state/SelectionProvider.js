@@ -28,6 +28,11 @@ const SelectionContext = createContext(
  */
 export function SelectionProvider({ children }) {
     const selected = useSignal(new Set(/** @type {number[]} */ ([])));
+    return <SelectionContext.Provider value={{ selected }}>{children}</SelectionContext.Provider>;
+}
+
+export function useSelectionEvents(containerRef) {
+    const { selected } = useContext(SelectionContext);
     /** @type {UpdateSelected} */
     const update = (fn, reason) => {
         console.log('[❌] clearing selections because', reason);
@@ -35,10 +40,9 @@ export function SelectionProvider({ children }) {
     };
 
     useResetOnQueryChange(update);
-    useRowClick(update, selected);
-
-    return <SelectionContext.Provider value={{ selected }}>{children}</SelectionContext.Provider>;
+    useRowInteractions(update, selected, containerRef);
 }
+
 /**
  * @param {UpdateSelected} update
  */
@@ -76,7 +80,7 @@ function useResetOnQueryChange(update) {
  * @param {UpdateSelected} update
  * @param {import("@preact/signals").Signal<Set<number>>} selected
  */
-function useRowClick(update, selected) {
+function useRowInteractions(update, selected, containerRef) {
     const platformName = usePlatformName();
 
     const anchorIndex = useSignal(/** @type {null|number} */ (null));
@@ -186,6 +190,7 @@ function useRowClick(update, selected) {
                     selected.value = new Set([newIndex]);
                     anchorIndex.value = newIndex;
                     lastShiftRange.value = { start: null, end: null };
+                    break;
                 }
             }
 
@@ -197,13 +202,28 @@ function useRowClick(update, selected) {
                     focusedIndex.value = newIndex;
                     const match = document.querySelector(`[aria-selected][data-index="${newIndex}"]`);
                     match?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                    return true;
                 }
             }
         }
+        /**
+         * @param {Intention} intention
+         * @param {KeyboardEvent} event
+         */
+        function handleGlobalKeyIntentions(intention, event) {
+            if (event.target !== document.body) return;
+            switch (intention) {
+                case 'escape': {
+                    update((prev) => (prev.size > 0 ? new Set([]) : prev), 'escape key pressed');
+                    return true;
+                }
+            }
+            return false;
+        }
         function handler(/** @type {MouseEvent} */ event) {
-            const main = document.querySelector('main');
             if (!(event.target instanceof Element)) return;
-            if (!main?.contains(event.target)) return;
+            if (event.target.closest('button')) return;
+            if (event.target.closest('a')) return;
             const itemRow = /** @type {HTMLElement|null} */ (event.target.closest('[data-history-entry][data-index]'));
             const selection = toRowSelection(itemRow);
             if (!itemRow || !selection) return;
@@ -213,20 +233,19 @@ function useRowClick(update, selected) {
             handleClickIntentions(intention, selection);
         }
         function keyHandler(/** @type {KeyboardEvent} */ event) {
-            const main = document.querySelector('main');
             if (!(event.target instanceof Element)) return;
             const intention = eventToIntention(event, platformName);
-            if (!main?.contains(event.target)) return;
             if (intention === 'unknown') return;
             if (focusedIndex.value === null) return console.log('ignoring keys - nothing was selected');
-            event.preventDefault();
-            handleKeyIntention(intention);
+            const handled = handleKeyIntention(intention) || handleGlobalKeyIntentions(intention, event);
+            if (handled) event.preventDefault();
         }
-        document.addEventListener('click', handler);
+
+        containerRef.current.addEventListener('click', handler);
         document.addEventListener('keydown', keyHandler);
 
         return () => {
-            document.removeEventListener('click', handler);
+            containerRef.current.removeEventListener('click', handler);
             document.removeEventListener('keydown', keyHandler);
         };
     });

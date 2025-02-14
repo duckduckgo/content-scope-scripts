@@ -135,17 +135,25 @@ test.describe('history selections', () => {
         await hp.selectsRowIndex(0);
         await hp.deleteAllButtonReflectsSelection();
     });
+    test('`deleteAll` button text changes when a query is present', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.types('example.com');
+        await hp.deleteAllButtonReflectsSelection();
+    });
+    test('removes all selections with ESC key', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.selectsRowIndex(0);
+        await hp.pressesEscape();
+        await hp.rowIsNotSelected(0);
+    });
     test.skip('deletes a single row item without confirmation', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
         await hp.deletesFromHistoryEntry(0, { action: 'delete' });
     });
     test.skip('deletes multiple rows with confirmation', async ({ page }, workerInfo) => {
-        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
-        await hp.openPage({});
-        await hp.deletesFromHistoryEntry(0, { action: 'delete' });
-    });
-    test.skip('removes all selections with ESC key', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
         await hp.deletesFromHistoryEntry(0, { action: 'delete' });

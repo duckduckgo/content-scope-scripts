@@ -12,7 +12,7 @@ import { MessagingContext, SettingsContext } from './types.js';
 import { HistoryService, paramsToQuery } from './history.service.js';
 import { HistoryServiceProvider } from './global-state/HistoryServiceProvider.js';
 import { Settings } from './Settings.js';
-import { SelectionProvider } from './global-state/SelectionProvider.js';
+import { eventToIntention, SelectionProvider } from './global-state/SelectionProvider.js';
 import { QueryProvider } from './global-state/QueryProvider.js';
 import { GlobalStateProvider } from './global-state/GlobalStateProvider.js'; // global styles
 

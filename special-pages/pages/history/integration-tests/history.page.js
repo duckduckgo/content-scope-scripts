@@ -412,4 +412,10 @@ export class HistoryTestPage {
         const { page } = this;
         await page.locator('header').getByRole('button', { name: 'Delete', exact: true }).click();
     }
+
+    async pressesEscape() {
+        const { page } = this;
+        const main = page.locator('body');
+        await main.press('Escape');
+    }
 }
