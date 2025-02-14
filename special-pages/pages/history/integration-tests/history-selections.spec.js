@@ -84,11 +84,24 @@ test.describe('history selections', () => {
         await hp.selectsRowIndexWithShift(2);
         await hp.rightClicksWithinSelection(0, hp.ids(3));
     });
-    test.skip('when multiple selected, issues context menu for a single row, when a non-selected item is the target', async ({
+    test('when multiple selected, issues context menu for a single row, when a non-selected item is the target', async ({
         page,
     }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
+        await hp.selectsRowIndex(0);
+        await hp.selectsRowIndexWithShift(2);
+
+        // control
+        await hp.rowIsSelected(0);
+        await hp.rowIsSelected(1);
+        await hp.rowIsSelected(2);
+
+        // do the action, right-clicking an entry outside of the selection
+        await hp.deletesFromHistoryEntry(3, { action: 'delete' });
+
+        // double-check
+        await hp.rowIsNotSelected(0);
     });
     test.skip('expands selection up with shift+arrows', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
