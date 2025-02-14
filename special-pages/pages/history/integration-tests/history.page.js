@@ -336,7 +336,7 @@ export class HistoryTestPage {
     /**
      * @param {number} nth
      */
-    async selectsRow(nth) {
+    async selectsRowIndex(nth) {
         const { page } = this;
         const rows = page.locator('main').locator('[aria-selected]');
         const selected = page.locator('main').locator('[aria-selected="true"]');
@@ -374,9 +374,32 @@ export class HistoryTestPage {
     /**
      * @param {number} nth
      */
-    async selectsRowWithShift(nth) {
+    async selectsRowIndexWithShift(nth) {
         const { page } = this;
         const rows = page.locator('main').locator('[aria-selected]');
         await rows.nth(nth).click({ modifiers: ['Shift'] });
+    }
+
+    /**
+     * @param {number} count
+     */
+    ids(count) {
+        return generateSampleData({ count: this.entries, offset: 0 })
+            .slice(0, count)
+            .map((x) => x.id);
+    }
+
+    /**
+     * @param {number} nth
+     * @param {string[]} expectedIds
+     */
+    async rightClicksWithinSelection(nth, expectedIds) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        const selectedRow = rows.nth(nth);
+        await selectedRow.click({ button: 'right' });
+        const calls = await this.mocks.waitForCallCount({ method: 'entries_menu', count: 1 });
+
+        expect(calls[0].payload.params).toStrictEqual({ ids: expectedIds });
     }
 }
