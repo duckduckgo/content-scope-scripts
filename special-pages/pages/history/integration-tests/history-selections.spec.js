@@ -103,9 +103,15 @@ test.describe('history selections', () => {
         // double-check
         await hp.rowIsNotSelected(0);
     });
-    test.skip('expands selection up with shift+arrows', async ({ page }, workerInfo) => {
+    test('expands selection up with shift+arrows', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
+        await hp.selectsRowIndex(2);
+        await hp.selectsRowIndexWithShift(0);
+
+        await hp.rowIsSelected(0);
+        await hp.rowIsSelected(1);
+        await hp.rowIsSelected(2);
     });
     test.skip('expands selection down with shift+arrows', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);

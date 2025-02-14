@@ -1,8 +1,7 @@
-import { h, createContext } from 'preact';
+import { createContext, h } from 'preact';
 import { useContext } from 'preact/hooks';
 import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useQueryContext } from './QueryProvider.js';
-import { eventToIntention } from '../../../../shared/handlers.js';
 import { usePlatformName } from '../types.js';
 import { useGlobalState } from './GlobalStateProvider.js';
 
@@ -39,7 +38,6 @@ export function SelectionProvider({ children }) {
 
     return <SelectionContext.Provider value={{ selected }}>{children}</SelectionContext.Provider>;
 }
-
 /**
  * @param {UpdateSelected} update
  */
@@ -77,25 +75,22 @@ function useRowClick(update, selected) {
 
     const anchorIndex = useSignal(/** @type {null|number} */ (null));
     const lastShiftRange = useSignal({ start: /** @type {null|number} */ (null), end: /** @type {null|number} */ (null) });
+    const focusedIndex = useSignal(/** @type {null|number} */ (null));
+    const { results } = useGlobalState();
 
     useSignalEffect(() => {
-        function handler(/** @type {MouseEvent} */ event) {
-            if (!(event.target instanceof Element)) return;
-            const itemRow = /** @type {HTMLElement|null} */ (event.target.closest('[data-history-entry][data-index]'));
-            const selection = toRowSelection(itemRow);
-            if (!itemRow || !selection) return;
-
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            const intention = eventToIntention(event, platformName);
+        /**
+         * @param {Intention} intention
+         * @param {{id: string; index: number}} selection
+         */
+        function handleClickIntentions(intention, selection) {
             const { index } = selection;
-
             switch (intention) {
                 case 'click': {
                     selected.value = new Set([index]);
                     anchorIndex.value = index;
                     lastShiftRange.value = { start: null, end: null };
+                    focusedIndex.value = index;
                     break;
                 }
                 case 'ctrl+click': {
@@ -108,6 +103,7 @@ function useRowClick(update, selected) {
                     selected.value = newSelected;
                     anchorIndex.value = index;
                     lastShiftRange.value = { start: null, end: null };
+                    focusedIndex.value = index;
                     break;
                 }
                 case 'shift+click': {
@@ -131,13 +127,96 @@ function useRowClick(update, selected) {
 
                     lastShiftRange.value = { start, end };
                     selected.value = newSelected;
+                    focusedIndex.value = index;
                     break;
                 }
             }
         }
+
+        /**
+         * @param {Intention} intention
+         */
+        function handleKeyIntention(intention) {
+            // prettier-ignore
+            const direction = intention === 'shift+up' || intention === 'up'
+                ? -1
+                : 1;
+
+            if (focusedIndex.value === null) return console.error('unreachable');
+            const newIndex = Math.max(0, Math.min(results.value.items.length - 1, focusedIndex.value + direction));
+
+            switch (intention) {
+                case 'shift+down':
+                case 'shift+up': {
+                    // Handle shift+arrow selection
+                    const newSelected = new Set(selected.value);
+
+                    // Remove previous shift range
+                    if (lastShiftRange.value.start !== null && lastShiftRange.value.end !== null) {
+                        for (let i = lastShiftRange.value.start; i <= lastShiftRange.value.end; i++) {
+                            newSelected.delete(i);
+                        }
+                    }
+
+                    // Calculate new range
+                    const start = Math.min(anchorIndex.value ?? newIndex, newIndex);
+                    const end = Math.max(anchorIndex.value ?? newIndex, newIndex);
+
+                    // Add new range
+                    for (let i = start; i <= end; i++) {
+                        newSelected.add(i);
+                    }
+
+                    lastShiftRange.value = { start, end };
+                    selected.value = newSelected;
+
+                    if (anchorIndex.value === null) {
+                        anchorIndex.value = newIndex;
+                    }
+                    break;
+                }
+                case 'up':
+                case 'down': {
+                    selected.value = new Set([newIndex]);
+                    anchorIndex.value = newIndex;
+                    lastShiftRange.value = { start: null, end: null };
+                }
+            }
+
+            switch (intention) {
+                case 'shift+down':
+                case 'shift+up':
+                case 'up':
+                case 'down': {
+                    focusedIndex.value = newIndex;
+                    const match = document.querySelector(`[aria-selected][data-index="${newIndex}"]`);
+                    match?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                }
+            }
+        }
+        function handler(/** @type {MouseEvent} */ event) {
+            if (!(event.target instanceof Element)) return;
+            const itemRow = /** @type {HTMLElement|null} */ (event.target.closest('[data-history-entry][data-index]'));
+            const selection = toRowSelection(itemRow);
+            if (!itemRow || !selection) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            const intention = eventToIntention(event, platformName);
+            handleClickIntentions(intention, selection);
+        }
+        function keyHandler(/** @type {KeyboardEvent} */ event) {
+            const intention = eventToIntention(event, platformName);
+            if (intention === 'unknown') return;
+            if (focusedIndex.value === null) return console.log('ignoring keys - nothing was selected');
+            event.preventDefault();
+            handleKeyIntention(intention);
+        }
         document.addEventListener('click', handler);
+        document.addEventListener('keydown', keyHandler);
+
         return () => {
             document.removeEventListener('click', handler);
+            document.removeEventListener('keydown', keyHandler);
         };
     });
 }
@@ -162,4 +241,40 @@ function toRowSelection(elem) {
     if (typeof index !== 'string') return null;
     if (!index.trim().match(/^\d+$/)) return null;
     return { id: historyEntry, index: parseInt(index, 10) };
+}
+
+/**
+ * @typedef {'ctrl+click' | 'shift+click' | 'click' | 'escape' | 'delete' | 'shift+up' | 'shift+down' | 'up' | 'down' | 'unknown'} Intention
+ */
+
+/**
+ * @param {MouseEvent|KeyboardEvent} event
+ * @param {ImportMeta['platform']} platformName
+ * @return {Intention}
+ */
+export function eventToIntention(event, platformName) {
+    if (event instanceof MouseEvent) {
+        const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
+        if (isControlClick) {
+            return 'ctrl+click';
+        } else if (event.shiftKey) {
+            return 'shift+click';
+        }
+        return 'click';
+    } else if (event instanceof KeyboardEvent) {
+        if (event.key === 'Escape') {
+            return 'escape';
+        } else if (event.key === 'Delete' || event.key === 'Backspace') {
+            return 'delete';
+        } else if (event.key === 'ArrowUp' && event.shiftKey) {
+            return 'shift+up';
+        } else if (event.key === 'ArrowDown' && event.shiftKey) {
+            return 'shift+down';
+        } else if (event.key === 'ArrowUp') {
+            return 'up';
+        } else if (event.key === 'ArrowDown') {
+            return 'down';
+        }
+    }
+    return 'unknown';
 }
