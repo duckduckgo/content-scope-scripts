@@ -70,9 +70,12 @@ test.describe('history selections', () => {
         await hp.rowIsNotSelected(5);
         await hp.rowIsNotSelected(6);
     });
-    test.skip('removes all selection when any item was deleted', async ({ page }, workerInfo) => {
+    test('removes all selections when any item is deleted', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
+        await hp.selectsRow(0);
+        await hp.deletesFromHistoryEntry(1, { action: 'delete' });
+        await hp.rowIsNotSelected(0);
     });
     test.skip('issues context menu for selected group', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
@@ -99,16 +102,16 @@ test.describe('history selections', () => {
     test.skip('deletes a single row item without confirmation', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.deletesFromHistoryEntry({ action: 'delete' });
+        await hp.deletesFromHistoryEntry(0, { action: 'delete' });
     });
     test.skip('deletes multiple rows with confirmation', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.deletesFromHistoryEntry({ action: 'delete' });
+        await hp.deletesFromHistoryEntry(0, { action: 'delete' });
     });
     test.skip('removes all selections with ESC key', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.deletesFromHistoryEntry({ action: 'delete' });
+        await hp.deletesFromHistoryEntry(0, { action: 'delete' });
     });
 });

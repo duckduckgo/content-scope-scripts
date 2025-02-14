@@ -121,7 +121,7 @@ test.describe('history', () => {
     test('3 dots menu on history entry', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.deletesFromHistoryEntry({ action: 'delete' });
+        await hp.deletesFromHistoryEntry(0, { action: 'delete' });
     });
     test.skip('accepts domain search in response to context menu', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);

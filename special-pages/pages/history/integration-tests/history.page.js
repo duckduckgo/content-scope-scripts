@@ -300,9 +300,10 @@ export class HistoryTestPage {
     }
 
     /**
+     * @param {number} nth - row index
      * @param {import('../types/history.ts').DeleteRangeResponse} resp
      */
-    async deletesFromHistoryEntry(resp) {
+    async deletesFromHistoryEntry(nth, resp) {
         const { page } = this;
 
         // Handle dialog interaction based on response action
@@ -315,13 +316,13 @@ export class HistoryTestPage {
         }
         // console.log(data[0].title);
         const data = generateSampleData({ count: this.entries, offset: 0 });
-        const first = data[0];
-        const row = page.getByText(first.title);
+        const nthItem = data[nth];
+        const row = page.getByText(nthItem.title);
         await row.hover();
-        await page.locator(`[data-action="entries_menu"][value=${data[0].id}]`).click();
+        await page.locator(`[data-action="entries_menu"][value=${nthItem.id}]`).click();
 
         const calls = await this.mocks.waitForCallCount({ method: 'entries_menu', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ ids: [data[0].id] });
+        expect(calls[0].payload.params).toStrictEqual({ ids: [nthItem.id] });
     }
 
     async rightClicksSectionTitle() {

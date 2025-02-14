@@ -4,6 +4,7 @@ import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useQueryContext } from './QueryProvider.js';
 import { eventToIntention } from '../../../../shared/handlers.js';
 import { usePlatformName } from '../types.js';
+import { useGlobalState } from './GlobalStateProvider.js';
 
 /**
  * @typedef SelectionState
@@ -31,7 +32,6 @@ export function SelectionProvider({ children }) {
     /** @type {UpdateSelected} */
     const update = (fn) => {
         selected.value = fn(selected.value);
-        console.log(selected.value);
     };
 
     useResetOnQueryChange(update);
@@ -45,10 +45,17 @@ export function SelectionProvider({ children }) {
  */
 function useResetOnQueryChange(update) {
     const query = useQueryContext();
+    const { results } = useGlobalState();
+
     useSignalEffect(() => {
         const unsubs = [
             // when anything about the query changes, reset selections
-            query.subscribe(() => {
+            // todo: this should not fire on the first value too
+            query.subscribe((old) => {
+                update((prev) => new Set([]));
+            }),
+            // todo: this should not fire on the first value too
+            results.subscribe(() => {
                 update((prev) => new Set([]));
             }),
         ];
