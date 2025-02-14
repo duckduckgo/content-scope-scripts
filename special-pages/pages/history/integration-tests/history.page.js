@@ -420,7 +420,7 @@ export class HistoryTestPage {
         await page.keyboard.press('Delete');
 
         const calls = await this.mocks.waitForCallCount({ method: 'entries_delete', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ ids: ids });
+        expect(calls[0].payload.params).toStrictEqual({ ids });
 
         for (const id of ids) {
             await expect(page.locator(`main [aria-selected] button[value=${id}]`)).not.toBeVisible();

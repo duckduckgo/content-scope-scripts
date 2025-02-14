@@ -241,7 +241,6 @@ function useButtonClickHandler(service) {
                 case 'deleteRange': {
                     const range = toRange(btn.value);
                     if (range) {
-                        // eslint-disable-next-line promise/prefer-await-to-then
                         service
                             .deleteRange(range)
                             // eslint-disable-next-line promise/prefer-await-to-then
