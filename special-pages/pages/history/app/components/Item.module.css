@@ -81,6 +81,10 @@
     border-bottom-right-radius: var(--row-radius);
 }
 
+.favicon {
+    flex-shrink: 0;
+    min-width: 0;
+}
 
 .entryLink {
     white-space: nowrap;

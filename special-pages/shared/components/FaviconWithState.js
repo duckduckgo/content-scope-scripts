@@ -1,9 +1,8 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
-import { DDG_DEFAULT_ICON_SIZE, DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK } from '../favorites/constants.js';
-import styles from '../favorites/components/Tile.module.css';
-import { urlToColor } from '../favorites/getColorForString.js';
 import cn from 'classnames';
+import styles from './FaviconWithState.module.css';
+import { urlToColor } from '../getColorForString.js';
 
 /**
  * @typedef {'loading_favicon_src'
@@ -31,14 +30,17 @@ const states = /** @type {Record<ImgState, ImgState>} */ ({
  *
  * @param {Object} props - The props for the image loader.
  * @param {string|null|undefined} props.faviconSrc - The URL of the favicon image to load.
+ * @param {number} [props.defaultSize] - The default size for the display of the favicon
+ * @param {string} props.fallback - The URL of the fallback
+ * @param {string} props.fallbackDark - The URL of the dark fallback
+ * @param {string|null|undefined} props.faviconSrc - The URL of the favicon image to load.
  * @param {number} props.faviconMax - The maximum size this icon be displayed as
- * @param {string} props.title - The title associated with the image.
  * @param {'light' | 'dark'} props.theme - the currently applied theme
  * @param {'favorite-tile' | 'history-favicon'} props.displayKind
  * @param {string|null} props.etldPlusOne - The relevant domain section of the url
  */
-export function ImageWithState({ faviconSrc, faviconMax, title, etldPlusOne, theme, displayKind }) {
-    const size = Math.min(faviconMax, DDG_DEFAULT_ICON_SIZE);
+export function FaviconWithState({ defaultSize = 64, fallback, fallbackDark, faviconSrc, faviconMax, etldPlusOne, theme, displayKind }) {
+    const size = Math.min(faviconMax, defaultSize);
     const sizeClass = displayKind === 'favorite-tile' ? styles.faviconLarge : styles.faviconSmall;
 
     // try to use the defined image source
@@ -124,7 +126,7 @@ export function ImageWithState({ faviconSrc, faviconMax, title, etldPlusOne, the
         case states.did_load_fallback_img: {
             return (
                 <img
-                    src={theme === 'light' ? DDG_FALLBACK_ICON : DDG_FALLBACK_ICON_DARK}
+                    src={theme === 'light' ? fallback : fallbackDark}
                     class={cn(styles.favicon, sizeClass)}
                     alt=""
                     data-state={state}

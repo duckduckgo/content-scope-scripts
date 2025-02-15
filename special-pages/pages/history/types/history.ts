@@ -33,6 +33,10 @@ export type NoneAction = "none";
  */
 export type DomainSearchAction = "domain-search";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
+export type Favicon = null | {
+  src: string;
+  maxAvailableSize?: number;
+};
 /**
  * This value matches the section headings
  */
@@ -224,6 +228,7 @@ export interface HistoryItem {
    * A complete URL including query parameters.
    */
   url: string;
+  favicon?: Favicon;
 }
 /**
  * Generated from @see "../messages/title_menu.request.json"

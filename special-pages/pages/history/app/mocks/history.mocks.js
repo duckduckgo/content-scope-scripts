@@ -18,6 +18,7 @@ export const historyMocks = {
                 title: 'Electric Callboy - Hypa Hypa (OFFICIAL VIDEO) - YouTube',
                 url: 'https://www.youtube.com/watch?v=75Mw8r5gW8E',
                 domain: 'www.youtube.com',
+                etldPlusOne: 'youtube.com',
             },
             {
                 id: 'history-id-02',
@@ -27,6 +28,7 @@ export const historyMocks = {
                 title: 'Sonos continues to clean house with departure of chief commercial officer - The Verge',
                 url: 'https://www.theverge.com/2025/1/15/24344430/sonos-cco-deirdre-findlay-leaving',
                 domain: 'www.theverge.com',
+                etldPlusOne: 'theverge.com',
             },
             {
                 id: 'history-id-03',
@@ -36,6 +38,7 @@ export const historyMocks = {
                 title: 'PreactJS/preact: Fast 3kB React alternative with the same API. Components & Virtual DOM. - GitHub',
                 url: 'https://github.com/preactjs/preact',
                 domain: 'github.com',
+                etldPlusOne: 'github.com',
             },
         ],
     },
@@ -87,6 +90,7 @@ export function generateSampleData({ count, offset }) {
             domain: domains[domainIndex],
             title: `(index:${id}) ` + titles[domainIndex],
             url: urls[domainIndex],
+            etldPlusOne: domains[domainIndex],
         });
 
         // Adjust time for each entry so they're not identical

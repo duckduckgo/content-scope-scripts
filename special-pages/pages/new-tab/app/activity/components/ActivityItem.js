@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useTypedTranslationWith } from '../../types.js';
 import cn from 'classnames';
 import styles from './Activity.module.css';
-import { ImageWithState } from '../../components/ImageWithState.js';
+import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
 import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
 import { Fire } from '../../components/icons/Fire.js';
@@ -12,6 +12,7 @@ import { memo } from 'preact/compat';
 import { useComputed } from '@preact/signals';
 import { NormalizedDataContext } from '../NormalizeDataProvider.js';
 import { ACTION_BURN } from '../../burning/BurnProvider.js';
+import { DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK } from '../../favorites/constants.js';
 
 export const ActivityItem = memo(
     /**
@@ -32,14 +33,15 @@ export const ActivityItem = memo(
                     <a class={styles.title} href={url} data-url={url}>
                         <span className={styles.favicon} data-url={url}>
                             {documentVisibility === 'visible' && (
-                                <ImageWithState
+                                <FaviconWithState
                                     faviconSrc={favoriteSrc}
                                     faviconMax={faviconMax}
-                                    title={title}
                                     etldPlusOne={etldPlusOne}
                                     theme={'light'}
                                     displayKind={'history-favicon'}
                                     key={`${favoriteSrc}:${faviconMax}`}
+                                    fallback={DDG_FALLBACK_ICON}
+                                    fallbackDark={DDG_FALLBACK_ICON_DARK}
                                 />
                             )}
                         </span>
