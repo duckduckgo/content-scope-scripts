@@ -129,7 +129,7 @@ test.describe('history', () => {
     test('3 dots menu on history entry', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.deletesFromHistoryEntry(0, { action: 'delete' });
+        await hp.menuForHistoryEntry(0, { action: 'delete' });
     });
     test('accepts domain search as param', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
@@ -142,8 +142,10 @@ test.describe('history', () => {
         await hp.didMakeNthQuery({ nth: 1, query: { term: 'autotrader' } });
         await hp.didUpdateUrlWithQueryTerm('autotrader');
     });
-    test.skip('accepts domain search in response to context menu', async ({ page }, workerInfo) => {
+    test('accepts domain search in response to context menu', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
-        await hp.openPage({});
+        await hp.openPage({ additional: { action: 'domain-search' } });
+        await hp.menuForHistoryEntry(0, { action: 'domain-search' });
+        await hp.didMakeNthQuery({ nth: 1, query: { domain: 'youtube.com' } });
     });
 });

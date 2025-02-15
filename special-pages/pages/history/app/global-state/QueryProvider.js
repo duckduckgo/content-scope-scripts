@@ -25,6 +25,7 @@ const QueryContext = createContext(
 );
 
 const QueryResetContext = createContext(() => {});
+const DomainSearchContext = createContext(/** @type {(d: string) => void} */ ((domain) => {}));
 
 /**
  * A custom hook to access the SearchContext.
@@ -47,7 +48,6 @@ export function QueryProvider({ children, query = { term: '' } }) {
         domain: 'domain' in query ? query.domain : null,
     };
     const queryState = useSignal(initial);
-    const derivedTerm = useComputed(() => queryState.value.term);
     const derivedRange = useComputed(() => {
         return /** @type {Range|null} */ (queryState.value.range);
     });
@@ -58,8 +58,8 @@ export function QueryProvider({ children, query = { term: '' } }) {
     useInputHandler(queryState);
     useSearchShortcut(platformName);
     useFormSubmit();
-    useURLReflection(derivedTerm, settings);
-    useSearchCommit(derivedTerm, settings);
+    useURLReflection(queryState, settings);
+    useSearchCommit(queryState, settings);
     useSearchCommitForRange(derivedRange);
 
     const reset = useCallback(() => {
@@ -70,15 +70,32 @@ export function QueryProvider({ children, query = { term: '' } }) {
         };
     }, [queryState]);
 
+    const domainSearch = useCallback(
+        (domain) => {
+            queryState.value = {
+                term: null,
+                domain,
+                range: null,
+            };
+        },
+        [queryState],
+    );
+
     return (
         <QueryContext.Provider value={queryState}>
-            <QueryResetContext.Provider value={reset}>{children}</QueryResetContext.Provider>
+            <QueryResetContext.Provider value={reset}>
+                <DomainSearchContext.Provider value={domainSearch}>{children}</DomainSearchContext.Provider>
+            </QueryResetContext.Provider>
         </QueryContext.Provider>
     );
 }
 
 export function useReset() {
     return useContext(QueryResetContext);
+}
+
+export function useDomainSearch() {
+    return useContext(DomainSearchContext);
 }
 
 /**
@@ -127,33 +144,41 @@ function useSearchCommitForRange(derivedRange) {
  * This hook uses a signal effect to listen for changes in the `derivedTerm` and updates the browser's URL accordingly, with debounce support.
  * It dispatches an `EVENT_SEARCH_COMMIT` event to notify other components or parts of the application about the updated search parameters.
  *
- * @param {import('@preact/signals').Signal<null|string>} derivedTerm - A signal of the current search term to watch for changes.
+ * @param {import('@preact/signals').Signal<QueryState>} queryState - A signal of the current search term to watch for changes.
  * @param {import('../Settings.js').Settings} settings - The settings for the behavior, including the debounce duration.
  */
-function useURLReflection(derivedTerm, settings) {
+function useURLReflection(queryState, settings) {
     useSignalEffect(() => {
         let timer;
-        let counter = 0;
-        const unsubscribe = derivedTerm.subscribe((nextValue) => {
-            if (counter === 0) {
-                counter += 1;
-                return;
-            }
+        let count = 0;
+        const unsubscribe = queryState.subscribe((nextValue) => {
+            if (count === 0) return (count += 1);
             clearTimeout(timer);
-            timer = setTimeout(() => {
-                const url = new URL(window.location.href);
+            if (nextValue.term !== null) {
+                const term = nextValue.term;
+                timer = setTimeout(() => {
+                    const url = new URL(window.location.href);
 
+                    url.searchParams.set('q', term);
+                    url.searchParams.delete('range');
+                    url.searchParams.delete('domain');
+
+                    if (term.trim() === '') {
+                        url.searchParams.delete('q');
+                    }
+
+                    window.history.replaceState(null, '', url.toString());
+                }, settings.urlDebounce);
+            }
+            if (nextValue.domain !== null) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('domain', nextValue.domain);
                 url.searchParams.delete('q');
                 url.searchParams.delete('range');
-                url.searchParams.delete('domain');
 
-                if (nextValue) {
-                    url.searchParams.set('q', nextValue);
-                    window.history.replaceState(null, '', url.toString());
-                } else if (nextValue === '') {
-                    window.history.replaceState(null, '', url.toString());
-                }
-            }, settings.urlDebounce);
+                window.history.replaceState(null, '', url.toString());
+            }
+            return null;
         });
 
         return () => {
@@ -175,30 +200,31 @@ function useURLReflection(derivedTerm, settings) {
  *   an `EVENT_SEARCH_COMMIT` event with the updated parameters.
  * - If the value is `null`, no action is taken.
  *
- * @param {import('@preact/signals').Signal<null|string>} derivedTerm - A signal of the current search term to watch for changes.
+ * @param {import('@preact/signals').Signal<QueryState>} queryState - A signal of the current search term to watch for changes.
  * @param {import('../Settings.js').Settings} settings - The settings for debounce behavior and other configurations.
  */
-function useSearchCommit(derivedTerm, settings) {
+function useSearchCommit(queryState, settings) {
     useSignalEffect(() => {
         let timer;
-        let counter = 0;
-        const unsubscribe = derivedTerm.subscribe((nextValue) => {
-            if (counter === 0) {
-                counter += 1;
-                return;
-            }
+        let count = 0;
+        const unsubscribe = queryState.subscribe((next) => {
+            if (count === 0) return (count += 1);
             clearTimeout(timer);
-            timer = setTimeout(() => {
-                if (nextValue === null) {
-                    /** no-op */
-                } else {
+            if (next.term !== null) {
+                const term = next.term;
+                timer = setTimeout(() => {
                     const params = new URLSearchParams();
-                    params.set('q', nextValue);
+                    params.set('q', term);
                     window.dispatchEvent(new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params } }));
-                }
-            }, settings.typingDebounce);
+                }, settings.typingDebounce);
+            }
+            if (next.domain !== null) {
+                const params = new URLSearchParams();
+                params.set('domain', next.domain);
+                window.dispatchEvent(new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params } }));
+            }
+            return null;
         });
-
         return () => {
             unsubscribe();
             clearTimeout(timer);

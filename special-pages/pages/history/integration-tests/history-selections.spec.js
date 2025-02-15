@@ -74,7 +74,7 @@ test.describe('history selections', () => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
         await hp.selectsRowIndex(0);
-        await hp.deletesFromHistoryEntry(1, { action: 'delete' });
+        await hp.menuForHistoryEntry(1, { action: 'delete' });
         await hp.rowIsNotSelected(0);
     });
     test('issues context menu for selected group', async ({ page }, workerInfo) => {
@@ -98,7 +98,7 @@ test.describe('history selections', () => {
         await hp.rowIsSelected(2);
 
         // do the action, right-clicking an entry outside of the selection
-        await hp.deletesFromHistoryEntry(3, { action: 'delete' });
+        await hp.menuForHistoryEntry(3, { action: 'delete' });
 
         // double-check
         await hp.rowIsNotSelected(0);

@@ -19,7 +19,7 @@ export type Range =
   | "saturday"
   | "sunday"
   | "older";
-export type ActionResponse = (DeleteAction | NoneAction) & string;
+export type ActionResponse = (DeleteAction | NoneAction | DomainSearchAction) & string;
 /**
  * Confirms the user deleted this
  */
@@ -28,6 +28,10 @@ export type DeleteAction = "delete";
  * The user cancelled the action, or did not agree to it
  */
 export type NoneAction = "none";
+/**
+ * The user asked to see more results from the domain
+ */
+export type DomainSearchAction = "domain-search";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
 /**
  * This value matches the section headings

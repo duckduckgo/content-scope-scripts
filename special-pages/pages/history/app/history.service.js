@@ -7,6 +7,7 @@ import { Service } from '../../new-tab/app/service.js';
  * @typedef {{info: HistoryQueryInfo, results: import('../types/history.js').HistoryItem[]}} QueryData
  * @typedef {{ranges: Range[]}} RangeData
  * @typedef {{query: QueryData; ranges: RangeData}} ServiceData
+ * @typedef {{kind: 'none'} | { kind: 'domain-search'; value: string }} MenuContinuation
  */
 
 export class HistoryService {
@@ -104,12 +105,27 @@ export class HistoryService {
     /**
      * @param {string[]} ids
      * @param {number[]} indexes
+     * @return {Promise<{kind: 'none'} | { kind: 'domain-search'; value: string }>}
      */
     async entriesMenu(ids, indexes) {
         const response = await this.history.messaging.request('entries_menu', { ids });
-        if (response.action === 'none') return;
-        if (response.action !== 'delete') return;
-        this._postdelete(indexes);
+        if (response.action === 'none') {
+            return { kind: 'none' };
+        }
+        if (response.action === 'delete') {
+            this._postdelete(indexes);
+            return { kind: 'none' };
+        }
+        if (response.action === 'domain-search' && ids.length === 1 && indexes.length === 1) {
+            const target = this.query.data?.results[indexes[0]];
+            if (target?.domain) {
+                return { kind: 'domain-search', value: target.domain };
+            } else {
+                console.warn('missing target domain from current dataset?');
+                return { kind: 'none' };
+            }
+        }
+        return { kind: 'none' };
     }
 
     /**
@@ -228,6 +244,15 @@ export class HistoryService {
                     return resp;
                 })
         );
+    }
+
+    /**
+     * @param {string[]} ids
+     * @param {number[]} indexes
+     */
+    _postDomainSearch(ids, indexes) {
+        const target = this.query.data?.results[indexes[0]];
+        console.log(target);
     }
 }
 

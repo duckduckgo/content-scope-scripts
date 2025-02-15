@@ -76,6 +76,22 @@ export function mockTransport() {
                 }
                 case 'entries_menu': {
                     console.log('📤 [entries_menu]: ', JSON.stringify(msg.params));
+                    const isSingle = msg.params.ids.length === 1;
+                    if (isSingle) {
+                        if (url.searchParams.get('action') === 'domain-search') {
+                            // prettier-ignore
+                            const lines = [
+                                `entries_menu: ${JSON.stringify(msg.params.ids)}`,
+                                `To simulate pressing 'show more from this url', press confirm`
+                            ].join('\n');
+                            if (confirm(lines)) {
+                                return Promise.resolve({ action: 'domain-search' });
+                            } else {
+                                return Promise.resolve({ action: 'none' });
+                            }
+                            // return Promise.resolve({ action: 'delete' });
+                        }
+                    }
                     // prettier-ignore
                     const lines = [
                         `entries_menu: ${JSON.stringify(msg.params)}`,
@@ -161,6 +177,17 @@ export function mockTransport() {
                             return {
                                 ...item,
                                 title: 'range:' + range + ' ' + item.title,
+                            };
+                        });
+                        response.info.query = msg.params.query;
+                        return Promise.resolve(response);
+                    } else if ('domain' in msg.params.query) {
+                        const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
+                        const domain = msg.params.query.domain;
+                        response.value = response.value.map((item) => {
+                            return {
+                                ...item,
+                                title: 'domain:' + domain + ' ' + item.title,
                             };
                         });
                         response.info.query = msg.params.query;

@@ -283,7 +283,7 @@ export class HistoryTestPage {
      * @param {number} nth - row index
      * @param {import('../types/history.ts').DeleteRangeResponse} resp
      */
-    async deletesFromHistoryEntry(nth, resp) {
+    async menuForHistoryEntry(nth, resp) {
         const { page } = this;
 
         this._withDialogHandling(resp);
@@ -399,7 +399,7 @@ export class HistoryTestPage {
         const { page } = this;
 
         // Handle dialog interaction based on response action
-        if (resp.action === 'delete') {
+        if (resp.action === 'delete' || resp.action === 'domain-search') {
             page.on('dialog', (dialog) => {
                 return dialog.accept();
             });

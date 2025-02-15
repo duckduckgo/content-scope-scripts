@@ -7,7 +7,7 @@ import { eventToTarget } from '../../../../shared/handlers.js';
 import { useContext } from 'preact/hooks';
 import { eventToIntention, useSelected } from './SelectionProvider.js';
 import { useGlobalState } from './GlobalStateProvider.js';
-import { useReset } from './QueryProvider.js';
+import { useDomainSearch, useReset } from './QueryProvider.js';
 
 // Create the context
 const HistoryServiceContext = createContext({
@@ -117,6 +117,16 @@ function useSearchCommit(service) {
 function useContextMenu(service) {
     const selected = useSelected();
     const results = useGlobalState();
+    const domainSearch = useDomainSearch();
+    /**
+     * @param {import('../history.service.js').MenuContinuation} resp
+     */
+    function postEntries(resp) {
+        if (resp.kind === 'domain-search') {
+            domainSearch(resp.value);
+        }
+    }
+
     useSignalEffect(() => {
         function contextMenu(event) {
             const target = /** @type {HTMLElement|null} */ (event.target);
@@ -135,27 +145,30 @@ function useContextMenu(service) {
                 },
                 '[data-history-entry]': (elem) => {
                     const isSelected = elem.getAttribute('aria-selected') === 'true';
-                    if (elem.dataset.historyEntry) {
-                        if (isSelected) {
-                            const indexes = [...selected.value];
-                            const ids = [];
-                            for (let i = 0; i < indexes.length; i++) {
-                                const current = results.results.value.items[indexes[i]];
-                                if (!current) throw new Error('unreachable');
-                                ids.push(current.id);
-                            }
-                            // eslint-disable-next-line promise/prefer-await-to-then
-                            service.entriesMenu(ids, indexes).catch(console.error);
-                            return true;
-                        } else {
-                            const value = elem.querySelector('button[value]')?.value ?? '';
-                            if (!value) throw new Error('unreachable');
-                            // eslint-disable-next-line promise/prefer-await-to-then
-                            service.entriesMenu([value], [Number(elem.dataset.index)]).catch(console.error);
-                            return true;
+                    if (!elem.dataset.historyEntry) return null;
+
+                    if (isSelected) {
+                        const indexes = [...selected.value];
+                        const ids = [];
+                        for (let i = 0; i < indexes.length; i++) {
+                            const current = results.results.value.items[indexes[i]];
+                            if (!current) throw new Error('unreachable');
+                            ids.push(current.id);
                         }
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        service.entriesMenu(ids, indexes).then(postEntries).catch(console.error);
+                        return true;
+                    } else {
+                        const value = elem.querySelector('button[value]')?.value ?? '';
+                        if (!value) throw new Error('unreachable');
+                        service
+                            .entriesMenu([value], [Number(elem.dataset.index)])
+                            // eslint-disable-next-line promise/prefer-await-to-then
+                            .then(postEntries)
+                            // eslint-disable-next-line promise/prefer-await-to-then
+                            .catch(console.error);
+                        return true;
                     }
-                    return null;
                 },
             };
 
@@ -217,6 +230,7 @@ function useAuxClickHandler(service, platformName) {
  */
 function useButtonClickHandler(service) {
     const resetQuery = useReset();
+    const domainSearch = useDomainSearch();
     useSignalEffect(() => {
         function clickHandler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
@@ -227,6 +241,15 @@ function useButtonClickHandler(service) {
             event.stopImmediatePropagation();
             event.preventDefault();
 
+            /**
+             * @param {import('../history.service.js').MenuContinuation} resp
+             */
+            function postEntries(resp) {
+                if (resp.kind === 'domain-search') {
+                    domainSearch(resp.value);
+                }
+            }
+
             switch (action) {
                 case 'title_menu': {
                     // eslint-disable-next-line promise/prefer-await-to-then
@@ -234,8 +257,12 @@ function useButtonClickHandler(service) {
                     return;
                 }
                 case 'entries_menu': {
-                    // eslint-disable-next-line promise/prefer-await-to-then
-                    service.entriesMenu([btn.value], [Number(btn.dataset.index)]).catch(console.error);
+                    service
+                        .entriesMenu([btn.value], [Number(btn.dataset.index)])
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        .then(postEntries)
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        .catch(console.error);
                     return;
                 }
                 case 'deleteRange': {
