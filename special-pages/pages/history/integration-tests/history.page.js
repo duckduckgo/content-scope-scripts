@@ -342,7 +342,7 @@ export class HistoryTestPage {
     async selectsRowWithCtrl(nth) {
         const { page } = this;
         const rows = page.locator('main').locator('[aria-selected]');
-        await rows.nth(nth).click({ modifiers: ['ControlOrMeta'] });
+        await rows.nth(nth).click({ modifiers: ['Meta'] });
     }
     /**
      * @param {number} nth
