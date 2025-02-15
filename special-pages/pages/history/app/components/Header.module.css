@@ -86,6 +86,7 @@
 
     &:focus {
         outline: none;
+        box-shadow: 0px 0px 0px 2.5px rgba(87, 151, 237, 0.64), 0px 0px 0px 1px rgba(87, 151, 237, 0.64) inset, 0px 0.5px 0px -0.5px rgba(0, 0, 0, 0.10), 0px 1px 0px -0.5px rgba(0, 0, 0, 0.10);
     }
 
     &::-webkit-search-cancel-button {

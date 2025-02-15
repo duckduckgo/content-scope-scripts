@@ -21,12 +21,12 @@ export function App() {
 
     return (
         <div class={styles.layout} data-theme={isDarkMode ? 'dark' : 'light'}>
-            <header class={styles.header}>
-                <Header />
-            </header>
             <aside class={styles.aside}>
                 <Sidebar ranges={ranges} />
             </aside>
+            <header class={styles.header}>
+                <Header />
+            </header>
             <main class={cn(styles.main, styles.customScroller)} ref={containerRef} data-main-scroller data-term={term}>
                 <Results results={results} selected={selected} />
             </main>
