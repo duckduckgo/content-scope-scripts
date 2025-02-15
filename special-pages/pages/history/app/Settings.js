@@ -37,4 +37,19 @@ export class Settings {
         }
         return this;
     }
+
+    /**
+     * @param {null|undefined|number|string} value
+     */
+    withUrlDebounce(value) {
+        if (!value) return this;
+        const input = String(value).trim();
+        if (input.match(/^\d+$/)) {
+            return new Settings({
+                ...this,
+                urlDebounce: parseInt(input, 10),
+            });
+        }
+        return this;
+    }
 }

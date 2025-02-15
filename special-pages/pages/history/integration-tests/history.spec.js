@@ -133,7 +133,7 @@ test.describe('history', () => {
     });
     test('accepts domain search as param', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
-        await hp.openPage({ additional: { domain: 'youtube.com' } });
+        await hp.openPage({ additional: { domain: 'youtube.com', urlDebounce: 0 } });
         await hp.didMakeNthQuery({ nth: 0, query: { domain: 'youtube.com' } });
         await hp.inputContainsDomain('youtube.com');
 

@@ -43,7 +43,8 @@ export async function init(root, messaging, baseEnvironment) {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
-        .withDebounce(baseEnvironment.urlParams.get('debounce'));
+        .withDebounce(baseEnvironment.urlParams.get('debounce'))
+        .withUrlDebounce(baseEnvironment.urlParams.get('urlDebounce'));
 
     console.log('initialSetup', init);
     console.log('environment', environment);

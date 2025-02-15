@@ -59,6 +59,7 @@ export function QueryProvider({ children, query = { term: '' } }) {
     useSearchShortcut(platformName);
     useFormSubmit();
     useURLReflection(derivedTerm, settings);
+    useSearchCommit(derivedTerm, settings);
     useSearchCommitForRange(derivedRange);
 
     const reset = useCallback(() => {
@@ -152,14 +153,50 @@ function useURLReflection(derivedTerm, settings) {
                 } else if (nextValue === '') {
                     window.history.replaceState(null, '', url.toString());
                 }
+            }, settings.urlDebounce);
+        });
+
+        return () => {
+            unsubscribe();
+            clearTimeout(timer);
+        };
+    });
+}
+
+/**
+ * Updates the URL with the latest search term (if present) and dispatches a custom search commit event.
+ * Utilizes a debounce mechanism to ensure the URL updates are not performed too often during typing.
+ *
+ * Workflow:
+ * - Listens for changes in the `derivedTerm` signal.
+ * - For the first signal emission (`counter === 0`), skips processing to avoid triggering on initial load.
+ * - Debounces subsequent changes using `settings.typingDebounce`.
+ * - If a non-null value is provided, constructs query parameters with the new term and dispatches
+ *   an `EVENT_SEARCH_COMMIT` event with the updated parameters.
+ * - If the value is `null`, no action is taken.
+ *
+ * @param {import('@preact/signals').Signal<null|string>} derivedTerm - A signal of the current search term to watch for changes.
+ * @param {import('../Settings.js').Settings} settings - The settings for debounce behavior and other configurations.
+ */
+function useSearchCommit(derivedTerm, settings) {
+    useSignalEffect(() => {
+        let timer;
+        let counter = 0;
+        const unsubscribe = derivedTerm.subscribe((nextValue) => {
+            if (counter === 0) {
+                counter += 1;
+                return;
+            }
+            clearTimeout(timer);
+            timer = setTimeout(() => {
                 if (nextValue === null) {
                     /** no-op */
                 } else {
-                    window.dispatchEvent(
-                        new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params: new URLSearchParams(url.searchParams) } }),
-                    );
+                    const params = new URLSearchParams();
+                    params.set('q', nextValue);
+                    window.dispatchEvent(new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params } }));
                 }
-            }, settings.urlDebounce);
+            }, settings.typingDebounce);
         });
 
         return () => {
