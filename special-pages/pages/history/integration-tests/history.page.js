@@ -426,4 +426,20 @@ export class HistoryTestPage {
             await expect(page.locator(`main [aria-selected] button[value=${id}]`)).not.toBeVisible();
         }
     }
+
+    /**
+     * @param {string} domain
+     */
+    async inputContainsDomain(domain) {
+        const { page } = this;
+        await expect(page.getByPlaceholder('Search')).toHaveValue(domain);
+    }
+
+    /**
+     * @param {string} term
+     */
+    async didUpdateUrlWithQueryTerm(term) {
+        const { page } = this;
+        await page.waitForURL((url) => url.searchParams.get('q') === term);
+    }
 }

@@ -35,7 +35,7 @@ export function useSelectionEvents(containerRef) {
     const { selected } = useContext(SelectionContext);
     /** @type {UpdateSelected} */
     const update = (fn, reason) => {
-        console.log('[❌] clearing selections because', reason);
+        // console.log('[❌] clearing selections because', reason);
         selected.value = fn(selected.value);
     };
 

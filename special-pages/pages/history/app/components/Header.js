@@ -14,11 +14,12 @@ import { useSelected } from '../global-state/SelectionProvider.js';
 export function Header() {
     const search = useQueryContext();
     const term = useComputed(() => search.value.term);
+    const domain = useComputed(() => search.value.domain);
     return (
         <div class={styles.root}>
             <Controls term={term} />
             <div class={styles.search}>
-                <SearchForm term={term} />
+                <SearchForm term={term} domain={domain} />
             </div>
         </div>
     );

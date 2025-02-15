@@ -144,6 +144,7 @@ function useURLReflection(derivedTerm, settings) {
 
                 url.searchParams.delete('q');
                 url.searchParams.delete('range');
+                url.searchParams.delete('domain');
 
                 if (nextValue) {
                     url.searchParams.set('q', nextValue);
@@ -158,7 +159,7 @@ function useURLReflection(derivedTerm, settings) {
                         new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params: new URLSearchParams(url.searchParams) } }),
                     );
                 }
-            }, settings.typingDebounce);
+            }, settings.urlDebounce);
         });
 
         return () => {

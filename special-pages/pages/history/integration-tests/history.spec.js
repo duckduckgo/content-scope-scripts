@@ -131,6 +131,17 @@ test.describe('history', () => {
         await hp.openPage({});
         await hp.deletesFromHistoryEntry(0, { action: 'delete' });
     });
+    test('accepts domain search as param', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({ additional: { domain: 'youtube.com' } });
+        await hp.didMakeNthQuery({ nth: 0, query: { domain: 'youtube.com' } });
+        await hp.inputContainsDomain('youtube.com');
+
+        // now ensure it converts back to a query when typing
+        await hp.types('autotrader');
+        await hp.didMakeNthQuery({ nth: 1, query: { term: 'autotrader' } });
+        await hp.didUpdateUrlWithQueryTerm('autotrader');
+    });
     test.skip('accepts domain search in response to context menu', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
