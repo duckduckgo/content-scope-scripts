@@ -2,9 +2,10 @@ import { Service } from '../../new-tab/app/service.js';
 
 /**
  * @typedef {import('../types/history.js').Range} Range
+ * @typedef {import('../types/history.js').HistoryQuery} HistoryQuery
  * @typedef {import("../types/history.js").HistoryQueryInfo} HistoryQueryInfo
  * @typedef {import("../types/history.js").QueryKind} QueryKind
- * @typedef {{info: HistoryQueryInfo, results: import('../types/history.js').HistoryItem[]}} QueryData
+ * @typedef {{info: HistoryQueryInfo; lastQueryParams: HistoryQuery|null; results: import('../types/history.js').HistoryItem[]}} QueryData
  * @typedef {{ranges: Range[]}} RangeData
  * @typedef {{query: QueryData; ranges: RangeData}} ServiceData
  * @typedef {{kind: 'none'} | { kind: 'domain-search'; value: string }} MenuContinuation
@@ -20,20 +21,19 @@ export class HistoryService {
 
         /** @type {Service<QueryData>} */
         this.query = new Service({
-            initial: (/** @type {import('../types/history.js').HistoryQuery} */ params) => {
-                console.log('📤 [query]: ', JSON.stringify(params));
-                return this.history.query(params).then((resp) => {
-                    return { info: resp.info, results: resp.value };
+            initial: (/** @type {HistoryQuery} */ query) => {
+                console.log('📤 [query]: ', JSON.stringify(query));
+                return this.history.query(query).then((resp) => {
+                    return { info: resp.info, results: resp.value, lastQueryParams: query };
                 });
             },
         }).withUpdater((old, next, trigger) => {
             if (trigger === 'manual') {
                 return next;
             }
-            if (eq(old.info.query, next.info.query)) {
-                // console.log('Query did match', [trigger], old.info.query);
+            if (eq(old.info.query, next.info.query) && next.lastQueryParams?.offset > 0) {
                 const results = old.results.concat(next.results);
-                return { info: next.info, results };
+                return { info: next.info, results, lastQueryParams: next.lastQueryParams };
             }
             return next;
         });
@@ -47,7 +47,7 @@ export class HistoryService {
     }
 
     /**
-     * @param {import('../types/history.js').HistoryQuery} initQuery
+     * @param {HistoryQuery} initQuery
      * @returns {Promise<ServiceData>}
      */
     async getInitial(initQuery) {
@@ -64,7 +64,7 @@ export class HistoryService {
         return this.query.onData(({ data, source }) => cb(data));
     }
     /**
-     * @param {import('../types/history.js').HistoryQuery} query
+     * @param {HistoryQuery} query
      */
     trigger(query) {
         this.query.triggerFetch(query);
@@ -78,7 +78,7 @@ export class HistoryService {
         if (this.query.data.info.finished) return console.warn('refusing to fetch more');
         const lastquery = this.query.data.info.query;
 
-        /** @type {import('../types/history.js').HistoryQuery} */
+        /** @type {HistoryQuery} */
         const query = {
             query: lastquery,
             limit: HistoryService.CHUNK_SIZE,
@@ -228,6 +228,7 @@ export class HistoryService {
                             this.query.update((_old) => {
                                 /** @type {QueryData} */
                                 const query = {
+                                    lastQueryParams: null,
                                     info: {
                                         query: { term: '' },
                                         finished: true,
@@ -262,10 +263,10 @@ export class HistoryService {
 
 /**
  * @param {URLSearchParams} params
- * @return {import('../types/history.js').HistoryQuery}
+ * @return {HistoryQuery}
  */
 export function paramsToQuery(params) {
-    /** @type {import('../types/history.js').HistoryQuery['query'] | undefined} */
+    /** @type {HistoryQuery['query'] | undefined} */
     let query;
     const range = toRange(params.get('range'));
     const domain = params.get('domain');

@@ -148,4 +148,23 @@ test.describe('history', () => {
         await hp.menuForHistoryEntry(0, { action: 'domain-search' });
         await hp.didMakeNthQuery({ nth: 1, query: { domain: 'youtube.com' } });
     });
+    test('does not concatenate results if the query is not an addition', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(1);
+        await hp.openPage({});
+        await hp.selectsAll();
+        await page.waitForTimeout(100);
+        await hp.selectsAll();
+        await page.waitForTimeout(100);
+        await hp.selectsAll();
+        await page.waitForTimeout(100);
+
+        // assert no additional rows are present
+        await hp.hasRowCount(1);
+
+        // verify the queries still occurred, but they were not appended
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 1, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 3, query: { term: '' } });
+    });
 });

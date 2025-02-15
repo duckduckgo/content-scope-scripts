@@ -442,4 +442,14 @@ export class HistoryTestPage {
         const { page } = this;
         await page.waitForURL((url) => url.searchParams.get('q') === term);
     }
+
+    /**
+     * @param {number} count
+     */
+    async hasRowCount(count) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        const rowCount = await rows.count();
+        expect(rowCount).toBe(count);
+    }
 }
