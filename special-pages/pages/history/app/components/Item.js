@@ -1,6 +1,6 @@
 import { memo } from 'preact/compat';
 import cn from 'classnames';
-import { END_KIND, TITLE_KIND } from '../utils.js';
+import { BOTH_KIND, END_KIND, TITLE_KIND } from '../utils.js';
 import { Fragment, h } from 'preact';
 import styles from './Item.module.css';
 import { Dots } from '../icons/dots.js';
@@ -24,9 +24,11 @@ export const Item = memo(
      */
     function Item({ id, url, domain, title, kind, dateRelativeDay, dateTimeOfDay, index, selected }) {
         const { t } = useTypedTranslation();
+        const hasFooterGap = kind === END_KIND || kind === BOTH_KIND;
+        const hasTitle = kind === TITLE_KIND || kind === BOTH_KIND;
         return (
             <Fragment>
-                {kind === TITLE_KIND && (
+                {hasTitle && (
                     <div class={cn(styles.title, styles.hover)} data-section-title>
                         {dateRelativeDay}
                         <button
@@ -41,7 +43,7 @@ export const Item = memo(
                     </div>
                 )}
                 <div
-                    class={cn(styles.row, styles.hover, kind === END_KIND && styles.last)}
+                    class={cn(styles.row, styles.hover, hasFooterGap && styles.last)}
                     data-history-entry={id}
                     data-index={index}
                     aria-selected={selected}
