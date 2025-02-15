@@ -14,16 +14,6 @@
     padding-left: 8px;
     border-radius: 5px;
     position: relative;
-
-    &:hover {
-        background: var(--color-black-at-6);
-    }
-    [data-theme="dark"] &:hover {
-        background: var(--color-white-at-6);
-        .titleDots {
-            color: var(--color-white-at-84)
-        }
-    }
 }
 
 .row {
@@ -31,15 +21,44 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    color: var(--history-text-normal);
     border-radius: 5px;
     padding-left: 9px;
     padding-right: 5px;
     position: relative;
+}
 
-    &:hover, &:focus-visible {
-        background: #2565D9;
-        color: var(--color-white-at-84);
+.hover {
+    --row-bg: inherit;
+    --row-color: var(--history-text-normal);
+    --dots-bg-hover: var(--color-black-at-9);
+    --dots-opacity: 0;
+    --time-opacity: 0.6;
+    --time-visibility: visible;
+
+    background: var(--row-bg);
+    color: var(--row-color);
+
+    &:hover, &:focus-within {
+        --dots-opacity: visible;
+        --time-opacity: 0;
+        --time-visibility: hidden;
+    }
+
+    &:hover:not([aria-selected="true"]) {
+        --row-bg: var(--color-black-at-6);
+        [data-theme="dark"] & {
+            --row-bg: var(--color-white-at-6);
+        }
+    }
+
+    [data-theme="dark"] & {
+        --dots-bg-hover: var(--color-white-at-12);
+    }
+
+    &[aria-selected="true"] {
+        --row-bg: #2565D9;
+        --row-color: var(--color-white-at-84);
+        --dots-bg-hover: var(--color-white-at-9);
     }
 }
 
@@ -71,17 +90,11 @@
 .time {
     margin-left: auto;
     flex-shrink: 0;
-    opacity: 0.6;
-
-    .row:hover &, .row:focus-visible & {
-        opacity: 0;
-        visibility: hidden;
-    }
+    opacity: var(--time-opacity);
+    visibility: var(--time-visibility);
 }
 
 .dots {
-    opacity: 0;
-    visibility: hidden;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -92,6 +105,8 @@
     background: transparent;
     border: 0;
     z-index:1;
+    color: inherit;
+    opacity: var(--dots-opacity);
 
     svg {
         width: 16px;
@@ -99,29 +114,11 @@
     }
 
     &:hover {
-        background: var(--color-white-at-9);
-    }
-    &:active {
-        background: var(--color-white-at-18);
+        background: var(--dots-bg-hover);
     }
 
-    .row:hover &, .row:focus-visible & {
+    &:focus-visible {
         opacity: 1;
-        visibility: visible;
-        color: var(--color-white-at-84);
-    }
-
-    .title:hover & {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .title &:hover {
-        background: var(--color-black-at-6);
-    }
-
-    .title &:active {
-        background: var(--color-black-at-9);
     }
 }
 
@@ -129,7 +126,6 @@
     width: 28px;
     height: 20px;
     right: 6px;
-    /*color: */
 }
 
 .last {

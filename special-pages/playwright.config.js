@@ -25,7 +25,8 @@ export default defineConfig({
                 'update-notification.spec.js',
                 'customizer.spec.js',
                 'activity.spec.js',
-                'history.spec.js'
+                'history.spec.js',
+                'history-selections.spec.js'
             ],
             use: {
                 ...devices['Desktop Chrome'],
