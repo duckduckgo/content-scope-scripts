@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import styles from './App.module.css';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { Header } from './Header.js';
@@ -26,7 +27,7 @@ export function App() {
             <aside class={styles.aside}>
                 <Sidebar ranges={ranges} />
             </aside>
-            <main class={styles.main} ref={containerRef} data-main-scroller data-term={term}>
+            <main class={cn(styles.main, styles.customScroller)} ref={containerRef} data-main-scroller data-term={term}>
                 <Results results={results} selected={selected} />
             </main>
         </div>

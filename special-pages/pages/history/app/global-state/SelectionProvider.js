@@ -236,7 +236,7 @@ function useRowInteractions(update, selected, containerRef) {
             if (!(event.target instanceof Element)) return;
             const intention = eventToIntention(event, platformName);
             if (intention === 'unknown') return;
-            if (focusedIndex.value === null) return console.log('ignoring keys - nothing was selected');
+            if (focusedIndex.value === null) return;
             const handled = handleKeyIntention(intention) || handleGlobalKeyIntentions(intention, event);
             if (handled) event.preventDefault();
         }
