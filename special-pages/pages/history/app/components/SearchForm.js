@@ -2,6 +2,7 @@ import styles from './Header.module.css';
 import { h } from 'preact';
 import { useTypedTranslation } from '../types.js';
 import { useComputed } from '@preact/signals';
+import { SearchIcon } from '../icons/Search.js';
 
 /**
  * @param {object} props
@@ -13,8 +14,11 @@ export function SearchForm({ term, domain }) {
     const value = useComputed(() => term.value || domain.value || '');
     return (
         <form role="search">
-            <label>
+            <label class={styles.label}>
                 <span class="sr-only">{t('search_your_history')}</span>
+                <span class={styles.searchIcon}>
+                    <SearchIcon />
+                </span>
                 <input
                     class={styles.searchInput}
                     name="q"

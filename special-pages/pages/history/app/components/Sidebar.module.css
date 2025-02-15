@@ -54,7 +54,7 @@
     border: none;
     cursor: pointer;
     opacity: 0;
-    color: inherit;
+    color: var(--history-text-normal);
 
     &:hover, &:focus-visible {
         background: var(--color-black-at-9);

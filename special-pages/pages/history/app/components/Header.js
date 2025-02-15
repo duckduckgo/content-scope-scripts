@@ -45,8 +45,8 @@ function Controls({ term }) {
     return (
         <div class={styles.controls}>
             <button class={styles.largeButton} data-action={BTN_ACTION_DELETE_ALL} aria-disabled={ariaDisabled} title={title}>
-                <span>{buttonTxt}</span>
                 <Trash />
+                <span>{buttonTxt}</span>
             </button>
         </div>
     );
