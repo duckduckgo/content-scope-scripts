@@ -5,7 +5,7 @@ export class Settings {
      * @param {number} [params.typingDebounce=100] how long to debounce typing in the search field - default: 100ms
      * @param {number} [params.urlDebounce=500] how long to debounce reflecting to the URL? - default: 500ms
      */
-    constructor({ platform = { name: 'macos' }, typingDebounce = 100, urlDebounce = 500 }) {
+    constructor({ platform = { name: 'windows' }, typingDebounce = 100, urlDebounce = 500 }) {
         this.platform = platform;
         this.typingDebounce = typingDebounce;
         this.urlDebounce = urlDebounce;
