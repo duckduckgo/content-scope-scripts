@@ -7,6 +7,10 @@
     "title": "Nothing to see here!",
     "note": "Text shown where there are no remaining history items"
   },
+  "empty_text": {
+    "title": "Page visits will appear once you start browsing.",
+    "note": "Placeholder text when there's no results to show"
+  },
   "delete_all": {
     "title": "Delete All",
     "note": "Text for a button that deletes all items or entries."
