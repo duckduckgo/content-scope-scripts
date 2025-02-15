@@ -75,7 +75,7 @@ export function mockTransport() {
                     return Promise.resolve({ action: 'delete' });
                 }
                 case 'entries_menu': {
-                    console.log('📤 [entries_menu]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [entries_menu]: ', JSON.stringify(msg.params));
                     const isSingle = msg.params.ids.length === 1;
                     if (isSingle) {
                         if (url.searchParams.get('action') === 'domain-search') {
@@ -103,7 +103,7 @@ export function mockTransport() {
                     return Promise.resolve({ action: 'none' });
                 }
                 case 'title_menu': {
-                    console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
                     // prettier-ignore
                     const lines = [
                         `title_menu: ${JSON.stringify(msg.params)}`,
@@ -148,7 +148,7 @@ export function mockTransport() {
                     return Promise.resolve(response);
                 }
                 case 'query': {
-                    console.log('📤 [query]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [query]: ', JSON.stringify(msg.params));
                     if ('term' in msg.params.query) {
                         const { term } = msg.params.query;
                         if (term !== '') {

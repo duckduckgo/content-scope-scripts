@@ -21,6 +21,7 @@ export class HistoryService {
         /** @type {Service<QueryData>} */
         this.query = new Service({
             initial: (/** @type {import('../types/history.js').HistoryQuery} */ params) => {
+                console.log('📤 [query]: ', JSON.stringify(params));
                 return this.history.query(params).then((resp) => {
                     return { info: resp.info, results: resp.value };
                 });
@@ -108,6 +109,7 @@ export class HistoryService {
      * @return {Promise<{kind: 'none'} | { kind: 'domain-search'; value: string }>}
      */
     async entriesMenu(ids, indexes) {
+        console.log('📤 [entries_menu]: ', JSON.stringify({ ids }));
         const response = await this.history.messaging.request('entries_menu', { ids });
         if (response.action === 'none') {
             return { kind: 'none' };
@@ -133,6 +135,7 @@ export class HistoryService {
      */
     async entriesDelete(indexes) {
         const ids = this._collectIds(indexes);
+        console.log('📤 [entries_delete]: ', JSON.stringify({ ids }));
         const response = await this.history.messaging.request('entries_delete', { ids });
         if (response.action === 'none') return;
         if (response.action !== 'delete') return;
@@ -209,6 +212,7 @@ export class HistoryService {
      * @param {Range} range
      */
     deleteRange(range) {
+        console.log('📤 [deleteRange]: ', JSON.stringify({ range }));
         return (
             this.history.messaging
                 .request('deleteRange', { range })
