@@ -1,7 +1,6 @@
 import { h } from 'preact';
-import cn from 'classnames';
 import { useId } from 'preact/hooks';
-import { ShowHideButton } from '../../components/ShowHideButton';
+import { ShowHideBar, ShowHideButtonPill } from '../../components/ShowHideButton';
 import { useTypedTranslationWith } from '../../types';
 import { otherText } from '../nextsteps.data';
 import styles from './NextSteps.module.css';
@@ -31,7 +30,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
 
     return (
-        <div class={cn(styles.cardGroup, types.length <= 2 && styles.noExpansionBtn)} id={WIDGET_ID}>
+        <div class={styles.cardGroup} id={WIDGET_ID}>
             <NextStepsBubbleHeader />
             <div class={styles.cardGrid}>
                 {alwaysShown.map((type) => (
@@ -43,13 +42,8 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
             </div>
 
             {types.length > 2 && (
-                <div
-                    className={cn({
-                        [styles.showhide]: types.length > 2,
-                        [styles.showhideVisible]: types.length > 2,
-                    })}
-                >
-                    <ShowHideButton
+                <ShowHideBar>
+                    <ShowHideButtonPill
                         buttonAttrs={{
                             'aria-expanded': expansion === 'expanded',
                             'aria-pressed': expansion === 'expanded',
@@ -57,9 +51,10 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
                             id: TOGGLE_ID,
                         }}
                         text={expansion === 'expanded' ? otherText.showLess(t) : otherText.showMore(t)}
+                        label={undefined}
                         onClick={toggle}
                     />
-                </div>
+                </ShowHideBar>
             )}
         </div>
     );

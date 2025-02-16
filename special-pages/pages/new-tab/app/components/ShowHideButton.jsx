@@ -1,37 +1,62 @@
 import styles from './ShowHide.module.css';
 import cn from 'classnames';
 import { Chevron } from './Icons.js';
-import { Fragment, h } from 'preact';
+import { h } from 'preact';
 
 /**
  * Function to handle showing or hiding content based on certain conditions.
  *
  * @param {Object} props - Input parameters for controlling the behavior of the ShowHide functionality.
- * @param {string} props.text
+ * @param {string} props.label
  * @param {() => void} props.onClick
- * @param {'none'|'round'} [props.shape] - when "none", is a full width btn w/ icon inside (used for below Favorites and NextSteps), Round is the PrivacyStats heading button
- * @param {boolean} [props.showText] - btn w/ icon and text (used to expand PrivacyStats list), should be used with shape="none"
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
-export function ShowHideButton({ text, onClick, buttonAttrs = {}, shape = 'none', showText = false }) {
+export function ShowHideButtonCircle({ label, onClick, buttonAttrs = {} }) {
+    return (
+        <button {...buttonAttrs} class={cn(styles.button, styles.round)} aria-label={label} data-toggle="true" onClick={onClick}>
+            <div class={styles.iconBlock}>
+                <Chevron />
+            </div>
+        </button>
+    );
+}
+
+/**
+ * Use this version for a small pill version with text and option aria-label
+ * @param {object} props
+ * @param {string} props.text
+ * @param {string|undefined} props.label
+ * @param {() => void} props.onClick
+ * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
+ */
+export function ShowHideButtonPill({ label, onClick, text, buttonAttrs = {} }) {
+    // if a different label was given, make the main text aria-hidden=true
+    const btnText = label ? <span aria-hidden="true">{text}</span> : text;
+
     return (
         <button
             {...buttonAttrs}
-            class={cn(styles.button, shape === 'round' && styles.round, !!showText && styles.withText)}
-            aria-label={text}
+            aria-label={label}
+            class={cn(styles.button, styles.hover, styles.pill)}
             data-toggle="true"
             onClick={onClick}
         >
-            {showText ? (
-                <Fragment>
-                    <Chevron />
-                    {text}
-                </Fragment>
-            ) : (
-                <div class={styles.iconBlock}>
-                    <Chevron />
-                </div>
-            )}
+            <Chevron />
+            {btnText}
         </button>
+    );
+}
+
+/**
+ * A container you can place a <ShowHideButtonPill /> into.
+ * Consumers can use the `data-show-hide` to show/hide the bar
+ * @param {object} props
+ * @param {import("preact").ComponentChild} props.children
+ */
+export function ShowHideBar({ children }) {
+    return (
+        <div class={styles.bar} data-show-hide>
+            {children}
+        </div>
     );
 }

@@ -47,13 +47,6 @@
     justify-content: center;
     padding-top: 0.5px;
 
-    [data-animation="heart02"] & {
-        animation: heart02 2s infinite;
-    }
-    [data-animation="heart01"] & {
-        animation: heart01 1.483s infinite cubic-bezier(0.67, 0, 0.33, 1);
-    }
-
     /* In this variant, everything is moved over to align with the body items (which are different to the stats */
     .activityVariant & {
         width: 24px;
@@ -64,49 +57,6 @@
             width: 20px;
             height: 20px;
         }
-    }
-}
-
-@keyframes heart01 {
-    0% {
-        transform: scale(1);
-    }
-
-    4.5% { /* 4/89 frames */
-        transform: scale(1.25);
-    }
-
-    16.85% { /* 15/89 frames */
-        transform: scale(1);
-    }
-
-    23.6% { /* 21/89 frames */
-        transform: scale(1.1);
-    }
-
-    100% { /* 89/89 frames */
-        transform: scale(1);
-    }
-}
-
-@keyframes heart02 {
-    0% {
-        transform: scale(1);
-    }
-    5.6% {
-        transform: scale(1.2);
-    }
-    11.2% {
-        transform: scale(1);
-    }
-    22.4% {
-        transform: scale(1.1);
-    }
-    33.7% {
-        transform: scale(1);
-    }
-    100% {
-        transform: scale(1);
     }
 }
 
@@ -142,6 +92,11 @@
         line-height: 1;
         text-transform: uppercase;
     }
+}
+
+.body {
+    display: grid;
+    grid-row-gap:  var(--sp-3);
 }
 
 .list {
@@ -209,10 +164,24 @@
     }
 }
 
+.listFooter {
+    display: flex;
+    &:has(.otherTrackersRow) .listExpander {
+        margin-left: auto;
+    }
+}
+
 .otherTrackersRow {
-    margin-top: var(--sp-3);
     padding-left: var(--sp-1);
     color: var(--ntp-text-muted);
+    display: flex;
+    align-items: center;
+
+}
+.withPill {
+    .listExpander {
+        margin-left: auto;
+    }
 }
 
 .company {
@@ -268,9 +237,4 @@
 }
 
 .listExpander {
-    margin-top: var(--sp-3);
-    button {
-        color: var(--ntp-text-muted);
-        opacity: 1;
-    }
 }

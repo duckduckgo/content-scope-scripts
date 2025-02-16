@@ -2,9 +2,20 @@ import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 
 /**
  * @import { PrivacyStatsData } from "../../../types/new-tab";
- * @type {Record<string, PrivacyStatsData>}
+ * @type {{
+ *     few: PrivacyStatsData,
+ *     single: PrivacyStatsData,
+ *     norecent: PrivacyStatsData,
+ *     none: PrivacyStatsData,
+ *     onlyother: PrivacyStatsData,
+ *     manyOnlyTop: PrivacyStatsData,
+ *     fewOnlyTop: PrivacyStatsData,
+ *     topAndOneOther: PrivacyStatsData,
+ *     manyTopAndOther: PrivacyStatsData,
+ *     many: PrivacyStatsData,
+ * }}
  */
-export const stats = {
+export const privacyStatsMocks = {
     few: {
         totalCount: 481_113,
         trackerCompanies: [
@@ -56,34 +67,113 @@ export const stats = {
             },
         ],
     },
-    willUpdate: {
-        totalCount: 481_113,
+    manyOnlyTop: {
+        totalCount: 2,
         trackerCompanies: [
             {
                 displayName: 'Facebook',
-                count: 1,
+                count: 310,
             },
             {
                 displayName: 'Google',
-                count: 1,
-            },
-            {
-                displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
-                count: 1,
+                count: 279,
             },
             {
                 displayName: 'Amazon.com',
-                count: 1,
+                count: 67,
             },
             {
                 displayName: 'Google Ads',
-                count: 1,
+                count: 2,
+            },
+            {
+                displayName: 'Twitter',
+                count: 2,
+            },
+            {
+                displayName: 'Yandex',
+                count: 2,
             },
         ],
     },
-    growing: {
-        totalCount: 0,
-        trackerCompanies: [],
+    fewOnlyTop: {
+        totalCount: 2,
+        trackerCompanies: [
+            {
+                displayName: 'Facebook',
+                count: 310,
+            },
+            {
+                displayName: 'Google',
+                count: 279,
+            },
+            {
+                displayName: 'Amazon.com',
+                count: 67,
+            },
+        ],
+    },
+    topAndOneOther: {
+        totalCount: 2,
+        trackerCompanies: [
+            {
+                displayName: 'Facebook',
+                count: 310,
+            },
+            {
+                displayName: 'Google',
+                count: 279,
+            },
+            {
+                displayName: 'Amazon.com',
+                count: 67,
+            },
+            {
+                displayName: 'Google Ads',
+                count: 2,
+            },
+            {
+                displayName: 'Twitter',
+                count: 2,
+            },
+            {
+                displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+                count: 2,
+            },
+        ],
+    },
+    manyTopAndOther: {
+        totalCount: 2,
+        trackerCompanies: [
+            {
+                displayName: 'Facebook',
+                count: 310,
+            },
+            {
+                displayName: 'Google',
+                count: 279,
+            },
+            {
+                displayName: 'Amazon.com',
+                count: 67,
+            },
+            {
+                displayName: 'Google Ads',
+                count: 2,
+            },
+            {
+                displayName: 'Twitter',
+                count: 2,
+            },
+            {
+                displayName: 'Yandex',
+                count: 2,
+            },
+            {
+                displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+                count: 2,
+            },
+        ],
     },
     many: {
         totalCount: 890,

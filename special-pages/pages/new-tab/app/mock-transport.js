@@ -1,6 +1,6 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
 
-import { stats } from './privacy-stats/mocks/stats.js';
+import { privacyStatsMocks } from './privacy-stats/mocks/privacy-stats.mocks.js';
 import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js';
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
@@ -315,8 +315,8 @@ export function mockTransport() {
                         const int = setInterval(() => {
                             if (inc === max) return clearInterval(int);
                             const next = {
-                                ...stats.willUpdate,
-                                trackerCompanies: stats.willUpdate.trackerCompanies.map((x, index) => {
+                                ...privacyStatsMocks.few,
+                                trackerCompanies: privacyStatsMocks.few.trackerCompanies.map((x, index) => {
                                     return {
                                         ...x,
                                         count: x.count + inc * index,
@@ -330,7 +330,7 @@ export function mockTransport() {
                             clearInterval(int);
                         };
                     } else if (statsVariant === 'growing') {
-                        const list = stats.many.trackerCompanies;
+                        const list = privacyStatsMocks.many.trackerCompanies;
                         let index = 0;
                         const max = Math.min(updateMaxCount, list.length);
                         const int = setInterval(() => {
@@ -380,10 +380,10 @@ export function mockTransport() {
             switch (msg.method) {
                 case 'stats_getData': {
                     const statsVariant = url.searchParams.get('stats');
-                    if (statsVariant && statsVariant in stats) {
-                        return Promise.resolve(stats[statsVariant]);
+                    if (statsVariant && statsVariant in privacyStatsMocks) {
+                        return Promise.resolve(privacyStatsMocks[statsVariant]);
                     }
-                    return Promise.resolve(stats.few);
+                    return Promise.resolve(privacyStatsMocks.few);
                 }
                 case 'stats_getConfig': {
                     /** @type {StatsConfig} */
