@@ -15,7 +15,6 @@ import styles from './Button.module.css';
 /**
  *
  * @param {ButtonProps} props
- * @returns
  */
 export function Button({ variant, className, children, onClick, type = 'button' }) {
     return (
