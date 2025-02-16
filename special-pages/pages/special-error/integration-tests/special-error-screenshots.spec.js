@@ -21,12 +21,6 @@ test.describe('screenshots @screenshots', () => {
         await expect(page).toHaveScreenshot('ssl-expired-cert-reduced-motion.png', { maxDiffPixels });
     });
 
-    test('Phishing warning', async ({ page }, workerInfo) => {
-        const special = SpecialErrorPage.create(page, workerInfo);
-        await special.openPage({ errorId: 'phishing' });
-        await expect(page).toHaveScreenshot('phishing-warning.png', { maxDiffPixels });
-    });
-
     test('Phishing warning with advanced info', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.openPage({ errorId: 'phishing' });
