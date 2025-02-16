@@ -34,7 +34,12 @@ const YouTubeErrorContext = createContext({
  */
 export function YouTubeErrorProvider({ initial = null, children }) {
     // initial state
-    const [error, setError] = useState(initial);
+    let initialError = null;
+    if (initial && YOUTUBE_ERROR_IDS.includes(initial)) {
+        initialError = initial;
+    }
+    const [error, setError] = useState(initialError);
+
     const messaging = useMessaging();
     const platformName = usePlatformName();
     const setFocusMode = useSetFocusMode();

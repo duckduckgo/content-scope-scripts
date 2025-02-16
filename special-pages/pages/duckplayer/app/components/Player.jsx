@@ -8,10 +8,6 @@ import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
 
 /**
- * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
- */
-
-/**
  * Player component renders an embedded media player.
  *
  * @param {object} props

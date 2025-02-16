@@ -14,7 +14,7 @@ import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx';
 import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
-import { YOUTUBE_ERROR_IDS, YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
+import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
 
 /** @typedef {import('../types/duckplayer').YouTubeError} YouTubeError */
 
@@ -62,13 +62,9 @@ export async function init(messaging, telemetry, baseEnvironment) {
         .withDisabledFocusMode(baseEnvironment.urlParams.get('focusMode'))
         .withCustomError(baseEnvironment.urlParams.get('customError'));
 
-    console.log(settings);
+    const initialYouTubeError = /** @type {YouTubeError} */ (baseEnvironment.urlParams.get('youtubeError'));
 
-    let initialYouTubeError = null;
-    const ytErrorParam = /** @type {YouTubeError} */ (baseEnvironment.urlParams.get('youtubeError'));
-    if (ytErrorParam && YOUTUBE_ERROR_IDS.includes(ytErrorParam)) {
-        initialYouTubeError = ytErrorParam;
-    }
+    console.log(settings);
 
     const embed = createEmbedSettings(window.location.href, settings);
 

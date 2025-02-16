@@ -20,21 +20,15 @@ function useErrorStrings(kind) {
     switch (kind) {
         case 'sign-in-required':
             return {
-                heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
-                messages: [
-                    <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage1') }} />,
-                    <span dangerouslySetInnerHTML={{ __html: t('signInRequiredErrorMessage2') }} />,
-                ],
-                variant: 'list',
+                heading: t('blockedVideoErrorHeading'),
+                messages: [t('signInRequiredErrorMessage1'), t('signInRequiredErrorMessage2')],
+                variant: 'paragraphs',
             };
         default:
             return {
-                heading: <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorHeading') }} />,
-                messages: [
-                    <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage1') }} />,
-                    <span dangerouslySetInnerHTML={{ __html: t('blockedVideoErrorMessage2') }} />,
-                ],
-                variant: 'inline',
+                heading: t('blockedVideoErrorHeading'),
+                messages: [t('blockedVideoErrorMessage1'), t('blockedVideoErrorMessage2')],
+                variant: 'paragraphs',
             };
     }
 }
@@ -62,7 +56,7 @@ export function YouTubeError({ kind, layout }) {
                     {messages && variant === 'inline' && (
                         <p className={styles.messages}>
                             {messages.map((item) => (
-                                <span>{item}</span>
+                                <span key={item}>{item}</span>
                             ))}
                         </p>
                     )}
@@ -70,7 +64,7 @@ export function YouTubeError({ kind, layout }) {
                     {messages && variant === 'paragraphs' && (
                         <div className={styles.messages}>
                             {messages.map((item) => (
-                                <p>{item}</p>
+                                <p key={item}>{item}</p>
                             ))}
                         </div>
                     )}
@@ -78,7 +72,7 @@ export function YouTubeError({ kind, layout }) {
                     {messages && variant === 'list' && (
                         <ul className={styles.messages}>
                             {messages.map((item) => (
-                                <li>{item}</li>
+                                <li key={item}>{item}</li>
                             ))}
                         </ul>
                     )}

@@ -54,7 +54,12 @@ export class ErrorDetection {
                 childList: true,
                 subtree: true, // Observe all descendants of the body
             });
+
+            return () => {
+                observer.disconnect();
+            };
         }
+
         return null;
     }
 
