@@ -64,7 +64,6 @@ export async function init(messaging, telemetry, baseEnvironment) {
 
     console.log(settings);
 
-    // TODO: Refactor
     let initialYouTubeError = null;
     const ytErrorParam = /** @type {YouTubeError} */ (baseEnvironment.urlParams.get('youtubeError'));
     if (ytErrorParam && YOUTUBE_ERROR_IDS.includes(ytErrorParam)) {

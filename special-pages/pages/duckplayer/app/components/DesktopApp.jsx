@@ -37,8 +37,6 @@ function DesktopLayout({ embed }) {
     const settings = useSettings();
     const showCustomError = youtubeError && settings.customError?.state === 'enabled';
 
-    // TODO: Better conditionals for showing error or player
-
     return (
         <div class={styles.desktop}>
             <PlayerContainer>

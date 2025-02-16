@@ -108,8 +108,6 @@ export class ErrorDetection {
                 return YOUTUBE_ERRORS.noEmbed;
             }
 
-            // TODO: Get this from initial setup
-
             // 2. Check for sign-in support link
             try {
                 if (this.options?.signInRequiredSelector && !!iframeWindow.document.querySelector(this.options.signInRequiredSelector)) {

@@ -48,7 +48,6 @@ export function YouTubeErrorProvider({ initial = null, children }) {
                 if (eventError && eventError !== error) {
                     setFocusMode('paused');
                     if (platformName === 'macos' || platformName === 'ios') {
-                        // TODO: Better feature flagging?
                         messaging.reportYouTubeError({ error: eventError });
                     }
                 } else {
