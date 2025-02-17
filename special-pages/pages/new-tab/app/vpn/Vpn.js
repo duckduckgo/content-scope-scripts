@@ -46,8 +46,6 @@ export function Vpn({ data, expansion, toggle }) {
  * @param {VPNWidgetData} props.data
  */
 function VpnBody({ data }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-
     return (
         <div class={styles.body}>
             <ul class={styles.list}>
@@ -101,6 +99,7 @@ function LongestConnection({ timespan }) {
             {timespan && display && (
                 <span class={styles.value}>
                     {display.map((item, index) => {
+                        if (item === 0) return null;
                         const lookup = ['w', 'd', 'h', 'm'];
                         return item !== undefined ? <span>{item + lookup[index]}</span> : null;
                     })}
