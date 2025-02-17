@@ -84,6 +84,15 @@ export type NextStepsCards = {
 }[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
+/**
+ * Represents the complete state of the VPN widget, including connection status and metrics
+ */
+export type VPNWidgetData = Connected | Disconnected | UnsubscribedState;
+export type PendingState = "connecting" | "disconnecting" | "none";
+/**
+ * Three-letter abbreviation for the day of the week
+ */
+export type Day = "Sun" | "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -122,6 +131,9 @@ export interface NewTabMessages {
     | StatsShowMoreNotification
     | TelemetryEventNotification
     | UpdateNotificationDismissNotification
+    | VpnConnectNotification
+    | VpnDisconnectNotification
+    | VpnSetConfigNotification
     | WidgetsSetConfigNotification;
   requests:
     | ActivityConfirmBurnRequest
@@ -137,7 +149,9 @@ export interface NewTabMessages {
     | NextStepsGetDataRequest
     | RmfGetDataRequest
     | StatsGetConfigRequest
-    | StatsGetDataRequest;
+    | StatsGetDataRequest
+    | VpnGetConfigRequest
+    | VpnGetDataRequest;
   subscriptions:
     | ActivityOnBurnCompleteSubscription
     | ActivityOnConfigUpdateSubscription
@@ -157,6 +171,8 @@ export interface NewTabMessages {
     | StatsOnConfigUpdateSubscription
     | StatsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
+    | VpnOnConfigUpdateSubscription
+    | VpnOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription;
 }
 /**
@@ -554,6 +570,29 @@ export interface UpdateNotificationDismissNotification {
   method: "updateNotification_dismiss";
 }
 /**
+ * Generated from @see "../messages/vpn_connect.notify.json"
+ */
+export interface VpnConnectNotification {
+  method: "vpn_connect";
+}
+/**
+ * Generated from @see "../messages/vpn_disconnect.notify.json"
+ */
+export interface VpnDisconnectNotification {
+  method: "vpn_disconnect";
+}
+/**
+ * Generated from @see "../messages/vpn_setConfig.notify.json"
+ */
+export interface VpnSetConfigNotification {
+  method: "vpn_setConfig";
+  params: VPNConfig;
+}
+export interface VPNConfig {
+  expansion: Expansion;
+  animation?: Animation;
+}
+/**
  * Generated from @see "../messages/widgets_setConfig.notify.json"
  */
 export interface WidgetsSetConfigNotification {
@@ -848,6 +887,157 @@ export interface TrackerCompany {
   count: number;
 }
 /**
+ * Generated from @see "../messages/vpn_getConfig.request.json"
+ */
+export interface VpnGetConfigRequest {
+  method: "vpn_getConfig";
+  result: VPNConfig;
+}
+/**
+ * Generated from @see "../messages/vpn_getData.request.json"
+ */
+export interface VpnGetDataRequest {
+  method: "vpn_getData";
+  result: VPNWidgetData;
+}
+/**
+ * State when the VPN is actively connected and running
+ */
+export interface Connected {
+  pending: PendingState;
+  /**
+   * Indicates this is a connected state
+   */
+  state: "connected";
+  value: ConnectedData;
+}
+export interface ConnectedData {
+  session: CurrentSession;
+  history: UsageHistory;
+}
+/**
+ * Information about the current VPN session
+ */
+export interface CurrentSession {
+  /**
+   * Current IP address assigned by the VPN
+   */
+  currentIp: string;
+  /**
+   * Unix timestamp (seconds since epoch) when the connection was established
+   */
+  connectedSince: number;
+  dataVolume: DataVolumeMetrics;
+}
+/**
+ * Current data transfer rates for the VPN connection
+ */
+export interface DataVolumeMetrics {
+  /**
+   * Current upload speed
+   */
+  upload: number;
+  /**
+   * Current download speed
+   */
+  download: number;
+  /**
+   * Unit of measurement for data transfer speeds
+   */
+  unit: "kb/s" | "mb/s" | "gb/s";
+}
+/**
+ * Historical usage data including longest connection and weekly patterns
+ */
+export interface UsageHistory {
+  longestConnection: Timespan;
+  weeklyUsage: WeeklyUsageStats;
+}
+/**
+ * Represents a duration of time broken down into weeks, days, hours, and minutes
+ */
+export interface Timespan {
+  /**
+   * Number of weeks in the time span
+   */
+  weeks?: number;
+  /**
+   * Number of days in the time span (0-6)
+   */
+  days?: number;
+  /**
+   * Number of hours in the time span (0-23)
+   */
+  hours: number;
+  /**
+   * Number of minutes in the time span (0-59)
+   */
+  minutes: number;
+}
+/**
+ * Usage statistics for the current week
+ */
+export interface WeeklyUsageStats {
+  /**
+   * Unit of measurement for usage values
+   */
+  timeUnit: "hours";
+  /**
+   * Maximum possible value for the usage metric (e.g., 24 for hours)
+   */
+  maxValue: number;
+  /**
+   * Usage values for each day of the week
+   */
+  days: DailyUsage[];
+}
+export interface DailyUsage {
+  day: Day;
+  /**
+   * Usage metric value for this day
+   */
+  value: number;
+}
+/**
+ * State when the user has an active subscription but VPN is not currently running
+ */
+export interface Disconnected {
+  pending: PendingState;
+  /**
+   * Indicates this is a disconnected state
+   */
+  state: "disconnected";
+  value: DisconnectedData;
+}
+export interface DisconnectedData {
+  lastSession: LastSession;
+  history: UsageHistory;
+}
+/**
+ * Information about the most recent VPN session
+ */
+export interface LastSession {
+  /**
+   * IP address from the most recent VPN session
+   */
+  lastIp: string;
+  lastConnectionTime: Timespan;
+}
+/**
+ * State for users who haven't subscribed
+ */
+export interface UnsubscribedState {
+  pending: PendingState;
+  /**
+   * Indicates this is an unsubscribed state
+   */
+  state: "unsubscribed";
+  /**
+   * Unsubscribed state has no additional data
+   */
+  value: null;
+}
+/**
  * Generated from @see "../messages/activity_onBurnComplete.subscribe.json"
  */
 export interface ActivityOnBurnCompleteSubscription {
@@ -985,6 +1175,20 @@ export interface StatsOnDataUpdateSubscription {
 export interface UpdateNotificationOnDataUpdateSubscription {
   subscriptionEvent: "updateNotification_onDataUpdate";
   params: UpdateNotificationData;
+}
+/**
+ * Generated from @see "../messages/vpn_onConfigUpdate.subscribe.json"
+ */
+export interface VpnOnConfigUpdateSubscription {
+  subscriptionEvent: "vpn_onConfigUpdate";
+  params: VPNConfig;
+}
+/**
+ * Generated from @see "../messages/vpn_onDataUpdate.subscribe.json"
+ */
+export interface VpnOnDataUpdateSubscription {
+  subscriptionEvent: "vpn_onDataUpdate";
+  params: VPNWidgetData;
 }
 /**
  * Generated from @see "../messages/widgets_onConfigUpdated.subscribe.json"

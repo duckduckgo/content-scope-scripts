@@ -8,6 +8,7 @@ import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
+import { vpnMockTransport } from './vpn/mocks/vpn.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -105,6 +106,7 @@ export function mockTransport() {
     const transports = {
         customizer: customizerMockTransport(),
         activity: activityMockTransport(),
+        vpn: vpnMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -514,6 +516,9 @@ export function mockTransport() {
                         widgetsFromStorage.push({ id: 'activity' });
                         widgetConfigFromStorage.push({ id: 'activity', visibility: 'visible' });
                     }
+
+                    widgetsFromStorage.push({ id: 'vpn' });
+                    widgetConfigFromStorage.push({ id: 'vpn', visibility: 'visible' });
 
                     /** @type {import('../types/new-tab').NewTabPageSettings} */
                     const settings = {};

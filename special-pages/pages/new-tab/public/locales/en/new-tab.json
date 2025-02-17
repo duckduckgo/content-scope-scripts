@@ -29,6 +29,58 @@
     "title": "Customize New Tab Page",
     "note": "Heading text describing that there's a list of toggles for customizing the page layout."
   },
+  "vpn_menuTitle": {
+    "title": "VPN",
+    "note": "Used as a label in a customization menu"
+  },
+  "vpn_toggleLabel": {
+    "title": "Show VPN activity",
+    "note": "The aria-label text for a toggle button that shows the detailed activity feed"
+  },
+  "vpn_hideLabel": {
+    "title": "Hide VPN activity",
+    "note": "The aria-label text for a toggle button that hides the detailed activity feed"
+  },
+  "vpn_disconnectedTitle": {
+    "title": "VPN is OFF",
+    "note": ""
+  },
+  "vpn_connectedTitle": {
+    "title": "VPN is ON",
+    "note": ""
+  },
+  "vpn_disabled": {
+    "title": "VPN is Disabled",
+    "note": ""
+  },
+  "vpn_disabledSubtitle": {
+    "title": "Subscribe to Privacy Pro to unlock",
+    "note": ""
+  },
+  "vpn_tryButton": {
+    "title": "Try for Free",
+    "note": ""
+  },
+  "vpn_connectionTimeLabel": {
+    "title": "Connection Time",
+    "note": ""
+  },
+  "vpn_longestConnectionLabel": {
+    "title": "Longest Connection",
+    "note": ""
+  },
+  "vpn_ipLabel": {
+    "title": "IP Address",
+    "note": ""
+  },
+  "vpn_dataVolumeLabel": {
+    "title": "Data Volume",
+    "note": ""
+  },
+  "vpn_usageLabel": {
+    "title": "Usage",
+    "note": ""
+  },
   "updateNotification_updated_version": {
     "title": "Browser Updated to version {version}.",
     "note": "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
