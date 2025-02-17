@@ -22,8 +22,7 @@ title: VPN
 }
 ```
 
-Then, the following Requests, Notifications and Subscriptions will be used. Refer to the 
-Privacy Stats widget as guide in the native side.
+Then, the following Requests, Notifications and Subscriptions will be used.
 
 ## Requests:
 ### `vpn_getData` 
@@ -39,18 +38,18 @@ Privacy Stats widget as guide in the native side.
 ## Subscriptions:
 ### `vpn_onDataUpdate` 
 - {@link "NewTab Messages".VpnOnDataUpdateSubscription}.
-- The tracker/company data used in the feed.
+- All state updates sent though this single subscription. 
 - returns {@link "NewTab Messages".VPNWidgetData}
 
 ### `vpn_onConfigUpdate` 
-- {@link "NewTab Messages".StatsOnDataUpdateSubscription}.
+- {@link "NewTab Messages".VpnOnConfigUpdateSubscription}.
 - The widget config
 - returns {@link "NewTab Messages".VPNConfig}
 
 ## Notifications:
 ### `vpn_setConfig` 
-- {@link "NewTab Messages".StatsSetConfigNotification}
-- Sent when the user toggles the expansion of the stats
+- {@link "NewTab Messages".VpnSetConfigNotification}
+- Sent when the user toggles the expansion of the widget
 - sends {@link "NewTab Messages".VPNConfig}
 - example payload:
 ```json
