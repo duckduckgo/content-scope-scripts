@@ -325,7 +325,7 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
             max-content;
 
         & .buttons {
-            border-radius: 0;
+            border-radius: var(--outer-radius);
             display: block;
         }
     }
