@@ -49,7 +49,7 @@
     padding: 0 24px;
     flex-flow: column;
 
-    @media screen and (min-width: 375px) {
+    @media screen and (min-width: 375px) and (min-height: 400px) {
         margin: 36px 0;
     }
 }
