@@ -18,7 +18,7 @@ import { useVpnApi } from '../../vpn/VpnProvider.js';
  */
 export function VpnHeading({ data, expansion, canExpand, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {vpnStrings} */ ({}));
-    const { disconnect, connect } = useVpnApi();
+    const { disconnect, connect, tryForFree } = useVpnApi();
     const title = (() => {
         switch (data.state) {
             case 'connected':
@@ -47,7 +47,11 @@ export function VpnHeading({ data, expansion, canExpand, onToggle, buttonAttrs =
                 {data.state === 'unsubscribed' && <small>{t('vpn_disabledSubtitle')}</small>}
             </h2>
             <div class={styles.inlineControls}>
-                {data.state === 'unsubscribed' && <button class={styles.inlineBtn}>{t('vpn_tryButton')}</button>}
+                {data.state === 'unsubscribed' && (
+                    <button class={styles.inlineBtn} onClick={tryForFree}>
+                        {t('vpn_tryButton')}
+                    </button>
+                )}
                 {data.state !== 'unsubscribed' && (
                     <div class={styles.inlineSwitch} data-state={data.state} data-pending={data.pending}>
                         <ConnectedDot />

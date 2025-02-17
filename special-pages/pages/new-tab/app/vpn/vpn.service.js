@@ -90,6 +90,10 @@ export class VpnService {
         });
     }
 
+    tryForFree() {
+        this.ntp.messaging.notify('vpn_try');
+    }
+
     /**
      * Update the in-memory data immediate and persist.
      * Any state changes will be broadcast to consumers synchronously

@@ -32,6 +32,10 @@ export function vpnMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
+                case 'vpn_try': {
+                    alert("native will receive 'vpn_try'");
+                    break;
+                }
                 case 'vpn_connect': {
                     const cb = subs.get('vpn_onDataUpdate');
                     setTimeout(() => {

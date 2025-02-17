@@ -117,6 +117,7 @@ function ConnectionTimeItem({ timestamp }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [connectedDisplay, setConnectedDisplay] = useState(() => (timestamp ? formatDuration(timestamp) : null));
     useEffect(() => {
+        if (timestamp === undefined) return;
         const interval = setInterval(() => {
             setConnectedDisplay(formatDuration(timestamp));
         }, 1000);

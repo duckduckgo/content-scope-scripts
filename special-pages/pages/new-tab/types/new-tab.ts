@@ -134,6 +134,7 @@ export interface NewTabMessages {
     | VpnConnectNotification
     | VpnDisconnectNotification
     | VpnSetConfigNotification
+    | VpnTryNotification
     | WidgetsSetConfigNotification;
   requests:
     | ActivityConfirmBurnRequest
@@ -591,6 +592,12 @@ export interface VpnSetConfigNotification {
 export interface VPNConfig {
   expansion: Expansion;
   animation?: Animation;
+}
+/**
+ * Generated from @see "../messages/vpn_try.notify.json"
+ */
+export interface VpnTryNotification {
+  method: "vpn_try";
 }
 /**
  * Generated from @see "../messages/widgets_setConfig.notify.json"

@@ -27,6 +27,7 @@ export const VpnDispatchContext = createContext(/** @type {import("preact/hooks"
 export const VpnApiContext = createContext({
     connect() {},
     disconnect() {},
+    tryForFree() {},
 });
 
 /**
@@ -64,11 +65,14 @@ export function VpnProvider(props) {
     const disconnect = useCallback(() => {
         service.current?.disconnect();
     }, [service]);
+    const tryForFree = useCallback(() => {
+        service.current?.tryForFree();
+    }, [service]);
 
     return (
         <VpnContext.Provider value={{ state, toggle }}>
             <VpnDispatchContext.Provider value={dispatch}>
-                <VpnApiContext.Provider value={{ connect, disconnect }}>{props.children}</VpnApiContext.Provider>
+                <VpnApiContext.Provider value={{ connect, disconnect, tryForFree }}>{props.children}</VpnApiContext.Provider>
             </VpnDispatchContext.Provider>
         </VpnContext.Provider>
     );

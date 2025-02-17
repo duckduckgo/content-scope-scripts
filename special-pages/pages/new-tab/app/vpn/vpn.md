@@ -69,6 +69,8 @@ set the `pending` field to `connecting`.
   set the `pending` field to `disonnecting`.
 - When the connection is closed, send more data, this time with state: 'disconnected' and pending 'none' (see the examples) 
 
+### `vpn_try` 
+- Sent when a new uses presses 'Try For Free'
 
 ## Example Flows.
 
