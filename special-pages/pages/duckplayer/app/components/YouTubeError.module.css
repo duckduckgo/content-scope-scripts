@@ -46,8 +46,11 @@
 
 .mobile .container {
     flex-flow: column;
-    margin: 16px 0;
     padding: 0 24px;
+
+    @media screen and (min-height: 320px) {
+        margin: 16px 0;
+    }
 
     @media screen and (min-width: 375px) and (min-height: 400px) {
         margin: 36px 0;
