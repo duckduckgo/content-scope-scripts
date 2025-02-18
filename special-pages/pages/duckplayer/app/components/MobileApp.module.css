@@ -329,4 +329,16 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
             display: block;
         }
     }
+
+    /* Sticky buttons on very low heights */
+    @media screen and (max-height: 320px) {
+        & .embed {
+            overflow-y: auto;
+        }
+
+        & .buttons {
+            bottom: 0;
+            position: sticky;
+        }
+    }
 }
