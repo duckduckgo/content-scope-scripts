@@ -1,3 +1,2 @@
-- Windows support for Malicious website protection (#1423)
-- history: adding item selection (#1486)
-- Duck Player screenshot update (#1489)
+- Duck Player Custom Error Translations (#1500)
+- Custom error messages for Duck Player (#1421)

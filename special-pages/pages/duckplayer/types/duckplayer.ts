@@ -6,6 +6,7 @@
  * @module Duckplayer Messages
  */
 
+export type YouTubeError = "age-restricted" | "sign-in-required" | "no-embed" | "unknown";
 export type PrivatePlayerMode =
   | {
       enabled: unknown;
@@ -26,6 +27,7 @@ export interface DuckplayerMessages {
     | OpenSettingsNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
+    | ReportYouTubeErrorNotification
     | TelemetryEventNotification;
   requests: GetUserValuesRequest | InitialSetupRequest | SetUserValuesRequest;
   subscriptions: OnUserValuesChangedSubscription;
@@ -61,6 +63,16 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/reportYouTubeError.notify.json"
+ */
+export interface ReportYouTubeErrorNotification {
+  method: "reportYouTubeError";
+  params: ReportYouTubeErrorNotify;
+}
+export interface ReportYouTubeErrorNotify {
+  error: YouTubeError;
 }
 /**
  * Generated from @see "../messages/telemetryEvent.notify.json"
@@ -116,6 +128,16 @@ export interface DuckPlayerPageSettings {
   };
   focusMode?: {
     state: "enabled" | "disabled";
+  };
+  /**
+   * Configures a custom error message for YouTube errors
+   */
+  customError?: {
+    state: "enabled" | "disabled";
+    /**
+     * A selector that, when not empty, indicates a sign-in required error
+     */
+    signInRequiredSelector: string;
   };
 }
 /**

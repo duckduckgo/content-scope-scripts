@@ -85,6 +85,7 @@ body[data-display=app] {
 
 /* pages/duckplayer/app/components/Components.module.css */
 .Components_main {
+  background-color: #000;
   color: white;
   max-width: 3840px;
   margin: 0 auto;
@@ -136,7 +137,7 @@ body[data-display=app] {
   text-decoration: none;
 }
 [data-layout=mobile] .Button_button {
-  background-color: #2f2f2f;
+  background-color: rgba(255, 255, 255, 0.12);
 }
 .Button_button:hover,
 .Button_button:focus-visible {
@@ -212,7 +213,7 @@ body[data-display=app] {
 .SwitchBarMobile_switchBar {
   display: grid;
   border-radius: 8px;
-  background: #2f2f2f;
+  background: rgba(255, 255, 255, 0.12);
   padding-inline: 16px;
   height: 100%;
   line-height: 1.1;
@@ -542,6 +543,9 @@ body[data-display=app] {
   .Wordmark_mobile_logo {
     height: 100px;
   }
+  [data-youtube-error=true] .Wordmark_mobile_logo {
+    height: 44px;
+  }
 }
 .Wordmark_mobile_logoSvg img {
   display: block;
@@ -613,6 +617,127 @@ body[data-display=app] {
   }
 }
 
+/* pages/duckplayer/app/components/YouTubeError.module.css */
+.YouTubeError_error {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6);
+  display: grid;
+  height: 100%;
+  justify-items: center;
+}
+.YouTubeError_error.YouTubeError_desktop {
+  height: var(--frame-height);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+.YouTubeError_error.YouTubeError_mobile {
+  border-radius: var(--inner-radius);
+  height: 100%;
+  overflow: auto;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+@media screen and (min-width: 600px) and (min-height: 600px) {
+  .YouTubeError_error.YouTubeError_mobile {
+    aspect-ratio: 16 / 9;
+  }
+}
+.YouTubeError_desktop {
+  border-top-left-radius: var(--outer-radius);
+  border-top-right-radius: var(--outer-radius);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.YouTubeError_container {
+  column-gap: 24px;
+  display: flex;
+  flex-flow: row;
+  margin: 0;
+  max-width: 680px;
+  padding: 0 40px;
+  row-gap: 4px;
+}
+.YouTubeError_mobile .YouTubeError_container {
+  flex-flow: column;
+  padding: 0 24px;
+}
+@media screen and (min-height: 320px) {
+  .YouTubeError_mobile .YouTubeError_container {
+    margin: 16px 0;
+  }
+}
+@media screen and (min-width: 375px) and (min-height: 400px) {
+  .YouTubeError_mobile .YouTubeError_container {
+    margin: 36px 0;
+  }
+}
+.YouTubeError_content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 16px 0;
+}
+@media screen and (min-width: 600px) {
+  .YouTubeError_content {
+    margin: 24px 0;
+  }
+}
+.YouTubeError_icon {
+  align-self: center;
+  display: flex;
+  justify-content: center;
+}
+.YouTubeError_icon::before {
+  content: " ";
+  display: block;
+  background: url('data:image/svg+xml,<svg fill="none" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">%0A  <path fill="red" d="M47.5 70.802c1.945 0 3.484-1.588 3.841-3.5C53.076 58.022 61.218 51 71 51h4.96c2.225 0 4.04-1.774 4.04-4 0-.026-.007-9.022-1.338-14.004a8.02 8.02 0 0 0-5.659-5.658C68.014 26 48 26 48 26s-20.015 0-25.004 1.338a8.01 8.01 0 0 0-5.658 5.658C16 37.986 16 48.401 16 48.401s0 10.416 1.338 15.405a8.01 8.01 0 0 0 5.658 5.658c4.99 1.338 24.504 1.338 24.504 1.338"/>%0A  <path fill="%23fff" d="m41.594 58 16.627-9.598-16.627-9.599z"/>%0A  <path fill="%23EB102D" d="M87 71c0 8.837-7.163 16-16 16s-16-7.163-16-16 7.163-16 16-16 16 7.163 16 16"/>%0A  <path fill="%23fff" d="M73 77.8a2 2 0 1 1-4 0 2 2 0 0 1 4 0m-2.039-4.4c-.706 0-1.334-.49-1.412-1.12l-.942-8.75c-.079-.7.55-1.33 1.412-1.33h1.962c.785 0 1.492.63 1.413 1.33l-.942 8.75c-.157.63-.784 1.12-1.49 1.12Z"/>%0A  <path fill="%23CCC" d="M92.501 59c.298 0 .595.12.823.354.454.468.454 1.23 0 1.698l-2.333 2.4a1.145 1.145 0 0 1-1.65 0 1.227 1.227 0 0 1 0-1.698l2.333-2.4c.227-.234.524-.354.822-.354zm-1.166 10.798h3.499c.641 0 1.166.54 1.166 1.2s-.525 1.2-1.166 1.2h-3.499c-.641 0-1.166-.54-1.166-1.2s.525-1.2 1.166-1.2m-1.982 8.754c.227-.234.525-.354.822-.354h.006c.297 0 .595.12.822.354l2.332 2.4c.455.467.455 1.23 0 1.697a1.145 1.145 0 0 1-1.65 0l-2.332-2.4a1.227 1.227 0 0 1 0-1.697"/>%0A</svg>%0A') no-repeat;
+  height: 48px;
+  width: 48px;
+}
+@media screen and (max-width: 320px) {
+  .YouTubeError_icon {
+    display: none;
+  }
+}
+@media screen and (min-width: 600px) and (min-height: 600px) {
+  .YouTubeError_icon {
+    justify-content: start;
+  }
+  .YouTubeError_icon::before {
+    background-image: url('data:image/svg+xml,<svg fill="none" viewBox="0 0 128 96" xmlns="http://www.w3.org/2000/svg">%0A  <path fill="%23888" d="M16.912 31.049a1.495 1.495 0 0 1 2.114-2.114l1.932 1.932 1.932-1.932a1.495 1.495 0 0 1 2.114 2.114l-1.932 1.932 1.932 1.932a1.495 1.495 0 0 1-2.114 2.114l-1.932-1.933-1.932 1.933a1.494 1.494 0 1 1-2.114-2.114l1.932-1.932zM.582 52.91a1.495 1.495 0 0 1 2.113-2.115l1.292 1.292 1.291-1.292a1.495 1.495 0 1 1 2.114 2.114L6.1 54.2l1.292 1.292a1.495 1.495 0 1 1-2.113 2.114l-1.292-1.292-1.292 1.292a1.495 1.495 0 1 1-2.114-2.114l1.292-1.291zm104.972-15.452a1.496 1.496 0 0 1 2.114-2.114l1.291 1.292 1.292-1.292a1.495 1.495 0 0 1 2.114 2.114l-1.292 1.291 1.292 1.292a1.494 1.494 0 1 1-2.114 2.114l-1.292-1.292-1.291 1.292a1.495 1.495 0 0 1-2.114-2.114l1.292-1.292zM124.5 54c-.825 0-1.5-.675-1.5-1.5s.675-1.5 1.5-1.5 1.5.675 1.5 1.5-.675 1.5-1.5 1.5M24 67c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2" opacity=".2"/>%0A  <path fill="red" d="M63.5 70.802c1.945 0 3.484-1.588 3.841-3.5C69.076 58.022 77.218 51 87 51h4.96c2.225 0 4.04-1.774 4.04-4 0-.026-.007-9.022-1.338-14.004a8.02 8.02 0 0 0-5.659-5.658C84.014 26 64 26 64 26s-20.014 0-25.004 1.338a8.01 8.01 0 0 0-5.658 5.658C32 37.986 32 48.401 32 48.401s0 10.416 1.338 15.405a8.01 8.01 0 0 0 5.658 5.658c4.99 1.338 24.504 1.338 24.504 1.338"/>%0A  <path fill="%23fff" d="m57.594 58 16.627-9.598-16.627-9.599z"/>%0A  <path fill="%23EB102D" d="M103 71c0 8.837-7.163 16-16 16s-16-7.163-16-16 7.163-16 16-16 16 7.163 16 16"/>%0A  <path fill="%23fff" d="M89 77.8a2 2 0 1 1-4 0 2 2 0 0 1 4 0m-2.039-4.4c-.706 0-1.334-.49-1.412-1.12l-.942-8.75c-.079-.7.55-1.33 1.412-1.33h1.962c.785 0 1.492.63 1.413 1.33l-.942 8.75c-.157.63-.784 1.12-1.49 1.12Z"/>%0A  <path fill="%23CCC" d="M108.501 59c.298 0 .595.12.823.354.454.468.454 1.23 0 1.698l-2.333 2.4a1.145 1.145 0 0 1-1.65 0 1.226 1.226 0 0 1 0-1.698l2.332-2.4c.228-.234.525-.354.823-.354zm-1.166 10.798h3.499c.641 0 1.166.54 1.166 1.2s-.525 1.2-1.166 1.2h-3.499c-.641 0-1.166-.54-1.166-1.2s.525-1.2 1.166-1.2m-1.982 8.754c.227-.234.525-.354.822-.354h.006c.297 0 .595.12.822.354l2.333 2.4c.454.467.454 1.23 0 1.697a1.146 1.146 0 0 1-1.651 0l-2.332-2.4a1.226 1.226 0 0 1 0-1.697"/>%0A</svg>%0A');
+    height: 96px;
+    width: 128px;
+  }
+}
+.YouTubeError_heading {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: calc(24 / 20);
+  margin: 0;
+}
+.YouTubeError_messages {
+  color: #ccc;
+  font-size: 16px;
+  line-height: calc(24 / 16);
+}
+div.YouTubeError_messages {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+div.YouTubeError_messages p {
+  margin: 0;
+}
+p.YouTubeError_messages {
+  margin: 0;
+}
+ul.YouTubeError_messages li {
+  list-style: disc;
+  margin-left: 24px;
+}
+
 /* pages/duckplayer/app/components/MobileApp.module.css */
 body[data-display=app] {
   padding: 8px;
@@ -650,6 +775,7 @@ html[data-focus-mode=on] .MobileApp_hideInFocus {
   --inner-radius: 12px;
   --logo-width: 157px;
   --inner-padding: 8px;
+  --mobile-buttons-padding: 8px;
   position: relative;
   max-width: 100vh;
   margin: 0 auto;
@@ -704,6 +830,15 @@ html[data-focus-mode=on] .MobileApp_embed {
 .MobileApp_switch {
   grid-area: switch;
   height: 44px;
+}
+.MobileApp_detachedControls {
+  grid-area: detached;
+  display: flex;
+  flex-flow: column;
+  gap: 8px;
+  padding: 8px;
+  background: #2f2f2f;
+  border-radius: 12px;
 }
 @media screen and (min-width: 425px) and (max-height: 600px) {
   .MobileApp_main {
@@ -796,6 +931,71 @@ html[data-focus-mode=on] .MobileApp_embed {
 @media screen and (min-width: 1100px) {
   .MobileApp_switch {
     justify-content: end;
+  }
+}
+@media screen and (max-width: 599px) {
+  .MobileApp_main[data-youtube-error=true] {
+    --bg-color: transparent;
+    --inner-padding: 4px;
+    grid-template-areas: "logo" "gap3" "embed" "gap4" "switch" "buttons";
+    grid-template-rows: max-content 16px auto 12px max-content max-content;
+  }
+  .MobileApp_main[data-youtube-error=true] .MobileApp_embed {
+    background: #2f2f2f;
+    border-radius: var(--outer-radius);
+    padding: 4px;
+  }
+  .MobileApp_main[data-youtube-error=true] .MobileApp_switch {
+    background: #2f2f2f;
+    padding: 8px 8px 0 8px;
+    height: 60px;
+    max-height: 60px;
+    border-top-left-radius: var(--outer-radius);
+    border-top-right-radius: var(--outer-radius);
+    transition: all 0.3s;
+  }
+  .MobileApp_main[data-youtube-error=true] .MobileApp_buttons {
+    background: #2f2f2f;
+    padding: 8px;
+    transition: all 0.3s;
+  }
+  .MobileApp_main[data-youtube-error=true]:has([data-state=completed]) .MobileApp_buttons {
+    border-radius: var(--outer-radius);
+  }
+  .MobileApp_main[data-youtube-error=true]:has([data-state=completed]) .MobileApp_switch {
+    background: transparent;
+    max-height: 0;
+  }
+}
+@media screen and (max-width: 599px) and (max-height: 599px) {
+  .MobileApp_main[data-youtube-error=true] {
+    max-width: unset;
+    grid-template-rows: 0 0 auto 12px 0 max-content;
+  }
+  .MobileApp_main[data-youtube-error=true] :is(.MobileApp_logo, .MobileApp_switch) {
+    display: none;
+  }
+  .MobileApp_main[data-youtube-error=true] .MobileApp_buttons {
+    border-radius: var(--outer-radius);
+  }
+}
+@media screen and (min-width: 600px) and (max-height: 450px) {
+  .MobileApp_main[data-youtube-error=true] {
+    grid-template-areas: "embed" "buttons" "gap5";
+    grid-template-rows: auto max-content 8px;
+  }
+  .MobileApp_main[data-youtube-error=true] .MobileApp_buttons {
+    border-radius: var(--outer-radius);
+    display: block;
+  }
+}
+@media screen and (max-height: 320px) {
+  .MobileApp_main[data-youtube-error=true] .MobileApp_embed {
+    overflow-y: auto;
+  }
+  .MobileApp_main[data-youtube-error=true] .MobileApp_buttons {
+    bottom: 0;
+    position: sticky;
   }
 }
 
@@ -2916,12 +3116,33 @@ html[data-focus-mode=on] .MobileApp_embed {
       title: "<b>ERROR:</b> Invalid video id",
       note: "Shown when the page URL doesn't match a known video ID. Note for translators: The <b> tag makes the word 'ERROR:' bold. Depending on the grammar of the target language, you might need to move it so that the correct word is emphasized."
     },
+    blockedVideoErrorHeading: {
+      title: "YouTube won\u2019t let Duck Player load this video",
+      note: "Message shown when YouTube has blocked playback of a video"
+    },
+    blockedVideoErrorMessage1: {
+      title: "YouTube doesn\u2019t allow this video to be viewed outside of YouTube.",
+      note: "Explanation on why the error is happening."
+    },
+    blockedVideoErrorMessage2: {
+      title: "You can still watch this video on YouTube, but without the added privacy of Duck Player.",
+      note: "A message explaining that the blocked video can be watched directly on YouTube."
+    },
+    signInRequiredErrorMessage1: {
+      title: "YouTube is blocking this video from loading. If you\u2019re using a VPN, try turning it off and reloading this page.",
+      note: "Explanation on why the error is happening and a suggestions on how to solve it."
+    },
+    signInRequiredErrorMessage2: {
+      title: "If this doesn\u2019t work, you can still watch this video on YouTube, but without the added privacy of Duck Player.",
+      note: "More troubleshooting tips for this specific error"
+    },
     tooltipInfo: {
       title: "Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations."
     }
   };
 
   // pages/duckplayer/app/settings.js
+  var DEFAULT_SIGN_IN_REQURED_HREF = '[href*="//support.google.com/youtube/answer/3037019"]';
   var Settings = class _Settings {
     /**
      * @param {object} params
@@ -2929,17 +3150,20 @@ html[data-focus-mode=on] .MobileApp_embed {
      * @param {{state: 'enabled' | 'disabled'}} [params.pip]
      * @param {{state: 'enabled' | 'disabled'}} [params.autoplay]
      * @param {{state: 'enabled' | 'disabled'}} [params.focusMode]
+     * @param {import("../types/duckplayer.js").InitialSetupResponse['settings']['customError']} [params.customError]
      */
     constructor({
       platform = { name: "macos" },
       pip = { state: "disabled" },
       autoplay = { state: "enabled" },
-      focusMode = { state: "enabled" }
+      focusMode = { state: "enabled" },
+      customError = { state: "disabled", signInRequiredSelector: "" }
     }) {
       this.platform = platform;
       this.pip = pip;
       this.autoplay = autoplay;
       this.focusMode = focusMode;
+      this.customError = customError;
     }
     /**
      * @param {keyof import("../types/duckplayer.js").DuckPlayerPageSettings} named
@@ -2948,7 +3172,7 @@ html[data-focus-mode=on] .MobileApp_embed {
      */
     withFeatureState(named, settings) {
       if (!settings) return this;
-      const valid = ["pip", "autoplay", "focusMode"];
+      const valid = ["pip", "autoplay", "focusMode", "customError"];
       if (!valid.includes(named)) {
         console.warn(`Excluding invalid feature key ${named}`);
         return this;
@@ -2983,6 +3207,28 @@ html[data-focus-mode=on] .MobileApp_embed {
         return new _Settings({
           ...this,
           focusMode: { state: newState }
+        });
+      }
+      return this;
+    }
+    /**
+     * @param {string|null|undefined} newState
+     * @return {Settings}
+     */
+    withCustomError(newState) {
+      if (newState === "disabled") {
+        return new _Settings({
+          ...this,
+          customError: { state: "disabled" }
+        });
+      }
+      if (newState === "enabled") {
+        return new _Settings({
+          ...this,
+          customError: {
+            state: "enabled",
+            signOnRequiredSelector: DEFAULT_SIGN_IN_REQURED_HREF
+          }
         });
       }
       return this;
@@ -3893,6 +4139,162 @@ html[data-focus-mode=on] .MobileApp_embed {
     }
   };
 
+  // pages/duckplayer/app/providers/YouTubeErrorProvider.jsx
+  var YOUTUBE_ERROR_EVENT = "ddg-duckplayer-youtube-error";
+  var YOUTUBE_ERRORS = {
+    ageRestricted: "age-restricted",
+    signInRequired: "sign-in-required",
+    noEmbed: "no-embed",
+    unknown: "unknown"
+  };
+  var YOUTUBE_ERROR_IDS = Object.values(YOUTUBE_ERRORS);
+  var YouTubeErrorContext = J({
+    /** @type {YouTubeError|null} */
+    error: null
+  });
+  function YouTubeErrorProvider({ initial = null, children }) {
+    let initialError = null;
+    if (initial && YOUTUBE_ERROR_IDS.includes(initial)) {
+      initialError = initial;
+    }
+    const [error, setError] = h2(initialError);
+    const messaging2 = useMessaging();
+    const platformName = usePlatformName();
+    const setFocusMode = useSetFocusMode();
+    y2(() => {
+      const errorEventHandler = (event) => {
+        const eventError = event.detail?.error;
+        if (YOUTUBE_ERROR_IDS.includes(eventError) || eventError === null) {
+          if (eventError && eventError !== error) {
+            setFocusMode("paused");
+            if (platformName === "macos" || platformName === "ios") {
+              messaging2.reportYouTubeError({ error: eventError });
+            }
+          } else {
+            setFocusMode("enabled");
+          }
+          setError(eventError);
+        }
+      };
+      window.addEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
+      return () => window.removeEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
+    }, []);
+    return /* @__PURE__ */ g(YouTubeErrorContext.Provider, { value: { error } }, children);
+  }
+  function useYouTubeError() {
+    return x2(YouTubeErrorContext).error;
+  }
+
+  // pages/duckplayer/app/features/error-detection.js
+  var ErrorDetection = class {
+    /** @type {HTMLIFrameElement} */
+    iframe;
+    /** @type {CustomErrorOptions} */
+    options;
+    /**
+     * @param {CustomErrorOptions} options
+     */
+    constructor(options) {
+      this.options = options;
+    }
+    /**
+     * @param {HTMLIFrameElement} iframe
+     */
+    iframeDidLoad(iframe) {
+      this.iframe = iframe;
+      if (!this.options || !this.options.signInRequiredSelector) {
+        console.log("Missing Custom Error options");
+        return null;
+      }
+      const documentBody = iframe.contentWindow?.document?.body;
+      if (documentBody) {
+        if (this.checkForError(documentBody)) {
+          const error = this.getErrorType();
+          window.dispatchEvent(new CustomEvent(YOUTUBE_ERROR_EVENT, { detail: { error } }));
+          return null;
+        }
+        const observer = new MutationObserver(this.handleMutation.bind(this));
+        observer.observe(documentBody, {
+          childList: true,
+          subtree: true
+          // Observe all descendants of the body
+        });
+        return () => {
+          observer.disconnect();
+        };
+      }
+      return null;
+    }
+    /**
+     * Mutation handler that checks new nodes for error states
+     *
+     * @type {MutationCallback}
+     */
+    handleMutation(mutationsList) {
+      for (const mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          mutation.addedNodes.forEach((node) => {
+            if (this.checkForError(node)) {
+              console.log("A node with an error has been added to the document:", node);
+              const error = this.getErrorType();
+              window.dispatchEvent(new CustomEvent(YOUTUBE_ERROR_EVENT, { detail: { error } }));
+            }
+          });
+        }
+      }
+    }
+    /**
+     * Attempts to detect the type of error in the YouTube embed iframe
+     * @returns {YouTubeError}
+     */
+    getErrorType() {
+      const iframeWindow = (
+        /** @type {Window & { ytcfg: object }} */
+        this.iframe.contentWindow
+      );
+      let playerResponse;
+      try {
+        playerResponse = JSON.parse(iframeWindow.ytcfg?.get("PLAYER_VARS")?.embedded_player_response);
+      } catch (e3) {
+        console.log("Could not parse player response", e3);
+      }
+      if (typeof playerResponse === "object") {
+        const {
+          previewPlayabilityStatus: { desktopLegacyAgeGateReason, status }
+        } = playerResponse;
+        if (status === "UNPLAYABLE") {
+          if (desktopLegacyAgeGateReason === 1) {
+            return YOUTUBE_ERRORS.ageRestricted;
+          }
+          return YOUTUBE_ERRORS.noEmbed;
+        }
+        try {
+          if (this.options?.signInRequiredSelector && !!iframeWindow.document.querySelector(this.options.signInRequiredSelector)) {
+            return YOUTUBE_ERRORS.signInRequired;
+          }
+        } catch (e3) {
+          console.log("Sign-in required query failed", e3);
+        }
+      }
+      return YOUTUBE_ERRORS.unknown;
+    }
+    /**
+     * Analyses a node and its children to determine if it contains an error state
+     *
+     * @param {Node} [node]
+     */
+    checkForError(node) {
+      if (node?.nodeType === Node.ELEMENT_NODE) {
+        const element = (
+          /** @type {HTMLElement} */
+          node
+        );
+        return element.classList.contains("ytp-error") || !!element.querySelector("ytp-error");
+      }
+      return false;
+    }
+  };
+
   // pages/duckplayer/app/features/iframe.js
   var IframeFeature = class {
     /**
@@ -3949,6 +4351,12 @@ html[data-focus-mode=on] .MobileApp_embed {
        */
       mouseCapture: () => {
         return new MouseCapture();
+      },
+      /**
+       * @return {IframeFeature}
+       */
+      errorDetection: () => {
+        return new ErrorDetection(settings.customError);
       }
     };
   }
@@ -4017,7 +4425,8 @@ html[data-focus-mode=on] .MobileApp_embed {
         features.pip(),
         features.clickCapture(),
         features.titleCapture(),
-        features.mouseCapture()
+        features.mouseCapture(),
+        features.errorDetection()
       ];
       const cleanups = [];
       const loadHandler = () => {
@@ -4044,6 +4453,48 @@ html[data-focus-mode=on] .MobileApp_embed {
     return { ref, didLoad: () => didLoad.current = true };
   }
 
+  // pages/duckplayer/app/components/YouTubeError.jsx
+  var import_classnames10 = __toESM(require_classnames(), 1);
+
+  // pages/duckplayer/app/components/YouTubeError.module.css
+  var YouTubeError_default = {
+    error: "YouTubeError_error",
+    desktop: "YouTubeError_desktop",
+    mobile: "YouTubeError_mobile",
+    container: "YouTubeError_container",
+    content: "YouTubeError_content",
+    icon: "YouTubeError_icon",
+    heading: "YouTubeError_heading",
+    messages: "YouTubeError_messages"
+  };
+
+  // pages/duckplayer/app/components/YouTubeError.jsx
+  function useErrorStrings(kind) {
+    const { t: t3 } = useTypedTranslation();
+    switch (kind) {
+      case "sign-in-required":
+        return {
+          heading: t3("blockedVideoErrorHeading"),
+          messages: [t3("signInRequiredErrorMessage1"), t3("signInRequiredErrorMessage2")],
+          variant: "paragraphs"
+        };
+      default:
+        return {
+          heading: t3("blockedVideoErrorHeading"),
+          messages: [t3("blockedVideoErrorMessage1"), t3("blockedVideoErrorMessage2")],
+          variant: "paragraphs"
+        };
+    }
+  }
+  function YouTubeError({ kind, layout }) {
+    const { heading, messages, variant } = useErrorStrings(kind);
+    const classes = (0, import_classnames10.default)(YouTubeError_default.error, {
+      [YouTubeError_default.desktop]: layout === "desktop",
+      [YouTubeError_default.mobile]: layout === "mobile"
+    });
+    return /* @__PURE__ */ g("div", { className: classes }, /* @__PURE__ */ g("div", { className: YouTubeError_default.container }, /* @__PURE__ */ g("span", { className: YouTubeError_default.icon }), /* @__PURE__ */ g("div", { className: YouTubeError_default.content }, /* @__PURE__ */ g("h1", { className: YouTubeError_default.heading }, heading), messages && variant === "inline" && /* @__PURE__ */ g("p", { className: YouTubeError_default.messages }, messages.map((item) => /* @__PURE__ */ g("span", { key: item }, item))), messages && variant === "paragraphs" && /* @__PURE__ */ g("div", { className: YouTubeError_default.messages }, messages.map((item) => /* @__PURE__ */ g("p", { key: item }, item))), messages && variant === "list" && /* @__PURE__ */ g("ul", { className: YouTubeError_default.messages }, messages.map((item) => /* @__PURE__ */ g("li", { key: item }, item))))));
+  }
+
   // pages/duckplayer/app/components/Components.jsx
   function Components() {
     const settings = new Settings({
@@ -4052,11 +4503,11 @@ html[data-focus-mode=on] .MobileApp_embed {
     let embed = EmbedSettings.fromHref("https://localhost?videoID=123");
     let url = embed?.toEmbedUrl();
     if (!url) throw new Error("unreachable");
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("main", { class: Components_default.main }, /* @__PURE__ */ g("div", { class: Components_default.tube }, /* @__PURE__ */ g(Wordmark, null), /* @__PURE__ */ g("h2", null, "Floating Bar"), /* @__PURE__ */ g("div", { style: "position: relative; padding-left: 10em; min-height: 150px;" }, /* @__PURE__ */ g(InfoIcon, { debugStyles: true })), /* @__PURE__ */ g("h2", null, "Info Tooltip"), /* @__PURE__ */ g(FloatingBar, null, /* @__PURE__ */ g(Button, { icon: true }, /* @__PURE__ */ g(Icon, { src: info_data_default })), /* @__PURE__ */ g(Button, { icon: true }, /* @__PURE__ */ g(Icon, { src: cog_data_default })), /* @__PURE__ */ g(Button, { fill: true }, "Open in YouTube")), /* @__PURE__ */ g("h2", null, "Info Bar"), /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(InfoBar, { embed }))), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("h2", null, "Mobile Switch Bar (ios)"), /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(SwitchBarMobile, { platformName: "ios" })), /* @__PURE__ */ g("h2", null, "Mobile Switch Bar (android)"), /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(SwitchBarMobile, { platformName: "android" })), /* @__PURE__ */ g("h2", null, "Desktop Switch bar"), /* @__PURE__ */ g("h3", null, "idle"), /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(SwitchBarDesktop, null))), /* @__PURE__ */ g("h2", null, /* @__PURE__ */ g("code", null, "inset=false (desktop)")), /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(PlayerContainer, null, /* @__PURE__ */ g(Player, { src: url, layout: "desktop" }), /* @__PURE__ */ g(InfoBarContainer, null, /* @__PURE__ */ g(InfoBar, { embed })))), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("h2", null, /* @__PURE__ */ g("code", null, "inset=true (mobile)")), /* @__PURE__ */ g(PlayerContainer, { inset: true }, /* @__PURE__ */ g(PlayerInternal, { inset: true }, /* @__PURE__ */ g(PlayerError, { layout: "mobile", kind: "invalid-id" }), /* @__PURE__ */ g(SwitchBarMobile, { platformName: "ios" }))), /* @__PURE__ */ g("br", null)));
+    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("main", { class: Components_default.main }, /* @__PURE__ */ g("div", { class: Components_default.tube }, /* @__PURE__ */ g(Wordmark, null), /* @__PURE__ */ g("h2", null, "Floating Bar"), /* @__PURE__ */ g("div", { style: "position: relative; padding-left: 10em; min-height: 150px;" }, /* @__PURE__ */ g(InfoIcon, { debugStyles: true })), /* @__PURE__ */ g("h2", null, "Info Tooltip"), /* @__PURE__ */ g(FloatingBar, null, /* @__PURE__ */ g(Button, { icon: true }, /* @__PURE__ */ g(Icon, { src: info_data_default })), /* @__PURE__ */ g(Button, { icon: true }, /* @__PURE__ */ g(Icon, { src: cog_data_default })), /* @__PURE__ */ g(Button, { fill: true }, "Open in YouTube")), /* @__PURE__ */ g("h2", null, "Info Bar"), /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(InfoBar, { embed }))), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("h2", null, "Mobile Switch Bar (ios)"), /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(SwitchBarMobile, { platformName: "ios" })), /* @__PURE__ */ g("h2", null, "Mobile Switch Bar (android)"), /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(SwitchBarMobile, { platformName: "android" })), /* @__PURE__ */ g("h2", null, "Desktop Switch bar"), /* @__PURE__ */ g("h3", null, "idle"), /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(SwitchBarDesktop, null))), /* @__PURE__ */ g("h2", null, /* @__PURE__ */ g("code", null, "inset=false (desktop)")), /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(PlayerContainer, null, /* @__PURE__ */ g(Player, { src: url, layout: "desktop" }), /* @__PURE__ */ g(InfoBarContainer, null, /* @__PURE__ */ g(InfoBar, { embed })))), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(PlayerContainer, null, /* @__PURE__ */ g(YouTubeError, { layout: "desktop", kind: "sign-in-required" }), /* @__PURE__ */ g(InfoBarContainer, null, /* @__PURE__ */ g(InfoBar, { embed })))), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(PlayerContainer, null, /* @__PURE__ */ g(YouTubeError, { layout: "desktop", kind: "no-embed" }), /* @__PURE__ */ g(InfoBarContainer, null, /* @__PURE__ */ g(InfoBar, { embed })))), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("h2", null, /* @__PURE__ */ g("code", null, "inset=true (mobile)")), /* @__PURE__ */ g(PlayerContainer, { inset: true }, /* @__PURE__ */ g(PlayerInternal, { inset: true }, /* @__PURE__ */ g(PlayerError, { layout: "mobile", kind: "invalid-id" }), /* @__PURE__ */ g(SwitchBarMobile, { platformName: "ios" }))), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(PlayerContainer, { inset: true }, /* @__PURE__ */ g(PlayerInternal, { inset: true }, /* @__PURE__ */ g(YouTubeError, { layout: "mobile", kind: "sign-in-required" }), /* @__PURE__ */ g(SwitchBarMobile, { platformName: "ios" }))), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(PlayerContainer, { inset: true }, /* @__PURE__ */ g(PlayerInternal, { inset: true }, /* @__PURE__ */ g(YouTubeError, { layout: "mobile", kind: "no-embed" }), /* @__PURE__ */ g(SwitchBarMobile, { platformName: "ios" }))), /* @__PURE__ */ g("br", null)));
   }
 
   // pages/duckplayer/app/components/MobileApp.jsx
-  var import_classnames10 = __toESM(require_classnames(), 1);
+  var import_classnames11 = __toESM(require_classnames(), 1);
 
   // pages/duckplayer/app/components/MobileApp.module.css
   var MobileApp_default = {
@@ -4067,7 +4518,8 @@ html[data-focus-mode=on] .MobileApp_embed {
     switch: "MobileApp_switch",
     embed: "MobileApp_embed",
     logo: "MobileApp_logo",
-    buttons: "MobileApp_buttons"
+    buttons: "MobileApp_buttons",
+    detachedControls: "MobileApp_detachedControls"
   };
 
   // pages/duckplayer/app/features/app.js
@@ -4165,11 +4617,13 @@ html[data-focus-mode=on] .MobileApp_embed {
   function MobileApp({ embed }) {
     const settings = useSettings();
     const telemetry2 = useTelemetry();
+    const youtubeError = useYouTubeError();
     const features = createAppFeaturesFrom(settings);
-    return /* @__PURE__ */ g(k, null, features.focusMode(), /* @__PURE__ */ g(
+    return /* @__PURE__ */ g(k, null, !youtubeError && features.focusMode(), /* @__PURE__ */ g(
       OrientationProvider,
       {
         onChange: (orientation) => {
+          if (youtubeError) return;
           if (orientation === "portrait") {
             return FocusMode.enable();
           }
@@ -4185,7 +4639,10 @@ html[data-focus-mode=on] .MobileApp_embed {
   }
   function MobileLayout({ embed }) {
     const platformName = usePlatformName();
-    return /* @__PURE__ */ g("main", { class: MobileApp_default.main }, /* @__PURE__ */ g("div", { class: (0, import_classnames10.default)(MobileApp_default.filler, MobileApp_default.hideInFocus) }), /* @__PURE__ */ g("div", { class: MobileApp_default.embed }, embed === null && /* @__PURE__ */ g(PlayerError, { layout: "mobile", kind: "invalid-id" }), embed !== null && /* @__PURE__ */ g(Player, { src: embed.toEmbedUrl(), layout: "mobile" })), /* @__PURE__ */ g("div", { class: (0, import_classnames10.default)(MobileApp_default.logo, MobileApp_default.hideInFocus) }, /* @__PURE__ */ g(MobileWordmark, null)), /* @__PURE__ */ g("div", { class: (0, import_classnames10.default)(MobileApp_default.switch, MobileApp_default.hideInFocus) }, /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(SwitchBarMobile, { platformName }))), /* @__PURE__ */ g("div", { class: (0, import_classnames10.default)(MobileApp_default.buttons, MobileApp_default.hideInFocus) }, /* @__PURE__ */ g(MobileButtons, { embed })));
+    const youtubeError = useYouTubeError();
+    const settings = useSettings();
+    const showCustomError = youtubeError && settings.customError?.state === "enabled";
+    return /* @__PURE__ */ g("main", { class: MobileApp_default.main, "data-youtube-error": !!youtubeError }, /* @__PURE__ */ g("div", { class: (0, import_classnames11.default)(MobileApp_default.filler, MobileApp_default.hideInFocus) }), /* @__PURE__ */ g("div", { class: MobileApp_default.embed }, embed === null && /* @__PURE__ */ g(PlayerError, { layout: "mobile", kind: "invalid-id" }), embed !== null && showCustomError && /* @__PURE__ */ g(YouTubeError, { layout: "mobile", kind: youtubeError }), embed !== null && !showCustomError && /* @__PURE__ */ g(Player, { src: embed.toEmbedUrl(), layout: "mobile" })), /* @__PURE__ */ g("div", { class: (0, import_classnames11.default)(MobileApp_default.logo, MobileApp_default.hideInFocus) }, /* @__PURE__ */ g(MobileWordmark, null)), /* @__PURE__ */ g("div", { class: (0, import_classnames11.default)(MobileApp_default.switch, MobileApp_default.hideInFocus) }, /* @__PURE__ */ g(SwitchProvider, null, /* @__PURE__ */ g(SwitchBarMobile, { platformName }))), /* @__PURE__ */ g("div", { class: (0, import_classnames11.default)(MobileApp_default.buttons, MobileApp_default.hideInFocus) }, /* @__PURE__ */ g(MobileButtons, { embed })));
   }
 
   // pages/duckplayer/app/components/DesktopApp.module.css
@@ -4206,10 +4663,14 @@ html[data-focus-mode=on] .MobileApp_embed {
   function DesktopApp({ embed }) {
     const settings = useSettings();
     const features = createAppFeaturesFrom(settings);
-    return /* @__PURE__ */ g(k, null, features.focusMode(), /* @__PURE__ */ g("main", { class: DesktopApp_default.app }, /* @__PURE__ */ g(DesktopLayout, { embed })));
+    const youtubeError = useYouTubeError();
+    return /* @__PURE__ */ g(k, null, features.focusMode(), /* @__PURE__ */ g("main", { class: DesktopApp_default.app, "data-youtube-error": !!youtubeError }, /* @__PURE__ */ g(DesktopLayout, { embed })));
   }
   function DesktopLayout({ embed }) {
-    return /* @__PURE__ */ g("div", { class: DesktopApp_default.desktop }, /* @__PURE__ */ g(PlayerContainer, null, embed === null && /* @__PURE__ */ g(PlayerError, { layout: "desktop", kind: "invalid-id" }), embed !== null && /* @__PURE__ */ g(Player, { src: embed.toEmbedUrl(), layout: "desktop" }), /* @__PURE__ */ g(HideInFocusMode, { style: "slide" }, /* @__PURE__ */ g(InfoBarContainer, null, /* @__PURE__ */ g(InfoBar, { embed })))));
+    const youtubeError = useYouTubeError();
+    const settings = useSettings();
+    const showCustomError = youtubeError && settings.customError?.state === "enabled";
+    return /* @__PURE__ */ g("div", { class: DesktopApp_default.desktop }, /* @__PURE__ */ g(PlayerContainer, null, embed === null && /* @__PURE__ */ g(PlayerError, { layout: "desktop", kind: "invalid-id" }), embed !== null && showCustomError && /* @__PURE__ */ g(YouTubeError, { layout: "desktop", kind: youtubeError }), embed !== null && !showCustomError && /* @__PURE__ */ g(Player, { src: embed.toEmbedUrl(), layout: "desktop" }), /* @__PURE__ */ g(HideInFocusMode, { style: "slide" }, /* @__PURE__ */ g(InfoBarContainer, null, /* @__PURE__ */ g(InfoBar, { embed })))));
   }
 
   // pages/duckplayer/app/index.js
@@ -4225,7 +4686,11 @@ html[data-focus-mode=on] .MobileApp_embed {
     console.log("locale:", environment.locale);
     document.body.dataset.display = environment.display;
     const strings = environment.locale === "en" ? duckplayer_default : await getTranslationsFromStringOrLoadDynamically(init2.localeStrings, environment.locale) || duckplayer_default;
-    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withFeatureState("pip", init2.settings.pip).withFeatureState("autoplay", init2.settings.autoplay).withFeatureState("focusMode", init2.settings.focusMode).withDisabledFocusMode(baseEnvironment2.urlParams.get("focusMode"));
+    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withFeatureState("pip", init2.settings.pip).withFeatureState("autoplay", init2.settings.autoplay).withFeatureState("focusMode", init2.settings.focusMode).withFeatureState("customError", init2.settings.customError).withDisabledFocusMode(baseEnvironment2.urlParams.get("focusMode")).withCustomError(baseEnvironment2.urlParams.get("customError"));
+    const initialYouTubeError = (
+      /** @type {YouTubeError} */
+      baseEnvironment2.urlParams.get("youtubeError")
+    );
     console.log(settings);
     const embed = createEmbedSettings(window.location.href, settings);
     const didCatch = (error) => {
@@ -4237,7 +4702,7 @@ html[data-focus-mode=on] .MobileApp_embed {
     if (!root) throw new Error("could not render, root element missing");
     if (environment.display === "app") {
       D(
-        /* @__PURE__ */ g(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ g(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ g(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ g(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ g(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ g(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(UserValuesProvider, { initial: init2.userValues }, settings.layout === "desktop" && /* @__PURE__ */ g(
+        /* @__PURE__ */ g(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ g(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ g(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ g(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ g(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ g(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(YouTubeErrorProvider, { initial: initialYouTubeError }, /* @__PURE__ */ g(UserValuesProvider, { initial: init2.userValues }, settings.layout === "desktop" && /* @__PURE__ */ g(
           TranslationProvider,
           {
             translationObject: duckplayer_default,
@@ -4253,7 +4718,7 @@ html[data-focus-mode=on] .MobileApp_embed {
             textLength: environment.textLength
           },
           /* @__PURE__ */ g(MobileApp, { embed })
-        ), /* @__PURE__ */ g(WillThrow, null))))))),
+        ), /* @__PURE__ */ g(WillThrow, null)))))))),
         root
       );
     } else if (environment.display === "components") {
@@ -4400,6 +4865,13 @@ html[data-focus-mode=on] .MobileApp_embed {
      */
     onUserValuesChanged(cb) {
       return this.messaging.subscribe("onUserValuesChanged", cb);
+    }
+    /**
+     * This will be sent if the application fails to load.
+     * @param {{error: import('../types/duckplayer.ts').YouTubeError}} params
+     */
+    reportYouTubeError(params) {
+      this.messaging.notify("reportYouTubeError", params);
     }
     /**
      * This will be sent if the application has loaded, but a client-side error

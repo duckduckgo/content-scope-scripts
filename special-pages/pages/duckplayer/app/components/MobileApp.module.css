@@ -34,6 +34,8 @@ html[data-focus-mode="on"] .hideInFocus {
     --inner-radius: 12px;
     --logo-width: 157px;
     --inner-padding: 8px;
+    --mobile-buttons-padding: 8px;
+
     position: relative;
     max-width: 100vh;
     margin: 0 auto;
@@ -111,6 +113,16 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
 .switch {
     grid-area: switch;
     height: 44px;
+}
+
+.detachedControls {
+    grid-area: detached;
+    display: flex;
+    flex-flow: column;
+    gap: 8px;
+    padding: 8px;
+    background: #2f2f2f;
+    border-radius: 12px;
 }
 
 @media screen and (min-width: 425px) and (max-height: 600px) {
@@ -220,5 +232,115 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
 @media screen and (min-width: 1100px) {
     .switch {
         justify-content: end;
+    }
+}
+
+/* Different layout for YouTube Errors on mobile */
+.main[data-youtube-error="true"] {
+    @media screen and (max-width: 599px) {
+        --bg-color: transparent;
+        --inner-padding: 4px;
+
+        grid-template-areas:
+            'logo'
+            'gap3'
+            'embed'
+            'gap4'
+            'switch'
+            'buttons';
+        grid-template-rows:
+            max-content
+            16px
+            auto
+            12px
+            max-content
+            max-content;
+
+        & .embed {
+            background: #2f2f2f;
+            border-radius: var(--outer-radius);
+            padding: 4px;
+        }
+
+        & .switch {
+            background: #2f2f2f;
+            padding: 8px 8px 0 8px;
+            height: 60px;
+            max-height: 60px;
+            border-top-left-radius: var(--outer-radius);
+            border-top-right-radius: var(--outer-radius);
+
+            transition: all 0.3s;
+        }
+
+        & .buttons {
+            background: #2f2f2f;
+            padding: 8px;
+
+            transition: all 0.3s;
+        }
+
+        &:has([data-state="completed"]) {
+            & .buttons {
+                border-radius: var(--outer-radius);
+            }
+
+            & .switch {
+                background: transparent;
+                max-height: 0;
+            }
+        }
+    }
+
+    /* Hide chrome on smaller screens */
+    @media screen and (max-width: 599px) and (max-height: 599px) {
+        max-width: unset;
+
+        grid-template-rows:
+            0
+            0
+            auto
+            12px
+            0
+            max-content;
+
+        & .logo,
+        & .switch {
+            display: none;
+        }
+
+        & .buttons {
+            border-radius: var(--outer-radius);
+        }
+    }
+
+    /* Show buttons on landscape */
+    @media screen and (min-width: 600px) and (max-height: 450px) {
+        grid-template-areas:
+            'embed'
+            'buttons'
+            'gap5';
+
+        grid-template-rows:
+            auto
+            max-content
+            8px;
+
+        & .buttons {
+            border-radius: var(--outer-radius);
+            display: block;
+        }
+    }
+
+    /* Sticky buttons on very low heights */
+    @media screen and (max-height: 320px) {
+        & .embed {
+            overflow-y: auto;
+        }
+
+        & .buttons {
+            bottom: 0;
+            position: sticky;
+        }
     }
 }

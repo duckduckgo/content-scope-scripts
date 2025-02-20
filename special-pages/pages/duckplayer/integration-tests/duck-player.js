@@ -23,6 +23,26 @@ const html = {
 </div>
 </body>
 </html>`,
+    signInRequired: `<html><head><title>${MOCK_VIDEO_TITLE}</title></head>
+<body>
+<div class="ytp-error" role="alert" data-layer="4">
+  <div class="ytp-error-content" style="padding-top: 165px">
+    <div class="ytp-error-content-wrap">
+      <div class="ytp-error-content-wrap-reason"><span>Sign in to confirm you’re not a bot</span></div>
+      <div class="ytp-error-content-wrap-subreason">
+        <span
+          ><span>This helps protect our community. </span
+          ><a
+            href="https://support.google.com/youtube/answer/3037019#zippy=%2Ccheck-that-youre-signed-into-youtube"
+            >Learn more</a
+          ></span
+        >
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>`,
 };
 
 /**
@@ -156,6 +176,14 @@ export class DuckPlayerPage {
                 });
             }
 
+            if (urlParams.get('videoID') === 'SIGN_IN_REQUIRED') {
+                return request.fulfill({
+                    status: 200,
+                    body: html.signInRequired,
+                    contentType: 'text/html',
+                });
+            }
+
             const mp4VideoPlaceholderAsDataURI =
                 'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAwFtZGF0AAACogYF//+b3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1MiByMjg1NCBlMjA5YTFjIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNyAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzowMTMzIHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTEgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz02MyBsb29rYWhlYWRfdGhyZWFkcz0yIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTMgYl9weXJhbWlkPTIgYl9hZGFwdD1xLTIgYl9iaWFzPTAgZGlyZWN0PTEgd2VpZ2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNSBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmM9bG9va2FoZWFkIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCB2YnY9MCBjbG9zZWRfZ29wPTAgY3V0X3Rocm91Z2g9MCAnbm8tZGlndHMuanBnLTFgcC1mbHWinS3SlB8AP0AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABSAAAAAAAAAAAAAAAAAAABBZHJ0AAAAAAAAAA==';
             return request.fulfill({
@@ -211,6 +239,16 @@ export class DuckPlayerPage {
      */
     async openWithVideoID(videoID = MOCK_VIDEO_ID) {
         const params = new URLSearchParams({ videoID });
+        await this.openPage(params);
+    }
+
+    /**
+     * @param {import('../types/duckplayer.ts').YouTubeError} [youtubeError]
+     * @param {string} [videoID]
+     * @returns {Promise<void>}
+     */
+    async openWithYouTubeError(youtubeError = 'unknown', videoID = 'e90eWYPNtJ8') {
+        const params = new URLSearchParams({ youtubeError, videoID, customError: 'enabled', focusMode: 'disabled' });
         await this.openPage(params);
     }
 
@@ -306,8 +344,12 @@ export class DuckPlayerPage {
         await expect(this.page.locator('iframe')).toHaveAttribute('src', expected);
     }
 
-    async hasShownErrorMessage() {
-        await expect(this.page.getByText('ERROR: Invalid video id')).toBeVisible();
+    /**
+     *
+     * @param {string} text
+     */
+    async hasShownErrorMessage(text = 'ERROR: Invalid video id') {
+        await expect(this.page.getByText(text)).toBeVisible();
     }
 
     async hasNotAddedIframe() {
@@ -364,6 +406,40 @@ export class DuckPlayerPage {
 
     async opensInYoutubeFromError({ videoID = 'UNSUPPORTED' }) {
         const action = () => this.page.frameLocator('#player').getByRole('link', { name: 'Watch on YouTube' }).click();
+        await this.build.switch({
+            windows: async () => {
+                const failure = new Promise((resolve) => {
+                    this.page.context().on('requestfailed', (f) => {
+                        resolve(f.url());
+                    });
+                });
+                await action();
+                expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+            },
+            apple: async () => {
+                if (this.platform.name === 'ios') {
+                    // todo: why does this not work on ios??
+                    await action();
+                    return;
+                }
+                await action();
+                await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
+            },
+            android: async () => {
+                // const failure = new Promise(resolve => {
+                //     this.page.context().on('requestfailed', f => {
+                //         resolve(f.url())
+                //     })
+                // })
+                // todo: why does this not work on android?
+                await action();
+                // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
+            },
+        });
+    }
+
+    async opensDuckPlayerYouTubeLinkFromError({ videoID = 'UNSUPPORTED' }) {
+        const action = () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
         await this.build.switch({
             windows: async () => {
                 const failure = new Promise((resolve) => {

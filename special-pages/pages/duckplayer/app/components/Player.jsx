@@ -102,6 +102,7 @@ function useIframeEffects(src) {
             features.clickCapture(),
             features.titleCapture(),
             features.mouseCapture(),
+            features.errorDetection(),
         ];
 
         /**

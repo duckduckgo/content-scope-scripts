@@ -38,6 +38,21 @@
               "enum": ["enabled", "disabled"]
             }
           }
+        },
+        "customError": {
+          "type": "object",
+          "description": "Configures a custom error message for YouTube errors",
+          "required": ["state", "signInRequiredSelector"],
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": ["enabled", "disabled"]
+            },
+            "signInRequiredSelector": {
+              "description": "A selector that, when not empty, indicates a sign-in required error",
+              "type": "string"
+            }
+          }
         }
       }
     },
