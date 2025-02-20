@@ -39,6 +39,7 @@
     line-height: var(--small-label-line-height);
     display: flex;
     align-items: center;
+    color: var(--ntp-text-muted);
 
     svg {
         margin-right: 1px;

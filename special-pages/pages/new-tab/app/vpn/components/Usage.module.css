@@ -8,11 +8,19 @@
 .chart {
     border-radius: var(--border-radius-md);
     overflow: hidden;
+    color: var(--ntp-text-muted);
     --bars-height: 90px;
     --inline-padding: calc(8 * var(--px-in-rem));
     --column-gap: calc(16 * var(--px-in-rem));
     --border-color: rgba(0, 0, 0, 0.06);
     --footer-bg: rgba(0, 0, 0, 0.01);
+    --bar-color: rgba(0, 0, 0, 0.06);
+
+    [data-theme="dark"] & {
+        --border-color: var(--color-white-at-12);
+        --footer-bg: var(--color-white-at-3);
+        --bar-color: var(--color-white-at-9);
+    }
 
     border: 1px solid var(--border-color);
 }
@@ -31,7 +39,8 @@
     border-top-left-radius: var(--border-radius-xs);
     border-top-right-radius: var(--border-radius-xs);
     align-self: end;
-    background: rgba(0, 0, 0, 0.06);
+    background: var(--bar-color);
+    transition: background-color .2s;
 }
 
 .active {

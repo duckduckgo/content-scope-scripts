@@ -26,6 +26,10 @@ export function vpnMockTransport() {
     }
 
     const subs = new Map();
+    /**
+     * @type {Map<string, (()=>void)[]>}
+     */
+    const cleanups = new Map();
 
     return new TestTransportConfig({
         notify(_msg) {
@@ -38,16 +42,14 @@ export function vpnMockTransport() {
                 }
                 case 'vpn_connect': {
                     const cb = subs.get('vpn_onDataUpdate');
-                    const cleanups = [];
-
+                    const cleanupsFns = cleanups.get('vpn_onDataUpdate') ?? [];
                     setTimeout(() => {
                         dataset.pending = 'connecting';
                         cb(dataset);
                     }, 50);
 
                     const int1 = setTimeout(() => {
-                        const next = structuredClone(vpnMocks.connected);
-                        dataset = next;
+                        dataset = structuredClone(vpnMocks.connected);
                         if (dataset.state === 'connected') {
                             dataset.value.session.connectedSince = toUnixTimestamp({ hours: 0 });
                             const { upload, download } = randomVol();
@@ -63,14 +65,10 @@ export function vpnMockTransport() {
                             }
                             cb(dataset);
                         }, 1000);
-                        cleanups.push(() => clearInterval(int2));
+                        cleanupsFns.push(() => clearInterval(int2));
                     }, 1200);
-                    cleanups.push(() => clearTimeout(int1));
-                    return () => {
-                        for (const cleanup of cleanups) {
-                            cleanup();
-                        }
-                    };
+                    cleanupsFns.push(() => clearTimeout(int1));
+                    break;
                 }
                 case 'vpn_disconnect': {
                     const cb = subs.get('vpn_onDataUpdate');
@@ -86,9 +84,6 @@ export function vpnMockTransport() {
                     }, 500);
                     break;
                 }
-                default: {
-                    console.warn('unhandled notification', msg);
-                }
             }
         },
         subscribe(_msg, cb) {
@@ -101,7 +96,12 @@ export function vpnMockTransport() {
                 }
                 case 'vpn_onDataUpdate': {
                     subs.set('vpn_onDataUpdate', cb);
-                    break;
+                    return () => {
+                        const fns = cleanups.get('vpn_onDataUpdate') || [];
+                        for (const fn of fns) {
+                            fn();
+                        }
+                    };
                 }
             }
             console.warn('unhandled sub', sub);

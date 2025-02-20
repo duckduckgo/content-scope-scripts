@@ -1,5 +1,4 @@
 import { useTypedTranslationWith } from '../../types.js';
-import { useEffect, useState } from 'preact/hooks';
 import styles from './PrivacyStats.module.css';
 import { ShowHideButton } from '../../components/ShowHideButton.jsx';
 import cn from 'classnames';
@@ -7,6 +6,8 @@ import { h } from 'preact';
 import { Switch } from '../../../../../shared/components/Switch/Switch.js';
 import { useVpnApi } from '../../vpn/VpnProvider.js';
 import { usePlatformName } from '../../settings.provider.js';
+import { useContext } from 'preact/hooks';
+import { CustomizerThemesContext } from '../../customizer/CustomizerProvider.js';
 
 /**
  * @import vpnStrings from "../../vpn/strings.json"
@@ -20,6 +21,7 @@ import { usePlatformName } from '../../settings.provider.js';
 export function VpnHeading({ data, expansion, canExpand, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {vpnStrings} */ ({}));
     const platformName = usePlatformName();
+    const { main } = useContext(CustomizerThemesContext);
     const { disconnect, connect, tryForFree } = useVpnApi();
     const title = (() => {
         switch (data.state) {
@@ -68,7 +70,7 @@ export function VpnHeading({ data, expansion, canExpand, onToggle, buttonAttrs =
                             onChecked={connect}
                             onUnchecked={disconnect}
                             platformName={platformName}
-                            theme={'light'}
+                            theme={main.value}
                         />
                     </div>
                 )}
