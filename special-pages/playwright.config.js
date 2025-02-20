@@ -5,7 +5,13 @@ export default defineConfig({
     projects: [
         {
             name: 'windows',
-            testMatch: ['duckplayer.spec.js', 'duckplayer-screenshots.spec.js', 'onboarding.spec.js'],
+            testMatch: [
+                'duckplayer.spec.js',
+                'duckplayer-screenshots.spec.js',
+                'onboarding.spec.js',
+                'special-error.spec.js',
+                'special-error-screenshots.spec.js',
+            ],
             use: {
                 ...devices['Desktop Edge'],
                 injectName: 'windows',
@@ -40,9 +46,9 @@ export default defineConfig({
                 'duckplayer.spec.js',
                 'duckplayer-screenshots.spec.js',
                 'onboarding.spec.js',
-                'sslerror.spec.js',
                 'release-notes.spec.js',
                 'special-error.spec.js',
+                'special-error-screenshots.spec.js',
             ],
             use: {
                 ...devices['Desktop Safari'],
@@ -70,7 +76,12 @@ export default defineConfig({
         },
         {
             name: 'ios',
-            testMatch: ['duckplayer.spec.js', 'duckplayer-screenshots.spec.js'],
+            testMatch: [
+                'duckplayer.spec.js',
+                'duckplayer-screenshots.spec.js',
+                'special-error.spec.js',
+                'special-error-screenshots.spec.js',
+            ],
             use: {
                 ...devices['iPhone 14'],
                 injectName: 'apple',
