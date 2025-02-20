@@ -63,12 +63,14 @@ export function AdvancedInfo() {
 
     return (
         <div className={styles.wrapper}>
-            <div className={styles.container} onAnimationEnd={trigger}>
-                <AdvancedInfoHeading />
+            <div className={styles.animationContainer} onAnimationEnd={trigger}>
+                <div className={styles.container}>
+                    <AdvancedInfoHeading />
 
-                <AdvancedInfoContent />
+                    <AdvancedInfoContent />
 
-                <VisitSiteLink elemRef={ref} />
+                    <VisitSiteLink elemRef={ref} />
+                </div>
             </div>
         </div>
     );

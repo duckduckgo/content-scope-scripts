@@ -15,6 +15,7 @@ export function mockTransport() {
 
             /** @type {import('../types/special-error.js').SpecialErrorMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
+
             switch (msg.method) {
                 case 'initialSetup': {
                     const searchParams = new URLSearchParams(window.location.search);
@@ -27,7 +28,7 @@ export function mockTransport() {
                         errorData = sampleData[errorId].data;
                     }
 
-                    const supportedPlatforms = ['macos', 'ios'];
+                    const supportedPlatforms = ['ios', 'macos', 'windows'];
                     /** @type {import('../types/special-error.js').InitialSetupResponse['platform']} */
                     let platform = { name: 'macos' };
                     if (platformName && supportedPlatforms.includes(platformName)) {

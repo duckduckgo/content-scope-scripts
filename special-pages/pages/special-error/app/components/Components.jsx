@@ -17,10 +17,11 @@ import { AdvancedInfoButton, LeaveSiteButton, Warning, WarningContent, WarningHe
  * @typedef {SSLExpiredCertificate|SSLInvalidCertificate|SSLSelfSignedCertificate|SSLWrongHost} SSLError
  */
 
-/** @type {Record<Extract<import("../../types/special-error.js").InitialSetupResponse['platform']['name'], "macos"|"ios">, string>} */
+/** @type {Record<Extract<import("../../types/special-error.js").InitialSetupResponse['platform']['name'], "ios"|"macos"|"windows">, string>} */
 const platforms = {
-    macos: 'macOS',
     ios: 'iOS',
+    macos: 'macOS',
+    windows: 'Windows',
 };
 
 /**
@@ -58,8 +59,8 @@ export function Components() {
     };
 
     return (
-        <div data-theme={isDarkMode ? 'dark' : 'light'}>
-            <div className={styles.selector}>
+        <div>
+            <nav className={styles.selector}>
                 <fieldset>
                     <label for="platform-select">Platform:</label>
                     <select id="platform-select" onChange={(e) => handlePlatformChange(e.currentTarget?.value)}>
@@ -84,8 +85,8 @@ export function Components() {
                         })}
                     </select>
                 </fieldset>
-            </div>
-            <main class={styles.main} data-platform-name={platformName}>
+            </nav>
+            <main class={styles.main} data-platform-name={platformName} data-theme={isDarkMode ? 'dark' : 'light'}>
                 <h1>Special Error Components</h1>
 
                 <section>

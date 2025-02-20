@@ -3,7 +3,7 @@
  * that might be needed in CSS or JS
  */
 
-const param = new URLSearchParams(window.location.search).get('platform');
+const param = new URLSearchParams(window.location.search).get('injectName');
 
 if (isAllowed(param)) {
     document.documentElement.dataset.platform = String(param);
