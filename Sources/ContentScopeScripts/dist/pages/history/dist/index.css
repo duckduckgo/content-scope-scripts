@@ -366,29 +366,44 @@ body {
   border-radius: 5px;
   position: relative;
 }
-.Item_title:hover {
-  background: var(--color-black-at-6);
-}
-[data-theme=dark] .Item_title:hover {
-  background: var(--color-white-at-6);
-}
-[data-theme=dark] .Item_title:hover .Item_titleDots {
-  color: var(--color-white-at-84);
-}
 .Item_row {
   height: 28px;
   display: flex;
   gap: 8px;
   align-items: center;
-  color: var(--history-text-normal);
   border-radius: 5px;
   padding-left: 9px;
   padding-right: 5px;
   position: relative;
 }
-.Item_row:is(:hover, :focus-visible) {
-  background: #2565D9;
-  color: var(--color-white-at-84);
+.Item_hover {
+  --row-bg: inherit;
+  --row-color: var(--history-text-normal);
+  --dots-bg-hover: var(--color-black-at-9);
+  --dots-opacity: 0;
+  --time-opacity: 0.6;
+  --time-visibility: visible;
+  background: var(--row-bg);
+  color: var(--row-color);
+}
+.Item_hover:is(:hover, :focus-within) {
+  --dots-opacity: visible;
+  --time-opacity: 0;
+  --time-visibility: hidden;
+}
+.Item_hover:hover:not([aria-selected=true]) {
+  --row-bg: var(--color-black-at-6);
+}
+[data-theme=dark] .Item_hover:hover:not([aria-selected=true]) {
+  --row-bg: var(--color-white-at-6);
+}
+[data-theme=dark] .Item_hover {
+  --dots-bg-hover: var(--color-white-at-12);
+}
+.Item_hover[aria-selected=true] {
+  --row-bg: #2565D9;
+  --row-color: var(--color-white-at-84);
+  --dots-bg-hover: var(--color-white-at-9);
 }
 .Item_entryLink {
   white-space: nowrap;
@@ -415,16 +430,10 @@ body {
 .Item_time {
   margin-left: auto;
   flex-shrink: 0;
-  opacity: 0.6;
-}
-.Item_row:hover .Item_time,
-.Item_row:focus-visible .Item_time {
-  opacity: 0;
-  visibility: hidden;
+  opacity: var(--time-opacity);
+  visibility: var(--time-visibility);
 }
 .Item_dots {
-  opacity: 0;
-  visibility: hidden;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -435,32 +444,18 @@ body {
   background: transparent;
   border: 0;
   z-index: 1;
+  color: inherit;
+  opacity: var(--dots-opacity);
 }
 .Item_dots svg {
   width: 16px;
   height: 16px;
 }
 .Item_dots:hover {
-  background: var(--color-white-at-9);
+  background: var(--dots-bg-hover);
 }
-.Item_dots:active {
-  background: var(--color-white-at-18);
-}
-.Item_row:hover .Item_dots,
-.Item_row:focus-visible .Item_dots {
+.Item_dots:focus-visible {
   opacity: 1;
-  visibility: visible;
-  color: var(--color-white-at-84);
-}
-.Item_title:hover .Item_dots {
-  opacity: 1;
-  visibility: visible;
-}
-.Item_title .Item_dots:hover {
-  background: var(--color-black-at-6);
-}
-.Item_title .Item_dots:active {
-  background: var(--color-black-at-9);
 }
 .Item_titleDots {
   width: 28px;

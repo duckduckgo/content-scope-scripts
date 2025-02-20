@@ -1235,7 +1235,7 @@
             if (errorId2 && Object.keys(sampleData).includes(errorId2)) {
               errorData = sampleData[errorId2].data;
             }
-            const supportedPlatforms = ["macos", "ios"];
+            const supportedPlatforms = ["ios", "macos", "windows"];
             let platform = { name: "macos" };
             if (platformName && supportedPlatforms.includes(platformName)) {
               platform = {
@@ -1978,7 +1978,8 @@
     "label-small": "Text_label-small",
     "label-default": "Text_label-default",
     "label-medium": "Text_label-medium",
-    "caption-2-emphasis": "Text_caption-2-emphasis"
+    "caption-2-emphasis": "Text_caption-2-emphasis",
+    "custom-title-1": "Text_custom-title-1"
   };
 
   // shared/components/Text/Text.js
@@ -2100,8 +2101,9 @@
 
   // pages/special-error/app/components/AdvancedInfo.module.css
   var AdvancedInfo_default = {
-    container: "AdvancedInfo_container",
+    animationContainer: "AdvancedInfo_animationContainer",
     appear: "AdvancedInfo_appear",
+    container: "AdvancedInfo_container",
     heading: "AdvancedInfo_heading",
     content: "AdvancedInfo_content",
     visitSite: "AdvancedInfo_visitSite",
@@ -2133,7 +2135,7 @@
   }
   function AdvancedInfo() {
     const { ref, trigger } = useScrollTarget();
-    return /* @__PURE__ */ g("div", { className: AdvancedInfo_default.wrapper }, /* @__PURE__ */ g("div", { className: AdvancedInfo_default.container, onAnimationEnd: trigger }, /* @__PURE__ */ g(AdvancedInfoHeading, null), /* @__PURE__ */ g(AdvancedInfoContent, null), /* @__PURE__ */ g(VisitSiteLink, { elemRef: ref })));
+    return /* @__PURE__ */ g("div", { className: AdvancedInfo_default.wrapper }, /* @__PURE__ */ g("div", { className: AdvancedInfo_default.animationContainer, onAnimationEnd: trigger }, /* @__PURE__ */ g("div", { className: AdvancedInfo_default.container }, /* @__PURE__ */ g(AdvancedInfoHeading, null), /* @__PURE__ */ g(AdvancedInfoContent, null), /* @__PURE__ */ g(VisitSiteLink, { elemRef: ref }))));
   }
 
   // pages/special-error/app/components/App.module.css
@@ -2184,6 +2186,10 @@
   }
   function usePlatformName() {
     return x2(SettingsContext).settings.platform?.name;
+  }
+  function useIsMobile() {
+    const platformName = x2(SettingsContext).settings.platform?.name;
+    return platformName === "android" || platformName === "ios";
   }
 
   // shared/components/Button/Button.js
@@ -2239,45 +2245,46 @@
   // pages/special-error/app/components/Warning.jsx
   function AdvancedInfoButton({ onClick }) {
     const { t: t3 } = useTypedTranslation();
-    const platformName = usePlatformName();
-    return /* @__PURE__ */ g(
-      Button,
-      {
-        variant: platformName === "macos" ? "standard" : "ghost",
-        className: (0, import_classnames3.default)(Warning_default.button, Warning_default.advanced),
-        onClick
-      },
-      platformName === "ios" ? t3("advancedButton") : t3("advancedEllipsisButton")
-    );
+    const isMobile = useIsMobile();
+    const buttonVariant = isMobile ? "ghost" : "standard";
+    return /* @__PURE__ */ g(Button, { variant: buttonVariant, className: (0, import_classnames3.default)(Warning_default.button, Warning_default.advanced), onClick }, isMobile ? t3("advancedButton") : t3("advancedEllipsisButton"));
   }
   function LeaveSiteButton() {
     const { t: t3 } = useTypedTranslation();
     const { messaging: messaging2 } = useMessaging();
     const platformName = usePlatformName();
-    return /* @__PURE__ */ g(
-      Button,
-      {
-        variant: platformName === "macos" ? "accent" : "primary",
-        className: (0, import_classnames3.default)(Warning_default.button, Warning_default.leaveSite),
-        onClick: () => messaging2?.leaveSite()
-      },
-      t3("leaveSiteButton")
-    );
+    let buttonVariant;
+    switch (platformName) {
+      case "ios":
+      case "android":
+        buttonVariant = "primary";
+        break;
+      case "windows":
+        buttonVariant = "accentBrand";
+        break;
+      default:
+        buttonVariant = "accent";
+    }
+    return /* @__PURE__ */ g(Button, { variant: buttonVariant, className: (0, import_classnames3.default)(Warning_default.button, Warning_default.leaveSite), onClick: () => messaging2?.leaveSite() }, t3("leaveSiteButton"));
   }
   function WarningHeading() {
     const { kind } = useErrorData();
     const heading = useWarningHeading();
     const platformName = usePlatformName();
-    return /* @__PURE__ */ g("header", { className: (0, import_classnames3.default)(Warning_default.heading, Warning_default[kind]) }, /* @__PURE__ */ g("i", { className: Warning_default.icon, "aria-hidden": "true" }), /* @__PURE__ */ g(
-      Text,
-      {
-        as: "h1",
-        variant: platformName === "macos" ? "title-2-emphasis" : "title-2",
-        strictSpacing: platformName !== "macos",
-        className: Warning_default.title
-      },
-      heading
-    ));
+    const isMobile = useIsMobile();
+    let textVariant;
+    switch (platformName) {
+      case "ios":
+      case "android":
+        textVariant = "title-2";
+        break;
+      case "windows":
+        textVariant = "custom-title-1";
+        break;
+      default:
+        textVariant = "title-2-emphasis";
+    }
+    return /* @__PURE__ */ g("header", { className: (0, import_classnames3.default)(Warning_default.heading, Warning_default[kind]) }, /* @__PURE__ */ g("i", { className: Warning_default.icon, "aria-hidden": "true" }), /* @__PURE__ */ g(Text, { as: "h1", variant: textVariant, strictSpacing: isMobile, className: Warning_default.title }, heading));
   }
   function WarningContent() {
     const content = useWarningContent();
@@ -2340,8 +2347,9 @@
 
   // pages/special-error/app/components/Components.jsx
   var platforms = {
+    ios: "iOS",
     macos: "macOS",
-    ios: "iOS"
+    windows: "Windows"
   };
   function idForError(errorData) {
     const { kind } = errorData;
@@ -2372,11 +2380,11 @@
         window.location.href = url.toString();
       }
     };
-    return /* @__PURE__ */ g("div", { "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("div", { className: Components_default.selector }, /* @__PURE__ */ g("fieldset", null, /* @__PURE__ */ g("label", { for: "platform-select" }, "Platform:"), /* @__PURE__ */ g("select", { id: "platform-select", onChange: (e3) => handlePlatformChange(e3.currentTarget?.value) }, Object.entries(platforms).map(([id, name]) => {
+    return /* @__PURE__ */ g("div", null, /* @__PURE__ */ g("nav", { className: Components_default.selector }, /* @__PURE__ */ g("fieldset", null, /* @__PURE__ */ g("label", { for: "platform-select" }, "Platform:"), /* @__PURE__ */ g("select", { id: "platform-select", onChange: (e3) => handlePlatformChange(e3.currentTarget?.value) }, Object.entries(platforms).map(([id, name]) => {
       return /* @__PURE__ */ g("option", { value: id, selected: id === platformName }, name);
     }))), /* @__PURE__ */ g("fieldset", null, /* @__PURE__ */ g("label", { for: "error-select" }, "Error Type:"), /* @__PURE__ */ g("select", { id: "error-select", onChange: (e3) => handleErrorTypeChange(e3.currentTarget?.value) }, Object.entries(sampleData).map(([id, data]) => {
       return /* @__PURE__ */ g("option", { value: id, selected: id === idForError(errorData) }, data.name);
-    })))), /* @__PURE__ */ g("main", { class: Components_default.main, "data-platform-name": platformName }, /* @__PURE__ */ g("h1", null, "Special Error Components"), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning Heading"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(WarningHeading, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning Content"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(WarningContent, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Heading"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoHeading, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Content"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoContent, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Leave Site Button"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(LeaveSiteButton, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Button"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoButton, { onClick: () => {
+    })))), /* @__PURE__ */ g("main", { class: Components_default.main, "data-platform-name": platformName, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("h1", null, "Special Error Components"), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning Heading"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(WarningHeading, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning Content"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(WarningContent, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Heading"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoHeading, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Content"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoContent, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Leave Site Button"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(LeaveSiteButton, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Button"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoButton, { onClick: () => {
     } }))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Visit Site Link"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(VisitSiteLink, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(Warning, { advancedInfoVisible: false, advancedButtonHandler: () => {
     } }))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfo, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Special Error View"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(SpecialErrorView, null)))));
   }

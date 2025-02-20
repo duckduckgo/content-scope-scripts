@@ -100,18 +100,33 @@ a {
 [data-platform-name=ios] .Text_body.Text_strictSpacing {
   letter-spacing: calc(-0.31 * var(--px-in-rem));
 }
+[data-platform-name=windows] .Text_custom-title-1 {
+  font-size: calc(18 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: calc(22 * var(--px-in-rem));
+  letter-spacing: normal;
+}
+[data-platform-name=windows] .Text_body {
+  font-size: calc(14 * var(--px-in-rem));
+  font-weight: 400;
+  line-height: calc(20 * var(--px-in-rem));
+  letter-spacing: normal;
+}
 
 /* pages/special-error/app/components/AdvancedInfo.module.css */
+.AdvancedInfo_animationContainer {
+  animation-duration: 300ms;
+  animation-fill-mode: forwards;
+  animation-name: AdvancedInfo_appear;
+}
 .AdvancedInfo_container {
   align-items: flex-start;
   display: flex;
   flex-flow: column;
   gap: var(--sp-4);
   max-width: var(--ios-content-max-width);
+  padding: var(--sp-6) var(--sp-10);
   width: 100%;
-  animation-duration: 300ms;
-  animation-fill-mode: forwards;
-  animation-name: AdvancedInfo_appear;
 }
 .AdvancedInfo_heading a {
   color: var(--link-color);
@@ -134,17 +149,11 @@ a {
 }
 @keyframes AdvancedInfo_appear {
   0% {
-    padding: 0 var(--sp-10);
     max-height: 0;
   }
   100% {
-    padding: var(--sp-6) var(--sp-10);
     max-height: calc(400 * var(--px-in-rem));
   }
-}
-[data-platform-name=macos] .AdvancedInfo_container {
-  background: var(--advanced-info-bg);
-  box-shadow: inset 0 1px 0 0 var(--border-color);
 }
 [data-platform-name=ios] .AdvancedInfo_wrapper {
   display: flex;
@@ -173,12 +182,33 @@ a {
   letter-spacing: calc(-0.31 * var(--px-in-rem));
   line-height: calc(21 * var(--px-in-rem));
 }
+[data-platform-name=macos] .AdvancedInfo_container {
+  background: var(--advanced-info-bg);
+  box-shadow: inset 0 1px 0 0 var(--border-color);
+}
+[data-platform-name=windows] .AdvancedInfo_container {
+  background: var(--advanced-info-bg);
+  box-shadow: inset 0 1px 0 0 var(--border-color);
+}
 
 /* pages/special-error/app/components/App.module.css */
 html,
 body {
   height: 100%;
   margin: 0;
+  --theme-font-family:
+    system,
+    -apple-system,
+    system-ui,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol";
 }
 .App_main {
   display: flex;
@@ -208,6 +238,9 @@ body {
   overflow: hidden;
   width: 100%;
 }
+[data-platform-name=ios] .App_container {
+  align-items: center;
+}
 [data-platform-name=macos] .App_container {
   background: var(--container-bg);
   border-radius: var(--sp-4);
@@ -215,8 +248,12 @@ body {
   min-width: calc(400 * var(--px-in-rem));
   width: calc(504 * var(--px-in-rem));
 }
-[data-platform-name=ios] .App_container {
-  align-items: center;
+[data-platform-name=windows] .App_container {
+  background: var(--container-bg);
+  border-radius: var(--sp-4);
+  border: 1px solid var(--border-color);
+  min-width: calc(400 * var(--px-in-rem));
+  width: calc(504 * var(--px-in-rem));
 }
 
 /* shared/components/Button/Button.module.css */
@@ -597,6 +634,43 @@ body:not([data-platform-name]) .Button_button:active {
     white-space: normal;
   }
 }
+[data-platform-name=windows] {
+  --border-radius-sm: 6px;
+}
+[data-platform-name=windows] .Warning_icon {
+  align-self: flex-start;
+  flex: 0 0 var(--sp-12);
+  height: var(--sp-12);
+  width: var(--sp-12);
+}
+[data-platform-name=windows] .Warning_heading {
+  gap: var(--sp-4);
+}
+[data-platform-name=windows] .Warning_ssl.Warning_heading {
+  height: var(--sp-8);
+}
+[data-platform-name=windows] .Warning_ssl .Warning_icon {
+  background-image: url("./Shield-Alert-96-W3VSTNOR.svg");
+  margin-left: calc(-1 * var(--sp-2));
+  margin-top: calc(-1 * var(--sp-2));
+}
+[data-platform-name=windows] :is(.Warning_phishing .Warning_icon, .Warning_malware .Warning_icon) {
+  background-image: url("./Malware-Site-96-A35AQOKY.svg");
+  margin-left: calc(-1 * var(--sp-2));
+  margin-right: calc(-1 * var(--sp-1));
+}
+[data-platform-name=windows] .Warning_buttonContainer {
+  flex-flow: row-reverse;
+  gap: var(--sp-4);
+  justify-content: flex-end;
+}
+[data-platform-name=windows] .Warning_button {
+  flex: 0 0 calc(50% - var(--sp-2));
+  font-family: var(--theme-font-family);
+  font-size: calc(14 * var(--px-in-rem));
+  font-weight: 400;
+  line-height: normal;
+}
 
 /* pages/special-error/app/components/Components.module.css */
 .Components_selector {
@@ -843,12 +917,4 @@ li {
   [data-platform-name=ios] {
     --theme-background-color: #222;
   }
-}
-[data-platform-name=macos],
-[data-platform-name=ios] {
-  --theme-font:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Helvetica Neue",
-    sans-serif;
 }

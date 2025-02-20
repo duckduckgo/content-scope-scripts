@@ -668,7 +668,8 @@
     "label-small": "Text_label-small",
     "label-default": "Text_label-default",
     "label-medium": "Text_label-medium",
-    "caption-2-emphasis": "Text_caption-2-emphasis"
+    "caption-2-emphasis": "Text_caption-2-emphasis",
+    "custom-title-1": "Text_custom-title-1"
   };
 
   // shared/components/Text/Text.js

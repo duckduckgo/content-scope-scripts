@@ -1,7 +1,7 @@
 "use strict";
 (() => {
   // pages/special-error/src/inline.js
-  var param = new URLSearchParams(window.location.search).get("platform");
+  var param = new URLSearchParams(window.location.search).get("injectName");
   if (isAllowed(param)) {
     document.documentElement.dataset.platform = String(param);
   } else {

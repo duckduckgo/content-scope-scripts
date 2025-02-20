@@ -50,6 +50,7 @@ export const support = {
     'special-error': {
         integration: ['copy', 'build-js'],
         apple: ['copy', 'build-js', 'inline-html'],
+        windows: ['copy', 'build-js', 'inline-html'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     'new-tab': {

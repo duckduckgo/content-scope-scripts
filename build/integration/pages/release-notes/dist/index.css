@@ -137,6 +137,18 @@ a {
 [data-platform-name=ios] .Text_body.Text_strictSpacing {
   letter-spacing: calc(-0.31 * var(--px-in-rem));
 }
+[data-platform-name=windows] .Text_custom-title-1 {
+  font-size: calc(18 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: calc(22 * var(--px-in-rem));
+  letter-spacing: normal;
+}
+[data-platform-name=windows] .Text_body {
+  font-size: calc(14 * var(--px-in-rem));
+  font-weight: 400;
+  line-height: calc(20 * var(--px-in-rem));
+  letter-spacing: normal;
+}
 
 /* shared/components/Card/Card.module.css */
 .Card_card {

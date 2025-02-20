@@ -2,6 +2,8 @@ html,
 body {
     height: 100%;
     margin: 0;
+
+    --theme-font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 .main {
@@ -36,6 +38,13 @@ body {
 
 /* Platform-specific styles */
 
+/* iOS */
+[data-platform-name="ios"] {
+    & .container {
+        align-items: center;
+    }
+}
+
 /* macOS */
 [data-platform-name="macos"] {
     & .container {
@@ -47,9 +56,13 @@ body {
     }
 }
 
-/* iOS */
-[data-platform-name="ios"] {
+/* Windows */
+[data-platform-name="windows"] {
     & .container {
-        align-items: center;
+        background: var(--container-bg);
+        border-radius: var(--sp-4);
+        border: 1px solid var(--border-color);
+        min-width: calc(400 * var(--px-in-rem));
+        width: calc(504 * var(--px-in-rem));
     }
 }

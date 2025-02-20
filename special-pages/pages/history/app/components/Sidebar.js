@@ -1,11 +1,12 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './Sidebar.module.css';
-import { useSearchContext } from './SearchForm.js';
 import { useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { Trash } from '../icons/Trash.js';
 import { useTypedTranslationWith } from '../../../new-tab/app/types.js';
+import { useQueryContext } from '../global-state/QueryProvider.js';
+import { BTN_ACTION_DELETE_RANGE } from '../constants.js';
 
 /**
  * @import json from "../strings.json"
@@ -50,7 +51,7 @@ const titleMap = {
  */
 export function Sidebar({ ranges }) {
     const { t } = useTypedTranslation();
-    const search = useSearchContext();
+    const search = useQueryContext();
     const current = useComputed(() => search.value.range);
     return (
         <div class={styles.stack}>
@@ -106,7 +107,7 @@ function Item({ range, title, current }) {
                 </span>
                 {title}
             </a>
-            <button class={styles.delete} data-delete-range={range} aria-label={deleteLabel} tabindex={0} value={range}>
+            <button class={styles.delete} data-action={BTN_ACTION_DELETE_RANGE} aria-label={deleteLabel} tabindex={0} value={range}>
                 <Trash />
             </button>
         </div>

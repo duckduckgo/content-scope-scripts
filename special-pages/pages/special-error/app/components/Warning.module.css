@@ -71,7 +71,6 @@
     }
 }
 
-
 /* iOS */
 [data-platform-name="ios"] {
     & .container {
@@ -140,4 +139,53 @@
             white-space: normal;
         }
     }
+}
+
+/* Windows */
+[data-platform-name="windows"] {
+    --border-radius-sm: 6px;
+
+    & .icon {
+        align-self: flex-start;
+        flex: 0 0 var(--sp-12);
+        height: var(--sp-12);
+        width: var(--sp-12);
+    }
+
+    & .heading {
+        gap: var(--sp-4);
+    }
+
+    & .ssl.heading {
+        height: var(--sp-8);
+    }
+
+    & .ssl .icon {
+        background-image: url(../../../../shared/assets/img/icons/Shield-Alert-96.svg);
+        margin-left: calc(-1 * var(--sp-2));
+        margin-top: calc(-1 * var(--sp-2));
+    }
+
+    & .phishing .icon, & .malware .icon {
+        background-image: url(../../../../shared/assets/img/icons/Malware-Site-96.svg);
+        margin-left: calc(-1 * var(--sp-2));
+        margin-right: calc(-1 * var(--sp-1));
+    }
+
+    & .buttonContainer {
+        flex-flow: row-reverse;
+        gap: var(--sp-4);
+        justify-content: flex-end;
+    }
+
+    & .button {
+        flex: 0 0 calc(50% - var(--sp-2));
+
+        /* TODO: Move to shared? */
+        font-family: var(--theme-font-family);
+        font-size: calc(14 * var(--px-in-rem));
+        font-weight: 400;
+        line-height: normal;
+    }
+
 }

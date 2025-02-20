@@ -8,7 +8,7 @@
 "use strict";
 (() => {
   // pages/special-error/src/inline.js
-  var param = new URLSearchParams(window.location.search).get("platform");
+  var param = new URLSearchParams(window.location.search).get("injectName");
   if (isAllowed(param)) {
     document.documentElement.dataset.platform = String(param);
   } else {
@@ -124,18 +124,33 @@ a {
 [data-platform-name=ios] .Text_body.Text_strictSpacing {
   letter-spacing: calc(-0.31 * var(--px-in-rem));
 }
+[data-platform-name=windows] .Text_custom-title-1 {
+  font-size: calc(18 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: calc(22 * var(--px-in-rem));
+  letter-spacing: normal;
+}
+[data-platform-name=windows] .Text_body {
+  font-size: calc(14 * var(--px-in-rem));
+  font-weight: 400;
+  line-height: calc(20 * var(--px-in-rem));
+  letter-spacing: normal;
+}
 
 /* pages/special-error/app/components/AdvancedInfo.module.css */
+.AdvancedInfo_animationContainer {
+  animation-duration: 300ms;
+  animation-fill-mode: forwards;
+  animation-name: AdvancedInfo_appear;
+}
 .AdvancedInfo_container {
   align-items: flex-start;
   display: flex;
   flex-flow: column;
   gap: var(--sp-4);
   max-width: var(--ios-content-max-width);
+  padding: var(--sp-6) var(--sp-10);
   width: 100%;
-  animation-duration: 300ms;
-  animation-fill-mode: forwards;
-  animation-name: AdvancedInfo_appear;
 }
 .AdvancedInfo_heading a {
   color: var(--link-color);
@@ -158,17 +173,11 @@ a {
 }
 @keyframes AdvancedInfo_appear {
   0% {
-    padding: 0 var(--sp-10);
     max-height: 0;
   }
   100% {
-    padding: var(--sp-6) var(--sp-10);
     max-height: calc(400 * var(--px-in-rem));
   }
-}
-[data-platform-name=macos] .AdvancedInfo_container {
-  background: var(--advanced-info-bg);
-  box-shadow: inset 0 1px 0 0 var(--border-color);
 }
 [data-platform-name=ios] .AdvancedInfo_wrapper {
   display: flex;
@@ -197,12 +206,33 @@ a {
   letter-spacing: calc(-0.31 * var(--px-in-rem));
   line-height: calc(21 * var(--px-in-rem));
 }
+[data-platform-name=macos] .AdvancedInfo_container {
+  background: var(--advanced-info-bg);
+  box-shadow: inset 0 1px 0 0 var(--border-color);
+}
+[data-platform-name=windows] .AdvancedInfo_container {
+  background: var(--advanced-info-bg);
+  box-shadow: inset 0 1px 0 0 var(--border-color);
+}
 
 /* pages/special-error/app/components/App.module.css */
 html,
 body {
   height: 100%;
   margin: 0;
+  --theme-font-family:
+    system,
+    -apple-system,
+    system-ui,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol";
 }
 .App_main {
   display: flex;
@@ -232,6 +262,9 @@ body {
   overflow: hidden;
   width: 100%;
 }
+[data-platform-name=ios] .App_container {
+  align-items: center;
+}
 [data-platform-name=macos] .App_container {
   background: var(--container-bg);
   border-radius: var(--sp-4);
@@ -239,8 +272,12 @@ body {
   min-width: calc(400 * var(--px-in-rem));
   width: calc(504 * var(--px-in-rem));
 }
-[data-platform-name=ios] .App_container {
-  align-items: center;
+[data-platform-name=windows] .App_container {
+  background: var(--container-bg);
+  border-radius: var(--sp-4);
+  border: 1px solid var(--border-color);
+  min-width: calc(400 * var(--px-in-rem));
+  width: calc(504 * var(--px-in-rem));
 }
 
 /* shared/components/Button/Button.module.css */
@@ -621,6 +658,43 @@ body:not([data-platform-name]) .Button_button:active {
     white-space: normal;
   }
 }
+[data-platform-name=windows] {
+  --border-radius-sm: 6px;
+}
+[data-platform-name=windows] .Warning_icon {
+  align-self: flex-start;
+  flex: 0 0 var(--sp-12);
+  height: var(--sp-12);
+  width: var(--sp-12);
+}
+[data-platform-name=windows] .Warning_heading {
+  gap: var(--sp-4);
+}
+[data-platform-name=windows] .Warning_ssl.Warning_heading {
+  height: var(--sp-8);
+}
+[data-platform-name=windows] .Warning_ssl .Warning_icon {
+  background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiB2aWV3Qm94PSIwIDAgOTYgOTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTcxIDUxYy0xMS4wNDYgMC0yMCA4Ljk1NC0yMCAyMHY1Ljk1Yy0xLjg0LjYwMi0zIC44LTMgLjhzLTI3LTQuNjE2LTI3LTM2LjgwOFYyNi40MDRsMTQgLjg0NiAxMy05LjE1NCAxMi41IDguNjU0IDE0LjUtLjM0NnYxNC41MzhjMCAzLjcwNy0uMzU4IDcuMDQ4LS45OTIgMTAuMDU4eiIvPgogIDxwYXRoIGZpbGw9IiNGMkYyRjIiIGQ9Ik03MSA1MWMtMTEuMDQ2IDAtMjAgOC45NTQtMjAgMjB2NC45OTVsLTMgMS4yMzZWMTdsMTMgOC42MzQgMTMuNDgtLjMyNnYxNC41MzhjMCAzLjU1NC0uNTY5IDcuMzc3LTEuNjI5IDExLjE1NHoiLz4KICA8cGF0aCBmaWxsPSIjQ0FDQUNBIiBkPSJNNzIuNDcyIDUxYzEuMzgyLTUuMDcxIDIuMDk2LTExLjU2NiAyLjAyMy0yMC4xNjItLjAwNS0uNTQtLjI2Ni0xLjAzNS0uODYtMS40NDNhMy4zNzYgMy4zNzYgMCAwIDAtMi4yNDQtLjU0OWMtNC41MTYuNTctOC4yNTMuNDA4LTExLjYzOS0uNjc0LTMuNDEyLTEuMDktNi40Ny0zLjExNi05LjU4Ny02LjI1NS0xLjA4Ni0xLjA5NC0zLjIwMy0xLjA4OC00LjI4LjAxLTMuMTYzIDMuMjIzLTYuMjY2IDUuMjUtOS43MDUgNi4zMTYtMy4zODYgMS4wNS03LjEwNyAxLjE3LTExLjU2Ny42MDNhMy4zNzggMy4zNzggMCAwIDAtMi4yNDcuNTQ3Yy0uNTk1LjQwOC0uODU2LjkwMy0uODYgMS40NDQtLjEyNiAxNC42OTkgMi4wNTIgMjMuMjU2IDUuOTMgMjkuMDU0IDQuMTczIDYuMjQxIDEwLjQxOSA5LjQ2NSAxOC40MDkgMTMuNTE1bC42ODkuMzVhMy4zMjcgMy4zMjcgMCAwIDAgMi45MzIgMGwuNjktLjM1Ljg0NC0uNDI4djMuNTA3YzAgMS4yMzgtLjc2IDIuNDAxLTEuOTg5IDIuNTVhOC4zMDUgOC4zMDUgMCAwIDEtNC43MzgtLjgybC0uOTU4LS40ODZjLTcuNjgzLTMuODkzLTE1LjA3NC03LjYzOC0yMC4wMzYtMTUuMDU5LTQuNy03LjAyNy02LjkwMi0xNi43ODYtNi43NzQtMzEuODc1LjAyMS0yLjQ3IDEuMzU0LTQuMzczIDMuMDMxLTUuNTI1YTguMzczIDguMzczIDAgMCAxIDUuNzA4LTEuMzg0YzQuMDQ1LjUxNSA2Ljk4Ny4zNDYgOS40NTUtLjQxOSAyLjQ2Ny0uNzY1IDQuODgzLTIuMjU2IDcuNjE4LTUuMDQzIDMuMDMzLTMuMDkgOC4zNTItMy4wOTcgMTEuMzk3LS4wMyAyLjcwNyAyLjcyOCA1LjEgNC4yMyA3LjU2IDUuMDE2IDIuNDY5Ljc4OSA1LjQyLjk4OSA5LjQ5MS40NzZhOC4zNzMgOC4zNzMgMCAwIDEgNS43MDMgMS4zODhjMS42NzUgMS4xNTIgMy4wMDYgMy4wNTUgMy4wMjcgNS41MjIuMDYgNy4wMzgtLjM4OCAxMi45MTYtMS4zNTkgMTcuODk4LS4yNjUgMS4zNi0xLjQ3OCAyLjMwNi0yLjg2MyAyLjMwNmgtMi44WiIvPgogIDxwYXRoIGZpbGw9IiNFQjEwMkQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTcxIDg3YzguODM3IDAgMTYtNy4xNjMgMTYtMTZzLTcuMTYzLTE2LTE2LTE2LTE2IDcuMTYzLTE2IDE2IDcuMTYzIDE2IDE2IDE2bS0xLjQ1MS0xNC43MmMuMDc4LjYzLjcwNiAxLjEyIDEuNDEyIDEuMTIuNzA3IDAgMS4zMzQtLjQ5IDEuNDkxLTEuMTJsLjk0Mi04Ljc1Yy4wNzktLjctLjYyOC0xLjMzLTEuNDEzLTEuMzNINzAuMDJjLS44NjMgMC0xLjQ5LjYzLTEuNDEyIDEuMzNsLjk0MiA4Ljc1Wk03MSA3OS44YTIgMiAwIDEgMCAwLTQgMiAyIDAgMCAwIDAgNCIgY2xpcC1ydWxlPSJldmVub2RkIi8+CiAgPHBhdGggZmlsbD0iI0NDQyIgZD0iTTkyLjUwMSA1OWMuMjk4IDAgLjU5NS4xMi44MjMuMzU0LjQ1NC40NjguNDU0IDEuMjMgMCAxLjY5OGwtMi4zMzMgMi40YTEuMTQ1IDEuMTQ1IDAgMCAxLTEuNjUgMCAxLjIyNyAxLjIyNyAwIDAgMSAwLTEuNjk4bDIuMzMzLTIuNGMuMjI3LS4yMzQuNTI0LS4zNTQuODIyLS4zNTRoLjAwNVptLTEuMTY2IDEwLjc5OGgzLjQ5OWMuNjQxIDAgMS4xNjYuNTQgMS4xNjYgMS4yIDAgLjY2LS41MjUgMS4yLTEuMTY2IDEuMmgtMy40OTljLS42NDEgMC0xLjE2Ni0uNTQtMS4xNjYtMS4yIDAtLjY2LjUyNS0xLjIgMS4xNjYtMS4ybS0xLjk4MiA4Ljc1NGMuMjI3LS4yMzQuNTI1LS4zNTQuODIyLS4zNTRoLjAwNmMuMjk3IDAgLjU5NS4xMi44MjIuMzU0bDIuMzMyIDIuNGMuNDU1LjQ2Ny40NTUgMS4yMyAwIDEuNjk3YTEuMTQ1IDEuMTQ1IDAgMCAxLTEuNjUgMGwtMi4zMzItMi40YTEuMjI3IDEuMjI3IDAgMCAxIDAtMS42OTciLz4KPC9zdmc+Cg==");
+  margin-left: calc(-1 * var(--sp-2));
+  margin-top: calc(-1 * var(--sp-2));
+}
+[data-platform-name=windows] :is(.Warning_phishing .Warning_icon, .Warning_malware .Warning_icon) {
+  background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiB2aWV3Qm94PSIwIDAgOTYgOTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGNpcmNsZSBjeD0iNzEiIGN5PSI3MSIgcj0iMTYiIGZpbGw9IiNFQjEwMkQiLz4KICA8Y2lyY2xlIGN4PSI3MSIgY3k9Ijc3LjgiIHI9IjIiIGZpbGw9IiNmZmYiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNNzAuOTYxIDczLjRjLS43MDYgMC0xLjMzNC0uNDktMS40MTItMS4xMmwtLjk0Mi04Ljc1Yy0uMDc5LS43LjU1LTEuMzMgMS40MTItMS4zM2gxLjk2MmMuNzg1IDAgMS40OTIuNjMgMS40MTMgMS4zM2wtLjk0MiA4Ljc1Yy0uMTU3LjYzLS43ODQgMS4xMi0xLjQ5IDEuMTJaIi8+CiAgPHBhdGggZmlsbD0iI0NDQyIgZD0iTTkyLjUwMSA1OWMuMjk4IDAgLjU5NS4xMi44MjMuMzU0LjQ1NC40NjguNDU0IDEuMjMgMCAxLjY5OGwtMi4zMzMgMi40YTEuMTQ1IDEuMTQ1IDAgMCAxLTEuNjUgMCAxLjIyNyAxLjIyNyAwIDAgMSAwLTEuNjk4bDIuMzMzLTIuNGMuMjI3LS4yMzQuNTI0LS4zNTQuODIyLS4zNTR6bS0xLjE2NiAxMC43OThoMy40OTljLjY0MSAwIDEuMTY2LjU0IDEuMTY2IDEuMnMtLjUyNSAxLjItMS4xNjYgMS4yaC0zLjQ5OWMtLjY0MSAwLTEuMTY2LS41NC0xLjE2Ni0xLjJzLjUyNS0xLjIgMS4xNjYtMS4ybS0xLjk4MiA4Ljc1NGMuMjI3LS4yMzQuNTI1LS4zNTQuODIyLS4zNTRoLjAwNmMuMjk3IDAgLjU5NS4xMi44MjIuMzU0bDIuMzMyIDIuNGMuNDU1LjQ2Ny40NTUgMS4yMyAwIDEuNjk3YTEuMTQ1IDEuMTQ1IDAgMCAxLTEuNjUgMGwtMi4zMzItMi40YTEuMjI3IDEuMjI3IDAgMCAxIDAtMS42OTciLz4KICA8cGF0aCBmaWxsPSIjQUFBIiBkPSJNMjYgMjBhNiA2IDAgMCAwLTYgNnY0NGE2IDYgMCAwIDAgNiA2aDIyYTMgMyAwIDAgMCAzLTN2LTJjMC0xMS4wNDYgOC45NTQtMjAgMjAtMjBoNmEzIDMgMCAwIDAgMy0zVjI2YTYgNiAwIDAgMC02LTZ6Ii8+CiAgPHBhdGggZmlsbD0iI0Y1RjVGNSIgZD0iTTIyIDIwYTYgNiAwIDAgMC02IDZ2NDRhNiA2IDAgMCAwIDYgNmgyNmEzIDMgMCAwIDAgMy0zdi0yYzAtMTEuMDQ2IDguOTU0LTIwIDIwLTIwaDVWMjZhNiA2IDAgMCAwLTYtNnoiLz4KICA8cGF0aCBmaWxsPSIjREREIiBkPSJNMTYuMDMxIDI1LjM4N3EtLjAzLjMwMi0uMDMxLjYxM3Y0NGE2IDYgMCAwIDAgNiA2aDI2YTMgMyAwIDAgMCAzLTNIMjJhMyAzIDAgMCAxLTMtM1YyOGg1NHYyM2gzVjI2YTYgNiAwIDAgMC02LTZIMjJhNiA2IDAgMCAwLTUuOTY5IDUuMzg3Ii8+CiAgPHBhdGggZmlsbD0iI0NDQyIgZD0iTTY1LjkxIDM5LjM5M2EyLjE2IDIuMTYgMCAwIDEgMS43NyAxLjA2NmMuNjIzIDEuMDU1LjMxMSAyLjQzMy0uNzEyIDMuMDg1bC0uMzQ3LjIyYTQuNzMgNC43MyAwIDAgMS0zLjY0OC42MDYgNS4yMyA1LjIzIDAgMCAwLTQuMDkyLjY4bC05LjcwNyA2LjE4IDcuNDExIDQuNzJxLjM3OC4yNDIuNzg1LjQxNGEyMCAyMCAwIDAgMC0yLjM2MyAyLjYyNWwtLjE2Ni0uMTEtOC44NDMtNS42MjktOC44NDQgNS42M2E1LjU3IDUuNTcgMCAwIDAtMi40MyAzLjQ3IDQuOTcgNC45NyAwIDAgMS0yLjE2MSAzLjA5NWwtLjM0Ny4yMmMtMS4wMjMuNjQzLTIuMzU4LjMyMi0yLjk5LS43MzRhMi4zIDIuMyAwIDAgMS0uMTI0LTIuMTEyYy4yNDktLjU2LS4xMzQtMS4xOTQtLjcyLTEuMjEyYTIuMTYgMi4xNiAwIDAgMS0xLjc3MS0xLjA2NmMtLjYyMy0xLjA1Ni0uMzEyLTIuNDMzLjcxMi0zLjA4NWwuMzQ2LS4yMmE0LjczIDQuNzMgMCAwIDEgMy42NDgtLjYwNiA1LjIzIDUuMjMgMCAwIDAgNC4wOTMtLjY4bDEuMjEtLjc3MSA2LjIxLTMuOTQ5LTkuNzA3LTYuMThhNS4yNyA1LjI3IDAgMCAwLTQuMDkyLS42OCA0LjcgNC43IDAgMCAxLTMuNjQ4LS42MDZsLS4zNDctLjIyYy0xLjAyMy0uNjUyLTEuMzQ0LTIuMDMtLjcxMi0zLjA4NWEyLjE1IDIuMTUgMCAwIDEgMS43Ny0xLjA2NmMuNTg4LS4wMTguOTctLjY2LjcyMS0xLjIxMmEyLjMgMi4zIDAgMCAxIC4xMjUtMi4xMTJjLjYzMi0xLjA1NiAxLjk2Ni0xLjM4NyAyLjk5LS43MzVsLjM0Ni4yMmE1IDUgMCAwIDEgMi4xNjIgMy4wOTYgNS42IDUuNiAwIDAgMCAyLjQzIDMuNDdsMTEuMTM4IDcuMDkgMTEuMTMtNy4wOWE1LjU3IDUuNTcgMCAwIDAgMi40My0zLjQ3IDQuOTcgNC45NyAwIDAgMSAyLjE2Mi0zLjA5NWwuMzQ3LS4yMmMxLjAyMy0uNjQzIDIuMzU3LS4zMjIgMi45OS43MzQuMzgyLjYzNC40MjYgMS40MzMuMTI0IDIuMTEyLS4yNS41Ni4xMzMgMS4xOTQuNzIgMS4yMTJaIi8+CiAgPHBhdGggZmlsbD0iI0JDQkNCQyIgZD0iTTU3LjEwMiA1Ni4yNjNhNCA0IDAgMCAxLS41MjUtLjI5NGwtMS4yMS0uNzcyLTYuMjAxLTMuOTQ4IDguNDk3LTUuNDA5IDEuMjEtLjc3MWE1LjMgNS4zIDAgMCAxIDEuMTkyLS41NiAxNC4zIDE0LjMgMCAwIDAtMS4zNy0zLjg5NCA1LjQgNS40IDAgMCAxLTEuNTY2IDEuNTE1bC0xLjIxLjc3Mi05LjkyIDYuMzE3LTkuOTMtNi4zMTctMS4yMS0uNzcyYTUuNDUgNS40NSAwIDAgMS0xLjU2Ni0xLjUxNSAxNC4yIDE0LjIgMCAwIDAtMS4zNyAzLjg5NHEuNjE3LjIwMyAxLjE5My41NmwxLjIxLjc3MSA4LjQ5NiA1LjQwOS02LjIxIDMuOTQ4LTEuMjEuNzcyYy0uMTY5LjExLS4zNDcuMjAyLS41MjUuMjk0YTE0LjQgMTQuNCAwIDAgMCAyLjU5IDIuNDQybC44OTgtLjU2OSA3LjYzNC00Ljg1OCA3LjYzMyA0Ljg1OC44OTkuNTdhMTQuNCAxNC40IDAgMCAwIDIuNTg5LTIuNDQzeiIvPgogIDxwYXRoIGZpbGw9IiNDQ0MiIGQ9Ik00Ny42ODggMzVoLTMuMzQ5Yy02LjY2MSAwLTExLjg1IDYuNTUyLTkuOTM4IDEzLjgwMS40MDIgMS41MzQgMS4yNCAyLjkwOSAyLjMyMSA0LjAzNGwyLjI1IDIuMzQyYTIuODggMi44OCAwIDAgMSAuNzk1IDEuOTk4djEuMzU3YzAgLjgwOC42MzQgMS40NjggMS40MTEgMS40NjhhLjgxLjgxIDAgMCAwIC43MzItLjQ3NC44MDMuODAzIDAgMCAxIDEuNDY1IDBjLjE0My4yODguNDIuNDc0LjczMi40NzRoLjQyOWEuODEuODEgMCAwIDAgLjczMi0uNDc0LjgwMy44MDMgMCAwIDEgMS40NjQgMGMuMTQzLjI4OC40Mi40NzQuNzMyLjQ3NGguNDI5YS44MS44MSAwIDAgMCAuNzMyLS40NzQuODAzLjgwMyAwIDAgMSAxLjQ2NSAwYy4xNDIuMjg4LjQyLjQ3NC43MzIuNDc0Ljc3NyAwIDEuNDEtLjY2IDEuNDEtMS40Njh2LTEuMzU3YzAtLjc1My4yODctMS40NjkuNzk1LTEuOTk4bDIuMjUtMi4zNDJjMS4wODEtMS4xMjUgMS45MTEtMi41IDIuMzIyLTQuMDM0QzU5LjUxIDQxLjU1MiA1NC4zMjIgMzUgNDcuNjYxIDM1eiIvPgogIDxwYXRoIGZpbGw9IiM5OTkiIGQ9Ik01MC4yODUgNTEuNjUzYzEuMDU2IDAgMS45MTMtLjg4NCAxLjkxMy0xLjk3NSAwLTEuMDktLjg1Ny0xLjk3NC0xLjkxMy0xLjk3NHMtMS45MTMuODg0LTEuOTEzIDEuOTc0Ljg1NiAxLjk3NSAxLjkxMyAxLjk3NW0tOC42MTIgMGMxLjA1NiAwIDEuOTEzLS44ODQgMS45MTMtMS45NzUgMC0xLjA5LS44NTctMS45NzQtMS45MTMtMS45NzRzLTEuOTEzLjg4NC0xLjkxMyAxLjk3NC44NTYgMS45NzUgMS45MTMgMS45NzVtNS45OTcgMi4wMDFMNDYuNDYgNTEuOWgtLjAxOGEuNTcyLjU3MiAwIDAgMC0uOTUyIDBsLTEuMjEgMS43NTRjLS4yNzYuMzk1IDAgLjk1NS40OC45NTVoMi40M2MuNDggMCAuNzU1LS41NS40OC0uOTU1Ii8+CiAgPHBhdGggZmlsbD0iI0FBQSIgZD0iTTM5Ljg3MiA1OS4wODRjLjE3NS40NDYuNTU1Ljc4NCAxLjAxNy44ODVhLjg0Ljg0IDAgMCAxLS41MTQtLjQ0My44LjggMCAwIDAtLjUwMy0uNDQybTIuOTUzLS4wMTJhLjguOCAwIDAgMSAuNTUuNDU0Yy4xNDMuMjg4LjQyLjQ3NC43MzIuNDc0aC4zNThhLjgyLjgyIDAgMCAxLS43MzMtLjQ3NC44LjggMCAwIDAtLjkwNy0uNDU0bTMuMzU3IDBhLjguOCAwIDAgMSAuNTUuNDU0Yy4xNDMuMjg4LjQyLjQ3NC43MzMuNDc0aC40MjhhLjguOCAwIDAgMCAuMjIzLS4wMzIgMS40IDEuNCAwIDAgMS0uMjk0LjAzMi44Mi44MiAwIDAgMS0uNzMyLS40NzQuOC44IDAgMCAwLS45MDgtLjQ1NG0yLjk0Ni4wMTVhLjc5Ny43OTcgMCAwIDEgLjk2Mi40MzljLjE0My4yODguNDIuNDc0LjczMi40NzQuNzc3IDAgMS40MS0uNjYgMS40MS0xLjQ2OHYtMS4zNTdjMC0uNzUzLjI4Ny0xLjQ2OS43OTYtMS45OThsMi4yNS0yLjM0MmMxLjA4LTEuMTI1IDEuOTEtMi41IDIuMzIyLTQuMDM0QzU5LjUxIDQxLjU1MiA1NC4zMjIgMzUgNDcuNjYgMzVoLTNjNi42NjEgMCAxMS44NSA2LjU1MiA5LjkzOCAxMy44MDEtLjQxIDEuNTM0LTEuMjQgMi45MDktMi4zMjEgNC4wMzRsLTIuMjUgMi4zNDJhMi44OCAyLjg4IDAgMCAwLS43OTUgMS45OTh2MS4zNTdxLS4wMDIuMjk2LS4xMDUuNTU1WiIvPgogIDxwYXRoIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iLjE4IiBkPSJNMjUgMjRhMiAyIDAgMSAwLTQgMCAyIDIgMCAwIDAgNCAwbTYgMGEyIDIgMCAxIDAtNCAwIDIgMiAwIDAgMCA0IDBtNC0yYTIgMiAwIDEgMSAwIDQgMiAyIDAgMCAxIDAtNCIvPgo8L3N2Zz4K");
+  margin-left: calc(-1 * var(--sp-2));
+  margin-right: calc(-1 * var(--sp-1));
+}
+[data-platform-name=windows] .Warning_buttonContainer {
+  flex-flow: row-reverse;
+  gap: var(--sp-4);
+  justify-content: flex-end;
+}
+[data-platform-name=windows] .Warning_button {
+  flex: 0 0 calc(50% - var(--sp-2));
+  font-family: var(--theme-font-family);
+  font-size: calc(14 * var(--px-in-rem));
+  font-weight: 400;
+  line-height: normal;
+}
 
 /* pages/special-error/app/components/Components.module.css */
 .Components_selector {
@@ -867,14 +941,6 @@ li {
   [data-platform-name=ios] {
     --theme-background-color: #222;
   }
-}
-[data-platform-name=macos],
-[data-platform-name=ios] {
-  --theme-font:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Helvetica Neue",
-    sans-serif;
 }
 
 </style>
@@ -2808,7 +2874,8 @@ li {
     "label-small": "Text_label-small",
     "label-default": "Text_label-default",
     "label-medium": "Text_label-medium",
-    "caption-2-emphasis": "Text_caption-2-emphasis"
+    "caption-2-emphasis": "Text_caption-2-emphasis",
+    "custom-title-1": "Text_custom-title-1"
   };
 
   // shared/components/Text/Text.js
@@ -2930,8 +2997,9 @@ li {
 
   // pages/special-error/app/components/AdvancedInfo.module.css
   var AdvancedInfo_default = {
-    container: "AdvancedInfo_container",
+    animationContainer: "AdvancedInfo_animationContainer",
     appear: "AdvancedInfo_appear",
+    container: "AdvancedInfo_container",
     heading: "AdvancedInfo_heading",
     content: "AdvancedInfo_content",
     visitSite: "AdvancedInfo_visitSite",
@@ -2963,7 +3031,7 @@ li {
   }
   function AdvancedInfo() {
     const { ref, trigger } = useScrollTarget();
-    return /* @__PURE__ */ g("div", { className: AdvancedInfo_default.wrapper }, /* @__PURE__ */ g("div", { className: AdvancedInfo_default.container, onAnimationEnd: trigger }, /* @__PURE__ */ g(AdvancedInfoHeading, null), /* @__PURE__ */ g(AdvancedInfoContent, null), /* @__PURE__ */ g(VisitSiteLink, { elemRef: ref })));
+    return /* @__PURE__ */ g("div", { className: AdvancedInfo_default.wrapper }, /* @__PURE__ */ g("div", { className: AdvancedInfo_default.animationContainer, onAnimationEnd: trigger }, /* @__PURE__ */ g("div", { className: AdvancedInfo_default.container }, /* @__PURE__ */ g(AdvancedInfoHeading, null), /* @__PURE__ */ g(AdvancedInfoContent, null), /* @__PURE__ */ g(VisitSiteLink, { elemRef: ref }))));
   }
 
   // pages/special-error/app/components/App.module.css
@@ -3014,6 +3082,10 @@ li {
   }
   function usePlatformName() {
     return x2(SettingsContext).settings.platform?.name;
+  }
+  function useIsMobile() {
+    const platformName = x2(SettingsContext).settings.platform?.name;
+    return platformName === "android" || platformName === "ios";
   }
 
   // shared/components/Button/Button.js
@@ -3069,45 +3141,46 @@ li {
   // pages/special-error/app/components/Warning.jsx
   function AdvancedInfoButton({ onClick }) {
     const { t: t3 } = useTypedTranslation();
-    const platformName = usePlatformName();
-    return /* @__PURE__ */ g(
-      Button,
-      {
-        variant: platformName === "macos" ? "standard" : "ghost",
-        className: (0, import_classnames3.default)(Warning_default.button, Warning_default.advanced),
-        onClick
-      },
-      platformName === "ios" ? t3("advancedButton") : t3("advancedEllipsisButton")
-    );
+    const isMobile = useIsMobile();
+    const buttonVariant = isMobile ? "ghost" : "standard";
+    return /* @__PURE__ */ g(Button, { variant: buttonVariant, className: (0, import_classnames3.default)(Warning_default.button, Warning_default.advanced), onClick }, isMobile ? t3("advancedButton") : t3("advancedEllipsisButton"));
   }
   function LeaveSiteButton() {
     const { t: t3 } = useTypedTranslation();
     const { messaging: messaging2 } = useMessaging();
     const platformName = usePlatformName();
-    return /* @__PURE__ */ g(
-      Button,
-      {
-        variant: platformName === "macos" ? "accent" : "primary",
-        className: (0, import_classnames3.default)(Warning_default.button, Warning_default.leaveSite),
-        onClick: () => messaging2?.leaveSite()
-      },
-      t3("leaveSiteButton")
-    );
+    let buttonVariant;
+    switch (platformName) {
+      case "ios":
+      case "android":
+        buttonVariant = "primary";
+        break;
+      case "windows":
+        buttonVariant = "accentBrand";
+        break;
+      default:
+        buttonVariant = "accent";
+    }
+    return /* @__PURE__ */ g(Button, { variant: buttonVariant, className: (0, import_classnames3.default)(Warning_default.button, Warning_default.leaveSite), onClick: () => messaging2?.leaveSite() }, t3("leaveSiteButton"));
   }
   function WarningHeading() {
     const { kind } = useErrorData();
     const heading = useWarningHeading();
     const platformName = usePlatformName();
-    return /* @__PURE__ */ g("header", { className: (0, import_classnames3.default)(Warning_default.heading, Warning_default[kind]) }, /* @__PURE__ */ g("i", { className: Warning_default.icon, "aria-hidden": "true" }), /* @__PURE__ */ g(
-      Text,
-      {
-        as: "h1",
-        variant: platformName === "macos" ? "title-2-emphasis" : "title-2",
-        strictSpacing: platformName !== "macos",
-        className: Warning_default.title
-      },
-      heading
-    ));
+    const isMobile = useIsMobile();
+    let textVariant;
+    switch (platformName) {
+      case "ios":
+      case "android":
+        textVariant = "title-2";
+        break;
+      case "windows":
+        textVariant = "custom-title-1";
+        break;
+      default:
+        textVariant = "title-2-emphasis";
+    }
+    return /* @__PURE__ */ g("header", { className: (0, import_classnames3.default)(Warning_default.heading, Warning_default[kind]) }, /* @__PURE__ */ g("i", { className: Warning_default.icon, "aria-hidden": "true" }), /* @__PURE__ */ g(Text, { as: "h1", variant: textVariant, strictSpacing: isMobile, className: Warning_default.title }, heading));
   }
   function WarningContent() {
     const content = useWarningContent();
@@ -3170,8 +3243,9 @@ li {
 
   // pages/special-error/app/components/Components.jsx
   var platforms = {
+    ios: "iOS",
     macos: "macOS",
-    ios: "iOS"
+    windows: "Windows"
   };
   function idForError(errorData) {
     const { kind } = errorData;
@@ -3202,11 +3276,11 @@ li {
         window.location.href = url.toString();
       }
     };
-    return /* @__PURE__ */ g("div", { "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("div", { className: Components_default.selector }, /* @__PURE__ */ g("fieldset", null, /* @__PURE__ */ g("label", { for: "platform-select" }, "Platform:"), /* @__PURE__ */ g("select", { id: "platform-select", onChange: (e3) => handlePlatformChange(e3.currentTarget?.value) }, Object.entries(platforms).map(([id, name]) => {
+    return /* @__PURE__ */ g("div", null, /* @__PURE__ */ g("nav", { className: Components_default.selector }, /* @__PURE__ */ g("fieldset", null, /* @__PURE__ */ g("label", { for: "platform-select" }, "Platform:"), /* @__PURE__ */ g("select", { id: "platform-select", onChange: (e3) => handlePlatformChange(e3.currentTarget?.value) }, Object.entries(platforms).map(([id, name]) => {
       return /* @__PURE__ */ g("option", { value: id, selected: id === platformName }, name);
     }))), /* @__PURE__ */ g("fieldset", null, /* @__PURE__ */ g("label", { for: "error-select" }, "Error Type:"), /* @__PURE__ */ g("select", { id: "error-select", onChange: (e3) => handleErrorTypeChange(e3.currentTarget?.value) }, Object.entries(sampleData).map(([id, data]) => {
       return /* @__PURE__ */ g("option", { value: id, selected: id === idForError(errorData) }, data.name);
-    })))), /* @__PURE__ */ g("main", { class: Components_default.main, "data-platform-name": platformName }, /* @__PURE__ */ g("h1", null, "Special Error Components"), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning Heading"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(WarningHeading, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning Content"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(WarningContent, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Heading"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoHeading, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Content"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoContent, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Leave Site Button"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(LeaveSiteButton, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Button"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoButton, { onClick: () => {
+    })))), /* @__PURE__ */ g("main", { class: Components_default.main, "data-platform-name": platformName, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("h1", null, "Special Error Components"), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning Heading"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(WarningHeading, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning Content"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(WarningContent, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Heading"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoHeading, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Content"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoContent, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Leave Site Button"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(LeaveSiteButton, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info Button"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfoButton, { onClick: () => {
     } }))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Visit Site Link"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(VisitSiteLink, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Warning"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(Warning, { advancedInfoVisible: false, advancedButtonHandler: () => {
     } }))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Advanced Info"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(AdvancedInfo, null))), /* @__PURE__ */ g("section", null, /* @__PURE__ */ g("h2", null, "Special Error View"), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(SpecialErrorView, null)))));
   }

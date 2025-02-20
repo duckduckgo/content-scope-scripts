@@ -2446,6 +2446,40 @@
     return x2(SettingsContext).platform.name;
   }
 
+  // pages/history/app/components/SearchForm.js
+  function SearchForm({ term }) {
+    const { t: t4 } = useTypedTranslation();
+    return /* @__PURE__ */ g("form", { role: "search" }, /* @__PURE__ */ g("label", null, /* @__PURE__ */ g("span", { class: "sr-only" }, t4("search_your_history")), /* @__PURE__ */ g("input", { type: "search", placeholder: t4("search"), class: Header_default.searchInput, name: "q", value: term.value || "" })));
+  }
+
+  // pages/history/app/icons/Trash.js
+  function Trash() {
+    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+      "path",
+      {
+        d: "M6.25 5.625C6.25 5.27982 5.97018 5 5.625 5C5.27982 5 5 5.27982 5 5.625V12.375C5 12.7202 5.27982 13 5.625 13C5.97018 13 6.25 12.7202 6.25 12.375V5.625Z",
+        fill: "currentColor",
+        "fill-opacity": "1"
+      }
+    ), /* @__PURE__ */ g(
+      "path",
+      {
+        d: "M11 5.625C11 5.27982 10.7202 5 10.375 5C10.0298 5 9.75 5.27982 9.75 5.625V12.375C9.75 12.7202 10.0298 13 10.375 13C10.7202 13 11 12.7202 11 12.375V5.625Z",
+        fill: "currentColor",
+        "fill-opacity": "1"
+      }
+    ), /* @__PURE__ */ g(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M11 2V1.875C11 0.839466 10.1605 0 9.125 0H6.875C5.83947 0 5 0.839466 5 1.875V2H1.625C1.27982 2 1 2.27982 1 2.625C1 2.97018 1.27982 3.25 1.625 3.25H2V12.875C2 14.6009 3.39911 16 5.125 16H10.875C12.6009 16 14 14.6009 14 12.875V3.25H14.375C14.7202 3.25 15 2.97018 15 2.625C15 2.27982 14.7202 2 14.375 2H11ZM6.25 2H9.75V1.875C9.75 1.52982 9.47018 1.25 9.125 1.25H6.875C6.52982 1.25 6.25 1.52982 6.25 1.875V2ZM12.75 3.25H3.25V12.875C3.25 13.9105 4.08947 14.75 5.125 14.75H10.875C11.9105 14.75 12.75 13.9105 12.75 12.875V3.25Z",
+        fill: "currentColor",
+        "fill-opacity": "1"
+      }
+    ));
+  }
+
   // pages/new-tab/app/service.js
   var Service = class {
     eventTarget = new EventTarget();
@@ -2825,31 +2859,48 @@
     return JSON.stringify(q1) === JSON.stringify(q22);
   }
 
-  // pages/history/app/components/SearchForm.js
-  function SearchForm({ term }) {
-    const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ g("form", { role: "search" }, /* @__PURE__ */ g("label", null, /* @__PURE__ */ g("span", { class: "sr-only" }, t4("search_your_history")), /* @__PURE__ */ g("input", { type: "search", placeholder: t4("search"), class: Header_default.searchInput, name: "q", value: term.value || "" })));
-  }
-  var SearchContext = J(
-    d3({
-      term: (
-        /** @type {string|null} */
-        null
-      ),
-      range: (
-        /** @type {import('../../types/history.js').Range|null} */
-        null
-      ),
-      domain: (
-        /** @type {string|null} */
-        null
-      )
-    })
+  // pages/history/app/constants.js
+  var OVERSCAN_AMOUNT = 5;
+  var BTN_ACTION_TITLE_MENU = "title_menu";
+  var BTN_ACTION_ENTRIES_MENU = "entries_menu";
+  var BTN_ACTION_DELETE_RANGE = "deleteRange";
+  var BTN_ACTION_DELETE_ALL = "deleteAll";
+  var KNOWN_ACTIONS = (
+    /** @type {const} */
+    [
+      BTN_ACTION_TITLE_MENU,
+      BTN_ACTION_ENTRIES_MENU,
+      BTN_ACTION_DELETE_RANGE,
+      BTN_ACTION_DELETE_ALL
+    ]
   );
-  function useSearchContext() {
-    return x2(SearchContext);
+  var EVENT_RANGE_CHANGE = "range-change";
+  var EVENT_SEARCH_COMMIT = "search-commit";
+
+  // pages/history/app/global-state/QueryProvider.js
+  var QueryContext = J(
+    d3(
+      /** @type {QueryState} */
+      {
+        term: (
+          /** @type {string|null} */
+          null
+        ),
+        range: (
+          /** @type {import('../../types/history.ts').Range|null} */
+          null
+        ),
+        domain: (
+          /** @type {string|null} */
+          null
+        )
+      }
+    )
+  );
+  function useQueryContext() {
+    return x2(QueryContext);
   }
-  function SearchProvider({ children, query = { term: "" } }) {
+  function QueryProvider({ children, query = { term: "" } }) {
     const initial = {
       term: "term" in query ? query.term : null,
       range: "range" in query ? query.range : null,
@@ -2857,39 +2908,97 @@
     };
     const searchState = useSignal(initial);
     const derivedTerm = useComputed(() => searchState.value.term);
-    const derivedRange = useComputed(() => searchState.value.range);
+    const derivedRange = useComputed(() => {
+      return (
+        /** @type {Range|null} */
+        searchState.value.range
+      );
+    });
     const settings = useSettings();
     const platformName = usePlatformName();
+    useClickHandlerForFilters(searchState);
+    useInputHandler(searchState);
+    useSearchShortcut(platformName);
+    useFormSubmit();
+    useURLReflection(derivedTerm, settings);
+    useSearchCommitForRange(derivedRange);
+    return /* @__PURE__ */ g(QueryContext.Provider, { value: searchState }, children);
+  }
+  function useSearchCommitForRange(derivedRange) {
     useSignalEffect(() => {
-      const controller = new AbortController();
-      window._accept = (v4) => {
-        searchState.value = { ...searchState.value, term: v4 };
+      let timer;
+      let counter = 0;
+      const sub = derivedRange.subscribe((nextRange) => {
+        if (counter === 0) {
+          counter += 1;
+          return;
+        }
+        const url2 = new URL(window.location.href);
+        url2.searchParams.delete("q");
+        url2.searchParams.delete("range");
+        if (nextRange !== null) {
+          url2.searchParams.set("range", nextRange);
+          window.history.replaceState(null, "", url2.toString());
+          window.dispatchEvent(new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params: new URLSearchParams(url2.searchParams) } }));
+        }
+      });
+      return () => {
+        sub();
+        clearTimeout(timer);
       };
-      document.addEventListener(
-        "submit",
-        (e4) => {
-          e4.preventDefault();
-          console.log("re-issue search plz", [searchState.value.term]);
-        },
-        { signal: controller.signal }
-      );
-      document.addEventListener(
-        "input",
-        (e4) => {
-          if (e4.target instanceof HTMLInputElement && e4.target.form instanceof HTMLFormElement) {
-            const data = new FormData(e4.target.form);
-            const q5 = data.get("q")?.toString();
-            if (q5 === void 0) return console.log("missing q field");
-            searchState.value = {
-              term: q5,
-              range: null,
-              domain: null
-            };
+    });
+  }
+  function useURLReflection(derivedTerm, settings) {
+    useSignalEffect(() => {
+      let timer;
+      let counter = 0;
+      const unsubscribe = derivedTerm.subscribe((nextValue) => {
+        if (counter === 0) {
+          counter += 1;
+          return;
+        }
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          const url2 = new URL(window.location.href);
+          url2.searchParams.delete("q");
+          url2.searchParams.delete("range");
+          if (nextValue) {
+            url2.searchParams.set("q", nextValue);
+            window.history.replaceState(null, "", url2.toString());
+          } else if (nextValue === "") {
+            window.history.replaceState(null, "", url2.toString());
           }
-        },
-        { signal: controller.signal }
-      );
-      document.addEventListener("click", (e4) => {
+          if (nextValue === null) {
+          } else {
+            window.dispatchEvent(
+              new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params: new URLSearchParams(url2.searchParams) } })
+            );
+          }
+        }, settings.typingDebounce);
+      });
+      return () => {
+        unsubscribe();
+        clearTimeout(timer);
+      };
+    });
+  }
+  function useFormSubmit() {
+    useSignalEffect(() => {
+      const submitHandler = (e4) => {
+        e4.preventDefault();
+        if (!e4.target || !(e4.target instanceof HTMLFormElement)) return;
+        const formData = new FormData(e4.target);
+        console.log("todo: re-issue search here?", [formData.get("q")?.toString()]);
+      };
+      document.addEventListener("submit", submitHandler);
+      return () => {
+        document.removeEventListener("submit", submitHandler);
+      };
+    });
+  }
+  function useClickHandlerForFilters(queryState) {
+    useSignalEffect(() => {
+      function clickHandler(e4) {
         if (!(e4.target instanceof HTMLElement)) return;
         const anchor = (
           /** @type {HTMLAnchorElement|null} */
@@ -2899,20 +3008,48 @@
           e4.preventDefault();
           const range = toRange(anchor.dataset.filter);
           if (range === "all") {
-            searchState.value = {
+            queryState.value = {
               term: "",
               domain: null,
               range: null
             };
           } else if (range) {
-            searchState.value = {
+            queryState.value = {
               term: null,
               domain: null,
               range
             };
           }
         }
-      });
+      }
+      document.addEventListener("click", clickHandler);
+      return () => {
+        document.removeEventListener("click", clickHandler);
+      };
+    });
+  }
+  function useInputHandler(queryState) {
+    useSignalEffect(() => {
+      function handler(e4) {
+        if (e4.target instanceof HTMLInputElement && e4.target.form instanceof HTMLFormElement) {
+          const data = new FormData(e4.target.form);
+          const q5 = data.get("q")?.toString();
+          if (q5 === void 0) return console.log("missing q field");
+          queryState.value = {
+            term: q5,
+            range: null,
+            domain: null
+          };
+        }
+      }
+      document.addEventListener("input", handler);
+      return () => {
+        document.removeEventListener("input", handler);
+      };
+    });
+  }
+  function useSearchShortcut(platformName) {
+    useSignalEffect(() => {
       const keydown = (e4) => {
         const isMacOS = platformName === "macos";
         const isFindShortcutMacOS = isMacOS && e4.metaKey && e4.key === "f";
@@ -2931,106 +3068,17 @@
       document.addEventListener("keydown", keydown);
       return () => {
         document.removeEventListener("keydown", keydown);
-        controller.abort();
       };
     });
-    useSignalEffect(() => {
-      let timer;
-      let counter = 0;
-      const sub = derivedTerm.subscribe((nextValue) => {
-        if (counter === 0) {
-          counter += 1;
-          return;
-        }
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          console.log("next VALUE", [nextValue]);
-          const url2 = new URL(window.location.href);
-          url2.searchParams.delete("q");
-          url2.searchParams.delete("range");
-          if (nextValue) {
-            url2.searchParams.set("q", nextValue);
-            window.history.replaceState(null, "", url2.toString());
-          } else if (nextValue === "") {
-            window.history.replaceState(null, "", url2.toString());
-          }
-          if (nextValue === null) {
-          } else {
-            window.dispatchEvent(new CustomEvent("search-commit", { detail: { params: new URLSearchParams(url2.searchParams) } }));
-          }
-        }, settings.typingDebounce);
-      });
-      return () => {
-        sub();
-        clearTimeout(timer);
-      };
-    });
-    useSignalEffect(() => {
-      let timer;
-      let counter = 0;
-      const sub = derivedRange.subscribe((nextRange) => {
-        if (counter === 0) {
-          counter += 1;
-          return;
-        }
-        const url2 = new URL(window.location.href);
-        url2.searchParams.delete("q");
-        url2.searchParams.delete("range");
-        if (nextRange !== null) {
-          url2.searchParams.set("range", nextRange);
-          window.history.replaceState(null, "", url2.toString());
-          window.dispatchEvent(new CustomEvent("search-commit", { detail: { params: new URLSearchParams(url2.searchParams) } }));
-        }
-      });
-      return () => {
-        sub();
-        clearTimeout(timer);
-      };
-    });
-    return /* @__PURE__ */ g(SearchContext.Provider, { value: searchState }, children);
-  }
-
-  // pages/history/app/icons/Trash.js
-  function Trash() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
-      "path",
-      {
-        d: "M6.25 5.625C6.25 5.27982 5.97018 5 5.625 5C5.27982 5 5 5.27982 5 5.625V12.375C5 12.7202 5.27982 13 5.625 13C5.97018 13 6.25 12.7202 6.25 12.375V5.625Z",
-        fill: "currentColor",
-        "fill-opacity": "1"
-      }
-    ), /* @__PURE__ */ g(
-      "path",
-      {
-        d: "M11 5.625C11 5.27982 10.7202 5 10.375 5C10.0298 5 9.75 5.27982 9.75 5.625V12.375C9.75 12.7202 10.0298 13 10.375 13C10.7202 13 11 12.7202 11 12.375V5.625Z",
-        fill: "currentColor",
-        "fill-opacity": "1"
-      }
-    ), /* @__PURE__ */ g(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M11 2V1.875C11 0.839466 10.1605 0 9.125 0H6.875C5.83947 0 5 0.839466 5 1.875V2H1.625C1.27982 2 1 2.27982 1 2.625C1 2.97018 1.27982 3.25 1.625 3.25H2V12.875C2 14.6009 3.39911 16 5.125 16H10.875C12.6009 16 14 14.6009 14 12.875V3.25H14.375C14.7202 3.25 15 2.97018 15 2.625C15 2.27982 14.7202 2 14.375 2H11ZM6.25 2H9.75V1.875C9.75 1.52982 9.47018 1.25 9.125 1.25H6.875C6.52982 1.25 6.25 1.52982 6.25 1.875V2ZM12.75 3.25H3.25V12.875C3.25 13.9105 4.08947 14.75 5.125 14.75H10.875C11.9105 14.75 12.75 13.9105 12.75 12.875V3.25Z",
-        fill: "currentColor",
-        "fill-opacity": "1"
-      }
-    ));
   }
 
   // pages/history/app/components/Header.js
   function Header() {
     const { t: t4 } = useTypedTranslation();
-    const search = useSearchContext();
+    const search = useQueryContext();
     const term = useComputed(() => search.value.term);
-    return /* @__PURE__ */ g("div", { class: Header_default.root }, /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g("button", { class: Header_default.largeButton, "data-delete-all": true }, /* @__PURE__ */ g("span", null, t4("delete_all")), /* @__PURE__ */ g(Trash, null))), /* @__PURE__ */ g("div", { class: Header_default.search }, /* @__PURE__ */ g(SearchForm, { term })));
+    return /* @__PURE__ */ g("div", { class: Header_default.root }, /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g("button", { class: Header_default.largeButton, "data-action": BTN_ACTION_DELETE_ALL }, /* @__PURE__ */ g("span", null, t4("delete_all")), /* @__PURE__ */ g(Trash, null))), /* @__PURE__ */ g("div", { class: Header_default.search }, /* @__PURE__ */ g(SearchForm, { term })));
   }
-
-  // pages/history/app/components/Results.js
-  var import_classnames2 = __toESM(require_classnames(), 1);
-
-  // pages/history/app/constants.js
-  var OVERSCAN_AMOUNT = 5;
 
   // ../node_modules/preact/compat/dist/compat.module.js
   function g5(n3, t4) {
@@ -3244,12 +3292,13 @@
   var Item_default = {
     item: "Item_item",
     title: "Item_title",
-    titleDots: "Item_titleDots",
     row: "Item_row",
+    hover: "Item_hover",
     entryLink: "Item_entryLink",
     domain: "Item_domain",
     time: "Item_time",
     dots: "Item_dots",
+    titleDots: "Item_titleDots",
     last: "Item_last"
   };
 
@@ -3293,19 +3342,33 @@
      * @param {string} props.dateRelativeDay - The relative day information to display (shown when kind is equal to TITLE_KIND).
      * @param {string} props.dateTimeOfDay - the time of day, like 11.00am.
      * @param {number} props.index - original index
+     * @param {boolean} props.selected - whether this item is selected
      */
-    function Item2({ id, url: url2, domain, title, kind, dateRelativeDay, dateTimeOfDay, index }) {
+    function Item2({ id, url: url2, domain, title, kind, dateRelativeDay, dateTimeOfDay, index, selected }) {
       const { t: t4 } = useTypedTranslation();
-      return /* @__PURE__ */ g(k, null, kind === TITLE_KIND && /* @__PURE__ */ g("div", { class: Item_default.title, tabindex: 0, "data-section-title": true }, dateRelativeDay, /* @__PURE__ */ g(
+      return /* @__PURE__ */ g(k, null, kind === TITLE_KIND && /* @__PURE__ */ g("div", { class: (0, import_classnames.default)(Item_default.title, Item_default.hover), "data-section-title": true }, dateRelativeDay, /* @__PURE__ */ g(
         "button",
         {
           class: (0, import_classnames.default)(Item_default.dots, Item_default.titleDots),
-          "data-title-menu": true,
+          "data-action": BTN_ACTION_TITLE_MENU,
           value: dateRelativeDay,
-          "aria-label": t4("menu_sectionTitle", { relativeTime: dateRelativeDay })
+          "aria-label": t4("menu_sectionTitle", { relativeTime: dateRelativeDay }),
+          tabindex: 0
         },
         /* @__PURE__ */ g(Dots, null)
-      )), /* @__PURE__ */ g("div", { class: (0, import_classnames.default)(Item_default.row, kind === END_KIND && Item_default.last), tabindex: 0, "data-history-entry": id }, /* @__PURE__ */ g("a", { href: url2, "data-url": url2, class: Item_default.entryLink }, title), /* @__PURE__ */ g("span", { class: Item_default.domain }, domain), /* @__PURE__ */ g("span", { class: Item_default.time }, dateTimeOfDay), /* @__PURE__ */ g("button", { class: Item_default.dots, "data-row-menu": true, "data-index": index, value: id }, /* @__PURE__ */ g(Dots, null))));
+      )), /* @__PURE__ */ g(
+        "div",
+        {
+          class: (0, import_classnames.default)(Item_default.row, Item_default.hover, kind === END_KIND && Item_default.last),
+          "data-history-entry": id,
+          "data-index": index,
+          "aria-selected": selected
+        },
+        /* @__PURE__ */ g("a", { href: url2, "data-url": url2, class: Item_default.entryLink }, title),
+        /* @__PURE__ */ g("span", { class: Item_default.domain }, domain),
+        /* @__PURE__ */ g("span", { class: Item_default.time }, dateTimeOfDay),
+        /* @__PURE__ */ g("button", { class: Item_default.dots, "data-action": BTN_ACTION_ENTRIES_MENU, "data-index": index, value: id, tabindex: 0 }, /* @__PURE__ */ g(Dots, null))
+      ));
     }
   );
 
@@ -3364,7 +3427,7 @@
       };
       setVisibleRange((prev) => {
         if (withOverScan.start !== prev.start || withOverScan.end !== prev.end) {
-          window.dispatchEvent(new CustomEvent("range-change", { detail: { start: withOverScan.start, end: withOverScan.end } }));
+          window.dispatchEvent(new CustomEvent(EVENT_RANGE_CHANGE, { detail: { start: withOverScan.start, end: withOverScan.end } }));
           return { start: withOverScan.start, end: withOverScan.end };
         }
         return prev;
@@ -3419,8 +3482,15 @@
     return { startIndex, endIndex };
   }
 
+  // pages/history/app/components/Empty.js
+  var import_classnames2 = __toESM(require_classnames(), 1);
+  function Empty() {
+    const { t: t4 } = useTypedTranslation();
+    return /* @__PURE__ */ g("div", { class: (0, import_classnames2.default)(VirtualizedList_default.emptyState, VirtualizedList_default.emptyStateOffset) }, /* @__PURE__ */ g("img", { src: "icons/clock.svg", width: 128, height: 96, alt: "", class: VirtualizedList_default.emptyStateImage }), /* @__PURE__ */ g("h2", { class: VirtualizedList_default.emptyTitle }, t4("empty_title")));
+  }
+
   // pages/history/app/components/Results.js
-  function Results({ results }) {
+  function Results({ results, selected }) {
     if (results.value.items.length === 0) {
       return /* @__PURE__ */ g(Empty, null);
     }
@@ -3433,6 +3503,7 @@
         heights: results.value.heights,
         overscan: OVERSCAN_AMOUNT,
         renderItem: ({ item, cssClassName, style, index }) => {
+          const isSelected = selected.value.includes(item.id);
           return /* @__PURE__ */ g("li", { key: item.id, "data-id": item.id, class: cssClassName, style }, /* @__PURE__ */ g(
             Item,
             {
@@ -3443,175 +3514,13 @@
               title: item.title,
               dateRelativeDay: item.dateRelativeDay,
               dateTimeOfDay: item.dateTimeOfDay,
-              index
+              index,
+              selected: isSelected
             }
           ));
         }
       }
     ));
-  }
-  function Empty() {
-    const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ g("div", { class: (0, import_classnames2.default)(VirtualizedList_default.emptyState, VirtualizedList_default.emptyStateOffset) }, /* @__PURE__ */ g("img", { src: "icons/clock.svg", width: 128, height: 96, alt: "", class: VirtualizedList_default.emptyStateImage }), /* @__PURE__ */ g("h2", { class: VirtualizedList_default.emptyTitle }, t4("empty_title")));
-  }
-
-  // shared/handlers.js
-  function eventToTarget(event, platformName) {
-    const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
-    if (isControlClick) {
-      return "new-tab";
-    } else if (event.shiftKey || event.button === 1) {
-      return "new-window";
-    }
-    return "same-tab";
-  }
-
-  // pages/history/app/HistoryProvider.js
-  var HistoryServiceContext = J({
-    service: (
-      /** @type {import("./history.service").HistoryService} */
-      {}
-    ),
-    initial: (
-      /** @type {import("./history.service").ServiceData} */
-      {}
-    )
-  });
-  function HistoryServiceProvider({ service, initial, children }) {
-    const platFormName = usePlatformName();
-    useSignalEffect(() => {
-      window.addEventListener("search-commit", (event) => {
-        const detail = event.detail;
-        if (detail && detail.params instanceof URLSearchParams) {
-          const asQuery = paramsToQuery(detail.params);
-          service.trigger(asQuery);
-        } else {
-          console.error("missing detail.params from search-commit event");
-        }
-      });
-      return () => {
-        window.removeEventListener("search-commit", this);
-      };
-    });
-    useSignalEffect(() => {
-      function handler(event) {
-        if (!service.query.data) throw new Error("unreachable");
-        const { end } = event.detail;
-        const memory = service.query.data.results;
-        if (memory.length - end < OVERSCAN_AMOUNT) {
-          service.requestMore();
-        }
-      }
-      window.addEventListener("range-change", handler);
-      return () => {
-        window.removeEventListener("range-change", handler);
-      };
-    });
-    useSignalEffect(() => {
-      function handler(event) {
-        if (!(event.target instanceof Element)) return;
-        const btn = (
-          /** @type {HTMLButtonElement|null} */
-          event.target.closest("button")
-        );
-        const anchor = (
-          /** @type {HTMLButtonElement|null} */
-          event.target.closest("a[href][data-url]")
-        );
-        if (btn?.dataset.titleMenu) {
-          event.stopImmediatePropagation();
-          event.preventDefault();
-          service.menuTitle(btn.value).catch(console.error);
-          return;
-        }
-        if (btn) {
-          if (btn?.dataset.rowMenu) {
-            event.stopImmediatePropagation();
-            event.preventDefault();
-            service.entriesMenu([btn.value], [Number(btn.dataset.index)]).catch(console.error);
-            return;
-          }
-          if (btn?.dataset.deleteRange) {
-            event.stopImmediatePropagation();
-            event.preventDefault();
-            const range = toRange(btn.value);
-            if (range) {
-              service.deleteRange(range).catch(console.error);
-            }
-          }
-          if (btn?.dataset.deleteAll) {
-            event.stopImmediatePropagation();
-            event.preventDefault();
-            service.deleteRange("all").catch(console.error);
-          }
-        } else if (anchor) {
-          const url2 = anchor.dataset.url;
-          if (!url2) return;
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          const target = eventToTarget(event, platFormName);
-          service.openUrl(url2, target);
-          return;
-        }
-        return null;
-      }
-      document.addEventListener("click", handler);
-      const handleAuxClick = (event) => {
-        const anchor = (
-          /** @type {HTMLButtonElement|null} */
-          event.target.closest("a[href][data-url]")
-        );
-        const url2 = anchor?.dataset.url;
-        if (anchor && url2 && event.button === 1) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          const target = eventToTarget(event, platFormName);
-          service.openUrl(url2, target);
-        }
-      };
-      document.addEventListener("auxclick", handleAuxClick);
-      function contextMenu(event) {
-        const target = (
-          /** @type {HTMLElement|null} */
-          event.target
-        );
-        if (!(target instanceof HTMLElement)) return;
-        const actions = {
-          "[data-section-title]": (elem) => elem.querySelector("button")?.value,
-          "[data-history-entry]": (elem) => elem.querySelector("button")?.value
-        };
-        for (const [selector, valueFn] of Object.entries(actions)) {
-          const match = event.target.closest(selector);
-          if (match) {
-            const value = valueFn(match);
-            if (value) {
-              event.preventDefault();
-              event.stopImmediatePropagation();
-              if (match.dataset.sectionTitle) {
-                service.menuTitle(value).catch(console.error);
-              } else if (match.dataset.historyEntry) {
-                service.entriesMenu([value], [Number(match.dataset.index)]).catch(console.error);
-              }
-            }
-            break;
-          }
-        }
-      }
-      document.addEventListener("contextmenu", contextMenu);
-      return () => {
-        document.removeEventListener("auxclick", handleAuxClick);
-        document.removeEventListener("click", handler);
-        document.removeEventListener("contextmenu", contextMenu);
-      };
-    });
-    return /* @__PURE__ */ g(HistoryServiceContext.Provider, { value: { service, initial } }, children);
-  }
-  function useHistory() {
-    const context = x2(HistoryServiceContext);
-    if (!context) {
-      throw new Error("useHistoryService must be used within a HistoryServiceProvider");
-    }
-    return context;
   }
 
   // pages/history/app/components/Sidebar.js
@@ -3681,7 +3590,7 @@
   };
   function Sidebar({ ranges }) {
     const { t: t4 } = useTypedTranslation();
-    const search = useSearchContext();
+    const search = useQueryContext();
     const current = useComputed(() => search.value.range);
     return /* @__PURE__ */ g("div", { class: Sidebar_default.stack }, /* @__PURE__ */ g("h1", { class: Sidebar_default.pageTitle }, t4("page_title")), /* @__PURE__ */ g("nav", { class: Sidebar_default.nav }, ranges.value.map((range) => {
       return /* @__PURE__ */ g(Item3, { range, key: range, current, title: titleMap[range](t4) });
@@ -3721,17 +3630,22 @@
       },
       /* @__PURE__ */ g("span", { class: Sidebar_default.icon }, /* @__PURE__ */ g("img", { src: iconMap[range] })),
       title
-    ), /* @__PURE__ */ g("button", { class: Sidebar_default.delete, "data-delete-range": range, "aria-label": deleteLabel, tabindex: 0, value: range }, /* @__PURE__ */ g(Trash, null)));
+    ), /* @__PURE__ */ g("button", { class: Sidebar_default.delete, "data-action": BTN_ACTION_DELETE_RANGE, "aria-label": deleteLabel, tabindex: 0, value: range }, /* @__PURE__ */ g(Trash, null)));
   }
 
-  // pages/history/app/components/App.jsx
-  function App() {
-    const { isDarkMode } = useEnv();
-    const containerRef = A2(
-      /** @type {HTMLElement|null} */
-      null
-    );
-    const { initial, service } = useHistory();
+  // pages/history/app/global-state/GlobalStateProvider.js
+  var GlobalState = J({
+    ranges: d3(
+      /** @type {import('../history.service.js').Range[]} */
+      []
+    ),
+    term: d3(""),
+    results: d3(
+      /** @type {Results} */
+      {}
+    )
+  });
+  function GlobalStateProvider({ service, initial, children }) {
     const ranges = useSignal(initial.ranges.ranges);
     const term = useSignal("term" in initial.query.info.query ? initial.query.info.query.term : "");
     const results = useSignal({
@@ -3759,11 +3673,277 @@
       };
     });
     useSignalEffect(() => {
-      term.subscribe((t4) => {
-        containerRef.current?.scrollTo(0, 0);
+      return term.subscribe(() => {
+        document.querySelector("[data-main-scroller]")?.scrollTo(0, 0);
       });
     });
-    return /* @__PURE__ */ g("div", { class: App_default.layout, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)), /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges })), /* @__PURE__ */ g("main", { class: App_default.main, ref: containerRef, "data-main-scroller": true, "data-term": term }, /* @__PURE__ */ g(Results, { results })));
+    return /* @__PURE__ */ g(GlobalState.Provider, { value: { ranges, term, results } }, children);
+  }
+  function useGlobalState() {
+    const context = x2(GlobalState);
+    if (!context) {
+      throw new Error("useSelection must be used within a SelectionProvider");
+    }
+    return context;
+  }
+
+  // pages/history/app/global-state/SelectionProvider.js
+  var SelectionContext = J({
+    selected: d3(
+      /** @type {string[]} */
+      []
+    )
+  });
+  function SelectionProvider({ children }) {
+    const selected = useSignal(
+      /** @type {string[]} */
+      []
+    );
+    useSignalEffect(() => {
+      function handler(event) {
+        if (!(event.target instanceof Element)) return;
+        if (event.target.matches("a")) return;
+        const itemRow = (
+          /** @type {HTMLElement|null} */
+          event.target.closest("[data-history-entry][data-index]")
+        );
+        const selection = toRowSelection(itemRow);
+        if (selection) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          selected.value = [selection.id];
+        }
+      }
+      document.addEventListener("click", handler);
+    });
+    return /* @__PURE__ */ g(SelectionContext.Provider, { value: { selected } }, children);
+  }
+  function useSelected() {
+    const context = x2(SelectionContext);
+    if (!context) {
+      throw new Error("useSelection must be used within a SelectionProvider");
+    }
+    return context.selected;
+  }
+  function toRowSelection(elem) {
+    if (elem === null) return null;
+    const { index, historyEntry } = elem.dataset;
+    if (typeof historyEntry !== "string") return null;
+    if (typeof index !== "string") return null;
+    if (!index.trim().match(/^\d+$/)) return null;
+    return { id: historyEntry, index: parseInt(index, 10) };
+  }
+
+  // shared/handlers.js
+  function eventToTarget(event, platformName) {
+    const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
+    if (isControlClick) {
+      return "new-tab";
+    } else if (event.shiftKey || event.button === 1) {
+      return "new-window";
+    }
+    return "same-tab";
+  }
+
+  // pages/history/app/global-state/HistoryServiceProvider.js
+  var HistoryServiceContext = J({
+    service: (
+      /** @type {import("../history.service.js").HistoryService} */
+      {}
+    )
+  });
+  function HistoryServiceProvider({ service, children }) {
+    return /* @__PURE__ */ g(HistoryServiceContext.Provider, { value: { service } }, children);
+  }
+  function useGlobalHandlers() {
+    const { service } = x2(HistoryServiceContext);
+    const platformName = usePlatformName();
+    useSearchCommit(service);
+    useRangeChange(service);
+    useLinkClickHandler(service, platformName);
+    useButtonClickHandler(service);
+    useAuxClickHandler(service, platformName);
+    useContextMenu(service);
+  }
+  function useRangeChange(service) {
+    useSignalEffect(() => {
+      function handler(event) {
+        if (!service.query.data) throw new Error("unreachable");
+        const { end } = event.detail;
+        const memory = service.query.data.results;
+        if (memory.length - end < OVERSCAN_AMOUNT) {
+          service.requestMore();
+        }
+      }
+      window.addEventListener(EVENT_RANGE_CHANGE, handler);
+      return () => {
+        window.removeEventListener(EVENT_RANGE_CHANGE, handler);
+      };
+    });
+  }
+  function useSearchCommit(service) {
+    useSignalEffect(() => {
+      function handler(event) {
+        const detail = event.detail;
+        if (detail && detail.params instanceof URLSearchParams) {
+          const asQuery = paramsToQuery(detail.params);
+          service.trigger(asQuery);
+        } else {
+          console.error("missing detail.params from search-commit event");
+        }
+      }
+      window.addEventListener(EVENT_SEARCH_COMMIT, handler);
+      return () => {
+        window.removeEventListener(EVENT_SEARCH_COMMIT, handler);
+      };
+    });
+  }
+  function useContextMenu(service) {
+    useSignalEffect(() => {
+      function contextMenu(event) {
+        const target = (
+          /** @type {HTMLElement|null} */
+          event.target
+        );
+        if (!(target instanceof HTMLElement)) return;
+        const actions = {
+          "[data-section-title]": (elem) => elem.querySelector("button")?.value,
+          "[data-history-entry]": (elem) => elem.querySelector("button")?.value
+        };
+        for (const [selector, valueFn] of Object.entries(actions)) {
+          const match = event.target.closest(selector);
+          if (match) {
+            const value = valueFn(match);
+            if (value) {
+              event.preventDefault();
+              event.stopImmediatePropagation();
+              if (match.dataset.sectionTitle) {
+                service.menuTitle(value).catch(console.error);
+              } else if (match.dataset.historyEntry) {
+                service.entriesMenu([value], [Number(match.dataset.index)]).catch(console.error);
+              }
+            }
+            break;
+          }
+        }
+      }
+      document.addEventListener("contextmenu", contextMenu);
+      return () => {
+        document.removeEventListener("contextmenu", contextMenu);
+      };
+    });
+  }
+  function useAuxClickHandler(service, platformName) {
+    useSignalEffect(() => {
+      const handleAuxClick = (event) => {
+        const anchor = (
+          /** @type {HTMLButtonElement|null} */
+          event.target.closest("a[href][data-url]")
+        );
+        const url2 = anchor?.dataset.url;
+        if (anchor && url2 && event.button === 1) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          const target = eventToTarget(event, platformName);
+          service.openUrl(url2, target);
+        }
+      };
+      document.addEventListener("auxclick", handleAuxClick);
+      return () => {
+        document.removeEventListener("auxclick", handleAuxClick);
+      };
+    });
+  }
+  function useButtonClickHandler(service) {
+    useSignalEffect(() => {
+      function clickHandler(event) {
+        if (!(event.target instanceof Element)) return;
+        const btn = (
+          /** @type {HTMLButtonElement|null} */
+          event.target.closest("button[data-action]")
+        );
+        const action = toKnownAction(btn);
+        if (btn === null || action === null) return;
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        switch (action) {
+          case "title_menu": {
+            service.menuTitle(btn.value).catch(console.error);
+            return;
+          }
+          case "entries_menu": {
+            service.entriesMenu([btn.value], [Number(btn.dataset.index)]).catch(console.error);
+            return;
+          }
+          case "deleteRange": {
+            const range = toRange(btn.value);
+            if (range) {
+              service.deleteRange(range).catch(console.error);
+            }
+            return;
+          }
+          case "deleteAll": {
+            service.deleteRange("all").catch(console.error);
+            return;
+          }
+          default:
+            return null;
+        }
+      }
+      document.addEventListener("click", clickHandler);
+      return () => {
+        document.removeEventListener("click", clickHandler);
+      };
+    });
+  }
+  function toKnownAction(elem) {
+    if (!elem) return null;
+    const action = elem.dataset.action;
+    if (!action) return null;
+    if (KNOWN_ACTIONS.includes(
+      /** @type {any} */
+      action
+    )) return (
+      /** @type {KNOWN_ACTIONS[number]} */
+      action
+    );
+    return null;
+  }
+  function useLinkClickHandler(service, platformName) {
+    useSignalEffect(() => {
+      function clickHandler(event) {
+        if (!(event.target instanceof Element)) return;
+        const anchor = (
+          /** @type {HTMLAnchorElement|null} */
+          event.target.closest("a[href][data-url]")
+        );
+        if (anchor) {
+          const url2 = anchor.dataset.url;
+          if (!url2) return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          const target = eventToTarget(event, platformName);
+          service.openUrl(url2, target);
+        }
+      }
+      document.addEventListener("click", clickHandler);
+      return () => {
+        document.removeEventListener("click", clickHandler);
+      };
+    });
+  }
+
+  // pages/history/app/components/App.jsx
+  function App() {
+    const { isDarkMode } = useEnv();
+    const containerRef = A2(
+      /** @type {HTMLElement|null} */
+      null
+    );
+    const { ranges, term, results } = useGlobalState();
+    const selected = useSelected();
+    useGlobalHandlers();
+    return /* @__PURE__ */ g("div", { class: App_default.layout, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)), /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges })), /* @__PURE__ */ g("main", { class: App_default.main, ref: containerRef, "data-main-scroller": true, "data-term": term }, /* @__PURE__ */ g(Results, { results, selected })));
   }
 
   // pages/history/app/components/Components.module.css
@@ -3820,7 +4000,7 @@
     const initial = await service.getInitial(query);
     if (environment.display === "app") {
       D(
-        /* @__PURE__ */ g(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ g(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ g(TranslationProvider, { translationObject: strings, fallback: history_default, textLength: environment.textLength }, /* @__PURE__ */ g(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ g(SettingsContext.Provider, { value: settings }, /* @__PURE__ */ g(SearchProvider, { query: query.query }, /* @__PURE__ */ g(HistoryServiceProvider, { service, initial }, /* @__PURE__ */ g(App, null))))))),
+        /* @__PURE__ */ g(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ g(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ g(TranslationProvider, { translationObject: strings, fallback: history_default, textLength: environment.textLength }, /* @__PURE__ */ g(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ g(SettingsContext.Provider, { value: settings }, /* @__PURE__ */ g(QueryProvider, { query: query.query }, /* @__PURE__ */ g(HistoryServiceProvider, { service }, /* @__PURE__ */ g(GlobalStateProvider, { service, initial }, /* @__PURE__ */ g(SelectionProvider, null, /* @__PURE__ */ g(App, null))))))))),
         root2
       );
     } else if (environment.display === "components") {
