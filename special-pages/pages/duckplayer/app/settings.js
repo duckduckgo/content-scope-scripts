@@ -1,3 +1,5 @@
+const DEFAULT_SIGN_IN_REQURED_HREF = '[href*="//support.google.com/youtube/answer/3037019"]';
+
 export class Settings {
     /**
      * @param {object} params
@@ -5,17 +7,20 @@ export class Settings {
      * @param {{state: 'enabled' | 'disabled'}} [params.pip]
      * @param {{state: 'enabled' | 'disabled'}} [params.autoplay]
      * @param {{state: 'enabled' | 'disabled'}} [params.focusMode]
+     * @param {import("../types/duckplayer.js").InitialSetupResponse['settings']['customError']} [params.customError]
      */
     constructor({
         platform = { name: 'macos' },
         pip = { state: 'disabled' },
         autoplay = { state: 'enabled' },
         focusMode = { state: 'enabled' },
+        customError = { state: 'disabled', signInRequiredSelector: '' },
     }) {
         this.platform = platform;
         this.pip = pip;
         this.autoplay = autoplay;
         this.focusMode = focusMode;
+        this.customError = customError;
     }
 
     /**
@@ -26,7 +31,7 @@ export class Settings {
     withFeatureState(named, settings) {
         if (!settings) return this;
         /** @type {(keyof import("../types/duckplayer.js").DuckPlayerPageSettings)[]} */
-        const valid = ['pip', 'autoplay', 'focusMode'];
+        const valid = ['pip', 'autoplay', 'focusMode', 'customError'];
         if (!valid.includes(named)) {
             console.warn(`Excluding invalid feature key ${named}`);
             return this;
@@ -62,6 +67,31 @@ export class Settings {
             return new Settings({
                 ...this,
                 focusMode: { state: newState },
+            });
+        }
+
+        return this;
+    }
+
+    /**
+     * @param {string|null|undefined} newState
+     * @return {Settings}
+     */
+    withCustomError(newState) {
+        if (newState === 'disabled') {
+            return new Settings({
+                ...this,
+                customError: { state: 'disabled' },
+            });
+        }
+
+        if (newState === 'enabled') {
+            return new Settings({
+                ...this,
+                customError: {
+                    state: 'enabled',
+                    signOnRequiredSelector: DEFAULT_SIGN_IN_REQURED_HREF,
+                },
             });
         }
 

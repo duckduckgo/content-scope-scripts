@@ -14,6 +14,9 @@ import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx';
 import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
+import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
+
+/** @typedef {import('../types/duckplayer').YouTubeError} YouTubeError */
 
 /**
  * @param {import("../src/index.js").DuckplayerPage} messaging
@@ -55,7 +58,11 @@ export async function init(messaging, telemetry, baseEnvironment) {
         .withFeatureState('pip', init.settings.pip)
         .withFeatureState('autoplay', init.settings.autoplay)
         .withFeatureState('focusMode', init.settings.focusMode)
-        .withDisabledFocusMode(baseEnvironment.urlParams.get('focusMode'));
+        .withFeatureState('customError', init.settings.customError)
+        .withDisabledFocusMode(baseEnvironment.urlParams.get('focusMode'))
+        .withCustomError(baseEnvironment.urlParams.get('customError'));
+
+    const initialYouTubeError = /** @type {YouTubeError} */ (baseEnvironment.urlParams.get('youtubeError'));
 
     console.log(settings);
 
@@ -79,27 +86,29 @@ export async function init(messaging, telemetry, baseEnvironment) {
                     <TelemetryContext.Provider value={telemetry}>
                         <MessagingContext.Provider value={messaging}>
                             <SettingsProvider settings={settings}>
-                                <UserValuesProvider initial={init.userValues}>
-                                    {settings.layout === 'desktop' && (
-                                        <TranslationProvider
-                                            translationObject={enStrings}
-                                            fallback={enStrings}
-                                            textLength={environment.textLength}
-                                        >
-                                            <DesktopApp embed={embed} />
-                                        </TranslationProvider>
-                                    )}
-                                    {settings.layout === 'mobile' && (
-                                        <TranslationProvider
-                                            translationObject={strings}
-                                            fallback={enStrings}
-                                            textLength={environment.textLength}
-                                        >
-                                            <MobileApp embed={embed} />
-                                        </TranslationProvider>
-                                    )}
-                                    <WillThrow />
-                                </UserValuesProvider>
+                                <YouTubeErrorProvider initial={initialYouTubeError}>
+                                    <UserValuesProvider initial={init.userValues}>
+                                        {settings.layout === 'desktop' && (
+                                            <TranslationProvider
+                                                translationObject={enStrings}
+                                                fallback={enStrings}
+                                                textLength={environment.textLength}
+                                            >
+                                                <DesktopApp embed={embed} />
+                                            </TranslationProvider>
+                                        )}
+                                        {settings.layout === 'mobile' && (
+                                            <TranslationProvider
+                                                translationObject={strings}
+                                                fallback={enStrings}
+                                                textLength={environment.textLength}
+                                            >
+                                                <MobileApp embed={embed} />
+                                            </TranslationProvider>
+                                        )}
+                                        <WillThrow />
+                                    </UserValuesProvider>
+                                </YouTubeErrorProvider>
                             </SettingsProvider>
                         </MessagingContext.Provider>
                     </TelemetryContext.Provider>

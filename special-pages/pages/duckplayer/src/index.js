@@ -92,6 +92,14 @@ export class DuckplayerPage {
     }
 
     /**
+     * This will be sent if the application fails to load.
+     * @param {{error: import('../types/duckplayer.ts').YouTubeError}} params
+     */
+    reportYouTubeError(params) {
+        this.messaging.notify('reportYouTubeError', params);
+    }
+
+    /**
      * This will be sent if the application has loaded, but a client-side error
      * has occurred that cannot be recovered from
      * @param {{message: string}} params

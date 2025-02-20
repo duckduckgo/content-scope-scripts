@@ -11,6 +11,13 @@
     .logo {
         height: 100px;
     }
+
+    /* TODO: Can this be moved somewhere else? */
+    [data-youtube-error="true"] {
+        & .logo {
+            height: 44px;
+        }
+    }
 }
 .logoSvg img {
     display: block;
