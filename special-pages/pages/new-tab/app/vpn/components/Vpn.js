@@ -1,23 +1,26 @@
-import { Fragment, h } from 'preact';
-import styles from './VPNInterface.module.css';
-import { useTypedTranslationWith } from '../types.js';
-import { useVisibility } from '../widget-list/widget-config.provider.js';
-import { useCustomizer } from '../customizer/components/CustomizerMenu.js';
-import { VpnContext, VpnProvider } from './VpnProvider.js';
-import { useContext, useId, useEffect, useState } from 'preact/hooks';
-import { VpnHeading } from '../privacy-stats/components/VpnHeading.js';
-import { Arrow, ConnectionLongest, ConnectionTime, Ip, Volume } from './Icons.js';
+import { h } from 'preact';
+import styles from './Vpn.module.css';
+import { useTypedTranslationWith } from '../../types.js';
+import { useVisibility } from '../../widget-list/widget-config.provider.js';
+import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
+import { VpnContext, VpnProvider } from '../VpnProvider.js';
+import { useContext, useEffect, useId, useState } from 'preact/hooks';
+import { VpnHeading } from '../../privacy-stats/components/VpnHeading.js';
+import { Arrow, ConnectionLongest, ConnectionTime, Ip, Volume } from '../Icons.js';
+import { Usage } from './Usage.js';
 
 /**
- * @import enStrings from "./strings.json"
+ * @import enStrings from "../strings.json"
  * @typedef {enStrings} Strings
- * @typedef {import('../../types/new-tab').Expansion} Expansion
- * @typedef {import('../../types/new-tab').VPNWidgetData} VPNWidgetData
+ * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
+ * @typedef {import('../../../types/new-tab.js').VPNWidgetData} VPNWidgetData
+ * @typedef {import('../../../types/new-tab.js').VPNConnected} VPNConnected
+ * @typedef {import('../../../types/new-tab.js').VPNDisconnected} VPNDisconnected
  */
 
 /**
  * @param {object} props
- * @param {import('../../types/new-tab').Expansion} props.expansion
+ * @param {import('../../../types/new-tab.js').Expansion} props.expansion
  * @param {VPNWidgetData} props.data
  * @param {()=>void} props.toggle
  */
@@ -36,38 +39,36 @@ export function Vpn({ data, expansion, toggle }) {
                     id: TOGGLE_ID,
                 }}
             />
-            {expansion === 'expanded' && <VpnBody data={data} />}
+            {expansion === 'expanded' && data.state !== 'unsubscribed' && <VpnBody data={data} />}
         </div>
     );
 }
 
 /**
  * @param {object} props
- * @param {VPNWidgetData} props.data
+ * @param {VPNConnected | VPNDisconnected} props.data
  */
 function VpnBody({ data }) {
+    const connectedTime = data.state === 'connected' ? data.value.session.connectedSince : undefined;
+    const ip = data.state === 'connected' ? data.value.session.currentIp : undefined;
+    const volume = data.state === 'connected' ? data.value.session.dataVolume : undefined;
     return (
         <div class={styles.body}>
             <ul class={styles.list}>
-                {data.state !== 'disconnected' && (
-                    <li>
-                        <ConnectionTimeItem timestamp={data.value?.session.connectedSince} />
-                    </li>
-                )}
                 <li>
-                    <LongestConnection timespan={data.value?.history.longestConnection} />
+                    <ConnectionTimeItem timestamp={connectedTime} key={connectedTime} />
                 </li>
-                {data.state !== 'disconnected' && (
-                    <Fragment>
-                        <li>
-                            <IpItem ip={data.value?.session.currentIp} />
-                        </li>
-                        <li>
-                            <DataVolume dataVolume={data.value?.session.dataVolume} />
-                        </li>
-                    </Fragment>
-                )}
+                <li>
+                    <LongestConnection longest={data.value.history.longestConnection} />
+                </li>
+                <li>
+                    <IpItem ip={ip} />
+                </li>
+                <li>
+                    <DataVolume dataVolume={volume} />
+                </li>
             </ul>
+            <Usage usage={data.value.history.weeklyUsage} />
         </div>
     );
 }
@@ -82,29 +83,36 @@ function IpItem({ ip }) {
         <Item icon={<Ip />}>
             <span class={styles.label}>{t('vpn_ipLabel')}</span>
             {ip && <span className={styles.value}>{ip}</span>}
+            {!ip && <span className={styles.value}>-.-.-.-</span>}
         </Item>
     );
 }
 
 /**
  * @param {object} props
- * @param {import('../../types/new-tab').Timespan|undefined} props.timespan
+ * @param {import('../../../types/new-tab.js').Timespan|undefined} props.longest
  */
-function LongestConnection({ timespan }) {
+function LongestConnection({ longest }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const display = timespan ? [timespan.weeks, timespan.days, timespan.hours, timespan.minutes] : undefined;
+    const display = longest ? [longest.weeks, longest.days, longest.hours, longest.minutes] : undefined;
+    const allZero = display?.every((x) => x === 0);
+    let segments;
+    if (display && !allZero) {
+        segments = (
+            <span className={styles.value}>
+                {display.map((item, index) => {
+                    const lookup = ['w', 'd', 'h', 'm'];
+                    return item !== undefined ? <span>{item + lookup[index]}</span> : null;
+                })}
+            </span>
+        );
+    } else {
+        segments = <span class={styles.value}>0h 0m 0s</span>;
+    }
     return (
         <Item icon={<ConnectionLongest />}>
             <span class={styles.label}>{t('vpn_longestConnectionLabel')}</span>
-            {timespan && display && (
-                <span class={styles.value}>
-                    {display.map((item, index) => {
-                        if (item === 0) return null;
-                        const lookup = ['w', 'd', 'h', 'm'];
-                        return item !== undefined ? <span>{item + lookup[index]}</span> : null;
-                    })}
-                </span>
-            )}
+            {segments}
         </Item>
     );
 }
@@ -115,7 +123,22 @@ function LongestConnection({ timespan }) {
  */
 function ConnectionTimeItem({ timestamp }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const [connectedDisplay, setConnectedDisplay] = useState(() => (timestamp ? formatDuration(timestamp) : null));
+    const timer = useTimer(timestamp);
+    return (
+        <Item icon={<ConnectionTime />}>
+            <span class={styles.label}>{t('vpn_connectionTimeLabel')}</span>
+            {timestamp !== undefined && timer !== null && <span class={styles.value}>{timer}</span>}
+            {timestamp === undefined && <span class={styles.value}>0h 0m 0s</span>}
+        </Item>
+    );
+}
+
+/**
+ * @param {number|undefined} timestamp
+ * @return {string|null}
+ */
+function useTimer(timestamp) {
+    const [connectedDisplay, setConnectedDisplay] = useState(() => formatDuration(timestamp));
     useEffect(() => {
         if (timestamp === undefined) return;
         const interval = setInterval(() => {
@@ -124,31 +147,27 @@ function ConnectionTimeItem({ timestamp }) {
 
         return () => clearInterval(interval);
     }, [timestamp]);
-    return (
-        <Item icon={<ConnectionTime />}>
-            <span class={styles.label}>{t('vpn_connectionTimeLabel')}</span>
-            {timestamp !== undefined && connectedDisplay !== null && <span class={styles.value}>{formatDuration(timestamp)}</span>}
-        </Item>
-    );
+    return connectedDisplay;
 }
 
 /**
  * @param {object} props
- * @param {import('../../types/new-tab').DataVolumeMetrics|undefined} props.dataVolume
+ * @param {import('../../../types/new-tab.js').DataVolumeMetrics|undefined} props.dataVolume
  */
 function DataVolume({ dataVolume }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const upload = dataVolume?.upload ?? 0;
+    const download = dataVolume?.download ?? 0;
+    const unit = dataVolume?.unit || 'mb/s';
     return (
         <Item icon={<Volume />}>
             <span class={styles.label}>{t('vpn_dataVolumeLabel')}</span>
-            {dataVolume && (
-                <span class={styles.value}>
-                    <Arrow />
-                    {dataVolume.upload} {dataVolume.unit}
-                    <Arrow />
-                    {dataVolume.download} {dataVolume.unit}
-                </span>
-            )}
+            <span class={styles.value}>
+                <Arrow />
+                {upload} {unit}
+                <Arrow />
+                {download} {unit}
+            </span>
         </Item>
     );
 }
@@ -213,7 +232,7 @@ export function VpnConsumer() {
 
 function formatDuration(from) {
     if (!Number.isFinite(from) || from < 0) {
-        throw new Error('Invalid timestamp');
+        return `0h 0m 0s`;
     }
 
     const now = Date.now();
@@ -222,11 +241,13 @@ function formatDuration(from) {
     const days = Math.floor(duration / 86400);
     const hours = Math.floor((duration % 86400) / 3600);
     const minutes = Math.floor((duration % 3600) / 60);
+    const seconds = duration % 60;
 
     const parts = [];
     if (days > 0) parts.push(`${days}d`);
-    if (hours > 0) parts.push(`${hours}h`);
-    if (minutes > 0) parts.push(`${minutes}m`);
+    parts.push(`${hours}h`);
+    parts.push(`${minutes}m`);
+    parts.push(`${seconds}s`);
 
-    return parts.join(' ') || '0m';
+    return parts.join(' ');
 }

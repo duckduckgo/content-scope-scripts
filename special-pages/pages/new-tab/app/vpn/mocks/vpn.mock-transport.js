@@ -38,20 +38,39 @@ export function vpnMockTransport() {
                 }
                 case 'vpn_connect': {
                     const cb = subs.get('vpn_onDataUpdate');
+                    const cleanups = [];
+
                     setTimeout(() => {
                         dataset.pending = 'connecting';
                         cb(dataset);
                     }, 50);
 
-                    setTimeout(() => {
+                    const int1 = setTimeout(() => {
                         const next = structuredClone(vpnMocks.connected);
                         dataset = next;
                         if (dataset.state === 'connected') {
                             dataset.value.session.connectedSince = toUnixTimestamp({ hours: 0 });
+                            const { upload, download } = randomVol();
+                            dataset.value.session.dataVolume.upload = upload;
+                            dataset.value.session.dataVolume.download = download;
                         }
                         cb(dataset);
-                    }, 500);
-                    break;
+                        const int2 = setInterval(() => {
+                            const { upload, download } = randomVol();
+                            if (dataset.state === 'connected') {
+                                dataset.value.session.dataVolume.upload = upload;
+                                dataset.value.session.dataVolume.download = download;
+                            }
+                            cb(dataset);
+                        }, 1000);
+                        cleanups.push(() => clearInterval(int2));
+                    }, 1200);
+                    cleanups.push(() => clearTimeout(int1));
+                    return () => {
+                        for (const cleanup of cleanups) {
+                            cleanup();
+                        }
+                    };
                 }
                 case 'vpn_disconnect': {
                     const cb = subs.get('vpn_onDataUpdate');
@@ -108,4 +127,14 @@ export function vpnMockTransport() {
             }
         },
     });
+}
+
+function randomVol() {
+    const max = 1024;
+    const min = 900;
+
+    const random1 = Math.random() * (max - min) + min;
+    const random2 = Math.random() * (max - min) + min;
+
+    return { upload: Number((random1 * 0.6).toFixed(2)), download: Number(random2.toFixed(2)) };
 }

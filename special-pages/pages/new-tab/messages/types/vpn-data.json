@@ -109,7 +109,7 @@
               "description": "Usage values for each day of the week",
               "items": {
                 "type": "object",
-                "required": ["day", "value"],
+                "required": ["day", "value", "active"],
                 "title": "Daily Usage",
                 "properties": {
                   "day": {
@@ -122,6 +122,10 @@
                     "type": "number",
                     "minimum": 0,
                     "description": "Usage metric value for this day"
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "description": "'true' if this is the current day. The UI will highlight this"
                   }
                 }
               }
@@ -134,6 +138,7 @@
       "type": "object",
       "description": "State when the VPN is actively connected and running",
       "required": ["state", "value", "pending"],
+      "title": "VPN Connected",
       "properties": {
         "pending": {
           "$ref": "#/definitions/Pending"
@@ -178,6 +183,7 @@
       "type": "object",
       "description": "State when the user has an active subscription but VPN is not currently running",
       "required": ["state", "value", "pending"],
+      "title": "VPN Disconnected",
       "properties": {
         "pending": {
           "$ref": "#/definitions/Pending"
@@ -191,22 +197,6 @@
           "title": "Disconnected Data",
           "required": ["lastSession", "history"],
           "properties": {
-            "lastSession": {
-              "type": "object",
-              "title": "Last Session",
-              "description": "Information about the most recent VPN session",
-              "required": ["lastIp", "lastConnectionTime"],
-              "properties": {
-                "lastIp": {
-                  "type": "string",
-                  "format": "ipv4",
-                  "description": "IP address from the most recent VPN session"
-                },
-                "lastConnectionTime": {
-                  "$ref": "#/definitions/Timespan"
-                }
-              }
-            },
             "history": {
               "$ref": "#/definitions/UsageHistory"
             }
@@ -219,6 +209,7 @@
       "title": "Unsubscribed State",
       "description": "State for users who haven't subscribed",
       "required": ["state", "value", "pending"],
+      "title": "VPN Unsubscribed",
       "properties": {
         "pending": {
           "$ref": "#/definitions/Pending"

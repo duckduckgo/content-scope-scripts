@@ -6,6 +6,7 @@ import cn from 'classnames';
 import { h } from 'preact';
 import { Switch } from '../../../../../shared/components/Switch/Switch.js';
 import { useVpnApi } from '../../vpn/VpnProvider.js';
+import { usePlatformName } from '../../settings.provider.js';
 
 /**
  * @import vpnStrings from "../../vpn/strings.json"
@@ -18,6 +19,7 @@ import { useVpnApi } from '../../vpn/VpnProvider.js';
  */
 export function VpnHeading({ data, expansion, canExpand, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {vpnStrings} */ ({}));
+    const platformName = usePlatformName();
     const { disconnect, connect, tryForFree } = useVpnApi();
     const title = (() => {
         switch (data.state) {
@@ -55,19 +57,17 @@ export function VpnHeading({ data, expansion, canExpand, onToggle, buttonAttrs =
                 {data.state !== 'unsubscribed' && (
                     <div class={styles.inlineSwitch} data-state={data.state} data-pending={data.pending}>
                         <ConnectedDot />
-                        {data.state === 'connected' && data.pending === 'none' && (
-                            <ConnectedText connectedSince={data.value.session.connectedSince} />
-                        )}
-                        {data.state === 'disconnected' && data.pending === 'none' && 'Not Connected'}
-                        {data.state === 'connected' && data.pending === 'disconnecting' && 'Disconnecting...'}
-                        {data.state === 'disconnected' && data.pending === 'connecting' && 'Connecting...'}
+                        {data.state === 'connected' && data.pending === 'none' && t('vpn_connectedLabel')}
+                        {data.state === 'disconnected' && data.pending === 'none' && t('vpn_disconnectedLabel')}
+                        {data.state === 'connected' && data.pending === 'disconnecting' && t('vpn_disconnectingLabel')}
+                        {data.state === 'disconnected' && data.pending === 'connecting' && t('vpn_connectingLabel')}
                         <Switch
                             pending={data.pending !== 'none'}
                             ariaLabel={''}
                             checked={checked}
                             onChecked={connect}
                             onUnchecked={disconnect}
-                            platformName={'windows'}
+                            platformName={platformName}
                             theme={'light'}
                         />
                     </div>
@@ -115,31 +115,7 @@ function calculateConnectedDisplay(from, formatter) {
  * @param {number} props.connectedSince - unix timestamp representing when the connection started
  */
 function ConnectedText({ connectedSince }) {
-    const [formatter] = useState(
-        () =>
-            new Intl.DateTimeFormat('en', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false,
-                timeZone: 'UTC', // Use UTC to avoid timezone offsets
-            }),
-    );
-    const [connectedDisplay, setConnectedDisplay] = useState(() => calculateConnectedDisplay(connectedSince, formatter));
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setConnectedDisplay(calculateConnectedDisplay(connectedSince, formatter));
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [connectedSince, formatter]);
-
-    return (
-        <div class={styles.connectionStatus}>
-            Connected · <time>{connectedDisplay}</time>
-        </div>
-    );
+    return <div class={styles.connectionStatus}>Connected</div>;
 }
 
 function ConnectedDot() {

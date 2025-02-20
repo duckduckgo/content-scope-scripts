@@ -87,7 +87,7 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
 /**
  * Represents the complete state of the VPN widget, including connection status and metrics
  */
-export type VPNWidgetData = Connected | Disconnected | UnsubscribedState;
+export type VPNWidgetData = VPNConnected | VPNDisconnected | VPNUnsubscribed;
 export type PendingState = "connecting" | "disconnecting" | "none";
 /**
  * Three-letter abbreviation for the day of the week
@@ -910,7 +910,7 @@ export interface VpnGetDataRequest {
 /**
  * State when the VPN is actively connected and running
  */
-export interface Connected {
+export interface VPNConnected {
   pending: PendingState;
   /**
    * Indicates this is a connected state
@@ -1004,11 +1004,15 @@ export interface DailyUsage {
    * Usage metric value for this day
    */
   value: number;
+  /**
+   * 'true' if this is the current day. The UI will highlight this
+   */
+  active: boolean;
 }
 /**
  * State when the user has an active subscription but VPN is not currently running
  */
-export interface Disconnected {
+export interface VPNDisconnected {
   pending: PendingState;
   /**
    * Indicates this is a disconnected state
@@ -1017,23 +1021,12 @@ export interface Disconnected {
   value: DisconnectedData;
 }
 export interface DisconnectedData {
-  lastSession: LastSession;
   history: UsageHistory;
-}
-/**
- * Information about the most recent VPN session
- */
-export interface LastSession {
-  /**
-   * IP address from the most recent VPN session
-   */
-  lastIp: string;
-  lastConnectionTime: Timespan;
 }
 /**
  * State for users who haven't subscribed
  */
-export interface UnsubscribedState {
+export interface VPNUnsubscribed {
   pending: PendingState;
   /**
    * Indicates this is an unsubscribed state

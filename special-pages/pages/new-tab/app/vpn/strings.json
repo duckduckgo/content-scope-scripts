@@ -19,6 +19,22 @@
     "title": "VPN is ON",
     "note": ""
   },
+  "vpn_connectedLabel": {
+    "title": "Connected",
+    "note": ""
+  },
+  "vpn_disconnectedLabel": {
+    "title": "Not Connected",
+    "note": ""
+  },
+  "vpn_disconnectingLabel": {
+    "title": "Disconnecting...",
+    "note": ""
+  },
+  "vpn_connectingLabel": {
+    "title": "Connecting...",
+    "note": ""
+  },
   "vpn_disabled": {
     "title": "VPN is Disabled",
     "note": ""

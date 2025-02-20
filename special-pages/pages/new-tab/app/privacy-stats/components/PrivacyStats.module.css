@@ -174,10 +174,6 @@
     }
 }
 
-.connectionStatus {
-    font-variant-numeric: tabular-nums;
-}
-
 .widgetExpander {
     position: relative;
 

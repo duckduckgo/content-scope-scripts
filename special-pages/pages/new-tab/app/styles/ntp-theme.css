@@ -1,7 +1,7 @@
 :root {
     --default-light-bg: var(--color-gray-0);
     --default-dark-bg: var(--color-gray-85);
-    --ntp-gap: 2rem;
+    --ntp-gap: calc(32 * var(--px-in-rem));
     --ntp-drawer-width: calc(224 * var(--px-in-rem));
     --ntp-drawer-scroll-width: 12px;
     --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));

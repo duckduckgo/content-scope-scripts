@@ -1,0 +1,51 @@
+.root {
+    font-size: var(--small-label-font-size);
+    font-weight: var(--small-label-font-weight);
+    line-height: var(--small-label-line-height);
+    margin-top: var(--ntp-gap);
+}
+
+.chart {
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    --bars-height: 90px;
+    --inline-padding: calc(8 * var(--px-in-rem));
+    --column-gap: calc(16 * var(--px-in-rem));
+    --border-color: rgba(0, 0, 0, 0.06);
+    --footer-bg: rgba(0, 0, 0, 0.01);
+
+    border: 1px solid var(--border-color);
+}
+
+.bars {
+    display: grid;
+    height: var(--bars-height);
+    grid-template-columns: repeat(7, 1fr);
+    grid-column-gap: var(--column-gap);
+    padding-left: var(--inline-padding);
+    padding-right: var(--inline-padding);
+}
+
+.bar {
+    width: 100%;
+    border-top-left-radius: var(--border-radius-xs);
+    border-top-right-radius: var(--border-radius-xs);
+    align-self: end;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.active {
+    background: var(--ntp-color-primary);
+}
+
+.footer {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-column-gap: var(--column-gap);
+    padding-left: var(--inline-padding);
+    padding-right: var(--inline-padding);
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--footer-bg);
+    height: calc(24 * var(--px-in-rem));
+}
