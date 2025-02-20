@@ -3,14 +3,19 @@ import { toUnixTimestamp, vpnMocks } from './vpn.mocks.js';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
+function clone(v) {
+    if (typeof structuredClone !== 'undefined') return structuredClone(v);
+    return JSON.parse(JSON.stringify(v));
+}
+
 export function vpnMockTransport() {
     /** @type {import('../../../types/new-tab.ts').VPNWidgetData} */
-    let dataset = structuredClone(vpnMocks.unsubscribed);
+    let dataset = clone(vpnMocks.unsubscribed);
 
     if (url.searchParams.has('vpn')) {
         const key = url.searchParams.get('vpn');
         if (key && key in vpnMocks) {
-            dataset = structuredClone(vpnMocks[key]);
+            dataset = clone(vpnMocks[key]);
         }
     }
 
@@ -49,7 +54,7 @@ export function vpnMockTransport() {
                     }, 50);
 
                     const int1 = setTimeout(() => {
-                        dataset = structuredClone(vpnMocks.connected);
+                        dataset = clone(vpnMocks.connected);
                         if (dataset.state === 'connected') {
                             dataset.value.session.connectedSince = toUnixTimestamp({ hours: 0 });
                             const { upload, download } = randomVol();
@@ -78,7 +83,7 @@ export function vpnMockTransport() {
                     }, 50);
 
                     setTimeout(() => {
-                        const next = structuredClone(vpnMocks.disconnected);
+                        const next = clone(vpnMocks.disconnected);
                         dataset = next;
                         cb(dataset);
                     }, 500);
