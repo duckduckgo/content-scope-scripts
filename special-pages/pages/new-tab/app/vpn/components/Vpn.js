@@ -40,6 +40,7 @@ export function Vpn({ data, expansion, toggle }) {
                 }}
             />
             {expansion === 'expanded' && data.state !== 'unsubscribed' && <VpnBody data={data} />}
+            {expansion === 'expanded' && data.state === 'unsubscribed' && <EmptyVpnBody />}
         </div>
     );
 }
@@ -68,7 +69,46 @@ function VpnBody({ data }) {
                     <DataVolume dataVolume={volume} />
                 </li>
             </ul>
-            <Usage usage={data.value.history.weeklyUsage} />
+            <Usage usage={data.value.history.weeklyUsage} state={data.state} />
+        </div>
+    );
+}
+
+/**
+ */
+function EmptyVpnBody() {
+    return (
+        <div class={styles.body}>
+            <ul class={styles.list}>
+                <li>
+                    <ConnectionTimeItem timestamp={undefined} />
+                </li>
+                <li>
+                    <LongestConnection longest={undefined} />
+                </li>
+                <li>
+                    <IpItem ip={undefined} />
+                </li>
+                <li>
+                    <DataVolume dataVolume={undefined} />
+                </li>
+            </ul>
+            <Usage
+                state={'unsubscribed'}
+                usage={{
+                    days: [
+                        { day: 'Sun', value: 0, active: false },
+                        { day: 'Mon', value: 0, active: false },
+                        { day: 'Tue', value: 0, active: false },
+                        { day: 'Wed', value: 0, active: false },
+                        { day: 'Thu', value: 0, active: false },
+                        { day: 'Fri', value: 0, active: false },
+                        { day: 'Sat', value: 0, active: false },
+                    ],
+                    maxValue: 24,
+                    timeUnit: 'hours',
+                }}
+            />
         </div>
     );
 }
@@ -196,7 +236,7 @@ export function VpnCustomized() {
 
     const { visibility, id, toggle, index } = useVisibility();
 
-    useCustomizer({ title: sectionTitle, id, icon: 'shield', toggle, visibility: visibility.value, index });
+    useCustomizer({ title: sectionTitle, id, icon: 'globe', toggle, visibility: visibility.value, index });
 
     if (visibility.value === 'hidden') {
         return null;

@@ -80,4 +80,9 @@
     --title-3-em-font-size: 16px;
     --title-3-em-font-weight: 600;
     --title-3-em-line-height: 20px;
+
+    /* label small */
+    --small-label-font-size: 12px;
+    --small-label-font-weight: 400;
+    --small-label-line-height: 14px;
 }

@@ -2,7 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { useId, useContext } from 'preact/hooks';
 
-import { DuckFoot, Shield } from '../../components/Icons.js';
+import { DuckFoot, Globe, Shield } from '../../components/Icons.js';
 import styles from './VisibilityMenu.module.css';
 import { useTypedTranslation } from '../../types.js';
 import { Switch } from '../../../../../shared/components/Switch/Switch.js';
@@ -53,6 +53,7 @@ export function VisibilityMenu({ rows }) {
                             <span className={styles.svg}>
                                 {row.icon === 'shield' && <DuckFoot />}
                                 {row.icon === 'star' && <Shield />}
+                                {row.icon === 'globe' && <Globe />}
                             </span>
                             <span>{row.title ?? row.id}</span>
                         </label>
@@ -79,6 +80,7 @@ export function EmbeddedVisibilityMenu({ rows }) {
                             <span className={styles.svg}>
                                 {row.icon === 'shield' && <DuckFoot />}
                                 {row.icon === 'star' && <Shield />}
+                                {row.icon === 'globe' && <Globe />}
                             </span>
                             <span>{row.title ?? row.id}</span>
                             <Switch
