@@ -204,9 +204,9 @@ function DataVolume({ dataVolume }) {
             <span class={styles.label}>{t('vpn_dataVolumeLabel')}</span>
             <span class={styles.value}>
                 <Arrow />
-                {upload} {unit}
-                <Arrow />
                 {download} {unit}
+                <Arrow />
+                {upload} {unit}
             </span>
         </Item>
     );
