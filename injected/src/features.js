@@ -36,7 +36,16 @@ export const platformSupport = {
     android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-password-import': ['autofillPasswordImport'],
-    windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
+    // prettier-ignore
+    windows: [
+        'cookie',
+        ...baseFeatures,
+        'windowsPermissionUsage',
+        'duckPlayer',
+        'brokerProtection',
+        'breakageReporting',
+        'messageBridge'
+    ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
     'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
