@@ -35,6 +35,13 @@
         padding-left: 6px;
         grid-column-gap: 10px;
     }
+
+    &.vpn {
+        grid-template-columns: 1.5rem auto max-content 2rem;
+        grid-template-rows: auto;
+        grid-template-areas: 'icon title inline-controls expander';
+        align-items: center;
+    }
 }
 
 .headingIcon {
@@ -115,6 +122,56 @@
     font-size: var(--title-2-font-size);
     font-weight: var(--title-2-font-weight);
     line-height: var(--title-2-line-height);
+
+    small {
+        display: block;
+        font-size: var(--body-font-size);
+        font-weight: var(--body-font-weight);
+        line-height: var(--body-line-height);
+        color: var(--ntp-text-muted)
+    }
+}
+
+.inlineControls {
+    grid-area: inline-controls;
+    display: flex;
+}
+
+.inlineBtn {
+    display: flex;
+    height: 31px;
+    padding: 0px var(--Windows-Medium, 12px);
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--Windows-Button-Medium, 6px);
+    background: var(--Windows-Control-Accent-Background-Rest, #3969EF);
+    border: 0;
+    color: white;
+}
+
+.inlineSwitch {
+    display: flex;
+    align-items: center;
+    color: var(--ntp-text-muted);
+    &[data-state="connected"] svg {
+        color: #21C000;
+    }
+    &[data-state="disconnected"] svg {
+        color: #F9BE1A;
+    }
+    &[data-pending="connecting"] svg {
+        color: #21C000;
+    }
+    &[data-pending="disconnecting"] svg {
+        color: #F9BE1A;
+    }
+    label {
+        margin-left: 12px;
+    }
+    svg {
+        margin-right: 8px;
+    }
 }
 
 .widgetExpander {

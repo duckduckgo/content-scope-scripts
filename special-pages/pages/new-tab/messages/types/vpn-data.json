@@ -1,0 +1,228 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VPN Widget Data",
+  "description": "Represents the complete state of the VPN widget, including connection status and metrics",
+  "oneOf": [
+    { "$ref": "#/definitions/Connected" },
+    { "$ref": "#/definitions/Disconnected" },
+    { "$ref": "#/definitions/Unsubscribed" }
+  ],
+  "definitions": {
+    "Pending": {
+      "title": "Pending State",
+      "oneOf": [
+        {
+          "type": "string",
+          "const": "connecting"
+        },
+        {
+          "type": "string",
+          "const": "disconnecting"
+        },
+        {
+          "type": "string",
+          "const": "none"
+        }
+      ]
+    },
+    "Timespan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "description": "Represents a duration of time broken down into weeks, days, hours, and minutes",
+      "required": ["hours", "minutes"],
+      "properties": {
+        "weeks": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of weeks in the time span"
+        },
+        "days": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6,
+          "description": "Number of days in the time span (0-6)"
+        },
+        "hours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 23,
+          "description": "Number of hours in the time span (0-23)"
+        },
+        "minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 59,
+          "description": "Number of minutes in the time span (0-59)"
+        }
+      }
+    },
+    "DataVolume": {
+      "type": "object",
+      "title": "Data Volume Metrics",
+      "description": "Current data transfer rates for the VPN connection",
+      "required": ["upload", "download", "unit"],
+      "properties": {
+        "upload": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Current upload speed"
+        },
+        "download": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Current download speed"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["kb/s", "mb/s", "gb/s"],
+          "description": "Unit of measurement for data transfer speeds"
+        }
+      }
+    },
+    "UsageHistory": {
+      "type": "object",
+      "title": "Usage History",
+      "description": "Historical usage data including longest connection and weekly patterns",
+      "required": ["longestConnection", "weeklyUsage"],
+      "properties": {
+        "longestConnection": {
+          "$ref": "#/definitions/Timespan"
+        },
+        "weeklyUsage": {
+          "type": "object",
+          "title": "Weekly Usage Stats",
+          "description": "Usage statistics for the current week",
+          "required": ["timeUnit", "maxValue", "days"],
+          "properties": {
+            "timeUnit": {
+              "type": "string",
+              "enum": ["hours"],
+              "description": "Unit of measurement for usage values"
+            },
+            "maxValue": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Maximum possible value for the usage metric (e.g., 24 for hours)"
+            },
+            "days": {
+              "type": "array",
+              "description": "Usage values for each day of the week",
+              "items": {
+                "type": "object",
+                "required": ["day", "value", "active"],
+                "title": "Daily Usage",
+                "properties": {
+                  "day": {
+                    "type": "string",
+                    "enum": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                    "title": "Day",
+                    "description": "Three-letter abbreviation for the day of the week"
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Usage metric value for this day"
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "description": "'true' if this is the current day. The UI will highlight this"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Connected": {
+      "type": "object",
+      "description": "State when the VPN is actively connected and running",
+      "required": ["state", "value", "pending"],
+      "title": "VPN Connected",
+      "properties": {
+        "pending": {
+          "$ref": "#/definitions/Pending"
+        },
+        "state": {
+          "const": "connected",
+          "description": "Indicates this is a connected state"
+        },
+        "value": {
+          "type": "object",
+          "required": ["session", "history"],
+          "title": "ConnectedData",
+          "properties": {
+            "session": {
+              "type": "object",
+              "title": "Current Session",
+              "description": "Information about the current VPN session",
+              "required": ["currentIp", "connectedSince", "dataVolume"],
+              "properties": {
+                "currentIp": {
+                  "type": "string",
+                  "format": "ipv4",
+                  "description": "Current IP address assigned by the VPN"
+                },
+                "connectedSince": {
+                  "type": "integer",
+                  "description": "Unix timestamp (seconds since epoch) when the connection was established"
+                },
+                "dataVolume": {
+                  "$ref": "#/definitions/DataVolume"
+                }
+              }
+            },
+            "history": {
+              "$ref": "#/definitions/UsageHistory"
+            }
+          }
+        }
+      }
+    },
+    "Disconnected": {
+      "type": "object",
+      "description": "State when the user has an active subscription but VPN is not currently running",
+      "required": ["state", "value", "pending"],
+      "title": "VPN Disconnected",
+      "properties": {
+        "pending": {
+          "$ref": "#/definitions/Pending"
+        },
+        "state": {
+          "const": "disconnected",
+          "description": "Indicates this is a disconnected state"
+        },
+        "value": {
+          "type": "object",
+          "title": "Disconnected Data",
+          "required": ["lastSession", "history"],
+          "properties": {
+            "history": {
+              "$ref": "#/definitions/UsageHistory"
+            }
+          }
+        }
+      }
+    },
+    "Unsubscribed": {
+      "type": "object",
+      "title": "Unsubscribed State",
+      "description": "State for users who haven't subscribed",
+      "required": ["state", "value", "pending"],
+      "title": "VPN Unsubscribed",
+      "properties": {
+        "pending": {
+          "$ref": "#/definitions/Pending"
+        },
+        "state": {
+          "const": "unsubscribed",
+          "description": "Indicates this is an unsubscribed state"
+        },
+        "value": {
+          "type": "null",
+          "description": "Unsubscribed state has no additional data"
+        }
+      }
+    }
+  }
+}
