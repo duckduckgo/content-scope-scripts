@@ -339,4 +339,20 @@ export class FavoritesPage {
         // verify the DOM is updated
         await expect(page.getByTestId('FavoritesConfigured').locator('a[href]')).toHaveCount(to);
     }
+
+    /**
+     * Simulate getting entirely fresh data
+     */
+    async receivesNewDataAndShowsAll(count) {
+        const { page } = this.ntp;
+
+        const items = gen(count);
+        await this.ntp.mocks.simulateSubscriptionMessage('favorites_onDataUpdate', items);
+
+        // The bug occurred after a debounced timer, so this timer reproduces it
+        await page.waitForTimeout(100);
+
+        // Every tile should be shown
+        await this.waitForNumFavorites(count);
+    }
 }
