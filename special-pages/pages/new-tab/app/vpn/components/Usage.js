@@ -24,9 +24,10 @@ export function Usage({ usage, state }) {
                     <div class={styles.bars}>
                         {usage.days.map((day) => {
                             const percentageHeight = (day.value / 24) * 100;
+                            const isActive = state === 'connected' && day.active;
                             return (
                                 <div
-                                    class={cn(styles.bar, day.active ? styles.active : null)}
+                                    class={cn(styles.bar, isActive ? styles.active : null)}
                                     key={day.day}
                                     style={{ height: percentageHeight + '%' }}
                                 />

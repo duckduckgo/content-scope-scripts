@@ -264,7 +264,7 @@ export function VpnCustomized() {
 export function VpnConsumer() {
     const { state, toggle } = useContext(VpnContext);
     if (state.status === 'ready') {
-        console.log('VPN is ready, has data: ', state.data);
+        console.log('VPN:', state.data.state, state.data.pending);
         return <Vpn expansion={state.config.expansion} data={state.data} toggle={toggle} />;
     }
     return null;
