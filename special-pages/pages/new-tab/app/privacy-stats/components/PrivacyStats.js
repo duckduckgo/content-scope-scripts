@@ -1,66 +1,30 @@
 import { Fragment, h } from 'preact';
 import styles from './PrivacyStats.module.css';
-import { useMessaging, useTypedTranslationWith } from '../../types.js';
-import { useCallback, useContext, useId, useMemo, useState } from 'preact/hooks';
-import { PrivacyStatsContext, PrivacyStatsProvider } from '../PrivacyStatsProvider.js';
-import { useVisibility } from '../../widget-list/widget-config.provider.js';
-import { viewTransition } from '../../utils.js';
-import { ShowHideButton } from '../../components/ShowHideButton.jsx';
-import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
-import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
+import { useTypedTranslationWith } from '../../types.js';
+import { useId, useMemo, useState } from 'preact/hooks';
+import { ShowHideButtonPill } from '../../components/ShowHideButton.jsx';
+import { DDG_STATS_DEFAULT_ROWS, DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
-import { useCustomizerDrawerSettings } from '../../settings.provider.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { PrivacyStatsHeading } from './PrivacyStatsHeading.js';
+import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.js';
 
 /**
  * @import enStrings from "../strings.json"
  * @typedef {enStrings} Strings
  * @typedef {import('../../../types/new-tab').TrackerCompany} TrackerCompany
  * @typedef {import('../../../types/new-tab').Expansion} Expansion
- * @typedef {import('../../../types/new-tab').Animation} Animation
  * @typedef {import('../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
- * @typedef {import('../../../types/new-tab').StatsConfig} StatsConfig
- * @typedef {import("../PrivacyStatsProvider.js").Events} Events
  */
 
 /**
  * @param {object} props
  * @param {Expansion} props.expansion
- * @param {PrivacyStatsData} props.data
- * @param {()=>void} props.toggle
- * @param {Animation['kind']} [props.animation] - optionally configure animations
- */
-export function PrivacyStats({ expansion, data, toggle, animation = 'auto-animate' }) {
-    if (animation === 'view-transitions') {
-        return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />;
-    }
-
-    // no animations
-    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={toggle} />;
-}
-
-/**
- * @param {object} props
- * @param {Expansion} props.expansion
+ * @param {Expansion} [props.secondaryExpansion="expanded"]
  * @param {PrivacyStatsData} props.data
  * @param {()=>void} props.toggle
  */
-function WithViewTransitions({ expansion, data, toggle }) {
-    const willToggle = useCallback(() => {
-        viewTransition(toggle);
-    }, [toggle]);
-    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={willToggle} />;
-}
-
-/**
- * @param {object} props
- * @param {import("preact").Ref<any>} [props.parentRef]
- * @param {Expansion} props.expansion
- * @param {PrivacyStatsData} props.data
- * @param {()=>void} props.toggle
- */
-function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
+export function PrivacyStats({ expansion = 'expanded', secondaryExpansion, data, toggle }) {
     const expanded = expansion === 'expanded';
 
     const { hasNamedCompanies, recent } = useMemo(() => {
@@ -79,148 +43,214 @@ function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
 
+    const attrs = useMemo(() => {
+        return {
+            'aria-controls': WIDGET_ID,
+            id: TOGGLE_ID,
+        };
+    }, [WIDGET_ID, TOGGLE_ID]);
+
     return (
-        <div class={styles.root} ref={parentRef}>
+        <div class={styles.root}>
             <PrivacyStatsHeading
                 recent={recent}
                 onToggle={toggle}
                 expansion={expansion}
                 canExpand={hasNamedCompanies}
-                buttonAttrs={{
-                    'aria-controls': WIDGET_ID,
-                    id: TOGGLE_ID,
-                }}
+                buttonAttrs={attrs}
             />
-            {hasNamedCompanies && expanded && <PrivacyStatsBody trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />}
+            {hasNamedCompanies && expanded && (
+                <PrivacyStatsBody expansion={secondaryExpansion} trackerCompanies={data.trackerCompanies} id={WIDGET_ID} />
+            )}
         </div>
     );
 }
 
 /**
  * @param {object} props
- * @param {import("preact").ComponentProps<'ul'>} [props.listAttrs]
  * @param {TrackerCompany[]} props.trackerCompanies
+ * @param {Expansion} [props.expansion]
+ * @param {string} props.id
  */
-export function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const messaging = useMessaging();
+export function PrivacyStatsBody({ trackerCompanies, expansion = 'expanded', id }) {
     const [formatter] = useState(() => new Intl.NumberFormat());
-    const defaultRowMax = 5;
     const sorted = sortStatsForDisplay(trackerCompanies);
-    const max = sorted[0]?.count ?? 0;
-    const [expansion, setExpansion] = useState(/** @type {Expansion} */ ('collapsed'));
+    const largestTrackerCount = sorted[0]?.count ?? 0;
+
+    // prettier-ignore
+    const visibleRows = expansion === 'expanded'
+        /**
+         * When expanded, show everything
+         */
+        ? sorted
+        /**
+         * When collapsed, show upto the default
+         */
+        : sorted.slice(0, DDG_STATS_DEFAULT_ROWS);
+
+    return (
+        <div id={id} data-testid="PrivacyStatsBody" class={styles.body}>
+            <CompanyList rows={visibleRows} largestTrackerCount={largestTrackerCount} formatter={formatter} />
+            <ListFooter all={sorted} />
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {Intl.NumberFormat} props.formatter
+ * @param {TrackerCompany[]} props.rows
+ * @param {number} props.largestTrackerCount
+ */
+export function CompanyList({ rows, formatter, largestTrackerCount }) {
+    return (
+        <ul class={styles.list} data-testid="CompanyList">
+            {rows.map((company) => {
+                const percentage = Math.min((company.count * 100) / largestTrackerCount, 100);
+                const valueOrMin = Math.max(percentage, 10);
+                const inlineStyles = {
+                    width: `${valueOrMin}%`,
+                };
+                const countText = formatter.format(company.count);
+                const displayName = displayNameForCompany(company.displayName);
+
+                // We don't actually render the 'other' row in the main loop - it's appended as a separate element later
+                if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
+                    return null;
+                }
+                return (
+                    <li key={company.displayName} class={styles.row}>
+                        <div className={styles.company}>
+                            <CompanyIcon displayName={displayName} />
+                            <span class={styles.name}>{displayName}</span>
+                        </div>
+                        <span class={styles.count}>{countText}</span>
+                        <span class={styles.bar}></span>
+                        <span class={styles.fill} style={inlineStyles}></span>
+                    </li>
+                );
+            })}
+        </ul>
+    );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const states = /** @type {const} */ ([
+    'few_top+other',
+    'few_top',
+    'few_other',
+    'many_top+other_collapsed',
+    'many_top+other_expanded',
+    'many_top_collapsed',
+    'many_top_expanded',
+]);
+
+/**
+ * Renders a footer element that adapts its content and behavior based on provided data and state.
+ *
+ * @param {Object} props - The properties passed to the Footer component.
+ * @param {TrackerCompany[]} props.all - An array of data objects used to determine content and state of the footer.
+ */
+export function ListFooter({ all }) {
+    const expansion = useBodyExpansion();
+
+    const lastElement = all[all.length - 1];
+    const hasOtherRow = lastElement?.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER;
+
+    /** @type {states[number]} */
+    const state = (() => {
+        const comparison = hasOtherRow ? DDG_STATS_DEFAULT_ROWS + 1 : DDG_STATS_DEFAULT_ROWS;
+        if (all.length <= comparison) {
+            if (hasOtherRow) {
+                if (all.length === 1) {
+                    return 'few_other';
+                }
+                return 'few_top+other';
+            }
+            return 'few_top';
+        } else {
+            if (hasOtherRow) {
+                return expansion === 'collapsed' ? 'many_top+other_collapsed' : 'many_top+other_expanded';
+            }
+            return expansion === 'collapsed' ? 'many_top_collapsed' : 'many_top_expanded';
+        }
+    })();
+
+    const contents = (() => {
+        switch (state) {
+            case 'few_other':
+            case 'few_top+other': {
+                return <OtherText count={lastElement.count} />;
+            }
+            case 'many_top_collapsed':
+            case 'many_top_expanded':
+            case 'many_top+other_collapsed': {
+                return <PillShowMoreLess expansion={expansion} />;
+            }
+            case 'many_top+other_expanded':
+                return (
+                    <Fragment>
+                        <OtherText count={lastElement.count} />
+                        <PillShowMoreLess expansion={expansion} />
+                    </Fragment>
+                );
+            case 'few_top':
+            default:
+                return null;
+        }
+    })();
+
+    if (contents === null) return null;
+
+    return (
+        <div class={styles.listFooter} data-testid="ListFooter">
+            {contents}
+        </div>
+    );
+}
+
+/**
+ * Renders a pill component that toggles between "Show More" and "Show Less" states.
+ *
+ * @param {Object} props - The properties object.
+ * @param {Expansion} props.expansion - Indicates the current state of expansion.
+ */
+function PillShowMoreLess({ expansion }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { showLess, showMore } = useBodyExpansionApi();
 
     const toggleListExpansion = () => {
         if (expansion === 'collapsed') {
-            messaging.statsShowMore();
+            showMore();
         } else {
-            messaging.statsShowLess();
+            showLess();
         }
-        setExpansion(expansion === 'collapsed' ? 'expanded' : 'collapsed');
     };
 
-    const rows = expansion === 'expanded' ? sorted : sorted.slice(0, defaultRowMax);
-
     return (
-        <Fragment>
-            <ul {...listAttrs} class={styles.list} data-testid="CompanyList">
-                {rows.map((company) => {
-                    const percentage = Math.min((company.count * 100) / max, 100);
-                    const valueOrMin = Math.max(percentage, 10);
-                    const inlineStyles = {
-                        width: `${valueOrMin}%`,
-                    };
-                    const countText = formatter.format(company.count);
-                    const displayName = displayNameForCompany(company.displayName);
-                    if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
-                        const otherText = t('stats_otherCount', { count: String(company.count) });
-                        return (
-                            <li key={company.displayName} class={styles.otherTrackersRow}>
-                                {otherText}
-                            </li>
-                        );
-                    }
-                    return (
-                        <li key={company.displayName} class={styles.row}>
-                            <div class={styles.company}>
-                                <CompanyIcon displayName={displayName} />
-                                <span class={styles.name}>{displayName}</span>
-                            </div>
-                            <span class={styles.count}>{countText}</span>
-                            <span class={styles.bar}></span>
-                            <span class={styles.fill} style={inlineStyles}></span>
-                        </li>
-                    );
-                })}
-            </ul>
-            {sorted.length > defaultRowMax && (
-                <div class={styles.listExpander}>
-                    <ShowHideButton
-                        onClick={toggleListExpansion}
-                        text={expansion === 'collapsed' ? t('ntp_show_more') : t('ntp_show_less')}
-                        showText={true}
-                        buttonAttrs={{
-                            'aria-expanded': expansion === 'expanded',
-                            'aria-pressed': expansion === 'expanded',
-                        }}
-                    />
-                </div>
-            )}
-        </Fragment>
+        <div class={styles.listExpander}>
+            <ShowHideButtonPill
+                onClick={toggleListExpansion}
+                label={undefined}
+                fill={false}
+                text={expansion === 'collapsed' ? t('ntp_show_more') : t('ntp_show_less')}
+                buttonAttrs={{
+                    'aria-expanded': expansion === 'expanded',
+                    'aria-pressed': expansion === 'expanded',
+                }}
+            />
+        </div>
     );
 }
 
 /**
- * Use this when rendered within a widget list.
+ * Generates a localized text element displaying a count.
  *
- * It reaches out to access this widget's global visibility, and chooses
- * whether to incur the side effects (data fetching).
+ * @param {Object} props - The parameters for generating the text.
+ * @param {number} props.count - The count to be included in the localized text.
  */
-export function PrivacyStatsCustomized() {
+export function OtherText({ count }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const drawer = useCustomizerDrawerSettings();
-
-    /**
-     * The menu title for the stats widget is changes when the menu is in the sidebar.
-     */
-    // prettier-ignore
-    const sectionTitle = drawer.state === 'enabled'
-        ? t('stats_menuTitle_v2')
-        : t('stats_menuTitle');
-
-    const { visibility, id, toggle, index } = useVisibility();
-
-    useCustomizer({ title: sectionTitle, id, icon: 'shield', toggle, visibility: visibility.value, index });
-
-    if (visibility.value === 'hidden') {
-        return null;
-    }
-
-    return (
-        <PrivacyStatsProvider>
-            <PrivacyStatsConsumer />
-        </PrivacyStatsProvider>
-    );
-}
-
-/**
- * Use this when you want to render the UI from a context where
- * the service is available.
- *
- * for example:
- *
- * ```jsx
- * <PrivacyStatsProvider>
- *     <PrivacyStatsConsumer />
- * </PrivacyStatsProvider>
- * ```
- */
-export function PrivacyStatsConsumer() {
-    const { state, toggle } = useContext(PrivacyStatsContext);
-    if (state.status === 'ready') {
-        return (
-            <PrivacyStats expansion={state.config.expansion} animation={state.config.animation?.kind} data={state.data} toggle={toggle} />
-        );
-    }
-    return null;
+    const otherText = t('stats_otherCount', { count: String(count) });
+    return <div class={styles.otherTrackersRow}>{otherText}</div>;
 }

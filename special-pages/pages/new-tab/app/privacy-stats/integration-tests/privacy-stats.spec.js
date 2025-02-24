@@ -5,6 +5,7 @@ import { PrivacyStatsPage } from './privacy-stats.page.js';
 test.describe('newtab privacy stats', () => {
     test('fetches config + stats', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
+        const psp = new PrivacyStatsPage(page, ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { stats: 'few' } });
 
@@ -17,12 +18,13 @@ test.describe('newtab privacy stats', () => {
         expect(calls3.length).toBe(1);
 
         const listItems = page.getByTestId('CompanyList').locator('li');
-        expect(await listItems.count()).toBe(5);
+        expect(await listItems.count()).toBe(4);
         expect(await listItems.nth(0).textContent()).toBe('Facebook310');
         expect(await listItems.nth(1).textContent()).toBe('Google279');
         expect(await listItems.nth(2).textContent()).toBe('Amazon67');
         expect(await listItems.nth(3).textContent()).toBe('Google Ads2');
-        expect(await listItems.nth(4).textContent()).toBe('210 attempts from other networks');
+
+        await expect(psp.listFooter()).toHaveText('210 attempts from other networks');
 
         // show/hide
         await page.getByLabel('Hide recent activity').click();
@@ -162,4 +164,28 @@ test.describe('newtab privacy stats', () => {
             await psp.hasHeading('2 tracking attempts blocked');
         },
     );
+    test('ui state: toggling when there is many top sites, but zero other', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const psp = new PrivacyStatsPage(page, ntp);
+        await ntp.reducedMotion();
+        await psp.togglesOnlyTopSites();
+    });
+    test('ui state: no toggling when there is only top sites', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const psp = new PrivacyStatsPage(page, ntp);
+        await ntp.reducedMotion();
+        await psp.showsOnlyTopSitesWithoutToggle();
+    });
+    test('ui state: no toggle when the only other row is the `other` text', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const psp = new PrivacyStatsPage(page, ntp);
+        await ntp.reducedMotion();
+        await psp.showsTopSitesAndOtherText();
+    });
+    test('ui state: has toggle and shows `other` text when expanded', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const psp = new PrivacyStatsPage(page, ntp);
+        await ntp.reducedMotion();
+        await psp.showsTopSitesWithToggleAndOtherText();
+    });
 });

@@ -1,10 +1,9 @@
 import { createContext, Fragment, h } from 'preact';
 import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { memo } from 'preact/compat';
-import cn from 'classnames';
 
 import styles from './Favorites.module.css';
-import { ShowHideButton } from '../../components/ShowHideButton.jsx';
+import { ShowHideBar, ShowHideButtonPill } from '../../components/ShowHideButton.jsx';
 import { useTypedTranslationWith } from '../../types.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { useDropzoneSafeArea } from '../../dropzone.js';
@@ -67,11 +66,7 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
 
     return (
         <FavoritesThemeContext.Provider value={{ theme: main.value, animateItems }}>
-            <div
-                class={cn(styles.root, !canToggleExpansion && styles.noExpansionBtn)}
-                data-testid="FavoritesConfigured"
-                data-background-kind={kind}
-            >
+            <div class={styles.root} data-testid="FavoritesConfigured" data-background-kind={kind}>
                 <VirtualizedGridRows
                     WIDGET_ID={WIDGET_ID}
                     favorites={favorites}
@@ -82,27 +77,23 @@ export function Favorites({ gridRef, favorites, expansion, toggle, openContextMe
                     openContextMenu={openContextMenu}
                 />
                 {canToggleExpansion && (
-                    <div
-                        className={cn({
-                            [styles.showhide]: true,
-                            [styles.showhideVisible]: canToggleExpansion,
-                        })}
-                    >
-                        <ShowHideButton
+                    <ShowHideBar>
+                        <ShowHideButtonPill
                             buttonAttrs={{
                                 'aria-expanded': expansion === 'expanded',
                                 'aria-pressed': expansion === 'expanded',
                                 'aria-controls': WIDGET_ID,
                                 id: TOGGLE_ID,
                             }}
-                            text={
+                            text={expansion === 'expanded' ? t('ntp_show_less') : t('ntp_show_more')}
+                            label={
                                 expansion === 'expanded'
                                     ? t('favorites_show_less')
                                     : t('favorites_show_more', { count: String(hiddenCount) })
                             }
                             onClick={toggle}
                         />
-                    </div>
+                    </ShowHideBar>
                 )}
             </div>
         </FavoritesThemeContext.Provider>

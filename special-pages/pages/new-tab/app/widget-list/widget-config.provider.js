@@ -34,10 +34,6 @@ export const WidgetConfigContext = createContext({
     toggle: (_id) => {},
 });
 
-export const WidgetConfigDispatchContext = createContext({
-    dispatch: null,
-});
-
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
