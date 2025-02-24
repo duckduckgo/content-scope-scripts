@@ -89,6 +89,11 @@
     color: var(--ntp-text-muted);
 }
 
+.fill {
+    backdrop-filter: blur(48px);
+    background-color: var(--ntp-surface-background-color);
+}
+
 .hover {
     transition: background-color .2s;
 

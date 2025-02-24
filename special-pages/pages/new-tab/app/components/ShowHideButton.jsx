@@ -27,9 +27,10 @@ export function ShowHideButtonCircle({ label, onClick, buttonAttrs = {} }) {
  * @param {string} props.text
  * @param {string|undefined} props.label
  * @param {() => void} props.onClick
+ * @param {boolean} [props.fill=true]
  * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
-export function ShowHideButtonPill({ label, onClick, text, buttonAttrs = {} }) {
+export function ShowHideButtonPill({ label, onClick, text, fill = true, buttonAttrs = {} }) {
     // if a different label was given, make the main text aria-hidden=true
     const btnText = label ? <span aria-hidden="true">{text}</span> : text;
 
@@ -37,7 +38,7 @@ export function ShowHideButtonPill({ label, onClick, text, buttonAttrs = {} }) {
         <button
             {...buttonAttrs}
             aria-label={label}
-            class={cn(styles.button, styles.hover, styles.pill)}
+            class={cn(styles.button, styles.hover, styles.pill, fill && styles.fill)}
             data-toggle="true"
             onClick={onClick}
         >
