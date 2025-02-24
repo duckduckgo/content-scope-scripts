@@ -153,4 +153,24 @@ test.describe('newtab favorites', () => {
         // assert there's still 16 showing
         await favorites.waitForNumFavorites(16);
     });
+    test('accepts new data when already expanded', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+
+        const favorites = new FavoritesPage(ntp);
+
+        // open the page with enough next-step + favorites for both to be expanded
+        await ntp.openPage({
+            favorites: '12',
+            additional: {
+                'favorites.config.expansion': 'expanded',
+            },
+        });
+
+        // control: ensure it's just the expected start amount
+        await favorites.waitForNumFavorites(12);
+
+        // then, assert all further elements are shown
+        await favorites.receivesNewDataAndShowsAll(26);
+    });
 });

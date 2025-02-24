@@ -257,8 +257,9 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
     /**
      * decide which the start/end indexes should be, based on scroll position.
      * NOTE: this is called on scroll, so must not incur expensive checks/measurements - math only!
+     * @param {number} rowCount - the number of rows in the dataset
      */
-    function setVisibleRowsForOffset() {
+    function setVisibleRowsForOffset(rowCount) {
         if (!safeAreaRef.current) return console.warn('cannot access ref');
         const scrollY = mainScrollerRef.current?.scrollTop ?? 0;
         const offset = gridOffsetRef.current;
@@ -270,7 +271,7 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
             start = scrollY - offset;
         }
         const startIndex = Math.floor(start / rowHeight);
-        const endIndex = Math.min(Math.ceil(end / rowHeight), rows.length);
+        const endIndex = Math.min(Math.ceil(end / rowHeight), rowCount);
 
         // don't set state if the offset didn't change
         setVisibleRange((prev) => {
@@ -293,12 +294,18 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
         updateGlobals();
 
         // and set visible rows once the size is known
-        setVisibleRowsForOffset();
+        setVisibleRowsForOffset(rows.length);
 
         const controller = new AbortController();
 
         // when the main area is scrolled, update the visible offset for the rows.
-        mainScrollerRef.current?.addEventListener('scroll', setVisibleRowsForOffset, { signal: controller.signal });
+        mainScrollerRef.current?.addEventListener(
+            'scroll',
+            () => {
+                setVisibleRowsForOffset(rows.length);
+            },
+            { signal: controller.signal },
+        );
 
         return () => {
             controller.abort();
@@ -311,13 +318,13 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
             if (lastWindowHeight === window.innerHeight) return;
             lastWindowHeight = window.innerHeight;
             updateGlobals();
-            setVisibleRowsForOffset();
+            setVisibleRowsForOffset(rows.length);
         }
         window.addEventListener('resize', handler);
         return () => {
             return window.removeEventListener('resize', handler);
         };
-    }, []);
+    }, [rows.length]);
 
     useEffect(() => {
         if (!contentTubeRef.current) return console.warn('cannot find content tube');
@@ -331,7 +338,7 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(() => {
                     updateGlobals();
-                    setVisibleRowsForOffset();
+                    setVisibleRowsForOffset(rows.length);
                 }, 50);
             }
         });
@@ -341,7 +348,7 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
             resizer.disconnect();
             clearTimeout(debounceTimer);
         };
-    }, []);
+    }, [rows.length]);
 
     return { start, end };
 }

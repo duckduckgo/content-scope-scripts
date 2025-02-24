@@ -24283,7 +24283,7 @@
       const rec = safeAreaRef.current.getBoundingClientRect();
       gridOffsetRef.current = rec.y + mainScrollerRef.current?.scrollTop;
     }
-    function setVisibleRowsForOffset() {
+    function setVisibleRowsForOffset(rowCount) {
       if (!safeAreaRef.current) return console.warn("cannot access ref");
       const scrollY = mainScrollerRef.current?.scrollTop ?? 0;
       const offset = gridOffsetRef.current;
@@ -24295,7 +24295,7 @@
         start3 = scrollY - offset;
       }
       const startIndex = Math.floor(start3 / rowHeight);
-      const endIndex = Math.min(Math.ceil(end2 / rowHeight), rows.length);
+      const endIndex = Math.min(Math.ceil(end2 / rowHeight), rowCount);
       setVisibleRange((prev) => {
         if (startIndex !== prev.start || endIndex !== prev.end) {
           return { start: startIndex, end: endIndex };
@@ -24309,9 +24309,15 @@
       contentTubeRef.current = document.querySelector("[data-content-tube]") || document.body;
       if (!contentTubeRef.current || !mainScrollerRef.current) console.warn("missing elements");
       updateGlobals();
-      setVisibleRowsForOffset();
+      setVisibleRowsForOffset(rows.length);
       const controller = new AbortController();
-      mainScrollerRef.current?.addEventListener("scroll", setVisibleRowsForOffset, { signal: controller.signal });
+      mainScrollerRef.current?.addEventListener(
+        "scroll",
+        () => {
+          setVisibleRowsForOffset(rows.length);
+        },
+        { signal: controller.signal }
+      );
       return () => {
         controller.abort();
       };
@@ -24322,13 +24328,13 @@
         if (lastWindowHeight === window.innerHeight) return;
         lastWindowHeight = window.innerHeight;
         updateGlobals();
-        setVisibleRowsForOffset();
+        setVisibleRowsForOffset(rows.length);
       }
       window.addEventListener("resize", handler);
       return () => {
         return window.removeEventListener("resize", handler);
       };
-    }, []);
+    }, [rows.length]);
     y2(() => {
       if (!contentTubeRef.current) return console.warn("cannot find content tube");
       let lastHeight;
@@ -24341,7 +24347,7 @@
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
             updateGlobals();
-            setVisibleRowsForOffset();
+            setVisibleRowsForOffset(rows.length);
           }, 50);
         }
       });
@@ -24350,7 +24356,7 @@
         resizer.disconnect();
         clearTimeout(debounceTimer);
       };
-    }, []);
+    }, [rows.length]);
     return { start: start2, end };
   }
   function getContextMenuHandler(openContextMenu) {

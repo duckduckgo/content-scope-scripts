@@ -1,2 +1,1 @@
-- Duck Player Custom Error Translations (#1500)
-- Custom error messages for Duck Player (#1421)
+- ntp: expanded favorites widget can accept large updates in place (#1501)

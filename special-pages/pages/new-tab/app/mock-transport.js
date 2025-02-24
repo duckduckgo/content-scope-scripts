@@ -466,10 +466,10 @@ export function mockTransport() {
                 }
                 case 'favorites_getConfig': {
                     /** @type {FavoritesConfig} */
-                    const defaultConfig = { expansion: 'collapsed', animation: { kind: 'none' } };
+                    const defaultConfig = { expansion: 'collapsed', animation: { kind: 'view-transitions' } };
                     const fromStorage = read('favorites_config') || defaultConfig;
-                    if (url.searchParams.get('favorites.animation') === 'view-transitions') {
-                        fromStorage.animation = { kind: 'view-transitions' };
+                    if (url.searchParams.get('favorites.config.expansion') === 'expanded') {
+                        defaultConfig.expansion = 'expanded';
                     }
                     return Promise.resolve(fromStorage);
                 }
