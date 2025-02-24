@@ -154,7 +154,7 @@ export class SpecialErrorPage {
     async showsExpiredPage() {
         const { page } = this;
 
-        this.showsPageTitle('Warning: This site may be insecure');
+        await this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -190,7 +190,7 @@ export class SpecialErrorPage {
     async showsInvalidPage() {
         const { page } = this;
 
-        this.showsPageTitle('Warning: This site may be insecure');
+        await this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -212,7 +212,7 @@ export class SpecialErrorPage {
     async showsSelfSignedPage() {
         const { page } = this;
 
-        this.showsPageTitle('Warning: This site may be insecure');
+        await this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -234,7 +234,7 @@ export class SpecialErrorPage {
     async showsWrongHostPage() {
         const { page } = this;
 
-        this.showsPageTitle('Warning: This site may be insecure');
+        await this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
