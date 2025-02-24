@@ -86,8 +86,6 @@
     font-weight: var(--callout-font-weight);
     line-height: var(--callout-line-height);
     border: 1px solid var(--ntp-surface-border-color);
-    backdrop-filter: blur(48px);
-    background-color: var(--ntp-surface-background-color);
     color: var(--ntp-text-muted);
 }
 
