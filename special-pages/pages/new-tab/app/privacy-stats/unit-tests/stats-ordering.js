@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import { deepEqual } from 'node:assert/strict';
-import { stats } from '../mocks/stats.js';
+import { privacyStatsMocks } from '../mocks/privacy-stats.mocks.js';
 import { sortStatsForDisplay } from '../privacy-stats.utils.js';
 
 /**
@@ -10,7 +10,7 @@ import { sortStatsForDisplay } from '../privacy-stats.utils.js';
 describe('stats re-ordering', () => {
     it('orders based on count + places __other__ at the end of the list', () => {
         /** @type {TrackerCompany[]} */
-        const input = stats.few.trackerCompanies;
+        const input = privacyStatsMocks.few.trackerCompanies;
         const expected = [
             { displayName: 'Facebook', count: 310 },
             { displayName: 'Google', count: 279 },

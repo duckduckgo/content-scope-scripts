@@ -1,18 +1,22 @@
 .root {
     width: 100%;
-    margin: 0 auto var(--sp-4);
+    margin: 0 auto var(--ntp-gap);
     display: grid;
     grid-template-rows: auto auto;
     grid-template-areas:
         'grid'
         'showhide';
 
-    &.noExpansionBtn {
-        margin-bottom: var(--ntp-gap);
+    [data-show-hide] {
+        opacity: 0;
+    }
+
+    &:has([data-show-hide]) {
+        margin-bottom: var(--sp-4);
     }
 
     &:hover {
-        .showhideVisible [aria-controls] {
+        [data-show-hide] {
             opacity: 1;
         }
     }

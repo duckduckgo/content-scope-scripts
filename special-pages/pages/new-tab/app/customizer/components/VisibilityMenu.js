@@ -4,14 +4,13 @@ import { useId, useContext } from 'preact/hooks';
 
 import { DuckFoot, Shield } from '../../components/Icons.js';
 import styles from './VisibilityMenu.module.css';
-import { useTypedTranslation } from '../../types.js';
 import { Switch } from '../../../../../shared/components/Switch/Switch.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { CustomizerThemesContext } from '../CustomizerProvider.js';
 
 /**
  * @import { Widgets, WidgetConfigItem } from '../../../types/new-tab.js'
- * @import { VisibilityRowData, VisibilityRowState } from './CustomizerMenu.js'
+ * @import { VisibilityRowData } from './CustomizerMenu.js'
  */
 
 /**
@@ -97,11 +96,6 @@ export function EmbeddedVisibilityMenu({ rows }) {
             })}
         </ul>
     );
-}
-
-export function Heading() {
-    const { t } = useTypedTranslation();
-    return <h2 className="sr-only">{t('widgets_visibility_menu_title')}</h2>;
 }
 
 export function VisibilityMenuPopover({ children }) {

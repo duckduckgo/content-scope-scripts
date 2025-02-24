@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useReducer } from 'preact/hooks';
+import { useCallback, useEffect, useReducer, useState } from 'preact/hooks';
 import { h } from 'preact';
-import { PrivacyStatsContext, PrivacyStatsDispatchContext } from '../PrivacyStatsProvider.js';
-import { stats } from './stats.js';
+import { PrivacyStatsContext, PrivacyStatsDispatchContext } from '../components/PrivacyStatsProvider.js';
+import { privacyStatsMocks } from './privacy-stats.mocks.js';
 import { reducer } from '../../service.hooks.js';
+import { BodyExpansionContext, BodyExpansionApiContext } from '../components/BodyExpansionProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab').TrackerCompany} TrackerCompany
@@ -20,17 +21,19 @@ import { reducer } from '../../service.hooks.js';
  * @param {Object} props - The props object containing the data.
  * @param {import("preact").ComponentChild} [props.children] - The children elements to be rendered.
  * @param {StatsConfig} [props.config]
+ * @param {Expansion} [props.bodyExpansion]
  * @param {PrivacyStatsData} [props.data]
  * @param {boolean} [props.ticker] - if true, gradually increment the count of the first company, for testing
  *
  */
 export function PrivacyStatsMockProvider({
-    data = stats.few,
+    data = privacyStatsMocks.few,
     config = { expansion: 'expanded', animation: { kind: 'auto-animate' } },
+    bodyExpansion = 'collapsed',
     ticker = false,
     children,
 }) {
-    const initial = /** @type {import('../PrivacyStatsProvider.js').State} */ ({
+    const initial = /** @type {import('../components/PrivacyStatsProvider.js').State} */ ({
         status: 'ready',
         data,
         config,
@@ -68,7 +71,29 @@ export function PrivacyStatsMockProvider({
 
     return (
         <PrivacyStatsContext.Provider value={{ state, toggle }}>
-            <PrivacyStatsDispatchContext.Provider value={send}>{children}</PrivacyStatsDispatchContext.Provider>
+            <PrivacyStatsDispatchContext.Provider value={send}>
+                <BodyExpansionMockProvider>{children}</BodyExpansionMockProvider>
+            </PrivacyStatsDispatchContext.Provider>
         </PrivacyStatsContext.Provider>
+    );
+}
+
+/**
+ * @param {Object} props - The props object containing the data.
+ * @param {import("preact").ComponentChild} [props.children] - The children elements to be rendered.
+ * @param {Expansion} [props.bodyExpansion]
+ */
+export function BodyExpansionMockProvider({ children, bodyExpansion = 'collapsed' }) {
+    const [bodyExpansionState, setBodyExpansion] = useState(bodyExpansion);
+    const showMore = useCallback(() => {
+        setBodyExpansion('expanded');
+    }, []);
+    const showLess = useCallback(() => {
+        setBodyExpansion('collapsed');
+    }, []);
+    return (
+        <BodyExpansionContext.Provider value={bodyExpansionState}>
+            <BodyExpansionApiContext.Provider value={{ showMore, showLess }}>{children}</BodyExpansionApiContext.Provider>
+        </BodyExpansionContext.Provider>
     );
 }
