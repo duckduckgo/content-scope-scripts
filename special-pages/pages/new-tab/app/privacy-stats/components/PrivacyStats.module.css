@@ -166,7 +166,7 @@
 
 .listFooter {
     display: flex;
-    &:has(.otherTrackersRow) .listExpander {
+    .otherTrackersRow + .listExpander {
         margin-left: auto;
     }
 }
@@ -177,11 +177,6 @@
     display: flex;
     align-items: center;
 
-}
-.withPill {
-    .listExpander {
-        margin-left: auto;
-    }
 }
 
 .company {
