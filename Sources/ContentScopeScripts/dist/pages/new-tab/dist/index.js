@@ -1199,7 +1199,7 @@
       props.children
     );
   }
-  var WidgetConfigContext, WidgetConfigDispatchContext, WidgetVisibilityContext;
+  var WidgetConfigContext, WidgetVisibilityContext;
   var init_widget_config_provider = __esm({
     "pages/new-tab/app/widget-list/widget-config.provider.js"() {
       "use strict";
@@ -1226,9 +1226,6 @@
         /** @type {(id:string) => void} */
         toggle: (_id) => {
         }
-      });
-      WidgetConfigDispatchContext = J({
-        dispatch: null
       });
       WidgetVisibilityContext = J({
         id: (
@@ -1344,7 +1341,11 @@
         /** @type {import("../src/index.js").NewTabPage} */
         {}
       );
-      useMessaging = () => x2(MessagingContext);
+      useMessaging = () => {
+        const ctx = x2(MessagingContext);
+        if (!ctx) console.warn("missing MessagingContext");
+        return ctx;
+      };
       TelemetryContext = J(
         /** @type {import("./telemetry/telemetry.js").Telemetry} */
         {
@@ -1403,13 +1404,13 @@
 
   // pages/new-tab/app/components/Icons.js
   function Chevron() {
-    return /* @__PURE__ */ g("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
       "path",
       {
-        fill: "currentColor",
         "fill-rule": "evenodd",
-        d: "M3.293 7.793a1 1 0 0 0 0 1.414l8 8a1 1 0 0 0 1.414 0l8-8a1 1 0 0 0-1.414-1.414L12 15.086 4.707 7.793a1 1 0 0 0-1.414 0Z",
-        "clip-rule": "evenodd"
+        "clip-rule": "evenodd",
+        d: "M12.0694 9.48822C11.7999 9.80271 11.3264 9.83913 11.0119 9.56956L7.99999 6.98793L4.98808 9.56956C4.67359 9.83913 4.20011 9.80271 3.93054 9.48822C3.66098 9.17372 3.6974 8.70025 4.01189 8.43068L7.51189 5.43068C7.79276 5.18994 8.20721 5.18994 8.48808 5.43068L11.9881 8.43068C12.3026 8.70025 12.339 9.17372 12.0694 9.48822Z",
+        fill: "currentColor"
       }
     ));
   }
@@ -2262,7 +2263,6 @@
       init_hooks_module();
       init_Icons2();
       init_VisibilityMenu();
-      init_types();
       init_Switch2();
       init_settings_provider();
       init_CustomizerProvider();
@@ -3118,10 +3118,10 @@
     );
     const ntp = useMessaging();
     y2(() => {
-      const stats2 = new BatchedActivityService(ntp, useBatched);
-      service.current = stats2;
+      const stats = new BatchedActivityService(ntp, useBatched);
+      service.current = stats;
       return () => {
-        stats2.destroy();
+        stats.destroy();
       };
     }, [ntp, useBatched]);
     return service;
@@ -3202,11 +3202,12 @@
   });
 
   // pages/new-tab/app/privacy-stats/constants.js
-  var DDG_STATS_OTHER_COMPANY_IDENTIFIER;
+  var DDG_STATS_OTHER_COMPANY_IDENTIFIER, DDG_STATS_DEFAULT_ROWS;
   var init_constants = __esm({
     "pages/new-tab/app/privacy-stats/constants.js"() {
       "use strict";
       DDG_STATS_OTHER_COMPANY_IDENTIFIER = "__other__";
+      DDG_STATS_DEFAULT_ROWS = 5;
     }
   });
 
@@ -20662,12 +20663,11 @@
         heading: "PrivacyStats_heading",
         activityVariant: "PrivacyStats_activityVariant",
         headingIcon: "PrivacyStats_headingIcon",
-        heart02: "PrivacyStats_heart02",
-        heart01: "PrivacyStats_heart01",
         title: "PrivacyStats_title",
         widgetExpander: "PrivacyStats_widgetExpander",
         subtitle: "PrivacyStats_subtitle",
         uppercase: "PrivacyStats_uppercase",
+        body: "PrivacyStats_body",
         list: "PrivacyStats_list",
         entering: "PrivacyStats_entering",
         "fade-in": "PrivacyStats_fade-in",
@@ -20675,6 +20675,7 @@
         exiting: "PrivacyStats_exiting",
         "fade-out": "PrivacyStats_fade-out",
         row: "PrivacyStats_row",
+        listFooter: "PrivacyStats_listFooter",
         otherTrackersRow: "PrivacyStats_otherTrackersRow",
         company: "PrivacyStats_company",
         name: "PrivacyStats_name",
@@ -20691,26 +20692,37 @@
     "pages/new-tab/app/components/ShowHide.module.css"() {
       ShowHide_default = {
         button: "ShowHide_button",
-        round: "ShowHide_round",
         iconBlock: "ShowHide_iconBlock",
-        withText: "ShowHide_withText"
+        round: "ShowHide_round",
+        pill: "ShowHide_pill",
+        fill: "ShowHide_fill",
+        hover: "ShowHide_hover",
+        bar: "ShowHide_bar"
       };
     }
   });
 
   // pages/new-tab/app/components/ShowHideButton.jsx
-  function ShowHideButton({ text: text2, onClick, buttonAttrs = {}, shape = "none", showText = false }) {
+  function ShowHideButtonCircle({ label, onClick, buttonAttrs = {} }) {
+    return /* @__PURE__ */ g("button", { ...buttonAttrs, class: (0, import_classnames6.default)(ShowHide_default.button, ShowHide_default.round), "aria-label": label, "data-toggle": "true", onClick }, /* @__PURE__ */ g("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ g(Chevron, null)));
+  }
+  function ShowHideButtonPill({ label, onClick, text: text2, fill = true, buttonAttrs = {} }) {
+    const btnText = label ? /* @__PURE__ */ g("span", { "aria-hidden": "true" }, text2) : text2;
     return /* @__PURE__ */ g(
       "button",
       {
         ...buttonAttrs,
-        class: (0, import_classnames6.default)(ShowHide_default.button, shape === "round" && ShowHide_default.round, !!showText && ShowHide_default.withText),
-        "aria-label": text2,
+        "aria-label": label,
+        class: (0, import_classnames6.default)(ShowHide_default.button, ShowHide_default.hover, ShowHide_default.pill, fill && ShowHide_default.fill),
         "data-toggle": "true",
         onClick
       },
-      showText ? /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(Chevron, null), text2) : /* @__PURE__ */ g("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ g(Chevron, null))
+      /* @__PURE__ */ g(Chevron, null),
+      btnText
     );
+  }
+  function ShowHideBar({ children }) {
+    return /* @__PURE__ */ g("div", { class: ShowHide_default.bar, "data-show-hide": true }, children);
   }
   var import_classnames6;
   var init_ShowHideButton = __esm({
@@ -20735,7 +20747,7 @@
     const trackerCountFormatted = formatter.format(trackerCount);
     const allTimeString = trackerCount === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural", { count: trackerCountFormatted });
     return /* @__PURE__ */ g("div", { className: (0, import_classnames7.default)(PrivacyStats_default.heading, PrivacyStats_default.activityVariant), "data-testid": "ActivityHeading" }, /* @__PURE__ */ g("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ g("img", { src: "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, t4("activity_noRecent_title")), someItems && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, allTimeString), canExpand && /* @__PURE__ */ g("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ g(
-      ShowHideButton,
+      ShowHideButtonCircle,
       {
         buttonAttrs: {
           ...buttonAttrs,
@@ -20743,8 +20755,7 @@
           "aria-pressed": expansion === "expanded"
         },
         onClick: onToggle,
-        text: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel"),
-        shape: "round"
+        label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
     )), itemCount === 0 && /* @__PURE__ */ g("p", { className: PrivacyStats_default.subtitle }, t4("activity_noRecent_subtitle")), itemCount > 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames7.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t4("stats_feedCountBlockedPeriod")));
   }
@@ -21213,10 +21224,10 @@
     );
     const ntp = useMessaging();
     y2(() => {
-      const stats2 = new FavoritesService(ntp);
-      service.current = stats2;
+      const stats = new FavoritesService(ntp);
+      service.current = stats;
       return () => {
-        stats2.destroy();
+        stats.destroy();
       };
     }, [ntp]);
     return service;
@@ -23924,8 +23935,6 @@
     "pages/new-tab/app/favorites/components/Favorites.module.css"() {
       Favorites_default = {
         root: "Favorites_root",
-        noExpansionBtn: "Favorites_noExpansionBtn",
-        showhideVisible: "Favorites_showhideVisible",
         showhide: "Favorites_showhide",
         grid: "Favorites_grid",
         gridRow: "Favorites_gridRow"
@@ -24162,48 +24171,31 @@
     const animateItems = useComputed(() => {
       return canAnimateItems && kind.value !== "userImage";
     });
-    return /* @__PURE__ */ g(FavoritesThemeContext.Provider, { value: { theme: main.value, animateItems } }, /* @__PURE__ */ g(
-      "div",
+    return /* @__PURE__ */ g(FavoritesThemeContext.Provider, { value: { theme: main.value, animateItems } }, /* @__PURE__ */ g("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured", "data-background-kind": kind }, /* @__PURE__ */ g(
+      VirtualizedGridRows,
       {
-        class: (0, import_classnames9.default)(Favorites_default.root, !canToggleExpansion && Favorites_default.noExpansionBtn),
-        "data-testid": "FavoritesConfigured",
-        "data-background-kind": kind
-      },
-      /* @__PURE__ */ g(
-        VirtualizedGridRows,
-        {
-          WIDGET_ID,
-          favorites: favorites2,
-          rowHeight,
-          add: add2,
-          expansion,
-          openFavorite,
-          openContextMenu
-        }
-      ),
-      canToggleExpansion && /* @__PURE__ */ g(
-        "div",
-        {
-          className: (0, import_classnames9.default)({
-            [Favorites_default.showhide]: true,
-            [Favorites_default.showhideVisible]: canToggleExpansion
-          })
+        WIDGET_ID,
+        favorites: favorites2,
+        rowHeight,
+        add: add2,
+        expansion,
+        openFavorite,
+        openContextMenu
+      }
+    ), canToggleExpansion && /* @__PURE__ */ g(ShowHideBar, null, /* @__PURE__ */ g(
+      ShowHideButtonPill,
+      {
+        buttonAttrs: {
+          "aria-expanded": expansion === "expanded",
+          "aria-pressed": expansion === "expanded",
+          "aria-controls": WIDGET_ID,
+          id: TOGGLE_ID
         },
-        /* @__PURE__ */ g(
-          ShowHideButton,
-          {
-            buttonAttrs: {
-              "aria-expanded": expansion === "expanded",
-              "aria-pressed": expansion === "expanded",
-              "aria-controls": WIDGET_ID,
-              id: TOGGLE_ID
-            },
-            text: expansion === "expanded" ? t4("favorites_show_less") : t4("favorites_show_more", { count: String(hiddenCount) }),
-            onClick: toggle
-          }
-        )
-      )
-    ));
+        text: expansion === "expanded" ? t4("ntp_show_less") : t4("ntp_show_more"),
+        label: expansion === "expanded" ? t4("favorites_show_less") : t4("favorites_show_more", { count: String(hiddenCount) }),
+        onClick: toggle
+      }
+    ))));
   }
   function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites: favorites2, expansion, openFavorite, openContextMenu, add: add2 }) {
     const platformName = usePlatformName();
@@ -24395,14 +24387,13 @@
       }
     };
   }
-  var import_classnames9, FavoritesMemo, ROW_CAPACITY, ITEM_HEIGHT, ROW_GAP, FavoritesThemeContext;
+  var FavoritesMemo, ROW_CAPACITY, ITEM_HEIGHT, ROW_GAP, FavoritesThemeContext;
   var init_Favorites2 = __esm({
     "pages/new-tab/app/favorites/components/Favorites.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_compat_module();
-      import_classnames9 = __toESM(require_classnames(), 1);
       init_Favorites();
       init_ShowHideButton();
       init_types();
@@ -24527,7 +24518,7 @@
     return /* @__PURE__ */ g(
       "button",
       {
-        className: (0, import_classnames10.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
+        className: (0, import_classnames9.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
         type,
         onClick: (
           /**
@@ -24543,12 +24534,12 @@
       children
     );
   }
-  var import_classnames10;
+  var import_classnames9;
   var init_Button2 = __esm({
     "shared/components/Button/Button.js"() {
       "use strict";
       init_preact_module();
-      import_classnames10 = __toESM(require_classnames(), 1);
+      import_classnames9 = __toESM(require_classnames(), 1);
       init_Button();
     }
   });
@@ -24566,14 +24557,14 @@
   // pages/new-tab/app/components/DismissButton.jsx
   function DismissButton({ className, onClick, buttonProps = {} }) {
     const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ g("button", { class: (0, import_classnames11.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ g(Cross, null));
+    return /* @__PURE__ */ g("button", { class: (0, import_classnames10.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ g(Cross, null));
   }
-  var import_classnames11;
+  var import_classnames10;
   var init_DismissButton2 = __esm({
     "pages/new-tab/app/components/DismissButton.jsx"() {
       "use strict";
       init_preact_module();
-      import_classnames11 = __toESM(require_classnames(), 1);
+      import_classnames10 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_types();
       init_DismissButton();
@@ -24693,10 +24684,10 @@
     );
     const ntp = useMessaging();
     y2(() => {
-      const stats2 = new FreemiumPIRBannerService(ntp);
-      service.current = stats2;
+      const stats = new FreemiumPIRBannerService(ntp);
+      service.current = stats;
       return () => {
-        stats2.destroy();
+        stats.destroy();
       };
     }, [ntp]);
     return service;
@@ -24756,7 +24747,7 @@
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js
   function FreemiumPIRBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ g("div", { id: message.id, class: (0, import_classnames12.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ g("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ g("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ g("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ g("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ g("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ g("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ g(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ g("div", { id: message.id, class: (0, import_classnames11.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ g("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ g("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ g("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ g("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ g("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ g("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ g(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = x2(FreemiumPIRBannerContext);
@@ -24765,11 +24756,11 @@
     }
     return null;
   }
-  var import_classnames12;
+  var import_classnames11;
   var init_FreemiumPIRBanner2 = __esm({
     "pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js"() {
       "use strict";
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames11 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -24929,10 +24920,10 @@
     );
     const ntp = useMessaging();
     y2(() => {
-      const stats2 = new NextStepsService(ntp);
-      service.current = stats2;
+      const stats = new NextStepsService(ntp);
+      service.current = stats;
       return () => {
-        stats2.destroy();
+        stats.destroy();
       };
     }, [ntp]);
     return service;
@@ -25062,9 +25053,8 @@
         confirmation: "NextSteps_confirmation",
         dismissBtn: "NextSteps_dismissBtn",
         cardGroup: "NextSteps_cardGroup",
-        showhide: "NextSteps_showhide",
-        noExpansionBtn: "NextSteps_noExpansionBtn",
         cardGrid: "NextSteps_cardGrid",
+        showhide: "NextSteps_showhide",
         bubble: "NextSteps_bubble",
         nextStepsCard: "NextSteps_nextStepsCard"
       };
@@ -25090,18 +25080,18 @@
     return /* @__PURE__ */ g("div", { class: NextSteps_default.card }, /* @__PURE__ */ g("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ g("h3", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ g("p", { class: NextSteps_default.description }, message.summary), hasConfirmationState && !!showConfirmation ? /* @__PURE__ */ g("div", { class: NextSteps_default.confirmation }, /* @__PURE__ */ g(CheckColor, null), /* @__PURE__ */ g("p", null, message.confirmationText)) : /* @__PURE__ */ g(
       "button",
       {
-        class: (0, import_classnames13.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
+        class: (0, import_classnames12.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
         onClick: handleClick
       },
       message.actionText
     ), /* @__PURE__ */ g(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
-  var import_classnames13;
+  var import_classnames12;
   var init_NextStepsCard = __esm({
     "pages/new-tab/app/next-steps/components/NextStepsCard.js"() {
       "use strict";
       init_preact_module();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames12 = __toESM(require_classnames(), 1);
       init_hooks_module();
       init_DismissButton2();
       init_Icons2();
@@ -25120,28 +25110,20 @@
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
-    return /* @__PURE__ */ g("div", { class: (0, import_classnames14.default)(NextSteps_default.cardGroup, types.length <= 2 && NextSteps_default.noExpansionBtn), id: WIDGET_ID }, /* @__PURE__ */ g(NextStepsBubbleHeader, null), /* @__PURE__ */ g("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ g(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ g(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ g(
-      "div",
+    return /* @__PURE__ */ g("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, /* @__PURE__ */ g(NextStepsBubbleHeader, null), /* @__PURE__ */ g("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ g(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ g(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ g(ShowHideBar, null, /* @__PURE__ */ g(
+      ShowHideButtonPill,
       {
-        className: (0, import_classnames14.default)({
-          [NextSteps_default.showhide]: types.length > 2,
-          [NextSteps_default.showhideVisible]: types.length > 2
-        })
-      },
-      /* @__PURE__ */ g(
-        ShowHideButton,
-        {
-          buttonAttrs: {
-            "aria-expanded": expansion === "expanded",
-            "aria-pressed": expansion === "expanded",
-            "aria-controls": WIDGET_ID,
-            id: TOGGLE_ID
-          },
-          text: expansion === "expanded" ? otherText.showLess(t4) : otherText.showMore(t4),
-          onClick: toggle
-        }
-      )
-    ));
+        buttonAttrs: {
+          "aria-expanded": expansion === "expanded",
+          "aria-pressed": expansion === "expanded",
+          "aria-controls": WIDGET_ID,
+          id: TOGGLE_ID
+        },
+        text: expansion === "expanded" ? otherText.showLess(t4) : otherText.showMore(t4),
+        label: void 0,
+        onClick: toggle
+      }
+    )));
   }
   function NextStepsBubbleHeader() {
     const { t: t4 } = useTypedTranslationWith(
@@ -25165,12 +25147,10 @@
       }
     )));
   }
-  var import_classnames14;
   var init_NextStepsGroup = __esm({
     "pages/new-tab/app/next-steps/components/NextStepsGroup.js"() {
       "use strict";
       init_preact_module();
-      import_classnames14 = __toESM(require_classnames(), 1);
       init_hooks_module();
       init_ShowHideButton();
       init_types();
@@ -25300,7 +25280,7 @@
     }
   });
 
-  // pages/new-tab/app/privacy-stats/PrivacyStatsProvider.js
+  // pages/new-tab/app/privacy-stats/components/PrivacyStatsProvider.js
   function PrivacyStatsProvider(props) {
     const initial = (
       /** @type {State} */
@@ -25324,17 +25304,17 @@
     );
     const ntp = useMessaging();
     y2(() => {
-      const stats2 = new PrivacyStatsService(ntp);
-      service.current = stats2;
+      const stats = new PrivacyStatsService(ntp);
+      service.current = stats;
       return () => {
-        stats2.destroy();
+        stats.destroy();
       };
     }, [ntp]);
     return service;
   }
   var PrivacyStatsContext, PrivacyStatsDispatchContext;
   var init_PrivacyStatsProvider = __esm({
-    "pages/new-tab/app/privacy-stats/PrivacyStatsProvider.js"() {
+    "pages/new-tab/app/privacy-stats/components/PrivacyStatsProvider.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
@@ -25357,8 +25337,8 @@
   });
 
   // pages/new-tab/app/privacy-stats/privacy-stats.utils.js
-  function sortStatsForDisplay(stats2) {
-    const sorted = stats2.slice().sort((a4, b4) => b4.count - a4.count);
+  function sortStatsForDisplay(stats) {
+    const sorted = stats.slice().sort((a4, b4) => b4.count - a4.count);
     const other = sorted.findIndex((x4) => x4.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER);
     if (other > -1) {
       const popped = sorted.splice(other, 1);
@@ -25388,7 +25368,7 @@
     const alltime = formatter.format(recent);
     const alltimeTitle = recent === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural", { count: alltime });
     return /* @__PURE__ */ g("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ g("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ g("img", { src: "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, t4("stats_noRecent")), some && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, alltimeTitle), canExpand && /* @__PURE__ */ g("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ g(
-      ShowHideButton,
+      ShowHideButtonCircle,
       {
         buttonAttrs: {
           ...buttonAttrs,
@@ -25396,12 +25376,11 @@
           "aria-pressed": expansion === "expanded"
         },
         onClick: onToggle,
-        text: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel"),
-        shape: "round"
+        label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    )), recent === 0 && /* @__PURE__ */ g("p", { className: PrivacyStats_default.subtitle }, t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames15.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t4("stats_feedCountBlockedPeriod")));
+    )), recent === 0 && /* @__PURE__ */ g("p", { className: PrivacyStats_default.subtitle }, t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames13.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t4("stats_feedCountBlockedPeriod")));
   }
-  var import_classnames15;
+  var import_classnames13;
   var init_PrivacyStatsHeading = __esm({
     "pages/new-tab/app/privacy-stats/components/PrivacyStatsHeading.js"() {
       "use strict";
@@ -25409,25 +25388,60 @@
       init_hooks_module();
       init_PrivacyStats();
       init_ShowHideButton();
-      import_classnames15 = __toESM(require_classnames(), 1);
+      import_classnames13 = __toESM(require_classnames(), 1);
       init_preact_module();
     }
   });
 
-  // pages/new-tab/app/privacy-stats/components/PrivacyStats.js
-  function PrivacyStats({ expansion, data: data2, toggle, animation = "auto-animate" }) {
-    if (animation === "view-transitions") {
-      return /* @__PURE__ */ g(WithViewTransitions, { data: data2, expansion, toggle });
+  // pages/new-tab/app/privacy-stats/components/BodyExpansionProvider.js
+  function useBodyExpansion() {
+    return x2(BodyExpansionContext);
+  }
+  function useBodyExpansionApi() {
+    return x2(BodyExpansionApiContext);
+  }
+  function BodyExpanderProvider(props) {
+    const messaging2 = useMessaging();
+    const [bodyExpansion, setBodyExpansion] = h2(
+      /** @type {import('../../../types/new-tab').Expansion} */
+      "collapsed"
+    );
+    const bodyExpansionApi = T2(() => {
+      return {
+        showMore() {
+          messaging2.statsShowMore();
+          setBodyExpansion("expanded");
+        },
+        showLess() {
+          messaging2.statsShowLess();
+          setBodyExpansion("collapsed");
+        }
+      };
+    }, [messaging2]);
+    return /* @__PURE__ */ g(BodyExpansionApiContext.Provider, { value: bodyExpansionApi }, /* @__PURE__ */ g(BodyExpansionContext.Provider, { value: bodyExpansion }, props.children));
+  }
+  var BodyExpansionApiContext, BodyExpansionContext;
+  var init_BodyExpansionProvider = __esm({
+    "pages/new-tab/app/privacy-stats/components/BodyExpansionProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      BodyExpansionApiContext = J({
+        showMore() {
+        },
+        showLess() {
+        }
+      });
+      BodyExpansionContext = J(
+        /** @type {import('../../../types/new-tab').Expansion} */
+        "collapsed"
+      );
     }
-    return /* @__PURE__ */ g(PrivacyStatsConfigured, { expansion, data: data2, toggle });
-  }
-  function WithViewTransitions({ expansion, data: data2, toggle }) {
-    const willToggle = q2(() => {
-      viewTransition(toggle);
-    }, [toggle]);
-    return /* @__PURE__ */ g(PrivacyStatsConfigured, { expansion, data: data2, toggle: willToggle });
-  }
-  function PrivacyStatsConfigured({ parentRef, expansion, data: data2, toggle }) {
+  });
+
+  // pages/new-tab/app/privacy-stats/components/PrivacyStats.js
+  function PrivacyStats({ expansion = "expanded", secondaryExpansion, data: data2, toggle }) {
     const expanded = expansion === "expanded";
     const { hasNamedCompanies, recent } = T2(() => {
       let recent2 = 0;
@@ -25442,45 +25456,33 @@
     }, [data2.trackerCompanies]);
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
-    return /* @__PURE__ */ g("div", { class: PrivacyStats_default.root, ref: parentRef }, /* @__PURE__ */ g(
+    const attrs = T2(() => {
+      return {
+        "aria-controls": WIDGET_ID,
+        id: TOGGLE_ID
+      };
+    }, [WIDGET_ID, TOGGLE_ID]);
+    return /* @__PURE__ */ g("div", { class: PrivacyStats_default.root }, /* @__PURE__ */ g(
       PrivacyStatsHeading,
       {
         recent,
         onToggle: toggle,
         expansion,
         canExpand: hasNamedCompanies,
-        buttonAttrs: {
-          "aria-controls": WIDGET_ID,
-          id: TOGGLE_ID
-        }
+        buttonAttrs: attrs
       }
-    ), hasNamedCompanies && expanded && /* @__PURE__ */ g(PrivacyStatsBody, { trackerCompanies: data2.trackerCompanies, listAttrs: { id: WIDGET_ID } }));
+    ), hasNamedCompanies && expanded && /* @__PURE__ */ g(PrivacyStatsBody, { expansion: secondaryExpansion, trackerCompanies: data2.trackerCompanies, id: WIDGET_ID }));
   }
-  function PrivacyStatsBody({ trackerCompanies, listAttrs = {} }) {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {Strings} */
-      {}
-    );
-    const messaging2 = useMessaging();
+  function PrivacyStatsBody({ trackerCompanies, expansion = "expanded", id }) {
     const [formatter] = h2(() => new Intl.NumberFormat());
-    const defaultRowMax = 5;
     const sorted = sortStatsForDisplay(trackerCompanies);
-    const max = sorted[0]?.count ?? 0;
-    const [expansion, setExpansion] = h2(
-      /** @type {Expansion} */
-      "collapsed"
-    );
-    const toggleListExpansion = () => {
-      if (expansion === "collapsed") {
-        messaging2.statsShowMore();
-      } else {
-        messaging2.statsShowLess();
-      }
-      setExpansion(expansion === "collapsed" ? "expanded" : "collapsed");
-    };
-    const rows = expansion === "expanded" ? sorted : sorted.slice(0, defaultRowMax);
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("ul", { ...listAttrs, class: PrivacyStats_default.list, "data-testid": "CompanyList" }, rows.map((company) => {
-      const percentage = Math.min(company.count * 100 / max, 100);
+    const largestTrackerCount = sorted[0]?.count ?? 0;
+    const visibleRows = expansion === "expanded" ? sorted : sorted.slice(0, DDG_STATS_DEFAULT_ROWS);
+    return /* @__PURE__ */ g("div", { id, "data-testid": "PrivacyStatsBody", class: PrivacyStats_default.body }, /* @__PURE__ */ g(CompanyList, { rows: visibleRows, largestTrackerCount, formatter }), /* @__PURE__ */ g(ListFooter, { all: sorted }));
+  }
+  function CompanyList({ rows, formatter, largestTrackerCount }) {
+    return /* @__PURE__ */ g("ul", { class: PrivacyStats_default.list, "data-testid": "CompanyList" }, rows.map((company) => {
+      const percentage = Math.min(company.count * 100 / largestTrackerCount, 100);
       const valueOrMin = Math.max(percentage, 10);
       const inlineStyles = {
         width: `${valueOrMin}%`
@@ -25488,23 +25490,125 @@
       const countText = formatter.format(company.count);
       const displayName = displayNameForCompany(company.displayName);
       if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
-        const otherText2 = t4("stats_otherCount", { count: String(company.count) });
-        return /* @__PURE__ */ g("li", { key: company.displayName, class: PrivacyStats_default.otherTrackersRow }, otherText2);
+        return null;
       }
-      return /* @__PURE__ */ g("li", { key: company.displayName, class: PrivacyStats_default.row }, /* @__PURE__ */ g("div", { class: PrivacyStats_default.company }, /* @__PURE__ */ g(CompanyIcon, { displayName }), /* @__PURE__ */ g("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ g("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ g("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ g("span", { class: PrivacyStats_default.fill, style: inlineStyles }));
-    })), sorted.length > defaultRowMax && /* @__PURE__ */ g("div", { class: PrivacyStats_default.listExpander }, /* @__PURE__ */ g(
-      ShowHideButton,
+      return /* @__PURE__ */ g("li", { key: company.displayName, class: PrivacyStats_default.row }, /* @__PURE__ */ g("div", { className: PrivacyStats_default.company }, /* @__PURE__ */ g(CompanyIcon, { displayName }), /* @__PURE__ */ g("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ g("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ g("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ g("span", { class: PrivacyStats_default.fill, style: inlineStyles }));
+    }));
+  }
+  function ListFooter({ all: all2 }) {
+    const expansion = useBodyExpansion();
+    const lastElement = all2[all2.length - 1];
+    const hasOtherRow = lastElement?.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER;
+    const state = (() => {
+      const comparison = hasOtherRow ? DDG_STATS_DEFAULT_ROWS + 1 : DDG_STATS_DEFAULT_ROWS;
+      if (all2.length <= comparison) {
+        if (hasOtherRow) {
+          if (all2.length === 1) {
+            return "few_other";
+          }
+          return "few_top+other";
+        }
+        return "few_top";
+      } else {
+        if (hasOtherRow) {
+          return expansion === "collapsed" ? "many_top+other_collapsed" : "many_top+other_expanded";
+        }
+        return expansion === "collapsed" ? "many_top_collapsed" : "many_top_expanded";
+      }
+    })();
+    const contents = (() => {
+      switch (state) {
+        case "few_other":
+        case "few_top+other": {
+          return /* @__PURE__ */ g(OtherText, { count: lastElement.count });
+        }
+        case "many_top_collapsed":
+        case "many_top_expanded":
+        case "many_top+other_collapsed": {
+          return /* @__PURE__ */ g(PillShowMoreLess, { expansion });
+        }
+        case "many_top+other_expanded":
+          return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(OtherText, { count: lastElement.count }), /* @__PURE__ */ g(PillShowMoreLess, { expansion }));
+        case "few_top":
+        default:
+          return null;
+      }
+    })();
+    if (contents === null) return null;
+    return /* @__PURE__ */ g("div", { class: PrivacyStats_default.listFooter, "data-testid": "ListFooter" }, contents);
+  }
+  function PillShowMoreLess({ expansion }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { showLess, showMore } = useBodyExpansionApi();
+    const toggleListExpansion = () => {
+      if (expansion === "collapsed") {
+        showMore();
+      } else {
+        showLess();
+      }
+    };
+    return /* @__PURE__ */ g("div", { class: PrivacyStats_default.listExpander }, /* @__PURE__ */ g(
+      ShowHideButtonPill,
       {
         onClick: toggleListExpansion,
+        label: void 0,
+        fill: false,
         text: expansion === "collapsed" ? t4("ntp_show_more") : t4("ntp_show_less"),
-        showText: true,
         buttonAttrs: {
           "aria-expanded": expansion === "expanded",
           "aria-pressed": expansion === "expanded"
         }
       }
-    )));
+    ));
   }
+  function OtherText({ count }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const otherText2 = t4("stats_otherCount", { count: String(count) });
+    return /* @__PURE__ */ g("div", { class: PrivacyStats_default.otherTrackersRow }, otherText2);
+  }
+  var init_PrivacyStats2 = __esm({
+    "pages/new-tab/app/privacy-stats/components/PrivacyStats.js"() {
+      "use strict";
+      init_preact_module();
+      init_PrivacyStats();
+      init_types();
+      init_hooks_module();
+      init_ShowHideButton();
+      init_constants();
+      init_privacy_stats_utils();
+      init_CompanyIcon2();
+      init_PrivacyStatsHeading();
+      init_BodyExpansionProvider();
+    }
+  });
+
+  // pages/new-tab/app/privacy-stats/components/PrivacyStatsConsumer.js
+  function PrivacyStatsConsumer() {
+    const { state, toggle } = x2(PrivacyStatsContext);
+    const secondaryExpansion = useBodyExpansion();
+    if (state.status === "ready") {
+      return /* @__PURE__ */ g(PrivacyStats, { expansion: state.config.expansion, secondaryExpansion, data: state.data, toggle });
+    }
+    return null;
+  }
+  var init_PrivacyStatsConsumer = __esm({
+    "pages/new-tab/app/privacy-stats/components/PrivacyStatsConsumer.js"() {
+      "use strict";
+      init_hooks_module();
+      init_PrivacyStatsProvider();
+      init_preact_module();
+      init_PrivacyStats2();
+      init_BodyExpansionProvider();
+    }
+  });
+
+  // pages/new-tab/app/privacy-stats/components/PrivacyStatsCustomized.js
   function PrivacyStatsCustomized() {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
@@ -25517,32 +25621,19 @@
     if (visibility.value === "hidden") {
       return null;
     }
-    return /* @__PURE__ */ g(PrivacyStatsProvider, null, /* @__PURE__ */ g(PrivacyStatsConsumer, null));
+    return /* @__PURE__ */ g(PrivacyStatsProvider, null, /* @__PURE__ */ g(BodyExpanderProvider, null, /* @__PURE__ */ g(PrivacyStatsConsumer, null)));
   }
-  function PrivacyStatsConsumer() {
-    const { state, toggle } = x2(PrivacyStatsContext);
-    if (state.status === "ready") {
-      return /* @__PURE__ */ g(PrivacyStats, { expansion: state.config.expansion, animation: state.config.animation?.kind, data: state.data, toggle });
-    }
-    return null;
-  }
-  var init_PrivacyStats2 = __esm({
-    "pages/new-tab/app/privacy-stats/components/PrivacyStats.js"() {
+  var init_PrivacyStatsCustomized = __esm({
+    "pages/new-tab/app/privacy-stats/components/PrivacyStatsCustomized.js"() {
       "use strict";
-      init_preact_module();
-      init_PrivacyStats();
       init_types();
-      init_hooks_module();
-      init_PrivacyStatsProvider();
-      init_widget_config_provider();
-      init_utils2();
-      init_ShowHideButton();
-      init_CustomizerMenu();
-      init_constants();
-      init_privacy_stats_utils();
       init_settings_provider();
-      init_CompanyIcon2();
-      init_PrivacyStatsHeading();
+      init_widget_config_provider();
+      init_CustomizerMenu();
+      init_PrivacyStatsProvider();
+      init_preact_module();
+      init_PrivacyStatsConsumer();
+      init_BodyExpansionProvider();
     }
   });
 
@@ -25558,8 +25649,8 @@
     "pages/new-tab/app/entry-points/privacyStats.js"() {
       "use strict";
       init_preact_module();
-      init_PrivacyStats2();
       init_Layout();
+      init_PrivacyStatsCustomized();
     }
   });
 
@@ -25689,10 +25780,10 @@
     );
     const ntp = useMessaging();
     y2(() => {
-      const stats2 = new RMFService(ntp);
-      service.current = stats2;
+      const stats = new RMFService(ntp);
+      service.current = stats;
       return () => {
-        stats2.destroy();
+        stats.destroy();
       };
     }, [ntp]);
     return service;
@@ -25733,7 +25824,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ g("div", { id, class: (0, import_classnames16.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ g("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ g("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ g("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ g("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ g("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ g("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ g(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ g(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ g("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ g(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ g("div", { id, class: (0, import_classnames14.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ g("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ g("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ g("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ g("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ g("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ g("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ g(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ g(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ g("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ g(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -25750,12 +25841,12 @@
     }
     return null;
   }
-  var import_classnames16;
+  var import_classnames14;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames16 = __toESM(require_classnames(), 1);
+      import_classnames14 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -25881,10 +25972,10 @@
     );
     const ntp = useMessaging();
     y2(() => {
-      const stats2 = new UpdateNotificationService(ntp, initial);
-      service.current = stats2;
+      const stats = new UpdateNotificationService(ntp, initial);
+      service.current = stats;
       return () => {
-        stats2.destroy();
+        stats.destroy();
       };
     }, [ntp, initial]);
     return service;
@@ -25915,7 +26006,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ g("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ g("div", { class: (0, import_classnames17.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ g(WithNotes, { notes, version }) : /* @__PURE__ */ g(WithoutNotes, { version })), /* @__PURE__ */ g(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ g("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ g("div", { class: (0, import_classnames15.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ g(WithNotes, { notes, version }) : /* @__PURE__ */ g(WithoutNotes, { version })), /* @__PURE__ */ g(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -25977,12 +26068,12 @@
     }
     return null;
   }
-  var import_classnames17;
+  var import_classnames15;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames17 = __toESM(require_classnames(), 1);
+      import_classnames15 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -26022,7 +26113,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames26 = __toESM(require_classnames(), 1);
+  var import_classnames24 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -26490,7 +26581,7 @@
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
-  var import_classnames25 = __toESM(require_classnames(), 1);
+  var import_classnames23 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -26523,7 +26614,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames18 = __toESM(require_classnames(), 1);
+  var import_classnames16 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -26548,7 +26639,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ g("ul", { class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ g("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ g("ul", { class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ g("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ g(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -26582,7 +26673,7 @@
     return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(
       "button",
       {
-        class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -26602,7 +26693,7 @@
     return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(
       "button",
       {
-        class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -26624,7 +26715,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -26664,7 +26755,7 @@
       return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(
         "button",
         {
-          class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -26679,7 +26770,7 @@
     return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(
       "button",
       {
-        class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -26705,7 +26796,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames19 = __toESM(require_classnames(), 1);
+  var import_classnames17 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -26718,7 +26809,7 @@
     return /* @__PURE__ */ g("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
       "button",
       {
-        class: (0, import_classnames19.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames17.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -26729,7 +26820,7 @@
     ), /* @__PURE__ */ g("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
       "button",
       {
-        class: (0, import_classnames19.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames17.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -26740,7 +26831,7 @@
     ), /* @__PURE__ */ g("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
       "button",
       {
-        class: (0, import_classnames19.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames17.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -26778,7 +26869,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames20 = __toESM(require_classnames(), 1);
+  var import_classnames18 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -26807,7 +26898,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ g("div", null, /* @__PURE__ */ g("button", { type: "button", onClick: back, class: (0, import_classnames20.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ g(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ g(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ g("div", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ g(PickerPanel, { data: data2, select }), /* @__PURE__ */ g(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ g("div", null, /* @__PURE__ */ g("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ g(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ g(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ g("div", { class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ g(PickerPanel, { data: data2, select }), /* @__PURE__ */ g(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -26844,7 +26935,7 @@
     return /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ g(
       "button",
       {
-        className: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -26869,12 +26960,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ g("span", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ g(Picker, null)));
+    ), /* @__PURE__ */ g("span", { class: (0, import_classnames18.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ g(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames19 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -26902,12 +26993,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ g("div", null, /* @__PURE__ */ g("button", { type: "button", onClick: back, class: (0, import_classnames21.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ g(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ g(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ g(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ g("div", null, /* @__PURE__ */ g("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ g(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ g(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ g(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ g("ul", { className: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ g("ul", { className: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ g("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ g(
         "button",
@@ -26935,7 +27026,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames20 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -26979,7 +27070,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ g("div", { onContextMenu }, /* @__PURE__ */ g("button", { type: "button", onClick: back, class: (0, import_classnames22.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ g(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ g(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ g(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ g("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ g("div", { onContextMenu }, /* @__PURE__ */ g("button", { type: "button", onClick: back, class: (0, import_classnames20.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ g(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ g(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ g(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ g("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -26994,7 +27085,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ g("ul", { className: (0, import_classnames22.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ g("ul", { className: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       return /* @__PURE__ */ g("li", { className: CustomizerDrawerInner_default.bgListItem, key: entry.id }, /* @__PURE__ */ g(
         "button",
         {
@@ -27028,7 +27119,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames22.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ g(PlusIcon, null),
@@ -27039,16 +27130,16 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
   function CustomizerSection({ title, children }) {
     return /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("h3", { className: CustomizerDrawerInner_default.sectionTitle }, title), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ g("div", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ g("div", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames24 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_types();
 
@@ -27081,7 +27172,7 @@
       e4.preventDefault();
       messaging2.open({ target: "settings" });
     }
-    return /* @__PURE__ */ g("a", { href: "duck://settings", class: (0, import_classnames24.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ g("span", null, t4("customizer_settings_link")), /* @__PURE__ */ g(Open, null));
+    return /* @__PURE__ */ g("a", { href: "duck://settings", class: (0, import_classnames22.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ g("span", null, t4("customizer_settings_link")), /* @__PURE__ */ g(Open, null));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
@@ -27093,7 +27184,7 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ g("header", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ g("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ g(
+    return /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ g("header", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ g("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ g(
       DismissButton,
       {
         onClick: close,
@@ -27149,7 +27240,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ g("div", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ g("div", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ g("div", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ g("div", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -27196,7 +27287,7 @@
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(BackgroundConsumer, { browser }), /* @__PURE__ */ g("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ g("main", { class: (0, import_classnames26.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ g("div", { class: App_default.content }, /* @__PURE__ */ g("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ g(WidgetList, null)))), /* @__PURE__ */ g("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ g(CustomizerMenuPositionedFixed, null, customizerKind === "menu" && /* @__PURE__ */ g(CustomizerMenu, null), customizerKind === "drawer" && /* @__PURE__ */ g(
+    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(BackgroundConsumer, { browser }), /* @__PURE__ */ g("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ g("main", { class: (0, import_classnames24.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ g("div", { class: App_default.content }, /* @__PURE__ */ g("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ g(WidgetList, null)))), /* @__PURE__ */ g("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ g(CustomizerMenuPositionedFixed, null, customizerKind === "menu" && /* @__PURE__ */ g(CustomizerMenu, null), customizerKind === "drawer" && /* @__PURE__ */ g(
       CustomizerButton,
       {
         buttonId,
@@ -27209,7 +27300,7 @@
     ))), customizerKind === "drawer" && /* @__PURE__ */ g(
       "aside",
       {
-        class: (0, import_classnames26.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+        class: (0, import_classnames24.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
         tabindex: tabIndex,
         "aria-hidden": hidden,
         "data-theme": browser,
@@ -28133,9 +28224,9 @@
   init_preact_module();
   init_PrivacyStatsProvider();
 
-  // pages/new-tab/app/privacy-stats/mocks/stats.js
+  // pages/new-tab/app/privacy-stats/mocks/privacy-stats.mocks.js
   init_constants();
-  var stats = {
+  var privacyStatsMocks = {
     few: {
       totalCount: 481113,
       trackerCompanies: [
@@ -28187,34 +28278,113 @@
         }
       ]
     },
-    willUpdate: {
-      totalCount: 481113,
+    manyOnlyTop: {
+      totalCount: 2,
       trackerCompanies: [
         {
           displayName: "Facebook",
-          count: 1
+          count: 310
         },
         {
           displayName: "Google",
-          count: 1
-        },
-        {
-          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
-          count: 1
+          count: 279
         },
         {
           displayName: "Amazon.com",
-          count: 1
+          count: 67
         },
         {
           displayName: "Google Ads",
-          count: 1
+          count: 2
+        },
+        {
+          displayName: "Twitter",
+          count: 2
+        },
+        {
+          displayName: "Yandex",
+          count: 2
         }
       ]
     },
-    growing: {
-      totalCount: 0,
-      trackerCompanies: []
+    fewOnlyTop: {
+      totalCount: 2,
+      trackerCompanies: [
+        {
+          displayName: "Facebook",
+          count: 310
+        },
+        {
+          displayName: "Google",
+          count: 279
+        },
+        {
+          displayName: "Amazon.com",
+          count: 67
+        }
+      ]
+    },
+    topAndOneOther: {
+      totalCount: 2,
+      trackerCompanies: [
+        {
+          displayName: "Facebook",
+          count: 310
+        },
+        {
+          displayName: "Google",
+          count: 279
+        },
+        {
+          displayName: "Amazon.com",
+          count: 67
+        },
+        {
+          displayName: "Google Ads",
+          count: 2
+        },
+        {
+          displayName: "Twitter",
+          count: 2
+        },
+        {
+          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+          count: 2
+        }
+      ]
+    },
+    manyTopAndOther: {
+      totalCount: 2,
+      trackerCompanies: [
+        {
+          displayName: "Facebook",
+          count: 310
+        },
+        {
+          displayName: "Google",
+          count: 279
+        },
+        {
+          displayName: "Amazon.com",
+          count: 67
+        },
+        {
+          displayName: "Google Ads",
+          count: 2
+        },
+        {
+          displayName: "Twitter",
+          count: 2
+        },
+        {
+          displayName: "Yandex",
+          count: 2
+        },
+        {
+          displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
+          count: 2
+        }
+      ]
     },
     many: {
       totalCount: 890,
@@ -28268,14 +28438,16 @@
 
   // pages/new-tab/app/privacy-stats/mocks/PrivacyStatsMockProvider.js
   init_service_hooks();
+  init_BodyExpansionProvider();
   function PrivacyStatsMockProvider({
-    data: data2 = stats.few,
+    data: data2 = privacyStatsMocks.few,
     config = { expansion: "expanded", animation: { kind: "auto-animate" } },
+    bodyExpansion = "collapsed",
     ticker = false,
     children
   }) {
     const initial = (
-      /** @type {import('../PrivacyStatsProvider.js').State} */
+      /** @type {import('../components/PrivacyStatsProvider.js').State} */
       {
         status: "ready",
         data: data2,
@@ -28309,11 +28481,22 @@
         send({ kind: "config", config: { ...state.config, expansion: "expanded" } });
       }
     }, [state.config?.expansion]);
-    return /* @__PURE__ */ g(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ g(PrivacyStatsDispatchContext.Provider, { value: send }, children));
+    return /* @__PURE__ */ g(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ g(PrivacyStatsDispatchContext.Provider, { value: send }, /* @__PURE__ */ g(BodyExpansionMockProvider, null, children)));
+  }
+  function BodyExpansionMockProvider({ children, bodyExpansion = "collapsed" }) {
+    const [bodyExpansionState, setBodyExpansion] = h2(bodyExpansion);
+    const showMore = q2(() => {
+      setBodyExpansion("expanded");
+    }, []);
+    const showLess = q2(() => {
+      setBodyExpansion("collapsed");
+    }, []);
+    return /* @__PURE__ */ g(BodyExpansionContext.Provider, { value: bodyExpansionState }, /* @__PURE__ */ g(BodyExpansionApiContext.Provider, { value: { showMore, showLess } }, children));
   }
 
   // pages/new-tab/app/privacy-stats/components/PrivacyStats.examples.js
   init_PrivacyStats2();
+  init_PrivacyStatsConsumer();
   var privacyStatsExamples = {
     "stats.few": {
       factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { ticker: true }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
@@ -28322,44 +28505,35 @@
       factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { config: { expansion: "collapsed" } }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
     },
     "stats.single": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: stats.single }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.single }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
     },
     "stats.none": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: stats.none }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.none }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
     },
     "stats.norecent": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: stats.norecent }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.norecent }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
     },
     "stats.list": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsBody, { trackerCompanies: stats.few.trackerCompanies, listAttrs: { id: "example-stats.list" } })
+      factory: () => /* @__PURE__ */ g(PrivacyStatsBody, { trackerCompanies: privacyStatsMocks.few.trackerCompanies, id: "example-stats.list", expansion: "expanded" })
+    },
+    "stats.footer": {
+      factory: () => {
+        const data2 = privacyStatsMocks.manyTopAndOther.trackerCompanies;
+        return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("h2", null, "Collapsed"), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(BodyExpansionMockProvider, { bodyExpansion: "collapsed" }, /* @__PURE__ */ g(ListFooter, { all: data2 })), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("h2", null, "Expanded"), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(BodyExpansionMockProvider, { bodyExpansion: "expanded" }, /* @__PURE__ */ g(ListFooter, { all: data2 })));
+      }
     }
   };
   var otherPrivacyStatsExamples = {
-    "stats.without-animation": {
-      factory: () => /* @__PURE__ */ g(
-        PrivacyStatsMockProvider,
-        {
-          ticker: true,
-          config: {
-            expansion: "expanded",
-            animation: { kind: "none" }
-          }
-        },
-        /* @__PURE__ */ g(PrivacyStatsConsumer, null)
-      )
+    "stats.all": {
+      factory: () => {
+        const names2 = Object.keys(privacyStatsMocks);
+        return /* @__PURE__ */ g(k, null, names2.map((key2) => {
+          return /* @__PURE__ */ g(k, { key: key2 }, /* @__PURE__ */ g("h2", null, key2), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks[key2] }, /* @__PURE__ */ g(PrivacyStatsConsumer, null)));
+        }));
+      }
     },
-    "stats.with-view-transitions": {
-      factory: () => /* @__PURE__ */ g(
-        PrivacyStatsMockProvider,
-        {
-          ticker: true,
-          config: {
-            expansion: "expanded",
-            animation: { kind: "view-transitions" }
-          }
-        },
-        /* @__PURE__ */ g(PrivacyStatsConsumer, null)
-      )
+    "stats.manyTopAndOther": {
+      factory: () => /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("h2", null, "manyOnlyTop"), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther }, /* @__PURE__ */ g(PrivacyStatsConsumer, null)), /* @__PURE__ */ g("h2", null, "manyOnlyTop + body expanded"), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther, bodyExpansion: "expanded" }, /* @__PURE__ */ g(PrivacyStatsConsumer, null)))
     }
   };
 

@@ -31,7 +31,11 @@ export function useTypedTranslationWith(context) {
 }
 
 export const MessagingContext = createContext(/** @type {import("../src/index.js").NewTabPage} */ ({}));
-export const useMessaging = () => useContext(MessagingContext);
+export const useMessaging = () => {
+    const ctx = useContext(MessagingContext);
+    if (!ctx) console.warn('missing MessagingContext');
+    return ctx;
+};
 export const TelemetryContext = createContext(
     /** @type {import("./telemetry/telemetry.js").Telemetry} */ ({
         measureFromPageLoad: () => {},

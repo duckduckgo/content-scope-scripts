@@ -1,7 +1,7 @@
 import { useTypedTranslationWith } from '../../types.js';
 import { useState } from 'preact/hooks';
 import styles from './PrivacyStats.module.css';
-import { ShowHideButton } from '../../components/ShowHideButton.jsx';
+import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
 import cn from 'classnames';
 import { h } from 'preact';
 
@@ -36,15 +36,14 @@ export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount,
             {someItems && <h2 className={styles.title}>{allTimeString}</h2>}
             {canExpand && (
                 <span className={styles.widgetExpander}>
-                    <ShowHideButton
+                    <ShowHideButtonCircle
                         buttonAttrs={{
                             ...buttonAttrs,
                             'aria-expanded': expansion === 'expanded',
                             'aria-pressed': expansion === 'expanded',
                         }}
                         onClick={onToggle}
-                        text={expansion === 'expanded' ? t('stats_hideLabel') : t('stats_toggleLabel')}
-                        shape="round"
+                        label={expansion === 'expanded' ? t('stats_hideLabel') : t('stats_toggleLabel')}
                     />
                 </span>
             )}

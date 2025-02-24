@@ -1,1 +1,1 @@
-- ntp: expanded favorites widget can accept large updates in place (#1501)
+- ntp: new show/hide buttons (#1491)
