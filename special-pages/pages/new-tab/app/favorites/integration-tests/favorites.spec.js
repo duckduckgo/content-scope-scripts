@@ -136,7 +136,7 @@ test.describe('newtab favorites', () => {
 
         // expand next-steps
         // todo: move this to a page-object in next-steps
-        await page.locator('[data-entry-point="nextSteps"]').getByLabel('Show More', { exact: true }).click();
+        await page.locator('[data-entry-point="nextSteps"]').getByRole('button', { name: 'Show More' }).click();
 
         // first load should have 6
         await favorites.waitForNumFavorites(6);

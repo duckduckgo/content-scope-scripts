@@ -179,17 +179,6 @@ function useDropdown() {
     return { dropdownRef, buttonRef, isOpen, setIsOpen };
 }
 
-export class VisibilityRowState {
-    checked;
-    /**
-     * @param {object} params
-     * @param {boolean} params.checked - whether this item should appear 'checked'
-     */
-    constructor({ checked }) {
-        this.checked = checked;
-    }
-}
-
 export class VisibilityRowData {
     /**
      * @param {object} params

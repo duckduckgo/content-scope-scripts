@@ -1,6 +1,6 @@
 import { h } from 'preact';
-import { PrivacyStatsCustomized } from '../privacy-stats/components/PrivacyStats.js';
 import { Centered } from '../components/Layout.js';
+import { PrivacyStatsCustomized } from '../privacy-stats/components/PrivacyStatsCustomized.js';
 
 export function factory() {
     return (

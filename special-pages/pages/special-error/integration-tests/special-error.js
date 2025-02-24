@@ -154,7 +154,7 @@ export class SpecialErrorPage {
     async showsExpiredPage() {
         const { page } = this;
 
-        this.showsPageTitle('Warning: This site may be insecure');
+        await this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -175,14 +175,11 @@ export class SpecialErrorPage {
     }
 
     /**
-     *
      * @param {string} pageTitle
      */
     async showsPageTitle(pageTitle) {
         const { page } = this;
-
-        const title = await page.locator('title').textContent();
-        expect(title).toBe(pageTitle);
+        await page.waitForFunction((title) => document.title === title, pageTitle, { timeout: 2000 });
     }
 
     async showsExpiredPageInPolish() {
@@ -193,7 +190,7 @@ export class SpecialErrorPage {
     async showsInvalidPage() {
         const { page } = this;
 
-        this.showsPageTitle('Warning: This site may be insecure');
+        await this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -215,7 +212,7 @@ export class SpecialErrorPage {
     async showsSelfSignedPage() {
         const { page } = this;
 
-        this.showsPageTitle('Warning: This site may be insecure');
+        await this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -237,7 +234,7 @@ export class SpecialErrorPage {
     async showsWrongHostPage() {
         const { page } = this;
 
-        this.showsPageTitle('Warning: This site may be insecure');
+        await this.showsPageTitle('Warning: This site may be insecure');
 
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible();
         await expect(
@@ -259,8 +256,7 @@ export class SpecialErrorPage {
     async showsPhishingPage() {
         const { page } = this;
 
-        const title = await page.locator('title').textContent();
-        expect(title).toBe('Warning: Security Risk');
+        await this.showsPageTitle('Warning: Security Risk');
 
         await expect(page.getByText('Warning: This site may be a security risk', { exact: true })).toBeVisible();
         await expect(
@@ -281,8 +277,7 @@ export class SpecialErrorPage {
     async showsMalwarePage() {
         const { page } = this;
 
-        const title = await page.locator('title').textContent();
-        expect(title).toBe('Warning: Security Risk');
+        await this.showsPageTitle('Warning: Security Risk');
 
         await expect(page.getByText('Warning: This site may be a security risk', { exact: true })).toBeVisible();
         await expect(

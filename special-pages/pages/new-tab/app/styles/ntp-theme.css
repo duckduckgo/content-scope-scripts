@@ -6,6 +6,11 @@
     --ntp-drawer-scroll-width: 12px;
     --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
 
+    /* Mac/System/Callout */
+    --callout-font-size: 12px;
+    --callout-font-weight: 400;
+    --callout-line-height: 15px;
+
     /* Mac/System/Body */
     --body-font-size: 13px;
     --body-font-weight: 400;

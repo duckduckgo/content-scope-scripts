@@ -51,8 +51,7 @@ test.describe('newtab NextSteps cards', () => {
         // while collapsed, 4th item action button unavailable
         await expect(page.getByRole('button', { name: 'Try DuckPlayer' })).not.toBeVisible();
 
-        // expand the section
-        await page.getByLabel('Show More', { exact: true }).click();
+        await page.locator('[data-entry-point="nextSteps"]').getByRole('button', { name: 'Show More' }).click();
 
         await expect(page.locator('h3').filter({ hasText: 'Block Cookie Pop-ups' })).toBeVisible();
         await page.getByRole('button', { name: 'Try DuckPlayer' }).click();

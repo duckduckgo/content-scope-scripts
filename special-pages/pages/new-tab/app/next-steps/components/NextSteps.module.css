@@ -139,16 +139,20 @@
     height: 100%;
     width: 100%;
     position: relative;
-    margin-bottom: var(--sp-4);
+    margin-bottom: var(--ntp-gap);
 
-    &:hover {
-        .showhide {
-            opacity: 1;
-        }
+    &:has([data-show-hide]) {
+        margin-bottom: var(--sp-4);
     }
 
-    &.noExpansionBtn {
-        margin-bottom: var(--ntp-gap);
+    [data-show-hide] {
+        opacity: 0;
+    }
+
+    &:hover {
+        [data-show-hide] {
+            opacity: 1;
+        }
     }
 }
 
@@ -157,6 +161,11 @@
     grid-template-columns: 1fr 1fr;
     gap: var(--sp-6);
     margin-bottom: 1px;
+}
+
+.showhide {
+    opacity: 0;
+    transition: opacity .2s;
 }
 
 .bubble {

@@ -7,14 +7,23 @@ const url = typeof window !== 'undefined' ? new URL(window.location.href) : new 
  * @typedef {import('../../../types/new-tab.js').ActivityOnDataPatchSubscription['params']} PatchParams
  */
 
+/**
+ * @template T
+ * @param {T} value
+ * @return {T}
+ */
+function clone(value) {
+    return window.structuredClone?.(value) ?? JSON.parse(JSON.stringify(value));
+}
+
 export function activityMockTransport() {
     /** @type {import('../../../types/new-tab.ts').ActivityData} */
-    let dataset = structuredClone(activityMocks.few);
+    let dataset = clone(activityMocks.few);
 
     if (url.searchParams.has('activity')) {
         const key = url.searchParams.get('activity');
         if (key && key in activityMocks) {
-            dataset = structuredClone(activityMocks[key]);
+            dataset = clone(activityMocks[key]);
         } else if (key?.match(/^\d+$/)) {
             dataset = getJsonSync(parseInt(key));
         }

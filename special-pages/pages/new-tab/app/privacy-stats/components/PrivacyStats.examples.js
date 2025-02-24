@@ -1,7 +1,8 @@
-import { h } from 'preact';
-import { PrivacyStatsMockProvider } from '../mocks/PrivacyStatsMockProvider.js';
-import { PrivacyStatsConsumer, PrivacyStatsBody } from './PrivacyStats.js';
-import { stats } from '../mocks/stats.js';
+import { Fragment, h } from 'preact';
+import { BodyExpansionMockProvider, PrivacyStatsMockProvider } from '../mocks/PrivacyStatsMockProvider.js';
+import { ListFooter, PrivacyStatsBody } from './PrivacyStats.js';
+import { privacyStatsMocks } from '../mocks/privacy-stats.mocks.js';
+import { PrivacyStatsConsumer } from './PrivacyStatsConsumer.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 
@@ -22,55 +23,87 @@ export const privacyStatsExamples = {
     },
     'stats.single': {
         factory: () => (
-            <PrivacyStatsMockProvider data={stats.single}>
+            <PrivacyStatsMockProvider data={privacyStatsMocks.single}>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
         ),
     },
     'stats.none': {
         factory: () => (
-            <PrivacyStatsMockProvider data={stats.none}>
+            <PrivacyStatsMockProvider data={privacyStatsMocks.none}>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
         ),
     },
     'stats.norecent': {
         factory: () => (
-            <PrivacyStatsMockProvider data={stats.norecent}>
+            <PrivacyStatsMockProvider data={privacyStatsMocks.norecent}>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
         ),
     },
     'stats.list': {
-        factory: () => <PrivacyStatsBody trackerCompanies={stats.few.trackerCompanies} listAttrs={{ id: 'example-stats.list' }} />,
+        factory: () => (
+            <PrivacyStatsBody trackerCompanies={privacyStatsMocks.few.trackerCompanies} id={'example-stats.list'} expansion={'expanded'} />
+        ),
+    },
+    'stats.footer': {
+        factory: () => {
+            const data = privacyStatsMocks.manyTopAndOther.trackerCompanies;
+            return (
+                <Fragment>
+                    <h2>Collapsed</h2>
+                    <br />
+                    <BodyExpansionMockProvider bodyExpansion={'collapsed'}>
+                        <ListFooter all={data} />
+                    </BodyExpansionMockProvider>
+                    <br />
+                    <h2>Expanded</h2>
+                    <br />
+                    <BodyExpansionMockProvider bodyExpansion={'expanded'}>
+                        <ListFooter all={data} />
+                    </BodyExpansionMockProvider>
+                </Fragment>
+            );
+        },
     },
 };
 
 export const otherPrivacyStatsExamples = {
-    'stats.without-animation': {
-        factory: () => (
-            <PrivacyStatsMockProvider
-                ticker={true}
-                config={{
-                    expansion: 'expanded',
-                    animation: { kind: 'none' },
-                }}
-            >
-                <PrivacyStatsConsumer />
-            </PrivacyStatsMockProvider>
-        ),
+    'stats.all': {
+        factory: () => {
+            const names = Object.keys(privacyStatsMocks);
+            return (
+                <Fragment>
+                    {names.map((key) => {
+                        return (
+                            <Fragment key={key}>
+                                <h2>{key}</h2>
+                                <br />
+                                <PrivacyStatsMockProvider data={privacyStatsMocks[key]}>
+                                    <PrivacyStatsConsumer />
+                                </PrivacyStatsMockProvider>
+                            </Fragment>
+                        );
+                    })}
+                </Fragment>
+            );
+        },
     },
-    'stats.with-view-transitions': {
+    'stats.manyTopAndOther': {
         factory: () => (
-            <PrivacyStatsMockProvider
-                ticker={true}
-                config={{
-                    expansion: 'expanded',
-                    animation: { kind: 'view-transitions' },
-                }}
-            >
-                <PrivacyStatsConsumer />
-            </PrivacyStatsMockProvider>
+            <Fragment>
+                <h2>manyOnlyTop</h2>
+                <br />
+                <PrivacyStatsMockProvider data={privacyStatsMocks.manyTopAndOther}>
+                    <PrivacyStatsConsumer />
+                </PrivacyStatsMockProvider>
+                <h2>manyOnlyTop + body expanded</h2>
+                <br />
+                <PrivacyStatsMockProvider data={privacyStatsMocks.manyTopAndOther} bodyExpansion={'expanded'}>
+                    <PrivacyStatsConsumer />
+                </PrivacyStatsMockProvider>
+            </Fragment>
         ),
     },
 };
