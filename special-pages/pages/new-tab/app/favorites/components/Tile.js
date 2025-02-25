@@ -3,11 +3,11 @@ import cn from 'classnames';
 import { useId } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import styles from './Tile.module.css';
-import { DDG_DEFAULT_ICON_SIZE } from '../constants.js';
+import { DDG_DEFAULT_ICON_SIZE, DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK } from '../constants.js';
 import { useItemState } from './PragmaticDND.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { PlusIcon } from '../../components/Icons.js';
-import { ImageWithState } from '../../components/ImageWithState.js';
+import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
 
 /**
  * @import {Favorite} from '../../../types/new-tab'
@@ -51,13 +51,14 @@ export const Tile = memo(
             >
                 <div class={cn(styles.icon, styles.draggable)}>
                     {visibility === 'visible' && (
-                        <ImageWithState
+                        <FaviconWithState
                             faviconSrc={faviconSrc}
                             faviconMax={faviconMax || DDG_DEFAULT_ICON_SIZE}
-                            title={title}
                             theme={theme}
                             etldPlusOne={etldPlusOne}
                             displayKind={'favorite-tile'}
+                            fallback={DDG_FALLBACK_ICON}
+                            fallbackDark={DDG_FALLBACK_ICON_DARK}
                         />
                     )}
                 </div>
