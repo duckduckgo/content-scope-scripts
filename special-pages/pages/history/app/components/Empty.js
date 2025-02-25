@@ -10,8 +10,12 @@ export function Empty() {
     const { t } = useTypedTranslation();
     return (
         <div class={cn(styles.emptyState, styles.emptyStateOffset)}>
-            <img src="icons/clock.svg" width={128} height={96} alt="" class={styles.emptyStateImage} />
+            <div class={styles.icons}>
+                <img src="icons/backdrop.svg" width={128} height={96} alt="" />
+                <img src="icons/clock.svg" width={60} height={60} alt="" class={styles.forground} />
+            </div>
             <h2 class={styles.emptyTitle}>{t('empty_title')}</h2>
+            <p class={styles.emptyText}>{t('empty_text')}</p>
         </div>
     );
 }

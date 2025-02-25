@@ -91,7 +91,11 @@ Response, note: always return the same query I sent:
       "domain": "example.com",
       "etldPlusOne": "example.com",
       "title": "Example Website",
-      "url": "https://example.com/page"
+      "url": "https://example.com/page",
+      "favicon": {
+        "src": "...",
+        "maxAvailableSize": 64
+      }
     }
   ]
 }
@@ -108,6 +112,27 @@ Response, note: always return the same query I sent:
 ```json
 {
   "range": "today" 
+}
+```
+
+**response**
+```json
+{
+  "action": "delete" 
+}
+```
+
+### `deleteTerm`
+- Sent to delete a search term
+- Parameters: {@link "History Messages".DeleteTermParams}
+- If the user confirms, respond with `{ action: 'delete' }`
+- otherwise `{ action: 'none' }`
+  - Response: {@link "History Messages".DeleteTermResponse}
+
+**params**
+```json
+{
+  "term": "youtube" 
 }
 ```
 
@@ -171,12 +196,35 @@ Sent when a right-click is issued on a section title (or when the three-dots but
 }
 ```
 
+**response, to trigger a domain search**
+```json
+{
+  "action": "domain-search" 
+}
+```
+
 **response, otherwise**
 ```json
 {
   "action": "none" 
 }
 ```
+
+### `entries_delete`
+{@link "History Messages".EntriesDeleteRequest}
+{@link "History Messages".EntriesDeleteRequest}
+
+Sent when the delete key is pressed on an item, or a group of items
+
+**Types:**
+- Parameters: {@link "History Messages".EntriesDeleteParams}
+- Response: {@link "History Messages".EntriesDeleteResponse}
+
+Note: if a single `id` is sent, **no modal/confirmation should be shown** - but you must
+still reply with an {@link "History Messages".ActionResponse} when the action was completed.
+
+If multiple `id`s are sent, then present a modal window for confirmation, eventually 
+responding to the message with {@link "History Messages".ActionResponse}
 
 ## Notifications
 

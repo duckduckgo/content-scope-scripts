@@ -5,25 +5,83 @@ import { SearchForm } from './SearchForm.js';
 import { Trash } from '../icons/Trash.js';
 import { useTypedTranslation } from '../types.js';
 import { useQueryContext } from '../global-state/QueryProvider.js';
-import { BTN_ACTION_DELETE_ALL } from '../constants.js';
+import { useData } from '../global-state/DataProvider.js';
+import { useSelected } from '../global-state/SelectionProvider.js';
+import { useHistoryServiceDispatch } from '../global-state/HistoryServiceProvider.js';
 
 /**
  */
 export function Header() {
-    const { t } = useTypedTranslation();
     const search = useQueryContext();
     const term = useComputed(() => search.value.term);
+    const range = useComputed(() => search.value.range);
+    const domain = useComputed(() => search.value.domain);
     return (
         <div class={styles.root}>
-            <div class={styles.controls}>
-                <button class={styles.largeButton} data-action={BTN_ACTION_DELETE_ALL}>
-                    <span>{t('delete_all')}</span>
-                    <Trash />
-                </button>
-            </div>
+            <Controls term={term} range={range} />
             <div class={styles.search}>
-                <SearchForm term={term} />
+                <SearchForm term={term} domain={domain} />
             </div>
+        </div>
+    );
+}
+
+/**
+ * Renders the Controls component that displays a button for deletion functionality.
+ *
+ * @param {Object} props - Properties passed to the component.
+ * @param {import("@preact/signals").Signal<string|null>} props.term
+ * @param {import("@preact/signals").Signal<string|null>} props.range
+ */
+function Controls({ term, range }) {
+    const { t } = useTypedTranslation();
+    const { results } = useData();
+    const selected = useSelected();
+    const dispatch = useHistoryServiceDispatch();
+
+    /**
+     * Aria labels + title text is derived from the current result set.
+     */
+    const ariaDisabled = useComputed(() => results.value.items.length === 0);
+    const title = useComputed(() => (results.value.items.length === 0 ? t('delete_none') : ''));
+
+    /**
+     * The button text should be 'delete all', unless there are row selections, then it's just 'delete'
+     */
+    const buttonTxt = useComputed(() => {
+        const hasSelections = selected.value.size > 0;
+        if (hasSelections) return t('delete_some');
+        return t('delete_all');
+    });
+
+    /**
+     * Which action should the delete button take?
+     *
+     * - if there are selections, they should be deleted by indexes
+     * - if there's a range selected, that should be deleted
+     * - if there's a search term, that should be deleted
+     * - or fallback to deleting all
+     */
+    function onClick() {
+        if (ariaDisabled.value === true) return;
+        if (selected.value.size > 0) {
+            return dispatch({ kind: 'delete-entries-by-index', value: [...selected.value] });
+        }
+        if (range.value !== null) {
+            return dispatch({ kind: 'delete-range', value: range.value });
+        }
+        if (term.value !== null && term.value !== '') {
+            return dispatch({ kind: 'delete-term', term: term.value });
+        }
+        dispatch({ kind: 'delete-all' });
+    }
+
+    return (
+        <div class={styles.controls}>
+            <button class={styles.largeButton} onClick={onClick} aria-disabled={ariaDisabled} title={title}>
+                <Trash />
+                <span>{buttonTxt}</span>
+            </button>
         </div>
     );
 }

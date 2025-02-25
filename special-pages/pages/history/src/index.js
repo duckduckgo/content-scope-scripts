@@ -54,14 +54,6 @@ export class HistoryPage {
     reportInitException(params) {
         this.messaging.notify('reportInitException', params);
     }
-
-    /**
-     * This will be sent if the application fails to load.
-     * @param {import('../types/history.js').HistoryQuery} params
-     */
-    query(params) {
-        return this.messaging.request('query', params);
-    }
 }
 
 const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
