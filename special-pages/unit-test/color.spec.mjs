@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import { test } from 'node:test';
-import { urlToColor } from '../getColorForString.js';
+import { urlToColor } from '../shared/getColorForString.js';
 import fc from 'fast-check';
 
 /**
