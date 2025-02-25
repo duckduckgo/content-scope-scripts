@@ -9,8 +9,13 @@ import { polyfillProcessGlobals } from '../../unit-test/helpers/polyfill-process
 const DATA_DIR_PREFIX = 'ddg-temp-';
 
 /**
+ * @import {PlaywrightTestArgs, PlaywrightTestOptions, PlaywrightWorkerArgs, PlaywrightWorkerOptions, TestType} from "@playwright/test"
+ */
+
+/**
  * A single place
  * @param {typeof import("@playwright/test").test} test
+ * @return {TestType<PlaywrightTestArgs & PlaywrightTestOptions & PlaywrightWorkerArgs & PlaywrightWorkerOptions & { altServerPort: number }, {}>}
  */
 export function testContextForExtension(test) {
     return test.extend({
