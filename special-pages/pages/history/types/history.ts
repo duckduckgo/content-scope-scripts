@@ -19,7 +19,7 @@ export type Range =
   | "saturday"
   | "sunday"
   | "older";
-export type ActionResponse = (DeleteAction | NoneAction) & string;
+export type ActionResponse = (DeleteAction | NoneAction | DomainSearchAction) & string;
 /**
  * Confirms the user deleted this
  */
@@ -28,7 +28,15 @@ export type DeleteAction = "delete";
  * The user cancelled the action, or did not agree to it
  */
 export type NoneAction = "none";
+/**
+ * The user asked to see more results from the domain
+ */
+export type DomainSearchAction = "domain-search";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
+export type Favicon = null | {
+  src: string;
+  maxAvailableSize?: number;
+};
 /**
  * This value matches the section headings
  */
@@ -41,6 +49,8 @@ export interface HistoryMessages {
   notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
   requests:
     | DeleteRangeRequest
+    | DeleteTermRequest
+    | EntriesDeleteRequest
     | EntriesMenuRequest
     | GetRangesRequest
     | InitialSetupRequest
@@ -93,6 +103,34 @@ export interface DeleteRangeParams {
   range: Range;
 }
 export interface DeleteRangeResponse {
+  action: ActionResponse;
+}
+/**
+ * Generated from @see "../messages/deleteTerm.request.json"
+ */
+export interface DeleteTermRequest {
+  method: "deleteTerm";
+  params: DeleteTermParams;
+  result: DeleteTermResponse;
+}
+export interface DeleteTermParams {
+  term: string;
+}
+export interface DeleteTermResponse {
+  action: ActionResponse;
+}
+/**
+ * Generated from @see "../messages/entries_delete.request.json"
+ */
+export interface EntriesDeleteRequest {
+  method: "entries_delete";
+  params: EntriesDeleteParams;
+  result: EntriesDeleteResponse;
+}
+export interface EntriesDeleteParams {
+  ids: string[];
+}
+export interface EntriesDeleteResponse {
   action: ActionResponse;
 }
 /**
@@ -205,6 +243,7 @@ export interface HistoryItem {
    * A complete URL including query parameters.
    */
   url: string;
+  favicon?: Favicon;
 }
 /**
  * Generated from @see "../messages/title_menu.request.json"

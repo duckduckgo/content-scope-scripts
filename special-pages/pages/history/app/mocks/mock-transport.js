@@ -58,8 +58,40 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
 
             switch (msg.method) {
+                case 'entries_delete': {
+                    console.log('📤 [entries_delete]: ', JSON.stringify(msg.params));
+                    if (msg.params.ids.length > 1) {
+                        // prettier-ignore
+                        const lines = [
+                            `entries_delete: ${JSON.stringify(msg.params)}`,
+                            `To simulate deleting these items, press confirm`
+                        ].join('\n');
+                        if (confirm(lines)) {
+                            return Promise.resolve({ action: 'delete' });
+                        } else {
+                            return Promise.resolve({ action: 'none' });
+                        }
+                    }
+                    return Promise.resolve({ action: 'delete' });
+                }
                 case 'entries_menu': {
-                    console.log('📤 [entries_menu]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [entries_menu]: ', JSON.stringify(msg.params));
+                    const isSingle = msg.params.ids.length === 1;
+                    if (isSingle) {
+                        if (url.searchParams.get('action') === 'domain-search') {
+                            // prettier-ignore
+                            const lines = [
+                                `entries_menu: ${JSON.stringify(msg.params.ids)}`,
+                                `To simulate pressing 'show more from this url', press confirm`
+                            ].join('\n');
+                            if (confirm(lines)) {
+                                return Promise.resolve({ action: 'domain-search' });
+                            } else {
+                                return Promise.resolve({ action: 'none' });
+                            }
+                            // return Promise.resolve({ action: 'delete' });
+                        }
+                    }
                     // prettier-ignore
                     const lines = [
                         `entries_menu: ${JSON.stringify(msg.params)}`,
@@ -71,7 +103,7 @@ export function mockTransport() {
                     return Promise.resolve({ action: 'none' });
                 }
                 case 'title_menu': {
-                    console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
                     // prettier-ignore
                     const lines = [
                         `title_menu: ${JSON.stringify(msg.params)}`,
@@ -88,6 +120,19 @@ export function mockTransport() {
                     const lines = [
                         `deleteRange: ${JSON.stringify(msg.params)}`,
                         `To simulate deleting this item, press confirm`
+                    ].join('\n',);
+                    if (confirm(lines)) {
+                        if (msg.params.range === 'all') memory = [];
+                        return Promise.resolve({ action: 'delete' });
+                    }
+                    return Promise.resolve({ action: 'none' });
+                }
+                case 'deleteTerm': {
+                    console.log('📤 [deleteTerm]: ', JSON.stringify(msg.params));
+                    // prettier-ignore
+                    const lines = [
+                        `deleteTerm: ${JSON.stringify(msg.params)}`,
+                        `To simulate deleting this term, press confirm`
                     ].join('\n',);
                     if (confirm(lines)) {
                         return Promise.resolve({ action: 'delete' });
@@ -110,13 +155,21 @@ export function mockTransport() {
                     const response = {
                         ranges: ['all', 'today', 'yesterday', 'tuesday', 'monday', 'friday', 'older'],
                     };
+                    if (url.searchParams.get('history') === '0') {
+                        response.ranges = ['all'];
+                    }
                     return Promise.resolve(response);
                 }
                 case 'query': {
-                    console.log('📤 [query]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [query]: ', JSON.stringify(msg.params));
                     if ('term' in msg.params.query) {
                         const { term } = msg.params.query;
                         if (term !== '') {
+                            if (term === '2s') {
+                                const response = asResponse(memory.slice(0, 20), msg.params.offset, msg.params.limit);
+                                // eslint-disable-next-line promise/prefer-await-to-then
+                                return new Promise((resolve) => setTimeout(resolve, 1000)).then(() => response);
+                            }
                             if (term.trim().match(/^\d+$/)) {
                                 const int = parseInt(term.trim(), 10);
                                 /** @type {import("../../types/history").HistoryQueryResponse} */
@@ -142,6 +195,17 @@ export function mockTransport() {
                             return {
                                 ...item,
                                 title: 'range:' + range + ' ' + item.title,
+                            };
+                        });
+                        response.info.query = msg.params.query;
+                        return Promise.resolve(response);
+                    } else if ('domain' in msg.params.query) {
+                        const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
+                        const domain = msg.params.query.domain;
+                        response.value = response.value.map((item) => {
+                            return {
+                                ...item,
+                                title: 'domain:' + domain + ' ' + item.title,
                             };
                         });
                         response.info.query = msg.params.query;

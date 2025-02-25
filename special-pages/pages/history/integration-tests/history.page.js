@@ -100,6 +100,9 @@ export class HistoryTestPage {
     async darkMode() {
         await this.page.emulateMedia({ colorScheme: 'dark' });
     }
+    async lightMode() {
+        await this.page.emulateMedia({ colorScheme: 'light' });
+    }
 
     /**
      * @param {import('../types/history.ts').QueryKind} query
@@ -218,14 +221,18 @@ export class HistoryTestPage {
     async deletesHistoryForToday(resp = { action: 'delete' }) {
         const { page } = this;
         await page.getByLabel('Show history for today').hover();
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => dialog.accept());
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
+        this._withDialogHandling(resp);
         await page.getByLabel('Delete history for today').click();
         const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ range: 'today' });
+    }
+
+    /**
+     * @param {import("../types/history.js").Range} range
+     */
+    async didDeleteRange(range) {
+        const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ range });
     }
 
     /**
@@ -234,11 +241,7 @@ export class HistoryTestPage {
     async deletesHistoryForYesterday(resp = { action: 'delete' }) {
         const { page } = this;
         await page.getByLabel('Show history for yesterday').hover();
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => dialog.accept());
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
+        this._withDialogHandling(resp);
         await page.getByLabel('Delete history for yesterday').click();
     }
 
@@ -257,11 +260,7 @@ export class HistoryTestPage {
      */
     async deletesAllHistoryFromHeader(resp) {
         const { page } = this;
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => dialog.accept());
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
+        this._withDialogHandling(resp);
         await page.getByRole('button', { name: 'Delete All', exact: true }).click();
         const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ range: 'all' });
@@ -271,18 +270,28 @@ export class HistoryTestPage {
     /**
      * @param {import('../types/history.ts').DeleteRangeResponse} resp
      */
+    async clicksDeleteInHeader(resp) {
+        const { page } = this;
+        this._withDialogHandling(resp);
+        await page.locator('header').getByRole('button', { name: 'Delete', exact: true }).click();
+    }
+
+    /**
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async clicksDeleteAllInHeader(resp) {
+        const { page } = this;
+        this._withDialogHandling(resp);
+        await page.locator('header').getByRole('button', { name: 'Delete All', exact: true }).click();
+    }
+
+    /**
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
     async deletesFromSectionTitle(resp) {
         const { page } = this;
 
-        // Handle dialog interaction based on response action
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => {
-                return dialog.accept();
-            });
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
-
+        this._withDialogHandling(resp);
         // Hover over the "Today" section and open the menu
         const title = page.getByRole('list').getByText('Today');
         await title.hover();
@@ -300,28 +309,22 @@ export class HistoryTestPage {
     }
 
     /**
+     * @param {number} nth - row index
      * @param {import('../types/history.ts').DeleteRangeResponse} resp
      */
-    async deletesFromHistoryEntry(resp) {
+    async menuForHistoryEntry(nth, resp) {
         const { page } = this;
 
-        // Handle dialog interaction based on response action
-        if (resp.action === 'delete') {
-            page.on('dialog', (dialog) => {
-                return dialog.accept();
-            });
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
+        this._withDialogHandling(resp);
         // console.log(data[0].title);
         const data = generateSampleData({ count: this.entries, offset: 0 });
-        const first = data[0];
-        const row = page.getByText(first.title);
+        const nthItem = data[nth];
+        const row = page.getByText(nthItem.title);
         await row.hover();
-        await page.locator(`[data-action="entries_menu"][value=${data[0].id}]`).click();
+        await page.locator(`[data-action="entries_menu"][value=${nthItem.id}]`).click();
 
         const calls = await this.mocks.waitForCallCount({ method: 'entries_menu', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ ids: [data[0].id] });
+        expect(calls[0].payload.params).toStrictEqual({ ids: [nthItem.id] });
     }
 
     async rightClicksSectionTitle() {
@@ -335,12 +338,223 @@ export class HistoryTestPage {
     /**
      * @param {number} nth
      */
-    async selectsRow(nth) {
+    async selectsRowIndex(nth) {
         const { page } = this;
         const rows = page.locator('main').locator('[aria-selected]');
         const selected = page.locator('main').locator('[aria-selected="true"]');
-        await rows.nth(nth).click();
+        await rows.nth(nth).getByTestId('Item.domain').click();
         await expect(rows.nth(nth)).toHaveAttribute('aria-selected', 'true');
         await expect(selected).toHaveCount(1);
+    }
+
+    /**
+     * @param {number} nth
+     */
+    async hoversRowIndex(nth) {
+        const rows = this.page.locator('main').locator('[aria-selected]');
+        await rows.nth(nth).hover();
+        await rows.nth(nth).locator('[data-action="entries_menu"]').waitFor({ state: 'visible' });
+    }
+    /**
+     * @param {number} nth
+     */
+    async hoversRowIndexBtn(nth) {
+        const rows = this.page.locator('main').locator('[aria-selected]');
+        await rows.nth(nth).locator('[data-action="entries_menu"]').hover();
+    }
+    /**
+     *
+     */
+    async hoversDeleteAllBtn() {
+        await this.page.getByRole('button', { name: 'Delete All', exact: true }).hover();
+    }
+
+    /**
+     * @param {number} nth
+     */
+    async rowIsSelected(nth) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        await expect(rows.nth(nth)).toHaveAttribute('aria-selected', 'true');
+    }
+
+    /**
+     * @param {number} nth
+     */
+    async rowIsNotSelected(nth) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        await expect(rows.nth(nth)).toHaveAttribute('aria-selected', 'false');
+    }
+
+    /**
+     * @param {number} nth
+     */
+    async selectsRowWithCtrl(nth) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        await rows
+            .nth(nth)
+            .getByTestId('Item.domain')
+            .click({ modifiers: ['Meta'] });
+    }
+    /**
+     * @param {number} nth
+     */
+    async selectsRowIndexWithShift(nth) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        await rows
+            .nth(nth)
+            .getByTestId('Item.domain')
+            .click({ modifiers: ['Shift'] });
+    }
+
+    /**
+     * @param {number} count
+     */
+    ids(count) {
+        return generateSampleData({ count: this.entries, offset: 0 })
+            .slice(0, count)
+            .map((x) => x.id);
+    }
+
+    /**
+     * @param {number} nth
+     * @param {string[]} expectedIds
+     */
+    async rightClicksWithinSelection(nth, expectedIds) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        const selectedRow = rows.nth(nth);
+        await selectedRow.click({ button: 'right' });
+        const calls = await this.mocks.waitForCallCount({ method: 'entries_menu', count: 1 });
+
+        expect(calls[0].payload.params).toStrictEqual({ ids: expectedIds });
+    }
+
+    async cannotDeleteAllWhenEmpty() {
+        const { page } = this;
+        await expect(page.getByRole('button', { name: 'Delete All', exact: true })).toHaveAttribute('aria-disabled', 'true');
+    }
+
+    async deletesSelection() {
+        const { page } = this;
+        await page.locator('header').getByRole('button', { name: 'Delete', exact: true }).click();
+    }
+
+    async deletesAll() {
+        const { page } = this;
+        await page.locator('header').getByRole('button', { name: 'Delete All', exact: true }).click();
+    }
+
+    async deletesAllForTerm(term) {
+        await this.deletesAll();
+        const calls = await this.mocks.waitForCallCount({ method: 'deleteTerm', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ term });
+    }
+
+    async pressesEscape() {
+        const { page } = this;
+        const main = page.locator('body');
+        await main.press('Escape');
+    }
+
+    /**
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    _withDialogHandling(resp) {
+        const { page } = this;
+
+        // Handle dialog interaction based on response action
+        if (resp.action === 'delete' || resp.action === 'domain-search') {
+            page.on('dialog', (dialog) => {
+                return dialog.accept();
+            });
+        } else {
+            page.on('dialog', (dialog) => dialog.dismiss());
+        }
+    }
+
+    /**
+     * @param {string[]} ids
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async deletesWithKeyboard(ids, resp) {
+        const { page } = this;
+        this._withDialogHandling(resp);
+
+        // Simulate pressing the 'Delete' key
+        await page.keyboard.press('Delete');
+
+        const calls = await this.mocks.waitForCallCount({ method: 'entries_delete', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ ids });
+
+        for (const id of ids) {
+            await expect(page.locator(`main [aria-selected] button[value=${id}]`)).not.toBeVisible();
+        }
+    }
+
+    /**
+     * @param {string} domain
+     */
+    async inputContainsDomain(domain) {
+        const { page } = this;
+        await expect(page.getByPlaceholder('Search')).toHaveValue(domain);
+    }
+
+    /**
+     * @param {string} term
+     */
+    async didUpdateUrlWithQueryTerm(term) {
+        const { page } = this;
+        await page.waitForURL((url) => url.searchParams.get('q') === term);
+    }
+
+    /**
+     * @param {number} count
+     */
+    async hasRowCount(count) {
+        const { page } = this;
+        const rows = page.locator('main').locator('[aria-selected]');
+        const rowCount = await rows.count();
+        expect(rowCount).toBe(count);
+    }
+
+    /**
+     * @param {number} count
+     */
+    async waitForRowCount(count) {
+        const { page } = this;
+        await page.waitForFunction((count) => document.querySelector('main')?.querySelectorAll('[aria-selected]').length === count, count);
+    }
+
+    sidebar() {
+        return this.page.locator('aside');
+    }
+
+    main() {
+        return this.page.locator('main');
+    }
+    header() {
+        return this.page.locator('header');
+    }
+
+    async hoversRange(range) {
+        await this.page.getByLabel(`Show history for ${range}`).hover();
+    }
+    async hoversRangeDelete(range) {
+        // await this.page.pause();
+        await this.page.getByRole('button', { name: `Delete history for ${range}` }).hover();
+    }
+
+    /**
+     * @param {number[]} indexes
+     */
+    async didDeleteSelection(indexes) {
+        const items = generateSampleData({ count: this.entries, offset: 0 });
+        const ids = indexes.map((index) => items[index].id);
+        const calls = await this.mocks.waitForCallCount({ method: 'entries_delete', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ ids });
     }
 }

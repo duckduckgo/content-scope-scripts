@@ -1,7 +1,9 @@
 .stack {
     display: flex;
     flex-direction: column;
-    > * { min-width: 0 }
+    > * {
+        min-width: 0
+    }
     gap: 24px;
 }
 .pageTitle {
@@ -37,7 +39,12 @@
     color: var(--history-text-normal);
     gap: 6px;
 }
-
+.active {
+    background: var(--color-black-at-12);
+    [data-theme="dark"] &  {
+        background: var(--color-white-at-9);
+    }
+}
 .delete {
     height: 40px;
     width: 40px;
@@ -54,12 +61,13 @@
     border: none;
     cursor: pointer;
     opacity: 0;
-    color: inherit;
+    color: var(--history-text-normal);
 
     &:hover, &:focus-visible {
         background: var(--color-black-at-9);
         opacity: 1;
     }
+
     &:active {
         background: var(--color-black-at-12);
     }
@@ -86,11 +94,9 @@
     }
 }
 
-.active {
-    background: var(--color-black-at-6);
-    [data-theme="dark"] &  {
-        background: var(--color-white-at-6);
-    }
+.delete[aria-disabled="true"]:hover, .item:hover .delete[aria-disabled="true"] {
+    opacity: 0.3;
+    cursor: default;
 }
 
 .icon {

@@ -1,9 +1,8 @@
 import { createContext, h } from 'preact';
-import { useContext } from 'preact/hooks';
+import { useCallback, useContext } from 'preact/hooks';
 import { signal, useComputed, useSignal, useSignalEffect } from '@preact/signals';
-import { usePlatformName, useSettings } from '../types.js';
-import { toRange } from '../history.service.js';
-import { EVENT_SEARCH_COMMIT } from '../constants.js';
+import { useSettings } from '../types.js';
+import { useHistoryServiceDispatch } from './HistoryServiceProvider.js';
 
 /**
  * @typedef {import('../../types/history.js').Range} Range
@@ -12,6 +11,13 @@ import { EVENT_SEARCH_COMMIT } from '../constants.js';
  *   range: Range | null,
  *   domain: string | null,
  * }} QueryState
+ */
+
+/**
+ * @typedef {{kind: 'reset'}
+ *  | { kind: 'search-by-term', value: string }
+ *  | { kind: 'search-by-domain', value: string }
+ *  | { kind: 'search-by-range', value: string }} Action
  */
 
 const QueryContext = createContext(
@@ -24,12 +30,13 @@ const QueryContext = createContext(
     ),
 );
 
-/**
- * A custom hook to access the SearchContext.
- */
-export function useQueryContext() {
-    return useContext(QueryContext);
-}
+const QueryDispatch = createContext(
+    /** @type {(a: Action) => void} */ (
+        (action) => {
+            throw new Error('missing QueryDispatch');
+        }
+    ),
+);
 
 /**
  * A provider component that sets up the search context for its children. Allows access to and updates of the search term within the context.
@@ -44,36 +51,85 @@ export function QueryProvider({ children, query = { term: '' } }) {
         range: 'range' in query ? query.range : null,
         domain: 'domain' in query ? query.domain : null,
     };
-    const searchState = useSignal(initial);
-    const derivedTerm = useComputed(() => searchState.value.term);
-    const derivedRange = useComputed(() => {
-        return /** @type {Range|null} */ (searchState.value.range);
-    });
-    const settings = useSettings();
-    const platformName = usePlatformName();
+    const queryState = useSignal(initial);
 
-    useClickHandlerForFilters(searchState);
-    useInputHandler(searchState);
-    useSearchShortcut(platformName);
-    useFormSubmit();
-    useURLReflection(derivedTerm, settings);
-    useSearchCommitForRange(derivedRange);
+    /**
+     * All actions that can alter the query state come through here
+     * @param {Action} action
+     */
+    function dispatch(action) {
+        queryState.value = (() => {
+            switch (action.kind) {
+                case 'reset': {
+                    return { term: '', domain: null, range: null };
+                }
+                case 'search-by-domain': {
+                    return { term: null, domain: action.value, range: null };
+                }
+                case 'search-by-range': {
+                    return { term: null, domain: null, range: /** @type {Range} */ (action.value) };
+                }
+                case 'search-by-term': {
+                    return { term: action.value, domain: null, range: null };
+                }
+                default:
+                    return { term: '', domain: null, range: null };
+            }
+        })();
+    }
 
-    return <QueryContext.Provider value={searchState}>{children}</QueryContext.Provider>;
+    const dispatcher = useCallback(dispatch, [queryState]);
+
+    return (
+        <QueryContext.Provider value={queryState}>
+            <QueryDispatch.Provider value={dispatcher}>{children}</QueryDispatch.Provider>
+        </QueryContext.Provider>
+    );
 }
 
 /**
- * Synchronizes the `derivedRange` signal with the browser's URL and dispatches
- * a custom `EVENT_SEARCH_COMMIT` event when the range changes.
- *
- * This effect updates the URL's search parameters to add or remove the `range` query parameter
- * based on the value of `derivedRange`. It handles the subscription to `derivedRange` and ensures
- * the URL reflects the latest state of the signal. Only subsequent changes (after the first signal
- * value) are processed to avoid re-initialization effects.
+ * A custom hook to access the SearchContext.
+ */
+export function useQueryContext() {
+    return useContext(QueryContext);
+}
+/**
+ * A custom hook to access the SearchContext.
+ */
+export function useQueryDispatch() {
+    return useContext(QueryDispatch);
+}
+
+export function useQueryEvents() {
+    const settings = useSettings();
+    const queryState = useQueryContext();
+    const derivedRange = useComputed(() => {
+        return /** @type {Range|null} */ (queryState.value.range);
+    });
+
+    /**
+     * Publish query changes to the URL
+     */
+    useURLReflection(queryState, settings);
+    /**
+     * Convert query changes into searches
+     */
+    useSearchCommit(queryState, settings);
+    /**
+     * Convert query changes into searches
+     */
+    useSearchCommitForRange(derivedRange);
+}
+
+/**
+ * Synchronizes the `derivedRange` signal with the browser's URL and issues a
+ * 'search-commit'. This allows any part of the application to change the range and
+ * have it synchronised to the URL + trigger a search
  *
  * @param {import('@preact/signals').ReadonlySignal<null | Range>} derivedRange - A readonly signal representing the range value.
  */
 function useSearchCommitForRange(derivedRange) {
+    const dispatch = useHistoryServiceDispatch();
     useSignalEffect(() => {
         let timer;
         let counter = 0;
@@ -90,7 +146,7 @@ function useSearchCommitForRange(derivedRange) {
             if (nextRange !== null) {
                 url.searchParams.set('range', nextRange);
                 window.history.replaceState(null, '', url.toString());
-                window.dispatchEvent(new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params: new URLSearchParams(url.searchParams) } }));
+                dispatch({ kind: 'search-commit', params: new URLSearchParams(url.searchParams) });
             }
         });
 
@@ -108,39 +164,41 @@ function useSearchCommitForRange(derivedRange) {
  * This hook uses a signal effect to listen for changes in the `derivedTerm` and updates the browser's URL accordingly, with debounce support.
  * It dispatches an `EVENT_SEARCH_COMMIT` event to notify other components or parts of the application about the updated search parameters.
  *
- * @param {import('@preact/signals').Signal<null|string>} derivedTerm - A signal of the current search term to watch for changes.
+ * @param {import('@preact/signals').Signal<QueryState>} queryState - A signal of the current search term to watch for changes.
  * @param {import('../Settings.js').Settings} settings - The settings for the behavior, including the debounce duration.
  */
-function useURLReflection(derivedTerm, settings) {
+function useURLReflection(queryState, settings) {
     useSignalEffect(() => {
         let timer;
-        let counter = 0;
-        const unsubscribe = derivedTerm.subscribe((nextValue) => {
-            if (counter === 0) {
-                counter += 1;
-                return;
-            }
+        let count = 0;
+        const unsubscribe = queryState.subscribe((nextValue) => {
+            if (count === 0) return (count += 1);
             clearTimeout(timer);
-            timer = setTimeout(() => {
-                const url = new URL(window.location.href);
+            if (nextValue.term !== null) {
+                const term = nextValue.term;
+                timer = setTimeout(() => {
+                    const url = new URL(window.location.href);
 
+                    url.searchParams.set('q', term);
+                    url.searchParams.delete('range');
+                    url.searchParams.delete('domain');
+
+                    if (term.trim() === '') {
+                        url.searchParams.delete('q');
+                    }
+
+                    window.history.replaceState(null, '', url.toString());
+                }, settings.urlDebounce);
+            }
+            if (nextValue.domain !== null) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('domain', nextValue.domain);
                 url.searchParams.delete('q');
                 url.searchParams.delete('range');
 
-                if (nextValue) {
-                    url.searchParams.set('q', nextValue);
-                    window.history.replaceState(null, '', url.toString());
-                } else if (nextValue === '') {
-                    window.history.replaceState(null, '', url.toString());
-                }
-                if (nextValue === null) {
-                    /** no-op */
-                } else {
-                    window.dispatchEvent(
-                        new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params: new URLSearchParams(url.searchParams) } }),
-                    );
-                }
-            }, settings.typingDebounce);
+                window.history.replaceState(null, '', url.toString());
+            }
+            return null;
         });
 
         return () => {
@@ -151,138 +209,46 @@ function useURLReflection(derivedTerm, settings) {
 }
 
 /**
- * Handles the `submit` event on the document and prevents the default form submission behavior.
+ * Updates the URL with the latest search term (if present) and dispatches a custom search commit event.
+ * Utilizes a debounce mechanism to ensure the URL updates are not performed too often during typing.
  *
- * This effect is used to intercept form submissions and extract the form data
- * for further processing or integration into the application's query state management.
+ * Workflow:
+ * - Listens for changes in the `derivedTerm` signal.
+ * - For the first signal emission (`counter === 0`), skips processing to avoid triggering on initial load.
+ * - Debounces subsequent changes using `settings.typingDebounce`.
+ * - If a non-null value is provided, constructs query parameters with the new term and dispatches
+ *   an `EVENT_SEARCH_COMMIT` event with the updated parameters.
+ * - If the value is `null`, no action is taken.
  *
- * Currently, this functionality is not fully implemented. The intercepted form data
- * will need to be used to trigger or re-issue a search, but the specifics of that behavior
- * remain a TODO.
+ * @param {import('@preact/signals').Signal<QueryState>} queryState - A signal of the current search term to watch for changes.
+ * @param {import('../Settings.js').Settings} settings - The settings for debounce behavior and other configurations.
  */
-function useFormSubmit() {
+function useSearchCommit(queryState, settings) {
+    const dispatch = useHistoryServiceDispatch();
     useSignalEffect(() => {
-        const submitHandler = (e) => {
-            e.preventDefault();
-            if (!e.target || !(e.target instanceof HTMLFormElement)) return;
-            const formData = new FormData(e.target);
-            console.log('todo: re-issue search here?', [formData.get('q')?.toString()]);
-        };
-
-        document.addEventListener('submit', submitHandler);
-        return () => {
-            document.removeEventListener('submit', submitHandler);
-        };
-    });
-}
-
-/**
- * Monitors clicks on filter links (`a[data-filter]`) and updates the `queryState` signal
- * with the appropriate range filter value extracted from the link's `data-filter` attribute.
- *
- * If a filter with `data-filter="all"` is clicked, it resets the `queryState` to its default values.
- * Otherwise, it updates the `range` field in `queryState` with the parsed value from the clicked filter.
- *
- * The click event is prevented to avoid default link navigation behavior.
- *
- * Cleans up the event listener when the effect is disposed.
- *
- * @param {import('@preact/signals').Signal<QueryState>} queryState - A signal representing the query state to update.
- */
-function useClickHandlerForFilters(queryState) {
-    useSignalEffect(() => {
-        function clickHandler(e) {
-            if (!(e.target instanceof HTMLElement)) return;
-            const anchor = /** @type {HTMLAnchorElement|null} */ (e.target.closest('a[data-filter]'));
-            if (anchor) {
-                e.preventDefault();
-                const range = toRange(anchor.dataset.filter);
-                // todo: where should this rule live?
-                if (range === 'all') {
-                    queryState.value = {
-                        term: '',
-                        domain: null,
-                        range: null,
-                    };
-                } else if (range) {
-                    queryState.value = {
-                        term: null,
-                        domain: null,
-                        range,
-                    };
-                }
+        let timer;
+        let count = 0;
+        const unsubscribe = queryState.subscribe((next) => {
+            if (count === 0) return (count += 1);
+            clearTimeout(timer);
+            if (next.term !== null) {
+                const term = next.term;
+                timer = setTimeout(() => {
+                    const params = new URLSearchParams();
+                    params.set('q', term);
+                    dispatch({ kind: 'search-commit', params });
+                }, settings.typingDebounce);
             }
-        }
-        document.addEventListener('click', clickHandler);
-        return () => {
-            document.removeEventListener('click', clickHandler);
-        };
-    });
-}
-
-/**
- * Handles the `input` event on the document.
- *
- * When user input is detected on an `HTMLInputElement` within an `HTMLFormElement`,
- * it retrieves the form's data and updates the `queryState` signal with the new query term.
- *
- * This function modifies the `queryState` by setting the `term` to the value of the `q` field
- * from the form. The `range` and `domain` values are cleared (set to `null`).
- *
- * If the `q` field is missing in the form, a log message will indicate it as such.
- *
- * Resources are properly cleaned up when the effect is disposed (removes event listener).
- *
- * @param {import('@preact/signals').Signal<QueryState>} queryState - A signal representing the query state.
- */
-function useInputHandler(queryState) {
-    useSignalEffect(() => {
-        function handler(e) {
-            if (e.target instanceof HTMLInputElement && e.target.form instanceof HTMLFormElement) {
-                const data = new FormData(e.target.form);
-                const q = data.get('q')?.toString();
-                if (q === undefined) return console.log('missing q field');
-                queryState.value = {
-                    term: q,
-                    range: null,
-                    domain: null,
-                };
+            if (next.domain !== null) {
+                const params = new URLSearchParams();
+                params.set('domain', next.domain);
+                dispatch({ kind: 'search-commit', params });
             }
-        }
-        document.addEventListener('input', handler);
+            return null;
+        });
         return () => {
-            document.removeEventListener('input', handler);
-        };
-    });
-}
-
-/**
- * Listens for keyboard shortcuts to focus the search input.
- *
- * Handles platform-specific shortcuts for MacOS (Cmd+F) and Windows (Ctrl+F).
- * If the shortcut is triggered, it will prevent the default action and focus
- * on the first `input[type="search"]` element in the DOM, if available.
- *
- * @param {'macos' | 'windows'} platformName - Defines the current platform to handle the appropriate shortcut.
- */
-function useSearchShortcut(platformName) {
-    useSignalEffect(() => {
-        const keydown = (e) => {
-            const isMacOS = platformName === 'macos';
-            const isFindShortcutMacOS = isMacOS && e.metaKey && e.key === 'f';
-            const isFindShortcutWindows = !isMacOS && e.ctrlKey && e.key === 'f';
-
-            if (isFindShortcutMacOS || isFindShortcutWindows) {
-                e.preventDefault();
-                const searchInput = /** @type {HTMLInputElement|null} */ (document.querySelector(`input[type="search"]`));
-                if (searchInput) {
-                    searchInput.focus();
-                }
-            }
-        };
-        document.addEventListener('keydown', keydown);
-        return () => {
-            document.removeEventListener('keydown', keydown);
+            unsubscribe();
+            clearTimeout(timer);
         };
     });
 }
