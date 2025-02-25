@@ -94,8 +94,16 @@ test.describe('history', () => {
     test('deleting sidebar items', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+
+        await hp.selectsToday();
+        await hp.didMakeNthQuery({ nth: 1, query: { range: 'today' } });
+
         await hp.deletesHistoryForToday({ action: 'delete' });
         await hp.sideBarItemWasRemoved('Show history for today');
+
+        // makes a new query for default data
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
     });
     test('deleting sidebar items, but dismissing modal', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
@@ -107,6 +115,13 @@ test.describe('history', () => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
         await hp.deletesAllHistoryFromHeader({ action: 'delete' });
+    });
+    test('deleting range from the header', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.selectsToday();
+        await hp.clicksDeleteAllInHeader({ action: 'delete' });
+        await hp.didDeleteRange('today');
     });
     test('3 dots menu on Section title', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
@@ -121,6 +136,42 @@ test.describe('history', () => {
     test('3 dots menu on history entry', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.deletesFromHistoryEntry({ action: 'delete' });
+        await hp.menuForHistoryEntry(0, { action: 'delete' });
+    });
+    test('accepts domain search as param', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({ additional: { domain: 'youtube.com', urlDebounce: 0 } });
+        await hp.didMakeNthQuery({ nth: 0, query: { domain: 'youtube.com' } });
+        await hp.inputContainsDomain('youtube.com');
+
+        // now ensure it converts back to a query when typing
+        await hp.types('autotrader');
+        await hp.didMakeNthQuery({ nth: 1, query: { term: 'autotrader' } });
+        await hp.didUpdateUrlWithQueryTerm('autotrader');
+    });
+    test('accepts domain search in response to context menu', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({ additional: { action: 'domain-search' } });
+        await hp.menuForHistoryEntry(0, { action: 'domain-search' });
+        await hp.didMakeNthQuery({ nth: 1, query: { domain: 'youtube.com' } });
+    });
+    test('does not concatenate results if the query is not an addition', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(1);
+        await hp.openPage({});
+        await hp.selectsAll();
+        await page.waitForTimeout(100);
+        await hp.selectsAll();
+        await page.waitForTimeout(100);
+        await hp.selectsAll();
+        await page.waitForTimeout(100);
+
+        // assert no additional rows are present
+        await hp.hasRowCount(1);
+
+        // verify the queries still occurred, but they were not appended
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 1, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 3, query: { term: '' } });
     });
 });

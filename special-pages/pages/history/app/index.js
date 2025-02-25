@@ -14,7 +14,7 @@ import { HistoryServiceProvider } from './global-state/HistoryServiceProvider.js
 import { Settings } from './Settings.js';
 import { SelectionProvider } from './global-state/SelectionProvider.js';
 import { QueryProvider } from './global-state/QueryProvider.js';
-import { GlobalStateProvider } from './global-state/GlobalStateProvider.js'; // global styles
+import { DataProvider } from './global-state/DataProvider.js'; // global styles
 
 /**
  * @param {Element} root
@@ -43,7 +43,8 @@ export async function init(root, messaging, baseEnvironment) {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
-        .withDebounce(baseEnvironment.urlParams.get('debounce'));
+        .withDebounce(baseEnvironment.urlParams.get('debounce'))
+        .withUrlDebounce(baseEnvironment.urlParams.get('urlDebounce'));
 
     console.log('initialSetup', init);
     console.log('environment', environment);
@@ -77,11 +78,11 @@ export async function init(root, messaging, baseEnvironment) {
                         <SettingsContext.Provider value={settings}>
                             <QueryProvider query={query.query}>
                                 <HistoryServiceProvider service={service}>
-                                    <GlobalStateProvider service={service} initial={initial}>
+                                    <DataProvider service={service} initial={initial}>
                                         <SelectionProvider>
                                             <App />
                                         </SelectionProvider>
-                                    </GlobalStateProvider>
+                                    </DataProvider>
                                 </HistoryServiceProvider>
                             </QueryProvider>
                         </SettingsContext.Provider>

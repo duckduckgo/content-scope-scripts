@@ -1,15 +1,34 @@
 import { createContext, h } from 'preact';
 import { useSignalEffect } from '@preact/signals';
 import { paramsToQuery, toRange } from '../history.service.js';
-import { EVENT_RANGE_CHANGE, EVENT_SEARCH_COMMIT, KNOWN_ACTIONS, OVERSCAN_AMOUNT } from '../constants.js';
+import { BTN_ACTION_ENTRIES_MENU, BTN_ACTION_TITLE_MENU, EVENT_RANGE_CHANGE, KNOWN_ACTIONS } from '../constants.js';
 import { usePlatformName } from '../types.js';
 import { eventToTarget } from '../../../../shared/handlers.js';
-import { useContext } from 'preact/hooks';
+import { useCallback, useContext, useEffect } from 'preact/hooks';
+import { useSelected } from './SelectionProvider.js';
+import { useData } from './DataProvider.js';
+import { useQueryDispatch } from './QueryProvider.js';
 
 // Create the context
 const HistoryServiceContext = createContext({
     service: /** @type {import("../history.service.js").HistoryService} */ ({}),
 });
+
+/**
+ * @typedef {{kind: 'search-commit', params: URLSearchParams}
+ * | {kind: 'delete-range'; value: string }
+ * | {kind: 'delete-all'; }
+ * | {kind: 'delete-term'; term: string }
+ * | {kind: 'delete-entries-by-index'; value: number[] }
+ * | {kind: 'open-url'; url: string, target: 'new-tab' | 'new-window' | 'same-tab' }
+ * | {kind: 'show-entries-menu'; ids: string[]; indexes: number[] }
+ * | {kind: 'show-title-menu'; dateRelativeDay: string }
+ * | {kind: 'request-more'; end: number }
+ * } Action
+ */
+
+// Create the context
+const HistoryServiceDispatchContext = createContext(/** @type {(action: Action)=>void} */ ((action) => {}));
 
 /**
  * Provides a context for the history service, allowing dependent components to access it.
@@ -20,18 +39,90 @@ const HistoryServiceContext = createContext({
  * @param {import("preact").ComponentChild} props.children
  */
 export function HistoryServiceProvider({ service, children }) {
-    return <HistoryServiceContext.Provider value={{ service }}>{children}</HistoryServiceContext.Provider>;
+    const queryDispatch = useQueryDispatch();
+    /**
+     * @param {Action} action
+     */
+    function dispatch(action) {
+        switch (action.kind) {
+            case 'search-commit': {
+                const asQuery = paramsToQuery(action.params);
+                service.trigger(asQuery);
+                break;
+            }
+            case 'delete-range': {
+                const range = toRange(action.value);
+                if (range) {
+                    service
+                        .deleteRange(range)
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        .then(() => queryDispatch({ kind: 'reset' }))
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        .catch(console.error);
+                }
+                break;
+            }
+            case 'delete-entries-by-index': {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.entriesDelete(action.value).catch(console.error);
+                break;
+            }
+            case 'delete-all': {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.deleteRange('all').catch(console.error);
+                break;
+            }
+            case 'delete-term': {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.deleteTerm(action.term).catch(console.error);
+                break;
+            }
+            case 'open-url': {
+                service.openUrl(action.url, action.target);
+                break;
+            }
+            case 'show-entries-menu': {
+                service
+                    .entriesMenu(action.ids, action.indexes)
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    .then((resp) => {
+                        if (resp.kind === 'domain-search') {
+                            queryDispatch({ kind: 'search-by-domain', value: resp.value });
+                        }
+                    })
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    .catch(console.error);
+                break;
+            }
+            case 'show-title-menu': {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.menuTitle(action.dateRelativeDay).catch(console.error);
+                break;
+            }
+            case 'request-more': {
+                service.requestMore(action.end);
+                break;
+            }
+        }
+    }
+
+    const dispatcher = useCallback(dispatch, [service]);
+
+    return (
+        <HistoryServiceContext.Provider value={{ service }}>
+            <HistoryServiceDispatchContext.Provider value={dispatcher}>{children}</HistoryServiceDispatchContext.Provider>
+        </HistoryServiceContext.Provider>
+    );
+}
+
+export function useHistoryServiceDispatch() {
+    return useContext(HistoryServiceDispatchContext);
 }
 
 export function useGlobalHandlers() {
     const { service } = useContext(HistoryServiceContext);
-    const platformName = usePlatformName();
-    useSearchCommit(service);
+
     useRangeChange(service);
-    useLinkClickHandler(service, platformName);
-    useButtonClickHandler(service);
-    useAuxClickHandler(service, platformName);
-    useContextMenu(service);
 }
 
 /**
@@ -40,15 +131,13 @@ export function useGlobalHandlers() {
  *
  * @param {import('../history.service.js').HistoryService} service
  */
-function useRangeChange(service) {
+export function useRangeChange(service) {
+    const dispatch = useHistoryServiceDispatch();
     useSignalEffect(() => {
         function handler(/** @type {CustomEvent<{start: number, end: number}>} */ event) {
-            if (!service.query.data) throw new Error('unreachable');
+            if (!service.data) throw new Error('unreachable');
             const { end } = event.detail;
-            const memory = service.query.data.results;
-            if (memory.length - end < OVERSCAN_AMOUNT) {
-                service.requestMore();
-            }
+            dispatch({ kind: 'request-more', end });
         }
         window.addEventListener(EVENT_RANGE_CHANGE, handler);
         return () => {
@@ -58,66 +147,63 @@ function useRangeChange(service) {
 }
 
 /**
- * A hook that listens to the "search-commit" custom event and triggers the history service
- * with the parsed query parameter values from the event's detail object.
- *
- * This hook is used to bind the EVENT_SEARCH_COMMIT event with the associated service
- * logic for handling search parameters.
- *
- * @param {import('../history.service.js').HistoryService} service
+ * Support for context-menus triggered on section titles
  */
-function useSearchCommit(service) {
-    useSignalEffect(() => {
-        function handler(/** @type {CustomEvent<{params: URLSearchParams}>} */ event) {
-            const detail = event.detail;
-            if (detail && detail.params instanceof URLSearchParams) {
-                const asQuery = paramsToQuery(detail.params);
-                service.trigger(asQuery);
-            } else {
-                console.error('missing detail.params from search-commit event');
+export function useContextMenuForTitles() {
+    const dispatch = useHistoryServiceDispatch();
+    useEffect(() => {
+        function handler(event) {
+            const target = /** @type {HTMLElement|null} */ (event.target);
+            if (!(target instanceof HTMLElement)) return;
+            const value = target.closest('[data-section-title]')?.querySelector('button')?.value;
+            if (typeof value === 'string') {
+                dispatch({ kind: 'show-title-menu', dateRelativeDay: value });
             }
         }
+        document.addEventListener('contextmenu', handler);
 
-        window.addEventListener(EVENT_SEARCH_COMMIT, handler);
-
-        // Cleanup the event listener on unmount
         return () => {
-            window.removeEventListener(EVENT_SEARCH_COMMIT, handler);
+            document.removeEventListener('contextmenu', handler);
         };
-    });
+    }, []);
 }
 
 /**
- * @param {import('../history.service.js').HistoryService} service
+ * Support for context menu on entries. This needs to be aware of
+ * selected regions so that it can either trigger a context menu
+ * for a group, or a single item
  */
-function useContextMenu(service) {
+export function useContextMenuForEntries() {
+    const selected = useSelected();
+    const results = useData();
+    const dispatch = useHistoryServiceDispatch();
+
     useSignalEffect(() => {
         function contextMenu(event) {
             const target = /** @type {HTMLElement|null} */ (event.target);
             if (!(target instanceof HTMLElement)) return;
 
-            const actions = {
-                '[data-section-title]': (elem) => elem.querySelector('button')?.value,
-                '[data-history-entry]': (elem) => elem.querySelector('button')?.value,
-            };
+            // only act on history entries
+            const elem = target.closest('[data-history-entry]');
+            if (!elem || !(elem instanceof HTMLElement)) return;
 
-            for (const [selector, valueFn] of Object.entries(actions)) {
-                const match = event.target.closest(selector);
-                if (match) {
-                    const value = valueFn(match);
-                    if (value) {
-                        event.preventDefault();
-                        event.stopImmediatePropagation();
-                        if (match.dataset.sectionTitle) {
-                            // eslint-disable-next-line promise/prefer-await-to-then
-                            service.menuTitle(value).catch(console.error);
-                        } else if (match.dataset.historyEntry) {
-                            // eslint-disable-next-line promise/prefer-await-to-then
-                            service.entriesMenu([value], [Number(match.dataset.index)]).catch(console.error);
-                        }
-                    }
-                    break;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            const isSelected = elem.getAttribute('aria-selected') === 'true';
+            if (isSelected) {
+                const indexes = [...selected.value];
+                const ids = [];
+                for (let i = 0; i < indexes.length; i++) {
+                    const current = results.results.value.items[indexes[i]];
+                    if (!current) throw new Error('unreachable');
+                    ids.push(current.id);
                 }
+                dispatch({ kind: 'show-entries-menu', ids, indexes });
+            } else {
+                const button = /** @type {HTMLButtonElement|null} */ (elem.querySelector('button[value]'));
+                const id = button?.value || '';
+                dispatch({ kind: 'show-entries-menu', ids: [id], indexes: [Number(elem.dataset.index)] });
             }
         }
 
@@ -130,10 +216,11 @@ function useContextMenu(service) {
 }
 
 /**
- * @param {import('../history.service.js').HistoryService} service
- * @param {'macos' | 'windows'} platformName
+ * Support middle-button click
  */
-function useAuxClickHandler(service, platformName) {
+export function useAuxClickHandler() {
+    const platformName = usePlatformName();
+    const dispatch = useHistoryServiceDispatch();
     useSignalEffect(() => {
         const handleAuxClick = (event) => {
             const anchor = /** @type {HTMLButtonElement|null} */ (event.target.closest('a[href][data-url]'));
@@ -142,7 +229,7 @@ function useAuxClickHandler(service, platformName) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 const target = eventToTarget(event, platformName);
-                service.openUrl(url, target);
+                dispatch({ kind: 'open-url', url, target });
             }
         };
         document.addEventListener('auxclick', handleAuxClick);
@@ -159,43 +246,33 @@ function useAuxClickHandler(service, platformName) {
  *
  * - "title_menu": Triggers the `menuTitle` method with the value of the button.
  * - "entries_menu": Triggers the `entriesMenu` method with the button value and dataset index.
- * - "deleteRange": Triggers the `deleteRange` method with a parsed range.
- * - "deleteAll": Triggers the `deleteRange` method with 'all'.
- *
- * @param {import('../history.service.js').HistoryService} service - The history service instance.
  */
-function useButtonClickHandler(service) {
+export function useButtonClickHandler() {
+    const historyServiceDispatch = useHistoryServiceDispatch();
     useSignalEffect(() => {
         function clickHandler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
+
+            // was this a button click?
             const btn = /** @type {HTMLButtonElement|null} */ (event.target.closest('button[data-action]'));
+            if (btn === null) return;
+            if (btn?.getAttribute('aria-disabled') === 'true') return;
+
+            // if so, was it a known action?
             const action = toKnownAction(btn);
-            if (btn === null || action === null) return;
+            if (action === null) return;
+
+            // if we get this far, we're going to handle the event
             event.stopImmediatePropagation();
             event.preventDefault();
 
             switch (action) {
-                case 'title_menu': {
-                    // eslint-disable-next-line promise/prefer-await-to-then
-                    service.menuTitle(btn.value).catch(console.error);
+                case BTN_ACTION_TITLE_MENU: {
+                    historyServiceDispatch({ kind: 'show-title-menu', dateRelativeDay: btn.value });
                     return;
                 }
-                case 'entries_menu': {
-                    // eslint-disable-next-line promise/prefer-await-to-then
-                    service.entriesMenu([btn.value], [Number(btn.dataset.index)]).catch(console.error);
-                    return;
-                }
-                case 'deleteRange': {
-                    const range = toRange(btn.value);
-                    if (range) {
-                        // eslint-disable-next-line promise/prefer-await-to-then
-                        service.deleteRange(range).catch(console.error);
-                    }
-                    return;
-                }
-                case 'deleteAll': {
-                    // eslint-disable-next-line promise/prefer-await-to-then
-                    service.deleteRange('all').catch(console.error);
+                case BTN_ACTION_ENTRIES_MENU: {
+                    historyServiceDispatch({ kind: 'show-entries-menu', ids: [btn.value], indexes: [Number(btn.dataset.index)] });
                     return;
                 }
                 default:
@@ -231,11 +308,10 @@ function toKnownAction(elem) {
  * - Anchors with `data-url` attribute are intercepted, and their URLs are processed to determine
  *   the target action (`new-tab`, `same-tab`, or `new-window`) based on the click event details.
  * - Prevents default navigation and propagation for handled events.
- *
- * @param {import('../history.service.js').HistoryService} service - The history service instance.
- * @param {'macos' | 'windows'} platformName - The platform name, used to determine click modifiers.
  */
-function useLinkClickHandler(service, platformName) {
+export function useLinkClickHandler() {
+    const platformName = usePlatformName();
+    const dispatch = useHistoryServiceDispatch();
     useSignalEffect(() => {
         /**
          * Handles click events on the document, intercepting interactions with anchor elements
@@ -253,7 +329,7 @@ function useLinkClickHandler(service, platformName) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 const target = eventToTarget(event, platformName);
-                service.openUrl(url, target);
+                dispatch({ kind: 'open-url', url, target });
             }
         }
 

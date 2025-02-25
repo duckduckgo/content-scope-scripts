@@ -45,6 +45,9 @@
       "type": "string",
       "format": "uri",
       "description": "A complete URL including query parameters."
+    },
+    "favicon": {
+      "$ref": "./favicon.json"
     }
   }
 }
