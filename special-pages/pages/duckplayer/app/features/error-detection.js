@@ -31,8 +31,8 @@ export class ErrorDetection {
     iframeDidLoad(iframe) {
         this.iframe = iframe;
 
-        if (!this.options || !this.options.signInRequiredSelector) {
-            console.log('Missing Custom Error options');
+        if (this.options?.state !== 'enabled') {
+            console.log('Error detection disabled');
             return null;
         }
 
