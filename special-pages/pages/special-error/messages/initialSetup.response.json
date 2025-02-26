@@ -25,12 +25,12 @@
       "oneOf": [
         {
           "type": "object",
-          "title": "Phishing and Malware",
+          "title": "Malicious Site",
           "required": ["kind", "url"],
           "properties": {
             "kind": {
               "type": "string",
-              "enum": ["phishing", "malware"]
+              "enum": ["phishing", "malware", "scam"]
             },
             "url": {
               "type": "string"
