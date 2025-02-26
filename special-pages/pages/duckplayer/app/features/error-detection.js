@@ -31,7 +31,7 @@ export class ErrorDetection {
     iframeDidLoad(iframe) {
         this.iframe = iframe;
 
-        if (!this.options?.state || this.options.state === 'disabled') {
+        if (this.options?.state !== 'enabled') {
             console.log('Error detection disabled');
             return null;
         }
