@@ -51,7 +51,7 @@ export const Item = memo(
                             defaultSize={DDG_DEFAULT_ICON_SIZE}
                         />
                     </div>
-                    <a href={props.url} data-url={props.url} class={styles.entryLink}>
+                    <a href={props.url} data-url={props.url} class={styles.entryLink} tabindex={0}>
                         {title}
                     </a>
                     <span class={styles.domain} data-testid="Item.domain">

@@ -110,6 +110,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
 
+    @media screen and (min-width: 800px) {
+        flex-shrink: 0;
+    }
+
     &:before {
         content: "- "
     }
