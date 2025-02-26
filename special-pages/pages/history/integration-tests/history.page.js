@@ -500,4 +500,9 @@ export class HistoryTestPage {
         const calls = await this.mocks.waitForCallCount({ method: 'entries_delete', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ ids });
     }
+
+    async didNotDelete() {
+        const calls = await this.mocks.outgoing({ names: ['entries_delete'] });
+        expect(calls).toHaveLength(0);
+    }
 }

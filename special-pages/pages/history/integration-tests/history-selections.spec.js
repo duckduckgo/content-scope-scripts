@@ -171,6 +171,15 @@ test.describe('history selections', () => {
         await hp.selectsRowIndex(0);
         await hp.deletesWithKeyboard(hp.ids(1), { action: 'delete' });
     });
+    test('does not delete item when backspace is pressed in search', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2);
+        await hp.openPage({});
+        await hp.types('youtube.com');
+        await hp.selectsRowIndex(0);
+        await page.locator('input[type="search"]').press('Delete');
+        await page.waitForTimeout(50);
+        await hp.didNotDelete();
+    });
     test('deletes multiple rows with confirmation', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});

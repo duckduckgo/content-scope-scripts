@@ -65,8 +65,9 @@ export function useSelectionDispatch() {
 
 /**
  * Handle onClick + keydown events to support most interactions with the list.
+ * @param {import('preact/hooks').MutableRef<HTMLElement|null>} mainRef
  */
-export function useRowInteractions() {
+export function useRowInteractions(mainRef) {
     const platformName = usePlatformName();
     const dispatch = useSelectionDispatch();
     const historyDispatch = useHistoryServiceDispatch();
@@ -145,6 +146,7 @@ export function useRowInteractions() {
 
     /**
      * @param {Intention} intention
+     * @return {boolean} true if we handled this event
      */
     function handleKeyIntention(intention) {
         // prettier-ignore
@@ -152,7 +154,7 @@ export function useRowInteractions() {
             ? -1
             : 1;
 
-        if (focusedIndex.value === null) return console.error('unreachable');
+        if (focusedIndex.value === null) return false;
         const newIndex = Math.max(0, Math.min(results.value.items.length - 1, focusedIndex.value + direction));
 
         switch (intention) {
@@ -210,13 +212,15 @@ export function useRowInteractions() {
                 return true;
             }
         }
+
+        return false;
     }
     /**
      * @param {Intention} intention
      * @param {KeyboardEvent} event
      */
     function handleGlobalKeyIntentions(intention, event) {
-        if (event.target !== document.body) return;
+        if (event.target !== document.body) return false;
         switch (intention) {
             case 'escape': {
                 dispatch({
@@ -233,7 +237,26 @@ export function useRowInteractions() {
         const intention = eventToIntention(event, platformName);
         if (intention === 'unknown') return;
         if (focusedIndex.value === null) return;
-        const handled = handleKeyIntention(intention) || handleGlobalKeyIntentions(intention, event);
+        let handled = false;
+
+        /**
+         * If the target is body OR within the main scroller, handle the events such as selections
+         */
+        if (
+            event.target === document.body ||
+            event.target === mainRef.current ||
+            mainRef.current?.contains(/** @type {any} */ (event.target))
+        ) {
+            handled = handleKeyIntention(intention);
+        }
+
+        /**
+         * If it wasn't handled, try global things like `escape`?
+         */
+        if (!handled) {
+            handled = handleGlobalKeyIntentions(intention, event);
+        }
+
         if (handled) event.preventDefault();
     }
 

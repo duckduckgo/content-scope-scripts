@@ -3,11 +3,11 @@ import cn from 'classnames';
 import styles from './App.module.css';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { Header } from './Header.js';
-import { Results } from './Results.js';
+import { ResultsContainer } from './Results.js';
 import { useEffect, useRef } from 'preact/hooks';
 import { Sidebar } from './Sidebar.js';
-import { useRangesData, useResultsData } from '../global/Providers/DataProvider.js';
-import { useRowInteractions, useSelected } from '../global/Providers/SelectionProvider.js';
+import { useRangesData } from '../global/Providers/DataProvider.js';
+import { useRowInteractions } from '../global/Providers/SelectionProvider.js';
 import { useQueryContext, useSearchCommit, useSearchCommitForRange, useURLReflection } from '../global/Providers/QueryProvider.js';
 import { useRangeChange } from '../global/hooks/useRangeChange.js';
 import { useContextMenuForEntries } from '../global/hooks/useContextMenuForEntries.js';
@@ -19,9 +19,7 @@ import { useResetSelectionsOnQueryChange } from '../global/hooks/useResetSelecti
 export function App() {
     const mainRef = useRef(/** @type {HTMLElement|null} */ (null));
     const { isDarkMode } = useEnv();
-    const results = useResultsData();
     const ranges = useRangesData();
-    const selected = useSelected();
     const query = useQueryContext();
 
     /**
@@ -42,7 +40,7 @@ export function App() {
      * onKeyDown will be observed at the document level.
      * todo: can this be resolved if the `main` element is given focus/tab-index?
      */
-    const { onClick, onKeyDown } = useRowInteractions();
+    const { onClick, onKeyDown } = useRowInteractions(mainRef);
 
     useEffect(() => {
         // whenever the query changes, scroll the main container back to the top
@@ -67,7 +65,7 @@ export function App() {
                 <Header />
             </header>
             <main class={cn(styles.main, styles.customScroller)} ref={mainRef} onClick={onClick}>
-                <Results results={results} selected={selected} />
+                <ResultsContainer />
             </main>
         </div>
     );
