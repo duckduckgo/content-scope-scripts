@@ -56,7 +56,11 @@ export function HistoryServiceProvider({ service, children }) {
                     service
                         .deleteRange(range)
                         // eslint-disable-next-line promise/prefer-await-to-then
-                        .then(() => queryDispatch({ kind: 'reset' }))
+                        .then((resp) => {
+                            if (resp.kind === 'range-deleted') {
+                                queryDispatch({ kind: 'reset' });
+                            }
+                        })
                         // eslint-disable-next-line promise/prefer-await-to-then
                         .catch(console.error);
                 }

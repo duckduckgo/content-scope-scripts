@@ -103,7 +103,6 @@ export function mockTransport() {
                     return Promise.resolve({ action: 'none' });
                 }
                 case 'title_menu': {
-                    // console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
                     // prettier-ignore
                     const lines = [
                         `title_menu: ${JSON.stringify(msg.params)}`,
@@ -115,7 +114,7 @@ export function mockTransport() {
                     return Promise.resolve({ action: 'none' });
                 }
                 case 'deleteRange': {
-                    console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
                     // prettier-ignore
                     const lines = [
                         `deleteRange: ${JSON.stringify(msg.params)}`,

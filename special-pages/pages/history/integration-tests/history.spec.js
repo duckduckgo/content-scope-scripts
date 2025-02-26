@@ -91,7 +91,7 @@ test.describe('history', () => {
         await hp.openPage({});
         await hp.opensLinks();
     });
-    test('deleting sidebar items', async ({ page }, workerInfo) => {
+    test('deleting range from sidebar items + resetting the query state', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
         await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
@@ -111,6 +111,28 @@ test.describe('history', () => {
         await hp.deletesHistoryForYesterday({ action: 'none' });
         await hp.sidebarHasItem('Show history for today');
     });
+    test(
+        'presses delete on range, but dismisses the modal',
+        {
+            annotation: {
+                type: 'issue',
+                description: 'https://app.asana.com/0/1201141132935289/1209501378934498',
+            },
+        },
+        async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+            await hp.openPage({});
+
+            // simulate a modal appearing, but the user dismissing it
+            await hp.deletesHistoryForYesterday({ action: 'none' });
+
+            // this timeout is needed to simulate the bug - a small delay after closing the modal
+            await page.waitForTimeout(100);
+
+            // now check only the first query occurred (on page load)
+            await hp.didMakeNQueries(1);
+        },
+    );
     test('deleting from the header', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});

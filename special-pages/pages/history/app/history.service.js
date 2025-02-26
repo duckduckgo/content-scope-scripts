@@ -2,6 +2,7 @@ import { OVERSCAN_AMOUNT } from './constants.js';
 import { HistoryRangeService } from './history.range.service.js';
 
 /**
+ * @import {ActionResponse} from "../types/history.js"
  * @typedef {import('../types/history.js').Range} Range
  * @typedef {import('../types/history.js').HistoryQuery} HistoryQuery
  * @typedef {import("../types/history.js").HistoryQueryInfo} HistoryQueryInfo
@@ -306,14 +307,17 @@ export class HistoryService {
 
     /**
      * @param {Range} range
+     * @return {Promise<{kind: 'none'} | {kind: "range-deleted"}>}
      */
     async deleteRange(range) {
-        console.log('📤 [deleteRange]: ', JSON.stringify({ range }));
         const resp = await this.range.deleteRange(range);
         if (resp.action === 'delete' && range === 'all') {
             this.reset();
         }
-        return resp;
+        if (resp.action === 'delete') {
+            return { kind: 'range-deleted' };
+        }
+        return { kind: 'none' };
     }
 
     /**

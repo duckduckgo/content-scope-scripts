@@ -127,6 +127,14 @@ export class HistoryTestPage {
     }
 
     /**
+     * @param {number} n
+     */
+    async didMakeNQueries(n) {
+        const calls = await this.mocks.outgoing({ names: ['query'] });
+        expect(calls).toHaveLength(n);
+    }
+
+    /**
      * @param {object} props
      * @param {number} props.nth
      * @param {import('../types/history.ts').QueryKind} props.query
