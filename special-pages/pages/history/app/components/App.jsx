@@ -4,7 +4,7 @@ import styles from './App.module.css';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { Header } from './Header.js';
 import { Results } from './Results.js';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect } from 'preact/hooks';
 import { Sidebar } from './Sidebar.js';
 import { useData } from '../global-state/DataProvider.js';
 import { useResetSelectionsOnQueryChange, useRowInteractions, useSelected } from '../global-state/SelectionProvider.js';
@@ -12,7 +12,6 @@ import {
     useAuxClickHandler,
     useButtonClickHandler,
     useContextMenuForEntries,
-    useContextMenuForTitles,
     useGlobalHandlers,
     useLinkClickHandler,
 } from '../global-state/HistoryServiceProvider.js';
@@ -32,7 +31,6 @@ export function App() {
     useQueryEvents();
     useLinkClickHandler();
     useButtonClickHandler();
-    useContextMenuForTitles();
     useContextMenuForEntries();
     useAuxClickHandler();
 

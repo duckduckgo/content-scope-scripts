@@ -72,18 +72,6 @@ export class HistoryTestPage {
     }
 
     /**
-     * We test the fully built artifacts, so for each test run we need to
-     * select the correct HTML file.
-     * @return {string}
-     */
-    get basePath() {
-        return this.build.switch({
-            windows: () => '../build/windows/pages/history',
-            integration: () => '../build/integration/pages/history',
-        });
-    }
-
-    /**
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
@@ -91,10 +79,6 @@ export class HistoryTestPage {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use);
         return new HistoryTestPage(page, build, platformInfo);
-    }
-
-    async reducedMotion() {
-        await this.page.emulateMedia({ reducedMotion: 'reduce' });
     }
 
     async darkMode() {
@@ -306,29 +290,6 @@ export class HistoryTestPage {
     }
 
     /**
-     * @param {import('../types/history.ts').DeleteRangeResponse} resp
-     */
-    async deletesFromSectionTitle(resp) {
-        const { page } = this;
-
-        this._withDialogHandling(resp);
-        // Hover over the "Today" section and open the menu
-        const title = page.getByRole('list').getByText('Today');
-        await title.hover();
-        await title.getByLabel('Show menu for Today').click();
-
-        // Verify the call to "title_menu" with expected parameters
-        const calls = await this.mocks.waitForCallCount({ method: 'title_menu', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ dateRelativeDay: 'Today' });
-
-        // verify the section is gone
-        await expect(title.getByLabel('Show menu for Today')).not.toBeVisible();
-
-        // todo: re-enable this if it's required
-        // await this.sideBarItemWasRemoved('Today');
-    }
-
-    /**
      * @param {number} nth - row index
      * @param {import('../types/history.ts').DeleteRangeResponse} resp
      */
@@ -347,14 +308,6 @@ export class HistoryTestPage {
         expect(calls[0].payload.params).toStrictEqual({ ids: [nthItem.id] });
     }
 
-    async rightClicksSectionTitle() {
-        const { page } = this;
-        const title = page.getByRole('list').getByText('Today');
-        await title.click({ button: 'right' });
-        const calls = await this.mocks.waitForCallCount({ method: 'title_menu', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ dateRelativeDay: 'Today' });
-    }
-
     /**
      * @param {number} nth
      */
@@ -365,28 +318,6 @@ export class HistoryTestPage {
         await rows.nth(nth).getByTestId('Item.domain').click();
         await expect(rows.nth(nth)).toHaveAttribute('aria-selected', 'true');
         await expect(selected).toHaveCount(1);
-    }
-
-    /**
-     * @param {number} nth
-     */
-    async hoversRowIndex(nth) {
-        const rows = this.page.locator('main').locator('[aria-selected]');
-        await rows.nth(nth).hover();
-        await rows.nth(nth).locator('[data-action="entries_menu"]').waitFor({ state: 'visible' });
-    }
-    /**
-     * @param {number} nth
-     */
-    async hoversRowIndexBtn(nth) {
-        const rows = this.page.locator('main').locator('[aria-selected]');
-        await rows.nth(nth).locator('[data-action="entries_menu"]').hover();
-    }
-    /**
-     *
-     */
-    async hoversDeleteAllBtn() {
-        await this.page.getByRole('button', { name: 'Delete All', exact: true }).hover();
     }
 
     /**
@@ -558,14 +489,6 @@ export class HistoryTestPage {
     }
     header() {
         return this.page.locator('header');
-    }
-
-    async hoversRange(range) {
-        await this.page.getByLabel(`Show history for ${range}`).hover();
-    }
-    async hoversRangeDelete(range) {
-        // await this.page.pause();
-        await this.page.getByRole('button', { name: `Delete history for ${range}` }).hover();
     }
 
     /**

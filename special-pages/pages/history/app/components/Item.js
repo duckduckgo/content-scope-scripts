@@ -4,8 +4,7 @@ import { BOTH_KIND, END_KIND, TITLE_KIND } from '../utils.js';
 import { Fragment, h } from 'preact';
 import styles from './Item.module.css';
 import { Dots } from '../icons/dots.js';
-import { useTypedTranslation } from '../types.js';
-import { BTN_ACTION_ENTRIES_MENU, BTN_ACTION_TITLE_MENU, DDG_DEFAULT_ICON_SIZE } from '../constants.js';
+import { BTN_ACTION_ENTRIES_MENU, DDG_DEFAULT_ICON_SIZE } from '../constants.js';
 import { FaviconWithState } from '../../../../shared/components/FaviconWithState.js';
 
 export const Item = memo(
@@ -32,7 +31,7 @@ export const Item = memo(
         const hasTitle = kind === TITLE_KIND || kind === BOTH_KIND;
         return (
             <Fragment>
-                {hasTitle && <Heading dateRelativeDay={dateRelativeDay} />}
+                {hasTitle && <div className={cn(styles.title)}>{dateRelativeDay}</div>}
                 <div
                     class={cn(styles.row, styles.hover, hasFooterGap && styles.last)}
                     data-history-entry={props.id}
@@ -66,25 +65,3 @@ export const Item = memo(
         );
     },
 );
-
-/**
- * @param {object} props
- * @param {string} props.dateRelativeDay
- */
-function Heading({ dateRelativeDay }) {
-    const { t } = useTypedTranslation();
-    return (
-        <div className={cn(styles.title, styles.hover)} data-section-title>
-            {dateRelativeDay}
-            <button
-                className={cn(styles.dots, styles.titleDots)}
-                data-action={BTN_ACTION_TITLE_MENU}
-                value={dateRelativeDay}
-                aria-label={t('menu_sectionTitle', { relativeTime: dateRelativeDay })}
-                tabIndex={0}
-            >
-                <Dots />
-            </button>
-        </div>
-    );
-}

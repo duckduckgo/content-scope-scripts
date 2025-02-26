@@ -102,17 +102,6 @@ export function mockTransport() {
                     }
                     return Promise.resolve({ action: 'none' });
                 }
-                case 'title_menu': {
-                    // prettier-ignore
-                    const lines = [
-                        `title_menu: ${JSON.stringify(msg.params)}`,
-                        `To simulate deleting this item, press confirm`
-                    ].join('\n');
-                    if (confirm(lines)) {
-                        return Promise.resolve({ action: 'delete' });
-                    }
-                    return Promise.resolve({ action: 'none' });
-                }
                 case 'deleteRange': {
                     // console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
                     // prettier-ignore

@@ -1,10 +1,10 @@
 import { createContext, h } from 'preact';
 import { useSignalEffect } from '@preact/signals';
 import { paramsToQuery, toRange } from '../history.service.js';
-import { BTN_ACTION_ENTRIES_MENU, BTN_ACTION_TITLE_MENU, EVENT_RANGE_CHANGE, KNOWN_ACTIONS } from '../constants.js';
+import { BTN_ACTION_ENTRIES_MENU, EVENT_RANGE_CHANGE, KNOWN_ACTIONS } from '../constants.js';
 import { usePlatformName } from '../types.js';
 import { eventToTarget } from '../../../../shared/handlers.js';
-import { useCallback, useContext, useEffect } from 'preact/hooks';
+import { useCallback, useContext } from 'preact/hooks';
 import { useSelected } from './SelectionProvider.js';
 import { useData } from './DataProvider.js';
 import { useQueryDispatch } from './QueryProvider.js';
@@ -22,7 +22,6 @@ const HistoryServiceContext = createContext({
  * | {kind: 'delete-entries-by-index'; value: number[] }
  * | {kind: 'open-url'; url: string, target: 'new-tab' | 'new-window' | 'same-tab' }
  * | {kind: 'show-entries-menu'; ids: string[]; indexes: number[] }
- * | {kind: 'show-title-menu'; dateRelativeDay: string }
  * | {kind: 'request-more'; end: number }
  * } Action
  */
@@ -98,11 +97,6 @@ export function HistoryServiceProvider({ service, children }) {
                     .catch(console.error);
                 break;
             }
-            case 'show-title-menu': {
-                // eslint-disable-next-line promise/prefer-await-to-then
-                service.menuTitle(action.dateRelativeDay).catch(console.error);
-                break;
-            }
             case 'request-more': {
                 service.requestMore(action.end);
                 break;
@@ -148,28 +142,6 @@ export function useRangeChange(service) {
             window.removeEventListener(EVENT_RANGE_CHANGE, handler);
         };
     });
-}
-
-/**
- * Support for context-menus triggered on section titles
- */
-export function useContextMenuForTitles() {
-    const dispatch = useHistoryServiceDispatch();
-    useEffect(() => {
-        function handler(event) {
-            const target = /** @type {HTMLElement|null} */ (event.target);
-            if (!(target instanceof HTMLElement)) return;
-            const value = target.closest('[data-section-title]')?.querySelector('button')?.value;
-            if (typeof value === 'string') {
-                dispatch({ kind: 'show-title-menu', dateRelativeDay: value });
-            }
-        }
-        document.addEventListener('contextmenu', handler);
-
-        return () => {
-            document.removeEventListener('contextmenu', handler);
-        };
-    }, []);
 }
 
 /**
@@ -248,7 +220,6 @@ export function useAuxClickHandler() {
  * Depending on the `data-action` attribute of the clicked button, it triggers a specific action
  * in the service, such as opening a menu, deleting a range, or deleting all entries.
  *
- * - "title_menu": Triggers the `menuTitle` method with the value of the button.
  * - "entries_menu": Triggers the `entriesMenu` method with the button value and dataset index.
  */
 export function useButtonClickHandler() {
@@ -271,10 +242,6 @@ export function useButtonClickHandler() {
             event.preventDefault();
 
             switch (action) {
-                case BTN_ACTION_TITLE_MENU: {
-                    historyServiceDispatch({ kind: 'show-title-menu', dateRelativeDay: btn.value });
-                    return;
-                }
                 case BTN_ACTION_ENTRIES_MENU: {
                     historyServiceDispatch({ kind: 'show-entries-menu', ids: [btn.value], indexes: [Number(btn.dataset.index)] });
                     return;

@@ -143,22 +143,6 @@ Response, note: always return the same query I sent:
 }
 ```
 
-### `title_menu`
-{@link "History Messages".TitleMenuRequest}
-
-Sent when a right-click is issued on a section title (or when the three-dots button is clicked)  
-
-**Types:**
-- Parameters: {@link "History Messages".TitleMenuParams}
-- Response: {@link "History Messages".TitleMenuResponse}
-
-**params**
-```json
-{
-  "dateRelativeDay": "Today - Wednesday 15 January 2025"
-}
-```
-
 **response, if deleted**
 ```json
 {

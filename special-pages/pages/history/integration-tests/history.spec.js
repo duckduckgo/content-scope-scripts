@@ -158,16 +158,6 @@ test.describe('history', () => {
         await hp.clicksDeleteAllInHeader({ action: 'delete' });
         await hp.didDeleteRange('today');
     });
-    test('3 dots menu on Section title', async ({ page }, workerInfo) => {
-        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
-        await hp.openPage({});
-        await hp.deletesFromSectionTitle({ action: 'delete' });
-    });
-    test('right-click on Section title', async ({ page }, workerInfo) => {
-        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
-        await hp.openPage({});
-        await hp.rightClicksSectionTitle();
-    });
     test('3 dots menu on history entry', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});

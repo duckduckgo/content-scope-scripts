@@ -281,15 +281,6 @@ export class HistoryService {
         this.update((old) => deleteByIndexes(old, indexes));
     }
 
-    /**
-     * @param {string} dateRelativeDay
-     */
-    async menuTitle(dateRelativeDay) {
-        const response = await this.history.messaging.request('title_menu', { dateRelativeDay });
-        if (response.action === 'none') return;
-        this.update((old) => deleteByDay(old, dateRelativeDay));
-    }
-
     reset() {
         this.update(() => {
             /** @type {QueryData} */

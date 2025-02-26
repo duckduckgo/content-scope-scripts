@@ -37,10 +37,6 @@ export type Favicon = null | {
   src: string;
   maxAvailableSize?: number;
 };
-/**
- * This value matches the section headings
- */
-export type RelativeDay = string;
 
 /**
  * Requests, Notifications and Subscriptions from the History feature
@@ -54,8 +50,7 @@ export interface HistoryMessages {
     | EntriesMenuRequest
     | GetRangesRequest
     | InitialSetupRequest
-    | QueryRequest
-    | TitleMenuRequest;
+    | QueryRequest;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -244,20 +239,6 @@ export interface HistoryItem {
    */
   url: string;
   favicon?: Favicon;
-}
-/**
- * Generated from @see "../messages/title_menu.request.json"
- */
-export interface TitleMenuRequest {
-  method: "title_menu";
-  params: TitleMenuParams;
-  result: TitleMenuResponse;
-}
-export interface TitleMenuParams {
-  dateRelativeDay: RelativeDay;
-}
-export interface TitleMenuResponse {
-  action: ActionResponse;
 }
 
 declare module "../src/index.js" {
