@@ -58,6 +58,9 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
 
             switch (msg.method) {
+                case 'query': {
+                    return withLatency(queryResponseFrom(memory, msg));
+                }
                 case 'entries_delete': {
                     console.log('📤 [entries_delete]: ', JSON.stringify(msg.params));
                     if (msg.params.ids.length > 1) {
@@ -89,7 +92,6 @@ export function mockTransport() {
                             } else {
                                 return Promise.resolve({ action: 'none' });
                             }
-                            // return Promise.resolve({ action: 'delete' });
                         }
                     }
                     // prettier-ignore
@@ -127,6 +129,7 @@ export function mockTransport() {
                     }
                     return Promise.resolve({ action: 'none' });
                 }
+
                 case 'initialSetup': {
                     /** @type {import('../../types/history.ts').InitialSetupResponse} */
                     const initial = {
@@ -137,7 +140,6 @@ export function mockTransport() {
 
                     return Promise.resolve(initial);
                 }
-
                 case 'getRanges': {
                     /** @type {import('../../types/history.ts').GetRangesResponse} */
                     const response = {
@@ -148,71 +150,83 @@ export function mockTransport() {
                     }
                     return Promise.resolve(response);
                 }
-                case 'query': {
-                    // console.log('📤 [query]: ', JSON.stringify(msg.params));
-                    if ('term' in msg.params.query) {
-                        const { term } = msg.params.query;
-                        if (term !== '') {
-                            if (term === '2s') {
-                                const response = asResponse(memory.slice(0, 20), msg.params.offset, msg.params.limit);
-                                // eslint-disable-next-line promise/prefer-await-to-then
-                                return new Promise((resolve) => setTimeout(resolve, 1000)).then(() => response);
-                            }
-                            if (term === 'empty') {
-                                const response = asResponse([], msg.params.offset, msg.params.limit);
-                                return Promise.resolve(response);
-                            }
-                            if (term.trim().match(/^\d+$/)) {
-                                const int = parseInt(term.trim(), 10);
-                                /** @type {import("../../types/history").HistoryQueryResponse} */
-                                const response = asResponse(memory.slice(0, int), msg.params.offset, msg.params.limit);
-                                response.value = response.value.map((item) => {
-                                    return {
-                                        ...item,
-                                        title: 't:' + term + ' ' + item.title,
-                                    };
-                                });
-                                response.info.query = { term };
-                                return Promise.resolve(response);
-                            }
-                            /** @type {import("../../types/history").HistoryQueryResponse} */
-                            const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
-                            response.info.query = { term };
-                            return Promise.resolve(response);
-                        }
-                    } else if ('range' in msg.params.query) {
-                        const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
-                        const range = msg.params.query.range;
-                        response.value = response.value.map((item) => {
-                            return {
-                                ...item,
-                                title: 'range:' + range + ' ' + item.title,
-                            };
-                        });
-                        response.info.query = msg.params.query;
-                        return Promise.resolve(response);
-                    } else if ('domain' in msg.params.query) {
-                        const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
-                        const domain = msg.params.query.domain;
-                        response.value = response.value.map((item) => {
-                            return {
-                                ...item,
-                                title: 'domain:' + domain + ' ' + item.title,
-                            };
-                        });
-                        response.info.query = msg.params.query;
-                        return Promise.resolve(response);
-                    }
-
-                    /** @type {import("../../types/history").HistoryQueryResponse} */
-                    const response = asResponse(memory, msg.params.offset, msg.params.limit);
-
-                    return Promise.resolve(response);
-                }
                 default: {
                     return Promise.reject(new Error('unhandled request' + msg));
                 }
             }
         },
     });
+}
+
+async function withLatency(value) {
+    let queryLatency = 50;
+    const fromParam = url.searchParams.get('query.latency');
+    if (fromParam && fromParam.match(/^\d+$/)) {
+        queryLatency = parseInt(fromParam, 10);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, queryLatency));
+
+    return value;
+}
+
+/**
+ * @param {import("../../types/history").HistoryQueryResponse['value']} memory
+ * @param {import('../../types/history.ts').QueryRequest} msg
+ * @returns {import('../../types/history.ts').HistoryQueryResponse}
+ */
+function queryResponseFrom(memory, msg) {
+    // console.log('📤 [query]: ', JSON.stringify(msg.params));
+
+    if ('term' in msg.params.query) {
+        const { term } = msg.params.query;
+        if (term !== '') {
+            if (term === 'empty') {
+                return asResponse([], msg.params.offset, msg.params.limit);
+            }
+            if (term.trim().match(/^\d+$/)) {
+                const int = parseInt(term.trim(), 10);
+                /** @type {import("../../types/history").HistoryQueryResponse} */
+                const response = asResponse(memory.slice(0, int), msg.params.offset, msg.params.limit);
+                response.value = response.value.map((item) => {
+                    return {
+                        ...item,
+                        title: 't:' + term + ' ' + item.title,
+                    };
+                });
+                response.info.query = { term };
+                return response;
+            }
+
+            /** @type {import("../../types/history").HistoryQueryResponse} */
+            const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
+            response.info.query = { term };
+            return response;
+        }
+    } else if ('range' in msg.params.query) {
+        const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
+        const range = msg.params.query.range;
+        response.value = response.value.map((item) => {
+            return {
+                ...item,
+                title: 'range:' + range + ' ' + item.title,
+            };
+        });
+        response.info.query = msg.params.query;
+        return response;
+    } else if ('domain' in msg.params.query) {
+        const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
+        const domain = msg.params.query.domain;
+        response.value = response.value.map((item) => {
+            return {
+                ...item,
+                title: 'domain:' + domain + ' ' + item.title,
+            };
+        });
+        response.info.query = msg.params.query;
+        return response;
+    }
+
+    /** @type {import("../../types/history").HistoryQueryResponse} */
+    return asResponse(memory, msg.params.offset, msg.params.limit);
 }

@@ -55,13 +55,17 @@ export class HistoryService {
          */
         this.internal.addEventListener(HistoryService.QUERY_EVENT, (/** @type {CustomEvent<HistoryQuery>} */ evt) => {
             const { detail } = evt;
+
+            // reject duplicates (eg: already fetching the same query)
+            if (eq(detail, this.ongoing)) return console.log('ignoring duplicate query');
+
+            // increment the counter
             this.index++;
 
-            // store a local index, we can check it when the promise resolves
+            // and, store a local index, we can check it when the promise resolves
             const index = this.index;
 
-            // reject duplicates
-            if (eq(detail, this.ongoing)) return console.log('ignoring duplicate query');
+            // store a snapshot of the ongoing query
             this.ongoing = JSON.parse(JSON.stringify(detail));
 
             this.queryFetcher(detail)
