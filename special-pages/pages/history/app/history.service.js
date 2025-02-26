@@ -345,34 +345,6 @@ function deleteByIndexes(old, indexes) {
 }
 
 /**
- * @param {QueryData} old
- * @param {string} dateRelativeDay
- * @return {QueryData}
- */
-function deleteByDay(old, dateRelativeDay) {
-    // find the first item
-    // todo: this can be optimized by passing the index in the call
-    const start = old.results.findIndex((x) => x.dateRelativeDay === dateRelativeDay);
-    if (start > -1) {
-        // now find the last item matching, starting with the first
-        let end = start;
-        for (let i = start; i < old.results.length; i++) {
-            if (old.results[i]?.dateRelativeDay === dateRelativeDay) continue;
-            end = i;
-            break;
-        }
-        const next = old.results.slice();
-        const removed = next.splice(start, end - start);
-        console.log('did remove items:', removed);
-        return {
-            ...old,
-            results: next,
-        };
-    }
-    return old;
-}
-
-/**
  * @param {URLSearchParams} params
  * @return {HistoryQuery}
  */
