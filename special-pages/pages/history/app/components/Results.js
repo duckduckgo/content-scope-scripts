@@ -4,9 +4,8 @@ import { Item } from './Item.js';
 import styles from './VirtualizedList.module.css';
 import { VisibleItems } from './VirtualizedList.js';
 import { Empty } from './Empty.js';
-import { useResultsData } from '../global/Providers/DataProvider.js';
 import { useSelected } from '../global/Providers/SelectionProvider.js';
-import { useHistoryServiceDispatch } from '../global/Providers/HistoryServiceProvider.js';
+import { useHistoryServiceDispatch, useResultsData } from '../global/Providers/HistoryServiceProvider.js';
 import { useCallback } from 'preact/hooks';
 
 /**
@@ -26,7 +25,7 @@ export function ResultsContainer() {
 
 /**
  * @param {object} props
- * @param {import("@preact/signals").Signal<import("../global/Providers/DataProvider.js").Results>} props.results
+ * @param {import("@preact/signals").Signal<import("../global/Providers/HistoryServiceProvider.js").Results>} props.results
  * @param {import("@preact/signals").Signal<Set<number>>} props.selected
  * @param {(end: number) => void} props.onChange
  */

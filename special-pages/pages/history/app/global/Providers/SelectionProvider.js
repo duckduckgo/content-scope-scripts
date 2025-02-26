@@ -2,9 +2,8 @@ import { createContext, h } from 'preact';
 import { useCallback, useContext } from 'preact/hooks';
 import { signal, useSignal } from '@preact/signals';
 import { usePlatformName } from '../../types.js';
-import { useResultsData } from './DataProvider.js';
 import { eventToIntention } from '../../utils.js';
-import { useHistoryServiceDispatch } from './HistoryServiceProvider.js';
+import { useHistoryServiceDispatch, useResultsData } from './HistoryServiceProvider.js';
 
 /**
  * @typedef {(s: (d: Set<number>) => Set<number>, reason: string) => void} UpdateSelected

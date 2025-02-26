@@ -2,6 +2,8 @@ import { createContext, h } from 'preact';
 import { paramsToQuery, toRange } from '../../history.service.js';
 import { useCallback, useContext } from 'preact/hooks';
 import { useQueryDispatch } from './QueryProvider.js';
+import { signal, useSignal, useSignalEffect } from '@preact/signals';
+import { generateHeights } from '../../utils.js';
 
 /**
  * @typedef {{kind: 'search-commit', params: URLSearchParams}
@@ -24,15 +26,53 @@ function defaultDispatch(action) {
 const HistoryServiceDispatchContext = createContext(defaultDispatch);
 
 /**
+ * @typedef {object} Results
+ * @property {import('../../../types/history.ts').HistoryItem[]} items
+ * @property {number[]} heights
+ */
+/**
+ * @typedef {import('../../../types/history.ts').Range} Range
+ * @import { ReadonlySignal } from '@preact/signals'
+ */
+
+const ResultsContext = createContext(/** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [] })));
+const RangesContext = createContext(/** @type {ReadonlySignal<Range[]>} */ (signal([])));
+
+/**
  * Provides a context for the history service, allowing dependent components to access it.
  * Everything that interacts with the service should be registered here
  *
  * @param {Object} props
  * @param {import("../../history.service.js").HistoryService} props.service
+ * @param {import('../../history.service.js').InitialServiceData} props.initial - The initial state data for the history service.
  * @param {import("preact").ComponentChild} props.children
  */
-export function HistoryServiceProvider({ service, children }) {
+export function HistoryServiceProvider({ service, children, initial }) {
     const queryDispatch = useQueryDispatch();
+    const ranges = useSignal(initial.ranges.ranges);
+    const results = useSignal({
+        items: initial.query.results,
+        heights: generateHeights(initial.query.results),
+    });
+
+    useSignalEffect(() => {
+        const unsub = service.onResults((data) => {
+            results.value = {
+                items: data.results,
+                heights: generateHeights(data.results),
+            };
+        });
+
+        // Subscribe to changes in the 'ranges' data and reflect the updates into the UI
+        const unsubRanges = service.onRanges((data) => {
+            ranges.value = data.ranges;
+        });
+        return () => {
+            unsub();
+            unsubRanges();
+        };
+    });
+
     /**
      * @param {Action} action
      */
@@ -100,9 +140,25 @@ export function HistoryServiceProvider({ service, children }) {
 
     const dispatcher = useCallback(dispatch, [service]);
 
-    return <HistoryServiceDispatchContext.Provider value={dispatcher}>{children}</HistoryServiceDispatchContext.Provider>;
+    return (
+        <HistoryServiceDispatchContext.Provider value={dispatcher}>
+            <RangesContext.Provider value={ranges}>
+                <ResultsContext.Provider value={results}>{children}</ResultsContext.Provider>
+            </RangesContext.Provider>
+        </HistoryServiceDispatchContext.Provider>
+    );
 }
 
 export function useHistoryServiceDispatch() {
     return useContext(HistoryServiceDispatchContext);
+}
+
+// Hook for consuming the context
+export function useResultsData() {
+    return useContext(ResultsContext);
+}
+
+// Hook for consuming the context
+export function useRangesData() {
+    return useContext(RangesContext);
 }

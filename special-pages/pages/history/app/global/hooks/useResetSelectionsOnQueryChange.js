@@ -1,6 +1,6 @@
 import { useComputed, useSignalEffect } from '@preact/signals';
 import { useQueryContext } from '../Providers/QueryProvider.js';
-import { useResultsData } from '../Providers/DataProvider.js';
+import { useResultsData } from '../Providers/HistoryServiceProvider.js';
 import { useSelectionDispatch } from '../Providers/SelectionProvider.js';
 
 /**

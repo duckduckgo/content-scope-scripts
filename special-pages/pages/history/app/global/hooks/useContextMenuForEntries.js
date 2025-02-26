@@ -1,7 +1,6 @@
 import { useEffect } from 'preact/hooks';
 import { useSelected } from '../Providers/SelectionProvider.js';
-import { useResultsData } from '../Providers/DataProvider.js';
-import { useHistoryServiceDispatch } from '../Providers/HistoryServiceProvider.js';
+import { useHistoryServiceDispatch, useResultsData } from '../Providers/HistoryServiceProvider.js';
 
 /**
  * Support for context menu on entries. This needs to be aware of

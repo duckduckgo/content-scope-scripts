@@ -6,7 +6,6 @@ import { Header } from './Header.js';
 import { ResultsContainer } from './Results.js';
 import { useEffect, useRef } from 'preact/hooks';
 import { Sidebar } from './Sidebar.js';
-import { useRangesData } from '../global/Providers/DataProvider.js';
 import { useRowInteractions } from '../global/Providers/SelectionProvider.js';
 import { useQueryContext } from '../global/Providers/QueryProvider.js';
 import { useContextMenuForEntries } from '../global/hooks/useContextMenuForEntries.js';
@@ -17,6 +16,7 @@ import { useResetSelectionsOnQueryChange } from '../global/hooks/useResetSelecti
 import { useSearchCommitForRange } from '../global/hooks/useSearchCommitForRange.js';
 import { useURLReflection } from '../global/hooks/useURLReflection.js';
 import { useSearchCommit } from '../global/hooks/useSearchCommit.js';
+import { useRangesData } from '../global/Providers/HistoryServiceProvider.js';
 
 export function App() {
     const mainRef = useRef(/** @type {HTMLElement|null} */ (null));

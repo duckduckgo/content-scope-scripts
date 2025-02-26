@@ -5,9 +5,8 @@ import { SearchForm } from './SearchForm.js';
 import { Trash } from '../icons/Trash.js';
 import { useTypedTranslation } from '../types.js';
 import { useQueryContext } from '../global/Providers/QueryProvider.js';
-import { useResultsData } from '../global/Providers/DataProvider.js';
 import { useSelected } from '../global/Providers/SelectionProvider.js';
-import { useHistoryServiceDispatch } from '../global/Providers/HistoryServiceProvider.js';
+import { useHistoryServiceDispatch, useResultsData } from '../global/Providers/HistoryServiceProvider.js';
 
 /**
  */

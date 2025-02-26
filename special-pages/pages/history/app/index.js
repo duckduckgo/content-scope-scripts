@@ -14,7 +14,6 @@ import { HistoryServiceProvider } from './global/Providers/HistoryServiceProvide
 import { Settings } from './Settings.js';
 import { SelectionProvider } from './global/Providers/SelectionProvider.js';
 import { QueryProvider } from './global/Providers/QueryProvider.js';
-import { DataProvider } from './global/Providers/DataProvider.js'; // global styles
 
 /**
  * @param {Element} root
@@ -77,12 +76,10 @@ export async function init(root, messaging, baseEnvironment) {
                     <MessagingContext.Provider value={messaging}>
                         <SettingsContext.Provider value={settings}>
                             <QueryProvider query={query.query}>
-                                <HistoryServiceProvider service={service}>
-                                    <DataProvider service={service} initial={initial}>
-                                        <SelectionProvider>
-                                            <App />
-                                        </SelectionProvider>
-                                    </DataProvider>
+                                <HistoryServiceProvider service={service} initial={initial}>
+                                    <SelectionProvider>
+                                        <App />
+                                    </SelectionProvider>
                                 </HistoryServiceProvider>
                             </QueryProvider>
                         </SettingsContext.Provider>
