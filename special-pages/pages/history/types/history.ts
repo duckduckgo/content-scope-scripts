@@ -7,18 +7,6 @@
  */
 
 export type OpenTarget = "same-tab" | "new-tab" | "new-window";
-export type Range =
-  | "all"
-  | "today"
-  | "yesterday"
-  | "monday"
-  | "tuesday"
-  | "wednesday"
-  | "thursday"
-  | "friday"
-  | "saturday"
-  | "sunday"
-  | "older";
 export type ActionResponse = (DeleteAction | NoneAction | DomainSearchAction) & string;
 /**
  * Confirms the user deleted this
@@ -32,6 +20,18 @@ export type NoneAction = "none";
  * The user asked to see more results from the domain
  */
 export type DomainSearchAction = "domain-search";
+export type Range =
+  | "all"
+  | "today"
+  | "yesterday"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday"
+  | "older";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
 export type Favicon = null | {
   src: string;
@@ -44,6 +44,7 @@ export type Favicon = null | {
 export interface HistoryMessages {
   notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
   requests:
+    | DeleteDomainRequest
     | DeleteRangeRequest
     | DeleteTermRequest
     | EntriesDeleteRequest
@@ -85,6 +86,20 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/deleteDomain.request.json"
+ */
+export interface DeleteDomainRequest {
+  method: "deleteDomain";
+  params: DeleteDomainParams;
+  result: DeleteDomainResponse;
+}
+export interface DeleteDomainParams {
+  domain: string;
+}
+export interface DeleteDomainResponse {
+  action: ActionResponse;
 }
 /**
  * Generated from @see "../messages/deleteRange.request.json"

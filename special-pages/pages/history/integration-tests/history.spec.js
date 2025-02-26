@@ -158,6 +158,7 @@ test.describe('history', () => {
         await hp.clicksDeleteAllInHeader({ action: 'delete' });
         await hp.didDeleteRange('today');
     });
+
     test('3 dots menu on history entry', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
@@ -179,6 +180,14 @@ test.describe('history', () => {
         await hp.openPage({ additional: { action: 'domain-search' } });
         await hp.menuForHistoryEntry(0, { action: 'domain-search' });
         await hp.didMakeNthQuery({ nth: 1, query: { domain: 'youtube.com' } });
+    });
+    test('deleting domain-search from the header', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({ additional: { action: 'domain-search' } });
+        await hp.menuForHistoryEntry(0, { action: 'domain-search' });
+        await hp.didMakeNthQuery({ nth: 1, query: { domain: 'youtube.com' } });
+        await hp.clicksDeleteAllInHeader({ action: 'delete' });
+        await hp.didDeleteDomain('youtube.com');
     });
     test('does not concatenate results if the query is not an addition', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(1);

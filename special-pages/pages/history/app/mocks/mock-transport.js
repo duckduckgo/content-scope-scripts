@@ -117,6 +117,18 @@ export function mockTransport() {
                     }
                     return Promise.resolve({ action: 'none' });
                 }
+                case 'deleteDomain': {
+                    // console.log('📤 [deleteDomain]: ', JSON.stringify(msg.params));
+                    // prettier-ignore
+                    const lines = [
+                        `deleteDomain: ${JSON.stringify(msg.params)}`,
+                        `To simulate deleting this item, press confirm`
+                    ].join('\n',);
+                    if (confirm(lines)) {
+                        return Promise.resolve({ action: 'delete' });
+                    }
+                    return Promise.resolve({ action: 'none' });
+                }
                 case 'deleteTerm': {
                     console.log('📤 [deleteTerm]: ', JSON.stringify(msg.params));
                     // prettier-ignore

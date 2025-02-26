@@ -316,6 +316,19 @@ export class HistoryService {
     }
 
     /**
+     * @param {string} domain
+     * @return {Promise<{kind: 'none'} | {kind: "domain-deleted"}>}
+     */
+    async deleteDomain(domain) {
+        const resp = await this.history.messaging.request('deleteDomain', { domain });
+        if (resp.action === 'delete') {
+            this.reset();
+            return { kind: 'domain-deleted' };
+        }
+        return { kind: 'none' };
+    }
+
+    /**
      * @param {string} term
      */
     async deleteTerm(term) {

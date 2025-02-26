@@ -10,6 +10,7 @@ import { generateHeights } from '../../utils.js';
  * | {kind: 'delete-range'; value: string }
  * | {kind: 'delete-all'; }
  * | {kind: 'delete-term'; term: string }
+ * | {kind: 'delete-domain'; domain: string }
  * | {kind: 'delete-entries-by-index'; value: number[] }
  * | {kind: 'open-url'; url: string, target: 'new-tab' | 'new-window' | 'same-tab' }
  * | {kind: 'show-entries-menu'; ids: string[]; indexes: number[] }
@@ -97,6 +98,11 @@ export function HistoryServiceProvider({ service, children, initial }) {
                         // eslint-disable-next-line promise/prefer-await-to-then
                         .catch(console.error);
                 }
+                break;
+            }
+            case 'delete-domain': {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.deleteDomain(action.domain).catch(console.error);
                 break;
             }
             case 'delete-entries-by-index': {

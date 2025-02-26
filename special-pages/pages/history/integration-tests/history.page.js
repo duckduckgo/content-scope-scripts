@@ -240,6 +240,14 @@ export class HistoryTestPage {
     }
 
     /**
+     * @param {string} domain
+     */
+    async didDeleteDomain(domain) {
+        const calls = await this.mocks.waitForCallCount({ method: 'deleteDomain', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ domain });
+    }
+
+    /**
      * @param {import('../types/history.ts').DeleteRangeResponse} resp
      */
     async deletesHistoryForYesterday(resp = { action: 'delete' }) {
@@ -296,7 +304,7 @@ export class HistoryTestPage {
     async menuForHistoryEntry(nth, resp) {
         const { page } = this;
 
-        this._withDialogHandling(resp);
+        const cleanup = this._withDialogHandling(resp);
         // console.log(data[0].title);
         const data = generateSampleData({ count: this.entries, offset: 0 });
         const nthItem = data[nth];
@@ -306,6 +314,7 @@ export class HistoryTestPage {
 
         const calls = await this.mocks.waitForCallCount({ method: 'entries_menu', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ ids: [nthItem.id] });
+        cleanup();
     }
 
     /**
@@ -417,14 +426,17 @@ export class HistoryTestPage {
     _withDialogHandling(resp) {
         const { page } = this;
 
-        // Handle dialog interaction based on response action
-        if (resp.action === 'delete' || resp.action === 'domain-search') {
-            page.on('dialog', (dialog) => {
+        const handler = (dialog) => {
+            if (resp.action === 'delete' || resp.action === 'domain-search') {
                 return dialog.accept();
-            });
-        } else {
-            page.on('dialog', (dialog) => dialog.dismiss());
-        }
+            } else {
+                return dialog.dismiss();
+            }
+        };
+        page.on('dialog', handler);
+        return () => {
+            page.off('dialog', handler);
+        };
     }
 
     /**

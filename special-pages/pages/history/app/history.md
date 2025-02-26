@@ -122,6 +122,27 @@ Response, note: always return the same query I sent:
 }
 ```
 
+### `deleteDomain`
+- Sent to delete a domain - which might be the etld+1 or domain.
+- Parameters: {@link "History Messages".DeleteDomainParams}
+- If the user confirms, respond with `{ action: 'delete' }`
+- otherwise `{ action: 'none' }`
+  - Response: {@link "History Messages".DeleteDomainResponse}
+
+**params**
+```json
+{
+  "domain": "youtube.com" 
+}
+```
+
+**response**
+```json
+{
+  "action": "delete" 
+}
+```
+
 ### `deleteTerm`
 - Sent to delete a search term
 - Parameters: {@link "History Messages".DeleteTermParams}

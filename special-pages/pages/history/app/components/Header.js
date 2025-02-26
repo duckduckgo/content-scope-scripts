@@ -17,7 +17,7 @@ export function Header() {
     const domain = useComputed(() => search.value.domain);
     return (
         <div class={styles.root}>
-            <Controls term={term} range={range} />
+            <Controls term={term} range={range} domain={domain} />
             <div class={styles.search}>
                 <SearchForm term={term} domain={domain} />
             </div>
@@ -31,8 +31,9 @@ export function Header() {
  * @param {Object} props - Properties passed to the component.
  * @param {import("@preact/signals").Signal<string|null>} props.term
  * @param {import("@preact/signals").Signal<string|null>} props.range
+ * @param {import("@preact/signals").Signal<string|null>} props.domain
  */
-function Controls({ term, range }) {
+function Controls({ term, range, domain }) {
     const { t } = useTypedTranslation();
     const results = useResultsData();
     const selected = useSelected();
@@ -68,6 +69,12 @@ function Controls({ term, range }) {
         }
         if (range.value !== null) {
             return dispatch({ kind: 'delete-range', value: range.value });
+        }
+        if (term.value !== null && term.value !== '') {
+            return dispatch({ kind: 'delete-term', term: term.value });
+        }
+        if (domain.value !== null) {
+            return dispatch({ kind: 'delete-domain', domain: domain.value });
         }
         if (term.value !== null && term.value !== '') {
             return dispatch({ kind: 'delete-term', term: term.value });
