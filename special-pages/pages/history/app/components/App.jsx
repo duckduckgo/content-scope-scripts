@@ -8,13 +8,15 @@ import { useEffect, useRef } from 'preact/hooks';
 import { Sidebar } from './Sidebar.js';
 import { useRangesData } from '../global/Providers/DataProvider.js';
 import { useRowInteractions } from '../global/Providers/SelectionProvider.js';
-import { useQueryContext, useSearchCommit, useSearchCommitForRange, useURLReflection } from '../global/Providers/QueryProvider.js';
-import { useRangeChange } from '../global/hooks/useRangeChange.js';
+import { useQueryContext } from '../global/Providers/QueryProvider.js';
 import { useContextMenuForEntries } from '../global/hooks/useContextMenuForEntries.js';
 import { useAuxClickHandler } from '../global/hooks/useAuxClickHandler.js';
 import { useButtonClickHandler } from '../global/hooks/useButtonClickHandler.js';
 import { useLinkClickHandler } from '../global/hooks/useLinkClickHandler.js';
 import { useResetSelectionsOnQueryChange } from '../global/hooks/useResetSelectionsOnQueryChange.js';
+import { useSearchCommitForRange } from '../global/hooks/useSearchCommitForRange.js';
+import { useURLReflection } from '../global/hooks/useURLReflection.js';
+import { useSearchCommit } from '../global/hooks/useSearchCommit.js';
 
 export function App() {
     const mainRef = useRef(/** @type {HTMLElement|null} */ (null));
@@ -25,7 +27,6 @@ export function App() {
     /**
      * Handlers that are global in nature
      */
-    useRangeChange();
     useResetSelectionsOnQueryChange();
     useLinkClickHandler();
     useButtonClickHandler();

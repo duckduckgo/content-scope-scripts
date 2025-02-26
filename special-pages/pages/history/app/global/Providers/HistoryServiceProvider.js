@@ -15,8 +15,13 @@ import { useQueryDispatch } from './QueryProvider.js';
  * } Action
  */
 
-// Create the context
-const HistoryServiceDispatchContext = createContext(/** @type {(action: Action)=>void} */ ((action) => {}));
+/**
+ * @param {Action} action
+ */
+function defaultDispatch(action) {
+    console.log('would dispatch', action);
+}
+const HistoryServiceDispatchContext = createContext(defaultDispatch);
 
 /**
  * Provides a context for the history service, allowing dependent components to access it.

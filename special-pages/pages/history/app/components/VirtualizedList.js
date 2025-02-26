@@ -2,7 +2,6 @@ import { Fragment, h } from 'preact';
 import { memo } from 'preact/compat';
 import styles from './VirtualizedList.module.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { EVENT_RANGE_CHANGE } from '../constants.js';
 
 /**
  * @template T

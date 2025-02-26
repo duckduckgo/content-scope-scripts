@@ -13,8 +13,8 @@ import { generateHeights } from '../../utils.js';
  * @import { ReadonlySignal } from '@preact/signals'
  */
 
-const RangesState = createContext(/** @type {ReadonlySignal<Range[]>} */ (signal([])));
-const ResultsState = createContext(/** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [] })));
+const ResultsContext = createContext(/** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [] })));
+const RangesContext = createContext(/** @type {ReadonlySignal<Range[]>} */ (signal([])));
 
 /**
  * Provides a global state context for the application data.
@@ -51,18 +51,18 @@ export function DataProvider({ service, initial, children }) {
     });
 
     return (
-        <RangesState.Provider value={ranges}>
-            <ResultsState.Provider value={results}>{children}</ResultsState.Provider>
-        </RangesState.Provider>
+        <RangesContext.Provider value={ranges}>
+            <ResultsContext.Provider value={results}>{children}</ResultsContext.Provider>
+        </RangesContext.Provider>
     );
 }
 
 // Hook for consuming the context
 export function useResultsData() {
-    return useContext(ResultsState);
+    return useContext(ResultsContext);
 }
 
 // Hook for consuming the context
 export function useRangesData() {
-    return useContext(RangesState);
+    return useContext(RangesContext);
 }
