@@ -1,29 +1,27 @@
 import { h, createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import { signal, useSignal, useSignalEffect } from '@preact/signals';
-import { generateHeights } from '../utils.js';
+import { generateHeights } from '../../utils.js';
 
 /**
  * @typedef {object} Results
- * @property {import('../../types/history.js').HistoryItem[]} items
+ * @property {import('../../../types/history.ts').HistoryItem[]} items
  * @property {number[]} heights
  */
 /**
- * @typedef {import('../../types/history.ts').Range} Range
+ * @typedef {import('../../../types/history.ts').Range} Range
  * @import { ReadonlySignal } from '@preact/signals'
  */
 
-const DataState = createContext({
-    ranges: /** @type {ReadonlySignal<Range[]>} */ (signal([])),
-    results: /** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [] })),
-});
+const RangesState = createContext(/** @type {ReadonlySignal<Range[]>} */ (signal([])));
+const ResultsState = createContext(/** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [] })));
 
 /**
  * Provides a global state context for the application data.
  *
  * @param {Object} props
- * @param {import('../history.service.js').HistoryService} props.service - An instance of the history service to manage state updates.
- * @param {import('../history.service.js').InitialServiceData} props.initial - The initial state data for the history service.
+ * @param {import('../../history.service.js').HistoryService} props.service - An instance of the history service to manage state updates.
+ * @param {import('../../history.service.js').InitialServiceData} props.initial - The initial state data for the history service.
  * @param {import('preact').ComponentChildren} props.children
  */
 export function DataProvider({ service, initial, children }) {
@@ -52,14 +50,19 @@ export function DataProvider({ service, initial, children }) {
         };
     });
 
-    return <DataState.Provider value={{ ranges, results }}>{children}</DataState.Provider>;
+    return (
+        <RangesState.Provider value={ranges}>
+            <ResultsState.Provider value={results}>{children}</ResultsState.Provider>
+        </RangesState.Provider>
+    );
 }
 
 // Hook for consuming the context
-export function useData() {
-    const context = useContext(DataState);
-    if (!context) {
-        throw new Error('useSelection must be used within a SelectionProvider');
-    }
-    return context;
+export function useResultsData() {
+    return useContext(ResultsState);
+}
+
+// Hook for consuming the context
+export function useRangesData() {
+    return useContext(RangesState);
 }

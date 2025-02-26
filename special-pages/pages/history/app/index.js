@@ -10,11 +10,11 @@ import { callWithRetry } from '../../../shared/call-with-retry.js';
 
 import { MessagingContext, SettingsContext } from './types.js';
 import { HistoryService, paramsToQuery } from './history.service.js';
-import { HistoryServiceProvider } from './global-state/HistoryServiceProvider.js';
+import { HistoryServiceProvider } from './global/Providers/HistoryServiceProvider.js';
 import { Settings } from './Settings.js';
-import { SelectionProvider } from './global-state/SelectionProvider.js';
-import { QueryProvider } from './global-state/QueryProvider.js';
-import { DataProvider } from './global-state/DataProvider.js'; // global styles
+import { SelectionProvider } from './global/Providers/SelectionProvider.js';
+import { QueryProvider } from './global/Providers/QueryProvider.js';
+import { DataProvider } from './global/Providers/DataProvider.js'; // global styles
 
 /**
  * @param {Element} root

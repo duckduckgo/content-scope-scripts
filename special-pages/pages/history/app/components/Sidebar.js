@@ -5,9 +5,9 @@ import { useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { Trash } from '../icons/Trash.js';
 import { useTypedTranslationWith } from '../../../new-tab/app/types.js';
-import { useQueryContext, useQueryDispatch } from '../global-state/QueryProvider.js';
-import { useData } from '../global-state/DataProvider.js';
-import { useHistoryServiceDispatch } from '../global-state/HistoryServiceProvider.js';
+import { useQueryContext, useQueryDispatch } from '../global/Providers/QueryProvider.js';
+import { useResultsData } from '../global/Providers/DataProvider.js';
+import { useHistoryServiceDispatch } from '../global/Providers/HistoryServiceProvider.js';
 
 /**
  * @import json from "../strings.json"
@@ -54,7 +54,7 @@ export function Sidebar({ ranges }) {
     const { t } = useTypedTranslation();
     const search = useQueryContext();
     const current = useComputed(() => search.value.range);
-    const { results } = useData();
+    const results = useResultsData();
     const count = useComputed(() => results.value.items.length);
     const dispatch = useQueryDispatch();
     const historyServiceDispatch = useHistoryServiceDispatch();

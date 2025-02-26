@@ -7,7 +7,7 @@ import { Empty } from './Empty.js';
 
 /**
  * @param {object} props
- * @param {import("@preact/signals").Signal<import("../global-state/DataProvider.js").Results>} props.results
+ * @param {import("@preact/signals").Signal<import("../global/Providers/DataProvider.js").Results>} props.results
  * @param {import("@preact/signals").Signal<Set<number>>} props.selected
  */
 export function Results({ results, selected }) {

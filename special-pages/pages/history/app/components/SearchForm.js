@@ -3,7 +3,7 @@ import { h } from 'preact';
 import { usePlatformName, useTypedTranslation } from '../types.js';
 import { useComputed, useSignalEffect } from '@preact/signals';
 import { SearchIcon } from '../icons/Search.js';
-import { useQueryDispatch } from '../global-state/QueryProvider.js';
+import { useQueryDispatch } from '../global/Providers/QueryProvider.js';
 
 const INPUT_FIELD_NAME = 'q';
 

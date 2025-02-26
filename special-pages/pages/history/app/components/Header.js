@@ -4,10 +4,10 @@ import { useComputed } from '@preact/signals';
 import { SearchForm } from './SearchForm.js';
 import { Trash } from '../icons/Trash.js';
 import { useTypedTranslation } from '../types.js';
-import { useQueryContext } from '../global-state/QueryProvider.js';
-import { useData } from '../global-state/DataProvider.js';
-import { useSelected } from '../global-state/SelectionProvider.js';
-import { useHistoryServiceDispatch } from '../global-state/HistoryServiceProvider.js';
+import { useQueryContext } from '../global/Providers/QueryProvider.js';
+import { useResultsData } from '../global/Providers/DataProvider.js';
+import { useSelected } from '../global/Providers/SelectionProvider.js';
+import { useHistoryServiceDispatch } from '../global/Providers/HistoryServiceProvider.js';
 
 /**
  */
@@ -35,7 +35,7 @@ export function Header() {
  */
 function Controls({ term, range }) {
     const { t } = useTypedTranslation();
-    const { results } = useData();
+    const results = useResultsData();
     const selected = useSelected();
     const dispatch = useHistoryServiceDispatch();
 

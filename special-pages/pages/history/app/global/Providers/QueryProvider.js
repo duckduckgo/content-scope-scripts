@@ -1,11 +1,11 @@
 import { createContext, h } from 'preact';
 import { useCallback, useContext } from 'preact/hooks';
 import { signal, useComputed, useSignal, useSignalEffect } from '@preact/signals';
-import { useSettings } from '../types.js';
 import { useHistoryServiceDispatch } from './HistoryServiceProvider.js';
+import { useSettings } from '../../types.js';
 
 /**
- * @typedef {import('../../types/history.js').Range} Range
+ * @typedef {import('../../../types/history.ts').Range} Range
  * @typedef {{
  *   term: string | null,
  *   range: Range | null,
@@ -24,7 +24,7 @@ const QueryContext = createContext(
     /** @type {import('@preact/signals').ReadonlySignal<QueryState>} */ (
         signal({
             term: /** @type {string|null} */ (null),
-            range: /** @type {import('../../types/history.ts').Range|null} */ (null),
+            range: /** @type {import('../../../types/history.ts').Range|null} */ (null),
             domain: /** @type {string|null} */ (null),
         })
     ),
@@ -43,7 +43,7 @@ const QueryDispatch = createContext(
  *
  * @param {Object} props - The props object for the component.
  * @param {import('preact').ComponentChild} props.children - The child components wrapped within the provider.
- * @param {import('../../types/history.ts').QueryKind} [props.query=''] - The initial search term for the context.
+ * @param {import('../../../types/history.ts').QueryKind} [props.query=''] - The initial search term for the context.
  */
 export function QueryProvider({ children, query = { term: '' } }) {
     const initial = {
@@ -102,38 +102,17 @@ export function useQueryDispatch() {
 }
 
 /**
- * Setup the side effects that should occur when the query changes
- */
-export function useQueryEvents() {
-    const queryState = useQueryContext();
-    const settings = useSettings();
-    const derivedRange = useComputed(() => {
-        return /** @type {Range|null} */ (queryState.value.range);
-    });
-
-    /**
-     * Publish query changes to the URL
-     */
-    useURLReflection(queryState, settings);
-    /**
-     * Convert query changes into searches
-     */
-    useSearchCommit(queryState, settings);
-    /**
-     * Convert query changes into searches
-     */
-    useSearchCommitForRange(derivedRange);
-}
-
-/**
  * Synchronizes the `derivedRange` signal with the browser's URL and issues a
  * 'search-commit'. This allows any part of the application to change the range and
  * have it synchronised to the URL + trigger a search
- *
- * @param {import('@preact/signals').ReadonlySignal<null | Range>} derivedRange - A readonly signal representing the range value.
  */
-function useSearchCommitForRange(derivedRange) {
+export function useSearchCommitForRange() {
     const dispatch = useHistoryServiceDispatch();
+    const query = useQueryContext();
+    const derivedRange = useComputed(() => {
+        return query.value.range;
+    });
+
     useSignalEffect(() => {
         let timer;
         let counter = 0;
@@ -168,14 +147,14 @@ function useSearchCommitForRange(derivedRange) {
  * This hook uses a signal effect to listen for changes in the `derivedTerm` and updates the browser's URL accordingly, with debounce support.
  * It dispatches an `EVENT_SEARCH_COMMIT` event to notify other components or parts of the application about the updated search parameters.
  *
- * @param {import('@preact/signals').Signal<QueryState>} queryState - A signal of the current search term to watch for changes.
- * @param {import('../Settings.js').Settings} settings - The settings for the behavior, including the debounce duration.
  */
-function useURLReflection(queryState, settings) {
+export function useURLReflection() {
+    const settings = useSettings();
+    const query = useQueryContext();
     useSignalEffect(() => {
         let timer;
         let count = 0;
-        const unsubscribe = queryState.subscribe((nextValue) => {
+        const unsubscribe = query.subscribe((nextValue) => {
             if (count === 0) return (count += 1);
             clearTimeout(timer);
             if (nextValue.term !== null) {
@@ -223,16 +202,15 @@ function useURLReflection(queryState, settings) {
  * - If a non-null value is provided, constructs query parameters with the new term and dispatches
  *   an `EVENT_SEARCH_COMMIT` event with the updated parameters.
  * - If the value is `null`, no action is taken.
- *
- * @param {import('@preact/signals').Signal<QueryState>} queryState - A signal of the current search term to watch for changes.
- * @param {import('../Settings.js').Settings} settings - The settings for debounce behavior and other configurations.
  */
-function useSearchCommit(queryState, settings) {
+export function useSearchCommit() {
     const dispatch = useHistoryServiceDispatch();
+    const settings = useSettings();
+    const query = useQueryContext();
     useSignalEffect(() => {
         let timer;
         let count = 0;
-        const unsubscribe = queryState.subscribe((next) => {
+        const unsubscribe = query.subscribe((next) => {
             if (count === 0) return (count += 1);
             clearTimeout(timer);
             if (next.term !== null) {

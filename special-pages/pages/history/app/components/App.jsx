@@ -6,35 +6,36 @@ import { Header } from './Header.js';
 import { Results } from './Results.js';
 import { useEffect, useRef } from 'preact/hooks';
 import { Sidebar } from './Sidebar.js';
-import { useData } from '../global-state/DataProvider.js';
-import { useResetSelectionsOnQueryChange, useRowInteractions, useSelected } from '../global-state/SelectionProvider.js';
-import {
-    useAuxClickHandler,
-    useButtonClickHandler,
-    useContextMenuForEntries,
-    useLinkClickHandler,
-    useRangeChange,
-} from '../global-state/HistoryServiceProvider.js';
-import { useQueryContext, useQueryEvents } from '../global-state/QueryProvider.js';
+import { useRangesData, useResultsData } from '../global/Providers/DataProvider.js';
+import { useRowInteractions, useSelected } from '../global/Providers/SelectionProvider.js';
+import { useQueryContext, useSearchCommit, useSearchCommitForRange, useURLReflection } from '../global/Providers/QueryProvider.js';
+import { useRangeChange } from '../global/hooks/useRangeChange.js';
+import { useContextMenuForEntries } from '../global/hooks/useContextMenuForEntries.js';
+import { useAuxClickHandler } from '../global/hooks/useAuxClickHandler.js';
+import { useButtonClickHandler } from '../global/hooks/useButtonClickHandler.js';
+import { useLinkClickHandler } from '../global/hooks/useLinkClickHandler.js';
+import { useResetSelectionsOnQueryChange } from '../global/hooks/useResetSelectionsOnQueryChange.js';
 
 export function App() {
     const mainRef = useRef(/** @type {HTMLElement|null} */ (null));
     const { isDarkMode } = useEnv();
-    const { ranges, results } = useData();
+    const results = useResultsData();
+    const ranges = useRangesData();
     const selected = useSelected();
     const query = useQueryContext();
 
     /**
-     * The following handlers are application-global in nature, so I want them
-     * to be registered here for visibility
+     * Handlers that are global in nature
      */
     useRangeChange();
     useResetSelectionsOnQueryChange();
-    useQueryEvents();
     useLinkClickHandler();
     useButtonClickHandler();
     useContextMenuForEntries();
     useAuxClickHandler();
+    useURLReflection();
+    useSearchCommit();
+    useSearchCommitForRange();
 
     /**
      * onClick can be passed directly to the main container,

@@ -1,15 +1,14 @@
 import { createContext, h } from 'preact';
 import { useCallback, useContext } from 'preact/hooks';
-import { signal, useComputed, useSignal, useSignalEffect } from '@preact/signals';
-import { useQueryContext } from './QueryProvider.js';
-import { usePlatformName } from '../types.js';
-import { useData } from './DataProvider.js';
-import { eventToIntention } from '../utils.js';
+import { signal, useSignal } from '@preact/signals';
+import { usePlatformName } from '../../types.js';
+import { useResultsData } from './DataProvider.js';
+import { eventToIntention } from '../../utils.js';
 import { useHistoryServiceDispatch } from './HistoryServiceProvider.js';
 
 /**
  * @typedef {(s: (d: Set<number>) => Set<number>, reason: string) => void} UpdateSelected
- * @typedef {import("../utils.js").Intention} Intention
+ * @typedef {import("../../utils.js").Intention} Intention
  * @import { ReadonlySignal } from '@preact/signals'
  */
 
@@ -19,9 +18,7 @@ import { useHistoryServiceDispatch } from './HistoryServiceProvider.js';
  * } Action
  */
 const SelectionDispatchContext = createContext(/** @type {(a: Action) => void} */ ((a) => {}));
-const SelectionContext = createContext({
-    selected: /** @type {ReadonlySignal<Set<number>>} */ (signal(new Set([]))),
-});
+const SelectionContext = createContext(/** @type {ReadonlySignal<Set<number>>} */ (signal(new Set([]))));
 
 /**
  * Provides a context for the selections
@@ -51,7 +48,7 @@ export function SelectionProvider({ children }) {
     }
     const dispatcher = useCallback(dispatch, [selected]);
     return (
-        <SelectionContext.Provider value={{ selected }}>
+        <SelectionContext.Provider value={selected}>
             <SelectionDispatchContext.Provider value={dispatcher}>{children}</SelectionDispatchContext.Provider>
         </SelectionContext.Provider>
     );
@@ -59,51 +56,11 @@ export function SelectionProvider({ children }) {
 
 // Hook for consuming the context
 export function useSelected() {
-    const context = useContext(SelectionContext);
-    if (!context) {
-        throw new Error('useSelection must be used within a SelectionProvider');
-    }
-    return context.selected;
+    return useContext(SelectionContext);
 }
 
-function useSelectionDispatch() {
+export function useSelectionDispatch() {
     return useContext(SelectionDispatchContext);
-}
-
-/**
- * Subscribe to changes in the query, and reset selections when they change
- */
-export function useResetSelectionsOnQueryChange() {
-    const dispatch = useSelectionDispatch();
-    const query = useQueryContext();
-    const { results } = useData();
-    const length = useComputed(() => results.value.items.length);
-
-    useSignalEffect(() => {
-        let prevLength = 0;
-        const unsubs = [
-            // when anything about the query changes, reset selections
-            query.subscribe(() => {
-                dispatch({ kind: 'reset', reason: 'query changed' });
-            }),
-            // when the size of data is smaller than before, reset
-            length.subscribe((newLength) => {
-                if (newLength < prevLength) {
-                    dispatch({
-                        kind: 'reset',
-                        reason: `items length shrank from ${prevLength} to ${newLength}`,
-                    });
-                }
-                prevLength = newLength;
-            }),
-        ];
-
-        return () => {
-            for (const unsub of unsubs) {
-                unsub();
-            }
-        };
-    });
 }
 
 /**
@@ -117,7 +74,7 @@ export function useRowInteractions() {
     const anchorIndex = useSignal(/** @type {null|number} */ (null));
     const lastShiftRange = useSignal({ start: /** @type {null|number} */ (null), end: /** @type {null|number} */ (null) });
     const focusedIndex = useSignal(/** @type {null|number} */ (null));
-    const { results } = useData();
+    const results = useResultsData();
 
     /**
      * @param {Intention} intention
