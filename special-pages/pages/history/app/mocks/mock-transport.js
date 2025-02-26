@@ -169,6 +169,10 @@ export function mockTransport() {
                                 // eslint-disable-next-line promise/prefer-await-to-then
                                 return new Promise((resolve) => setTimeout(resolve, 1000)).then(() => response);
                             }
+                            if (term === 'empty') {
+                                const response = asResponse([], msg.params.offset, msg.params.limit);
+                                return Promise.resolve(response);
+                            }
                             if (term.trim().match(/^\d+$/)) {
                                 const int = parseInt(term.trim(), 10);
                                 /** @type {import("../../types/history").HistoryQueryResponse} */

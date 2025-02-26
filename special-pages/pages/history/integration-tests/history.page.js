@@ -235,6 +235,18 @@ export class HistoryTestPage {
         expect(calls[0].payload.params).toStrictEqual({ range: 'today' });
     }
 
+    async cannotDeleteAllFromSidebar() {
+        if (this.entries !== 0) throw new Error('this test requires 0 entries');
+
+        await this.sidebar().getByLabel('Show all history').hover();
+        await this.sidebar().getByLabel('Delete all history').click({ force: true });
+
+        await this.page.waitForTimeout(50);
+        const count = await this.mocks.outgoing({ names: ['deleteRange'] });
+
+        expect(count).toHaveLength(0);
+    }
+
     /**
      * @param {import("../types/history.js").Range} range
      */

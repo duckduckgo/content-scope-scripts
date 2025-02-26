@@ -91,6 +91,19 @@ test.describe('history', () => {
         await hp.openPage({});
         await hp.opensLinks();
     });
+    test('cannot delete "all" when there are no history items', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+        await hp.openPage({});
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.cannotDeleteAllFromSidebar();
+    });
+    test('re-issues an empty query when there are no history items', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+        await hp.openPage({});
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.selectsAll();
+        await hp.didMakeNthQuery({ nth: 1, query: { term: '' } });
+    });
     test('deleting range from sidebar items + resetting the query state', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});

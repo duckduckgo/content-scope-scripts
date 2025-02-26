@@ -63,9 +63,11 @@
     opacity: 0;
     color: var(--history-text-normal);
 
-    &:hover, &:focus-visible {
-        background: var(--color-black-at-9);
-        opacity: 1;
+    &:not([aria-disabled="true"]) {
+        &:hover, &:focus-visible {
+            background: var(--color-black-at-9);
+            opacity: 1;
+        }
     }
 
     &:active {
@@ -94,7 +96,7 @@
     }
 }
 
-.delete[aria-disabled="true"]:hover, .item:hover .delete[aria-disabled="true"] {
+.item:hover .delete[aria-disabled="true"] {
     opacity: 0.3;
     cursor: default;
 }
