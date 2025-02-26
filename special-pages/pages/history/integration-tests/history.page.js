@@ -517,4 +517,8 @@ export class HistoryTestPage {
         const calls = await this.mocks.outgoing({ names: ['entries_delete'] });
         expect(calls).toHaveLength(0);
     }
+
+    async submitSearchForm() {
+        await this.page.getByRole('searchbox', { name: 'Search your history' }).press('Enter');
+    }
 }

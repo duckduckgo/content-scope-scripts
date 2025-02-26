@@ -35,7 +35,11 @@ export function SearchForm({ term, domain }) {
      * @param {SubmitEvent} submitEvent
      */
     function submit(submitEvent) {
-        console.log('todo: handle a new form submit?', submitEvent);
+        submitEvent.preventDefault();
+        invariant(submitEvent.currentTarget instanceof HTMLFormElement);
+        const data = new FormData(submitEvent.currentTarget);
+        const term = data.get(INPUT_FIELD_NAME)?.toString();
+        dispatch({ kind: 'search-by-term', value: term ?? '' });
     }
 
     return (

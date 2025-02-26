@@ -208,4 +208,14 @@ test.describe('history', () => {
         await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
         await hp.didMakeNthQuery({ nth: 3, query: { term: '' } });
     });
+    test('search after pressing submit', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(200);
+        await hp.openPage({});
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.types('café');
+        await page.waitForURL((url) => url.searchParams.get('q') === 'café');
+        await hp.didMakeNthQuery({ nth: 1, query: { term: 'café' } });
+        await hp.submitSearchForm();
+        await hp.didMakeNthQuery({ nth: 2, query: { term: 'café' } });
+    });
 });
