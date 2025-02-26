@@ -136,7 +136,7 @@ export class ErrorDetection {
         if (node?.nodeType === Node.ELEMENT_NODE) {
             const element = /** @type {HTMLElement} */ (node);
             // Check if element has the error class or contains any children with that class
-            return element.classList.contains('ytp-error') || !!element.querySelector('ytp-error');
+            return element.classList.contains('ytp-error') || !!element.querySelector('.ytp-error');
         }
 
         return false;
