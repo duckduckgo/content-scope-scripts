@@ -1,10 +1,9 @@
 import { createContext, h } from 'preact';
-import { useSignalEffect } from '@preact/signals';
 import { paramsToQuery, toRange } from '../history.service.js';
 import { BTN_ACTION_ENTRIES_MENU, EVENT_RANGE_CHANGE, KNOWN_ACTIONS } from '../constants.js';
 import { usePlatformName } from '../types.js';
 import { eventToTarget } from '../../../../shared/handlers.js';
-import { useCallback, useContext } from 'preact/hooks';
+import { useCallback, useContext, useEffect } from 'preact/hooks';
 import { useSelected } from './SelectionProvider.js';
 import { useData } from './DataProvider.js';
 import { useQueryDispatch } from './QueryProvider.js';
@@ -117,23 +116,14 @@ export function useHistoryServiceDispatch() {
     return useContext(HistoryServiceDispatchContext);
 }
 
-export function useGlobalHandlers() {
-    const { service } = useContext(HistoryServiceContext);
-
-    useRangeChange(service);
-}
-
 /**
  * A hook that listens to the "range-change" custom event and triggers fetching additional data
  * from the service based on the event's range values.
- *
- * @param {import('../history.service.js').HistoryService} service
  */
-export function useRangeChange(service) {
+export function useRangeChange() {
     const dispatch = useHistoryServiceDispatch();
-    useSignalEffect(() => {
+    useEffect(() => {
         function handler(/** @type {CustomEvent<{start: number, end: number}>} */ event) {
-            if (!service.data) throw new Error('unreachable');
             const { end } = event.detail;
             dispatch({ kind: 'request-more', end });
         }
@@ -141,7 +131,7 @@ export function useRangeChange(service) {
         return () => {
             window.removeEventListener(EVENT_RANGE_CHANGE, handler);
         };
-    });
+    }, []);
 }
 
 /**
@@ -154,7 +144,7 @@ export function useContextMenuForEntries() {
     const results = useData();
     const dispatch = useHistoryServiceDispatch();
 
-    useSignalEffect(() => {
+    useEffect(() => {
         function contextMenu(event) {
             const target = /** @type {HTMLElement|null} */ (event.target);
             if (!(target instanceof HTMLElement)) return;
@@ -188,7 +178,7 @@ export function useContextMenuForEntries() {
         return () => {
             document.removeEventListener('contextmenu', contextMenu);
         };
-    });
+    }, []);
 }
 
 /**
@@ -197,7 +187,7 @@ export function useContextMenuForEntries() {
 export function useAuxClickHandler() {
     const platformName = usePlatformName();
     const dispatch = useHistoryServiceDispatch();
-    useSignalEffect(() => {
+    useEffect(() => {
         const handleAuxClick = (event) => {
             const anchor = /** @type {HTMLButtonElement|null} */ (event.target.closest('a[href][data-url]'));
             const url = anchor?.dataset.url;
@@ -212,7 +202,7 @@ export function useAuxClickHandler() {
         return () => {
             document.removeEventListener('auxclick', handleAuxClick);
         };
-    });
+    }, []);
 }
 
 /**
@@ -224,7 +214,7 @@ export function useAuxClickHandler() {
  */
 export function useButtonClickHandler() {
     const historyServiceDispatch = useHistoryServiceDispatch();
-    useSignalEffect(() => {
+    useEffect(() => {
         function clickHandler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
 
@@ -254,7 +244,7 @@ export function useButtonClickHandler() {
         return () => {
             document.removeEventListener('click', clickHandler);
         };
-    });
+    }, []);
 }
 
 /**
@@ -283,7 +273,7 @@ function toKnownAction(elem) {
 export function useLinkClickHandler() {
     const platformName = usePlatformName();
     const dispatch = useHistoryServiceDispatch();
-    useSignalEffect(() => {
+    useEffect(() => {
         /**
          * Handles click events on the document, intercepting interactions with anchor elements
          * that specify both `href` and `data-url` attributes.
@@ -308,5 +298,5 @@ export function useLinkClickHandler() {
         return () => {
             document.removeEventListener('click', clickHandler);
         };
-    });
+    }, []);
 }

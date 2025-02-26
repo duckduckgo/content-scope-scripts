@@ -10,6 +10,7 @@ import { useHistoryServiceDispatch } from './HistoryServiceProvider.js';
 /**
  * @typedef {(s: (d: Set<number>) => Set<number>, reason: string) => void} UpdateSelected
  * @typedef {import("../utils.js").Intention} Intention
+ * @import { ReadonlySignal } from '@preact/signals'
  */
 
 /**
@@ -19,7 +20,7 @@ import { useHistoryServiceDispatch } from './HistoryServiceProvider.js';
  */
 const SelectionDispatchContext = createContext(/** @type {(a: Action) => void} */ ((a) => {}));
 const SelectionContext = createContext({
-    selected: signal(/** @type {Set<number>} */ (new Set([]))),
+    selected: /** @type {ReadonlySignal<Set<number>>} */ (signal(new Set([]))),
 });
 
 /**

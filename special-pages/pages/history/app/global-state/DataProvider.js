@@ -2,7 +2,6 @@ import { h, createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { generateHeights } from '../utils.js';
-import { useQueryContext } from './QueryProvider.js';
 
 /**
  * @typedef {object} Results
@@ -11,11 +10,12 @@ import { useQueryContext } from './QueryProvider.js';
  */
 /**
  * @typedef {import('../../types/history.ts').Range} Range
+ * @import { ReadonlySignal } from '@preact/signals'
  */
 
 const DataState = createContext({
-    ranges: signal(/** @type {import('../history.service.js').Range[]} */ ([])),
-    results: signal(/** @type {Results} */ ({})),
+    ranges: /** @type {ReadonlySignal<Range[]>} */ (signal([])),
+    results: /** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [] })),
 });
 
 /**
@@ -29,7 +29,6 @@ const DataState = createContext({
 export function DataProvider({ service, initial, children }) {
     // NOTE: These states will get extracted out later, once I know all the use-cases
     const ranges = useSignal(initial.ranges.ranges);
-    const query = useQueryContext();
     const results = useSignal({
         items: initial.query.results,
         heights: generateHeights(initial.query.results),
@@ -51,13 +50,6 @@ export function DataProvider({ service, initial, children }) {
             unsub();
             unsubRanges();
         };
-    });
-
-    useSignalEffect(() => {
-        return query.subscribe(() => {
-            // whenever the query changes, scroll the main container back to the top
-            document.querySelector('[data-main-scroller]')?.scrollTo(0, 0);
-        });
     });
 
     return <DataState.Provider value={{ ranges, results }}>{children}</DataState.Provider>;

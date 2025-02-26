@@ -10,7 +10,7 @@ import { useHistoryServiceDispatch } from './HistoryServiceProvider.js';
  *   term: string | null,
  *   range: Range | null,
  *   domain: string | null,
- * }} QueryState
+ * }} QueryState - this is the value the entire application can read/observe
  */
 
 /**
@@ -21,12 +21,12 @@ import { useHistoryServiceDispatch } from './HistoryServiceProvider.js';
  */
 
 const QueryContext = createContext(
-    signal(
-        /** @type {QueryState} */ ({
+    /** @type {import('@preact/signals').ReadonlySignal<QueryState>} */ (
+        signal({
             term: /** @type {string|null} */ (null),
             range: /** @type {import('../../types/history.ts').Range|null} */ (null),
             domain: /** @type {string|null} */ (null),
-        }),
+        })
     ),
 );
 
@@ -39,7 +39,7 @@ const QueryDispatch = createContext(
 );
 
 /**
- * A provider component that sets up the search context for its children. Allows access to and updates of the search term within the context.
+ * A provider for the global state related to the current query. It provides read-only access
  *
  * @param {Object} props - The props object for the component.
  * @param {import('preact').ComponentChild} props.children - The child components wrapped within the provider.
@@ -93,6 +93,7 @@ export function QueryProvider({ children, query = { term: '' } }) {
 export function useQueryContext() {
     return useContext(QueryContext);
 }
+
 /**
  * A custom hook to access the SearchContext.
  */
@@ -100,9 +101,12 @@ export function useQueryDispatch() {
     return useContext(QueryDispatch);
 }
 
+/**
+ * Setup the side effects that should occur when the query changes
+ */
 export function useQueryEvents() {
-    const settings = useSettings();
     const queryState = useQueryContext();
+    const settings = useSettings();
     const derivedRange = useComputed(() => {
         return /** @type {Range|null} */ (queryState.value.range);
     });
