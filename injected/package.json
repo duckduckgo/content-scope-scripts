@@ -10,18 +10,14 @@
     "build-types": "node scripts/types.mjs",
     "bundle-trackers": "node scripts/bundleTrackers.mjs --output ../build/tracker-lookup.json",
     "test-unit": "jasmine --config=unit-test/config.json",
-    "test-int": "npm run build-integration && npm run playwright",
+    "test-int": "npm run playwright",
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
     "test": "npm run lint && npm run test-unit && npm run test-int && npm run playwright",
     "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
     "playwright": "playwright test --grep-invert '@screenshots'",
     "playwright-screenshots": "playwright test --grep '@screenshots'",
-    "playwright-headed": "playwright test --headed",
-    "preplaywright": "npm run bundle-entry-points",
-    "preplaywright-headed": "npm run bundle-entry-points",
     "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
-    "playwright-e2e-headed": "npm run playwright-e2e -- --headed",
-    "preplaywright-e2e": "npm run bundle-entry-points"
+    "playwright-e2e-headed": "npm run playwright-e2e -- --headed"
   },
   "type": "module",
   "dependencies": {
