@@ -54,13 +54,13 @@
         height: var(--sp-8);
     }
 
-    & .ssl .icon {
+    & .ssl .icon, & .scam .icon {
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-96.svg);
         margin-left: calc(-1 * var(--sp-2));
         margin-top: calc(-1 * var(--sp-2));
     }
 
-    & .phishing .icon, & .malware .icon, & .scam .icon {
+    & .phishing .icon, & .malware .icon {
         background-image: url(../../../../shared/assets/img/icons/Malware-Site-96.svg);
         margin-left: calc(-1 * var(--sp-2));
         margin-right: calc(-1 * var(--sp-1));
@@ -112,11 +112,11 @@
         width: var(--sp-32);
     }
 
-    & .ssl .icon {
+    & .ssl .icon, & .scam .icon {
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-128.svg);
     }
 
-    & .phishing .icon, & .malware .icon, & .scam .icon {
+    & .phishing .icon, & .malware .icon {
         background-image: url(../../../../shared/assets/img/icons/Malware-Site-128.svg);
     }
 
@@ -160,13 +160,13 @@
         height: var(--sp-8);
     }
 
-    & .ssl .icon {
+    & .ssl .icon, & .scam .icon {
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-96.svg);
         margin-left: calc(-1 * var(--sp-2));
         margin-top: calc(-1 * var(--sp-2));
     }
 
-    & .phishing .icon, & .malware .icon, & .scam .icon {
+    & .phishing .icon, & .malware .icon {
         background-image: url(../../../../shared/assets/img/icons/Malware-Site-96.svg);
         margin-left: calc(-1 * var(--sp-2));
         margin-right: calc(-1 * var(--sp-1));
