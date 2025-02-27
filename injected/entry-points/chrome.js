@@ -49,6 +49,8 @@ function init() {
     const reusableMethodName = '_rm' + randomString();
     const reusableSecret = '_r' + randomString();
     const siteObject = computeLimitedSiteObject();
+
+    // prettier-ignore
     const initialScript = contentScopeFeatures +
         `;contentScopeFeatures.load({
           platform: {
