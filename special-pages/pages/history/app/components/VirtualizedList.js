@@ -2,7 +2,6 @@ import { Fragment, h } from 'preact';
 import { memo } from 'preact/compat';
 import styles from './VirtualizedList.module.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { EVENT_RANGE_CHANGE } from '../constants.js';
 
 /**
  * @template T
@@ -23,10 +22,19 @@ import { EVENT_RANGE_CHANGE } from '../constants.js';
  * @param {number} props.overscan - how many items should be loaded before and after the current set on screen
  * @param {string} props.scrollingElement - a CSS selector matching a parent element that will scroll
  * @param {(arg: RenderProps<T>) => import("preact").ComponentChild} props.renderItem - A function to render individual items.
+ * @param {(end: number)=>void} props.onChange - called when the end number is changed
  */
-export function VirtualizedList({ items, heights, overscan, scrollingElement, renderItem }) {
-    const { start, end } = useVisibleRows(items, heights, scrollingElement, overscan);
+export function VirtualizedList({ items, heights, overscan, scrollingElement, onChange, renderItem }) {
+    const { start, end } = useVisibleRows(items, heights, scrollingElement, onChange, overscan);
     const subset = items.slice(start, end + 1);
+
+    /**
+     * Also publish the fact that the 'end' range changed - this is how 'fetch more' works
+     */
+    useEffect(() => {
+        onChange?.(end);
+    }, [onChange, end]);
+
     return (
         <Fragment>
             {subset.map((item, rowIndex) => {
@@ -53,9 +61,10 @@ export const VisibleItems = memo(VirtualizedList);
  * @param {number[]} heights - index lookup for known element heights
  * @param {string} scrollerSelector - A CSS selector for tracking the scrollable area
  * @param {number} overscan - how many items to fetch outside the window
+ * @param {(end: number)=>void} onChange - called when the end number is changed
  * @return {Object} An object containing the calculated `start` and `end` indices of the visible rows.
  */
-function useVisibleRows(rows, heights, scrollerSelector, overscan = 5) {
+function useVisibleRows(rows, heights, scrollerSelector, onChange, overscan = 5) {
     // set the start/end indexes of the elements
     const [{ start, end }, setVisibleRange] = useState({ start: 0, end: 1 });
 
@@ -91,7 +100,6 @@ function useVisibleRows(rows, heights, scrollerSelector, overscan = 5) {
         setVisibleRange((prev) => {
             if (withOverScan.start !== prev.start || withOverScan.end !== prev.end) {
                 // todo: find a better place to emit this!
-                window.dispatchEvent(new CustomEvent(EVENT_RANGE_CHANGE, { detail: { start: withOverScan.start, end: withOverScan.end } }));
                 return { start: withOverScan.start, end: withOverScan.end };
             }
             return prev;

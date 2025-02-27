@@ -1523,6 +1523,11 @@
     var u4 = d2(t2++, 7);
     return C2(u4.__H, r4) && (u4.__ = n3(), u4.__H = r4, u4.__h = n3), u4.__;
   }
+  function q2(n3, t4) {
+    return o2 = 8, T2(function() {
+      return n3;
+    }, t4);
+  }
   function x2(n3) {
     var u4 = r2.context[n3.__c], i5 = d2(t2++, 9);
     return i5.c = n3, u4 ? (null == i5.__ && (i5.__ = true, u4.sub(r2)), u4.props.value) : n3.__;
@@ -1665,13 +1670,17 @@
     return x2(EnvironmentContext);
   }
 
+  // pages/history/app/components/App.jsx
+  var import_classnames5 = __toESM(require_classnames(), 1);
+
   // pages/history/app/components/App.module.css
   var App_default = {
     layout: "App_layout",
     header: "App_header",
     search: "App_search",
     aside: "App_aside",
-    main: "App_main"
+    main: "App_main",
+    customScroller: "App_customScroller"
   };
 
   // pages/history/app/components/Header.module.css
@@ -1680,6 +1689,8 @@
     controls: "Header_controls",
     largeButton: "Header_largeButton",
     search: "Header_search",
+    label: "Header_label",
+    searchIcon: "Header_searchIcon",
     searchInput: "Header_searchInput"
   };
 
@@ -2221,14 +2232,14 @@
       queueMicrotask(i5);
     });
   };
-  function q2() {
+  function q3() {
     r3(function() {
       var i5;
       while (i5 = d4.shift()) s4.call(i5);
     });
   }
   function w4() {
-    if (1 === d4.push(this)) (l.requestAnimationFrame || y4)(q2);
+    if (1 === d4.push(this)) (l.requestAnimationFrame || y4)(q3);
   }
   function x3() {
     r3(function() {
@@ -2296,17 +2307,25 @@
         }
       ]
     },
-    menu_sectionTitle: {
-      title: "Show menu for {relativeTime}",
-      note: "Button text in a section heading to show a menu. The placeholder {relativeTime} will dynamically be replaced with values such as 'Today', 'Tomorrow', 'Yesterday', 'In 2 days', etc. For example, if {relativeTime} = 'Tomorrow', the title will become 'Show menu for Tomorrow'."
-    },
     empty_title: {
       title: "Nothing to see here!",
       note: "Text shown where there are no remaining history items"
     },
+    empty_text: {
+      title: "Page visits will appear once you start browsing.",
+      note: "Placeholder text when there's no results to show"
+    },
     delete_all: {
       title: "Delete All",
       note: "Text for a button that deletes all items or entries."
+    },
+    delete_some: {
+      title: "Delete",
+      note: "Text for a button that deletes currently selected items"
+    },
+    delete_none: {
+      title: "Nothing to delete",
+      note: "Title/tooltip text on a button that does nothing when there is no browsing history to delete"
     },
     page_title: {
       title: "History",
@@ -2395,11 +2414,13 @@
     /**
      * @param {object} params
      * @param {{name: 'macos' | 'windows'}} [params.platform]
-     * @param {number} [params.typingDebounce=500] how long to debounce typing in the search field
+     * @param {number} [params.typingDebounce=100] how long to debounce typing in the search field - default: 100ms
+     * @param {number} [params.urlDebounce=500] how long to debounce reflecting to the URL? - default: 500ms
      */
-    constructor({ platform = { name: "macos" }, typingDebounce = 100 }) {
+    constructor({ platform = { name: "macos" }, typingDebounce = 100, urlDebounce = 500 }) {
       this.platform = platform;
       this.typingDebounce = typingDebounce;
+      this.urlDebounce = urlDebounce;
     }
     withPlatformName(name) {
       const valid = ["windows", "macos"];
@@ -2428,6 +2449,20 @@
       }
       return this;
     }
+    /**
+     * @param {null|undefined|number|string} value
+     */
+    withUrlDebounce(value) {
+      if (!value) return this;
+      const input = String(value).trim();
+      if (input.match(/^\d+$/)) {
+        return new _Settings({
+          ...this,
+          urlDebounce: parseInt(input, 10)
+        });
+      }
+      return this;
+    }
   };
 
   // pages/history/app/types.js
@@ -2446,10 +2481,147 @@
     return x2(SettingsContext).platform.name;
   }
 
+  // pages/history/app/icons/Search.js
+  function SearchIcon() {
+    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+      "path",
+      {
+        d: "M14.8 13.7L10.9 9.8C11.6 8.9 12 7.7 12 6.5C12 3.5 9.5 1 6.5 1C3.5 1 1 3.5 1 6.5C1 9.5 3.5 12 6.5 12C7.7 12 8.9 11.6 9.8 10.9L13.7 14.8C13.8 14.9 14 15 14.2 15C14.4 15 14.6 14.9 14.7 14.8C15.1 14.5 15.1 14 14.8 13.7ZM2.5 6.5C2.5 4.3 4.3 2.5 6.5 2.5C8.7 2.5 10.5 4.3 10.5 6.5C10.5 8.7 8.7 10.5 6.5 10.5C4.3 10.5 2.5 8.7 2.5 6.5Z",
+        fill: "currentColor",
+        "fill-opacity": "0.6"
+      }
+    ));
+  }
+
+  // pages/history/app/global/Providers/QueryProvider.js
+  var QueryContext = J(
+    /** @type {import('@preact/signals').ReadonlySignal<QueryState>} */
+    d3({
+      term: (
+        /** @type {string|null} */
+        null
+      ),
+      range: (
+        /** @type {import('../../../types/history.ts').Range|null} */
+        null
+      ),
+      domain: (
+        /** @type {string|null} */
+        null
+      )
+    })
+  );
+  var QueryDispatch = J(
+    /** @type {(a: Action) => void} */
+    (action) => {
+      throw new Error("missing QueryDispatch");
+    }
+  );
+  function QueryProvider({ children, query = { term: "" } }) {
+    const initial = {
+      term: "term" in query ? query.term : null,
+      range: "range" in query ? query.range : null,
+      domain: "domain" in query ? query.domain : null
+    };
+    const queryState = useSignal(initial);
+    function dispatch(action) {
+      queryState.value = (() => {
+        switch (action.kind) {
+          case "reset": {
+            return { term: "", domain: null, range: null };
+          }
+          case "search-by-domain": {
+            return { term: null, domain: action.value, range: null };
+          }
+          case "search-by-range": {
+            return { term: null, domain: null, range: (
+              /** @type {Range} */
+              action.value
+            ) };
+          }
+          case "search-by-term": {
+            return { term: action.value, domain: null, range: null };
+          }
+          default:
+            return { term: "", domain: null, range: null };
+        }
+      })();
+    }
+    const dispatcher = q2(dispatch, [queryState]);
+    return /* @__PURE__ */ g(QueryContext.Provider, { value: queryState }, /* @__PURE__ */ g(QueryDispatch.Provider, { value: dispatcher }, children));
+  }
+  function useQueryContext() {
+    return x2(QueryContext);
+  }
+  function useQueryDispatch() {
+    return x2(QueryDispatch);
+  }
+
   // pages/history/app/components/SearchForm.js
-  function SearchForm({ term }) {
+  var INPUT_FIELD_NAME = "q";
+  function SearchForm({ term, domain }) {
     const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ g("form", { role: "search" }, /* @__PURE__ */ g("label", null, /* @__PURE__ */ g("span", { class: "sr-only" }, t4("search_your_history")), /* @__PURE__ */ g("input", { type: "search", placeholder: t4("search"), class: Header_default.searchInput, name: "q", value: term.value || "" })));
+    const value = useComputed(() => term.value || domain.value || "");
+    const dispatch = useQueryDispatch();
+    const platformName = usePlatformName();
+    useSearchShortcut(platformName);
+    function input(inputEvent) {
+      invariant(inputEvent.target instanceof HTMLInputElement);
+      invariant(inputEvent.target.form instanceof HTMLFormElement);
+      const data = new FormData(inputEvent.target.form);
+      const term2 = data.get(INPUT_FIELD_NAME)?.toString();
+      invariant(term2 !== void 0);
+      dispatch({ kind: "search-by-term", value: term2 });
+    }
+    function submit(submitEvent) {
+      submitEvent.preventDefault();
+      invariant(submitEvent.currentTarget instanceof HTMLFormElement);
+      const data = new FormData(submitEvent.currentTarget);
+      const term2 = data.get(INPUT_FIELD_NAME)?.toString();
+      dispatch({ kind: "search-by-term", value: term2 ?? "" });
+    }
+    return /* @__PURE__ */ g("form", { role: "search", onSubmit: submit }, /* @__PURE__ */ g("label", { class: Header_default.label }, /* @__PURE__ */ g("span", { class: "sr-only" }, t4("search_your_history")), /* @__PURE__ */ g("span", { class: Header_default.searchIcon }, /* @__PURE__ */ g(SearchIcon, null)), /* @__PURE__ */ g(
+      "input",
+      {
+        class: Header_default.searchInput,
+        name: INPUT_FIELD_NAME,
+        autoCapitalize: "off",
+        autoComplete: "off",
+        type: "search",
+        spellcheck: false,
+        placeholder: t4("search"),
+        value,
+        onInput: input
+      }
+    )));
+  }
+  function useSearchShortcut(platformName) {
+    useSignalEffect(() => {
+      const keydown = (e4) => {
+        const isMacOS = platformName === "macos";
+        const isFindShortcutMacOS = isMacOS && e4.metaKey && e4.key === "f";
+        const isFindShortcutWindows = !isMacOS && e4.ctrlKey && e4.key === "f";
+        if (isFindShortcutMacOS || isFindShortcutWindows) {
+          e4.preventDefault();
+          const searchInput = (
+            /** @type {HTMLInputElement|null} */
+            document.querySelector(`input[type="search"]`)
+          );
+          if (searchInput) {
+            searchInput.focus();
+          }
+        }
+      };
+      document.addEventListener("keydown", keydown);
+      return () => {
+        document.removeEventListener("keydown", keydown);
+      };
+    });
+  }
+  function invariant(condition, message) {
+    if (condition) return;
+    if (message) throw new Error("Invariant failed: " + message);
+    throw new Error("Invariant failed");
   }
 
   // pages/history/app/icons/Trash.js
@@ -2480,245 +2652,279 @@
     ));
   }
 
-  // pages/new-tab/app/service.js
-  var Service = class {
-    eventTarget = new EventTarget();
-    DEBOUNCE_TIME_MS = 200;
-    _broadcast = true;
-    /** @type {undefined|((old: Data, next: Data, trigger: InvocationSource) => Data)} */
-    accept;
-    /**
-     * @param {object} props
-     * @param {(arg?: any) => Promise<Data>} [props.initial]
-     * @param {(fn: (t: Data) => void) => () => void} [props.subscribe] - optional subscribe
-     * @param {(t: Data) => void} [props.persist] - optional persist method
-     * @param {(old: Data, next: Data) => Data} [props.update] - optional updater
-     * @param {Data|null} [initial] - optional initial data
-     */
-    constructor(props, initial) {
-      this.impl = props;
-      if (initial) {
-        this.data = initial;
+  // pages/history/app/utils.js
+  var ROW_SIZE = 28;
+  var TITLE_SIZE = 32;
+  var END_SIZE = 24;
+  var TITLE_KIND = ROW_SIZE + TITLE_SIZE;
+  var END_KIND = ROW_SIZE + END_SIZE;
+  var BOTH_KIND = ROW_SIZE + TITLE_SIZE + END_SIZE;
+  function generateHeights(rows) {
+    const heights = new Array(rows.length);
+    for (let i5 = 0; i5 < rows.length; i5++) {
+      const curr = rows[i5];
+      const prev = rows[i5 - 1];
+      const next = rows[i5 + 1];
+      const isStart = curr.dateRelativeDay !== prev?.dateRelativeDay;
+      const isEnd = curr.dateRelativeDay !== next?.dateRelativeDay;
+      if (isStart && isEnd) {
+        heights[i5] = TITLE_SIZE + ROW_SIZE + END_SIZE;
+      } else if (isStart) {
+        heights[i5] = TITLE_SIZE + ROW_SIZE;
+      } else if (isEnd) {
+        heights[i5] = ROW_SIZE + END_SIZE;
       } else {
-        this.data = null;
+        heights[i5] = ROW_SIZE;
       }
     }
+    return heights;
+  }
+  function eventToIntention(event, platformName) {
+    if (event instanceof MouseEvent) {
+      const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
+      if (isControlClick) {
+        return "ctrl+click";
+      } else if (event.shiftKey) {
+        return "shift+click";
+      }
+      return "click";
+    } else if (event instanceof KeyboardEvent) {
+      if (event.key === "Escape") {
+        return "escape";
+      } else if (event.key === "Delete" || event.key === "Backspace") {
+        return "delete";
+      } else if (event.key === "ArrowUp" && event.shiftKey) {
+        return "shift+up";
+      } else if (event.key === "ArrowDown" && event.shiftKey) {
+        return "shift+down";
+      } else if (event.key === "ArrowUp") {
+        return "up";
+      } else if (event.key === "ArrowDown") {
+        return "down";
+      }
+    }
+    return "unknown";
+  }
+
+  // pages/history/app/constants.js
+  var DDG_DEFAULT_ICON_SIZE = 32;
+  var OVERSCAN_AMOUNT = 5;
+  var BTN_ACTION_ENTRIES_MENU = "entries_menu";
+  var BTN_ACTION_DELETE_RANGE = "deleteRange";
+  var KNOWN_ACTIONS = (
+    /** @type {const} */
+    [BTN_ACTION_ENTRIES_MENU, BTN_ACTION_DELETE_RANGE]
+  );
+
+  // pages/history/app/history.range.service.js
+  var HistoryRangeService = class {
+    data = new EventTarget();
     /**
-     * @param {(old: Data, next: Data, trigger: InvocationSource) => Data} fn
+     * @type {RangeData|null}
      */
-    withUpdater(fn2) {
-      this.accept = fn2;
-      return this;
+    ranges = null;
+    /**
+     * @param {import("../src/index.js").HistoryPage} history
+     */
+    constructor(history) {
+      this.history = history;
     }
     /**
-     * @param {any} [params]
-     * @return {Promise<Data>}
+     * @param {RangeData} d
      */
-    async fetchInitial(params) {
-      if (!this.impl.initial) throw new Error("unreachable");
-      const initial = await this.impl.initial(params);
-      this._accept(initial, "initial");
-      return (
-        /** @type {Data} */
-        this.data
-      );
+    accept(d5) {
+      this.ranges = d5;
+      this.data.dispatchEvent(new Event("data"));
     }
     /**
-     * @param {any} [params]
-     * @return {Promise<Data>}
+     * @returns {Promise<RangeData>}
      */
-    async triggerFetch(params) {
-      if (!this.impl.initial) throw new Error("unreachable");
-      const next = await this.impl.initial(params);
-      this._accept(next, "trigger-fetch");
-      return (
-        /** @type {Data} */
-        this.data
-      );
+    async getInitial() {
+      const rangesPromise = await this.history.messaging.request("getRanges");
+      this.accept(rangesPromise);
+      return rangesPromise;
     }
     /**
-     * This is convenience to prevent the boilerplate of dealing with the
-     * eventTarget directly.
-     *
-     * Consumers pass a callback, which will be invoked with Data and the Source.
-     *
-     * A function is returned, which can be used to remove the event listener
-     *
-     * @param {(evt: {data: Data, source: InvocationSource}) => void} cb
+     * @param {(data: RangeData) => void} cb
      */
-    onData(cb) {
-      this._setupSubscription();
+    onResults(cb) {
       const controller = new AbortController();
-      this.eventTarget.addEventListener(
+      this.data.addEventListener(
         "data",
-        (evt) => {
-          cb(evt.detail);
+        () => {
+          if (this.ranges === null) throw new Error("unreachable");
+          cb(this.ranges);
         },
         { signal: controller.signal }
       );
       return () => controller.abort();
     }
     /**
-     * Remove data subscriptions
+     * @param {(d: RangeData) => RangeData} updater
      */
-    destroy() {
-      this.sub?.();
+    update(updater) {
+      if (this.ranges === null) throw new Error("unreachable");
+      this.accept(updater(this.ranges));
     }
     /**
-     * Setup the subscription if one doesn't already exist
-     * @private
+     * @param {Range} range
      */
-    _setupSubscription() {
-      if (this.sub) return;
-      this.sub = this.impl.subscribe?.((data) => {
-        this._accept(data, "subscription");
-      });
-    }
-    disableBroadcast() {
-      this._broadcast = false;
-    }
-    enableBroadcast() {
-      this._broadcast = true;
-    }
-    flush() {
-      if (this.data) this._accept(this.data, "manual");
-    }
-    /**
-     * Apply a function over the current state.
-     *
-     * The change will be broadcast to observers immediately,
-     * and then persists after a debounced period.
-     *
-     * @param {(prev: Data) => Data} updaterFn - the function that returns the next state
-     */
-    update(updaterFn) {
-      if (this.data === null) return;
-      const next = updaterFn(this.data);
-      if (next) {
-        this._accept(next, "manual");
-      } else {
-        console.warn("could not update");
-      }
-    }
-    /**
-     * @param {Data} data
-     * @param {InvocationSource} source
-     * @private
-     */
-    _accept(data, source) {
-      if (this.accept && source !== "initial") {
-        this.data = /** @type {NonNullable<Data>} */
-        this.accept(
-          /** @type {NonNullable<Data>} */
-          this.data,
-          data,
-          source
-        );
-      } else {
-        this.data = /** @type {NonNullable<Data>} */
-        data;
-      }
-      if (source === "initial") return;
-      this.clearDebounceTimer();
-      if (!this._broadcast) return console.warn("not broadcasting");
-      const dataEvent = new CustomEvent("data", {
-        detail: {
-          data: this.data,
-          source
+    async deleteRange(range) {
+      console.log("\u{1F4E4} [deleteRange]: ", JSON.stringify({ range }));
+      const resp = await this.history.messaging.request("deleteRange", { range });
+      if (resp.action === "delete") {
+        if (range === "all") {
+          this.update((_old) => {
+            return {
+              ranges: ["all"]
+            };
+          });
+        } else {
+          this.update((old) => {
+            return {
+              ...old,
+              ranges: old.ranges.filter((x4) => x4 !== range)
+            };
+          });
         }
-      });
-      this.eventTarget.dispatchEvent(dataEvent);
-      if (source === "manual") {
-        const time = window.location.search.includes("p2") ? this.DEBOUNCE_TIME_MS * 20.5 : this.DEBOUNCE_TIME_MS;
-        this.debounceTimer = setTimeout(() => {
-          this.persist();
-        }, time);
       }
-    }
-    /**
-     * Clears the debounce timer if it exists, simulating the switchMap behavior.
-     */
-    clearDebounceTimer() {
-      if (this.debounceTimer) {
-        clearTimeout(this.debounceTimer);
-        this.debounceTimer = null;
-      }
-    }
-    /**
-     * Persists the current in-memory widget configuration state to the internal data feed.
-     */
-    persist() {
-      if (!this.impl.persist) return;
-      if (this.data === null) return;
-      this.impl.persist(this.data);
+      return resp;
     }
   };
 
   // pages/history/app/history.service.js
   var _HistoryService = class _HistoryService {
     /**
+     * @return {QueryData}
+     */
+    static defaultData() {
+      return {
+        lastQueryParams: null,
+        info: {
+          query: { term: "" },
+          finished: true
+        },
+        results: []
+      };
+    }
+    /**
+     * @type {QueryData}
+     */
+    data = _HistoryService.defaultData();
+    internal = new EventTarget();
+    dataReadinessSignal = new EventTarget();
+    /** @type {HistoryQuery|null} */
+    ongoing = null;
+    index = 0;
+    /**
      * @param {import("../src/index.js").HistoryPage} history
      */
     constructor(history) {
       this.history = history;
-      this.query = new Service({
-        initial: (params) => {
-          return this.history.query(params).then((resp) => {
-            return { info: resp.info, results: resp.value };
-          });
-        }
-      }).withUpdater((old, next, trigger) => {
-        if (trigger === "manual") {
-          console.log("manual trigger, always accepting next:", next);
-          return next;
-        }
-        if (eq(old.info.query, next.info.query)) {
-          const results = old.results.concat(next.results);
-          return { info: next.info, results };
-        }
-        return next;
+      this.range = new HistoryRangeService(this.history);
+      this.internal.addEventListener(_HistoryService.QUERY_EVENT, (evt) => {
+        const { detail } = evt;
+        if (eq(detail, this.ongoing)) return console.log("ignoring duplicate query");
+        this.index++;
+        const index = this.index;
+        this.ongoing = JSON.parse(JSON.stringify(detail));
+        this.queryFetcher(detail).then((next) => {
+          const old = this.data;
+          if (old === null) throw new Error("unreachable - typescript this.query must always be there?");
+          const resolvedPromiseIsStale = this.index !== index;
+          if (resolvedPromiseIsStale) return console.log("\u274C rejected stale result");
+          let valueToPublish;
+          if (eq(old.info.query, next.info.query) && next.lastQueryParams?.offset > 0) {
+            const results = old.results.concat(next.results);
+            valueToPublish = { info: next.info, results, lastQueryParams: next.lastQueryParams };
+          } else {
+            valueToPublish = next;
+          }
+          this.accept(valueToPublish);
+        }).catch((e4) => {
+          console.error(e4, detail);
+        });
       });
-      this.ranges = new Service({
-        initial: () => {
-          return this.history.messaging.request("getRanges");
+      this.internal.addEventListener(_HistoryService.QUERY_MORE_EVENT, (evt) => {
+        if (!this.data) return;
+        if (this.data.info.finished) return;
+        const { end } = evt.detail;
+        const memory = this.data.results;
+        if (memory.length - end < OVERSCAN_AMOUNT) {
+          const lastquery = this.data.info.query;
+          const query = {
+            query: lastquery,
+            limit: _HistoryService.CHUNK_SIZE,
+            offset: this.data.results.length
+          };
+          this.internal.dispatchEvent(new CustomEvent(_HistoryService.QUERY_EVENT, { detail: query }));
         }
       });
     }
     /**
-     * @param {import('../types/history.js').HistoryQuery} initQuery
-     * @returns {Promise<ServiceData>}
+     * To 'accept' data is to store a local reference to it and treat it as 'latest'
+     * We also want to broadcast the fact that new data can be read.
+     * @param {QueryData} data
+     */
+    accept(data) {
+      this.data = data;
+      this.ongoing = null;
+      this.dataReadinessSignal.dispatchEvent(new Event("data"));
+    }
+    /**
+     * The single place for the query to be made
+     * @param {HistoryQuery} query
+     */
+    queryFetcher(query) {
+      console.log(`\u{1F9BB} [query] ${JSON.stringify(query.query)} offset: ${query.offset}, limit: ${query.limit}`);
+      return this.history.messaging.request("query", query).then((resp) => {
+        return { info: resp.info, results: resp.value, lastQueryParams: query };
+      });
+    }
+    /**
+     * @param {HistoryQuery} initQuery
+     * @returns {Promise<InitialServiceData>}
      */
     async getInitial(initQuery) {
-      const queryPromise = this.query.fetchInitial(initQuery);
-      const rangesPromise = this.ranges.fetchInitial();
+      const queryPromise = this.queryFetcher(initQuery);
+      const rangesPromise = this.range.getInitial();
       const [query, ranges] = await Promise.all([queryPromise, rangesPromise]);
+      this.accept(query);
       return { query, ranges };
     }
     /**
+     * Allow consumers to be notified when data has changed
      * @param {(data: QueryData) => void} cb
      */
     onResults(cb) {
-      return this.query.onData(({ data, source }) => cb(data));
+      const controller = new AbortController();
+      this.dataReadinessSignal.addEventListener(
+        "data",
+        () => {
+          if (this.data === null) throw new Error("unreachable");
+          cb(this.data);
+        },
+        { signal: controller.signal }
+      );
+      return () => controller.abort();
     }
     /**
-     * @param {import('../types/history.js').HistoryQuery} query
+     * @param {(data: RangeData) => void} cb
+     */
+    onRanges(cb) {
+      return this.range.onResults(cb);
+    }
+    /**
+     * @param {HistoryQuery} query
      */
     trigger(query) {
-      this.query.triggerFetch(query);
+      this.internal.dispatchEvent(new CustomEvent(_HistoryService.QUERY_EVENT, { detail: query }));
     }
     /**
-     *
+     * @param {number} end - the index of the last seen element
      */
-    requestMore() {
-      if (!this.query.data) return console.warn("unreachable?");
-      if (this.query.data.info.finished) return console.warn("refusing to fetch more");
-      const lastquery = this.query.data.info.query;
-      const query = {
-        query: lastquery,
-        limit: _HistoryService.CHUNK_SIZE,
-        offset: this.query.data.results.length
-      };
-      this.query.triggerFetch(query);
+    requestMore(end) {
+      this.internal.dispatchEvent(new CustomEvent(_HistoryService.QUERY_MORE_EVENT, { detail: { end } }));
     }
     /**
      * @param {string} url
@@ -2728,93 +2934,134 @@
       this.history.messaging.notify("open", { url: url2, target });
     }
     /**
-     * @param {(data: RangeData) => void} cb
-     */
-    onRanges(cb) {
-      return this.ranges.onData(({ data, source }) => cb(data));
-    }
-    /**
      * @param {string[]} ids
      * @param {number[]} indexes
+     * @return {Promise<{kind: 'none'} | { kind: 'domain-search'; value: string }>}
      */
     async entriesMenu(ids, indexes) {
+      console.log("\u{1F4E4} [entries_menu]: ", JSON.stringify({ ids }));
       const response = await this.history.messaging.request("entries_menu", { ids });
-      if (response.action === "none") return;
-      if (response.action !== "delete") return;
-      this.query.update((old) => {
-        const inverted = indexes.sort((a4, b4) => b4 - a4);
-        const removed = [];
-        const next = old.results.slice();
-        for (let i5 = 0; i5 < inverted.length; i5++) {
-          removed.push(next.splice(inverted[i5], 1));
+      if (response.action === "none") {
+        return { kind: "none" };
+      }
+      if (response.action === "delete") {
+        this._postdelete(indexes);
+        return { kind: "none" };
+      }
+      if (response.action === "domain-search" && ids.length === 1 && indexes.length === 1) {
+        const target = this.data?.results[indexes[0]];
+        const targetValue = target?.etldPlusOne || target?.domain;
+        if (targetValue) {
+          return { kind: "domain-search", value: targetValue };
+        } else {
+          console.warn("missing target domain from current dataset?");
+          return { kind: "none" };
         }
-        const nextStats = { ...old, results: next };
-        return nextStats;
-      });
+      }
+      return { kind: "none" };
     }
     /**
-     * @param {string} dateRelativeDay
+     * @param {number[]} indexes
      */
-    async menuTitle(dateRelativeDay) {
-      const response = await this.history.messaging.request("title_menu", { dateRelativeDay });
+    async entriesDelete(indexes) {
+      const ids = this._collectIds(indexes);
+      console.log("\u{1F4E4} [entries_delete]: ", JSON.stringify({ ids }));
+      const response = await this.history.messaging.request("entries_delete", { ids });
       if (response.action === "none") return;
-      this.query.update((old) => {
-        const start = old.results.findIndex((x4) => x4.dateRelativeDay === dateRelativeDay);
-        if (start > -1) {
-          let end = start;
-          for (let i5 = start; i5 < old.results.length; i5++) {
-            if (old.results[i5]?.dateRelativeDay === dateRelativeDay) continue;
-            end = i5;
-            break;
-          }
-          const next = old.results.slice();
-          const removed = next.splice(start, end - start);
-          console.log("did remove items:", removed);
-          return {
-            ...old,
-            results: next
-          };
-        }
-        return old;
+      if (response.action !== "delete") return;
+      this._postdelete(indexes);
+    }
+    /**
+     * @param {number[]} indexes
+     * @return {string[]}
+     */
+    _collectIds(indexes) {
+      const ids = [];
+      for (let i5 = 0; i5 < indexes.length; i5++) {
+        const current = this.data?.results[indexes[i5]];
+        if (!current) throw new Error("unreachable");
+        ids.push(current.id);
+      }
+      return ids;
+    }
+    /**
+     * @param {(d: QueryData) => QueryData} updater
+     */
+    update(updater) {
+      if (this.data === null) throw new Error("unreachable");
+      this.accept(updater(this.data));
+    }
+    /**
+     * @param {number[]} indexes
+     */
+    _postdelete(indexes) {
+      this.update((old) => deleteByIndexes(old, indexes));
+    }
+    reset() {
+      this.update(() => {
+        const query = {
+          lastQueryParams: null,
+          info: {
+            query: { term: "" },
+            finished: true
+          },
+          results: []
+        };
+        return query;
       });
     }
     /**
      * @param {Range} range
+     * @return {Promise<{kind: 'none'} | {kind: "range-deleted"}>}
      */
-    deleteRange(range) {
-      return this.history.messaging.request("deleteRange", { range }).then((resp) => {
-        if (resp.action === "delete") {
-          if (range === "all") {
-            this.ranges.update((_old) => {
-              return {
-                ranges: ["all"]
-              };
-            });
-            this.query.update((_old) => {
-              const query = {
-                info: {
-                  query: { term: "" },
-                  finished: true
-                },
-                results: []
-              };
-              return query;
-            });
-          } else {
-            this.ranges.update((old) => {
-              return {
-                ...old,
-                ranges: old.ranges.filter((x4) => x4 !== range)
-              };
-            });
-          }
-        }
-        return resp;
-      });
+    async deleteRange(range) {
+      const resp = await this.range.deleteRange(range);
+      if (resp.action === "delete" && range === "all") {
+        this.reset();
+      }
+      if (resp.action === "delete") {
+        return { kind: "range-deleted" };
+      }
+      return { kind: "none" };
+    }
+    /**
+     * @param {string} domain
+     * @return {Promise<{kind: 'none'} | {kind: "domain-deleted"}>}
+     */
+    async deleteDomain(domain) {
+      const resp = await this.history.messaging.request("deleteDomain", { domain });
+      if (resp.action === "delete") {
+        this.reset();
+        return { kind: "domain-deleted" };
+      }
+      return { kind: "none" };
+    }
+    /**
+     * @param {string} term
+     */
+    async deleteTerm(term) {
+      console.log("\u{1F4E4} [deleteTerm]: ", JSON.stringify({ term }));
+      const resp = await this.history.messaging.request("deleteTerm", { term });
+      if (resp.action === "delete") {
+        this.reset();
+      }
+      return resp;
     }
   };
   __publicField(_HistoryService, "CHUNK_SIZE", 150);
+  __publicField(_HistoryService, "QUERY_EVENT", "query");
+  __publicField(_HistoryService, "QUERY_MORE_EVENT", "query-more");
   var HistoryService = _HistoryService;
+  function deleteByIndexes(old, indexes) {
+    const inverted = indexes.sort((a4, b4) => b4 - a4);
+    const removed = [];
+    const next = old.results.slice();
+    for (let i5 = 0; i5 < inverted.length; i5++) {
+      removed.push(next.splice(inverted[i5], 1));
+    }
+    const nextStats = { ...old, results: next };
+    return nextStats;
+  }
   function paramsToQuery(params) {
     let query;
     const range = toRange(params.get("range"));
@@ -2856,228 +3103,359 @@
     ) : null;
   }
   function eq(q1, q22) {
+    if (!q1 || !q22) return false;
     return JSON.stringify(q1) === JSON.stringify(q22);
   }
 
-  // pages/history/app/constants.js
-  var OVERSCAN_AMOUNT = 5;
-  var BTN_ACTION_TITLE_MENU = "title_menu";
-  var BTN_ACTION_ENTRIES_MENU = "entries_menu";
-  var BTN_ACTION_DELETE_RANGE = "deleteRange";
-  var BTN_ACTION_DELETE_ALL = "deleteAll";
-  var KNOWN_ACTIONS = (
-    /** @type {const} */
-    [
-      BTN_ACTION_TITLE_MENU,
-      BTN_ACTION_ENTRIES_MENU,
-      BTN_ACTION_DELETE_RANGE,
-      BTN_ACTION_DELETE_ALL
-    ]
+  // pages/history/app/global/Providers/HistoryServiceProvider.js
+  function defaultDispatch(action) {
+    console.log("would dispatch", action);
+  }
+  var HistoryServiceDispatchContext = J(defaultDispatch);
+  var ResultsContext = J(
+    /** @type {ReadonlySignal<Results>} */
+    d3({ items: [], heights: [] })
   );
-  var EVENT_RANGE_CHANGE = "range-change";
-  var EVENT_SEARCH_COMMIT = "search-commit";
+  var RangesContext = J(
+    /** @type {ReadonlySignal<Range[]>} */
+    d3([])
+  );
+  function HistoryServiceProvider({ service, children, initial }) {
+    const queryDispatch = useQueryDispatch();
+    const ranges = useSignal(initial.ranges.ranges);
+    const results = useSignal({
+      items: initial.query.results,
+      heights: generateHeights(initial.query.results)
+    });
+    useSignalEffect(() => {
+      const unsub = service.onResults((data) => {
+        results.value = {
+          items: data.results,
+          heights: generateHeights(data.results)
+        };
+      });
+      const unsubRanges = service.onRanges((data) => {
+        ranges.value = data.ranges;
+      });
+      return () => {
+        unsub();
+        unsubRanges();
+      };
+    });
+    function dispatch(action) {
+      switch (action.kind) {
+        case "search-commit": {
+          const asQuery = paramsToQuery(action.params);
+          service.trigger(asQuery);
+          break;
+        }
+        case "delete-range": {
+          const range = toRange(action.value);
+          if (range) {
+            service.deleteRange(range).then((resp) => {
+              if (resp.kind === "range-deleted") {
+                queryDispatch({ kind: "reset" });
+              }
+            }).catch(console.error);
+          }
+          break;
+        }
+        case "delete-domain": {
+          service.deleteDomain(action.domain).catch(console.error);
+          break;
+        }
+        case "delete-entries-by-index": {
+          service.entriesDelete(action.value).catch(console.error);
+          break;
+        }
+        case "delete-all": {
+          service.deleteRange("all").catch(console.error);
+          break;
+        }
+        case "delete-term": {
+          service.deleteTerm(action.term).catch(console.error);
+          break;
+        }
+        case "open-url": {
+          service.openUrl(action.url, action.target);
+          break;
+        }
+        case "show-entries-menu": {
+          service.entriesMenu(action.ids, action.indexes).then((resp) => {
+            if (resp.kind === "domain-search") {
+              queryDispatch({ kind: "search-by-domain", value: resp.value });
+            }
+          }).catch(console.error);
+          break;
+        }
+        case "request-more": {
+          service.requestMore(action.end);
+          break;
+        }
+      }
+    }
+    const dispatcher = q2(dispatch, [service]);
+    return /* @__PURE__ */ g(HistoryServiceDispatchContext.Provider, { value: dispatcher }, /* @__PURE__ */ g(RangesContext.Provider, { value: ranges }, /* @__PURE__ */ g(ResultsContext.Provider, { value: results }, children)));
+  }
+  function useHistoryServiceDispatch() {
+    return x2(HistoryServiceDispatchContext);
+  }
+  function useResultsData() {
+    return x2(ResultsContext);
+  }
+  function useRangesData() {
+    return x2(RangesContext);
+  }
 
-  // pages/history/app/global-state/QueryProvider.js
-  var QueryContext = J(
-    d3(
-      /** @type {QueryState} */
-      {
-        term: (
-          /** @type {string|null} */
-          null
-        ),
-        range: (
-          /** @type {import('../../types/history.ts').Range|null} */
-          null
-        ),
-        domain: (
-          /** @type {string|null} */
-          null
-        )
-      }
-    )
+  // pages/history/app/global/Providers/SelectionProvider.js
+  var SelectionDispatchContext = J(
+    /** @type {(a: Action) => void} */
+    (a4) => {
+    }
   );
-  function useQueryContext() {
-    return x2(QueryContext);
+  var SelectionContext = J(
+    /** @type {ReadonlySignal<Set<number>>} */
+    d3(/* @__PURE__ */ new Set([]))
+  );
+  function SelectionProvider({ children }) {
+    const selected = useSignal(/* @__PURE__ */ new Set(
+      /** @type {number[]} */
+      []
+    ));
+    function dispatch(action) {
+      selected.value = (() => {
+        switch (action.kind) {
+          case "set-selections": {
+            return action.value;
+          }
+          case "reset": {
+            return /* @__PURE__ */ new Set([]);
+          }
+          default:
+            return selected.value;
+        }
+      })();
+    }
+    const dispatcher = q2(dispatch, [selected]);
+    return /* @__PURE__ */ g(SelectionContext.Provider, { value: selected }, /* @__PURE__ */ g(SelectionDispatchContext.Provider, { value: dispatcher }, children));
   }
-  function QueryProvider({ children, query = { term: "" } }) {
-    const initial = {
-      term: "term" in query ? query.term : null,
-      range: "range" in query ? query.range : null,
-      domain: "domain" in query ? query.domain : null
-    };
-    const searchState = useSignal(initial);
-    const derivedTerm = useComputed(() => searchState.value.term);
-    const derivedRange = useComputed(() => {
-      return (
-        /** @type {Range|null} */
-        searchState.value.range
-      );
-    });
-    const settings = useSettings();
+  function useSelected() {
+    return x2(SelectionContext);
+  }
+  function useSelectionDispatch() {
+    return x2(SelectionDispatchContext);
+  }
+  function useRowInteractions(mainRef) {
     const platformName = usePlatformName();
-    useClickHandlerForFilters(searchState);
-    useInputHandler(searchState);
-    useSearchShortcut(platformName);
-    useFormSubmit();
-    useURLReflection(derivedTerm, settings);
-    useSearchCommitForRange(derivedRange);
-    return /* @__PURE__ */ g(QueryContext.Provider, { value: searchState }, children);
-  }
-  function useSearchCommitForRange(derivedRange) {
-    useSignalEffect(() => {
-      let timer;
-      let counter = 0;
-      const sub = derivedRange.subscribe((nextRange) => {
-        if (counter === 0) {
-          counter += 1;
-          return;
+    const dispatch = useSelectionDispatch();
+    const historyDispatch = useHistoryServiceDispatch();
+    const selected = useSelected();
+    const anchorIndex = useSignal(
+      /** @type {null|number} */
+      null
+    );
+    const lastShiftRange = useSignal({ start: (
+      /** @type {null|number} */
+      null
+    ), end: (
+      /** @type {null|number} */
+      null
+    ) });
+    const focusedIndex = useSignal(
+      /** @type {null|number} */
+      null
+    );
+    const results = useResultsData();
+    function handleClickIntentions(intention, selection) {
+      const { index } = selection;
+      switch (intention) {
+        case "click": {
+          dispatch({ kind: "set-selections", value: /* @__PURE__ */ new Set([index]), reason: "row clicked" });
+          anchorIndex.value = index;
+          lastShiftRange.value = { start: null, end: null };
+          focusedIndex.value = index;
+          break;
         }
-        const url2 = new URL(window.location.href);
-        url2.searchParams.delete("q");
-        url2.searchParams.delete("range");
-        if (nextRange !== null) {
-          url2.searchParams.set("range", nextRange);
-          window.history.replaceState(null, "", url2.toString());
-          window.dispatchEvent(new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params: new URLSearchParams(url2.searchParams) } }));
-        }
-      });
-      return () => {
-        sub();
-        clearTimeout(timer);
-      };
-    });
-  }
-  function useURLReflection(derivedTerm, settings) {
-    useSignalEffect(() => {
-      let timer;
-      let counter = 0;
-      const unsubscribe = derivedTerm.subscribe((nextValue) => {
-        if (counter === 0) {
-          counter += 1;
-          return;
-        }
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          const url2 = new URL(window.location.href);
-          url2.searchParams.delete("q");
-          url2.searchParams.delete("range");
-          if (nextValue) {
-            url2.searchParams.set("q", nextValue);
-            window.history.replaceState(null, "", url2.toString());
-          } else if (nextValue === "") {
-            window.history.replaceState(null, "", url2.toString());
-          }
-          if (nextValue === null) {
+        case "ctrl+click": {
+          const newSelected = new Set(selected.value);
+          if (newSelected.has(index)) {
+            newSelected.delete(index);
           } else {
-            window.dispatchEvent(
-              new CustomEvent(EVENT_SEARCH_COMMIT, { detail: { params: new URLSearchParams(url2.searchParams) } })
-            );
+            newSelected.add(index);
           }
-        }, settings.typingDebounce);
-      });
-      return () => {
-        unsubscribe();
-        clearTimeout(timer);
-      };
-    });
-  }
-  function useFormSubmit() {
-    useSignalEffect(() => {
-      const submitHandler = (e4) => {
-        e4.preventDefault();
-        if (!e4.target || !(e4.target instanceof HTMLFormElement)) return;
-        const formData = new FormData(e4.target);
-        console.log("todo: re-issue search here?", [formData.get("q")?.toString()]);
-      };
-      document.addEventListener("submit", submitHandler);
-      return () => {
-        document.removeEventListener("submit", submitHandler);
-      };
-    });
-  }
-  function useClickHandlerForFilters(queryState) {
-    useSignalEffect(() => {
-      function clickHandler(e4) {
-        if (!(e4.target instanceof HTMLElement)) return;
-        const anchor = (
-          /** @type {HTMLAnchorElement|null} */
-          e4.target.closest("a[data-filter]")
-        );
-        if (anchor) {
-          e4.preventDefault();
-          const range = toRange(anchor.dataset.filter);
-          if (range === "all") {
-            queryState.value = {
-              term: "",
-              domain: null,
-              range: null
-            };
-          } else if (range) {
-            queryState.value = {
-              term: null,
-              domain: null,
-              range
-            };
+          dispatch({ kind: "set-selections", value: newSelected, reason: "row ctrl+clicked" });
+          anchorIndex.value = index;
+          lastShiftRange.value = { start: null, end: null };
+          focusedIndex.value = index;
+          break;
+        }
+        case "shift+click": {
+          const newSelected = new Set(selected.value);
+          if (lastShiftRange.value.start !== null && lastShiftRange.value.end !== null) {
+            for (let i5 = lastShiftRange.value.start; i5 <= lastShiftRange.value.end; i5++) {
+              newSelected.delete(i5);
+            }
           }
+          const start = Math.min(anchorIndex.value ?? 0, index);
+          const end = Math.max(anchorIndex.value ?? 0, index);
+          for (let i5 = start; i5 <= end; i5++) {
+            newSelected.add(i5);
+          }
+          lastShiftRange.value = { start, end };
+          dispatch({ kind: "set-selections", value: newSelected, reason: "row shift+clicked" });
+          focusedIndex.value = index;
+          break;
         }
       }
-      document.addEventListener("click", clickHandler);
-      return () => {
-        document.removeEventListener("click", clickHandler);
-      };
-    });
-  }
-  function useInputHandler(queryState) {
-    useSignalEffect(() => {
-      function handler(e4) {
-        if (e4.target instanceof HTMLInputElement && e4.target.form instanceof HTMLFormElement) {
-          const data = new FormData(e4.target.form);
-          const q5 = data.get("q")?.toString();
-          if (q5 === void 0) return console.log("missing q field");
-          queryState.value = {
-            term: q5,
-            range: null,
-            domain: null
-          };
+    }
+    function handler(event) {
+      if (!(event.target instanceof Element)) return;
+      if (event.target.closest("button")) return;
+      if (event.target.closest("a")) return;
+      const itemRow = (
+        /** @type {HTMLElement|null} */
+        event.target.closest("[data-history-entry][data-index]")
+      );
+      const selection = toRowSelection(itemRow);
+      if (!itemRow || !selection) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const intention = eventToIntention(event, platformName);
+      handleClickIntentions(intention, selection);
+    }
+    function handleKeyIntention(intention) {
+      const direction = intention === "shift+up" || intention === "up" ? -1 : 1;
+      if (focusedIndex.value === null) return false;
+      const newIndex = Math.max(0, Math.min(results.value.items.length - 1, focusedIndex.value + direction));
+      switch (intention) {
+        case "shift+down":
+        case "shift+up": {
+          const newSelected = new Set(selected.value);
+          if (lastShiftRange.value.start !== null && lastShiftRange.value.end !== null) {
+            for (let i5 = lastShiftRange.value.start; i5 <= lastShiftRange.value.end; i5++) {
+              newSelected.delete(i5);
+            }
+          }
+          const start = Math.min(anchorIndex.value ?? newIndex, newIndex);
+          const end = Math.max(anchorIndex.value ?? newIndex, newIndex);
+          for (let i5 = start; i5 <= end; i5++) {
+            newSelected.add(i5);
+          }
+          lastShiftRange.value = { start, end };
+          dispatch({ kind: "set-selections", value: newSelected, reason: "shift+up or shift+down pressed" });
+          if (anchorIndex.value === null) {
+            anchorIndex.value = newIndex;
+          }
+          break;
+        }
+        case "up":
+        case "down": {
+          dispatch({ kind: "set-selections", value: /* @__PURE__ */ new Set([newIndex]), reason: "up or down pressed without modifier" });
+          anchorIndex.value = newIndex;
+          lastShiftRange.value = { start: null, end: null };
+          break;
+        }
+        case "delete": {
+          if (selected.value.size === 0) break;
+          historyDispatch({ kind: "delete-entries-by-index", value: [...selected.value] });
+          break;
         }
       }
-      document.addEventListener("input", handler);
-      return () => {
-        document.removeEventListener("input", handler);
-      };
-    });
-  }
-  function useSearchShortcut(platformName) {
-    useSignalEffect(() => {
-      const keydown = (e4) => {
-        const isMacOS = platformName === "macos";
-        const isFindShortcutMacOS = isMacOS && e4.metaKey && e4.key === "f";
-        const isFindShortcutWindows = !isMacOS && e4.ctrlKey && e4.key === "f";
-        if (isFindShortcutMacOS || isFindShortcutWindows) {
-          e4.preventDefault();
-          const searchInput = (
-            /** @type {HTMLInputElement|null} */
-            document.querySelector(`input[type="search"]`)
-          );
-          if (searchInput) {
-            searchInput.focus();
-          }
+      switch (intention) {
+        case "shift+down":
+        case "shift+up":
+        case "up":
+        case "down": {
+          focusedIndex.value = newIndex;
+          const match = document.querySelector(`[aria-selected][data-index="${newIndex}"]`);
+          match?.scrollIntoView({ block: "nearest", inline: "nearest" });
+          return true;
         }
-      };
-      document.addEventListener("keydown", keydown);
-      return () => {
-        document.removeEventListener("keydown", keydown);
-      };
-    });
+      }
+      return false;
+    }
+    function handleGlobalKeyIntentions(intention, event) {
+      if (event.target !== document.body) return false;
+      switch (intention) {
+        case "escape": {
+          dispatch({
+            kind: "reset",
+            reason: "escape key pressed"
+          });
+          return true;
+        }
+      }
+      return false;
+    }
+    function keyHandler(event) {
+      const intention = eventToIntention(event, platformName);
+      if (intention === "unknown") return;
+      if (focusedIndex.value === null) return;
+      let handled = false;
+      if (event.target === document.body || event.target === mainRef.current || mainRef.current?.contains(
+        /** @type {any} */
+        event.target
+      )) {
+        handled = handleKeyIntention(intention);
+      }
+      if (!handled) {
+        handled = handleGlobalKeyIntentions(intention, event);
+      }
+      if (handled) event.preventDefault();
+    }
+    const onClick = q2(handler, [selected, anchorIndex, lastShiftRange, focusedIndex]);
+    const onKeyDown = q2(keyHandler, [selected, anchorIndex, lastShiftRange, focusedIndex]);
+    return { onClick, onKeyDown };
+  }
+  function toRowSelection(elem) {
+    if (elem === null) return null;
+    const { index, historyEntry } = elem.dataset;
+    if (typeof historyEntry !== "string") return null;
+    if (typeof index !== "string") return null;
+    if (!index.trim().match(/^\d+$/)) return null;
+    return { id: historyEntry, index: parseInt(index, 10) };
   }
 
   // pages/history/app/components/Header.js
   function Header() {
-    const { t: t4 } = useTypedTranslation();
     const search = useQueryContext();
     const term = useComputed(() => search.value.term);
-    return /* @__PURE__ */ g("div", { class: Header_default.root }, /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g("button", { class: Header_default.largeButton, "data-action": BTN_ACTION_DELETE_ALL }, /* @__PURE__ */ g("span", null, t4("delete_all")), /* @__PURE__ */ g(Trash, null))), /* @__PURE__ */ g("div", { class: Header_default.search }, /* @__PURE__ */ g(SearchForm, { term })));
+    const range = useComputed(() => search.value.range);
+    const domain = useComputed(() => search.value.domain);
+    return /* @__PURE__ */ g("div", { class: Header_default.root }, /* @__PURE__ */ g(Controls, { term, range, domain }), /* @__PURE__ */ g("div", { class: Header_default.search }, /* @__PURE__ */ g(SearchForm, { term, domain })));
+  }
+  function Controls({ term, range, domain }) {
+    const { t: t4 } = useTypedTranslation();
+    const results = useResultsData();
+    const selected = useSelected();
+    const dispatch = useHistoryServiceDispatch();
+    const ariaDisabled = useComputed(() => results.value.items.length === 0);
+    const title = useComputed(() => results.value.items.length === 0 ? t4("delete_none") : "");
+    const buttonTxt = useComputed(() => {
+      const hasSelections = selected.value.size > 0;
+      if (hasSelections) return t4("delete_some");
+      return t4("delete_all");
+    });
+    function onClick() {
+      if (ariaDisabled.value === true) return;
+      if (selected.value.size > 0) {
+        return dispatch({ kind: "delete-entries-by-index", value: [...selected.value] });
+      }
+      if (range.value !== null) {
+        return dispatch({ kind: "delete-range", value: range.value });
+      }
+      if (term.value !== null && term.value !== "") {
+        return dispatch({ kind: "delete-term", term: term.value });
+      }
+      if (domain.value !== null) {
+        return dispatch({ kind: "delete-domain", domain: domain.value });
+      }
+      if (term.value !== null && term.value !== "") {
+        return dispatch({ kind: "delete-term", term: term.value });
+      }
+      dispatch({ kind: "delete-all" });
+    }
+    return /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g("button", { class: Header_default.largeButton, onClick, "aria-disabled": ariaDisabled, title }, /* @__PURE__ */ g(Trash, null), /* @__PURE__ */ g("span", null, buttonTxt)));
   }
 
   // ../node_modules/preact/compat/dist/compat.module.js
@@ -3263,30 +3641,7 @@
   };
 
   // pages/history/app/components/Item.js
-  var import_classnames = __toESM(require_classnames(), 1);
-
-  // pages/history/app/utils.js
-  var ROW_SIZE = 28;
-  var TITLE_SIZE = 32;
-  var END_GAP = 24;
-  var TITLE_KIND = ROW_SIZE + TITLE_SIZE;
-  var END_KIND = ROW_SIZE + END_GAP;
-  function generateHeights(rows) {
-    const heights = new Array(rows.length);
-    for (let i5 = 0; i5 < rows.length; i5++) {
-      const curr = rows[i5];
-      const prev = rows[i5 - 1];
-      const next = rows[i5 + 1];
-      if (curr.dateRelativeDay !== prev?.dateRelativeDay) {
-        heights[i5] = ROW_SIZE + TITLE_SIZE;
-      } else if (curr.dateRelativeDay !== next?.dateRelativeDay) {
-        heights[i5] = ROW_SIZE + END_GAP;
-      } else {
-        heights[i5] = ROW_SIZE;
-      }
-    }
-    return heights;
-  }
+  var import_classnames2 = __toESM(require_classnames(), 1);
 
   // pages/history/app/components/Item.module.css
   var Item_default = {
@@ -3294,11 +3649,11 @@
     title: "Item_title",
     row: "Item_row",
     hover: "Item_hover",
+    favicon: "Item_favicon",
     entryLink: "Item_entryLink",
     domain: "Item_domain",
     time: "Item_time",
     dots: "Item_dots",
-    titleDots: "Item_titleDots",
     last: "Item_last"
   };
 
@@ -3328,6 +3683,153 @@
     ));
   }
 
+  // shared/components/FaviconWithState.js
+  var import_classnames = __toESM(require_classnames(), 1);
+
+  // shared/components/FaviconWithState.module.css
+  var FaviconWithState_default = {
+    favicon: "FaviconWithState_favicon",
+    faviconLarge: "FaviconWithState_faviconLarge",
+    faviconSmall: "FaviconWithState_faviconSmall",
+    faviconText: "FaviconWithState_faviconText"
+  };
+
+  // shared/getColorForString.js
+  var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES = [
+    "#94B3AF",
+    "#727998",
+    "#645468",
+    "#4D5F7F",
+    "#855DB6",
+    "#5E5ADB",
+    "#678FFF",
+    "#6BB4EF",
+    "#4A9BAE",
+    "#66C4C6",
+    "#55D388",
+    "#99DB7A",
+    "#ECCC7B",
+    "#E7A538",
+    "#DD6B4C",
+    "#D65D62"
+  ];
+  function getArrayIndex(str, arrayLength) {
+    const utf8Encoder = new TextEncoder();
+    const bytes = utf8Encoder.encode(str);
+    let hash = BigInt(5381);
+    for (const byte of bytes) {
+      hash = (hash << BigInt(5)) + hash + BigInt(byte);
+      hash = BigInt.asIntN(64, hash);
+    }
+    const index = hash % BigInt(arrayLength);
+    return Number(index < 0 ? -index : index);
+  }
+  var urlToColorCache = /* @__PURE__ */ new Map();
+  function urlToColor(url2) {
+    if (typeof url2 !== "string") return null;
+    if (urlToColorCache.has(url2)) {
+      return urlToColorCache.get(url2);
+    }
+    const index = getArrayIndex(url2, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
+    const color = EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index];
+    urlToColorCache.set(url2, color);
+    return color;
+  }
+
+  // shared/components/FaviconWithState.js
+  var states = (
+    /** @type {Record<ImgState, ImgState>} */
+    {
+      loading_favicon_src: "loading_favicon_src",
+      did_load_favicon_src: "did_load_favicon_src",
+      loading_fallback_img: "loading_fallback_img",
+      did_load_fallback_img: "did_load_fallback_img",
+      fallback_img_failed: "fallback_img_failed",
+      using_fallback_text: "using_fallback_text"
+    }
+  );
+  function FaviconWithState({ defaultSize = 64, fallback, fallbackDark, faviconSrc, faviconMax, etldPlusOne, theme, displayKind }) {
+    const size = Math.min(faviconMax, defaultSize);
+    const sizeClass = displayKind === "favorite-tile" ? FaviconWithState_default.faviconLarge : FaviconWithState_default.faviconSmall;
+    const imgsrc = faviconSrc ? faviconSrc + "?preferredSize=" + size : null;
+    const initialState = (() => {
+      if (imgsrc) return states.loading_favicon_src;
+      if (etldPlusOne) return states.using_fallback_text;
+      return states.loading_fallback_img;
+    })();
+    const [state, setState] = h2(
+      /** @type {ImgState} */
+      initialState
+    );
+    switch (state) {
+      /**
+       * These are the happy paths, where we are loading the favicon source and it does not 404
+       */
+      case states.loading_favicon_src:
+      case states.did_load_favicon_src: {
+        if (!imgsrc) {
+          console.warn("unreachable - must have imgsrc here");
+          return null;
+        }
+        return /* @__PURE__ */ g(
+          "img",
+          {
+            src: imgsrc,
+            class: (0, import_classnames.default)(FaviconWithState_default.favicon, sizeClass),
+            alt: "",
+            "data-state": state,
+            onLoad: () => setState(states.did_load_favicon_src),
+            onError: () => {
+              if (etldPlusOne) {
+                setState(states.using_fallback_text);
+              } else {
+                setState(states.loading_fallback_img);
+              }
+            }
+          }
+        );
+      }
+      /**
+       * A fallback can be applied when the `etldPlusOne` is there. For example,
+       * if `etldPlusOne = 'example.com'`, we can display `Ex` and use the domain name
+       * to select a background color.
+       */
+      case states.using_fallback_text: {
+        if (!etldPlusOne) {
+          console.warn("unreachable - must have etld+1 here");
+          return null;
+        }
+        let style;
+        const fallbackColor = urlToColor(etldPlusOne);
+        if (fallbackColor) {
+          style = { background: fallbackColor };
+        }
+        const chars = etldPlusOne.slice(0, 2);
+        return /* @__PURE__ */ g("div", { class: (0, import_classnames.default)(FaviconWithState_default.favicon, sizeClass, FaviconWithState_default.faviconText), style, "data-state": state }, /* @__PURE__ */ g("span", { "aria-hidden": true }, chars[0]), /* @__PURE__ */ g("span", { "aria-hidden": true }, chars[1]));
+      }
+      /**
+       * If we get here, we couldn't load the favicon source OR the fallback text
+       * So, we default to a globe icon
+       */
+      case states.loading_fallback_img:
+      case states.did_load_fallback_img: {
+        return /* @__PURE__ */ g(
+          "img",
+          {
+            src: theme === "light" ? fallback : fallbackDark,
+            class: (0, import_classnames.default)(FaviconWithState_default.favicon, sizeClass),
+            alt: "",
+            "data-state": state,
+            onLoad: () => setState(states.did_load_fallback_img),
+            onError: () => setState(states.fallback_img_failed)
+          }
+        );
+      }
+      default:
+        return null;
+    }
+  }
+
   // pages/history/app/components/Item.js
   var Item = M2(
     /**
@@ -3339,35 +3841,43 @@
      * @param {string} props.url - The text to be displayed for the item.
      * @param {string} props.domain - The text to be displayed for the domain
      * @param {number} props.kind - The kind or type of the item that determines its visual style.
-     * @param {string} props.dateRelativeDay - The relative day information to display (shown when kind is equal to TITLE_KIND).
      * @param {string} props.dateTimeOfDay - the time of day, like 11.00am.
+     * @param {string} props.dateRelativeDay - the time of day, like 11.00am.
+     * @param {string|null} props.etldPlusOne
      * @param {number} props.index - original index
      * @param {boolean} props.selected - whether this item is selected
+     * @param {string|null|undefined} props.faviconSrc
+     * @param {number} props.faviconMax
      */
-    function Item2({ id, url: url2, domain, title, kind, dateRelativeDay, dateTimeOfDay, index, selected }) {
-      const { t: t4 } = useTypedTranslation();
-      return /* @__PURE__ */ g(k, null, kind === TITLE_KIND && /* @__PURE__ */ g("div", { class: (0, import_classnames.default)(Item_default.title, Item_default.hover), "data-section-title": true }, dateRelativeDay, /* @__PURE__ */ g(
-        "button",
-        {
-          class: (0, import_classnames.default)(Item_default.dots, Item_default.titleDots),
-          "data-action": BTN_ACTION_TITLE_MENU,
-          value: dateRelativeDay,
-          "aria-label": t4("menu_sectionTitle", { relativeTime: dateRelativeDay }),
-          tabindex: 0
-        },
-        /* @__PURE__ */ g(Dots, null)
-      )), /* @__PURE__ */ g(
+    function Item2(props) {
+      const { title, kind, etldPlusOne, faviconSrc, faviconMax, dateTimeOfDay, dateRelativeDay, index, selected } = props;
+      const hasFooterGap = kind === END_KIND || kind === BOTH_KIND;
+      const hasTitle = kind === TITLE_KIND || kind === BOTH_KIND;
+      return /* @__PURE__ */ g(k, null, hasTitle && /* @__PURE__ */ g("div", { className: (0, import_classnames2.default)(Item_default.title) }, dateRelativeDay), /* @__PURE__ */ g(
         "div",
         {
-          class: (0, import_classnames.default)(Item_default.row, Item_default.hover, kind === END_KIND && Item_default.last),
-          "data-history-entry": id,
+          class: (0, import_classnames2.default)(Item_default.row, Item_default.hover, hasFooterGap && Item_default.last),
+          "data-history-entry": props.id,
           "data-index": index,
           "aria-selected": selected
         },
-        /* @__PURE__ */ g("a", { href: url2, "data-url": url2, class: Item_default.entryLink }, title),
-        /* @__PURE__ */ g("span", { class: Item_default.domain }, domain),
+        /* @__PURE__ */ g("div", { class: Item_default.favicon }, /* @__PURE__ */ g(
+          FaviconWithState,
+          {
+            fallback: "./company-icons/other.svg",
+            fallbackDark: "./company-icons/other-dark.svg",
+            faviconMax,
+            faviconSrc,
+            etldPlusOne,
+            displayKind: "history-favicon",
+            theme: "light",
+            defaultSize: DDG_DEFAULT_ICON_SIZE
+          }
+        )),
+        /* @__PURE__ */ g("a", { href: props.url, "data-url": props.url, class: Item_default.entryLink, tabindex: 0 }, title),
+        /* @__PURE__ */ g("span", { class: Item_default.domain, "data-testid": "Item.domain" }, props.domain),
         /* @__PURE__ */ g("span", { class: Item_default.time }, dateTimeOfDay),
-        /* @__PURE__ */ g("button", { class: Item_default.dots, "data-action": BTN_ACTION_ENTRIES_MENU, "data-index": index, value: id, tabindex: 0 }, /* @__PURE__ */ g(Dots, null))
+        /* @__PURE__ */ g("button", { class: Item_default.dots, "data-action": BTN_ACTION_ENTRIES_MENU, "data-index": index, value: props.id, tabindex: 0 }, /* @__PURE__ */ g(Dots, null))
       ));
     }
   );
@@ -3378,14 +3888,19 @@
     listItem: "VirtualizedList_listItem",
     emptyState: "VirtualizedList_emptyState",
     emptyStateOffset: "VirtualizedList_emptyStateOffset",
-    emptyStateImage: "VirtualizedList_emptyStateImage",
-    emptyTitle: "VirtualizedList_emptyTitle"
+    icons: "VirtualizedList_icons",
+    forground: "VirtualizedList_forground",
+    emptyTitle: "VirtualizedList_emptyTitle",
+    emptyText: "VirtualizedList_emptyText"
   };
 
   // pages/history/app/components/VirtualizedList.js
-  function VirtualizedList({ items, heights, overscan, scrollingElement, renderItem }) {
-    const { start, end } = useVisibleRows(items, heights, scrollingElement, overscan);
+  function VirtualizedList({ items, heights, overscan, scrollingElement, onChange, renderItem }) {
+    const { start, end } = useVisibleRows(items, heights, scrollingElement, onChange, overscan);
     const subset = items.slice(start, end + 1);
+    y2(() => {
+      onChange?.(end);
+    }, [onChange, end]);
     return /* @__PURE__ */ g(k, null, subset.map((item, rowIndex) => {
       const originalIndex = start + rowIndex;
       const itemTopOffset = heights.slice(0, originalIndex).reduce((acc, item2) => acc + item2, 0);
@@ -3401,7 +3916,7 @@
     }));
   }
   var VisibleItems = M2(VirtualizedList);
-  function useVisibleRows(rows, heights, scrollerSelector, overscan = 5) {
+  function useVisibleRows(rows, heights, scrollerSelector, onChange, overscan = 5) {
     const [{ start, end }, setVisibleRange] = h2({ start: 0, end: 1 });
     const mainScrollerRef = A2(
       /** @type {Element|null} */
@@ -3427,7 +3942,6 @@
       };
       setVisibleRange((prev) => {
         if (withOverScan.start !== prev.start || withOverScan.end !== prev.end) {
-          window.dispatchEvent(new CustomEvent(EVENT_RANGE_CHANGE, { detail: { start: withOverScan.start, end: withOverScan.end } }));
           return { start: withOverScan.start, end: withOverScan.end };
         }
         return prev;
@@ -3483,14 +3997,21 @@
   }
 
   // pages/history/app/components/Empty.js
-  var import_classnames2 = __toESM(require_classnames(), 1);
+  var import_classnames3 = __toESM(require_classnames(), 1);
   function Empty() {
     const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ g("div", { class: (0, import_classnames2.default)(VirtualizedList_default.emptyState, VirtualizedList_default.emptyStateOffset) }, /* @__PURE__ */ g("img", { src: "icons/clock.svg", width: 128, height: 96, alt: "", class: VirtualizedList_default.emptyStateImage }), /* @__PURE__ */ g("h2", { class: VirtualizedList_default.emptyTitle }, t4("empty_title")));
+    return /* @__PURE__ */ g("div", { class: (0, import_classnames3.default)(VirtualizedList_default.emptyState, VirtualizedList_default.emptyStateOffset) }, /* @__PURE__ */ g("div", { class: VirtualizedList_default.icons }, /* @__PURE__ */ g("img", { src: "icons/backdrop.svg", width: 128, height: 96, alt: "" }), /* @__PURE__ */ g("img", { src: "icons/clock.svg", width: 60, height: 60, alt: "", class: VirtualizedList_default.forground })), /* @__PURE__ */ g("h2", { class: VirtualizedList_default.emptyTitle }, t4("empty_title")), /* @__PURE__ */ g("p", { class: VirtualizedList_default.emptyText }, t4("empty_text")));
   }
 
   // pages/history/app/components/Results.js
-  function Results({ results, selected }) {
+  function ResultsContainer() {
+    const results = useResultsData();
+    const selected = useSelected();
+    const dispatch = useHistoryServiceDispatch();
+    const onChange = q2((end) => dispatch({ kind: "request-more", end }), [dispatch]);
+    return /* @__PURE__ */ g(Results, { results, selected, onChange });
+  }
+  function Results({ results, selected, onChange }) {
     if (results.value.items.length === 0) {
       return /* @__PURE__ */ g(Empty, null);
     }
@@ -3502,9 +4023,12 @@
         items: results.value.items,
         heights: results.value.heights,
         overscan: OVERSCAN_AMOUNT,
+        onChange,
         renderItem: ({ item, cssClassName, style, index }) => {
-          const isSelected = selected.value.includes(item.id);
-          return /* @__PURE__ */ g("li", { key: item.id, "data-id": item.id, class: cssClassName, style }, /* @__PURE__ */ g(
+          const isSelected = selected.value.has(index);
+          const faviconMax = item.favicon?.maxAvailableSize ?? DDG_DEFAULT_ICON_SIZE;
+          const favoriteSrc = item.favicon?.src;
+          return /* @__PURE__ */ g("li", { key: item.id, "data-id": item.id, class: cssClassName, style, "data-is-selected": isSelected }, /* @__PURE__ */ g(
             Item,
             {
               id: item.id,
@@ -3512,10 +4036,13 @@
               url: item.url,
               domain: item.domain,
               title: item.title,
-              dateRelativeDay: item.dateRelativeDay,
               dateTimeOfDay: item.dateTimeOfDay,
+              dateRelativeDay: item.dateRelativeDay,
               index,
-              selected: isSelected
+              selected: isSelected,
+              etldPlusOne: item.etldPlusOne ?? null,
+              faviconSrc: favoriteSrc,
+              faviconMax
             }
           ));
         }
@@ -3524,7 +4051,7 @@
   }
 
   // pages/history/app/components/Sidebar.js
-  var import_classnames3 = __toESM(require_classnames(), 1);
+  var import_classnames4 = __toESM(require_classnames(), 1);
 
   // pages/history/app/components/Sidebar.module.css
   var Sidebar_default = {
@@ -3533,8 +4060,8 @@
     nav: "Sidebar_nav",
     item: "Sidebar_item",
     link: "Sidebar_link",
-    delete: "Sidebar_delete",
     active: "Sidebar_active",
+    delete: "Sidebar_delete",
     icon: "Sidebar_icon"
   };
 
@@ -3592,146 +4119,137 @@
     const { t: t4 } = useTypedTranslation();
     const search = useQueryContext();
     const current = useComputed(() => search.value.range);
+    const results = useResultsData();
+    const count = useComputed(() => results.value.items.length);
+    const dispatch = useQueryDispatch();
+    const historyServiceDispatch = useHistoryServiceDispatch();
+    function onClick(range) {
+      if (range === "all") {
+        dispatch({ kind: "reset" });
+      } else if (range) {
+        dispatch({ kind: "search-by-range", value: range });
+      }
+    }
+    function onDelete(range) {
+      historyServiceDispatch({ kind: "delete-range", value: range });
+    }
     return /* @__PURE__ */ g("div", { class: Sidebar_default.stack }, /* @__PURE__ */ g("h1", { class: Sidebar_default.pageTitle }, t4("page_title")), /* @__PURE__ */ g("nav", { class: Sidebar_default.nav }, ranges.value.map((range) => {
-      return /* @__PURE__ */ g(Item3, { range, key: range, current, title: titleMap[range](t4) });
+      const { buttonLabel, linkLabel } = labels(range, t4);
+      return /* @__PURE__ */ g("div", { class: Sidebar_default.item, key: range }, /* @__PURE__ */ g(RowLink, { onClick: () => onClick(range), current, range, label: linkLabel }, titleMap[range](t4)), range === "all" && /* @__PURE__ */ g(DeleteAllButton, { onClick: onDelete, ariaLabel: buttonLabel, range, ranges, count }), range !== "all" && /* @__PURE__ */ g(DeleteButton, { onClick: () => onDelete(range), label: buttonLabel, range }));
     })));
   }
-  function Item3({ range, title, current }) {
+  function RowLink({ range, current, label, children, onClick }) {
+    const classNames = useComputed(() => {
+      return (0, import_classnames4.default)(Sidebar_default.link, current.value === range && Sidebar_default.active);
+    });
+    return /* @__PURE__ */ g(
+      "a",
+      {
+        href: "#",
+        "aria-label": label,
+        class: classNames,
+        tabindex: 0,
+        onClick: (e4) => {
+          e4.preventDefault();
+          onClick(range);
+        }
+      },
+      /* @__PURE__ */ g("span", { class: Sidebar_default.icon }, /* @__PURE__ */ g("img", { src: iconMap[range] })),
+      children
+    );
+  }
+  function DeleteButton({ range, onClick, label }) {
+    return /* @__PURE__ */ g("button", { class: Sidebar_default.delete, onClick, "aria-label": label, tabindex: 0, value: range }, /* @__PURE__ */ g(Trash, null));
+  }
+  function DeleteAllButton({ range, ranges, onClick, ariaLabel, count }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {json} */
       {}
     );
-    const [linkLabel, deleteLabel] = (() => {
-      switch (range) {
-        case "all":
-          return [t4("show_history_all"), t4("delete_history_all")];
-        case "today":
-        case "yesterday":
-        case "monday":
-        case "tuesday":
-        case "wednesday":
-        case "thursday":
-        case "friday":
-        case "saturday":
-        case "sunday":
-          return [t4("show_history_for", { range }), t4("delete_history_for", { range })];
-        case "older":
-          return [t4("show_history_older"), t4("delete_history_older")];
-      }
-    })();
-    return /* @__PURE__ */ g("div", { class: Sidebar_default.item }, /* @__PURE__ */ g(
-      "a",
+    const ariaDisabled = useComputed(() => {
+      return count.value === 0 && ranges.value.length === 1 ? "true" : "false";
+    });
+    const buttonTitle = useComputed(() => {
+      return count.value === 0 && ranges.value.length === 1 ? t4("delete_none") : "";
+    });
+    return /* @__PURE__ */ g(
+      "button",
       {
-        href: "#",
-        "aria-label": linkLabel,
-        "data-filter": range,
-        class: (0, import_classnames3.default)(Sidebar_default.link, current.value === range && Sidebar_default.active),
-        tabindex: 0
-      },
-      /* @__PURE__ */ g("span", { class: Sidebar_default.icon }, /* @__PURE__ */ g("img", { src: iconMap[range] })),
-      title
-    ), /* @__PURE__ */ g("button", { class: Sidebar_default.delete, "data-action": BTN_ACTION_DELETE_RANGE, "aria-label": deleteLabel, tabindex: 0, value: range }, /* @__PURE__ */ g(Trash, null)));
-  }
-
-  // pages/history/app/global-state/GlobalStateProvider.js
-  var GlobalState = J({
-    ranges: d3(
-      /** @type {import('../history.service.js').Range[]} */
-      []
-    ),
-    term: d3(""),
-    results: d3(
-      /** @type {Results} */
-      {}
-    )
-  });
-  function GlobalStateProvider({ service, initial, children }) {
-    const ranges = useSignal(initial.ranges.ranges);
-    const term = useSignal("term" in initial.query.info.query ? initial.query.info.query.term : "");
-    const results = useSignal({
-      items: initial.query.results,
-      heights: generateHeights(initial.query.results)
-    });
-    useSignalEffect(() => {
-      const unsub = service.onResults((data) => {
-        r3(() => {
-          if ("term" in data.info.query && data.info.query.term !== null) {
-            term.value = data.info.query.term;
+        class: Sidebar_default.delete,
+        onClick: (e4) => {
+          if (e4.currentTarget.getAttribute("aria-disabled") === "true") {
+            return;
           }
-          results.value = {
-            items: data.results,
-            heights: generateHeights(data.results)
-          };
-        });
-      });
-      const unsubRanges = service.onRanges((data) => {
-        ranges.value = data.ranges;
-      });
-      return () => {
-        unsub();
-        unsubRanges();
-      };
-    });
-    useSignalEffect(() => {
-      return term.subscribe(() => {
-        document.querySelector("[data-main-scroller]")?.scrollTo(0, 0);
-      });
-    });
-    return /* @__PURE__ */ g(GlobalState.Provider, { value: { ranges, term, results } }, children);
+          onClick(range);
+        },
+        "aria-label": ariaLabel,
+        tabindex: 0,
+        value: range,
+        title: buttonTitle,
+        "aria-disabled": ariaDisabled
+      },
+      /* @__PURE__ */ g(Trash, null)
+    );
   }
-  function useGlobalState() {
-    const context = x2(GlobalState);
-    if (!context) {
-      throw new Error("useSelection must be used within a SelectionProvider");
+  function labels(range, t4) {
+    switch (range) {
+      case "all":
+        return { linkLabel: t4("show_history_all"), buttonLabel: t4("delete_history_all") };
+      case "today":
+      case "yesterday":
+      case "monday":
+      case "tuesday":
+      case "wednesday":
+      case "thursday":
+      case "friday":
+      case "saturday":
+      case "sunday":
+        return { linkLabel: t4("show_history_for", { range }), buttonLabel: t4("delete_history_for", { range }) };
+      case "older":
+        return { linkLabel: t4("show_history_older"), buttonLabel: t4("delete_history_older") };
     }
-    return context;
   }
 
-  // pages/history/app/global-state/SelectionProvider.js
-  var SelectionContext = J({
-    selected: d3(
-      /** @type {string[]} */
-      []
-    )
-  });
-  function SelectionProvider({ children }) {
-    const selected = useSignal(
-      /** @type {string[]} */
-      []
-    );
-    useSignalEffect(() => {
-      function handler(event) {
-        if (!(event.target instanceof Element)) return;
-        if (event.target.matches("a")) return;
-        const itemRow = (
+  // pages/history/app/global/hooks/useContextMenuForEntries.js
+  function useContextMenuForEntries() {
+    const selected = useSelected();
+    const results = useResultsData();
+    const dispatch = useHistoryServiceDispatch();
+    y2(() => {
+      function contextMenu(event) {
+        const target = (
           /** @type {HTMLElement|null} */
-          event.target.closest("[data-history-entry][data-index]")
+          event.target
         );
-        const selection = toRowSelection(itemRow);
-        if (selection) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          selected.value = [selection.id];
+        if (!(target instanceof HTMLElement)) return;
+        const elem = target.closest("[data-history-entry]");
+        if (!elem || !(elem instanceof HTMLElement)) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const isSelected = elem.getAttribute("aria-selected") === "true";
+        if (isSelected) {
+          const indexes = [...selected.value];
+          const ids = [];
+          for (let i5 = 0; i5 < indexes.length; i5++) {
+            const current = results.value.items[indexes[i5]];
+            if (!current) throw new Error("unreachable");
+            ids.push(current.id);
+          }
+          dispatch({ kind: "show-entries-menu", ids, indexes });
+        } else {
+          const button = (
+            /** @type {HTMLButtonElement|null} */
+            elem.querySelector("button[value]")
+          );
+          const id = button?.value || "";
+          dispatch({ kind: "show-entries-menu", ids: [id], indexes: [Number(elem.dataset.index)] });
         }
       }
-      document.addEventListener("click", handler);
-    });
-    return /* @__PURE__ */ g(SelectionContext.Provider, { value: { selected } }, children);
-  }
-  function useSelected() {
-    const context = x2(SelectionContext);
-    if (!context) {
-      throw new Error("useSelection must be used within a SelectionProvider");
-    }
-    return context.selected;
-  }
-  function toRowSelection(elem) {
-    if (elem === null) return null;
-    const { index, historyEntry } = elem.dataset;
-    if (typeof historyEntry !== "string") return null;
-    if (typeof index !== "string") return null;
-    if (!index.trim().match(/^\d+$/)) return null;
-    return { id: historyEntry, index: parseInt(index, 10) };
+      document.addEventListener("contextmenu", contextMenu);
+      return () => {
+        document.removeEventListener("contextmenu", contextMenu);
+      };
+    }, []);
   }
 
   // shared/handlers.js
@@ -3745,96 +4263,11 @@
     return "same-tab";
   }
 
-  // pages/history/app/global-state/HistoryServiceProvider.js
-  var HistoryServiceContext = J({
-    service: (
-      /** @type {import("../history.service.js").HistoryService} */
-      {}
-    )
-  });
-  function HistoryServiceProvider({ service, children }) {
-    return /* @__PURE__ */ g(HistoryServiceContext.Provider, { value: { service } }, children);
-  }
-  function useGlobalHandlers() {
-    const { service } = x2(HistoryServiceContext);
+  // pages/history/app/global/hooks/useAuxClickHandler.js
+  function useAuxClickHandler() {
     const platformName = usePlatformName();
-    useSearchCommit(service);
-    useRangeChange(service);
-    useLinkClickHandler(service, platformName);
-    useButtonClickHandler(service);
-    useAuxClickHandler(service, platformName);
-    useContextMenu(service);
-  }
-  function useRangeChange(service) {
-    useSignalEffect(() => {
-      function handler(event) {
-        if (!service.query.data) throw new Error("unreachable");
-        const { end } = event.detail;
-        const memory = service.query.data.results;
-        if (memory.length - end < OVERSCAN_AMOUNT) {
-          service.requestMore();
-        }
-      }
-      window.addEventListener(EVENT_RANGE_CHANGE, handler);
-      return () => {
-        window.removeEventListener(EVENT_RANGE_CHANGE, handler);
-      };
-    });
-  }
-  function useSearchCommit(service) {
-    useSignalEffect(() => {
-      function handler(event) {
-        const detail = event.detail;
-        if (detail && detail.params instanceof URLSearchParams) {
-          const asQuery = paramsToQuery(detail.params);
-          service.trigger(asQuery);
-        } else {
-          console.error("missing detail.params from search-commit event");
-        }
-      }
-      window.addEventListener(EVENT_SEARCH_COMMIT, handler);
-      return () => {
-        window.removeEventListener(EVENT_SEARCH_COMMIT, handler);
-      };
-    });
-  }
-  function useContextMenu(service) {
-    useSignalEffect(() => {
-      function contextMenu(event) {
-        const target = (
-          /** @type {HTMLElement|null} */
-          event.target
-        );
-        if (!(target instanceof HTMLElement)) return;
-        const actions = {
-          "[data-section-title]": (elem) => elem.querySelector("button")?.value,
-          "[data-history-entry]": (elem) => elem.querySelector("button")?.value
-        };
-        for (const [selector, valueFn] of Object.entries(actions)) {
-          const match = event.target.closest(selector);
-          if (match) {
-            const value = valueFn(match);
-            if (value) {
-              event.preventDefault();
-              event.stopImmediatePropagation();
-              if (match.dataset.sectionTitle) {
-                service.menuTitle(value).catch(console.error);
-              } else if (match.dataset.historyEntry) {
-                service.entriesMenu([value], [Number(match.dataset.index)]).catch(console.error);
-              }
-            }
-            break;
-          }
-        }
-      }
-      document.addEventListener("contextmenu", contextMenu);
-      return () => {
-        document.removeEventListener("contextmenu", contextMenu);
-      };
-    });
-  }
-  function useAuxClickHandler(service, platformName) {
-    useSignalEffect(() => {
+    const dispatch = useHistoryServiceDispatch();
+    y2(() => {
       const handleAuxClick = (event) => {
         const anchor = (
           /** @type {HTMLButtonElement|null} */
@@ -3845,45 +4278,39 @@
           event.preventDefault();
           event.stopImmediatePropagation();
           const target = eventToTarget(event, platformName);
-          service.openUrl(url2, target);
+          dispatch({ kind: "open-url", url: url2, target });
         }
       };
       document.addEventListener("auxclick", handleAuxClick);
       return () => {
         document.removeEventListener("auxclick", handleAuxClick);
       };
-    });
+    }, []);
   }
-  function useButtonClickHandler(service) {
-    useSignalEffect(() => {
+
+  // pages/history/app/global/hooks/useButtonClickHandler.js
+  function useButtonClickHandler() {
+    const historyServiceDispatch = useHistoryServiceDispatch();
+    y2(() => {
       function clickHandler(event) {
         if (!(event.target instanceof Element)) return;
         const btn = (
           /** @type {HTMLButtonElement|null} */
           event.target.closest("button[data-action]")
         );
+        if (btn === null) return;
+        if (btn?.getAttribute("aria-disabled") === "true") return;
         const action = toKnownAction(btn);
-        if (btn === null || action === null) return;
+        if (action === null) return;
         event.stopImmediatePropagation();
         event.preventDefault();
         switch (action) {
-          case "title_menu": {
-            service.menuTitle(btn.value).catch(console.error);
-            return;
-          }
-          case "entries_menu": {
-            service.entriesMenu([btn.value], [Number(btn.dataset.index)]).catch(console.error);
-            return;
-          }
-          case "deleteRange": {
-            const range = toRange(btn.value);
-            if (range) {
-              service.deleteRange(range).catch(console.error);
-            }
-            return;
-          }
-          case "deleteAll": {
-            service.deleteRange("all").catch(console.error);
+          case BTN_ACTION_ENTRIES_MENU: {
+            historyServiceDispatch({
+              kind: "show-entries-menu",
+              ids: [btn.value],
+              indexes: [Number(btn.dataset.index)]
+            });
             return;
           }
           default:
@@ -3894,7 +4321,7 @@
       return () => {
         document.removeEventListener("click", clickHandler);
       };
-    });
+    }, []);
   }
   function toKnownAction(elem) {
     if (!elem) return null;
@@ -3909,8 +4336,12 @@
     );
     return null;
   }
-  function useLinkClickHandler(service, platformName) {
-    useSignalEffect(() => {
+
+  // pages/history/app/global/hooks/useLinkClickHandler.js
+  function useLinkClickHandler() {
+    const platformName = usePlatformName();
+    const dispatch = useHistoryServiceDispatch();
+    y2(() => {
       function clickHandler(event) {
         if (!(event.target instanceof Element)) return;
         const anchor = (
@@ -3923,27 +4354,180 @@
           event.preventDefault();
           event.stopImmediatePropagation();
           const target = eventToTarget(event, platformName);
-          service.openUrl(url2, target);
+          dispatch({ kind: "open-url", url: url2, target });
         }
       }
       document.addEventListener("click", clickHandler);
       return () => {
         document.removeEventListener("click", clickHandler);
       };
+    }, []);
+  }
+
+  // pages/history/app/global/hooks/useResetSelectionsOnQueryChange.js
+  function useResetSelectionsOnQueryChange() {
+    const dispatch = useSelectionDispatch();
+    const query = useQueryContext();
+    const results = useResultsData();
+    const length = useComputed(() => results.value.items.length);
+    useSignalEffect(() => {
+      let prevLength = 0;
+      const unsubs = [
+        // when anything about the query changes, reset selections
+        query.subscribe(() => {
+          dispatch({ kind: "reset", reason: "query changed" });
+        }),
+        // when the size of data is smaller than before, reset
+        length.subscribe((newLength) => {
+          if (newLength < prevLength) {
+            dispatch({
+              kind: "reset",
+              reason: `items length shrank from ${prevLength} to ${newLength}`
+            });
+          }
+          prevLength = newLength;
+        })
+      ];
+      return () => {
+        for (const unsub of unsubs) {
+          unsub();
+        }
+      };
+    });
+  }
+
+  // pages/history/app/global/hooks/useSearchCommitForRange.js
+  function useSearchCommitForRange() {
+    const dispatch = useHistoryServiceDispatch();
+    const query = useQueryContext();
+    const derivedRange = useComputed(() => {
+      return query.value.range;
+    });
+    useSignalEffect(() => {
+      let timer;
+      let counter = 0;
+      const sub = derivedRange.subscribe((nextRange) => {
+        if (counter === 0) {
+          counter += 1;
+          return;
+        }
+        const url2 = new URL(window.location.href);
+        url2.searchParams.delete("q");
+        url2.searchParams.delete("range");
+        if (nextRange !== null) {
+          url2.searchParams.set("range", nextRange);
+          window.history.replaceState(null, "", url2.toString());
+          dispatch({ kind: "search-commit", params: new URLSearchParams(url2.searchParams) });
+        }
+      });
+      return () => {
+        sub();
+        clearTimeout(timer);
+      };
+    });
+  }
+
+  // pages/history/app/global/hooks/useURLReflection.js
+  function useURLReflection() {
+    const settings = useSettings();
+    const query = useQueryContext();
+    useSignalEffect(() => {
+      let timer;
+      let count = 0;
+      const unsubscribe = query.subscribe((nextValue) => {
+        if (count === 0) return count += 1;
+        clearTimeout(timer);
+        if (nextValue.term !== null) {
+          const term = nextValue.term;
+          timer = setTimeout(() => {
+            const url2 = new URL(window.location.href);
+            url2.searchParams.set("q", term);
+            url2.searchParams.delete("range");
+            url2.searchParams.delete("domain");
+            if (term.trim() === "") {
+              url2.searchParams.delete("q");
+            }
+            window.history.replaceState(null, "", url2.toString());
+          }, settings.urlDebounce);
+        }
+        if (nextValue.domain !== null) {
+          const url2 = new URL(window.location.href);
+          url2.searchParams.set("domain", nextValue.domain);
+          url2.searchParams.delete("q");
+          url2.searchParams.delete("range");
+          window.history.replaceState(null, "", url2.toString());
+        }
+        return null;
+      });
+      return () => {
+        unsubscribe();
+        clearTimeout(timer);
+      };
+    });
+  }
+
+  // pages/history/app/global/hooks/useSearchCommit.js
+  function useSearchCommit() {
+    const dispatch = useHistoryServiceDispatch();
+    const settings = useSettings();
+    const query = useQueryContext();
+    useSignalEffect(() => {
+      let timer;
+      let count = 0;
+      const unsubscribe = query.subscribe((next) => {
+        if (count === 0) return count += 1;
+        clearTimeout(timer);
+        if (next.term !== null) {
+          const term = next.term;
+          timer = setTimeout(() => {
+            const params = new URLSearchParams();
+            params.set("q", term);
+            dispatch({ kind: "search-commit", params });
+          }, settings.typingDebounce);
+        }
+        if (next.domain !== null) {
+          const params = new URLSearchParams();
+          params.set("domain", next.domain);
+          dispatch({ kind: "search-commit", params });
+        }
+        return null;
+      });
+      return () => {
+        unsubscribe();
+        clearTimeout(timer);
+      };
     });
   }
 
   // pages/history/app/components/App.jsx
   function App() {
-    const { isDarkMode } = useEnv();
-    const containerRef = A2(
+    const mainRef = A2(
       /** @type {HTMLElement|null} */
       null
     );
-    const { ranges, term, results } = useGlobalState();
-    const selected = useSelected();
-    useGlobalHandlers();
-    return /* @__PURE__ */ g("div", { class: App_default.layout, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)), /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges })), /* @__PURE__ */ g("main", { class: App_default.main, ref: containerRef, "data-main-scroller": true, "data-term": term }, /* @__PURE__ */ g(Results, { results, selected })));
+    const { isDarkMode } = useEnv();
+    const ranges = useRangesData();
+    const query = useQueryContext();
+    useResetSelectionsOnQueryChange();
+    useLinkClickHandler();
+    useButtonClickHandler();
+    useContextMenuForEntries();
+    useAuxClickHandler();
+    useURLReflection();
+    useSearchCommit();
+    useSearchCommitForRange();
+    const { onClick, onKeyDown } = useRowInteractions(mainRef);
+    y2(() => {
+      const unsubscribe = query.subscribe(() => {
+        mainRef.current?.scrollTo(0, 0);
+      });
+      document.addEventListener("keydown", onKeyDown);
+      return () => {
+        document.removeEventListener("keydown", onKeyDown);
+        unsubscribe();
+      };
+    }, [onKeyDown, query]);
+    return /* @__PURE__ */ g("div", { class: App_default.layout, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges })), /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)), /* @__PURE__ */ g("main", { class: (0, import_classnames5.default)(App_default.main, App_default.customScroller), ref: mainRef, onClick }, /* @__PURE__ */ g(ResultsContainer, null)));
   }
 
   // pages/history/app/components/Components.module.css
@@ -3982,7 +4566,7 @@
     }
     const init2 = result.value;
     const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
-    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withDebounce(baseEnvironment2.urlParams.get("debounce"));
+    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withDebounce(baseEnvironment2.urlParams.get("debounce")).withUrlDebounce(baseEnvironment2.urlParams.get("urlDebounce"));
     console.log("initialSetup", init2);
     console.log("environment", environment);
     console.log("settings", settings);
@@ -4000,7 +4584,7 @@
     const initial = await service.getInitial(query);
     if (environment.display === "app") {
       D(
-        /* @__PURE__ */ g(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ g(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ g(TranslationProvider, { translationObject: strings, fallback: history_default, textLength: environment.textLength }, /* @__PURE__ */ g(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ g(SettingsContext.Provider, { value: settings }, /* @__PURE__ */ g(QueryProvider, { query: query.query }, /* @__PURE__ */ g(HistoryServiceProvider, { service }, /* @__PURE__ */ g(GlobalStateProvider, { service, initial }, /* @__PURE__ */ g(SelectionProvider, null, /* @__PURE__ */ g(App, null))))))))),
+        /* @__PURE__ */ g(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ g(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ g(TranslationProvider, { translationObject: strings, fallback: history_default, textLength: environment.textLength }, /* @__PURE__ */ g(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ g(SettingsContext.Provider, { value: settings }, /* @__PURE__ */ g(QueryProvider, { query: query.query }, /* @__PURE__ */ g(HistoryServiceProvider, { service, initial }, /* @__PURE__ */ g(SelectionProvider, null, /* @__PURE__ */ g(App, null)))))))),
         root2
       );
     } else if (environment.display === "components") {
@@ -4052,13 +4636,6 @@
      */
     reportInitException(params) {
       this.messaging.notify("reportInitException", params);
-    }
-    /**
-     * This will be sent if the application fails to load.
-     * @param {import('../types/history.js').HistoryQuery} params
-     */
-    query(params) {
-      return this.messaging.request("query", params);
     }
   };
   var baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv("production");

@@ -942,10 +942,11 @@ body[data-animate-background=true] {
   gap: 4px;
   min-width: 0;
 }
-.Activity_title:is(:hover, :focus-visible) {
+.Activity_title:hover,
+.Activity_title:focus-visible {
   color: var(--ntp-color-primary);
 }
-.Activity_title:is(:hover, :focus-visible) .Activity_favicon {
+:is(.Activity_title:hover, .Activity_title:focus-visible) .Activity_favicon {
   transform: scale(1.08);
 }
 .Activity_controls {
@@ -1050,7 +1051,8 @@ body[data-animate-background=true] {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.Activity_historyLink:is(:hover, :focus-visible) {
+.Activity_historyLink:hover,
+.Activity_historyLink:focus-visible {
   color: var(--ntp-color-primary);
 }
 .Activity_historyLink:hover .Activity_time {
@@ -1112,7 +1114,8 @@ body[data-animate-background=true] {
   border-radius: 50%;
   flex-shrink: 0;
 }
-.CompanyIcon_icon :is(img, svg) {
+.CompanyIcon_icon img,
+.CompanyIcon_icon svg {
   display: block;
   font-size: 0;
   width: 1rem;
@@ -1131,94 +1134,25 @@ body[data-animate-background=true] {
   opacity: 1;
 }
 
-/* pages/new-tab/app/favorites/components/Tile.module.css */
-.Tile_item {
-  --icon-width: 4rem;
-  display: block;
-  position: relative;
-  text-decoration: none;
-  color: currentColor;
-  outline: none;
-  padding-left: var(--sp-3);
-  padding-right: var(--sp-3);
-  height: 96px;
-}
-.Tile_item:focus-visible .Tile_icon {
-  box-shadow: var(--focus-ring);
-}
-@keyframes Tile_pulse {
-  0% {
-    scale: 1;
-  }
-  50% {
-    scale: 1.2;
-  }
-  100% {
-    scale: 1;
-  }
-}
-.Tile_icon {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  width: var(--icon-width);
-  height: var(--icon-width);
-  margin-bottom: 6px;
-  border-radius: var(--border-radius-lg);
-}
-.Tile_preview {
-  color: var(--ntp-text-normal);
-  transform: scale(0.8);
-}
-.Tile_preview img {
-  opacity: 0.8;
-}
-.Tile_draggable {
-  -webkit-backdrop-filter: blur(48px);
-  backdrop-filter: blur(48px);
-  background: var(--ntp-surface-background-color);
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12), 0px 0px 3px 0px rgba(0, 0, 0, 0.16);
-  transition: transform .2s;
-}
-.Tile_draggable:hover {
-  transform: scale(1.08);
-}
-[data-theme=dark] .Tile_draggable:hover {
-  background: rgba(0, 0, 0, 0.24);
-}
-[data-background-kind=userImage] .Tile_draggable {
-  border: 1px solid var(--color-black-at-9);
-  background: var(--color-white-at-30);
-}
-[data-background-kind=userImage] .Tile_draggable:hover {
-  background: var(--color-white-at-18);
-}
-[data-theme=dark] [data-background-kind=userImage] .Tile_draggable {
-  border: 1px solid var(--color-white-at-9);
-  background: var(--color-black-at-18);
-}
-[data-theme=dark] [data-background-kind=userImage] .Tile_draggable:hover {
-  background: rgba(0, 0, 0, 0.24);
-}
-.Tile_draggable:active {
-  transform: scale(0.95);
-  opacity: .75;
-}
-.Tile_favicon {
+/* shared/components/FaviconWithState.module.css */
+.FaviconWithState_favicon {
+  --border-radius: 8px;
   display: block;
   background-repeat: no-repeat;
   background-size: contain;
   pointer-events: none;
+  border-radius: var(--border-radius);
 }
-.Tile_faviconLarge {
+.FaviconWithState_faviconLarge {
   max-height: calc(32 * var(--px-in-rem));
   max-width: calc(32 * var(--px-in-rem));
 }
-.Tile_faviconSmall {
+.FaviconWithState_faviconSmall {
   max-height: calc(16 * var(--px-in-rem));
   max-width: calc(16 * var(--px-in-rem));
+  --border-radius: 4px;
 }
-.Tile_faviconText {
+.FaviconWithState_faviconText {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1226,72 +1160,16 @@ body[data-animate-background=true] {
   color: white;
   font-size: 1.1rem;
   font-weight: 600;
-  border-radius: var(--border-radius-md);
   height: calc(32 * var(--px-in-rem));
   width: calc(32 * var(--px-in-rem));
 }
-.Tile_faviconText span:first-child {
+.FaviconWithState_faviconText span:first-child {
   text-transform: uppercase;
 }
-.Tile_faviconText.Tile_faviconSmall {
+.FaviconWithState_faviconText.FaviconWithState_faviconSmall {
   font-size: 0.5rem;
-  border-radius: var(--border-radius-xs);
   height: calc(16 * var(--px-in-rem));
   width: calc(16 * var(--px-in-rem));
-}
-.Tile_text {
-  width: var(--icon-width);
-  text-align: center;
-  font-size: calc(10 * var(--px-in-rem));
-  line-height: calc(13 * var(--px-in-rem));
-  font-weight: 400;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  overflow-wrap: anywhere;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-}
-.Tile_placeholder {
-  background-color: transparent;
-  border: 1.5px dashed var(--color-black-at-9);
-}
-[data-theme=dark] .Tile_placeholder {
-  border-color: var(--color-white-at-9);
-}
-.Tile_plus {
-  outline: none;
-  border: none;
-  color: var(--color-black-at-90);
-}
-[data-theme=dark] .Tile_plus {
-  color: var(--color-white-at-85);
-}
-.Tile_plus:focus-visible {
-  box-shadow: var(--focus-ring);
-}
-.Tile_dropper {
-  width: 2px;
-  height: 4rem;
-  position: absolute;
-  top: 0;
-  background-color: var(--color-black-at-12);
-}
-[data-theme=dark] .Tile_dropper {
-  background-color: var(--color-white-at-12);
-}
-.Tile_dropper[data-edge=left] {
-  left: -1px;
-}
-.Tile_dropper[data-edge=right] {
-  right: -1px;
-}
-[data-item-state=idle]:hover {
-  border-color: #FFF;
-}
-[data-item-state=dragging] {
-  opacity: 0.4;
 }
 
 /* pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css */
@@ -1640,6 +1518,134 @@ body[data-animate-background=true] {
   position: absolute;
 }
 
+/* pages/new-tab/app/favorites/components/Tile.module.css */
+.Tile_item {
+  --icon-width: 4rem;
+  display: block;
+  position: relative;
+  text-decoration: none;
+  color: currentColor;
+  outline: none;
+  padding-left: var(--sp-3);
+  padding-right: var(--sp-3);
+  height: 96px;
+}
+.Tile_item:focus-visible .Tile_icon {
+  box-shadow: var(--focus-ring);
+}
+@keyframes Tile_pulse {
+  0% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.2;
+  }
+  100% {
+    scale: 1;
+  }
+}
+.Tile_icon {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  width: var(--icon-width);
+  height: var(--icon-width);
+  margin-bottom: 6px;
+  border-radius: var(--border-radius-lg);
+}
+.Tile_preview {
+  color: var(--ntp-text-normal);
+  transform: scale(0.8);
+}
+.Tile_preview img {
+  opacity: 0.8;
+}
+.Tile_draggable {
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+  background: var(--ntp-surface-background-color);
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12), 0px 0px 3px 0px rgba(0, 0, 0, 0.16);
+  transition: transform .2s;
+}
+.Tile_draggable:hover {
+  transform: scale(1.08);
+}
+[data-theme=dark] .Tile_draggable:hover {
+  background: rgba(0, 0, 0, 0.24);
+}
+[data-background-kind=userImage] .Tile_draggable {
+  border: 1px solid var(--color-black-at-9);
+  background: var(--color-white-at-30);
+}
+[data-background-kind=userImage] .Tile_draggable:hover {
+  background: var(--color-white-at-18);
+}
+[data-theme=dark] [data-background-kind=userImage] .Tile_draggable {
+  border: 1px solid var(--color-white-at-9);
+  background: var(--color-black-at-18);
+}
+[data-theme=dark] [data-background-kind=userImage] .Tile_draggable:hover {
+  background: rgba(0, 0, 0, 0.24);
+}
+.Tile_draggable:active {
+  transform: scale(0.95);
+  opacity: .75;
+}
+.Tile_text {
+  width: var(--icon-width);
+  text-align: center;
+  font-size: calc(10 * var(--px-in-rem));
+  line-height: calc(13 * var(--px-in-rem));
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+.Tile_placeholder {
+  background-color: transparent;
+  border: 1.5px dashed var(--color-black-at-9);
+}
+[data-theme=dark] .Tile_placeholder {
+  border-color: var(--color-white-at-9);
+}
+.Tile_plus {
+  outline: none;
+  border: none;
+  color: var(--color-black-at-90);
+}
+[data-theme=dark] .Tile_plus {
+  color: var(--color-white-at-85);
+}
+.Tile_plus:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+.Tile_dropper {
+  width: 2px;
+  height: 4rem;
+  position: absolute;
+  top: 0;
+  background-color: var(--color-black-at-12);
+}
+[data-theme=dark] .Tile_dropper {
+  background-color: var(--color-white-at-12);
+}
+.Tile_dropper[data-edge=left] {
+  left: -1px;
+}
+.Tile_dropper[data-edge=right] {
+  right: -1px;
+}
+[data-item-state=idle]:hover {
+  border-color: #FFF;
+}
+[data-item-state=dragging] {
+  opacity: 0.4;
+}
+
 /* shared/components/Button/Button.module.css */
 .Button_button {
   -webkit-appearance: none;
@@ -1786,7 +1792,8 @@ body:not([data-platform-name]) .Button_button:active {
   --button-opacity--disabled: 0.4;
   --button-shadow--focus: var(--macos-control-focused-shadow);
 }
-[data-platform-name=macos] .Button_button:is(.Button_accent, .Button_accentBrand) {
+[data-platform-name=macos] .Button_button.Button_accent,
+[data-platform-name=macos] .Button_button.Button_accentBrand {
   --button-bg: var(--macos-control-accent-branded-background-rest);
   --button-text: var(--color-white);
   --button-shadow: var(--macos-control-accent-shadow);

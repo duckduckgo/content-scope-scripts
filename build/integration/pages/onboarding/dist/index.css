@@ -1157,11 +1157,13 @@ h2 {
 .ComparisonTable_rowCell {
   text-align: center;
 }
-.ComparisonTable_row:not(:last-child) :is(.ComparisonTable_rowHeading, .ComparisonTable_rowCell) {
+.ComparisonTable_row:not(:last-child) .ComparisonTable_rowHeading,
+.ComparisonTable_row:not(:last-child) .ComparisonTable_rowCell {
   border-bottom: 1px solid rgba(0, 0, 0, 0.09);
 }
 @media (prefers-color-scheme: dark) {
-  .ComparisonTable_row:not(:last-child) :is(.ComparisonTable_rowHeading, .ComparisonTable_rowCell) {
+  .ComparisonTable_row:not(:last-child) .ComparisonTable_rowHeading,
+  .ComparisonTable_row:not(:last-child) .ComparisonTable_rowCell {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
 }

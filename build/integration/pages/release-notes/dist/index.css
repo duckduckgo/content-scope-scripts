@@ -310,7 +310,8 @@ body:not([data-platform-name]) .Button_button:active {
   --button-opacity--disabled: 0.4;
   --button-shadow--focus: var(--macos-control-focused-shadow);
 }
-[data-platform-name=macos] .Button_button:is(.Button_accent, .Button_accentBrand) {
+[data-platform-name=macos] .Button_button.Button_accent,
+[data-platform-name=macos] .Button_button.Button_accentBrand {
   --button-bg: var(--macos-control-accent-branded-background-rest);
   --button-text: var(--color-white);
   --button-shadow: var(--macos-control-accent-shadow);
@@ -434,10 +435,12 @@ body:not([data-platform-name]) .Button_button:active {
 }
 
 /* pages/release-notes/app/components/ContentPlaceholder.module.css */
-.ContentPlaceholder_contentPlaceholder :is(h2, p) {
+.ContentPlaceholder_contentPlaceholder h2,
+.ContentPlaceholder_contentPlaceholder p {
   background: var(--color-black-at-6);
 }
-[data-theme=dark] .ContentPlaceholder_contentPlaceholder :is(h2, p) {
+[data-theme=dark] .ContentPlaceholder_contentPlaceholder h2,
+[data-theme=dark] .ContentPlaceholder_contentPlaceholder p {
   background: var(--color-white-at-6);
 }
 .ContentPlaceholder_contentPlaceholder h2 {

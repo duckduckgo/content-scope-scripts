@@ -3387,41 +3387,20 @@
     }
   });
 
-  // pages/new-tab/app/favorites/constants.js
-  var DDG_MIME_TYPE, DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK, DDG_DEFAULT_ICON_SIZE;
-  var init_constants2 = __esm({
-    "pages/new-tab/app/favorites/constants.js"() {
-      "use strict";
-      DDG_MIME_TYPE = "application/vnd.duckduckgo.bookmark-by-id";
-      DDG_FALLBACK_ICON = "./company-icons/other.svg";
-      DDG_FALLBACK_ICON_DARK = "./company-icons/other-dark.svg";
-      DDG_DEFAULT_ICON_SIZE = 64;
-    }
-  });
-
-  // pages/new-tab/app/favorites/components/Tile.module.css
-  var Tile_default;
-  var init_Tile = __esm({
-    "pages/new-tab/app/favorites/components/Tile.module.css"() {
-      Tile_default = {
-        item: "Tile_item",
-        icon: "Tile_icon",
-        pulse: "Tile_pulse",
-        preview: "Tile_preview",
-        draggable: "Tile_draggable",
-        favicon: "Tile_favicon",
-        faviconLarge: "Tile_faviconLarge",
-        faviconSmall: "Tile_faviconSmall",
-        faviconText: "Tile_faviconText",
-        text: "Tile_text",
-        placeholder: "Tile_placeholder",
-        plus: "Tile_plus",
-        dropper: "Tile_dropper"
+  // shared/components/FaviconWithState.module.css
+  var FaviconWithState_default;
+  var init_FaviconWithState = __esm({
+    "shared/components/FaviconWithState.module.css"() {
+      FaviconWithState_default = {
+        favicon: "FaviconWithState_favicon",
+        faviconLarge: "FaviconWithState_faviconLarge",
+        faviconSmall: "FaviconWithState_faviconSmall",
+        faviconText: "FaviconWithState_faviconText"
       };
     }
   });
 
-  // pages/new-tab/app/favorites/getColorForString.js
+  // shared/getColorForString.js
   function getArrayIndex(str, arrayLength) {
     const utf8Encoder = new TextEncoder();
     const bytes = utf8Encoder.encode(str);
@@ -3445,7 +3424,7 @@
   }
   var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES, urlToColorCache;
   var init_getColorForString = __esm({
-    "pages/new-tab/app/favorites/getColorForString.js"() {
+    "shared/getColorForString.js"() {
       "use strict";
       EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES = [
         "#94B3AF",
@@ -3469,10 +3448,10 @@
     }
   });
 
-  // pages/new-tab/app/components/ImageWithState.js
-  function ImageWithState({ faviconSrc, faviconMax, title, etldPlusOne, theme, displayKind }) {
-    const size = Math.min(faviconMax, DDG_DEFAULT_ICON_SIZE);
-    const sizeClass = displayKind === "favorite-tile" ? Tile_default.faviconLarge : Tile_default.faviconSmall;
+  // shared/components/FaviconWithState.js
+  function FaviconWithState({ defaultSize = 64, fallback, fallbackDark, faviconSrc, faviconMax, etldPlusOne, theme, displayKind }) {
+    const size = Math.min(faviconMax, defaultSize);
+    const sizeClass = displayKind === "favorite-tile" ? FaviconWithState_default.faviconLarge : FaviconWithState_default.faviconSmall;
     const imgsrc = faviconSrc ? faviconSrc + "?preferredSize=" + size : null;
     const initialState = (() => {
       if (imgsrc) return states2.loading_favicon_src;
@@ -3497,7 +3476,7 @@
           "img",
           {
             src: imgsrc,
-            class: (0, import_classnames3.default)(Tile_default.favicon, sizeClass),
+            class: (0, import_classnames3.default)(FaviconWithState_default.favicon, sizeClass),
             alt: "",
             "data-state": state,
             onLoad: () => setState(states2.did_load_favicon_src),
@@ -3527,7 +3506,7 @@
           style = { background: fallbackColor };
         }
         const chars = etldPlusOne.slice(0, 2);
-        return /* @__PURE__ */ g("div", { class: (0, import_classnames3.default)(Tile_default.favicon, sizeClass, Tile_default.faviconText), style, "data-state": state }, /* @__PURE__ */ g("span", { "aria-hidden": true }, chars[0]), /* @__PURE__ */ g("span", { "aria-hidden": true }, chars[1]));
+        return /* @__PURE__ */ g("div", { class: (0, import_classnames3.default)(FaviconWithState_default.favicon, sizeClass, FaviconWithState_default.faviconText), style, "data-state": state }, /* @__PURE__ */ g("span", { "aria-hidden": true }, chars[0]), /* @__PURE__ */ g("span", { "aria-hidden": true }, chars[1]));
       }
       /**
        * If we get here, we couldn't load the favicon source OR the fallback text
@@ -3538,8 +3517,8 @@
         return /* @__PURE__ */ g(
           "img",
           {
-            src: theme === "light" ? DDG_FALLBACK_ICON : DDG_FALLBACK_ICON_DARK,
-            class: (0, import_classnames3.default)(Tile_default.favicon, sizeClass),
+            src: theme === "light" ? fallback : fallbackDark,
+            class: (0, import_classnames3.default)(FaviconWithState_default.favicon, sizeClass),
             alt: "",
             "data-state": state,
             onLoad: () => setState(states2.did_load_fallback_img),
@@ -3552,15 +3531,14 @@
     }
   }
   var import_classnames3, states2;
-  var init_ImageWithState = __esm({
-    "pages/new-tab/app/components/ImageWithState.js"() {
+  var init_FaviconWithState2 = __esm({
+    "shared/components/FaviconWithState.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      init_constants2();
-      init_Tile();
-      init_getColorForString();
       import_classnames3 = __toESM(require_classnames(), 1);
+      init_FaviconWithState();
+      init_getColorForString();
       states2 = /** @type {Record<ImgState, ImgState>} */
       {
         loading_favicon_src: "loading_favicon_src",
@@ -3575,7 +3553,7 @@
 
   // pages/new-tab/app/activity/constants.js
   var ACTION_ADD_FAVORITE, ACTION_REMOVE_FAVORITE, ACTION_REMOVE;
-  var init_constants3 = __esm({
+  var init_constants2 = __esm({
     "pages/new-tab/app/activity/constants.js"() {
       "use strict";
       ACTION_ADD_FAVORITE = "add-favorite";
@@ -3628,6 +3606,18 @@
     "pages/new-tab/app/components/icons/Fire.js"() {
       "use strict";
       init_preact_module();
+    }
+  });
+
+  // pages/new-tab/app/favorites/constants.js
+  var DDG_MIME_TYPE, DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK, DDG_DEFAULT_ICON_SIZE;
+  var init_constants3 = __esm({
+    "pages/new-tab/app/favorites/constants.js"() {
+      "use strict";
+      DDG_MIME_TYPE = "application/vnd.duckduckgo.bookmark-by-id";
+      DDG_FALLBACK_ICON = "./company-icons/other.svg";
+      DDG_FALLBACK_ICON_DARK = "./company-icons/other-dark.svg";
+      DDG_DEFAULT_ICON_SIZE = 64;
     }
   });
 
@@ -4065,9 +4055,9 @@
       init_hooks_module();
       init_utils2();
       init_settings_provider();
-      init_constants3();
-      init_signals_module();
       init_constants2();
+      init_signals_module();
+      init_constants3();
       init_ActivityProvider();
       init_ActivityInteractionsContext();
       init_BurnProvider();
@@ -4125,8 +4115,8 @@
       init_types();
       import_classnames4 = __toESM(require_classnames(), 1);
       init_Activity();
-      init_ImageWithState();
-      init_constants3();
+      init_FaviconWithState2();
+      init_constants2();
       init_Star();
       init_Fire();
       init_Icons2();
@@ -4135,6 +4125,7 @@
       init_signals_module();
       init_NormalizeDataProvider();
       init_BurnProvider();
+      init_constants3();
       ActivityItem = M2(
         /**
          * @param {object} props
@@ -4149,15 +4140,16 @@
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url5, favoriteSrc, faviconMax, etldPlusOne, children }) {
           return /* @__PURE__ */ g("li", { key: url5, class: (0, import_classnames4.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ g("div", { class: Activity_default.heading }, /* @__PURE__ */ g("a", { class: Activity_default.title, href: url5, "data-url": url5 }, /* @__PURE__ */ g("span", { className: Activity_default.favicon, "data-url": url5 }, documentVisibility === "visible" && /* @__PURE__ */ g(
-            ImageWithState,
+            FaviconWithState,
             {
               faviconSrc: favoriteSrc,
               faviconMax,
-              title,
               etldPlusOne,
               theme: "light",
               displayKind: "history-favicon",
-              key: `${favoriteSrc}:${faviconMax}`
+              key: `${favoriteSrc}:${faviconMax}`,
+              fallback: DDG_FALLBACK_ICON,
+              fallbackDark: DDG_FALLBACK_ICON_DARK
             }
           )), title), /* @__PURE__ */ g(Controls, { canBurn, url: url5, title })), /* @__PURE__ */ g("div", { class: Activity_default.body }, children));
         }
@@ -23927,7 +23919,7 @@
       init_adapter2();
       init_combine2();
       init_html2();
-      init_constants2();
+      init_constants3();
       init_set_custom_native_drag_preview2();
       init_center_under_pointer2();
       InstanceIdContext = J(getInstanceId());
@@ -24030,6 +24022,24 @@
     }
   });
 
+  // pages/new-tab/app/favorites/components/Tile.module.css
+  var Tile_default;
+  var init_Tile = __esm({
+    "pages/new-tab/app/favorites/components/Tile.module.css"() {
+      Tile_default = {
+        item: "Tile_item",
+        icon: "Tile_icon",
+        pulse: "Tile_pulse",
+        preview: "Tile_preview",
+        draggable: "Tile_draggable",
+        text: "Tile_text",
+        placeholder: "Tile_placeholder",
+        plus: "Tile_plus",
+        dropper: "Tile_dropper"
+      };
+    }
+  });
+
   // pages/new-tab/app/favorites/components/Tile.js
   function Placeholder() {
     const id = g2();
@@ -24054,11 +24064,11 @@
       init_hooks_module();
       init_compat_module();
       init_Tile();
-      init_constants2();
+      init_constants3();
       init_PragmaticDND();
       init_types();
       init_Icons2();
-      init_ImageWithState();
+      init_FaviconWithState2();
       Tile = M2(
         /**
          * @param {object} props
@@ -24094,14 +24104,15 @@
               ref
             },
             /* @__PURE__ */ g("div", { class: (0, import_classnames8.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ g(
-              ImageWithState,
+              FaviconWithState,
               {
                 faviconSrc,
                 faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE,
-                title,
                 theme,
                 etldPlusOne,
-                displayKind: "favorite-tile"
+                displayKind: "favorite-tile",
+                fallback: DDG_FALLBACK_ICON,
+                fallbackDark: DDG_FALLBACK_ICON_DARK
               }
             )),
             /* @__PURE__ */ g("div", { class: Tile_default.text, id: tileId }, title),

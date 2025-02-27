@@ -402,7 +402,8 @@ body:not([data-platform-name]) .Button_button:active {
   --button-opacity--disabled: 0.4;
   --button-shadow--focus: var(--macos-control-focused-shadow);
 }
-[data-platform-name=macos] .Button_button:is(.Button_accent, .Button_accentBrand) {
+[data-platform-name=macos] .Button_button.Button_accent,
+[data-platform-name=macos] .Button_button.Button_accentBrand {
   --button-bg: var(--macos-control-accent-branded-background-rest);
   --button-text: var(--color-white);
   --button-shadow: var(--macos-control-accent-shadow);
@@ -574,7 +575,8 @@ body:not([data-platform-name]) .Button_button:active {
   margin-left: calc(-1 * var(--sp-2));
   margin-top: calc(-1 * var(--sp-2));
 }
-[data-platform-name=macos] :is(.Warning_phishing .Warning_icon, .Warning_malware .Warning_icon) {
+[data-platform-name=macos] .Warning_phishing .Warning_icon,
+[data-platform-name=macos] .Warning_malware .Warning_icon {
   background-image: url("./Malware-Site-96-A35AQOKY.svg");
   margin-left: calc(-1 * var(--sp-2));
   margin-right: calc(-1 * var(--sp-1));
@@ -617,7 +619,8 @@ body:not([data-platform-name]) .Button_button:active {
 [data-platform-name=ios] .Warning_ssl .Warning_icon {
   background-image: url("./Shield-Alert-128-NGB6TVH6.svg");
 }
-[data-platform-name=ios] :is(.Warning_phishing .Warning_icon, .Warning_malware .Warning_icon) {
+[data-platform-name=ios] .Warning_phishing .Warning_icon,
+[data-platform-name=ios] .Warning_malware .Warning_icon {
   background-image: url("./Malware-Site-128-YUDZDGMR.svg");
 }
 [data-platform-name=ios] .Warning_title {
@@ -654,7 +657,8 @@ body:not([data-platform-name]) .Button_button:active {
   margin-left: calc(-1 * var(--sp-2));
   margin-top: calc(-1 * var(--sp-2));
 }
-[data-platform-name=windows] :is(.Warning_phishing .Warning_icon, .Warning_malware .Warning_icon) {
+[data-platform-name=windows] .Warning_phishing .Warning_icon,
+[data-platform-name=windows] .Warning_malware .Warning_icon {
   background-image: url("./Malware-Site-96-A35AQOKY.svg");
   margin-left: calc(-1 * var(--sp-2));
   margin-right: calc(-1 * var(--sp-1));

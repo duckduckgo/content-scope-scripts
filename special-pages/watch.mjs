@@ -48,11 +48,13 @@ writeTimestamp();
     });
 
     const ctx = await esbuild.context(opts);
-    const { host, port } = await ctx.serve({
+    const { hosts, port } = await ctx.serve({
         servedir: publicDir,
     });
     await ctx.watch({});
-    console.log(`serving '${relative(CWD, publicDir)}' at http://${host}:${port}`);
+    for (const host of hosts) {
+        console.log(`serving '${relative(CWD, publicDir)}' at http://${host}:${port}`);
+    }
 }
 
 // also watch things outside of esbuild, like translations/types
