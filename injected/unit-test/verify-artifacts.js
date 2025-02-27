@@ -9,7 +9,6 @@ const BUILD = join(ROOT, 'build');
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
 console.log(APPLE_BUILD);
 let CSS_OUTPUT_SIZE = 760_000;
-const CSS_OUTPUT_SIZE_CHROME = CSS_OUTPUT_SIZE * 1.45; // 45% larger for Chrome MV2 due to base64 encoding
 if (process.platform === 'win32') {
     CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1; // 10% larger for Windows due to line endings
 }
@@ -18,13 +17,6 @@ const checks = {
     android: {
         file: join(BUILD, 'android/contentScope.js'),
         tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
-    },
-    chrome: {
-        file: join(BUILD, 'chrome/inject.js'),
-        tests: [
-            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE_CHROME },
-            { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true },
-        ],
     },
     'chrome-mv3': {
         file: join(BUILD, 'chrome-mv3/inject.js'),
