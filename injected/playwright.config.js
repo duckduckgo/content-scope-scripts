@@ -93,7 +93,7 @@ export default defineConfig({
     webServer: {
         reuseExistingServer: true,
         ignoreHTTPSErrors: true,
-        command: 'npm run serve',
+        command: 'npm run bundle-entry-points && npm run serve',
         port: 3220,
     },
     use: {
