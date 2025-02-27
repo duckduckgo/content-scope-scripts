@@ -1,4 +1,4 @@
-import { bundle } from './utils/build.js'
+import { bundle } from './utils/build.js';
 import { parseArgs, write } from '../../scripts/script-utils.js';
 
 /**
@@ -59,31 +59,31 @@ const builds = {
     },
 };
 
-async function init () {
+async function init() {
     // verify the input
-    const requiredFields = []
-    const args = parseArgs(process.argv.slice(2), requiredFields)
+    const requiredFields = [];
+    const args = parseArgs(process.argv.slice(2), requiredFields);
 
     // if a platform was given as an argument, just build that platform
     if (args.platform) {
-        const build = builds[args.platform]
+        const build = builds[args.platform];
         if (!build) {
-            throw new Error('unsupported platform: ' + args.platform)
+            throw new Error('unsupported platform: ' + args.platform);
         }
-        const output = await bundle({ scriptPath: build.input, platform: args.platform })
+        const output = await bundle({ scriptPath: build.input, platform: args.platform });
 
         // bundle and write the output
-        write([build.output], output)
+        write([build.output], output);
 
-        return
+        return;
     }
 
     // otherwise, just build them all
     for (const [injectName, build] of Object.entries(builds)) {
-        const output = await bundle({ scriptPath: build.input, platform: injectName })
-        write(build.output, output)
+        const output = await bundle({ scriptPath: build.input, platform: injectName });
+        write(build.output, output);
         console.log('✅', injectName, build.output[0]);
     }
 }
 
-init()
+init();

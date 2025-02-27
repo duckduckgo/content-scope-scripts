@@ -3,7 +3,7 @@
  */
 import { isTrackerOrigin } from '../src/trackers';
 import { computeLimitedSiteObject } from '../src/utils';
-import contentScopeFeatures from 'ddg:contentScopeFeatures'
+import contentScopeFeatures from 'ddg:contentScopeFeatures';
 
 /**
  * Inject all the overwrites into the page.
@@ -49,7 +49,9 @@ function init() {
     const reusableMethodName = '_rm' + randomString();
     const reusableSecret = '_r' + randomString();
     const siteObject = computeLimitedSiteObject();
-    const initialScript = contentScopeFeatures + `
+    const initialScript =
+        contentScopeFeatures +
+        `
       /* global contentScopeFeatures */
       contentScopeFeatures.load({
           platform: {

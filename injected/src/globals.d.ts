@@ -48,6 +48,6 @@ declare module 'ddg:platformFeatures' {
     export default output;
 }
 declare module 'ddg:contentScopeFeatures' {
-    const output: string
+    const output: string;
     export default output;
 }
