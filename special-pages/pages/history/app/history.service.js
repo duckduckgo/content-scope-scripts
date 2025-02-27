@@ -150,7 +150,7 @@ export class HistoryService {
      * @param {HistoryQuery} query
      */
     queryFetcher(query) {
-        console.log('🦻 [query]', query.query, 'offset:', query.offset, 'limit:', query.limit);
+        console.log(`🦻 [query] ${JSON.stringify(query.query)} offset: ${query.offset}, limit: ${query.limit}`);
         // eslint-disable-next-line promise/prefer-await-to-then
         return this.history.messaging.request('query', query).then((resp) => {
             return { info: resp.info, results: resp.value, lastQueryParams: query };
