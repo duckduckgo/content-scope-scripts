@@ -3,16 +3,10 @@
   "scripts": {
     "postinstall": "npm run copy-sjcl",
     "copy-sjcl": "node scripts/generateSJCL.js",
+    "build": "npm run build-types && npm run build-locales && npm run bundle-trackers && npm run bundle-entry-points",
     "bundle-config": "node scripts/bundleConfig.mjs",
-    "build": "npm run build-types && npm run build-locales && npm run bundle-trackers && npm run build-firefox && npm run build-chrome && npm run build-apple && npm run build-android && npm run build-windows && npm run build-integration && npm run build-chrome-mv3",
+    "bundle-entry-points": "node scripts/entry-points.js",
     "build-locales": "node scripts/buildLocales.js",
-    "build-firefox": "node scripts/entry-points.js --platform firefox",
-    "build-chrome": "node scripts/entry-points.js --platform chrome",
-    "build-chrome-mv3": "node scripts/entry-points.js --platform chrome-mv3",
-    "build-apple": "node scripts/entry-points.js --platform apple && node scripts/entry-points.js --platform apple-isolated",
-    "build-android": "node scripts/entry-points.js --platform android && node scripts/entry-points.js --platform android-autofill-password-import && node scripts/entry-points.js --platform android-broker-protection",
-    "build-windows": "node scripts/entry-points.js --platform windows",
-    "build-integration": "node scripts/entry-points.js --platform integration",
     "build-types": "node scripts/types.mjs",
     "bundle-trackers": "node scripts/bundleTrackers.mjs --output ../build/tracker-lookup.json",
     "test-unit": "jasmine --config=unit-test/config.json",
@@ -39,18 +33,12 @@
     "@canvas/image-data": "^1.0.0",
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#main",
     "@fingerprintjs/fingerprintjs": "^4.5.1",
-    "@rollup/plugin-commonjs": "^28.0.2",
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-replace": "^6.0.2",
     "@types/chrome": "^0.0.306",
     "@types/jasmine": "^5.1.7",
     "@types/node": "^22.13.5",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "fast-check": "^3.23.2",
     "jasmine": "^5.6.0",
-    "minimist": "^1.2.8",
-    "rollup": "^4.34.8",
-    "rollup-plugin-import-css": "^3.5.8",
-    "rollup-plugin-svg-import": "^3.0.0"
+    "minimist": "^1.2.8"
   }
 }

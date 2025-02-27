@@ -1,9 +1,5 @@
-import { postProcess, rollupScript } from './utils/build.js';
+import { bundle } from './utils/build.js'
 import { parseArgs, write } from '../../scripts/script-utils.js';
-import { camelcase } from '../src/utils.js';
-
-const contentScopePath = 'src/content-scope-features.js';
-const contentScopeName = 'contentScopeFeatures';
 
 /**
  * @typedef Build
@@ -34,11 +30,11 @@ const builds = {
         output: ['../build/android/contentScope.js'],
     },
     'android-broker-protection': {
-        input: 'entry-points/android',
+        input: 'entry-points/android.js',
         output: ['../build/android/brokerProtection.js'],
     },
     'android-autofill-password-import': {
-        input: 'entry-points/android',
+        input: 'entry-points/android.js',
         output: ['../build/android/autofillPasswordImport.js'],
     },
     windows: {
@@ -63,59 +59,31 @@ const builds = {
     },
 };
 
-async function initOther(injectScriptPath, platformName) {
-    const identName = `inject${camelcase(platformName)}`;
-    const injectScript = await rollupScript({
-        scriptPath: injectScriptPath,
-        name: identName,
-        platform: platformName,
-    });
-    const outputScript = injectScript;
-    return outputScript;
-}
-
-/**
- * @param {string} entry
- * @param {string} platformName
- */
-async function initChrome(entry, platformName) {
-    const replaceString = '/* global contentScopeFeatures */';
-    const injectScript = await rollupScript({ scriptPath: entry, platform: platformName });
-    const contentScope = await rollupScript({
-        scriptPath: contentScopePath,
-        name: contentScopeName,
-        platform: platformName,
-    });
-    // Encode in URI format to prevent breakage (we could choose to just escape ` instead)
-    // NB: .replace(/\r\n/g, "\n") is needed because in Windows rollup generates CRLF line endings
-    const encodedString = encodeURI(contentScope.toString().replace(/\r\n/g, '\n'));
-    const outputScript = injectScript.toString().replace(replaceString, '${decodeURI("' + encodedString + '")}');
-    return outputScript;
-}
-
-async function init() {
+async function init () {
     // verify the input
-    const requiredFields = ['platform'];
-    const args = parseArgs(process.argv.slice(2), requiredFields);
-    const build = builds[args.platform];
+    const requiredFields = []
+    const args = parseArgs(process.argv.slice(2), requiredFields)
 
-    if (!build) {
-        throw new Error('unsupported platform: ' + args.platform);
-    }
-
-    let output;
-    if (args.platform === 'chrome') {
-        output = await initChrome(build.input, args.platform);
-    } else {
-        output = await initOther(build.input, args.platform);
-        if (build.postProcess) {
-            const processResult = await postProcess(output);
-            output = processResult.code;
+    // if a platform was given as an argument, just build that platform
+    if (args.platform) {
+        const build = builds[args.platform]
+        if (!build) {
+            throw new Error('unsupported platform: ' + args.platform)
         }
+        const output = await bundle({ scriptPath: build.input, platform: args.platform })
+
+        // bundle and write the output
+        write([build.output], output)
+
+        return
     }
 
-    // bundle and write the output
-    write([build.output], output);
+    // otherwise, just build them all
+    for (const [injectName, build] of Object.entries(builds)) {
+        const output = await bundle({ scriptPath: build.input, platform: injectName })
+        write(build.output, output)
+        console.log('✅', injectName, build.output[0]);
+    }
 }
 
-init();
+init()
