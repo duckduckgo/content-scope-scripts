@@ -86,6 +86,7 @@
 
     & .content {
         text-align: center;
+        text-wrap: balance;
         white-space: pre-line; /* Preserve line breaks on all screen sizes */
     }
 
