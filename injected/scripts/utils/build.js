@@ -1,30 +1,13 @@
-import * as rollup from 'rollup';
-import * as esbuild from 'esbuild';
-import commonjs from '@rollup/plugin-commonjs';
-import replace from '@rollup/plugin-replace';
-import resolve from '@rollup/plugin-node-resolve';
-import css from 'rollup-plugin-import-css';
-import svg from 'rollup-plugin-svg-import';
 import { platformSupport } from '../../src/features.js';
 import { readFileSync } from 'fs';
+import { cwd } from '../../../scripts/script-utils.js';
+import { join } from 'path';
+import * as esbuild from 'esbuild';
+const ROOT = join(cwd(import.meta.url), '..', '..');
+const DEBUG = false;
 
-function prefixPlugin(prefixMessage) {
-    return {
-        name: 'prefix-plugin',
-        renderChunk(code) {
-            return `${prefixMessage}\n${code}`;
-        },
-    };
-}
-
-function suffixPlugin(suffixMessage) {
-    return {
-        name: 'suffix-plugin',
-        renderChunk(code) {
-            return `${code}\n${suffixMessage}`;
-        },
-    };
-}
+const contentScopePath = 'src/content-scope-features.js';
+const contentScopeName = 'contentScopeFeatures';
 
 const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */';
 
@@ -36,7 +19,7 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https:/
  * @param {string} [params.name]
  * @return {Promise<string>}
  */
-export async function rollupScript(params) {
+export async function bundle(params) {
     const { scriptPath, platform, name, featureNames } = params;
 
     const extensions = ['firefox', 'chrome', 'chrome-mv3'];
@@ -46,45 +29,51 @@ export async function rollupScript(params) {
         const trackerLookupData = readFileSync('../build/tracker-lookup.json', 'utf8');
         trackerLookup = trackerLookupData;
     }
-    const suffixMessage = `/*# sourceURL=duckduckgo-privacy-protection.js?scope=${name} */`;
-    const plugins = [
-        css(),
-        svg({
-            stringify: true,
-        }),
-        loadFeatures(platform, featureNames),
-        resolve(),
-        commonjs(),
-        replace({
-            preventAssignment: true,
-            values: {
-                'import.meta.injectName': JSON.stringify(platform),
-                // To be replaced by the extension, but prevents tree shaking
-                'import.meta.trackerLookup': trackerLookup,
-            },
-        }),
-        prefixPlugin(prefixMessage),
-    ];
+    const suffixMessage = platform === 'firefox' ? `/*# sourceURL=duckduckgo-privacy-protection.js?scope=${name} */` : '';
+    const loadFeaturesPlugin = loadFeatures(platform, featureNames);
+    // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
 
-    if (platform === 'firefox') {
-        plugins.push(suffixPlugin(suffixMessage));
+    /** @type {import("esbuild").BuildOptions} */
+    const buildOptions = {
+        entryPoints: [scriptPath],
+        write: false,
+        outdir: 'build',
+        target: 'es2021',
+        format: 'iife',
+        bundle: true,
+        metafile: true,
+        globalName: name,
+        loader: {
+            '.css': 'text',
+            '.svg': 'text',
+        },
+        define: {
+            'import.meta.env': 'development',
+            'import.meta.injectName': JSON.stringify(platform),
+            'import.meta.trackerLookup': trackerLookup,
+        },
+        plugins: [loadFeaturesPlugin, contentFeaturesAsString(platform)],
+        footer: {
+            js: suffixMessage,
+        },
+        banner: {
+            js: prefixMessage,
+        },
+    };
+
+    const result = await esbuild.build(buildOptions);
+
+    if (result.metafile && DEBUG) {
+        console.log(await esbuild.analyzeMetafile(result.metafile));
     }
 
-    const bundle = await rollup.rollup({
-        input: scriptPath,
-        plugins,
-    });
-
-    const generated = await bundle.generate({
-        dir: 'build',
-        format: 'iife',
-        inlineDynamicImports: true,
-        name,
-        // This if for seedrandom causing build issues
-        globals: { crypto: 'undefined' },
-    });
-
-    return generated.output[0].code;
+    if (result.errors.length === 0 && result.outputFiles) {
+        return result.outputFiles[0].text || '';
+    } else {
+        console.log(result.errors);
+        console.log(result.warnings);
+        throw new Error('could not continue');
+    }
 }
 
 /**
@@ -92,36 +81,82 @@ export async function rollupScript(params) {
  *
  * @param {string} platform
  * @param {string[]} featureNames
+ * @returns {import("esbuild").Plugin}
  */
 function loadFeatures(platform, featureNames = platformSupport[platform]) {
     const pluginId = 'ddg:platformFeatures';
     return {
-        name: pluginId,
-        resolveId(id) {
-            if (id === pluginId) return id;
-            return null;
-        },
-        load(id) {
-            if (id !== pluginId) return null;
-
-            // convert a list of feature names to
-            const imports = featureNames.map((featureName) => {
-                const fileName = getFileName(featureName);
-                const path = `./src/features/${fileName}.js`;
-                const ident = `ddg_feature_${featureName}`;
+        name: 'ddg:platformFeatures',
+        setup(build) {
+            build.onResolve({ filter: new RegExp(pluginId) }, (args) => {
                 return {
-                    ident,
-                    importPath: path,
+                    path: args.path,
+                    namespace: pluginId,
                 };
             });
+            build.onLoad({ filter: /.*/, namespace: pluginId }, () => {
+                // convert a list of feature names to
+                const imports = featureNames.map((featureName) => {
+                    const fileName = getFileName(featureName);
+                    const path = `./src/features/${fileName}.js`;
+                    const ident = `ddg_feature_${featureName}`;
+                    return {
+                        ident,
+                        importPath: path,
+                    };
+                });
 
-            const importString = imports.map((imp) => `import ${imp.ident} from ${JSON.stringify(imp.importPath)}`).join(';\n');
+                const importString = imports.map((imp) => `import ${imp.ident} from ${JSON.stringify(imp.importPath)}`).join(';\n');
 
-            const exportsString = imports.map((imp) => `${imp.ident}`).join(',\n    ');
+                const exportsString = imports.map((imp) => `${imp.ident}`).join(',\n    ');
 
-            const exportString = `export default {\n    ${exportsString}\n}`;
+                const exportString = `export default {\n    ${exportsString}\n}`;
 
-            return [importString, exportString].join('\n');
+                return {
+                    loader: 'js',
+                    resolveDir: ROOT,
+                    contents: [importString, exportString].join('\n'),
+                };
+            });
+        },
+    };
+}
+
+/**
+ * Create a bundle and allow it to be imported as a string via
+ *   `import bundle from 'ddg:contentScopeFeatures'`
+ *
+ * @param {string} platform
+ */
+function contentFeaturesAsString(platform) {
+    const pluginId = 'ddg:contentScopeFeatures';
+    return {
+        /**
+         * Load all platform features based on current
+         */
+        name: pluginId,
+        setup(build) {
+            build.onResolve({ filter: new RegExp(pluginId) }, (args) => {
+                return {
+                    path: args.path,
+                    namespace: pluginId,
+                };
+            });
+            build.onLoad({ filter: /.*/, namespace: pluginId }, async () => {
+                const result = await bundle({
+                    scriptPath: contentScopePath,
+                    name: contentScopeName,
+                    platform,
+                });
+
+                const encodedString = result.replace(/\r\n/g, '\n');
+
+                return {
+                    loader: 'text',
+                    resolveDir: ROOT,
+                    contents: encodedString,
+                };
+            });
         },
     };
 }
@@ -134,19 +169,4 @@ function loadFeatures(platform, featureNames = platformSupport[platform]) {
  */
 function getFileName(featureName) {
     return featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase();
-}
-
-/**
- * Apply additional processing to a bundle. This was
- * added to solve an issue where certain syntax caused
- * parsing to fail in macOS Catalina.
- *
- * `target: "es2021"` seems to be a 'low enough' target - it's also what's
- * used in Autoconsent too.
- *
- * @param {string} content
- * @return {Promise<import('esbuild').TransformResult>}
- */
-export function postProcess(content) {
-    return esbuild.transform(content, { target: 'es2021', format: 'iife' });
 }
