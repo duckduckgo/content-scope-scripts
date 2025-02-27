@@ -17,11 +17,11 @@
     "playwright": "playwright test --grep-invert '@screenshots'",
     "playwright-screenshots": "playwright test --grep '@screenshots'",
     "playwright-headed": "playwright test --headed",
-    "preplaywright": "npm run build-windows && npm run build-apple && npm run build-android",
-    "preplaywright-headed": "npm run build-windows && npm run build-apple && npm run build-android",
+    "preplaywright": "npm run bundle-entry-points",
+    "preplaywright-headed": "npm run bundle-entry-points",
     "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
     "playwright-e2e-headed": "npm run playwright-e2e -- --headed",
-    "preplaywright-e2e": "npm run build-windows && npm run build-apple"
+    "preplaywright-e2e": "npm run bundle-entry-points"
   },
   "type": "module",
   "dependencies": {
