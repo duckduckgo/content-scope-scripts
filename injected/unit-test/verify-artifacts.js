@@ -19,7 +19,7 @@ const checks = {
         file: join(BUILD, 'android/contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'define_import_meta_trackerLookup_default', includes: true }
+            { kind: 'containsString', text: 'define_import_meta_trackerLookup_default', includes: true },
         ],
     },
     chrome: {
@@ -51,7 +51,7 @@ const checks = {
         file: join(BUILD, 'windows/contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'define_import_meta_trackerLookup_default', includes: true }
+            { kind: 'containsString', text: 'define_import_meta_trackerLookup_default', includes: true },
         ],
     },
     apple: {

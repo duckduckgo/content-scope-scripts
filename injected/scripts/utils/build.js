@@ -41,7 +41,7 @@ export async function bundle(params) {
         target: 'safari15',
         format: 'iife',
         supported: {
-            "class-private-field": false
+            'class-private-field': false,
         },
         bundle: true,
         metafile: true,
