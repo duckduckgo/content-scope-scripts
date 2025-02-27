@@ -39,7 +39,10 @@ export async function bundle(params) {
         write: false,
         outdir: 'build',
         target: 'safari15',
-        logOverride: { 'unsupported-css-nesting': 'silent' },
+        format: 'iife',
+        supported: {
+            "class-private-field": false
+        },
         bundle: true,
         metafile: true,
         globalName: name,
