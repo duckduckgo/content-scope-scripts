@@ -40,9 +40,6 @@ export async function bundle(params) {
         outdir: 'build',
         target: 'es2021',
         format: 'iife',
-        supported: {
-            'class-private-field': false,
-        },
         bundle: true,
         metafile: true,
         globalName: name,
