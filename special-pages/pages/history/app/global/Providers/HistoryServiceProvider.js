@@ -1,0 +1,170 @@
+import { createContext, h } from 'preact';
+import { paramsToQuery, toRange } from '../../history.service.js';
+import { useCallback, useContext } from 'preact/hooks';
+import { useQueryDispatch } from './QueryProvider.js';
+import { signal, useSignal, useSignalEffect } from '@preact/signals';
+import { generateHeights } from '../../utils.js';
+
+/**
+ * @typedef {{kind: 'search-commit', params: URLSearchParams}
+ * | {kind: 'delete-range'; value: string }
+ * | {kind: 'delete-all'; }
+ * | {kind: 'delete-term'; term: string }
+ * | {kind: 'delete-domain'; domain: string }
+ * | {kind: 'delete-entries-by-index'; value: number[] }
+ * | {kind: 'open-url'; url: string, target: 'new-tab' | 'new-window' | 'same-tab' }
+ * | {kind: 'show-entries-menu'; ids: string[]; indexes: number[] }
+ * | {kind: 'request-more'; end: number }
+ * } Action
+ */
+
+/**
+ * @param {Action} action
+ */
+function defaultDispatch(action) {
+    console.log('would dispatch', action);
+}
+const HistoryServiceDispatchContext = createContext(defaultDispatch);
+
+/**
+ * @typedef {object} Results
+ * @property {import('../../../types/history.ts').HistoryItem[]} items
+ * @property {number[]} heights
+ */
+/**
+ * @typedef {import('../../../types/history.ts').Range} Range
+ * @import { ReadonlySignal } from '@preact/signals'
+ */
+
+const ResultsContext = createContext(/** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [] })));
+const RangesContext = createContext(/** @type {ReadonlySignal<Range[]>} */ (signal([])));
+
+/**
+ * Provides a context for the history service, allowing dependent components to access it.
+ * Everything that interacts with the service should be registered here
+ *
+ * @param {Object} props
+ * @param {import("../../history.service.js").HistoryService} props.service
+ * @param {import('../../history.service.js').InitialServiceData} props.initial - The initial state data for the history service.
+ * @param {import("preact").ComponentChild} props.children
+ */
+export function HistoryServiceProvider({ service, children, initial }) {
+    const queryDispatch = useQueryDispatch();
+    const ranges = useSignal(initial.ranges.ranges);
+    const results = useSignal({
+        items: initial.query.results,
+        heights: generateHeights(initial.query.results),
+    });
+
+    useSignalEffect(() => {
+        const unsub = service.onResults((data) => {
+            results.value = {
+                items: data.results,
+                heights: generateHeights(data.results),
+            };
+        });
+
+        // Subscribe to changes in the 'ranges' data and reflect the updates into the UI
+        const unsubRanges = service.onRanges((data) => {
+            ranges.value = data.ranges;
+        });
+        return () => {
+            unsub();
+            unsubRanges();
+        };
+    });
+
+    /**
+     * @param {Action} action
+     */
+    function dispatch(action) {
+        switch (action.kind) {
+            case 'search-commit': {
+                const asQuery = paramsToQuery(action.params);
+                service.trigger(asQuery);
+                break;
+            }
+            case 'delete-range': {
+                const range = toRange(action.value);
+                if (range) {
+                    service
+                        .deleteRange(range)
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        .then((resp) => {
+                            if (resp.kind === 'range-deleted') {
+                                queryDispatch({ kind: 'reset' });
+                            }
+                        })
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        .catch(console.error);
+                }
+                break;
+            }
+            case 'delete-domain': {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.deleteDomain(action.domain).catch(console.error);
+                break;
+            }
+            case 'delete-entries-by-index': {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.entriesDelete(action.value).catch(console.error);
+                break;
+            }
+            case 'delete-all': {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.deleteRange('all').catch(console.error);
+                break;
+            }
+            case 'delete-term': {
+                // eslint-disable-next-line promise/prefer-await-to-then
+                service.deleteTerm(action.term).catch(console.error);
+                break;
+            }
+            case 'open-url': {
+                service.openUrl(action.url, action.target);
+                break;
+            }
+            case 'show-entries-menu': {
+                service
+                    .entriesMenu(action.ids, action.indexes)
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    .then((resp) => {
+                        if (resp.kind === 'domain-search') {
+                            queryDispatch({ kind: 'search-by-domain', value: resp.value });
+                        }
+                    })
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    .catch(console.error);
+                break;
+            }
+            case 'request-more': {
+                service.requestMore(action.end);
+                break;
+            }
+        }
+    }
+
+    const dispatcher = useCallback(dispatch, [service]);
+
+    return (
+        <HistoryServiceDispatchContext.Provider value={dispatcher}>
+            <RangesContext.Provider value={ranges}>
+                <ResultsContext.Provider value={results}>{children}</ResultsContext.Provider>
+            </RangesContext.Provider>
+        </HistoryServiceDispatchContext.Provider>
+    );
+}
+
+export function useHistoryServiceDispatch() {
+    return useContext(HistoryServiceDispatchContext);
+}
+
+// Hook for consuming the context
+export function useResultsData() {
+    return useContext(ResultsContext);
+}
+
+// Hook for consuming the context
+export function useRangesData() {
+    return useContext(RangesContext);
+}

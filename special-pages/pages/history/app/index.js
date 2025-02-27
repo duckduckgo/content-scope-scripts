@@ -10,11 +10,10 @@ import { callWithRetry } from '../../../shared/call-with-retry.js';
 
 import { MessagingContext, SettingsContext } from './types.js';
 import { HistoryService, paramsToQuery } from './history.service.js';
-import { HistoryServiceProvider } from './global-state/HistoryServiceProvider.js';
+import { HistoryServiceProvider } from './global/Providers/HistoryServiceProvider.js';
 import { Settings } from './Settings.js';
-import { SelectionProvider } from './global-state/SelectionProvider.js';
-import { QueryProvider } from './global-state/QueryProvider.js';
-import { GlobalStateProvider } from './global-state/GlobalStateProvider.js'; // global styles
+import { SelectionProvider } from './global/Providers/SelectionProvider.js';
+import { QueryProvider } from './global/Providers/QueryProvider.js';
 
 /**
  * @param {Element} root
@@ -43,7 +42,8 @@ export async function init(root, messaging, baseEnvironment) {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
-        .withDebounce(baseEnvironment.urlParams.get('debounce'));
+        .withDebounce(baseEnvironment.urlParams.get('debounce'))
+        .withUrlDebounce(baseEnvironment.urlParams.get('urlDebounce'));
 
     console.log('initialSetup', init);
     console.log('environment', environment);
@@ -76,12 +76,10 @@ export async function init(root, messaging, baseEnvironment) {
                     <MessagingContext.Provider value={messaging}>
                         <SettingsContext.Provider value={settings}>
                             <QueryProvider query={query.query}>
-                                <HistoryServiceProvider service={service}>
-                                    <GlobalStateProvider service={service} initial={initial}>
-                                        <SelectionProvider>
-                                            <App />
-                                        </SelectionProvider>
-                                    </GlobalStateProvider>
+                                <HistoryServiceProvider service={service} initial={initial}>
+                                    <SelectionProvider>
+                                        <App />
+                                    </SelectionProvider>
                                 </HistoryServiceProvider>
                             </QueryProvider>
                         </SettingsContext.Provider>
