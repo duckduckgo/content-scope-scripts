@@ -21,7 +21,6 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    border-radius: 5px;
     padding-left: 9px;
     padding-right: 5px;
     position: relative;
@@ -29,6 +28,7 @@
 
 .hover {
     --row-bg: inherit;
+    --row-radius: 5px;
     --row-color: var(--history-text-normal);
     --dots-bg-hover: var(--color-black-at-9);
     --dots-opacity: 0;
@@ -37,6 +37,7 @@
 
     background: var(--row-bg);
     color: var(--row-color);
+    border-radius: var(--row-radius);
 
     &:hover, &:focus-within {
         --dots-opacity: visible;
@@ -62,6 +63,33 @@
     }
 }
 
+/**
+ * The following code handles handles the multi-row selections. It's responsible
+ * for ensuring only the first and last elements in a selection have rounded corners.
+ */
+[data-is-selected='true'] .row {
+    border-radius: 0;
+}
+
+[data-is-selected='true']:first-of-type .row,
+[data-is-selected='true']:not([data-is-selected='true'] + [data-is-selected='true']) .row
+{
+    border-top-left-radius: var(--row-radius);
+    border-top-right-radius: var(--row-radius);
+}
+
+[data-is-selected='true']:last-of-type .row,
+[data-is-selected='true']:not(:has(+ [data-is-selected='true'])) .row
+{
+    border-bottom-left-radius: var(--row-radius);
+    border-bottom-right-radius: var(--row-radius);
+}
+
+.favicon {
+    flex-shrink: 0;
+    min-width: 0;
+}
+
 .entryLink {
     white-space: nowrap;
     font-weight: 510;
@@ -81,6 +109,10 @@
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    @media screen and (min-width: 800px) {
+        flex-shrink: 0;
+    }
 
     &:before {
         content: "- "
@@ -120,12 +152,6 @@
     &:focus-visible {
         opacity: 1;
     }
-}
-
-.titleDots {
-    width: 28px;
-    height: 20px;
-    right: 6px;
 }
 
 .last {
