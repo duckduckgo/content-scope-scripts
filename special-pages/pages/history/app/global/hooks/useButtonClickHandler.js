@@ -1,6 +1,7 @@
 import { useEffect } from 'preact/hooks';
 import { BTN_ACTION_ENTRIES_MENU, KNOWN_ACTIONS } from '../../constants.js';
 import { useHistoryServiceDispatch } from '../Providers/HistoryServiceProvider.js';
+import { useSelected } from '../Providers/SelectionProvider.js';
 
 /**
  * This function registers button click handlers that communicate with the history service.
@@ -11,6 +12,7 @@ import { useHistoryServiceDispatch } from '../Providers/HistoryServiceProvider.j
  */
 export function useButtonClickHandler() {
     const historyServiceDispatch = useHistoryServiceDispatch();
+    const selected = useSelected();
     useEffect(() => {
         function clickHandler(/** @type {MouseEvent} */ event) {
             if (!(event.target instanceof Element)) return;
@@ -30,11 +32,19 @@ export function useButtonClickHandler() {
 
             switch (action) {
                 case BTN_ACTION_ENTRIES_MENU: {
-                    historyServiceDispatch({
-                        kind: 'show-entries-menu',
-                        ids: [btn.value],
-                        indexes: [Number(btn.dataset.index)],
-                    });
+                    const index = parseInt(btn.dataset.index ?? '-1', 10);
+                    const withinSelection = selected.value.has(index);
+                    if (withinSelection) {
+                        historyServiceDispatch({
+                            kind: 'show-entries-menu',
+                            indexes: [...selected.value],
+                        });
+                    } else {
+                        historyServiceDispatch({
+                            kind: 'show-entries-menu',
+                            indexes: [Number(btn.dataset.index)],
+                        });
+                    }
                     return;
                 }
                 default:

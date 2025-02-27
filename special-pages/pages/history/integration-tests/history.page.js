@@ -318,6 +318,27 @@ export class HistoryTestPage {
     }
 
     /**
+     * @param {number} nth - row index to click the 3 dots on
+     * @param {string[]} ids - expected ids
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async menuForMultipleHistoryEntries(nth, ids, resp) {
+        const { page } = this;
+
+        const cleanup = this._withDialogHandling(resp);
+        // console.log(data[0].title);
+        const data = generateSampleData({ count: this.entries, offset: 0 });
+        const nthItem = data[nth];
+        const row = page.getByText(nthItem.title);
+        await row.hover();
+        await page.locator(`[data-action="entries_menu"][value=${nthItem.id}]`).click();
+
+        const calls = await this.mocks.waitForCallCount({ method: 'entries_menu', count: 1 });
+        expect(calls[0].payload.params).toStrictEqual({ ids });
+        cleanup();
+    }
+
+    /**
      * @param {number} nth
      */
     async selectsRowIndex(nth) {
@@ -520,5 +541,13 @@ export class HistoryTestPage {
 
     async submitSearchForm() {
         await this.page.getByRole('searchbox', { name: 'Search your history' }).press('Enter');
+    }
+
+    async clicksOutsideOfRows() {
+        await this.page.getByRole('main').click({ position: { x: 0, y: 0 } });
+    }
+
+    async selectedRowCountIs(number) {
+        await expect(this.main().locator('[aria-selected="true"]')).toHaveCount(number);
     }
 }

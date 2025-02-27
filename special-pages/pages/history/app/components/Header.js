@@ -84,7 +84,7 @@ function Controls({ term, range, domain }) {
 
     return (
         <div class={styles.controls}>
-            <button class={styles.largeButton} onClick={onClick} aria-disabled={ariaDisabled} title={title}>
+            <button class={styles.largeButton} onClick={onClick} aria-disabled={ariaDisabled} title={title} tabindex={0}>
                 <Trash />
                 <span>{buttonTxt}</span>
             </button>
