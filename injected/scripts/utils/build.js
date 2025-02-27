@@ -38,7 +38,7 @@ export async function bundle(params) {
         entryPoints: [scriptPath],
         write: false,
         outdir: 'build',
-        target: 'safari15',
+        target: 'es2021',
         format: 'iife',
         supported: {
             'class-private-field': false,
