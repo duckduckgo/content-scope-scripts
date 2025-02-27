@@ -125,6 +125,12 @@ function loadFeatures(platform, featureNames = platformSupport[platform]) {
     };
 }
 
+/**
+ * Create a bundle and allow it to be imported as a string via
+ *   `import bundle from 'ddg:contentScopeFeatures'`
+ *
+ * @param {string} platform
+ */
 function contentFeaturesAsString(platform) {
     const pluginId = 'ddg:contentScopeFeatures';
     return {

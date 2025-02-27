@@ -49,11 +49,8 @@ function init() {
     const reusableMethodName = '_rm' + randomString();
     const reusableSecret = '_r' + randomString();
     const siteObject = computeLimitedSiteObject();
-    const initialScript =
-        contentScopeFeatures +
-        `
-      /* global contentScopeFeatures */
-      contentScopeFeatures.load({
+    const initialScript = contentScopeFeatures +
+        `;contentScopeFeatures.load({
           platform: {
               name: 'extension'
           },
