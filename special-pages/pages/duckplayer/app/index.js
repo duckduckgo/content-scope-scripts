@@ -32,7 +32,6 @@ export async function init(messaging, telemetry, baseEnvironment) {
 
     const init = result.value;
     console.log('INITIAL DATA', init);
-    alert(JSON.stringify(init, null, 2));
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -66,7 +65,6 @@ export async function init(messaging, telemetry, baseEnvironment) {
     const initialYouTubeError = /** @type {YouTubeError} */ (baseEnvironment.urlParams.get('youtubeError'));
 
     console.log(settings);
-    alert(JSON.stringify(settings, null, 2));
 
     const embed = createEmbedSettings(window.location.href, settings);
 
