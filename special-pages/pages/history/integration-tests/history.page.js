@@ -356,6 +356,28 @@ export class HistoryTestPage {
     /**
      * @param {number} nth
      */
+    async hoversRowIndex(nth) {
+        const rows = this.page.locator('main').locator('[aria-selected]');
+        await rows.nth(nth).hover();
+        await rows.nth(nth).locator('[data-action="entries_menu"]').waitFor({ state: 'visible' });
+    }
+    /**
+     * @param {number} nth
+     */
+    async hoversRowIndexBtn(nth) {
+        const rows = this.page.locator('main').locator('[aria-selected]');
+        await rows.nth(nth).locator('[data-action="entries_menu"]').hover();
+    }
+    /**
+     *
+     */
+    async hoversDeleteAllBtn() {
+        await this.page.getByRole('button', { name: 'Delete All', exact: true }).hover();
+    }
+
+    /**
+     * @param {number} nth
+     */
     async rowIsSelected(nth) {
         const { page } = this;
         const rows = page.locator('main').locator('[aria-selected]');
@@ -530,6 +552,14 @@ export class HistoryTestPage {
     }
     header() {
         return this.page.locator('header');
+    }
+
+    async hoversRange(range) {
+        await this.page.getByLabel(`Show history for ${range}`).hover();
+    }
+    async hoversRangeDelete(range) {
+        // await this.page.pause();
+        await this.page.getByRole('button', { name: `Delete history for ${range}` }).hover();
     }
 
     /**
