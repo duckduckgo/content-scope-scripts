@@ -1,5 +1,5 @@
 /**
- * Special Page example. Used as a template for new special pages.
+ * Example Special Page
  *
  * @module Example Page
  */
@@ -19,7 +19,7 @@ export class ExamplePage {
 
     /**
      * Sends an initial message to the native layer. This is the opportunity for the native layer
-     * to provide the initial state of the application or any configuration, for example:
+     * to provide the initial state of the application or any configuration, e.g.:
      *
      * ```json
      * {
@@ -60,11 +60,11 @@ const messaging = createSpecialPageMessaging({
     pageName: /** @type {string} */ (import.meta.pageName),
 });
 
-const example = new ExamplePage(messaging);
+const page = new ExamplePage(messaging);
 
-init(example, baseEnvironment).catch((e) => {
+init(page, baseEnvironment).catch((e) => {
     // messages.
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
-    example.reportInitException({ message: msg });
+    page.reportInitException({ message: msg });
 });
