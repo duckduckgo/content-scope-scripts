@@ -47,7 +47,3 @@ declare module 'ddg:platformFeatures' {
     const output: Record<string, new (featureName: string) => import('./content-feature').default>;
     export default output;
 }
-declare module 'ddg:contentScopeFeatures' {
-    const output: string;
-    export default output;
-}

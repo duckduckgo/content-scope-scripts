@@ -5,7 +5,6 @@ import { parseArgs, write } from '../../scripts/script-utils.js';
  * @typedef Build
  * @property {string} input
  * @property {string[]} output
- * @property {boolean} [postProcess] - optional value to post-process an output file
  *
  * @typedef {Record<NonNullable<ImportMeta['injectName']>, Build>} BuildManifest
  */
@@ -18,7 +17,6 @@ const builds = {
     },
     apple: {
         input: 'entry-points/apple.js',
-        postProcess: true,
         output: ['../Sources/ContentScopeScripts/dist/contentScope.js'],
     },
     'apple-isolated': {
@@ -52,10 +50,6 @@ const builds = {
     'chrome-mv3': {
         input: 'entry-points/extension-mv3.js',
         output: ['../build/chrome-mv3/inject.js'],
-    },
-    chrome: {
-        input: 'entry-points/chrome.js',
-        output: ['../build/chrome/inject.js'],
     },
 };
 

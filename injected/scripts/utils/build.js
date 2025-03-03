@@ -6,9 +6,6 @@ import * as esbuild from 'esbuild';
 const ROOT = join(cwd(import.meta.url), '..', '..');
 const DEBUG = false;
 
-const contentScopePath = 'src/content-scope-features.js';
-const contentScopeName = 'contentScopeFeatures';
-
 const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */';
 
 /**
@@ -52,7 +49,7 @@ export async function bundle(params) {
             'import.meta.injectName': JSON.stringify(platform),
             'import.meta.trackerLookup': trackerLookup,
         },
-        plugins: [loadFeaturesPlugin, contentFeaturesAsString(platform)],
+        plugins: [loadFeaturesPlugin],
         footer: {
             js: suffixMessage,
         },
@@ -116,45 +113,6 @@ function loadFeatures(platform, featureNames = platformSupport[platform]) {
                     loader: 'js',
                     resolveDir: ROOT,
                     contents: [importString, exportString].join('\n'),
-                };
-            });
-        },
-    };
-}
-
-/**
- * Create a bundle and allow it to be imported as a string via
- *   `import bundle from 'ddg:contentScopeFeatures'`
- *
- * @param {string} platform
- */
-function contentFeaturesAsString(platform) {
-    const pluginId = 'ddg:contentScopeFeatures';
-    return {
-        /**
-         * Load all platform features based on current
-         */
-        name: pluginId,
-        setup(build) {
-            build.onResolve({ filter: new RegExp(pluginId) }, (args) => {
-                return {
-                    path: args.path,
-                    namespace: pluginId,
-                };
-            });
-            build.onLoad({ filter: /.*/, namespace: pluginId }, async () => {
-                const result = await bundle({
-                    scriptPath: contentScopePath,
-                    name: contentScopeName,
-                    platform,
-                });
-
-                const encodedString = result.replace(/\r\n/g, '\n');
-
-                return {
-                    loader: 'text',
-                    resolveDir: ROOT,
-                    contents: encodedString,
                 };
             });
         },

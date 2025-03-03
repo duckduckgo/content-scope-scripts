@@ -3,7 +3,6 @@
  */
 import { isTrackerOrigin } from '../src/trackers';
 import { computeLimitedSiteObject } from '../src/utils';
-import contentScopeFeatures from 'ddg:contentScopeFeatures';
 
 /**
  * Inject all the overwrites into the page.
