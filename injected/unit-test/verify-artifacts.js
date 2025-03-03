@@ -43,7 +43,7 @@ const checks = {
         file: join(BUILD, 'windows/contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'define_import_meta_trackerLookup_default', includes: true },
+            { kind: 'containsString', text: 'output.trackerLookup = define_import_meta_trackerLookup_default', includes: true },
         ],
     },
     apple: {
