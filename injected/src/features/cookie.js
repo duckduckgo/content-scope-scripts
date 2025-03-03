@@ -21,7 +21,7 @@ import { isTrackerOrigin } from '../trackers.js';
 
 function initialShouldBlockTrackerCookie() {
     const injectName = import.meta.injectName;
-    return injectName === 'chrome' || injectName === 'firefox' || injectName === 'chrome-mv3' || injectName === 'windows';
+    return injectName === 'firefox' || injectName === 'chrome-mv3' || injectName === 'windows';
 }
 
 // Initial cookie policy pre init

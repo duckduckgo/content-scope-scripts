@@ -81,7 +81,6 @@ export class Build {
             'android',
             'android-autofill-password-import',
             'chrome-mv3',
-            'chrome',
             'firefox',
         ];
         if (items.includes(name)) {

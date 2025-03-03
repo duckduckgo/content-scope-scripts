@@ -19,7 +19,6 @@ interface ImportMeta {
         | 'windows'
         | 'integration'
         | 'chrome-mv3'
-        | 'chrome'
         | 'android-broker-protection'
         | 'android-autofill-password-import';
     trackerLookup?: Record<string, unknown>;

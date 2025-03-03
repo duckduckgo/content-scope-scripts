@@ -54,7 +54,7 @@ export default defineConfig({
             use: { injectName: 'android-autofill-password-import', platform: 'android', ...devices['Galaxy S5'] },
         },
         {
-            name: 'chrome',
+            name: 'chrome-mv3',
             testMatch: [
                 'integration-test/remote-pages.spec.js',
                 'integration-test/cookie.spec.js',
@@ -64,7 +64,7 @@ export default defineConfig({
                 'integration-test/utils.spec.js',
                 'integration-test/web-compat.spec.js',
             ],
-            use: { injectName: 'chrome', platform: 'extension', ...devices['Desktop Chrome'] },
+            use: { injectName: 'chrome-mv3', platform: 'extension', ...devices['Desktop Chrome'] },
         },
         {
             name: 'firefox',
