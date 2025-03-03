@@ -9,11 +9,11 @@
     }]
   },
   "empty_title" : {
-    "title" : "Nothing to see here!",
+    "title" : "Il n'y a rien à voir ici !",
     "note" : "Text shown where there are no remaining history entries"
   },
   "empty_text" : {
-    "title" : "Page visits will appear once you start browsing.",
+    "title" : "Les visites de page apparaîtront une fois que vous commencerez à naviguer.",
     "note" : "Placeholder text when there's no results to show"
   },
   "delete_all" : {
@@ -25,7 +25,7 @@
     "note" : "Text for a button that deletes currently selected items"
   },
   "delete_none" : {
-    "title" : "Nothing to delete",
+    "title" : "Rien à supprimer",
     "note" : "Title/tooltip text on a button that does nothing when there is no browsing history to delete. It's additional information shown on hover."
   },
   "page_title" : {
@@ -37,31 +37,31 @@
     "note" : "The placeholder text in a search input field."
   },
   "show_history_all" : {
-    "title" : "Show all history",
+    "title" : "Afficher tout l'historique",
     "note" : "Button text for an action that removes all filters and searches, and replaces the list with all history."
   },
   "show_history_older" : {
-    "title" : "Show older history",
+    "title" : "Afficher l'historique plus ancien",
     "note" : "Button that shows older history entries"
   },
   "show_history_for" : {
-    "title" : "Show history for {range}",
+    "title" : "Afficher l'historique d'/de {range}",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Show history for Today'."
   },
   "delete_history_all" : {
-    "title" : "Delete all history",
+    "title" : "Supprimer tout l'historique",
     "note" : "Button text for an action that removes all history entries."
   },
   "delete_history_older" : {
-    "title" : "Delete older history",
+    "title" : "Supprimer l'historique plus ancien",
     "note" : "Button that deletes older history entries."
   },
   "delete_history_for" : {
-    "title" : "Delete history for {range}",
+    "title" : "Supprimer l'historique d'/de {range}",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Delete history for Today'."
   },
   "search_your_history" : {
-    "title" : "Recherche ton historique",
+    "title" : "Rechercher dans votre historique",
     "note" : "Label text for screen readers. It's shown next to the search input field"
   },
   "range_all" : {
@@ -77,7 +77,7 @@
     "note" : "Label on a button that shows history entries for yesterday only"
   },
   "range_monday" : {
-    "title" : "Monday",
+    "title" : "Lundi",
     "note" : "Label on a button that shows history entries for monday only"
   },
   "range_tuesday" : {
@@ -93,11 +93,11 @@
     "note" : "Label on a button that shows history entries for thursday only"
   },
   "range_friday" : {
-    "title" : "Friday",
+    "title" : "Vendredi",
     "note" : "Label on a button that shows history entries for friday only"
   },
   "range_saturday" : {
-    "title" : "Saturday",
+    "title" : "Samedi",
     "note" : "Label on a button that shows history entries for saturday only"
   },
   "range_sunday" : {

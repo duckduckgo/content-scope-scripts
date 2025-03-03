@@ -9,11 +9,11 @@
     }]
   },
   "empty_title" : {
-    "title" : "Nothing to see here!",
+    "title" : "Non c'è niente da vedere qui!",
     "note" : "Text shown where there are no remaining history entries"
   },
   "empty_text" : {
-    "title" : "Page visits will appear once you start browsing.",
+    "title" : "Le visite alla pagina appariranno non appena inizierai la navigazione.",
     "note" : "Placeholder text when there's no results to show"
   },
   "delete_all" : {
@@ -25,7 +25,7 @@
     "note" : "Text for a button that deletes currently selected items"
   },
   "delete_none" : {
-    "title" : "Nothing to delete",
+    "title" : "Nulla da eliminare",
     "note" : "Title/tooltip text on a button that does nothing when there is no browsing history to delete. It's additional information shown on hover."
   },
   "page_title" : {
@@ -41,11 +41,11 @@
     "note" : "Button text for an action that removes all filters and searches, and replaces the list with all history."
   },
   "show_history_older" : {
-    "title" : "Show older history",
+    "title" : "Mostra cronologia precedente",
     "note" : "Button that shows older history entries"
   },
   "show_history_for" : {
-    "title" : "Show history for {range}",
+    "title" : "Mostra la cronologia per {range}",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Show history for Today'."
   },
   "delete_history_all" : {
@@ -57,7 +57,7 @@
     "note" : "Button that deletes older history entries."
   },
   "delete_history_for" : {
-    "title" : "Delete history for {range}",
+    "title" : "Eliminare la cronologia di {range}",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Delete history for Today'."
   },
   "search_your_history" : {
@@ -77,31 +77,31 @@
     "note" : "Label on a button that shows history entries for yesterday only"
   },
   "range_monday" : {
-    "title" : "Monday",
+    "title" : "Lunedì",
     "note" : "Label on a button that shows history entries for monday only"
   },
   "range_tuesday" : {
-    "title" : "Tuesday",
+    "title" : "Martedì",
     "note" : "Label on a button that shows history entries for tuesday only"
   },
   "range_wednesday" : {
-    "title" : "Wednesday",
+    "title" : "Mercoledì",
     "note" : "Label on a button that shows history entries for wednesday only"
   },
   "range_thursday" : {
-    "title" : "Thursday",
+    "title" : "Giovedì",
     "note" : "Label on a button that shows history entries for thursday only"
   },
   "range_friday" : {
-    "title" : "Friday",
+    "title" : "Venerdì",
     "note" : "Label on a button that shows history entries for friday only"
   },
   "range_saturday" : {
-    "title" : "Saturday",
+    "title" : "Sabato",
     "note" : "Label on a button that shows history entries for saturday only"
   },
   "range_sunday" : {
-    "title" : "Sunday",
+    "title" : "Domenica",
     "note" : "Label on a button that shows history entries for sunday only"
   },
   "range_older" : {

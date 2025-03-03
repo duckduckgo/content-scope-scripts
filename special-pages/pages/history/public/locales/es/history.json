@@ -13,7 +13,7 @@
     "note" : "Text shown where there are no remaining history entries"
   },
   "empty_text" : {
-    "title" : "Page visits will appear once you start browsing.",
+    "title" : "Las visitas a la página se mostrarán cuando empieces a navegar.",
     "note" : "Placeholder text when there's no results to show"
   },
   "delete_all" : {
@@ -25,7 +25,7 @@
     "note" : "Text for a button that deletes currently selected items"
   },
   "delete_none" : {
-    "title" : "Nothing to delete",
+    "title" : "Nada que eliminar",
     "note" : "Title/tooltip text on a button that does nothing when there is no browsing history to delete. It's additional information shown on hover."
   },
   "page_title" : {
@@ -37,31 +37,31 @@
     "note" : "The placeholder text in a search input field."
   },
   "show_history_all" : {
-    "title" : "Muestra todo el historial",
+    "title" : "Mostrar todo el historial",
     "note" : "Button text for an action that removes all filters and searches, and replaces the list with all history."
   },
   "show_history_older" : {
-    "title" : "Muestra el historial más antiguo",
+    "title" : "Mostrar el historial más antiguo",
     "note" : "Button that shows older history entries"
   },
   "show_history_for" : {
-    "title" : "Show history for {range}",
+    "title" : "Mostrar historial para {range}",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Show history for Today'."
   },
   "delete_history_all" : {
-    "title" : "Borra todo el historial",
+    "title" : "Borrar todo el historial",
     "note" : "Button text for an action that removes all history entries."
   },
   "delete_history_older" : {
-    "title" : "Delete older history",
+    "title" : "Borrar historial más antiguo",
     "note" : "Button that deletes older history entries."
   },
   "delete_history_for" : {
-    "title" : "Delete history for {range}",
+    "title" : "Borrar historial para {range}",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Delete history for Today'."
   },
   "search_your_history" : {
-    "title" : "Search your history",
+    "title" : "Buscar en tu historial",
     "note" : "Label text for screen readers. It's shown next to the search input field"
   },
   "range_all" : {
@@ -77,31 +77,31 @@
     "note" : "Label on a button that shows history entries for yesterday only"
   },
   "range_monday" : {
-    "title" : "Monday",
+    "title" : "Lunes",
     "note" : "Label on a button that shows history entries for monday only"
   },
   "range_tuesday" : {
-    "title" : "Tuesday",
+    "title" : "Martes",
     "note" : "Label on a button that shows history entries for tuesday only"
   },
   "range_wednesday" : {
-    "title" : "Wednesday",
+    "title" : "Miércoles",
     "note" : "Label on a button that shows history entries for wednesday only"
   },
   "range_thursday" : {
-    "title" : "Thursday",
+    "title" : "Jueves",
     "note" : "Label on a button that shows history entries for thursday only"
   },
   "range_friday" : {
-    "title" : "Friday",
+    "title" : "Viernes",
     "note" : "Label on a button that shows history entries for friday only"
   },
   "range_saturday" : {
-    "title" : "Saturday",
+    "title" : "Sábado",
     "note" : "Label on a button that shows history entries for saturday only"
   },
   "range_sunday" : {
-    "title" : "Sunday",
+    "title" : "Domingo",
     "note" : "Label on a button that shows history entries for sunday only"
   },
   "range_older" : {

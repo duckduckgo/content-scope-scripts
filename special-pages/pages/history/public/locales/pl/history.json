@@ -9,11 +9,11 @@
     }]
   },
   "empty_title" : {
-    "title" : "Nothing to see here!",
+    "title" : "Tutaj nie ma nic do oglądania!",
     "note" : "Text shown where there are no remaining history entries"
   },
   "empty_text" : {
-    "title" : "Page visits will appear once you start browsing.",
+    "title" : "Gdy zaczniesz przeglądać, pojawią się odwiedziny stron.",
     "note" : "Placeholder text when there's no results to show"
   },
   "delete_all" : {
@@ -25,7 +25,7 @@
     "note" : "Text for a button that deletes currently selected items"
   },
   "delete_none" : {
-    "title" : "Nothing to delete",
+    "title" : "Nie ma nic do usunięcia",
     "note" : "Title/tooltip text on a button that does nothing when there is no browsing history to delete. It's additional information shown on hover."
   },
   "page_title" : {
@@ -45,7 +45,7 @@
     "note" : "Button that shows older history entries"
   },
   "show_history_for" : {
-    "title" : "Show history for {range}",
+    "title" : "Pokaż historię dotyczącą zakresu {range}",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Show history for Today'."
   },
   "delete_history_all" : {
@@ -57,11 +57,11 @@
     "note" : "Button that deletes older history entries."
   },
   "delete_history_for" : {
-    "title" : "Delete history for {range}",
+    "title" : "Usuń historię dotyczącą zakresu {range}",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Delete history for Today'."
   },
   "search_your_history" : {
-    "title" : "Search your history",
+    "title" : "Przeszukaj historię",
     "note" : "Label text for screen readers. It's shown next to the search input field"
   },
   "range_all" : {
@@ -77,7 +77,7 @@
     "note" : "Label on a button that shows history entries for yesterday only"
   },
   "range_monday" : {
-    "title" : "Monday",
+    "title" : "poniedziałek",
     "note" : "Label on a button that shows history entries for monday only"
   },
   "range_tuesday" : {
@@ -89,11 +89,11 @@
     "note" : "Label on a button that shows history entries for wednesday only"
   },
   "range_thursday" : {
-    "title" : "Thursday",
+    "title" : "czwartek",
     "note" : "Label on a button that shows history entries for thursday only"
   },
   "range_friday" : {
-    "title" : "Friday",
+    "title" : "piątek",
     "note" : "Label on a button that shows history entries for friday only"
   },
   "range_saturday" : {
@@ -101,7 +101,7 @@
     "note" : "Label on a button that shows history entries for saturday only"
   },
   "range_sunday" : {
-    "title" : "Sunday",
+    "title" : "niedziela",
     "note" : "Label on a button that shows history entries for sunday only"
   },
   "range_older" : {

@@ -9,11 +9,11 @@
     }]
   },
   "empty_title" : {
-    "title" : "Nothing to see here!",
+    "title" : "Não há nada para ver aqui!",
     "note" : "Text shown where there are no remaining history entries"
   },
   "empty_text" : {
-    "title" : "Page visits will appear once you start browsing.",
+    "title" : "As visitas a páginas vão aparecer assim que começares a navegar.",
     "note" : "Placeholder text when there's no results to show"
   },
   "delete_all" : {
@@ -53,15 +53,15 @@
     "note" : "Button text for an action that removes all history entries."
   },
   "delete_history_older" : {
-    "title" : "Delete older history",
+    "title" : "Eliminar histórico mais antigo",
     "note" : "Button that deletes older history entries."
   },
   "delete_history_for" : {
-    "title" : "Delete history for {range}",
+    "title" : "Eliminar histórico de {range}",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Delete history for Today'."
   },
   "search_your_history" : {
-    "title" : "Search your history",
+    "title" : "Pesquisa no teu histórico",
     "note" : "Label text for screen readers. It's shown next to the search input field"
   },
   "range_all" : {
