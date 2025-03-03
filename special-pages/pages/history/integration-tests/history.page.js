@@ -429,7 +429,12 @@ export class HistoryTestPage {
         await page.locator('header').getByRole('button', { name: 'Delete All', exact: true }).click();
     }
 
-    async deletesAllForTerm(term) {
+    /**
+     * @param {string} term
+     * @param {import('../types/history.ts').DeleteRangeResponse} resp
+     */
+    async deletesAllForTerm(term, resp) {
+        this._withDialogHandling(resp);
         await this.deletesAll();
         const calls = await this.mocks.waitForCallCount({ method: 'deleteTerm', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ term });

@@ -330,14 +330,16 @@ export class HistoryService {
 
     /**
      * @param {string} term
+     * @return {Promise<{kind: 'none'} | {kind: "term-deleted"}>}
      */
     async deleteTerm(term) {
         console.log('📤 [deleteTerm]: ', JSON.stringify({ term }));
         const resp = await this.history.messaging.request('deleteTerm', { term });
         if (resp.action === 'delete') {
             this.reset();
+            return { kind: 'term-deleted' };
         }
-        return resp;
+        return { kind: 'none' };
     }
 }
 
