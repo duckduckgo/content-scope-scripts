@@ -106,6 +106,7 @@
     text-decoration: none;
     color: inherit;
     line-height: var(--row-height);
+    pointer-events: none;
 }
 
 .domain {

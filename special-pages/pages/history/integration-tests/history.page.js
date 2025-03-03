@@ -174,12 +174,12 @@ export class HistoryTestPage {
     }
 
     async opensLinks() {
-        const { page } = this;
-        const link = page.locator('a[href][data-url]').nth(0);
-        await link.click();
-        await link.click({ modifiers: ['Meta'] });
-        await link.click({ modifiers: ['Shift'] });
-        await link.click({ button: 'middle' });
+        const row = this.main().locator('[aria-selected]').nth(0);
+        await row.dblclick();
+        await row.dblclick({ modifiers: ['Meta'] });
+        await row.dblclick({ modifiers: ['Shift'] });
+
+        await row.locator('a').click({ button: 'middle', force: true });
         await this._opensMainLink();
     }
     async _opensMainLink() {
@@ -302,19 +302,9 @@ export class HistoryTestPage {
      * @param {import('../types/history.ts').DeleteRangeResponse} resp
      */
     async menuForHistoryEntry(nth, resp) {
-        const { page } = this;
-
-        const cleanup = this._withDialogHandling(resp);
-        // console.log(data[0].title);
         const data = generateSampleData({ count: this.entries, offset: 0 });
         const nthItem = data[nth];
-        const row = page.getByText(nthItem.title);
-        await row.hover();
-        await page.locator(`[data-action="entries_menu"][value=${nthItem.id}]`).click();
-
-        const calls = await this.mocks.waitForCallCount({ method: 'entries_menu', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ ids: [nthItem.id] });
-        cleanup();
+        await this.menuForMultipleHistoryEntries(nth, [nthItem.id], resp);
     }
 
     /**
@@ -329,7 +319,7 @@ export class HistoryTestPage {
         // console.log(data[0].title);
         const data = generateSampleData({ count: this.entries, offset: 0 });
         const nthItem = data[nth];
-        const row = page.getByText(nthItem.title);
+        const row = this.main().locator(`[data-history-entry=${nthItem.id}]`);
         await row.hover();
         await page.locator(`[data-action="entries_menu"][value=${nthItem.id}]`).click();
 
