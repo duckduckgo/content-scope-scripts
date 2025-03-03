@@ -19,7 +19,7 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https:/
 export async function bundle(params) {
     const { scriptPath, platform, name, featureNames } = params;
 
-    const extensions = ['firefox', 'chrome', 'chrome-mv3'];
+    const extensions = ['firefox', 'chrome-mv3'];
     const isExtension = extensions.includes(platform);
     let trackerLookup = '$TRACKER_LOOKUP$';
     if (!isExtension) {
