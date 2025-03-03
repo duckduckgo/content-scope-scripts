@@ -71,7 +71,7 @@ export function mockTransport() {
                     return withLatency(queryResponseFrom(memory, msg));
                 }
                 case 'entries_delete': {
-                    console.log('📤 [entries_delete]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [entries_delete]: ', JSON.stringify(msg.params));
                     if (msg.params.ids.length > 1) {
                         // prettier-ignore
                         const lines = [
@@ -139,7 +139,7 @@ export function mockTransport() {
                     return Promise.resolve({ action: 'none' });
                 }
                 case 'deleteTerm': {
-                    console.log('📤 [deleteTerm]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [deleteTerm]: ', JSON.stringify(msg.params));
                     // prettier-ignore
                     const lines = [
                         `deleteTerm: ${JSON.stringify(msg.params)}`,
