@@ -17,12 +17,16 @@ import { useSearchCommitForRange } from '../global/hooks/useSearchCommitForRange
 import { useURLReflection } from '../global/hooks/useURLReflection.js';
 import { useSearchCommit } from '../global/hooks/useSearchCommit.js';
 import { useRangesData } from '../global/Providers/HistoryServiceProvider.js';
+import { usePlatformName } from '../types.js';
+import { useLayoutMode } from '../global/hooks/useLayoutMode.js';
 
 export function App() {
+    const platformName = usePlatformName();
     const mainRef = useRef(/** @type {HTMLElement|null} */ (null));
     const { isDarkMode } = useEnv();
     const ranges = useRangesData();
     const query = useQueryContext();
+    const mode = useLayoutMode();
 
     /**
      * Handlers that are global in nature
@@ -58,7 +62,7 @@ export function App() {
     }, [onKeyDown, query]);
 
     return (
-        <div class={styles.layout} data-theme={isDarkMode ? 'dark' : 'light'}>
+        <div class={styles.layout} data-theme={isDarkMode ? 'dark' : 'light'} data-platform={platformName} data-layout-mode={mode}>
             <aside class={styles.aside}>
                 <Sidebar ranges={ranges} />
             </aside>

@@ -4,9 +4,9 @@ import { Item } from './Item.js';
 import styles from './VirtualizedList.module.css';
 import { VisibleItems } from './VirtualizedList.js';
 import { Empty } from './Empty.js';
-import { useSelected } from '../global/Providers/SelectionProvider.js';
+import { useSelected, useSelectionState } from '../global/Providers/SelectionProvider.js';
 import { useHistoryServiceDispatch, useResultsData } from '../global/Providers/HistoryServiceProvider.js';
-import { useCallback } from 'preact/hooks';
+import { useCallback, useEffect } from 'preact/hooks';
 
 /**
  * Access global state and render the results
@@ -14,7 +14,21 @@ import { useCallback } from 'preact/hooks';
 export function ResultsContainer() {
     const results = useResultsData();
     const selected = useSelected();
+    const selectionState = useSelectionState();
     const dispatch = useHistoryServiceDispatch();
+
+    /**
+     * When the selection state changed in a way that might cause an element to be off-screen, re-focus it
+     */
+    useEffect(() => {
+        return selectionState.subscribe(({ lastAction, focusedIndex }) => {
+            if (lastAction === 'move-selection' || lastAction === 'inc-or-dec-selected') {
+                const match = document.querySelector(`[aria-selected][data-index="${focusedIndex}"]`);
+                match?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            }
+        });
+    }, [selectionState]);
+
     /**
      * Let the history service know when it might want to load more
      */
