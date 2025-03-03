@@ -101,7 +101,7 @@ function useSearchShortcut(platformName) {
  * @param {string} [message]
  * @return {asserts condition}
  */
-function invariant(condition, message) {
+export function invariant(condition, message) {
     if (condition) return;
     if (message) throw new Error('Invariant failed: ' + message);
     throw new Error('Invariant failed');

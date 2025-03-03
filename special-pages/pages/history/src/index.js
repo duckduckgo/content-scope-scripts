@@ -56,7 +56,7 @@ export class HistoryPage {
     }
 }
 
-const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
+const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env);
 
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,

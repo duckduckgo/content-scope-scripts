@@ -13,7 +13,7 @@ import { generateHeights } from '../../utils.js';
  * | {kind: 'delete-domain'; domain: string }
  * | {kind: 'delete-entries-by-index'; value: number[] }
  * | {kind: 'open-url'; url: string, target: 'new-tab' | 'new-window' | 'same-tab' }
- * | {kind: 'show-entries-menu'; ids: string[]; indexes: number[] }
+ * | {kind: 'show-entries-menu'; indexes: number[] }
  * | {kind: 'request-more'; end: number }
  * } Action
  */
@@ -126,7 +126,7 @@ export function HistoryServiceProvider({ service, children, initial }) {
             }
             case 'show-entries-menu': {
                 service
-                    .entriesMenu(action.ids, action.indexes)
+                    .entriesMenu(action.indexes)
                     // eslint-disable-next-line promise/prefer-await-to-then
                     .then((resp) => {
                         if (resp.kind === 'domain-search') {

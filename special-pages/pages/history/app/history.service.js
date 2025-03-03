@@ -216,12 +216,12 @@ export class HistoryService {
     }
 
     /**
-     * @param {string[]} ids
      * @param {number[]} indexes
      * @return {Promise<{kind: 'none'} | { kind: 'domain-search'; value: string }>}
      */
-    async entriesMenu(ids, indexes) {
-        console.log('📤 [entries_menu]: ', JSON.stringify({ ids }));
+    async entriesMenu(indexes) {
+        const ids = this._collectIds(indexes);
+        console.trace('📤 [entries_menu]: ', JSON.stringify({ ids }));
         const response = await this.history.messaging.request('entries_menu', { ids });
         if (response.action === 'none') {
             return { kind: 'none' };

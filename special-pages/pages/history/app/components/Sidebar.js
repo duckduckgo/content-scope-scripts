@@ -80,44 +80,53 @@ export function Sidebar({ ranges }) {
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
             <nav class={styles.nav}>
                 {ranges.value.map((range) => {
-                    const { buttonLabel, linkLabel } = labels(range, t);
-                    return (
-                        <div class={styles.item} key={range}>
-                            <RowLink onClick={() => onClick(range)} current={current} range={range} label={linkLabel}>
-                                {titleMap[range](t)}
-                            </RowLink>
-                            {range === 'all' && (
-                                <DeleteAllButton onClick={onDelete} ariaLabel={buttonLabel} range={range} ranges={ranges} count={count} />
-                            )}
-                            {range !== 'all' && <DeleteButton onClick={() => onDelete(range)} label={buttonLabel} range={range} />}
-                        </div>
-                    );
+                    return <Item onClick={onClick} onDelete={onDelete} current={current} range={range} ranges={ranges} count={count} />;
                 })}
             </nav>
         </div>
     );
 }
 
-function RowLink({ range, current, label, children, onClick }) {
+/**
+ * A component that renders a list item with optional delete actions and a link.
+ *
+ * @param {Object} props
+ * @param {import('@preact/signals').ReadonlySignal<Range|null>} props.current The current selection with a value property.
+ * @param {Range} props.range The range represented by this item.
+ * @param {(range: Range) => void} props.onClick Callback function triggered when the range is clicked.
+ * @param {(range: Range) => void} props.onDelete Callback function triggered when the delete action is clicked.
+ * @param {import("@preact/signals").Signal<Range[]>} props.ranges
+ * @param {import('@preact/signals').ReadonlySignal<number>} props.count The count value associated with the ranges.
+ */
+function Item({ current, range, onClick, onDelete, ranges, count }) {
+    const { t } = useTypedTranslation();
+    const { buttonLabel, linkLabel } = labels(range, t);
     const classNames = useComputed(() => {
-        return cn(styles.link, current.value === range && styles.active);
+        if (range === 'all' && current.value === null) {
+            return cn(styles.item, styles.active);
+        }
+        return cn(styles.item, current.value === range && styles.active);
     });
+
     return (
-        <a
-            href="#"
-            aria-label={label}
-            class={classNames}
-            tabindex={0}
-            onClick={(e) => {
-                e.preventDefault();
-                onClick(range);
-            }}
-        >
-            <span class={styles.icon}>
-                <img src={iconMap[range]} />
-            </span>
-            {children}
-        </a>
+        <div class={classNames} key={range}>
+            <button
+                aria-label={linkLabel}
+                className={styles.link}
+                tabIndex={0}
+                onClick={(e) => {
+                    e.preventDefault();
+                    onClick(range);
+                }}
+            >
+                <span className={styles.icon}>
+                    <img src={iconMap[range]} />
+                </span>
+                {titleMap[range](t)}
+            </button>
+            {range === 'all' && <DeleteAllButton onClick={onDelete} ariaLabel={buttonLabel} range={range} ranges={ranges} count={count} />}
+            {range !== 'all' && <DeleteButton onClick={() => onDelete(range)} label={buttonLabel} range={range} />}
+        </div>
     );
 }
 
