@@ -7,6 +7,15 @@ const url = new URL(window.location.href);
  * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
  */
 
+/**
+ * @template T
+ * @param {T} value
+ * @return {T}
+ */
+function clone(value) {
+    return window.structuredClone?.(value) ?? JSON.parse(JSON.stringify(value));
+}
+
 export function mockTransport() {
     /** @type {Map<string, (d: any)=>void>} */
     const subscriptions = new Map();
@@ -18,12 +27,12 @@ export function mockTransport() {
         };
     }
 
-    let memory = structuredClone(historyMocks.few).value;
+    let memory = clone(historyMocks.few).value;
 
     if (url.searchParams.has('history')) {
         const key = url.searchParams.get('history');
         if (key && key in historyMocks) {
-            memory = structuredClone(historyMocks[key]).value;
+            memory = clone(historyMocks[key]).value;
         } else if (key?.match(/^\d+$/)) {
             memory = generateSampleData({ count: parseInt(key), offset: 0 });
         }
@@ -31,7 +40,7 @@ export function mockTransport() {
     // console.log(memory);
     return new TestTransportConfig({
         notify(_msg) {
-            window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+            window.__playwright_01?.mocks?.outgoing?.push?.({ payload: clone(_msg) });
             /** @type {import('../../types/history.ts').HistoryMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             console.warn('unhandled notification', msg);
@@ -40,7 +49,7 @@ export function mockTransport() {
             const sub = /** @type {any} */ (_msg.subscriptionName);
 
             if ('__playwright_01' in window) {
-                window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+                window.__playwright_01?.mocks?.outgoing?.push?.({ payload: clone(_msg) });
                 subscriptions.set(sub, cb);
                 return () => {
                     subscriptions.delete(sub);
@@ -53,7 +62,7 @@ export function mockTransport() {
         },
         // eslint-ignore-next-line require-await
         request(_msg) {
-            window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+            window.__playwright_01?.mocks?.outgoing?.push?.({ payload: clone(_msg) });
             /** @type {import('../../types/history.ts').HistoryMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
 

@@ -52,7 +52,7 @@ export async function init(root, messaging, baseEnvironment) {
     const strings =
         environment.locale === 'en'
             ? enStrings
-            : await fetch(`./locales/${environment.locale}/example.json`)
+            : await fetch(`./locales/${environment.locale}/history.json`)
                   .then((resp) => {
                       if (!resp.ok) {
                           throw new Error('did not give a result');

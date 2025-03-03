@@ -66,3 +66,14 @@ export function eventToIntention(event, platformName) {
     }
     return 'unknown';
 }
+
+/**
+ * @param {any} condition
+ * @param {string} [message]
+ * @return {asserts condition}
+ */
+export function invariant(condition, message) {
+    if (condition) return;
+    if (message) throw new Error('Invariant failed: ' + message);
+    throw new Error('Invariant failed');
+}

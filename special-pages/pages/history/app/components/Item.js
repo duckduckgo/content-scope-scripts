@@ -53,11 +53,11 @@ export const Item = memo(
                     <a href={props.url} data-url={props.url} class={styles.entryLink} tabindex={0}>
                         {title}
                     </a>
-                    <span class={styles.domain} data-testid="Item.domain">
+                    <span class={styles.domain} data-testid="Item.domain" title={props.domain}>
                         {props.domain}
                     </span>
                     <span class={styles.time}>{dateTimeOfDay}</span>
-                    <button class={styles.dots} data-action={BTN_ACTION_ENTRIES_MENU} data-index={index} value={props.id} tabindex={0}>
+                    <button class={styles.dots} data-action={BTN_ACTION_ENTRIES_MENU} data-index={index} value={props.id} tabindex={-1}>
                         <Dots />
                     </button>
                 </div>

@@ -187,4 +187,18 @@ test.describe('history selections', () => {
         await hp.selectsRowIndexWithShift(2);
         await hp.deletesWithKeyboard(hp.ids(3), { action: 'delete' });
     });
+    test('3 dots menu on multiple history entries', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.selectsRowIndex(0);
+        await hp.selectsRowIndexWithShift(2);
+        await hp.menuForMultipleHistoryEntries(0, hp.ids(3), { action: 'delete' });
+    });
+    test('clicking outside of rows de-selects everything', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
+        await hp.openPage({});
+        await hp.selectsRowIndex(0);
+        await hp.clicksOutsideOfRows();
+        await hp.selectedRowCountIs(0);
+    });
 });

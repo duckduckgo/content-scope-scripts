@@ -17,6 +17,7 @@
 .item {
     position: relative;
     border-radius: 8px;
+    display: flex;
 
     &:hover, &:focus-visible {
         background: var(--color-black-at-6);
@@ -28,6 +29,27 @@
         }
     }
 }
+
+.item:hover .delete[aria-disabled="true"] {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.active {
+    background: var(--color-black-at-12);
+    &:hover {
+        background: var(--color-black-at-18);
+    }
+
+    [data-theme="dark"] &  {
+        background: var(--color-white-at-9);
+        &:hover {
+            background: var(--color-white-at-12);
+        }
+    }
+}
+
+
 .link {
     height: 40px;
     display: flex;
@@ -38,19 +60,17 @@
     font-weight: 510;
     color: var(--history-text-normal);
     gap: 6px;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    flex: 1;
+    white-space: normal;
+    text-align: left;
 }
-.active {
-    background: var(--color-black-at-12);
-    [data-theme="dark"] &  {
-        background: var(--color-white-at-9);
-    }
-}
+
 .delete {
     height: 40px;
     width: 40px;
-    position: absolute;
-    top: 0;
-    right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -94,11 +114,6 @@
     svg path {
         fill-opacity: 0.6;
     }
-}
-
-.item:hover .delete[aria-disabled="true"] {
-    opacity: 0.3;
-    cursor: default;
 }
 
 .icon {

@@ -2309,7 +2309,7 @@
     },
     empty_title: {
       title: "Nothing to see here!",
-      note: "Text shown where there are no remaining history items"
+      note: "Text shown where there are no remaining history entries"
     },
     empty_text: {
       title: "Page visits will appear once you start browsing.",
@@ -2317,7 +2317,7 @@
     },
     delete_all: {
       title: "Delete All",
-      note: "Text for a button that deletes all items or entries."
+      note: "Text for a button that deletes all items or entries. An additional confirmation dialog will be presented."
     },
     delete_some: {
       title: "Delete",
@@ -2325,19 +2325,19 @@
     },
     delete_none: {
       title: "Nothing to delete",
-      note: "Title/tooltip text on a button that does nothing when there is no browsing history to delete"
+      note: "Title/tooltip text on a button that does nothing when there is no browsing history to delete. It's additional information shown on hover."
     },
     page_title: {
       title: "History",
-      note: ""
+      note: "The main page title"
     },
     search: {
       title: "Search",
-      note: ""
+      note: "The placeholder text in a search input field."
     },
     show_history_all: {
       title: "Show all history",
-      note: "Button text for an action that removes all filters and searches, and replaces the list will all history."
+      note: "Button text for an action that removes all filters and searches, and replaces the list with all history."
     },
     show_history_older: {
       title: "Show older history",
@@ -2361,51 +2361,51 @@
     },
     search_your_history: {
       title: "Search your history",
-      note: ""
+      note: "Label text for screen readers. It's shown next to the search input field"
     },
     range_all: {
       title: "All",
-      note: ""
+      note: "Label on a button that shows all history entries"
     },
     range_today: {
       title: "Today",
-      note: ""
+      note: "Label on a button that shows history entries for today only"
     },
     range_yesterday: {
       title: "Yesterday",
-      note: ""
+      note: "Label on a button that shows history entries for yesterday only"
     },
     range_monday: {
       title: "Monday",
-      note: ""
+      note: "Label on a button that shows history entries for monday only"
     },
     range_tuesday: {
       title: "Tuesday",
-      note: ""
+      note: "Label on a button that shows history entries for tuesday only"
     },
     range_wednesday: {
       title: "Wednesday",
-      note: ""
+      note: "Label on a button that shows history entries for wednesday only"
     },
     range_thursday: {
       title: "Thursday",
-      note: ""
+      note: "Label on a button that shows history entries for thursday only"
     },
     range_friday: {
       title: "Friday",
-      note: ""
+      note: "Label on a button that shows history entries for friday only"
     },
     range_saturday: {
       title: "Saturday",
-      note: ""
+      note: "Label on a button that shows history entries for saturday only"
     },
     range_sunday: {
       title: "Sunday",
-      note: ""
+      note: "Label on a button that shows history entries for sunday only"
     },
     range_older: {
       title: "Older",
-      note: ""
+      note: "Label on a button that shows older history entries."
     }
   };
 
@@ -2705,6 +2705,11 @@
     }
     return "unknown";
   }
+  function invariant2(condition, message) {
+    if (condition) return;
+    if (message) throw new Error("Invariant failed: " + message);
+    throw new Error("Invariant failed");
+  }
 
   // pages/history/app/constants.js
   var DDG_DEFAULT_ICON_SIZE = 32;
@@ -2934,12 +2939,12 @@
       this.history.messaging.notify("open", { url: url2, target });
     }
     /**
-     * @param {string[]} ids
      * @param {number[]} indexes
      * @return {Promise<{kind: 'none'} | { kind: 'domain-search'; value: string }>}
      */
-    async entriesMenu(ids, indexes) {
-      console.log("\u{1F4E4} [entries_menu]: ", JSON.stringify({ ids }));
+    async entriesMenu(indexes) {
+      const ids = this._collectIds(indexes);
+      console.trace("\u{1F4E4} [entries_menu]: ", JSON.stringify({ ids }));
       const response = await this.history.messaging.request("entries_menu", { ids });
       if (response.action === "none") {
         return { kind: "none" };
@@ -3181,7 +3186,7 @@
           break;
         }
         case "show-entries-menu": {
-          service.entriesMenu(action.ids, action.indexes).then((resp) => {
+          service.entriesMenu(action.indexes).then((resp) => {
             if (resp.kind === "domain-search") {
               queryDispatch({ kind: "search-by-domain", value: resp.value });
             }
@@ -3207,40 +3212,182 @@
     return x2(RangesContext);
   }
 
+  // pages/history/app/global/hooks/useSelectionState.js
+  var defaultState = {
+    anchorIndex: (
+      /** @type {null|number} */
+      null
+    ),
+    /** @type {{start: null|number; end: null|number}} */
+    lastShiftRange: {
+      start: null,
+      end: null
+    },
+    focusedIndex: (
+      /** @type {null|number} */
+      null
+    ),
+    selected: /* @__PURE__ */ new Set(
+      /** @type {number[]} */
+      []
+    ),
+    lastAction: (
+      /** @type {Action['kind']|null} */
+      null
+    )
+  };
+  function useSelectionStateApi() {
+    const state = useSignal(defaultState);
+    const selected = useComputed(() => state.value.selected);
+    function dispatcher(evt) {
+      const next = reducer(state.value, evt);
+      next.lastAction = evt.kind;
+      state.value = next;
+    }
+    const dispatch = q2(dispatcher, [state, selected]);
+    return { selected, dispatch, state };
+  }
+  function reducer(prev, evt) {
+    switch (evt.kind) {
+      case "reset": {
+        return {
+          ...defaultState
+        };
+      }
+      case "move-selection": {
+        const { focusedIndex } = prev;
+        invariant2(focusedIndex !== null);
+        const delta = evt.direction === "up" ? -1 : 1;
+        const max = Math.min(evt.total - 1, focusedIndex + delta);
+        const newIndex = Math.max(0, max);
+        const newSelected = /* @__PURE__ */ new Set([newIndex]);
+        return {
+          ...prev,
+          anchorIndex: newIndex,
+          focusedIndex: newIndex,
+          lastShiftRange: { start: null, end: null },
+          selected: newSelected
+        };
+      }
+      case "select-index": {
+        const newSelected = /* @__PURE__ */ new Set([evt.index]);
+        return {
+          ...prev,
+          anchorIndex: evt.index,
+          focusedIndex: evt.index,
+          lastShiftRange: { start: null, end: null },
+          selected: newSelected
+        };
+      }
+      case "toggle-index": {
+        const newSelected = new Set(prev.selected);
+        if (newSelected.has(evt.index)) {
+          newSelected.delete(evt.index);
+        } else {
+          newSelected.add(evt.index);
+        }
+        return {
+          ...prev,
+          anchorIndex: evt.index,
+          lastShiftRange: { start: null, end: null },
+          focusedIndex: evt.index,
+          selected: newSelected
+        };
+      }
+      case "expand-selected-to-index": {
+        const { anchorIndex, lastShiftRange } = prev;
+        const newSelected = new Set(prev.selected);
+        if (lastShiftRange.start !== null && lastShiftRange.end !== null) {
+          for (let i5 = lastShiftRange.start; i5 <= lastShiftRange.end; i5++) {
+            newSelected.delete(i5);
+          }
+        }
+        const start = Math.min(anchorIndex ?? 0, evt.index);
+        const end = Math.max(anchorIndex ?? 0, evt.index);
+        for (let i5 = start; i5 <= end; i5++) {
+          newSelected.add(i5);
+        }
+        return {
+          ...prev,
+          lastShiftRange: { start, end },
+          focusedIndex: evt.index,
+          selected: newSelected
+        };
+      }
+      case "inc-or-dec-selected": {
+        const { anchorIndex, lastShiftRange } = prev;
+        const newSelected = new Set(prev.selected);
+        if (lastShiftRange.start !== null && lastShiftRange.end !== null) {
+          for (let i5 = lastShiftRange.start; i5 <= lastShiftRange.end; i5++) {
+            newSelected.delete(i5);
+          }
+        }
+        const start = Math.min(anchorIndex ?? evt.nextIndex, evt.nextIndex);
+        const end = Math.max(anchorIndex ?? evt.nextIndex, evt.nextIndex);
+        for (let i5 = start; i5 <= end; i5++) {
+          newSelected.add(i5);
+        }
+        return {
+          ...prev,
+          focusedIndex: evt.nextIndex,
+          lastShiftRange: { start, end },
+          anchorIndex: anchorIndex === null ? evt.nextIndex : anchorIndex,
+          selected: newSelected
+        };
+      }
+      case "increment-selection": {
+        const { focusedIndex, anchorIndex, lastShiftRange } = prev;
+        invariant2(focusedIndex !== null);
+        const delta = evt.direction === "up" ? -1 : 1;
+        const newIndex = Math.max(0, Math.min(evt.total - 1, focusedIndex + delta));
+        const newSelected = new Set(prev.selected);
+        if (lastShiftRange.start !== null && lastShiftRange.end !== null) {
+          for (let i5 = lastShiftRange.start; i5 <= lastShiftRange.end; i5++) {
+            newSelected.delete(i5);
+          }
+        }
+        const start = Math.min(anchorIndex ?? newIndex, newIndex);
+        const end = Math.max(anchorIndex ?? newIndex, newIndex);
+        for (let i5 = start; i5 <= end; i5++) {
+          newSelected.add(i5);
+        }
+        return {
+          ...prev,
+          focusedIndex: newIndex,
+          lastShiftRange: { start, end },
+          anchorIndex: anchorIndex === null ? newIndex : anchorIndex,
+          selected: newSelected
+        };
+      }
+      default:
+        return prev;
+    }
+  }
+
   // pages/history/app/global/Providers/SelectionProvider.js
   var SelectionDispatchContext = J(
     /** @type {(a: Action) => void} */
     (a4) => {
     }
   );
-  var SelectionContext = J(
-    /** @type {ReadonlySignal<Set<number>>} */
-    d3(/* @__PURE__ */ new Set([]))
+  var SelectionStateContext = J(
+    /** @type {ReadonlySignal<SelectionState>} */
+    d3({})
   );
   function SelectionProvider({ children }) {
-    const selected = useSignal(/* @__PURE__ */ new Set(
-      /** @type {number[]} */
-      []
-    ));
-    function dispatch(action) {
-      selected.value = (() => {
-        switch (action.kind) {
-          case "set-selections": {
-            return action.value;
-          }
-          case "reset": {
-            return /* @__PURE__ */ new Set([]);
-          }
-          default:
-            return selected.value;
-        }
-      })();
-    }
-    const dispatcher = q2(dispatch, [selected]);
-    return /* @__PURE__ */ g(SelectionContext.Provider, { value: selected }, /* @__PURE__ */ g(SelectionDispatchContext.Provider, { value: dispatcher }, children));
+    const { dispatch, state } = useSelectionStateApi();
+    return /* @__PURE__ */ g(SelectionStateContext.Provider, { value: state }, /* @__PURE__ */ g(SelectionDispatchContext.Provider, { value: dispatch }, children));
+  }
+  function useSelectionState() {
+    return x2(SelectionStateContext);
   }
   function useSelected() {
-    return x2(SelectionContext);
+    const state = x2(SelectionStateContext);
+    return useComputed(() => state.value.selected);
+  }
+  function useFocussedIndex() {
+    const state = x2(SelectionStateContext);
+    return useComputed(() => state.value.focusedIndex);
   }
   function useSelectionDispatch() {
     return x2(SelectionDispatchContext);
@@ -3248,67 +3395,28 @@
   function useRowInteractions(mainRef) {
     const platformName = usePlatformName();
     const dispatch = useSelectionDispatch();
-    const historyDispatch = useHistoryServiceDispatch();
     const selected = useSelected();
-    const anchorIndex = useSignal(
-      /** @type {null|number} */
-      null
-    );
-    const lastShiftRange = useSignal({ start: (
-      /** @type {null|number} */
-      null
-    ), end: (
-      /** @type {null|number} */
-      null
-    ) });
-    const focusedIndex = useSignal(
-      /** @type {null|number} */
-      null
-    );
+    const historyDispatch = useHistoryServiceDispatch();
     const results = useResultsData();
-    function handleClickIntentions(intention, selection) {
+    const focusedIndex = useFocussedIndex();
+    function handleRowClickIntentions(intention, selection) {
       const { index } = selection;
       switch (intention) {
-        case "click": {
-          dispatch({ kind: "set-selections", value: /* @__PURE__ */ new Set([index]), reason: "row clicked" });
-          anchorIndex.value = index;
-          lastShiftRange.value = { start: null, end: null };
-          focusedIndex.value = index;
-          break;
-        }
+        case "click":
+          dispatch({ kind: "select-index", index, reason: intention });
+          return true;
         case "ctrl+click": {
-          const newSelected = new Set(selected.value);
-          if (newSelected.has(index)) {
-            newSelected.delete(index);
-          } else {
-            newSelected.add(index);
-          }
-          dispatch({ kind: "set-selections", value: newSelected, reason: "row ctrl+clicked" });
-          anchorIndex.value = index;
-          lastShiftRange.value = { start: null, end: null };
-          focusedIndex.value = index;
-          break;
+          dispatch({ kind: "toggle-index", index, reason: intention });
+          return true;
         }
         case "shift+click": {
-          const newSelected = new Set(selected.value);
-          if (lastShiftRange.value.start !== null && lastShiftRange.value.end !== null) {
-            for (let i5 = lastShiftRange.value.start; i5 <= lastShiftRange.value.end; i5++) {
-              newSelected.delete(i5);
-            }
-          }
-          const start = Math.min(anchorIndex.value ?? 0, index);
-          const end = Math.max(anchorIndex.value ?? 0, index);
-          for (let i5 = start; i5 <= end; i5++) {
-            newSelected.add(i5);
-          }
-          lastShiftRange.value = { start, end };
-          dispatch({ kind: "set-selections", value: newSelected, reason: "row shift+clicked" });
-          focusedIndex.value = index;
-          break;
+          dispatch({ kind: "expand-selected-to-index", index, reason: intention });
+          return true;
         }
       }
+      return false;
     }
-    function handler(event) {
+    function clickHandler(event) {
       if (!(event.target instanceof Element)) return;
       if (event.target.closest("button")) return;
       if (event.target.closest("a")) return;
@@ -3316,60 +3424,51 @@
         /** @type {HTMLElement|null} */
         event.target.closest("[data-history-entry][data-index]")
       );
-      const selection = toRowSelection(itemRow);
-      if (!itemRow || !selection) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
       const intention = eventToIntention(event, platformName);
-      handleClickIntentions(intention, selection);
+      const selection = toRowSelection(itemRow);
+      if (selection) {
+        const handled = handleRowClickIntentions(intention, selection);
+        if (handled) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        } else {
+          console.log("did not handle selection");
+        }
+      } else {
+        dispatch({ kind: "reset", reason: "click occurred outside of rows" });
+      }
     }
     function handleKeyIntention(intention) {
-      const direction = intention === "shift+up" || intention === "up" ? -1 : 1;
+      const total = results.value.items.length;
       if (focusedIndex.value === null) return false;
-      const newIndex = Math.max(0, Math.min(results.value.items.length - 1, focusedIndex.value + direction));
       switch (intention) {
-        case "shift+down":
+        case "shift+down": {
+          dispatch({
+            kind: "increment-selection",
+            direction: "down",
+            total
+          });
+          return true;
+        }
         case "shift+up": {
-          const newSelected = new Set(selected.value);
-          if (lastShiftRange.value.start !== null && lastShiftRange.value.end !== null) {
-            for (let i5 = lastShiftRange.value.start; i5 <= lastShiftRange.value.end; i5++) {
-              newSelected.delete(i5);
-            }
-          }
-          const start = Math.min(anchorIndex.value ?? newIndex, newIndex);
-          const end = Math.max(anchorIndex.value ?? newIndex, newIndex);
-          for (let i5 = start; i5 <= end; i5++) {
-            newSelected.add(i5);
-          }
-          lastShiftRange.value = { start, end };
-          dispatch({ kind: "set-selections", value: newSelected, reason: "shift+up or shift+down pressed" });
-          if (anchorIndex.value === null) {
-            anchorIndex.value = newIndex;
-          }
-          break;
+          dispatch({
+            kind: "increment-selection",
+            direction: "up",
+            total
+          });
+          return true;
         }
         case "up":
+          dispatch({ kind: "move-selection", direction: "up", total });
+          return true;
         case "down": {
-          dispatch({ kind: "set-selections", value: /* @__PURE__ */ new Set([newIndex]), reason: "up or down pressed without modifier" });
-          anchorIndex.value = newIndex;
-          lastShiftRange.value = { start: null, end: null };
-          break;
+          dispatch({ kind: "move-selection", direction: "down", total });
+          return true;
         }
         case "delete": {
           if (selected.value.size === 0) break;
           historyDispatch({ kind: "delete-entries-by-index", value: [...selected.value] });
           break;
-        }
-      }
-      switch (intention) {
-        case "shift+down":
-        case "shift+up":
-        case "up":
-        case "down": {
-          focusedIndex.value = newIndex;
-          const match = document.querySelector(`[aria-selected][data-index="${newIndex}"]`);
-          match?.scrollIntoView({ block: "nearest", inline: "nearest" });
-          return true;
         }
       }
       return false;
@@ -3403,8 +3502,8 @@
       }
       if (handled) event.preventDefault();
     }
-    const onClick = q2(handler, [selected, anchorIndex, lastShiftRange, focusedIndex]);
-    const onKeyDown = q2(keyHandler, [selected, anchorIndex, lastShiftRange, focusedIndex]);
+    const onClick = q2(clickHandler, [selected, focusedIndex]);
+    const onKeyDown = q2(keyHandler, [selected, focusedIndex]);
     return { onClick, onKeyDown };
   }
   function toRowSelection(elem) {
@@ -3455,7 +3554,7 @@
       }
       dispatch({ kind: "delete-all" });
     }
-    return /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g("button", { class: Header_default.largeButton, onClick, "aria-disabled": ariaDisabled, title }, /* @__PURE__ */ g(Trash, null), /* @__PURE__ */ g("span", null, buttonTxt)));
+    return /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g("button", { class: Header_default.largeButton, onClick, "aria-disabled": ariaDisabled, title, tabindex: 0 }, /* @__PURE__ */ g(Trash, null), /* @__PURE__ */ g("span", null, buttonTxt)));
   }
 
   // ../node_modules/preact/compat/dist/compat.module.js
@@ -3875,9 +3974,9 @@
           }
         )),
         /* @__PURE__ */ g("a", { href: props.url, "data-url": props.url, class: Item_default.entryLink, tabindex: 0 }, title),
-        /* @__PURE__ */ g("span", { class: Item_default.domain, "data-testid": "Item.domain" }, props.domain),
+        /* @__PURE__ */ g("span", { class: Item_default.domain, "data-testid": "Item.domain", title: props.domain }, props.domain),
         /* @__PURE__ */ g("span", { class: Item_default.time }, dateTimeOfDay),
-        /* @__PURE__ */ g("button", { class: Item_default.dots, "data-action": BTN_ACTION_ENTRIES_MENU, "data-index": index, value: props.id, tabindex: 0 }, /* @__PURE__ */ g(Dots, null))
+        /* @__PURE__ */ g("button", { class: Item_default.dots, "data-action": BTN_ACTION_ENTRIES_MENU, "data-index": index, value: props.id, tabindex: -1 }, /* @__PURE__ */ g(Dots, null))
       ));
     }
   );
@@ -4007,7 +4106,16 @@
   function ResultsContainer() {
     const results = useResultsData();
     const selected = useSelected();
+    const selectionState = useSelectionState();
     const dispatch = useHistoryServiceDispatch();
+    y2(() => {
+      return selectionState.subscribe(({ lastAction, focusedIndex }) => {
+        if (lastAction === "move-selection" || lastAction === "inc-or-dec-selected") {
+          const match = document.querySelector(`[aria-selected][data-index="${focusedIndex}"]`);
+          match?.scrollIntoView({ block: "nearest", inline: "nearest" });
+        }
+      });
+    }, [selectionState]);
     const onChange = q2((end) => dispatch({ kind: "request-more", end }), [dispatch]);
     return /* @__PURE__ */ g(Results, { results, selected, onChange });
   }
@@ -4059,9 +4167,9 @@
     pageTitle: "Sidebar_pageTitle",
     nav: "Sidebar_nav",
     item: "Sidebar_item",
-    link: "Sidebar_link",
-    active: "Sidebar_active",
     delete: "Sidebar_delete",
+    active: "Sidebar_active",
+    link: "Sidebar_link",
     icon: "Sidebar_icon"
   };
 
@@ -4134,29 +4242,32 @@
       historyServiceDispatch({ kind: "delete-range", value: range });
     }
     return /* @__PURE__ */ g("div", { class: Sidebar_default.stack }, /* @__PURE__ */ g("h1", { class: Sidebar_default.pageTitle }, t4("page_title")), /* @__PURE__ */ g("nav", { class: Sidebar_default.nav }, ranges.value.map((range) => {
-      const { buttonLabel, linkLabel } = labels(range, t4);
-      return /* @__PURE__ */ g("div", { class: Sidebar_default.item, key: range }, /* @__PURE__ */ g(RowLink, { onClick: () => onClick(range), current, range, label: linkLabel }, titleMap[range](t4)), range === "all" && /* @__PURE__ */ g(DeleteAllButton, { onClick: onDelete, ariaLabel: buttonLabel, range, ranges, count }), range !== "all" && /* @__PURE__ */ g(DeleteButton, { onClick: () => onDelete(range), label: buttonLabel, range }));
+      return /* @__PURE__ */ g(Item3, { onClick, onDelete, current, range, ranges, count });
     })));
   }
-  function RowLink({ range, current, label, children, onClick }) {
+  function Item3({ current, range, onClick, onDelete, ranges, count }) {
+    const { t: t4 } = useTypedTranslation();
+    const { buttonLabel, linkLabel } = labels(range, t4);
     const classNames = useComputed(() => {
-      return (0, import_classnames4.default)(Sidebar_default.link, current.value === range && Sidebar_default.active);
+      if (range === "all" && current.value === null) {
+        return (0, import_classnames4.default)(Sidebar_default.item, Sidebar_default.active);
+      }
+      return (0, import_classnames4.default)(Sidebar_default.item, current.value === range && Sidebar_default.active);
     });
-    return /* @__PURE__ */ g(
-      "a",
+    return /* @__PURE__ */ g("div", { class: classNames, key: range }, /* @__PURE__ */ g(
+      "button",
       {
-        href: "#",
-        "aria-label": label,
-        class: classNames,
-        tabindex: 0,
+        "aria-label": linkLabel,
+        className: Sidebar_default.link,
+        tabIndex: 0,
         onClick: (e4) => {
           e4.preventDefault();
           onClick(range);
         }
       },
-      /* @__PURE__ */ g("span", { class: Sidebar_default.icon }, /* @__PURE__ */ g("img", { src: iconMap[range] })),
-      children
-    );
+      /* @__PURE__ */ g("span", { className: Sidebar_default.icon }, /* @__PURE__ */ g("img", { src: iconMap[range] })),
+      titleMap[range](t4)
+    ), range === "all" && /* @__PURE__ */ g(DeleteAllButton, { onClick: onDelete, ariaLabel: buttonLabel, range, ranges, count }), range !== "all" && /* @__PURE__ */ g(DeleteButton, { onClick: () => onDelete(range), label: buttonLabel, range }));
   }
   function DeleteButton({ range, onClick, label }) {
     return /* @__PURE__ */ g("button", { class: Sidebar_default.delete, onClick, "aria-label": label, tabindex: 0, value: range }, /* @__PURE__ */ g(Trash, null));
@@ -4213,7 +4324,6 @@
   // pages/history/app/global/hooks/useContextMenuForEntries.js
   function useContextMenuForEntries() {
     const selected = useSelected();
-    const results = useResultsData();
     const dispatch = useHistoryServiceDispatch();
     y2(() => {
       function contextMenu(event) {
@@ -4228,21 +4338,9 @@
         event.stopImmediatePropagation();
         const isSelected = elem.getAttribute("aria-selected") === "true";
         if (isSelected) {
-          const indexes = [...selected.value];
-          const ids = [];
-          for (let i5 = 0; i5 < indexes.length; i5++) {
-            const current = results.value.items[indexes[i5]];
-            if (!current) throw new Error("unreachable");
-            ids.push(current.id);
-          }
-          dispatch({ kind: "show-entries-menu", ids, indexes });
+          dispatch({ kind: "show-entries-menu", indexes: [...selected.value] });
         } else {
-          const button = (
-            /** @type {HTMLButtonElement|null} */
-            elem.querySelector("button[value]")
-          );
-          const id = button?.value || "";
-          dispatch({ kind: "show-entries-menu", ids: [id], indexes: [Number(elem.dataset.index)] });
+          dispatch({ kind: "show-entries-menu", indexes: [Number(elem.dataset.index)] });
         }
       }
       document.addEventListener("contextmenu", contextMenu);
@@ -4291,6 +4389,7 @@
   // pages/history/app/global/hooks/useButtonClickHandler.js
   function useButtonClickHandler() {
     const historyServiceDispatch = useHistoryServiceDispatch();
+    const selected = useSelected();
     y2(() => {
       function clickHandler(event) {
         if (!(event.target instanceof Element)) return;
@@ -4306,11 +4405,19 @@
         event.preventDefault();
         switch (action) {
           case BTN_ACTION_ENTRIES_MENU: {
-            historyServiceDispatch({
-              kind: "show-entries-menu",
-              ids: [btn.value],
-              indexes: [Number(btn.dataset.index)]
-            });
+            const index = parseInt(btn.dataset.index ?? "-1", 10);
+            const withinSelection = selected.value.has(index);
+            if (withinSelection) {
+              historyServiceDispatch({
+                kind: "show-entries-menu",
+                indexes: [...selected.value]
+              });
+            } else {
+              historyServiceDispatch({
+                kind: "show-entries-menu",
+                indexes: [Number(btn.dataset.index)]
+              });
+            }
             return;
           }
           default:
@@ -4499,8 +4606,29 @@
     });
   }
 
+  // pages/history/app/global/hooks/useLayoutMode.js
+  function useLayoutMode() {
+    const mode = useSignal(
+      /** @type {'reduced' | 'normal'} */
+      window.matchMedia("(max-width: 799px)").matches ? "reduced" : "normal"
+    );
+    _2(() => {
+      const mediaQuery = window.matchMedia("(max-width: 799px)");
+      const handleChange = () => {
+        mode.value = mediaQuery.matches ? "reduced" : "normal";
+      };
+      handleChange();
+      mediaQuery.addEventListener("change", handleChange);
+      return () => {
+        mediaQuery.removeEventListener("change", handleChange);
+      };
+    }, []);
+    return mode;
+  }
+
   // pages/history/app/components/App.jsx
   function App() {
+    const platformName = usePlatformName();
     const mainRef = A2(
       /** @type {HTMLElement|null} */
       null
@@ -4508,6 +4636,7 @@
     const { isDarkMode } = useEnv();
     const ranges = useRangesData();
     const query = useQueryContext();
+    const mode = useLayoutMode();
     useResetSelectionsOnQueryChange();
     useLinkClickHandler();
     useButtonClickHandler();
@@ -4527,7 +4656,7 @@
         unsubscribe();
       };
     }, [onKeyDown, query]);
-    return /* @__PURE__ */ g("div", { class: App_default.layout, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges })), /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)), /* @__PURE__ */ g("main", { class: (0, import_classnames5.default)(App_default.main, App_default.customScroller), ref: mainRef, onClick }, /* @__PURE__ */ g(ResultsContainer, null)));
+    return /* @__PURE__ */ g("div", { class: App_default.layout, "data-theme": isDarkMode ? "dark" : "light", "data-platform": platformName, "data-layout-mode": mode }, /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges })), /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)), /* @__PURE__ */ g("main", { class: (0, import_classnames5.default)(App_default.main, App_default.customScroller), ref: mainRef, onClick }, /* @__PURE__ */ g(ResultsContainer, null)));
   }
 
   // pages/history/app/components/Components.module.css
@@ -4570,7 +4699,7 @@
     console.log("initialSetup", init2);
     console.log("environment", environment);
     console.log("settings", settings);
-    const strings = environment.locale === "en" ? history_default : await fetch(`./locales/${environment.locale}/example.json`).then((resp) => {
+    const strings = environment.locale === "en" ? history_default : await fetch(`./locales/${environment.locale}/history.json`).then((resp) => {
       if (!resp.ok) {
         throw new Error("did not give a result");
       }
@@ -4638,7 +4767,7 @@
       this.messaging.notify("reportInitException", params);
     }
   };
-  var baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv("production");
+  var baseEnvironment = new Environment().withInjectName("windows").withEnv("production");
   var messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
