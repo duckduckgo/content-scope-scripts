@@ -188,6 +188,9 @@ test.describe('history', () => {
         await hp.didMakeNthQuery({ nth: 1, query: { domain: 'youtube.com' } });
         await hp.clicksDeleteAllInHeader({ action: 'delete' });
         await hp.didDeleteDomain('youtube.com');
+
+        // should have reset the UI now
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
     });
     test('does not concatenate results if the query is not an addition', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(1);
