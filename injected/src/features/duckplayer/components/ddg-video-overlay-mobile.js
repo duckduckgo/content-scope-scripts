@@ -1,4 +1,4 @@
-import mobilecss from '../assets/mobile-video-overlay.css';
+import mobilecss from '../assets/mobile-video-toast.css';
 import dax from '../assets/dax.svg';
 import info from '../assets/info.svg';
 import { createPolicy, html, trustedUnsafe } from '../../../dom-utils.js';
@@ -48,17 +48,15 @@ export class DDGVideoOverlayMobile extends HTMLElement {
             return '';
         }
         const svgIcon = trustedUnsafe(dax);
-        const infoIcon = trustedUnsafe(info);
+
         return html`
             <div class="ddg-video-player-overlay">
-                <div class="bg ddg-vpo-bg"></div>
-                <div class="content ios">
-                    <div class="logo">${svgIcon}</div>
-                    <div class="title">${this.text.title}</div>
-                    <div class="info">
-                        <button class="button button--info" type="button" aria-label="Open Information Modal">${infoIcon}</button>
+                <div class="ddg-mobile-toast">
+                    <div class="heading">
+                        <div class="logo">${svgIcon}</div>
+                        <div class="title">${this.text.title}</div>
+                        <button class="button button--close" type="button" aria-label="Close modal"></button>
                     </div>
-                    <div class="text">${this.text.subtitle}</div>
                     <div class="buttons">
                         <button class="button cancel ddg-vpo-cancel" type="button">${this.text.buttonOptOut}</button>
                         <a class="button open ddg-vpo-open" href="#">${this.text.buttonOpen}</a>
@@ -83,19 +81,22 @@ export class DDGVideoOverlayMobile extends HTMLElement {
      * @param {HTMLElement} containerElement
      */
     setupEventHandlers(containerElement) {
+        console.log('HERE');
         const switchElem = containerElement.querySelector('[role=switch]');
-        const infoButton = containerElement.querySelector('.button--info');
+        // const infoButton = containerElement.querySelector('.button--info');
         const remember = containerElement.querySelector('input[name="ddg-remember"]');
         const cancelElement = containerElement.querySelector('.ddg-vpo-cancel');
         const watchInPlayer = containerElement.querySelector('.ddg-vpo-open');
 
-        if (!infoButton || !cancelElement || !watchInPlayer || !switchElem || !(remember instanceof HTMLInputElement)) {
+        console.log('HERE', watchInPlayer);
+
+        if (!cancelElement || !watchInPlayer || !switchElem || !(remember instanceof HTMLInputElement)) {
             return console.warn('missing elements');
         }
 
-        infoButton.addEventListener('click', () => {
-            this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO));
-        });
+        // infoButton.addEventListener('click', () => {
+        //     this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO));
+        // });
 
         switchElem.addEventListener('pointerdown', () => {
             const current = switchElem.getAttribute('aria-checked');
@@ -116,6 +117,7 @@ export class DDGVideoOverlayMobile extends HTMLElement {
         });
 
         watchInPlayer.addEventListener('click', (e) => {
+            console.log('WATCH', e.isTrusted);
             if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();

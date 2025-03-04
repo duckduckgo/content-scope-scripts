@@ -178,7 +178,8 @@ export class VideoOverlay {
              */
             const videoElement = document.querySelector(this.settings.selectors.videoElement);
             const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
-            if (!videoElement || !playerContainer) {
+            const overlayContainer = document.querySelector('body'); // TODO: Move to RC
+            if (!videoElement || !playerContainer || !overlayContainer) {
                 return null;
             }
 
@@ -217,7 +218,7 @@ export class VideoOverlay {
 
                 // if we get here, we're trying to prevent the video playing
                 this.stopVideoFromPlaying();
-                this.appendOverlayToPage(playerContainer, params);
+                this.appendOverlayToPage(overlayContainer, params);
             }
         }
     }

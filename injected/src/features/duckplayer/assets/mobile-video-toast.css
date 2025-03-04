@@ -1,0 +1,286 @@
+/* -- VIDEO PLAYER OVERLAY */
+:host {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: white;
+    z-index: 10000;
+    --title-size: 16px;
+    --title-line-height: 20px;
+    --title-gap: 16px;
+    --button-gap: 6px;
+    --logo-size: 32px;
+    --logo-gap: 8px;
+    --gutter: 16px;
+
+}
+/* iphone 15 */
+@media screen and (min-width: 390px) {
+    :host {
+        --title-size: 20px;
+        --title-line-height: 25px;
+        --button-gap: 16px;
+        --logo-size: 40px;
+        --logo-gap: 12px;
+        --title-gap: 16px;
+    }
+}
+/* iphone 15 Pro Max */
+@media screen and (min-width: 430px) {
+    :host {
+        --title-size: 22px;
+        --title-gap: 24px;
+        --button-gap: 20px;
+        --logo-gap: 16px;
+    }
+}
+/* small landscape */
+@media screen and (min-width: 568px) {
+}
+/* large landscape */
+@media screen and (min-width: 844px) {
+    :host {
+        --title-gap: 30px;
+        --button-gap: 24px;
+        --logo-size: 48px;
+    }
+}
+
+
+:host * {
+    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+:root *, :root *:after, :root *:before {
+    box-sizing: border-box;
+}
+
+.ddg-video-player-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: white;
+    z-index: 10000;
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+
+    @media screen and (min-width: 568px) {
+        padding: 0;
+    }
+}
+
+.ddg-mobile-toast {
+    background: #fafafa; /* TODO: var? */
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    bottom: -500px;
+    color: #222;
+    left: 0;
+    padding: 16px;
+    position: fixed;
+
+    animation: toast 300ms ease-out 100ms 1 forwards;
+}
+
+@keyframes toast {
+    0% {
+        bottom: -500px;
+    }
+
+    100% {
+        bottom: 0;
+    }
+}
+
+.heading {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.logo {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+}
+
+.title {
+    color: rgba(0, 0, 0, 0.84);
+    font-size: 19px;
+    font-weight: 700;
+    line-height: calc(24 / 19);
+}
+
+/* */
+
+.buttons {
+    gap: 8px;
+    display: flex;
+    margin-top: 16px; /* TODO: replace with parent gap */
+}
+
+.remember {
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 8px;
+    padding-right: 8px;
+    grid-column: 1/4;
+    grid-row: 5/6;
+
+    @media screen and (min-width: 568px) {
+        grid-column: 2/3;
+    }
+}
+
+.button {
+    flex: 0 0 50%;
+    margin: 0;
+    -webkit-appearance: none;
+    background: none;
+    box-shadow: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 1);
+    text-decoration: none;
+    line-height: 16px;
+    padding: 0 12px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.button--close {
+    flex: 0 0 32px;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: block;
+    padding: 0;
+    margin: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    position: relative;
+    top: -8px;
+    right: -8px;
+
+    display: none;
+}
+
+.button--close::after {
+    content: 'X';
+    color: rgba(0, 0, 0, 0.84);
+}
+
+.button--info svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.button--info svg path {
+    fill: rgba(255, 255, 255, 0.84);
+}
+
+.cancel {
+    color: rgba(0, 0, 0, 0.84);
+    background: rgba(0, 0, 0, 0.06);
+    min-height: 40px;
+}
+
+.open {
+    background: #3969EF;
+    flex: 1;
+    text-align: center;
+    min-height: 40px;
+
+    @media screen and (min-width: 568px) {
+        flex: inherit;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+
+.open:hover {
+}
+.cancel:hover {
+}
+
+.remember-label {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.remember-text {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: calc(18 / 14);
+}
+.remember-checkbox {
+    margin-left: auto;
+    display: flex;
+}
+
+.switch {
+    margin: 0;
+    padding: 0;
+    width: 52px;
+    height: 32px;
+    border: 0;
+    box-shadow: none;
+    background: rgba(136, 136, 136, 0.5);
+    border-radius: 32px;
+    position: relative;
+    transition: all .3s;
+}
+
+.switch:active .thumb {
+    scale: 1.15;
+}
+
+.thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    background: white;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    pointer-events: none;
+    transition: .2s left ease-in-out;
+}
+
+.switch[aria-checked="true"] {
+    background: rgba(57, 105, 239, 1)
+}
+
+.ios-switch {
+    width: 42px;
+    height: 24px;
+}
+
+.ios-switch .thumb {
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)
+}
+
+.ios-switch:active .thumb {
+    scale: 1;
+}
+
+.ios-switch[aria-checked="true"] .thumb {
+    left: calc(100% - 22px)
+}
