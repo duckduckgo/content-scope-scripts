@@ -4,6 +4,7 @@ import { HistoryRangeService } from './history.range.service.js';
 /**
  * @import {ActionResponse} from "../types/history.js"
  * @typedef {import('../types/history.js').Range} Range
+ * @typedef {import('../types/history.js').RangeId} RangeId
  * @typedef {import('../types/history.js').HistoryQuery} HistoryQuery
  * @typedef {import("../types/history.js").HistoryQueryInfo} HistoryQueryInfo
  * @typedef {import("../types/history.js").QueryKind} QueryKind
@@ -301,7 +302,7 @@ export class HistoryService {
     }
 
     /**
-     * @param {Range} range
+     * @param {RangeId} range
      * @return {Promise<{kind: 'none'} | {kind: "range-deleted"}>}
      */
     async deleteRange(range) {
@@ -392,7 +393,7 @@ export function paramsToQuery(params) {
 
 /**
  * @param {null|undefined|string} input
- * @return {import('../types/history.js').Range|null}
+ * @return {import('../types/history.js').RangeId|null}
  */
 export function toRange(input) {
     if (typeof input !== 'string') return null;
@@ -410,7 +411,7 @@ export function toRange(input) {
         'recentlyOpened',
         'older',
     ];
-    return valid.includes(input) ? /** @type {import('../types/history.js').Range} */ (input) : null;
+    return valid.includes(input) ? /** @type {import('../types/history.js').RangeId} */ (input) : null;
 }
 
 /**

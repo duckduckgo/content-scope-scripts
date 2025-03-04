@@ -1,5 +1,6 @@
 /**
  * @typedef {import('../types/history.js').Range} Range
+ * @typedef {import('../types/history.js').RangeId} RangeId
  * @typedef {{ranges: Range[]}} RangeData
  * @typedef {{kind: 'none'} | { kind: 'domain-search'; value: string }} MenuContinuation
  */
@@ -61,7 +62,7 @@ export class HistoryRangeService {
     }
 
     /**
-     * @param {Range} range
+     * @param {RangeId} range
      */
     async deleteRange(range) {
         console.log('📤 [deleteRange]: ', JSON.stringify({ range }));
@@ -70,14 +71,14 @@ export class HistoryRangeService {
             if (range === 'all') {
                 this.update((_old) => {
                     return {
-                        ranges: ['all'],
+                        ranges: [{ id: 'all', count: 0 }],
                     };
                 });
             } else {
                 this.update((old) => {
                     return {
                         ...old,
-                        ranges: old.ranges.filter((x) => x !== range),
+                        ranges: old.ranges.filter((x) => x.id !== range),
                     };
                 });
             }

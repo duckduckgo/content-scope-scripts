@@ -4,9 +4,10 @@ import { signal, useSignal } from '@preact/signals';
 
 /**
  * @typedef {import('../../../types/history.ts').Range} Range
+ * @typedef {import('../../../types/history.ts').RangeId} RangeId
  * @typedef {{
  *   term: string | null,
- *   range: Range | null,
+ *   range: RangeId | null,
  *   domain: string | null,
  * }} QueryState - this is the value the entire application can read/observe
  */
@@ -22,7 +23,7 @@ const QueryContext = createContext(
     /** @type {import('@preact/signals').ReadonlySignal<QueryState>} */ (
         signal({
             term: /** @type {string|null} */ (null),
-            range: /** @type {import('../../../types/history.ts').Range|null} */ (null),
+            range: /** @type {RangeId|null} */ (null),
             domain: /** @type {string|null} */ (null),
         })
     ),
@@ -65,7 +66,7 @@ export function QueryProvider({ children, query = { term: '' } }) {
                     return { term: null, domain: action.value, range: null };
                 }
                 case 'search-by-range': {
-                    return { term: null, domain: null, range: /** @type {Range} */ (action.value) };
+                    return { term: null, domain: null, range: /** @type {RangeId} */ (action.value) };
                 }
                 case 'search-by-term': {
                     return { term: action.value, domain: null, range: null };

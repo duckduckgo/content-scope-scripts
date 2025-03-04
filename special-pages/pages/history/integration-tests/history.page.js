@@ -232,7 +232,7 @@ export class HistoryTestPage {
     }
 
     /**
-     * @param {import("../types/history.js").Range} range
+     * @param {import("../types/history.js").RangeId} range
      */
     async didDeleteRange(range) {
         const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });

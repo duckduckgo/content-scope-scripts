@@ -164,10 +164,20 @@ export function mockTransport() {
                 case 'getRanges': {
                     /** @type {import('../../types/history.ts').GetRangesResponse} */
                     const response = {
-                        ranges: ['all', 'today', 'yesterday', 'tuesday', 'monday', 'friday', 'older'],
+                        ranges: [
+                            { id: 'all', count: 1 },
+                            { id: 'today', count: 1 },
+                            { id: 'yesterday', count: 1 },
+                            { id: 'tuesday', count: 1 },
+                            { id: 'monday', count: 1 },
+                            { id: 'friday', count: 1 },
+                            { id: 'older', count: 1 },
+                        ],
                     };
                     if (url.searchParams.get('history') === '0') {
-                        response.ranges = ['all'];
+                        response.ranges = response.ranges.map((range) => {
+                            return { ...range, count: 0 };
+                        });
                     }
                     return Promise.resolve(response);
                 }

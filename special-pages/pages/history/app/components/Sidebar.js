@@ -11,9 +11,10 @@ import { useHistoryServiceDispatch, useResultsData } from '../global/Providers/H
 /**
  * @import json from "../strings.json"
  * @typedef {import('../../types/history.js').Range} Range
+ * @typedef {import('../../types/history.js').RangeId} RangeId
  */
 
-/** @type {Record<Range, string>} */
+/** @type {Record<RangeId, string>} */
 const iconMap = {
     all: 'icons/all.svg',
     today: 'icons/today.svg',
@@ -28,7 +29,7 @@ const iconMap = {
     older: 'icons/older.svg',
 };
 
-/** @type {Record<Range, (t: (s: keyof json) => string) => string>} */
+/** @type {Record<RangeId, (t: (s: keyof json) => string) => string>} */
 const titleMap = {
     all: (t) => t('range_all'),
     today: (t) => t('range_today'),
@@ -53,13 +54,11 @@ export function Sidebar({ ranges }) {
     const { t } = useTypedTranslation();
     const search = useQueryContext();
     const current = useComputed(() => search.value.range);
-    const results = useResultsData();
-    const count = useComputed(() => results.value.items.length);
     const dispatch = useQueryDispatch();
     const historyServiceDispatch = useHistoryServiceDispatch();
 
     /**
-     * @param {Range} range
+     * @param {RangeId} range
      */
     function onClick(range) {
         if (range === 'all') {
@@ -69,7 +68,7 @@ export function Sidebar({ ranges }) {
         }
     }
     /**
-     * @param {Range} range
+     * @param {RangeId} range
      */
     function onDelete(range) {
         historyServiceDispatch({ kind: 'delete-range', value: range });
@@ -80,7 +79,17 @@ export function Sidebar({ ranges }) {
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
             <nav class={styles.nav}>
                 {ranges.value.map((range) => {
-                    return <Item onClick={onClick} onDelete={onDelete} current={current} range={range} ranges={ranges} count={count} />;
+                    return (
+                        <Item
+                            key={range.id}
+                            onClick={onClick}
+                            onDelete={onDelete}
+                            current={current}
+                            range={range.id}
+                            count={range.count}
+                            ranges={ranges}
+                        />
+                    );
                 })}
             </nav>
         </div>
@@ -91,12 +100,12 @@ export function Sidebar({ ranges }) {
  * A component that renders a list item with optional delete actions and a link.
  *
  * @param {Object} props
- * @param {import('@preact/signals').ReadonlySignal<Range|null>} props.current The current selection with a value property.
- * @param {Range} props.range The range represented by this item.
- * @param {(range: Range) => void} props.onClick Callback function triggered when the range is clicked.
- * @param {(range: Range) => void} props.onDelete Callback function triggered when the delete action is clicked.
+ * @param {import('@preact/signals').ReadonlySignal<RangeId|null>} props.current The current selection with a value property.
+ * @param {RangeId} props.range The range represented by this item.
+ * @param {(range: RangeId) => void} props.onClick Callback function triggered when the range is clicked.
+ * @param {(range: RangeId) => void} props.onDelete Callback function triggered when the delete action is clicked.
  * @param {import("@preact/signals").Signal<Range[]>} props.ranges
- * @param {import('@preact/signals').ReadonlySignal<number>} props.count The count value associated with the ranges.
+ * @param {number} props.count The count value associated with the ranges.
  */
 function Item({ current, range, onClick, onDelete, ranges, count }) {
     const { t } = useTypedTranslation();
@@ -124,23 +133,8 @@ function Item({ current, range, onClick, onDelete, ranges, count }) {
                 </span>
                 {titleMap[range](t)}
             </button>
-            {range === 'all' && <DeleteAllButton onClick={onDelete} ariaLabel={buttonLabel} range={range} ranges={ranges} count={count} />}
-            {range !== 'all' && <DeleteButton onClick={() => onDelete(range)} label={buttonLabel} range={range} />}
+            <DeleteAllButton onClick={onDelete} ariaLabel={buttonLabel} range={range} ranges={ranges} count={count} />
         </div>
-    );
-}
-
-/**
- * @param {Object} props
- * @param {Range} props.range The range value used for filtering and identification.
- * @param {string} props.label The title or label of the item.
- * @param {(range: MouseEvent)=>void} props.onClick
- */
-function DeleteButton({ range, onClick, label }) {
-    return (
-        <button class={styles.delete} onClick={onClick} aria-label={label} tabindex={0} value={range}>
-            <Trash />
-        </button>
     );
 }
 
@@ -149,20 +143,20 @@ function DeleteButton({ range, onClick, label }) {
  * logic that's only relevant to this row item.
  *
  * @param {Object} props - The properties passed to the component.
- * @param {Range} props.range - The range value used for filtering and identification.
+ * @param {RangeId} props.range - The range value used for filtering and identification.
  * @param {import('@preact/signals').Signal<Range[]>} props.ranges - A signal containing an array of range values used for navigation.
  * @param {string} props.ariaLabel - The accessible label for the delete button.
- * @param {(evt: Range) => void} props.onClick - The callback function triggered on button click.
- * @param {import('@preact/signals').Signal<number>} props.count - A signal representing the count of items in the range.
+ * @param {(evt: RangeId) => void} props.onClick - The callback function triggered on button click.
+ * @param {number} props.count - A signal representing the count of items in the range.
  */
 function DeleteAllButton({ range, ranges, onClick, ariaLabel, count }) {
     const { t } = useTypedTranslationWith(/** @type {json} */ ({}));
 
     const ariaDisabled = useComputed(() => {
-        return count.value === 0 && ranges.value.length === 1 ? 'true' : 'false';
+        return count === 0 ? 'true' : 'false';
     });
     const buttonTitle = useComputed(() => {
-        return count.value === 0 && ranges.value.length === 1 ? t('delete_none') : '';
+        return count === 0 ? t('delete_none') : '';
     });
 
     return (
@@ -186,7 +180,7 @@ function DeleteAllButton({ range, ranges, onClick, ariaLabel, count }) {
 }
 
 /**
- * @param {Range} range
+ * @param {RangeId} range
  * @return {{linkLabel: string, buttonLabel: string}}
  */
 function labels(range, t) {
