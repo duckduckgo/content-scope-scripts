@@ -79,6 +79,7 @@ export function Sidebar({ ranges }) {
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
             <nav class={styles.nav}>
                 {ranges.value.map((range) => {
+                    console.log(range.id, range.count);
                     return (
                         <Item
                             key={range.id}
@@ -152,12 +153,8 @@ function Item({ current, range, onClick, onDelete, ranges, count }) {
 function DeleteAllButton({ range, ranges, onClick, ariaLabel, count }) {
     const { t } = useTypedTranslationWith(/** @type {json} */ ({}));
 
-    const ariaDisabled = useComputed(() => {
-        return count === 0 ? 'true' : 'false';
-    });
-    const buttonTitle = useComputed(() => {
-        return count === 0 ? t('delete_none') : '';
-    });
+    const ariaDisabled = count === 0 ? 'true' : 'false';
+    const buttonTitle = count === 0 ? t('delete_none') : '';
 
     return (
         <button

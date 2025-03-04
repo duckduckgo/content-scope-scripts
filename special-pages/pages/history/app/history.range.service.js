@@ -87,7 +87,6 @@ export class HistoryRangeService {
      */
     async deleteRange(range) {
         console.log('📤 [deleteRange]: ', JSON.stringify({ range }));
-        const resp = await this.history.messaging.request('deleteRange', { range });
-        return { kind: resp.action };
+        return await this.history.messaging.request('deleteRange', { range });
     }
 }
