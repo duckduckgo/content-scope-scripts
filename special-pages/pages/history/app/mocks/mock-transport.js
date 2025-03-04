@@ -28,6 +28,20 @@ export function mockTransport() {
     }
 
     let memory = clone(historyMocks.few).value;
+    /** @type {import('../../types/history.ts').GetRangesResponse} */
+    const rangeMemory = {
+        ranges: [
+            { id: 'all', count: 1 },
+            { id: 'today', count: 1 },
+            { id: 'yesterday', count: 1 },
+            { id: 'tuesday', count: 1 },
+            { id: 'monday', count: 1 },
+            { id: 'sunday', count: 1 },
+            { id: 'saturday', count: 1 },
+            { id: 'friday', count: 1 },
+            { id: 'older', count: 1 },
+        ],
+    };
 
     if (url.searchParams.has('history')) {
         const key = url.searchParams.get('history');
@@ -71,7 +85,7 @@ export function mockTransport() {
                     return withLatency(queryResponseFrom(memory, msg));
                 }
                 case 'entries_delete': {
-                    console.log('📤 [entries_delete]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [entries_delete]: ', JSON.stringify(msg.params));
                     if (msg.params.ids.length > 1) {
                         // prettier-ignore
                         const lines = [
@@ -113,19 +127,6 @@ export function mockTransport() {
                     }
                     return Promise.resolve({ action: 'none' });
                 }
-                case 'deleteRange': {
-                    // console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
-                    // prettier-ignore
-                    const lines = [
-                        `deleteRange: ${JSON.stringify(msg.params)}`,
-                        `To simulate deleting this item, press confirm`
-                    ].join('\n',);
-                    if (confirm(lines)) {
-                        if (msg.params.range === 'all') memory = [];
-                        return Promise.resolve({ action: 'delete' });
-                    }
-                    return Promise.resolve({ action: 'none' });
-                }
                 case 'deleteDomain': {
                     // console.log('📤 [deleteDomain]: ', JSON.stringify(msg.params));
                     // prettier-ignore
@@ -139,7 +140,7 @@ export function mockTransport() {
                     return Promise.resolve({ action: 'none' });
                 }
                 case 'deleteTerm': {
-                    console.log('📤 [deleteTerm]: ', JSON.stringify(msg.params));
+                    // console.log('📤 [deleteTerm]: ', JSON.stringify(msg.params));
                     // prettier-ignore
                     const lines = [
                         `deleteTerm: ${JSON.stringify(msg.params)}`,
@@ -150,7 +151,6 @@ export function mockTransport() {
                     }
                     return Promise.resolve({ action: 'none' });
                 }
-
                 case 'initialSetup': {
                     /** @type {import('../../types/history.ts').InitialSetupResponse} */
                     const initial = {
@@ -161,15 +161,31 @@ export function mockTransport() {
 
                     return Promise.resolve(initial);
                 }
-                case 'getRanges': {
-                    /** @type {import('../../types/history.ts').GetRangesResponse} */
-                    const response = {
-                        ranges: ['all', 'today', 'yesterday', 'tuesday', 'monday', 'friday', 'older'],
-                    };
-                    if (url.searchParams.get('history') === '0') {
-                        response.ranges = ['all'];
+
+                case 'deleteRange': {
+                    // console.log('📤 [deleteRange]: ', JSON.stringify(msg.params));
+                    // prettier-ignore
+                    const lines = [
+                        `deleteRange: ${JSON.stringify(msg.params)}`,
+                        `To simulate deleting this item, press confirm`
+                    ].join('\n',);
+                    if (confirm(lines)) {
+                        if (msg.params.range === 'all') memory = [];
+                        rangeMemory.ranges = rangeMemory.ranges.filter((x) => {
+                            return x.id !== msg.params.range;
+                        });
+                        console.log(rangeMemory.ranges);
+                        return Promise.resolve({ action: 'delete' });
                     }
-                    return Promise.resolve(response);
+                    return Promise.resolve({ action: 'none' });
+                }
+                case 'getRanges': {
+                    if (url.searchParams.get('history') === '0') {
+                        rangeMemory.ranges = rangeMemory.ranges.map((range) => {
+                            return { ...range, count: 0 };
+                        });
+                    }
+                    return Promise.resolve(rangeMemory);
                 }
                 default: {
                     return Promise.reject(new Error('unhandled request' + msg));

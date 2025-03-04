@@ -34,7 +34,24 @@ Retrieves available time ranges for history filtering.
 
 ```json
 {
-  "ranges": ["today", "yesterday", "monday", "recentlyOpened"]
+  "ranges": [
+    {
+      "id": "today",
+      "count": 13
+    },
+    {
+      "id": "yesterday",
+      "count": 10
+    },
+    {
+      "id": "monday",
+      "count": 2
+    },
+    {
+      "id": "older",
+      "count": 120
+    }
+  ]
 }
 ```
 

@@ -1,3 +1,4 @@
+/* eslint-disable promise/prefer-await-to-then */
 import { createContext, h } from 'preact';
 import { paramsToQuery, toRange } from '../../history.service.js';
 import { useCallback, useContext } from 'preact/hooks';
@@ -89,35 +90,60 @@ export function HistoryServiceProvider({ service, children, initial }) {
                 if (range) {
                     service
                         .deleteRange(range)
-                        // eslint-disable-next-line promise/prefer-await-to-then
                         .then((resp) => {
-                            if (resp.kind === 'range-deleted') {
+                            if (resp.kind === 'delete') {
                                 queryDispatch({ kind: 'reset' });
+                                service.refreshRanges();
                             }
                         })
-                        // eslint-disable-next-line promise/prefer-await-to-then
                         .catch(console.error);
                 }
                 break;
             }
             case 'delete-domain': {
-                // eslint-disable-next-line promise/prefer-await-to-then
-                service.deleteDomain(action.domain).catch(console.error);
+                service
+                    .deleteDomain(action.domain)
+                    .then((resp) => {
+                        if (resp.kind === 'delete') {
+                            queryDispatch({ kind: 'reset' });
+                            service.refreshRanges();
+                        }
+                    })
+                    .catch(console.error);
                 break;
             }
             case 'delete-entries-by-index': {
-                // eslint-disable-next-line promise/prefer-await-to-then
-                service.entriesDelete(action.value).catch(console.error);
+                service
+                    .entriesDelete(action.value)
+                    .then((resp) => {
+                        if (resp.kind === 'delete') {
+                            service.refreshRanges();
+                        }
+                    })
+                    .catch(console.error);
                 break;
             }
             case 'delete-all': {
-                // eslint-disable-next-line promise/prefer-await-to-then
-                service.deleteRange('all').catch(console.error);
+                service
+                    .deleteRange('all')
+                    .then((x) => {
+                        if (x.kind === 'delete') {
+                            service.refreshRanges();
+                        }
+                    })
+                    .catch(console.error);
                 break;
             }
             case 'delete-term': {
-                // eslint-disable-next-line promise/prefer-await-to-then
-                service.deleteTerm(action.term).catch(console.error);
+                service
+                    .deleteTerm(action.term)
+                    .then((resp) => {
+                        if (resp.kind === 'delete') {
+                            queryDispatch({ kind: 'reset' });
+                            service.refreshRanges();
+                        }
+                    })
+                    .catch(console.error);
                 break;
             }
             case 'open-url': {
@@ -127,13 +153,13 @@ export function HistoryServiceProvider({ service, children, initial }) {
             case 'show-entries-menu': {
                 service
                     .entriesMenu(action.indexes)
-                    // eslint-disable-next-line promise/prefer-await-to-then
                     .then((resp) => {
-                        if (resp.kind === 'domain-search') {
+                        if (resp.kind === 'domain-search' && 'value' in resp) {
                             queryDispatch({ kind: 'search-by-domain', value: resp.value });
+                        } else if (resp.kind === 'delete') {
+                            service.refreshRanges();
                         }
                     })
-                    // eslint-disable-next-line promise/prefer-await-to-then
                     .catch(console.error);
                 break;
             }

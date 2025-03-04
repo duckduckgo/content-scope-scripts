@@ -11,7 +11,8 @@ export function useAuxClickHandler() {
     const dispatch = useHistoryServiceDispatch();
     useEffect(() => {
         const handleAuxClick = (event) => {
-            const anchor = /** @type {HTMLButtonElement|null} */ (event.target.closest('a[href][data-url]'));
+            const row = /** @type {HTMLDivElement|null} */ (event.target.closest('[aria-selected]'));
+            const anchor = /** @type {HTMLAnchorElement|null} */ (row?.querySelector('a[href][data-url]'));
             const url = anchor?.dataset.url;
             if (anchor && url && event.button === 1) {
                 event.preventDefault();
@@ -24,5 +25,5 @@ export function useAuxClickHandler() {
         return () => {
             document.removeEventListener('auxclick', handleAuxClick);
         };
-    }, []);
+    }, [platformName, dispatch]);
 }

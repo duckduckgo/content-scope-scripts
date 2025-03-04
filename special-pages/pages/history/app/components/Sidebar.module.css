@@ -51,14 +51,17 @@
 
 
 .link {
+    font-size: var(--label-font-size);
+    font-weight: var(--label-font-weight);
+    line-height: var(--label-line-height);
+    color: var(--history-text-normal);
+
     height: 40px;
     display: flex;
     align-items: center;
     border-radius: 8px;
     padding-left: 16px;
     text-decoration: none;
-    font-weight: 510;
-    color: var(--history-text-normal);
     gap: 6px;
     border: 0;
     box-shadow: none;
@@ -66,6 +69,7 @@
     flex: 1;
     white-space: normal;
     text-align: left;
+    text-transform: capitalize;
 }
 
 .delete {

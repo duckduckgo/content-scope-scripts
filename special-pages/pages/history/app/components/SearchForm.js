@@ -43,7 +43,7 @@ export function SearchForm({ term, domain }) {
     }
 
     return (
-        <form role="search" onSubmit={submit}>
+        <form role="search" class={styles.form} onSubmit={submit}>
             <label class={styles.label}>
                 <span class="sr-only">{t('search_your_history')}</span>
                 <span class={styles.searchIcon}>

@@ -1689,6 +1689,7 @@
     controls: "Header_controls",
     largeButton: "Header_largeButton",
     search: "Header_search",
+    form: "Header_form",
     label: "Header_label",
     searchIcon: "Header_searchIcon",
     searchInput: "Header_searchInput"
@@ -2502,7 +2503,7 @@
         null
       ),
       range: (
-        /** @type {import('../../../types/history.ts').Range|null} */
+        /** @type {RangeId|null} */
         null
       ),
       domain: (
@@ -2535,7 +2536,7 @@
           }
           case "search-by-range": {
             return { term: null, domain: null, range: (
-              /** @type {Range} */
+              /** @type {RangeId} */
               action.value
             ) };
           }
@@ -2580,7 +2581,7 @@
       const term2 = data.get(INPUT_FIELD_NAME)?.toString();
       dispatch({ kind: "search-by-term", value: term2 ?? "" });
     }
-    return /* @__PURE__ */ g("form", { role: "search", onSubmit: submit }, /* @__PURE__ */ g("label", { class: Header_default.label }, /* @__PURE__ */ g("span", { class: "sr-only" }, t4("search_your_history")), /* @__PURE__ */ g("span", { class: Header_default.searchIcon }, /* @__PURE__ */ g(SearchIcon, null)), /* @__PURE__ */ g(
+    return /* @__PURE__ */ g("form", { role: "search", class: Header_default.form, onSubmit: submit }, /* @__PURE__ */ g("label", { class: Header_default.label }, /* @__PURE__ */ g("span", { class: "sr-only" }, t4("search_your_history")), /* @__PURE__ */ g("span", { class: Header_default.searchIcon }, /* @__PURE__ */ g(SearchIcon, null)), /* @__PURE__ */ g(
       "input",
       {
         class: Header_default.searchInput,
@@ -2722,8 +2723,10 @@
   );
 
   // pages/history/app/history.range.service.js
-  var HistoryRangeService = class {
-    data = new EventTarget();
+  var _HistoryRangeService = class _HistoryRangeService {
+    index = 0;
+    internal = new EventTarget();
+    dataReadinessSignal = new EventTarget();
     /**
      * @type {RangeData|null}
      */
@@ -2733,29 +2736,45 @@
      */
     constructor(history) {
       this.history = history;
+      this.internal.addEventListener(_HistoryRangeService.REFRESH_EVENT, () => {
+        this.index++;
+        const index = this.index;
+        this.fetcher().then((next) => {
+          const resolvedPromiseIsStale = this.index !== index;
+          if (resolvedPromiseIsStale) return console.log("\u274C rejected stale result");
+          this.accept(next);
+        });
+      });
     }
     /**
      * @param {RangeData} d
      */
     accept(d5) {
       this.ranges = d5;
-      this.data.dispatchEvent(new Event("data"));
+      this.dataReadinessSignal.dispatchEvent(new Event(_HistoryRangeService.DATA_EVENT));
+    }
+    fetcher() {
+      console.log(`\u{1F9BB} [getRanges]`);
+      return this.history.messaging.request("getRanges");
     }
     /**
      * @returns {Promise<RangeData>}
      */
     async getInitial() {
-      const rangesPromise = await this.history.messaging.request("getRanges");
+      const rangesPromise = await this.fetcher();
       this.accept(rangesPromise);
       return rangesPromise;
+    }
+    refresh() {
+      this.internal.dispatchEvent(new Event(_HistoryRangeService.REFRESH_EVENT));
     }
     /**
      * @param {(data: RangeData) => void} cb
      */
     onResults(cb) {
       const controller = new AbortController();
-      this.data.addEventListener(
-        "data",
+      this.dataReadinessSignal.addEventListener(
+        _HistoryRangeService.DATA_EVENT,
         () => {
           if (this.ranges === null) throw new Error("unreachable");
           cb(this.ranges);
@@ -2765,37 +2784,24 @@
       return () => controller.abort();
     }
     /**
-     * @param {(d: RangeData) => RangeData} updater
-     */
-    update(updater) {
-      if (this.ranges === null) throw new Error("unreachable");
-      this.accept(updater(this.ranges));
-    }
-    /**
-     * @param {Range} range
+     * @param {RangeId} range
      */
     async deleteRange(range) {
       console.log("\u{1F4E4} [deleteRange]: ", JSON.stringify({ range }));
-      const resp = await this.history.messaging.request("deleteRange", { range });
-      if (resp.action === "delete") {
-        if (range === "all") {
-          this.update((_old) => {
-            return {
-              ranges: ["all"]
-            };
-          });
-        } else {
-          this.update((old) => {
-            return {
-              ...old,
-              ranges: old.ranges.filter((x4) => x4 !== range)
-            };
-          });
-        }
-      }
-      return resp;
+      return await this.history.messaging.request("deleteRange", { range });
     }
   };
+  __publicField(_HistoryRangeService, "REFRESH_EVENT", "refresh");
+  __publicField(_HistoryRangeService, "DATA_EVENT", "data");
+  var HistoryRangeService = _HistoryRangeService;
+
+  // pages/new-tab/app/utils.js
+  function viewTransition(fn2) {
+    if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
+      return document.startViewTransition(fn2);
+    }
+    return fn2();
+  }
 
   // pages/history/app/history.service.js
   var _HistoryService = class _HistoryService {
@@ -2829,7 +2835,7 @@
       this.range = new HistoryRangeService(this.history);
       this.internal.addEventListener(_HistoryService.QUERY_EVENT, (evt) => {
         const { detail } = evt;
-        if (eq(detail, this.ongoing)) return console.log("ignoring duplicate query");
+        if (eq(detail, this.ongoing)) return;
         this.index++;
         const index = this.index;
         this.ongoing = JSON.parse(JSON.stringify(detail));
@@ -2925,6 +2931,9 @@
     trigger(query) {
       this.internal.dispatchEvent(new CustomEvent(_HistoryService.QUERY_EVENT, { detail: query }));
     }
+    refreshRanges() {
+      this.range.refresh();
+    }
     /**
      * @param {number} end - the index of the last seen element
      */
@@ -2940,41 +2949,45 @@
     }
     /**
      * @param {number[]} indexes
-     * @return {Promise<{kind: 'none'} | { kind: 'domain-search'; value: string }>}
+     * @return {Promise<ServiceResult>}
      */
     async entriesMenu(indexes) {
       const ids = this._collectIds(indexes);
       console.trace("\u{1F4E4} [entries_menu]: ", JSON.stringify({ ids }));
       const response = await this.history.messaging.request("entries_menu", { ids });
       if (response.action === "none") {
-        return { kind: "none" };
+        return { kind: response.action };
       }
       if (response.action === "delete") {
         this._postdelete(indexes);
-        return { kind: "none" };
+        return { kind: response.action };
       }
       if (response.action === "domain-search" && ids.length === 1 && indexes.length === 1) {
         const target = this.data?.results[indexes[0]];
         const targetValue = target?.etldPlusOne || target?.domain;
         if (targetValue) {
-          return { kind: "domain-search", value: targetValue };
+          return { kind: response.action, value: targetValue };
         } else {
           console.warn("missing target domain from current dataset?");
-          return { kind: "none" };
+          return { kind: response.action };
         }
       }
-      return { kind: "none" };
+      return { kind: response.action };
     }
     /**
      * @param {number[]} indexes
+     * @return {Promise<ServiceResult>}
      */
     async entriesDelete(indexes) {
       const ids = this._collectIds(indexes);
       console.log("\u{1F4E4} [entries_delete]: ", JSON.stringify({ ids }));
       const response = await this.history.messaging.request("entries_delete", { ids });
-      if (response.action === "none") return;
-      if (response.action !== "delete") return;
-      this._postdelete(indexes);
+      if (response.action === "delete") {
+        viewTransition(() => {
+          this._postdelete(indexes);
+        });
+      }
+      return { kind: response.action };
     }
     /**
      * @param {number[]} indexes
@@ -3016,33 +3029,30 @@
       });
     }
     /**
-     * @param {Range} range
-     * @return {Promise<{kind: 'none'} | {kind: "range-deleted"}>}
+     * @param {RangeId} range
+     * @return {Promise<ServiceResult>}
      */
     async deleteRange(range) {
       const resp = await this.range.deleteRange(range);
       if (resp.action === "delete" && range === "all") {
         this.reset();
       }
-      if (resp.action === "delete") {
-        return { kind: "range-deleted" };
-      }
-      return { kind: "none" };
+      return { kind: resp.action };
     }
     /**
      * @param {string} domain
-     * @return {Promise<{kind: 'none'} | {kind: "domain-deleted"}>}
+     * @return {Promise<ServiceResult>}
      */
     async deleteDomain(domain) {
       const resp = await this.history.messaging.request("deleteDomain", { domain });
       if (resp.action === "delete") {
         this.reset();
-        return { kind: "domain-deleted" };
       }
-      return { kind: "none" };
+      return { kind: resp.action };
     }
     /**
      * @param {string} term
+     * @return {Promise<ServiceResult>}
      */
     async deleteTerm(term) {
       console.log("\u{1F4E4} [deleteTerm]: ", JSON.stringify({ term }));
@@ -3050,7 +3060,7 @@
       if (resp.action === "delete") {
         this.reset();
       }
-      return resp;
+      return { kind: resp.action };
     }
   };
   __publicField(_HistoryService, "CHUNK_SIZE", 150);
@@ -3103,7 +3113,7 @@
       "older"
     ];
     return valid.includes(input) ? (
-      /** @type {import('../types/history.js').Range} */
+      /** @type {import('../types/history.js').RangeId} */
       input
     ) : null;
   }
@@ -3158,27 +3168,46 @@
           const range = toRange(action.value);
           if (range) {
             service.deleteRange(range).then((resp) => {
-              if (resp.kind === "range-deleted") {
+              if (resp.kind === "delete") {
                 queryDispatch({ kind: "reset" });
+                service.refreshRanges();
               }
             }).catch(console.error);
           }
           break;
         }
         case "delete-domain": {
-          service.deleteDomain(action.domain).catch(console.error);
+          service.deleteDomain(action.domain).then((resp) => {
+            if (resp.kind === "delete") {
+              queryDispatch({ kind: "reset" });
+              service.refreshRanges();
+            }
+          }).catch(console.error);
           break;
         }
         case "delete-entries-by-index": {
-          service.entriesDelete(action.value).catch(console.error);
+          service.entriesDelete(action.value).then((resp) => {
+            if (resp.kind === "delete") {
+              service.refreshRanges();
+            }
+          }).catch(console.error);
           break;
         }
         case "delete-all": {
-          service.deleteRange("all").catch(console.error);
+          service.deleteRange("all").then((x4) => {
+            if (x4.kind === "delete") {
+              service.refreshRanges();
+            }
+          }).catch(console.error);
           break;
         }
         case "delete-term": {
-          service.deleteTerm(action.term).catch(console.error);
+          service.deleteTerm(action.term).then((resp) => {
+            if (resp.kind === "delete") {
+              queryDispatch({ kind: "reset" });
+              service.refreshRanges();
+            }
+          }).catch(console.error);
           break;
         }
         case "open-url": {
@@ -3187,8 +3216,10 @@
         }
         case "show-entries-menu": {
           service.entriesMenu(action.indexes).then((resp) => {
-            if (resp.kind === "domain-search") {
+            if (resp.kind === "domain-search" && "value" in resp) {
               queryDispatch({ kind: "search-by-domain", value: resp.value });
+            } else if (resp.kind === "delete") {
+              service.refreshRanges();
             }
           }).catch(console.error);
           break;
@@ -3521,7 +3552,7 @@
     const term = useComputed(() => search.value.term);
     const range = useComputed(() => search.value.range);
     const domain = useComputed(() => search.value.domain);
-    return /* @__PURE__ */ g("div", { class: Header_default.root }, /* @__PURE__ */ g(Controls, { term, range, domain }), /* @__PURE__ */ g("div", { class: Header_default.search }, /* @__PURE__ */ g(SearchForm, { term, domain })));
+    return /* @__PURE__ */ g("div", { class: Header_default.root }, /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g(Controls, { term, range, domain })), /* @__PURE__ */ g("div", { class: Header_default.search }, /* @__PURE__ */ g(SearchForm, { term, domain })));
   }
   function Controls({ term, range, domain }) {
     const { t: t4 } = useTypedTranslation();
@@ -3554,7 +3585,7 @@
       }
       dispatch({ kind: "delete-all" });
     }
-    return /* @__PURE__ */ g("div", { class: Header_default.controls }, /* @__PURE__ */ g("button", { class: Header_default.largeButton, onClick, "aria-disabled": ariaDisabled, title, tabindex: 0 }, /* @__PURE__ */ g(Trash, null), /* @__PURE__ */ g("span", null, buttonTxt)));
+    return /* @__PURE__ */ g("button", { class: Header_default.largeButton, onClick, "aria-disabled": ariaDisabled, title, tabindex: 0 }, /* @__PURE__ */ g(Trash, null), /* @__PURE__ */ g("span", null, buttonTxt));
   }
 
   // ../node_modules/preact/compat/dist/compat.module.js
@@ -3952,13 +3983,14 @@
       const { title, kind, etldPlusOne, faviconSrc, faviconMax, dateTimeOfDay, dateRelativeDay, index, selected } = props;
       const hasFooterGap = kind === END_KIND || kind === BOTH_KIND;
       const hasTitle = kind === TITLE_KIND || kind === BOTH_KIND;
-      return /* @__PURE__ */ g(k, null, hasTitle && /* @__PURE__ */ g("div", { className: (0, import_classnames2.default)(Item_default.title) }, dateRelativeDay), /* @__PURE__ */ g(
+      return /* @__PURE__ */ g(k, null, hasTitle && /* @__PURE__ */ g("div", { class: (0, import_classnames2.default)(Item_default.title), style: { viewTransitionName: `item-title-${props.id}` } }, dateRelativeDay), /* @__PURE__ */ g(
         "div",
         {
           class: (0, import_classnames2.default)(Item_default.row, Item_default.hover, hasFooterGap && Item_default.last),
           "data-history-entry": props.id,
           "data-index": index,
-          "aria-selected": selected
+          "aria-selected": selected,
+          style: { viewTransitionName: `item-${props.id}` }
         },
         /* @__PURE__ */ g("div", { class: Item_default.favicon }, /* @__PURE__ */ g(
           FaviconWithState,
@@ -4227,8 +4259,6 @@
     const { t: t4 } = useTypedTranslation();
     const search = useQueryContext();
     const current = useComputed(() => search.value.range);
-    const results = useResultsData();
-    const count = useComputed(() => results.value.items.length);
     const dispatch = useQueryDispatch();
     const historyServiceDispatch = useHistoryServiceDispatch();
     function onClick(range) {
@@ -4242,7 +4272,18 @@
       historyServiceDispatch({ kind: "delete-range", value: range });
     }
     return /* @__PURE__ */ g("div", { class: Sidebar_default.stack }, /* @__PURE__ */ g("h1", { class: Sidebar_default.pageTitle }, t4("page_title")), /* @__PURE__ */ g("nav", { class: Sidebar_default.nav }, ranges.value.map((range) => {
-      return /* @__PURE__ */ g(Item3, { onClick, onDelete, current, range, ranges, count });
+      return /* @__PURE__ */ g(
+        Item3,
+        {
+          key: range.id,
+          onClick,
+          onDelete,
+          current,
+          range: range.id,
+          count: range.count,
+          ranges
+        }
+      );
     })));
   }
   function Item3({ current, range, onClick, onDelete, ranges, count }) {
@@ -4258,7 +4299,7 @@
       "button",
       {
         "aria-label": linkLabel,
-        className: Sidebar_default.link,
+        class: Sidebar_default.link,
         tabIndex: 0,
         onClick: (e4) => {
           e4.preventDefault();
@@ -4267,22 +4308,15 @@
       },
       /* @__PURE__ */ g("span", { className: Sidebar_default.icon }, /* @__PURE__ */ g("img", { src: iconMap[range] })),
       titleMap[range](t4)
-    ), range === "all" && /* @__PURE__ */ g(DeleteAllButton, { onClick: onDelete, ariaLabel: buttonLabel, range, ranges, count }), range !== "all" && /* @__PURE__ */ g(DeleteButton, { onClick: () => onDelete(range), label: buttonLabel, range }));
-  }
-  function DeleteButton({ range, onClick, label }) {
-    return /* @__PURE__ */ g("button", { class: Sidebar_default.delete, onClick, "aria-label": label, tabindex: 0, value: range }, /* @__PURE__ */ g(Trash, null));
+    ), /* @__PURE__ */ g(DeleteAllButton, { onClick: onDelete, ariaLabel: buttonLabel, range, ranges, count }));
   }
   function DeleteAllButton({ range, ranges, onClick, ariaLabel, count }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {json} */
       {}
     );
-    const ariaDisabled = useComputed(() => {
-      return count.value === 0 && ranges.value.length === 1 ? "true" : "false";
-    });
-    const buttonTitle = useComputed(() => {
-      return count.value === 0 && ranges.value.length === 1 ? t4("delete_none") : "";
-    });
+    const ariaDisabled = count === 0 ? "true" : "false";
+    const buttonTitle = count === 0 ? t4("delete_none") : "";
     return /* @__PURE__ */ g(
       "button",
       {
@@ -4355,7 +4389,7 @@
     const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
     if (isControlClick) {
       return "new-tab";
-    } else if (event.shiftKey || event.button === 1) {
+    } else if (event.shiftKey || "button" in event && event.button === 1) {
       return "new-window";
     }
     return "same-tab";
@@ -4367,9 +4401,13 @@
     const dispatch = useHistoryServiceDispatch();
     y2(() => {
       const handleAuxClick = (event) => {
+        const row = (
+          /** @type {HTMLDivElement|null} */
+          event.target.closest("[aria-selected]")
+        );
         const anchor = (
-          /** @type {HTMLButtonElement|null} */
-          event.target.closest("a[href][data-url]")
+          /** @type {HTMLAnchorElement|null} */
+          row?.querySelector("a[href][data-url]")
         );
         const url2 = anchor?.dataset.url;
         if (anchor && url2 && event.button === 1) {
@@ -4383,7 +4421,7 @@
       return () => {
         document.removeEventListener("auxclick", handleAuxClick);
       };
-    }, []);
+    }, [platformName, dispatch]);
   }
 
   // pages/history/app/global/hooks/useButtonClickHandler.js
@@ -4449,26 +4487,45 @@
     const platformName = usePlatformName();
     const dispatch = useHistoryServiceDispatch();
     y2(() => {
-      function clickHandler(event) {
-        if (!(event.target instanceof Element)) return;
-        const anchor = (
-          /** @type {HTMLAnchorElement|null} */
-          event.target.closest("a[href][data-url]")
-        );
-        if (anchor) {
-          const url2 = anchor.dataset.url;
-          if (!url2) return;
+      function dblClickHandler(event) {
+        const url2 = closestUrl(event);
+        if (url2) {
           event.preventDefault();
           event.stopImmediatePropagation();
           const target = eventToTarget(event, platformName);
           dispatch({ kind: "open-url", url: url2, target });
         }
       }
-      document.addEventListener("click", clickHandler);
+      function keydownHandler(event) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const url2 = closestUrl(event);
+        if (url2) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          const target = eventToTarget(event, platformName);
+          dispatch({ kind: "open-url", url: url2, target });
+        }
+      }
+      document.addEventListener("keydown", keydownHandler);
+      document.addEventListener("dblclick", dblClickHandler);
       return () => {
-        document.removeEventListener("click", clickHandler);
+        document.removeEventListener("dblclick", dblClickHandler);
+        document.removeEventListener("keydown", keydownHandler);
       };
-    }, []);
+    }, [platformName, dispatch]);
+  }
+  function closestUrl(event) {
+    if (!(event.target instanceof Element)) return null;
+    const row = (
+      /** @type {HTMLDivElement|null} */
+      event.target.closest("[aria-selected]")
+    );
+    const anchor = (
+      /** @type {HTMLAnchorElement|null} */
+      row?.querySelector("a[href][data-url]")
+    );
+    const url2 = anchor?.dataset.url;
+    return url2 || null;
   }
 
   // pages/history/app/global/hooks/useResetSelectionsOnQueryChange.js
@@ -4836,6 +4893,19 @@
       };
     }
     let memory = clone(historyMocks.few).value;
+    const rangeMemory = {
+      ranges: [
+        { id: "all", count: 1 },
+        { id: "today", count: 1 },
+        { id: "yesterday", count: 1 },
+        { id: "tuesday", count: 1 },
+        { id: "monday", count: 1 },
+        { id: "sunday", count: 1 },
+        { id: "saturday", count: 1 },
+        { id: "friday", count: 1 },
+        { id: "older", count: 1 }
+      ]
+    };
     if (url.searchParams.has("history")) {
       const key = url.searchParams.get("history");
       if (key && key in historyMocks) {
@@ -4881,7 +4951,6 @@
             return withLatency(queryResponseFrom(memory, msg));
           }
           case "entries_delete": {
-            console.log("\u{1F4E4} [entries_delete]: ", JSON.stringify(msg.params));
             if (msg.params.ids.length > 1) {
               const lines = [
                 `entries_delete: ${JSON.stringify(msg.params)}`,
@@ -4919,17 +4988,6 @@
             }
             return Promise.resolve({ action: "none" });
           }
-          case "deleteRange": {
-            const lines = [
-              `deleteRange: ${JSON.stringify(msg.params)}`,
-              `To simulate deleting this item, press confirm`
-            ].join("\n");
-            if (confirm(lines)) {
-              if (msg.params.range === "all") memory = [];
-              return Promise.resolve({ action: "delete" });
-            }
-            return Promise.resolve({ action: "none" });
-          }
           case "deleteDomain": {
             const lines = [
               `deleteDomain: ${JSON.stringify(msg.params)}`,
@@ -4941,7 +4999,6 @@
             return Promise.resolve({ action: "none" });
           }
           case "deleteTerm": {
-            console.log("\u{1F4E4} [deleteTerm]: ", JSON.stringify(msg.params));
             const lines = [
               `deleteTerm: ${JSON.stringify(msg.params)}`,
               `To simulate deleting this term, press confirm`
@@ -4959,14 +5016,28 @@
             };
             return Promise.resolve(initial);
           }
-          case "getRanges": {
-            const response = {
-              ranges: ["all", "today", "yesterday", "tuesday", "monday", "friday", "older"]
-            };
-            if (url.searchParams.get("history") === "0") {
-              response.ranges = ["all"];
+          case "deleteRange": {
+            const lines = [
+              `deleteRange: ${JSON.stringify(msg.params)}`,
+              `To simulate deleting this item, press confirm`
+            ].join("\n");
+            if (confirm(lines)) {
+              if (msg.params.range === "all") memory = [];
+              rangeMemory.ranges = rangeMemory.ranges.filter((x4) => {
+                return x4.id !== msg.params.range;
+              });
+              console.log(rangeMemory.ranges);
+              return Promise.resolve({ action: "delete" });
             }
-            return Promise.resolve(response);
+            return Promise.resolve({ action: "none" });
+          }
+          case "getRanges": {
+            if (url.searchParams.get("history") === "0") {
+              rangeMemory.ranges = rangeMemory.ranges.map((range) => {
+                return { ...range, count: 0 };
+              });
+            }
+            return Promise.resolve(rangeMemory);
           }
           default: {
             return Promise.reject(new Error("unhandled request" + msg));
@@ -5099,6 +5170,9 @@
     console.error(e4);
     const msg = typeof e4?.message === "string" ? e4.message : "unknown init error";
     historyPage.reportInitException({ message: msg });
+    document.documentElement.dataset.fatalError = "true";
+    const element = /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("div", { style: "padding: 1rem;" }, /* @__PURE__ */ g("p", null, /* @__PURE__ */ g("strong", null, "A fatal error occurred:")), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("pre", { style: { whiteSpace: "prewrap", overflow: "auto" } }, /* @__PURE__ */ g("code", null, JSON.stringify({ message: e4.message }, null, 2)))));
+    D(element, document.body);
   });
 })();
 /*! Bundled license information:

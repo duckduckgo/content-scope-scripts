@@ -7,18 +7,23 @@ body {
     font-weight: var(--body-font-weight);
     line-height: var(--body-line-height);
     background-color: var(--history-background-color);
+    color: var(--history-text-normal);
 }
 
 .layout {
     --sidebar-width: 250px;
     --main-padding-left: 48px;
     --main-padding-right: 76px;
-    --windows-scrollbar: 15px;
+    --scrollbar-width: 18px;
 
     &[data-layout-mode="reduced"] {
         --sidebar-width: 230px;
         --main-padding-left: 28px;
-        --main-padding-right: 56px;
+        --main-padding-right: 36px;
+    }
+
+    [data-platform="windows"] & {
+        --scrollbar-width: 15px
     }
 
     display: grid;
@@ -51,13 +56,53 @@ body {
     padding-right: var(--main-padding-right);
     padding-top: 24px;
 }
+
 .customScroller {
     overflow-y: scroll;
-    scrollbar-gutter: stable;
+    padding-right: calc(var(--main-padding-right) - var(--scrollbar-width));
 }
 
+/**
+ * Windows has access to newer CSS features for styling the scrollbar
+ */
 [data-platform="windows"] {
     .customScroller {
-        padding-right: calc(var(--main-padding-right) - var(--windows-scrollbar));
+        scrollbar-gutter: stable;
+        scrollbar-width: var(--scrollbar-width);
+        scrollbar-color: var(--history-scrollbar-controls-color) var(--history-background-color);
+    }
+}
+
+/**
+ * macOS specific styling to handle dark mode - without this full
+ * override you cannot change the track color :(
+ */
+[data-platform="macos"] {
+    .customScroller {
+        --webkit-thumb-color: rgba(136, 136, 136, 0.8);
+
+        &::-webkit-scrollbar {
+            width: var(--scrollbar-width);
+        }
+
+        &::-webkit-scrollbar-track {
+            background-color: var(--history-background-color)
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: var(--webkit-thumb-color);
+            border-radius: calc(var(--scrollbar-width) / 2);
+
+            /** faking some padding on the thumb */
+            border: 4px solid var(--history-background-color);
+        }
+
+        &::-webkit-scrollbar-button {
+            display: block;
+            background-color: var(--history-background-color);
+
+            /** a small vertical gap to prevent it touching boundaries */
+            height: 2px;
+        }
     }
 }

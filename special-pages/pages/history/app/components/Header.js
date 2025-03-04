@@ -17,7 +17,9 @@ export function Header() {
     const domain = useComputed(() => search.value.domain);
     return (
         <div class={styles.root}>
-            <Controls term={term} range={range} domain={domain} />
+            <div class={styles.controls}>
+                <Controls term={term} range={range} domain={domain} />
+            </div>
             <div class={styles.search}>
                 <SearchForm term={term} domain={domain} />
             </div>
@@ -83,11 +85,9 @@ function Controls({ term, range, domain }) {
     }
 
     return (
-        <div class={styles.controls}>
-            <button class={styles.largeButton} onClick={onClick} aria-disabled={ariaDisabled} title={title} tabindex={0}>
-                <Trash />
-                <span>{buttonTxt}</span>
-            </button>
-        </div>
+        <button class={styles.largeButton} onClick={onClick} aria-disabled={ariaDisabled} title={title} tabindex={0}>
+            <Trash />
+            <span>{buttonTxt}</span>
+        </button>
     );
 }

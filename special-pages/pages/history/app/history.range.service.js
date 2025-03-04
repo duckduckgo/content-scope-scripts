@@ -1,11 +1,16 @@
 /**
  * @typedef {import('../types/history.js').Range} Range
+ * @typedef {import('../types/history.js').RangeId} RangeId
  * @typedef {{ranges: Range[]}} RangeData
  * @typedef {{kind: 'none'} | { kind: 'domain-search'; value: string }} MenuContinuation
  */
 
 export class HistoryRangeService {
-    data = new EventTarget();
+    static REFRESH_EVENT = 'refresh';
+    static DATA_EVENT = 'data';
+    index = 0;
+    internal = new EventTarget();
+    dataReadinessSignal = new EventTarget();
 
     /**
      * @type {RangeData|null}
@@ -17,6 +22,22 @@ export class HistoryRangeService {
      */
     constructor(history) {
         this.history = history;
+
+        this.internal.addEventListener(HistoryRangeService.REFRESH_EVENT, () => {
+            // increment the counter
+            this.index++;
+            // and, store a local index, we can check it when the promise resolves
+            const index = this.index;
+
+            this.fetcher().then((next) => {
+                /**
+                 * First, reject overlapping promises
+                 */
+                const resolvedPromiseIsStale = this.index !== index;
+                if (resolvedPromiseIsStale) return console.log('❌ rejected stale result');
+                this.accept(next);
+            });
+        });
     }
 
     /**
@@ -24,16 +45,25 @@ export class HistoryRangeService {
      */
     accept(d) {
         this.ranges = d;
-        this.data.dispatchEvent(new Event('data'));
+        this.dataReadinessSignal.dispatchEvent(new Event(HistoryRangeService.DATA_EVENT));
+    }
+
+    fetcher() {
+        console.log(`🦻 [getRanges]`);
+        return this.history.messaging.request('getRanges');
     }
 
     /**
      * @returns {Promise<RangeData>}
      */
     async getInitial() {
-        const rangesPromise = await this.history.messaging.request('getRanges');
+        const rangesPromise = await this.fetcher();
         this.accept(rangesPromise);
         return rangesPromise;
+    }
+
+    refresh() {
+        this.internal.dispatchEvent(new Event(HistoryRangeService.REFRESH_EVENT));
     }
 
     /**
@@ -41,8 +71,8 @@ export class HistoryRangeService {
      */
     onResults(cb) {
         const controller = new AbortController();
-        this.data.addEventListener(
-            'data',
+        this.dataReadinessSignal.addEventListener(
+            HistoryRangeService.DATA_EVENT,
             () => {
                 if (this.ranges === null) throw new Error('unreachable');
                 cb(this.ranges);
@@ -53,35 +83,10 @@ export class HistoryRangeService {
     }
 
     /**
-     * @param {(d: RangeData) => RangeData} updater
-     */
-    update(updater) {
-        if (this.ranges === null) throw new Error('unreachable');
-        this.accept(updater(this.ranges));
-    }
-
-    /**
-     * @param {Range} range
+     * @param {RangeId} range
      */
     async deleteRange(range) {
         console.log('📤 [deleteRange]: ', JSON.stringify({ range }));
-        const resp = await this.history.messaging.request('deleteRange', { range });
-        if (resp.action === 'delete') {
-            if (range === 'all') {
-                this.update((_old) => {
-                    return {
-                        ranges: ['all'],
-                    };
-                });
-            } else {
-                this.update((old) => {
-                    return {
-                        ...old,
-                        ranges: old.ranges.filter((x) => x !== range),
-                    };
-                });
-            }
-        }
-        return resp;
+        return await this.history.messaging.request('deleteRange', { range });
     }
 }

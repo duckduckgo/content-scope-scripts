@@ -225,22 +225,32 @@ button {
   --body-font-size: 13px;
   --body-font-weight: 400;
   --body-line-height: 16px;
+  --label-font-size: 13px;
+  --label-font-weight: 510;
+  --label-line-height: 13px;
   --title-3-em-font-size: 15px;
   --title-3-em-font-weight: 590;
   --title-3-em-line-height: 20px;
 }
-:root:has(body[data-platform-name=windows]) {
+:root:has([data-platform=windows]) {
+  --title-font-size: 24px;
+  --title-font-weight: 600;
+  --title-line-height: 32px;
   --body-font-size: 14px;
   --body-font-weight: 400;
   --body-line-height: 20px;
   --title-3-em-font-size: 16px;
   --title-3-em-font-weight: 600;
   --title-3-em-line-height: 20px;
+  --label-font-size: 14px;
+  --label-font-weight: 400;
+  --label-line-height: normal;
 }
 [data-theme=light] {
   --history-background-color: var(--default-light-bg);
   --history-surface-background-color: var(--color-white-at-30);
   --history-surface-border-color: var(--color-black-at-9);
+  --history-scrollbar-controls-color: var(--color-black-at-18);
   --history-text-normal: var(--color-black-at-84);
   --history-text-invert: var(--color-white-at-84);
   --history-text-muted: var(--color-black-at-60);
@@ -249,6 +259,7 @@ button {
   --history-background-color: var(--default-dark-bg);
   --history-surface-background-color: var(--color-black-at-18);
   --history-surface-border-color: var(--color-white-at-12);
+  --history-scrollbar-controls-color: var(--color-white-at-18);
   --history-surface-color: var(--color-white-at-12);
   --history-text-normal: var(--color-white-at-84);
   --history-text-invert: var(--color-black-at-84);
@@ -261,12 +272,13 @@ body {
   font-weight: var(--body-font-weight);
   line-height: var(--body-line-height);
   background-color: var(--history-background-color);
+  color: var(--history-text-normal);
 }
 .App_layout {
   --sidebar-width: 250px;
   --main-padding-left: 48px;
   --main-padding-right: 76px;
-  --windows-scrollbar: 15px;
+  --scrollbar-width: 18px;
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
   grid-template-rows: max-content 1fr;
@@ -278,7 +290,10 @@ body {
 .App_layout[data-layout-mode=reduced] {
   --sidebar-width: 230px;
   --main-padding-left: 28px;
-  --main-padding-right: 56px;
+  --main-padding-right: 36px;
+}
+[data-platform=windows] .App_layout {
+  --scrollbar-width: 15px ;
 }
 .App_header {
   grid-area: header;
@@ -302,15 +317,37 @@ body {
 }
 .App_customScroller {
   overflow-y: scroll;
-  scrollbar-gutter: stable;
+  padding-right: calc(var(--main-padding-right) - var(--scrollbar-width));
 }
 [data-platform=windows] .App_customScroller {
-  padding-right: calc(var(--main-padding-right) - var(--windows-scrollbar));
+  scrollbar-gutter: stable;
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--history-scrollbar-controls-color) var(--history-background-color);
+}
+[data-platform=macos] .App_customScroller {
+  --webkit-thumb-color: rgba(136, 136, 136, 0.8);
+}
+[data-platform=macos] .App_customScroller::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+}
+[data-platform=macos] .App_customScroller::-webkit-scrollbar-track {
+  background-color: var(--history-background-color);
+}
+[data-platform=macos] .App_customScroller::-webkit-scrollbar-thumb {
+  background-color: var(--webkit-thumb-color);
+  border-radius: calc(var(--scrollbar-width) / 2);
+  border: 4px solid var(--history-background-color);
+}
+[data-platform=macos] .App_customScroller::-webkit-scrollbar-button {
+  display: block;
+  background-color: var(--history-background-color);
+  height: 2px;
 }
 
 /* pages/history/app/components/Header.module.css */
 .Header_root {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
   color: var(--history-text-normal);
@@ -320,6 +357,7 @@ body {
 .Header_controls {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 .Header_largeButton {
   background: transparent;
@@ -353,7 +391,13 @@ body {
   opacity: .3;
 }
 .Header_search {
-  margin-left: auto;
+  max-width: 238px;
+  width: 100%;
+  flex-shrink: 1;
+  display: flex;
+}
+.Header_form {
+  width: 100%;
 }
 .Header_label {
   color: inherit;
@@ -374,7 +418,7 @@ body {
   color: white;
 }
 .Header_searchInput {
-  width: 238px;
+  width: 100%;
   height: 28px;
   border-radius: 6px;
   border: 0.5px solid var(--history-surface-border-color);
@@ -487,15 +531,17 @@ body {
   min-width: 0;
 }
 .Item_entryLink {
+  font-size: var(--label-font-size);
+  font-weight: var(--label-font-weight);
+  line-height: var(--row-height);
   white-space: nowrap;
-  font-weight: 510;
   flex-shrink: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   text-decoration: none;
   color: inherit;
-  line-height: var(--row-height);
+  pointer-events: none;
 }
 .Item_domain {
   font-weight: 400;
@@ -676,14 +722,16 @@ body {
   background: var(--color-white-at-12);
 }
 .Sidebar_link {
+  font-size: var(--label-font-size);
+  font-weight: var(--label-font-weight);
+  line-height: var(--label-line-height);
+  color: var(--history-text-normal);
   height: 40px;
   display: flex;
   align-items: center;
   border-radius: 8px;
   padding-left: 16px;
   text-decoration: none;
-  font-weight: 510;
-  color: var(--history-text-normal);
   gap: 6px;
   border: 0;
   box-shadow: none;
@@ -691,6 +739,7 @@ body {
   flex: 1;
   white-space: normal;
   text-align: left;
+  text-transform: capitalize;
 }
 .Sidebar_delete {
   height: 40px;
