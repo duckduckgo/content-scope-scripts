@@ -31,12 +31,17 @@ export const Item = memo(
         const hasTitle = kind === TITLE_KIND || kind === BOTH_KIND;
         return (
             <Fragment>
-                {hasTitle && <div className={cn(styles.title)}>{dateRelativeDay}</div>}
+                {hasTitle && (
+                    <div class={cn(styles.title)} style={{ viewTransitionName: `item-title-${props.id}` }}>
+                        {dateRelativeDay}
+                    </div>
+                )}
                 <div
                     class={cn(styles.row, styles.hover, hasFooterGap && styles.last)}
                     data-history-entry={props.id}
                     data-index={index}
                     aria-selected={selected}
+                    style={{ viewTransitionName: `item-${props.id}` }}
                 >
                     <div class={styles.favicon}>
                         <FaviconWithState
