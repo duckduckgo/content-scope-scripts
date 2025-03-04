@@ -14,6 +14,10 @@ import { HistoryRangeService } from './history.range.service.js';
  * @typedef {{kind: 'none'} | { kind: 'domain-search'; value: string }} MenuContinuation
  */
 
+/**
+ * @typedef {{kind: 'none'} |{ kind: ActionResponse } | {kind: 'domain-search'; value: string}} ServiceResult
+ */
+
 export class HistoryService {
     static CHUNK_SIZE = 150;
     static QUERY_EVENT = 'query';
@@ -201,6 +205,10 @@ export class HistoryService {
         this.internal.dispatchEvent(new CustomEvent(HistoryService.QUERY_EVENT, { detail: query }));
     }
 
+    refreshRanges() {
+        this.range.refresh();
+    }
+
     /**
      * @param {number} end - the index of the last seen element
      */
@@ -218,42 +226,44 @@ export class HistoryService {
 
     /**
      * @param {number[]} indexes
-     * @return {Promise<{kind: 'none'} | { kind: 'domain-search'; value: string }>}
+     * @return {Promise<ServiceResult>}
      */
     async entriesMenu(indexes) {
         const ids = this._collectIds(indexes);
         console.trace('📤 [entries_menu]: ', JSON.stringify({ ids }));
         const response = await this.history.messaging.request('entries_menu', { ids });
         if (response.action === 'none') {
-            return { kind: 'none' };
+            return { kind: response.action };
         }
         if (response.action === 'delete') {
             this._postdelete(indexes);
-            return { kind: 'none' };
+            return { kind: response.action };
         }
         if (response.action === 'domain-search' && ids.length === 1 && indexes.length === 1) {
             const target = this.data?.results[indexes[0]];
             const targetValue = target?.etldPlusOne || target?.domain;
             if (targetValue) {
-                return { kind: 'domain-search', value: targetValue };
+                return { kind: response.action, value: targetValue };
             } else {
                 console.warn('missing target domain from current dataset?');
-                return { kind: 'none' };
+                return { kind: response.action };
             }
         }
-        return { kind: 'none' };
+        return { kind: response.action };
     }
 
     /**
      * @param {number[]} indexes
+     * @return {Promise<ServiceResult>}
      */
     async entriesDelete(indexes) {
         const ids = this._collectIds(indexes);
         console.log('📤 [entries_delete]: ', JSON.stringify({ ids }));
         const response = await this.history.messaging.request('entries_delete', { ids });
-        if (response.action === 'none') return;
-        if (response.action !== 'delete') return;
-        this._postdelete(indexes);
+        if (response.action === 'delete') {
+            this._postdelete(indexes);
+        }
+        return { kind: response.action };
     }
 
     /**
@@ -303,44 +313,39 @@ export class HistoryService {
 
     /**
      * @param {RangeId} range
-     * @return {Promise<{kind: 'none'} | {kind: "range-deleted"}>}
+     * @return {Promise<ServiceResult>}
      */
     async deleteRange(range) {
         const resp = await this.range.deleteRange(range);
         if (resp.action === 'delete' && range === 'all') {
             this.reset();
         }
-        if (resp.action === 'delete') {
-            return { kind: 'range-deleted' };
-        }
-        return { kind: 'none' };
+        return { kind: resp.action };
     }
 
     /**
      * @param {string} domain
-     * @return {Promise<{kind: 'none'} | {kind: "domain-deleted"}>}
+     * @return {Promise<ServiceResult>}
      */
     async deleteDomain(domain) {
         const resp = await this.history.messaging.request('deleteDomain', { domain });
         if (resp.action === 'delete') {
             this.reset();
-            return { kind: 'domain-deleted' };
         }
-        return { kind: 'none' };
+        return { kind: resp.action };
     }
 
     /**
      * @param {string} term
-     * @return {Promise<{kind: 'none'} | {kind: "term-deleted"}>}
+     * @return {Promise<ServiceResult>}
      */
     async deleteTerm(term) {
         console.log('📤 [deleteTerm]: ', JSON.stringify({ term }));
         const resp = await this.history.messaging.request('deleteTerm', { term });
         if (resp.action === 'delete') {
             this.reset();
-            return { kind: 'term-deleted' };
         }
-        return { kind: 'none' };
+        return { kind: resp.action };
     }
 }
 
