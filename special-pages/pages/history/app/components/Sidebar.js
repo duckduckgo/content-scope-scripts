@@ -6,7 +6,7 @@ import { useTypedTranslation } from '../types.js';
 import { Trash } from '../icons/Trash.js';
 import { useTypedTranslationWith } from '../../../new-tab/app/types.js';
 import { useQueryContext, useQueryDispatch } from '../global/Providers/QueryProvider.js';
-import { useHistoryServiceDispatch, useResultsData } from '../global/Providers/HistoryServiceProvider.js';
+import { useHistoryServiceDispatch } from '../global/Providers/HistoryServiceProvider.js';
 
 /**
  * @import json from "../strings.json"
