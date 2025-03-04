@@ -19,7 +19,7 @@ body {
     &[data-layout-mode="reduced"] {
         --sidebar-width: 230px;
         --main-padding-left: 28px;
-        --main-padding-right: 56px;
+        --main-padding-right: 36px;
     }
 
     [data-platform="windows"] & {
