@@ -66,6 +66,7 @@
     flex: 1;
     white-space: normal;
     text-align: left;
+    text-transform: capitalize;
 }
 
 .delete {

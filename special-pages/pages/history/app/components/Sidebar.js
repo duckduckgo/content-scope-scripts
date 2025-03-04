@@ -79,7 +79,6 @@ export function Sidebar({ ranges }) {
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
             <nav class={styles.nav}>
                 {ranges.value.map((range) => {
-                    console.log(range.id, range.count);
                     return (
                         <Item
                             key={range.id}
@@ -122,7 +121,7 @@ function Item({ current, range, onClick, onDelete, ranges, count }) {
         <div class={classNames} key={range}>
             <button
                 aria-label={linkLabel}
-                className={styles.link}
+                class={styles.link}
                 tabIndex={0}
                 onClick={(e) => {
                     e.preventDefault();
