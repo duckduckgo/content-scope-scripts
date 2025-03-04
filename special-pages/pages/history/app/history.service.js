@@ -63,7 +63,7 @@ export class HistoryService {
             const { detail } = evt;
 
             // reject duplicates (eg: already fetching the same query)
-            if (eq(detail, this.ongoing)) return console.log('ignoring duplicate query');
+            if (eq(detail, this.ongoing)) return;
 
             // increment the counter
             this.index++;

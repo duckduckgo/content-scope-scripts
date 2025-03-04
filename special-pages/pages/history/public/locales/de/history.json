@@ -9,11 +9,11 @@
     }]
   },
   "empty_title" : {
-    "title" : "Nothing to see here!",
+    "title" : "Hier gibt's nichts zu sehen!",
     "note" : "Text shown where there are no remaining history entries"
   },
   "empty_text" : {
-    "title" : "Page visits will appear once you start browsing.",
+    "title" : "Seitenbesuche werden angezeigt, sobald du mit dem Browsen beginnst.",
     "note" : "Placeholder text when there's no results to show"
   },
   "delete_all" : {
@@ -45,7 +45,7 @@
     "note" : "Button that shows older history entries"
   },
   "show_history_for" : {
-    "title" : "Show history for {range}",
+    "title" : "Verlauf von {range} anzeigen",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Show history for Today'."
   },
   "delete_history_all" : {
@@ -57,11 +57,11 @@
     "note" : "Button that deletes older history entries."
   },
   "delete_history_for" : {
-    "title" : "Delete history for {range}",
+    "title" : "Verlauf von {range} löschen",
     "note" : "The placeholder {range} in the title will be dynamically replaced with specific date ranges such as 'Today', 'Yesterday', or days of the week like 'Monday'. For example, if the range is set to 'Today', the title will become 'Delete history for Today'."
   },
   "search_your_history" : {
-    "title" : "Search your history",
+    "title" : "Durchsuche deinen Verlauf",
     "note" : "Label text for screen readers. It's shown next to the search input field"
   },
   "range_all" : {
