@@ -83,35 +83,11 @@ export class HistoryRangeService {
     }
 
     /**
-     * @param {(d: RangeData) => RangeData} updater
-     */
-    update(updater) {
-        if (this.ranges === null) throw new Error('unreachable');
-        this.accept(updater(this.ranges));
-    }
-
-    /**
      * @param {RangeId} range
      */
     async deleteRange(range) {
         console.log('📤 [deleteRange]: ', JSON.stringify({ range }));
         const resp = await this.history.messaging.request('deleteRange', { range });
-        if (resp.action === 'delete') {
-            if (range === 'all') {
-                this.update((_old) => {
-                    return {
-                        ranges: [{ id: 'all', count: 0 }],
-                    };
-                });
-            } else {
-                this.update((old) => {
-                    return {
-                        ...old,
-                        ranges: old.ranges.filter((x) => x.id !== range),
-                    };
-                });
-            }
-        }
-        return resp;
+        return { kind: resp.action };
     }
 }
