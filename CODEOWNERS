@@ -9,6 +9,7 @@ injected/src/features/click-to-load/ @duckduckgo/content-scope-scripts-owners @k
 injected/src/locales/click-to-load/ @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
 injected/src/features/broker-protection.js @duckduckgo/content-scope-scripts-owners @brianhall @shakyShane
 injected/src/features/broker-protection/ @duckduckgo/content-scope-scripts-owners @brianhall @shakyShane
+injected/src/features/autofill-password-import.js @duckduckgo/content-scope-scripts-owners @dbajpeyi
 
 # Platform owners
 Sources/ @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs
