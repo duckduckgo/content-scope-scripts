@@ -36,6 +36,8 @@ export function mockTransport() {
             { id: 'yesterday', count: 1 },
             { id: 'tuesday', count: 1 },
             { id: 'monday', count: 1 },
+            { id: 'sunday', count: 1 },
+            { id: 'saturday', count: 1 },
             { id: 'friday', count: 1 },
             { id: 'older', count: 1 },
         ],
