@@ -12,6 +12,11 @@
     --body-font-weight: 400;
     --body-line-height: 16px;
 
+    /* Mac/System/Label */
+    --label-font-size: 13px;
+    --label-font-weight: 510;
+    --label-line-height: 13px;
+
     /* title 3 em */
     --title-3-em-font-size: 15px;
     --title-3-em-font-weight: 590;
@@ -19,7 +24,12 @@
 }
 
 /* This comes from the application settings */
-:root:has(body[data-platform-name="windows"]) {
+:root:has([data-platform="windows"]) {
+    /* H1 title */
+    --title-font-size: 24px;
+    --title-font-weight: 600;
+    --title-line-height: 32px;
+
     /* Windows/System/Body */
     --body-font-size: 14px;
     --body-font-weight: 400;
@@ -29,6 +39,11 @@
     --title-3-em-font-size: 16px;
     --title-3-em-font-weight: 600;
     --title-3-em-line-height: 20px;
+
+    /* Windows/System/Label */
+    --label-font-size: 14px;
+    --label-font-weight: 400;
+    --label-line-height: normal;
 }
 
 [data-theme=light] {
