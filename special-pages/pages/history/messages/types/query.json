@@ -35,7 +35,7 @@
         ],
         "properties": {
           "range": {
-            "$ref": "./range.json"
+            "$ref": "./range.json#/definitions/RangeId"
           }
         }
       }

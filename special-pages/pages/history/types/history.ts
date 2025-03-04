@@ -20,7 +20,7 @@ export type NoneAction = "none";
  * The user asked to see more results from the domain
  */
 export type DomainSearchAction = "domain-search";
-export type Range =
+export type RangeId =
   | "all"
   | "today"
   | "yesterday"
@@ -110,7 +110,7 @@ export interface DeleteRangeRequest {
   result: DeleteRangeResponse;
 }
 export interface DeleteRangeParams {
-  range: Range;
+  range: RangeId;
 }
 export interface DeleteRangeResponse {
   action: ActionResponse;
@@ -167,6 +167,10 @@ export interface GetRangesRequest {
 export interface GetRangesResponse {
   ranges: Range[];
 }
+export interface Range {
+  id: RangeId;
+  count: number;
+}
 /**
  * Generated from @see "../messages/initialSetup.request.json"
  */
@@ -207,7 +211,7 @@ export interface DomainFilter {
   domain: string;
 }
 export interface RangeFilter {
-  range: Range;
+  range: RangeId;
 }
 export interface HistoryQueryResponse {
   info: HistoryQueryInfo;

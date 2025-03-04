@@ -4,7 +4,7 @@
   "title": "Delete Range Params",
   "properties": {
     "range": {
-      "$ref": "./types/range.json"
+      "$ref": "./types/range.json#/definitions/RangeId"
     }
   }
 }

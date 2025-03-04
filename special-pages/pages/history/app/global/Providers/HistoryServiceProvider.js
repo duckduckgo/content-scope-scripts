@@ -91,8 +91,9 @@ export function HistoryServiceProvider({ service, children, initial }) {
                     service
                         .deleteRange(range)
                         .then((resp) => {
-                            if (resp.kind === 'range-deleted') {
+                            if (resp.kind === 'delete') {
                                 queryDispatch({ kind: 'reset' });
+                                service.refreshRanges();
                             }
                         })
                         .catch(console.error);
@@ -103,27 +104,43 @@ export function HistoryServiceProvider({ service, children, initial }) {
                 service
                     .deleteDomain(action.domain)
                     .then((resp) => {
-                        if (resp.kind === 'domain-deleted') {
+                        if (resp.kind === 'delete') {
                             queryDispatch({ kind: 'reset' });
+                            service.refreshRanges();
                         }
                     })
                     .catch(console.error);
                 break;
             }
             case 'delete-entries-by-index': {
-                service.entriesDelete(action.value).catch(console.error);
+                service
+                    .entriesDelete(action.value)
+                    .then((resp) => {
+                        if (resp.kind === 'delete') {
+                            service.refreshRanges();
+                        }
+                    })
+                    .catch(console.error);
                 break;
             }
             case 'delete-all': {
-                service.deleteRange('all').catch(console.error);
+                service
+                    .deleteRange('all')
+                    .then((x) => {
+                        if (x.kind === 'delete') {
+                            service.refreshRanges();
+                        }
+                    })
+                    .catch(console.error);
                 break;
             }
             case 'delete-term': {
                 service
                     .deleteTerm(action.term)
                     .then((resp) => {
-                        if (resp.kind === 'term-deleted') {
+                        if (resp.kind === 'delete') {
                             queryDispatch({ kind: 'reset' });
+                            service.refreshRanges();
                         }
                     })
                     .catch(console.error);
@@ -137,8 +154,10 @@ export function HistoryServiceProvider({ service, children, initial }) {
                 service
                     .entriesMenu(action.indexes)
                     .then((resp) => {
-                        if (resp.kind === 'domain-search') {
+                        if (resp.kind === 'domain-search' && 'value' in resp) {
                             queryDispatch({ kind: 'search-by-domain', value: resp.value });
+                        } else if (resp.kind === 'delete') {
+                            service.refreshRanges();
                         }
                     })
                     .catch(console.error);

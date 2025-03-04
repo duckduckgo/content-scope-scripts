@@ -11,7 +11,7 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { init } from '../app/index.js';
 import '../../../shared/live-reload.js';
 import { mockTransport } from '../app/mocks/mock-transport.js';
-import { render } from 'preact';
+import { Fragment, h, render } from 'preact';
 
 export class HistoryPage {
     /**
@@ -85,8 +85,22 @@ if (!root) {
 }
 
 init(root, historyPage, baseEnvironment).catch((e) => {
-    // messages.
     console.error(e);
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
     historyPage.reportInitException({ message: msg });
+    document.documentElement.dataset.fatalError = 'true';
+    const element = (
+        <Fragment>
+            <div style="padding: 1rem;">
+                <p>
+                    <strong>A fatal error occurred:</strong>
+                </p>
+                <br />
+                <pre style={{ whiteSpace: 'prewrap', overflow: 'auto' }}>
+                    <code>{JSON.stringify({ message: e.message }, null, 2)}</code>
+                </pre>
+            </div>
+        </Fragment>
+    );
+    render(element, document.body);
 });
