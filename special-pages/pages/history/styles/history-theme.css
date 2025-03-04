@@ -35,6 +35,7 @@
     --history-background-color: var(--default-light-bg);
     --history-surface-background-color: var(--color-white-at-30);
     --history-surface-border-color: var(--color-black-at-9);
+    --history-scrollbar-controls-color: var(--color-black-at-18);
     --history-text-normal: var(--color-black-at-84);
     --history-text-invert: var(--color-white-at-84);
     --history-text-muted: var(--color-black-at-60);
@@ -44,6 +45,7 @@
     --history-background-color: var(--default-dark-bg);
     --history-surface-background-color: var(--color-black-at-18);
     --history-surface-border-color: var(--color-white-at-12);
+    --history-scrollbar-controls-color: var(--color-white-at-18);
     --history-surface-color: var(--color-white-at-12);
     --history-text-normal: var(--color-white-at-84);
     --history-text-invert: var(--color-black-at-84);
