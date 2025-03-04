@@ -1,5 +1,6 @@
 import { OVERSCAN_AMOUNT } from './constants.js';
 import { HistoryRangeService } from './history.range.service.js';
+import { viewTransition } from '../../new-tab/app/utils.js';
 
 /**
  * @import {ActionResponse} from "../types/history.js"
@@ -261,7 +262,9 @@ export class HistoryService {
         console.log('📤 [entries_delete]: ', JSON.stringify({ ids }));
         const response = await this.history.messaging.request('entries_delete', { ids });
         if (response.action === 'delete') {
-            this._postdelete(indexes);
+            viewTransition(() => {
+                this._postdelete(indexes);
+            });
         }
         return { kind: response.action };
     }
