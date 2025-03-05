@@ -5,10 +5,12 @@ import { signal, useSignal } from '@preact/signals';
 /**
  * @typedef {import('../../../types/history.ts').Range} Range
  * @typedef {import('../../../types/history.ts').RangeId} RangeId
+ * @typedef {import('../../../types/history.ts').HistoryQuery['source']} Source
  * @typedef {{
  *   term: string | null,
  *   range: RangeId | null,
  *   domain: string | null,
+ *   source: Source,
  * }} QueryState - this is the value the entire application can read/observe
  */
 
@@ -25,6 +27,7 @@ const QueryContext = createContext(
             term: /** @type {string|null} */ (null),
             range: /** @type {RangeId|null} */ (null),
             domain: /** @type {string|null} */ (null),
+            source: /** @type {Source} */ ('initial'),
         })
     ),
 );
@@ -49,6 +52,7 @@ export function QueryProvider({ children, query = { term: '' } }) {
         term: 'term' in query ? query.term : null,
         range: 'range' in query ? query.range : null,
         domain: 'domain' in query ? query.domain : null,
+        source: /** @type {Source} */ ('initial'),
     };
     const queryState = useSignal(initial);
 
@@ -60,19 +64,24 @@ export function QueryProvider({ children, query = { term: '' } }) {
         queryState.value = (() => {
             switch (action.kind) {
                 case 'reset': {
-                    return { term: '', domain: null, range: null };
+                    return { term: '', domain: null, range: null, source: /** @type {const} */ ('auto') };
                 }
                 case 'search-by-domain': {
-                    return { term: null, domain: action.value, range: null };
+                    return { term: null, domain: action.value, range: null, source: /** @type {const} */ ('user') };
                 }
                 case 'search-by-range': {
-                    return { term: null, domain: null, range: /** @type {RangeId} */ (action.value) };
+                    return {
+                        term: null,
+                        domain: null,
+                        range: /** @type {RangeId} */ (action.value),
+                        source: /** @type {const} */ ('user'),
+                    };
                 }
                 case 'search-by-term': {
-                    return { term: action.value, domain: null, range: null };
+                    return { term: action.value, domain: null, range: null, source: /** @type {const} */ ('user') };
                 }
                 default:
-                    return { term: '', domain: null, range: null };
+                    return { term: '', domain: null, range: null, source: /** @type {const} */ ('auto') };
             }
         })();
     }

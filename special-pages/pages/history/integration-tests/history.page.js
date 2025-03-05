@@ -94,7 +94,7 @@ export class HistoryTestPage {
     async didMakeInitialQueries(query) {
         const rangesCall = await this.mocks.waitForCallCount({ method: 'getRanges', count: 1 });
         const calls = await this.mocks.waitForCallCount({ method: 'query', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ query, limit: 150, offset: 0 });
+        expect(calls[0].payload.params).toStrictEqual(queryType({ query, limit: 150, offset: 0, source: 'initial' }));
         expect(rangesCall[0].payload.params).toStrictEqual({});
     }
 
@@ -102,12 +102,13 @@ export class HistoryTestPage {
      * @param {object} props
      * @param {number} props.nth
      * @param {import('../types/history.ts').QueryKind} props.query
+     * @param {import('../types/history.ts').HistoryQuery['source']} [props.source='user']
      */
-    async didMakeNthQuery({ nth, query }) {
+    async didMakeNthQuery({ nth, query, source = 'user' }) {
         const calls = await this.mocks.waitForCallCount({ method: 'query', count: nth + 1 });
         const params = calls[nth].payload.params;
 
-        expect(params).toStrictEqual({ query, limit: 150, offset: 0 });
+        expect(params).toStrictEqual(queryType({ query, limit: 150, offset: 0, source }));
     }
 
     /**
@@ -128,7 +129,7 @@ export class HistoryTestPage {
         const calls = await this.mocks.waitForCallCount({ method: 'query', count: nth + 1 });
         const params = calls[nth].payload.params;
 
-        expect(params).toStrictEqual({ query, limit: 150, offset });
+        expect(params).toStrictEqual(queryType({ query, limit: 150, offset, source: 'user' }));
     }
 
     async selectsToday() {
@@ -545,4 +546,12 @@ export class HistoryTestPage {
     async selectedRowCountIs(number) {
         await expect(this.main().locator('[aria-selected="true"]')).toHaveCount(number);
     }
+}
+
+/**
+ * @param {import('../types/history.ts').HistoryQuery} q
+ * @return {import('../types/history.ts').HistoryQuery}
+ */
+function queryType(q) {
+    return q;
 }

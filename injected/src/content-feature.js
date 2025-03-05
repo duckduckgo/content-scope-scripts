@@ -50,7 +50,7 @@ class ConfigParser {
     /**
      * @param {import('./content-scope-features.js').LoadArgs} loadArgs
      */
-    initConfig(loadArgs) {
+    initLoadArgs(loadArgs) {
         const { bundledConfig, site, platform } = loadArgs;
         this.#bundledConfig = bundledConfig;
         // If we have a bundled config, treat it as a regular config
@@ -352,7 +352,7 @@ export default class ContentFeature extends ConfigParser {
         const mark = this.monitor.mark(this.name + 'CallLoad');
         this.#args = args;
         this.platform = args.platform;
-        this.initConfig(args);
+        this.initLoadArgs(args);
         this.load(args);
         mark.end();
     }
