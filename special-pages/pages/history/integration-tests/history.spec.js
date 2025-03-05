@@ -104,7 +104,7 @@ test.describe('history', () => {
         await hp.selectsAll();
         await hp.didMakeNthQuery({ nth: 1, query: { term: '' } });
     });
-    test('deleting range from sidebar items + resetting the query state', async ({ page }, workerInfo) => {
+    test('deleting range from sidebar i tems + resetting the query state', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
         await hp.didMakeInitialQueries({ term: '' });
@@ -116,7 +116,7 @@ test.describe('history', () => {
         await hp.sideBarItemWasRemoved('Show history for today');
 
         // makes a new query for default data
-        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' }, source: 'auto' });
     });
     test('deleting sidebar items, but dismissing modal', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
@@ -190,7 +190,7 @@ test.describe('history', () => {
         await hp.didDeleteDomain('youtube.com');
 
         // should have reset the UI now
-        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' }, source: 'auto' });
     });
     test('does not concatenate results if the query is not an addition', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(1);

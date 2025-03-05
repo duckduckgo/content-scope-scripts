@@ -31,6 +31,11 @@
           "const": "user",
           "title": "User Source",
           "description": "Indicates the query was following a user interaction"
+        },
+        {
+          "const": "auto",
+          "title": "Auto Source",
+          "description": "Indicates the query was triggered automatically, for example in response to another action (like delete)"
         }
       ]
     }

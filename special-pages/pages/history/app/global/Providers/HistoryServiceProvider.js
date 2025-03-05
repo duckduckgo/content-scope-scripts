@@ -7,7 +7,8 @@ import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { generateHeights, generateViewIds } from '../../utils.js';
 
 /**
- * @typedef {{kind: 'search-commit', params: URLSearchParams}
+ * @typedef {import('../../../types/history.ts').HistoryQuery['source']} Source
+ * @typedef {{kind: 'search-commit', params: URLSearchParams, source: Source}
  * | {kind: 'delete-range'; value: string }
  * | {kind: 'delete-all'; }
  * | {kind: 'delete-term'; term: string }
@@ -84,7 +85,7 @@ export function HistoryServiceProvider({ service, children, initial }) {
     function dispatch(action) {
         switch (action.kind) {
             case 'search-commit': {
-                const asQuery = paramsToQuery(action.params, 'user');
+                const asQuery = paramsToQuery(action.params, action.source);
                 service.trigger(asQuery);
                 break;
             }
