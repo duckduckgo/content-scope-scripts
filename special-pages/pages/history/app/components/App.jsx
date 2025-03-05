@@ -75,3 +75,25 @@ export function App() {
         </div>
     );
 }
+
+export function AppLevelErrorBoundaryFallback({ children }) {
+    return (
+        <div class={styles.paddedError}>
+            <p>{children}</p>
+            <div class={styles.paddedErrorRecovery}>
+                You can try to{' '}
+                <button
+                    onClick={() => {
+                        9;
+                        const current = new URL(window.location.href);
+                        current.search = '';
+                        current.pathname = '';
+                        location.href = current.toString();
+                    }}
+                >
+                    Reload this page
+                </button>
+            </div>
+        </div>
+    );
+}
