@@ -155,7 +155,7 @@ test.describe('history selections', () => {
     test('`deleteAll` during search (no selections)', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' }, source: 'initial' });
 
         // do the search
         await hp.types('example.com');
@@ -165,7 +165,7 @@ test.describe('history selections', () => {
         await hp.deletesAllForTerm('example.com', { action: 'delete' });
 
         // should have reset the UI now
-        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' }, source: 'auto' });
     });
     test('removes all selections with ESC key', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
