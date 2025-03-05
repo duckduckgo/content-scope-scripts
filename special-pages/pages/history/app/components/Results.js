@@ -65,10 +65,12 @@ export function Results({ results, selected, onChange }) {
                     const isSelected = selected.value.has(index);
                     const faviconMax = item.favicon?.maxAvailableSize ?? DDG_DEFAULT_ICON_SIZE;
                     const favoriteSrc = item.favicon?.src;
+                    const viewId = results.value.viewIds[index];
                     return (
                         <li key={item.id} data-id={item.id} class={cssClassName} style={style} data-is-selected={isSelected}>
                             <Item
                                 id={item.id}
+                                viewId={viewId}
                                 kind={results.value.heights[index]}
                                 url={item.url}
                                 domain={item.domain}

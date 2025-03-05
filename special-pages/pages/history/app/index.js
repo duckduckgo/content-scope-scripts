@@ -65,7 +65,7 @@ export async function init(root, messaging, baseEnvironment) {
                   });
 
     const service = new HistoryService(messaging);
-    const query = paramsToQuery(environment.urlParams);
+    const query = paramsToQuery(environment.urlParams, 'initial');
     const initial = await service.getInitial(query);
 
     if (environment.display === 'app') {

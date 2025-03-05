@@ -4,7 +4,7 @@ import { paramsToQuery, toRange } from '../../history.service.js';
 import { useCallback, useContext } from 'preact/hooks';
 import { useQueryDispatch } from './QueryProvider.js';
 import { signal, useSignal, useSignalEffect } from '@preact/signals';
-import { generateHeights } from '../../utils.js';
+import { generateHeights, generateViewIds } from '../../utils.js';
 
 /**
  * @typedef {{kind: 'search-commit', params: URLSearchParams}
@@ -31,13 +31,14 @@ const HistoryServiceDispatchContext = createContext(defaultDispatch);
  * @typedef {object} Results
  * @property {import('../../../types/history.ts').HistoryItem[]} items
  * @property {number[]} heights
+ * @property {string[]} viewIds
  */
 /**
  * @typedef {import('../../../types/history.ts').Range} Range
  * @import { ReadonlySignal } from '@preact/signals'
  */
 
-const ResultsContext = createContext(/** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [] })));
+const ResultsContext = createContext(/** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [], viewIds: [] })));
 const RangesContext = createContext(/** @type {ReadonlySignal<Range[]>} */ (signal([])));
 
 /**
@@ -55,6 +56,7 @@ export function HistoryServiceProvider({ service, children, initial }) {
     const results = useSignal({
         items: initial.query.results,
         heights: generateHeights(initial.query.results),
+        viewIds: generateViewIds(initial.query.results),
     });
 
     useSignalEffect(() => {
@@ -62,6 +64,7 @@ export function HistoryServiceProvider({ service, children, initial }) {
             results.value = {
                 items: data.results,
                 heights: generateHeights(data.results),
+                viewIds: generateViewIds(data.results),
             };
         });
 
@@ -81,7 +84,7 @@ export function HistoryServiceProvider({ service, children, initial }) {
     function dispatch(action) {
         switch (action.kind) {
             case 'search-commit': {
-                const asQuery = paramsToQuery(action.params);
+                const asQuery = paramsToQuery(action.params, 'user');
                 service.trigger(asQuery);
                 break;
             }

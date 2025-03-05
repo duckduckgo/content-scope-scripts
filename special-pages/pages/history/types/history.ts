@@ -33,6 +33,14 @@ export type RangeId =
   | "sunday"
   | "older";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
+/**
+ * Indicates the query was triggered before the UI was rendered
+ */
+export type InitialSource = "initial";
+/**
+ * Indicates the query was following a user interaction
+ */
+export type UserSource = "user";
 export type Favicon = null | {
   src: string;
   maxAvailableSize?: number;
@@ -203,6 +211,7 @@ export interface HistoryQuery {
    * Maximum number of records to return
    */
   limit: number;
+  source: InitialSource | UserSource;
 }
 export interface SearchTerm {
   term: string;

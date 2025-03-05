@@ -32,6 +32,22 @@ export function generateHeights(rows) {
 }
 
 /**
+ * Convert the items 'id' field into something that is safe to use in
+ * things CSS view transition names.
+ *
+ * Note: I am not checking if the generated id starts with a number,
+ * because the names will always be prefixed in the component.
+ *
+ * @param {import("../types/history").HistoryItem[]} rows
+ * @return {string[]}
+ */
+export function generateViewIds(rows) {
+    return rows.map((row) => {
+        return btoa(row.id).replace(/=/g, '');
+    });
+}
+
+/**
  * @typedef {'ctrl+click' | 'shift+click' | 'click' | 'escape' | 'delete' | 'shift+up' | 'shift+down' | 'up' | 'down' | 'unknown'} Intention
  */
 

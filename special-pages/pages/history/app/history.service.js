@@ -89,7 +89,7 @@ export class HistoryService {
                      * concatenate results if this was a 'fetch more' request, or overwrite
                      */
                     let valueToPublish;
-                    if (eq(old.info.query, next.info.query) && next.lastQueryParams?.offset > 0) {
+                    if (queryEq(old.info.query, next.info.query) && next.lastQueryParams?.offset > 0) {
                         const results = old.results.concat(next.results);
                         valueToPublish = { info: next.info, results, lastQueryParams: next.lastQueryParams };
                     } else {
@@ -134,6 +134,7 @@ export class HistoryService {
                     query: lastquery,
                     limit: HistoryService.CHUNK_SIZE,
                     offset: this.data.results.length,
+                    source: 'user',
                 };
                 this.internal.dispatchEvent(new CustomEvent(HistoryService.QUERY_EVENT, { detail: query }));
             }
@@ -156,7 +157,7 @@ export class HistoryService {
      * @param {HistoryQuery} query
      */
     queryFetcher(query) {
-        console.log(`🦻 [query] ${JSON.stringify(query.query)} offset: ${query.offset}, limit: ${query.limit}`);
+        console.log(`🦻 [query] ${JSON.stringify(query.query)} offset: ${query.offset}, limit: ${query.limit} source: ${query.source}`);
         // eslint-disable-next-line promise/prefer-await-to-then
         return this.history.messaging.request('query', query).then((resp) => {
             return { info: resp.info, results: resp.value, lastQueryParams: query };
@@ -374,9 +375,10 @@ function deleteByIndexes(old, indexes) {
 
 /**
  * @param {URLSearchParams} params
+ * @param {HistoryQuery['source']} source
  * @return {HistoryQuery}
  */
-export function paramsToQuery(params) {
+export function paramsToQuery(params, source) {
     /** @type {HistoryQuery['query'] | undefined} */
     let query;
     const range = toRange(params.get('range'));
@@ -396,6 +398,7 @@ export function paramsToQuery(params) {
         query,
         limit: HistoryService.CHUNK_SIZE,
         offset: 0,
+        source,
     };
 }
 
@@ -423,11 +426,27 @@ export function toRange(input) {
 }
 
 /**
- * @param {Record<string, any>|null|undefined} q1
- * @param {Record<string, any>|null|undefined} q2
- * @return {boolean}
+ * @param {HistoryQuery} a
+ * @param {HistoryQuery|null} [b]
+ * @returns {boolean}
  */
-function eq(q1, q2) {
-    if (!q1 || !q2) return false;
-    return JSON.stringify(q1) === JSON.stringify(q2);
+function eq(a, b) {
+    if (!b) return false;
+    if (a.limit !== b.limit) return false;
+    if (a.offset !== b.offset) return false;
+    if (a.source !== b.source) return false;
+    return queryEq(a.query, b.query);
+}
+
+/**
+ * @param {QueryKind} a
+ * @param {QueryKind|null} [b]
+ * @returns {boolean}
+ */
+function queryEq(a, b) {
+    if (!b) return false;
+    const k1 = Object.keys(a)[0];
+    const k2 = Object.keys(b)[0];
+    if (k1 === k2 && a[k1] === b[k2]) return true;
+    return false;
 }

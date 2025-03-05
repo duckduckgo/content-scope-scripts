@@ -155,7 +155,7 @@ test.describe('history selections', () => {
     test('`deleteAll` during search (no selections)', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' }, source: 'initial' });
 
         // do the search
         await hp.types('example.com');

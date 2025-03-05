@@ -4,7 +4,8 @@
   "required": [
     "query",
     "offset",
-    "limit"
+    "limit",
+    "source"
   ],
   "title": "History Query",
   "properties": {
@@ -18,6 +19,20 @@
     "limit": {
       "description": "Maximum number of records to return",
       "type": "number"
+    },
+    "source": {
+      "oneOf": [
+        {
+          "const": "initial",
+          "title": "Initial Source",
+          "description": "Indicates the query was triggered before the UI was rendered"
+        },
+        {
+          "const": "user",
+          "title": "User Source",
+          "description": "Indicates the query was following a user interaction"
+        }
+      ]
     }
   }
 }
