@@ -34,6 +34,7 @@ export function VisitSiteLink({ elemRef }) {
 
 export function AdvancedInfoHeading() {
     const heading = useAdvancedInfoHeading();
+    if (!heading) return null;
 
     return (
         <header className={styles.heading}>
@@ -46,6 +47,7 @@ export function AdvancedInfoHeading() {
 
 export function AdvancedInfoContent() {
     const content = useAdvancedInfoContent();
+    if (!content.length) return null;
 
     return (
         <div className={styles.content}>

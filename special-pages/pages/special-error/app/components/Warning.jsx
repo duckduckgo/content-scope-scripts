@@ -53,8 +53,10 @@ export function LeaveSiteButton() {
 }
 
 export function WarningHeading() {
-    const { kind } = useErrorData();
     const heading = useWarningHeading();
+    if (!heading) return null;
+
+    const { kind } = useErrorData();
     const platformName = usePlatformName();
     const isMobile = useIsMobile();
 
@@ -84,6 +86,7 @@ export function WarningHeading() {
 
 export function WarningContent() {
     const content = useWarningContent();
+    if (!content.length) return null;
 
     return (
         <div className={styles.content}>
