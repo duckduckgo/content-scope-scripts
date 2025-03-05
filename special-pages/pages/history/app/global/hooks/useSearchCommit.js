@@ -27,16 +27,17 @@ export function useSearchCommit() {
             clearTimeout(timer);
             if (next.term !== null) {
                 const term = next.term;
+                const source = next.source;
                 timer = setTimeout(() => {
                     const params = new URLSearchParams();
                     params.set('q', term);
-                    dispatch({ kind: 'search-commit', params });
+                    dispatch({ kind: 'search-commit', params, source });
                 }, settings.typingDebounce);
             }
             if (next.domain !== null) {
                 const params = new URLSearchParams();
                 params.set('domain', next.domain);
-                dispatch({ kind: 'search-commit', params });
+                dispatch({ kind: 'search-commit', params, source: next.source });
             }
             return null;
         });

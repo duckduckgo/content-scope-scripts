@@ -27,8 +27,8 @@ test.describe('history', () => {
     test('switches from initial range to term', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(100);
         await hp.openPage({ additional: { range: 'today' } });
+        await hp.didMakeInitialQueries({ range: 'today' });
         await hp.types('youtube');
-        await hp.didMakeNthQuery({ nth: 0, query: { range: 'today' } });
         await hp.didMakeNthQuery({ nth: 1, query: { term: 'youtube' } });
     });
     test('makes query after clearing input and retyping', async ({ page }, workerInfo) => {
@@ -36,7 +36,7 @@ test.describe('history', () => {
         await hp.openPage({ additional: { debounce: '10' } });
 
         // page load was an empty query
-        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeInitialQueries({ term: '' });
 
         // then a manual entry
         await hp.types('youtube');
@@ -58,7 +58,7 @@ test.describe('history', () => {
         await hp.openPage({});
 
         // from page load, empty query
-        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeInitialQueries({ term: '' });
 
         // scroll to end, triggering the next fetch
         await hp.scrollsToEnd();
@@ -94,20 +94,20 @@ test.describe('history', () => {
     test('cannot delete "all" when there are no history items', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
         await hp.openPage({});
-        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeInitialQueries({ term: '' });
         await hp.cannotDeleteAllFromSidebar();
     });
     test('re-issues an empty query when there are no history items', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
         await hp.openPage({});
-        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeInitialQueries({ term: '' });
         await hp.selectsAll();
         await hp.didMakeNthQuery({ nth: 1, query: { term: '' } });
     });
-    test('deleting range from sidebar items + resetting the query state', async ({ page }, workerInfo) => {
+    test('deleting range from sidebar i tems + resetting the query state', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({});
-        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeInitialQueries({ term: '' });
 
         await hp.selectsToday();
         await hp.didMakeNthQuery({ nth: 1, query: { range: 'today' } });
@@ -116,7 +116,7 @@ test.describe('history', () => {
         await hp.sideBarItemWasRemoved('Show history for today');
 
         // makes a new query for default data
-        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' }, source: 'auto' });
     });
     test('deleting sidebar items, but dismissing modal', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
@@ -167,7 +167,7 @@ test.describe('history', () => {
     test('accepts domain search as param', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(2000);
         await hp.openPage({ additional: { domain: 'youtube.com', urlDebounce: 0 } });
-        await hp.didMakeNthQuery({ nth: 0, query: { domain: 'youtube.com' } });
+        await hp.didMakeInitialQueries({ domain: 'youtube.com' });
         await hp.inputContainsDomain('youtube.com');
 
         // now ensure it converts back to a query when typing
@@ -190,7 +190,7 @@ test.describe('history', () => {
         await hp.didDeleteDomain('youtube.com');
 
         // should have reset the UI now
-        await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 2, query: { term: '' }, source: 'auto' });
     });
     test('does not concatenate results if the query is not an addition', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(1);
@@ -206,7 +206,7 @@ test.describe('history', () => {
         await hp.hasRowCount(1);
 
         // verify the queries still occurred, but they were not appended
-        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeNthQuery({ nth: 0, query: { term: '' }, source: 'initial' });
         await hp.didMakeNthQuery({ nth: 1, query: { term: '' } });
         await hp.didMakeNthQuery({ nth: 2, query: { term: '' } });
         await hp.didMakeNthQuery({ nth: 3, query: { term: '' } });
@@ -214,7 +214,7 @@ test.describe('history', () => {
     test('search after pressing submit', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(200);
         await hp.openPage({});
-        await hp.didMakeNthQuery({ nth: 0, query: { term: '' } });
+        await hp.didMakeInitialQueries({ term: '' });
         await hp.types('café');
         await page.waitForURL((url) => url.searchParams.get('q') === 'café');
         await hp.didMakeNthQuery({ nth: 1, query: { term: 'café' } });

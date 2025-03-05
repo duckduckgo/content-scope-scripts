@@ -62,7 +62,7 @@ export function Sidebar({ ranges }) {
      */
     function onClick(range) {
         if (range === 'all') {
-            dispatch({ kind: 'reset' });
+            dispatch({ kind: 'search-by-term', value: '' });
         } else if (range) {
             dispatch({ kind: 'search-by-range', value: range });
         }

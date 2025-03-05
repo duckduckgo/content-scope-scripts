@@ -1,6 +1,6 @@
 import { useHistoryServiceDispatch } from '../Providers/HistoryServiceProvider.js';
-import { useComputed, useSignalEffect } from '@preact/signals';
 import { useQueryContext } from '../Providers/QueryProvider.js';
+import { useEffect } from 'preact/hooks';
 
 /**
  * Synchronizes the `derivedRange` signal with the browser's URL and issues a
@@ -10,14 +10,12 @@ import { useQueryContext } from '../Providers/QueryProvider.js';
 export function useSearchCommitForRange() {
     const dispatch = useHistoryServiceDispatch();
     const query = useQueryContext();
-    const derivedRange = useComputed(() => {
-        return query.value.range;
-    });
 
-    useSignalEffect(() => {
+    useEffect(() => {
         let timer;
         let counter = 0;
-        const sub = derivedRange.subscribe((nextRange) => {
+        const sub = query.subscribe((nextQuery) => {
+            const { range } = nextQuery;
             if (counter === 0) {
                 counter += 1;
                 return;
@@ -27,10 +25,10 @@ export function useSearchCommitForRange() {
             url.searchParams.delete('q');
             url.searchParams.delete('range');
 
-            if (nextRange !== null) {
-                url.searchParams.set('range', nextRange);
+            if (range !== null) {
+                url.searchParams.set('range', range);
                 window.history.replaceState(null, '', url.toString());
-                dispatch({ kind: 'search-commit', params: new URLSearchParams(url.searchParams) });
+                dispatch({ kind: 'search-commit', params: new URLSearchParams(url.searchParams), source: 'user' });
             }
         });
 
@@ -38,5 +36,5 @@ export function useSearchCommitForRange() {
             sub();
             clearTimeout(timer);
         };
-    });
+    }, [query, dispatch]);
 }
