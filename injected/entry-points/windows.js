@@ -3,7 +3,6 @@
  */
 import { load, init } from '../src/content-scope-features.js';
 import { processConfig, isGloballyDisabled, platformSpecificFeatures } from './../src/utils';
-import { isTrackerOrigin } from '../src/trackers';
 import { WindowsMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -29,10 +28,14 @@ function initCode() {
         },
     });
 
+    const importConfig = {
+        trackerLookup: processedConfig.trackerLookup,
+        injectName: import.meta.injectName,
+    };
+
     load({
         platform: processedConfig.platform,
-        trackerLookup: processedConfig.trackerLookup,
-        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
+        importConfig,
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,

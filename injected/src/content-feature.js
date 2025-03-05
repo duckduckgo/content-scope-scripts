@@ -6,6 +6,7 @@ import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, 
 import { Proxy, Reflect } from './captured-globals.js';
 import { Messaging, MessagingContext } from '../../messaging/index.js';
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js';
+import { isTrackerOrigin } from './trackers.js';
 
 /**
  * @typedef {object} AssetConfig
@@ -40,6 +41,9 @@ class ConfigParser {
     /** @type {boolean | undefined} */
     #documentOriginIsTracker;
 
+    /** @type {string} */
+    #injectName;
+
     /**
      * @param {any} name
      */
@@ -53,14 +57,15 @@ class ConfigParser {
     initLoadArgs(loadArgs) {
         const { bundledConfig, site, platform } = loadArgs;
         this.#bundledConfig = bundledConfig;
+        this.#injectName = loadArgs.importConfig.injectName;
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig) {
             const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
             this.#featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
         }
-        this.#trackerLookup = loadArgs.trackerLookup;
-        this.#documentOriginIsTracker = loadArgs.documentOriginIsTracker;
+        this.#trackerLookup = loadArgs.importConfig.trackerLookup;
+        this.#documentOriginIsTracker = isTrackerOrigin(this.#trackerLookup);
     }
 
     /**
@@ -197,6 +202,13 @@ class ConfigParser {
     set documentOriginIsTracker(value) {
         this.#documentOriginIsTracker = value;
     }
+
+    /**
+     * @returns {string}
+     */
+    get injectName() {
+        return this.#injectName;
+    }
 }
 
 export default class ContentFeature extends ConfigParser {
@@ -252,8 +264,7 @@ export default class ContentFeature extends ConfigParser {
      * @return {MessagingContext}
      */
     _createMessagingContext() {
-        const injectName = import.meta.injectName;
-        const contextName = injectName === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
+        const contextName = this.injectName === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
 
         return new MessagingContext({
             context: contextName,
@@ -432,7 +443,7 @@ export default class ContentFeature extends ConfigParser {
      * @param {import('./wrapper-utils').DefineInterfaceOptions} options
      */
     shimInterface(interfaceName, ImplClass, options) {
-        return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this));
+        return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this), this.injectName);
     }
 
     /**
@@ -447,6 +458,6 @@ export default class ContentFeature extends ConfigParser {
      * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
      */
     shimProperty(instanceHost, instanceProp, implInstance, readOnly = false) {
-        return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this));
+        return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this), this.injectName);
     }
 }

@@ -3,7 +3,6 @@
  */
 import { load, init } from '../src/content-scope-features.js';
 import { processConfig, isGloballyDisabled } from './../src/utils';
-import { isTrackerOrigin } from '../src/trackers';
 import { AndroidMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -31,10 +30,14 @@ function initCode() {
         debug: processedConfig.debug,
     });
 
+    const importConfig = {
+        trackerLookup: import.meta.trackerLookup,
+        injectName: import.meta.injectName,
+    };
+
     load({
         platform: processedConfig.platform,
-        trackerLookup: processedConfig.trackerLookup,
-        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
+        importConfig,
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,

@@ -48,6 +48,7 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
+                'integration',
             );
             expect(definePropertyFn).toHaveBeenCalledTimes(2);
             const NewMediaSession = globalThis.MediaSession;
@@ -77,6 +78,7 @@ describe('Shim API', () => {
                     wrapToString: true,
                 },
                 definePropertyFn,
+                'integration',
             );
             expect(() => new globalThis.MediaSession()).not.toThrow();
 
@@ -89,6 +91,7 @@ describe('Shim API', () => {
                     wrapToString: true,
                 },
                 definePropertyFn,
+                'integration',
             );
             expect(() => new globalThis.MediaSession()).toThrowError(TypeError);
 
@@ -102,6 +105,7 @@ describe('Shim API', () => {
                     wrapToString: true,
                 },
                 definePropertyFn,
+                'integration',
             );
             expect(() => new globalThis.MediaSession()).toThrowMatching(
                 (err) => err instanceof TypeError && err.message === 'friendly message',
@@ -118,6 +122,7 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                 },
                 definePropertyFn,
+                'integration',
             );
             // @ts-expect-error real MediaSession is not callable
             expect(() => globalThis.MediaSession()).not.toThrow();
@@ -135,6 +140,7 @@ describe('Shim API', () => {
                     disallowConstructor: false,
                 },
                 definePropertyFn,
+                'integration',
             );
             // @ts-expect-error real MediaSession is not callable
             expect(() => globalThis.MediaSession()).toThrowError(TypeError);
@@ -150,6 +156,7 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
+                'integration',
             );
             expect(globalThis.MediaSession.toString()).not.toContain('class');
             expect(globalThis.MediaSession.toString.toString())
@@ -168,6 +175,7 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
+                'integration',
             );
 
             expect(globalThis.MediaSession.toString()).toBe('function MediaSession() { [native code] }');
@@ -187,9 +195,10 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
+                'integration',
             );
             const instance = new MyMediaSession();
-            shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn);
+            shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn, 'integration');
 
             const NewMediaSession = globalThis.MediaSession;
             expect(navigator.mediaSession instanceof NewMediaSession)
@@ -210,9 +219,10 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
+                'integration',
             );
             const instance = new MyMediaSession();
-            shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn);
+            shimProperty(navigatorPrototype, 'mediaSession', instance, false, definePropertyFn, 'integration');
 
             const descriptor = Object.getOwnPropertyDescriptor(navigatorPrototype, 'mediaSession');
             // @ts-expect-error we know it's defined
@@ -238,9 +248,10 @@ describe('Shim API', () => {
                     allowConstructorCall: false,
                 },
                 definePropertyFn,
+                'integration',
             );
             const instance = new MyMediaSession();
-            shimProperty(navigatorPrototype, 'mediaSession', instance, true, definePropertyFn);
+            shimProperty(navigatorPrototype, 'mediaSession', instance, true, definePropertyFn, 'integration');
 
             /** @type {import('../src/wrapper-utils').StrictAccessorDescriptor} */
             // @ts-expect-error we know it's defined

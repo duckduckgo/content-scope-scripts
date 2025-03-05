@@ -194,8 +194,8 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
  * @param {DefineInterfaceOptions} options - options for defining the interface
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
-export function shimInterface(interfaceName, ImplClass, options, definePropertyFn) {
-    if (import.meta.injectName === 'integration') {
+export function shimInterface(interfaceName, ImplClass, options, definePropertyFn, injectName) {
+    if (injectName === 'integration') {
         if (!globalThis.origInterfaceDescriptors) globalThis.origInterfaceDescriptors = {};
         const descriptor = Object.getOwnPropertyDescriptor(globalThis, interfaceName);
         globalThis.origInterfaceDescriptors[interfaceName] = descriptor;
@@ -270,7 +270,7 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
         }
     }
 
-    if (import.meta.injectName === 'integration') {
+    if (injectName === 'integration') {
         // mark the class as a shimmed class
         // we do it only in test mode, to avoid potential side effects in production. See the playwright test in integration-test/test-pages/webcompat/pages/shims.html
         definePropertyFn(ImplClass, ddgShimMark, {
@@ -305,11 +305,11 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
  * @param {boolean} readOnly - whether the property should be read-only
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
-export function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
+export function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn, injectName) {
     // @ts-expect-error - implInstance is a class instance
     const ImplClass = implInstance.constructor;
 
-    if (import.meta.injectName === 'integration') {
+    if (injectName === 'integration') {
         if (!globalThis.origPropDescriptors) globalThis.origPropDescriptors = [];
         const descriptor = Object.getOwnPropertyDescriptor(baseObject, propertyName);
         globalThis.origPropDescriptors.push([baseObject, propertyName, descriptor]);
