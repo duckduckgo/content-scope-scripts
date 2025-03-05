@@ -18,8 +18,8 @@ export const sampleData = {
         name: 'Scam',
         data: {
             kind: 'scam',
-            url: 'https://privacy-test-pages.site/security/badware/malware.html?query=param&some=other',
-        }, // TODO: Update with actual test page
+            url: 'https://privacy-test-pages.site/security/badware/scam.html',
+        },
     },
     'ssl.expired': {
         name: 'Expired',
