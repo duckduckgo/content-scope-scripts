@@ -2,6 +2,20 @@ import { test } from '@playwright/test';
 import { HistoryTestPage } from './history.page.js';
 
 test.describe('history', () => {
+    test('has empty state', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+        await hp.openPage();
+        await hp.didMakeInitialQueries({ term: '' });
+        await hp.hasEmptyState();
+    });
+    test('has no-results state', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+        await hp.openPage();
+        await hp.didMakeInitialQueries({ term: '' });
+        await hp.hasEmptyState();
+        await hp.types('empty');
+        await hp.hasNoResultsState();
+    });
     test('makes an initial empty query', async ({ page }, workerInfo) => {
         const hp = HistoryTestPage.create(page, workerInfo).withEntries(100);
         await hp.openPage();

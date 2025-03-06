@@ -3,7 +3,7 @@ import { DDG_DEFAULT_ICON_SIZE, OVERSCAN_AMOUNT } from '../constants.js';
 import { Item } from './Item.js';
 import styles from './VirtualizedList.module.css';
 import { VisibleItems } from './VirtualizedList.js';
-import { Empty } from './Empty.js';
+import { EmptyState } from './Empty.js';
 import { useSelected, useSelectionState } from '../global/Providers/SelectionProvider.js';
 import { useHistoryServiceDispatch, useResultsData } from '../global/Providers/HistoryServiceProvider.js';
 import { useCallback, useEffect } from 'preact/hooks';
@@ -45,7 +45,7 @@ export function ResultsContainer() {
  */
 export function Results({ results, selected, onChange }) {
     if (results.value.items.length === 0) {
-        return <Empty />;
+        return <EmptyState />;
     }
 
     /**

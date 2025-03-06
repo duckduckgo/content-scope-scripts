@@ -277,7 +277,19 @@ export class HistoryTestPage {
         await page.getByRole('button', { name: 'Delete All', exact: true }).click();
         const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ range: 'all' });
+        await this.hasEmptyState();
+    }
+
+    async hasEmptyState() {
+        const { page } = this;
         await expect(page.getByRole('heading', { level: 2, name: 'Nothing to see here!' })).toBeVisible();
+        await expect(page.getByText('No browsing history yet.')).toBeVisible();
+    }
+
+    async hasNoResultsState() {
+        const { page } = this;
+        await expect(page.getByRole('heading', { level: 2, name: 'No results found for "empty"' })).toBeVisible();
+        await expect(page.getByText('Try searching for a different URL or keywords')).toBeVisible();
     }
 
     /**
