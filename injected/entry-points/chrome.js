@@ -54,7 +54,6 @@ function init() {
           platform: {
               name: 'extension'
           },
-          trackerLookup: ${JSON.stringify(trackerLookup)},
           site: ${JSON.stringify(siteObject)},
           documentOriginIsTracker: ${documentOriginIsTracker},
           bundledConfig: ${JSON.stringify(bundledConfig)}

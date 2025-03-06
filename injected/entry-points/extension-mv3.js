@@ -6,16 +6,10 @@ import { computeLimitedSiteObject } from '../src/utils.js';
 
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
 
-const importConfig = {
-    trackerLookup: import.meta.trackerLookup,
-    injectName: import.meta.injectName,
-};
-
 load({
     platform: {
         name: 'extension',
     },
-    importConfig,
     site: computeLimitedSiteObject(),
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     bundledConfig: $BUNDLED_CONFIG$,

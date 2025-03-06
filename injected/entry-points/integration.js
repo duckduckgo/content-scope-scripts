@@ -84,15 +84,9 @@ async function initCode() {
         },
     });
 
-    const importConfig = {
-        trackerLookup: processedConfig.trackerLookup,
-        injectName: import.meta.injectName,
-    };
-
     load({
         // @ts-expect-error Types of property 'name' are incompatible.
         platform: processedConfig.platform,
-        importConfig,
         site: processedConfig.site,
         messagingConfig: processedConfig.messagingConfig,
     });

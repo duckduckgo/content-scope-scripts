@@ -28,14 +28,8 @@ function initCode() {
         },
     });
 
-    const importConfig = {
-        trackerLookup: processedConfig.trackerLookup,
-        injectName: import.meta.injectName,
-    };
-
     load({
         platform: processedConfig.platform,
-        importConfig,
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,

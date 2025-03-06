@@ -35,15 +35,6 @@ class ConfigParser {
     /** @type {any} */
     name;
 
-    /** @type {object | undefined} */
-    #trackerLookup;
-
-    /** @type {boolean | undefined} */
-    #documentOriginIsTracker;
-
-    /** @type {string} */
-    #injectName;
-
     /**
      * @param {any} name
      */
@@ -57,15 +48,12 @@ class ConfigParser {
     initLoadArgs(loadArgs) {
         const { bundledConfig, site, platform } = loadArgs;
         this.#bundledConfig = bundledConfig;
-        this.#injectName = loadArgs.importConfig.injectName;
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig) {
             const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
             this.#featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
         }
-        this.#trackerLookup = loadArgs.importConfig.trackerLookup;
-        this.#documentOriginIsTracker = isTrackerOrigin(this.#trackerLookup);
     }
 
     /**
@@ -179,35 +167,10 @@ class ConfigParser {
     }
 
     /**
-     * @returns {object}
-     **/
-    get trackerLookup() {
-        return this.#trackerLookup || {};
-    }
-
-    /**
      * @returns {import('./utils.js').RemoteConfig | undefined}
      **/
     get bundledConfig() {
         return this.#bundledConfig;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get documentOriginIsTracker() {
-        return !!this.#documentOriginIsTracker;
-    }
-
-    set documentOriginIsTracker(value) {
-        this.#documentOriginIsTracker = value;
-    }
-
-    /**
-     * @returns {string}
-     */
-    get injectName() {
-        return this.#injectName;
     }
 }
 
@@ -222,10 +185,13 @@ export default class ContentFeature extends ConfigParser {
     /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
     #args;
 
-    constructor(featureName) {
+    /** @type {any} */
+    #importConfig;
+    constructor(featureName, importConfig) {
         super(featureName);
         this.#args = null;
         this.monitor = new PerformanceMonitor();
+        this.#importConfig = importConfig;
     }
 
     get isDebug() {
@@ -257,6 +223,27 @@ export default class ContentFeature extends ConfigParser {
      */
     get assetConfig() {
         return this.#args?.assets;
+    }
+
+    /**
+     * @returns {object}
+     **/
+    get trackerLookup() {
+        return this.#importConfig.trackerLookup || {};
+    }
+
+    /**
+     * @returns {string}
+     */
+    get injectName() {
+        return this.#importConfig.injectName;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    get documentOriginIsTracker() {
+        return isTrackerOrigin(this.trackerLookup);
     }
 
     /**

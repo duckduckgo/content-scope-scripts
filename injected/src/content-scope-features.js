@@ -23,7 +23,6 @@ const isHTMLDocument =
  * @property {import('./content-feature').Site} site
  * @property {import('./utils.js').Platform} platform
  * @property {import('./utils.js').RemoteConfig} bundledConfig
- * @property {object} importConfig - contains trackerLookup and injectName, trackerLookup is provided currently only by the extension
  * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
  * @property {string} [messageSecret] - optional, used in the messageBridge creation
  */
@@ -37,11 +36,16 @@ export function load(args) {
         return;
     }
 
-    const featureNames = typeof args.importConfig.injectName === 'string' ? platformSupport[args.importConfig.injectName] : [];
+    const importConfig = {
+        trackerLookup: import.meta.trackerLookup,
+        injectName: import.meta.injectName,
+    };
+
+    const featureNames = typeof importConfig.injectName === 'string' ? platformSupport[importConfig.injectName] : [];
 
     for (const featureName of featureNames) {
         const ContentFeature = platformFeatures['ddg_feature_' + featureName];
-        const featureInstance = new ContentFeature(featureName);
+        const featureInstance = new ContentFeature(featureName, importConfig);
         featureInstance.callLoad(args);
         features.push({ featureName, featureInstance });
     }

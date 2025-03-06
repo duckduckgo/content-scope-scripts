@@ -30,14 +30,8 @@ function initCode() {
         debug: processedConfig.debug,
     });
 
-    const importConfig = {
-        trackerLookup: import.meta.trackerLookup,
-        injectName: import.meta.injectName,
-    };
-
     load({
         platform: processedConfig.platform,
-        importConfig,
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
