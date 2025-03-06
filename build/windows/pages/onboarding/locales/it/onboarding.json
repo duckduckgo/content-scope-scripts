@@ -357,15 +357,15 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Blocca gli annunci mirati",
+    "title" : "Blocca gli annunci di tracciamento",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
-    "title" : "Cancella rapidamente i dati di navigazione",
+    "title" : "Cancella i dati di navigazione con un solo pulsante",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_privateYoutube" : {
-    "title" : "YouTube senza annunci mirati",
+    "title" : "Guarda YouTube senza annunci mirati",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_fullSupport" : {

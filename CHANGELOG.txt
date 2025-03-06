@@ -1,5 +1,1 @@
-- ntp: fix layout of RMF widget on older macOS (#1548)
-- build(deps): bump @rive-app/canvas-single from 2.26.3 to 2.26.4 (#1532)
-- history: support clicks anywhere to deselect (#1546)
-- history: error boundary (#1544)
-- history: add 'source' for each query (#1543)
+- onboarding: copy update (#1520)

@@ -358,15 +358,15 @@
     "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds": {
-    "title": "Block targeted ads",
+    "title": "Block tracking ads",
     "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData": {
-    "title": "Erase browsing data swiftly",
+    "title": "Delete browsing data with one button",
     "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_privateYoutube": {
-    "title": "YouTube without targeted ads",
+    "title": "Play YouTube without targeted ads",
     "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_fullSupport": {
