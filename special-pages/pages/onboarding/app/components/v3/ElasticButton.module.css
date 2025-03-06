@@ -23,9 +23,8 @@
     letter-spacing: 0.06px;
     line-height: var(--btn-line-height);
 
-    white-space: nowrap;
-
-    height: var(--btn-height);
+    height: 100%;
+    min-height: var(--btn-height);
     padding: calc(10 * var(--px-in-rem)) var(--sp-6);
 
     color: white;
