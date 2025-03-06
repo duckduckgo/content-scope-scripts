@@ -2245,9 +2245,9 @@ body:not([data-platform-name]) .Button_button:active {
   margin-right: var(--sp-2);
   width: 3rem;
   min-width: 3rem;
+  display: block;
 }
 .RemoteMessagingFramework_content {
-  flex-grow: 1;
 }
 .RemoteMessagingFramework_title {
   font-size: var(--body-font-size);
@@ -2262,6 +2262,7 @@ body:not([data-platform-name]) .Button_button:active {
 .RemoteMessagingFramework_btnBlock {
   margin-left: var(--sp-3);
   align-self: center;
+  flex-shrink: 0;
 }
 .RemoteMessagingFramework_btnRow {
   margin-top: var(--sp-3);

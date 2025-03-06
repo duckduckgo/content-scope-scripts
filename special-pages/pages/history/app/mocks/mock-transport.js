@@ -218,6 +218,9 @@ function queryResponseFrom(memory, msg) {
     if ('term' in msg.params.query) {
         const { term } = msg.params.query;
         if (term !== '') {
+            if (term === 'empty' || term.includes('"') || term.includes('<')) {
+                return asResponse([], msg.params.offset, msg.params.limit);
+            }
             if (term === 'empty') {
                 return asResponse([], msg.params.offset, msg.params.limit);
             }

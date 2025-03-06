@@ -13,6 +13,7 @@ export const Item = memo(
      *
      * @param {Object} props - An object containing the properties for the item.
      * @param {string} props.id - A unique identifier for the item.
+     * @param {string} props.viewId - A unique identifier for the item, safe to use in CSS names
      * @param {string} props.title - The text to be displayed for the item.
      * @param {string} props.url - The text to be displayed for the item.
      * @param {string} props.domain - The text to be displayed for the domain
@@ -26,13 +27,14 @@ export const Item = memo(
      * @param {number} props.faviconMax
      */
     function Item(props) {
-        const { title, kind, etldPlusOne, faviconSrc, faviconMax, dateTimeOfDay, dateRelativeDay, index, selected } = props;
+        const { viewId, title, kind, etldPlusOne, faviconSrc, faviconMax, dateTimeOfDay, dateRelativeDay, index, selected } = props;
         const hasFooterGap = kind === END_KIND || kind === BOTH_KIND;
         const hasTitle = kind === TITLE_KIND || kind === BOTH_KIND;
+
         return (
             <Fragment>
                 {hasTitle && (
-                    <div class={cn(styles.title)} style={{ viewTransitionName: `item-title-${props.id}` }}>
+                    <div class={cn(styles.title)} style={{ viewTransitionName: `Item-title-${viewId}` }}>
                         {dateRelativeDay}
                     </div>
                 )}
@@ -41,7 +43,7 @@ export const Item = memo(
                     data-history-entry={props.id}
                     data-index={index}
                     aria-selected={selected}
-                    style={{ viewTransitionName: `item-${props.id}` }}
+                    style={{ viewTransitionName: `Item-item-${viewId}` }}
                 >
                     <div class={styles.favicon}>
                         <FaviconWithState

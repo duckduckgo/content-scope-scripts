@@ -299,6 +299,9 @@ body {
   grid-area: header;
   padding-left: var(--main-padding-left);
   padding-right: var(--main-padding-right);
+  view-transition-name: header;
+  z-index: 1;
+  background-color: var(--history-background-color);
 }
 .App_search {
   justify-self: flex-end;
@@ -342,6 +345,12 @@ body {
   display: block;
   background-color: var(--history-background-color);
   height: 2px;
+}
+.App_paddedError {
+  padding: 1rem;
+}
+.App_paddedErrorRecovery {
+  margin-top: 1rem;
 }
 
 /* pages/history/app/components/Header.module.css */

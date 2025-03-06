@@ -94,7 +94,7 @@ export class HistoryTestPage {
     async didMakeInitialQueries(query) {
         const rangesCall = await this.mocks.waitForCallCount({ method: 'getRanges', count: 1 });
         const calls = await this.mocks.waitForCallCount({ method: 'query', count: 1 });
-        expect(calls[0].payload.params).toStrictEqual({ query, limit: 150, offset: 0 });
+        expect(calls[0].payload.params).toStrictEqual(queryType({ query, limit: 150, offset: 0, source: 'initial' }));
         expect(rangesCall[0].payload.params).toStrictEqual({});
     }
 
@@ -102,12 +102,13 @@ export class HistoryTestPage {
      * @param {object} props
      * @param {number} props.nth
      * @param {import('../types/history.ts').QueryKind} props.query
+     * @param {import('../types/history.ts').HistoryQuery['source']} [props.source='user']
      */
-    async didMakeNthQuery({ nth, query }) {
+    async didMakeNthQuery({ nth, query, source = 'user' }) {
         const calls = await this.mocks.waitForCallCount({ method: 'query', count: nth + 1 });
         const params = calls[nth].payload.params;
 
-        expect(params).toStrictEqual({ query, limit: 150, offset: 0 });
+        expect(params).toStrictEqual(queryType({ query, limit: 150, offset: 0, source }));
     }
 
     /**
@@ -128,7 +129,7 @@ export class HistoryTestPage {
         const calls = await this.mocks.waitForCallCount({ method: 'query', count: nth + 1 });
         const params = calls[nth].payload.params;
 
-        expect(params).toStrictEqual({ query, limit: 150, offset });
+        expect(params).toStrictEqual(queryType({ query, limit: 150, offset, source: 'user' }));
     }
 
     async selectsToday() {
@@ -276,7 +277,19 @@ export class HistoryTestPage {
         await page.getByRole('button', { name: 'Delete All', exact: true }).click();
         const calls = await this.mocks.waitForCallCount({ method: 'deleteRange', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ range: 'all' });
+        await this.hasEmptyState();
+    }
+
+    async hasEmptyState() {
+        const { page } = this;
         await expect(page.getByRole('heading', { level: 2, name: 'Nothing to see here!' })).toBeVisible();
+        await expect(page.getByText('No browsing history yet.')).toBeVisible();
+    }
+
+    async hasNoResultsState() {
+        const { page } = this;
+        await expect(page.getByRole('heading', { level: 2, name: 'No results found for "empty"' })).toBeVisible();
+        await expect(page.getByText('Try searching for a different URL or keywords')).toBeVisible();
     }
 
     /**
@@ -545,4 +558,12 @@ export class HistoryTestPage {
     async selectedRowCountIs(number) {
         await expect(this.main().locator('[aria-selected="true"]')).toHaveCount(number);
     }
+}
+
+/**
+ * @param {import('../types/history.ts').HistoryQuery} q
+ * @return {import('../types/history.ts').HistoryQuery}
+ */
+function queryType(q) {
+    return q;
 }

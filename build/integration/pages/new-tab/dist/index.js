@@ -30326,7 +30326,9 @@
   function Isolate() {
     const next = new URL(url2);
     next.searchParams.set("isolate", "true");
-    return /* @__PURE__ */ g("div", { class: Components_default.buttonRow }, /* @__PURE__ */ g("a", { href: next.toString(), target: "_blank" }, "Isolate (open in a new tab)"));
+    const prod = new URL("/build/pages/new-tab", "https://content-scope-scripts.netlify.app");
+    prod.search = url2.search;
+    return /* @__PURE__ */ g("div", { class: Components_default.buttonRow }, /* @__PURE__ */ g("a", { href: next.toString(), target: "_blank" }, "Isolate (open in a new tab)"), /* @__PURE__ */ g("a", { href: prod.toString(), target: "_blank" }, "Open in Production (new tab)"));
   }
   function ExampleSelector({ entries: entries4, id }) {
     function onReset() {

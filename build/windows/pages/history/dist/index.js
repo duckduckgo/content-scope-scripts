@@ -1680,7 +1680,9 @@
     search: "App_search",
     aside: "App_aside",
     main: "App_main",
-    customScroller: "App_customScroller"
+    customScroller: "App_customScroller",
+    paddedError: "App_paddedError",
+    paddedErrorRecovery: "App_paddedErrorRecovery"
   };
 
   // pages/history/app/components/Header.module.css
@@ -2313,8 +2315,16 @@
       note: "Text shown where there are no remaining history entries"
     },
     empty_text: {
-      title: "Page visits will appear once you start browsing.",
+      title: "No browsing history yet.",
       note: "Placeholder text when there's no results to show"
+    },
+    no_results_title: {
+      title: "No results found for {term}",
+      note: "The placeholder {term} will be dynamically replaced with the search term entered by the user. For example, if the user searches for 'cats', the title will become 'No results found for cats'."
+    },
+    no_results_text: {
+      title: "Try searching for a different URL or keywords",
+      note: "Placeholder text when a search gave no results."
     },
     delete_all: {
       title: "Delete All",
@@ -2509,6 +2519,10 @@
       domain: (
         /** @type {string|null} */
         null
+      ),
+      source: (
+        /** @type {Source} */
+        "initial"
       )
     })
   );
@@ -2522,29 +2536,53 @@
     const initial = {
       term: "term" in query ? query.term : null,
       range: "range" in query ? query.range : null,
-      domain: "domain" in query ? query.domain : null
+      domain: "domain" in query ? query.domain : null,
+      source: (
+        /** @type {Source} */
+        "initial"
+      )
     };
     const queryState = useSignal(initial);
     function dispatch(action) {
       queryState.value = (() => {
         switch (action.kind) {
           case "reset": {
-            return { term: "", domain: null, range: null };
-          }
-          case "search-by-domain": {
-            return { term: null, domain: action.value, range: null };
-          }
-          case "search-by-range": {
-            return { term: null, domain: null, range: (
-              /** @type {RangeId} */
-              action.value
+            return { term: "", domain: null, range: null, source: (
+              /** @type {const} */
+              "auto"
             ) };
           }
+          case "search-by-domain": {
+            return { term: null, domain: action.value, range: null, source: (
+              /** @type {const} */
+              "user"
+            ) };
+          }
+          case "search-by-range": {
+            return {
+              term: null,
+              domain: null,
+              range: (
+                /** @type {RangeId} */
+                action.value
+              ),
+              source: (
+                /** @type {const} */
+                "user"
+              )
+            };
+          }
           case "search-by-term": {
-            return { term: action.value, domain: null, range: null };
+            return { term: action.value, domain: null, range: null, source: (
+              /** @type {const} */
+              "user"
+            ) };
           }
           default:
-            return { term: "", domain: null, range: null };
+            return { term: "", domain: null, range: null, source: (
+              /** @type {const} */
+              "auto"
+            ) };
         }
       })();
     }
@@ -2679,6 +2717,11 @@
       }
     }
     return heights;
+  }
+  function generateViewIds(rows) {
+    return rows.map((row) => {
+      return btoa(row.id).replace(/=/g, "");
+    });
   }
   function eventToIntention(event, platformName) {
     if (event instanceof MouseEvent) {
@@ -2845,7 +2888,7 @@
           const resolvedPromiseIsStale = this.index !== index;
           if (resolvedPromiseIsStale) return console.log("\u274C rejected stale result");
           let valueToPublish;
-          if (eq(old.info.query, next.info.query) && next.lastQueryParams?.offset > 0) {
+          if (queryEq(old.info.query, next.info.query) && next.lastQueryParams?.offset > 0) {
             const results = old.results.concat(next.results);
             valueToPublish = { info: next.info, results, lastQueryParams: next.lastQueryParams };
           } else {
@@ -2866,7 +2909,8 @@
           const query = {
             query: lastquery,
             limit: _HistoryService.CHUNK_SIZE,
-            offset: this.data.results.length
+            offset: this.data.results.length,
+            source: "user"
           };
           this.internal.dispatchEvent(new CustomEvent(_HistoryService.QUERY_EVENT, { detail: query }));
         }
@@ -2887,7 +2931,7 @@
      * @param {HistoryQuery} query
      */
     queryFetcher(query) {
-      console.log(`\u{1F9BB} [query] ${JSON.stringify(query.query)} offset: ${query.offset}, limit: ${query.limit}`);
+      console.log(`\u{1F9BB} [query] ${JSON.stringify(query.query)} offset: ${query.offset}, limit: ${query.limit} source: ${query.source}`);
       return this.history.messaging.request("query", query).then((resp) => {
         return { info: resp.info, results: resp.value, lastQueryParams: query };
       });
@@ -3077,7 +3121,7 @@
     const nextStats = { ...old, results: next };
     return nextStats;
   }
-  function paramsToQuery(params) {
+  function paramsToQuery(params, source) {
     let query;
     const range = toRange(params.get("range"));
     const domain = params.get("domain");
@@ -3093,7 +3137,8 @@
     return {
       query,
       limit: HistoryService.CHUNK_SIZE,
-      offset: 0
+      offset: 0,
+      source
     };
   }
   function toRange(input) {
@@ -3117,9 +3162,19 @@
       input
     ) : null;
   }
-  function eq(q1, q22) {
-    if (!q1 || !q22) return false;
-    return JSON.stringify(q1) === JSON.stringify(q22);
+  function eq(a4, b4) {
+    if (!b4) return false;
+    if (a4.limit !== b4.limit) return false;
+    if (a4.offset !== b4.offset) return false;
+    if (a4.source !== b4.source) return false;
+    return queryEq(a4.query, b4.query);
+  }
+  function queryEq(a4, b4) {
+    if (!b4) return false;
+    const k1 = Object.keys(a4)[0];
+    const k22 = Object.keys(b4)[0];
+    if (k1 === k22 && a4[k1] === b4[k22]) return true;
+    return false;
   }
 
   // pages/history/app/global/Providers/HistoryServiceProvider.js
@@ -3129,7 +3184,7 @@
   var HistoryServiceDispatchContext = J(defaultDispatch);
   var ResultsContext = J(
     /** @type {ReadonlySignal<Results>} */
-    d3({ items: [], heights: [] })
+    d3({ items: [], heights: [], viewIds: [] })
   );
   var RangesContext = J(
     /** @type {ReadonlySignal<Range[]>} */
@@ -3140,13 +3195,15 @@
     const ranges = useSignal(initial.ranges.ranges);
     const results = useSignal({
       items: initial.query.results,
-      heights: generateHeights(initial.query.results)
+      heights: generateHeights(initial.query.results),
+      viewIds: generateViewIds(initial.query.results)
     });
     useSignalEffect(() => {
       const unsub = service.onResults((data) => {
         results.value = {
           items: data.results,
-          heights: generateHeights(data.results)
+          heights: generateHeights(data.results),
+          viewIds: generateViewIds(data.results)
         };
       });
       const unsubRanges = service.onRanges((data) => {
@@ -3160,7 +3217,7 @@
     function dispatch(action) {
       switch (action.kind) {
         case "search-commit": {
-          const asQuery = paramsToQuery(action.params);
+          const asQuery = paramsToQuery(action.params, action.source);
           service.trigger(asQuery);
           break;
         }
@@ -3462,11 +3519,7 @@
         if (handled) {
           event.preventDefault();
           event.stopImmediatePropagation();
-        } else {
-          console.log("did not handle selection");
         }
-      } else {
-        dispatch({ kind: "reset", reason: "click occurred outside of rows" });
       }
     }
     function handleKeyIntention(intention) {
@@ -3967,6 +4020,7 @@
      *
      * @param {Object} props - An object containing the properties for the item.
      * @param {string} props.id - A unique identifier for the item.
+     * @param {string} props.viewId - A unique identifier for the item, safe to use in CSS names
      * @param {string} props.title - The text to be displayed for the item.
      * @param {string} props.url - The text to be displayed for the item.
      * @param {string} props.domain - The text to be displayed for the domain
@@ -3980,17 +4034,17 @@
      * @param {number} props.faviconMax
      */
     function Item2(props) {
-      const { title, kind, etldPlusOne, faviconSrc, faviconMax, dateTimeOfDay, dateRelativeDay, index, selected } = props;
+      const { viewId, title, kind, etldPlusOne, faviconSrc, faviconMax, dateTimeOfDay, dateRelativeDay, index, selected } = props;
       const hasFooterGap = kind === END_KIND || kind === BOTH_KIND;
       const hasTitle = kind === TITLE_KIND || kind === BOTH_KIND;
-      return /* @__PURE__ */ g(k, null, hasTitle && /* @__PURE__ */ g("div", { class: (0, import_classnames2.default)(Item_default.title), style: { viewTransitionName: `item-title-${props.id}` } }, dateRelativeDay), /* @__PURE__ */ g(
+      return /* @__PURE__ */ g(k, null, hasTitle && /* @__PURE__ */ g("div", { class: (0, import_classnames2.default)(Item_default.title), style: { viewTransitionName: `Item-title-${viewId}` } }, dateRelativeDay), /* @__PURE__ */ g(
         "div",
         {
           class: (0, import_classnames2.default)(Item_default.row, Item_default.hover, hasFooterGap && Item_default.last),
           "data-history-entry": props.id,
           "data-index": index,
           "aria-selected": selected,
-          style: { viewTransitionName: `item-${props.id}` }
+          style: { viewTransitionName: `Item-item-${viewId}` }
         },
         /* @__PURE__ */ g("div", { class: Item_default.favicon }, /* @__PURE__ */ g(
           FaviconWithState,
@@ -4129,9 +4183,17 @@
 
   // pages/history/app/components/Empty.js
   var import_classnames3 = __toESM(require_classnames(), 1);
-  function Empty() {
+  function Empty({ title, text }) {
+    return /* @__PURE__ */ g("div", { class: (0, import_classnames3.default)(VirtualizedList_default.emptyState, VirtualizedList_default.emptyStateOffset) }, /* @__PURE__ */ g("div", { class: VirtualizedList_default.icons }, /* @__PURE__ */ g("img", { src: "icons/backdrop.svg", width: 128, height: 96, alt: "" }), /* @__PURE__ */ g("img", { src: "icons/clock.svg", width: 60, height: 60, alt: "", class: VirtualizedList_default.forground })), /* @__PURE__ */ g("h2", { class: VirtualizedList_default.emptyTitle }, title), /* @__PURE__ */ g("p", { class: VirtualizedList_default.emptyText }, text));
+  }
+  function EmptyState() {
     const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ g("div", { class: (0, import_classnames3.default)(VirtualizedList_default.emptyState, VirtualizedList_default.emptyStateOffset) }, /* @__PURE__ */ g("div", { class: VirtualizedList_default.icons }, /* @__PURE__ */ g("img", { src: "icons/backdrop.svg", width: 128, height: 96, alt: "" }), /* @__PURE__ */ g("img", { src: "icons/clock.svg", width: 60, height: 60, alt: "", class: VirtualizedList_default.forground })), /* @__PURE__ */ g("h2", { class: VirtualizedList_default.emptyTitle }, t4("empty_title")), /* @__PURE__ */ g("p", { class: VirtualizedList_default.emptyText }, t4("empty_text")));
+    const query = useQueryContext();
+    const hasSearch = query.value.term !== null && query.value.term.trim().length > 0;
+    if (hasSearch) {
+      return /* @__PURE__ */ g(Empty, { title: t4("no_results_title", { term: `"${query.value.term}"` }), text: t4("no_results_text") });
+    }
+    return /* @__PURE__ */ g(Empty, { title: t4("empty_title"), text: t4("empty_text") });
   }
 
   // pages/history/app/components/Results.js
@@ -4153,7 +4215,7 @@
   }
   function Results({ results, selected, onChange }) {
     if (results.value.items.length === 0) {
-      return /* @__PURE__ */ g(Empty, null);
+      return /* @__PURE__ */ g(EmptyState, null);
     }
     const totalHeight = results.value.heights.reduce((acc, item) => acc + item, 0);
     return /* @__PURE__ */ g("ul", { class: VirtualizedList_default.container, style: { height: totalHeight + "px" } }, /* @__PURE__ */ g(
@@ -4168,10 +4230,12 @@
           const isSelected = selected.value.has(index);
           const faviconMax = item.favicon?.maxAvailableSize ?? DDG_DEFAULT_ICON_SIZE;
           const favoriteSrc = item.favicon?.src;
+          const viewId = results.value.viewIds[index];
           return /* @__PURE__ */ g("li", { key: item.id, "data-id": item.id, class: cssClassName, style, "data-is-selected": isSelected }, /* @__PURE__ */ g(
             Item,
             {
               id: item.id,
+              viewId,
               kind: results.value.heights[index],
               url: item.url,
               domain: item.domain,
@@ -4263,7 +4327,7 @@
     const historyServiceDispatch = useHistoryServiceDispatch();
     function onClick(range) {
       if (range === "all") {
-        dispatch({ kind: "reset" });
+        dispatch({ kind: "search-by-term", value: "" });
       } else if (range) {
         dispatch({ kind: "search-by-range", value: range });
       }
@@ -4564,13 +4628,11 @@
   function useSearchCommitForRange() {
     const dispatch = useHistoryServiceDispatch();
     const query = useQueryContext();
-    const derivedRange = useComputed(() => {
-      return query.value.range;
-    });
-    useSignalEffect(() => {
+    y2(() => {
       let timer;
       let counter = 0;
-      const sub = derivedRange.subscribe((nextRange) => {
+      const sub = query.subscribe((nextQuery) => {
+        const { range } = nextQuery;
         if (counter === 0) {
           counter += 1;
           return;
@@ -4578,17 +4640,17 @@
         const url2 = new URL(window.location.href);
         url2.searchParams.delete("q");
         url2.searchParams.delete("range");
-        if (nextRange !== null) {
-          url2.searchParams.set("range", nextRange);
+        if (range !== null) {
+          url2.searchParams.set("range", range);
           window.history.replaceState(null, "", url2.toString());
-          dispatch({ kind: "search-commit", params: new URLSearchParams(url2.searchParams) });
+          dispatch({ kind: "search-commit", params: new URLSearchParams(url2.searchParams), source: "user" });
         }
       });
       return () => {
         sub();
         clearTimeout(timer);
       };
-    });
+    }, [query, dispatch]);
   }
 
   // pages/history/app/global/hooks/useURLReflection.js
@@ -4643,16 +4705,17 @@
         clearTimeout(timer);
         if (next.term !== null) {
           const term = next.term;
+          const source = next.source;
           timer = setTimeout(() => {
             const params = new URLSearchParams();
             params.set("q", term);
-            dispatch({ kind: "search-commit", params });
+            dispatch({ kind: "search-commit", params, source });
           }, settings.typingDebounce);
         }
         if (next.domain !== null) {
           const params = new URLSearchParams();
           params.set("domain", next.domain);
-          dispatch({ kind: "search-commit", params });
+          dispatch({ kind: "search-commit", params, source: next.source });
         }
         return null;
       });
@@ -4683,6 +4746,19 @@
     return mode;
   }
 
+  // pages/history/app/global/hooks/useClickAnywhereElse.jsx
+  function useClickAnywhereElse() {
+    const dispatch = useSelectionDispatch();
+    return q2(
+      (e4) => {
+        if (e4.target?.closest?.("button,a") === null) {
+          dispatch({ kind: "reset", reason: "click occurred outside of rows" });
+        }
+      },
+      [dispatch]
+    );
+  }
+
   // pages/history/app/components/App.jsx
   function App() {
     const platformName = usePlatformName();
@@ -4702,6 +4778,7 @@
     useURLReflection();
     useSearchCommit();
     useSearchCommitForRange();
+    const clickAnywhere = useClickAnywhereElse();
     const { onClick, onKeyDown } = useRowInteractions(mainRef);
     y2(() => {
       const unsubscribe = query.subscribe(() => {
@@ -4713,7 +4790,33 @@
         unsubscribe();
       };
     }, [onKeyDown, query]);
-    return /* @__PURE__ */ g("div", { class: App_default.layout, "data-theme": isDarkMode ? "dark" : "light", "data-platform": platformName, "data-layout-mode": mode }, /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges })), /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)), /* @__PURE__ */ g("main", { class: (0, import_classnames5.default)(App_default.main, App_default.customScroller), ref: mainRef, onClick }, /* @__PURE__ */ g(ResultsContainer, null)));
+    return /* @__PURE__ */ g(
+      "div",
+      {
+        class: App_default.layout,
+        "data-theme": isDarkMode ? "dark" : "light",
+        "data-platform": platformName,
+        "data-layout-mode": mode,
+        onClick: clickAnywhere
+      },
+      /* @__PURE__ */ g("aside", { class: App_default.aside }, /* @__PURE__ */ g(Sidebar, { ranges })),
+      /* @__PURE__ */ g("header", { class: App_default.header }, /* @__PURE__ */ g(Header, null)),
+      /* @__PURE__ */ g("main", { class: (0, import_classnames5.default)(App_default.main, App_default.customScroller), ref: mainRef, onClick }, /* @__PURE__ */ g(ResultsContainer, null))
+    );
+  }
+  function AppLevelErrorBoundaryFallback({ children }) {
+    return /* @__PURE__ */ g("div", { class: App_default.paddedError }, /* @__PURE__ */ g("p", null, children), /* @__PURE__ */ g("div", { class: App_default.paddedErrorRecovery }, "You can try to", " ", /* @__PURE__ */ g(
+      "button",
+      {
+        onClick: () => {
+          const current = new URL(window.location.href);
+          current.search = "";
+          current.pathname = "";
+          location.href = current.toString();
+        }
+      },
+      "Reload this page"
+    )));
   }
 
   // pages/history/app/components/Components.module.css
@@ -4744,6 +4847,42 @@
     return { error: "Unreachable: value not retrieved" };
   }
 
+  // shared/components/ErrorBoundary.js
+  var ErrorBoundary = class extends x {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false };
+    }
+    static getDerivedStateFromError() {
+      return { hasError: true };
+    }
+    componentDidCatch(error, info) {
+      console.error(error);
+      console.log(info);
+      let message = error.message;
+      if (typeof message !== "string") message = "unknown";
+      const composed = this.props.context ? [this.props.context, message].join(" ") : message;
+      this.props.didCatch({ error, message: composed, info });
+    }
+    render() {
+      if (this.state.hasError) {
+        return this.props.fallback;
+      }
+      return this.props.children;
+    }
+  };
+
+  // shared/components/InlineErrorBoundary.js
+  var INLINE_ERROR = "A problem occurred with this feature. DuckDuckGo was notified";
+  function InlineErrorBoundary({ children, format, context, fallback, messaging: messaging2 }) {
+    const didCatch = (message) => {
+      const formatted = format?.(message) || message;
+      messaging2.reportPageException({ message: formatted });
+    };
+    const fallbackElement = fallback?.(INLINE_ERROR) || /* @__PURE__ */ g("p", null, INLINE_ERROR);
+    return /* @__PURE__ */ g(ErrorBoundary, { context, didCatch: ({ message }) => didCatch(message), fallback: fallbackElement }, children);
+  }
+
   // pages/history/app/index.js
   async function init(root2, messaging2, baseEnvironment2) {
     const result = await callWithRetry(() => messaging2.initialSetup());
@@ -4753,24 +4892,40 @@
     const init2 = result.value;
     const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
     const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withDebounce(baseEnvironment2.urlParams.get("debounce")).withUrlDebounce(baseEnvironment2.urlParams.get("urlDebounce"));
-    console.log("initialSetup", init2);
-    console.log("environment", environment);
-    console.log("settings", settings);
-    const strings = environment.locale === "en" ? history_default : await fetch(`./locales/${environment.locale}/history.json`).then((resp) => {
-      if (!resp.ok) {
-        throw new Error("did not give a result");
-      }
-      return resp.json();
-    }).catch((e4) => {
-      console.error("Could not load locale", environment.locale, e4);
-      return history_default;
-    });
+    if (!window.__playwright_01) {
+      console.log("initialSetup", init2);
+      console.log("environment", environment);
+      console.log("settings", settings);
+    }
+    const didCatchInit = (message) => {
+      messaging2.reportInitException({ message });
+    };
+    const strings = await getStrings(environment);
     const service = new HistoryService(messaging2);
-    const query = paramsToQuery(environment.urlParams);
-    const initial = await service.getInitial(query);
+    const query = paramsToQuery(environment.urlParams, "initial");
+    const initial = await fetchInitial(query, service, didCatchInit);
     if (environment.display === "app") {
       D(
-        /* @__PURE__ */ g(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ g(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ g(TranslationProvider, { translationObject: strings, fallback: history_default, textLength: environment.textLength }, /* @__PURE__ */ g(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ g(SettingsContext.Provider, { value: settings }, /* @__PURE__ */ g(QueryProvider, { query: query.query }, /* @__PURE__ */ g(HistoryServiceProvider, { service, initial }, /* @__PURE__ */ g(SelectionProvider, null, /* @__PURE__ */ g(App, null)))))))),
+        /* @__PURE__ */ g(
+          InlineErrorBoundary,
+          {
+            messaging: messaging2,
+            context: "History view application",
+            fallback: (message) => {
+              return /* @__PURE__ */ g(AppLevelErrorBoundaryFallback, null, message);
+            }
+          },
+          /* @__PURE__ */ g(
+            EnvironmentProvider,
+            {
+              debugState: environment.debugState,
+              injectName: environment.injectName,
+              willThrow: environment.willThrow
+            },
+            /* @__PURE__ */ g(UpdateEnvironment, { search: window.location.search }),
+            /* @__PURE__ */ g(TranslationProvider, { translationObject: strings, fallback: history_default, textLength: environment.textLength }, /* @__PURE__ */ g(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ g(SettingsContext.Provider, { value: settings }, /* @__PURE__ */ g(QueryProvider, { query: query.query }, /* @__PURE__ */ g(HistoryServiceProvider, { service, initial }, /* @__PURE__ */ g(SelectionProvider, null, /* @__PURE__ */ g(App, null)))))))
+          )
+        ),
         root2
       );
     } else if (environment.display === "components") {
@@ -4779,6 +4934,30 @@
         root2
       );
     }
+  }
+  async function fetchInitial(query, service, didCatch) {
+    try {
+      return await service.getInitial(query);
+    } catch (e4) {
+      console.error(e4);
+      didCatch(e4.message || String(e4));
+      return {
+        ranges: {
+          ranges: [{ id: "all", count: 0 }]
+        },
+        query: {
+          info: { query: { term: "" }, finished: true },
+          results: [],
+          lastQueryParams: null
+        }
+      };
+    }
+  }
+  async function getStrings(environment) {
+    return environment.locale === "en" ? history_default : await fetch(`./locales/${environment.locale}/new-tab.json`).then((x4) => x4.json()).catch((e4) => {
+      console.error("Could not load locale", environment.locale, e4);
+      return history_default;
+    });
   }
 
   // pages/history/app/mocks/mock-transport.js
