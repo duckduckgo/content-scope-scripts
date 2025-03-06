@@ -32,6 +32,7 @@ describe('Features definition', () => {
             'elementHiding',
             'exceptionHandler',
             'apiManipulation',
+            'cookie',
         ]);
     });
 });
