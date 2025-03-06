@@ -99,11 +99,7 @@ export function useRowInteractions(mainRef) {
             if (handled) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
-            } else {
-                console.log('did not handle selection');
             }
-        } else {
-            dispatch({ kind: 'reset', reason: 'click occurred outside of rows' });
         }
     }
 
