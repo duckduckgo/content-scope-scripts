@@ -84,7 +84,6 @@ export function AppLevelErrorBoundaryFallback({ children }) {
                 You can try to{' '}
                 <button
                     onClick={() => {
-                        9;
                         const current = new URL(window.location.href);
                         current.search = '';
                         current.pathname = '';
