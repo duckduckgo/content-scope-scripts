@@ -89,8 +89,6 @@ describe('Helpers checks', () => {
             },
             versionNumber: 99,
             sessionKey: 'testSessionKey',
-            // import.meta.trackerLookup is undefined because we've not overloaded it
-            trackerLookup: undefined,
             bundledConfig: configIn,
         });
     });
@@ -169,7 +167,6 @@ describe('Helpers checks', () => {
             },
             versionString: '0.9.9',
             sessionKey: 'testSessionKey',
-            trackerLookup: undefined,
             bundledConfig: configIn,
         });
     });

@@ -55,7 +55,6 @@ function init() {
               name: 'extension'
           },
           site: ${JSON.stringify(siteObject)},
-          documentOriginIsTracker: ${documentOriginIsTracker},
           bundledConfig: ${JSON.stringify(bundledConfig)}
       })
       // Define a random function we call later.

@@ -193,6 +193,7 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
  * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
  * @param {DefineInterfaceOptions} options - options for defining the interface
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
+ * @param {ImportMeta['injectName']} [injectName] - the name of the inject to use for the shim
  */
 export function shimInterface(interfaceName, ImplClass, options, definePropertyFn, injectName) {
     if (injectName === 'integration') {
@@ -304,6 +305,7 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
  * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
  * @param {boolean} readOnly - whether the property should be read-only
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
+ * @param {ImportMeta['injectName']} [injectName] - the name of the inject to use for the shim
  */
 export function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn, injectName) {
     // @ts-expect-error - implInstance is a class instance
