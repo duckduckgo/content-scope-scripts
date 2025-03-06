@@ -40,6 +40,9 @@ body {
     grid-area: header;
     padding-left: var(--main-padding-left);
     padding-right: var(--main-padding-right);
+    view-transition-name: header;
+    z-index: 1;
+    background-color: var(--history-background-color);
 }
 .search {
     justify-self: flex-end;
@@ -105,4 +108,12 @@ body {
             height: 2px;
         }
     }
+}
+
+.paddedError {
+    padding: 1rem;
+}
+
+.paddedErrorRecovery {
+    margin-top: 1rem;
 }

@@ -73,7 +73,8 @@ params for a query: (note: can be an empty string!)
     "term": "example.com"
   },
   "offset": 0,
-  "limit": 50
+  "limit": 50,
+  "source": "initial"
 }
 ```
 
@@ -85,7 +86,8 @@ params for a range, note: the values here will match what you returned from `get
     "range": "today"
   },
   "offset": 0,
-  "limit": 50
+  "limit": 50,
+  "source": "initial"
 }
 ```
 
