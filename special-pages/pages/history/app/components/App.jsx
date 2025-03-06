@@ -19,6 +19,7 @@ import { useSearchCommit } from '../global/hooks/useSearchCommit.js';
 import { useRangesData } from '../global/Providers/HistoryServiceProvider.js';
 import { usePlatformName } from '../types.js';
 import { useLayoutMode } from '../global/hooks/useLayoutMode.js';
+import { useClickAnywhereElse } from '../global/hooks/useClickAnywhereElse.jsx';
 
 export function App() {
     const platformName = usePlatformName();
@@ -39,6 +40,7 @@ export function App() {
     useURLReflection();
     useSearchCommit();
     useSearchCommitForRange();
+    const clickAnywhere = useClickAnywhereElse();
 
     /**
      * onClick can be passed directly to the main container,
@@ -62,7 +64,13 @@ export function App() {
     }, [onKeyDown, query]);
 
     return (
-        <div class={styles.layout} data-theme={isDarkMode ? 'dark' : 'light'} data-platform={platformName} data-layout-mode={mode}>
+        <div
+            class={styles.layout}
+            data-theme={isDarkMode ? 'dark' : 'light'}
+            data-platform={platformName}
+            data-layout-mode={mode}
+            onClick={clickAnywhere}
+        >
             <aside class={styles.aside}>
                 <Sidebar ranges={ranges} />
             </aside>
