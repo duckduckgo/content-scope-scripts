@@ -14,7 +14,6 @@
     animation: animate-fade .2s cubic-bezier(0.55, 0.055, 0.666, 0.19);
     margin-bottom: var(--ntp-gap);
 
-
     &.icon {
         padding-left: var(--sp-2);
     }
@@ -24,11 +23,10 @@
     margin-right: var(--sp-2);
     width: 3rem;
     min-width: 3rem;
+    display: block;
 }
 
-.content {
-    flex-grow: 1;
-}
+.content {}
 
 .title {
     font-size: var(--body-font-size);
@@ -45,6 +43,7 @@
 .btnBlock {
     margin-left: var(--sp-3);
     align-self: center;
+    flex-shrink: 0;
 }
 
 .btnRow {
