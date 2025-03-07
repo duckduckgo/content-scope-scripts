@@ -1,1 +1,2 @@
-- onboarding: copy update (#1520)
+- history: empty state translations (#1547)
+- build(deps-dev): bump the typescript group across 1 directory with 4 updates (#1540)

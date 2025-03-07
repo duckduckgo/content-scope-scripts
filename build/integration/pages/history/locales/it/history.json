@@ -13,8 +13,16 @@
     "note" : "Text shown where there are no remaining history entries"
   },
   "empty_text" : {
-    "title" : "Le visite alla pagina appariranno non appena inizierai la navigazione.",
+    "title" : "Ancora nessuna cronologia di navigazione.",
     "note" : "Placeholder text when there's no results to show"
+  },
+  "no_results_title" : {
+    "title" : "Nessun risultato trovato per {term}",
+    "note" : "The placeholder {term} will be dynamically replaced with the search term entered by the user. For example, if the user searches for 'cats', the title will become 'No results found for cats'."
+  },
+  "no_results_text" : {
+    "title" : "Prova a cercare un URL o parole chiave diverse.",
+    "note" : "Placeholder text when a search gave no results."
   },
   "delete_all" : {
     "title" : "Elimina tutto",

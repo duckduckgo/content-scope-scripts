@@ -2323,7 +2323,7 @@
       note: "The placeholder {term} will be dynamically replaced with the search term entered by the user. For example, if the user searches for 'cats', the title will become 'No results found for cats'."
     },
     no_results_text: {
-      title: "Try searching for a different URL or keywords",
+      title: "Try searching for a different URL or keywords.",
       note: "Placeholder text when a search gave no results."
     },
     delete_all: {
@@ -3184,7 +3184,12 @@
   var HistoryServiceDispatchContext = J(defaultDispatch);
   var ResultsContext = J(
     /** @type {ReadonlySignal<Results>} */
-    d3({ items: [], heights: [], viewIds: [] })
+    d3({
+      items: [],
+      heights: [],
+      viewIds: [],
+      info: { finished: false, query: { term: "" } }
+    })
   );
   var RangesContext = J(
     /** @type {ReadonlySignal<Range[]>} */
@@ -3194,6 +3199,7 @@
     const queryDispatch = useQueryDispatch();
     const ranges = useSignal(initial.ranges.ranges);
     const results = useSignal({
+      info: initial.query.info,
       items: initial.query.results,
       heights: generateHeights(initial.query.results),
       viewIds: generateViewIds(initial.query.results)
@@ -3202,6 +3208,7 @@
       const unsub = service.onResults((data) => {
         results.value = {
           items: data.results,
+          info: data.info,
           heights: generateHeights(data.results),
           viewIds: generateViewIds(data.results)
         };
@@ -4188,10 +4195,20 @@
   }
   function EmptyState() {
     const { t: t4 } = useTypedTranslation();
+    const results = useResultsData();
     const query = useQueryContext();
-    const hasSearch = query.value.term !== null && query.value.term.trim().length > 0;
-    if (hasSearch) {
-      return /* @__PURE__ */ g(Empty, { title: t4("no_results_title", { term: `"${query.value.term}"` }), text: t4("no_results_text") });
+    const hasSearch = useComputed(() => query.value.term !== null && query.value.term.trim().length > 0);
+    const text = useComputed(() => {
+      const termFromSearchBox = query.value.term;
+      if (!("term" in results.value.info.query)) return termFromSearchBox;
+      const termFromApiResponse = results.value.info.query.term;
+      if (termFromSearchBox === termFromApiResponse) {
+        return termFromSearchBox;
+      }
+      return termFromApiResponse;
+    });
+    if (hasSearch.value) {
+      return /* @__PURE__ */ g(Empty, { title: t4("no_results_title", { term: `"${text.value}"` }), text: t4("no_results_text") });
     }
     return /* @__PURE__ */ g(Empty, { title: t4("empty_title"), text: t4("empty_text") });
   }
@@ -4954,7 +4971,7 @@
     }
   }
   async function getStrings(environment) {
-    return environment.locale === "en" ? history_default : await fetch(`./locales/${environment.locale}/new-tab.json`).then((x4) => x4.json()).catch((e4) => {
+    return environment.locale === "en" ? history_default : await fetch(`./locales/${environment.locale}/history.json`).then((x4) => x4.json()).catch((e4) => {
       console.error("Could not load locale", environment.locale, e4);
       return history_default;
     });

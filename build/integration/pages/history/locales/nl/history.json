@@ -13,8 +13,16 @@
     "note" : "Text shown where there are no remaining history entries"
   },
   "empty_text" : {
-    "title" : "Paginabezoeken worden zichtbaar zodra je begint te browsen.",
+    "title" : "Nog geen surfgeschiedenis.",
     "note" : "Placeholder text when there's no results to show"
+  },
+  "no_results_title" : {
+    "title" : "Geen resultaten gevonden voor {term}",
+    "note" : "The placeholder {term} will be dynamically replaced with the search term entered by the user. For example, if the user searches for 'cats', the title will become 'No results found for cats'."
+  },
+  "no_results_text" : {
+    "title" : "Probeer te zoeken naar een andere URL of trefwoorden.",
+    "note" : "Placeholder text when a search gave no results."
   },
   "delete_all" : {
     "title" : "Alles verwijderen",
