@@ -60,7 +60,7 @@
         margin-top: calc(-1 * var(--sp-2));
     }
 
-    & .phishing .icon, & .malware .icon {
+    & .phishing .icon, & .malware .icon, & .scam .icon {
         background-image: url(../../../../shared/assets/img/icons/Malware-Site-96.svg);
         margin-left: calc(-1 * var(--sp-2));
         margin-right: calc(-1 * var(--sp-1));
@@ -86,6 +86,7 @@
 
     & .content {
         text-align: center;
+        text-wrap: balance;
         white-space: pre-line; /* Preserve line breaks on all screen sizes */
     }
 
@@ -116,7 +117,7 @@
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-128.svg);
     }
 
-    & .phishing .icon, & .malware .icon {
+    & .phishing .icon, & .malware .icon, & .scam .icon {
         background-image: url(../../../../shared/assets/img/icons/Malware-Site-128.svg);
     }
 
@@ -166,7 +167,7 @@
         margin-top: calc(-1 * var(--sp-2));
     }
 
-    & .phishing .icon, & .malware .icon {
+    & .phishing .icon, & .malware .icon, & .scam .icon {
         background-image: url(../../../../shared/assets/img/icons/Malware-Site-96.svg);
         margin-left: calc(-1 * var(--sp-2));
         margin-right: calc(-1 * var(--sp-1));

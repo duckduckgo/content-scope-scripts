@@ -29,7 +29,7 @@ const platforms = {
  */
 function idForError(errorData) {
     const { kind } = errorData;
-    if (kind === 'phishing' || kind === 'malware') {
+    if (kind === 'malware' || kind === 'phishing' || kind === 'scam') {
         return kind;
     }
 

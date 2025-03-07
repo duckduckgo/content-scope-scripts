@@ -295,6 +295,27 @@ export class SpecialErrorPage {
         ).toBeVisible();
     }
 
+    async showsScamPage() {
+        const { page } = this;
+
+        await this.showsPageTitle('Warning: Security Risk');
+
+        await expect(page.getByText('Warning: This site may be a security risk', { exact: true })).toBeVisible();
+        await expect(
+            page.getByText(
+                'DuckDuckGo blocked this page because it may be trying to deceive or manipulate you into transferring money, buying counterfeit goods, or installing malware under false pretenses. Learn more',
+                { exact: true },
+            ),
+        ).toBeVisible();
+        await this.showsAdvancedInfo();
+        await expect(
+            page.getByText(
+                'If you believe this website is safe, you can report an error. You can still visit the website at your own risk.',
+                { exact: true },
+            ),
+        ).toBeVisible();
+    }
+
     /**
      * Clicks on advanced link to show expanded info
      *
