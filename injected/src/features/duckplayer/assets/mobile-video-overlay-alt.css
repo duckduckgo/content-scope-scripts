@@ -1,8 +1,8 @@
 /* -- VIDEO PLAYER OVERLAY */
 :host {
     position: absolute;
+    top: 0;
     left: 0;
-    bottom: 0;
     color: white;
     z-index: 10000;
     --title-size: 16px;
@@ -12,7 +12,6 @@
     --logo-size: 32px;
     --logo-gap: 8px;
     --gutter: 16px;
-
 }
 /* iphone 15 */
 @media screen and (min-width: 390px) {
@@ -55,7 +54,7 @@
     box-sizing: border-box;
 }
 
-/* .ddg-video-player-toast {
+.ddg-video-player-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -69,59 +68,137 @@
     @media screen and (min-width: 568px) {
         padding: 0;
     }
-} */
+}
 
-.ddg-mobile-toast {
-    background: #fafafa; /* TODO: var? */
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    bottom: -500px;
-    box-sizing: border-box;
-    color: #222;
+.bg {
+    position: absolute;
+    top: 0;
     left: 0;
-    padding: 16px;
-    position: fixed;
+    right: 0;
+    bottom: 0;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    text-align: center;
+}
+
+.bg:before {
+    content: " ";
+    position: absolute;
+    display: block;
     width: 100%;
-
-    box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.10), 0px -20px 40px 0px rgba(0, 0, 0, 0.08);
-    animation: toast 300ms ease-out 100ms 1 forwards;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+            linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 60%),
+            radial-gradient(circle at bottom, rgba(131, 58, 180, 0.8), rgba(253, 29, 29, 0.6), rgba(252, 176, 69, 0.4));
 }
 
-@keyframes toast {
-    0% {
-        bottom: -500px;
-    }
-
-    100% {
-        bottom: 0;
-    }
+.bg:after {
+    content: " ";
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    text-align: center;
 }
 
-.heading {
-    display: flex;
-    gap: 12px;
-    align-items: center;
+.content {
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    display: grid;
+    color: rgba(255, 255, 255, 0.96);
+    position: relative;
+    grid-column-gap: var(--logo-gap);
+    grid-template-columns: var(--logo-size) auto calc(12px + 16px);
+    grid-template-rows:
+            auto
+            var(--title-gap)
+            auto
+            var(--button-gap)
+            auto;
+    align-content: center;
+    justify-content: center;
+
+    @media screen and (min-width: 568px) {
+        grid-template-columns: var(--logo-size) auto auto;
+    }
 }
 
 .logo {
-    flex: 0 0 32px;
-    width: 32px;
-    height: 32px;
+    align-self: start;
+    grid-column: 1/2;
+    grid-row: 1/2;
+}
+
+.logo svg {
+    width: 100%;
+    height: 100%;
+}
+
+.arrow {
+    position: absolute;
+    top: 48px;
+    left: -18px;
+    color: white;
+    z-index: 0;
 }
 
 .title {
-    color: rgba(0, 0, 0, 0.84);
-    font-size: 19px;
-    font-weight: 700;
-    line-height: calc(24 / 19);
+    font-size: var(--title-size);
+    line-height: var(--title-line-height);
+    font-weight: 600;
+    grid-column: 2/3;
+    grid-row: 1/2;
+
+    @media screen and (min-width: 568px) {
+        grid-column: 2/4;
+        max-width: 428px;
+    }
 }
 
-/* */
+.text {
+    display: none;
+}
+
+.info {
+    grid-column: 3/4;
+    grid-row: 1/2;
+    align-self: start;
+    padding-top: 3px;
+    justify-self: end;
+
+    @media screen and (min-width: 568px) {
+        grid-column: unset;
+        grid-row: unset;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+    }
+    @media screen and (min-width: 844px) {
+        top: 24px;
+        right: 24px;
+    }
+}
 
 .buttons {
     gap: 8px;
     display: flex;
-    margin-top: 16px; /* TODO: replace with parent gap */
+    grid-column: 1/4;
+    grid-row: 3/4;
+
+    @media screen and (min-width: 568px) {
+        grid-column: 2/3;
+    }
 }
 
 .remember {
@@ -142,7 +219,6 @@
 }
 
 .button {
-    flex: 0 0 50%;
     margin: 0;
     -webkit-appearance: none;
     background: none;
@@ -160,27 +236,21 @@
     border-radius: 8px;
 }
 
-.button--close {
-    flex: 0 0 32px;
-    background-color: rgba(0, 0, 0, 0.6);
+.button--info {
     display: block;
     padding: 0;
     margin: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    position: relative;
-    top: -8px;
-    right: -8px;
-
-    display: none;
+    width: 16px;
+    height: 16px;
+    @media screen and (min-width: 568px) {
+        width: 24px;
+        height: 24px;
+    }
+    @media screen and (min-width: 844px) {
+        width: 24px;
+        height: 24px;
+    }
 }
-
-.button--close::after {
-    content: 'X';
-    color: rgba(0, 0, 0, 0.84);
-}
-
 .button--info svg {
     display: block;
     width: 100%;
@@ -192,8 +262,7 @@
 }
 
 .cancel {
-    color: rgba(0, 0, 0, 0.84);
-    background: rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.3);
     min-height: 40px;
 }
 
@@ -202,7 +271,6 @@
     flex: 1;
     text-align: center;
     min-height: 40px;
-    width: 100%;
 
     @media screen and (min-width: 568px) {
         flex: inherit;
@@ -224,9 +292,8 @@
 
 .remember-text {
     display: block;
-    font-size: 14px;
-    font-weight: 700;
-    line-height: calc(18 / 14);
+    font-size: 13px;
+    font-weight: 400;
 }
 .remember-checkbox {
     margin-left: auto;
@@ -286,3 +353,5 @@
 .ios-switch[aria-checked="true"] .thumb {
     left: calc(100% - 22px)
 }
+
+.android {}

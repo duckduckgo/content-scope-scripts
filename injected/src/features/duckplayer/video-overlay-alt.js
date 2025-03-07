@@ -31,6 +31,7 @@ import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
 import { IconOverlay } from './icon-overlay.js';
 import { mobileStrings } from './text.js';
 import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile-alt.js';
+import { DDGVideoToastMobile } from './components/ddg-video-toast-mobile.js';
 
 /**
  * Handle the switch between small & large overlays
@@ -178,7 +179,7 @@ export class VideoOverlay {
              */
             const videoElement = document.querySelector(this.settings.selectors.videoElement);
             const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
-            const overlayContainer = document.querySelector('body'); // TODO: Move to RC
+            const overlayContainer = document.querySelector(this.settings.selectors.videoElement); // TODO: Move to RC
             if (!videoElement || !playerContainer || !overlayContainer) {
                 return null;
             }
@@ -234,6 +235,7 @@ export class VideoOverlay {
             const { environment } = this;
 
             if (this.environment.layout === 'mobile') {
+
                 const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
                 elem.testMode = this.environment.isTestMode();
                 elem.text = mobileStrings(this.environment.strings);
@@ -245,6 +247,19 @@ export class VideoOverlay {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                 });
                 targetElement.appendChild(elem);
+
+                // const toast = /** @type {DDGVideoToastMobile} */ (document.createElement(DDGVideoToastMobile.CUSTOM_TAG_NAME));
+                // toast.testMode = this.environment.isTestMode();
+                // toast.text = mobileStrings(this.environment.strings);
+                // toast.addEventListener(DDGVideoToastMobile.OPEN_INFO, () => this.messages.openInfo());
+                // toast.addEventListener(DDGVideoToastMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                //     return this.mobileOptOut(e.detail.remember).catch(console.error);
+                // });
+                // toast.addEventListener(DDGVideoToastMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                //     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
+                // });
+                // document.body.appendChild(toast);
+
             } else {
                 const elem = new DDGVideoOverlay({
                     environment,
@@ -261,6 +276,7 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
+                document.querySelector(DDGVideoToastMobile.CUSTOM_TAG_NAME)?.remove();
                 controller.abort();
             };
         });
