@@ -7,6 +7,7 @@ import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { generateHeights, generateViewIds } from '../../utils.js';
 
 /**
+ * @typedef {import('../../../types/history.ts').HistoryQueryInfo} HistoryQueryInfo
  * @typedef {import('../../../types/history.ts').HistoryQuery['source']} Source
  * @typedef {{kind: 'search-commit', params: URLSearchParams, source: Source}
  * | {kind: 'delete-range'; value: string }
@@ -33,13 +34,23 @@ const HistoryServiceDispatchContext = createContext(defaultDispatch);
  * @property {import('../../../types/history.ts').HistoryItem[]} items
  * @property {number[]} heights
  * @property {string[]} viewIds
+ * @property {HistoryQueryInfo} info
  */
 /**
  * @typedef {import('../../../types/history.ts').Range} Range
  * @import { ReadonlySignal } from '@preact/signals'
  */
 
-const ResultsContext = createContext(/** @type {ReadonlySignal<Results>} */ (signal({ items: [], heights: [], viewIds: [] })));
+const ResultsContext = createContext(
+    /** @type {ReadonlySignal<Results>} */ (
+        signal({
+            items: [],
+            heights: [],
+            viewIds: [],
+            info: { finished: false, query: { term: '' } },
+        })
+    ),
+);
 const RangesContext = createContext(/** @type {ReadonlySignal<Range[]>} */ (signal([])));
 
 /**
@@ -55,6 +66,7 @@ export function HistoryServiceProvider({ service, children, initial }) {
     const queryDispatch = useQueryDispatch();
     const ranges = useSignal(initial.ranges.ranges);
     const results = useSignal({
+        info: initial.query.info,
         items: initial.query.results,
         heights: generateHeights(initial.query.results),
         viewIds: generateViewIds(initial.query.results),
@@ -64,6 +76,7 @@ export function HistoryServiceProvider({ service, children, initial }) {
         const unsub = service.onResults((data) => {
             results.value = {
                 items: data.results,
+                info: data.info,
                 heights: generateHeights(data.results),
                 viewIds: generateViewIds(data.results),
             };
