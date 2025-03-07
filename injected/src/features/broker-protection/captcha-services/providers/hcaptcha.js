@@ -1,11 +1,12 @@
-import { CaptchaProvider } from './provider.interface';
 import { injectTokenIntoElement, stringifyFunction } from '../utils';
 import { getUrlParameter, getUrlHashParameter, getElementByName, getElementWithSrcStart } from '../../utils';
 
 /**
  * Provider for hCaptcha
+ * @import {CaptchaProvider} from './provider.interface'
+ * @implements {CaptchaProvider}
  */
-export class HCaptchaProvider extends CaptchaProvider {
+export class HCaptchaProvider {
     #CAPTCHA_URL = 'https://newassets.hcaptcha.com/captcha';
     #CAPTCHA_RESPONSE_ELEMENT_NAME = 'h-captcha-response';
 
@@ -98,6 +99,10 @@ export class HCaptchaProvider extends CaptchaProvider {
 
         const captchaUrl = String(captchaElement.src);
         return getUrlParameter(captchaUrl, 'sitekey') || getUrlHashParameter(captchaUrl, 'sitekey');
+    }
+
+    getSupportingCodeToInject() {
+        return null;
     }
 }
 

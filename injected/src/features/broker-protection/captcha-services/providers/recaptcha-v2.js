@@ -1,26 +1,45 @@
-import { CaptchaProvider } from './provider.interface';
 import { getElementByName, getElementWithSrcStart } from '../../utils';
 import { injectTokenIntoElement, getSiteKeyFromSearchParam, stringifyFunction } from '../utils';
 // TODO move on the same folder level once we deprecate the existing captcha scripts
 import { captchaCallback } from '../../actions/captcha-callback';
 
-export class ReCaptchaV2Provider extends CaptchaProvider {
+/**
+ * @import {CaptchaProvider} from './provider.interface'
+ * @implements {CaptchaProvider}
+ */
+export class ReCaptchaV2Provider {
+    /**
+     * @param {object} params
+     * @param {string} [params.type]
+     * @param {string} [params.providerUrl]
+     * @param {string} [params.responseElementName]
+     */
+    constructor({
+        type = 'recaptcha2',
+        providerUrl = 'https://www.google.com/recaptcha/api2',
+        responseElementName = 'g-recaptcha-response',
+    }) {
+        this.type = type;
+        this.providerUrl = providerUrl;
+        this.responseElementName = responseElementName;
+    }
+
     getType() {
-        return 'recaptcha2';
+        return this.type;
     }
 
     /**
      * @protected
      */
     getCaptchaProviderUrl() {
-        return 'https://www.google.com/recaptcha/api2';
+        return this.providerUrl;
     }
 
     /**
      * @protected
      */
     getCaptchaResponseElementName() {
-        return 'g-recaptcha-response';
+        return this.responseElementName;
     }
 
     /**
@@ -70,5 +89,9 @@ export class ReCaptchaV2Provider extends CaptchaProvider {
      */
     _getCaptchaElement(captchaContainerElement) {
         return getElementWithSrcStart(captchaContainerElement, this.getCaptchaProviderUrl());
+    }
+
+    getSupportingCodeToInject() {
+        return null;
     }
 }

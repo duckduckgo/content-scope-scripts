@@ -1,6 +1,8 @@
-import { CaptchaProvider } from './provider.interface';
-
-export class CloudFlareTurnstileProvider extends CaptchaProvider {
+/**
+ * @import {CaptchaProvider} from './provider.interface'
+ * @implements {CaptchaProvider}
+ */
+export class CloudFlareTurnstileProvider {
     getType() {
         return 'cloudflareTurnstile';
     }
