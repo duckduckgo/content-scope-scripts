@@ -139,7 +139,7 @@ async function fetchInitial(query, service, didCatch) {
 async function getStrings(environment) {
     return environment.locale === 'en'
         ? enStrings
-        : await fetch(`./locales/${environment.locale}/new-tab.json`)
+        : await fetch(`./locales/${environment.locale}/history.json`)
               .then((x) => x.json())
               .catch((e) => {
                   console.error('Could not load locale', environment.locale, e);
