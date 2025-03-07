@@ -2,7 +2,7 @@ import css from '../assets/video-overlay.css';
 import dax from '../assets/dax.svg';
 import { overlayCopyVariants } from '../text.js';
 import { appendImageAsBackground } from '../util.js';
-import { VideoOverlay } from '../video-overlay.js';
+import { VideoOverlay } from '../video-overlay-alt.js';
 import { createPolicy, html, trustedUnsafe } from '../../../dom-utils.js';
 
 /**
@@ -105,6 +105,8 @@ export class DDGVideoOverlay extends HTMLElement {
      * @param {string} videoId
      */
     appendThumbnail(overlayElement, videoId) {
+        console.log('Appending thumbnail', overlayElement, videoId);
+
         const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
         appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
     }

@@ -25,12 +25,13 @@
  *   - if the user previously clicked 'watch here + remember', just add the small dax
  *   - otherwise, stop the video playing + append our overlay
  */
-import { SideEffects, VideoParams } from './util.js';
+import { SideEffects, VideoParams, appendImageAsBackground } from './util.js';
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js';
 import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
 import { IconOverlay } from './icon-overlay.js';
 import { mobileStrings } from './text.js';
-import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js';
+import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile-alt.js';
+import { DDGVideoToastMobile } from './components/ddg-video-toast-mobile.js';
 
 /**
  * Handle the switch between small & large overlays
@@ -146,6 +147,19 @@ export class VideoOverlay {
     }
 
     /**
+     * @param {HTMLElement} overlayElement
+     */
+    appendThumbnail(overlayElement) {
+        const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
+        const videoId = params?.id;
+
+        console.log('Appending thumbnail', overlayElement, videoId);
+
+        const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
+        appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
+    }
+
+    /**
      * @param {{ignoreCache?: boolean, via?: string}} [opts]
      */
     watchForVideoBeingAdded(opts = {}) {
@@ -178,7 +192,8 @@ export class VideoOverlay {
              */
             const videoElement = document.querySelector(this.settings.selectors.videoElement);
             const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
-            if (!videoElement || !playerContainer) {
+            const overlayContainer = document.body; // TODO: Move to RC
+            if (!videoElement || !playerContainer || !overlayContainer) {
                 return null;
             }
 
@@ -217,7 +232,7 @@ export class VideoOverlay {
 
                 // if we get here, we're trying to prevent the video playing
                 this.stopVideoFromPlaying();
-                this.appendOverlayToPage(playerContainer, params);
+                this.appendOverlayToPage(playerContainer, overlayContainer, params);
             }
         }
     }
@@ -226,13 +241,14 @@ export class VideoOverlay {
      * @param {Element} targetElement
      * @param {import("./util").VideoParams} params
      */
-    appendOverlayToPage(targetElement, params) {
+    appendOverlayToPage(targetElement, overlayElement, params) {
         this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} or ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
             this.messages.sendPixel(new Pixel({ name: 'overlay' }));
             const controller = new AbortController();
             const { environment } = this;
 
             if (this.environment.layout === 'mobile') {
+
                 const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
                 elem.testMode = this.environment.isTestMode();
                 elem.text = mobileStrings(this.environment.strings);
@@ -244,6 +260,25 @@ export class VideoOverlay {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                 });
                 targetElement.appendChild(elem);
+
+                /**
+                 * Add thumbnail
+                 */
+                this.appendThumbnail(elem);
+
+
+                const toast = /** @type {DDGVideoToastMobile} */ (document.createElement(DDGVideoToastMobile.CUSTOM_TAG_NAME));
+                toast.testMode = this.environment.isTestMode();
+                toast.text = mobileStrings(this.environment.strings);
+                toast.addEventListener(DDGVideoToastMobile.OPEN_INFO, () => this.messages.openInfo());
+                toast.addEventListener(DDGVideoToastMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.mobileOptOut(e.detail.remember).catch(console.error);
+                });
+                toast.addEventListener(DDGVideoToastMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.mobileOptIn(e.detail.remember, params).catch(console.error);
+                });
+                overlayElement.appendChild(toast);
+
             } else {
                 const elem = new DDGVideoOverlay({
                     environment,
@@ -260,6 +295,7 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
+                document.querySelector(DDGVideoToastMobile.CUSTOM_TAG_NAME)?.remove();
                 controller.abort();
             };
         });
