@@ -320,12 +320,10 @@ export default class ElementHiding extends ContentFeature {
 
         // determine whether strict hide rules should be injected as a style tag
         if (shouldInjectStyleTag) {
-            // @ts-expect-error: Accessing private method
             shouldInjectStyleTag = this.matchDomainFeatureSetting('styleTagExceptions').length === 0;
         }
 
         // collect all matching rules for domain
-        // @ts-expect-error: Accessing private method
         const activeDomainRules = this.matchDomainFeatureSetting('domains').flatMap((item) => item.rules);
 
         const overrideRules = activeDomainRules.filter((rule) => {

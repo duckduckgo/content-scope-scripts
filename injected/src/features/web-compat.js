@@ -463,7 +463,7 @@ export class WebCompat extends ContentFeature {
 
     mediaSessionFix() {
         try {
-            if (window.navigator.mediaSession && import.meta.injectName !== 'integration') {
+            if (window.navigator.mediaSession && this.injectName !== 'integration') {
                 return;
             }
 
@@ -509,7 +509,7 @@ export class WebCompat extends ContentFeature {
     presentationFix() {
         try {
             // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-            if (window.navigator.presentation && import.meta.injectName !== 'integration') {
+            if (window.navigator.presentation && this.injectName !== 'integration') {
                 return;
             }
 

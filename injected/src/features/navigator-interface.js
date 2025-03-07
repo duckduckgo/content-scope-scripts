@@ -4,7 +4,6 @@ import { createPageWorldBridge } from './message-bridge/create-page-world-bridge
 
 export default class NavigatorInterface extends ContentFeature {
     load(args) {
-        // @ts-expect-error: Accessing private method
         if (this.matchDomainFeatureSetting('privilegedDomains').length) {
             this.injectNavigatorInterface(args);
         }

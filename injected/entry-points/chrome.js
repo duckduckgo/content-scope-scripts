@@ -1,7 +1,6 @@
 /**
  * @module Chrome integration
  */
-import { isTrackerOrigin } from '../src/trackers';
 import { computeLimitedSiteObject } from '../src/utils';
 
 /**
@@ -39,8 +38,6 @@ function randomString() {
 }
 
 function init() {
-    const trackerLookup = import.meta.trackerLookup;
-    const documentOriginIsTracker = isTrackerOrigin(trackerLookup);
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const bundledConfig = $BUNDLED_CONFIG$;
     const randomMethodName = '_d' + randomString();
@@ -54,9 +51,7 @@ function init() {
           platform: {
               name: 'extension'
           },
-          trackerLookup: ${JSON.stringify(trackerLookup)},
           site: ${JSON.stringify(siteObject)},
-          documentOriginIsTracker: ${documentOriginIsTracker},
           bundledConfig: ${JSON.stringify(bundledConfig)}
       })
       // Define a random function we call later.

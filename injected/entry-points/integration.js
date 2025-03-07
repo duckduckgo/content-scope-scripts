@@ -1,5 +1,4 @@
 import { load, init } from '../src/content-scope-features.js';
-import { isTrackerOrigin } from '../src/trackers';
 import { TestTransportConfig } from '../../messaging/index.js';
 function getTopLevelURL() {
     try {
@@ -84,11 +83,10 @@ async function initCode() {
             };
         },
     });
+
     load({
         // @ts-expect-error Types of property 'name' are incompatible.
         platform: processedConfig.platform,
-        trackerLookup: processedConfig.trackerLookup,
-        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         messagingConfig: processedConfig.messagingConfig,
     });

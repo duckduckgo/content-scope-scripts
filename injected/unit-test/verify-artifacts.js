@@ -17,10 +17,7 @@ if (process.platform === 'win32') {
 const checks = {
     android: {
         file: join(BUILD, 'android/contentScope.js'),
-        tests: [
-            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'output.trackerLookup = {', includes: true },
-        ],
+        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
     },
     chrome: {
         file: join(BUILD, 'chrome/inject.js'),
@@ -49,16 +46,12 @@ const checks = {
     },
     windows: {
         file: join(BUILD, 'windows/contentScope.js'),
-        tests: [
-            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'output.trackerLookup = {', includes: true },
-        ],
+        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
     },
     apple: {
         file: join(APPLE_BUILD, 'contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'output.trackerLookup = {', includes: true },
             { kind: 'containsString', text: '#bundledConfig', includes: false },
         ],
     },
@@ -77,7 +70,6 @@ describe('checks', () => {
             if (check.kind === 'containsString') {
                 it(`${platformName}: '${localPath}' contains ${check.text}`, () => {
                     const fileContents = readFileSync(platformChecks.file).toString();
-                    // @ts-expect-error - can't infer that value is a number without adding types
                     const includes = fileContents.includes(check.text);
                     if (check.includes) {
                         expect(includes).toBeTrue();
