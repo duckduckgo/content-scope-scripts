@@ -321,7 +321,7 @@
     "note" : "Title for importing user data (bookmarks, passwords) to DuckDuckGo from other browsers."
   },
   "row_import_summary_v3" : {
-    "title" : "Die Verschlüsselung auf dem Gerät sorgt für den Schutz deiner Passwörter.",
+    "title" : "Die On-Device-Verschlüsselung schützt deine Passwörter.",
     "note" : "Explanation of additional security benefits of importing user's passwords into DuckDuckGo."
   },
   "row_import_accept_v3" : {
@@ -353,19 +353,19 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Cookie-Anfragen und Popups blocken",
+    "title" : "Cookie-Anfragen und Pop-ups blockieren",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Gezielte Werbung blockieren",
+    "title" : "Tracking-Anzeigen blockieren",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
-    "title" : "Browserdaten schnell löschen",
+    "title" : "Browsing-Daten mit einem Klick löschen",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_privateYoutube" : {
-    "title" : "YouTube ohne gezielte Werbung",
+    "title" : "YouTube ohne gezielte Werbung abspielen",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_fullSupport" : {

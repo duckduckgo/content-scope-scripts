@@ -353,19 +353,19 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Блокировка запросов и всплывающих окон куки",
+    "title" : "Блокирует запросы и всплывающие окна куки",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Блокировка целевой рекламы",
+    "title" : "Блокирует рекламу с отслеживанием",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
-    "title" : "Быстрое удаление данных из браузера",
+    "title" : "Стирает данные браузера одним нажатием",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_privateYoutube" : {
-    "title" : "YouTube без целевой рекламы",
+    "title" : "Позволяет смотреть YouTube без целевой рекламы",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_fullSupport" : {

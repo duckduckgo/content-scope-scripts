@@ -353,19 +353,19 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Blokkeer cookieverzoeken en pop-ups",
+    "title" : "Cookieverzoeken en pop-ups blokkeren",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Blokkeer gerichte advertenties",
+    "title" : "Blokkeer trackingadvertenties",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
-    "title" : "Wis browsegegevens snel",
+    "title" : "Verwijder browsegegevens met één knop",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_privateYoutube" : {
-    "title" : "YouTube zonder gerichte advertenties",
+    "title" : "Speel YouTube af zonder gerichte advertentie",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_fullSupport" : {
