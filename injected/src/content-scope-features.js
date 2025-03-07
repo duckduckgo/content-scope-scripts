@@ -45,8 +45,8 @@ export function load(args) {
 
     for (const featureName of featureNames) {
         const ContentFeature = platformFeatures['ddg_feature_' + featureName];
-        const featureInstance = new ContentFeature(featureName, importConfig);
-        featureInstance.callLoad(args);
+        const featureInstance = new ContentFeature(featureName, importConfig, args);
+        featureInstance.callLoad();
         features.push({ featureName, featureInstance });
     }
     mark.end();

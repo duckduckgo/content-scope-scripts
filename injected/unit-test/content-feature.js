@@ -12,8 +12,8 @@ describe('ContentFeature class', () => {
                 didRun = true;
             }
         }
-        const me = new MyTestFeature('test');
-        me.callInit({
+
+        const args = {
             site: {
                 domain: 'beep.example.com',
             },
@@ -42,7 +42,9 @@ describe('ContentFeature class', () => {
                     ],
                 },
             },
-        });
+        };
+        const me = new MyTestFeature('test', {}, args);
+        me.callInit(args);
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
@@ -56,7 +58,7 @@ describe('ContentFeature class', () => {
         }
         let feature;
         beforeEach(() => {
-            feature = new MyTestFeature('someFeatureName');
+            feature = new MyTestFeature('someFeatureName', {}, {});
         });
 
         it('should not send duplicate flags', () => {
@@ -85,7 +87,7 @@ describe('ContentFeature class', () => {
         }
         let feature;
         beforeEach(() => {
-            feature = new MyTestFeature('someFeatureName');
+            feature = new MyTestFeature('someFeatureName', {}, {});
         });
 
         it('should add debug flag to value descriptors', () => {

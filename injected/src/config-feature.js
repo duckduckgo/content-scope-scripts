@@ -13,9 +13,19 @@ export default class ConfigFeature {
 
     /**
      * @param {any} name
+     * @param {import('./content-scope-features.js').LoadArgs} args
      */
-    constructor(name) {
+    constructor(name, args) {
         this.name = name;
+        const { bundledConfig, site, platform } = args;
+        this.#bundledConfig = bundledConfig;
+        this.#args = args;
+        // If we have a bundled config, treat it as a regular config
+        // This will be overriden by the remote config if it is available
+        if (this.#bundledConfig && this.#args) {
+            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
+            this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
+        }
     }
 
     get args() {
@@ -28,21 +38,6 @@ export default class ConfigFeature {
 
     get featureSettings() {
         return this.#args?.featureSettings;
-    }
-
-    /**
-     * @param {import('./content-scope-features.js').LoadArgs} loadArgs
-     */
-    initLoadArgs(loadArgs) {
-        const { bundledConfig, site, platform } = loadArgs;
-        this.#bundledConfig = bundledConfig;
-        this.#args = loadArgs;
-        // If we have a bundled config, treat it as a regular config
-        // This will be overriden by the remote config if it is available
-        if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
-            this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
-        }
     }
 
     /**

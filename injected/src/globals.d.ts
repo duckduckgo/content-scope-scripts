@@ -44,6 +44,9 @@ declare module '*.riv' {
 }
 
 declare module 'ddg:platformFeatures' {
-    const output: Record<string, new (featureName: string, importConfig: ImportConfig) => import('./content-feature').default>;
+    const output: Record<
+        string,
+        new (featureName: string, importConfig: ImportConfig, args: LoadArgs) => import('./content-feature').default
+    >;
     export default output;
 }
