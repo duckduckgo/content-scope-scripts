@@ -3,6 +3,8 @@
     position: absolute;
     top: 0;
     left: 0;
+    bottom: 0;
+    right: 0;
     color: white;
     z-index: 10000;
     --title-size: 16px;
@@ -55,11 +57,9 @@
 }
 
 .ddg-video-player-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    background: red;
+    width: 100%;
+    height: 100%;
     color: white;
     z-index: 10000;
     padding-left: var(--gutter);

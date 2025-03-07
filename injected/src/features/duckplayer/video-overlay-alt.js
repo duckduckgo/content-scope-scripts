@@ -248,17 +248,17 @@ export class VideoOverlay {
                 });
                 targetElement.appendChild(elem);
 
-                // const toast = /** @type {DDGVideoToastMobile} */ (document.createElement(DDGVideoToastMobile.CUSTOM_TAG_NAME));
-                // toast.testMode = this.environment.isTestMode();
-                // toast.text = mobileStrings(this.environment.strings);
-                // toast.addEventListener(DDGVideoToastMobile.OPEN_INFO, () => this.messages.openInfo());
-                // toast.addEventListener(DDGVideoToastMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                //     return this.mobileOptOut(e.detail.remember).catch(console.error);
-                // });
-                // toast.addEventListener(DDGVideoToastMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                //     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
-                // });
-                // document.body.appendChild(toast);
+                const toast = /** @type {DDGVideoToastMobile} */ (document.createElement(DDGVideoToastMobile.CUSTOM_TAG_NAME));
+                toast.testMode = this.environment.isTestMode();
+                toast.text = mobileStrings(this.environment.strings);
+                toast.addEventListener(DDGVideoToastMobile.OPEN_INFO, () => this.messages.openInfo());
+                toast.addEventListener(DDGVideoToastMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.mobileOptOut(e.detail.remember).catch(console.error);
+                });
+                toast.addEventListener(DDGVideoToastMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.mobileOptIn(e.detail.remember, params).catch(console.error);
+                });
+                document.body.appendChild(toast);
 
             } else {
                 const elem = new DDGVideoOverlay({

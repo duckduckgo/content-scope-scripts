@@ -11,7 +11,7 @@ import { createPolicy, html } from '../../../dom-utils.js';
  * over the YouTube player
  */
 export class DDGVideoOverlayMobile extends HTMLElement {
-    static CUSTOM_TAG_NAME = 'ddg-video-overlay-mobile';
+    static CUSTOM_TAG_NAME = 'ddg-video-overlay-mobile-alt';
     static OPEN_INFO = 'open-info';
     static OPT_IN = 'opt-in';
     static OPT_OUT = 'opt-out';
@@ -65,6 +65,7 @@ export class DDGVideoOverlayMobile extends HTMLElement {
         }
 
         overlay.addEventListener('click', (e) => {
+            console.log('CLICKED');
             if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();
