@@ -30,7 +30,7 @@ import { DDGVideoOverlay } from './components/ddg-video-overlay.js';
 import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
 import { IconOverlay } from './icon-overlay.js';
 import { mobileStrings } from './text.js';
-import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile-alt.js';
+import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js';
 
 /**
  * Handle the switch between small & large overlays
@@ -178,8 +178,7 @@ export class VideoOverlay {
              */
             const videoElement = document.querySelector(this.settings.selectors.videoElement);
             const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
-            const overlayContainer = document.querySelector('body'); // TODO: Move to RC
-            if (!videoElement || !playerContainer || !overlayContainer) {
+            if (!videoElement || !playerContainer) {
                 return null;
             }
 
@@ -218,7 +217,7 @@ export class VideoOverlay {
 
                 // if we get here, we're trying to prevent the video playing
                 this.stopVideoFromPlaying();
-                this.appendOverlayToPage(overlayContainer, params);
+                this.appendOverlayToPage(playerContainer, params);
             }
         }
     }

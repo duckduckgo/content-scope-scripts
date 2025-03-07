@@ -25,7 +25,7 @@
  *   - if the user previously clicked 'watch here + remember', just add the small dax
  *   - otherwise, stop the video playing + append our overlay
  */
-import { SideEffects, VideoParams } from './util.js';
+import { SideEffects, VideoParams, appendImageAsBackground } from './util.js';
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js';
 import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
 import { IconOverlay } from './icon-overlay.js';
@@ -147,6 +147,19 @@ export class VideoOverlay {
     }
 
     /**
+     * @param {HTMLElement} overlayElement
+     */
+    appendThumbnail(overlayElement) {
+        const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
+        const videoId = params?.id;
+
+        console.log('Appending thumbnail', overlayElement, videoId);
+
+        const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
+        appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
+    }
+
+    /**
      * @param {{ignoreCache?: boolean, via?: string}} [opts]
      */
     watchForVideoBeingAdded(opts = {}) {
@@ -179,7 +192,7 @@ export class VideoOverlay {
              */
             const videoElement = document.querySelector(this.settings.selectors.videoElement);
             const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
-            const overlayContainer = document.querySelector(this.settings.selectors.videoElement); // TODO: Move to RC
+            const overlayContainer = document.body; // TODO: Move to RC
             if (!videoElement || !playerContainer || !overlayContainer) {
                 return null;
             }
@@ -219,7 +232,7 @@ export class VideoOverlay {
 
                 // if we get here, we're trying to prevent the video playing
                 this.stopVideoFromPlaying();
-                this.appendOverlayToPage(overlayContainer, params);
+                this.appendOverlayToPage(playerContainer, overlayContainer, params);
             }
         }
     }
@@ -228,7 +241,7 @@ export class VideoOverlay {
      * @param {Element} targetElement
      * @param {import("./util").VideoParams} params
      */
-    appendOverlayToPage(targetElement, params) {
+    appendOverlayToPage(targetElement, overlayElement, params) {
         this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} or ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
             this.messages.sendPixel(new Pixel({ name: 'overlay' }));
             const controller = new AbortController();
@@ -248,6 +261,12 @@ export class VideoOverlay {
                 });
                 targetElement.appendChild(elem);
 
+                /**
+                 * Add thumbnail
+                 */
+                this.appendThumbnail(elem);
+
+
                 const toast = /** @type {DDGVideoToastMobile} */ (document.createElement(DDGVideoToastMobile.CUSTOM_TAG_NAME));
                 toast.testMode = this.environment.isTestMode();
                 toast.text = mobileStrings(this.environment.strings);
@@ -258,7 +277,7 @@ export class VideoOverlay {
                 toast.addEventListener(DDGVideoToastMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                 });
-                document.body.appendChild(toast);
+                overlayElement.appendChild(toast);
 
             } else {
                 const elem = new DDGVideoOverlay({
