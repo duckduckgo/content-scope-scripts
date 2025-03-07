@@ -1,4 +1,4 @@
-import { generateRandomInt } from '../utils.js';
+import { generateRandomInt } from '../utils';
 
 export function generatePhoneNumber() {
     /**

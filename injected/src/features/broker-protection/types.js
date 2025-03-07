@@ -2,6 +2,15 @@
  * @typedef {SuccessResponse | ErrorResponse} ActionResponse
  * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
  * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string; failSilently?: boolean}} Expectation
+ *
+ * @typedef {{
+ *   id: string;
+ *   actionType: "extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate";
+ *   selector: string;
+ *   captchaType: string;
+ *   injectCaptchaHandler?: string
+ *   dataSource?: string;
+ * }} PirAction
  */
 
 /**

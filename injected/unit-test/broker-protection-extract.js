@@ -1,5 +1,5 @@
 import { aggregateFields, createProfile, stringValuesFromElements } from '../src/features/broker-protection/actions/extract.js';
-import { cleanArray } from '../src/features/broker-protection/utils.js';
+import { cleanArray } from '../src/features/broker-protection/utils';
 
 describe('create profiles from extracted data', () => {
     describe('cleanArray', () => {

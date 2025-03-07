@@ -2,6 +2,7 @@
   "state": {
     "action": {
       "actionType": "getCaptchaInfo",
+      "captchaType": "recaptcha2",
       "selector": ".g-recaptcha",
       "id": "8324"
     }

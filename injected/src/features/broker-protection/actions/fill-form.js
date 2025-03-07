@@ -1,4 +1,4 @@
-import { getElement, generateRandomInt } from '../utils.js';
+import { getElement, generateRandomInt } from '../utils';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
 

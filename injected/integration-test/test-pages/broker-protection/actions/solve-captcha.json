@@ -2,6 +2,7 @@
   "state": {
     "action": {
       "actionType": "solveCaptcha",
+      "captchaType": "recaptcha2",
       "id": "83241"
     },
     "data": {
