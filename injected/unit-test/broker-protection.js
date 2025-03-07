@@ -6,7 +6,7 @@ import { addressMatch } from '../src/features/broker-protection/comparisons/addr
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js';
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js';
 import { names } from '../src/features/broker-protection/comparisons/constants.js';
-import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils.js';
+import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js';
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js';
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
