@@ -261,12 +261,6 @@ export class VideoOverlay {
                 });
                 targetElement.appendChild(elem);
 
-                /**
-                 * Add thumbnail
-                 */
-                this.appendThumbnail(elem);
-
-
                 const toast = /** @type {DDGVideoToastMobile} */ (document.createElement(DDGVideoToastMobile.CUSTOM_TAG_NAME));
                 toast.testMode = this.environment.isTestMode();
                 toast.text = mobileStrings(this.environment.strings);
@@ -279,6 +273,10 @@ export class VideoOverlay {
                 });
                 overlayElement.appendChild(toast);
 
+                // TODO: Run when custom elements finish setting up
+                setTimeout(() => {
+                    this.appendThumbnail(elem);
+                }, 1000);
             } else {
                 const elem = new DDGVideoOverlay({
                     environment,
