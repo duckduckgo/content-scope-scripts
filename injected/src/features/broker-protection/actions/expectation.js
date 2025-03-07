@@ -1,4 +1,4 @@
-import { getElement } from '../utils.js';
+import { getElement } from '../utils';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 
 /**
