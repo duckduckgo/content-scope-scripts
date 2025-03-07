@@ -219,10 +219,14 @@ function queryResponseFrom(memory, msg) {
         const { term } = msg.params.query;
         if (term !== '') {
             if (term === 'empty' || term.includes('"') || term.includes('<')) {
-                return asResponse([], msg.params.offset, msg.params.limit);
+                const response = asResponse([], msg.params.offset, msg.params.limit);
+                response.info.query = { term };
+                return response;
             }
             if (term === 'empty') {
-                return asResponse([], msg.params.offset, msg.params.limit);
+                const response = asResponse([], msg.params.offset, msg.params.limit);
+                response.info.query = { term };
+                return response;
             }
             if (term.trim().match(/^\d+$/)) {
                 const int = parseInt(term.trim(), 10);
