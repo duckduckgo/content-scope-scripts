@@ -353,19 +353,19 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Bloquear pedidos de cookies e pop-ups",
+    "title" : "Bloquear solicitações e pop-ups de cookies",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Bloquear anúncios segmentados",
+    "title" : "Bloqueia anúncios que rastreiam",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
-    "title" : "Eliminar dados de navegação rapidamente",
+    "title" : "Elimina dados de navegação com um botão",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_privateYoutube" : {
-    "title" : "YouTube sem anúncios segmentados",
+    "title" : "Vê YouTube sem anúncios segmentados",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_fullSupport" : {

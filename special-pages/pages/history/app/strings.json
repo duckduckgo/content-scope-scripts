@@ -12,7 +12,7 @@
     "note": "The placeholder {term} will be dynamically replaced with the search term entered by the user. For example, if the user searches for 'cats', the title will become 'No results found for cats'."
   },
   "no_results_text": {
-    "title": "Try searching for a different URL or keywords",
+    "title": "Try searching for a different URL or keywords.",
     "note": "Placeholder text when a search gave no results."
   },
   "delete_all": {
