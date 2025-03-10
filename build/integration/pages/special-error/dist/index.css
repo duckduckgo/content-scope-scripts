@@ -571,12 +571,13 @@ body:not([data-platform-name]) .Button_button:active {
   height: var(--sp-8);
 }
 [data-platform-name=macos] .Warning_ssl .Warning_icon {
-  background-image: url("./Shield-Alert-96-W3VSTNOR.svg");
+  background-image: url("./Shield-Alert-96-IXBBD4D7.svg");
   margin-left: calc(-1 * var(--sp-2));
   margin-top: calc(-1 * var(--sp-2));
 }
 [data-platform-name=macos] .Warning_phishing .Warning_icon,
-[data-platform-name=macos] .Warning_malware .Warning_icon {
+[data-platform-name=macos] .Warning_malware .Warning_icon,
+[data-platform-name=macos] .Warning_scam .Warning_icon {
   background-image: url("./Malware-Site-96-A35AQOKY.svg");
   margin-left: calc(-1 * var(--sp-2));
   margin-right: calc(-1 * var(--sp-1));
@@ -595,6 +596,7 @@ body:not([data-platform-name]) .Button_button:active {
 }
 [data-platform-name=ios] .Warning_content {
   text-align: center;
+  text-wrap: balance;
   white-space: pre-line;
 }
 [data-platform-name=ios] .Warning_buttonContainer {
@@ -617,10 +619,11 @@ body:not([data-platform-name]) .Button_button:active {
   width: var(--sp-32);
 }
 [data-platform-name=ios] .Warning_ssl .Warning_icon {
-  background-image: url("./Shield-Alert-128-NGB6TVH6.svg");
+  background-image: url("./Shield-Alert-128-D4E333I2.svg");
 }
 [data-platform-name=ios] .Warning_phishing .Warning_icon,
-[data-platform-name=ios] .Warning_malware .Warning_icon {
+[data-platform-name=ios] .Warning_malware .Warning_icon,
+[data-platform-name=ios] .Warning_scam .Warning_icon {
   background-image: url("./Malware-Site-128-YUDZDGMR.svg");
 }
 [data-platform-name=ios] .Warning_title {
@@ -653,12 +656,13 @@ body:not([data-platform-name]) .Button_button:active {
   height: var(--sp-8);
 }
 [data-platform-name=windows] .Warning_ssl .Warning_icon {
-  background-image: url("./Shield-Alert-96-W3VSTNOR.svg");
+  background-image: url("./Shield-Alert-96-IXBBD4D7.svg");
   margin-left: calc(-1 * var(--sp-2));
   margin-top: calc(-1 * var(--sp-2));
 }
 [data-platform-name=windows] .Warning_phishing .Warning_icon,
-[data-platform-name=windows] .Warning_malware .Warning_icon {
+[data-platform-name=windows] .Warning_malware .Warning_icon,
+[data-platform-name=windows] .Warning_scam .Warning_icon {
   background-image: url("./Malware-Site-96-A35AQOKY.svg");
   margin-left: calc(-1 * var(--sp-2));
   margin-right: calc(-1 * var(--sp-1));

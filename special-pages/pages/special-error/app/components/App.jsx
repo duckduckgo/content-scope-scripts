@@ -34,10 +34,9 @@ function PageTitle() {
     useEffect(() => {
         switch (kind) {
             case 'malware':
-                document.title = t('malwareTabTitle');
-                break;
             case 'phishing':
-                document.title = t('phishingTabTitle');
+            case 'scam':
+                document.title = t('maliciousSiteTabTitle');
                 break;
             default:
                 document.title = t('sslPageHeading');

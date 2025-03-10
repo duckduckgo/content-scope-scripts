@@ -24,13 +24,13 @@
     "title" : "Aceptar el riesgo y visitar el sitio",
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
+  "maliciousSiteTabTitle" : {
+    "title" : "Advertencia: riesgo de seguridad",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
+  },
   "malwarePageHeading" : {
     "title" : "Advertencia: este sitio puede suponer un riesgo para la seguridad{newline}",
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
-  },
-  "malwareTabTitle" : {
-    "title" : "Advertencia: riesgo de seguridad",
-    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
   "malwareWarningText" : {
     "title" : "DuckDuckGo ha bloqueado esta página porque podría estar distribuyendo malware diseñado para comprometer tu dispositivo o robar tu información personal.{newline}<a>Más información</a>",
@@ -44,10 +44,6 @@
     "title" : "Advertencia: este sitio puede suponer un{newline}riesgo para la seguridad",
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
-  "phishingTabTitle" : {
-    "title" : "Advertencia: riesgo de seguridad",
-    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
-  },
   "phishingWarningText" : {
     "title" : "Este sitio web podría estar haciéndose pasar por un sitio legítimo con el fin de engañarte para que proporciones información personal, como contraseñas o números de tarjetas de crédito.{newline}<a>Más información</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
@@ -55,6 +51,18 @@
   "phishingAdvancedInfoHeading" : {
     "title" : "Si crees que este sitio web es seguro, puedes <a>informar de un error</a>. Puedes seguir visitando el sitio web por tu cuenta y riesgo.",
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "scamPageHeading" : {
+    "title" : "Advertencia: este sitio puede suponer un{newline}riesgo para la seguridad",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "scamWarningText" : {
+    "title" : "DuckDuckGo ha bloqueado esta página porque podría estar intentando engañarte o manipularte para que transfieras dinero, compres productos falsificados o instales software malicioso bajo falsos argumentos.{newline}<a>Más información</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
+  },
+  "scamAdvancedInfoHeading" : {
+    "title" : "Si crees que este sitio web es seguro, puedes <a>informar de un error</a>. Puedes seguir visitando el sitio web por tu cuenta y riesgo.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to suspected scam attempts."
   },
   "sslPageHeading" : {
     "title" : "Advertencia: este sitio puede ser inseguro",

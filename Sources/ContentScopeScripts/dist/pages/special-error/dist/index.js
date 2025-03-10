@@ -1175,6 +1175,13 @@
         url: "https://privacy-test-pages.site/security/badware/malware.html?query=param&some=other"
       }
     },
+    scam: {
+      name: "Scam",
+      data: {
+        kind: "scam",
+        url: "https://privacy-test-pages.site/security/badware/scam.html"
+      }
+    },
     "ssl.expired": {
       name: "Expired",
       data: {
@@ -1839,13 +1846,13 @@
       title: "Accept Risk and Visit Site",
       note: "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
     },
+    maliciousSiteTabTitle: {
+      title: "Warning: Security Risk",
+      note: "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
+    },
     malwarePageHeading: {
       title: "Warning: This site may be a{newline}security risk",
       note: "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
-    },
-    malwareTabTitle: {
-      title: "Warning: Security Risk",
-      note: "Title shown in the browser window or tab when the current page may be a security risk due to malware"
     },
     malwareWarningText: {
       title: "DuckDuckGo blocked this page because it may be distributing malware designed to compromise your device or steal your personal information.{newline}<a>Learn more</a>",
@@ -1859,10 +1866,6 @@
       title: "Warning: This site may be a{newline}security risk",
       note: "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
     },
-    phishingTabTitle: {
-      title: "Warning: Security Risk",
-      note: "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
-    },
     phishingWarningText: {
       title: "This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers.{newline}<a>Learn more</a>",
       note: "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
@@ -1870,6 +1873,18 @@
     phishingAdvancedInfoHeading: {
       title: "If you believe this website is safe, you can <a>report an error</a>. You can still visit the website at your own risk.",
       note: "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
+    },
+    scamPageHeading: {
+      title: "Warning: This site may be a{newline}security risk",
+      note: "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+    },
+    scamWarningText: {
+      title: "DuckDuckGo blocked this page because it may be trying to deceive or manipulate you into transferring money, buying counterfeit goods, or installing malware under false pretenses.{newline}<a>Learn more</a>",
+      note: "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
+    },
+    scamAdvancedInfoHeading: {
+      title: "If you believe this website is safe, you can <a>report an error</a>. You can still visit the website at your own risk.",
+      note: "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to suspected scam attempts."
     },
     sslPageHeading: {
       title: "Warning: This site may be insecure",
@@ -1963,14 +1978,18 @@
   function useWarningHeading() {
     const { t: t3 } = useTypedTranslation();
     const { kind } = useErrorData();
-    if (kind === "phishing") {
-      return t3("phishingPageHeading").replace("{newline}", "\n");
-    }
-    if (kind === "malware") {
-      return t3("malwarePageHeading").replace("{newline}", "\n");
-    }
-    if (kind === "ssl") {
-      return t3("sslPageHeading");
+    switch (kind) {
+      case "ssl":
+        return t3("sslPageHeading");
+      case "malware":
+      case "phishing":
+      case "scam":
+        const translationKey = (
+          /** @type {const} */
+          `${kind}PageHeading`
+        );
+        return t3(translationKey).replace("{newline}", "\n");
+      default:
     }
     throw new Error(`Unhandled error kind ${kind}`);
   }
@@ -1986,6 +2005,10 @@
       const text = t3("malwareWarningText").replace("{newline}", "\n");
       return [/* @__PURE__ */ g(Trans, { str: text, values: { a: helpPageAnchorTagParams } })];
     }
+    if (kind === "scam") {
+      const text = t3("scamWarningText").replace("{newline}", "\n");
+      return [/* @__PURE__ */ g(Trans, { str: text, values: { a: helpPageAnchorTagParams } })];
+    }
     if (kind === "ssl") {
       const { domain } = (
         /** @type {SSLError}} */
@@ -1999,17 +2022,23 @@
     const { t: t3 } = useTypedTranslation();
     const errorData = useErrorData();
     const { kind } = errorData;
-    if (kind === "phishing" || kind === "malware") {
-      const { url } = (
-        /** @type {PhishingAndMalware} */
-        errorData
-      );
-      const anchorTagParams = reportSiteAnchorTagParams(url);
-      const translatioKey = kind === "phishing" ? "phishingAdvancedInfoHeading" : "malwareAdvancedInfoHeading";
-      return /* @__PURE__ */ g(Trans, { str: t3(translatioKey), values: { a: anchorTagParams } });
-    }
-    if (kind === "ssl") {
-      return t3("sslAdvancedInfoHeading");
+    switch (kind) {
+      case "ssl":
+        return t3("sslAdvancedInfoHeading");
+      case "malware":
+      case "phishing":
+      case "scam":
+        const { url } = (
+          /** @type {MaliciousSite} */
+          errorData
+        );
+        const anchorTagParams = reportSiteAnchorTagParams(url);
+        const translationKey = (
+          /** @type {const} */
+          `${kind}AdvancedInfoHeading`
+        );
+        return /* @__PURE__ */ g(Trans, { str: t3(translationKey), values: { a: anchorTagParams } });
+      default:
     }
     throw new Error(`Unhandled error kind ${kind}`);
   }
@@ -2017,7 +2046,7 @@
     const { t: t3 } = useTypedTranslation();
     const errorData = useErrorData();
     const { kind } = errorData;
-    if (kind === "phishing" || kind === "malware") {
+    if (kind === "malware" || kind === "phishing" || kind === "scam") {
       return [];
     }
     if (kind === "ssl") {
@@ -2073,10 +2102,12 @@
   }
   function AdvancedInfoHeading() {
     const heading = useAdvancedInfoHeading();
+    if (!heading) return null;
     return /* @__PURE__ */ g("header", { className: AdvancedInfo_default.heading }, /* @__PURE__ */ g(Text, { as: "h2", variant: "body" }, heading));
   }
   function AdvancedInfoContent() {
     const content = useAdvancedInfoContent();
+    if (!content.length) return null;
     return /* @__PURE__ */ g("div", { className: AdvancedInfo_default.content }, content.map((text) => /* @__PURE__ */ g(Text, { as: "p", variant: "body" }, text)));
   }
   function AdvancedInfo() {
@@ -2183,6 +2214,7 @@
     ssl: "Warning_ssl",
     phishing: "Warning_phishing",
     malware: "Warning_malware",
+    scam: "Warning_scam",
     button: "Warning_button",
     advanced: "Warning_advanced",
     title: "Warning_title"
@@ -2214,8 +2246,9 @@
     return /* @__PURE__ */ g(Button, { variant: buttonVariant, className: (0, import_classnames3.default)(Warning_default.button, Warning_default.leaveSite), onClick: () => messaging2?.leaveSite() }, t3("leaveSiteButton"));
   }
   function WarningHeading() {
-    const { kind } = useErrorData();
     const heading = useWarningHeading();
+    if (!heading) return null;
+    const { kind } = useErrorData();
     const platformName = usePlatformName();
     const isMobile = useIsMobile();
     let textVariant;
@@ -2234,6 +2267,7 @@
   }
   function WarningContent() {
     const content = useWarningContent();
+    if (!content.length) return null;
     return /* @__PURE__ */ g("div", { className: Warning_default.content }, content.map((text) => /* @__PURE__ */ g(Text, { as: "p", variant: "body" }, text)));
   }
   function Warning({ advancedInfoVisible, advancedButtonHandler }) {
@@ -2256,10 +2290,9 @@
     y2(() => {
       switch (kind) {
         case "malware":
-          document.title = t3("malwareTabTitle");
-          break;
         case "phishing":
-          document.title = t3("phishingTabTitle");
+        case "scam":
+          document.title = t3("maliciousSiteTabTitle");
           break;
         default:
           document.title = t3("sslPageHeading");
@@ -2299,7 +2332,7 @@
   };
   function idForError(errorData) {
     const { kind } = errorData;
-    if (kind === "phishing" || kind === "malware") {
+    if (kind === "malware" || kind === "phishing" || kind === "scam") {
       return kind;
     }
     const { errorType } = (

@@ -24,13 +24,13 @@
     "title" : "Zaakceptuj ryzyko i odwiedź witrynę",
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
+  "maliciousSiteTabTitle" : {
+    "title" : "Ostrzeżenie: Zagrożenie bezpieczeństwa",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
+  },
   "malwarePageHeading" : {
     "title" : "Ostrzeżenie: ta witryna może stanowić{newline}zagrożenie bezpieczeństwa",
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
-  },
-  "malwareTabTitle" : {
-    "title" : "Ostrzeżenie: Zagrożenie bezpieczeństwa",
-    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
   "malwareWarningText" : {
     "title" : "Ta strona została zablokowana przez DuckDuckGo, ponieważ może rozpowszechniać złośliwe oprogramowanie, którego celem jest naruszenie bezpieczeństwa urządzenia lub kradzież danych osobowych.{newline}<a>Dowiedz się więcej</a>",
@@ -44,10 +44,6 @@
     "title" : "Ostrzeżenie: ta witryna może stanowić{newline}zagrożenie dla bezpieczeństwa",
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
-  "phishingTabTitle" : {
-    "title" : "Ostrzeżenie: Zagrożenie bezpieczeństwa",
-    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
-  },
   "phishingWarningText" : {
     "title" : "Ta witryna może podszywać się pod legalną witrynę w celu nakłonienia użytkownika do podania danych osobowych, takich jak hasła lub numery kart kredytowych.{newline}<a>Dowiedz się więcej</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
@@ -55,6 +51,18 @@
   "phishingAdvancedInfoHeading" : {
     "title" : "Jeśli uważasz, że ta strona jest bezpieczna, możesz <a>zgłosić błąd</a>. Możesz odwiedzić tę stronę internetową na własne ryzyko.",
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "scamPageHeading" : {
+    "title" : "Ostrzeżenie: ta witryna może stanowić{newline}zagrożenie dla bezpieczeństwa",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "scamWarningText" : {
+    "title" : "Przeglądarka DuckDuckGo zablokowała tę stronę ze względu na prawdopodobieństwo próby oszukania użytkownika, skłonienia do przesłania pieniędzy, zakupu podrobionych towarów lub zainstalowania złośliwego oprogramowania pod fałszywym pretekstem.{newline}<a>Dowiedz się więcej</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
+  },
+  "scamAdvancedInfoHeading" : {
+    "title" : "Jeśli uważasz, że ta strona jest bezpieczna, możesz <a>zgłosić błąd</a>. Możesz odwiedzić tę stronę internetową na własne ryzyko.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to suspected scam attempts."
   },
   "sslPageHeading" : {
     "title" : "Ostrzeżenie: ta witryna może być niebezpieczna",

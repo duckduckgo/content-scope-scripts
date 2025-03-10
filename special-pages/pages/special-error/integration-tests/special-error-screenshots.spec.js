@@ -33,4 +33,11 @@ test.describe('screenshots @screenshots', () => {
         await special.openPage({ errorId: 'malware', locale: 'ru' });
         await expect(page).toHaveScreenshot('malware-warning-ru.png', { maxDiffPixels });
     });
+
+    test('Scam warning with advanced info', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.openPage({ errorId: 'scam' });
+        await special.showsAdvancedInfo();
+        await expect(page).toHaveScreenshot('scam-warning-advanced.png', { maxDiffPixels });
+    });
 });
