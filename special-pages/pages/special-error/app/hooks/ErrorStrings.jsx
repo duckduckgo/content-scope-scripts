@@ -66,7 +66,7 @@ export function useWarningHeading() {
         case 'malware':
         case 'phishing':
         case 'scam':
-            const translationKey = /** @type {"malwarePageHeading"|"phishingPageHeading"|"scamPageHeading"} */ (`${kind}PageHeading`);
+            const translationKey = /** @type {const} */ (`${kind}PageHeading`);
             return t(translationKey).replace('{newline}', '\n');
         default:
     }
@@ -121,7 +121,7 @@ export function useAdvancedInfoHeading() {
         case 'scam':
             const { url } = /** @type {MaliciousSite} */ (errorData);
             const anchorTagParams = reportSiteAnchorTagParams(url);
-            const translationKey = /** @type {"malwareAdvancedInfoHeading"|"phishingAdvancedInfoHeading"|"scamAdvancedInfoHeading"} */ (
+            const translationKey = /** @type {const} */ (
                 `${kind}AdvancedInfoHeading`
             );
             return <Trans str={t(translationKey)} values={{ a: anchorTagParams }} />;
