@@ -24,13 +24,13 @@
     "title" : "Akceptovať riziko a navštíviť stránku",
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
+  "maliciousSiteTabTitle" : {
+    "title" : "Upozornenie: Riziko pre zabezpečenie",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
+  },
   "malwarePageHeading" : {
     "title" : "Varovanie: Táto stránka môže predstavovať{newline}bezpečnostné riziko",
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
-  },
-  "malwareTabTitle" : {
-    "title" : "Upozornenie: Bezpečnostné riziko",
-    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
   "malwareWarningText" : {
     "title" : "DuckDuckGo zablokoval túto stránku, pretože môže šíriť škodlivý softvér určený na ohrozenie tvojho zariadenia alebo krádež tvojich osobných údajov.{newline}<a>Zistiť viac</a>",
@@ -44,10 +44,6 @@
     "title" : "Varovanie: Táto lokalita môže predstavovať{newline}riziko pre zabezpečenie",
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
-  "phishingTabTitle" : {
-    "title" : "Upozornenie: Riziko pre zabezpečenie",
-    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
-  },
   "phishingWarningText" : {
     "title" : "Táto webová lokalita sa môže vydávať za legitímnu lokalitu s cieľom vylákať od teba poskytnutie osobných údajov, ako sú heslá alebo čísla kreditných kariet.{newline}<a>Zistiť viac</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
@@ -55,6 +51,18 @@
   "phishingAdvancedInfoHeading" : {
     "title" : "Ak si myslíš, že táto webová stránka je bezpečná, môžeš <a>nahlásiť chybu</a>. Webovú stránku môžeš stále navštíviť na vlastné riziko.",
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "scamPageHeading" : {
+    "title" : "Varovanie: Táto lokalita môže predstavovať{newline}riziko pre zabezpečenie",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "scamWarningText" : {
+    "title" : "DuckDuckGo zablokoval túto stránku, pretože sa ťa pod falošnými zámienkami môže pokúšať oklamať alebo zmanipulovať, aby si previedol/la peniaze, kúpil/a falšovaný tovar alebo nainštaloval/a škodlivý softvér.{newline}<a>Viac informácií</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
+  },
+  "scamAdvancedInfoHeading" : {
+    "title" : "Ak si myslíš, že táto webová stránka je bezpečná, môžeš <a>nahlásiť chybu</a>. Webovú stránku môžeš stále navštíviť na vlastné riziko.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to suspected scam attempts."
   },
   "sslPageHeading" : {
     "title" : "Varovanie: Táto stránka môže byť nezabezpečená",
