@@ -121,9 +121,7 @@ export function useAdvancedInfoHeading() {
         case 'scam':
             const { url } = /** @type {MaliciousSite} */ (errorData);
             const anchorTagParams = reportSiteAnchorTagParams(url);
-            const translationKey = /** @type {const} */ (
-                `${kind}AdvancedInfoHeading`
-            );
+            const translationKey = /** @type {const} */ (`${kind}AdvancedInfoHeading`);
             return <Trans str={t(translationKey)} values={{ a: anchorTagParams }} />;
         default:
     }
