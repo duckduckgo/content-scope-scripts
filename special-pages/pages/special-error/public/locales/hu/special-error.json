@@ -24,13 +24,13 @@
     "title" : "Kockázat elfogadása és a webhely megnyitása",
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
+  "maliciousSiteTabTitle" : {
+    "title" : "Figyelem: Biztonsági kockázat",
+    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
+  },
   "malwarePageHeading" : {
     "title" : "Figyelmeztetés: Lehet, hogy ez a webhely{newline}biztonsági kockázatot jelent",
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
-  },
-  "malwareTabTitle" : {
-    "title" : "Figyelmeztetés: Biztonsági kockázat",
-    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to malware"
   },
   "malwareWarningText" : {
     "title" : "A DuckDuckGo blokkolta ezt az oldalt, mert lehetséges, hogy olyan rosszindulatú programokat terjeszt, amelyek veszélyeztethetik az eszközöd biztonságát vagy ellophatják a személyes adataidat.{newline}<a>További részletek</a>",
@@ -44,10 +44,6 @@
     "title" : "Figyelem: A webhely{newline}biztonsági kockázatot jelenthet",
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
-  "phishingTabTitle" : {
-    "title" : "Figyelem: Biztonsági kockázat",
-    "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
-  },
   "phishingWarningText" : {
     "title" : "Előfordulhat, hogy ez a webhely legitim webhelynek adja ki magát, hogy személyes adatok, például jelszavak vagy hitelkártyaszámok megadására vegyen rá.{newline}<a>További részletek</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
@@ -55,6 +51,18 @@
   "phishingAdvancedInfoHeading" : {
     "title" : "Ha úgy gondolod, hogy ez a weboldal biztonságos, <a>tegyél hibabejelentést</a>. A weboldalt továbbra is saját felelősségedre látogathatod.",
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to malware distribution."
+  },
+  "scamPageHeading" : {
+    "title" : "Figyelem: A webhely{newline}biztonsági kockázatot jelenthet",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
+  },
+  "scamWarningText" : {
+    "title" : "A DuckDuckGo letiltotta ezt az oldalt, mert feltehetően megtévesztő vagy manipulatív módon megpróbál rávenni pénz átutalására, hamisított termékek vásárlására, vagy rosszindulatú program telepítésére.{newline}<a>Tudj meg többet</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
+  },
+  "scamAdvancedInfoHeading" : {
+    "title" : "Ha úgy gondolod, hogy ez a weboldal biztonságos, <a>tegyél hibabejelentést</a>. A weboldalt továbbra is saját felelősségedre látogathatod.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to suspected scam attempts."
   },
   "sslPageHeading" : {
     "title" : "Figyelmeztetés: Lehet, hogy ez a webhely nem biztonságos",

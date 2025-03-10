@@ -60,6 +60,12 @@ test.describe('special-error', () => {
         await special.showsMalwarePage();
     });
 
+    test('shows scam warning', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.openPage({ errorId: 'scam' });
+        await special.showsScamPage();
+    });
+
     test('leaves site', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.openPage({ errorId: 'ssl.expired' });
@@ -89,6 +95,16 @@ test.describe('special-error', () => {
         const expectedURL = `${phishingMalwareHelpPageURL}`;
 
         await special.openPage({ errorId: 'malware' });
+        await special.opensNewPage('Learn more', expectedURL);
+    });
+
+    test('opens scam help page in a new window', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.overrideTestLinks();
+
+        const expectedURL = `${phishingMalwareHelpPageURL}`;
+
+        await special.openPage({ errorId: 'scam' });
         await special.opensNewPage('Learn more', expectedURL);
     });
 
