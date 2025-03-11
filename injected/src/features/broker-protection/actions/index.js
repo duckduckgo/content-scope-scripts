@@ -12,7 +12,7 @@ import * as deprecatedCaptchaHandlers from './captcha-deprecated';
  * @param {Object} params
  * @param {boolean} params.useNewActionHandlers
  */
-export const resolveActionHandlers = ({ useNewActionHandlers }) => {
+export function resolveActionHandlers({ useNewActionHandlers }) {
     return {
         extract,
         fillForm,
@@ -28,4 +28,4 @@ export const resolveActionHandlers = ({ useNewActionHandlers }) => {
                   ...deprecatedCaptchaHandlers,
               }),
     };
-};
+}

@@ -9,7 +9,7 @@ import { getElementByName } from '../../utils/utils';
  * @param {string} params.token - The token to inject
  * @returns {boolean} - Whether the injection was successful
  */
-export const injectTokenIntoElement = ({ root, elementName, token }) => {
+export function injectTokenIntoElement({ root, elementName, token }) {
     const element = getElementByName(root, elementName);
     if (!element) {
         return false;
@@ -24,4 +24,4 @@ export const injectTokenIntoElement = ({ root, elementName, token }) => {
             { errorMessage: `[injectTokenIntoElement] error injecting token into element ${elementName}` },
         ) ?? false
     );
-};
+}

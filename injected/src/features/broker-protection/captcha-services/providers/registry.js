@@ -1,14 +1,27 @@
 import { CaptchaFactory } from '../factory';
-import { ReCaptchaV2Provider } from './recaptcha-v2';
-import { ReCaptchaEnterpriseProvider } from './recaptcha-enterprise';
+import { ReCaptchaProvider } from './recaptcha';
 import { CloudFlareTurnstileProvider } from './cloudflare-turnstile';
 import { HCaptchaProvider } from './hcaptcha';
 
 const captchaFactory = new CaptchaFactory();
 
-captchaFactory.registerProvider(ReCaptchaV2Provider);
-captchaFactory.registerProvider(ReCaptchaEnterpriseProvider);
-captchaFactory.registerProvider(CloudFlareTurnstileProvider);
-captchaFactory.registerProvider(HCaptchaProvider);
+captchaFactory.registerProvider(
+    new ReCaptchaProvider({
+        type: 'recaptcha2',
+        providerUrl: 'https://www.google.com/recaptcha/api2',
+        responseElementName: 'g-recaptcha-response',
+    }),
+);
+
+captchaFactory.registerProvider(
+    new ReCaptchaProvider({
+        type: 'recaptchaEnterprise',
+        providerUrl: 'https://www.google.com/recaptcha/enterprise',
+        responseElementName: 'g-recaptcha-response',
+    }),
+);
+
+captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
+captchaFactory.registerProvider(new HCaptchaProvider());
 
 export { captchaFactory };
