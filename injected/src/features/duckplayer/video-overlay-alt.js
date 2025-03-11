@@ -38,7 +38,7 @@ import { DDGVideoToastMobile } from './components/ddg-video-toast-mobile.js';
  * + conduct any communications
  */
 export class VideoOverlay {
-    sideEffects = new SideEffects();
+    sideEffects = new SideEffects({ debug: true }); /* TODO: REMOVE debug */
 
     /** @type {string | null} */
     lastVideoId = null;
@@ -275,7 +275,9 @@ export class VideoOverlay {
 
                 // TODO: Run when custom elements finish setting up
                 setTimeout(() => {
-                    this.appendThumbnail(elem);
+                    if (elem.container) {
+                        this.appendThumbnail(elem.container);
+                    }
                 }, 1000);
             } else {
                 const elem = new DDGVideoOverlay({
@@ -293,7 +295,9 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
-                document.querySelector(DDGVideoToastMobile.CUSTOM_TAG_NAME)?.remove();
+                setTimeout(() => {
+                    document.querySelector(DDGVideoToastMobile.CUSTOM_TAG_NAME)?.remove();
+                }, 500); /* TODO FIX THIS */
                 controller.abort();
             };
         });

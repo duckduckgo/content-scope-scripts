@@ -1,6 +1,6 @@
 import mobilecss from '../assets/mobile-video-toast.css';
 import dax from '../assets/dax.svg';
-import info from '../assets/info.svg';
+import info from '../assets/info-solid.svg';
 import { createPolicy, html, trustedUnsafe } from '../../../dom-utils.js';
 import { DDGVideoOverlayMobile } from './ddg-video-overlay-mobile-alt';
 
@@ -24,6 +24,11 @@ export class DDGVideoToastMobile extends HTMLElement {
     testMode = false;
     /** @type {Text | null} */
     text = null;
+    /** @type {HTMLElement | null} */
+    container;
+    /** @type {HTMLElement | null} */
+    toast;
+
 
     connectedCallback() {
         this.createMarkupAndStyles();
@@ -37,7 +42,18 @@ export class DDGVideoToastMobile extends HTMLElement {
         const content = this.mobileHtml();
         overlayElement.innerHTML = this.policy.createHTML(content);
         shadow.append(style, overlayElement);
-        this.setupEventHandlers(overlayElement);
+        this.setupElements(overlayElement);
+        this.setupEventHandlers();
+
+        setTimeout(() => {
+            this.animateIn();
+        }, 100); /* TODO FIX THIS */
+    }
+
+    /** @param {HTMLElement} container */
+    setupElements(container) {
+        this.container = container;
+        this.toast = container.querySelector('.ddg-mobile-toast');
     }
 
     /**
@@ -49,6 +65,7 @@ export class DDGVideoToastMobile extends HTMLElement {
             return '';
         }
         const svgIcon = trustedUnsafe(dax);
+        const infoIcon = trustedUnsafe(info);
 
         return html`
             <div class="ddg-video-player-overlay">
@@ -56,7 +73,7 @@ export class DDGVideoToastMobile extends HTMLElement {
                     <div class="heading">
                         <div class="logo">${svgIcon}</div>
                         <div class="title">${this.text.title}</div>
-                        <button class="button button--close" type="button" aria-label="Close modal"></button>
+                        <button class="button--info" type="button" aria-label="Open Information Modal">${infoIcon}</button>
                     </div>
                     <div class="buttons">
                         <button class="button cancel ddg-vpo-cancel" type="button">${this.text.buttonOptOut}</button>
@@ -78,23 +95,39 @@ export class DDGVideoToastMobile extends HTMLElement {
         `.toString();
     }
 
-    /**
-     * @param {HTMLElement} containerElement
-     */
-    setupEventHandlers(containerElement) {
-        const switchElem = containerElement.querySelector('[role=switch]');
-        // const infoButton = containerElement.querySelector('.button--info');
-        const remember = containerElement.querySelector('input[name="ddg-remember"]');
-        const cancelElement = containerElement.querySelector('.ddg-vpo-cancel');
-        const watchInPlayer = containerElement.querySelector('.ddg-vpo-open');
+    animateOut() {
+        if (this.toast) {
+            this.toast.classList.remove('animateIn');
+            this.toast.classList.add('animateOut');
+        }
+    }
 
-        if (!cancelElement || !watchInPlayer || !switchElem || !(remember instanceof HTMLInputElement)) {
+    animateIn() {
+        if (this.toast) {
+            this.toast.classList.remove('animateOut');
+            this.toast.classList.add('animateIn');
+        }
+    }
+
+    setupEventHandlers() {
+        if (!this.container) {
+            console.warn('Error setting up toast component');
+            return;
+        }
+
+        const switchElem = this.container.querySelector('[role=switch]');
+        const infoButton = this.container.querySelector('.button--info');
+        const remember = this.container.querySelector('input[name="ddg-remember"]');
+        const cancelElement = this.container.querySelector('.ddg-vpo-cancel');
+        const watchInPlayer = this.container.querySelector('.ddg-vpo-open');
+
+        if (!cancelElement || !watchInPlayer || !switchElem || !infoButton || !(remember instanceof HTMLInputElement)) {
             return console.warn('missing elements');
         }
 
-        // infoButton.addEventListener('click', () => {
-        //     this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO));
-        // });
+        infoButton.addEventListener('click', () => {
+            this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO));
+        });
 
         switchElem.addEventListener('pointerdown', () => {
             const current = switchElem.getAttribute('aria-checked');
@@ -108,14 +141,15 @@ export class DDGVideoToastMobile extends HTMLElement {
         });
 
         cancelElement.addEventListener('click', (e) => {
-            if (!e.isTrusted) return;
+            // if (!e.isTrusted) return;
+            console.log('HERE');
             e.preventDefault();
             e.stopImmediatePropagation();
+            this.animateOut();
             this.dispatchEvent(new CustomEvent(DDGVideoOverlayMobile.OPT_OUT, { detail: { remember: remember.checked } }));
         });
 
         watchInPlayer.addEventListener('click', (e) => {
-            console.log('WATCH', e.isTrusted);
             if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();
