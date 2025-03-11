@@ -2,12 +2,12 @@ import { getUrlHashParameter, getUrlParameter } from '../../utils/url';
 import { getElementByName, getElementWithSrcStart } from '../../utils/utils';
 import { stringifyFunction } from '../utils/stringify-function';
 import { injectTokenIntoElement } from '../utils/token';
-import { CaptchaProvider } from './provider.interface';
 
 /**
- * Provider for hCaptcha
+ * @import { CaptchaProvider } from './provider.interface';
+ * @implements {CaptchaProvider}
  */
-export class HCaptchaProvider extends CaptchaProvider {
+export class HCaptchaProvider {
     #CAPTCHA_URL = 'https://newassets.hcaptcha.com/captcha';
     #CAPTCHA_RESPONSE_ELEMENT_NAME = 'h-captcha-response';
 
@@ -39,6 +39,10 @@ export class HCaptchaProvider extends CaptchaProvider {
         }
 
         return siteKey;
+    }
+
+    getSupportingCodeToInject() {
+        return null;
     }
 
     /**

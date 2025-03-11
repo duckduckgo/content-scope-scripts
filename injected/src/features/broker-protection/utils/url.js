@@ -6,13 +6,13 @@ import { safeCall } from './safe-call';
  * @param {string} param - The parameter name
  * @returns {string|null} - The parameter value or null
  */
-export const getUrlParameter = (url, param) => {
+export function getUrlParameter(url, param) {
     if (!url || !param) {
         return null;
     }
 
     return safeCall(() => new URL(url).searchParams.get(param), { errorMessage: `[getUrlParameter] Error parsing URL: ${url}` });
-};
+}
 
 /**
  * Get a URL parameter from a URL hash fragment
@@ -20,7 +20,7 @@ export const getUrlParameter = (url, param) => {
  * @param {string} param - The parameter name
  * @returns {string|null} - The parameter value or null
  */
-export const getUrlHashParameter = (url, param) => {
+export function getUrlHashParameter(url, param) {
     if (!url || !param) {
         return null;
     }
@@ -32,17 +32,17 @@ export const getUrlHashParameter = (url, param) => {
         },
         { errorMessage: '[getUrlHashParameter] error' },
     );
-};
+}
 
 /**
  * Remove query parameters from a URL
  * @param {string} url - The URL to clean
  * @returns {string} - URL without query parameters
  */
-export const removeUrlQueryParams = (url) => {
+export function removeUrlQueryParams(url) {
     if (!url) {
         return '';
     }
 
     return url.split('?')[0];
-};
+}

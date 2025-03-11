@@ -1,4 +1,3 @@
-import { CaptchaProvider } from './provider.interface';
 import { getElementByName, getElementWithSrcStart } from '../../utils/utils';
 import { getSiteKeyFromSearchParam } from '../utils/sitekey';
 import { stringifyFunction } from '../utils/stringify-function';
@@ -6,23 +5,33 @@ import { injectTokenIntoElement } from '../utils/token';
 // TODO move on the same folder level once we deprecate the existing captcha scripts
 import { captchaCallback } from '../../actions/captcha-callback';
 
-export class ReCaptchaV2Provider extends CaptchaProvider {
+// define the config below to reuse it in the class
+/**
+ * @typedef {Object} ReCaptchaProviderConfig
+ * @property {string} type - The captcha type
+ * @property {string} providerUrl - The captcha provider URL
+ * @property {string} responseElementName - The name of the captcha response element
+ */
+
+/**
+ * @import { CaptchaProvider } from './provider.interface';
+ * @implements {CaptchaProvider}
+ */
+export class ReCaptchaProvider {
+    /**
+     * @type {ReCaptchaProviderConfig}
+     */
+    #config;
+
+    /**
+     * @param {ReCaptchaProviderConfig} config
+     */
+    constructor(config) {
+        this.#config = config;
+    }
+
     getType() {
-        return 'recaptcha2';
-    }
-
-    /**
-     * @protected
-     */
-    getCaptchaProviderUrl() {
-        return 'https://www.google.com/recaptcha/api2';
-    }
-
-    /**
-     * @protected
-     */
-    getCaptchaResponseElementName() {
-        return 'g-recaptcha-response';
+        return this.#config.type;
     }
 
     /**
@@ -40,6 +49,10 @@ export class ReCaptchaV2Provider extends CaptchaProvider {
         return getSiteKeyFromSearchParam({ captchaElement: this._getCaptchaElement(captchaContainerElement), siteKeyAttrName: 'k' });
     }
 
+    getSupportingCodeToInject() {
+        return null;
+    }
+
     /**
      * @param {string} token
      */
@@ -55,7 +68,7 @@ export class ReCaptchaV2Provider extends CaptchaProvider {
      * @param {Document} root
      */
     canSolve(root) {
-        return !!getElementByName(root, this.getCaptchaResponseElementName());
+        return !!getElementByName(root, this.#config.responseElementName);
     }
 
     /**
@@ -63,7 +76,7 @@ export class ReCaptchaV2Provider extends CaptchaProvider {
      * @param {string} token
      */
     injectToken(root, token) {
-        return injectTokenIntoElement({ root, elementName: this.getCaptchaResponseElementName(), token });
+        return injectTokenIntoElement({ root, elementName: this.#config.responseElementName, token });
     }
 
     /**
@@ -71,6 +84,6 @@ export class ReCaptchaV2Provider extends CaptchaProvider {
      * @param {HTMLElement} captchaContainerElement
      */
     _getCaptchaElement(captchaContainerElement) {
-        return getElementWithSrcStart(captchaContainerElement, this.getCaptchaProviderUrl());
+        return getElementWithSrcStart(captchaContainerElement, this.#config.providerUrl);
     }
 }

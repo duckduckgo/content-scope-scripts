@@ -10,22 +10,22 @@ import { buildUrl } from './build-url';
  * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */
-export const navigate = (action, userData) => {
-    const { id: actionID, actionType, injectCaptchaHandler } = action;
-    try {
-        const urlResult = buildUrl(action, userData);
-        if (urlResult instanceof ErrorResponse) {
-            return urlResult;
-        }
-
-        const codeToInject = injectCaptchaHandler ? getSupportingCodeToInject(injectCaptchaHandler) : null;
-        const response = {
-            ...urlResult.success.response,
-            ...(codeToInject && { code: codeToInject }),
-        };
-
-        return new SuccessResponse({ actionID, actionType, response });
-    } catch (e) {
-        return new ErrorResponse({ actionID, message: `[navigate] ${e.message}` });
+export function navigate(action, userData) {
+    const { id: actionID, actionType } = action;
+    const urlResult = buildUrl(action, userData);
+    if (urlResult instanceof ErrorResponse) {
+        return urlResult;
     }
-};
+
+    const codeToInjectResponse = getSupportingCodeToInject(action);
+    if (codeToInjectResponse instanceof ErrorResponse) {
+        return codeToInjectResponse;
+    }
+
+    const response = {
+        ...urlResult.success.response,
+        ...codeToInjectResponse.success.response,
+    };
+
+    return new SuccessResponse({ actionID, actionType, response });
+}
