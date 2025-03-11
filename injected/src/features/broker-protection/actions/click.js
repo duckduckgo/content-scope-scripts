@@ -1,4 +1,4 @@
-import { getElements } from '../utils';
+import { getElements } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { extractProfiles } from './extract.js';
 import { processTemplateStringWithUserData } from './build-url-transforms.js';

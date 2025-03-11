@@ -1,4 +1,4 @@
-import { captchaFactory } from './providers';
+import { captchaFactory } from './providers/registry';
 
 /**
  * Gets the captcha provider for the getCaptchaInfo action

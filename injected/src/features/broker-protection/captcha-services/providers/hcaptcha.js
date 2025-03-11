@@ -1,6 +1,8 @@
+import { getUrlHashParameter, getUrlParameter } from '../../utils/url';
+import { getElementByName, getElementWithSrcStart } from '../../utils/utils';
+import { stringifyFunction } from '../utils/stringify-function';
+import { injectTokenIntoElement } from '../utils/token';
 import { CaptchaProvider } from './provider.interface';
-import { injectTokenIntoElement, stringifyFunction } from '../utils';
-import { getUrlParameter, getUrlHashParameter, getElementByName, getElementWithSrcStart } from '../../utils';
 
 /**
  * Provider for hCaptcha

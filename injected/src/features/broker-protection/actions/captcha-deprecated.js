@@ -1,5 +1,5 @@
 import { captchaCallback } from './captcha-callback.js';
-import { getElement } from '../utils';
+import { getElement } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 
 /**

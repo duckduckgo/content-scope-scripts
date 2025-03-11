@@ -1,4 +1,4 @@
-import { getSupportingCodeToInject } from '../captcha-services';
+import { getSupportingCodeToInject } from '../captcha-services/captcha.service';
 import { ErrorResponse, SuccessResponse } from '../types';
 import { buildUrl } from './build-url';
 
