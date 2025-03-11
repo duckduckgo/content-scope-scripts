@@ -8,10 +8,9 @@ export class CaptchaFactory {
 
     /**
      * Register a captcha provider
-     * @param {typeof import('./providers/provider.interface').CaptchaProvider} ProviderClass
+     * @param {import('./providers/provider.interface').CaptchaProvider} provider - The provider to register
      */
-    registerProvider(ProviderClass) {
-        const provider = new ProviderClass();
+    registerProvider(provider) {
         this.providers.set(provider.getType(), provider);
     }
 

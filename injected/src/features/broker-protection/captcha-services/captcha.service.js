@@ -7,18 +7,25 @@ import { captchaFactory } from './providers/registry.js';
 /**
  * Returns the supporting code to inject for the given captcha type
  *
- * @param {import('../types.js').PirAction['captchaType']} captchaType
- * @return string
- * @throws {Error}
+ * @param {import('../types.js').PirAction} action
+ * @return {import('../types.js').ActionResponse}
  */
-export const getSupportingCodeToInject = (captchaType) => {
-    const captchaProvider = captchaFactory.getProviderByType(captchaType);
-    if (!captchaProvider) {
-        throw new Error(`[injectCaptchaHandler] could not find captchaProvider with type ${captchaType}`);
+export function getSupportingCodeToInject(action) {
+    const { id: actionID, actionType, injectCaptchaHandler: captchaType } = action;
+    if (!captchaType) {
+        return new SuccessResponse({ actionID, actionType, response: {} });
     }
 
-    return captchaProvider.getSupportingCodeToInject();
-};
+    const captchaProvider = captchaFactory.getProviderByType(captchaType);
+    if (!captchaProvider) {
+        return new ErrorResponse({
+            actionID,
+            message: `[injectCaptchaHandler] could not find captchaProvider with type ${captchaType}`,
+        });
+    }
+
+    return new SuccessResponse({ actionID, actionType, response: { code: captchaProvider.getSupportingCodeToInject() } });
+}
 
 /**
  * Gets the captcha information to send to the backend
@@ -27,7 +34,7 @@ export const getSupportingCodeToInject = (captchaType) => {
  * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
-export const getCaptchaInfo = (action, root = document) => {
+export function getCaptchaInfo(action, root = document) {
     const { id: actionID, selector, actionType, captchaType } = action;
     try {
         if (!selector) {
@@ -54,7 +61,7 @@ export const getCaptchaInfo = (action, root = document) => {
     } catch (e) {
         return new ErrorResponse({ actionID, message: `[getCaptchaInfo] ${e.message}` });
     }
-};
+}
 
 /**
  * Takes the solved captcha token and injects it into the page to solve the captcha
@@ -64,7 +71,7 @@ export const getCaptchaInfo = (action, root = document) => {
  * @param {Document} root
  * @return {import('../types.js').ActionResponse}
  */
-export const solveCaptcha = (action, token, root = document) => {
+export function solveCaptcha(action, token, root = document) {
     const { id: actionID, actionType, captchaType } = action;
     try {
         if (!captchaType) {
@@ -76,7 +83,11 @@ export const solveCaptcha = (action, token, root = document) => {
             throw new Error(`[solveCaptcha] cannot solve captcha with type ${captchaType}`);
         }
 
-        captchaSolveProvider.injectToken(root, token);
+        const isTokenInjected = captchaSolveProvider.injectToken(root, token);
+        if (!isTokenInjected) {
+            throw new Error(`[solveCaptcha] could not inject token for captcha with type ${captchaType}`);
+        }
+
         return new SuccessResponse({
             actionID,
             actionType,
@@ -85,4 +96,4 @@ export const solveCaptcha = (action, token, root = document) => {
     } catch (e) {
         return new ErrorResponse({ actionID, message: `[solveCaptcha] ${e.message}` });
     }
-};
+}

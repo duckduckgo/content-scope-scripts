@@ -8,7 +8,7 @@ import { captchaFactory } from './providers/registry';
  * @return {import('./providers/provider.interface.js').CaptchaProvider}
  * @throws {Error}
  */
-export const getCaptchaProvider = (captchaDiv, captchaType) => {
+export function getCaptchaProvider(captchaDiv, captchaType) {
     const captchaProvider = captchaFactory.getProviderByType(captchaType);
     if (!captchaProvider) {
         throw new Error(`[getCaptchaProvider] could not find captchaProvider with type ${captchaType}`);
@@ -29,7 +29,7 @@ export const getCaptchaProvider = (captchaDiv, captchaType) => {
     }
 
     return detectedProvider;
-};
+}
 
 /**
  * Gets the captcha provider for the solveCaptcha action
@@ -38,7 +38,7 @@ export const getCaptchaProvider = (captchaDiv, captchaType) => {
  * @return {import('./providers/provider.interface.js').CaptchaProvider}
  * @throws {Error}
  */
-export const getCaptchaSolveProvider = (root, captchaType) => {
+export function getCaptchaSolveProvider(root, captchaType) {
     const captchaProvider = captchaFactory.getProviderByType(captchaType);
     if (!captchaProvider) {
         throw new Error(`[getCaptchaSolveProvider] could not find captchaProvider with type ${captchaType}`);
@@ -59,4 +59,4 @@ export const getCaptchaSolveProvider = (root, captchaType) => {
     }
 
     return detectedProvider;
-};
+}

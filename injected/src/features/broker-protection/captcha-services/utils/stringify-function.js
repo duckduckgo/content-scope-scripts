@@ -7,7 +7,7 @@ import { safeCall } from '../../utils/safe-call';
  * @param {Object} params.args - The arguments to pass to the function
  * @returns {string|null} - The stringified function
  */
-export const stringifyFunction = ({ functionName, functionBody, args }) => {
+export function stringifyFunction({ functionName, functionBody, args }) {
     return safeCall(
         () => `;(function(args) {
         ${functionBody.toString()};
@@ -15,4 +15,4 @@ export const stringifyFunction = ({ functionName, functionBody, args }) => {
     })(${JSON.stringify(args)});`,
         { errorMessage: `[stringifyFunction] error stringifying function ${functionName}` },
     );
-};
+}
