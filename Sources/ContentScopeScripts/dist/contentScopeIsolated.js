@@ -467,50 +467,10 @@
         // TBD other platforms
     }
 
-    const baseFeatures = /** @type {const} */ ([
-        'fingerprintingAudio',
-        'fingerprintingBattery',
-        'fingerprintingCanvas',
-        'googleRejected',
-        'gpc',
-        'fingerprintingHardware',
-        'referrer',
-        'fingerprintingScreenSize',
-        'fingerprintingTemporaryStorage',
-        'navigatorInterface',
-        'elementHiding',
-        'exceptionHandler',
-        'apiManipulation',
-    ]);
-
-    const otherFeatures = /** @type {const} */ ([
-        'clickToLoad',
-        'cookie',
-        'messageBridge',
-        'duckPlayer',
-        'harmfulApis',
-        'webCompat',
-        'windowsPermissionUsage',
-        'brokerProtection',
-        'performanceMetrics',
-        'breakageReporting',
-        'autofillPasswordImport',
-    ]);
-
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
     /** @type {Record<string, FeatureName[]>} */
     const platformSupport = {
-        apple: ['webCompat', ...baseFeatures],
-        'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
-        android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
-        'android-broker-protection': ['brokerProtection'],
-        'android-autofill-password-import': ['autofillPasswordImport'],
-        windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
-        firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
-        chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
-        'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
-        integration: [...baseFeatures, ...otherFeatures],
-    };
+        'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge']};
 
     /**
      * Performance monitor, holds reference to PerformanceMark instances.
@@ -4679,7 +4639,7 @@
         }
     }
 
-    var mobilecss$2 = "/* -- VIDEO PLAYER OVERLAY */\n:host {\n    position: absolute;\n    top: 0;\n    left: 0;\n    bottom: 0;\n    right: 0;\n    color: white;\n    z-index: 10000;\n    --title-size: 16px;\n    --title-line-height: 20px;\n    --title-gap: 16px;\n    --button-gap: 6px;\n    --logo-size: 32px;\n    --logo-gap: 8px;\n    --gutter: 16px;\n}\n/* iphone 15 */\n@media screen and (min-width: 390px) {\n    :host {\n        --title-size: 20px;\n        --title-line-height: 25px;\n        --button-gap: 16px;\n        --logo-size: 40px;\n        --logo-gap: 12px;\n        --title-gap: 16px;\n    }\n}\n/* iphone 15 Pro Max */\n@media screen and (min-width: 430px) {\n    :host {\n        --title-size: 22px;\n        --title-gap: 24px;\n        --button-gap: 20px;\n        --logo-gap: 16px;\n    }\n}\n/* small landscape */\n@media screen and (min-width: 568px) {\n}\n/* large landscape */\n@media screen and (min-width: 844px) {\n    :host {\n        --title-gap: 30px;\n        --button-gap: 24px;\n        --logo-size: 48px;\n    }\n}\n\n\n:host * {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";\n}\n\n:root *, :root *:after, :root *:before {\n    box-sizing: border-box;\n}\n\n.ddg-video-player-overlay {\n    background: red;\n    width: 100%;\n    height: 100%;\n    color: white;\n    z-index: 10000;\n    padding-left: var(--gutter);\n    padding-right: var(--gutter);\n\n    @media screen and (min-width: 568px) {\n        padding: 0;\n    }\n}\n\n.bg {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    background: rgba(0, 0, 0, 0.6);\n    text-align: center;\n}\n\n.bg:before {\n    content: \" \";\n    position: absolute;\n    display: block;\n    width: 100%;\n    height: 100%;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background-color: #000;\n    background-image: url('data:image/svg+xml,<svg width=\"90\" height=\"64\" viewBox=\"0 0 90 64\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M88.119 9.88293C87.0841 6.01134 84.0348 2.96133 80.1625 1.92639C73.1438 0.0461578 44.9996 0.0461578 44.9996 0.0461578C44.9996 0.0461578 16.8562 0.0461578 9.83751 1.92639C5.96518 2.96133 2.91592 6.01134 1.88097 9.88293C0 16.9023 0 31.5456 0 31.5456C0 31.5456 0 46.1896 1.88097 53.2083C2.91592 57.0799 5.96518 60.1306 9.83751 61.1648C16.8562 63.0458 44.9996 63.0458 44.9996 63.0458C44.9996 63.0458 73.1438 63.0458 80.1625 61.1648C84.0348 60.1306 87.0841 57.0799 88.119 53.2083C90 46.1896 90 31.5456 90 31.5456C90 31.5456 90 16.9023 88.119 9.88293Z\" fill=\"%23FF0000\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M36.8184 45.3313L60.2688 31.792L36.8184 18.2512V45.3313Z\" fill=\"%23FFFFFE\"/></svg>');\n    background-size: 90px 64px;\n    background-position: center center;\n    background-repeat: no-repeat;\n}\n\n.content {\n    height: 100%;\n    width: 100%;\n    margin: 0 auto;\n    overflow: hidden;\n    display: grid;\n    color: rgba(255, 255, 255, 0.96);\n    position: relative;\n    grid-column-gap: var(--logo-gap);\n    grid-template-columns: var(--logo-size) auto calc(12px + 16px);\n    grid-template-rows:\n            auto\n            var(--title-gap)\n            auto\n            var(--button-gap)\n            auto;\n    align-content: center;\n    justify-content: center;\n\n    @media screen and (min-width: 568px) {\n        grid-template-columns: var(--logo-size) auto auto;\n    }\n}\n\n.logo {\n    align-self: start;\n    grid-column: 1/2;\n    grid-row: 1/2;\n}\n\n.logo svg {\n    width: 100%;\n    height: 100%;\n}\n\n.arrow {\n    position: absolute;\n    top: 48px;\n    left: -18px;\n    color: white;\n    z-index: 0;\n}\n\n.title {\n    font-size: var(--title-size);\n    line-height: var(--title-line-height);\n    font-weight: 600;\n    grid-column: 2/3;\n    grid-row: 1/2;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/4;\n        max-width: 428px;\n    }\n}\n\n.text {\n    display: none;\n}\n\n.info {\n    grid-column: 3/4;\n    grid-row: 1/2;\n    align-self: start;\n    padding-top: 3px;\n    justify-self: end;\n\n    @media screen and (min-width: 568px) {\n        grid-column: unset;\n        grid-row: unset;\n        position: absolute;\n        top: 12px;\n        right: 12px;\n    }\n    @media screen and (min-width: 844px) {\n        top: 24px;\n        right: 24px;\n    }\n}\n\n.buttons {\n    gap: 8px;\n    display: flex;\n    grid-column: 1/4;\n    grid-row: 3/4;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/3;\n    }\n}\n\n.remember {\n    height: 40px;\n    border-radius: 8px;\n    display: flex;\n    gap: 16px;\n    align-items: center;\n    justify-content: space-between;\n    padding-left: 8px;\n    padding-right: 8px;\n    grid-column: 1/4;\n    grid-row: 5/6;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/3;\n    }\n}\n\n.button {\n    margin: 0;\n    -webkit-appearance: none;\n    background: none;\n    box-shadow: none;\n    border: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    color: rgba(255, 255, 255, 1);\n    text-decoration: none;\n    line-height: 16px;\n    padding: 0 12px;\n    font-size: 15px;\n    font-weight: 600;\n    border-radius: 8px;\n}\n\n.button--info {\n    display: block;\n    padding: 0;\n    margin: 0;\n    width: 16px;\n    height: 16px;\n    @media screen and (min-width: 568px) {\n        width: 24px;\n        height: 24px;\n    }\n    @media screen and (min-width: 844px) {\n        width: 24px;\n        height: 24px;\n    }\n}\n.button--info svg {\n    display: block;\n    width: 100%;\n    height: 100%;\n}\n\n.button--info svg path {\n    fill: rgba(255, 255, 255, 0.84);\n}\n\n.cancel {\n    background: rgba(255, 255, 255, 0.3);\n    min-height: 40px;\n}\n\n.open {\n    background: #3969EF;\n    flex: 1;\n    text-align: center;\n    min-height: 40px;\n\n    @media screen and (min-width: 568px) {\n        flex: inherit;\n        padding-left: 24px;\n        padding-right: 24px;\n    }\n}\n\n.open:hover {\n}\n.cancel:hover {\n}\n\n.remember-label {\n    display: flex;\n    align-items: center;\n    flex: 1;\n}\n\n.remember-text {\n    display: block;\n    font-size: 13px;\n    font-weight: 400;\n}\n.remember-checkbox {\n    margin-left: auto;\n    display: flex;\n}\n\n.switch {\n    margin: 0;\n    padding: 0;\n    width: 52px;\n    height: 32px;\n    border: 0;\n    box-shadow: none;\n    background: rgba(136, 136, 136, 0.5);\n    border-radius: 32px;\n    position: relative;\n    transition: all .3s;\n}\n\n.switch:active .thumb {\n    scale: 1.15;\n}\n\n.thumb {\n    width: 20px;\n    height: 20px;\n    border-radius: 100%;\n    background: white;\n    position: absolute;\n    top: 4px;\n    left: 4px;\n    pointer-events: none;\n    transition: .2s left ease-in-out;\n}\n\n.switch[aria-checked=\"true\"] {\n    background: rgba(57, 105, 239, 1)\n}\n\n.ios-switch {\n    width: 42px;\n    height: 24px;\n}\n\n.ios-switch .thumb {\n    top: 2px;\n    left: 2px;\n    width: 20px;\n    height: 20px;\n    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)\n}\n\n.ios-switch:active .thumb {\n    scale: 1;\n}\n\n.ios-switch[aria-checked=\"true\"] .thumb {\n    left: calc(100% - 22px)\n}\n\n.android {}\n";
+    var mobilecss$2 = "/* -- VIDEO PLAYER OVERLAY */\n:host {\n    position: absolute;\n    top: 0;\n    left: 0;\n    bottom: 0;\n    right: 0;\n    color: white;\n    z-index: 10000;\n    --title-size: 16px;\n    --title-line-height: 20px;\n    --title-gap: 16px;\n    --button-gap: 6px;\n    --logo-size: 32px;\n    --logo-gap: 8px;\n    --gutter: 16px;\n}\n/* iphone 15 */\n@media screen and (min-width: 390px) {\n    :host {\n        --title-size: 20px;\n        --title-line-height: 25px;\n        --button-gap: 16px;\n        --logo-size: 40px;\n        --logo-gap: 12px;\n        --title-gap: 16px;\n    }\n}\n/* iphone 15 Pro Max */\n@media screen and (min-width: 430px) {\n    :host {\n        --title-size: 22px;\n        --title-gap: 24px;\n        --button-gap: 20px;\n        --logo-gap: 16px;\n    }\n}\n/* small landscape */\n@media screen and (min-width: 568px) {\n}\n/* large landscape */\n@media screen and (min-width: 844px) {\n    :host {\n        --title-gap: 30px;\n        --button-gap: 24px;\n        --logo-size: 48px;\n    }\n}\n\n\n:host * {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";\n}\n\n:root *, :root *:after, :root *:before {\n    box-sizing: border-box;\n}\n\n.ddg-video-player-overlay {\n    width: 100%;\n    height: 100%;\n    color: white;\n    z-index: 10000;\n    padding-left: var(--gutter);\n    padding-right: var(--gutter);\n\n    @media screen and (min-width: 568px) {\n        padding: 0;\n    }\n}\n\n.bg {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    background: rgba(0, 0, 0, 0.6);\n    background-position: center;\n    text-align: center;\n}\n\n.logo {\n    content: \" \";\n    position: absolute;\n    display: block;\n    width: 100%;\n    height: 100%;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background-color: transparent;\n    background-image: url('data:image/svg+xml,<svg width=\"90\" height=\"64\" viewBox=\"0 0 90 64\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M88.119 9.88293C87.0841 6.01134 84.0348 2.96133 80.1625 1.92639C73.1438 0.0461578 44.9996 0.0461578 44.9996 0.0461578C44.9996 0.0461578 16.8562 0.0461578 9.83751 1.92639C5.96518 2.96133 2.91592 6.01134 1.88097 9.88293C0 16.9023 0 31.5456 0 31.5456C0 31.5456 0 46.1896 1.88097 53.2083C2.91592 57.0799 5.96518 60.1306 9.83751 61.1648C16.8562 63.0458 44.9996 63.0458 44.9996 63.0458C44.9996 63.0458 73.1438 63.0458 80.1625 61.1648C84.0348 60.1306 87.0841 57.0799 88.119 53.2083C90 46.1896 90 31.5456 90 31.5456C90 31.5456 90 16.9023 88.119 9.88293Z\" fill=\"%23FF0000\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M36.8184 45.3313L60.2688 31.792L36.8184 18.2512V45.3313Z\" fill=\"%23FFFFFE\"/></svg>');\n    background-size: 90px 64px;\n    background-position: center center;\n    background-repeat: no-repeat;\n}\n";
 
     /**
      * @typedef {ReturnType<import("../text").overlayCopyVariants>} TextVariants
@@ -4715,6 +4675,7 @@
             overlayElement.innerHTML = this.policy.createHTML(content);
             shadow.append(style, overlayElement);
             this.setupEventHandlers(overlayElement);
+            this.container = overlayElement;
         }
 
         /**
@@ -4728,8 +4689,7 @@
             return html`
             <div class="ddg-video-player-overlay">
                 <div class="bg ddg-vpo-bg"></div>
-                <div class="content ios">
-                </div>
+                <div class="logo"></div>
             </div>
         `.toString();
         }
@@ -4754,9 +4714,9 @@
         }
     };
 
-    var mobilecss$1 = "/* -- VIDEO PLAYER OVERLAY */\n:host {\n    position: absolute;\n    left: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n    --title-size: 16px;\n    --title-line-height: 20px;\n    --title-gap: 16px;\n    --button-gap: 6px;\n    --logo-size: 32px;\n    --logo-gap: 8px;\n    --gutter: 16px;\n\n}\n/* iphone 15 */\n@media screen and (min-width: 390px) {\n    :host {\n        --title-size: 20px;\n        --title-line-height: 25px;\n        --button-gap: 16px;\n        --logo-size: 40px;\n        --logo-gap: 12px;\n        --title-gap: 16px;\n    }\n}\n/* iphone 15 Pro Max */\n@media screen and (min-width: 430px) {\n    :host {\n        --title-size: 22px;\n        --title-gap: 24px;\n        --button-gap: 20px;\n        --logo-gap: 16px;\n    }\n}\n/* small landscape */\n@media screen and (min-width: 568px) {\n}\n/* large landscape */\n@media screen and (min-width: 844px) {\n    :host {\n        --title-gap: 30px;\n        --button-gap: 24px;\n        --logo-size: 48px;\n    }\n}\n\n\n:host * {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";\n}\n\n:root *, :root *:after, :root *:before {\n    box-sizing: border-box;\n}\n\n/* .ddg-video-player-toast {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n    padding-left: var(--gutter);\n    padding-right: var(--gutter);\n\n    @media screen and (min-width: 568px) {\n        padding: 0;\n    }\n} */\n\n.ddg-mobile-toast {\n    background: #fafafa; /* TODO: var? */\n    border-top-left-radius: 10px;\n    border-top-right-radius: 10px;\n    bottom: -500px;\n    box-sizing: border-box;\n    color: #222;\n    left: 0;\n    padding: 16px;\n    position: fixed;\n    width: 100%;\n\n    box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.10), 0px -20px 40px 0px rgba(0, 0, 0, 0.08);\n    animation: toast 300ms ease-out 100ms 1 forwards;\n}\n\n@keyframes toast {\n    0% {\n        bottom: -500px;\n    }\n\n    100% {\n        bottom: 0;\n    }\n}\n\n.heading {\n    display: flex;\n    gap: 12px;\n    align-items: center;\n}\n\n.logo {\n    flex: 0 0 32px;\n    width: 32px;\n    height: 32px;\n}\n\n.title {\n    color: rgba(0, 0, 0, 0.84);\n    font-size: 19px;\n    font-weight: 700;\n    line-height: calc(24 / 19);\n}\n\n/* */\n\n.buttons {\n    gap: 8px;\n    display: flex;\n    margin-top: 16px; /* TODO: replace with parent gap */\n}\n\n.remember {\n    height: 40px;\n    border-radius: 8px;\n    display: flex;\n    gap: 16px;\n    align-items: center;\n    justify-content: space-between;\n    padding-left: 8px;\n    padding-right: 8px;\n    grid-column: 1/4;\n    grid-row: 5/6;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/3;\n    }\n}\n\n.button {\n    flex: 0 0 50%;\n    margin: 0;\n    -webkit-appearance: none;\n    background: none;\n    box-shadow: none;\n    border: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    color: rgba(255, 255, 255, 1);\n    text-decoration: none;\n    line-height: 16px;\n    padding: 0 12px;\n    font-size: 15px;\n    font-weight: 600;\n    border-radius: 8px;\n}\n\n.button--close {\n    flex: 0 0 32px;\n    background-color: rgba(0, 0, 0, 0.6);\n    display: block;\n    padding: 0;\n    margin: 0;\n    width: 32px;\n    height: 32px;\n    border-radius: 50%;\n    position: relative;\n    top: -8px;\n    right: -8px;\n\n    display: none;\n}\n\n.button--close::after {\n    content: 'X';\n    color: rgba(0, 0, 0, 0.84);\n}\n\n.button--info svg {\n    display: block;\n    width: 100%;\n    height: 100%;\n}\n\n.button--info svg path {\n    fill: rgba(255, 255, 255, 0.84);\n}\n\n.cancel {\n    color: rgba(0, 0, 0, 0.84);\n    background: rgba(0, 0, 0, 0.06);\n    min-height: 40px;\n}\n\n.open {\n    background: #3969EF;\n    flex: 1;\n    text-align: center;\n    min-height: 40px;\n    width: 100%;\n\n    @media screen and (min-width: 568px) {\n        flex: inherit;\n        padding-left: 24px;\n        padding-right: 24px;\n    }\n}\n\n.open:hover {\n}\n.cancel:hover {\n}\n\n.remember-label {\n    display: flex;\n    align-items: center;\n    flex: 1;\n}\n\n.remember-text {\n    display: block;\n    font-size: 14px;\n    font-weight: 700;\n    line-height: calc(18 / 14);\n}\n.remember-checkbox {\n    margin-left: auto;\n    display: flex;\n}\n\n.switch {\n    margin: 0;\n    padding: 0;\n    width: 52px;\n    height: 32px;\n    border: 0;\n    box-shadow: none;\n    background: rgba(136, 136, 136, 0.5);\n    border-radius: 32px;\n    position: relative;\n    transition: all .3s;\n}\n\n.switch:active .thumb {\n    scale: 1.15;\n}\n\n.thumb {\n    width: 20px;\n    height: 20px;\n    border-radius: 100%;\n    background: white;\n    position: absolute;\n    top: 4px;\n    left: 4px;\n    pointer-events: none;\n    transition: .2s left ease-in-out;\n}\n\n.switch[aria-checked=\"true\"] {\n    background: rgba(57, 105, 239, 1)\n}\n\n.ios-switch {\n    width: 42px;\n    height: 24px;\n}\n\n.ios-switch .thumb {\n    top: 2px;\n    left: 2px;\n    width: 20px;\n    height: 20px;\n    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)\n}\n\n.ios-switch:active .thumb {\n    scale: 1;\n}\n\n.ios-switch[aria-checked=\"true\"] .thumb {\n    left: calc(100% - 22px)\n}";
+    var mobilecss$1 = "/* -- VIDEO PLAYER OVERLAY */\n:host {\n    position: absolute;\n    left: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n    --title-size: 16px;\n    --title-line-height: 20px;\n    --title-gap: 16px;\n    --button-gap: 6px;\n    --logo-size: 32px;\n    --logo-gap: 8px;\n    --gutter: 16px;\n\n}\n/* iphone 15 */\n@media screen and (min-width: 390px) {\n    :host {\n        --title-size: 20px;\n        --title-line-height: 25px;\n        --button-gap: 16px;\n        --logo-size: 40px;\n        --logo-gap: 12px;\n        --title-gap: 16px;\n    }\n}\n/* iphone 15 Pro Max */\n@media screen and (min-width: 430px) {\n    :host {\n        --title-size: 22px;\n        --title-gap: 24px;\n        --button-gap: 20px;\n        --logo-gap: 16px;\n    }\n}\n/* small landscape */\n@media screen and (min-width: 568px) {\n}\n/* large landscape */\n@media screen and (min-width: 844px) {\n    :host {\n        --title-gap: 30px;\n        --button-gap: 24px;\n        --logo-size: 48px;\n    }\n}\n\n\n:host * {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";\n}\n\n:root *, :root *:after, :root *:before {\n    box-sizing: border-box;\n}\n\n/* .ddg-video-player-toast {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n    padding-left: var(--gutter);\n    padding-right: var(--gutter);\n\n    @media screen and (min-width: 568px) {\n        padding: 0;\n    }\n} */\n\n.ddg-mobile-toast {\n    background: #fafafa; /* TODO: var? */\n    border-top-left-radius: 10px;\n    border-top-right-radius: 10px;\n    bottom: -500px;\n    box-sizing: border-box;\n    color: #222;\n    left: 0;\n    padding: 16px;\n    position: fixed;\n    width: 100%;\n\n    box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.10), 0px -20px 40px 0px rgba(0, 0, 0, 0.08);\n}\n\n.animateIn {\n    animation: slide-in 300ms ease-out 100ms 1 both;\n\n}\n\n.animateOut {\n    animation: slide-out 300ms ease-in 10ms 1 both;\n}\n\n@keyframes slide-in {\n    0% {\n        bottom: -500px;\n    }\n\n    100% {\n        bottom: 0;\n    }\n}\n\n@keyframes slide-out {\n    0% {\n        bottom: 0;\n    }\n\n    100% {\n        bottom: -500px;\n    }\n}\n\n.heading {\n    display: flex;\n    gap: 12px;\n    align-items: center;\n}\n\n.logo {\n    flex: 0 0 32px;\n    width: 32px;\n    height: 32px;\n}\n\n.title {\n    color: rgba(0, 0, 0, 0.84);\n    font-size: 19px;\n    font-weight: 700;\n    line-height: calc(24 / 19);\n}\n\n/* */\n\n.buttons {\n    gap: 8px;\n    display: flex;\n    margin-top: 16px; /* TODO: replace with parent gap */\n}\n\n.remember {\n    height: 40px;\n    border-radius: 8px;\n    display: flex;\n    gap: 16px;\n    align-items: center;\n    justify-content: space-between;\n    padding-left: 8px;\n    padding-right: 8px;\n    grid-column: 1/4;\n    grid-row: 5/6;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/3;\n    }\n}\n\n.button {\n    flex: 1 1 50%;\n    margin: 0;\n    appearance: none;\n    background: none;\n    box-shadow: none;\n    border: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    color: rgba(255, 255, 255, 1);\n    text-decoration: none;\n    line-height: 16px;\n    padding: 0 12px;\n    font-size: 15px;\n    font-weight: 600;\n    border-radius: 8px;\n    white-space: nowrap; /* TODO: Test on other languages */\n}\n\n.button--close {\n    flex: 0 0 32px;\n    background-color: rgba(0, 0, 0, 0.6);\n    display: block;\n    padding: 0;\n    margin: 0;\n    width: 32px;\n    height: 32px;\n    border-radius: 50%;\n    position: relative;\n    top: -8px;\n    right: -8px;\n\n    display: none;\n}\n\n.button--close::after {\n    content: 'X';\n    color: rgba(0, 0, 0, 0.84);\n}\n\n.button--info {\n    align-self: start;\n    appearance: none;\n    background: none;\n    border: 0;\n    flex: 0 0 16px;\n    flex: 0 0 32px;\n    margin: 0;\n    padding: 0;\n}\n\n.button--info svg {\n    display: block;\n    width: 16px;\n    height: 16px;\n}\n\n/* .button--info svg path {\n    fill: rgba(0, 0, 0, 0.84);\n} */\n\n.cancel {\n    color: rgba(0, 0, 0, 0.84);\n    background: rgba(0, 0, 0, 0.06);\n    min-height: 40px;\n}\n\n.open {\n    background: #3969EF;\n    text-align: center;\n    min-height: 40px;\n    width: 100%;\n\n    @media screen and (min-width: 568px) {\n        flex: inherit;\n        padding-left: 24px;\n        padding-right: 24px;\n    }\n}\n\n.open:hover {\n}\n.cancel:hover {\n}\n\n.remember-label {\n    display: flex;\n    align-items: center;\n    flex: 1;\n}\n\n.remember-text {\n    display: block;\n    font-size: 14px;\n    font-weight: 700;\n    line-height: calc(18 / 14);\n}\n.remember-checkbox {\n    margin-left: auto;\n    display: flex;\n}\n\n.switch {\n    margin: 0;\n    padding: 0;\n    width: 52px;\n    height: 32px;\n    border: 0;\n    box-shadow: none;\n    background: rgba(136, 136, 136, 0.5);\n    border-radius: 32px;\n    position: relative;\n    transition: all .3s;\n}\n\n.switch:active .thumb {\n    scale: 1.15;\n}\n\n.thumb {\n    width: 20px;\n    height: 20px;\n    border-radius: 100%;\n    background: white;\n    position: absolute;\n    top: 4px;\n    left: 4px;\n    pointer-events: none;\n    transition: .2s left ease-in-out;\n}\n\n.switch[aria-checked=\"true\"] {\n    background: rgba(57, 105, 239, 1)\n}\n\n.ios-switch {\n    width: 42px;\n    height: 24px;\n}\n\n.ios-switch .thumb {\n    top: 2px;\n    left: 2px;\n    width: 20px;\n    height: 20px;\n    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)\n}\n\n.ios-switch:active .thumb {\n    scale: 1;\n}\n\n.ios-switch[aria-checked=\"true\"] .thumb {\n    left: calc(100% - 22px)\n}";
 
-    var info = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"25\" viewBox=\"0 0 24 25\" fill=\"none\">\n    <path d=\"M12.7248 5.96753C11.6093 5.96753 10.9312 6.86431 10.9312 7.69548C10.9312 8.70163 11.6968 9.02972 12.3748 9.02972C13.6216 9.02972 14.1465 8.08919 14.1465 7.32364C14.1465 6.36124 13.381 5.96753 12.7248 5.96753Z\" fill=\"white\" fill-opacity=\"0.84\"/>\n    <path d=\"M13.3696 10.3183L10.6297 10.7613C10.5458 11.4244 10.4252 12.0951 10.3026 12.7763C10.0661 14.0912 9.82251 15.4455 9.82251 16.8607C9.82251 18.2659 10.6629 19.0328 11.9918 19.0328C13.5096 19.0328 13.7693 18.0801 13.8282 17.2171C12.57 17.3996 12.2936 16.8317 12.4992 15.495C12.7049 14.1584 13.3696 10.3183 13.3696 10.3183Z\" fill=\"white\" fill-opacity=\"0.84\"/>\n    <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M12 0.5C5.37258 0.5 0 5.87258 0 12.5C0 19.1274 5.37258 24.5 12 24.5C18.6274 24.5 24 19.1274 24 12.5C24 5.87258 18.6274 0.5 12 0.5ZM2.25 12.5C2.25 7.11522 6.61522 2.75 12 2.75C17.3848 2.75 21.75 7.11522 21.75 12.5C21.75 17.8848 17.3848 22.25 12 22.25C6.61522 22.25 2.25 17.8848 2.25 12.5Z\" fill=\"white\" fill-opacity=\"0.84\"/>\n</svg>\n";
+    var info$1 = "<svg fill=\"none\" viewBox=\"0 0 16 16\" xmlns=\"http://www.w3.org/2000/svg\">\n  <g clip-path=\"url(#Info-Solid-16_svg__a)\">\n    <path fill=\"#000\" fill-rule=\"evenodd\" d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.483 3.645c-.743 0-1.196.598-1.196 1.152 0 .67.51.89.963.89.831 0 1.181-.628 1.181-1.138 0-.642-.51-.904-.948-.904m.43 2.9-1.827.296c-.055.442-.136.89-.218 1.343-.157.877-.32 1.78-.32 2.723 0 .937.56 1.448 1.447 1.448 1.011 0 1.185-.635 1.224-1.21-.839.121-1.023-.257-.886-1.148s.58-3.451.58-3.451Z\" clip-rule=\"evenodd\"/>\n  </g>\n  <defs>\n    <clipPath id=\"Info-Solid-16_svg__a\">\n      <path fill=\"#fff\" d=\"M0 0h16v16H0z\"/>\n    </clipPath>\n  </defs>\n</svg>\n";
 
     /**
      * @typedef {ReturnType<import("../text").overlayCopyVariants>} TextVariants
@@ -4778,6 +4738,11 @@
         testMode = false;
         /** @type {Text | null} */
         text = null;
+        /** @type {HTMLElement | null} */
+        container;
+        /** @type {HTMLElement | null} */
+        toast;
+
 
         connectedCallback() {
             this.createMarkupAndStyles();
@@ -4791,7 +4756,18 @@
             const content = this.mobileHtml();
             overlayElement.innerHTML = this.policy.createHTML(content);
             shadow.append(style, overlayElement);
-            this.setupEventHandlers(overlayElement);
+            this.setupElements(overlayElement);
+            this.setupEventHandlers();
+
+            setTimeout(() => {
+                this.animateIn();
+            }, 100); /* TODO FIX THIS */
+        }
+
+        /** @param {HTMLElement} container */
+        setupElements(container) {
+            this.container = container;
+            this.toast = container.querySelector('.ddg-mobile-toast');
         }
 
         /**
@@ -4803,6 +4779,7 @@
                 return '';
             }
             const svgIcon = trustedUnsafe(dax);
+            const infoIcon = trustedUnsafe(info$1);
 
             return html`
             <div class="ddg-video-player-overlay">
@@ -4810,7 +4787,7 @@
                     <div class="heading">
                         <div class="logo">${svgIcon}</div>
                         <div class="title">${this.text.title}</div>
-                        <button class="button button--close" type="button" aria-label="Close modal"></button>
+                        <button class="button--info" type="button" aria-label="Open Information Modal">${infoIcon}</button>
                     </div>
                     <div class="buttons">
                         <button class="button cancel ddg-vpo-cancel" type="button">${this.text.buttonOptOut}</button>
@@ -4832,23 +4809,39 @@
         `.toString();
         }
 
-        /**
-         * @param {HTMLElement} containerElement
-         */
-        setupEventHandlers(containerElement) {
-            const switchElem = containerElement.querySelector('[role=switch]');
-            // const infoButton = containerElement.querySelector('.button--info');
-            const remember = containerElement.querySelector('input[name="ddg-remember"]');
-            const cancelElement = containerElement.querySelector('.ddg-vpo-cancel');
-            const watchInPlayer = containerElement.querySelector('.ddg-vpo-open');
+        animateOut() {
+            if (this.toast) {
+                this.toast.classList.remove('animateIn');
+                this.toast.classList.add('animateOut');
+            }
+        }
 
-            if (!cancelElement || !watchInPlayer || !switchElem || !(remember instanceof HTMLInputElement)) {
+        animateIn() {
+            if (this.toast) {
+                this.toast.classList.remove('animateOut');
+                this.toast.classList.add('animateIn');
+            }
+        }
+
+        setupEventHandlers() {
+            if (!this.container) {
+                console.warn('Error setting up toast component');
+                return;
+            }
+
+            const switchElem = this.container.querySelector('[role=switch]');
+            const infoButton = this.container.querySelector('.button--info');
+            const remember = this.container.querySelector('input[name="ddg-remember"]');
+            const cancelElement = this.container.querySelector('.ddg-vpo-cancel');
+            const watchInPlayer = this.container.querySelector('.ddg-vpo-open');
+
+            if (!cancelElement || !watchInPlayer || !switchElem || !infoButton || !(remember instanceof HTMLInputElement)) {
                 return console.warn('missing elements');
             }
 
-            // infoButton.addEventListener('click', () => {
-            //     this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO));
-            // });
+            infoButton.addEventListener('click', () => {
+                this.dispatchEvent(new Event(DDGVideoOverlayMobile$1.OPEN_INFO));
+            });
 
             switchElem.addEventListener('pointerdown', () => {
                 const current = switchElem.getAttribute('aria-checked');
@@ -4862,14 +4855,15 @@
             });
 
             cancelElement.addEventListener('click', (e) => {
-                if (!e.isTrusted) return;
+                // if (!e.isTrusted) return;
+                console.log('HERE');
                 e.preventDefault();
                 e.stopImmediatePropagation();
+                this.animateOut();
                 this.dispatchEvent(new CustomEvent(DDGVideoOverlayMobile$1.OPT_OUT, { detail: { remember: remember.checked } }));
             });
 
             watchInPlayer.addEventListener('click', (e) => {
-                console.log('WATCH', e.isTrusted);
                 if (!e.isTrusted) return;
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -4911,7 +4905,7 @@
      * + conduct any communications
      */
     class VideoOverlay {
-        sideEffects = new SideEffects();
+        sideEffects = new SideEffects({ debug: true }); /* TODO: REMOVE debug */
 
         /** @type {string | null} */
         lastVideoId = null;
@@ -5148,7 +5142,9 @@
 
                     // TODO: Run when custom elements finish setting up
                     setTimeout(() => {
-                        this.appendThumbnail(elem);
+                        if (elem.container) {
+                            this.appendThumbnail(elem.container);
+                        }
                     }, 1000);
                 } else {
                     const elem = new DDGVideoOverlay({
@@ -5166,7 +5162,9 @@
                 return () => {
                     document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                     document.querySelector(DDGVideoOverlayMobile$1.CUSTOM_TAG_NAME)?.remove();
-                    document.querySelector(DDGVideoToastMobile.CUSTOM_TAG_NAME)?.remove();
+                    setTimeout(() => {
+                        document.querySelector(DDGVideoToastMobile.CUSTOM_TAG_NAME)?.remove();
+                    }, 500); /* TODO FIX THIS */
                     controller.abort();
                 };
             });
@@ -5340,6 +5338,8 @@
     }
 
     var mobilecss = "/* -- VIDEO PLAYER OVERLAY */\n:host {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n    --title-size: 16px;\n    --title-line-height: 20px;\n    --title-gap: 16px;\n    --button-gap: 6px;\n    --logo-size: 32px;\n    --logo-gap: 8px;\n    --gutter: 16px;\n\n}\n/* iphone 15 */\n@media screen and (min-width: 390px) {\n    :host {\n        --title-size: 20px;\n        --title-line-height: 25px;\n        --button-gap: 16px;\n        --logo-size: 40px;\n        --logo-gap: 12px;\n        --title-gap: 16px;\n    }\n}\n/* iphone 15 Pro Max */\n@media screen and (min-width: 430px) {\n    :host {\n        --title-size: 22px;\n        --title-gap: 24px;\n        --button-gap: 20px;\n        --logo-gap: 16px;\n    }\n}\n/* small landscape */\n@media screen and (min-width: 568px) {\n}\n/* large landscape */\n@media screen and (min-width: 844px) {\n    :host {\n        --title-gap: 30px;\n        --button-gap: 24px;\n        --logo-size: 48px;\n    }\n}\n\n\n:host * {\n    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";\n}\n\n:root *, :root *:after, :root *:before {\n    box-sizing: border-box;\n}\n\n.ddg-video-player-overlay {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    z-index: 10000;\n    padding-left: var(--gutter);\n    padding-right: var(--gutter);\n\n    @media screen and (min-width: 568px) {\n        padding: 0;\n    }\n}\n\n.bg {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    color: white;\n    background: rgba(0, 0, 0, 0.6);\n    text-align: center;\n}\n\n.bg:before {\n    content: \" \";\n    position: absolute;\n    display: block;\n    width: 100%;\n    height: 100%;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background:\n            linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 60%),\n            radial-gradient(circle at bottom, rgba(131, 58, 180, 0.8), rgba(253, 29, 29, 0.6), rgba(252, 176, 69, 0.4));\n}\n\n.bg:after {\n    content: \" \";\n    position: absolute;\n    display: block;\n    width: 100%;\n    height: 100%;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background: rgba(0,0,0,0.7);\n    text-align: center;\n}\n\n.content {\n    height: 100%;\n    width: 100%;\n    margin: 0 auto;\n    overflow: hidden;\n    display: grid;\n    color: rgba(255, 255, 255, 0.96);\n    position: relative;\n    grid-column-gap: var(--logo-gap);\n    grid-template-columns: var(--logo-size) auto calc(12px + 16px);\n    grid-template-rows:\n            auto\n            var(--title-gap)\n            auto\n            var(--button-gap)\n            auto;\n    align-content: center;\n    justify-content: center;\n\n    @media screen and (min-width: 568px) {\n        grid-template-columns: var(--logo-size) auto auto;\n    }\n}\n\n.logo {\n    align-self: start;\n    grid-column: 1/2;\n    grid-row: 1/2;\n}\n\n.logo svg {\n    width: 100%;\n    height: 100%;\n}\n\n.arrow {\n    position: absolute;\n    top: 48px;\n    left: -18px;\n    color: white;\n    z-index: 0;\n}\n\n.title {\n    font-size: var(--title-size);\n    line-height: var(--title-line-height);\n    font-weight: 600;\n    grid-column: 2/3;\n    grid-row: 1/2;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/4;\n        max-width: 428px;\n    }\n}\n\n.text {\n    display: none;\n}\n\n.info {\n    grid-column: 3/4;\n    grid-row: 1/2;\n    align-self: start;\n    padding-top: 3px;\n    justify-self: end;\n\n    @media screen and (min-width: 568px) {\n        grid-column: unset;\n        grid-row: unset;\n        position: absolute;\n        top: 12px;\n        right: 12px;\n    }\n    @media screen and (min-width: 844px) {\n        top: 24px;\n        right: 24px;\n    }\n}\n\n.buttons {\n    gap: 8px;\n    display: flex;\n    grid-column: 1/4;\n    grid-row: 3/4;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/3;\n    }\n}\n\n.remember {\n    height: 40px;\n    border-radius: 8px;\n    display: flex;\n    gap: 16px;\n    align-items: center;\n    justify-content: space-between;\n    padding-left: 8px;\n    padding-right: 8px;\n    grid-column: 1/4;\n    grid-row: 5/6;\n\n    @media screen and (min-width: 568px) {\n        grid-column: 2/3;\n    }\n}\n\n.button {\n    margin: 0;\n    -webkit-appearance: none;\n    background: none;\n    box-shadow: none;\n    border: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    color: rgba(255, 255, 255, 1);\n    text-decoration: none;\n    line-height: 16px;\n    padding: 0 12px;\n    font-size: 15px;\n    font-weight: 600;\n    border-radius: 8px;\n}\n\n.button--info {\n    display: block;\n    padding: 0;\n    margin: 0;\n    width: 16px;\n    height: 16px;\n    @media screen and (min-width: 568px) {\n        width: 24px;\n        height: 24px;\n    }\n    @media screen and (min-width: 844px) {\n        width: 24px;\n        height: 24px;\n    }\n}\n.button--info svg {\n    display: block;\n    width: 100%;\n    height: 100%;\n}\n\n.button--info svg path {\n    fill: rgba(255, 255, 255, 0.84);\n}\n\n.cancel {\n    background: rgba(255, 255, 255, 0.3);\n    min-height: 40px;\n}\n\n.open {\n    background: #3969EF;\n    flex: 1;\n    text-align: center;\n    min-height: 40px;\n\n    @media screen and (min-width: 568px) {\n        flex: inherit;\n        padding-left: 24px;\n        padding-right: 24px;\n    }\n}\n\n.open:hover {\n}\n.cancel:hover {\n}\n\n.remember-label {\n    display: flex;\n    align-items: center;\n    flex: 1;\n}\n\n.remember-text {\n    display: block;\n    font-size: 13px;\n    font-weight: 400;\n}\n.remember-checkbox {\n    margin-left: auto;\n    display: flex;\n}\n\n.switch {\n    margin: 0;\n    padding: 0;\n    width: 52px;\n    height: 32px;\n    border: 0;\n    box-shadow: none;\n    background: rgba(136, 136, 136, 0.5);\n    border-radius: 32px;\n    position: relative;\n    transition: all .3s;\n}\n\n.switch:active .thumb {\n    scale: 1.15;\n}\n\n.thumb {\n    width: 20px;\n    height: 20px;\n    border-radius: 100%;\n    background: white;\n    position: absolute;\n    top: 4px;\n    left: 4px;\n    pointer-events: none;\n    transition: .2s left ease-in-out;\n}\n\n.switch[aria-checked=\"true\"] {\n    background: rgba(57, 105, 239, 1)\n}\n\n.ios-switch {\n    width: 42px;\n    height: 24px;\n}\n\n.ios-switch .thumb {\n    top: 2px;\n    left: 2px;\n    width: 20px;\n    height: 20px;\n    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)\n}\n\n.ios-switch:active .thumb {\n    scale: 1;\n}\n\n.ios-switch[aria-checked=\"true\"] .thumb {\n    left: calc(100% - 22px)\n}\n\n.android {}\n";
+
+    var info = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"25\" viewBox=\"0 0 24 25\" fill=\"none\">\n    <path d=\"M12.7248 5.96753C11.6093 5.96753 10.9312 6.86431 10.9312 7.69548C10.9312 8.70163 11.6968 9.02972 12.3748 9.02972C13.6216 9.02972 14.1465 8.08919 14.1465 7.32364C14.1465 6.36124 13.381 5.96753 12.7248 5.96753Z\" fill=\"white\" fill-opacity=\"0.84\"/>\n    <path d=\"M13.3696 10.3183L10.6297 10.7613C10.5458 11.4244 10.4252 12.0951 10.3026 12.7763C10.0661 14.0912 9.82251 15.4455 9.82251 16.8607C9.82251 18.2659 10.6629 19.0328 11.9918 19.0328C13.5096 19.0328 13.7693 18.0801 13.8282 17.2171C12.57 17.3996 12.2936 16.8317 12.4992 15.495C12.7049 14.1584 13.3696 10.3183 13.3696 10.3183Z\" fill=\"white\" fill-opacity=\"0.84\"/>\n    <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M12 0.5C5.37258 0.5 0 5.87258 0 12.5C0 19.1274 5.37258 24.5 12 24.5C18.6274 24.5 24 19.1274 24 12.5C24 5.87258 18.6274 0.5 12 0.5ZM2.25 12.5C2.25 7.11522 6.61522 2.75 12 2.75C17.3848 2.75 21.75 7.11522 21.75 12.5C21.75 17.8848 17.3848 22.25 12 22.25C6.61522 22.25 2.25 17.8848 2.25 12.5Z\" fill=\"white\" fill-opacity=\"0.84\"/>\n</svg>\n";
 
     /**
      * @typedef {ReturnType<import("../text").overlayCopyVariants>} TextVariants
@@ -5695,7 +5695,7 @@
         }
 
         getLargeThumbnailSrc(videoId) {
-            const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, 'https://i.ytimg.com');
+            const url = new URL(`/vi/${videoId}/hqdefault.jpg`, 'https://i.ytimg.com');
             return url.href;
         }
 

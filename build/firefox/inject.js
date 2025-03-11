@@ -684,34 +684,10 @@
         'apiManipulation',
     ]);
 
-    const otherFeatures = /** @type {const} */ ([
-        'clickToLoad',
-        'cookie',
-        'messageBridge',
-        'duckPlayer',
-        'harmfulApis',
-        'webCompat',
-        'windowsPermissionUsage',
-        'brokerProtection',
-        'performanceMetrics',
-        'breakageReporting',
-        'autofillPasswordImport',
-    ]);
-
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
     /** @type {Record<string, FeatureName[]>} */
     const platformSupport = {
-        apple: ['webCompat', ...baseFeatures],
-        'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge'],
-        android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
-        'android-broker-protection': ['brokerProtection'],
-        'android-autofill-password-import': ['autofillPasswordImport'],
-        windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
-        firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
-        chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
-        'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
-        integration: [...baseFeatures, ...otherFeatures],
-    };
+        firefox: ['cookie', ...baseFeatures, 'clickToLoad']};
 
     /**
      * Performance monitor, holds reference to PerformanceMark instances.
@@ -4856,7 +4832,7 @@
     		}
 
 
-    		if (module.exports) {
+    		if (module && module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.alea = impl;
@@ -4945,7 +4921,7 @@
     		  return prng;
     		}
 
-    		if (module.exports) {
+    		if (module && module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xor128 = impl;
@@ -5039,7 +5015,7 @@
     		  return prng;
     		}
 
-    		if (module.exports) {
+    		if (module && module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xorwow = impl;
@@ -5145,7 +5121,7 @@
     		  return prng;
     		}
 
-    		if (module.exports) {
+    		if (module && module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xorshift7 = impl;
@@ -5300,7 +5276,7 @@
     		  return prng;
     		}
 
-    		if (module.exports) {
+    		if (module && module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.xor4096 = impl;
@@ -5410,7 +5386,7 @@
     		  return prng;
     		}
 
-    		if (module.exports) {
+    		if (module && module.exports) {
     		  module.exports = impl;
     		} else {
     		  this.tychei = impl;
