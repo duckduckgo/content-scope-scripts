@@ -1,4 +1,4 @@
-import { getUrlParameter } from '../../utils';
+import { getUrlParameter } from '../../utils/url';
 
 /**
  * Extracts a site key from a captcha element's URL search parameters.

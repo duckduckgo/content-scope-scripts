@@ -1,10 +1,10 @@
-import { extract } from './extract.js';
-import { fillForm } from './fill-form.js';
-import { click } from './click.js';
-import { expectation } from './expectation.js';
+import { extract } from './extract';
+import { fillForm } from './fill-form';
+import { click } from './click';
+import { expectation } from './expectation';
 import { navigate } from './navigate';
 import { buildUrl } from './build-url';
-import * as captchaHandlers from '../captcha-services';
+import * as captchaHandlers from '../captcha-services/captcha.service';
 import * as deprecatedCaptchaHandlers from './captcha-deprecated';
 
 /**
