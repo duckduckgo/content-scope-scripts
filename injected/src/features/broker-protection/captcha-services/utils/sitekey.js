@@ -9,7 +9,7 @@ import { getUrlParameter } from '../../utils/url';
  * @returns {string | null} The site key extracted from the captcha element's URL or null if not found
  * @throws {Error}
  */
-export const getSiteKeyFromSearchParam = ({ captchaElement, siteKeyAttrName }) => {
+export function getSiteKeyFromSearchParam({ captchaElement, siteKeyAttrName }) {
     if (!captchaElement) {
         throw Error('[getSiteKeyFromSearchParam] could not find captcha');
     }
@@ -19,4 +19,4 @@ export const getSiteKeyFromSearchParam = ({ captchaElement, siteKeyAttrName }) =
     }
 
     return getUrlParameter(String(captchaElement.src), siteKeyAttrName);
-};
+}

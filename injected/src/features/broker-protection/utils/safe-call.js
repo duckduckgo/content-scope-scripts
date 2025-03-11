@@ -5,7 +5,7 @@
  * @param {string} [options.errorMessage] - The error message to log
  * @returns {T|null} - The result of the function call, or null if an error occurred
  */
-export const safeCall = (fn, { errorMessage } = {}) => {
+export function safeCall(fn, { errorMessage } = {}) {
     try {
         return fn();
     } catch (e) {
@@ -13,4 +13,4 @@ export const safeCall = (fn, { errorMessage } = {}) => {
         // TODO fire pixel
         return null;
     }
-};
+}
