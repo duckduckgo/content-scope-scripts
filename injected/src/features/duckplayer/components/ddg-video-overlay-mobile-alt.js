@@ -35,6 +35,7 @@ export class DDGVideoOverlayMobile extends HTMLElement {
         overlayElement.innerHTML = this.policy.createHTML(content);
         shadow.append(style, overlayElement);
         this.setupEventHandlers(overlayElement);
+        this.container = overlayElement;
     }
 
     /**
@@ -48,8 +49,7 @@ export class DDGVideoOverlayMobile extends HTMLElement {
         return html`
             <div class="ddg-video-player-overlay">
                 <div class="bg ddg-vpo-bg"></div>
-                <div class="content ios">
-                </div>
+                <div class="logo"></div>
             </div>
         `.toString();
     }

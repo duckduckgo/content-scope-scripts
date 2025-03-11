@@ -84,16 +84,34 @@
     width: 100%;
 
     box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.10), 0px -20px 40px 0px rgba(0, 0, 0, 0.08);
-    animation: toast 300ms ease-out 100ms 1 forwards;
 }
 
-@keyframes toast {
+.animateIn {
+    animation: slide-in 300ms ease-out 100ms 1 both;
+
+}
+
+.animateOut {
+    animation: slide-out 300ms ease-in 10ms 1 both;
+}
+
+@keyframes slide-in {
     0% {
         bottom: -500px;
     }
 
     100% {
         bottom: 0;
+    }
+}
+
+@keyframes slide-out {
+    0% {
+        bottom: 0;
+    }
+
+    100% {
+        bottom: -500px;
     }
 }
 
@@ -142,9 +160,9 @@
 }
 
 .button {
-    flex: 0 0 50%;
+    flex: 1 1 50%;
     margin: 0;
-    -webkit-appearance: none;
+    appearance: none;
     background: none;
     box-shadow: none;
     border: none;
@@ -158,6 +176,7 @@
     font-size: 15px;
     font-weight: 600;
     border-radius: 8px;
+    white-space: nowrap; /* TODO: Test on other languages */
 }
 
 .button--close {
@@ -181,15 +200,26 @@
     color: rgba(0, 0, 0, 0.84);
 }
 
-.button--info svg {
-    display: block;
-    width: 100%;
-    height: 100%;
+.button--info {
+    align-self: start;
+    appearance: none;
+    background: none;
+    border: 0;
+    flex: 0 0 16px;
+    flex: 0 0 32px;
+    margin: 0;
+    padding: 0;
 }
 
-.button--info svg path {
-    fill: rgba(255, 255, 255, 0.84);
+.button--info svg {
+    display: block;
+    width: 16px;
+    height: 16px;
 }
+
+/* .button--info svg path {
+    fill: rgba(0, 0, 0, 0.84);
+} */
 
 .cancel {
     color: rgba(0, 0, 0, 0.84);
@@ -199,7 +229,6 @@
 
 .open {
     background: #3969EF;
-    flex: 1;
     text-align: center;
     min-height: 40px;
     width: 100%;
