@@ -1,7 +1,8 @@
-import { getElement, removeUrlQueryParams } from '../utils';
+import { getElement } from '../utils/utils.js';
+import { removeUrlQueryParams } from '../utils/url.js';
 import { ErrorResponse, SuccessResponse } from '../types';
 import { getCaptchaProvider, getCaptchaSolveProvider } from './get-captcha-provider';
-import { captchaFactory } from './providers';
+import { captchaFactory } from './providers/registry.js';
 
 /**
  * Returns the supporting code to inject for the given captcha type

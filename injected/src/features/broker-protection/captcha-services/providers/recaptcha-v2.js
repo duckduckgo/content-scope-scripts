@@ -1,6 +1,8 @@
 import { CaptchaProvider } from './provider.interface';
-import { getElementByName, getElementWithSrcStart } from '../../utils';
-import { injectTokenIntoElement, getSiteKeyFromSearchParam, stringifyFunction } from '../utils';
+import { getElementByName, getElementWithSrcStart } from '../../utils/utils';
+import { getSiteKeyFromSearchParam } from '../utils/sitekey';
+import { stringifyFunction } from '../utils/stringify-function';
+import { injectTokenIntoElement } from '../utils/token';
 // TODO move on the same folder level once we deprecate the existing captcha scripts
 import { captchaCallback } from '../../actions/captcha-callback';
 

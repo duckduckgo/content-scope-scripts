@@ -1,4 +1,5 @@
-import { getElementByName, safeCall } from '../../utils';
+import { safeCall } from '../../utils/safe-call';
+import { getElementByName } from '../../utils/utils';
 
 /**
  * Inject a token into a named element

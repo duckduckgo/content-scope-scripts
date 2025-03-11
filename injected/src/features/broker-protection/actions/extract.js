@@ -1,4 +1,4 @@
-import { cleanArray, getElement, getElementMatches, getElements, sortAddressesByStateAndCity } from '../utils'; // Assuming you have imported the address comparison function
+import { cleanArray, getElement, getElementMatches, getElements, sortAddressesByStateAndCity } from '../utils/utils.js'; // Assuming you have imported the address comparison function
 import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js';
 import { isSameAge } from '../comparisons/is-same-age.js';
 import { isSameName } from '../comparisons/is-same-name.js';

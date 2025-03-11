@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import { cleanArray } from '../src/features/broker-protection/utils';
+import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
 import { PhoneExtractor } from '../src/features/broker-protection/extractors/phone.js';
 import { ProfileUrlExtractor } from '../src/features/broker-protection/extractors/profile-url.js';
 
