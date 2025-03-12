@@ -201,7 +201,7 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     measure() {
-        if (this.args?.debug) {
+        if (this.isDebug) {
             this.monitor.measureAll();
         }
     }

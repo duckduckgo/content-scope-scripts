@@ -94,7 +94,7 @@ export default class DuckPlayerFeature extends ContentFeature {
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
-            debug: args.debug,
+            debug: this.isDebug,
             injectName: import.meta.injectName,
             platform: this.platform,
             locale,
@@ -106,10 +106,6 @@ export default class DuckPlayerFeature extends ContentFeature {
         } else if (serpProxyEnabled) {
             comms.serpProxy();
         }
-    }
-
-    load(args) {
-        super.load(args);
     }
 }
 
