@@ -73,19 +73,48 @@
 } */
 
 .ddg-mobile-toast-overlay {
+    --overlay-background: rgba(0, 0, 0, 0.6);
+    --toast-background: #fafafa;
+    --toast-color: rgba(0, 0, 0, 0.84);
+    --button-background: rgba(0, 0, 0, 0.06);
+    --button-color: rgba(0, 0, 0, 0.84);
+    --button-accent-background: #3969ef;
+    --button-accent-color: #fff;
+    --switch-off-background: #888;
+    --switch-on-background: #3969ef;
+    --switch-thumb-background: #fff;
+    --info-color: #000;
+
     position: absolute;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--overlay-background);
 }
 
+@media (prefers-color-scheme: dark) {
+    .ddg-mobile-toast-overlay {
+        /* --overlay-background: rgba(255, 255, 255, 0.6); */
+        --toast-background: #333;
+        --toast-color: rgba(255, 255, 255, 0.84);
+        --button-background: rgba(255, 255, 255, 0.18);
+        --button-color: #fff;
+        --button-accent-background: #7295f6;
+        --button-accent-color: rgba(0, 0, 0, 0.84);
+        --switch-off-background: #888;
+        --switch-on-background: #7295f6;
+        --switch-thumb-background: #fff;
+        --info-color: rgba(255, 255, 255, 0.84);
+    }
+}
+
+
 .ddg-mobile-toast {
-    background: #fafafa; /* TODO: var? */
+    background: var(--toast-background);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     bottom: -500px;
     box-sizing: border-box;
-    color: #222;
+    color: var(--toast-color);
     left: 0;
     padding: 16px;
     position: absolute;
@@ -137,7 +166,6 @@
 }
 
 .title {
-    color: rgba(0, 0, 0, 0.84);
     font-size: 19px;
     font-weight: 700;
     line-height: calc(24 / 19);
@@ -178,7 +206,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 1);
+    background: var(--button-background);
+    color: var(--button-color);
     text-decoration: none;
     line-height: 16px;
     padding: 0 12px;
@@ -186,27 +215,6 @@
     font-weight: 600;
     border-radius: 8px;
     white-space: nowrap; /* TODO: Test on other languages */
-}
-
-.button--close {
-    flex: 0 0 32px;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: block;
-    padding: 0;
-    margin: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    position: relative;
-    top: -8px;
-    right: -8px;
-
-    display: none;
-}
-
-.button--close::after {
-    content: 'X';
-    color: rgba(0, 0, 0, 0.84);
 }
 
 .button--info {
@@ -229,18 +237,17 @@
     height: 16px;
 }
 
-/* .button--info svg path {
-    fill: rgba(0, 0, 0, 0.84);
-} */
+.button--info svg path {
+    fill: var(--info-color);
+}
 
 .cancel {
-    color: rgba(0, 0, 0, 0.84);
-    background: rgba(0, 0, 0, 0.06);
     min-height: 40px;
 }
 
 .open {
-    background: #3969EF;
+    background: var(--button-accent-background);
+    color: var(--button-accent-color);
     text-align: center;
     min-height: 40px;
     width: 100%;
@@ -281,7 +288,7 @@
     height: 32px;
     border: 0;
     box-shadow: none;
-    background: rgba(136, 136, 136, 0.5);
+    background: var(--switch-off-background);
     border-radius: 32px;
     position: relative;
     transition: all .3s;
@@ -295,7 +302,7 @@
     width: 20px;
     height: 20px;
     border-radius: 100%;
-    background: white;
+    background: var(--switch-thumb-background);
     position: absolute;
     top: 4px;
     left: 4px;
@@ -304,7 +311,7 @@
 }
 
 .switch[aria-checked="true"] {
-    background: rgba(57, 105, 239, 1)
+    background: var(--switch-on-background);
 }
 
 .ios-switch {
