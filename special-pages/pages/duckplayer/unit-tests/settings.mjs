@@ -6,11 +6,11 @@ describe('parses settings', () => {
     it('handles disabled custom error schema', () => {
         const settings = new Settings({
             customError: {
-                state: 'disabled'
-            }
+                state: 'disabled',
+            },
         });
         const expected = {
-            state: 'disabled'
+            state: 'disabled',
         };
 
         deepEqual(settings.customError, expected);
@@ -19,14 +19,14 @@ describe('parses settings', () => {
         const settings = new Settings({
             customError: {
                 state: 'enabled',
-                signInRequiredSelector: 'div'
-            }
+                signInRequiredSelector: 'div',
+            },
         });
         const expected = {
             state: 'enabled',
             settings: {
-                signInRequiredSelector: 'div'
-            }
+                signInRequiredSelector: 'div',
+            },
         };
 
         deepEqual(settings.customError, expected);
@@ -36,15 +36,15 @@ describe('parses settings', () => {
             customError: {
                 state: 'enabled',
                 settings: {
-                    signInRequiredSelector: 'div'
-                }
-            }
+                    signInRequiredSelector: 'div',
+                },
+            },
         });
         const expected = {
             state: 'enabled',
             settings: {
-                signInRequiredSelector: 'div'
-            }
+                signInRequiredSelector: 'div',
+            },
         };
 
         deepEqual(settings.customError, expected);
@@ -52,12 +52,12 @@ describe('parses settings', () => {
     it('handles custom error enabled without settings', () => {
         const settings = new Settings({
             customError: {
-                state: 'enabled'
-            }
+                state: 'enabled',
+            },
         });
         const expected = {
             state: 'enabled',
-            settings: {}
+            settings: {},
         };
 
         deepEqual(settings.customError, expected);
@@ -66,11 +66,11 @@ describe('parses settings', () => {
         const settings = new Settings({
             customError: {
                 // @ts-expect-error - Malformed object on purpose
-                status: 'enabled'
-            }
+                status: 'enabled',
+            },
         });
         const expected = {
-            state: 'disabled'
+            state: 'disabled',
         };
 
         deepEqual(settings.customError, expected);
