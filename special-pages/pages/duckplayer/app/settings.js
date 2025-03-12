@@ -1,12 +1,5 @@
 const DEFAULT_SIGN_IN_REQURED_HREF = '[href*="//support.google.com/youtube/answer/3037019"]';
 
-/**
- * @typedef {object} CustomErrorSettings
- * @property {'enabled'|'disabled'} state
- * @property {object} [settings]
- * @property {string} [settings.signInRequiredSelector]
- */
-
 export class Settings {
     /**
      * @param {object} params
@@ -47,15 +40,15 @@ export class Settings {
      *   }
      * }
      *
-     * @param {import("../types/duckplayer.js").DuckPlayerPageSettings['customError']} customErrorSettings
-     * @return {CustomErrorSettings}
+     * @param {import("../types/duckplayer.js").DuckPlayerPageSettings['customError']} initialSettings
+     * @return {import("../types/duckplayer.js").CustomErrorSettings}
      */
-    parseLegacyCustomError(customErrorSettings) {
-        if (customErrorSettings?.state !== 'enabled') {
+    parseLegacyCustomError(initialSettings) {
+        if (initialSettings?.state !== 'enabled') {
             return { state: 'disabled' };
         }
 
-        const { settings, signInRequiredSelector } = customErrorSettings;
+        const { settings, signInRequiredSelector } = initialSettings;
 
         return {
             state: 'enabled',

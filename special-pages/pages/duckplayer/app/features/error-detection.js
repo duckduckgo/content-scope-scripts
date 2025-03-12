@@ -3,7 +3,7 @@ import { YOUTUBE_ERROR_EVENT, YOUTUBE_ERRORS } from '../providers/YouTubeErrorPr
 /**
  * @typedef {import("./iframe").IframeFeature} IframeFeature
  * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
- * @typedef {import('../../types/duckplayer').DuckPlayerPageSettings['customError']} CustomErrorOptions
+ * @typedef {import('../../types/duckplayer').CustomErrorSettings} CustomErrorSettings
  */
 
 /**
@@ -15,11 +15,11 @@ export class ErrorDetection {
     /** @type {HTMLIFrameElement} */
     iframe;
 
-    /** @type {CustomErrorOptions} */
+    /** @type {CustomErrorSettings} */
     options;
 
     /**
-     * @param {CustomErrorOptions} options
+     * @param {CustomErrorSettings} options
      */
     constructor(options) {
         this.options = options;
@@ -115,7 +115,8 @@ export class ErrorDetection {
 
             // 2. Check for sign-in support link
             try {
-                if (this.options?.signInRequiredSelector && !!iframeWindow.document.querySelector(this.options.signInRequiredSelector)) {
+                const { settings } = this.options;
+                if (settings?.signInRequiredSelector && !!iframeWindow.document.querySelector(settings.signInRequiredSelector)) {
                     return YOUTUBE_ERRORS.signInRequired;
                 }
             } catch (e) {
