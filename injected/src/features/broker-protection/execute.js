@@ -1,4 +1,4 @@
-import { resolveActionHandlers } from './actions';
+import { resolveActionHandlers } from './actions/actions';
 import { ErrorResponse } from './types';
 
 /**

@@ -3,6 +3,7 @@ import { removeUrlQueryParams } from '../utils/url.js';
 import { ErrorResponse, SuccessResponse } from '../types';
 import { getCaptchaProvider, getCaptchaSolveProvider } from './get-captcha-provider';
 import { captchaFactory } from './providers/registry.js';
+import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptchaDeprecated } from '../actions/captcha-deprecated';
 
 /**
  * Returns the supporting code to inject for the given captcha type
@@ -13,6 +14,7 @@ import { captchaFactory } from './providers/registry.js';
 export function getSupportingCodeToInject(action) {
     const { id: actionID, actionType, injectCaptchaHandler: captchaType } = action;
     if (!captchaType) {
+        // ensures backward compatibility with old actions
         return new SuccessResponse({ actionID, actionType, response: {} });
     }
 
@@ -37,6 +39,11 @@ export function getSupportingCodeToInject(action) {
 export function getCaptchaInfo(action, root = document) {
     const { id: actionID, selector, actionType, captchaType } = action;
     try {
+        if (!captchaType) {
+            // ensures backward compatibility with old actions
+            return getCaptchaInfoDeprecated(action, root);
+        }
+
         if (!selector) {
             throw new Error('missing selector');
         }
@@ -75,7 +82,8 @@ export function solveCaptcha(action, token, root = document) {
     const { id: actionID, actionType, captchaType } = action;
     try {
         if (!captchaType) {
-            throw new Error('missing captchaType');
+            // ensures backward compatibility with old actions
+            return solveCaptchaDeprecated(action, token, root);
         }
 
         const captchaSolveProvider = getCaptchaSolveProvider(root, captchaType);
