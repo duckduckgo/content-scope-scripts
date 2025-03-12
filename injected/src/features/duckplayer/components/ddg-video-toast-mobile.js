@@ -68,11 +68,13 @@ export class DDGVideoToastMobile extends HTMLElement {
         const infoIcon = trustedUnsafe(info);
 
         return html`
-            <div class="ddg-video-player-overlay">
+            <div class="ddg-mobile-toast-overlay">
                 <div class="ddg-mobile-toast">
                     <div class="heading">
                         <div class="logo">${svgIcon}</div>
                         <div class="title">${this.text.title}</div>
+                    </div>
+                    <div class="info">
                         <button class="button--info" type="button" aria-label="Open Information Modal">${infoIcon}</button>
                     </div>
                     <div class="buttons">
@@ -120,8 +122,9 @@ export class DDGVideoToastMobile extends HTMLElement {
         const remember = this.container.querySelector('input[name="ddg-remember"]');
         const cancelElement = this.container.querySelector('.ddg-vpo-cancel');
         const watchInPlayer = this.container.querySelector('.ddg-vpo-open');
+        const overlay = this.container.querySelector('.ddg-mobile-toast-overlay');
 
-        if (!cancelElement || !watchInPlayer || !switchElem || !infoButton || !(remember instanceof HTMLInputElement)) {
+        if (!cancelElement || !watchInPlayer || !switchElem || !infoButton || !overlay || !(remember instanceof HTMLInputElement)) {
             return console.warn('missing elements');
         }
 
@@ -140,13 +143,17 @@ export class DDGVideoToastMobile extends HTMLElement {
             }
         });
 
-        cancelElement.addEventListener('click', (e) => {
-            // if (!e.isTrusted) return;
-            console.log('HERE');
+        const cancelHandler = (e) => {
+            if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();
             this.animateOut();
             this.dispatchEvent(new CustomEvent(DDGVideoOverlayMobile.OPT_OUT, { detail: { remember: remember.checked } }));
+        };
+
+        cancelElement.addEventListener('click', cancelHandler);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) cancelHandler(e);
         });
 
         watchInPlayer.addEventListener('click', (e) => {
