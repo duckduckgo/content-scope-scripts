@@ -6,7 +6,7 @@
     bottom: 0;
     right: 0;
     color: white;
-    z-index: 10000;
+    z-index: 10010;
     --title-size: 16px;
     --title-line-height: 20px;
     --title-gap: 16px;
