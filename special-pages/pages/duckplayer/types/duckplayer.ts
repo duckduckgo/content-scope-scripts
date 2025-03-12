@@ -135,9 +135,18 @@ export interface DuckPlayerPageSettings {
   customError?: {
     state: "enabled" | "disabled";
     /**
+     * Custom error settings
+     */
+    settings?: {
+      /**
+       * A selector that, when not empty, indicates a sign-in required error
+       */
+      signInRequiredSelector?: string;
+    };
+    /**
      * A selector that, when not empty, indicates a sign-in required error
      */
-    signInRequiredSelector: string;
+    signInRequiredSelector?: string;
   };
 }
 /**

@@ -1,5 +1,12 @@
 const DEFAULT_SIGN_IN_REQURED_HREF = '[href*="//support.google.com/youtube/answer/3037019"]';
 
+/**
+ * @typedef {object} CustomErrorSettings
+ * @property {'enabled'|'disabled'} state
+ * @property {object} [settings]
+ * @property {string} [settings.signInRequiredSelector]
+*/
+
 export class Settings {
     /**
      * @param {object} params
@@ -7,20 +14,56 @@ export class Settings {
      * @param {{state: 'enabled' | 'disabled'}} [params.pip]
      * @param {{state: 'enabled' | 'disabled'}} [params.autoplay]
      * @param {{state: 'enabled' | 'disabled'}} [params.focusMode]
-     * @param {import("../types/duckplayer.js").InitialSetupResponse['settings']['customError']} [params.customError]
+     * @param {import("../types/duckplayer.js").DuckPlayerPageSettings['customError']} [params.customError]
      */
     constructor({
         platform = { name: 'macos' },
         pip = { state: 'disabled' },
         autoplay = { state: 'enabled' },
         focusMode = { state: 'enabled' },
-        customError = { state: 'disabled', signInRequiredSelector: '' },
+        customError = { state: 'disabled', settings: {}, signInRequiredSelector: '' },
     }) {
         this.platform = platform;
         this.pip = pip;
         this.autoplay = autoplay;
         this.focusMode = focusMode;
-        this.customError = customError;
+        this.customError = this.parseLegacyCustomError(customError);
+    }
+
+    /**
+     * Parses custom error settings so that both old and new schemas are accepted.
+     *
+     * Old schema:
+     * {
+     *   state: "enabled",
+     *   signInRequiredSelector: "div"
+     * }
+     *
+     * New schema:
+     * {
+     *   state: "disabled",
+     *   settings: {
+     *     signInRequiredSelector: "div"
+     *   }
+     * }
+     *
+     * @param {import("../types/duckplayer.js").InitialSetupResponse['settings']['customError']} customErrorSettings
+     * @return {CustomErrorSettings}
+     */
+    parseLegacyCustomError(customErrorSettings) {
+        if (!customErrorSettings || customErrorSettings.state !== 'enabled') {
+            return { state: 'disabled'};
+        }
+
+        const { settings, signInRequiredSelector } = customErrorSettings;
+
+        return {
+            state: 'enabled',
+            settings: {
+                ...settings,
+                ...(signInRequiredSelector && { signInRequiredSelector })
+            }
+        };
     }
 
     /**
