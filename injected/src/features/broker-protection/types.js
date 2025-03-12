@@ -7,7 +7,7 @@
  *   id: string;
  *   actionType: "extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate";
  *   selector: string;
- *   captchaType: string;
+ *   captchaType?: string;
  *   injectCaptchaHandler?: string
  *   dataSource?: string;
  * }} PirAction
