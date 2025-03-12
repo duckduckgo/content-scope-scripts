@@ -129,20 +129,22 @@ export interface DuckPlayerPageSettings {
   focusMode?: {
     state: "enabled" | "disabled";
   };
-  /**
-   * Configures a custom error message for YouTube errors
-   */
-  customError?: {
-    state: "enabled" | "disabled";
+  customError?: CustomErrorSettings & {
     /**
-     * Custom error settings
+     * A selector that, when not empty, indicates a sign-in required error
      */
-    settings?: {
-      /**
-       * A selector that, when not empty, indicates a sign-in required error
-       */
-      signInRequiredSelector?: string;
-    };
+    signInRequiredSelector?: string;
+  };
+}
+/**
+ * Configures a custom error message for YouTube errors
+ */
+export interface CustomErrorSettings {
+  state: "enabled" | "disabled";
+  /**
+   * Custom error settings
+   */
+  settings?: {
     /**
      * A selector that, when not empty, indicates a sign-in required error
      */
