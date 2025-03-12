@@ -246,6 +246,9 @@ export class VideoOverlay {
             this.messages.sendPixel(new Pixel({ name: 'overlay' }));
             const controller = new AbortController();
             const { environment } = this;
+            /** @type {HTMLElement} */
+            let playerElement;
+            let playerZindex;
 
             if (this.environment.layout === 'mobile') {
 
@@ -259,6 +262,15 @@ export class VideoOverlay {
                 elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                 });
+                /** TODO: Find a better solution */
+                if (targetElement instanceof HTMLElement) {
+                    playerElement = /** @type {HTMLElement} */(targetElement.closest('.player-container'));
+                    console.log('ZINDEX', targetElement, playerElement);
+                    if (playerElement) {
+                        playerZindex = playerElement.style.zIndex;
+                        playerElement.style.zIndex = '10011';
+                    }
+                }
                 targetElement.appendChild(elem);
 
                 const toast = /** @type {DDGVideoToastMobile} */ (document.createElement(DDGVideoToastMobile.CUSTOM_TAG_NAME));
@@ -273,12 +285,9 @@ export class VideoOverlay {
                 });
                 overlayElement.appendChild(toast);
 
-                // TODO: Run when custom elements finish setting up
-                setTimeout(() => {
-                    if (elem.container) {
-                        this.appendThumbnail(elem.container);
-                    }
-                }, 1000);
+                if (elem.container) {
+                    this.appendThumbnail(elem.container);
+                }
             } else {
                 const elem = new DDGVideoOverlay({
                     environment,
@@ -295,6 +304,10 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
+                /* TODO FIX WITH THE OTHER ONE */
+                if (playerElement && playerZindex) {
+                    playerElement.style.zIndex = playerZindex;
+                }
                 setTimeout(() => {
                     document.querySelector(DDGVideoToastMobile.CUSTOM_TAG_NAME)?.remove();
                 }, 500); /* TODO FIX THIS */
