@@ -35,6 +35,7 @@ export default class ContentFeature extends ConfigFeature {
 
     constructor(featureName, importConfig, args) {
         super(featureName, args);
+        this.setArgs(this.args);
         this.monitor = new PerformanceMonitor();
         this.#importConfig = importConfig;
     }
@@ -140,9 +141,16 @@ export default class ContentFeature extends ConfigFeature {
 
     callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
-        this.init(args);
+        this.setArgs(args);
+        // Passing this.args is legacy here and features should use this.args or other properties directly
+        this.init(this.args);
         mark.end();
         this.measure();
+    }
+
+    setArgs(args) {
+        this.args = args;
+        this.platform = args.platform;
     }
 
     load(args) {}
@@ -186,14 +194,8 @@ export default class ContentFeature extends ConfigFeature {
         return this.messaging.subscribe(name, cb);
     }
 
-    setArgs(args) {
-        this.args = args;
-        this.platform = args.platform;
-    }
-
     callLoad() {
         const mark = this.monitor.mark(this.name + 'CallLoad');
-        this.setArgs(this.args);
         this.load(this.args);
         mark.end();
     }
@@ -204,6 +206,9 @@ export default class ContentFeature extends ConfigFeature {
         }
     }
 
+    /**
+     * @deprecated - use messaging instead.
+     */
     update() {}
 
     /**

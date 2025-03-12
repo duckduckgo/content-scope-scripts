@@ -29,7 +29,6 @@ function generateConfig() {
             allowlisted: false,
             enabledFeatures: ['fingerprintingCanvas', 'fingerprintingScreenSize', 'navigatorInterface', 'cookie'],
         },
-        trackerLookup,
     };
 }
 
@@ -88,6 +87,7 @@ async function initCode() {
         // @ts-expect-error Types of property 'name' are incompatible.
         platform: processedConfig.platform,
         site: processedConfig.site,
+        bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
     });
 
