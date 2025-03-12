@@ -16,7 +16,6 @@ function getTopLevelURL() {
 
 function generateConfig() {
     const topLevelUrl = getTopLevelURL();
-    const trackerLookup = import.meta.trackerLookup;
     return {
         debug: false,
         sessionKey: 'randomVal',
