@@ -10,7 +10,7 @@ export default defineConfig({
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/harmful-apis.spec.js',
                 'integration-test/windows-permissions.spec.js',
-                'integration-test/broker-protection.spec.js',
+                'integration-test/broker-protection-tests/**',
                 'integration-test/breakage-reporting.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
@@ -20,7 +20,7 @@ export default defineConfig({
             testMatch: [
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
-                'integration-test/broker-protection.spec.js',
+                'integration-test/broker-protection-tests/**',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },

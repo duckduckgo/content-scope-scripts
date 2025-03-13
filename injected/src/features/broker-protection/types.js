@@ -8,7 +8,7 @@
  * @typedef {object} PirAction
  * @property {string} id
  * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} actionType
- * @property {string} selector
+ * @property {string} [selector]
  * @property {string} [captchaType]
  * @property {string} [injectCaptchaHandler]
  * @property {string} [dataSource]

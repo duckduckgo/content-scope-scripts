@@ -8,17 +8,17 @@ import * as captchaHandlers from '../captcha-services/captcha.service';
 import * as deprecatedCaptchaHandlers from './captcha-deprecated';
 
 /**
- * Returns the captcha handlers based on the useNewActionHandlers flag
+ * Returns the captcha handlers based on the useWebViewActionsV2 flag
  * @param {Object} params
- * @param {boolean} params.useNewActionHandlers
+ * @param {boolean} params.useWebViewActionsV2
  */
-export function resolveActionHandlers({ useNewActionHandlers }) {
+export function resolveActionHandlers({ useWebViewActionsV2 }) {
     return {
         extract,
         fillForm,
         click,
         expectation,
-        ...(useNewActionHandlers
+        ...(useWebViewActionsV2
             ? {
                   navigate,
                   ...captchaHandlers,
