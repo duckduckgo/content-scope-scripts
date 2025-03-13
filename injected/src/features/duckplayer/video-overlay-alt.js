@@ -99,6 +99,7 @@ export class VideoOverlay {
         this.sideEffects.add('add css to head', () => {
             const style = document.createElement('style');
             style.innerText = this.settings.selectors.videoElementContainer + ' { opacity: 0!important }';
+
             if (document.head) {
                 document.head.appendChild(style);
             }
@@ -152,8 +153,6 @@ export class VideoOverlay {
     appendThumbnail(overlayElement) {
         const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
         const videoId = params?.id;
-
-        console.log('Appending thumbnail', overlayElement, videoId);
 
         const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
         appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
@@ -246,12 +245,11 @@ export class VideoOverlay {
             this.messages.sendPixel(new Pixel({ name: 'overlay' }));
             const controller = new AbortController();
             const { environment } = this;
-            /** @type {HTMLElement} */
-            let playerElement;
-            let playerZindex;
+
+            const style = document.createElement('style');
+            style.innerText = '.player-container:has(ddg-video-overlay-mobile-alt) ~ .sticky-player .watch-below-the-player::before { content: " "; position: absolute; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1; }';
 
             if (this.environment.layout === 'mobile') {
-
                 const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
                 elem.testMode = this.environment.isTestMode();
                 elem.text = mobileStrings(this.environment.strings);
@@ -262,16 +260,18 @@ export class VideoOverlay {
                 elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                 });
-                /** TODO: Find a better solution */
-                if (targetElement instanceof HTMLElement) {
-                    playerElement = /** @type {HTMLElement} */(targetElement.closest('.player-container'));
-                    console.log('ZINDEX', targetElement, playerElement);
-                    if (playerElement) {
-                        playerZindex = playerElement.style.zIndex;
-                        playerElement.style.zIndex = '10011';
-                    }
-                }
                 targetElement.appendChild(elem);
+
+                /* Insert interlay */
+                /* TODO: Parametize */
+                const interlayContainer = document.querySelector('.watch-below-the-player');
+                console.log('INTERLAY', interlayContainer);
+                if (interlayContainer) {
+                    const interlay = /** @type {HTMLDivElement} */ (document.createElement('div'));
+                    interlay.classList.add('ddg-mobile-interlay');
+                    interlayContainer.appendChild(interlay);
+                    console.log('Appended', interlay, 'to', interlayContainer);
+                }
 
                 const toast = /** @type {DDGVideoToastMobile} */ (document.createElement(DDGVideoToastMobile.CUSTOM_TAG_NAME));
                 toast.testMode = this.environment.isTestMode();
@@ -284,6 +284,11 @@ export class VideoOverlay {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                 });
                 overlayElement.appendChild(toast);
+
+                if (document.head) {
+                    console.log('APPENDING', style, 'to head');
+                    document.head.appendChild(style);
+                }
 
                 if (elem.container) {
                     this.appendThumbnail(elem.container);
@@ -304,13 +309,14 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
-                /* TODO FIX WITH THE OTHER ONE */
-                if (playerElement && playerZindex) {
-                    playerElement.style.zIndex = playerZindex;
-                }
                 setTimeout(() => {
                     document.querySelector(DDGVideoToastMobile.CUSTOM_TAG_NAME)?.remove();
                 }, 500); /* TODO FIX THIS */
+
+                if (style.isConnected) {
+                    document.head.removeChild(style);
+                }
+
                 controller.abort();
             };
         });
