@@ -7,7 +7,6 @@ export function getBrokerProtectionTestPageUrl(fileName) {
 
 /**
  * @param {PirState['state']} state
- *
  * @returns {PirState}
  */
 export function createPirState(state) {
