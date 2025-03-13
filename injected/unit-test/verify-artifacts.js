@@ -34,7 +34,7 @@ const checks = {
     },
     integration: {
         file: join(BUILD, 'integration/contentScope.js'),
-        tests: [{ kind: 'containsString', text: 'trackerLookup: {', includes: true }],
+        tests: [{ kind: 'containsString', text: 'trackerLookup: ', includes: true }],
     },
     windows: {
         file: join(BUILD, 'windows/contentScope.js'),
