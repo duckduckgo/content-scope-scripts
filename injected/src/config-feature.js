@@ -5,14 +5,14 @@ export default class ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     #bundledConfig;
 
-    /** @type {any} */
+    /** @type {string} */
     name;
 
     /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: import('./content-feature.js').AssetConfig | undefined, site: import('./content-feature.js').Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
     #args;
 
     /**
-     * @param {any} name
+     * @param {string} name
      * @param {import('./content-scope-features.js').LoadArgs} args
      */
     constructor(name, args) {
