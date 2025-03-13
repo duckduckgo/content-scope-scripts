@@ -49,7 +49,7 @@ const reportSiteAnchorTagParams = (urlParam) => {
  * @typedef {import("../../types/special-error.js").SSLInvalidCertificate} SSLInvalidCertificate
  * @typedef {import("../../types/special-error.js").SSLSelfSignedCertificate} SSLSelfSignedCertificate
  * @typedef {import("../../types/special-error.js").SSLWrongHost} SSLWrongHost
- * @typedef {import("../../types/special-error.js").PhishingAndMalware} PhishingAndMalware
+ * @typedef {import("../../types/special-error.js").MaliciousSite} MaliciousSite
  * @typedef {SSLExpiredCertificate|SSLInvalidCertificate|SSLSelfSignedCertificate|SSLWrongHost} SSLError
  */
 
@@ -60,16 +60,15 @@ export function useWarningHeading() {
     const { t } = useTypedTranslation();
     const { kind } = useErrorData();
 
-    if (kind === 'phishing') {
-        return t('phishingPageHeading').replace('{newline}', '\n');
-    }
-
-    if (kind === 'malware') {
-        return t('malwarePageHeading').replace('{newline}', '\n');
-    }
-
-    if (kind === 'ssl') {
-        return t('sslPageHeading');
+    switch (kind) {
+        case 'ssl':
+            return t('sslPageHeading');
+        case 'malware':
+        case 'phishing':
+        case 'scam':
+            const translationKey = /** @type {const} */ (`${kind}PageHeading`);
+            return t(translationKey).replace('{newline}', '\n');
+        default:
     }
 
     throw new Error(`Unhandled error kind ${kind}`);
@@ -93,6 +92,11 @@ export function useWarningContent() {
         return [<Trans str={text} values={{ a: helpPageAnchorTagParams }} />];
     }
 
+    if (kind === 'scam') {
+        const text = t('scamWarningText').replace('{newline}', '\n');
+        return [<Trans str={text} values={{ a: helpPageAnchorTagParams }} />];
+    }
+
     if (kind === 'ssl') {
         const { domain } = /** @type {SSLError}} */ (errorData);
         return [<Trans str={t('sslWarningText', { domain })} values="" />];
@@ -109,16 +113,17 @@ export function useAdvancedInfoHeading() {
     const errorData = useErrorData();
     const { kind } = errorData;
 
-    if (kind === 'phishing' || kind === 'malware') {
-        const { url } = /** @type {PhishingAndMalware} */ (errorData);
-        const anchorTagParams = reportSiteAnchorTagParams(url);
-        const translatioKey = kind === 'phishing' ? 'phishingAdvancedInfoHeading' : 'malwareAdvancedInfoHeading';
-
-        return <Trans str={t(translatioKey)} values={{ a: anchorTagParams }} />;
-    }
-
-    if (kind === 'ssl') {
-        return t('sslAdvancedInfoHeading');
+    switch (kind) {
+        case 'ssl':
+            return t('sslAdvancedInfoHeading');
+        case 'malware':
+        case 'phishing':
+        case 'scam':
+            const { url } = /** @type {MaliciousSite} */ (errorData);
+            const anchorTagParams = reportSiteAnchorTagParams(url);
+            const translationKey = /** @type {const} */ (`${kind}AdvancedInfoHeading`);
+            return <Trans str={t(translationKey)} values={{ a: anchorTagParams }} />;
+        default:
     }
 
     throw new Error(`Unhandled error kind ${kind}`);
@@ -132,7 +137,7 @@ export function useAdvancedInfoContent() {
     const errorData = useErrorData();
     const { kind } = errorData;
 
-    if (kind === 'phishing' || kind === 'malware') {
+    if (kind === 'malware' || kind === 'phishing' || kind === 'scam') {
         return [];
     }
 
