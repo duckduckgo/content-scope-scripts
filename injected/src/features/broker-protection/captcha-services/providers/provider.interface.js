@@ -1,5 +1,6 @@
 /**
  * Base interface for captcha providers
+ * @import {PirError, PirResponse} from '../../types';
  * @interface
  * @abstract
  */
@@ -27,7 +28,7 @@ export class CaptchaProvider {
      * Extracts the site key from the captcha container element
      * @abstract
      * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @returns {string|null} The site key or null if not found
+     * @returns {PirError | string | null} The site key or null if not found
      */
     getCaptchaIdentifier(captchaContainerElement) {
         throw new Error('getCaptchaIdentifier() missing implementation');
@@ -56,7 +57,7 @@ export class CaptchaProvider {
      * @abstract
      * @param {Document} root - The document root containing the captcha
      * @param {string} token - The solved captcha token
-     * @returns {boolean} True if the token was successfully injected
+     * @returns {PirResponse<{ injected: boolean }>} - Whether the token was injected
      */
     injectToken(root, token) {
         throw new Error('injectToken() missing implementation');
@@ -66,7 +67,7 @@ export class CaptchaProvider {
      * Creates a callback function to execute when the captcha is solved
      * @abstract
      * @param {string} token - The solved captcha token
-     * @returns {string|null} Callback function to execute when the captcha is solved
+     * @returns {PirError|string|null} Callback function to execute when the captcha is solved
      */
     getSolveCallback(token) {
         throw new Error('getSolveCallback() missing implementation');
