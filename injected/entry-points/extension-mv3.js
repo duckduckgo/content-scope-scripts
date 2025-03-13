@@ -2,19 +2,14 @@
  * @module main world integration for Chrome MV3 and Firefox (enhanced) MV2
  */
 import { load, init, update } from '../src/content-scope-features.js';
-import { isTrackerOrigin } from '../src/trackers.js';
 import { computeLimitedSiteObject } from '../src/utils.js';
 
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
-
-const trackerLookup = import.meta.trackerLookup;
 
 load({
     platform: {
         name: 'extension',
     },
-    trackerLookup,
-    documentOriginIsTracker: isTrackerOrigin(trackerLookup),
     site: computeLimitedSiteObject(),
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     bundledConfig: $BUNDLED_CONFIG$,

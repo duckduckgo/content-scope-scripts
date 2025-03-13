@@ -1,11 +1,12 @@
-import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js';
-import { immutableJSONPatch } from 'immutable-json-patch';
+import { processAttr } from './utils.js';
 import { PerformanceMonitor } from './performance.js';
 import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js';
 // eslint-disable-next-line no-redeclare
 import { Proxy, Reflect } from './captured-globals.js';
 import { Messaging, MessagingContext } from '../../messaging/index.js';
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js';
+import { isTrackerOrigin } from './trackers.js';
+import ConfigFeature from './config-feature.js';
 
 /**
  * @typedef {object} AssetConfig
@@ -21,41 +22,34 @@ import { extensionConstructMessagingConfig } from './sendmessage-transport.js';
  * @property {string[]} [enabledFeatures]
  */
 
-export default class ContentFeature {
+export default class ContentFeature extends ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
-    #bundledConfig;
-    /** @type {object | undefined} */
-    #trackerLookup;
-    /** @type {boolean | undefined} */
-    #documentOriginIsTracker;
-    /** @type {Record<string, unknown> | undefined} */
-    // eslint-disable-next-line no-unused-private-class-members
-    #bundledfeatureSettings;
     /** @type {import('../../messaging').Messaging} */
     // eslint-disable-next-line no-unused-private-class-members
     #messaging;
     /** @type {boolean} */
     #isDebugFlagSet = false;
 
-    /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
-    #args;
+    /** @type {ImportMeta} */
+    #importConfig;
 
-    constructor(featureName) {
-        this.name = featureName;
-        this.#args = null;
+    constructor(featureName, importConfig, args) {
+        super(featureName, args);
+        this.setArgs(this.args);
         this.monitor = new PerformanceMonitor();
+        this.#importConfig = importConfig;
     }
 
     get isDebug() {
-        return this.#args?.debug || false;
+        return this.args?.debug || false;
     }
 
     get desktopModeEnabled() {
-        return this.#args?.desktopModeEnabled || false;
+        return this.args?.desktopModeEnabled || false;
     }
 
     get forcedZoomEnabled() {
-        return this.#args?.forcedZoomEnabled || false;
+        return this.args?.forcedZoomEnabled || false;
     }
 
     /**
@@ -74,28 +68,28 @@ export default class ContentFeature {
      * @type {AssetConfig | undefined}
      */
     get assetConfig() {
-        return this.#args?.assets;
+        return this.args?.assets;
+    }
+
+    /**
+     * @returns {ImportMeta['trackerLookup']}
+     **/
+    get trackerLookup() {
+        return this.#importConfig.trackerLookup || {};
+    }
+
+    /**
+     * @returns {ImportMeta['injectName']}
+     */
+    get injectName() {
+        return this.#importConfig.injectName;
     }
 
     /**
      * @returns {boolean}
      */
     get documentOriginIsTracker() {
-        return !!this.#documentOriginIsTracker;
-    }
-
-    /**
-     * @returns {object}
-     **/
-    get trackerLookup() {
-        return this.#trackerLookup || {};
-    }
-
-    /**
-     * @returns {import('./utils.js').RemoteConfig | undefined}
-     **/
-    get bundledConfig() {
-        return this.#bundledConfig;
+        return isTrackerOrigin(this.trackerLookup);
     }
 
     /**
@@ -103,8 +97,7 @@ export default class ContentFeature {
      * @return {MessagingContext}
      */
     _createMessagingContext() {
-        const injectName = import.meta.injectName;
-        const contextName = injectName === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
+        const contextName = this.injectName === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
 
         return new MessagingContext({
             context: contextName,
@@ -121,7 +114,7 @@ export default class ContentFeature {
     get messaging() {
         if (this._messaging) return this._messaging;
         const messagingContext = this._createMessagingContext();
-        let messagingConfig = this.#args?.messagingConfig;
+        let messagingConfig = this.args?.messagingConfig;
         if (!messagingConfig) {
             if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in');
             messagingConfig = extensionConstructMessagingConfig();
@@ -144,125 +137,20 @@ export default class ContentFeature {
         return processAttr(configSetting, defaultValue);
     }
 
-    /**
-     * Return a specific setting from the feature settings
-     * If the "settings" key within the config has a "domains" key, it will be used to override the settings.
-     * This uses JSONPatch to apply the patches to settings before getting the setting value.
-     * For example.com getFeatureSettings('val') will return 1:
-     * ```json
-     *  {
-     *      "settings": {
-     *         "domains": [
-     *             {
-     *                "domain": "example.com",
-     *                "patchSettings": [
-     *                    { "op": "replace", "path": "/val", "value": 1 }
-     *                ]
-     *             }
-     *         ]
-     *      }
-     *  }
-     * ```
-     * "domain" can either be a string or an array of strings.
-
-     * For boolean states you should consider using getFeatureSettingEnabled.
-     * @param {string} featureKeyName
-     * @param {string} [featureName]
-     * @returns {any}
-     */
-    getFeatureSetting(featureKeyName, featureName) {
-        let result = this._getFeatureSettings(featureName);
-        if (featureKeyName === 'domains') {
-            throw new Error('domains is a reserved feature setting key name');
-        }
-        const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {
-            return a.domain.length - b.domain.length;
-        });
-        for (const match of domainMatch) {
-            if (match.patchSettings === undefined) {
-                continue;
-            }
-            try {
-                result = immutableJSONPatch(result, match.patchSettings);
-            } catch (e) {
-                console.error('Error applying patch settings', e);
-            }
-        }
-        return result?.[featureKeyName];
-    }
-
-    /**
-     * Return the settings object for a feature
-     * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
-     * @returns {any}
-     */
-    _getFeatureSettings(featureName) {
-        const camelFeatureName = featureName || camelcase(this.name);
-        return this.#args?.featureSettings?.[camelFeatureName];
-    }
-
-    /**
-     * For simple boolean settings, return true if the setting is 'enabled'
-     * For objects, verify the 'state' field is 'enabled'.
-     * This allows for future forwards compatibility with more complex settings if required.
-     * For example:
-     * ```json
-     * {
-     *    "toggle": "enabled"
-     * }
-     * ```
-     * Could become later (without breaking changes):
-     * ```json
-     * {
-     *   "toggle": {
-     *       "state": "enabled",
-     *       "someOtherKey": 1
-     *   }
-     * }
-     * ```
-     * This also supports domain overrides as per `getFeatureSetting`.
-     * @param {string} featureKeyName
-     * @param {string} [featureName]
-     * @returns {boolean}
-     */
-    getFeatureSettingEnabled(featureKeyName, featureName) {
-        const result = this.getFeatureSetting(featureKeyName, featureName);
-        if (typeof result === 'object') {
-            return result.state === 'enabled';
-        }
-        return result === 'enabled';
-    }
-
-    /**
-     * Given a config key, interpret the value as a list of domain overrides, and return the elements that match the current page
-     * Consider using patchSettings instead as per `getFeatureSetting`.
-     * @param {string} featureKeyName
-     * @return {any[]}
-     * @private
-     */
-    matchDomainFeatureSetting(featureKeyName) {
-        const domain = this.#args?.site.domain;
-        if (!domain) return [];
-        const domains = this._getFeatureSettings()?.[featureKeyName] || [];
-        return domains.filter((rule) => {
-            if (Array.isArray(rule.domain)) {
-                return rule.domain.some((domainRule) => {
-                    return matchHostname(domain, domainRule);
-                });
-            }
-            return matchHostname(domain, rule.domain);
-        });
-    }
-
     init(args) {}
 
     callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
-        this.#args = args;
-        this.platform = args.platform;
-        this.init(args);
+        this.setArgs(args);
+        // Passing this.args is legacy here and features should use this.args or other properties directly
+        this.init(this.args);
         mark.end();
         this.measure();
+    }
+
+    setArgs(args) {
+        this.args = args;
+        this.platform = args.platform;
     }
 
     load(args) {}
@@ -306,32 +194,21 @@ export default class ContentFeature {
         return this.messaging.subscribe(name, cb);
     }
 
-    /**
-     * @param {import('./content-scope-features.js').LoadArgs} args
-     */
-    callLoad(args) {
+    callLoad() {
         const mark = this.monitor.mark(this.name + 'CallLoad');
-        this.#args = args;
-        this.platform = args.platform;
-        this.#bundledConfig = args.bundledConfig;
-        // If we have a bundled config, treat it as a regular config
-        // This will be overriden by the remote config if it is available
-        if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(args.bundledConfig, args.site.domain, this.platform.version);
-            this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures);
-        }
-        this.#trackerLookup = args.trackerLookup;
-        this.#documentOriginIsTracker = args.documentOriginIsTracker;
-        this.load(args);
+        this.load(this.args);
         mark.end();
     }
 
     measure() {
-        if (this.#args?.debug) {
+        if (this.isDebug) {
             this.monitor.measureAll();
         }
     }
 
+    /**
+     * @deprecated - use messaging instead.
+     */
     update() {}
 
     /**
@@ -401,7 +278,7 @@ export default class ContentFeature {
      * @param {import('./wrapper-utils').DefineInterfaceOptions} options
      */
     shimInterface(interfaceName, ImplClass, options) {
-        return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this));
+        return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this), this.injectName);
     }
 
     /**
@@ -416,6 +293,6 @@ export default class ContentFeature {
      * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
      */
     shimProperty(instanceHost, instanceProp, implInstance, readOnly = false) {
-        return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this));
+        return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this), this.injectName);
     }
 }
