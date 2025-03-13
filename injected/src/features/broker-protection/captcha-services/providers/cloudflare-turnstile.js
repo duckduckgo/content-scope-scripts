@@ -1,3 +1,5 @@
+import { PirError } from '../../types';
+
 /**
  * @import { CaptchaProvider } from './provider.interface';
  * @implements {CaptchaProvider}
@@ -42,7 +44,7 @@ export class CloudFlareTurnstileProvider {
      */
     injectToken(root, token) {
         // TODO: Implement
-        return false;
+        return PirError.create('Not implemented');
     }
 
     /**

@@ -1,6 +1,6 @@
 import { getElement } from '../utils/utils.js';
 import { removeUrlQueryParams } from '../utils/url.js';
-import { ErrorResponse, SuccessResponse } from '../types';
+import { ErrorResponse, PirError, SuccessResponse } from '../types';
 import { getCaptchaProvider, getCaptchaSolveProvider } from './get-captcha-provider';
 import { captchaFactory } from './providers/registry.js';
 import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptchaDeprecated } from '../actions/captcha-deprecated';
@@ -13,20 +13,18 @@ import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptch
  */
 export function getSupportingCodeToInject(action) {
     const { id: actionID, actionType, injectCaptchaHandler: captchaType } = action;
+    const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: 'getSupportingCodeToInject' });
     if (!captchaType) {
         // ensures backward compatibility with old actions
-        return new SuccessResponse({ actionID, actionType, response: {} });
+        return SuccessResponse.create({ actionID, actionType, response: {} });
     }
 
     const captchaProvider = captchaFactory.getProviderByType(captchaType);
     if (!captchaProvider) {
-        return new ErrorResponse({
-            actionID,
-            message: `[injectCaptchaHandler] could not find captchaProvider with type ${captchaType}`,
-        });
+        return createError(`could not find captchaProvider with type ${captchaType}`);
     }
 
-    return new SuccessResponse({ actionID, actionType, response: { code: captchaProvider.getSupportingCodeToInject() } });
+    return SuccessResponse.create({ actionID, actionType, response: { code: captchaProvider.getSupportingCodeToInject() } });
 }
 
 /**
@@ -38,36 +36,38 @@ export function getSupportingCodeToInject(action) {
  */
 export function getCaptchaInfo(action, root = document) {
     const { id: actionID, selector, actionType, captchaType } = action;
-    try {
-        if (!captchaType) {
-            // ensures backward compatibility with old actions
-            return getCaptchaInfoDeprecated(action, root);
-        }
-
-        if (!selector) {
-            throw new Error('missing selector');
-        }
-
-        const captchaContainer = getElement(root, selector);
-        if (!captchaContainer) {
-            throw new Error(`could not find captchaContainer with selector ${selector}`);
-        }
-
-        const captchaProvider = getCaptchaProvider(captchaContainer, captchaType);
-        const captchaIdentifier = captchaProvider.getCaptchaIdentifier(captchaContainer);
-        if (!captchaIdentifier) {
-            throw new Error(`could not extract captcha identifier from ${captchaType} captcha`);
-        }
-
-        const response = {
-            url: removeUrlQueryParams(window.location.href), // query params (which may include PII)
-            siteKey: captchaIdentifier,
-            type: captchaProvider.getType(),
-        };
-        return new SuccessResponse({ actionID, actionType, response });
-    } catch (e) {
-        return new ErrorResponse({ actionID, message: `[getCaptchaInfo] ${e.message}` });
+    if (!captchaType) {
+        // ensures backward compatibility with old actions
+        return getCaptchaInfoDeprecated(action, root);
     }
+
+    const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
+    if (!selector) {
+        return createError('missing selector');
+    }
+
+    const captchaContainer = getElement(root, selector);
+    if (!captchaContainer) {
+        return createError(`could not find captcha container with selector ${selector}`);
+    }
+
+    const captchaProvider = getCaptchaProvider(captchaContainer, captchaType);
+    if (PirError.isError(captchaProvider)) {
+        return createError(captchaProvider.error.message);
+    }
+
+    const captchaIdentifier = captchaProvider.getCaptchaIdentifier(captchaContainer);
+    if (!captchaIdentifier) {
+        return createError(`could not extract captcha identifier from the container with selector ${selector}`);
+    }
+
+    const response = {
+        url: removeUrlQueryParams(window.location.href), // query params (which may include PII)
+        siteKey: captchaIdentifier,
+        type: captchaProvider.getType(),
+    };
+
+    return SuccessResponse.create({ actionID, actionType, response });
 }
 
 /**
@@ -80,28 +80,34 @@ export function getCaptchaInfo(action, root = document) {
  */
 export function solveCaptcha(action, token, root = document) {
     const { id: actionID, actionType, captchaType } = action;
-    try {
-        if (!captchaType) {
-            // ensures backward compatibility with old actions
-            return solveCaptchaDeprecated(action, token, root);
-        }
-
-        const captchaSolveProvider = getCaptchaSolveProvider(root, captchaType);
-        if (!captchaSolveProvider.canSolve(root)) {
-            throw new Error(`[solveCaptcha] cannot solve captcha with type ${captchaType}`);
-        }
-
-        const isTokenInjected = captchaSolveProvider.injectToken(root, token);
-        if (!isTokenInjected) {
-            throw new Error(`[solveCaptcha] could not inject token for captcha with type ${captchaType}`);
-        }
-
-        return new SuccessResponse({
-            actionID,
-            actionType,
-            response: { callback: { eval: captchaSolveProvider.getSolveCallback(token) } },
-        });
-    } catch (e) {
-        return new ErrorResponse({ actionID, message: `[solveCaptcha] ${e.message}` });
+    if (!captchaType) {
+        // ensures backward compatibility with old actions
+        return solveCaptchaDeprecated(action, token, root);
     }
+
+    const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[solveCaptcha] captchaType: ${captchaType}` });
+    const captchaSolveProvider = getCaptchaSolveProvider(root, captchaType);
+
+    if (PirError.isError(captchaSolveProvider)) {
+        return createError(captchaSolveProvider.error.message);
+    }
+
+    if (!captchaSolveProvider.canSolve(root)) {
+        return createError('cannot solve captcha');
+    }
+
+    const tokenResponse = captchaSolveProvider.injectToken(root, token);
+    if (PirError.isError(tokenResponse)) {
+        return createError(tokenResponse.error.message);
+    }
+
+    if (!tokenResponse.response.injected) {
+        return createError('could not inject token');
+    }
+
+    return SuccessResponse.create({
+        actionID,
+        actionType,
+        response: { callback: { eval: captchaSolveProvider.getSolveCallback(token) } },
+    });
 }

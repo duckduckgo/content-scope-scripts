@@ -4,6 +4,7 @@ import { stringifyFunction } from '../utils/stringify-function';
 import { injectTokenIntoElement } from '../utils/token';
 // TODO move on the same folder level once we deprecate the existing captcha scripts
 import { captchaCallback } from '../../actions/captcha-callback';
+import { safeCallWithError } from '../../utils/safe-call';
 
 // define the config below to reuse it in the class
 /**
@@ -43,10 +44,12 @@ export class ReCaptchaProvider {
 
     /**
      * @param {HTMLElement} captchaContainerElement
-     * @throws {Error}
      */
     getCaptchaIdentifier(captchaContainerElement) {
-        return getSiteKeyFromSearchParam({ captchaElement: this._getCaptchaElement(captchaContainerElement), siteKeyAttrName: 'k' });
+        return safeCallWithError(
+            () => getSiteKeyFromSearchParam({ captchaElement: this._getCaptchaElement(captchaContainerElement), siteKeyAttrName: 'k' }),
+            { errorMessage: '[ReCaptchaProvider.getCaptchaIdentifier] could not extract site key' },
+        );
     }
 
     getSupportingCodeToInject() {

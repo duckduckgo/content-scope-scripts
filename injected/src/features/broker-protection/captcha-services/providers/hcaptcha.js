@@ -1,3 +1,4 @@
+import { PirError } from '../../types';
 import { getUrlHashParameter, getUrlParameter } from '../../utils/url';
 import { getElementByName, getElementWithSrcStart } from '../../utils/utils';
 import { stringifyFunction } from '../utils/stringify-function';
@@ -24,18 +25,16 @@ export class HCaptchaProvider {
 
     /**
      * @param {HTMLElement} captchaContainerElement - The element to check
-     * @returns {string|null} - The site key or null if not found
-     * @throws {Error}
      */
     getCaptchaIdentifier(captchaContainerElement) {
         const captchaElement = this._getCaptchaElement(captchaContainerElement);
         if (!captchaElement) {
-            throw new Error('[getCaptchaIdentifier] could not find captcha');
+            return PirError.create('[getCaptchaIdentifier] could not find captcha');
         }
 
         const siteKey = this._getSiteKeyFromElement(captchaElement) || this._getSiteKeyFromUrl(captchaElement);
         if (!siteKey) {
-            throw new Error('[HCaptchaProvider.getCaptchaIdentifier] could not extract site key');
+            return PirError.create('[HCaptchaProvider.getCaptchaIdentifier] could not extract site key');
         }
 
         return siteKey;
@@ -68,7 +67,6 @@ export class HCaptchaProvider {
      * Injects the token to solve the captcha
      * @param {Document} root - The document root
      * @param {string} token - The solved captcha token
-     * @returns {boolean} - Whether the injection was successful
      */
     injectToken(root, token) {
         return injectTokenIntoElement({ root, elementName: this.#CAPTCHA_RESPONSE_ELEMENT_NAME, token });
@@ -95,7 +93,6 @@ export class HCaptchaProvider {
     /**
      * @private
      * @param {HTMLElement} captchaElement
-     * @returns {string|null} The site key or null if not found
      */
     _getSiteKeyFromUrl(captchaElement) {
         if (!('src' in captchaElement)) {
