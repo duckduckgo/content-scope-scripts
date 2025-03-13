@@ -26,7 +26,6 @@ export async function bundle(params) {
         const trackerLookupData = readFileSync('../build/tracker-lookup.json', 'utf8');
         trackerLookup = trackerLookupData;
     }
-    const suffixMessage = platform === 'firefox' ? `/*# sourceURL=duckduckgo-privacy-protection.js?scope=${name} */` : '';
     const loadFeaturesPlugin = loadFeatures(platform, featureNames);
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
 
@@ -50,9 +49,6 @@ export async function bundle(params) {
             'import.meta.trackerLookup': trackerLookup,
         },
         plugins: [loadFeaturesPlugin],
-        footer: {
-            js: suffixMessage,
-        },
         banner: {
             js: prefixMessage,
         },
