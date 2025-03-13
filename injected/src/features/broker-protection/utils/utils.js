@@ -14,6 +14,28 @@ export function getElement(doc = document, selector) {
 }
 
 /**
+ * Get an element by name.
+ *
+ * @param {Document} doc
+ * @param {string} name
+ * @return {HTMLElement | null}
+ */
+export function getElementByName(doc = document, name) {
+    const elements = doc.getElementsByName(name);
+    return elements.length > 0 ? elements[0] : null;
+}
+
+/**
+ * Get an element by src.
+ * @param {Node} node
+ * @param {string} src
+ * @return {HTMLElement | null}
+ */
+export function getElementWithSrcStart(node = document, src) {
+    return getElement(node, `[src^="${src}"]`);
+}
+
+/**
  * Get an array of elements
  *
  * @param {Node} doc

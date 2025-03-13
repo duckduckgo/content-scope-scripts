@@ -1,16 +1,20 @@
 import { captchaCallback } from './captcha-callback.js';
-import { getElement } from '../utils.js';
+import { getElement } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 
 /**
  * Gets the captcha information to send to the backend
  *
- * @param action
+ * @param {import('../types.js').PirAction} action
  * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
 export function getCaptchaInfo(action, root = document) {
     const pageUrl = window.location.href;
+    if (!action.selector) {
+        return new ErrorResponse({ actionID: action.id, message: 'missing selector' });
+    }
+
     const captchaDiv = getElement(root, action.selector);
 
     // if 'captchaDiv' was missing, cannot continue
