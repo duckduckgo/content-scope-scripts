@@ -1,6 +1,6 @@
 /* -- VIDEO PLAYER OVERLAY */
 :host {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     right: 0;
     left: 0;
@@ -55,22 +55,6 @@
     box-sizing: border-box;
 }
 
-/* .ddg-video-player-drawer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    color: white;
-    z-index: 10000;
-    padding-left: var(--gutter);
-    padding-right: var(--gutter);
-
-    @media screen and (min-width: 568px) {
-        padding: 0;
-    }
-} */
-
 .ddg-mobile-drawer-overlay {
     --overlay-background: rgba(0, 0, 0, 0.6);
     --drawer-background: #fafafa;
@@ -118,7 +102,7 @@
     color: var(--drawer-color);
     left: 0;
     padding: var(--drawer-padding) var(--drawer-padding) calc(var(--drawer-padding) + var(--drawer-buffer));
-    position: absolute;
+    position: fixed;
     width: 100%;
 
     box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.10), 0px -20px 40px 0px rgba(0, 0, 0, 0.08);
