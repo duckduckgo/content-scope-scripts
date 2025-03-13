@@ -11,7 +11,6 @@ const config = {
     entryPoints: [
         'injected/entry-points/android.js',
         'injected/entry-points/apple.js',
-        'injected/entry-points/chrome.js',
         'injected/entry-points/extension-mv3.js',
         'injected/entry-points/windows.js',
         'injected/src/types/*.ts',
