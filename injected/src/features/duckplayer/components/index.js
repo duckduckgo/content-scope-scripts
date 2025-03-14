@@ -1,7 +1,7 @@
 import { DDGVideoOverlay } from './ddg-video-overlay.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
 import { DDGVideoOverlayMobile } from './ddg-video-overlay-mobile.js';
-import { DDGVideoOverlayMobile as DDGVideoOverlayMobileAlt } from './ddg-video-overlay-mobile-alt.js';
+import { DDGVideoOverlayMobileAlt } from './ddg-video-overlay-mobile-alt.js';
 import { DDGVideoDrawerMobile } from './ddg-video-drawer-mobile.js';
 
 /**
