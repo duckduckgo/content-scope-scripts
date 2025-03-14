@@ -298,6 +298,7 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
+                document.querySelector(DDGVideoOverlayMobileAlt.CUSTOM_TAG_NAME)?.remove();
                 setTimeout(() => {
                     document.querySelector(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)?.remove();
                 }, 500); /* TODO FIX THIS */

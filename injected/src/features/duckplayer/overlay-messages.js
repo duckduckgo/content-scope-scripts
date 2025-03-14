@@ -59,6 +59,7 @@ export class DuckPlayerOverlayMessages {
      * @param {Pixel} pixel
      */
     sendPixel(pixel) {
+        console.log('FIRING PIXEL', pixel);
         this.messaging.notify(constants.MSG_NAME_PIXEL, {
             pixelName: pixel.name(),
             params: pixel.params(),
