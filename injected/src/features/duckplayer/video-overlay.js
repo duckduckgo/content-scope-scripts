@@ -240,28 +240,25 @@ export class VideoOverlay {
             /** @type {'a'|'b'} */
             const mobileLayout = 'b';
 
-            if (this.environment.layout === 'mobile' && mobileLayout === 'a') {
-                const elem = /** @type {DDGVideoOverlayMobileAlt} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
+            if (this.environment.layout === 'mobile' && mobileLayout === 'b') {
+                const elem = /** @type {DDGVideoOverlayMobileAlt} */ (document.createElement(DDGVideoOverlayMobileAlt.CUSTOM_TAG_NAME));
                 elem.testMode = this.environment.isTestMode();
                 elem.text = mobileStrings(this.environment.strings);
-                elem.addEventListener(DDGVideoOverlayMobileAlt.OPEN_INFO, () => this.messages.openInfo());
-                elem.addEventListener(DDGVideoOverlayMobileAlt.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                    return this.mobileOptOut(e.detail.remember).catch(console.error);
-                });
-                elem.addEventListener(DDGVideoOverlayMobileAlt.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                    return this.mobileOptIn(e.detail.remember, params).catch(console.error);
-                });
                 targetElement.appendChild(elem);
 
                 const drawer = /** @type {DDGVideoDrawerMobile} */ (document.createElement(DDGVideoDrawerMobile.CUSTOM_TAG_NAME));
                 drawer.testMode = this.environment.isTestMode();
                 drawer.text = mobileStrings(this.environment.strings);
+                drawer.overlay = elem; /* TODO: Remove hack */
                 drawer.addEventListener(DDGVideoDrawerMobile.OPEN_INFO, () => this.messages.openInfo());
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptOut(e.detail.remember).catch(console.error);
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.DISMISS, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptOut(false).catch(console.error); // Dismissal should not persist user's choice. Ignore remember-me value.
+                });
+                drawer.addEventListener(DDGVideoDrawerMobile.THUMBNAIL_CLICK, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.videoThumbnailClick();
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
@@ -271,6 +268,8 @@ export class VideoOverlay {
                 if (elem.container) {
                     this.appendThumbnail(elem.container);
                 }
+
+                this.altOverlay = elem;
             } else if (this.environment.layout === 'mobile') {
                 const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
                 elem.testMode = this.environment.isTestMode();
@@ -299,6 +298,10 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
+                setTimeout(() => {
+                    document.querySelector(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)?.remove();
+                }, 500); /* TODO FIX THIS */
+
                 controller.abort();
             };
         });
@@ -472,6 +475,15 @@ export class VideoOverlay {
         }
 
         this.destroy();
+    }
+
+    videoThumbnailClick() {
+        console.log('Video thumbnail clicked');
+        const pixel = new Pixel({ name: 'duckplayer.overlay.youtube.watch.here.video-thumbnail' });
+
+        this.messages.sendPixel(pixel);
+
+        return this.destroy();
     }
 
     /**

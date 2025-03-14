@@ -2,7 +2,7 @@ import css from '../assets/video-overlay.css';
 import dax from '../assets/dax.svg';
 import { overlayCopyVariants } from '../text.js';
 import { appendImageAsBackground } from '../util.js';
-import { VideoOverlay } from '../video-overlay-alt.js';
+import { VideoOverlay } from '../video-overlay.js';
 import { createPolicy, html, trustedUnsafe } from '../../../dom-utils.js';
 
 /**

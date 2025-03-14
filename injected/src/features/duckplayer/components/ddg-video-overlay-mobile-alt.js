@@ -12,15 +12,15 @@ import { createPolicy, html } from '../../../dom-utils.js';
  */
 export class DDGVideoOverlayMobileAlt extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-overlay-mobile-alt';
-    static OPEN_INFO = 'open-info';
-    static OPT_IN = 'opt-in';
-    static OPT_OUT = 'opt-out';
+    // static OPT_OUT = 'opt-out';
 
     policy = createPolicy();
     /** @type {boolean} */
     testMode = false;
     /** @type {Text | null} */
     text = null;
+    /** @type {HTMLElement} */
+    overlay;
 
     connectedCallback() {
         this.createMarkupAndStyles();
@@ -64,14 +64,15 @@ export class DDGVideoOverlayMobileAlt extends HTMLElement {
             return console.warn('missing elements');
         }
 
-        overlay.addEventListener('click', (e) => {
-            console.log('CLICKED');
-            if (!e.isTrusted) return;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            this.dispatchEvent(
-                new CustomEvent(DDGVideoOverlayMobile.OPT_OUT, { detail: { remember: false } }),
-            ); /* TODO: get actual value of remember */
-        });
+        // overlay.addEventListener('click', (e) => {
+        //     console.log('BACKGROUND CLICKED');
+        //     if (!e.isTrusted) return;
+        //     e.preventDefault();
+        //     e.stopImmediatePropagation();
+        //     this.dispatchEvent(
+        //         new CustomEvent(DDGVideoOverlayMobileAlt.OPT_OUT),
+        //     );
+        // });
+        this.overlay = /** @type {HTMLElement} */ (overlay);
     }
 }

@@ -18,6 +18,7 @@ export class DDGVideoDrawerMobile extends HTMLElement {
     static OPT_IN = 'opt-in';
     static OPT_OUT = 'opt-out';
     static DISMISS = 'dismiss';
+    static THUMBNAIL_CLICK = 'thumbnail-click';
 
     policy = createPolicy();
     /** @type {boolean} */
@@ -28,6 +29,8 @@ export class DDGVideoDrawerMobile extends HTMLElement {
     container;
     /** @type {HTMLElement | null} */
     drawer;
+    /** @type {import('./ddg-video-overlay-mobile-alt').DDGVideoOverlayMobileAlt} */
+    overlay;
 
     connectedCallback() {
         this.createMarkupAndStyles();
@@ -165,10 +168,23 @@ export class DDGVideoDrawerMobile extends HTMLElement {
 
         background.addEventListener('click', (e) => {
             if (!e.isTrusted || e.target !== background) return;
+
+            let isClickOnOverlay = false;
+            if (this.overlay) {
+                const event = /** @type {MouseEvent} */ (e);
+                const rect = this.overlay.getBoundingClientRect();
+
+                isClickOnOverlay =
+                    event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+            }
+
             e.preventDefault();
             e.stopImmediatePropagation();
             this.animateOverlay('out');
-            this.dispatchEvent(new CustomEvent(DDGVideoDrawerMobile.DISMISS));
+
+            const event = isClickOnOverlay ? DDGVideoDrawerMobile.THUMBNAIL_CLICK : DDGVideoDrawerMobile.DISMISS;
+
+            this.dispatchEvent(new CustomEvent(event));
         });
 
         watchInPlayer.addEventListener('click', (e) => {
