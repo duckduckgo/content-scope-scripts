@@ -69,7 +69,9 @@ export class DDGVideoOverlayMobile extends HTMLElement {
             if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();
-            this.dispatchEvent(new CustomEvent(DDGVideoOverlayMobile.OPT_OUT, { detail: { remember: false } })); /* TODO: get actual value of remember */
+            this.dispatchEvent(
+                new CustomEvent(DDGVideoOverlayMobile.OPT_OUT, { detail: { remember: false } }),
+            ); /* TODO: get actual value of remember */
         });
     }
 }
