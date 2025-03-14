@@ -21,7 +21,12 @@ captchaFactory.registerProvider(
     }),
 );
 
-captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
-captchaFactory.registerProvider(new HCaptchaProvider());
+captchaFactory.registerProvider(
+    new CloudFlareTurnstileProvider({
+        type: 'cloudflareTurnstile',
+        providerUrl: 'https://challenges.cloudflare.com',
+        responseElementName: 'cf-turnstile-response',
+    }),
+);
 
 export { captchaFactory };
