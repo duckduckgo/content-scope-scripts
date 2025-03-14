@@ -59,6 +59,7 @@ export class DuckPlayerOverlayMessages {
      * @param {Pixel} pixel
      */
     sendPixel(pixel) {
+        console.log('FIRING PIXEL', pixel);
         this.messaging.notify(constants.MSG_NAME_PIXEL, {
             pixelName: pixel.name(),
             params: pixel.params(),
@@ -156,7 +157,8 @@ export class Pixel {
      * @param {{name: "overlay"}
      *   | {name: "play.use", remember: "0" | "1"}
      *   | {name: "play.use.thumbnail"}
-     *   | {name: "play.do_not_use", remember: "0" | "1"}} input
+     *   | {name: "play.do_not_use", remember: "0" | "1"}
+     *   | {name: "duckplayer.overlay.youtube.watch.here.video-thumbnail"}} input
      */
     constructor(input) {
         this.input = input;
@@ -176,6 +178,8 @@ export class Pixel {
             case 'play.do_not_use': {
                 return { remember: this.input.remember };
             }
+            case 'duckplayer.overlay.youtube.watch.here.video-thumbnail':
+                return {};
             default:
                 throw new Error('unreachable');
         }
