@@ -4,26 +4,30 @@ export class Favicon extends ContentFeature {
     /** @type {undefined|number} */
     #debounce = undefined;
     init() {
-        window.addEventListener('DOMContentLoaded', () => this.setup());
+        window.addEventListener('DOMContentLoaded', () => {
+            // send once, immediately
+            this.send();
+
+            // then optionally watch for changes
+            this.monitorChanges();
+        });
     }
 
-    setup() {
-        this.send();
+    monitorChanges() {
+        // if there was an explicit opt-out, do nothing
+        if (this.getFeatureSetting('monitor') === false) return;
 
-        // was there an explicit opt-out?
-        if (this.getFeatureSetting('monitor') !== false) {
-            monitor(() => this.send());
-        }
+        // otherwise, monitor and send updates
+        monitor(() => {
+            clearTimeout(this.#debounce);
+            const id = setTimeout(() => this.send(), 100);
+            this.#debounce = /** @type {any} */ (id);
+        });
     }
 
     send() {
-        clearTimeout(this.#debounce);
-        const id = setTimeout(() => {
-            const favicons = getFaviconList();
-            this.notify('faviconFound', { favicons, documentUrl: document.URL });
-        }, 100);
-        // todo(shane): fix this timer id type
-        this.#debounce = /** @type {any} */ (id);
+        const favicons = getFaviconList();
+        this.notify('faviconFound', { favicons, documentUrl: document.URL });
     }
 }
 
