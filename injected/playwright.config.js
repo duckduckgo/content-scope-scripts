@@ -21,6 +21,7 @@ export default defineConfig({
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/broker-protection.spec.js',
+                'integration-test/favicon.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },
@@ -93,7 +94,7 @@ export default defineConfig({
     webServer: {
         reuseExistingServer: true,
         ignoreHTTPSErrors: true,
-        command: 'npm run serve',
+        command: 'npm run build-apple && npm run serve',
         port: 3220,
     },
     use: {

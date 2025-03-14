@@ -268,14 +268,15 @@ export class ResultsCollector {
 
     /**
      * @param {string} method
-     * @return {Promise<object>}
+     * @param {number} [count=1]
+     * @return {Promise<Record<string, any>[]>}
      */
-    async waitForMessage(method) {
+    async waitForMessage(method, count = 1) {
         await this.page.waitForFunction(
             waitForCallCount,
             {
                 method,
-                count: 1,
+                count,
             },
             { timeout: 5000, polling: 100 },
         );

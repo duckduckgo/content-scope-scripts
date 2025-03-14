@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link rel="shortcut icon" href="./favicon.png">
+</head>
+<body>
+<button onclick="setOverride()">Set override</button>
+<script>
+    function setOverride() {
+        document.querySelector("link[rel='shortcut icon']").href = "./new_favicon.png";
+    }
+</script>
+</body>
+</html>
