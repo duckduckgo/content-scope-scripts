@@ -703,7 +703,7 @@ export function isGloballyDisabled(args) {
  * @import {FeatureName} from "./features";
  * @type {FeatureName[]}
  */
-export const platformSpecificFeatures = ['windowsPermissionUsage', 'messageBridge'];
+export const platformSpecificFeatures = ['windowsPermissionUsage', 'messageBridge', 'favicon'];
 
 export function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);
