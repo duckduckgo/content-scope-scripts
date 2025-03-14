@@ -2,7 +2,6 @@ import mobilecss from '../assets/mobile-video-drawer.css';
 import dax from '../assets/dax.svg';
 import info from '../assets/info-solid.svg';
 import { createPolicy, html, trustedUnsafe } from '../../../dom-utils.js';
-import { DDGVideoOverlayMobile } from './ddg-video-overlay-mobile-alt';
 
 /**
  * @typedef {ReturnType<import("../text").overlayCopyVariants>} TextVariants
@@ -18,6 +17,7 @@ export class DDGVideoDrawerMobile extends HTMLElement {
     static OPEN_INFO = 'open-info';
     static OPT_IN = 'opt-in';
     static OPT_OUT = 'opt-out';
+    static DISMISS = 'dismiss';
 
     policy = createPolicy();
     /** @type {boolean} */
@@ -45,9 +45,9 @@ export class DDGVideoDrawerMobile extends HTMLElement {
         this.setupElements(overlayElement);
         this.setupEventHandlers();
 
-        setTimeout(() => {
-            this.animateIn();
-        }, 100); /* TODO FIX THIS */
+        // setTimeout(() => {
+            this.animate('in');
+        // }, 100); /* TODO FIX THIS */
     }
 
     /** @param {HTMLElement} container */
@@ -69,6 +69,7 @@ export class DDGVideoDrawerMobile extends HTMLElement {
 
         return html`
             <div class="ddg-mobile-drawer-overlay">
+                <div class="ddg-mobile-drawer-background"></div>
                 <div class="ddg-mobile-drawer">
                     <div class="heading">
                         <div class="logo">${svgIcon}</div>
@@ -97,17 +98,23 @@ export class DDGVideoDrawerMobile extends HTMLElement {
         `.toString();
     }
 
-    animateOut() {
-        if (this.drawer) {
-            this.drawer.classList.remove('animateIn');
-            this.drawer.classList.add('animateOut');
-        }
-    }
+    /**
+     *
+     * @param {'in'|'out'} direction
+     */
+    animate(direction) {
+        const overlay = this.container?.querySelector('.ddg-mobile-drawer-overlay');
+        if (!overlay) return;
 
-    animateIn() {
-        if (this.drawer) {
-            this.drawer.classList.remove('animateOut');
-            this.drawer.classList.add('animateIn');
+        switch(direction) {
+            case 'in':
+                overlay.classList.remove('animateOut');
+                overlay.classList.add('animateIn');
+                break;
+            case 'out':
+                overlay.classList.remove('animateIn');
+                overlay.classList.add('animateOut');
+                break;
         }
     }
 
@@ -123,13 +130,14 @@ export class DDGVideoDrawerMobile extends HTMLElement {
         const cancelElement = this.container.querySelector('.ddg-vpo-cancel');
         const watchInPlayer = this.container.querySelector('.ddg-vpo-open');
         const overlay = this.container.querySelector('.ddg-mobile-drawer-overlay');
+        const background = this.container.querySelector('.ddg-mobile-drawer-background');
 
-        if (!cancelElement || !watchInPlayer || !switchElem || !infoButton || !overlay || !(remember instanceof HTMLInputElement)) {
+        if (!cancelElement || !watchInPlayer || !switchElem || !infoButton || !overlay || !background || !(remember instanceof HTMLInputElement)) {
             return console.warn('missing elements');
         }
 
         infoButton.addEventListener('click', () => {
-            this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO));
+            this.dispatchEvent(new Event(DDGVideoDrawerMobile.OPEN_INFO));
         });
 
         switchElem.addEventListener('pointerdown', () => {
@@ -147,20 +155,31 @@ export class DDGVideoDrawerMobile extends HTMLElement {
             if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();
-            this.animateOut();
-            this.dispatchEvent(new CustomEvent(DDGVideoOverlayMobile.OPT_OUT, { detail: { remember: remember.checked } }));
+            this.animate('out');
+            this.dispatchEvent(new CustomEvent(DDGVideoDrawerMobile.OPT_OUT, { detail: { remember: remember.checked } }));
         };
 
-        cancelElement.addEventListener('click', cancelHandler);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) cancelHandler(e);
+        cancelElement.addEventListener('click', (e) => {
+            if (!e.isTrusted) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            this.animate('out');
+            this.dispatchEvent(new CustomEvent(DDGVideoDrawerMobile.OPT_OUT, { detail: { remember: remember.checked } }));
+        });
+
+        background.addEventListener('click', (e) => {
+            if (!e.isTrusted || e.target !== background) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            this.animate('out');
+            this.dispatchEvent(new CustomEvent(DDGVideoDrawerMobile.DISMISS, { detail: { remember: false } }));
         });
 
         watchInPlayer.addEventListener('click', (e) => {
             if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();
-            this.dispatchEvent(new CustomEvent(DDGVideoOverlayMobile.OPT_IN, { detail: { remember: remember.checked } }));
+            this.dispatchEvent(new CustomEvent(DDGVideoDrawerMobile.OPT_IN, { detail: { remember: remember.checked } }));
         });
     }
 }

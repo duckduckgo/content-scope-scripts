@@ -246,9 +246,6 @@ export class VideoOverlay {
             const controller = new AbortController();
             const { environment } = this;
 
-            const style = document.createElement('style');
-            style.innerText = '.player-container:has(ddg-video-overlay-mobile-alt) ~ .sticky-player .watch-below-the-player::before { content: " "; position: absolute; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1; }';
-
             if (this.environment.layout === 'mobile') {
                 const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
                 elem.testMode = this.environment.isTestMode();
@@ -269,15 +266,13 @@ export class VideoOverlay {
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptOut(e.detail.remember).catch(console.error);
                 });
+                drawer.addEventListener(DDGVideoDrawerMobile.DISMISS, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.mobileOptOut(false).catch(console.error); // Dismissal should not persist user's choice. Ignore remember-me value.
+                });
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                 });
                 overlayElement.appendChild(drawer);
-
-                if (document.head) {
-                    console.log('APPENDING', style, 'to head');
-                    document.head.appendChild(style);
-                }
 
                 if (elem.container) {
                     this.appendThumbnail(elem.container);
@@ -301,10 +296,6 @@ export class VideoOverlay {
                 setTimeout(() => {
                     document.querySelector(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)?.remove();
                 }, 500); /* TODO FIX THIS */
-
-                if (style.isConnected) {
-                    document.head.removeChild(style);
-                }
 
                 controller.abort();
             };
@@ -438,6 +429,7 @@ export class VideoOverlay {
      * @param {boolean} remember
      */
     async mobileOptOut(remember) {
+        console.log('OPT OUT', remember);
         const pixel = remember
             ? new Pixel({ name: 'play.do_not_use', remember: '1' })
             : new Pixel({ name: 'play.do_not_use', remember: '0' });
