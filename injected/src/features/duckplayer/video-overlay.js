@@ -296,6 +296,10 @@ export class VideoOverlay {
         });
     }
 
+    appendThumbnail(overlayElement) {
+        console.log('TODO', overlayElement);
+    }
+
     /**
      * If the checkbox was checked, this action means that we want to 'always'
      * use the private player
