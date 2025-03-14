@@ -709,6 +709,13 @@ export function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);
 }
 
+/**
+ * A list of features that still have the chance to run
+ * when protections in general were disabled
+ * @type {FeatureName[]}
+ */
+export const featuresExemptFromProtectionToggle = [];
+
 export function createCustomEvent(eventName, eventDetail) {
     // @ts-expect-error - possibly null
     return new OriginalCustomEvent(eventName, eventDetail);
