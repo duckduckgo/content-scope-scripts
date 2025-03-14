@@ -1,6 +1,6 @@
 import { DomState } from './util.js';
 import { ClickInterception, Thumbnails } from './thumbnails.js';
-import { VideoOverlay } from './video-overlay-alt.js';
+import { VideoOverlay } from './video-overlay.js';
 import { registerCustomElements } from './components/index.js';
 import strings from '../../../../build/locales/duckplayer-locales.js';
 

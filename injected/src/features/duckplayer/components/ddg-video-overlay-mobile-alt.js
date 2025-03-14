@@ -10,7 +10,7 @@ import { createPolicy, html } from '../../../dom-utils.js';
  * The custom element that we use to present our UI elements
  * over the YouTube player
  */
-export class DDGVideoOverlayMobile extends HTMLElement {
+export class DDGVideoOverlayMobileAlt extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-overlay-mobile-alt';
     static OPEN_INFO = 'open-info';
     static OPT_IN = 'opt-in';
