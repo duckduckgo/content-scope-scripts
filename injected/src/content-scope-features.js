@@ -29,8 +29,9 @@ const isHTMLDocument =
 
 /**
  * @param {LoadArgs} args
+ * @param {string[]} featuresToLoad
  */
-export function load(args) {
+export function load(args, featuresToLoad) {
     const mark = performanceMonitor.mark('load');
     if (!isHTMLDocument) {
         return;
@@ -45,9 +46,11 @@ export function load(args) {
 
     for (const featureName of featureNames) {
         const ContentFeature = platformFeatures['ddg_feature_' + featureName];
-        const featureInstance = new ContentFeature(featureName, importConfig, args);
-        featureInstance.callLoad();
-        features.push({ featureName, featureInstance });
+        if (featuresToLoad.includes(featureName)) {
+            const featureInstance = new ContentFeature(featureName, importConfig, args);
+            featureInstance.callLoad();
+            features.push({ featureName, featureInstance });
+        }
     }
     mark.end();
 }
@@ -60,8 +63,7 @@ export async function init(args) {
     }
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+    features.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
             featureInstance.callInit(args);
         }

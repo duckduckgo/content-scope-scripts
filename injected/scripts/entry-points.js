@@ -26,7 +26,7 @@ const builds = {
         output: ['../Sources/ContentScopeScripts/dist/contentScope.js'],
     },
     'apple-isolated': {
-        input: 'entry-points/apple.js',
+        input: 'entry-points/apple-isolated.js',
         output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
     },
     android: {
