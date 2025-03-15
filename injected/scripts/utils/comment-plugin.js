@@ -44,9 +44,9 @@ export function commentPlugin({ pathMatch, regex }) {
 
 /**
  * Detect the start of a particular comment and change the
- * lines to have the prefix `//!`
+ * lines to have the prefix `//!` - this allows esbuild to keep it
  *
- * When a line is detect
+ * When a line is matched, continue to match further lines until a non-comment is seen.
  *
  * @param {string} source
  * @param {RegExp} regex
@@ -58,11 +58,11 @@ export function convertToLegalComments(source, regex) {
 
     for (const line of source.split('\n')) {
         if (insideCommentBlock) {
-            if (!line.match(/^\/\//)) {
+            if (!line.startsWith('//')) {
                 insideCommentBlock = false;
             }
         } else {
-            if (line.match(regex)) {
+            if (line.startsWith('//') && line.match(regex)) {
                 insideCommentBlock = true;
             }
         }
