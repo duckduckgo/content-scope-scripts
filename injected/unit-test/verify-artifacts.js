@@ -23,6 +23,7 @@ const checks = {
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true },
+            { kind: 'containsString', text: 'Copyright (C) 2010 by Johannes Baagøe <baagoe@baagoe.org>', includes: true },
         ],
     },
     firefox: {
@@ -34,7 +35,7 @@ const checks = {
     },
     integration: {
         file: join(BUILD, 'integration/contentScope.js'),
-        tests: [{ kind: 'containsString', text: 'trackerLookup: ', includes: true }],
+        tests: [{ kind: 'containsString', text: 'init_define_import_meta_trackerLookup = ', includes: true }],
     },
     windows: {
         file: join(BUILD, 'windows/contentScope.js'),

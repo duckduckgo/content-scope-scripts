@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { cwd } from '../../../scripts/script-utils.js';
 import { join } from 'path';
 import * as esbuild from 'esbuild';
+import { commentPlugin } from './comment-plugin.js';
 const ROOT = join(cwd(import.meta.url), '..', '..');
 const DEBUG = false;
 
@@ -38,6 +39,7 @@ export async function bundle(params) {
         format: 'iife',
         bundle: true,
         metafile: true,
+        legalComments: 'inline',
         globalName: name,
         loader: {
             '.css': 'text',
@@ -48,7 +50,7 @@ export async function bundle(params) {
             'import.meta.injectName': JSON.stringify(platform),
             'import.meta.trackerLookup': trackerLookup,
         },
-        plugins: [loadFeaturesPlugin],
+        plugins: [loadFeaturesPlugin, commentPlugin({ pathMatch: 'seedrandom/lib/alea', regex: /^\/\/ Copyright \(C\)/ })],
         banner: {
             js: prefixMessage,
         },
