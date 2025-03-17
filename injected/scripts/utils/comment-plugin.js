@@ -40,10 +40,7 @@ export function convertToLegalComments(source) {
     for (const comment of blockComments) {
         if (/copyright/i.test(comment)) {
             // Replace only the block comments with copyright
-            modifiedSource = modifiedSource.replace(
-                comment,
-                comment.replace(/\/\*/, '/*!')
-            );
+            modifiedSource = modifiedSource.replace(comment, comment.replace(/\/\*/, '/*!'));
         }
     }
 
@@ -64,12 +61,12 @@ export function convertToLegalComments(source) {
         else if (!inCommentBlock && /^\s*\/\/(?=.*copyright.*$)/i.test(line)) {
             // Start of a copyright comment - mark it and convert
             inCommentBlock = true;
-            result.push(line.replace(/^\s*\/\//, match => match.replace('//', '//!')));
+            result.push(line.replace(/^\s*\/\//, (match) => match.replace('//', '//!')));
         }
         // Check if we're continuing a line comment block
         else if (inCommentBlock && /^\s*\/\//.test(line)) {
             // Continue the comment block - convert the prefix
-            result.push(line.replace(/^\s*\/\//, match => match.replace('//', '//!')));
+            result.push(line.replace(/^\s*\/\//, (match) => match.replace('//', '//!')));
         }
         // Check if we're exiting a comment block
         else {
