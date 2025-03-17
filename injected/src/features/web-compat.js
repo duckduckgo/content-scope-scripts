@@ -719,6 +719,8 @@ export class WebCompat extends ContentFeature {
             // Race condition: depending on the loading state of the page, initial scale may or may not be respected, so the page may look zoomed-in after applying this hack.
             // Usually this is just an annoyance, but it may be a bigger issue if user-scalable=no is set, so we remove it too.
             forcedValues['user-scalable'] = 'yes';
+            // make sure you can zoom out to see the whole page. See https://app.asana.com/1/137249556945/project/1206777341262243/task/1207691440660873
+            forcedValues['minimum-scale'] = 0;
         } else {
             // mobile mode with a viewport tag
             // fix an edge case where WebView forces the wide viewport
