@@ -50,7 +50,7 @@ export async function bundle(params) {
             'import.meta.injectName': JSON.stringify(platform),
             'import.meta.trackerLookup': trackerLookup,
         },
-        plugins: [loadFeaturesPlugin, commentPlugin({ pathMatch: 'seedrandom/lib/alea', regex: /^\/\/ Copyright \(C\)/ })],
+        plugins: [loadFeaturesPlugin, commentPlugin()],
         banner: {
             js: prefixMessage,
         },
