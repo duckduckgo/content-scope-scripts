@@ -39,8 +39,8 @@
     "@canvas/image-data": "^1.0.0",
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#main",
     "@fingerprintjs/fingerprintjs": "^4.5.1",
-    "@rollup/plugin-commonjs": "^28.0.2",
-    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "^6.0.2",
     "@types/chrome": "^0.0.308",
     "@types/jasmine": "^5.1.7",
@@ -49,7 +49,7 @@
     "fast-check": "^3.23.2",
     "jasmine": "^5.6.0",
     "minimist": "^1.2.8",
-    "rollup": "^4.34.9",
+    "rollup": "^4.36.0",
     "rollup-plugin-import-css": "^3.5.8",
     "rollup-plugin-svg-import": "^3.0.0"
   }
