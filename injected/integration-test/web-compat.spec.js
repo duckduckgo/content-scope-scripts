@@ -495,7 +495,9 @@ test.describe('Viewport fixes', () => {
             const width = await page.evaluate('screen.width');
             const expectedWidth = width < 1280 ? 980 : 1280;
             const viewportValue = await page.evaluate(getViewportValue);
-            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes`);
+            expect(viewportValue).toEqual(
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, minimum-scale=0`,
+            );
         });
 
         test('should respect forced zoom', async ({ page }) => {
@@ -509,7 +511,7 @@ test.describe('Viewport fixes', () => {
             const expectedWidth = width < 1280 ? 980 : 1280;
             const viewportValue = await page.evaluate(getViewportValue);
             expect(viewportValue).toEqual(
-                `initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}`,
+                `initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, minimum-scale=0`,
             );
         });
 
@@ -570,7 +572,7 @@ test.describe('Viewport fixes', () => {
             const expectedWidth = width < 1280 ? 980 : 1280;
             const viewportValue = await page.evaluate(getViewportValue);
             expect(viewportValue).toEqual(
-                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`,
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, minimum-scale=0, something-something`,
             );
         });
 
@@ -589,7 +591,7 @@ test.describe('Viewport fixes', () => {
             const expectedWidth = width < 1280 ? 980 : 1280;
             const viewportValue = await page.evaluate(getViewportValue);
             expect(viewportValue).toEqual(
-                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`,
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, minimum-scale=0, something-something`,
             );
         });
 
@@ -609,7 +611,7 @@ test.describe('Viewport fixes', () => {
             const expectedWidth = width < 1280 ? 980 : 1280;
             const viewportValue = await page.evaluate(getViewportValue);
             expect(viewportValue).toEqual(
-                `initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, something-something`,
+                `initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, minimum-scale=0, something-something`,
             );
         });
 
@@ -628,7 +630,7 @@ test.describe('Viewport fixes', () => {
             const expectedWidth = width < 1280 ? 980 : 1280;
             const viewportValue = await page.evaluate(getViewportValue);
             expect(viewportValue).toEqual(
-                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`,
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, minimum-scale=0, something-something`,
             );
         });
     });
