@@ -4,13 +4,13 @@ export const BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS = [
     createFeatureConfig({
         state: 'enabled',
         settings: {
-            useWebViewActionsV2: 'enabled',
+            useEnhancedCaptchaSystem: 'enabled',
         },
     }),
     createFeatureConfig({
         state: 'enabled',
         settings: {
-            useWebViewActionsV2: 'disabled',
+            useEnhancedCaptchaSystem: 'disabled',
         },
     }),
 ];

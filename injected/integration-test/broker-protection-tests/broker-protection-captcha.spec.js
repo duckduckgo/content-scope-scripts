@@ -1,5 +1,5 @@
-import { test } from '@playwright/test';
-import { BrokerProtectionPage } from '../page-objects/broker-protection.js';
+import { test as base } from '@playwright/test';
+import { createConfiguredDbpTest } from './fixtures';
 import {
     createGetHCaptchaInfoAction,
     createGetRecaptchaInfoAction,
@@ -7,18 +7,10 @@ import {
 } from '../mocks/broker-protection/captcha.js';
 import { BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS } from './tests-config.js';
 
+const test = createConfiguredDbpTest(base);
+
 BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS.forEach((config) => {
     test.describe(`Broker Protection Captcha with settings: ${JSON.stringify(config.features.brokerProtection.settings)}`, () => {
-        /**
-         * @type {BrokerProtectionPage}
-         */
-        let dbp;
-
-        test.beforeEach(async ({ page }, workerInfo) => {
-            dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.withFeatureConfig(config);
-        });
-
         test.describe('getCaptchaInfo', () => {
             [
                 {
@@ -32,7 +24,8 @@ BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS.forEach((config) => {
                     action: createGetHCaptchaInfoAction(),
                 },
             ].forEach(({ captchaType, action, targetPage }) => {
-                test(`validates ${captchaType}`, async () => {
+                test(`validates ${captchaType}`, async ({ createConfiguredDbp }, workerInfo) => {
+                    const dbp = await createConfiguredDbp(config);
                     await dbp.navigatesTo(targetPage);
                     await dbp.receivesInlineAction(action);
                     const sucessResponse = await dbp.getSuccessResponse();
@@ -58,7 +51,8 @@ BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS.forEach((config) => {
                 //     responseElementSelector: '#h-captcha-response',
                 // },
             ].forEach(({ captchaType, action, targetPage, responseElementSelector }) => {
-                test(`validates ${captchaType}`, async () => {
+                test(`validates ${captchaType}`, async ({ createConfiguredDbp }) => {
+                    const dbp = await createConfiguredDbp(config);
                     await dbp.navigatesTo(targetPage);
                     await dbp.receivesInlineAction(action);
                     dbp.getSuccessResponse();
@@ -68,7 +62,8 @@ BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS.forEach((config) => {
             });
         });
 
-        test('remove query params from captcha url', async () => {
+        test('remove query params from captcha url', async ({ createConfiguredDbp }) => {
+            const dbp = await createConfiguredDbp(config);
             await dbp.navigatesTo('re-captcha.html?fname=john&lname=smith');
             await dbp.receivesInlineAction(createGetRecaptchaInfoAction());
             const sucessResponse = await dbp.getSuccessResponse();
