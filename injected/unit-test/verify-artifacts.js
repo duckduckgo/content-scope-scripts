@@ -9,7 +9,6 @@ const BUILD = join(ROOT, 'build');
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
 console.log(APPLE_BUILD);
 let CSS_OUTPUT_SIZE = 760_000;
-const CSS_OUTPUT_SIZE_CHROME = CSS_OUTPUT_SIZE * 1.45; // 45% larger for Chrome MV2 due to base64 encoding
 if (process.platform === 'win32') {
     CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1; // 10% larger for Windows due to line endings
 }
@@ -19,18 +18,13 @@ const checks = {
         file: join(BUILD, 'android/contentScope.js'),
         tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
     },
-    chrome: {
-        file: join(BUILD, 'chrome/inject.js'),
-        tests: [
-            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE_CHROME },
-            { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true },
-        ],
-    },
     'chrome-mv3': {
         file: join(BUILD, 'chrome-mv3/inject.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true },
+            { kind: 'containsString', text: 'Copyright (C) 2010 by Johannes Baagøe <baagoe@baagoe.org>', includes: true },
+            { kind: 'containsString', text: 'Copyright 2019 David Bau.', includes: true },
         ],
     },
     firefox: {
@@ -42,7 +36,7 @@ const checks = {
     },
     integration: {
         file: join(BUILD, 'integration/contentScope.js'),
-        tests: [{ kind: 'containsString', text: 'trackerLookup: {', includes: true }],
+        tests: [{ kind: 'containsString', text: 'init_define_import_meta_trackerLookup = ', includes: true }],
     },
     windows: {
         file: join(BUILD, 'windows/contentScope.js'),
@@ -53,6 +47,13 @@ const checks = {
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: '#bundledConfig', includes: false },
+        ],
+    },
+    'apple-isolated': {
+        file: join(APPLE_BUILD, 'contentScopeIsolated.js'),
+        tests: [
+            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
+            { kind: 'containsString', text: 'Copyright (c) 2014-2015, hassansin', includes: true },
         ],
     },
 };
