@@ -8,9 +8,20 @@
 </head>
 <body>
 <button onclick="setOverride()">Set override</button>
+<button onclick="setManyOverrides()">Set many overrides</button>
 <script>
     function setOverride() {
         document.querySelector("link[rel='shortcut icon']").href = "./new_favicon.png";
+    }
+    async function setManyOverrides() {
+        const elem = document.querySelector("link[rel='shortcut icon']");
+        for (let i = 0; i < 100; i++) {
+            await new Promise(resolve => {
+                setTimeout(resolve, 40);
+            })
+            const path = `./new_favicon.png?count=${i}`
+            elem.href = path
+        }
     }
 </script>
 </body>

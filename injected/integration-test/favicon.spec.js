@@ -42,6 +42,48 @@ test('favicon + monitor', async ({ page }, testInfo) => {
     });
 });
 
+test('favicon + monitor (many updates)', async ({ page }, testInfo) => {
+    const favicon = ResultsCollector.create(page, testInfo.project.use);
+    await page.clock.install();
+    await favicon.load(HTML, CONFIG);
+
+    // ensure first favicon item was sent
+    await favicon.waitForMessage('faviconFound', 1);
+
+    // now update it
+    await page.getByRole('button', { name: 'Set many overrides' }).click();
+    await page.clock.fastForward(20);
+
+    const messages = await favicon.outgoingMessages();
+    expect(messages).toHaveLength(1);
+
+    await page.clock.fastForward(60);
+    await page.clock.fastForward(100);
+
+    {
+        const messages = await favicon.outgoingMessages();
+        expect(messages).toHaveLength(3);
+    }
+
+    {
+        const messages = await favicon.outgoingMessages();
+        expect(messages.map((x) => /** @type {{params: any}} */ (x.payload).params)).toStrictEqual([
+            {
+                favicons: [{ href: './favicon.png', rel: 'shortcut icon' }],
+                documentUrl: 'http://localhost:3220/favicon/index.html',
+            },
+            {
+                favicons: [{ href: './new_favicon.png?count=0', rel: 'shortcut icon' }],
+                documentUrl: 'http://localhost:3220/favicon/index.html',
+            },
+            {
+                favicons: [{ href: './new_favicon.png?count=1', rel: 'shortcut icon' }],
+                documentUrl: 'http://localhost:3220/favicon/index.html',
+            },
+        ]);
+    }
+});
+
 test('favicon + monitor disabled', async ({ page }, testInfo) => {
     const CONFIG = './integration-test/test-pages/favicon/config/favicon-monitor-disabled.json';
     const favicon = ResultsCollector.create(page, testInfo.project.use);

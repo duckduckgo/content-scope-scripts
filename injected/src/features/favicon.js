@@ -1,8 +1,6 @@
 import ContentFeature from '../content-feature.js';
 
 export class Favicon extends ContentFeature {
-    /** @type {undefined|number} */
-    #debounce = undefined;
     init() {
         window.addEventListener('DOMContentLoaded', () => {
             // send once, immediately
@@ -17,15 +15,28 @@ export class Favicon extends ContentFeature {
         // if there was an explicit opt-out, do nothing
         if (this.getFeatureSetting('monitor') === false) return;
 
+        let trailing;
+        let lastEmitTime = performance.now();
+        const interval = 50;
+
         // otherwise, monitor and send updates
         monitor(() => {
-            clearTimeout(this.#debounce);
-            const id = setTimeout(() => this.send(), 100);
-            this.#debounce = /** @type {any} */ (id);
+            clearTimeout(trailing);
+            const currentTime = performance.now();
+            const delta = currentTime - lastEmitTime;
+            if (delta >= interval) {
+                this.send();
+            } else {
+                trailing = setTimeout(() => {
+                    this.send();
+                }, 50);
+            }
+            lastEmitTime = currentTime;
         });
     }
 
     send() {
+        console.log('📤 sending');
         const favicons = getFaviconList();
         this.notify('faviconFound', { favicons, documentUrl: document.URL });
     }
