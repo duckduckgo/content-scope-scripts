@@ -71,8 +71,8 @@ function getFaviconList() {
         "link[href][rel='apple-touch-icon-precomposed']",
     ];
     const elements = document.head.querySelectorAll(selectors.join(','));
-    return Array.from(elements).map((x) => {
-        const href = x.getAttribute('href') || '';
+    return Array.from(elements).map((/** @type {HTMLLinkElement} */ x) => {
+        const href = x.href || '';
         const rel = x.getAttribute('rel') || '';
         return { href, rel };
     });
