@@ -59,11 +59,21 @@ export function createSolveCaptchaAction({ action, data }) {
 }
 
 export function createSolveRecaptchaAction() {
-    return createSolveCaptchaAction({ action: { captchaType: 'recaptcha2' } });
+    return createSolveCaptchaAction({
+        action: {
+            captchaType: 'recaptcha2',
+            selector: '.g-recaptcha',
+        },
+    });
 }
 
 export function createSolveHCaptchaAction() {
-    return createSolveCaptchaAction({ action: { captchaType: 'hcaptcha' } });
+    return createSolveCaptchaAction({
+        action: {
+            captchaType: 'hcaptcha',
+            selector: '.h-captcha',
+        },
+    });
 }
 
 // Captcha responses

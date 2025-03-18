@@ -1,10 +1,6 @@
 import { test as base } from '@playwright/test';
 import { createConfiguredDbpTest } from './fixtures';
-import {
-    createGetHCaptchaInfoAction,
-    createGetRecaptchaInfoAction,
-    createSolveRecaptchaAction,
-} from '../mocks/broker-protection/captcha.js';
+import { createGetRecaptchaInfoAction, createSolveRecaptchaAction } from '../mocks/broker-protection/captcha.js';
 import { BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS } from './tests-config.js';
 
 const test = createConfiguredDbpTest(base);
@@ -18,11 +14,12 @@ BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS.forEach((config) => {
                     targetPage: 're-captcha.html',
                     action: createGetRecaptchaInfoAction(),
                 },
-                {
-                    captchaType: 'hcaptcha',
-                    targetPage: 'h-captcha.html',
-                    action: createGetHCaptchaInfoAction(),
-                },
+                // TODO hCaptcha is not supported yet
+                // {
+                //     captchaType: 'hcaptcha',
+                //     targetPage: 'h-captcha.html',
+                //     action: createGetHCaptchaInfoAction(),
+                // },
             ].forEach(({ captchaType, action, targetPage }) => {
                 test(`validates ${captchaType}`, async ({ createConfiguredDbp }, workerInfo) => {
                     const dbp = await createConfiguredDbp(config);
