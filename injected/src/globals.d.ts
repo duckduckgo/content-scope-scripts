@@ -19,7 +19,6 @@ interface ImportMeta {
         | 'windows'
         | 'integration'
         | 'chrome-mv3'
-        | 'chrome'
         | 'android-broker-protection'
         | 'android-autofill-password-import';
     trackerLookup?: Record<string, unknown>;
@@ -44,6 +43,9 @@ declare module '*.riv' {
 }
 
 declare module 'ddg:platformFeatures' {
-    const output: Record<string, new (featureName: string) => import('./content-feature').default>;
+    const output: Record<
+        string,
+        new (featureName: string, importConfig: ImportConfig, args: LoadArgs) => import('./content-feature').default
+    >;
     export default output;
 }

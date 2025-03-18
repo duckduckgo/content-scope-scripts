@@ -574,6 +574,25 @@ test.describe('Viewport fixes', () => {
             );
         });
 
+        test('should override minimum-scale, if it is set', async ({ page }) => {
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: { enabledFeatures: ['webCompat'] },
+                    featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                    desktopModeEnabled: true,
+                },
+                'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, minimum-scale=1, something-something">\'',
+            );
+            const width = await page.evaluate('screen.width');
+            const expectedWidth = width < 1280 ? 980 : 1280;
+            const viewportValue = await page.evaluate(getViewportValue);
+            expect(viewportValue).toEqual(
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, minimum-scale=0, something-something`,
+            );
+        });
+
         test('should force wide viewport, ignoring the viewport tag 2', async ({ page }) => {
             await gotoAndWait(
                 page,

@@ -1,5 +1,4 @@
 import { load, init } from '../src/content-scope-features.js';
-import { isTrackerOrigin } from '../src/trackers';
 import { TestTransportConfig } from '../../messaging/index.js';
 function getTopLevelURL() {
     try {
@@ -17,7 +16,6 @@ function getTopLevelURL() {
 
 function generateConfig() {
     const topLevelUrl = getTopLevelURL();
-    const trackerLookup = import.meta.trackerLookup;
     return {
         debug: false,
         sessionKey: 'randomVal',
@@ -30,7 +28,6 @@ function generateConfig() {
             allowlisted: false,
             enabledFeatures: ['fingerprintingCanvas', 'fingerprintingScreenSize', 'navigatorInterface', 'cookie'],
         },
-        trackerLookup,
     };
 }
 
@@ -84,12 +81,12 @@ async function initCode() {
             };
         },
     });
+
     load({
         // @ts-expect-error Types of property 'name' are incompatible.
         platform: processedConfig.platform,
-        trackerLookup: processedConfig.trackerLookup,
-        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
+        bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
     });
 
