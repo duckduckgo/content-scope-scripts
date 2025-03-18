@@ -10,6 +10,7 @@ import { ErrorResponse, SuccessResponse } from '../types.js';
  * @return {import('../types.js').ActionResponse}
  */
 export function getCaptchaInfo(action, root = document) {
+    console.log('[getCaptchaInfo.deprecated] action:', action);
     const pageUrl = window.location.href;
     if (!action.selector) {
         return new ErrorResponse({ actionID: action.id, message: 'missing selector' });
@@ -81,6 +82,7 @@ export function getCaptchaInfo(action, root = document) {
         type: captchaType,
     };
 
+    console.log('[getCaptchaInfo.deprecated] success:', responseData);
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: responseData });
 }
 
@@ -93,6 +95,7 @@ export function getCaptchaInfo(action, root = document) {
  * @return {import('../types.js').ActionResponse}
  */
 export function solveCaptcha(action, token, root = document) {
+    console.log('[solveCaptcha.deprecated] action:', action);
     const selectors = ['h-captcha-response', 'g-recaptcha-response'];
     let solved = false;
 
@@ -113,6 +116,7 @@ export function solveCaptcha(action, token, root = document) {
             captchaCallback(args);
         })(${json});`;
 
+        console.log('[solveCaptcha.deprecated] success:', { callback: { eval: javascript } });
         return new SuccessResponse({
             actionID: action.id,
             actionType: action.actionType,

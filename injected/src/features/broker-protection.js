@@ -61,6 +61,10 @@ export default class BrokerProtection extends ContentFeature {
         const options = { useEnhancedCaptchaSystem: this.getFeatureSettingEnabled('useEnhancedCaptchaSystem') };
         const { result, exceptions } = await retry(() => execute(action, data, document, options), retryConfig);
 
+        if (['getCaptchaInfo', 'solveCaptcha'].includes(action.actionType)) {
+            console.log(`[${action.actionType}] result`, result);
+        }
+
         if (result) {
             if ('success' in result && Array.isArray(result.success.next)) {
                 const nextResults = [];

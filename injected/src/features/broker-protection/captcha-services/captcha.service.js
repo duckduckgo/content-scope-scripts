@@ -31,9 +31,11 @@ const getCaptchaContainer = (root, selector) => {
  * @return {import('../types.js').ActionResponse}
  */
 export function getSupportingCodeToInject(action) {
+    console.log('[getSupportingCodeToInject] action:', action);
     const { id: actionID, actionType, injectCaptchaHandler: captchaType } = action;
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: 'getSupportingCodeToInject' });
     if (!captchaType) {
+        console.log('[getSupportingCodeToInject] no captchaType, returning empty response');
         // ensures backward compatibility with old actions
         return SuccessResponse.create({ actionID, actionType, response: {} });
     }
@@ -55,7 +57,9 @@ export function getSupportingCodeToInject(action) {
  */
 export function getCaptchaInfo(action, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
+    console.log('[getCaptchaInfo] action:', action);
     if (!captchaType) {
+        console.log('[getCaptchaInfo] no captchaType, falling back to deprecated implementation');
         // ensures backward compatibility with old actions
         return getCaptchaInfoDeprecated(action, root);
     }
@@ -83,6 +87,7 @@ export function getCaptchaInfo(action, root = document) {
         type: captchaProvider.getType(),
     };
 
+    console.log('[getCaptchaInfo] success:', response);
     return SuccessResponse.create({ actionID, actionType, response });
 }
 
@@ -96,7 +101,9 @@ export function getCaptchaInfo(action, root = document) {
  */
 export function solveCaptcha(action, token, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
+    console.log('[solveCaptcha] action:', action);
     if (!captchaType) {
+        console.log('[solveCaptcha] no captchaType, falling back to deprecated implementation');
         // ensures backward compatibility with old actions
         return solveCaptchaDeprecated(action, token, root);
     }
@@ -126,6 +133,7 @@ export function solveCaptcha(action, token, root = document) {
         return createError('could not inject token');
     }
 
+    console.log('[solveCaptcha] success:', { callback: { eval: captchaSolveProvider.getSolveCallback(token) } });
     return SuccessResponse.create({
         actionID,
         actionType,
