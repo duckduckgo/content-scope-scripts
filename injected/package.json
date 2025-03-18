@@ -7,6 +7,7 @@
     "bundle-config": "node scripts/bundleConfig.mjs",
     "bundle-entry-points": "node scripts/entry-points.js",
     "build-chrome-mv3": "node scripts/entry-points.js",
+    "build-firefox": "node scripts/entry-points.js",
     "build-locales": "node scripts/buildLocales.js",
     "build-types": "node scripts/types.mjs",
     "bundle-trackers": "node scripts/bundleTrackers.mjs --output ../build/tracker-lookup.json",
