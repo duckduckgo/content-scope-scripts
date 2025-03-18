@@ -126,8 +126,9 @@ export function getTabHostname() {
     try {
         // @ts-expect-error - globalThis.top is possibly 'null' here
         framingOrigin = globalThis.top.location.href;
+        framingOrigin = globalThis.document.referrer; // this could still be null
     } catch {
-        framingOrigin = globalThis.document.referrer;
+        // either globalThis.top is null, or globalThis.document is unavailable
     }
 
     // Not supported in Firefox
@@ -274,7 +275,7 @@ const functionMap = {
         debugger;
     },
 
-    noop: () => {},
+    noop: () => { },
 };
 
 /**
