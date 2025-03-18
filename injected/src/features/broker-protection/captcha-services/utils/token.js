@@ -1,18 +1,18 @@
 import { PirError, PirSuccess } from '../../types';
 import { safeCallWithError } from '../../utils/safe-call';
-import { getElementByName } from '../../utils/utils';
+import { getElementByTagName } from '../../utils/utils';
 
 /**
  * Inject a token into a named element
  * @import { PirResponse } from '../../types';
  * @param {object} params
- * @param {Document} params.root - The document root
+ * @param {HTMLElement} params.captchaContainerElement  - The element containing the captcha
  * @param {string} params.elementName - Name attribute of the element to inject into
  * @param {string} params.token - The token to inject
  * @returns {PirResponse<{ injected: boolean }>} - Whether the token was injected
  */
-export function injectTokenIntoElement({ root, elementName, token }) {
-    const element = getElementByName(root, elementName);
+export function injectTokenIntoElement({ captchaContainerElement, elementName, token }) {
+    const element = getElementByTagName(captchaContainerElement, elementName);
     if (!element) {
         return PirError.create(`[injectTokenIntoElement] could not find element with name ${elementName}`);
     }

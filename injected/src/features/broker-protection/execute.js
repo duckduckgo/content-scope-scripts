@@ -5,12 +5,15 @@ import { ErrorResponse } from './types';
  * @param {import('./types.js').PirAction} action
  * @param {Record<string, any>} inputData
  * @param {Document} [root] - optional root element
+ * @param {Object} [options] - optional options
+ * @param {boolean} [options.useEnhancedCaptchaSystem] - optional flag to use new action handlers
  * @return {Promise<import('./types.js').ActionResponse>}
  */
-export async function execute(action, inputData, root = document) {
+export async function execute(action, inputData, root = document, options = {}) {
     try {
+        const { useEnhancedCaptchaSystem = false } = options;
         const { navigate, extract, click, expectation, fillForm, getCaptchaInfo, solveCaptcha } = resolveActionHandlers({
-            useNewActionHandlers: true, // TODO: replace with remote config setting
+            useEnhancedCaptchaSystem,
         });
 
         switch (action.actionType) {
