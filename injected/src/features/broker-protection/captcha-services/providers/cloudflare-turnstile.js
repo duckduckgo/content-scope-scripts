@@ -31,18 +31,18 @@ export class CloudFlareTurnstileProvider {
     }
 
     /**
-     * @param {Document} root - The document root to search for captchas
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      */
-    canSolve(root) {
+    canSolve(captchaContainerElement) {
         // TODO: Implement
         return false;
     }
 
     /**
-     * @param {Document} root - The document root containing the captcha
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      * @param {string} token - The solved captcha token
      */
-    injectToken(root, token) {
+    injectToken(captchaContainerElement, token) {
         // TODO: Implement
         return PirError.create('Not implemented');
     }

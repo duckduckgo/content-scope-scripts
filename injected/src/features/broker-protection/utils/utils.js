@@ -16,13 +16,12 @@ export function getElement(doc = document, selector) {
 /**
  * Get an element by name.
  *
- * @param {Document} doc
+ * @param {Node} doc
  * @param {string} name
  * @return {HTMLElement | null}
  */
-export function getElementByName(doc = document, name) {
-    const elements = doc.getElementsByName(name);
-    return elements.length > 0 ? elements[0] : null;
+export function getElementByTagName(doc = document, name) {
+    return safeQuerySelector(doc, `[name="${name}"]`);
 }
 
 /**
@@ -32,7 +31,7 @@ export function getElementByName(doc = document, name) {
  * @return {HTMLElement | null}
  */
 export function getElementWithSrcStart(node = document, src) {
-    return getElement(node, `[src^="${src}"]`);
+    return safeQuerySelector(node, `[src^="${src}"]`);
 }
 
 /**

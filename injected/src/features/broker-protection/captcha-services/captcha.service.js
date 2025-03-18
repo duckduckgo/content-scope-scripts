@@ -6,6 +6,25 @@ import { captchaFactory } from './providers/registry.js';
 import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptchaDeprecated } from '../actions/captcha-deprecated';
 
 /**
+ *
+ * @param {Document | HTMLElement} root
+ * @param {import('../types.js').PirAction['selector']} [selector]
+ * @returns {HTMLElement | import('../types.js').PirError}
+ */
+const getCaptchaContainer = (root, selector) => {
+    if (!selector) {
+        return PirError.create('missing selector');
+    }
+
+    const captchaContainer = getElement(root, selector);
+    if (!captchaContainer) {
+        return PirError.create(`could not find captcha container with selector ${selector}`);
+    }
+
+    return captchaContainer;
+};
+
+/**
  * Returns the supporting code to inject for the given captcha type
  *
  * @param {import('../types.js').PirAction} action
@@ -35,20 +54,17 @@ export function getSupportingCodeToInject(action) {
  * @return {import('../types.js').ActionResponse}
  */
 export function getCaptchaInfo(action, root = document) {
-    const { id: actionID, selector, actionType, captchaType } = action;
+    const { id: actionID, actionType, captchaType, selector } = action;
     if (!captchaType) {
         // ensures backward compatibility with old actions
         return getCaptchaInfoDeprecated(action, root);
     }
 
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
-    if (!selector) {
-        return createError('missing selector');
-    }
 
-    const captchaContainer = getElement(root, selector);
-    if (!captchaContainer) {
-        return createError(`could not find captcha container with selector ${selector}`);
+    const captchaContainer = getCaptchaContainer(root, selector);
+    if (PirError.isError(captchaContainer)) {
+        return createError(captchaContainer.error.message);
     }
 
     const captchaProvider = getCaptchaProvider(captchaContainer, captchaType);
@@ -79,24 +95,29 @@ export function getCaptchaInfo(action, root = document) {
  * @return {import('../types.js').ActionResponse}
  */
 export function solveCaptcha(action, token, root = document) {
-    const { id: actionID, actionType, captchaType } = action;
+    const { id: actionID, actionType, captchaType, selector } = action;
     if (!captchaType) {
         // ensures backward compatibility with old actions
         return solveCaptchaDeprecated(action, token, root);
     }
 
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[solveCaptcha] captchaType: ${captchaType}` });
-    const captchaSolveProvider = getCaptchaSolveProvider(root, captchaType);
 
+    const captchaContainer = getCaptchaContainer(root, selector);
+    if (PirError.isError(captchaContainer)) {
+        return createError(captchaContainer.error.message);
+    }
+
+    const captchaSolveProvider = getCaptchaSolveProvider(captchaContainer, captchaType);
     if (PirError.isError(captchaSolveProvider)) {
         return createError(captchaSolveProvider.error.message);
     }
 
-    if (!captchaSolveProvider.canSolve(root)) {
+    if (!captchaSolveProvider.canSolve(captchaContainer)) {
         return createError('cannot solve captcha');
     }
 
-    const tokenResponse = captchaSolveProvider.injectToken(root, token);
+    const tokenResponse = captchaSolveProvider.injectToken(captchaContainer, token);
     if (PirError.isError(tokenResponse)) {
         return createError(tokenResponse.error.message);
     }
