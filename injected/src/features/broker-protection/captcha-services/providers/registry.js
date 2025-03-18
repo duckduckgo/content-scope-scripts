@@ -1,7 +1,5 @@
 import { CaptchaFactory } from '../factory';
 import { ReCaptchaProvider } from './recaptcha';
-import { CloudFlareTurnstileProvider } from './cloudflare-turnstile';
-import { HCaptchaProvider } from './hcaptcha';
 
 const captchaFactory = new CaptchaFactory();
 
@@ -20,8 +18,5 @@ captchaFactory.registerProvider(
         responseElementName: 'g-recaptcha-response',
     }),
 );
-
-captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
-captchaFactory.registerProvider(new HCaptchaProvider());
 
 export { captchaFactory };

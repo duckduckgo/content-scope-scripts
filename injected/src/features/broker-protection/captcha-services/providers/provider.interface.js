@@ -45,21 +45,21 @@ export class CaptchaProvider {
     /**
      * Checks if this provider can solve the captcha on the current page
      * @abstract
-     * @param {Document} root - The document root to search for captchas
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      * @returns {boolean} True if provider can solve captchas found in the document
      */
-    canSolve(root) {
+    canSolve(captchaContainerElement) {
         throw new Error('canSolve() missing implementation');
     }
 
     /**
      * Injects the solved token into the captcha on the page
      * @abstract
-     * @param {Document} root - The document root containing the captcha
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      * @param {string} token - The solved captcha token
      * @returns {PirResponse<{ injected: boolean }>} - Whether the token was injected
      */
-    injectToken(root, token) {
+    injectToken(captchaContainerElement, token) {
         throw new Error('injectToken() missing implementation');
     }
 

@@ -34,11 +34,11 @@ export class CaptchaFactory {
 
     /**
      * Detect the captcha provider based on the root document
-     * @param {Document} root - The root document
+     * @param {HTMLElement} element - The element to check
      * @returns {import('./providers/provider.interface').CaptchaProvider|null}
      */
-    detectSolveProvider(root) {
-        return this._getAllProviders().find((provider) => provider.canSolve(root)) || null;
+    detectSolveProvider(element) {
+        return this._getAllProviders().find((provider) => provider.canSolve(element)) || null;
     }
 
     /**

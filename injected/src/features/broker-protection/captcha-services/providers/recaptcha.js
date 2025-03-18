@@ -1,4 +1,4 @@
-import { getElementByName, getElementWithSrcStart } from '../../utils/utils';
+import { getElementByTagName, getElementWithSrcStart } from '../../utils/utils';
 import { getSiteKeyFromSearchParam } from '../utils/sitekey';
 import { stringifyFunction } from '../utils/stringify-function';
 import { injectTokenIntoElement } from '../utils/token';
@@ -68,18 +68,18 @@ export class ReCaptchaProvider {
     }
 
     /**
-     * @param {Document} root
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      */
-    canSolve(root) {
-        return !!getElementByName(root, this.#config.responseElementName);
+    canSolve(captchaContainerElement) {
+        return !!getElementByTagName(captchaContainerElement, this.#config.responseElementName);
     }
 
     /**
-     * @param {Document} root
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      * @param {string} token
      */
-    injectToken(root, token) {
-        return injectTokenIntoElement({ root, elementName: this.#config.responseElementName, token });
+    injectToken(captchaContainerElement, token) {
+        return injectTokenIntoElement({ captchaContainerElement, elementName: this.#config.responseElementName, token });
     }
 
     /**
