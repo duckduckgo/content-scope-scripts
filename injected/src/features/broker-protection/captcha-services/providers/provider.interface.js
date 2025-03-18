@@ -66,10 +66,11 @@ export class CaptchaProvider {
     /**
      * Creates a callback function to execute when the captcha is solved
      * @abstract
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      * @param {string} token - The solved captcha token
      * @returns {PirError|string|null} Callback function to execute when the captcha is solved
      */
-    getSolveCallback(token) {
+    getSolveCallback(captchaContainerElement, token) {
         throw new Error('getSolveCallback() missing implementation');
     }
 }

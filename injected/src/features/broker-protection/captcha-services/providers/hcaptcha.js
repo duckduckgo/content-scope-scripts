@@ -48,9 +48,10 @@ export class HCaptchaProvider {
     }
 
     /**
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      * @param {string} token - The solved captcha token
      */
-    getSolveCallback(token) {
+    getSolveCallback(captchaContainerElement, token) {
         return null;
     }
 }
