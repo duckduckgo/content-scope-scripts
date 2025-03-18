@@ -1,10 +1,17 @@
 import { PirError } from '../../types';
+import { getUrlHashParameter, getUrlParameter } from '../../utils/url';
+import { getElementByTagName, getElementWithSrcStart } from '../../utils/utils';
+import { stringifyFunction } from '../utils/stringify-function';
+import { injectTokenIntoElement } from '../utils/token';
 
 /**
  * @import { CaptchaProvider } from './provider.interface';
  * @implements {CaptchaProvider}
  */
 export class HCaptchaProvider {
+    #CAPTCHA_URL = 'https://newassets.hcaptcha.com/captcha';
+    #CAPTCHA_RESPONSE_ELEMENT_NAME = 'h-captcha-response';
+
     getType() {
         return 'hcaptcha';
     }
@@ -13,44 +20,90 @@ export class HCaptchaProvider {
      * @param {HTMLElement} captchaContainerElement - The element to check
      */
     isSupportedForElement(captchaContainerElement) {
-        // TODO: Implement
-        return false;
+        return !!this._getCaptchaElement(captchaContainerElement);
     }
 
     /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {HTMLElement} captchaContainerElement - The element to check
      */
     getCaptchaIdentifier(captchaContainerElement) {
-        // TODO: Implement
-        return null;
+        const captchaElement = this._getCaptchaElement(captchaContainerElement);
+        if (!captchaElement) {
+            return PirError.create('[getCaptchaIdentifier] could not find captcha');
+        }
+
+        const siteKey = this._getSiteKeyFromElement(captchaElement) || this._getSiteKeyFromUrl(captchaElement);
+        if (!siteKey) {
+            return PirError.create('[HCaptchaProvider.getCaptchaIdentifier] could not extract site key');
+        }
+
+        return siteKey;
     }
 
     getSupportingCodeToInject() {
-        // TODO: Implement
         return null;
-    }
-
-    /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     */
-    canSolve(captchaContainerElement) {
-        // TODO: Implement
-        return false;
-    }
-
-    /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @param {string} token - The solved captcha token
-     */
-    injectToken(captchaContainerElement, token) {
-        // TODO: Implement
-        return PirError.create('Not implemented');
     }
 
     /**
      * @param {string} token - The solved captcha token
      */
     getSolveCallback(token) {
-        return null;
+        return stringifyFunction({
+            functionBody: hCaptchaCallback,
+            functionName: 'hCaptchaCallback',
+            args: { token },
+        });
+    }
+
+    /**
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @returns {boolean}
+     */
+    canSolve(captchaContainerElement) {
+        return !!getElementByTagName(captchaContainerElement, this.#CAPTCHA_RESPONSE_ELEMENT_NAME);
+    }
+
+    /**
+     * Injects the token to solve the captcha
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {string} token - The solved captcha token
+     */
+    injectToken(captchaContainerElement, token) {
+        return injectTokenIntoElement({ captchaContainerElement, elementName: this.#CAPTCHA_RESPONSE_ELEMENT_NAME, token });
+    }
+
+    /**
+     * @private
+     * @param {HTMLElement} root - The root element to search from
+     * @returns {HTMLElement|null}
+     */
+    _getCaptchaElement(root) {
+        return getElementWithSrcStart(root, this.#CAPTCHA_URL);
+    }
+
+    /**
+     * @private
+     * @param {HTMLElement} captchaElement
+     * @returns {string|null} The site key or null if not found
+     */
+    _getSiteKeyFromElement(captchaElement) {
+        return captchaElement instanceof Element ? captchaElement.getAttribute('data-sitekey') : null;
+    }
+
+    /**
+     * @private
+     * @param {HTMLElement} captchaElement
+     */
+    _getSiteKeyFromUrl(captchaElement) {
+        if (!('src' in captchaElement)) {
+            return null;
+        }
+
+        const captchaUrl = String(captchaElement.src);
+        return getUrlParameter(captchaUrl, 'sitekey') || getUrlHashParameter(captchaUrl, 'sitekey');
     }
 }
+
+const hCaptchaCallback = () => {
+    // TODO: Implementation
+};
