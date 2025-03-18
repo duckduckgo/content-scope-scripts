@@ -4,5 +4,5 @@ import { useTypedTranslation } from '../types.js';
 
 export function App() {
     const { t } = useTypedTranslation();
-    return <main class={styles.main}>{t('helloWorld')}</main>;
+    return <main class={styles.main}>{t('helloWorld')}hey hey</main>;
 }
