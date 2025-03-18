@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { BrokerProtectionPage } from '../page-objects/broker-protection.js';
-import { BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS } from './tests-config.js';
+import { BROKER_PROTECTION_CONFIGS } from './tests-config.js';
 
 test.describe('Broker Protection communications', () => {
     test('sends an error when the action is not found', async ({ page }, workerInfo) => {
@@ -334,16 +334,24 @@ test.describe('Broker Protection communications', () => {
         });
     });
     test.describe('Executes action and sends success message', () => {
-        BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS.forEach((config) => {
-            test(`buildUrl with settings: ${JSON.stringify(config.features.brokerProtection.settings)}`, async ({ page }, workerInfo) => {
-                const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-                await dbp.withFeatureConfig(config);
-                await dbp.navigatesTo('results.html');
-                await dbp.receivesAction('navigate.json');
-                const response = await dbp.collector.waitForMessage('actionCompleted');
-                dbp.isSuccessMessage(response);
-                dbp.isUrlMatch(response[0].payload.params.result.success.response);
-            });
+        test('buildUrl with useEnhancedCaptchaSystem: "enabled"', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.withFeatureConfig(BROKER_PROTECTION_CONFIGS.enhancedCaptchaSystemEnabled);
+            await dbp.navigatesTo('results.html');
+            await dbp.receivesAction('navigate.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isUrlMatch(response[0].payload.params.result.success.response);
+        });
+
+        test('buildUrl with useEnhancedCaptchaSystem: "disabled"', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.withFeatureConfig(BROKER_PROTECTION_CONFIGS.enhancedCaptchaSystemDisabled);
+            await dbp.navigatesTo('results.html');
+            await dbp.receivesAction('navigate.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isUrlMatch(response[0].payload.params.result.success.response);
         });
 
         test('fillForm', async ({ page }, workerInfo) => {

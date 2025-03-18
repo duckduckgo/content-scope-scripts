@@ -1,16 +1,16 @@
 import { createFeatureConfig } from '../mocks/broker-protection/feature-config';
 
-export const BROKER_PROTECTION_FEATURE_CONFIG_VARIATIONS = [
-    createFeatureConfig({
+export const BROKER_PROTECTION_CONFIGS = Object.freeze({
+    enhancedCaptchaSystemEnabled: createFeatureConfig({
         state: 'enabled',
         settings: {
             useEnhancedCaptchaSystem: 'enabled',
         },
     }),
-    createFeatureConfig({
+    enhancedCaptchaSystemDisabled: createFeatureConfig({
         state: 'enabled',
         settings: {
             useEnhancedCaptchaSystem: 'disabled',
         },
     }),
-];
+});

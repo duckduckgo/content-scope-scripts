@@ -102,6 +102,10 @@ export class BrokerProtectionPage {
         expect(response).toStrictEqual(expectedResponse);
     }
 
+    async isCaptchaError() {
+        expect(await this.getErrorMessage()).not.toBeFalsy();
+    }
+
     /**
      * @return {void}
      */
@@ -160,7 +164,7 @@ export class BrokerProtectionPage {
         return this._getResultFromResponse(response).success.response;
     }
 
-    async getErrorResponse() {
+    async getErrorMessage() {
         const response = await this.getActionCompletedParams();
         this.isErrorMessage(response);
         return this._getResultFromResponse(response).error.message;

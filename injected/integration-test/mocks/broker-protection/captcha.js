@@ -21,20 +21,28 @@ export function createGetCaptchaInfoAction({ action }) {
     });
 }
 
-export function createGetRecaptchaInfoAction() {
+/**
+ * @param {Partial<PirAction>} [actionOverrides]
+ */
+export function createGetRecaptchaInfoAction(actionOverrides = {}) {
     return createGetCaptchaInfoAction({
         action: {
             captchaType: 'recaptcha2',
             selector: '.g-recaptcha',
+            ...actionOverrides,
         },
     });
 }
 
-export function createGetHCaptchaInfoAction() {
+/**
+ * @param {Partial<PirAction>} [actionOverrides]
+ */
+export function createGetHCaptchaInfoAction(actionOverrides = {}) {
     return createGetCaptchaInfoAction({
         action: {
             captchaType: 'hcaptcha',
             selector: '.h-captcha',
+            ...actionOverrides,
         },
     });
 }
@@ -58,20 +66,28 @@ export function createSolveCaptchaAction({ action, data }) {
     });
 }
 
-export function createSolveRecaptchaAction() {
+/**
+ * @param {Partial<PirAction>} [actionOverrides]
+ */
+export function createSolveRecaptchaAction(actionOverrides = {}) {
     return createSolveCaptchaAction({
         action: {
             captchaType: 'recaptcha2',
             selector: '.g-recaptcha',
+            ...actionOverrides,
         },
     });
 }
 
-export function createSolveHCaptchaAction() {
+/**
+ * @param {Partial<PirAction>} [actionOverrides]
+ */
+export function createSolveHCaptchaAction(actionOverrides = {}) {
     return createSolveCaptchaAction({
         action: {
             captchaType: 'hcaptcha',
             selector: '.h-captcha',
+            ...actionOverrides,
         },
     });
 }
