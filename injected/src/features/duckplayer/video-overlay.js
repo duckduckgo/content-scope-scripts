@@ -480,7 +480,7 @@ export class VideoOverlay {
 
     videoThumbnailClick() {
         console.log('Video thumbnail clicked');
-        const pixel = new Pixel({ name: 'duckplayer.overlay.youtube.watch.here.video-thumbnail' });
+        const pixel = new Pixel({ name: 'play.do_not_use.thumbnail' });
 
         this.messages.sendPixel(pixel);
 
