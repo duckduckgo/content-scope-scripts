@@ -129,6 +129,6 @@ export function solveCaptcha(action, token, root = document) {
     return SuccessResponse.create({
         actionID,
         actionType,
-        response: { callback: { eval: captchaSolveProvider.getSolveCallback(token) } },
+        response: { callback: { eval: captchaSolveProvider.getSolveCallback(captchaContainer, token) } },
     });
 }
