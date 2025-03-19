@@ -20,10 +20,10 @@ export function useTypedTranslation() {
 /**
  * This is a wrapper to only allow keys from the default translation file + contextual ones
  * @template {Record<string, any>} T
- * @param {T} context
+ * @param {T} _context
  * @returns {{ t: (key: keyof json|keyof T, replacements?: Record<string, string>) => string }}
  */
-export function useTypedTranslationWith(context) {
+export function useTypedTranslationWith(_context) {
     return {
         /** @type {any} */
         t: useContext(TranslationContext).t,

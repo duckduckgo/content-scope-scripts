@@ -61,7 +61,7 @@ const optionalTransforms = new Map([
     ['defaultIfEmpty', (value, argument) => value || argument || ''],
     [
         'ageRange',
-        (value, argument, action) => {
+        (value, _, action) => {
             if (!action.ageRange) return value;
             const ageNumber = Number(value);
             // find matching age range
@@ -142,7 +142,7 @@ export function processTemplateStringWithUserData(input, action, userData) {
      * Note: this regex covers both pathname + query params.
      * This is why we're handling both encoded and un-encoded.
      */
-    return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (match, encodedValue, plainValue) => {
+    return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (_, encodedValue, plainValue) => {
         const comparison = encodedValue ?? plainValue;
         const [dataKey, ...transforms] = comparison.split(/\||%7C/);
         const data = userData[dataKey];

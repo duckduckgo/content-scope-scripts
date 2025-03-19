@@ -32,20 +32,20 @@ export const CustomizerContext = createContext({
         theme: 'system',
     }),
     /** @type {(bg: BackgroundData) => void} */
-    select: (bg) => {},
+    select: (_) => {},
     upload: () => {},
     /**
      * @type {(theme: ThemeData) => void}
      */
-    setTheme: (theme) => {},
+    setTheme: (_) => {},
     /**
      * @type {(id: string) => void}
      */
-    deleteImage: (id) => {},
+    deleteImage: (_) => {},
     /**
-     * @param {UserImageContextMenu} params
+     * @param {UserImageContextMenu} _params
      */
-    customizerContextMenu: (params) => {},
+    customizerContextMenu: (_params) => {},
 });
 
 /**

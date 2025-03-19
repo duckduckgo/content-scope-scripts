@@ -76,12 +76,12 @@ export class ProfileResult {
  */
 export class Extractor {
     /**
-     * @param {string[]} noneEmptyStringArray
-     * @param {import("./actions/extract").ExtractorParams} extractorParams
+     * @param {string[]} _noneEmptyStringArray
+     * @param {import("./actions/extract").ExtractorParams} _extractorParams
      * @return {JsonValue}
      */
 
-    extract(noneEmptyStringArray, extractorParams) {
+    extract(_noneEmptyStringArray, _extractorParams) {
         throw new Error('must implement extract');
     }
 }
@@ -91,12 +91,12 @@ export class Extractor {
  */
 export class AsyncProfileTransform {
     /**
-     * @param {Record<string, any>} profile - The current profile value
-     * @param {Record<string, any>} profileParams - the original action params from `action.profile`
+     * @param {Record<string, any>} _profile - The current profile value
+     * @param {Record<string, any>} _profileParams - the original action params from `action.profile`
      * @return {Promise<Record<string, any>>}
      */
 
-    transform(profile, profileParams) {
+    transform(_profile, _profileParams) {
         throw new Error('must implement extract');
     }
 }

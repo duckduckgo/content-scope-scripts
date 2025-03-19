@@ -7,11 +7,11 @@
  * into only calls supported by your schema
  *
  * @template {Partial<import("./shared-types").MessagingBase>} BaseClass
- * @param {BaseClass} base - the class onto which you've added the properties from `MessagingBase`
- * @param {import("@duckduckgo/messaging").Messaging} messaging
+ * @param {BaseClass} _base - the class onto which you've added the properties from `MessagingBase`
+ * @param {import("@duckduckgo/messaging").Messaging} _messaging
  * @returns {BaseClass}
  */
-export function createTypedMessages(base, messaging) {
-    const asAny = /** @type {any} */ (messaging);
+export function createTypedMessages(_base, _messaging) {
+    const asAny = /** @type {any} */ (_messaging);
     return /** @type {BaseClass} */ (asAny);
 }

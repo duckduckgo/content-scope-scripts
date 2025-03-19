@@ -31,15 +31,15 @@ export const FavoritesContext = createContext({
         throw new Error('must implement');
     },
     /** @type {ReorderFn<Favorite>} */
-    favoritesDidReOrder: ({ list, id, fromIndex, targetIndex }) => {
+    favoritesDidReOrder: (_args) => {
         throw new Error('must implement');
     },
     /** @type {(id: string) => void} */
-    openContextMenu: (id) => {
+    openContextMenu: (_id) => {
         throw new Error('must implement');
     },
     /** @type {(id: string, url: string, target: OpenTarget) => void} */
-    openFavorite: (id, target) => {
+    openFavorite: (_id, _url, _target) => {
         throw new Error('must implement');
     },
     /** @type {() => void} */
@@ -47,7 +47,7 @@ export const FavoritesContext = createContext({
         throw new Error('must implement add');
     },
     /** @type {(cb: (data: FavoritesConfig) => void) => void} */
-    onConfigChanged: (cb) => {
+    onConfigChanged: (_cb) => {
         /** noop */
     },
 });

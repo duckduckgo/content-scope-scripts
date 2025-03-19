@@ -108,7 +108,7 @@ test.describe('special-error', () => {
         await special.opensNewPage('Learn more', expectedURL);
     });
 
-    test('opens report form in a new window', async ({ page, browser }, workerInfo) => {
+    test('opens report form in a new window', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.overrideTestLinks();
 

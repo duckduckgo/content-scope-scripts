@@ -140,7 +140,7 @@ function DebugBar({ entries, id, ids }) {
     return (
         <div class={styles.debugBar} data-testid="selector">
             <ExampleSelector entries={entries} id={id} />
-            {ids.length > 0 && <Append entries={entries} id={id} />}
+            {ids.length > 0 && <Append entries={entries} />}
             <TextLength />
             <Isolate />
         </div>
@@ -235,9 +235,8 @@ function ExampleSelector({ entries, id }) {
  *
  * @param {Object} options - The options object.
  * @param {Array} options.entries - The list of examples to choose from, each represented as an array with an id.
- * @param {string} options.id - The current selected example id.
  */
-function Append({ entries, id }) {
+function Append({ entries }) {
     function onReset() {
         const url = new URL(window.location.href);
         url.searchParams.delete('id');

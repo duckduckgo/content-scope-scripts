@@ -35,7 +35,6 @@ export const FavoritesThemeContext = createContext({
  * Favorites Grid.
  *
  * @param {object} props
- * @param {import("preact").Ref<any>} [props.gridRef]
  * @param {Favorite[]} props.favorites
  * @param {Expansion} props.expansion
  * @param {() => void} props.toggle
@@ -44,7 +43,7 @@ export const FavoritesThemeContext = createContext({
  * @param {() => void} props.add
  * @param {boolean} props.canAnimateItems
  */
-export function Favorites({ gridRef, favorites, expansion, toggle, openContextMenu, openFavorite, add, canAnimateItems }) {
+export function Favorites({ favorites, expansion, toggle, openContextMenu, openFavorite, add, canAnimateItems }) {
     const { t } = useTypedTranslationWith(/** @type {import('../strings.json')} */ ({}));
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId();

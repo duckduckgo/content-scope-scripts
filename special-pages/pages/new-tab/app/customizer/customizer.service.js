@@ -96,7 +96,7 @@ export class CustomizerService {
      * @param {BackgroundData} bg
      */
     setBackground(bg) {
-        this.bgService.update((data) => {
+        this.bgService.update((_) => {
             return bg;
         });
         if (bg.background.kind === 'hex') {

@@ -26,7 +26,7 @@ function upperCaseFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function displayDiffs(dir1Files, dir2Files, isOpen) {
+function displayDiffs(dir1Files, dir2Files) {
     const rollupGrouping = {};
     /**
      * Rolls up multiple files with the same diff into a single entry
@@ -79,13 +79,13 @@ function displayDiffs(dir1Files, dir2Files, isOpen) {
                 }
             }
             outString += '\n\n' + rollup.string;
-            return renderDetails(title, outString, isOpen);
+            return renderDetails(title, outString);
         })
         .join('\n');
     return outString;
 }
 
-function renderDetails(section, text, isOpen) {
+function renderDetails(section, text) {
     if (section === 'dist') {
         section = 'apple';
     }
@@ -120,5 +120,5 @@ sortFiles(readFilesRecursively(dir1 + sourcesOutput), 'dir1');
 sortFiles(readFilesRecursively(dir2 + sourcesOutput), 'dir2');
 
 // console.log(Object.keys(files))
-const fileOut = displayDiffs(sections.dir1, sections.dir2, true);
+const fileOut = displayDiffs(sections.dir1, sections.dir2);
 console.log(fileOut);

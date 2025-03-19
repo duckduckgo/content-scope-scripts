@@ -86,7 +86,7 @@ export function BurnProvider({ children, service }) {
         }
         fetchAnimation()
             // eslint-disable-next-line promise/prefer-await-to-then
-            .catch((e) => {
+            .catch((_) => {
                 animation.value = { state: /** @type {const} */ ('error'), data: null };
             });
         return () => {

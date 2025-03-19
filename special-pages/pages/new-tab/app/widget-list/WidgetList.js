@@ -9,10 +9,9 @@ import { DebugCustomized } from '../telemetry/Debug.js';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 
 /**
- * @param {string} id
  * @return {{factory: () => import("preact").ComponentChild}}
  */
-function placeholderWidget(id) {
+function placeholderWidget() {
     return {
         factory: () => {
             return null;
@@ -30,13 +29,13 @@ export async function widgetEntryPoint(id, didCatch) {
         const mod = await import(`../entry-points/${id}.js`);
         if (typeof mod.factory !== 'function') {
             console.error(`module found for ${id}, but missing 'factory' export`);
-            return placeholderWidget(id);
+            return placeholderWidget();
         }
         return mod;
     } catch (e) {
         console.error(e);
         didCatch(e.toString());
-        return placeholderWidget(id);
+        return placeholderWidget();
     }
 }
 

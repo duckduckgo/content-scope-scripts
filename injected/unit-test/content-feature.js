@@ -53,7 +53,7 @@ describe('ContentFeature class', () => {
             // eslint-disable-next-line
             // @ts-ignore partial mock
             messaging = {
-                notify(name, data) {},
+                notify(_name, _data) {},
             };
         }
         let feature;

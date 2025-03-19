@@ -217,7 +217,7 @@ describe('Android', () => {
 function createMessaging() {
     /** @type {import("@duckduckgo/messaging").MessagingTransport} */
     const transport = {
-        notify(msg) {
+        notify(_) {
             // test
         },
 

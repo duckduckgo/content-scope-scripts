@@ -91,7 +91,7 @@ export function extractProfiles(action, userData, root = document) {
 
     return {
         results: profilesElementList.map((element) => {
-            const elementFactory = (key, value) => {
+            const elementFactory = (_, value) => {
                 return value?.findElements
                     ? cleanArray(getElements(element, value.selector))
                     : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector));

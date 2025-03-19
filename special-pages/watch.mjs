@@ -58,8 +58,8 @@ writeTimestamp();
 }
 
 // also watch things outside of esbuild, like translations/types
-watchNode('translations.mjs', `pages/${args.page}`, (event, path) => path.endsWith('strings.json'));
-watchNode('types.mjs', `pages/${args.page}/messages`, (event, path) => path.endsWith('.json'));
+watchNode('translations.mjs', `pages/${args.page}`, (_event, path) => path.endsWith('strings.json'));
+watchNode('types.mjs', `pages/${args.page}/messages`, (_event, path) => path.endsWith('.json'));
 
 // prevent overlapping jobs
 const jobs = new Map();

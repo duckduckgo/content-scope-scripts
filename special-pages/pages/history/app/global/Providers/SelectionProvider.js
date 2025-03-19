@@ -14,7 +14,7 @@ import { useSelectionStateApi } from '../hooks/useSelectionState.js';
  * @import { ReadonlySignal } from '@preact/signals'
  */
 
-const SelectionDispatchContext = createContext(/** @type {(a: Action) => void} */ ((a) => {}));
+const SelectionDispatchContext = createContext(/** @type {(a: Action) => void} */ ((_) => {}));
 const SelectionStateContext = createContext(/** @type {ReadonlySignal<SelectionState>} */ (signal({})));
 
 /**

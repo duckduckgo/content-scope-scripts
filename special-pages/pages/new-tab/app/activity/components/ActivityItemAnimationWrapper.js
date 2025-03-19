@@ -38,7 +38,7 @@ export function ActivityItemAnimationWrapper({ children, url }) {
                 fill: 'both',
                 easing: 'ease-in-out',
             });
-            const handler = (e) => {
+            const handler = (_) => {
                 if (canceled) return;
                 if (sent) return;
                 sent = true;

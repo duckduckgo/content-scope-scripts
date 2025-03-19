@@ -81,7 +81,8 @@ export function ActivityBody({ canBurn, visibility }) {
 
     return (
         <ul class={styles.activity} data-busy={busy}>
-            {keys.value.map((id, index) => {
+            ts{' '}
+            {keys.value.map((id, _index) => {
                 if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={visibility} />;
                 return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={visibility} />;
             })}
@@ -195,7 +196,7 @@ function TrackerStatus({ id, trackersFound }) {
     const other = status.value.trackerCompanies.slice(DDG_MAX_TRACKER_ICONS - 1);
     const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
 
-    const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, index) => {
+    const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, _index) => {
         return <CompanyIcon displayName={item.displayName} key={item} />;
     });
 
