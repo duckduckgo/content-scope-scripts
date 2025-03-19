@@ -1,7 +1,13 @@
 import ContentFeature from '../content-feature.js';
+import { isBeingFramed } from '../utils.js';
 
 export class Favicon extends ContentFeature {
     init() {
+        /**
+         * This feature never operates in a frame
+         */
+        if (isBeingFramed()) return;
+
         window.addEventListener('DOMContentLoaded', () => {
             // send once, immediately
             this.send();
