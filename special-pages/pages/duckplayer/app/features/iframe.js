@@ -12,11 +12,11 @@ import { ErrorDetection } from './error-detection.js';
  */
 export class IframeFeature {
     /**
-     * @param {HTMLIFrameElement} iframe
+     * @param {HTMLIFrameElement} _iframe
      * @returns {(() => void) | null}
      */
 
-    iframeDidLoad(iframe) {
+    iframeDidLoad(_iframe) {
         return () => {
             console.log('teardown');
         };
