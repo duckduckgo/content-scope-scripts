@@ -158,7 +158,7 @@ export class Pixel {
      *   | {name: "play.use", remember: "0" | "1"}
      *   | {name: "play.use.thumbnail"}
      *   | {name: "play.do_not_use", remember: "0" | "1"}
-     *   | {name: "duckplayer.overlay.youtube.watch.here.video-thumbnail"}} input
+     *   | {name: "play.do_not_use.thumbnail"}} input
      */
     constructor(input) {
         this.input = input;
@@ -178,7 +178,7 @@ export class Pixel {
             case 'play.do_not_use': {
                 return { remember: this.input.remember };
             }
-            case 'duckplayer.overlay.youtube.watch.here.video-thumbnail':
+            case 'play.do_not_use.thumbnail':
                 return {};
             default:
                 throw new Error('unreachable');
