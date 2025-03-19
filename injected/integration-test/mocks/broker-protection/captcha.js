@@ -35,19 +35,6 @@ export function createGetRecaptchaInfoAction(actionOverrides = {}) {
 }
 
 /**
- * @param {Partial<PirAction>} [actionOverrides]
- */
-export function createGetHCaptchaInfoAction(actionOverrides = {}) {
-    return createGetCaptchaInfoAction({
-        action: {
-            captchaType: 'hcaptcha',
-            selector: '.h-captcha',
-            ...actionOverrides,
-        },
-    });
-}
-
-/**
  * @param {object} params
  * @param {Omit<PirAction, 'id' | 'actionType'>} params.action
  * @param {Record<string, any>} [params.data]
@@ -74,19 +61,6 @@ export function createSolveRecaptchaAction(actionOverrides = {}) {
         action: {
             captchaType: 'recaptcha2',
             selector: '.g-recaptcha',
-            ...actionOverrides,
-        },
-    });
-}
-
-/**
- * @param {Partial<PirAction>} [actionOverrides]
- */
-export function createSolveHCaptchaAction(actionOverrides = {}) {
-    return createSolveCaptchaAction({
-        action: {
-            captchaType: 'hcaptcha',
-            selector: '.h-captcha',
             ...actionOverrides,
         },
     });
@@ -119,12 +93,4 @@ export function createRecaptchaResponse(params) {
         captchaType: 'recaptcha2',
         ...params,
     });
-}
-
-/**
- * @param {object} params
- * @param {string} params.targetPage
- */
-export function createHCaptchaResponse(params) {
-    return createCaptchaResponse({ captchaType: 'hcaptcha', ...params });
 }
