@@ -487,13 +487,6 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
     if (!topLevelHostname) {
         return false;
     }
-
-    // special-case for localhost (eg: testing)
-    if (topLevelHostname === 'localhost') {
-        if (!featureList) return false;
-        return featureList.some((domain) => domain.domain === topLevelHostname);
-    }
-
     const domainParts = topLevelHostname.split('.');
 
     // walk up the domain to see if it's unprotected

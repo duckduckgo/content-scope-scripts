@@ -47,7 +47,8 @@ export function load(args) {
     const featuresToLoad = isGloballyDisabled(args)
         // if we're globally disabled, only allow `platformSpecificFeatures`
         ? platformSpecificFeatures
-        // otherwise, use `enabledFeatures` if available, falling back to every feature in the bundle
+        // if available, use `site.enabledFeatures`. The extension doesn't have `site.enabledFeatures` at this
+        // point, which is why we fall back to `bundledFeatureNames`.
         : args.site.enabledFeatures || bundledFeatureNames;
 
     for (const featureName of bundledFeatureNames) {
