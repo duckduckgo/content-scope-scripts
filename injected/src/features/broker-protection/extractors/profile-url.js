@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AsyncProfileTransform, Extractor } from '../types.js';
-import { hashObject } from '../utils.js';
+import { hashObject } from '../utils/utils.js';
 
 /**
  * @implements {Extractor<{profileUrl: string; identifier: string} | null>}
