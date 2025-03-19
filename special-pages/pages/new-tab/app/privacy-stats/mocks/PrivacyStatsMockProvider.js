@@ -26,10 +26,10 @@ import { BodyExpansionContext, BodyExpansionApiContext } from '../components/Bod
  * @param {boolean} [props.ticker] - if true, gradually increment the count of the first company, for testing
  *
  */
+
 export function PrivacyStatsMockProvider({
     data = privacyStatsMocks.few,
     config = { expansion: 'expanded', animation: { kind: 'auto-animate' } },
-    bodyExpansion = 'collapsed',
     ticker = false,
     children,
 }) {

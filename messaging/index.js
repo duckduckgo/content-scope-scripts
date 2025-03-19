@@ -136,31 +136,31 @@ export class Messaging {
  */
 export class MessagingTransport {
     /**
-     * @param {NotificationMessage} msg
+     * @param {NotificationMessage} _msg
      * @returns {void}
      */
 
-    notify(msg) {
-        throw new Error("must implement 'notify'");
-    }
-
-    /**
-     * @param {RequestMessage} msg
-     * @param {{signal?: AbortSignal}} [options]
-     * @return {Promise<any>}
-     */
-
-    request(msg, options = {}) {
+    notify(_msg) {
         throw new Error('must implement');
     }
 
     /**
-     * @param {Subscription} msg
-     * @param {(value: unknown) => void} callback
+     * @param {RequestMessage} _msg
+     * @param {{signal?: AbortSignal}} [_options]
+     * @return {Promise<any>}
+     */
+
+    request(_msg, _options = {}) {
+        throw new Error('must implement');
+    }
+
+    /**
+     * @param {Subscription} _msg
+     * @param {(value: unknown) => void} _callback
      * @return {() => void}
      */
 
-    subscribe(msg, callback) {
+    subscribe(_msg, _callback) {
         throw new Error('must implement');
     }
 }

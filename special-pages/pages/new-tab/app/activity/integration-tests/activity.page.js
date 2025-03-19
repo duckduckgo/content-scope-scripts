@@ -30,11 +30,7 @@ export class ActivityPage {
         this.ntp = ntp;
     }
 
-    /**
-     * @param {object} params
-     * @param {number} params.count
-     */
-    async receive({ count }) {
+    async receive() {
         /** @type {import("../../../types/new-tab.js").ActivityData} */
         const next = activityMocks.few;
         await this.ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', next);
