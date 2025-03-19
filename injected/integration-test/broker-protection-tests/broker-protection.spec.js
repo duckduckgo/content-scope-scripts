@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { BrokerProtectionPage } from './page-objects/broker-protection.js';
+import { BrokerProtectionPage } from '../page-objects/broker-protection.js';
+import { BROKER_PROTECTION_CONFIGS } from './tests-config.js';
 
 test.describe('Broker Protection communications', () => {
     test('sends an error when the action is not found', async ({ page }, workerInfo) => {
@@ -333,9 +334,19 @@ test.describe('Broker Protection communications', () => {
         });
     });
     test.describe('Executes action and sends success message', () => {
-        test('buildUrl', async ({ page }, workerInfo) => {
+        test('buildUrl with useEnhancedCaptchaSystem: "enabled"', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.enabled();
+            await dbp.withFeatureConfig(BROKER_PROTECTION_CONFIGS.enhancedCaptchaSystemEnabled);
+            await dbp.navigatesTo('results.html');
+            await dbp.receivesAction('navigate.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isUrlMatch(response[0].payload.params.result.success.response);
+        });
+
+        test('buildUrl with useEnhancedCaptchaSystem: "disabled"', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.withFeatureConfig(BROKER_PROTECTION_CONFIGS.enhancedCaptchaSystemDisabled);
             await dbp.navigatesTo('results.html');
             await dbp.receivesAction('navigate.json');
             const response = await dbp.collector.waitForMessage('actionCompleted');
@@ -507,46 +518,6 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.collector.waitForMessage('actionCompleted');
 
             dbp.isSuccessMessage(response);
-        });
-
-        test('getCaptchaInfo', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.enabled();
-            await dbp.navigatesTo('captcha.html');
-            await dbp.receivesAction('get-captcha.json');
-            const response = await dbp.collector.waitForMessage('actionCompleted');
-            dbp.isSuccessMessage(response);
-            dbp.isCaptchaMatch(response[0].payload?.params.result.success.response);
-        });
-
-        test('getCaptchaInfo (hcaptcha)', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.enabled();
-            await dbp.navigatesTo('captcha2.html');
-            await dbp.receivesAction('get-captcha.json');
-            const response = await dbp.collector.waitForMessage('actionCompleted');
-            dbp.isSuccessMessage(response);
-            dbp.isHCaptchaMatch(response[0].payload?.params.result.success.response);
-        });
-
-        test('remove query params from captcha url', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.enabled();
-            await dbp.navigatesTo('captcha.html?fname=john&lname=smith');
-            await dbp.receivesAction('get-captcha.json');
-            const response = await dbp.collector.waitForMessage('actionCompleted');
-            dbp.isSuccessMessage(response);
-            dbp.isQueryParamRemoved(response[0].payload?.params.result.success.response);
-        });
-
-        test('solveCaptcha', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.enabled();
-            await dbp.navigatesTo('captcha.html');
-            await dbp.receivesAction('solve-captcha.json');
-            const response = await dbp.collector.waitForMessage('actionCompleted');
-            dbp.isSuccessMessage(response);
-            await dbp.isCaptchaTokenFilled();
         });
 
         test('expectation', async ({ page }, workerInfo) => {

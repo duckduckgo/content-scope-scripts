@@ -2,6 +2,8 @@ import { expect } from '@playwright/test';
 import { readFileSync } from 'fs';
 import { perPlatform } from '../type-helpers.mjs';
 import { ResultsCollector } from './results-collector.js';
+import { createCaptchaResponse } from '../mocks/broker-protection/captcha.js';
+import { createFeatureConfig } from '../mocks/broker-protection/feature-config.js';
 
 export class BrokerProtectionPage {
     /**
@@ -14,9 +16,15 @@ export class BrokerProtectionPage {
         this.collector = new ResultsCollector(page, build, platform);
     }
 
-    // Given the "overlays" feature is enabled
     async enabled() {
-        await this.collector.setup({ config: loadConfig('enabled') });
+        await this.collector.setup({ config: createFeatureConfig({ state: 'enabled' }) });
+    }
+
+    /**
+     * @param {object} config
+     */
+    async withFeatureConfig(config) {
+        await this.collector.setup({ config });
     }
 
     /**
@@ -58,10 +66,11 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param {string} responseElementSelector
      * @return {Promise<void>}
      */
-    async isCaptchaTokenFilled() {
-        const captchaTextArea = await this.page.$('#g-recaptcha-response');
+    async isCaptchaTokenFilled(responseElementSelector) {
+        const captchaTextArea = await this.page.$(responseElementSelector);
         const captchaToken = await captchaTextArea?.evaluate((element) => element.innerHTML);
         expect(captchaToken).toBe('test_token');
     }
@@ -81,25 +90,20 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param {object} response
+     * @param {object} captchaParams
+     * @param {string} captchaParams.captchaType
+     * @param {string} captchaParams.targetPage
+     *
      * @return {void}
      */
-    isCaptchaMatch(response) {
-        expect(response).toStrictEqual({
-            siteKey: '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn',
-            url: 'http://localhost:3220/broker-protection/pages/captcha.html',
-            type: 'recaptcha2',
-        });
+    isCaptchaMatch(response, { captchaType, targetPage }) {
+        const expectedResponse = createCaptchaResponse({ captchaType, targetPage });
+        expect(response).toStrictEqual(expectedResponse);
     }
 
-    /**
-     * @return {void}
-     */
-    isHCaptchaMatch(response) {
-        expect(response).toStrictEqual({
-            siteKey: '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn',
-            url: 'http://localhost:3220/broker-protection/pages/captcha2.html',
-            type: 'hcaptcha',
-        });
+    async isCaptchaError() {
+        expect(await this.getErrorMessage()).not.toBeFalsy();
     }
 
     /**
@@ -150,17 +154,38 @@ export class BrokerProtectionPage {
         await this.collector.simulateSubscriptionMessage('brokerProtection', name, payload);
     }
 
+    async getActionCompletedParams() {
+        return await this.collector.waitForMessage('actionCompleted');
+    }
+
+    async getSuccessResponse() {
+        const response = await this.getActionCompletedParams();
+        this.isSuccessMessage(response);
+        return this._getResultFromResponse(response).success.response;
+    }
+
+    async getErrorMessage() {
+        const response = await this.getActionCompletedParams();
+        this.isErrorMessage(response);
+        return this._getResultFromResponse(response).error.message;
+    }
+
     /**
      * @param {object} response
      */
     isErrorMessage(response) {
-        // eslint-disable-next-line no-unsafe-optional-chaining
-        expect('error' in response[0].payload?.params?.result).toBe(true);
+        expect('error' in this._getResultFromResponse(response)).toBe(true);
     }
 
     isSuccessMessage(response) {
-        // eslint-disable-next-line no-unsafe-optional-chaining
-        expect('success' in response[0].payload?.params?.result).toBe(true);
+        expect('success' in this._getResultFromResponse(response)).toBe(true);
+    }
+
+    /**
+     * @param {object} response
+     */
+    _getResultFromResponse(response) {
+        return response[0].payload?.params?.result;
     }
 
     /**
@@ -173,12 +198,4 @@ export class BrokerProtectionPage {
         const { platformInfo, build } = perPlatform(use);
         return new BrokerProtectionPage(page, build, platformInfo);
     }
-}
-
-/**
- * @param {"enabled"} name
- * @return {Record<string, any>}
- */
-function loadConfig(name) {
-    return JSON.parse(readFileSync(`./integration-test/test-pages/broker-protection/config/${name}.json`, 'utf8'));
 }
