@@ -119,7 +119,9 @@ test.describe('Broker Protection Captcha', () => {
                     await dbp.isCaptchaTokenFilled(recaptchaResponseSelector);
                 });
 
-                test('solves the captcha for an action data when the "captchaType" field does not match the detected captcha type', async ({ createConfiguredDbp }) => {
+                test('solves the captcha for an action data when the "captchaType" field does not match the detected captcha type', async ({
+                    createConfiguredDbp,
+                }) => {
                     const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.enhancedCaptchaSystemEnabled);
                     await dbp.navigatesTo(recaptchaTargetPage);
                     await dbp.receivesInlineAction(createSolveRecaptchaAction({ captchaType: 'recaptchaEnterprise' }));
@@ -158,7 +160,9 @@ test.describe('Broker Protection Captcha', () => {
                     await dbp.isCaptchaTokenFilled(recaptchaResponseSelector);
                 });
 
-                test('solves the captcha for an action when the "captchaType" field does not match the detected captcha type', async ({ createConfiguredDbp }) => {
+                test('solves the captcha for an action when the "captchaType" field does not match the detected captcha type', async ({
+                    createConfiguredDbp,
+                }) => {
                     const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.enhancedCaptchaSystemDisabled);
                     await dbp.navigatesTo(recaptchaTargetPage);
                     await dbp.receivesInlineAction(createSolveRecaptchaAction({ captchaType: 'recaptchaEnterprise' }));
