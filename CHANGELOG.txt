@@ -1,1 +1,1 @@
-- support noUnusedParameters (#1579)
+- Enables Duck Player custom error on all platforms (#1535)
