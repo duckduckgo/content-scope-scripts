@@ -43,11 +43,12 @@ export function load(args) {
 
     const bundledFeatureNames = typeof importConfig.injectName === 'string' ? platformSupport[importConfig.injectName] : [];
 
-    // if we're globally disabled, only allow `platformSpecificFeatures`
+    // prettier-ignore
     const featuresToLoad = isGloballyDisabled(args)
+        // if we're globally disabled, only allow `platformSpecificFeatures`
         ? platformSpecificFeatures
-        : // otherwise, use `enabledFeatures` if available, falling back to every feature in the bundle
-          args.site.enabledFeatures || bundledFeatureNames;
+        // otherwise, use `enabledFeatures` if available, falling back to every feature in the bundle
+        : args.site.enabledFeatures || bundledFeatureNames;
 
     for (const featureName of bundledFeatureNames) {
         if (featuresToLoad.includes(featureName)) {
