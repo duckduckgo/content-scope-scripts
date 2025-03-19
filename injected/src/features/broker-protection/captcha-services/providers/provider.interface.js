@@ -17,20 +17,20 @@ export class CaptchaProvider {
     /**
      * Checks if this provider supports the given element
      * @abstract
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      * @returns {boolean} True if this provider can handle the element
      */
-    isSupportedForElement(captchaContainerElement) {
+    isSupportedForElement(_captchaContainerElement) {
         throw new Error('isSupportedForElement() missing implementation');
     }
 
     /**
      * Extracts the site key from the captcha container element
      * @abstract
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      * @returns {PirError | string | null} The site key or null if not found
      */
-    getCaptchaIdentifier(captchaContainerElement) {
+    getCaptchaIdentifier(_captchaContainerElement) {
         throw new Error('getCaptchaIdentifier() missing implementation');
     }
 
@@ -45,32 +45,32 @@ export class CaptchaProvider {
     /**
      * Checks if this provider can solve the captcha on the current page
      * @abstract
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      * @returns {boolean} True if provider can solve captchas found in the document
      */
-    canSolve(captchaContainerElement) {
+    canSolve(_captchaContainerElement) {
         throw new Error('canSolve() missing implementation');
     }
 
     /**
      * Injects the solved token into the captcha on the page
      * @abstract
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @param {string} token - The solved captcha token
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
+     * @param {string} _token - The solved captcha token
      * @returns {PirResponse<{ injected: boolean }>} - Whether the token was injected
      */
-    injectToken(captchaContainerElement, token) {
+    injectToken(_captchaContainerElement, _token) {
         throw new Error('injectToken() missing implementation');
     }
 
     /**
      * Creates a callback function to execute when the captcha is solved
      * @abstract
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @param {string} token - The solved captcha token
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
+     * @param {string} _token - The solved captcha token
      * @returns {PirError|string|null} Callback function to execute when the captcha is solved
      */
-    getSolveCallback(captchaContainerElement, token) {
+    getSolveCallback(_captchaContainerElement, _token) {
         throw new Error('getSolveCallback() missing implementation');
     }
 }

@@ -10,17 +10,17 @@ export class CloudFlareTurnstileProvider {
     }
 
     /**
-     * @param {HTMLElement} captchaContainerElement
+     * @param {HTMLElement} _captchaContainerElement
      */
-    isSupportedForElement(captchaContainerElement) {
+    isSupportedForElement(_captchaContainerElement) {
         // TODO: Implement
         return false;
     }
 
     /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      */
-    getCaptchaIdentifier(captchaContainerElement) {
+    getCaptchaIdentifier(_captchaContainerElement) {
         // TODO: Implement
         return null;
     }
@@ -31,27 +31,27 @@ export class CloudFlareTurnstileProvider {
     }
 
     /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      */
-    canSolve(captchaContainerElement) {
+    canSolve(_captchaContainerElement) {
         // TODO: Implement
         return false;
     }
 
     /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @param {string} token - The solved captcha token
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
+     * @param {string} _token - The solved captcha token
      */
-    injectToken(captchaContainerElement, token) {
+    injectToken(_captchaContainerElement, _token) {
         // TODO: Implement
         return PirError.create('Not implemented');
     }
 
     /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
-     * @param {string} token - The solved captcha token
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
+     * @param {string} _token - The solved captcha token
      */
-    getSolveCallback(captchaContainerElement, token) {
+    getSolveCallback(_captchaContainerElement, _token) {
         return null;
     }
 }

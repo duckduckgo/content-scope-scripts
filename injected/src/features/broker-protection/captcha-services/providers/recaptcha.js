@@ -57,10 +57,10 @@ export class ReCaptchaProvider {
     }
 
     /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      * @param {string} token
      */
-    getSolveCallback(captchaContainerElement, token) {
+    getSolveCallback(_captchaContainerElement, token) {
         return stringifyFunction({
             functionBody: captchaCallback,
             functionName: 'captchaCallback',
