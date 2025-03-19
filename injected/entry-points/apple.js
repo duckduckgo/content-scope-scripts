@@ -2,7 +2,7 @@
  * @module Apple integration
  */
 import { load, init } from '../src/content-scope-features.js';
-import { processConfig, isGloballyDisabled, platformSpecificFeatures } from './../src/utils';
+import { processConfig, platformSpecificFeatures } from './../src/utils';
 import { WebkitMessagingConfig, TestTransportConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -14,10 +14,6 @@ function initCode() {
     const userPreferences = $USER_PREFERENCES$;
 
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
-
-    if (isGloballyDisabled(processedConfig)) {
-        return;
-    }
 
     if (import.meta.injectName === 'apple-isolated') {
         processedConfig.messagingConfig = new WebkitMessagingConfig({
