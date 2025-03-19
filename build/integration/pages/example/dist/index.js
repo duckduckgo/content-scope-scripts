@@ -749,10 +749,10 @@
   };
 
   // ../messaging/lib/typed-messages.js
-  function createTypedMessages(base, messaging2) {
+  function createTypedMessages(_base, _messaging) {
     const asAny = (
       /** @type {any} */
-      messaging2
+      _messaging
     );
     return (
       /** @type {BaseClass} */

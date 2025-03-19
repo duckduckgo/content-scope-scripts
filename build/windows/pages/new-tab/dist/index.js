@@ -1324,7 +1324,7 @@
       t: x2(TranslationContext).t
     };
   }
-  function useTypedTranslationWith(context) {
+  function useTypedTranslationWith(_context) {
     return {
       /** @type {any} */
       t: x2(TranslationContext).t
@@ -2184,24 +2184,24 @@
           theme: "system"
         }),
         /** @type {(bg: BackgroundData) => void} */
-        select: (bg) => {
+        select: (_5) => {
         },
         upload: () => {
         },
         /**
          * @type {(theme: ThemeData) => void}
          */
-        setTheme: (theme) => {
+        setTheme: (_5) => {
         },
         /**
          * @type {(id: string) => void}
          */
-        deleteImage: (id) => {
+        deleteImage: (_5) => {
         },
         /**
-         * @param {UserImageContextMenu} params
+         * @param {UserImageContextMenu} _params
          */
-        customizerContextMenu: (params) => {
+        customizerContextMenu: (_params) => {
         }
       });
     }
@@ -3629,9 +3629,9 @@
       init_preact_module();
       ActivityInteractionsContext = J({
         /**
-         * @type {(evt: MouseEvent) => void} event
+         * @type {(evt: MouseEvent) => void} _event
          */
-        didClick(event) {
+        didClick(_event) {
         }
       });
     }
@@ -3693,7 +3693,7 @@
         const json = await resp.json();
         if (!cancelled) animation.value = { state: "ready", data: json };
       }
-      fetchAnimation().catch((e4) => {
+      fetchAnimation().catch((_5) => {
         animation.value = { state: (
           /** @type {const} */
           "error"
@@ -20572,7 +20572,7 @@
           fill: "both",
           easing: "ease-in-out"
         });
-        const handler = (e4) => {
+        const handler = (_5) => {
           if (canceled) return;
           if (sent) return;
           sent = true;
@@ -20844,7 +20844,7 @@
     const { keys } = x2(NormalizedDataContext);
     const { burning, exiting } = x2(ActivityBurningSignalContext);
     const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
-    return /* @__PURE__ */ g("ul", { class: Activity_default.activity, "data-busy": busy }, keys.value.map((id, index2) => {
+    return /* @__PURE__ */ g("ul", { class: Activity_default.activity, "data-busy": busy }, "ts", " ", keys.value.map((id, _index) => {
       if (canBurn && !isReducedMotion) return /* @__PURE__ */ g(BurnableItem, { id, key: id, documentVisibility: visibility });
       return /* @__PURE__ */ g(RemovableItem, { id, key: id, canBurn, documentVisibility: visibility });
     }));
@@ -20880,7 +20880,7 @@
     const status = useComputed(() => activity.value.trackingStatus[id]);
     const other = status.value.trackerCompanies.slice(DDG_MAX_TRACKER_ICONS - 1);
     const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
-    const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, index2) => {
+    const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, _index) => {
       return /* @__PURE__ */ g(CompanyIcon, { displayName: item.displayName, key: item });
     });
     let otherIcon = null;
@@ -21241,15 +21241,15 @@
           throw new Error("must implement");
         },
         /** @type {ReorderFn<Favorite>} */
-        favoritesDidReOrder: ({ list: list2, id, fromIndex, targetIndex }) => {
+        favoritesDidReOrder: (_args) => {
           throw new Error("must implement");
         },
         /** @type {(id: string) => void} */
-        openContextMenu: (id) => {
+        openContextMenu: (_id) => {
           throw new Error("must implement");
         },
         /** @type {(id: string, url: string, target: OpenTarget) => void} */
-        openFavorite: (id, target) => {
+        openFavorite: (_id, _url, _target) => {
           throw new Error("must implement");
         },
         /** @type {() => void} */
@@ -21257,7 +21257,7 @@
           throw new Error("must implement add");
         },
         /** @type {(cb: (data: FavoritesConfig) => void) => void} */
-        onConfigChanged: (cb) => {
+        onConfigChanged: (_cb) => {
         }
       });
       FavoritesDispatchContext = J(
@@ -24166,7 +24166,7 @@
   });
 
   // pages/new-tab/app/favorites/components/Favorites.js
-  function Favorites({ gridRef, favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add: add2, canAnimateItems }) {
+  function Favorites({ favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add: add2, canAnimateItems }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {import('../strings.json')} */
       {}
@@ -26411,7 +26411,7 @@
   });
 
   // pages/new-tab/app/widget-list/WidgetList.js
-  function placeholderWidget(id) {
+  function placeholderWidget() {
     return {
       factory: () => {
         return null;
@@ -26423,13 +26423,13 @@
       const mod2 = await globImport_entry_points_js(`../entry-points/${id}.js`);
       if (typeof mod2.factory !== "function") {
         console.error(`module found for ${id}, but missing 'factory' export`);
-        return placeholderWidget(id);
+        return placeholderWidget();
       }
       return mod2;
     } catch (e4) {
       console.error(e4);
       didCatch(e4.toString());
-      return placeholderWidget(id);
+      return placeholderWidget();
     }
   }
   function WidgetList() {
@@ -28453,7 +28453,6 @@
   function PrivacyStatsMockProvider({
     data: data2 = privacyStatsMocks.few,
     config = { expansion: "expanded", animation: { kind: "auto-animate" } },
-    bodyExpansion = "collapsed",
     ticker = false,
     children
   }) {
@@ -29422,10 +29421,10 @@
   };
 
   // ../messaging/lib/typed-messages.js
-  function createTypedMessages(base, messaging2) {
+  function createTypedMessages(_base, _messaging) {
     const asAny = (
       /** @type {any} */
-      messaging2
+      _messaging
     );
     return (
       /** @type {BaseClass} */
@@ -29804,7 +29803,7 @@
      * @param {BackgroundData} bg
      */
     setBackground(bg) {
-      this.bgService.update((data2) => {
+      this.bgService.update((_5) => {
         return bg;
       });
       if (bg.background.kind === "hex") {

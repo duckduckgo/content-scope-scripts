@@ -226,7 +226,7 @@ export function isFeatureBroken(args, feature) {
 }
 
 export function camelcase(dashCaseText) {
-    return dashCaseText.replace(/-(.)/g, (match, letter) => {
+    return dashCaseText.replace(/-(.)/g, (_, letter) => {
         return letter.toUpperCase();
     });
 }

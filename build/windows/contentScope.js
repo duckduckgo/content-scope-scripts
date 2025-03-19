@@ -2480,7 +2480,7 @@
     return isPlatformSpecificFeature(feature) ? !args.site.enabledFeatures.includes(feature) : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
   }
   function camelcase(dashCaseText) {
-    return dashCaseText.replace(/-(.)/g, (match, letter) => {
+    return dashCaseText.replace(/-(.)/g, (_, letter) => {
       return letter.toUpperCase();
     });
   }
@@ -3029,7 +3029,7 @@
     };
     const proxyHandler = {};
     if (fullOptions.allowConstructorCall) {
-      proxyHandler.apply = function(target, thisArg, argumentsList) {
+      proxyHandler.apply = function(target, _thisArg, argumentsList) {
         return Reflect.construct(target, argumentsList, target);
       };
     }
@@ -4679,7 +4679,7 @@
       const configSetting = this.getFeatureSetting(attrName);
       return processAttr(configSetting, defaultValue);
     }
-    init(args) {
+    init(_args2) {
     }
     callInit(args) {
       const mark = this.monitor.mark(this.name + "CallInit");
@@ -4692,7 +4692,7 @@
       this.args = args;
       this.platform = args.platform;
     }
-    load(args) {
+    load(_args2) {
     }
     /**
      * This is a wrapper around `this.messaging.notify` that applies the
@@ -4768,7 +4768,7 @@
         if (typeof descriptorProp === "function") {
           const addDebugFlag = this.addDebugFlag.bind(this);
           const wrapper = new Proxy2(descriptorProp, {
-            apply(target, thisArg, argumentsList) {
+            apply(_, thisArg, argumentsList) {
               addDebugFlag();
               return Reflect2.apply(descriptorProp, thisArg, argumentsList);
             }
@@ -10453,7 +10453,7 @@
     ["defaultIfEmpty", (value, argument) => value || argument || ""],
     [
       "ageRange",
-      (value, argument, action) => {
+      (value, _, action) => {
         if (!action.ageRange) return value;
         const ageNumber = Number(value);
         const ageRange = action.ageRange.find((range) => {
@@ -10475,7 +10475,7 @@
     return pathname.split("/").filter(Boolean).map((segment) => processTemplateStringWithUserData(segment, action, userData)).join("/");
   }
   function processTemplateStringWithUserData(input, action, userData) {
-    return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (match, encodedValue, plainValue) => {
+    return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (_, encodedValue, plainValue) => {
       const comparison = encodedValue ?? plainValue;
       const [dataKey, ...transforms] = comparison.split(/\||%7C/);
       const data2 = userData[dataKey];
@@ -10933,7 +10933,7 @@
     }
     return {
       results: profilesElementList.map((element) => {
-        const elementFactory = (key, value) => {
+        const elementFactory = (_, value) => {
           return value?.findElements ? cleanArray(getElements(element, value.selector)) : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector));
         };
         const scrapedData = createProfile(elementFactory, action.profile);

@@ -221,7 +221,7 @@ export class MessageBridge extends ContentFeature {
         }
     }
 
-    load(args) {}
+    load(_args) {}
 }
 
 export default MessageBridge;

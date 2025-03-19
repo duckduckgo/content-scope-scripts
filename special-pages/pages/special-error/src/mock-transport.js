@@ -50,7 +50,7 @@ export function mockTransport() {
                     return Promise.resolve(null);
             }
         },
-        subscribe(_msg, callback) {
+        subscribe(_msg, _callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
 
             return () => {

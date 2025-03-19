@@ -1126,10 +1126,10 @@
   };
 
   // ../messaging/lib/typed-messages.js
-  function createTypedMessages(base, messaging2) {
+  function createTypedMessages(_base, _messaging) {
     const asAny = (
       /** @type {any} */
-      messaging2
+      _messaging
     );
     return (
       /** @type {BaseClass} */
@@ -2528,7 +2528,7 @@
   );
   var QueryDispatch = J(
     /** @type {(a: Action) => void} */
-    (action) => {
+    (_5) => {
       throw new Error("missing QueryDispatch");
     }
   );
@@ -3462,7 +3462,7 @@
   // pages/history/app/global/Providers/SelectionProvider.js
   var SelectionDispatchContext = J(
     /** @type {(a: Action) => void} */
-    (a4) => {
+    (_5) => {
     }
   );
   var SelectionStateContext = J(
@@ -4088,7 +4088,7 @@
 
   // pages/history/app/components/VirtualizedList.js
   function VirtualizedList({ items, heights, overscan, scrollingElement, onChange, renderItem }) {
-    const { start, end } = useVisibleRows(items, heights, scrollingElement, onChange, overscan);
+    const { start, end } = useVisibleRows(items, heights, scrollingElement, overscan);
     const subset = items.slice(start, end + 1);
     y2(() => {
       onChange?.(end);
@@ -4108,7 +4108,7 @@
     }));
   }
   var VisibleItems = M2(VirtualizedList);
-  function useVisibleRows(rows, heights, scrollerSelector, onChange, overscan = 5) {
+  function useVisibleRows(rows, heights, scrollerSelector, overscan = 5) {
     const [{ start, end }, setVisibleRange] = h2({ start: 0, end: 1 });
     const mainScrollerRef = A2(
       /** @type {Element|null} */
@@ -4287,7 +4287,7 @@
   };
 
   // pages/new-tab/app/types.js
-  function useTypedTranslationWith(context) {
+  function useTypedTranslationWith(_context) {
     return {
       /** @type {any} */
       t: x2(TranslationContext).t
@@ -4353,21 +4353,10 @@
       historyServiceDispatch({ kind: "delete-range", value: range });
     }
     return /* @__PURE__ */ g("div", { class: Sidebar_default.stack }, /* @__PURE__ */ g("h1", { class: Sidebar_default.pageTitle }, t4("page_title")), /* @__PURE__ */ g("nav", { class: Sidebar_default.nav }, ranges.value.map((range) => {
-      return /* @__PURE__ */ g(
-        Item3,
-        {
-          key: range.id,
-          onClick,
-          onDelete,
-          current,
-          range: range.id,
-          count: range.count,
-          ranges
-        }
-      );
+      return /* @__PURE__ */ g(Item3, { key: range.id, onClick, onDelete, current, range: range.id, count: range.count });
     })));
   }
-  function Item3({ current, range, onClick, onDelete, ranges, count }) {
+  function Item3({ current, range, onClick, onDelete, count }) {
     const { t: t4 } = useTypedTranslation();
     const { buttonLabel, linkLabel } = labels(range, t4);
     const classNames = useComputed(() => {
@@ -4389,9 +4378,9 @@
       },
       /* @__PURE__ */ g("span", { className: Sidebar_default.icon }, /* @__PURE__ */ g("img", { src: iconMap[range] })),
       titleMap[range](t4)
-    ), /* @__PURE__ */ g(DeleteAllButton, { onClick: onDelete, ariaLabel: buttonLabel, range, ranges, count }));
+    ), /* @__PURE__ */ g(DeleteAllButton, { onClick: onDelete, ariaLabel: buttonLabel, range, count }));
   }
-  function DeleteAllButton({ range, ranges, onClick, ariaLabel, count }) {
+  function DeleteAllButton({ range, onClick, ariaLabel, count }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {json} */
       {}

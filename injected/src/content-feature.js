@@ -137,7 +137,7 @@ export default class ContentFeature extends ConfigFeature {
         return processAttr(configSetting, defaultValue);
     }
 
-    init(args) {}
+    init(_args) {}
 
     callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
@@ -153,7 +153,7 @@ export default class ContentFeature extends ConfigFeature {
         this.platform = args.platform;
     }
 
-    load(args) {}
+    load(_args) {}
 
     /**
      * This is a wrapper around `this.messaging.notify` that applies the
@@ -237,7 +237,7 @@ export default class ContentFeature extends ConfigFeature {
             if (typeof descriptorProp === 'function') {
                 const addDebugFlag = this.addDebugFlag.bind(this);
                 const wrapper = new Proxy(descriptorProp, {
-                    apply(target, thisArg, argumentsList) {
+                    apply(_, thisArg, argumentsList) {
                         addDebugFlag();
                         return Reflect.apply(descriptorProp, thisArg, argumentsList);
                     },

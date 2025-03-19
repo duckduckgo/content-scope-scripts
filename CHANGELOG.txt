@@ -1,0 +1,1 @@
+- support noUnusedParameters (#1579)

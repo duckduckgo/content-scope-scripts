@@ -2,7 +2,7 @@ import { createContext } from 'preact';
 
 export const ActivityInteractionsContext = createContext({
     /**
-     * @type {(evt: MouseEvent) => void} event
+     * @type {(evt: MouseEvent) => void} _event
      */
-    didClick(event) {},
+    didClick(_event) {},
 });

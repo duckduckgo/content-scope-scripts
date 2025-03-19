@@ -445,7 +445,7 @@ export class WebCompat extends ContentFeature {
             });
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.safari.pushNotification, 'requestPermission', {
-                value: (name, domain, options, callback) => {
+                value: (_name, _domain, _options, callback) => {
                     if (typeof callback === 'function') {
                         callback(new SafariRemoteNotificationPermission());
                         return;

@@ -835,10 +835,10 @@
   };
 
   // ../messaging/lib/typed-messages.js
-  function createTypedMessages(base, messaging2) {
+  function createTypedMessages(_base, _messaging) {
     const asAny = (
       /** @type {any} */
-      messaging2
+      _messaging
     );
     return (
       /** @type {BaseClass} */
@@ -1263,7 +1263,7 @@
             return Promise.resolve(null);
         }
       },
-      subscribe(_msg, callback) {
+      subscribe(_msg, _callback) {
         window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
         return () => {
         };
