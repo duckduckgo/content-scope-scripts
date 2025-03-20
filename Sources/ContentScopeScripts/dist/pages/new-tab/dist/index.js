@@ -20844,7 +20844,7 @@
     const { keys } = x2(NormalizedDataContext);
     const { burning, exiting } = x2(ActivityBurningSignalContext);
     const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
-    return /* @__PURE__ */ g("ul", { class: Activity_default.activity, "data-busy": busy }, "ts", " ", keys.value.map((id, _index) => {
+    return /* @__PURE__ */ g("ul", { class: Activity_default.activity, "data-busy": busy }, keys.value.map((id, _index) => {
       if (canBurn && !isReducedMotion) return /* @__PURE__ */ g(BurnableItem, { id, key: id, documentVisibility: visibility });
       return /* @__PURE__ */ g(RemovableItem, { id, key: id, canBurn, documentVisibility: visibility });
     }));

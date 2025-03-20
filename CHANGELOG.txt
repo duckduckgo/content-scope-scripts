@@ -1,1 +1,1 @@
-- feat(pir): captcha providers (#1550)
+- allow non-protection features to survive protections toggle (#1564)

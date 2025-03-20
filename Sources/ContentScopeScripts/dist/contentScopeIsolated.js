@@ -11965,12 +11965,15 @@
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "apple-isolated"
     };
-    const featureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] : [];
-    for (const featureName of featureNames) {
-      const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
-      const featureInstance = new ContentFeature2(featureName, importConfig, args);
-      featureInstance.callLoad();
-      features.push({ featureName, featureInstance });
+    const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] : [];
+    const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
+    for (const featureName of bundledFeatureNames) {
+      if (featuresToLoad.includes(featureName)) {
+        const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
+        const featureInstance = new ContentFeature2(featureName, importConfig, args);
+        featureInstance.callLoad();
+        features.push({ featureName, featureInstance });
+      }
     }
     mark.end();
   }
@@ -12015,9 +12018,6 @@
     const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
     const userPreferences = $USER_PREFERENCES$;
     const processedConfig = processConfig(config2, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
-    if (isGloballyDisabled(processedConfig)) {
-      return;
-    }
     if (true) {
       processedConfig.messagingConfig = new WebkitMessagingConfig({
         webkitMessageHandlerNames: ["contentScopeScriptsIsolated"],

@@ -5922,12 +5922,15 @@
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "apple"
     };
-    const featureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] : [];
-    for (const featureName of featureNames) {
-      const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
-      const featureInstance2 = new ContentFeature2(featureName, importConfig, args);
-      featureInstance2.callLoad();
-      features.push({ featureName, featureInstance: featureInstance2 });
+    const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] : [];
+    const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
+    for (const featureName of bundledFeatureNames) {
+      if (featuresToLoad.includes(featureName)) {
+        const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
+        const featureInstance2 = new ContentFeature2(featureName, importConfig, args);
+        featureInstance2.callLoad();
+        features.push({ featureName, featureInstance: featureInstance2 });
+      }
     }
     mark.end();
   }
@@ -5972,9 +5975,6 @@
     const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
     const userPreferences = $USER_PREFERENCES$;
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
-    if (isGloballyDisabled(processedConfig)) {
-      return;
-    }
     if (false) {
       processedConfig.messagingConfig = new WebkitMessagingConfig({
         webkitMessageHandlerNames: ["contentScopeScriptsIsolated"],

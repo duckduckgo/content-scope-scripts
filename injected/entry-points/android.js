@@ -2,7 +2,7 @@
  * @module Android integration
  */
 import { load, init } from '../src/content-scope-features.js';
-import { processConfig, isGloballyDisabled } from './../src/utils';
+import { processConfig } from './../src/utils';
 import { AndroidMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -14,9 +14,6 @@ function initCode() {
     const userPreferences = $USER_PREFERENCES$;
 
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences);
-    if (isGloballyDisabled(processedConfig)) {
-        return;
-    }
 
     const configConstruct = processedConfig;
     const messageCallback = configConstruct.messageCallback;
