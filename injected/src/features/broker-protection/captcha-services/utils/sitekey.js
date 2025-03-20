@@ -25,19 +25,19 @@ export function getSiteKeyFromSearchParam({ captchaElement, siteKeyAttrName }) {
  * Extracts a site key from a captcha element's HTML attribute.
  *
  * @param {Object} options - The options object
- * @param {HTMLElement | null} options.captchaElement - The DOM element containing the captcha
+ * @param {HTMLElement | null} options.captchaContainerElement - The DOM element containing the captcha
  * @param {string} options.siteKeyAttrName - The name of the attribute containing the site key
  * @returns {string | null} The site key extracted from the captcha element's attribute or null if not found
  * @throws {Error}
  */
-export function getSiteKeyFromAttribute({ captchaElement, siteKeyAttrName }) {
-    if (!captchaElement) {
+export function getSiteKeyFromAttribute({ captchaContainerElement, siteKeyAttrName }) {
+    if (!captchaContainerElement) {
         throw Error('[getSiteKeyFromAttribute] could not find captcha');
     }
 
-    if (!captchaElement.hasAttribute(siteKeyAttrName)) {
+    if (!captchaContainerElement.hasAttribute(siteKeyAttrName)) {
         throw Error('[getSiteKeyFromAttribute] missing site key attribute');
     }
 
-    return captchaElement.getAttribute(siteKeyAttrName);
+    return captchaContainerElement.getAttribute(siteKeyAttrName);
 }

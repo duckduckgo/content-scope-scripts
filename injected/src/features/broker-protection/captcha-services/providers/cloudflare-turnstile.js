@@ -3,7 +3,7 @@ import { safeCallWithError } from '../../utils/safe-call';
 import { getElementWithSrcStart } from '../../utils/utils';
 import { getSiteKeyFromAttribute } from '../utils/sitekey';
 import { injectTokenIntoElement } from '../utils/token';
-import { getCallbackFromAttribute } from './callback';
+import { getCallbackFromAttribute } from '../utils/callback';
 import { stringifyFunction } from '../utils/stringify-function';
 /**
  * @typedef {Object} CloudFlareTurnstileProviderConfig
@@ -39,15 +39,16 @@ export class CloudFlareTurnstileProvider {
      * @returns {boolean} Whether the captcha is supported for the element
      */
     isSupportedForElement(captchaContainerElement) {
-        return !!this._getCaptchaElement(captchaContainerElement);
+        return true;
+        //return !!this._getCaptchaElement(captchaContainerElement);
     }
 
     /**
-     * @param {HTMLElement} captchaContainerElement - The element containing the captchaz
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      */
     getCaptchaIdentifier(captchaContainerElement) {
         return safeCallWithError(
-            () => getSiteKeyFromAttribute({ captchaElement: this._getCaptchaElement(captchaContainerElement), siteKeyAttrName: 'data-sitekey' }),
+            () => getSiteKeyFromAttribute({ captchaContainerElement, siteKeyAttrName: 'data-sitekey' }),
             { errorMessage: '[CloudFlareTurnstileProvider.getCaptchaIdentifier] could not extract site key' },
         );
     }
@@ -61,8 +62,8 @@ export class CloudFlareTurnstileProvider {
      * @returns {boolean} Whether the captcha can be solved
      */
     canSolve(captchaContainerElement) {
-        const callbackFunctionName = getCallbackFromAttribute({ captchaElement: this._getCaptchaElement(captchaContainerElement), callbackAttrName: 'data-callback' });
-        const hasCallback = callbackFunctionName && typeof window[callbackFunctionName] === 'function';
+        const callbackFunctionName = getCallbackFromAttribute({ captchaContainerElement, callbackAttrName: 'data-callback' });
+        const hasCallback = callbackFunctionName && callbackFunctionName === 'function';
         const hasResponseElement = getElementByTagName(captchaContainerElement, this.#config.responseElementName);
 
         return !!hasCallback && !!hasResponseElement;
@@ -81,7 +82,7 @@ export class CloudFlareTurnstileProvider {
      * @param {string} token - The solved captcha token
      */
     getSolveCallback(captchaContainerElement, token) {
-        const callbackFunctionName = getCallbackFromAttribute({ captchaElement: this._getCaptchaElement(captchaContainerElement), callbackAttrName: 'data-callback' });
+        const callbackFunctionName = getCallbackFromAttribute({ captchaContainerElement, callbackAttrName: 'data-callback' });
 
         if (!callbackFunctionName) {
             return null;
