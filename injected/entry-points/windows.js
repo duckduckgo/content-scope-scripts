@@ -2,7 +2,7 @@
  * @module Windows integration
  */
 import { load, init } from '../src/content-scope-features.js';
-import { processConfig, isGloballyDisabled, platformSpecificFeatures } from './../src/utils';
+import { processConfig, platformSpecificFeatures } from './../src/utils';
 import { WindowsMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -14,9 +14,7 @@ function initCode() {
     const userPreferences = $USER_PREFERENCES$;
 
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
-    if (isGloballyDisabled(processedConfig)) {
-        return;
-    }
+
     processedConfig.messagingConfig = new WindowsMessagingConfig({
         methods: {
             // @ts-expect-error - Type 'unknown' is not assignable to type...

@@ -81,7 +81,6 @@ export function ActivityBody({ canBurn, visibility }) {
 
     return (
         <ul class={styles.activity} data-busy={busy}>
-            ts{' '}
             {keys.value.map((id, _index) => {
                 if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={visibility} />;
                 return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={visibility} />;
