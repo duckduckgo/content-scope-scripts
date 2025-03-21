@@ -62,19 +62,19 @@ function monitor(changeObservedCallback) {
         for (const mutation of mutations) {
             if (mutation.type === 'attributes' && mutation.target instanceof HTMLLinkElement) {
                 changeObservedCallback();
-                break;
+                return;
             }
             if (mutation.type === 'childList') {
                 for (const addedNode of mutation.addedNodes) {
                     if (addedNode instanceof HTMLLinkElement) {
                         changeObservedCallback();
-                        break;
+                        return;
                     }
                 }
                 for (const removedNode of mutation.removedNodes) {
                     if (removedNode instanceof HTMLLinkElement) {
                         changeObservedCallback();
-                        break;
+                        return;
                     }
                 }
             }
