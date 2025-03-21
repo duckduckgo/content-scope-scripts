@@ -145,3 +145,18 @@ test('favicon + monitor disabled', async ({ page }, testInfo) => {
     const messages = await favicon.outgoingMessages();
     expect(messages).toHaveLength(1);
 });
+
+test('favicon feature disabled completely', async ({ page }, testInfo) => {
+    const CONFIG = './integration-test/test-pages/favicon/config/favicon-disabled.json';
+    const favicon = ResultsCollector.create(page, testInfo.project.use);
+
+    await favicon.load(HTML, CONFIG);
+
+    // this is here purely to guard against a false positive in this test.
+    // without this manual `wait`, it might be possible for the following assertion to
+    // pass, but just because it was too quick (eg: the first message wasn't sent yet)
+    await page.waitForTimeout(100);
+
+    const messages = await favicon.outgoingMessages();
+    expect(messages).toHaveLength(0);
+});
