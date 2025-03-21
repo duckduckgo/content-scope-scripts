@@ -51,18 +51,35 @@ export default Favicon;
 
 /**
  * @param {()=>void} changeObservedCallback
- * @param {Element} [target]
  */
-function monitor(changeObservedCallback, target = document.head) {
+function monitor(changeObservedCallback) {
+    const target = document.head;
+    if (!target) return;
+
     const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
             if (mutation.type === 'attributes' && mutation.target instanceof HTMLLinkElement) {
                 changeObservedCallback();
                 break;
             }
+            if (mutation.type === 'childList') {
+                for (const addedNode of mutation.addedNodes) {
+                    if (addedNode instanceof HTMLLinkElement) {
+                        changeObservedCallback();
+                        break;
+                    }
+                }
+                for (const removedNode of mutation.removedNodes) {
+                    if (removedNode instanceof HTMLLinkElement) {
+                        changeObservedCallback();
+                        break;
+                    }
+                }
+            }
         }
     });
-    observer.observe(target, { attributeFilter: ['rel', 'href'], attributes: true, subtree: true });
+
+    observer.observe(target, { attributeFilter: ['rel', 'href'], attributes: true, subtree: true, childList: true });
 }
 
 /**

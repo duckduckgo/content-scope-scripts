@@ -46,6 +46,37 @@ test('favicon + monitor', async ({ page, baseURL }, testInfo) => {
     });
 });
 
+test('favicon + monitor + newly added links', async ({ page, baseURL }, testInfo) => {
+    const favicon = ResultsCollector.create(page, testInfo.project.use);
+    await favicon.load(HTML, CONFIG);
+
+    // ensure first favicon item was sent
+    await favicon.waitForMessage('faviconFound', 1);
+
+    await page.pause();
+    // now cause a new item to be added
+    await page.getByRole('button', { name: 'Add new' }).click();
+
+    // wait for the second message
+    const messages = await favicon.waitForMessage('faviconFound', 2);
+
+    const url1 = new URL('/favicon/favicon.png', baseURL);
+    const url2 = new URL('/favicon/new_favicon.png', baseURL);
+
+    expect(messages[0].payload.params).toStrictEqual({
+        favicons: [{ href: url1.href, rel: 'shortcut icon' }],
+        documentUrl: 'http://localhost:3220/favicon/index.html',
+    });
+
+    expect(messages[1].payload.params).toStrictEqual({
+        favicons: [
+            { href: url1.href, rel: 'shortcut icon' },
+            { href: url2.href, rel: 'shortcut icon' },
+        ],
+        documentUrl: 'http://localhost:3220/favicon/index.html',
+    });
+});
+
 test('favicon + monitor (many updates)', async ({ page, baseURL }, testInfo) => {
     const favicon = ResultsCollector.create(page, testInfo.project.use);
     await page.clock.install();
