@@ -3,6 +3,8 @@ import { isBeingFramed } from '../utils.js';
 
 export class Favicon extends ContentFeature {
     init() {
+        if (this.platform.name === 'ios') return;
+
         /**
          * This feature never operates in a frame
          */
