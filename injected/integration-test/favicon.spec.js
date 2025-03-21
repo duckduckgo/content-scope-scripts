@@ -53,7 +53,6 @@ test('favicon + monitor + newly added links', async ({ page, baseURL }, testInfo
     // ensure first favicon item was sent
     await favicon.waitForMessage('faviconFound', 1);
 
-    await page.pause();
     // now cause a new item to be added
     await page.getByRole('button', { name: 'Add new' }).click();
 
