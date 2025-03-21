@@ -5,6 +5,10 @@
       "state": "enabled",
       "exceptions": []
     },
+    "favicon": {
+      "state": "disabled",
+      "exceptions": []
+    },
     "messageBridge": {
       "exceptions": [],
       "state": "enabled",
