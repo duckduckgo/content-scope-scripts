@@ -1823,7 +1823,7 @@
   function isGloballyDisabled(args) {
     return args.site.allowlisted || args.site.isBroken;
   }
-  var platformSpecificFeatures = ["windowsPermissionUsage", "messageBridge"];
+  var platformSpecificFeatures = ["windowsPermissionUsage", "messageBridge", "favicon"];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);
   }
@@ -1869,12 +1869,13 @@
       "brokerProtection",
       "performanceMetrics",
       "breakageReporting",
-      "autofillPasswordImport"
+      "autofillPasswordImport",
+      "favicon"
     ]
   );
   var platformSupport = {
     apple: ["webCompat", ...baseFeatures],
-    "apple-isolated": ["duckPlayer", "brokerProtection", "performanceMetrics", "clickToLoad", "messageBridge"],
+    "apple-isolated": ["duckPlayer", "brokerProtection", "performanceMetrics", "clickToLoad", "messageBridge", "favicon"],
     android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-password-import": ["autofillPasswordImport"],
@@ -11940,13 +11941,92 @@
   };
   var message_bridge_default = MessageBridge;
 
+  // src/features/favicon.js
+  init_define_import_meta_trackerLookup();
+  var Favicon = class extends ContentFeature {
+    init() {
+      if (this.platform.name === "ios") return;
+      if (isBeingFramed()) return;
+      window.addEventListener("DOMContentLoaded", () => {
+        this.send();
+        this.monitorChanges();
+      });
+    }
+    monitorChanges() {
+      if (this.getFeatureSetting("monitor") === false) return;
+      let trailing;
+      let lastEmitTime = performance.now();
+      const interval = 50;
+      monitor(() => {
+        clearTimeout(trailing);
+        const currentTime = performance.now();
+        const delta = currentTime - lastEmitTime;
+        if (delta >= interval) {
+          this.send();
+        } else {
+          trailing = setTimeout(() => {
+            this.send();
+          }, 50);
+        }
+        lastEmitTime = currentTime;
+      });
+    }
+    send() {
+      const favicons = getFaviconList();
+      this.notify("faviconFound", { favicons, documentUrl: document.URL });
+    }
+  };
+  var favicon_default = Favicon;
+  function monitor(changeObservedCallback) {
+    const target = document.head;
+    if (!target) return;
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "attributes" && mutation.target instanceof HTMLLinkElement) {
+          changeObservedCallback();
+          return;
+        }
+        if (mutation.type === "childList") {
+          for (const addedNode of mutation.addedNodes) {
+            if (addedNode instanceof HTMLLinkElement) {
+              changeObservedCallback();
+              return;
+            }
+          }
+          for (const removedNode of mutation.removedNodes) {
+            if (removedNode instanceof HTMLLinkElement) {
+              changeObservedCallback();
+              return;
+            }
+          }
+        }
+      }
+    });
+    observer.observe(target, { attributeFilter: ["rel", "href"], attributes: true, subtree: true, childList: true });
+  }
+  function getFaviconList() {
+    const selectors = [
+      "link[href][rel='favicon']",
+      "link[href][rel*='icon']",
+      "link[href][rel='apple-touch-icon']",
+      "link[href][rel='apple-touch-icon-precomposed']"
+    ];
+    const elements = document.head.querySelectorAll(selectors.join(","));
+    return Array.from(elements).map((link) => {
+      const href = link.href || "";
+      const rel = link.getAttribute("rel") || "";
+      return { href, rel };
+    });
+  }
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_duckPlayer: DuckPlayerFeature,
     ddg_feature_brokerProtection: BrokerProtection,
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_clickToLoad: ClickToLoad,
-    ddg_feature_messageBridge: message_bridge_default
+    ddg_feature_messageBridge: message_bridge_default,
+    ddg_feature_favicon: favicon_default
   };
 
   // src/content-scope-features.js
