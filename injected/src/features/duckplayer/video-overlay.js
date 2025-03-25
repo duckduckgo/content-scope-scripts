@@ -268,8 +268,6 @@ export class VideoOverlay {
                 if (elem.container) {
                     this.appendThumbnail(elem.container);
                 }
-
-                this.altOverlay = elem;
             } else if (this.environment.layout === 'mobile') {
                 const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
                 elem.testMode = this.environment.isTestMode();
