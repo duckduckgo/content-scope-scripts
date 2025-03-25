@@ -111,6 +111,8 @@
     color: var(--drawer-color);
     left: 0;
     padding: var(--drawer-padding) var(--drawer-padding) calc(var(--drawer-padding) + var(--drawer-buffer));
+    padding-left: calc(var(--drawer-padding) + env(safe-area-inset-left));
+    padding-right: calc(var(--drawer-padding) + env(safe-area-inset-right));
     position: fixed;
     width: 100%;
 }
@@ -175,45 +177,36 @@
     align-items: center;
     display: flex;
     gap: 12px;
-    margin-right: 32px; /* Safe buffer for absolute-positioned info button */
 }
 
 .logo {
     flex: 0 0 32px;
-    width: 32px;
     height: 32px;
+    width: 32px;
 }
 
 .title {
+    flex: 1 1 auto;
     font-size: 19px;
     font-weight: 700;
     line-height: calc(24 / 19);
 }
 
-/* */
+.info {
+    align-self: start;
+    flex: 0 0 16px;
+    height: 32px;
+    position: relative;
+    width: 16px;
+}
+
+/* BUTTONS */
 
 .buttons {
     gap: 8px;
     display: flex;
     margin-top: 16px; /* TODO: replace with parent gap */
     margin-bottom: 4px;/* TODO: replace with parent gap */
-}
-
-.remember {
-    height: 40px;
-    border-radius: 8px;
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    justify-content: space-between;
-    padding-left: 8px;
-    padding-right: 8px;
-    grid-column: 1/4;
-    grid-row: 5/6;
-
-    @media screen and (min-width: 568px) {
-        grid-column: 2/3;
-    }
 }
 
 .button {
@@ -229,16 +222,15 @@
     background: var(--button-background);
     color: var(--button-color);
     text-decoration: none;
-    line-height: 16px;
-    padding: 0 12px;
+    line-height: 44px;
+    padding: 0 16px;
     font-size: 15px;
     font-weight: 600;
     border-radius: 8px;
     white-space: nowrap; /* TODO: Test on other languages */
 }
 
-.button--info {
-    align-self: start;
+.info-button {
     appearance: none;
     background: none;
     border: 0;
@@ -246,18 +238,18 @@
     margin: 0;
     padding: 12px;
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: -16px;
+    top: -16px;
     width: 40px;
 }
 
-.button--info svg {
+.info-button svg {
     display: block;
     width: 16px;
     height: 16px;
 }
 
-.button--info svg path {
+.info-button svg path {
     fill: var(--info-color);
 }
 
@@ -279,9 +271,15 @@
     }
 }
 
-.open:hover {
-}
-.cancel:hover {
+/* REMEMBER ME */
+
+.remember {
+    height: 40px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
 }
 
 .remember-label {
@@ -301,6 +299,8 @@
     display: flex;
 }
 
+/* SWITCH */
+
 .switch {
     margin: 0;
     padding: 0;
@@ -319,8 +319,8 @@
 }
 
 .thumb {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border-radius: 100%;
     background: var(--switch-thumb-background);
     position: absolute;
@@ -330,21 +330,24 @@
     transition: .2s left ease-in-out;
 }
 
+.switch[aria-checked="true"] .thumb {
+    left: calc(100% - 32px + 4px);
+}
 .switch[aria-checked="true"] {
     background: var(--switch-on-background);
 }
 
 .ios-switch {
-    width: 42px;
-    height: 24px;
+    width: 51px;
+    height: 31px;
 }
 
 .ios-switch .thumb {
     top: 2px;
     left: 2px;
-    width: 20px;
-    height: 20px;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)
+    width: 27px;
+    height: 27px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 .ios-switch:active .thumb {
@@ -352,5 +355,5 @@
 }
 
 .ios-switch[aria-checked="true"] .thumb {
-    left: calc(100% - 22px)
+    left: calc(100% - 32px + 3px);
 }
