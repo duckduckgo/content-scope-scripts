@@ -254,10 +254,10 @@ export class VideoOverlay {
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptOut(e.detail.remember).catch(console.error);
                 });
-                drawer.addEventListener(DDGVideoDrawerMobile.DISMISS, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                drawer.addEventListener(DDGVideoDrawerMobile.DISMISS, () => {
                     return this.mobileOptOut(false).catch(console.error); // Dismissal should not persist user's choice. Ignore remember-me value.
                 });
-                drawer.addEventListener(DDGVideoDrawerMobile.THUMBNAIL_CLICK, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                drawer.addEventListener(DDGVideoDrawerMobile.THUMBNAIL_CLICK, () => {
                     return this.videoThumbnailClick();
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
