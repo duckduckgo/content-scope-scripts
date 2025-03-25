@@ -124,7 +124,7 @@ export class DDGVideoDrawerMobile extends HTMLElement {
         }
 
         const switchElem = this.container.querySelector('[role=switch]');
-        const infoButton = this.container.querySelector('.button--info');
+        const infoButton = this.container.querySelector('.info-button');
         const remember = this.container.querySelector('input[name="ddg-remember"]');
         const cancelElement = this.container.querySelector('.ddg-vpo-cancel');
         const watchInPlayer = this.container.querySelector('.ddg-vpo-open');
