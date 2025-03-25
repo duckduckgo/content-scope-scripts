@@ -15,27 +15,17 @@ function initCode() {
 
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
 
+    const handlerNames = [];
     if (import.meta.injectName === 'apple-isolated') {
-        processedConfig.messagingConfig = new WebkitMessagingConfig({
-            webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
-            secret: '',
-            hasModernWebkitAPI: true,
-        });
+        handlerNames.push('contentScopeScriptsIsolated');
     } else {
-        processedConfig.messagingConfig = new TestTransportConfig({
-            notify() {
-                // noop
-            },
-            request: async () => {
-                // noop
-            },
-            subscribe() {
-                return () => {
-                    // noop
-                };
-            },
-        });
+        handlerNames.push('contentScopeScripts');
     }
+    processedConfig.messagingConfig = new WebkitMessagingConfig({
+        webkitMessageHandlerNames: handlerNames,
+        secret: '',
+        hasModernWebkitAPI: true,
+    });
 
     load({
         platform: processedConfig.platform,
