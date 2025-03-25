@@ -73,9 +73,9 @@ export class DDGVideoDrawerMobile extends HTMLElement {
                     <div class="heading">
                         <div class="logo">${svgIcon}</div>
                         <div class="title">${this.text.title}</div>
-                    </div>
-                    <div class="info">
-                        <button class="button--info" type="button" aria-label="Open Information Modal">${infoIcon}</button>
+                        <div class="info">
+                            <button class="info-button" type="button" aria-label="Open Information Modal">${infoIcon}</button>
+                        </div>
                     </div>
                     <div class="buttons">
                         <button class="button cancel ddg-vpo-cancel" type="button">${this.text.buttonOptOut}</button>
