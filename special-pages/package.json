@@ -28,7 +28,6 @@
   "devDependencies": {
     "@duckduckgo/messaging": "*",
     "chokidar": "^4.0.3",
-    "esbuild": "^0.25.0",
     "fast-check": "^3.23.2",
     "http-server": "^14.1.1",
     "web-resource-inliner": "^6.0.1"

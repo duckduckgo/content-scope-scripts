@@ -9,6 +9,7 @@
     "noEmit": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
+    "noUnusedParameters": true,
     "resolveJsonModule": true,
     "jsx": "react",
     "jsxFactory": "h",
@@ -34,6 +35,7 @@
   ],
   "exclude": [
     "injected/integration-test/test-pages",
+    "injected/playwright-report",
     "injected/integration-test/extension",
     "special-pages/pages/**/public",
     "special-pages/playwright-report",

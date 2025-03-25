@@ -10,7 +10,7 @@ export default defineConfig({
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/harmful-apis.spec.js',
                 'integration-test/windows-permissions.spec.js',
-                'integration-test/broker-protection.spec.js',
+                'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/breakage-reporting.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
@@ -20,7 +20,8 @@ export default defineConfig({
             testMatch: [
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
-                'integration-test/broker-protection.spec.js',
+                'integration-test/broker-protection-tests/**/*.spec.js',
+                'integration-test/favicon.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },
@@ -54,7 +55,7 @@ export default defineConfig({
             use: { injectName: 'android-autofill-password-import', platform: 'android', ...devices['Galaxy S5'] },
         },
         {
-            name: 'chrome',
+            name: 'chrome-mv3',
             testMatch: [
                 'integration-test/remote-pages.spec.js',
                 'integration-test/cookie.spec.js',
@@ -64,7 +65,7 @@ export default defineConfig({
                 'integration-test/utils.spec.js',
                 'integration-test/web-compat.spec.js',
             ],
-            use: { injectName: 'chrome', platform: 'extension', ...devices['Desktop Chrome'] },
+            use: { injectName: 'chrome-mv3', platform: 'extension', ...devices['Desktop Chrome'] },
         },
         {
             name: 'firefox',
@@ -93,7 +94,7 @@ export default defineConfig({
     webServer: {
         reuseExistingServer: true,
         ignoreHTTPSErrors: true,
-        command: 'npm run serve',
+        command: 'npm run bundle-entry-points && npm run serve',
         port: 3220,
     },
     use: {

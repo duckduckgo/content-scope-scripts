@@ -38,6 +38,7 @@
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
     "@playwright/test": "^1.50.1",
+    "esbuild": "^0.25.0",
     "eslint": "^9.21.0",
     "minimist": "^1.2.8",
     "prettier": "3.5.3",
@@ -46,7 +47,7 @@
     "stylelint-csstree-validator": "^3.0.0",
     "typedoc": "^0.27.9",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.0"
+    "typescript-eslint": "^8.27.0"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.1"

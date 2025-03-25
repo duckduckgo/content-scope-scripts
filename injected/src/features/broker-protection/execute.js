@@ -1,25 +1,24 @@
-import { buildUrl } from './actions/build-url.js';
-import { extract } from './actions/extract.js';
-import { fillForm } from './actions/fill-form.js';
-import { getCaptchaInfo, solveCaptcha } from './actions/captcha.js';
-import { click } from './actions/click.js';
-import { expectation } from './actions/expectation.js';
-import { ErrorResponse } from './types.js';
+import { resolveActionHandlers } from './actions/actions';
+import { ErrorResponse } from './types';
 
 /**
- * @param {object} action
- * @param {string} action.id
- * @param {string} [action.dataSource] - optional data source
- * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
+ * @param {import('./types.js').PirAction} action
  * @param {Record<string, any>} inputData
  * @param {Document} [root] - optional root element
+ * @param {Object} [options] - optional options
+ * @param {boolean} [options.useEnhancedCaptchaSystem] - optional flag to use new action handlers
  * @return {Promise<import('./types.js').ActionResponse>}
  */
-export async function execute(action, inputData, root = document) {
+export async function execute(action, inputData, root = document, options = {}) {
     try {
+        const { useEnhancedCaptchaSystem = false } = options;
+        const { navigate, extract, click, expectation, fillForm, getCaptchaInfo, solveCaptcha } = resolveActionHandlers({
+            useEnhancedCaptchaSystem,
+        });
+
         switch (action.actionType) {
             case 'navigate':
-                return buildUrl(action, data(action, inputData, 'userProfile'));
+                return navigate(action, data(action, inputData, 'userProfile'));
             case 'extract':
                 return await extract(action, data(action, inputData, 'userProfile'), root);
             case 'click':

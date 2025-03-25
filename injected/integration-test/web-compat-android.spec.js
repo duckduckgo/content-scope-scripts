@@ -155,7 +155,6 @@ test.describe('Web Share API', () => {
                     const result = await page.evaluate(payload).catch((e) => {
                         return { threw: e };
                     });
-                    console.log('check share', result);
                     const message = await page.evaluate(() => {
                         console.log('did read?');
                         return globalThis.shareReq;

@@ -41,7 +41,6 @@ export function YouTubeErrorProvider({ initial = null, children }) {
     const [error, setError] = useState(initialError);
 
     const messaging = useMessaging();
-    const platformName = usePlatformName();
     const setFocusMode = useSetFocusMode();
 
     // listen for updates
@@ -52,9 +51,7 @@ export function YouTubeErrorProvider({ initial = null, children }) {
             if (YOUTUBE_ERROR_IDS.includes(eventError) || eventError === null) {
                 if (eventError && eventError !== error) {
                     setFocusMode('paused');
-                    if (platformName === 'macos' || platformName === 'ios') {
-                        messaging.reportYouTubeError({ error: eventError });
-                    }
+                    messaging.reportYouTubeError({ error: eventError });
                 } else {
                     setFocusMode('enabled');
                 }
