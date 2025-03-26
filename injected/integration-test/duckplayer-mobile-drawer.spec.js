@@ -3,17 +3,17 @@ import { DuckplayerOverlays } from './page-objects/duckplayer-overlays.js';
 
 test.describe('Duck Player - Drawer UI variant', () => {
     test.describe('Video Player overlays', () => {
-         test("Selecting 'watch here' on mobile", async ({ page }, workerInfo) => {
+        test("Selecting 'watch here' on mobile", async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo);
             await overlays.reducedMotion();
 
             // Given drawer overlay variant is set
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json'});
-    
+            await overlays.withRemoteConfig({ json: 'overlays-drawer.json' });
+
             // And my setting is 'always ask'
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
-    
+
             // watch here = overlays removed
             await overlays.mobile.choosesWatchHere();
             await overlays.mobile.overlayIsRemoved();
@@ -27,12 +27,12 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.reducedMotion();
 
             // Given drawer overlay variant is set
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json'});
-    
+            await overlays.withRemoteConfig({ json: 'overlays-drawer.json' });
+
             // And my setting is 'always ask'
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
-    
+
             // watch here = overlays removed
             await overlays.mobile.selectsRemember();
             await overlays.mobile.choosesWatchHere();
@@ -46,14 +46,14 @@ test.describe('Duck Player - Drawer UI variant', () => {
         test("Selecting 'watch in duckplayer' on mobile", async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo);
             await overlays.reducedMotion();
-    
+
             // Given drawer overlay variant is set
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json'});
-    
+            await overlays.withRemoteConfig({ json: 'overlays-drawer.json' });
+
             // And my setting is 'always ask'
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
-    
+
             await overlays.mobile.choosesDuckPlayer();
             await overlays.pixels.sendsPixels([
                 { pixelName: 'overlay', params: {} },
@@ -66,12 +66,12 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.reducedMotion();
 
             // Given drawer overlay variant is set
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json'});
-    
+            await overlays.withRemoteConfig({ json: 'overlays-drawer.json' });
+
             // And my setting is 'always ask'
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
-    
+
             await overlays.mobile.selectsRemember();
             await overlays.mobile.choosesDuckPlayer();
             await overlays.pixels.sendsPixels([
@@ -80,17 +80,17 @@ test.describe('Duck Player - Drawer UI variant', () => {
             ]);
             await overlays.userSettingWasUpdatedTo('enabled');
         });
-        test("Clicking on video thumbnail dismisses overlay", async ({ page }, workerInfo) => {
+        test('Clicking on video thumbnail dismisses overlay', async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo);
             await overlays.reducedMotion();
 
             // Given drawer overlay variant is set
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json'});
-    
+            await overlays.withRemoteConfig({ json: 'overlays-drawer.json' });
+
             // And my setting is 'always ask'
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
-    
+
             await overlays.mobile.clicksOnVideoThumbnail();
             await overlays.pixels.sendsPixels([
                 { pixelName: 'overlay', params: {} },
@@ -98,17 +98,17 @@ test.describe('Duck Player - Drawer UI variant', () => {
             ]);
             await overlays.userSettingWasNotUpdated();
         });
-        test("Clicking on drawer backdrop dismisses overlay", async ({ page }, workerInfo) => {
+        test('Clicking on drawer backdrop dismisses overlay', async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo);
             await overlays.reducedMotion();
 
             // Given drawer overlay variant is set
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json'});
-    
+            await overlays.withRemoteConfig({ json: 'overlays-drawer.json' });
+
             // And my setting is 'always ask'
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
-    
+
             await overlays.mobile.clicksOnDrawerBackdrop();
             await overlays.pixels.sendsPixels([
                 { pixelName: 'overlay', params: {} },
@@ -121,8 +121,8 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.reducedMotion();
 
             // Given drawer overlay variant is set
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json'});
-    
+            await overlays.withRemoteConfig({ json: 'overlays-drawer.json' });
+
             // And my setting is 'always ask'
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
@@ -133,7 +133,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
     /**
      * Use this test in `--headed` mode to cycle through every language
      */
-    test.describe('Translated Overlays', () => {
+    test.describe.skip('Translated Overlays', () => {
         const items = [
             'bg',
             'cs',
