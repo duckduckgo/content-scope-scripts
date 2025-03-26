@@ -186,7 +186,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
             await page.locator('ddg-video-drawer-mobile').nth(0).waitFor();
-            await expect(page.locator('.html5-video-player')).toHaveScreenshot('overlay.png', { maxDiffPixels: 20 });
+            await expect(page.locator('ddg-video-drawer-mobile')).toHaveScreenshot('drawer.png', { maxDiffPixels: 20 });
         });
     });
 });
