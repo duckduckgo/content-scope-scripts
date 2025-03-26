@@ -68,7 +68,8 @@
     --switch-thumb-background: #fff;
     --info-color: #000;
 
-    --drawer-padding: 16px;
+    --drawer-padding-block: 24px;
+    --drawer-padding-inline: 16px;
     --drawer-buffer: 48px;
 
     height: 100%;
@@ -109,15 +110,18 @@
     box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.10), 0px -20px 40px 0px rgba(0, 0, 0, 0.08);
     box-sizing: border-box;
     color: var(--drawer-color);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     left: 0;
     position: fixed;
     width: 100%;
 
     /* Apply safe-area padding as fallback in case media query below gets removed in the future */
-    padding-top: var(--drawer-padding);
-    padding-right: calc(var(--drawer-padding) + env(safe-area-inset-right));
-    padding-bottom: calc(var(--drawer-padding) + var(--drawer-buffer));
-    padding-left: calc(var(--drawer-padding) + env(safe-area-inset-left));
+    padding-top: var(--drawer-padding-block);
+    padding-right: calc(var(--drawer-padding-inline) + env(safe-area-inset-right));
+    padding-bottom: calc(var(--drawer-padding-block) + var(--drawer-buffer));
+    padding-left: calc(var(--drawer-padding-inline) + env(safe-area-inset-left));
 }
 
 /* Apply a blanket 18% inline padding on viewports wider than 700px */
@@ -197,6 +201,7 @@
     align-items: center;
     display: flex;
     gap: 12px;
+    margin-bottom: 4px;
 }
 
 .logo {
@@ -225,8 +230,6 @@
 .buttons {
     gap: 8px;
     display: flex;
-    margin-top: 16px; /* TODO: replace with parent gap */
-    margin-bottom: 4px;/* TODO: replace with parent gap */
 }
 
 .button {
@@ -242,12 +245,11 @@
     background: var(--button-background);
     color: var(--button-color);
     text-decoration: none;
-    line-height: 44px;
-    padding: 0 16px;
+    line-height: 20px;
+    padding: 12px 16px;
     font-size: 15px;
     font-weight: 600;
     border-radius: 8px;
-    white-space: nowrap; /* TODO: Test on other languages */
 }
 
 .info-button {
@@ -258,8 +260,8 @@
     margin: 0;
     padding: 12px;
     position: absolute;
-    right: -16px;
-    top: -16px;
+    right: calc(-1 * var(--drawer-padding-inline));
+    top: calc(-1 * var(--drawer-padding-block));
     width: 40px;
 }
 
@@ -273,15 +275,10 @@
     fill: var(--info-color);
 }
 
-.cancel {
-    min-height: 40px;
-}
-
 .open {
     background: var(--button-accent-background);
     color: var(--button-accent-color);
     text-align: center;
-    min-height: 40px;
     width: 100%;
 
     @media screen and (min-width: 568px) {
@@ -299,7 +296,7 @@
     gap: 16px;
     align-items: center;
     justify-content: space-between;
-    padding: 8px;
+    padding: 0 8px;
 }
 
 .remember-label {
