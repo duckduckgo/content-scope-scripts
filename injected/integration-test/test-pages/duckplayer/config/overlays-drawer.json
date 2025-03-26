@@ -19,7 +19,8 @@
               "videoElementContainer": "#player .html5-video-player",
               "hoverExcluded": [".an-overlay-causing-breakage"],
               "clickExcluded": [".an-overlay-causing-breakage"],
-              "allowedEventTargets": []
+              "allowedEventTargets": [],
+              "drawerContainer": "body"
             },
             "thumbnailOverlays": {
               "state": "enabled"
@@ -30,8 +31,8 @@
             "videoOverlays": {
               "state": "enabled"
             },
-            "ui": {
-              "variant": "drawer"
+            "videoDrawer": {
+              "state": "enabled"
             }
           },
           "serpProxy": {
