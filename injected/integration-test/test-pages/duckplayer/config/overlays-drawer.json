@@ -28,8 +28,10 @@
               "state": "enabled"
             },
             "videoOverlays": {
-              "state": "enabled",
-              "overlayType": "sheet"
+              "state": "enabled"
+            },
+            "ui": {
+              "variant": "drawer"
             }
           },
           "serpProxy": {
