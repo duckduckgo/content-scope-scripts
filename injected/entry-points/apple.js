@@ -3,7 +3,7 @@
  */
 import { load, init } from '../src/content-scope-features.js';
 import { processConfig, platformSpecificFeatures } from './../src/utils';
-import { WebkitMessagingConfig, TestTransportConfig } from '../../messaging/index.js';
+import { WebkitMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
