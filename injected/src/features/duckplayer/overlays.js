@@ -215,6 +215,11 @@ export class Environment {
     }
 
     getLargeThumbnailSrc(videoId) {
+        const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, 'https://i.ytimg.com');
+        return url.href;
+    }
+
+    getHiResThumbnailSrc(videoId) {
         const url = new URL(`/vi/${videoId}/hqdefault.jpg`, 'https://i.ytimg.com');
         return url.href;
     }
