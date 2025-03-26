@@ -39,7 +39,7 @@ import { DDGVideoDrawerMobile } from './components/ddg-video-drawer-mobile.js';
  * + conduct any communications
  */
 export class VideoOverlay {
-    sideEffects = new SideEffects({ debug: true }); /* TODO: REMOVE debug */
+    sideEffects = new SideEffects();
 
     /** @type {string | null} */
     lastVideoId = null;
@@ -56,7 +56,6 @@ export class VideoOverlay {
      * @param {import("../duck-player.js").UISettings} options.ui
      */
     constructor({ userValues, settings, environment, messages, ui }) {
-        console.log('SETTINGS', settings);
         this.userValues = userValues;
         this.settings = settings;
         this.environment = environment;
@@ -181,8 +180,8 @@ export class VideoOverlay {
              */
             const videoElement = document.querySelector(this.settings.selectors.videoElement);
             const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
-            const overlayContainer = document.body; // TODO: Move to RC
-            if (!videoElement || !playerContainer || !overlayContainer) {
+            const drawerContainer = document.body;
+            if (!videoElement || !playerContainer || !drawerContainer) {
                 return null;
             }
 
@@ -221,7 +220,7 @@ export class VideoOverlay {
 
                 // if we get here, we're trying to prevent the video playing
                 this.stopVideoFromPlaying();
-                this.appendOverlayToPage(playerContainer, overlayContainer, params);
+                this.appendOverlayToPage(playerContainer, drawerContainer, params);
             }
         }
     }
@@ -230,7 +229,7 @@ export class VideoOverlay {
      * @param {Element} targetElement
      * @param {import("./util").VideoParams} params
      */
-    appendOverlayToPage(targetElement, overlayElement, params) {
+    appendOverlayToPage(targetElement, drawerTargetElement, params) {
         this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} or ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
             this.messages.sendPixel(new Pixel({ name: 'overlay' }));
             const controller = new AbortController();
@@ -261,7 +260,7 @@ export class VideoOverlay {
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                 });
-                overlayElement.appendChild(drawer);
+                drawerTargetElement.appendChild(drawer);
 
                 if (thumbnailOverlay.container) {
                     this.appendThumbnail(thumbnailOverlay.container);

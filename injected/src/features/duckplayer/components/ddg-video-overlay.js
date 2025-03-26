@@ -105,8 +105,6 @@ export class DDGVideoOverlay extends HTMLElement {
      * @param {string} videoId
      */
     appendThumbnail(overlayElement, videoId) {
-        console.log('Appending thumbnail', overlayElement, videoId);
-
         const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
         appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
     }
