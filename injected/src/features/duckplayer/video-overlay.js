@@ -31,7 +31,7 @@ import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
 import { IconOverlay } from './icon-overlay.js';
 import { mobileStrings } from './text.js';
 import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js';
-import { DDGVideoOverlayMobileAlt } from './components/ddg-video-overlay-mobile-alt.js';
+import { DDGVideoThumbnailOverlay } from './components/ddg-video-thumbnail-overlay-mobile.js';
 import { DDGVideoDrawerMobile } from './components/ddg-video-drawer-mobile.js';
 
 /**
@@ -241,15 +241,16 @@ export class VideoOverlay {
             const mobileLayout = 'b';
 
             if (this.environment.layout === 'mobile' && mobileLayout === 'b') {
-                const elem = /** @type {DDGVideoOverlayMobileAlt} */ (document.createElement(DDGVideoOverlayMobileAlt.CUSTOM_TAG_NAME));
-                elem.testMode = this.environment.isTestMode();
-                elem.text = mobileStrings(this.environment.strings);
-                targetElement.appendChild(elem);
+                const thumbnailOverlay = /** @type {DDGVideoThumbnailOverlay} */ (
+                    document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)
+                );
+                thumbnailOverlay.testMode = this.environment.isTestMode();
+                targetElement.appendChild(thumbnailOverlay);
 
                 const drawer = /** @type {DDGVideoDrawerMobile} */ (document.createElement(DDGVideoDrawerMobile.CUSTOM_TAG_NAME));
                 drawer.testMode = this.environment.isTestMode();
                 drawer.text = mobileStrings(this.environment.strings);
-                drawer.overlay = elem; /* TODO: Remove hack */
+                drawer.thumbnailOverlay = thumbnailOverlay;
                 drawer.addEventListener(DDGVideoDrawerMobile.OPEN_INFO, () => this.messages.openInfo());
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptOut(e.detail.remember).catch(console.error);
@@ -265,8 +266,8 @@ export class VideoOverlay {
                 });
                 overlayElement.appendChild(drawer);
 
-                if (elem.container) {
-                    this.appendThumbnail(elem.container);
+                if (thumbnailOverlay.container) {
+                    this.appendThumbnail(thumbnailOverlay.container);
                 }
             } else if (this.environment.layout === 'mobile') {
                 const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
@@ -296,10 +297,11 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
-                document.querySelector(DDGVideoOverlayMobileAlt.CUSTOM_TAG_NAME)?.remove();
+                document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)?.remove();
                 setTimeout(() => {
+                    // Allow for drawer to animate out
                     document.querySelector(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)?.remove();
-                }, 500); /* TODO FIX THIS */
+                }, 500);
 
                 controller.abort();
             };
@@ -477,9 +479,7 @@ export class VideoOverlay {
     }
 
     videoThumbnailClick() {
-        console.log('Video thumbnail clicked');
         const pixel = new Pixel({ name: 'play.do_not_use.thumbnail' });
-
         this.messages.sendPixel(pixel);
 
         return this.destroy();
