@@ -483,7 +483,7 @@ export class DuckplayerOverlays {
     async userSettingWasNotUpdated() {
         const messages = await this.collector.outgoingMessages();
         // @ts-expect-error - Subscription is missing method property
-        const setUserValuesMessages = messages.filter(message => message.payload?.method === 'setUserValues');
+        const setUserValuesMessages = messages.filter((message) => message.payload?.method === 'setUserValues');
 
         expect(setUserValuesMessages.length).toBe(0);
     }
