@@ -2,6 +2,7 @@ import mobilecss from '../assets/mobile-video-drawer.css';
 import dax from '../assets/dax.svg';
 import info from '../assets/info-solid.svg';
 import { createPolicy, html, trustedUnsafe } from '../../../dom-utils.js';
+import { DDGVideoThumbnailOverlay } from './ddg-video-thumbnail-overlay-mobile';
 
 /**
  * @typedef {ReturnType<import("../text").overlayCopyVariants>} TextVariants
@@ -19,6 +20,7 @@ export class DDGVideoDrawerMobile extends HTMLElement {
     static OPT_OUT = 'opt-out';
     static DISMISS = 'dismiss';
     static THUMBNAIL_CLICK = 'thumbnail-click';
+    static DID_EXIT = 'did-exit';
 
     policy = createPolicy();
     /** @type {boolean} */
@@ -29,8 +31,11 @@ export class DDGVideoDrawerMobile extends HTMLElement {
     container;
     /** @type {HTMLElement | null} */
     drawer;
-    /** @type {import('./ddg-video-thumbnail-overlay-mobile').DDGVideoThumbnailOverlay} */
-    thumbnailOverlay;
+    /** @type {HTMLElement | null} */
+    overlay;
+
+    /** @type {'idle'|'animating'} */
+    animationState = 'idle';
 
     connectedCallback() {
         this.createMarkupAndStyles();
@@ -44,15 +49,8 @@ export class DDGVideoDrawerMobile extends HTMLElement {
         const content = this.mobileHtml();
         overlayElement.innerHTML = this.policy.createHTML(content);
         shadow.append(style, overlayElement);
-        this.setupElements(overlayElement);
-        this.setupEventHandlers();
+        this.setupEventHandlers(overlayElement);
         this.animateOverlay('in');
-    }
-
-    /** @param {HTMLElement} container */
-    setupElements(container) {
-        this.container = container;
-        this.drawer = container.querySelector('.ddg-mobile-drawer');
     }
 
     /**
@@ -102,46 +100,71 @@ export class DDGVideoDrawerMobile extends HTMLElement {
      * @param {'in'|'out'} direction
      */
     animateOverlay(direction) {
-        const overlay = this.container?.querySelector('.ddg-mobile-drawer-overlay');
-        if (!overlay) return;
+        if (!this.overlay) return;
+        this.animationState = 'animating';
 
         switch (direction) {
             case 'in':
-                overlay.classList.remove('animateOut');
-                overlay.classList.add('animateIn');
+                this.overlay.classList.remove('animateOut');
+                this.overlay.classList.add('animateIn');
                 break;
             case 'out':
-                overlay.classList.remove('animateIn');
-                overlay.classList.add('animateOut');
+                this.overlay.classList.remove('animateIn');
+                this.overlay.classList.add('animateOut');
                 break;
         }
     }
 
-    setupEventHandlers() {
-        if (!this.container) {
+    /**
+     * @param {() => void} callback
+     */
+    onAnimationEnd(callback) {
+        if (this.animationState !== 'animating') callback();
+
+        this.overlay?.addEventListener(
+            'animationend',
+            () => {
+                callback();
+            },
+            { once: true },
+        );
+    }
+
+    /**
+     * @param {HTMLElement} [container]
+     * @returns
+     */
+    setupEventHandlers(container) {
+        if (!container) {
             console.warn('Error setting up drawer component');
             return;
         }
 
-        const switchElem = this.container.querySelector('[role=switch]');
-        const infoButton = this.container.querySelector('.info-button');
-        const remember = this.container.querySelector('input[name="ddg-remember"]');
-        const cancelElement = this.container.querySelector('.ddg-vpo-cancel');
-        const watchInPlayer = this.container.querySelector('.ddg-vpo-open');
-        const overlay = this.container.querySelector('.ddg-mobile-drawer-overlay');
-        const background = this.container.querySelector('.ddg-mobile-drawer-background');
+        const switchElem = container.querySelector('[role=switch]');
+        const infoButton = container.querySelector('.info-button');
+        const remember = container.querySelector('input[name="ddg-remember"]');
+        const cancelElement = container.querySelector('.ddg-vpo-cancel');
+        const watchInPlayer = container.querySelector('.ddg-vpo-open');
+        const background = container.querySelector('.ddg-mobile-drawer-background');
+        const overlay = container.querySelector('.ddg-mobile-drawer-overlay');
+        const drawer = container.querySelector('.ddg-mobile-drawer');
 
         if (
             !cancelElement ||
             !watchInPlayer ||
             !switchElem ||
             !infoButton ||
-            !overlay ||
             !background ||
+            !overlay ||
+            !drawer ||
             !(remember instanceof HTMLInputElement)
         ) {
             return console.warn('missing elements');
         }
+
+        this.container = container;
+        this.overlay = /** @type {HTMLElement} */ (overlay);
+        this.drawer = /** @type {HTMLElement} */ (drawer);
 
         infoButton.addEventListener('click', () => {
             this.dispatchEvent(new Event(DDGVideoDrawerMobile.OPEN_INFO));
@@ -173,10 +196,15 @@ export class DDGVideoDrawerMobile extends HTMLElement {
             this.animateOverlay('out');
 
             const mouseEvent = /** @type {MouseEvent} */ (e);
-            const isClickOnOverlay = this.thumbnailOverlay?.isMouseEventWithinBounds(mouseEvent);
-            const event = isClickOnOverlay ? DDGVideoDrawerMobile.THUMBNAIL_CLICK : DDGVideoDrawerMobile.DISMISS;
+            let eventName = DDGVideoDrawerMobile.DISMISS;
+            for (const element of document.elementsFromPoint(mouseEvent.clientX, mouseEvent.clientY)) {
+                if (element.tagName === DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME.toUpperCase()) {
+                    eventName = DDGVideoDrawerMobile.THUMBNAIL_CLICK;
+                    break;
+                }
+            }
 
-            this.dispatchEvent(new CustomEvent(event));
+            this.dispatchEvent(new CustomEvent(eventName));
         });
 
         watchInPlayer.addEventListener('click', (e) => {
@@ -184,6 +212,10 @@ export class DDGVideoDrawerMobile extends HTMLElement {
             e.preventDefault();
             e.stopImmediatePropagation();
             this.dispatchEvent(new CustomEvent(DDGVideoDrawerMobile.OPT_IN, { detail: { remember: remember.checked } }));
+        });
+
+        overlay.addEventListener('animationend', () => {
+            this.animationState = 'idle';
         });
     }
 }

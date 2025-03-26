@@ -219,11 +219,6 @@ export class Environment {
         return url.href;
     }
 
-    getHiResThumbnailSrc(videoId) {
-        const url = new URL(`/vi/${videoId}/hqdefault.jpg`, 'https://i.ytimg.com');
-        return url.href;
-    }
-
     setHref(href) {
         window.location.href = href;
     }
