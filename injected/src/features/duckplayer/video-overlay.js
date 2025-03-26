@@ -56,6 +56,7 @@ export class VideoOverlay {
      * @param {import("../duck-player.js").UISettings} options.ui
      */
     constructor({ userValues, settings, environment, messages, ui }) {
+        console.log('SETTINGS', settings);
         this.userValues = userValues;
         this.settings = settings;
         this.environment = environment;
@@ -234,13 +235,9 @@ export class VideoOverlay {
             this.messages.sendPixel(new Pixel({ name: 'overlay' }));
             const controller = new AbortController();
             const { environment } = this;
+            const isDrawerVariant = this.settings.ui?.variant === 'drawer';
 
-            /* TODO: remote config */
-
-            /** @type {'a'|'b'} */
-            const mobileLayout = 'b';
-
-            if (this.environment.layout === 'mobile' && mobileLayout === 'b') {
+            if (this.environment.layout === 'mobile' && isDrawerVariant) {
                 const thumbnailOverlay = /** @type {DDGVideoThumbnailOverlay} */ (
                     document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)
                 );
