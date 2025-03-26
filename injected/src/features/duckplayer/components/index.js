@@ -1,7 +1,7 @@
 import { DDGVideoOverlay } from './ddg-video-overlay.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
 import { DDGVideoOverlayMobile } from './ddg-video-overlay-mobile.js';
-import { DDGVideoOverlayMobileAlt } from './ddg-video-overlay-mobile-alt.js';
+import { DDGVideoThumbnailOverlay } from './ddg-video-thumbnail-overlay-mobile.js';
 import { DDGVideoDrawerMobile } from './ddg-video-drawer-mobile.js';
 
 /**
@@ -19,7 +19,7 @@ export function registerCustomElements() {
     if (!customElementsGet(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)) {
         customElementsDefine(DDGVideoDrawerMobile.CUSTOM_TAG_NAME, DDGVideoDrawerMobile);
     }
-    if (!customElementsGet(DDGVideoOverlayMobileAlt.CUSTOM_TAG_NAME)) {
-        customElementsDefine(DDGVideoOverlayMobileAlt.CUSTOM_TAG_NAME, DDGVideoOverlayMobileAlt);
+    if (!customElementsGet(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) {
+        customElementsDefine(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, DDGVideoThumbnailOverlay);
     }
 }
