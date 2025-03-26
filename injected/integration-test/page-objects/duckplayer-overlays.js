@@ -38,6 +38,7 @@ const uiSettings = {
 const configFiles = /** @type {const} */ ([
     'overlays.json',
     'overlays-live.json',
+    'overlays-drawer.json',
     'disabled.json',
     'thumbnail-overlays-disabled.json',
     'click-interceptions-disabled.json',
@@ -88,6 +89,10 @@ export class DuckplayerOverlays {
         page.on('console', (msg) => {
             console.log(msg.type(), msg.text());
         });
+    }
+
+    async reducedMotion() {
+        await this.page.emulateMedia({ reducedMotion: 'reduce' });
     }
 
     /**
@@ -473,6 +478,17 @@ export class DuckplayerOverlays {
     }
 
     /**
+     * @return {Promise<void>}
+     */
+    async userSettingWasNotUpdated() {
+        const messages = await this.collector.outgoingMessages();
+        // @ts-expect-error - Subscription is missing method property
+        const setUserValuesMessages = messages.filter(message => message.payload?.method === 'setUserValues');
+
+        expect(setUserValuesMessages.length).toBe(0);
+    }
+
+    /**
      * Helper for creating an instance per platform
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
@@ -534,6 +550,16 @@ class DuckplayerOverlaysMobile {
     async choosesDuckPlayer() {
         const { page } = this.overlays;
         await page.getByRole('link', { name: 'Turn On Duck Player' }).click();
+    }
+
+    async clicksOnVideoThumbnail() {
+        const { page } = this.overlays;
+        await page.locator('ddg-video-thumbnail-overlay-mobile .bg').click({ force: true });
+    }
+
+    async clicksOnDrawerBackdrop() {
+        const { page } = this.overlays;
+        await page.locator('ddg-video-drawer-mobile .ddg-mobile-drawer-background').click({ position: { x: 10, y: 10 } });
     }
 
     async selectsRemember() {
