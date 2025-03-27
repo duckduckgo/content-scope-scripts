@@ -39,7 +39,7 @@ import { DDGVideoDrawerMobile } from './components/ddg-video-drawer-mobile.js';
  * + conduct any communications
  */
 export class VideoOverlay {
-    sideEffects = new SideEffects({ debug: true }); // TODO: unset debug
+    sideEffects = new SideEffects();
 
     /** @type {string | null} */
     lastVideoId = null;
