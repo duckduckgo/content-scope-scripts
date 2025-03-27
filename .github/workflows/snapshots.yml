@@ -52,7 +52,7 @@ jobs:
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
 
-            - run: npm run test-int-x-snapshots
+            - run: npm run test-int-snapshots
 
             - uses: actions/upload-artifact@v4
               if: always()

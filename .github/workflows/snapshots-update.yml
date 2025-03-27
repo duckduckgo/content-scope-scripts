@@ -53,7 +53,7 @@ jobs:
 
             - name: Run Screenshot tests
               id: screenshot_tests
-              run: npm run test-int-x-snapshots
+              run: npm run test-int-snapshots
 
             - if: ${{ steps.screenshot_tests.conclusion == 'success' }}
               run: |
@@ -62,7 +62,7 @@ jobs:
             - name: Re-Running Playwright to update snapshots
               id: screenshot_tests_update
               if: ${{ failure() && steps.screenshot_tests.conclusion == 'failure' }}
-              run: npm run test-int-x-snapshots-update
+              run: npm run test-int-snapshots-update
 
             - name: Commit the updated files to the PR branch
               if: ${{ failure() && steps.screenshot_tests_update.conclusion == 'success' }}
