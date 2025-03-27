@@ -68,6 +68,13 @@ jobs:
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
                       const branchUrl = `${repoUrl}/tree/${branchName}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
+
+                      // Get the current date
+                      const lastUpdatedDate = (new Date()).toLocaleString('en-US', {
+                          dateStyle: 'long',
+                          timeStyle: 'long'
+                        });
+
                       const commentBody = `
                       ### Temporary Branch Update
 
@@ -75,10 +82,11 @@ jobs:
 
                         - **Branch Name**: [${branchName}](${branchUrl})
                         - **Commit Hash**: [${commitHash}](${commitUrl})
+                        - **Last Updated**: ${lastUpdatedDate}
                         - **Install Command**: \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
 
                         Please use the above install command to update to the latest version.
-                          `;
+                      `;
                       core.setOutput('comment_body', commentBody);
                       core.setOutput('pr_number', prNumber);
 

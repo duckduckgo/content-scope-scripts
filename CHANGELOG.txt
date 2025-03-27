@@ -1,1 +1,4 @@
-- add favicon feature (#1561)
+- Add support for non isolated messaging (#1586)
+- Adds last updated date to PR build-and-release comment (#1563)
+- add snapshot checking in CI (#1587)
+- build(deps-dev): bump typescript-eslint from 8.26.0 to 8.27.0 (#1582)
