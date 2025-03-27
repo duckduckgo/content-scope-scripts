@@ -14,6 +14,8 @@
     "test-unit": "npm run test-unit --workspaces --if-present",
     "test-int": "npm run test-int --workspaces --if-present",
     "test-int-x": "npm run test-int-x --workspaces --if-present",
+    "test-int-x-snapshots": "npm run test-int-x-snapshots --workspaces --if-present",
+    "test-int-x-snapshots-update": "npm run test-int-x-snapshots-update --workspaces --if-present",
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
     "docs": "typedoc",
     "docs-watch": "typedoc --watch",
