@@ -45,7 +45,7 @@ export class ReCaptchaProvider {
     /**
      * @param {HTMLElement} captchaContainerElement
      */
-    getCaptchaIdentifier(captchaContainerElement) {
+    async getCaptchaIdentifier(captchaContainerElement) {
         return safeCallWithError(
             () => getSiteKeyFromSearchParam({ captchaElement: this._getCaptchaElement(captchaContainerElement), siteKeyAttrName: 'k' }),
             { errorMessage: '[ReCaptchaProvider.getCaptchaIdentifier] could not extract site key' },
