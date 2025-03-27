@@ -1,84 +1,84 @@
 name: Update Snapshots on a PR
 description: |
-  Runs previously failed snapshot tests, and commits the changes.
-  
-  Your PR will receive a commit with the changes so you can manually verify before merging.
+    Runs previously failed snapshot tests, and commits the changes.
+
+    Your PR will receive a commit with the changes so you can manually verify before merging.
 
 on:
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: 'Pull Request Number (Warning: This action will push a commit to the referenced PR)'
-        required: true
-        type: number
+    workflow_dispatch:
+        inputs:
+            pr_number:
+                description: 'Pull Request Number (Warning: This action will push a commit to the referenced PR)'
+                required: true
+                type: number
 
 permissions:
-  pull-requests: write
-  contents: write
+    pull-requests: write
+    contents: write
 
 jobs:
-  update-pr-with-snapshots:
-    name: Update PR With Snapshots
-    runs-on: macos-14
-    steps:
-      - uses: actions/checkout@v4
-      - name: Checkout PR ${{ github.event.inputs.pr_number }}
-        if: github.event_name == 'workflow_dispatch'
-        run: gh pr checkout ${{ github.event.inputs.pr_number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    update-pr-with-snapshots:
+        name: Update PR With Snapshots
+        runs-on: macos-14
+        steps:
+            - uses: actions/checkout@v4
+            - name: Checkout PR ${{ github.event.inputs.pr_number }}
+              if: github.event_name == 'workflow_dispatch'
+              run: gh pr checkout ${{ github.event.inputs.pr_number }}
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-node-playwright-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-playwright-
-            ${{ runner.os }}-node-
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.npm
+                      ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-node-playwright-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-playwright-
+                      ${{ runner.os }}-node-
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Build all
-        run: npm run build
+            - name: Build all
+              run: npm run build
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
 
-      - name: Run Screenshot tests
-        id: screenshot_tests
-        run: npm run test-int-x-snapshots
+            - name: Run Screenshot tests
+              id: screenshot_tests
+              run: npm run test-int-x-snapshots
 
-      - if: ${{ steps.screenshot_tests.conclusion == 'success' }}
-        run: |
-          echo "nothing to update - tests all passed"
+            - if: ${{ steps.screenshot_tests.conclusion == 'success' }}
+              run: |
+                  echo "nothing to update - tests all passed"
 
-      - name: Re-Running Playwright to update snapshots
-        id: screenshot_tests_update
-        if: ${{ failure() && steps.screenshot_tests.conclusion == 'failure' }}
-        run: npm run test-int-x-snapshots-update
+            - name: Re-Running Playwright to update snapshots
+              id: screenshot_tests_update
+              if: ${{ failure() && steps.screenshot_tests.conclusion == 'failure' }}
+              run: npm run test-int-x-snapshots-update
 
-      - name: Commit the updated files to the PR branch
-        if: ${{ failure() && steps.screenshot_tests_update.conclusion == 'success' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Configure Git with a bot's username and email for committing changes
-          # This makes it easy to identify in the PR
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Stage all updated PNG files for commit
-          git add "*.png"
-          
-          # Commit the changes with a descriptive message
-          git commit -m "Updated snapshots via workflow"
-          
-          # Push the changes to the current branch in the PR
-          git push origin HEAD
+            - name: Commit the updated files to the PR branch
+              if: ${{ failure() && steps.screenshot_tests_update.conclusion == 'success' }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  # Configure Git with a bot's username and email for committing changes
+                  # This makes it easy to identify in the PR
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+                  # Stage all updated PNG files for commit
+                  git add "*.png"
+
+                  # Commit the changes with a descriptive message
+                  git commit -m "Updated snapshots via workflow"
+
+                  # Push the changes to the current branch in the PR
+                  git push origin HEAD
