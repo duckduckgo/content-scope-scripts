@@ -1,0 +1,66 @@
+name: Test Snapshots
+description: |
+    Runs snapshot tests and uploads test reports as artifacts
+
+    If this workflow fails, you can trigger `update-snapshots.yml` from the
+    GitHub UI.
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    snapshots:
+        timeout-minutes: 5
+        runs-on: macos-14
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.npm
+                      ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-node-playwright-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-playwright-
+                      ${{ runner.os }}-node-
+
+            - run: npm ci
+            - run: npm run build
+
+            - run: npm run lint
+              continue-on-error: true
+
+            - run: npm run stylelint
+              continue-on-error: true
+
+            - run: npm run test-unit
+              continue-on-error: true
+
+            - name: 'Clean tree'
+              run: 'npm run test-clean-tree'
+
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+
+            - run: npm run test-int-snapshots
+
+            - uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report-pages
+                  path: |
+                      special-pages/playwright-report
+                      special-pages/test-results
+                      injected/playwright-report
+                      injected/test-results
+                  retention-days: 5
