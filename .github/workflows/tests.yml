@@ -64,14 +64,12 @@ jobs:
                   key: docs-output-${{ github.run_id }}
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
-            - name: Install dependencies for CI integration tests
-              run: sudo apt-get install xvfb
             - run: npm run test-int-x
             - uses: actions/upload-artifact@v4
               if: always()
               with:
                   name: playwright-report-pages
-                  path: special-pages/test-results
+                  path: special-pages/playwright-report
                   retention-days: 5
             - name: Build docs
               run: npm run docs
