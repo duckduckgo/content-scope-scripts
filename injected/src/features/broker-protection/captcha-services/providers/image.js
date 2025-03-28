@@ -1,5 +1,5 @@
 import { PirError } from '../../types';
-//import { svgToBase64Jpg } from './utils/image';
+import { svgToBase64Jpg } from '../utils/image';
 
 /**
  * @import { CaptchaProvider } from './provider.interface';
@@ -14,14 +14,26 @@ export class ImageProvider {
      * @param {HTMLElement} _captchaImageElement - The captcha image element
      */
     isSupportedForElement(_captchaImageElement) {
-        // Ensure that the captcha container is an image of either png, jpg, or svg type
-        return true;
+        if (!_captchaImageElement) {
+            return false;
+        }
+
+        if (_captchaImageElement.tagName === 'img' || _captchaImageElement.tagName === 'svg') {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * @param {HTMLElement} _captchaImageElement - The captcha image element
      */
     async getCaptchaIdentifier(_captchaImageElement) {
+        if (_captchaImageElement.tagName === 'svg') {
+            // Convert the SVG to a JPG
+            const base64Image = await svgToBase64Jpg(_captchaImageElement);
+            return base64Image;
+        }
         // check the file type of the image, if it's already PNG / JPG then we can just get the base64. If SVG we'll need to convert.
         return null;
     }

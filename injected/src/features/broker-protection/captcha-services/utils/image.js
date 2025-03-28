@@ -1,26 +1,42 @@
-export function svgToBase64Jpg(svgBase64, backgroundColor = 'white') {
+export function svgToBase64Jpg(svgElement, backgroundColor = 'white') {
+    const svgString = new XMLSerializer().serializeToString(svgElement);
+    const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(svgString);
+
     return new Promise((resolve, reject) => {
+        // Create an Image object
         const img = new Image();
         img.onload = () => {
+            // Create a canvas element
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
             if (!ctx) {
-                reject(new Error('Could not get 2d context'));
+                reject(new Error('Could not get 2D context from canvas'));
                 return;
             }
 
+            // Set canvas dimensions to match the image
             canvas.width = img.width;
             canvas.height = img.height;
 
+            // Set the background color of the canvas
             ctx.fillStyle = backgroundColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the image onto the canvas
             ctx.drawImage(img, 0, 0);
 
-            resolve(canvas.toDataURL('image/jpeg'));
+            // Convert the canvas content to a JPEG base64 string
+            const jpgBase64 = canvas.toDataURL('image/jpeg');
+
+            // Resolve the promise with the base64-encoded JPEG
+            resolve(jpgBase64);
+        };
+        img.onerror = (error) => {
+            reject(error);
         };
 
-        img.onerror = reject;
-        img.src = `data:image/svg+xml;base64,${svgBase64}`;
+        // Set the source of the image to the base64-encoded SVG
+        img.src = svgDataUrl;
     });
 }

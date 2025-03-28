@@ -12,7 +12,6 @@ import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptch
  * @returns {HTMLElement | import('../types.js').PirError}
  */
 const getCaptchaContainer = (root, selector) => {
-    console.log('grandpa greg')
     if (!selector) {
         return PirError.create('missing selector');
     }
