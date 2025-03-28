@@ -180,14 +180,9 @@ export class VideoOverlay {
              */
             const videoElement = document.querySelector(this.settings.selectors.videoElement);
             const targetElement = document.querySelector(this.settings.selectors.videoElementContainer);
-            let drawerTargetElement;
 
             if (!videoElement || !targetElement) {
                 return null;
-            }
-
-            if (this.isDrawerVariant()) {
-                drawerTargetElement = document.querySelector(/** @type {string} */ (this.settings.selectors.drawerContainer));
             }
 
             /**
@@ -227,19 +222,22 @@ export class VideoOverlay {
                 this.stopVideoFromPlaying();
 
                 if (this.environment.layout === 'mobile') {
-                    if (this.isDrawerVariant() && drawerTargetElement) {
-                        this.appendMobileDrawer(targetElement, drawerTargetElement, params);
-                    } else {
-                        this.appendMobileOverlay(targetElement, params);
+                    if (this.shouldShowDrawerVariant()) {
+                        const drawerTargetElement = document.querySelector(/** @type {string} */ (this.settings.selectors.drawerContainer));
+                        if (drawerTargetElement) {
+                            return this.appendMobileDrawer(targetElement, drawerTargetElement, params);
+                        }
                     }
-                } else {
-                    this.appendDesktopOverlay(targetElement, params);
+
+                    return this.appendMobileOverlay(targetElement, params);
                 }
+
+                return this.appendDesktopOverlay(targetElement, params);
             }
         }
     }
 
-    isDrawerVariant() {
+    shouldShowDrawerVariant() {
         return this.settings.videoDrawer?.state === 'enabled' && this.settings.selectors.drawerContainer;
     }
 
