@@ -25,12 +25,14 @@
  *   - if the user previously clicked 'watch here + remember', just add the small dax
  *   - otherwise, stop the video playing + append our overlay
  */
-import { SideEffects, VideoParams } from './util.js';
+import { SideEffects, VideoParams, appendImageAsBackground } from './util.js';
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js';
 import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
 import { IconOverlay } from './icon-overlay.js';
 import { mobileStrings } from './text.js';
 import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js';
+import { DDGVideoThumbnailOverlay } from './components/ddg-video-thumbnail-overlay-mobile.js';
+import { DDGVideoDrawerMobile } from './components/ddg-video-drawer-mobile.js';
 
 /**
  * Handle the switch between small & large overlays
@@ -177,8 +179,9 @@ export class VideoOverlay {
              * Don't continue until we've been able to find the HTML elements that we inject into
              */
             const videoElement = document.querySelector(this.settings.selectors.videoElement);
-            const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer);
-            if (!videoElement || !playerContainer) {
+            const targetElement = document.querySelector(this.settings.selectors.videoElementContainer);
+
+            if (!videoElement || !targetElement) {
                 return null;
             }
 
@@ -217,50 +220,120 @@ export class VideoOverlay {
 
                 // if we get here, we're trying to prevent the video playing
                 this.stopVideoFromPlaying();
-                this.appendOverlayToPage(playerContainer, params);
+
+                if (this.environment.layout === 'mobile') {
+                    if (this.shouldShowDrawerVariant()) {
+                        const drawerTargetElement = document.querySelector(/** @type {string} */ (this.settings.selectors.drawerContainer));
+                        if (drawerTargetElement) {
+                            return this.appendMobileDrawer(targetElement, drawerTargetElement, params);
+                        }
+                    }
+
+                    return this.appendMobileOverlay(targetElement, params);
+                }
+
+                return this.appendDesktopOverlay(targetElement, params);
             }
         }
+    }
+
+    shouldShowDrawerVariant() {
+        return this.settings.videoDrawer?.state === 'enabled' && this.settings.selectors.drawerContainer;
     }
 
     /**
      * @param {Element} targetElement
      * @param {import("./util").VideoParams} params
      */
-    appendOverlayToPage(targetElement, params) {
-        this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} or ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
-            this.messages.sendPixel(new Pixel({ name: 'overlay' }));
-            const controller = new AbortController();
-            const { environment } = this;
+    appendMobileOverlay(targetElement, params) {
+        this.messages.sendPixel(new Pixel({ name: 'overlay' }));
 
-            if (this.environment.layout === 'mobile') {
-                const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
-                elem.testMode = this.environment.isTestMode();
-                elem.text = mobileStrings(this.environment.strings);
-                elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo());
-                elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+        this.sideEffects.add(`appending ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
+            const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
+            elem.testMode = this.environment.isTestMode();
+            elem.text = mobileStrings(this.environment.strings);
+            elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo());
+            elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                return this.mobileOptOut(e.detail.remember).catch(console.error);
+            });
+            elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                return this.mobileOptIn(e.detail.remember, params).catch(console.error);
+            });
+            targetElement.appendChild(elem);
+
+            return () => {
+                document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
+            };
+        });
+    }
+
+    /**
+     * @param {Element} targetElement
+     * @param {Element} drawerTargetElement
+     * @param {import("./util").VideoParams} params
+     */
+    appendMobileDrawer(targetElement, drawerTargetElement, params) {
+        this.messages.sendPixel(new Pixel({ name: 'overlay' }));
+
+        this.sideEffects.add(
+            `appending ${DDGVideoDrawerMobile.CUSTOM_TAG_NAME} and ${DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME} to the page`,
+            () => {
+                const thumbnailOverlay = /** @type {DDGVideoThumbnailOverlay} */ (
+                    document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)
+                );
+                thumbnailOverlay.testMode = this.environment.isTestMode();
+                targetElement.appendChild(thumbnailOverlay);
+
+                const drawer = /** @type {DDGVideoDrawerMobile} */ (document.createElement(DDGVideoDrawerMobile.CUSTOM_TAG_NAME));
+                drawer.testMode = this.environment.isTestMode();
+                drawer.text = mobileStrings(this.environment.strings);
+                drawer.addEventListener(DDGVideoDrawerMobile.OPEN_INFO, () => this.messages.openInfo());
+                drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptOut(e.detail.remember).catch(console.error);
                 });
-                elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                drawer.addEventListener(DDGVideoDrawerMobile.DISMISS, () => {
+                    return this.mobileOptOut(false).catch(console.error); // Dismissal should not persist user's choice. Ignore remember-me value.
+                });
+                drawer.addEventListener(DDGVideoDrawerMobile.THUMBNAIL_CLICK, () => {
+                    return this.videoThumbnailClick();
+                });
+                drawer.addEventListener(DDGVideoDrawerMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
                 });
-                targetElement.appendChild(elem);
-            } else {
-                const elem = new DDGVideoOverlay({
-                    environment,
-                    params,
-                    ui: this.ui,
-                    manager: this,
-                });
-                targetElement.appendChild(elem);
-            }
+                drawerTargetElement.appendChild(drawer);
 
-            /**
-             * To cleanup just find and remove the element
-             */
+                if (thumbnailOverlay.container) {
+                    this.appendThumbnail(thumbnailOverlay.container);
+                }
+
+                return () => {
+                    document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)?.remove();
+                    drawer?.onAnimationEnd(() => {
+                        document.querySelector(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)?.remove();
+                    });
+                };
+            },
+        );
+    }
+
+    /**
+     * @param {Element} targetElement
+     * @param {import("./util").VideoParams} params
+     */
+    appendDesktopOverlay(targetElement, params) {
+        this.messages.sendPixel(new Pixel({ name: 'overlay' }));
+
+        this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} to the page`, () => {
+            const elem = new DDGVideoOverlay({
+                environment: this.environment,
+                params,
+                ui: this.ui,
+                manager: this,
+            });
+            targetElement.appendChild(elem);
+
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
-                document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
-                controller.abort();
             };
         });
     }
@@ -294,6 +367,17 @@ export class VideoOverlay {
                 }
             };
         });
+    }
+
+    /**
+     * @param {HTMLElement} overlayElement
+     */
+    appendThumbnail(overlayElement) {
+        const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
+        const videoId = params?.id;
+
+        const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
+        appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
     }
 
     /**
@@ -422,6 +506,13 @@ export class VideoOverlay {
         }
 
         this.destroy();
+    }
+
+    videoThumbnailClick() {
+        const pixel = new Pixel({ name: 'play.do_not_use.thumbnail' });
+        this.messages.sendPixel(pixel);
+
+        return this.destroy();
     }
 
     /**
