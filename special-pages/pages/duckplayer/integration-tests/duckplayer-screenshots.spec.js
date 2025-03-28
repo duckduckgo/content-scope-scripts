@@ -1,9 +1,7 @@
-/* global process */
 import { expect, test } from '@playwright/test';
 import { DuckPlayerPage } from './duck-player.js';
 
 test.describe('screenshots @screenshots', () => {
-    test.skip(process.env.CI === 'true');
     test('regular layout', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         // load as normal
