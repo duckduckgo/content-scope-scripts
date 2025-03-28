@@ -208,12 +208,12 @@ export class ActivityPage {
 
         expect(calls[2].payload.params).toStrictEqual({
             url,
-            target: 'new-tab',
+            target: 'new-window',
         });
 
         expect(calls[3].payload.params).toStrictEqual({
             url,
-            target: 'new-window',
+            target: 'new-tab',
         });
     }
 
