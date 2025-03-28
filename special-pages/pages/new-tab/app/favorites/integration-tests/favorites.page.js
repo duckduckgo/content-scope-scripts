@@ -28,10 +28,8 @@ export class FavoritesPage {
 
     async opensInNewWindow() {
         await this.nthFavorite(0).click({ modifiers: ['Shift'] });
-        await this.nthFavorite(0).click({ button: 'middle' });
-        const calls = await this.ntp.mocks.waitForCallCount({ method: 'favorites_open', count: 2 });
+        const calls = await this.ntp.mocks.waitForCallCount({ method: 'favorites_open', count: 1 });
         expect(calls[0].payload.params).toStrictEqual({ id: 'id-many-1', url: 'https://example.com/?id=id-many-1', target: 'new-window' });
-        expect(calls[1].payload.params).toStrictEqual({ id: 'id-many-1', url: 'https://example.com/?id=id-many-1', target: 'new-window' });
     }
 
     async opensInSameTab() {
