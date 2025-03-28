@@ -2,9 +2,6 @@
  *
  * A wrapper for messaging on WebKit platforms. It supports modern WebKit messageHandlers
  * along with encryption for older versions (like macOS Catalina)
- *
- * Note: If you wish to support Catalina then you'll need to implement the native
- * part of the message handling, see {@link WebkitMessagingTransport} for details.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MessagingTransport, MissingHandler } from '../index.js';
@@ -21,39 +18,6 @@ import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
  * const json = await window.webkit.messageHandlers.foo.postMessage({ bar: "baz" });
  * const response = JSON.parse(json)
  * ```
- *
- * @example
- * On macOS 10 however, the process is a little more involved. A method will be appended to `window`
- * that allows the response to be delivered there instead. It's not exactly this, but you can visualize the flow
- * as being something along the lines of:
- *
- * ```js
- * // add the window method
- * window["_0123456"] = (response) => {
- *    // decrypt `response` and deliver the result to the caller here
- *    // then remove the temporary method
- *    delete window['_0123456']
- * };
- *
- * // send the data + `messageHanding` values
- * window.webkit.messageHandlers.foo.postMessage({
- *   bar: "baz",
- *   messagingHandling: {
- *     methodName: "_0123456",
- *     secret: "super-secret",
- *     key: [1, 2, 45, 2],
- *     iv: [34, 4, 43],
- *   }
- * });
- *
- * // later in swift, the following JavaScript snippet will be executed
- * (() => {
- *   window['_0123456']({
- *     ciphertext: [12, 13, 4],
- *     tag: [3, 5, 67, 56]
- *   })
- * })()
- * ```
  * @implements {MessagingTransport}
  */
 export class WebkitMessagingTransport {
@@ -65,9 +29,7 @@ export class WebkitMessagingTransport {
         this.messagingContext = messagingContext;
         this.config = config;
         this.globals = captureGlobals();
-        if (!this.config.hasModernWebkitAPI) {
-            this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
-        }
+        this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
     }
 
     /**
@@ -77,24 +39,7 @@ export class WebkitMessagingTransport {
      * @internal
      */
     wkSend(handler, data = {}) {
-        if (!(handler in this.globals.window.webkit.messageHandlers)) {
-            throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
-        }
-        if (!this.config.hasModernWebkitAPI) {
-            const outgoing = {
-                ...data,
-                messageHandling: {
-                    ...data.messageHandling,
-                    secret: this.config.secret,
-                },
-            };
-            if (!(handler in this.globals.capturedWebkitHandlers)) {
-                throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
-            } else {
-                return this.globals.capturedWebkitHandlers[handler](outgoing);
-            }
-        }
-        return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data);
+        return this.globals.capturedWebkitHandlers[handler]?.(data);
     }
 
     /**
@@ -105,49 +50,19 @@ export class WebkitMessagingTransport {
      * @internal
      */
     async wkSendAndWait(handler, data) {
-        if (this.config.hasModernWebkitAPI) {
-            const response = await this.wkSend(handler, data);
-            return this.globals.JSONparse(response || '{}');
-        }
-
-        try {
-            const randMethodName = this.createRandMethodName();
-            const key = await this.createRandKey();
-            const iv = this.createRandIv();
-
-            const { ciphertext, tag } = await new this.globals.Promise((/** @type {any} */ resolve) => {
-                this.generateRandomMethod(randMethodName, resolve);
-
-                // @ts-expect-error - this is a carve-out for catalina that will be removed soon
-                data.messageHandling = new SecureMessagingParams({
-                    methodName: randMethodName,
-                    secret: this.config.secret,
-                    key: this.globals.Arrayfrom(key),
-                    iv: this.globals.Arrayfrom(iv),
-                });
-                this.wkSend(handler, data);
-            });
-
-            const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
-            const decrypted = await this.decrypt(cipher, key, iv);
-            return this.globals.JSONparse(decrypted || '{}');
-        } catch (e) {
-            // re-throw when the error is just a 'MissingHandler'
-            if (e instanceof MissingHandler) {
-                throw e;
-            } else {
-                console.error('decryption failed', e);
-                console.error(e);
-                return { error: e };
-            }
-        }
+        const response = await this.wkSend(handler, data);
+        return this.globals.JSONparse(response || '{}');
     }
 
     /**
      * @param {import('../index.js').NotificationMessage} msg
      */
     notify(msg) {
-        this.wkSend(msg.context, msg);
+        try {
+            this.wkSend(msg.context, msg);
+        } catch (_e) {
+            // no-op
+        }
     }
 
     /**
@@ -170,93 +85,7 @@ export class WebkitMessagingTransport {
     }
 
     /**
-     * Generate a random method name and adds it to the global scope
-     * The native layer will use this method to send the response
-     * @param {string | number} randomMethodName
-     * @param {Function} callback
-     * @internal
-     */
-    generateRandomMethod(randomMethodName, callback) {
-        this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
-            enumerable: false,
-            // configurable, To allow for deletion later
-            configurable: true,
-            writable: false,
-            /**
-             * @param {any[]} args
-             */
-            value: (...args) => {
-                callback(...args);
-                delete this.globals.window[randomMethodName];
-            },
-        });
-    }
-
-    /**
-     * @internal
-     * @return {string}
-     */
-    randomString() {
-        return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
-    }
-
-    /**
-     * @internal
-     * @return {string}
-     */
-    createRandMethodName() {
-        return '_' + this.randomString();
-    }
-
-    /**
-     * @type {{name: string, length: number}}
-     * @internal
-     */
-    algoObj = {
-        name: 'AES-GCM',
-        length: 256,
-    };
-
-    /**
-     * @returns {Promise<Uint8Array>}
-     * @internal
-     */
-    async createRandKey() {
-        const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
-        const exportedKey = await this.globals.exportKey('raw', key);
-        return new this.globals.Uint8Array(exportedKey);
-    }
-
-    /**
-     * @returns {Uint8Array}
-     * @internal
-     */
-    createRandIv() {
-        return this.globals.getRandomValues(new this.globals.Uint8Array(12));
-    }
-
-    /**
-     * @param {BufferSource} ciphertext
-     * @param {BufferSource} key
-     * @param {Uint8Array} iv
-     * @returns {Promise<string>}
-     * @internal
-     */
-    async decrypt(ciphertext, key, iv) {
-        const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt']);
-        const algo = {
-            name: 'AES-GCM',
-            iv,
-        };
-
-        const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
-
-        const dec = new this.globals.TextDecoder();
-        return dec.decode(decrypted);
-    }
-
-    /**
-     * When required (such as on macos 10.x), capture the `postMessage` method on
+     * When required (such as on macOS 10.x), capture the `postMessage` method on
      * each webkit messageHandler
      *
      * @param {string[]} handlerNames
@@ -317,17 +146,10 @@ export class WebkitMessagingTransport {
 export class WebkitMessagingConfig {
     /**
      * @param {object} params
-     * @param {boolean} params.hasModernWebkitAPI
      * @param {string[]} params.webkitMessageHandlerNames
-     * @param {string} params.secret
      * @internal
      */
     constructor(params) {
-        /**
-         * Whether or not the current WebKit Platform supports secure messaging
-         * by default (eg: macOS 11+)
-         */
-        this.hasModernWebkitAPI = params.hasModernWebkitAPI;
         /**
          * A list of WebKit message handler names that a user script can send.
          *
@@ -344,11 +166,6 @@ export class WebkitMessagingConfig {
          * ```
          */
         this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
-        /**
-         * A string provided by native platforms to be sent with future outgoing
-         * messages.
-         */
-        this.secret = params.secret;
     }
 }
 
