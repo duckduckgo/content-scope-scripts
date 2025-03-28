@@ -5,9 +5,9 @@
  */
 export function eventToTarget(event, platformName) {
     const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
-    if (isControlClick) {
+    if (isControlClick || ('button' in event && event.button === 1) /* middle click */) {
         return 'new-tab';
-    } else if (event.shiftKey || ('button' in event && event.button === 1) /* middle click */) {
+    } else if (event.shiftKey) {
         return 'new-window';
     }
     return 'same-tab';
