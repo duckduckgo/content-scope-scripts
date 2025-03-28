@@ -95,6 +95,7 @@ test.describe('newtab privacy stats', () => {
             const psp = new PrivacyStatsPage(page, ntp);
             await ntp.reducedMotion();
             await ntp.openPage({ additional: { stats: 'none' } });
+            await page.getByText('Tracking protections active').waitFor();
 
             await psp.receiveData({
                 totalCount: 2,
