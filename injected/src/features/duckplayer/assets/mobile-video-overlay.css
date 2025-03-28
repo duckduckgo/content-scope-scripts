@@ -71,6 +71,9 @@
     @media screen and (min-width: 568px) {
         padding: 0;
     }
+
+    background: transparent;
+    border: 5px dotted red;
 }
 
 .bg {
