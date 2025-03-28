@@ -47,7 +47,7 @@
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-csstree-validator": "^3.0.0",
-    "typedoc": "^0.27.9",
+    "typedoc": "^0.28.1",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.27.0"
   },
