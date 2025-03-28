@@ -249,7 +249,6 @@ export class VideoOverlay {
         this.messages.sendPixel(new Pixel({ name: 'overlay' }));
 
         this.sideEffects.add(`appending ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
-            const controller = new AbortController();
             const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
             elem.testMode = this.environment.isTestMode();
             elem.text = mobileStrings(this.environment.strings);
@@ -264,8 +263,6 @@ export class VideoOverlay {
 
             return () => {
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
-
-                controller.abort();
             };
         });
     }
@@ -281,7 +278,6 @@ export class VideoOverlay {
         this.sideEffects.add(
             `appending ${DDGVideoDrawerMobile.CUSTOM_TAG_NAME} and ${DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME} to the page`,
             () => {
-                const controller = new AbortController();
                 const thumbnailOverlay = /** @type {DDGVideoThumbnailOverlay} */ (
                     document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)
                 );
@@ -315,8 +311,6 @@ export class VideoOverlay {
                     drawer?.onAnimationEnd(() => {
                         document.querySelector(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)?.remove();
                     });
-
-                    controller.abort();
                 };
             },
         );
@@ -330,7 +324,6 @@ export class VideoOverlay {
         this.messages.sendPixel(new Pixel({ name: 'overlay' }));
 
         this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} to the page`, () => {
-            const controller = new AbortController();
             const elem = new DDGVideoOverlay({
                 environment: this.environment,
                 params,
@@ -341,8 +334,6 @@ export class VideoOverlay {
 
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
-
-                controller.abort();
             };
         });
     }
