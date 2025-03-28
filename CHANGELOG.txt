@@ -1,2 +1,2 @@
-- Try catch notify messaging (#1592)
-- Revert "Revert "Add support for non isolated messaging (#1586)" (#1591)" (#1593)
+- New Duck Player entry point (#1559)
+- history screenshots (#1511)

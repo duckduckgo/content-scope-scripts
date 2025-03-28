@@ -156,7 +156,8 @@ export class Pixel {
      * @param {{name: "overlay"}
      *   | {name: "play.use", remember: "0" | "1"}
      *   | {name: "play.use.thumbnail"}
-     *   | {name: "play.do_not_use", remember: "0" | "1"}} input
+     *   | {name: "play.do_not_use", remember: "0" | "1"}
+     *   | {name: "play.do_not_use.thumbnail"}} input
      */
     constructor(input) {
         this.input = input;
@@ -176,6 +177,8 @@ export class Pixel {
             case 'play.do_not_use': {
                 return { remember: this.input.remember };
             }
+            case 'play.do_not_use.thumbnail':
+                return {};
             default:
                 throw new Error('unreachable');
         }
