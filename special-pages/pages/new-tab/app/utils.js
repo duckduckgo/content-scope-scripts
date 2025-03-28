@@ -70,7 +70,12 @@ export function eventToTarget(event, platformName) {
     const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey;
     if (isControlClick) {
         return 'new-tab';
-    } else if (event.shiftKey || event.button === 1 /* middle click */) {
+    } else if (event.shiftKey) {
+        return 'new-window';
+    } else if (event.button === 1 /* middle click */) {
+        if (platformName === 'windows') {
+            return 'background-tab';
+        }
         return 'new-window';
     }
     return 'same-tab';
