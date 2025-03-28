@@ -73,10 +73,7 @@ export function eventToTarget(event, platformName) {
     } else if (event.shiftKey) {
         return 'new-window';
     } else if (event.button === 1 /* middle click */) {
-        if (platformName === 'windows') {
-            return 'background-tab';
-        }
-        return 'new-window';
+        return 'new-tab';
     }
     return 'same-tab';
 }
