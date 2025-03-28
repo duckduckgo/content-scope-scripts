@@ -3,7 +3,7 @@
  */
 import { load, init } from '../src/content-scope-features.js';
 import { processConfig, platformSpecificFeatures } from './../src/utils';
-import { WebkitMessagingConfig } from '../../messaging/index.js';
+import { WebkitMessagingConfig, TestTransportConfig } from '../../messaging/index.js';
 
 function initCode() {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -15,17 +15,27 @@ function initCode() {
 
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
 
-    const handlerNames = [];
     if (import.meta.injectName === 'apple-isolated') {
-        handlerNames.push('contentScopeScriptsIsolated');
+        processedConfig.messagingConfig = new WebkitMessagingConfig({
+            webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
+            secret: '',
+            hasModernWebkitAPI: true,
+        });
     } else {
-        handlerNames.push('contentScopeScripts');
+        processedConfig.messagingConfig = new TestTransportConfig({
+            notify() {
+                // noop
+            },
+            request: async () => {
+                // noop
+            },
+            subscribe() {
+                return () => {
+                    // noop
+                };
+            },
+        });
     }
-    processedConfig.messagingConfig = new WebkitMessagingConfig({
-        webkitMessageHandlerNames: handlerNames,
-        secret: '',
-        hasModernWebkitAPI: true,
-    });
 
     load({
         platform: processedConfig.platform,
