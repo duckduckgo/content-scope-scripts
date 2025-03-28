@@ -6,7 +6,7 @@
  * @module NewTab Messages
  */
 
-export type OpenTarget = "same-tab" | "new-tab" | "new-window";
+export type OpenTarget = "same-tab" | "new-tab" | "new-window" | "background-tab";
 /**
  * Represents the expansion state of a widget
  */

@@ -51,6 +51,13 @@ test.describe('newtab favorites', () => {
         await ntp.openPage({ platformName: 'macos' });
         await favorites.opensInNewWindow();
     });
+    test('Opens a favorite in background tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const favorites = new FavoritesPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ platformName: 'windows' });
+        await favorites.opensInBackgroundTab();
+    });
     test('Adds an item', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const favorites = new FavoritesPage(ntp);
