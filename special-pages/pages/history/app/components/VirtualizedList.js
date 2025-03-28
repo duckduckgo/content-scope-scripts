@@ -25,7 +25,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
  * @param {(end: number)=>void} props.onChange - called when the end number is changed
  */
 export function VirtualizedList({ items, heights, overscan, scrollingElement, onChange, renderItem }) {
-    const { start, end } = useVisibleRows(items, heights, scrollingElement, onChange, overscan);
+    const { start, end } = useVisibleRows(items, heights, scrollingElement, overscan);
     const subset = items.slice(start, end + 1);
 
     /**
@@ -61,10 +61,9 @@ export const VisibleItems = memo(VirtualizedList);
  * @param {number[]} heights - index lookup for known element heights
  * @param {string} scrollerSelector - A CSS selector for tracking the scrollable area
  * @param {number} overscan - how many items to fetch outside the window
- * @param {(end: number)=>void} onChange - called when the end number is changed
  * @return {Object} An object containing the calculated `start` and `end` indices of the visible rows.
  */
-function useVisibleRows(rows, heights, scrollerSelector, onChange, overscan = 5) {
+function useVisibleRows(rows, heights, scrollerSelector, overscan = 5) {
     // set the start/end indexes of the elements
     const [{ start, end }, setVisibleRange] = useState({ start: 0, end: 1 });
 

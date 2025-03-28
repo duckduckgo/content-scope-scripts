@@ -1,6 +1,10 @@
 {
   "unprotectedTemporary": [],
   "features": {
+    "favicon": {
+      "state": "disabled",
+      "exceptions": []
+    },
     "navigatorInterface": {
       "state": "enabled",
       "exceptions": []

@@ -104,7 +104,7 @@ export function wrapFunction(functionValue, realTarget) {
             }
             return Reflect.get(target, prop, receiver);
         },
-        apply(target, thisArg, argumentsList) {
+        apply(_, thisArg, argumentsList) {
             // This is where we call our real function
             return Reflect.apply(functionValue, thisArg, argumentsList);
         },
@@ -228,7 +228,7 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
     // handle the case where the constructor is called without new
     if (fullOptions.allowConstructorCall) {
         // make the constructor function callable without new
-        proxyHandler.apply = function (target, thisArg, argumentsList) {
+        proxyHandler.apply = function (target, _thisArg, argumentsList) {
             return Reflect.construct(target, argumentsList, target);
         };
     }

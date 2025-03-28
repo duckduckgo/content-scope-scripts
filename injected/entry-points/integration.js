@@ -26,7 +26,14 @@ function generateConfig() {
             domain: topLevelUrl.hostname,
             isBroken: false,
             allowlisted: false,
-            enabledFeatures: ['fingerprintingCanvas', 'fingerprintingScreenSize', 'navigatorInterface', 'cookie'],
+            enabledFeatures: [
+                'fingerprintingCanvas',
+                'fingerprintingScreenSize',
+                'navigatorInterface',
+                'cookie',
+                'webCompat',
+                'apiManipulation',
+            ],
         },
     };
 }

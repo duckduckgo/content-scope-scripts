@@ -8,7 +8,7 @@ const test = testContextForExtension(base);
 
 test.describe('Ensure utils behave as expected', () => {
     test('should toString DDGProxy correctly', async ({ page }) => {
-        await gotoAndWait(page, '/blank.html', { platform: { name: 'extension' } });
+        await gotoAndWait(page, '/blank.html');
         const toStringResult = await page.evaluate('HTMLCanvasElement.prototype.getContext.toString()');
         expect(toStringResult).toEqual('function getContext() { [native code] }');
 

@@ -80,15 +80,7 @@ export function Sidebar({ ranges }) {
             <nav class={styles.nav}>
                 {ranges.value.map((range) => {
                     return (
-                        <Item
-                            key={range.id}
-                            onClick={onClick}
-                            onDelete={onDelete}
-                            current={current}
-                            range={range.id}
-                            count={range.count}
-                            ranges={ranges}
-                        />
+                        <Item key={range.id} onClick={onClick} onDelete={onDelete} current={current} range={range.id} count={range.count} />
                     );
                 })}
             </nav>
@@ -104,10 +96,9 @@ export function Sidebar({ ranges }) {
  * @param {RangeId} props.range The range represented by this item.
  * @param {(range: RangeId) => void} props.onClick Callback function triggered when the range is clicked.
  * @param {(range: RangeId) => void} props.onDelete Callback function triggered when the delete action is clicked.
- * @param {import("@preact/signals").Signal<Range[]>} props.ranges
  * @param {number} props.count The count value associated with the ranges.
  */
-function Item({ current, range, onClick, onDelete, ranges, count }) {
+function Item({ current, range, onClick, onDelete, count }) {
     const { t } = useTypedTranslation();
     const { buttonLabel, linkLabel } = labels(range, t);
     const classNames = useComputed(() => {
@@ -133,7 +124,7 @@ function Item({ current, range, onClick, onDelete, ranges, count }) {
                 </span>
                 {titleMap[range](t)}
             </button>
-            <DeleteAllButton onClick={onDelete} ariaLabel={buttonLabel} range={range} ranges={ranges} count={count} />
+            <DeleteAllButton onClick={onDelete} ariaLabel={buttonLabel} range={range} count={count} />
         </div>
     );
 }
@@ -144,12 +135,11 @@ function Item({ current, range, onClick, onDelete, ranges, count }) {
  *
  * @param {Object} props - The properties passed to the component.
  * @param {RangeId} props.range - The range value used for filtering and identification.
- * @param {import('@preact/signals').Signal<Range[]>} props.ranges - A signal containing an array of range values used for navigation.
  * @param {string} props.ariaLabel - The accessible label for the delete button.
  * @param {(evt: RangeId) => void} props.onClick - The callback function triggered on button click.
  * @param {number} props.count - A signal representing the count of items in the range.
  */
-function DeleteAllButton({ range, ranges, onClick, ariaLabel, count }) {
+function DeleteAllButton({ range, onClick, ariaLabel, count }) {
     const { t } = useTypedTranslationWith(/** @type {json} */ ({}));
 
     const ariaDisabled = count === 0 ? 'true' : 'false';

@@ -1,5 +1,5 @@
 import { states } from './constants.js';
-import { matchingPair } from '../utils.js';
+import { matchingPair } from '../utils/utils.js';
 
 /**
  * @param {{city: string; state: string | null}[]} userAddresses

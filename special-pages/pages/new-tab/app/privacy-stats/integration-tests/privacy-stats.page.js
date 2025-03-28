@@ -41,7 +41,7 @@ export class PrivacyStatsPage {
      */
     async hasRows(count) {
         const rows = this.rows();
-        expect(await rows.count()).toBe(count);
+        await expect(rows).toHaveCount(count);
     }
 
     /**
@@ -76,7 +76,7 @@ export class PrivacyStatsPage {
         await this.ntp.openPage({ additional: { stats: 'manyOnlyTop' } });
 
         // control, ensure we have 5 rows
-        expect(await rows.count()).toBe(5);
+        await expect(rows).toHaveCount(5);
 
         // check the initial values
         expect(await rows.nth(0).textContent()).toBe('Facebook310');
@@ -103,8 +103,8 @@ export class PrivacyStatsPage {
         // open the NTP with the correct param
         await this.ntp.openPage({ additional: { stats: 'fewOnlyTop' } });
 
-        // control, ensure we have 5 rows
-        expect(await rows.count()).toBe(3);
+        // control, ensure we have 3 rows
+        await expect(rows).toHaveCount(3);
 
         // check the initial values
         expect(await rows.nth(0).textContent()).toBe('Facebook310');
@@ -126,7 +126,7 @@ export class PrivacyStatsPage {
         await this.ntp.openPage({ additional: { stats: 'topAndOneOther' } });
 
         // should show all 5 items
-        expect(await rows.count()).toBe(5);
+        await expect(rows).toHaveCount(5);
 
         // And should also show the text, but no expander
         // ensure the toggle is absent
@@ -145,7 +145,7 @@ export class PrivacyStatsPage {
         await this.ntp.openPage({ additional: { stats: 'manyTopAndOther' } });
 
         // control, ensure we have 5 rows
-        expect(await rows.count()).toBe(5);
+        await expect(rows).toHaveCount(5);
 
         // control: ensure 'other' text is absent here
         await expect(this.page.getByTestId('ListFooter')).not.toContainText('2 attempts from other networks');

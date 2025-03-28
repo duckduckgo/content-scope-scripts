@@ -1,4 +1,4 @@
-import { cleanArray, getElement, getElementMatches, getElements, sortAddressesByStateAndCity } from '../utils.js'; // Assuming you have imported the address comparison function
+import { cleanArray, getElement, getElementMatches, getElements, sortAddressesByStateAndCity } from '../utils/utils.js'; // Assuming you have imported the address comparison function
 import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js';
 import { isSameAge } from '../comparisons/is-same-age.js';
 import { isSameName } from '../comparisons/is-same-name.js';
@@ -91,7 +91,7 @@ export function extractProfiles(action, userData, root = document) {
 
     return {
         results: profilesElementList.map((element) => {
-            const elementFactory = (key, value) => {
+            const elementFactory = (_, value) => {
                 return value?.findElements
                     ? cleanArray(getElements(element, value.selector))
                     : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector));

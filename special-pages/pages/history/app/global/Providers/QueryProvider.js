@@ -34,7 +34,7 @@ const QueryContext = createContext(
 
 const QueryDispatch = createContext(
     /** @type {(a: Action) => void} */ (
-        (action) => {
+        (_) => {
             throw new Error('missing QueryDispatch');
         }
     ),

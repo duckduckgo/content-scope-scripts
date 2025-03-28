@@ -226,7 +226,7 @@ export function isFeatureBroken(args, feature) {
 }
 
 export function camelcase(dashCaseText) {
-    return dashCaseText.replace(/-(.)/g, (match, letter) => {
+    return dashCaseText.replace(/-(.)/g, (_, letter) => {
         return letter.toUpperCase();
     });
 }
@@ -703,7 +703,7 @@ export function isGloballyDisabled(args) {
  * @import {FeatureName} from "./features";
  * @type {FeatureName[]}
  */
-export const platformSpecificFeatures = ['windowsPermissionUsage', 'messageBridge'];
+export const platformSpecificFeatures = ['windowsPermissionUsage', 'messageBridge', 'favicon'];
 
 export function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);

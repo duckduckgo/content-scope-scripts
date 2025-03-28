@@ -5,6 +5,95 @@
  */
 
 /**
+ * @typedef {object} PirAction
+ * @property {string} id
+ * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} actionType
+ * @property {string} [selector]
+ * @property {string} [captchaType]
+ * @property {string} [injectCaptchaHandler]
+ * @property {string} [dataSource]
+ */
+
+/**
+ * @template T
+ * @typedef {PirError | PirSuccess<T>} PirResponse
+ */
+
+export class PirError {
+    /**
+     * @param {object} params
+     * @param {boolean} params.success
+     * @param {object} params.error
+     * @param {string} params.error.message
+     */
+    constructor(params) {
+        this.success = params.success;
+        this.error = params.error;
+    }
+
+    /**
+     * @param {string} message
+     * @return {PirError}
+     * @static
+     * @memberof PirError
+     */
+    static create(message) {
+        return new PirError({ success: false, error: { message } });
+    }
+
+    /**
+     * @param {object} error
+     * @return {error is PirError}
+     * @static
+     * @memberof PirError
+     */
+    static isError(error) {
+        return error instanceof PirError && error.success === false;
+    }
+}
+
+/**
+ * Represents a successful response
+ * @template T
+ */
+export class PirSuccess {
+    /**
+     * @param {object} params
+     * @param {boolean} params.success
+     * @param {T} params.response
+     */
+    constructor(params) {
+        this.success = params.success;
+        this.response = params.response;
+    }
+
+    /**
+     * @template T
+     * @param {T} response
+     * @return {PirSuccess<T>}
+     * @static
+     * @memberof PirSuccess
+     */
+    static create(response) {
+        return new PirSuccess({ success: true, response });
+    }
+
+    static createEmpty() {
+        return new PirSuccess({ success: true, response: null });
+    }
+
+    /**
+     * @param {object} params
+     * @return {params is PirSuccess}
+     * @static
+     * @memberof PirSuccess
+     */
+    static isSuccess(params) {
+        return params instanceof PirSuccess && params.success === true;
+    }
+}
+
+/**
  * Represents an error
  */
 export class ErrorResponse {
@@ -16,22 +105,58 @@ export class ErrorResponse {
     constructor(params) {
         this.error = params;
     }
+
+    /**
+     * @param {ActionResponse} response
+     * @return {response is ErrorResponse}
+     * @static
+     * @memberof ErrorResponse
+     */
+    static isErrorResponse(response) {
+        return response instanceof ErrorResponse;
+    }
+
+    /**
+     * @param {object} params
+     * @param {PirAction['id']} params.actionID
+     * @param {string} [params.context]
+     * @return {(message: string) => ErrorResponse}
+     * @static
+     * @memberof ErrorResponse
+     */
+    static generateErrorResponseFunction({ actionID, context = '' }) {
+        return (message) => new ErrorResponse({ actionID, message: [context, message].filter(Boolean).join(': ') });
+    }
 }
+
+/**
+ * @typedef {object} SuccessResponseInterface
+ * @property {PirAction['id']} actionID
+ * @property {PirAction['actionType']} actionType
+ * @property {any} response
+ * @property {import("./actions/extract").Action[]} [next]
+ * @property {Record<string, any>} [meta] - optional meta data
+ */
 
 /**
  * Represents success, `response` can contain other complex types
  */
 export class SuccessResponse {
     /**
-     * @param {object} params
-     * @param {string} params.actionID
-     * @param {string} params.actionType
-     * @param {any} params.response
-     * @param {import("./actions/extract").Action[]} [params.next]
-     * @param {Record<string, any>} [params.meta] - optional meta data
+     * @param {SuccessResponseInterface} params
      */
     constructor(params) {
         this.success = params;
+    }
+
+    /**
+     * @param {SuccessResponseInterface} params
+     * @return {SuccessResponse}
+     * @static
+     * @memberof SuccessResponse
+     */
+    static create(params) {
+        return new SuccessResponse(params);
     }
 }
 
@@ -76,12 +201,12 @@ export class ProfileResult {
  */
 export class Extractor {
     /**
-     * @param {string[]} noneEmptyStringArray
-     * @param {import("./actions/extract").ExtractorParams} extractorParams
+     * @param {string[]} _noneEmptyStringArray
+     * @param {import("./actions/extract").ExtractorParams} _extractorParams
      * @return {JsonValue}
      */
 
-    extract(noneEmptyStringArray, extractorParams) {
+    extract(_noneEmptyStringArray, _extractorParams) {
         throw new Error('must implement extract');
     }
 }
@@ -91,12 +216,12 @@ export class Extractor {
  */
 export class AsyncProfileTransform {
     /**
-     * @param {Record<string, any>} profile - The current profile value
-     * @param {Record<string, any>} profileParams - the original action params from `action.profile`
+     * @param {Record<string, any>} _profile - The current profile value
+     * @param {Record<string, any>} _profileParams - the original action params from `action.profile`
      * @return {Promise<Record<string, any>>}
      */
 
-    transform(profile, profileParams) {
+    transform(_profile, _profileParams) {
         throw new Error('must implement extract');
     }
 }

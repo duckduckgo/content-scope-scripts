@@ -201,8 +201,7 @@ export class FavoritesPage {
         await body.press('Tab');
         await body.press('Tab');
         const statsToggle = page.getByLabel('Hide recent activity');
-        const isActive = await statsToggle.evaluate((handle) => handle === document.activeElement);
-        expect(isActive).toBe(true);
+        await expect(statsToggle).toBeFocused();
     }
 
     /**
