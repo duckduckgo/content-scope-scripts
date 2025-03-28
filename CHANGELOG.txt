@@ -1,2 +1,2 @@
-- Revert "Add support for non isolated messaging (#1586)" (#1591)
-- enable snapshot tests in CI (#1588)
+- Try catch notify messaging (#1592)
+- Revert "Revert "Add support for non isolated messaging (#1586)" (#1591)" (#1593)

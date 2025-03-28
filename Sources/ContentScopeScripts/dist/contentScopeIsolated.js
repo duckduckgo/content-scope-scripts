@@ -3766,9 +3766,12 @@
     addDebugFlag() {
       if (__privateGet(this, _isDebugFlagSet)) return;
       __privateSet(this, _isDebugFlagSet, true);
-      this.messaging?.notify("addDebugFlag", {
-        flag: this.name
-      });
+      try {
+        this.messaging?.notify("addDebugFlag", {
+          flag: this.name
+        });
+      } catch (_e) {
+      }
     }
     /**
      * Define a property descriptor with debug flags.
@@ -12098,24 +12101,17 @@
     const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
     const userPreferences = $USER_PREFERENCES$;
     const processedConfig = processConfig(config2, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
+    const handlerNames = [];
     if (true) {
-      processedConfig.messagingConfig = new WebkitMessagingConfig({
-        webkitMessageHandlerNames: ["contentScopeScriptsIsolated"],
-        secret: "",
-        hasModernWebkitAPI: true
-      });
+      handlerNames.push("contentScopeScriptsIsolated");
     } else {
-      processedConfig.messagingConfig = new TestTransportConfig({
-        notify() {
-        },
-        request: async () => {
-        },
-        subscribe() {
-          return () => {
-          };
-        }
-      });
+      handlerNames.push("contentScopeScripts");
     }
+    processedConfig.messagingConfig = new WebkitMessagingConfig({
+      webkitMessageHandlerNames: handlerNames,
+      secret: "",
+      hasModernWebkitAPI: true
+    });
     load({
       platform: processedConfig.platform,
       site: processedConfig.site,
