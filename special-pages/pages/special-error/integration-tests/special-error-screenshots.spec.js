@@ -1,12 +1,9 @@
-/* global process */
 import { expect, test } from '@playwright/test';
 import { SpecialErrorPage } from './special-error';
 
 const maxDiffPixels = 20;
 
 test.describe('screenshots @screenshots', () => {
-    test.skip(process.env.CI === 'true');
-
     test('SSL expired cert error', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.openPage({ errorId: 'ssl.expired' });

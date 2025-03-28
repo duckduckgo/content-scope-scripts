@@ -12098,17 +12098,24 @@
     const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
     const userPreferences = $USER_PREFERENCES$;
     const processedConfig = processConfig(config2, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
-    const handlerNames = [];
     if (true) {
-      handlerNames.push("contentScopeScriptsIsolated");
+      processedConfig.messagingConfig = new WebkitMessagingConfig({
+        webkitMessageHandlerNames: ["contentScopeScriptsIsolated"],
+        secret: "",
+        hasModernWebkitAPI: true
+      });
     } else {
-      handlerNames.push("contentScopeScripts");
+      processedConfig.messagingConfig = new TestTransportConfig({
+        notify() {
+        },
+        request: async () => {
+        },
+        subscribe() {
+          return () => {
+          };
+        }
+      });
     }
-    processedConfig.messagingConfig = new WebkitMessagingConfig({
-      webkitMessageHandlerNames: handlerNames,
-      secret: "",
-      hasModernWebkitAPI: true
-    });
     load({
       platform: processedConfig.platform,
       site: processedConfig.site,
