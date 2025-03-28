@@ -36,8 +36,6 @@ export function createSpecialPageMessaging(opts) {
             return new Messaging(messageContext, opts);
         } else if (opts.injectName === 'apple') {
             const opts = new WebkitMessagingConfig({
-                hasModernWebkitAPI: true,
-                secret: '',
                 webkitMessageHandlerNames: ['specialPages'],
             });
             return new Messaging(messageContext, opts);
