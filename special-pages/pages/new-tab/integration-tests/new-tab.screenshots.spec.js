@@ -6,7 +6,7 @@ import { PrivacyStatsPage } from '../app/privacy-stats/integration-tests/privacy
 
 const maxDiffPixels = 20;
 
-test.describe('NTP screenshots', () => {
+test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
     test.describe('feed = privacy stats', () => {
         test.use({ viewport: { width: 1000, height: 600 } });
         test('with dataset "few"', async ({ page }, workerInfo) => {
