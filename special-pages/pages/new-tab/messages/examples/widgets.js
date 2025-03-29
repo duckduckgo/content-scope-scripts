@@ -24,13 +24,20 @@ const widgetConfig = {
     visibility: 'visible',
 };
 
+// #region initialSetupResponse
 /**
- * Widgets + WidgetConfigs when delivered in first payload...
+ * Example of the `InitialSetupResponse`
  *
  * @type {import("../../types/new-tab.js").InitialSetupResponse}
  */
+// prettier-ignore
 const initialSetupResponse = {
-    widgets: [{ id: 'updateNotification' }, { id: 'rmf' }, { id: 'favorites' }, { id: 'privacyStats' }],
+    widgets: [
+        { id: 'updateNotification' },
+        { id: 'rmf' },
+        { id: 'favorites' },
+        { id: 'privacyStats' }
+    ],
     widgetConfigs: [
         { id: 'rmf', visibility: 'visible' },
         { id: 'nextSteps', visibility: 'visible' },
@@ -42,6 +49,12 @@ const initialSetupResponse = {
     platform: { name: 'windows' },
     updateNotification: { content: null },
     customizer: { theme: 'system', userImages: [], userColor: null, background: { kind: 'default' } },
+    defaultStyles: {
+        lightBackgroundColor: '#E9EBEC',
+        darkBackgroundColor: '#27282A',
+    },
 };
+
+// #endregion initialSetupResponse
 
 export {};
