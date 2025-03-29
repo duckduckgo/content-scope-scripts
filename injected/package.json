@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#main",
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#90946c72663005612e093089c0f15a1af2cf84e3",
     "@fingerprintjs/fingerprintjs": "^4.5.1",
     "@types/chrome": "^0.0.308",
     "@types/jasmine": "^5.1.7",
