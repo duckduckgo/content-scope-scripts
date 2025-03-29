@@ -76,6 +76,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
 
     // install global side effects that are not specific to any widget
     installGlobalSideEffects(environment, settings);
+    applyDefaultStyles(init.defaultStyles);
 
     // return early if we're in the 'components' view.
     if (environment.display === 'components') {
@@ -160,6 +161,20 @@ function installGlobalSideEffects(environment, settings) {
     document.body.dataset.platformName = settings.platform.name;
     document.body.dataset.display = environment.display;
     document.body.dataset.animation = environment.urlParams.get('animation') || '';
+}
+
+/**
+ * This will apply default background colors as early as possible.
+ *
+ * @param {import("../types/new-tab.ts").DefaultStyles | null | undefined} defaultStyles
+ */
+function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor) {
+        document.body.style.setProperty('--default-light-background-color', defaultStyles.lightBackgroundColor);
+    }
+    if (defaultStyles?.darkBackgroundColor) {
+        document.body.style.setProperty('--default-dark-background-color', defaultStyles.darkBackgroundColor);
+    }
 }
 
 /**
