@@ -588,6 +588,19 @@ export class HistoryTestPage {
     async selectedRowCountIs(number) {
         await expect(this.main().locator('[aria-selected="true"]')).toHaveCount(number);
     }
+
+    /**
+     * @param {object} params
+     * @param {string} params.hex
+     * @returns {Promise<void>}
+     */
+    async hasBackgroundColor({ hex }) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        const rgb = `rgb(${[r, g, b].join(', ')})`;
+        await expect(this.page.locator('[data-layout-mode="normal"]')).toHaveCSS('background-color', rgb, { timeout: 50 });
+    }
 }
 
 /**

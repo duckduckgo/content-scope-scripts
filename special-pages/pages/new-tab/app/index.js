@@ -76,6 +76,8 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
 
     // install global side effects that are not specific to any widget
     installGlobalSideEffects(environment, settings);
+
+    // apply default styles
     applyDefaultStyles(init.defaultStyles);
 
     // return early if we're in the 'components' view.
