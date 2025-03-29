@@ -80,10 +80,11 @@ export function BackgroundConsumer({ browser }) {
         }
         if (background.kind === 'userImage') {
             const isDark = background.value.colorScheme === 'dark';
-            nextBodyBackground = isDark ? 'var(--default-dark-bg)' : 'var(--default-light-bg)';
+            nextBodyBackground = isDark ? 'var(--default-dark-background-color)' : 'var(--default-light-background-color)';
         }
         if (background.kind === 'default') {
-            nextBodyBackground = browser.value === 'dark' ? 'var(--default-dark-bg)' : 'var(--default-light-bg)';
+            nextBodyBackground =
+                browser.value === 'dark' ? 'var(--default-dark-background-color)' : 'var(--default-light-background-color)';
         }
 
         document.body.style.setProperty('background-color', nextBodyBackground);

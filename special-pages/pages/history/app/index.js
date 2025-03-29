@@ -59,6 +59,9 @@ export async function init(root, messaging, baseEnvironment) {
         messaging.reportInitException({ message });
     };
 
+    // apply default styles
+    applyDefaultStyles(init.defaultStyles);
+
     const strings = await getStrings(environment);
     const service = new HistoryService(messaging);
     const query = paramsToQuery(environment.urlParams, 'initial');
@@ -105,6 +108,20 @@ export async function init(root, messaging, baseEnvironment) {
             </EnvironmentProvider>,
             root,
         );
+    }
+}
+
+/**
+ * This will apply default background colors as early as possible.
+ *
+ * @param {import("../types/history.ts").DefaultStyles | null | undefined} defaultStyles
+ */
+function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor) {
+        document.body.style.setProperty('--default-light-background-color', defaultStyles.lightBackgroundColor);
+    }
+    if (defaultStyles?.darkBackgroundColor) {
+        document.body.style.setProperty('--default-dark-background-color', defaultStyles.darkBackgroundColor);
     }
 }
 

@@ -157,6 +157,7 @@ export function mockTransport() {
                         platform: { name: 'integration' },
                         env: 'development',
                         locale: 'en',
+                        defaultStyles: getDefaultStyles(),
                     };
 
                     return Promise.resolve(initial);
@@ -193,6 +194,20 @@ export function mockTransport() {
             }
         },
     });
+}
+
+/**
+ * @returns {import("../../types/history").DefaultStyles | null}
+ */
+function getDefaultStyles() {
+    if (url.searchParams.get('defaultStyles') === 'visual-refresh') {
+        // https://app.asana.com/0/1201141132935289/1209349703167198/f
+        return {
+            lightBackgroundColor: '#E9EBEC',
+            darkBackgroundColor: '#27282A',
+        };
+    }
+    return null;
 }
 
 async function withLatency(value) {

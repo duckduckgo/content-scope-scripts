@@ -29,6 +29,16 @@
         }
       }
     },
+    "defaultStyles": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "types/default-styles.json"
+        }
+      ]
+    },
     "customizer": {
       "$ref": "./types/customizer-data.json"
     },

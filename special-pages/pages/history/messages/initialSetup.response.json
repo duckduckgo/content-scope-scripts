@@ -19,6 +19,16 @@
           "enum": ["macos", "windows", "android", "ios", "integration"]
         }
       }
+    },
+    "defaultStyles": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "types/default-styles.json"
+        }
+      ]
     }
   }
 }
