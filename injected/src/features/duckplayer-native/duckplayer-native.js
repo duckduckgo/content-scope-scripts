@@ -1,7 +1,8 @@
-import { getCurrentTimestamp } from './getCurrentTimestamp.js';
-import { mediaControl } from './mediaControl.js';
-import { muteAudio } from './muteAudio.js';
-import { serpNotify } from './serpNotify.js';
+import { getCurrentTimestamp } from './get-current-timestamp.js';
+import { mediaControl } from './media-control.js';
+import { muteAudio } from './mute-audio.js';
+import { serpNotify } from './serp-notify.js';
+import { ErrorDetection } from './error-detection.js';
 
 /**
  *
@@ -11,6 +12,9 @@ import { serpNotify } from './serpNotify.js';
 export async function initDuckPlayerNative(messages) {
     /** @type {import("../duck-player-native.js").InitialSettings} */
     let initialSetup;
+    /** @type {(() => void|null)[]} */
+    const sideEffects = [];
+
     try {
         initialSetup = await messages.initialSetup();
     } catch (e) {
@@ -42,4 +46,13 @@ export async function initDuckPlayerNative(messages) {
         console.log('SERP PROXY');
         serpNotify();
     });
+
+    /* Start error detection */
+    const errorDetection = new ErrorDetection(messages);
+    const destroy = errorDetection.observe();
+    if (destroy) sideEffects.push(destroy);
+
+    return async () => {
+        return await Promise.all(sideEffects.map((destroy) => destroy()));
+    };
 }
