@@ -68,4 +68,12 @@ export class DuckPlayerNativeMessages {
     onSerpNotify(callback) {
         return this.messaging.subscribe('onSerpNotify', callback);
     }
+
+    /**
+     * Notifies browser of YouTube error
+     * @param {string} error
+     */
+    onYoutubeError(error) {
+        this.messaging.notify('onYoutubeError', { error });
+    }
 }
