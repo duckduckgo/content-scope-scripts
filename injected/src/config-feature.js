@@ -42,16 +42,17 @@ export default class ConfigFeature {
     }
 
     /**
-     * Given a config key, interpret the value as a list of domain overrides, and return the elements that match the current page
-     * Consider using patchSettings instead as per `getFeatureSetting`.
+     * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
+     * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
      * @return {any[]}
      * @protected
      */
-    matchDomainFeatureSetting(featureKeyName) {
+    matchConditionalFeatureSetting(featureKeyName) {
         const domains = this._getFeatureSettings()?.[featureKeyName] || [];
         return domains.filter((rule) => {
-            return this.matchConditionalChanges(rule);
+            // Support shorthand for domain matching for backwards compatibility
+            return this.matchConditionalChanges(rule.condition || { domain: rule.domain });
         });
     }
 
@@ -69,16 +70,25 @@ export default class ConfigFeature {
      * @returns {boolean}
      */
     matchConditionalChanges(conditionBlock) {
-        // Check domain condition
-        if (conditionBlock.domain && !this._matchDomainConditional(conditionBlock)) {
-            return false;
-        }
-
-        // Check URL pattern condition
-        if (conditionBlock.urlPattern) {
-            const pattern = new URLPattern(conditionBlock.urlPattern);
-            if (!this.args?.site.url || !pattern.test(this.args?.site.url)) {
-                return false;
+        for (const key in conditionBlock) {
+            switch (key) {
+                case 'domain': {
+                    if (!this._matchDomainConditional(conditionBlock)) {
+                        return false;
+                    }
+                    break;
+                }
+                case 'urlPattern': {
+                    const pattern = new URLPattern(conditionBlock.urlPattern);
+                    if (!this.args?.site.url || !pattern.test(this.args?.site.url)) {
+                        return false;
+                    }
+                    break;
+                }
+                // For unknown keys we should assume the condition is not met
+                default: {
+                    return false;
+                }
             }
         }
 
@@ -172,14 +182,12 @@ export default class ConfigFeature {
             throw new Error(`${featureKeyName} is a reserved feature setting key name`);
         }
         // We only support one of these keys at a time, where conditionalChanges takes precedence
-        // TODO should we rename these?
-        // TODO should we only support conditionalChanges to support other types of settings?
         let conditionalMatches = [];
         // Presence check using result to avoid the [] default response
         if (result?.conditionalChanges) {
-            conditionalMatches = this.matchDomainFeatureSetting('conditionalChanges');
+            conditionalMatches = this.matchConditionalFeatureSetting('conditionalChanges');
         } else {
-            conditionalMatches = this.matchDomainFeatureSetting('domains');
+            conditionalMatches = this.matchConditionalFeatureSetting('domains');
         }
         for (const match of conditionalMatches) {
             if (match.patchSettings === undefined) {

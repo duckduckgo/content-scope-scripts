@@ -64,6 +64,7 @@ describe('ContentFeature class', () => {
                 expect(this.getFeatureSetting('pathTestPlaceholder')).toBe('place');
                 expect(this.getFeatureSetting('domainWildcard')).toBe('wildwest');
                 expect(this.getFeatureSetting('domainWildcardNope')).toBe('nope');
+                expect(this.getFeatureSetting('invalidCheck')).toBe('nope');
                 didRun = true;
             }
         }
@@ -86,6 +87,7 @@ describe('ContentFeature class', () => {
                     pathTestPlaceholder: 'nope',
                     domainWildcard: 'nope',
                     domainWildcardNope: 'nope',
+                    invalidCheck: 'nope',
                     conditionalChanges: [
                         {
                             domain: 'example.com',
@@ -103,37 +105,58 @@ describe('ContentFeature class', () => {
                             patchSettings: [{ op: 'replace', path: '/arrayTest', value: 'enabledArray' }],
                         },
                         {
-                            urlPattern: {
-                                path: '/path/path/me',
+                            condition: {
+                                urlPattern: {
+                                    path: '/path/path/me',
+                                },
                             },
                             patchSettings: [{ op: 'replace', path: '/pathTest', value: 'beep' }],
                         },
                         {
-                            urlPattern: {
-                                hostname: 'beep.nope.com',
-                                path: '/path/path/me',
+                            condition: {
+                                urlPattern: {
+                                    hostname: 'beep.nope.com',
+                                    path: '/path/path/me',
+                                },
                             },
                             patchSettings: [{ op: 'replace', path: '/pathTestNotApply', value: 'yep' }],
                         },
                         {
-                            urlPattern: 'http://beep.example.com/path/path/me',
+                            condition: {
+                                urlPattern: 'http://beep.example.com/path/path/me',
+                            },
                             patchSettings: [{ op: 'replace', path: '/pathTestShort', value: 'beep' }],
                         },
                         {
-                            urlPattern: 'http://beep.example.com/*/path/me',
+                            condition: {
+                                urlPattern: 'http://beep.example.com/*/path/me',
+                            },
                             patchSettings: [{ op: 'replace', path: '/pathTestAsterix', value: 'comic' }],
                         },
                         {
-                            urlPattern: 'http://beep.example.com/:something/path/me',
+                            condition: {
+                                urlPattern: 'http://beep.example.com/:something/path/me',
+                            },
                             patchSettings: [{ op: 'replace', path: '/pathTestPlaceholder', value: 'place' }],
                         },
                         {
-                            urlPattern: 'http://beep.*.com/*/path/me',
+                            condition: {
+                                urlPattern: 'http://beep.*.com/*/path/me',
+                            },
                             patchSettings: [{ op: 'replace', path: '/domainWildcard', value: 'wildwest' }],
                         },
                         {
-                            urlPattern: 'http://nope.*.com/*/path/me',
+                            condition: {
+                                urlPattern: 'http://nope.*.com/*/path/me',
+                            },
                             patchSettings: [{ op: 'replace', path: '/domainWildcardNope', value: 'wildwest' }],
+                        },
+                        {
+                            condition: {
+                                somethingInvalid: true,
+                                urlPattern: 'http://beep.example.com/*/path/me',
+                            },
+                            patchSettings: [{ op: 'replace', path: '/invalidCheck', value: 'neverhappened' }],
                         },
                     ],
                 },
