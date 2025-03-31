@@ -16,6 +16,7 @@ describe('ContentFeature class', () => {
         const args = {
             site: {
                 domain: 'beep.example.com',
+                url: 'http://beep.example.com',
             },
             featureSettings: {
                 test: {
@@ -44,6 +45,101 @@ describe('ContentFeature class', () => {
             },
         };
         const me = new MyTestFeature('test', {}, args);
+        me.callInit(args);
+        expect(didRun).withContext('Should run').toBeTrue();
+    });
+
+    it('Should trigger getFeatureSettingEnabled for the correct domain', () => {
+        let didRun = false;
+        class MyTestFeature2 extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('test')).toBe('enabled3');
+                expect(this.getFeatureSetting('otherTest')).toBe('enabled');
+                expect(this.getFeatureSetting('otherOtherTest')).toBe('ding');
+                expect(this.getFeatureSetting('arrayTest')).toBe('enabledArray');
+                expect(this.getFeatureSetting('pathTest')).toBe('beep');
+                expect(this.getFeatureSetting('pathTestNotApply')).toBe('nope');
+                expect(this.getFeatureSetting('pathTestShort')).toBe('beep');
+                expect(this.getFeatureSetting('pathTestAsterix')).toBe('comic');
+                expect(this.getFeatureSetting('pathTestPlaceholder')).toBe('place');
+                expect(this.getFeatureSetting('domainWildcard')).toBe('wildwest');
+                expect(this.getFeatureSetting('domainWildcardNope')).toBe('nope');
+                didRun = true;
+            }
+        }
+
+        const args = {
+            site: {
+                domain: 'beep.example.com',
+                url: 'http://beep.example.com/path/path/me',
+            },
+            featureSettings: {
+                test: {
+                    test: 'enabled',
+                    otherTest: 'disabled',
+                    otherOtherTest: 'ding',
+                    arrayTest: 'enabled',
+                    pathTest: 'nope',
+                    pathTestNotApply: 'nope',
+                    pathTestShort: 'nope',
+                    pathTestAsterix: 'nope',
+                    pathTestPlaceholder: 'nope',
+                    domainWildcard: 'nope',
+                    domainWildcardNope: 'nope',
+                    conditionalChanges: [
+                        {
+                            domain: 'example.com',
+                            patchSettings: [
+                                { op: 'replace', path: '/test', value: 'enabled2' },
+                                { op: 'replace', path: '/otherTest', value: 'enabled' },
+                            ],
+                        },
+                        {
+                            domain: 'beep.example.com',
+                            patchSettings: [{ op: 'replace', path: '/test', value: 'enabled3' }],
+                        },
+                        {
+                            domain: ['meep.com', 'example.com'],
+                            patchSettings: [{ op: 'replace', path: '/arrayTest', value: 'enabledArray' }],
+                        },
+                        {
+                            urlPattern: {
+                                path: '/path/path/me',
+                            },
+                            patchSettings: [{ op: 'replace', path: '/pathTest', value: 'beep' }],
+                        },
+                        {
+                            urlPattern: {
+                                hostname: 'beep.nope.com',
+                                path: '/path/path/me',
+                            },
+                            patchSettings: [{ op: 'replace', path: '/pathTestNotApply', value: 'yep' }],
+                        },
+                        {
+                            urlPattern: 'http://beep.example.com/path/path/me',
+                            patchSettings: [{ op: 'replace', path: '/pathTestShort', value: 'beep' }],
+                        },
+                        {
+                            urlPattern: 'http://beep.example.com/*/path/me',
+                            patchSettings: [{ op: 'replace', path: '/pathTestAsterix', value: 'comic' }],
+                        },
+                        {
+                            urlPattern: 'http://beep.example.com/:something/path/me',
+                            patchSettings: [{ op: 'replace', path: '/pathTestPlaceholder', value: 'place' }],
+                        },
+                        {
+                            urlPattern: 'http://beep.*.com/*/path/me',
+                            patchSettings: [{ op: 'replace', path: '/domainWildcard', value: 'wildwest' }],
+                        },
+                        {
+                            urlPattern: 'http://nope.*.com/*/path/me',
+                            patchSettings: [{ op: 'replace', path: '/domainWildcardNope', value: 'wildwest' }],
+                        },
+                    ],
+                },
+            },
+        };
+        const me = new MyTestFeature2('test', {}, args);
         me.callInit(args);
         expect(didRun).withContext('Should run').toBeTrue();
     });
