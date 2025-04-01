@@ -154,13 +154,23 @@
 </template>
 <script>
     (async () => {
+        settingsFiles = {
+            default: '/duckplayer/config/overlays.json',
+            drawer: '/duckplayer/config/overlays-drawer.json',
+        }
+
         if (!new URLSearchParams(location.search).has('preview')) {
             return;
         }
         const platformName = new URLSearchParams(window.location.search).get('platform') || 'macos';
         const locale = new URLSearchParams(window.location.search).get('locale') || 'en';
+        const settingsId = new URLSearchParams(window.location.search).get('config') || 'default';
+
         await import("/build/contentScope.js").catch(console.error)
-        const overlays = await fetch('/duckplayer/config/overlays.json').then(x => x.json())
+
+        const settingsFile = settingsFiles[settingsId] || settingsFiles.default;
+        const overlays = await fetch(settingsFile).then(x => x.json())
+
         document.dispatchEvent(new CustomEvent('content-scope-init-args', {
             detail: {
                 debug: true,
