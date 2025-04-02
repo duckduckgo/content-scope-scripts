@@ -37,7 +37,11 @@ export default defineConfig({
         },
         {
             name: 'ios',
-            testMatch: ['integration-test/duckplayer-mobile.spec.js', 'integration-test/duckplayer-mobile-drawer.spec.js'],
+            testMatch: [
+                'integration-test/duckplayer-mobile.spec.js',
+                'integration-test/duckplayer-mobile-drawer.spec.js',
+                'integration-test/theme-color.spec.js',
+            ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
@@ -47,6 +51,7 @@ export default defineConfig({
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/web-compat-android.spec.js',
                 'integration-test/message-bridge-android.spec.js',
+                'integration-test/theme-color.spec.js',
             ],
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] },
         },

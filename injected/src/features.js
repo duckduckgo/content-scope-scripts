@@ -27,14 +27,15 @@ const otherFeatures = /** @type {const} */ ([
     'breakageReporting',
     'autofillPasswordImport',
     'favicon',
+    'themeColor',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: ['webCompat', ...baseFeatures],
-    'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge', 'favicon'],
-    android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
+    'apple-isolated': ['duckPlayer', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge', 'favicon', 'themeColor'],
+    android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge', 'themeColor'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-password-import': ['autofillPasswordImport'],
     windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting'],
