@@ -118,31 +118,40 @@ export function hasThirdPartyOrigin(scriptOrigins) {
 }
 
 /**
+ * @returns {URL | null}
+ */
+export function getTabUrl() {
+    let framingURLString = null;
+    try {
+        // @ts-expect-error - globalThis.top is possibly 'null' here
+        framingURLString = globalThis.top.location.href;
+    } catch {
+        framingURLString = globalThis.document.referrer;
+    }
+
+    let framingURL;
+    try {
+        framingURL = new URL(framingURLString);
+    } catch {
+        framingURL = null;
+    }
+    return framingURL;
+}
+
+/**
  * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
  * @returns {string|null} inferred tab hostname
  */
 export function getTabHostname() {
-    let framingOrigin = null;
-    try {
-        // @ts-expect-error - globalThis.top is possibly 'null' here
-        framingOrigin = globalThis.top.location.href;
-    } catch {
-        framingOrigin = globalThis.document.referrer;
-    }
-
+    let topURLString = getTabUrl()?.hostname;
+    // For about:blank, we can't get the top location
     // Not supported in Firefox
     if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
         // ancestorOrigins is reverse order, with the last item being the top frame
-        framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+        // @ts-expect-error - globalThis.top is possibly 'null' here
+        topURLString = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
     }
-
-    try {
-        // @ts-expect-error - framingOrigin is possibly 'null' here
-        framingOrigin = new URL(framingOrigin).hostname;
-    } catch {
-        framingOrigin = null;
-    }
-    return framingOrigin;
+    return topURLString || null;
 }
 
 /**
@@ -524,6 +533,7 @@ export function computeLimitedSiteObject() {
     const topLevelHostname = getTabHostname();
     return {
         domain: topLevelHostname,
+        url: getTabUrl()?.href || null,
     };
 }
 
