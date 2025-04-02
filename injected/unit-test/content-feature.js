@@ -167,6 +167,111 @@ describe('ContentFeature class', () => {
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
+    it('Should trigger getFeatureSetting for the correct conditions', () => {
+        let didRun = false;
+        class MyTestFeature3 extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('test')).toBe('enabled');
+                expect(this.getFeatureSetting('otherTest')).toBe('disabled');
+                expect(this.getFeatureSetting('test2')).toBe('noop');
+                expect(this.getFeatureSetting('otherTest2')).toBe('me');
+                expect(this.getFeatureSetting('test3')).toBe('yep');
+                expect(this.getFeatureSetting('otherTest3')).toBe('expected');
+                expect(this.getFeatureSetting('test4')).toBe('yep');
+                expect(this.getFeatureSetting('otherTest4')).toBe('expected');
+                expect(this.getFeatureSetting('test5')).toBe('yep');
+                expect(this.getFeatureSetting('otherTest5')).toBe('expected');
+                didRun = true;
+            }
+        }
+
+        const args = {
+            site: {
+                domain: 'beep.example.com',
+                url: 'http://beep.example.com/path/path/me',
+            },
+            featureSettings: {
+                test: {
+                    test: 'enabled',
+                    otherTest: 'disabled',
+                    test4: 'yep',
+                    otherTest4: 'expected',
+                    conditionalChanges: [
+                        {
+                            condition: {
+                                // This array case is unsupported currently.
+                                domain: ['example.com'],
+                            },
+                            patchSettings: [
+                                { op: 'replace', path: '/test', value: 'enabled2' },
+                                { op: 'replace', path: '/otherTest', value: 'bloop' },
+                            ],
+                        },
+                        {
+                            condition: [
+                                {
+                                    domain: 'example.com',
+                                },
+                                {
+                                    domain: 'other.com',
+                                },
+                            ],
+                            patchSettings: [
+                                { op: 'replace', path: '/test2', value: 'noop' },
+                                { op: 'replace', path: '/otherTest2', value: 'me' },
+                            ],
+                        },
+                        {
+                            condition: [
+                                {
+                                    urlPattern: '*://*.example.com',
+                                },
+                                {
+                                    urlPattern: '*://other.com',
+                                },
+                            ],
+                            patchSettings: [
+                                { op: 'replace', path: '/test3', value: 'yep' },
+                                { op: 'replace', path: '/otherTest3', value: 'expected' },
+                            ],
+                        },
+                        {
+                            condition: [
+                                {
+                                    // This is at the apex so should not match
+                                    urlPattern: '*://example.com',
+                                },
+                                {
+                                    urlPattern: '*://other.com',
+                                },
+                            ],
+                            patchSettings: [
+                                { op: 'replace', path: '/test4', value: 'nope' },
+                                { op: 'replace', path: '/otherTest4', value: 'notexpected' },
+                            ],
+                        },
+                        {
+                            condition: [
+                                {
+                                    urlPattern: {
+                                        hostname: '*.example.com',
+                                    },
+                                },
+                            ],
+                            patchSettings: [
+                                { op: 'replace', path: '/test5', value: 'yep' },
+                                { op: 'replace', path: '/otherTest5', value: 'expected' },
+                            ],
+                        },
+                    ],
+                },
+            },
+        };
+        const me = new MyTestFeature3('test', {}, args);
+        me.callInit(args);
+        expect(didRun).withContext('Should run').toBeTrue();
+    });
+
     describe('addDebugFlag', () => {
         class MyTestFeature extends ContentFeature {
             // eslint-disable-next-line
