@@ -29,6 +29,15 @@ export default class ConfigFeature {
         }
     }
 
+    /**
+     * @param {import('./content-feature.js').Site} site
+     */
+    urlChanged(site) {
+        if (this.#args) {
+            this.#args.site = site;
+        }
+    }
+
     get args() {
         return this.#args;
     }

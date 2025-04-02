@@ -30,6 +30,7 @@ export default class ContentFeature extends ConfigFeature {
     #messaging;
     /** @type {boolean} */
     #isDebugFlagSet = false;
+    listenForUrlChanges = false;
 
     /** @type {ImportMeta} */
     #importConfig;

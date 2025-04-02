@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature';
-import { DDGProxy, DDGReflect, withExponentialBackoff } from '../utils';
+import { withExponentialBackoff } from '../utils';
 
 export const ANIMATION_DURATION_MS = 1000;
 export const ANIMATION_ITERATIONS = Infinity;
@@ -34,6 +34,7 @@ export const DELAY_BEFORE_ANIMATION = 300;
  * 3. Animate the element, or tap it if it should be autotapped.
  */
 export default class AutofillPasswordImport extends ContentFeature {
+    listenForUrlChanges = true;
     #exportButtonSettings;
 
     #settingsButtonSettings;
@@ -490,23 +491,15 @@ export default class AutofillPasswordImport extends ContentFeature {
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
     }
 
+    urlChanged(site) {
+        this.handlePath();
+        super.urlChanged(site)
+    }
+
     init() {
         this.setButtonSettings();
 
         const handlePath = this.handlePath.bind(this);
-        const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
-            async apply(target, thisArg, args) {
-                const path = args[1] === '' ? args[2].split('?')[0] : args[1];
-                await handlePath(path);
-                return DDGReflect.apply(target, thisArg, args);
-            },
-        });
-        historyMethodProxy.overload();
-        // listen for popstate events in order to run on back/forward navigations
-        window.addEventListener('popstate', async () => {
-            const path = window.location.pathname;
-            await handlePath(path);
-        });
 
         this.#domLoaded = new Promise((resolve) => {
             if (document.readyState !== 'loading') {

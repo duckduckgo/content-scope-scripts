@@ -2,6 +2,7 @@ import { initStringExemptionLists, isFeatureBroken, isGloballyDisabled, platform
 import { platformSupport } from './features';
 import { PerformanceMonitor } from './performance';
 import platformFeatures from 'ddg:platformFeatures';
+import { registerForURLChanges } from './url-change';
 
 let initArgs = null;
 const updates = [];
@@ -74,6 +75,9 @@ export async function init(args) {
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
             featureInstance.callInit(args);
+            if (featureInstance.listenForUrlChanges) {
+                registerForURLChanges((args) => featureInstance.urlChanged(args));
+            }
         }
     });
     // Fire off updates that came in faster than the init

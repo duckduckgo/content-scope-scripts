@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature';
-import { isBeingFramed, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils';
+import { isBeingFramed, injectGlobalStyles } from '../utils';
 
 let adLabelStrings = [];
 const parser = new DOMParser();
@@ -302,6 +302,7 @@ function forgivingSelector(selector) {
 }
 
 export default class ElementHiding extends ContentFeature {
+    listenForUrlChanges = true;
     init() {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         featureInstance = this;
@@ -360,19 +361,14 @@ export default class ElementHiding extends ContentFeature {
         } else {
             applyRules(activeRules);
         }
-        // single page applications don't have a DOMContentLoaded event on navigations, so
-        // we use proxy/reflect on history.pushState to call applyRules on page navigations
-        const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
-            apply(target, thisArg, args) {
-                applyRules(activeRules);
-                return DDGReflect.apply(target, thisArg, args);
-            },
-        });
-        historyMethodProxy.overload();
-        // listen for popstate events in order to run on back/forward navigations
-        window.addEventListener('popstate', () => {
-            applyRules(activeRules);
-        });
+        this.activeRules = activeRules;
+    }
+
+    urlChanged(site) {
+        if (this.activeRules) {
+            this.applyRules(this.activeRules);
+        }
+        super.urlChanged(site)
     }
 
     /**
