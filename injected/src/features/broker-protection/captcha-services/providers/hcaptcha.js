@@ -20,9 +20,9 @@ export class HCaptchaProvider {
     /**
      * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      */
-    async getCaptchaIdentifier(_captchaContainerElement) {
+    getCaptchaIdentifier(_captchaContainerElement) {
         // TODO: Implement
-        return null;
+        return Promise.resolve(null);
     }
 
     getSupportingCodeToInject() {

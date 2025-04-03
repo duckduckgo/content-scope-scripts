@@ -1,7 +1,7 @@
 import { PirError } from '../../types';
-import { svgToBase64Jpg, imageToBase64 } from '../utils/image';
+import { svgToBase64Jpg, imageToBase64 } from '../utils/image';
 import { injectTokenIntoElement } from '../utils/token';
-import { isElementType } from '../utils/element';
+import { isElementType } from '../utils/element';
 import { stringifyFunction } from '../utils/stringify-function';
 
 /**

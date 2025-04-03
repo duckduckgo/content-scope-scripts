@@ -1,6 +1,6 @@
 import { CaptchaFactory } from '../factory';
 import { ReCaptchaProvider } from './recaptcha';
-import { ImageProvider } from './image';
+import { ImageProvider } from './image';
 
 const captchaFactory = new CaptchaFactory();
 

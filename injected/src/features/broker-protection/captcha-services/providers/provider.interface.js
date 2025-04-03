@@ -30,8 +30,8 @@ export class CaptchaProvider {
      * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      * @returns {Promise<PirError | string | null>} The site key or null if not found
      */
-    async getCaptchaIdentifier(_captchaContainerElement) {
-        throw new Error('getCaptchaIdentifier() missing implementation');
+    getCaptchaIdentifier(_captchaContainerElement) {
+        return Promise.reject(new Error('getCaptchaIdentifier() missing implementation'));
     }
 
     /**
