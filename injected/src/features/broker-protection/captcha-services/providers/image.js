@@ -29,6 +29,7 @@ export class ImageProvider {
      */
     async getCaptchaIdentifier(captchaImageElement) {
         if (captchaImageElement.tagName.toLocaleLowerCase() === 'svg') {
+            // Converting to unknown to avoid TypeScript error when going from HTMLElement to SVGElement
             const unknownElement = /** @type {unknown} */ (captchaImageElement);
             const svgElement = /** @type {SVGElement} */ (unknownElement);
             const base64Image = await svgToBase64Jpg(svgElement);
