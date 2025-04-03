@@ -1,6 +1,9 @@
 {
   "features": {
-
+    "themeColor": {
+      "state": "disabled",
+      "exceptions": []
+    }
   },
   "unprotectedTemporary": []
 }

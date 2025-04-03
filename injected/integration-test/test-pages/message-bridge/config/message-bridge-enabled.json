@@ -9,6 +9,10 @@
       "state": "disabled",
       "exceptions": []
     },
+    "themeColor": {
+      "state": "disabled",
+      "exceptions": []
+    },
     "messageBridge": {
       "exceptions": [],
       "state": "enabled",

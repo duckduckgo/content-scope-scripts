@@ -6,6 +6,10 @@
       "settings": {
         "monitor": true
       }
+    },
+    "themeColor": {
+      "state": "disabled",
+      "exceptions": []
     }
   },
   "unprotectedTemporary": []

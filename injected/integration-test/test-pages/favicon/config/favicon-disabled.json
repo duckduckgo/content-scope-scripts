@@ -3,6 +3,10 @@
     "favicon": {
       "state": "disabled",
       "exceptions": []
+    },
+    "themeColor": {
+      "state": "disabled",
+      "exceptions": []
     }
   },
   "unprotectedTemporary": []

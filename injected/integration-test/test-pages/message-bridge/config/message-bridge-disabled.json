@@ -5,6 +5,10 @@
       "state": "disabled",
       "exceptions": []
     },
+    "themeColor": {
+      "state": "disabled",
+      "exceptions": []
+    },
     "navigatorInterface": {
       "state": "enabled",
       "exceptions": []
