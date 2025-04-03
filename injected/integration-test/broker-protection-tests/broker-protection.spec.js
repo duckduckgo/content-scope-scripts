@@ -334,19 +334,9 @@ test.describe('Broker Protection communications', () => {
         });
     });
     test.describe('Executes action and sends success message', () => {
-        test('buildUrl with useEnhancedCaptchaSystem: "enabled"', async ({ page }, workerInfo) => {
+        test('buildUrl', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.withFeatureConfig(BROKER_PROTECTION_CONFIGS.enhancedCaptchaSystemEnabled);
-            await dbp.navigatesTo('results.html');
-            await dbp.receivesAction('navigate.json');
-            const response = await dbp.collector.waitForMessage('actionCompleted');
-            dbp.isSuccessMessage(response);
-            dbp.isUrlMatch(response[0].payload.params.result.success.response);
-        });
-
-        test('buildUrl with useEnhancedCaptchaSystem: "disabled"', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.withFeatureConfig(BROKER_PROTECTION_CONFIGS.enhancedCaptchaSystemDisabled);
+            await dbp.withFeatureConfig(BROKER_PROTECTION_CONFIGS.default);
             await dbp.navigatesTo('results.html');
             await dbp.receivesAction('navigate.json');
             const response = await dbp.collector.waitForMessage('actionCompleted');
