@@ -3167,8 +3167,10 @@
     const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
     if (isControlClick) {
       return "new-tab";
-    } else if (event.shiftKey || event.button === 1) {
+    } else if (event.shiftKey) {
       return "new-window";
+    } else if (event.button === 1) {
+      return "new-tab";
     }
     return "same-tab";
   }

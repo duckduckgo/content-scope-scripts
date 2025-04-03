@@ -1,4 +1,1 @@
-- feat(pir): deprecate useEnhancedCaptchaSystem setting (#1608)
-- Fixes privacy-config hash on CI (#1605)
-- Update asana.yml (#1562)
-- Ensure getFeatureSettingEnabled behaves as expected (#1607)
+- ntp: send background-tab on windows middle-click (#1595)
