@@ -25,16 +25,16 @@ export class ImageProvider {
     }
 
     /**
-     * @param {HTMLElement} _captchaImageElement - The captcha image element
+     * @param {HTMLElement} captchaImageElement - The captcha image element
      */
-    async getCaptchaIdentifier(_captchaImageElement) {
-        if (_captchaImageElement.tagName.toLocaleLowerCase() === 'svg') {
-            const base64Image = await svgToBase64Jpg(_captchaImageElement);
+    async getCaptchaIdentifier(captchaImageElement) {
+        if (captchaImageElement.tagName.toLocaleLowerCase() === 'svg') {
+            const base64Image = await svgToBase64Jpg(captchaImageElement);
             return base64Image;
         }
 
-        if (_captchaImageElement.tagName.toLocaleLowerCase() === 'img') {
-            const base64Image = imageToBase64(_captchaImageElement);
+        if (captchaImageElement.tagName.toLocaleLowerCase() === 'img') {
+            const base64Image = imageToBase64(captchaImageElement);
             return base64Image;
         }
 

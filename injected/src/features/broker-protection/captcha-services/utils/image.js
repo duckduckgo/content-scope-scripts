@@ -1,3 +1,10 @@
+/**
+ * Converts an SVG element to a base64-encoded JPEG string.
+ *
+ * @param {HTMLElement} svgElement - The SVG element to convert
+ * @param {string} [backgroundColor='white'] - The background color for the JPEG image
+ * @return {Promise<string>} - A promise that resolves to the base64-encoded JPEG image
+ */
 export function svgToBase64Jpg(svgElement, backgroundColor = 'white') {
     const svgString = new XMLSerializer().serializeToString(svgElement);
     const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(svgString);
@@ -41,6 +48,13 @@ export function svgToBase64Jpg(svgElement, backgroundColor = 'white') {
     });
 }
 
+/**
+ * Converts an image element to a base64-encoded JPEG string
+ *
+ * @param {HTMLImageElement} imageElement - The image element to convert.
+ * @return {string} - The base64-encoded JPEG string.
+ * @throws {Error} - Throws an error if the canvas context cannot be obtained.
+ */
 export function imageToBase64(imageElement) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
