@@ -69,6 +69,7 @@ describe('Helpers checks', () => {
         expect(processedConfig).toEqual({
             site: {
                 domain: 'localhost',
+                url: 'http://localhost:8080/',
                 isBroken: false,
                 allowlisted: false,
                 // testFeatureTooBig is not enabled because it's minSupportedVersion is 100
@@ -147,6 +148,7 @@ describe('Helpers checks', () => {
         expect(processedConfig).toEqual({
             site: {
                 domain: 'localhost',
+                url: 'http://localhost:8080/',
                 isBroken: false,
                 allowlisted: false,
                 // testFeatureTooBig is not enabled because it's minSupportedVersion is 100
