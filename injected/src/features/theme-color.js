@@ -16,7 +16,7 @@ export class ThemeColor extends ContentFeature {
 
     send() {
         const themeColor = getThemeColor();
-        this.notify('themeColorFound', { themeColor, documentUrl: document.URL });
+        this.notify('themeColorStatus', { themeColor, documentUrl: document.URL });
     }
 }
 

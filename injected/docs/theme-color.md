@@ -10,8 +10,8 @@ The theme-color meta tag is used by browsers to customize the UI color to match 
 
 ## Notifications
 
-### `themeColorFound`
-- {@link "Theme Color Messages".ThemeColorFoundNotification}
+### `themeColorStatus`
+- {@link "Theme Color Messages".ThemeColorStatusNotification}
 - Sends initial theme color value on page load
 - If no theme-color meta tag is found, the themeColor value will be null
 

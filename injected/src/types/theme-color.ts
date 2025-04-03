@@ -10,16 +10,16 @@
  * Requests, Notifications and Subscriptions from the ThemeColor feature
  */
 export interface ThemeColorMessages {
-  notifications: ThemeColorFoundNotification;
+  notifications: ThemeColorStatusNotification;
 }
 /**
- * Generated from @see "../messages/theme-color/themeColorFound.notify.json"
+ * Generated from @see "../messages/theme-color/themeColorStatus.notify.json"
  */
-export interface ThemeColorFoundNotification {
-  method: "themeColorFound";
-  params: ThemeColorFound;
+export interface ThemeColorStatusNotification {
+  method: "themeColorStatus";
+  params: ThemeColorStatus;
 }
-export interface ThemeColorFound {
+export interface ThemeColorStatus {
   /**
    * The theme color value, or null if not present
    */

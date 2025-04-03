@@ -9,7 +9,7 @@ test('theme-color feature absent', async ({ page }, testInfo) => {
     const themeColor = ResultsCollector.create(page, testInfo.project.use);
     await themeColor.load(HTML, CONFIG);
 
-    const messages = await themeColor.waitForMessage('themeColorFound', 1);
+    const messages = await themeColor.waitForMessage('themeColorStatus', 1);
 
     expect(messages[0].payload.params).toStrictEqual({
         themeColor: '#ff0000',
@@ -22,7 +22,7 @@ test('theme-color (no theme color)', async ({ page }, testInfo) => {
     const themeColor = ResultsCollector.create(page, testInfo.project.use);
     await themeColor.load(HTML, CONFIG);
 
-    const messages = await themeColor.waitForMessage('themeColorFound', 1);
+    const messages = await themeColor.waitForMessage('themeColorStatus', 1);
 
     expect(messages[0].payload.params).toStrictEqual({
         themeColor: null,
@@ -38,7 +38,7 @@ test('theme-color (viewport media query)', async ({ page }, testInfo) => {
     const themeColor = ResultsCollector.create(page, testInfo.project.use);
     await themeColor.load(HTML, CONFIG);
 
-    const messages = await themeColor.waitForMessage('themeColorFound', 1);
+    const messages = await themeColor.waitForMessage('themeColorStatus', 1);
 
     expect(messages[0].payload.params).toStrictEqual({
         themeColor: '#00ff00',
@@ -54,7 +54,7 @@ test('theme-color (color scheme media query)', async ({ page }, testInfo) => {
     const themeColor = ResultsCollector.create(page, testInfo.project.use);
     await themeColor.load(HTML, CONFIG);
 
-    const messages = await themeColor.waitForMessage('themeColorFound', 1);
+    const messages = await themeColor.waitForMessage('themeColorStatus', 1);
 
     expect(messages[0].payload.params).toStrictEqual({
         themeColor: '#0000ff',
