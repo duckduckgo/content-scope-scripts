@@ -29,7 +29,9 @@ export function injectTokenIntoElement({ captchaContainerElement, captchaInputEl
 
     return safeCallWithError(
         () => {
-            if ('value' in element) { element.value = token; }
+            if ('value' in element) {
+                element.value = token;
+            }
             element.innerHTML = token;
 
             return PirSuccess.create({ injected: true });

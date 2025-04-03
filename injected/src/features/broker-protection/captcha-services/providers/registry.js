@@ -20,8 +20,6 @@ captchaFactory.registerProvider(
     }),
 );
 
-captchaFactory.registerProvider(
-    new ImageProvider(),
-);
+captchaFactory.registerProvider(new ImageProvider());
 
 export { captchaFactory };

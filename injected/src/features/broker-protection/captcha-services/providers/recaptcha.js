@@ -50,7 +50,7 @@ export class ReCaptchaProvider {
             safeCallWithError(
                 () => getSiteKeyFromSearchParam({ captchaElement: this._getCaptchaElement(captchaContainerElement), siteKeyAttrName: 'k' }),
                 { errorMessage: '[ReCaptchaProvider.getCaptchaIdentifier] could not extract site key' },
-            )
+            ),
         );
     }
 
