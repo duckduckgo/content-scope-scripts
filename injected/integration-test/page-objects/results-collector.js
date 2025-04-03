@@ -268,14 +268,15 @@ export class ResultsCollector {
 
     /**
      * @param {string} method
-     * @return {Promise<object>}
+     * @param {number} [count=1]
+     * @return {Promise<Record<string, any>[]>}
      */
-    async waitForMessage(method) {
+    async waitForMessage(method, count = 1) {
         await this.page.waitForFunction(
             waitForCallCount,
             {
                 method,
-                count: 1,
+                count,
             },
             { timeout: 5000, polling: 100 },
         );
@@ -297,6 +298,7 @@ export class ResultsCollector {
      */
     static create(page, use) {
         // Read the configuration object to determine which platform we're testing against
+        page.on('console', (msg) => console[msg.type()](msg.text()));
         const { platformInfo, build } = perPlatform(use);
         return new ResultsCollector(page, build, platformInfo);
     }

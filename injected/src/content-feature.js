@@ -217,9 +217,13 @@ export default class ContentFeature extends ConfigFeature {
     addDebugFlag() {
         if (this.#isDebugFlagSet) return;
         this.#isDebugFlagSet = true;
-        this.messaging?.notify('addDebugFlag', {
-            flag: this.name,
-        });
+        try {
+            this.messaging?.notify('addDebugFlag', {
+                flag: this.name,
+            });
+        } catch (_e) {
+            // Ignore thrown error from a potentially missing handler (on WebKit).
+        }
     }
 
     /**

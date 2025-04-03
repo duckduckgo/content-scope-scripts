@@ -32,7 +32,8 @@ export default defineConfig({
                 'customizer.spec.js',
                 'activity.spec.js',
                 'history.spec.js',
-                'history-selections.spec.js'
+                'history-selections.spec.js',
+                'history.screenshots.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],
@@ -95,8 +96,9 @@ export default defineConfig({
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
     /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : undefined,
-    reporter: process.env.CI ? 'github' : [['html', { open: 'never' }]],
+    workers: process.env.CI ? 2 : undefined,
+    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+    reporter: 'html',
     // @ts-expect-error - Type 'undefined' is not assignable to type 'string'. process.env
     webServer: {
         command: process.env.PAGE ? `npm run watch -- --page ${process.env.PAGE}` : 'npm run serve',
@@ -107,5 +109,6 @@ export default defineConfig({
     use: {
         actionTimeout: 5000,
         trace: 'on-first-retry',
+        video: { mode: 'on-first-retry' },
     },
 });

@@ -1,4 +1,4 @@
-import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils';
+import { initStringExemptionLists, isFeatureBroken, isGloballyDisabled, platformSpecificFeatures, registerMessageSecret } from './utils';
 import { platformSupport } from './features';
 import { PerformanceMonitor } from './performance';
 import platformFeatures from 'ddg:platformFeatures';
@@ -41,13 +41,23 @@ export function load(args) {
         injectName: import.meta.injectName,
     };
 
-    const featureNames = typeof importConfig.injectName === 'string' ? platformSupport[importConfig.injectName] : [];
+    const bundledFeatureNames = typeof importConfig.injectName === 'string' ? platformSupport[importConfig.injectName] : [];
 
-    for (const featureName of featureNames) {
-        const ContentFeature = platformFeatures['ddg_feature_' + featureName];
-        const featureInstance = new ContentFeature(featureName, importConfig, args);
-        featureInstance.callLoad();
-        features.push({ featureName, featureInstance });
+    // prettier-ignore
+    const featuresToLoad = isGloballyDisabled(args)
+        // if we're globally disabled, only allow `platformSpecificFeatures`
+        ? platformSpecificFeatures
+        // if available, use `site.enabledFeatures`. The extension doesn't have `site.enabledFeatures` at this
+        // point, which is why we fall back to `bundledFeatureNames`.
+        : args.site.enabledFeatures || bundledFeatureNames;
+
+    for (const featureName of bundledFeatureNames) {
+        if (featuresToLoad.includes(featureName)) {
+            const ContentFeature = platformFeatures['ddg_feature_' + featureName];
+            const featureInstance = new ContentFeature(featureName, importConfig, args);
+            featureInstance.callLoad();
+            features.push({ featureName, featureInstance });
+        }
     }
     mark.end();
 }
