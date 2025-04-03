@@ -1,7 +1,7 @@
 /**
  * Converts an SVG element to a base64-encoded JPEG string.
  *
- * @param {HTMLElement} svgElement - The SVG element to convert
+ * @param {SVGElement} svgElement - The SVG element to convert
  * @param {string} [backgroundColor='white'] - The background color for the JPEG image
  * @return {Promise<string>} - A promise that resolves to the base64-encoded JPEG image
  */

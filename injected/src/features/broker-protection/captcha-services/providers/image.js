@@ -29,12 +29,15 @@ export class ImageProvider {
      */
     async getCaptchaIdentifier(captchaImageElement) {
         if (captchaImageElement.tagName.toLocaleLowerCase() === 'svg') {
-            const base64Image = await svgToBase64Jpg(captchaImageElement);
+            const unknownElement = /** @type {unknown} */ (captchaImageElement);
+            const svgElement = /** @type {SVGElement} */ (unknownElement);
+            const base64Image = await svgToBase64Jpg(svgElement);
             return base64Image;
         }
 
         if (captchaImageElement.tagName.toLocaleLowerCase() === 'img') {
-            const base64Image = imageToBase64(captchaImageElement);
+            const imageElement = /** @type {HTMLImageElement} */ (captchaImageElement);
+            const base64Image = imageToBase64(imageElement);
             return base64Image;
         }
 
