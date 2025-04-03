@@ -492,7 +492,7 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     urlChanged(site) {
-        this.handlePath();
+        this.handlePath(window.location.pathname);
         super.urlChanged(site)
     }
 

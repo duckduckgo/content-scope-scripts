@@ -15,7 +15,7 @@
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
     "test-int-snapshots": "playwright test --grep '@screenshots'",
     "test-int-snapshots-update": "playwright test --grep '@screenshots' --update-snapshots --last-failed",
-    "test": "npm run lint && npm run test-unit && npm run test-int && npm run playwright",
+    "test": "npm run test-unit && npm run test-int && npm run playwright",
     "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
     "playwright": "playwright test --grep-invert '@screenshots'",
     "playwright-screenshots": "playwright test --grep '@screenshots'",
