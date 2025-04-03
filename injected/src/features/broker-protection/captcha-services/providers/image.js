@@ -1,5 +1,8 @@
 import { PirError } from '../../types';
-import { svgToBase64Jpg } from '../utils/image';
+import { svgToBase64Jpg, imageToBase64 } from '../utils/image';
+import { injectTokenIntoElement } from '../utils/token';
+import { isElementType } from '../utils/element';
+import { stringifyFunction } from '../utils/stringify-function';
 
 /**
  * @import { CaptchaProvider } from './provider.interface';
@@ -11,31 +14,31 @@ export class ImageProvider {
     }
 
     /**
-     * @param {HTMLElement} _captchaImageElement - The captcha image element
+     * @param {HTMLElement} captchaImageElement - The captcha image element
      */
-    isSupportedForElement(_captchaImageElement) {
-        if (!_captchaImageElement) {
+    isSupportedForElement(captchaImageElement) {
+        if (!captchaImageElement) {
             return false;
         }
 
-        if (_captchaImageElement.tagName === 'img' || _captchaImageElement.tagName === 'svg') {
-            return true;
-        }
-
-        return false;
+        return isElementType(captchaImageElement, ['img', 'svg']);
     }
 
     /**
      * @param {HTMLElement} _captchaImageElement - The captcha image element
      */
     async getCaptchaIdentifier(_captchaImageElement) {
-        if (_captchaImageElement.tagName === 'svg') {
-            // Convert the SVG to a JPG
+        if (_captchaImageElement.tagName.toLocaleLowerCase() === 'svg') {
             const base64Image = await svgToBase64Jpg(_captchaImageElement);
             return base64Image;
         }
-        // check the file type of the image, if it's already PNG / JPG then we can just get the base64. If SVG we'll need to convert.
-        return null;
+
+        if (_captchaImageElement.tagName.toLocaleLowerCase() === 'img') {
+            const base64Image = imageToBase64(_captchaImageElement);
+            return base64Image;
+        }
+
+        return PirError.create('[ImageProvider.getCaptchaIdentifier] could not extract Base64 from image');
     }
 
     getSupportingCodeToInject() {
@@ -43,29 +46,18 @@ export class ImageProvider {
     }
 
     /**
-     * @param {HTMLElement} _captchaInputElement - The captcha input element
+     * @param {HTMLElement} captchaInputElement - The captcha input element
      */
-    canSolve(_captchaInputElement) {
-        // Ensure that the element passed is an input
-        return false;
+    canSolve(captchaInputElement) {
+        return isElementType(captchaInputElement, ['input', 'textarea']);
     }
 
     /**
-     * @param {HTMLElement} _captchaInputElement - The captcha input element
-     * @param {string} _token - The solved captcha token
+     * @param {HTMLInputElement} captchaInputElement - The captcha input element
+     * @param {string} token - The solved captcha token
      */
-    injectToken(_captchaInputElement, _token) {
-        if (!_captchaInputElement) {
-            return PirError.create('No captcha input element found');
-        }
-
-        if (_captchaInputElement instanceof HTMLInputElement) {
-            _captchaInputElement.value = _token;
-            // Put the solution into the element
-            return PirError.create('Provided element is not an input element');
-        } else {
-            return PirError.create('Provided element is not an input element');
-        }
+    injectToken(captchaInputElement, token) {
+        return injectTokenIntoElement({ captchaInputElement, token });
     }
 
     /**
@@ -73,7 +65,10 @@ export class ImageProvider {
      * @param {string} _token - The solved captcha token
      */
     getSolveCallback(_captchaInputElement, _token) {
-        // No callback needed here
-        return null;
+        return stringifyFunction({
+            functionBody: function callbackNoop() {},
+            functionName: 'callbackNoop',
+            args: {},
+        });
     }
 }

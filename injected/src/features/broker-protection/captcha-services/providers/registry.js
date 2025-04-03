@@ -21,9 +21,7 @@ captchaFactory.registerProvider(
 );
 
 captchaFactory.registerProvider(
-    new ImageProvider({
-        type: 'image',
-    }),
+    new ImageProvider(),
 );
 
 export { captchaFactory };

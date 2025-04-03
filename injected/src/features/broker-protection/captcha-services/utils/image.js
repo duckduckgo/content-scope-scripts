@@ -40,3 +40,24 @@ export function svgToBase64Jpg(svgElement, backgroundColor = 'white') {
         img.src = svgDataUrl;
     });
 }
+
+export function imageToBase64(imageElement) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+        throw Error('[imageToBase64] Could not get 2D context from canvas');
+    }
+
+    // Set canvas dimensions to match the image
+    canvas.width = imageElement.width;
+    canvas.height = imageElement.height;
+
+    // Draw the image onto the canvas
+    ctx.drawImage(imageElement, 0, 0, canvas.width, canvas.height);
+
+    // Convert the canvas content to a JPEG base64 string
+    const base64String = canvas.toDataURL('image/jpeg'); // You can change the format if needed
+
+    return base64String;
+}

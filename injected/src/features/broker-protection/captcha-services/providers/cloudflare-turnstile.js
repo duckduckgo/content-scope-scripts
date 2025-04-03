@@ -20,7 +20,7 @@ export class CloudFlareTurnstileProvider {
     /**
      * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      */
-    getCaptchaIdentifier(_captchaContainerElement) {
+    async getCaptchaIdentifier(_captchaContainerElement) {
         // TODO: Implement
         return null;
     }

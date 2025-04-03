@@ -13,7 +13,6 @@ import * as deprecatedCaptchaHandlers from './captcha-deprecated';
  * @param {boolean} params.useEnhancedCaptchaSystem
  */
 export function resolveActionHandlers({ useEnhancedCaptchaSystem }) {
-    useEnhancedCaptchaSystem = true;
     return {
         extract,
         fillForm,
