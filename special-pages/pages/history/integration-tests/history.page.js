@@ -204,7 +204,7 @@ export class HistoryTestPage {
 
         expect(calls[3].payload.params).toStrictEqual({
             url,
-            target: 'new-window',
+            target: 'new-tab',
         });
     }
 
