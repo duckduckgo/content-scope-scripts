@@ -1,1 +1,1 @@
-- ntp: send background-tab on windows middle-click (#1595)
+- ntp: support default background colors (#1596)

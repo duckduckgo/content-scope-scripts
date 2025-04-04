@@ -4906,6 +4906,7 @@
     const didCatchInit = (message) => {
       messaging2.reportInitException({ message });
     };
+    applyDefaultStyles(init2.defaultStyles);
     const strings = await getStrings(environment);
     const service = new HistoryService(messaging2);
     const query = paramsToQuery(environment.urlParams, "initial");
@@ -4939,6 +4940,14 @@
         /* @__PURE__ */ g(EnvironmentProvider, { debugState: false, injectName: environment.injectName }, /* @__PURE__ */ g(TranslationProvider, { translationObject: strings, fallback: history_default, textLength: environment.textLength }, /* @__PURE__ */ g(Components, null))),
         root2
       );
+    }
+  }
+  function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor) {
+      document.body.style.setProperty("--default-light-background-color", defaultStyles.lightBackgroundColor);
+    }
+    if (defaultStyles?.darkBackgroundColor) {
+      document.body.style.setProperty("--default-dark-background-color", defaultStyles.darkBackgroundColor);
     }
   }
   async function fetchInitial(query, service, didCatch) {
@@ -5197,7 +5206,8 @@
             const initial = {
               platform: { name: "integration" },
               env: "development",
-              locale: "en"
+              locale: "en",
+              defaultStyles: getDefaultStyles()
             };
             return Promise.resolve(initial);
           }
@@ -5230,6 +5240,15 @@
         }
       }
     });
+  }
+  function getDefaultStyles() {
+    if (url.searchParams.get("defaultStyles") === "visual-refresh") {
+      return {
+        lightBackgroundColor: "#E9EBEC",
+        darkBackgroundColor: "#27282A"
+      };
+    }
+    return null;
   }
   async function withLatency(value) {
     let queryLatency = 50;

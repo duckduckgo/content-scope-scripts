@@ -217,8 +217,6 @@ button {
 
 /* pages/history/styles/history-theme.css */
 :root {
-  --default-light-bg: var(--color-gray-0);
-  --default-dark-bg: var(--color-gray-85);
   --title-font-size: 20px;
   --title-font-weight: 600;
   --title-line-height: 18px;
@@ -231,6 +229,10 @@ button {
   --title-3-em-font-size: 15px;
   --title-3-em-font-weight: 590;
   --title-3-em-line-height: 20px;
+}
+body {
+  --default-light-background-color: var(--color-gray-0);
+  --default-dark-background-color: var(--color-gray-85);
 }
 :root:has([data-platform=windows]) {
   --title-font-size: 24px;
@@ -247,7 +249,7 @@ button {
   --label-line-height: normal;
 }
 [data-theme=light] {
-  --history-background-color: var(--default-light-bg);
+  --history-background-color: var(--default-light-background-color);
   --history-surface-background-color: var(--color-white-at-30);
   --history-surface-border-color: var(--color-black-at-9);
   --history-scrollbar-controls-color: var(--color-black-at-18);
@@ -256,7 +258,7 @@ button {
   --history-text-muted: var(--color-black-at-60);
 }
 [data-theme=dark] {
-  --history-background-color: var(--default-dark-bg);
+  --history-background-color: var(--default-dark-background-color);
   --history-surface-background-color: var(--color-black-at-18);
   --history-surface-border-color: var(--color-white-at-12);
   --history-scrollbar-controls-color: var(--color-white-at-18);

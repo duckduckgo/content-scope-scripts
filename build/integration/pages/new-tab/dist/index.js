@@ -1949,10 +1949,10 @@
       }
       if (background2.kind === "userImage") {
         const isDark = background2.value.colorScheme === "dark";
-        nextBodyBackground = isDark ? "var(--default-dark-bg)" : "var(--default-light-bg)";
+        nextBodyBackground = isDark ? "var(--default-dark-background-color)" : "var(--default-light-background-color)";
       }
       if (background2.kind === "default") {
-        nextBodyBackground = browser.value === "dark" ? "var(--default-dark-bg)" : "var(--default-light-bg)";
+        nextBodyBackground = browser.value === "dark" ? "var(--default-dark-background-color)" : "var(--default-light-background-color)";
       }
       document.body.style.setProperty("background-color", nextBodyBackground);
       if (!document.body.dataset.animateBackground) {
@@ -24351,7 +24351,7 @@
       };
     }, [rows.length]);
     y2(() => {
-      if (!contentTubeRef.current) return console.warn("cannot find content tube");
+      if (!contentTubeRef.current) return;
       let lastHeight;
       let debounceTimer;
       const resizer = new ResizeObserver((entries4) => {
@@ -30542,6 +30542,7 @@
       messaging2.reportPageException({ message });
     };
     installGlobalSideEffects(environment, settings);
+    applyDefaultStyles(init2.defaultStyles);
     if (environment.display === "components") {
       return renderComponents(root2, environment, settings, strings);
     }
@@ -30595,6 +30596,14 @@
     document.body.dataset.platformName = settings.platform.name;
     document.body.dataset.display = environment.display;
     document.body.dataset.animation = environment.urlParams.get("animation") || "";
+  }
+  function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor) {
+      document.body.style.setProperty("--default-light-background-color", defaultStyles.lightBackgroundColor);
+    }
+    if (defaultStyles?.darkBackgroundColor) {
+      document.body.style.setProperty("--default-dark-background-color", defaultStyles.darkBackgroundColor);
+    }
   }
   async function resolveEntryPoints(widgets, didCatch) {
     try {
@@ -31415,7 +31424,8 @@
               platform: { name: "integration" },
               env: "development",
               locale: "en",
-              updateNotification
+              updateNotification,
+              defaultStyles: getDefaultStyles()
             };
             const feed = url4.searchParams.get("feed") || "stats";
             if (feed === "stats" || feed === "both") {
@@ -31443,6 +31453,15 @@
         }
       }
     });
+  }
+  function getDefaultStyles() {
+    if (url4.searchParams.get("defaultStyles") === "visual-refresh") {
+      return {
+        lightBackgroundColor: "#E9EBEC",
+        darkBackgroundColor: "#27282A"
+      };
+    }
+    return null;
   }
   function reorderArray(array, id, toIndex) {
     const fromIndex = array.findIndex((item) => item.id === id);

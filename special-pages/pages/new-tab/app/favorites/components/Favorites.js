@@ -317,7 +317,7 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
     }, [rows.length]);
 
     useEffect(() => {
-        if (!contentTubeRef.current) return console.warn('cannot find content tube');
+        if (!contentTubeRef.current) return;
         let lastHeight;
         let debounceTimer;
         const resizer = new ResizeObserver((entries) => {
