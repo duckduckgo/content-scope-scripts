@@ -1,6 +1,11 @@
 import * as constants from './constants.js';
 
 /**
+ * @typedef {object} muteSettings - Settings passing to the onMute callback
+ * @property {boolean} mute - Set to true to mute the video, false to unmute
+ */
+
+/**
  * @typedef {import("@duckduckgo/messaging").Messaging} Messaging
  *
  * A wrapper for all communications.
@@ -38,11 +43,11 @@ export class DuckPlayerNativeMessages {
     }
 
     /**
-     * Subscribe to get current timestamp events
-     * @param {() => void} callback
+     * Notifies with current timestamp
+     * @param {number} timestamp
      */
-    onGetCurrentTimestamp(callback) {
-        return this.messaging.subscribe('onGetCurrentTimestamp', callback);
+    onGetCurrentTimestamp(timestamp) {
+        return this.messaging.notify('onGetCurrentTimestamp', { timestamp });
     }
 
     /**
@@ -55,7 +60,7 @@ export class DuckPlayerNativeMessages {
 
     /**
      * Subscribe to mute audio events
-     * @param {(mute: boolean) => void} callback
+     * @param {(muteSettings: muteSettings) => void} callback
      */
     onMuteAudio(callback) {
         return this.messaging.subscribe('onMuteAudio', callback);

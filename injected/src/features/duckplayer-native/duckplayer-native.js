@@ -27,17 +27,17 @@ export async function initDuckPlayerNative(messages) {
     /**
      * Set up subscription listeners
      */
-    messages.onGetCurrentTimestamp(() => {
-        console.log('GET CURRENT TIMESTAMP');
-        getCurrentTimestamp();
-    });
+    // messages.onGetCurrentTimestamp(() => {
+    //     console.log('GET CURRENT TIMESTAMP');
+    //     getCurrentTimestamp();
+    // });
 
     messages.onMediaControl(() => {
         console.log('MEDIA CONTROL');
         mediaControl();
     });
 
-    messages.onMuteAudio((mute) => {
+    messages.onMuteAudio(({ mute }) => {
         console.log('MUTE AUDIO', mute);
         muteAudio(mute);
     });
@@ -51,6 +51,14 @@ export async function initDuckPlayerNative(messages) {
     const errorDetection = new ErrorDetection(messages);
     const destroy = errorDetection.observe();
     if (destroy) sideEffects.push(destroy);
+
+    /* Start timestamp polling */
+    const timestampPolling = setInterval(() => {
+        messages.onGetCurrentTimestamp(getCurrentTimestamp());
+    });
+    sideEffects.push(() => {
+        clearInterval(timestampPolling);
+    });
 
     return async () => {
         return await Promise.all(sideEffects.map((destroy) => destroy()));
