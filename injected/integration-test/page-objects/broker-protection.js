@@ -70,8 +70,8 @@ export class BrokerProtectionPage {
      * @return {Promise<void>}
      */
     async isCaptchaTokenFilled(responseElementSelector) {
-        const captchaTextArea = await this.page.$(responseElementSelector);
-        const captchaToken = await captchaTextArea?.evaluate((element) => element.innerHTML);
+        const captchaTarget = await this.page.$(responseElementSelector);
+        const captchaToken = await captchaTarget?.evaluate((element) => ('value' in element ? element.value : element.innerHTML));
         expect(captchaToken).toBe('test_token');
     }
 
@@ -99,7 +99,17 @@ export class BrokerProtectionPage {
      */
     isCaptchaMatch(response, { captchaType, targetPage }) {
         const expectedResponse = createCaptchaResponse({ captchaType, targetPage });
-        expect(response).toStrictEqual(expectedResponse);
+
+        switch (captchaType) {
+            case 'image':
+                // Validate that the correct keys are present in the response
+                expect(Object.keys(response).sort()).toStrictEqual(Object.keys(expectedResponse).sort());
+                // Validate that the siteKey looks like a base64 encoded image
+                expect(response.siteKey).toMatch(/^data:image\/jpeg;base64,/);
+                break;
+            default:
+                expect(response).toStrictEqual(expectedResponse);
+        }
     }
 
     async isCaptchaError() {

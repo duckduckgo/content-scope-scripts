@@ -21,7 +21,7 @@ export async function execute(action, inputData, root = document) {
             case 'fillForm':
                 return fillForm(action, data(action, inputData, 'extractedProfile'), root);
             case 'getCaptchaInfo':
-                return getCaptchaInfo(action, root);
+                return await getCaptchaInfo(action, root);
             case 'solveCaptcha':
                 return solveCaptcha(action, data(action, inputData, 'token'), root);
             default: {
