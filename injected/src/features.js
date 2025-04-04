@@ -33,7 +33,7 @@ const otherFeatures = /** @type {const} */ ([
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures],
+    apple: ['webCompat', 'duckPlayer', 'duckPlayerNative', ...baseFeatures],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
