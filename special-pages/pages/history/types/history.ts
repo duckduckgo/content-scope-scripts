@@ -196,6 +196,17 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
+  defaultStyles?: null | DefaultStyles;
+}
+export interface DefaultStyles {
+  /**
+   * Optional default dark background color. Any HEX value is permitted
+   */
+  darkBackgroundColor?: string;
+  /**
+   * Optional default light background color. Any HEX value is permitted
+   */
+  lightBackgroundColor?: string;
 }
 /**
  * Generated from @see "../messages/query.request.json"
