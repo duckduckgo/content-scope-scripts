@@ -157,7 +157,7 @@ export class Pixel {
      *   | {name: "play.use", remember: "0" | "1"}
      *   | {name: "play.use.thumbnail"}
      *   | {name: "play.do_not_use", remember: "0" | "1"}
-     *   | {name: "play.do_not_use.thumbnail"}} input
+     *   | {name: "play.do_not_use.dismiss"}} input
      */
     constructor(input) {
         this.input = input;
@@ -177,7 +177,7 @@ export class Pixel {
             case 'play.do_not_use': {
                 return { remember: this.input.remember };
             }
-            case 'play.do_not_use.thumbnail':
+            case 'play.do_not_use.dismiss':
                 return {};
             default:
                 throw new Error('unreachable');
