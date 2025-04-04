@@ -71,7 +71,7 @@ export class BrokerProtectionPage {
      */
     async isCaptchaTokenFilled(responseElementSelector) {
         const captchaTarget = await this.page.$(responseElementSelector);
-        const captchaToken = await captchaTarget?.evaluate((element) => ('value' in element) ? element.value : element.innerHTML);
+        const captchaToken = await captchaTarget?.evaluate((element) => ('value' in element ? element.value : element.innerHTML));
         expect(captchaToken).toBe('test_token');
     }
 

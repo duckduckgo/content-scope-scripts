@@ -42,7 +42,9 @@ export class ImageProvider {
             return base64Image;
         }
 
-        return PirError.create(`[ImageProvider.getCaptchaIdentifier] could not extract Base64 from image with tag name: ${captchaImageElement.tagName}`);
+        return PirError.create(
+            `[ImageProvider.getCaptchaIdentifier] could not extract Base64 from image with tag name: ${captchaImageElement.tagName}`,
+        );
     }
 
     getSupportingCodeToInject() {
