@@ -29,6 +29,7 @@
     "sjcl": "^1.0.8"
   },
   "devDependencies": {
+    "@adguard/scriptlets": "^2.1.6",
     "@canvas/image-data": "^1.0.0",
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#ca6101bb972756a87a8960ffb3029f603052ea9d",
     "@fingerprintjs/fingerprintjs": "^4.5.1",
