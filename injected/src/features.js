@@ -35,7 +35,6 @@ const otherFeatures = /** @type {const} */ ([
 export const platformSupport = {
     apple: ['webCompat', 'duckPlayerNative', ...baseFeatures],
     'apple-isolated': [
-        'duckPlayer',
         'duckPlayerNative',
         'brokerProtection',
         'performanceMetrics',
