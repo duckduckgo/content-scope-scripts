@@ -8,18 +8,18 @@ import { initDuckPlayerNative } from './duckplayer-native/duckplayer-native.js';
  * @property {string} version - TODO: this is only here to test config. Replace with actual settings.
  */
 
-export class DuckPlayerNative extends ContentFeature {
-    init() {
-        if (this.platform.name !== 'ios') return;
+export class DuckPlayerNativeFeature extends ContentFeature {
+    init(args) {
+        console.log('LOADING DUCK PLAYER NATIVE SCRIPTS', args);
 
         /**
          * This feature never operates in a frame
          */
-        if (isBeingFramed()) return;
+        // if (isBeingFramed()) return;
 
         const comms = new DuckPlayerNativeMessages(this.messaging);
         initDuckPlayerNative(comms);
     }
 }
 
-export default DuckPlayerNative;
+export default DuckPlayerNativeFeature;
