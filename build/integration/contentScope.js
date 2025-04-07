@@ -2367,6 +2367,9 @@
     const style = createStyleElement(css);
     getInjectionElement().appendChild(style);
   }
+  function getGlobal() {
+    return globalObj;
+  }
   function nextRandom(v) {
     return Math.abs(v >> 1 | (v << 62 ^ v << 61) & ~(~0 << 63) << 62);
   }
@@ -4586,7 +4589,7 @@
 
   // src/trackers.js
   init_define_import_meta_trackerLookup();
-  function isTrackerOrigin(trackerLookup2, originHostname = document.location.hostname) {
+  function isTrackerOrigin(trackerLookup2, originHostname = getGlobal().document.location.hostname) {
     const parts = originHostname.split(".").reverse();
     let node = trackerLookup2;
     for (const sub of parts) {

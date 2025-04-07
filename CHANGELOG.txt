@@ -1,1 +1,1 @@
-- ntp: support default background colors (#1596)
+- Setting of document for tracker analysis (#1613)

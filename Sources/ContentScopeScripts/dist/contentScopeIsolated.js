@@ -1607,6 +1607,9 @@
   function registerMessageSecret(secret) {
     messageSecret = secret;
   }
+  function getGlobal() {
+    return globalObj;
+  }
   var exemptionLists = {};
   var debug = false;
   function initStringExemptionLists(args) {
@@ -3133,7 +3136,7 @@
 
   // src/trackers.js
   init_define_import_meta_trackerLookup();
-  function isTrackerOrigin(trackerLookup, originHostname = document.location.hostname) {
+  function isTrackerOrigin(trackerLookup, originHostname = getGlobal().document.location.hostname) {
     const parts = originHostname.split(".").reverse();
     let node = trackerLookup;
     for (const sub of parts) {
