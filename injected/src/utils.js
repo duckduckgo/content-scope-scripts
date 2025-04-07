@@ -49,6 +49,10 @@ export function setGlobal(globalObjIn) {
     Error = globalObj.Error;
 }
 
+/**
+ * Used for testing to allow other files to override the globals used within this file.
+ * @returns {globalThis} the global object
+ */
 export function getGlobal() {
     return globalObj;
 }
