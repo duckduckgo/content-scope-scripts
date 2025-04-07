@@ -49,6 +49,10 @@ export function setGlobal(globalObjIn) {
     Error = globalObj.Error;
 }
 
+export function getGlobal() {
+    return globalObj;
+}
+
 // linear feedback shift register to find a random approximation
 export function nextRandom(v) {
     return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
