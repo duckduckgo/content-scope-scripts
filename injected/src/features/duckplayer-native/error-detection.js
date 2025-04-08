@@ -21,7 +21,6 @@ export class ErrorDetection {
             // TODO: Get settings from native
             signInRequiredSelector: '[href*="//support.google.com/youtube/answer/3037019"]',
         };
-        this.observe();
     }
 
     observe() {
