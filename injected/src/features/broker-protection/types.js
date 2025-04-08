@@ -12,6 +12,7 @@
  * @property {string} [captchaType]
  * @property {string} [injectCaptchaHandler]
  * @property {string} [dataSource]
+ * @property {boolean} [failSilently]
  */
 
 /**
