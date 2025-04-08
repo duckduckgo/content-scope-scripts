@@ -5,7 +5,7 @@ import { initDuckPlayerNative } from './duckplayer-native/duckplayer-native.js';
 
 /**
  * @typedef InitialSettings - The initial payload used to communicate render-blocking information
- * @property {string} version - TODO: this is only here to test config. Replace with actual settings.
+ * @property {string} locale - UI locale
  */
 
 export class DuckPlayerNativeFeature extends ContentFeature {
