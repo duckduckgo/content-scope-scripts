@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { isBeingFramed } from '../utils.js';
+// import { isBeingFramed } from '../utils.js';
 import { DuckPlayerNativeMessages } from './duckplayer-native/native-messages.js';
 import { initDuckPlayerNative } from './duckplayer-native/duckplayer-native.js';
 
