@@ -1,0 +1,31 @@
+{
+	"m_pir_action_error": {
+		"description": "Fires when a PIR action (currently getCaptchaInfo or solveCaptcha) results in an error within the injected script.",
+		"owners": ["pir-team"],
+		"triggers": ["exception"],
+		"parameters": [
+			{
+				"key": "actionID",
+				"type": "string",
+				"description": "ID of the action that failed."
+			},
+			{
+				"key": "actionType",
+				"type": "string",
+				"description": "Type of the action that failed.",
+				"enum": ["getCaptchaInfo", "solveCaptcha"]
+			},
+			{
+				"key": "errorMessage",
+				"type": "string",
+				"description": "The error message reported by the action."
+			},
+			{
+				"key": "captchaType",
+				"type": "string",
+				"description": "Optional: The type of captcha involved (if applicable)."
+			}
+		],
+		"privacyReview": []
+	}
+}

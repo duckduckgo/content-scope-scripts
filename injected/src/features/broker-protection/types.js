@@ -34,8 +34,6 @@ export class PirError {
     /**
      * @param {string} message
      * @return {PirError}
-     * @static
-     * @memberof PirError
      */
     static create(message) {
         return new PirError({ success: false, error: { message } });
@@ -44,8 +42,6 @@ export class PirError {
     /**
      * @param {object} error
      * @return {error is PirError}
-     * @static
-     * @memberof PirError
      */
     static isError(error) {
         return error instanceof PirError && error.success === false;
@@ -71,8 +67,6 @@ export class PirSuccess {
      * @template T
      * @param {T} response
      * @return {PirSuccess<T>}
-     * @static
-     * @memberof PirSuccess
      */
     static create(response) {
         return new PirSuccess({ success: true, response });
@@ -85,8 +79,6 @@ export class PirSuccess {
     /**
      * @param {object} params
      * @return {params is PirSuccess}
-     * @static
-     * @memberof PirSuccess
      */
     static isSuccess(params) {
         return params instanceof PirSuccess && params.success === true;
@@ -109,8 +101,6 @@ export class ErrorResponse {
     /**
      * @param {ActionResponse} response
      * @return {response is ErrorResponse}
-     * @static
-     * @memberof ErrorResponse
      */
     static isErrorResponse(response) {
         return response instanceof ErrorResponse;
@@ -121,8 +111,6 @@ export class ErrorResponse {
      * @param {PirAction['id']} params.actionID
      * @param {string} [params.context]
      * @return {(message: string) => ErrorResponse}
-     * @static
-     * @memberof ErrorResponse
      */
     static generateErrorResponseFunction({ actionID, context = '' }) {
         return (message) => new ErrorResponse({ actionID, message: [context, message].filter(Boolean).join(': ') });
@@ -152,8 +140,6 @@ export class SuccessResponse {
     /**
      * @param {SuccessResponseInterface} params
      * @return {SuccessResponse}
-     * @static
-     * @memberof SuccessResponse
      */
     static create(params) {
         return new SuccessResponse(params);
@@ -202,7 +188,6 @@ export class ProfileResult {
 export class Extractor {
     /**
      * @param {string[]} _noneEmptyStringArray
-     * @param {import("./actions/extract").ExtractorParams} _extractorParams
      * @return {JsonValue}
      */
 
