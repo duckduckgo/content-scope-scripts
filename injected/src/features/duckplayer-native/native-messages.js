@@ -55,6 +55,7 @@ export class DuckPlayerNativeMessages {
      * @param {() => void} callback
      */
     onMediaControl(callback) {
+        console.log('Subscribing to onMediaControl');
         return this.messaging.subscribe('onMediaControl', callback);
     }
 
@@ -63,6 +64,7 @@ export class DuckPlayerNativeMessages {
      * @param {(muteSettings: muteSettings) => void} callback
      */
     onMuteAudio(callback) {
+        console.log('Subscribing to onMuteAudio');
         return this.messaging.subscribe('onMuteAudio', callback);
     }
 
@@ -71,6 +73,7 @@ export class DuckPlayerNativeMessages {
      * @param {() => void} callback
      */
     onSerpNotify(callback) {
+        console.log('Subscribing to onSerpNotify');
         return this.messaging.subscribe('onSerpNotify', callback);
     }
 
