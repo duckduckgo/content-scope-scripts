@@ -27,7 +27,7 @@ export async function initDuckPlayerNative(messages) {
     /**
      * Set up subscription listeners
      */
-    // messages.onGetCurrentTimestamp(() => {
+    // messages.onCurrentTimestamp(() => {
     //     console.log('GET CURRENT TIMESTAMP');
     //     getCurrentTimestamp();
     // });
@@ -56,7 +56,7 @@ export async function initDuckPlayerNative(messages) {
     const timestampPolling = setInterval(() => {
         const timestamp = getCurrentTimestamp();
         console.log('Sending timestamp', timestamp);
-        messages.onGetCurrentTimestamp(getCurrentTimestamp());
+        messages.onCurrentTimestamp(getCurrentTimestamp());
     }, 300);
 
     sideEffects.push(() => {
