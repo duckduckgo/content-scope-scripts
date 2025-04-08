@@ -37,7 +37,7 @@ export class DuckPlayerNativeMessages {
      */
     initialSetup() {
         if (this.environment.isIntegrationMode()) {
-            return Promise.resolve({ version: '1' });
+            return Promise.resolve({ locale: 'en' });
         }
         return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
     }
@@ -46,8 +46,8 @@ export class DuckPlayerNativeMessages {
      * Notifies with current timestamp
      * @param {number} timestamp
      */
-    onGetCurrentTimestamp(timestamp) {
-        return this.messaging.notify('onGetCurrentTimestamp', { timestamp });
+    onCurrentTimestamp(timestamp) {
+        return this.messaging.notify('onCurrentTimestamp', { timestamp });
     }
 
     /**
