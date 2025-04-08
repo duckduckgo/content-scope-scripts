@@ -62,7 +62,7 @@ export async function initDuckPlayerNative(messages) {
         clearInterval(timestampPolling);
     });
 
-    return async () => {
-        return await Promise.all(sideEffects.map((destroy) => destroy()));
-    };
+    // return async () => {
+    //     return await Promise.all(sideEffects.map((destroy) => destroy()));
+    // };
 }
