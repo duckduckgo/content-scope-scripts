@@ -27,7 +27,7 @@ export class DuckPlayerNativeMessages {
         // TODO: Replace with class if needed
         this.environment = {
             isIntegrationMode: function () {
-                return true;
+                return false;
             },
         };
     }
