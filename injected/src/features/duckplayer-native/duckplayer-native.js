@@ -54,6 +54,8 @@ export async function initDuckPlayerNative(messages) {
 
     /* Start timestamp polling */
     const timestampPolling = setInterval(() => {
+        const timestamp = getCurrentTimestamp();
+        console.log('Sending timestamp', timestamp);
         messages.onGetCurrentTimestamp(getCurrentTimestamp());
     }, 300);
 
