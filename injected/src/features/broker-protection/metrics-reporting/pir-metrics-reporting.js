@@ -5,6 +5,7 @@
 
 import { ErrorResponse } from '../types';
 
+// We are only reporting metrics for the PIR actions that have their parameters audited in terms of privacy
 const SUPPORTED_ACTIONS_FOR_PIR_METRICS = ['getCaptchaInfo', 'solveCaptcha'];
 
 export class PirMetricsReporting {
