@@ -1,5 +1,5 @@
 {
-	"m_pir_action_error": {
+	"pir.action_error": {
 		"description": "Fires when a PIR action (currently getCaptchaInfo or solveCaptcha) results in an error within the injected script.",
 		"owners": ["pir-team"],
 		"triggers": ["exception"],
