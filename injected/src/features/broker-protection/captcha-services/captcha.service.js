@@ -69,7 +69,7 @@ export function getCaptchaInfo(action, root = document) {
 
     const captchaProvider = getCaptchaProvider(captchaContainer, captchaType);
     if (PirError.isError(captchaProvider)) {
-        return failSilently ? emptySuccessResponse(actionID, actionType) : createError(captchaContainer.error.message);
+        return failSilently ? emptySuccessResponse(actionID, actionType) : createError(captchaProvider.error.message);
     }
 
     const captchaIdentifier = captchaProvider.getCaptchaIdentifier(captchaContainer);
