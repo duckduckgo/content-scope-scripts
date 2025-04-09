@@ -32,9 +32,9 @@ export async function initDuckPlayerNative(messages) {
     //     getCurrentTimestamp();
     // });
 
-    messages.onMediaControl(() => {
-        console.log('MEDIA CONTROL');
-        mediaControl();
+    messages.onMediaControl(({ pause }) => {
+        console.log('MEDIA CONTROL', pause);
+        mediaControl(pause);
     });
 
     messages.onMuteAudio(({ mute }) => {
