@@ -35,6 +35,10 @@
         padding-left: 6px;
         grid-column-gap: 10px;
     }
+
+    &.adsAndTrackersVariant {
+        grid-row-gap: 0;
+    }
 }
 
 .headingIcon {
@@ -58,6 +62,11 @@
             height: 20px;
         }
     }
+
+    .adsAndTrackersVariant & img {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 .title {
@@ -65,6 +74,15 @@
     font-size: var(--title-2-font-size);
     font-weight: var(--title-2-font-weight);
     line-height: var(--title-2-line-height);
+
+    .adsAndTrackersVariant & {
+        color: var(--ntp-text-muted);
+        font-size: var(--title-3-em-font-size);
+
+        b {
+            color: var(--ntp-text-normal);
+        }
+    }
 }
 
 .widgetExpander {
@@ -88,9 +106,14 @@
     grid-area: label;
     color: var(--ntp-text-muted);
     padding-left: 2px;
+
     &.uppercase {
         line-height: 1;
         text-transform: uppercase;
+    }
+
+    .adsAndTrackersVariant & {
+        font-size: var(--small-label-font-size);
     }
 }
 
