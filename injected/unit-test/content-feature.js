@@ -9,6 +9,15 @@ describe('ContentFeature class', () => {
                 expect(this.getFeatureSetting('otherTest')).toBe('enabled');
                 expect(this.getFeatureSetting('otherOtherTest')).toBe('ding');
                 expect(this.getFeatureSetting('arrayTest')).toBe('enabledArray');
+                // Following key doesn't exist so it should return false
+                expect(this.getFeatureSettingEnabled('someNonExistantKey')).toBe(false);
+                expect(this.getFeatureSettingEnabled('disabledStatus')).toBe(false);
+                expect(this.getFeatureSettingEnabled('internalStatus')).toBe(false);
+                expect(this.getFeatureSettingEnabled('enabledStatus')).toBe(true);
+                expect(this.getFeatureSettingEnabled('overridenStatus')).toBe(false);
+                expect(this.getFeatureSettingEnabled('disabledOverridenStatus')).toBe(true);
+                expect(this.getFeatureSettingEnabled('statusObject')).toBe(true);
+                expect(this.getFeatureSettingEnabled('statusDisabledObject')).toBe(false);
                 didRun = true;
             }
         }
@@ -24,12 +33,27 @@ describe('ContentFeature class', () => {
                     otherTest: 'disabled',
                     otherOtherTest: 'ding',
                     arrayTest: 'enabled',
+                    disabledStatus: 'disabled',
+                    internalStatus: 'internal', // not currently supported
+                    enabledStatus: 'enabled',
+                    overridenStatus: 'enabled',
+                    disabledOverridenStatus: 'disabled',
+                    statusObject: {
+                        state: 'enabled',
+                        bloop: true,
+                    },
+                    statusDisabledObject: {
+                        state: 'disabled',
+                        bloop2: true,
+                    },
                     domains: [
                         {
                             domain: 'example.com',
                             patchSettings: [
                                 { op: 'replace', path: '/test', value: 'enabled2' },
                                 { op: 'replace', path: '/otherTest', value: 'enabled' },
+                                { op: 'replace', path: '/overridenStatus', value: 'disabled' },
+                                { op: 'replace', path: '/disabledOverridenStatus', value: 'enabled' },
                             ],
                         },
                         {

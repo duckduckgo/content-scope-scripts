@@ -49,6 +49,14 @@ export function setGlobal(globalObjIn) {
     Error = globalObj.Error;
 }
 
+/**
+ * Used for testing to allow other files to override the globals used within this file.
+ * @returns {globalThis} the global object
+ */
+export function getGlobal() {
+    return globalObj;
+}
+
 // linear feedback shift register to find a random approximation
 export function nextRandom(v) {
     return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
