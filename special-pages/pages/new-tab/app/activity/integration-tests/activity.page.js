@@ -387,12 +387,21 @@ export class ActivityPage {
           `);
     }
 
-    async hasEmptyTitle() {
+    async hasEmptyTrackersOnlyTitle() {
         const { page } = this;
         await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
             - img "Privacy Shield"
             - heading "No recent browsing activity" [level=2]
             - paragraph: Recently visited sites will appear here. Keep browsing to see how many trackers we block.
+        `);
+    }
+
+    async hasEmptyAdsAndTrackersTitle() {
+        const { page } = this;
+        await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
+            - img "Privacy Shield"
+            - heading "No recent browsing activity" [level=2]
+            - paragraph: Recently visited sites will appear here. Keep browsing to see how many ads and trackers we block.
         `);
     }
 

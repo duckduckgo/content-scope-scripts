@@ -72,7 +72,11 @@ export function ActivityHeading({
                     />
                 </span>
             )}
-            {itemCount === 0 && <p className={styles.subtitle}>{t('activity_noRecent_subtitle')}</p>}
+            {itemCount === 0 && (
+                <p className={styles.subtitle}>
+                    {trackerType === 'adsAndTrackers' ? t('activity_noRecentAdsAndTrackers_subtitle') : t('activity_noRecent_subtitle')}
+                </p>
+            )}
             {itemCount > 0 && (
                 <p className={cn(styles.subtitle, { [styles.uppercase]: trackerType === 'trackersOnly' })}>
                     {t('stats_feedCountBlockedPeriod')}

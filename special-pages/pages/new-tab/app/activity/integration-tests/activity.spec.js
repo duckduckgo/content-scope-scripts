@@ -59,11 +59,11 @@ test.describe('activity widget', () => {
         const ap = new ActivityPage(page, ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { feed: 'activity', activity: 'empty' } });
-        await ap.hasEmptyTitle();
+        await ap.hasEmptyTrackersOnlyTitle();
         await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel' } });
         await ap.hasPopulatedTrackersOnlyTitle();
         await ntp.openPage({ additional: { feed: 'activity', activity: 'empty', trackerType: 'adsAndTrackers' } });
-        await ap.hasEmptyTitle();
+        await ap.hasEmptyAdsAndTrackersTitle();
         await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel', trackerType: 'adsAndTrackers' } });
         await ap.hasPopulatedAdsAndTrackersTitle();
     });
