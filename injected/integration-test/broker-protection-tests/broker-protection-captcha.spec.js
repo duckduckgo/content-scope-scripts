@@ -50,7 +50,9 @@ test.describe('Broker Protection Captcha', () => {
                 await dbp.isCaptchaError();
             });
 
-            test('returns a success response for an action data with an invalid "captchaType" field but "failSilently" set to true', async ({ createConfiguredDbp }) => {
+            test('returns a success response for an action data with an invalid "captchaType" field but "failSilently" set to true', async ({
+                createConfiguredDbp,
+            }) => {
                 const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
                 await dbp.navigatesTo(recaptchaTargetPage);
                 await dbp.receivesInlineAction(createGetRecaptchaInfoAction({ captchaType: 'invalid', failSilently: true }));
@@ -97,7 +99,9 @@ test.describe('Broker Protection Captcha', () => {
                 await dbp.isCaptchaError();
             });
 
-            test('returns a success response for an action data with an invalid "captchaType" field but "failSilently" set to true', async ({ createConfiguredDbp }) => {
+            test('returns a success response for an action data with an invalid "captchaType" field but "failSilently" set to true', async ({
+                createConfiguredDbp,
+            }) => {
                 const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
                 await dbp.navigatesTo(recaptchaTargetPage);
                 await dbp.receivesInlineAction(createSolveRecaptchaAction({ captchaType: 'invalid', failSilently: true }));
