@@ -1,6 +1,7 @@
 import { PirError, PirSuccess } from '../../types';
 import { safeCallWithError } from '../../utils/safe-call';
 import { getElementByTagName } from '../../utils/utils';
+import { isElementType } from './element';
 
 /**
  * Inject a token into a named element
@@ -29,13 +30,30 @@ export function injectTokenIntoElement({ captchaContainerElement, captchaInputEl
 
     return safeCallWithError(
         () => {
-            if ('value' in element) {
+            if ((isInputElement(element) && ['text', 'hidden'].includes(element.type)) || isTextAreaElement(element)) {
                 element.value = token;
+            } else if (isInputElement(element)) {
+                return PirError.create(`[injectTokenIntoElement] element is not a text input or textarea`);
             }
-            element.innerHTML = token;
 
             return PirSuccess.create({ injected: true });
         },
         { errorMessage: `[injectTokenIntoElement] error injecting token into element` },
     );
+}
+
+/**
+ * @param {HTMLElement} element
+ * @return {element is HTMLInputElement}
+ */
+function isInputElement(element) {
+    return isElementType(element, 'input');
+}
+
+/**
+ * @param {HTMLElement} element
+ * @return {element is HTMLTextAreaElement}
+ */
+function isTextAreaElement(element) {
+    return isElementType(element, 'textarea');
 }
