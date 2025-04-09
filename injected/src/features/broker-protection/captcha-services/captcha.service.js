@@ -31,7 +31,7 @@ const getCaptchaContainer = (root, selector) => {
  * @return {import('../types.js').ActionResponse}
  */
 export function getSupportingCodeToInject(action) {
-    const { id: actionID, actionType, injectCaptchaHandler: captchaType, failSilently } = action;
+    const { id: actionID, actionType, injectCaptchaHandler: captchaType } = action;
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: 'getSupportingCodeToInject' });
     if (!captchaType) {
         // ensures backward compatibility with old actions
