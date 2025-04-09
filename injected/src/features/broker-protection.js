@@ -2,12 +2,18 @@ import ContentFeature from '../content-feature.js';
 import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
+import { PirMetricsReporting } from './broker-protection/metrics-reporting/pir-metrics-reporting.js';
 
-/**
- * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
- */
+/** @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse */
+/** @typedef {import("./broker-protection/types.js").PirAction} PirAction */
+
 export default class BrokerProtection extends ContentFeature {
+    /** @type {PirMetricsReporting} */
+    metrics;
+
     init() {
+        this.metrics = new PirMetricsReporting({ messaging: this.messaging });
+
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             try {
                 const action = params.state.action;
@@ -52,7 +58,7 @@ export default class BrokerProtection extends ContentFeature {
     /**
      * Recursively execute actions with the same dataset, collecting all results/exceptions for
      * later analysis
-     * @param {any} action
+     * @param {PirAction} action
      * @param {Record<string, any>} data
      * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
      */
@@ -60,22 +66,25 @@ export default class BrokerProtection extends ContentFeature {
         const retryConfig = this.retryConfigFor(action);
         const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
 
-        if (result) {
-            if ('success' in result && Array.isArray(result.success.next)) {
-                const nextResults = [];
-                const nextExceptions = [];
-
-                for (const nextAction of result.success.next) {
-                    const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data);
-
-                    nextResults.push(...subResults);
-                    nextExceptions.push(...subExceptions);
-                }
-                return { results: [result, ...nextResults], exceptions: exceptions.concat(nextExceptions) };
-            }
-            return { results: [result], exceptions: [] };
+        if (!result) {
+            return { results: [], exceptions };
         }
-        return { results: [], exceptions };
+
+        this.metrics.reportActionMetric({ action, result });
+
+        if ('success' in result && Array.isArray(result.success.next)) {
+            const nextResults = [];
+            const nextExceptions = [];
+
+            for (const nextAction of result.success.next) {
+                const { results: subResults, exceptions: subExceptions } = await this.exec(/** @type {PirAction} */ (nextAction), data);
+
+                nextResults.push(...subResults);
+                nextExceptions.push(...subExceptions);
+            }
+            return { results: [result, ...nextResults], exceptions: exceptions.concat(nextExceptions) };
+        }
+        return { results: [result], exceptions: [] };
     }
 
     /**
