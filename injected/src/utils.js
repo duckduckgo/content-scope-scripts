@@ -129,6 +129,14 @@ export function getTabUrl() {
         framingURLString = globalThis.document.referrer;
     }
 
+    if (!framingURLString) {
+        // This is suboptimal, but we need to get the top level origin in an about:blank frame
+        const topLevelOriginFromFrameAncestors = getTopLevelOriginFromFrameAncestors();
+        if (topLevelOriginFromFrameAncestors) {
+            framingURLString = topLevelOriginFromFrameAncestors;
+        }
+    }
+
     let framingURL;
     try {
         framingURL = new URL(framingURLString);
@@ -139,18 +147,24 @@ export function getTabUrl() {
 }
 
 /**
- * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
- * @returns {string|null} inferred tab hostname
+ * @returns {string | null}
  */
-export function getTabHostname() {
-    let topURLString = getTabUrl()?.hostname;
+function getTopLevelOriginFromFrameAncestors() {
     // For about:blank, we can't get the top location
     // Not supported in Firefox
     if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
         // ancestorOrigins is reverse order, with the last item being the top frame
-        // @ts-expect-error - globalThis.top is possibly 'null' here
-        topURLString = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+        return globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
     }
+    return null;
+}
+
+/**
+ * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
+ * @returns {string|null} inferred tab hostname
+ */
+export function getTabHostname() {
+    const topURLString = getTabUrl()?.hostname;
     return topURLString || null;
 }
 
