@@ -65,6 +65,14 @@
     "title": "{count} tracking attempts blocked",
     "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
+  "stats_countBlockedAdsAndTrackersSingular": {
+    "title": "Total of <b>1</b> ad & tracking attempt blocked",
+    "note": "The main headline indicating that a single ad or tracking attempt was blocked"
+  },
+  "stats_countBlockedAdsAndTrackersPlural": {
+    "title": "Total of <b>{count}</b> ads & tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: 'Total of 2 ads & tracking attempts blocked'"
+  },
   "stats_feedCountBlockedSingular": {
     "title": "1 attempt blocked by DuckDuckGo in the last 7 days",
     "note": "A summary description of how many tracking attempts where blocked, when only one exists."
@@ -292,6 +300,18 @@
   "activity_countBlockedPlural": {
     "title": "<b>{count}</b> tracking attempts blocked",
     "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_no_adsAndTrackers": {
+    "title": "No ads + Tracking attempts found",
+    "note": "Placeholder message indicating that no ads and trackers are detected"
+  },
+  "activity_no_adsAndTrackers_blocked": {
+    "title": "No ads + Tracking attempts blocked",
+    "note": "Placeholder message indicating that no ads and trackers are blocked"
+  },
+  "activity_countBlockedAdsAndTrackersPlural": {
+    "title": "<b>{count}</b> ads + Tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
   },
   "activity_favoriteAdd": {
     "title": "Add {domain} to favorites",

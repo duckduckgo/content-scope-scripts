@@ -15,6 +15,10 @@ export type Expansion = "expanded" | "collapsed";
  * Generic Animation configuration
  */
 export type Animation = None | ViewTransitions | Auto;
+/**
+ * Indicates which type of tracker the browser blocks. Used to determine the copy and icon in the Activty widget.
+ */
+export type TrackerType = "trackersOnly" | "adsAndTrackers";
 export type BackgroundVariant =
   | DefaultBackground
   | SolidColorBackground
@@ -222,6 +226,7 @@ export interface ActivitySetConfigNotification {
 export interface ActivityConfig {
   expansion: Expansion;
   animation?: Animation;
+  trackerType?: TrackerType;
 }
 export interface None {
   kind: "none";

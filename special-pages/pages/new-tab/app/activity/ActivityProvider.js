@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useEffect, useReducer, useRef } from 'preact/hooks';
+import { useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../types.js';
 import { reducer, useConfigSubscription, useInitialDataAndConfig } from '../service.hooks.js';
 import { useBatchedActivityApi } from '../settings.provider.js';
@@ -76,4 +76,12 @@ export function useService(useBatched) {
         };
     }, [ntp, useBatched]);
     return service;
+}
+
+/**
+ * @return {'adsAndTrackers'|'trackersOnly'}
+ */
+export function useTrackerType() {
+    const { state } = useContext(ActivityContext);
+    return state.config?.trackerType === 'adsAndTrackers' ? 'adsAndTrackers' : 'trackersOnly';
 }

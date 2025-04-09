@@ -293,7 +293,24 @@ export class ActivityPage {
         await page.pause();
     }
 
-    async showsEmptyTrackerState() {
+    async showsTrackersOnlyTrackerStates() {
+        await expect(this.context().getByTestId('ActivityItem').nth(0)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "example.com"
+            - button "Add example.com to favorites":
+              - img
+            - button "Clear browsing history and data for example.com":
+              - img
+            - text: +1 56 tracking attempts blocked
+            - list:
+              - listitem:
+                - link "/bathrooms/toilets"
+                - text: Just now
+              - listitem:
+                - link "/kitchen/sinks"
+                - text: 50 mins ago
+        `);
+
         await expect(this.context().getByTestId('ActivityItem').nth(3)).toMatchAriaSnapshot(`
           - listitem:
             - link "twitter.com"
@@ -305,21 +322,69 @@ export class ActivityPage {
             - list:
               - listitem:
                 - link "Trending Topics"
-                - text: 2 days ago`);
+                - text: 2 days ago
+          `);
 
         await expect(this.context().getByTestId('ActivityItem').nth(4)).toMatchAriaSnapshot(`
-            - listitem:
-              - link "app.linkedin.com"
-              - button "Add app.linkedin.com to favorites":
-                - img
-              - button "Clear browsing history and data for app.linkedin.com":
-                - img
-              - paragraph: No trackers found
-              - list:
-                - listitem:
-                  - link "Profile Page"
-                  - text: 2 hrs ago
+          - listitem:
+            - link "app.linkedin.com"
+            - button "Add app.linkedin.com to favorites":
+              - img
+            - button "Clear browsing history and data for app.linkedin.com":
+              - img
+            - paragraph: No trackers found
+            - list:
+              - listitem:
+                - link "Profile Page"
+                - text: 2 hrs ago
+          `);
+    }
+
+    async showsAdsAndTrackersTrackerStates() {
+        await expect(this.context().getByTestId('ActivityItem').nth(0)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "example.com"
+            - button "Add example.com to favorites":
+              - img
+            - button "Clear browsing history and data for example.com":
+              - img
+            - text: +1 56 ads + Tracking attempts blocked
+            - list:
+              - listitem:
+                - link "/bathrooms/toilets"
+                - text: Just now
+              - listitem:
+                - link "/kitchen/sinks"
+                - text: 50 mins ago
         `);
+
+        await expect(this.context().getByTestId('ActivityItem').nth(3)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "twitter.com"
+            - button "Add twitter.com to favorites":
+              - img
+            - button "Clear browsing history and data for twitter.com":
+              - img
+            - paragraph: No ads + Tracking attempts blocked
+            - list:
+              - listitem:
+                - link "Trending Topics"
+                - text: 2 days ago
+        `);
+
+        await expect(this.context().getByTestId('ActivityItem').nth(4)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "app.linkedin.com"
+            - button "Add app.linkedin.com to favorites":
+              - img
+            - button "Clear browsing history and data for app.linkedin.com":
+              - img
+            - paragraph: No ads + Tracking attempts found
+            - list:
+              - listitem:
+                - link "Profile Page"
+                - text: 2 hrs ago
+          `);
     }
 
     async hasEmptyTitle() {
@@ -330,11 +395,23 @@ export class ActivityPage {
             - paragraph: Recently visited sites will appear here. Keep browsing to see how many trackers we block.
         `);
     }
-    async hasPopuplatedTitle() {
+
+    async hasPopulatedTrackersOnlyTitle() {
         const { page } = this;
         await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
             - img "Privacy Shield"
             - heading "0 tracking attempts blocked" [level=2]
+            - button "Hide recent activity" [expanded] [pressed]:
+              - img
+            - paragraph: Past 7 days
+        `);
+    }
+
+    async hasPopulatedAdsAndTrackersTitle() {
+        const { page } = this;
+        await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
+            - img "Privacy Shield"
+            - heading "Total of 0 ads & tracking attempts blocked" [level=2]
             - button "Hide recent activity" [expanded] [pressed]:
               - img
             - paragraph: Past 7 days

@@ -217,6 +217,7 @@ export function activityMockTransport() {
                     /** @type {import('../../../types/new-tab.ts').ActivityConfig} */
                     const config = {
                         expansion: 'expanded',
+                        trackerType: url.searchParams.get('trackerType') === 'adsAndTrackers' ? 'adsAndTrackers' : 'trackersOnly',
                     };
                     return Promise.resolve(config);
                 }
