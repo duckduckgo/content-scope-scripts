@@ -28,18 +28,12 @@ export class ImageProvider {
      * @param {HTMLElement} captchaImageElement - The captcha image element
      */
     async getCaptchaIdentifier(captchaImageElement) {
-        if (captchaImageElement.tagName.toLocaleLowerCase() === 'svg') {
-            // Converting to unknown to avoid TypeScript error when going from HTMLElement to SVGElement
-            const unknownElement = /** @type {unknown} */ (captchaImageElement);
-            const svgElement = /** @type {SVGElement} */ (unknownElement);
-            const base64Image = await svgToBase64Jpg(svgElement);
-            return base64Image;
+        if (isSVGElement(captchaImageElement)) {
+            return await svgToBase64Jpg(captchaImageElement);
         }
 
-        if (captchaImageElement.tagName.toLocaleLowerCase() === 'img') {
-            const imageElement = /** @type {HTMLImageElement} */ (captchaImageElement);
-            const base64Image = imageToBase64(imageElement);
-            return base64Image;
+        if (isImgElement(captchaImageElement)) {
+            return imageToBase64(captchaImageElement);
         }
 
         return PirError.create(
@@ -77,4 +71,20 @@ export class ImageProvider {
             args: {},
         });
     }
+}
+
+/**
+ * @param {HTMLElement} element
+ * @return {element is SVGElement}
+ */
+function isSVGElement(element) {
+    return isElementType(element, 'svg');
+}
+
+/**
+ * @param {HTMLElement} element
+ * @return {element is HTMLImageElement}
+ */
+function isImgElement(element) {
+    return isElementType(element, 'img');
 }
