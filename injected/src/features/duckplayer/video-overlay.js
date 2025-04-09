@@ -292,10 +292,10 @@ export class VideoOverlay {
                     return this.mobileOptOut(e.detail.remember).catch(console.error);
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.DISMISS, () => {
-                    return this.mobileOptOut(false).catch(console.error); // Dismissal should not persist user's choice. Ignore remember-me value.
+                    return this.dismissOverlay();
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.THUMBNAIL_CLICK, () => {
-                    return this.videoThumbnailClick();
+                    return this.dismissOverlay();
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptIn(e.detail.remember, params).catch(console.error);
@@ -508,8 +508,8 @@ export class VideoOverlay {
         this.destroy();
     }
 
-    videoThumbnailClick() {
-        const pixel = new Pixel({ name: 'play.do_not_use.thumbnail' });
+    dismissOverlay() {
+        const pixel = new Pixel({ name: 'play.do_not_use.dismiss' });
         this.messages.sendPixel(pixel);
 
         return this.destroy();
