@@ -62,8 +62,10 @@ export class ErrorDetection {
                 mutation.addedNodes.forEach((node) => {
                     if (this.checkForError(node)) {
                         console.log('A node with an error has been added to the document:', node);
-                        const error = this.getErrorType();
-                        this.messages.onYoutubeError(error);
+                        setTimeout(() => {
+                            const error = this.getErrorType();
+                            this.messages.onYoutubeError(error);
+                        }, 4000);
                     }
                 });
             }
@@ -78,8 +80,17 @@ export class ErrorDetection {
         const currentWindow = /** @type {Window & typeof globalThis & { ytcfg: object }} */ (window);
         let playerResponse;
 
+        while (!currentWindow.ytcfg) {
+            console.log('Waiting for ytcfg');
+        }
+
+        console.log('Got ytcfg', currentWindow.ytcfg);
+
         try {
-            playerResponse = JSON.parse(currentWindow.ytcfg?.get('PLAYER_VARS')?.embedded_player_response);
+            const playerResponseJSON = currentWindow.ytcfg?.get('PLAYER_VARS')?.embedded_player_response;
+            console.log("Player response", playerResponseJSON);
+
+            playerResponse = JSON.parse(playerResponseJSON);
         } catch (e) {
             console.log('Could not parse player response', e);
         }
@@ -93,16 +104,19 @@ export class ErrorDetection {
             if (status === 'UNPLAYABLE') {
                 // 1.1. Check for presence of desktopLegacyAgeGateReason
                 if (desktopLegacyAgeGateReason === 1) {
+                    console.log('AGE RESTRICTED ERROR');
                     return YOUTUBE_ERRORS.ageRestricted;
                 }
 
                 // 1.2. Fall back to embed not allowed error
+                console.log('NO EMBED ERROR');
                 return YOUTUBE_ERRORS.noEmbed;
             }
 
             // 2. Check for sign-in support link
             try {
                 if (this.settings?.signInRequiredSelector && !!document.querySelector(this.settings.signInRequiredSelector)) {
+                    console.log('SIGN-IN ERROR');
                     return YOUTUBE_ERRORS.signInRequired;
                 }
             } catch (e) {
@@ -111,6 +125,7 @@ export class ErrorDetection {
         }
 
         // 3. Fall back to unknown error
+        console.log('UNKNOWN ERROR');
         return YOUTUBE_ERRORS.unknown;
     }
 
