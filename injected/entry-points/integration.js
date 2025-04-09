@@ -33,7 +33,7 @@ function generateConfig() {
                 'cookie',
                 'webCompat',
                 'apiManipulation',
-                'duckPlayer',
+                'duckPlayerNative',
             ],
         },
     };
