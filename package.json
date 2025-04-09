@@ -17,7 +17,7 @@
     "test-int-snapshots": "npm run test-int-snapshots --workspaces --if-present",
     "test-int-snapshots-update": "npm run test-int-snapshots-update --workspaces --if-present",
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
-    "docs": "npm cache clean --force && npm ci && typedoc",
+    "docs": "typedoc",
     "docs-watch": "typedoc --watch",
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
