@@ -11,6 +11,7 @@ import { initDuckPlayerNative } from './duckplayer-native/duckplayer-native.js';
 export class DuckPlayerNativeFeature extends ContentFeature {
     init(args) {
         console.log('LOADING DUCK PLAYER NATIVE SCRIPTS', args);
+        console.log('Duck Player Native Feature', args?.bundledConfig?.features?.duckPlayerNative);
 
         /**
          * This feature never operates in a frame
