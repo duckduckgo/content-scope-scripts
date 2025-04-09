@@ -19,6 +19,10 @@
     "title": "<b>{count}</b> tracking attempts blocked",
     "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
+  "activity_noRecentAdsAndTrackers_subtitle": {
+    "title": "Recently visited sites will appear here. Keep browsing to see how many ads and trackers we block.",
+    "note": "Shown in the place a list of browsing history entries will be displayed."
+  },
   "activity_no_adsAndTrackers": {
     "title": "No ads + Tracking attempts found",
     "note": "Placeholder message indicating that no ads and trackers are detected"
