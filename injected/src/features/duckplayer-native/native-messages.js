@@ -1,8 +1,13 @@
 import * as constants from './constants.js';
 
 /**
- * @typedef {object} muteSettings - Settings passing to the onMute callback
+ * @typedef {object} muteSettings - Settings passed to the onMute callback
  * @property {boolean} mute - Set to true to mute the video, false to unmute
+ */
+
+/**
+ * @typedef {object} mediaControlSettings - Settings passed to the onMediaControll callback
+ * @property {boolean} pause - Set to true to pause the video, false to play
  */
 
 /**
@@ -52,7 +57,7 @@ export class DuckPlayerNativeMessages {
 
     /**
      * Subscribe to media control events
-     * @param {() => void} callback
+     * @param {(mediaControlSettings: mediaControlSettings) => void} callback
      */
     onMediaControl(callback) {
         console.log('Subscribing to onMediaControl');
