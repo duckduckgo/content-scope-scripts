@@ -33,6 +33,7 @@ export async function execute(action, inputData, root = document) {
         }
     } catch (e) {
         console.log('unhandled exception: ', e);
+
         return new ErrorResponse({
             actionID: action.id,
             message: `unhandled exception: ${e.message}`,
