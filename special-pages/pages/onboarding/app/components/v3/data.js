@@ -95,8 +95,8 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title: title,
-                subtitle: subtitle,
+                title,
+                subtitle,
                 speechBubble: true,
             },
             dismissButton: {
