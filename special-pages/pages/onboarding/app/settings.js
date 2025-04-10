@@ -1,5 +1,6 @@
 import { ALT_ORDER, DEFAULT_ORDER, EVERY_PAGE_ID, ORDER_V3 } from './types';
 import { stepDefinitions as defaultStepDefinitions } from './data';
+import { stepDefinitions as stepDefinitionsV3, stepDefinitionsAdBlocking, stepDefinitionsYouTubeAdBlocking } from './components/v3/data';
 
 /**
  * Settings that affect the Application, such as running order
@@ -147,5 +148,18 @@ export class Settings {
             ...this,
             stepDefinitions: nextSteps,
         });
+    }
+
+    /**
+     * @param {string|null|undefined} named
+     * @returns {Settings}
+     */
+    withNamedStepDefinitions(named) {
+        if (!named) return this;
+        if (named === 'v3') return this.withStepDefinitions(stepDefinitionsV3);
+        if (named === 'adBlocking') return this.withStepDefinitions(stepDefinitionsAdBlocking);
+        if (named === 'youTubeAdBlocking') return this.withStepDefinitions(stepDefinitionsYouTubeAdBlocking);
+        console.warn('ignoring named step definitions:', named);
+        return this;
     }
 }

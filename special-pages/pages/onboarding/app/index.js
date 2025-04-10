@@ -13,7 +13,6 @@ import { callWithRetry } from '../../../shared/call-with-retry';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider';
 import { SettingsProvider } from './components/SettingsProvider';
 import enStrings from '../public/locales/en/onboarding.json';
-import { stepDefinitions as stepDefinitionsV3 } from './components/v3/data';
 import { mockTransport } from '../src/mock-transport.js';
 
 const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
@@ -65,8 +64,9 @@ async function init() {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
-        .withStepDefinitions(init.order === 'v3' ? stepDefinitionsV3 : null)
+        .withNamedStepDefinitions(init.order)
         .withStepDefinitions(init.stepDefinitions)
+        .withNamedStepDefinitions(environment.urlParams.get('steps'))
         .withNamedOrder(init.order)
         .withNamedOrder(environment.urlParams.get('order'))
         .withExcludedScreens(init.exclude)

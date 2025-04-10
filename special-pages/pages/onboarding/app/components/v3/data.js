@@ -83,7 +83,10 @@ export const stepsConfig = {
             content: <SettingsStep data={settingsRowItems} />,
         };
     },
-    duckPlayerSingle: ({ t, advance, beforeAfter }) => {
+    duckPlayerSingle: ({ t, globalState, advance, beforeAfter }) => {
+        const isYouTubeAdBlockingEnabled = globalState.values['youtube-ad-blocking']?.enabled ?? false;
+        const title = isYouTubeAdBlockingEnabled ? t('duckPlayer_alt_title') : t('duckPlayer_title');
+        const subtitle = isYouTubeAdBlockingEnabled ? t('duckPlayer_alt_subtitle') : t('duckPlayer_subtitle');
         const beforeAfterState = beforeAfter.get();
         const longestText = [t('beforeAfter_duckPlayer_show'), t('beforeAfter_duckPlayer_hide')].reduce((acc, cur) => {
             return cur.length > acc.length ? cur : acc;
@@ -92,8 +95,8 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title: t('duckPlayer_title'),
-                subtitle: t('duckPlayer_subtitle'),
+                title: title,
+                subtitle: subtitle,
                 speechBubble: true,
             },
             dismissButton: {
@@ -204,6 +207,24 @@ export const settingsRowItems = {
         acceptText: t('row_home-shortcut_accept'),
         accepButtonVariant: 'secondary',
     }),
+    'ad-blocking': (t) => ({
+        id: 'ad-blocking',
+        icon: 'v3/ads.svg',
+        title: t('row_ad-blocking_title_v3'),
+        secondaryText: t('row_ad-blocking_desc_v3'),
+        kind: 'one-time',
+        acceptText: t('row_ad-blocking_accept_v3'),
+        accepButtonVariant: 'primary',
+    }),
+    'youtube-ad-blocking': (t) => ({
+        id: 'youtube-ad-blocking',
+        icon: 'v3/video-player.svg',
+        title: t('row_youtube-ad-blocking_title_v3'),
+        secondaryText: t('row_youtube-ad-blocking_desc_v3'),
+        kind: 'one-time',
+        acceptText: t('row_youtube-ad-blocking_accept_v3'),
+        accepButtonVariant: 'primary',
+    }),
 };
 
 export const stepDefinitions = {
@@ -216,5 +237,21 @@ export const stepDefinitions = {
         id: 'customize',
         kind: 'settings',
         rows: ['bookmarks', 'session-restore', 'home-shortcut'],
+    },
+};
+
+export const stepDefinitionsAdBlocking = {
+    systemSettings: {
+        id: 'systemSettings',
+        kind: 'settings',
+        rows: ['dock', 'ad-blocking', 'import'],
+    },
+};
+
+export const stepDefinitionsYouTubeAdBlocking = {
+    systemSettings: {
+        id: 'systemSettings',
+        kind: 'settings',
+        rows: ['dock', 'youtube-ad-blocking', 'import'],
     },
 };
