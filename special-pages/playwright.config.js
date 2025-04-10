@@ -25,6 +25,7 @@ export default defineConfig({
                 'favorites.spec.js',
                 'freemium-pir-banner.spec.js',
                 'new-tab.spec.js',
+                'new-tab.screenshots.spec.js',
                 'next-steps.spec.js',
                 'privacy-stats.spec.js',
                 'rmf.spec.js',

@@ -731,6 +731,7 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
+  defaultStyles?: null | DefaultStyles;
   customizer?: CustomizerData;
   updateNotification: null | UpdateNotificationData;
 }
@@ -748,6 +749,16 @@ export interface NewTabPageSettings {
      */
     autoOpen?: boolean;
   };
+}
+export interface DefaultStyles {
+  /**
+   * Optional default dark background color. Any HEX value is permitted
+   */
+  darkBackgroundColor?: string;
+  /**
+   * Optional default light background color. Any HEX value is permitted
+   */
+  lightBackgroundColor?: string;
 }
 export interface CustomizerData {
   background: BackgroundVariant;

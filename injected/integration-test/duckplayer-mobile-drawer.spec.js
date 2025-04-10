@@ -94,7 +94,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.mobile.clicksOnVideoThumbnail();
             await overlays.pixels.sendsPixels([
                 { pixelName: 'overlay', params: {} },
-                { pixelName: 'play.do_not_use.thumbnail', params: {} },
+                { pixelName: 'play.do_not_use.dismiss', params: {} },
             ]);
             await overlays.userSettingWasNotUpdated();
         });
@@ -112,7 +112,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.mobile.clicksOnDrawerBackdrop();
             await overlays.pixels.sendsPixels([
                 { pixelName: 'overlay', params: {} },
-                { pixelName: 'play.do_not_use', params: {} },
+                { pixelName: 'play.do_not_use.dismiss', params: {} },
             ]);
             await overlays.userSettingWasNotUpdated();
         });

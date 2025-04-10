@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { NewtabPage } from './new-tab.page.js';
 
 test.describe('newtab widgets', () => {
@@ -93,6 +93,38 @@ test.describe('newtab widgets', () => {
                     },
                 ],
             },
+        });
+    });
+    test.describe('default background colors', () => {
+        test('default background light', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+            await ntp.hasBackgroundColor({ hex: '#fafafa' });
+        });
+        test('default background dark', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.darkMode();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+            await ntp.hasBackgroundColor({ hex: '#333333' });
+        });
+        test('with overrides from initial setup (light)', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh' } });
+            await ntp.waitForCustomizer();
+            await ntp.hasBackgroundColor({ hex: '#E9EBEC' });
+        });
+        test('with overrides from initial setup (dark)', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.darkMode();
+            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh' } });
+            await ntp.waitForCustomizer();
+            await ntp.hasBackgroundColor({ hex: '#27282A' });
         });
     });
 });
