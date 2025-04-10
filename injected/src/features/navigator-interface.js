@@ -4,7 +4,7 @@ import { createPageWorldBridge } from './message-bridge/create-page-world-bridge
 
 export default class NavigatorInterface extends ContentFeature {
     load(args) {
-        if (this.matchDomainFeatureSetting('privilegedDomains').length) {
+        if (this.matchConditionalFeatureSetting('privilegedDomains').length) {
             this.injectNavigatorInterface(args);
         }
     }
