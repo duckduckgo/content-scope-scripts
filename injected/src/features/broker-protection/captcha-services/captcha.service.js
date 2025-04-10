@@ -40,7 +40,7 @@ export function getSupportingCodeToInject(action) {
 
     const captchaProvider = captchaFactory.getProviderByType(captchaType);
     if (!captchaProvider) {
-        return createError(`could not find captchaProvider with type ${captchaType}`);
+        return createError(`could not find captcha provider for type ${captchaType}`);
     }
 
     return SuccessResponse.create({ actionID, actionType, response: { code: captchaProvider.getSupportingCodeToInject() } });
@@ -54,7 +54,7 @@ export function getSupportingCodeToInject(action) {
  * @return {import('../types.js').ActionResponse}
  */
 export function getCaptchaInfo(action, root = document) {
-    const { id: actionID, actionType, captchaType, selector } = action;
+    const { id: actionID, actionType, captchaType, selector, failSilently } = action;
     if (!captchaType) {
         // ensures backward compatibility with old actions
         return getCaptchaInfoDeprecated(action, root);
@@ -64,17 +64,19 @@ export function getCaptchaInfo(action, root = document) {
 
     const captchaContainer = getCaptchaContainer(root, selector);
     if (PirError.isError(captchaContainer)) {
-        return createError(captchaContainer.error.message);
+        return failSilently ? emptySuccessResponse(actionID, actionType) : createError(captchaContainer.error.message);
     }
 
     const captchaProvider = getCaptchaProvider(captchaContainer, captchaType);
     if (PirError.isError(captchaProvider)) {
-        return createError(captchaProvider.error.message);
+        return failSilently ? emptySuccessResponse(actionID, actionType) : createError(captchaProvider.error.message);
     }
 
     const captchaIdentifier = captchaProvider.getCaptchaIdentifier(captchaContainer);
     if (!captchaIdentifier) {
-        return createError(`could not extract captcha identifier from the container with selector ${selector}`);
+        return failSilently
+            ? emptySuccessResponse(actionID, actionType)
+            : createError(`could not extract captcha identifier from the container with selector ${selector}`);
     }
 
     const response = {
@@ -95,7 +97,7 @@ export function getCaptchaInfo(action, root = document) {
  * @return {import('../types.js').ActionResponse}
  */
 export function solveCaptcha(action, token, root = document) {
-    const { id: actionID, actionType, captchaType, selector } = action;
+    const { id: actionID, actionType, captchaType, selector, failSilently } = action;
     if (!captchaType) {
         // ensures backward compatibility with old actions
         return solveCaptchaDeprecated(action, token, root);
@@ -105,25 +107,25 @@ export function solveCaptcha(action, token, root = document) {
 
     const captchaContainer = getCaptchaContainer(root, selector);
     if (PirError.isError(captchaContainer)) {
-        return createError(captchaContainer.error.message);
+        return failSilently ? emptySuccessResponse(actionID, actionType) : createError(captchaContainer.error.message);
     }
 
     const captchaSolveProvider = getCaptchaSolveProvider(captchaContainer, captchaType);
     if (PirError.isError(captchaSolveProvider)) {
-        return createError(captchaSolveProvider.error.message);
+        return failSilently ? emptySuccessResponse(actionID, actionType) : createError(captchaSolveProvider.error.message);
     }
 
     if (!captchaSolveProvider.canSolve(captchaContainer)) {
-        return createError('cannot solve captcha');
+        return failSilently ? emptySuccessResponse(actionID, actionType) : createError('cannot solve captcha');
     }
 
     const tokenResponse = captchaSolveProvider.injectToken(captchaContainer, token);
     if (PirError.isError(tokenResponse)) {
-        return createError(tokenResponse.error.message);
+        return failSilently ? emptySuccessResponse(actionID, actionType) : createError(tokenResponse.error.message);
     }
 
     if (!tokenResponse.response.injected) {
-        return createError('could not inject token');
+        return failSilently ? emptySuccessResponse(actionID, actionType) : createError('could not inject token');
     }
 
     return SuccessResponse.create({
@@ -131,4 +133,13 @@ export function solveCaptcha(action, token, root = document) {
         actionType,
         response: { callback: { eval: captchaSolveProvider.getSolveCallback(captchaContainer, token) } },
     });
+}
+
+/**
+ * @param {string} actionID
+ * @param {import('../types.js').PirAction['actionType']} actionType
+ * @return {import('../types.js').ActionResponse}
+ */
+function emptySuccessResponse(actionID, actionType) {
+    return SuccessResponse.create({ actionID, actionType, response: {} });
 }

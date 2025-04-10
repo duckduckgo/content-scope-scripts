@@ -102,6 +102,10 @@ export class BrokerProtectionPage {
         expect(response).toStrictEqual(expectedResponse);
     }
 
+    async isCaptchaSuccess() {
+        expect(await this.getSuccessResponse()).not.toBeFalsy();
+    }
+
     async isCaptchaError() {
         expect(await this.getErrorMessage()).not.toBeFalsy();
     }
