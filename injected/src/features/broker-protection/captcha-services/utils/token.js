@@ -32,11 +32,10 @@ export function injectTokenIntoElement({ captchaContainerElement, captchaInputEl
         () => {
             if ((isInputElement(element) && ['text', 'hidden'].includes(element.type)) || isTextAreaElement(element)) {
                 element.value = token;
+                return PirSuccess.create({ injected: true });
             } else {
                 return PirError.create(`[injectTokenIntoElement] element is neither a text input or textarea`);
             }
-
-            return PirSuccess.create({ injected: true });
         },
         { errorMessage: `[injectTokenIntoElement] error injecting token into element` },
     );
