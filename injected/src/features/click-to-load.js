@@ -1998,8 +1998,6 @@ export default class ClickToLoad extends ContentFeature {
             return this._messaging;
         } else if (this.platform.name === 'ios' || this.platform.name === 'macos') {
             const config = new WebkitMessagingConfig({
-                secret: '',
-                hasModernWebkitAPI: true,
                 webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
             });
             this._messaging = new Messaging(this.messagingContext, config);

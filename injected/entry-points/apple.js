@@ -23,8 +23,6 @@ function initCode() {
     }
     processedConfig.messagingConfig = new WebkitMessagingConfig({
         webkitMessageHandlerNames: handlerNames,
-        secret: '',
-        hasModernWebkitAPI: true,
     });
 
     load({
