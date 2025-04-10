@@ -143,6 +143,8 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             bookmarks: 'idle',
             'session-restore': 'idle',
             'home-shortcut': 'idle',
+            'ad-blocking': 'idle',
+            'youtube-ad-blocking': 'idle',
         },
     });
 
@@ -277,6 +279,17 @@ async function handleSystemSettingUpdate(action, messaging, platform) {
                 return { enabled: true };
             }
             break;
+        }
+        case 'ad-blocking':
+        case 'youtube-ad-blocking': {
+            if (!current) {
+                messaging.setAdBlocking(payload);
+            } else {
+                if (payload.enabled) {
+                    messaging.setAdBlocking(payload);
+                }
+            }
+            return payload;
         }
     }
     if ('value' in payload) {

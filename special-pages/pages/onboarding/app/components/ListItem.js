@@ -21,6 +21,8 @@ export const availableIcons = /** @type {const} */ ([
     'v3/home.svg',
     'v3/import.svg',
     'v3/session-restore.svg',
+    'v3/ads.svg',
+    'v3/video-player.svg',
 ]);
 
 const prefix = 'assets/img/steps/';
