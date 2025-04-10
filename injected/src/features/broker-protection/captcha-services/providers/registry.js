@@ -1,5 +1,6 @@
 import { CaptchaFactory } from '../factory';
 import { ReCaptchaProvider } from './recaptcha';
+import { ImageProvider } from './image';
 
 const captchaFactory = new CaptchaFactory();
 
@@ -18,5 +19,7 @@ captchaFactory.registerProvider(
         responseElementName: 'g-recaptcha-response',
     }),
 );
+
+captchaFactory.registerProvider(new ImageProvider());
 
 export { captchaFactory };
