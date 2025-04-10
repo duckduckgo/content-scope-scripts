@@ -1,1 +1,3 @@
-- Setting of document for tracker analysis (#1613)
+- Add Image Captcha Solver (#1612)
+- Add Alex to CODEOWNERS for PIR (#1625)
+- Renamed message: thumbnail to dismiss (#1603)
