@@ -16,6 +16,16 @@
           "type": "boolean"
         }
       }
+    },
+    "adBlocking": {
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["enabled", "disabled"]
+        }
+      }
     }
   }
 }

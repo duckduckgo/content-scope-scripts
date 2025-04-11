@@ -1,8 +1,0 @@
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Tracker Type",
-  "type": "string",
-  "enum": ["trackersOnly", "adsAndTrackers"],
-  "default": "trackersOnly",
-  "description": "Indicates which type of tracker the browser blocks. Used to determine the copy and icon in the Activty widget."
-}

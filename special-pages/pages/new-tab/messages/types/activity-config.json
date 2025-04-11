@@ -5,7 +5,6 @@
   "required": ["expansion"],
   "properties": {
     "expansion": {"$ref": "expansion.json"},
-    "animation": {"$ref": "animation.json"},
-    "trackerType": {"$ref": "tracker-type.json"}
+    "animation": {"$ref": "animation.json"}
   }
 }

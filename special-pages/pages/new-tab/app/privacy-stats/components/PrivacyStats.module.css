@@ -76,11 +76,15 @@
     line-height: var(--title-2-line-height);
 
     .adsAndTrackersVariant & {
-        color: var(--ntp-text-muted);
         font-size: var(--title-3-em-font-size);
+
+        &:has(b) {
+            color: var(--ntp-text-muted);
+        }
 
         b {
             color: var(--ntp-text-normal);
+            font-weight: var(--title-2-font-weight);
         }
     }
 }
@@ -114,6 +118,8 @@
 
     .adsAndTrackersVariant & {
         font-size: var(--small-label-font-size);
+        line-height: 1;
+        text-transform: none;
     }
 }
 
