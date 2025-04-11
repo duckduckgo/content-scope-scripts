@@ -62,9 +62,9 @@ test.describe('activity widget', () => {
         await ap.hasEmptyTrackersOnlyTitle();
         await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel' } });
         await ap.hasPopulatedTrackersOnlyTitle();
-        await ntp.openPage({ additional: { feed: 'activity', activity: 'empty', trackerType: 'adsAndTrackers' } });
+        await ntp.openPage({ additional: { feed: 'activity', activity: 'empty', adBlocking: 'enabled' } });
         await ap.hasEmptyAdsAndTrackersTitle();
-        await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel', trackerType: 'adsAndTrackers' } });
+        await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel', adBlocking: 'enabled' } });
         await ap.hasPopulatedAdsAndTrackersTitle();
     });
     test('favorite item', async ({ page }, workerInfo) => {
@@ -130,7 +130,7 @@ test.describe('activity widget', () => {
         await ntp.openPage({ additional: { feed: 'activity' } });
         await ap.didRender();
         await ap.showsTrackersOnlyTrackerStates();
-        await ntp.openPage({ additional: { feed: 'activity', trackerType: 'adsAndTrackers' } });
+        await ntp.openPage({ additional: { feed: 'activity', adBlocking: 'enabled' } });
         await ap.didRender();
         await ap.showsAdsAndTrackersTrackerStates();
     });

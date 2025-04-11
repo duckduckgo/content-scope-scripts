@@ -2,12 +2,12 @@ import { Fragment, h } from 'preact';
 import styles from './Activity.module.css';
 import { useContext, useEffect, useId, useRef } from 'preact/hooks';
 import { memo } from 'preact/compat';
-import { ActivityContext, ActivityProvider, ActivityServiceContext, useTrackerType } from '../ActivityProvider.js';
+import { ActivityContext, ActivityProvider, ActivityServiceContext } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useOnMiddleClick } from '../../utils.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
-import { useBatchedActivityApi, usePlatformName } from '../../settings.provider.js';
+import { useAdBlocking, useBatchedActivityApi, usePlatformName } from '../../settings.provider.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ActivityItem } from './ActivityItem.js';
@@ -43,7 +43,6 @@ export function Activity({ expansion, toggle, trackerCount, itemCount, batched, 
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
     const { didClick } = useContext(ActivityInteractionsContext);
-    const trackerType = useTrackerType();
 
     const ref = useRef(null);
     useOnMiddleClick(ref, didClick);
@@ -53,7 +52,6 @@ export function Activity({ expansion, toggle, trackerCount, itemCount, batched, 
             <div class={styles.root} onClick={didClick} ref={ref}>
                 <ActivityHeading
                     trackerCount={trackerCount}
-                    trackerType={trackerType}
                     itemCount={itemCount}
                     onToggle={toggle}
                     expansion={expansion}
@@ -196,7 +194,7 @@ function TrackerStatus({ id, trackersFound }) {
     const status = useComputed(() => activity.value.trackingStatus[id]);
     const other = status.value.trackerCompanies.slice(DDG_MAX_TRACKER_ICONS - 1);
     const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
-    const trackerType = useTrackerType();
+    const adBlocking = useAdBlocking();
 
     const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, _index) => {
         return <CompanyIcon displayName={item.displayName} key={item} />;
@@ -215,9 +213,9 @@ function TrackerStatus({ id, trackersFound }) {
     if (status.value.totalCount === 0) {
         let text;
         if (trackersFound) {
-            text = trackerType === 'trackersOnly' ? t('activity_no_trackers_blocked') : t('activity_no_adsAndTrackers_blocked');
+            text = adBlocking ? t('activity_no_adsAndTrackers_blocked') : t('activity_no_trackers_blocked');
         } else {
-            text = trackerType === 'trackersOnly' ? t('activity_no_trackers') : t('activity_no_adsAndTrackers');
+            text = adBlocking ? t('activity_no_adsAndTrackers') : t('activity_no_trackers');
         }
         return (
             <p class={styles.companiesIconRow} data-testid="TrackerStatus">
@@ -233,10 +231,10 @@ function TrackerStatus({ id, trackersFound }) {
                 {otherIcon}
             </div>
             <div class={styles.companiesText}>
-                {trackerType === 'trackersOnly' ? (
-                    <Trans str={t('activity_countBlockedPlural', { count: String(status.value.totalCount) })} values={{}} />
-                ) : (
+                {adBlocking ? (
                     <Trans str={t('activity_countBlockedAdsAndTrackersPlural', { count: String(status.value.totalCount) })} values={{}} />
+                ) : (
+                    <Trans str={t('activity_countBlockedPlural', { count: String(status.value.totalCount) })} values={{}} />
                 )}
             </div>
         </div>

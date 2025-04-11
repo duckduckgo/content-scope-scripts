@@ -65,6 +65,14 @@
     "title": "{count} tracking attempts blocked",
     "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
+  "stats_noActivityAdsAndTrackers": {
+    "title": "DuckDuckGo blocks ads and tracking attempts as you browse. Visit a few sites to see how many we block!",
+    "note": "Placeholder for when we cannot report any blocked ads and trackers yet"
+  },
+  "stats_noRecentAdsAndTrackers": {
+    "title": "Ads & tracking protections active",
+    "note": "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
+  },
   "stats_countBlockedAdsAndTrackersSingular": {
     "title": "Total of <b>1</b> ad & tracking attempt blocked",
     "note": "The main headline indicating that a single ad or tracking attempt was blocked"
