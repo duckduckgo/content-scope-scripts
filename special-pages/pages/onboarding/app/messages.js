@@ -158,4 +158,13 @@ export class OnboardingMessages {
     reportInitException(params) {
         this.messaging.notify('reportInitException', params);
     }
+
+    /**
+     * Sent when the user wants to enable or disable ad blocking.
+     *
+     * @param {import('./types').BooleanSystemValue} params
+     */
+    setAdBlocking(params) {
+        this.messaging.notify('setAdBlocking', params);
+    }
 }
