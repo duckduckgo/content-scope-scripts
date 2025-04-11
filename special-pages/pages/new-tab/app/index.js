@@ -59,7 +59,8 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
-        .withFeatureState('customizerDrawer', init.settings?.customizerDrawer);
+        .withFeatureState('customizerDrawer', init.settings?.customizerDrawer)
+        .withFeatureState('adBlocking', init.settings?.adBlocking);
 
     if (!window.__playwright_01) {
         console.log('environment:', environment);
