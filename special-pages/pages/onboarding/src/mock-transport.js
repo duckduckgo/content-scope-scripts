@@ -4,6 +4,8 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
  * @typedef {import('../../release-notes/types/release-notes.ts').UpdateMessage} UpdateMessage
  */
 
+const url = new URL(window.location.href);
+
 export function mockTransport() {
     return new TestTransportConfig({
         notify(_msg) {
@@ -20,8 +22,19 @@ export function mockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'init': {
+                    const stepDefinitions = {};
+
+                    const adBlocking = url.searchParams.get('adBlocking');
+                    if (adBlocking) {
+                        stepDefinitions.systemSettings = {
+                            id: 'systemSettings',
+                            kind: 'settings',
+                            rows: ['dock', adBlocking === 'youtube' ? 'youtube-ad-blocking' : 'ad-blocking', 'import'],
+                        };
+                    }
+
                     return Promise.resolve({
-                        stepDefinitions: {},
+                        stepDefinitions,
                         exclude: [],
                         order: 'v3',
                         locale: 'en',

@@ -239,19 +239,3 @@ export const stepDefinitions = {
         rows: ['bookmarks', 'session-restore', 'home-shortcut'],
     },
 };
-
-export const stepDefinitionsAdBlocking = {
-    systemSettings: {
-        id: 'systemSettings',
-        kind: 'settings',
-        rows: ['dock', 'ad-blocking', 'import'],
-    },
-};
-
-export const stepDefinitionsYouTubeAdBlocking = {
-    systemSettings: {
-        id: 'systemSettings',
-        kind: 'settings',
-        rows: ['dock', 'youtube-ad-blocking', 'import'],
-    },
-};
