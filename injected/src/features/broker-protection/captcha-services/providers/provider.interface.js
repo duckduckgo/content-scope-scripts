@@ -28,10 +28,10 @@ export class CaptchaProvider {
      * Extracts the site key from the captcha container element
      * @abstract
      * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
-     * @returns {PirError | string | null} The site key or null if not found
+     * @returns {Promise<PirError | string | null>} The site key or null if not found
      */
     getCaptchaIdentifier(_captchaContainerElement) {
-        throw new Error('getCaptchaIdentifier() missing implementation');
+        return Promise.reject(new Error('getCaptchaIdentifier() missing implementation'));
     }
 
     /**

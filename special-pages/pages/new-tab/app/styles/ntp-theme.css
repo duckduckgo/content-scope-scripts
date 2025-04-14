@@ -1,6 +1,4 @@
 :root {
-    --default-light-bg: var(--color-gray-0);
-    --default-dark-bg: var(--color-gray-85);
     --ntp-gap: 2rem;
     --ntp-drawer-width: calc(224 * var(--px-in-rem));
     --ntp-drawer-scroll-width: 12px;
@@ -39,8 +37,13 @@
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
 }
 
+body {
+    --default-light-background-color: var(--color-gray-0);
+    --default-dark-background-color: var(--color-gray-85);
+}
+
+
 [data-theme=light] {
-    --ntp-background-color: var(--default-light-bg);
     --ntp-surface-background-color: var(--color-white-at-30);
     --ntp-surfaces-panel-background-color: white;
     --ntp-surface-border-color: var(--color-black-at-9);
@@ -55,7 +58,6 @@
 }
 
 [data-theme=dark] {
-    --ntp-background-color: var(--default-dark-bg);
     --ntp-surface-background-color: var(--color-black-at-18);
     --ntp-surfaces-panel-background-color: #222222;
     --ntp-surface-border-color: var(--color-white-at-12);
@@ -66,7 +68,7 @@
     --ntp-focus-outline-color: white;
     --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
-    --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-bg), 0px 0px 0px 3px var(--ntp-color-primary);
+    --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
 }
 
 /* This comes from the application settings */

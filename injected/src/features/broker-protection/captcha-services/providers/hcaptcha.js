@@ -22,7 +22,7 @@ export class HCaptchaProvider {
      */
     getCaptchaIdentifier(_captchaContainerElement) {
         // TODO: Implement
-        return null;
+        return Promise.resolve(null);
     }
 
     getSupportingCodeToInject() {

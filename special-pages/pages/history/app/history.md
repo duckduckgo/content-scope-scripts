@@ -9,7 +9,7 @@ title: History View
 ### `initialSetup`
 {@link "History Messages".InitialSetupRequest}
 
-Configures initial history system settings.
+Configure initial history system settings.
 
 **Types:**
 - Response: {@link "History Messages".InitialSetupResponse}
@@ -20,6 +20,22 @@ Configures initial history system settings.
   "env": "production",
   "platform": {
     "name": "macos"
+  }
+}
+```
+
+With {@link "History Messages".DefaultStyles} overrides 
+
+```json
+{
+  "locale": "en",
+  "env": "production",
+  "platform": {
+    "name": "macos"
+  },
+  "defaultStyles": {
+    "lightBackgroundColor": "#E9EBEC",
+    "darkBackgroundColor": "#27282A"
   }
 }
 ```

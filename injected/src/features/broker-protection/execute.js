@@ -1,21 +1,14 @@
-import { resolveActionHandlers } from './actions/actions';
+import { navigate, extract, click, expectation, fillForm, getCaptchaInfo, solveCaptcha } from './actions/actions';
 import { ErrorResponse } from './types';
 
 /**
  * @param {import('./types.js').PirAction} action
  * @param {Record<string, any>} inputData
  * @param {Document} [root] - optional root element
- * @param {Object} [options] - optional options
- * @param {boolean} [options.useEnhancedCaptchaSystem] - optional flag to use new action handlers
  * @return {Promise<import('./types.js').ActionResponse>}
  */
-export async function execute(action, inputData, root = document, options = {}) {
+export async function execute(action, inputData, root = document) {
     try {
-        const { useEnhancedCaptchaSystem = false } = options;
-        const { navigate, extract, click, expectation, fillForm, getCaptchaInfo, solveCaptcha } = resolveActionHandlers({
-            useEnhancedCaptchaSystem,
-        });
-
         switch (action.actionType) {
             case 'navigate':
                 return navigate(action, data(action, inputData, 'userProfile'));
@@ -28,7 +21,7 @@ export async function execute(action, inputData, root = document, options = {}) 
             case 'fillForm':
                 return fillForm(action, data(action, inputData, 'extractedProfile'), root);
             case 'getCaptchaInfo':
-                return getCaptchaInfo(action, root);
+                return await getCaptchaInfo(action, root);
             case 'solveCaptcha':
                 return solveCaptcha(action, data(action, inputData, 'token'), root);
             default: {
