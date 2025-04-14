@@ -51,9 +51,9 @@ export function getSupportingCodeToInject(action) {
  *
  * @param {import('../types.js').PirAction} action
  * @param {Document | HTMLElement} root
- * @return {import('../types.js').ActionResponse}
+ * @return {Promise<import('../types.js').ActionResponse>}
  */
-export function getCaptchaInfo(action, root = document) {
+export async function getCaptchaInfo(action, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
     if (!captchaType) {
         // ensures backward compatibility with old actions
@@ -72,7 +72,7 @@ export function getCaptchaInfo(action, root = document) {
         return createError(captchaProvider.error.message);
     }
 
-    const captchaIdentifier = captchaProvider.getCaptchaIdentifier(captchaContainer);
+    const captchaIdentifier = await captchaProvider.getCaptchaIdentifier(captchaContainer);
     if (!captchaIdentifier) {
         return createError(`could not extract captcha identifier from the container with selector ${selector}`);
     }
