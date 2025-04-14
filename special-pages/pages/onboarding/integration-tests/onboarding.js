@@ -29,6 +29,7 @@ export class OnboardingPage {
             requestDockOptIn: {},
             requestImport: { enabled: true },
             stepCompleted: {},
+            setAdBlocking: {},
             reportPageException: {},
             init: {
                 stepDefinitions: {
@@ -382,6 +383,34 @@ export class OnboardingPage {
         ]);
     }
 
+    async enableEnhancedAdBlocking() {
+        const { page } = this;
+        await page.getByRole('button', { name: 'Turn on Enhanced Ad Blocking' }).click();
+        await expect(page.getByRole('img', { name: 'Completed Action' })).toBeVisible();
+        await this.didSetAdBlocking();
+    }
+
+    async enableYouTubeAdBlocking() {
+        const { page } = this;
+        await page.getByRole('button', { name: 'Block Ads' }).click();
+        await expect(page.getByRole('img', { name: 'Completed Action' })).toBeVisible();
+        await this.didSetAdBlocking();
+    }
+
+    async didSetAdBlocking() {
+        const calls = await this.mocks.outgoing({ names: ['setAdBlocking'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setAdBlocking',
+                    params: { enabled: true },
+                },
+            },
+        ]);
+    }
+
     async startBrowsing() {
         const { page } = this;
         await page.getByRole('button', { name: 'Start Browsing' }).click();
@@ -514,6 +543,7 @@ export class OnboardingPage {
 
     async completesOrderV3() {
         const { page } = this;
+
         /* Welcome */
         await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 });
 
@@ -569,6 +599,88 @@ export class OnboardingPage {
 
         /* Duckplayer */
         await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 });
+        await page.getByLabel('See Without Duck Player').click();
+        await page.getByLabel('See With Duck Player').click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* Customize */
+        await page.getByText('Let’s customize a few things').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
+        await page.getByRole('button', { name: 'Enable Session Restore' }).click();
+        await page.getByRole('button', { name: 'Show Home Button' }).click();
+        await this.startBrowsing();
+    }
+
+    async completesOrderV3WithAdBlocking() {
+        const { page } = this;
+
+        /* Welcome */
+        await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 });
+
+        /* Get started */
+        await page.getByText('Hi there').nth(1).waitFor({ timeout: 1500 });
+        await page.getByRole('button', { name: 'Let’s Do It' }).click();
+
+        /* Make default */
+        await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click();
+        await page.getByText('Excellent!').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* System settings (with ad-blocking) */
+        await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 });
+        const dockButton = this.build.switch({
+            windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
+            apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
+        });
+        await dockButton.click();
+        await page.getByRole('button', { name: 'Turn on Enhanced Ad Blocking', exact: true }).click();
+        await page.getByRole('button', { name: 'Import Now', exact: true }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* Duckplayer */
+        await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 });
+        await page.getByLabel('See Without Duck Player').click();
+        await page.getByLabel('See With Duck Player').click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* Customize */
+        await page.getByText('Let’s customize a few things').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
+        await page.getByRole('button', { name: 'Enable Session Restore' }).click();
+        await page.getByRole('button', { name: 'Show Home Button' }).click();
+        await this.startBrowsing();
+    }
+
+    async completesOrderV3WithYouTubeAdBlocking() {
+        const { page } = this;
+        /* Welcome */
+        await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 });
+
+        /* Get started */
+        await page.getByText('Hi there').nth(1).waitFor({ timeout: 1500 });
+        await page.getByRole('button', { name: 'Let’s Do It' }).click();
+
+        /* Make default */
+        await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click();
+        await page.getByText('Excellent!').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* System settings (with youtube ad-blocking) */
+        await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 });
+        const dockButton = this.build.switch({
+            windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
+            apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
+        });
+        await dockButton.click();
+        await page.getByRole('button', { name: 'Block Ads', exact: true }).click();
+        await page.getByRole('button', { name: 'Import Now', exact: true }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* Duckplayer - alternate title/subtitle */
+        await page.getByText('Watch YouTube privately with Duck Player').nth(1).waitFor({ timeout: 1000 });
+        await expect(page.locator('h2')).toContainText("Watching videos in Duck Player won't influence your YouTube recommendations.");
         await page.getByLabel('See Without Duck Player').click();
         await page.getByLabel('See With Duck Player').click();
         await page.getByRole('button', { name: 'Next' }).click();
