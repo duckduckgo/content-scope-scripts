@@ -30,6 +30,19 @@ test.describe('newtab privacy stats', () => {
         await page.getByLabel('Hide recent activity').click();
         await page.getByLabel('Show recent activity').click();
     });
+    test('titles', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const psp = new PrivacyStatsPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { stats: 'none' } });
+        await psp.hasEmptyTrackersOnlyTitle();
+        await ntp.openPage({ additional: { stats: 'some' } });
+        await psp.hasPopulatedTrackersOnlyTitle();
+        await ntp.openPage({ additional: { stats: 'none', adBlocking: 'enabled' } });
+        await psp.hasEmptyAdsAndTrackersTitle();
+        await ntp.openPage({ additional: { stats: 'some', adBlocking: 'enabled' } });
+        await psp.hasPopulatedAdsAndTrackersTitle();
+    });
     test('sending a pixel when show more is clicked', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const psp = new PrivacyStatsPage(page, ntp);
