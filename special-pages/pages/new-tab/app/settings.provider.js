@@ -35,3 +35,11 @@ export function useBatchedActivityApi() {
     const settings = useContext(SettingsContext).settings;
     return settings.batchedActivityApi.state === 'enabled';
 }
+
+/**
+ * @returns {boolean}
+ */
+export function useAdBlocking() {
+    const settings = useContext(SettingsContext).settings;
+    return settings.adBlocking.state === 'enabled';
+}

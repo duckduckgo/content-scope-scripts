@@ -518,6 +518,7 @@ export function mockTransport() {
 
                     /** @type {import('../types/new-tab').NewTabPageSettings} */
                     const settings = {};
+
                     if (url.searchParams.get('customizerDrawer') === 'enabled') {
                         settings.customizerDrawer = { state: 'enabled' };
                         if (url.searchParams.get('autoOpen') === 'true') {
@@ -525,6 +526,10 @@ export function mockTransport() {
                         }
 
                         initial.customizer = customizerData();
+                    }
+
+                    if (url.searchParams.get('adBlocking') === 'enabled') {
+                        settings.adBlocking = { state: 'enabled' };
                     }
 
                     // feature flags
