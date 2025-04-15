@@ -35,10 +35,6 @@
         padding-left: 6px;
         grid-column-gap: 10px;
     }
-
-    &.adsAndTrackersVariant {
-        grid-row-gap: 0;
-    }
 }
 
 .headingIcon {
@@ -109,17 +105,20 @@
 .subtitle {
     grid-area: label;
     color: var(--ntp-text-muted);
-    padding-left: 2px;
 
     &.uppercase {
         line-height: 1;
         text-transform: uppercase;
     }
 
+    &.indented {
+        padding-left: 2px;
+    }
+
     .adsAndTrackersVariant & {
         font-size: var(--small-label-font-size);
-        line-height: 1;
-        text-transform: none;
+        letter-spacing: 0.06px;
+        line-height: var(--small-label-line-height);
     }
 }
 

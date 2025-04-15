@@ -60,8 +60,16 @@ export function PrivacyStatsHeading({ expansion, canExpand, recent, onToggle, bu
                     />
                 </span>
             )}
-            {recent === 0 && <p className={styles.subtitle}>{adBlocking ? t('stats_noActivityAdsAndTrackers') : t('stats_noActivity')}</p>}
-            {recent > 0 && <p className={cn(styles.subtitle, styles.uppercase)}>{t('stats_feedCountBlockedPeriod')}</p>}
+            {recent === 0 && (
+                <p className={cn(styles.subtitle, { [styles.indented]: !adBlocking })}>
+                    {adBlocking ? t('stats_noActivityAdsAndTrackers') : t('stats_noActivity')}
+                </p>
+            )}
+            {recent > 0 && (
+                <p className={cn(styles.subtitle, styles.indented, { [styles.uppercase]: !adBlocking })}>
+                    {t('stats_feedCountBlockedPeriod')}
+                </p>
+            )}
         </div>
     );
 }

@@ -65,12 +65,14 @@ export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount,
                 </span>
             )}
             {itemCount === 0 && (
-                <p className={styles.subtitle}>
+                <p className={cn(styles.subtitle, { [styles.indented]: !adBlocking })}>
                     {adBlocking ? t('activity_noRecentAdsAndTrackers_subtitle') : t('activity_noRecent_subtitle')}
                 </p>
             )}
             {itemCount > 0 && (
-                <p className={cn(styles.subtitle, { [styles.uppercase]: !adBlocking })}>{t('stats_feedCountBlockedPeriod')}</p>
+                <p className={cn(styles.subtitle, styles.indented, { [styles.uppercase]: !adBlocking })}>
+                    {t('stats_feedCountBlockedPeriod')}
+                </p>
             )}
         </div>
     );
