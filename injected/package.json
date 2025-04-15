@@ -21,7 +21,8 @@
     "playwright": "playwright test --grep-invert '@screenshots'",
     "playwright-screenshots": "playwright test --grep '@screenshots'",
     "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
-    "playwright-e2e-headed": "npm run playwright-e2e -- --headed"
+    "playwright-e2e-headed": "npm run playwright-e2e -- --headed",
+    "validate-pixel-defs": "validate-ddg-pixel-defs ./pixel-definitions"
   },
   "type": "module",
   "dependencies": {
