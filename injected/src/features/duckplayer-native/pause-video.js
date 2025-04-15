@@ -1,16 +1,17 @@
 /**
  *
- * @param {HTMLVideoElement} videoElement
+ * @param {string} videoSelector
  */
-export function stopVideoFromPlaying(videoElement) {
+export function stopVideoFromPlaying(videoSelector) {
     console.log('Setting up video pause');
     /**
      * Set up the interval - keep calling .pause() to prevent
      * the video from playing
      */
     const int = setInterval(() => {
-        if (videoElement?.isConnected) {
-            videoElement.pause();
+        const video = /** @type {HTMLVideoElement} */ (document.querySelector(videoSelector));
+        if (video?.isConnected) {
+            video.pause();
         }
     }, 10);
 
@@ -21,8 +22,9 @@ export function stopVideoFromPlaying(videoElement) {
     return () => {
         clearInterval(int);
 
-        if (videoElement?.isConnected) {
-            videoElement.play();
+        const video = /** @type {HTMLVideoElement} */ (document.querySelector(videoSelector));
+        if (video?.isConnected) {
+            video.play();
         }
     };
 }
