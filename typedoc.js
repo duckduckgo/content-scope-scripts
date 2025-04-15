@@ -1,6 +1,6 @@
 import { OptionDefaults } from 'typedoc';
 
-/** @type {Partial<import('typedoc').TypeDocOptions>} */
+/** @type {Partial<import('typedoc').TypeDocOptionMap>} */
 const config = {
     // prettier-ignore
     projectDocuments: [
