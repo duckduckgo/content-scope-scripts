@@ -1,4 +1,5 @@
 import { DDGProxy, DDGReflect, computeLimitedSiteObject } from './utils.js';
+import ContentFeature from './content-feature.js';
 
 const urlChangeListeners = new Set();
 /**
@@ -20,9 +21,10 @@ function handleURLChange() {
 }
 
 function listenForURLChanges() {
+    const urlChangedInstance = new ContentFeature('urlChanged', {}, {});
     // single page applications don't have a DOMContentLoaded event on navigations, so
     // we use proxy/reflect on history.pushState to call applyRules on page navigations
-    const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
+    const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, 'pushState', {
         apply(target, thisArg, args) {
             handleURLChange();
             return DDGReflect.apply(target, thisArg, args);

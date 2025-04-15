@@ -13,6 +13,8 @@ import { processAttr } from '../utils';
  * @internal
  */
 export default class ApiManipulation extends ContentFeature {
+    listenForUrlChanges = true;
+
     init() {
         const apiChanges = this.getFeatureSetting('apiChanges');
         if (apiChanges) {
@@ -24,6 +26,11 @@ export default class ApiManipulation extends ContentFeature {
                 this.applyApiChange(scope, change);
             }
         }
+    }
+
+    urlChanged(site) {
+        super.urlChanged(site);
+        this.init();
     }
 
     /**

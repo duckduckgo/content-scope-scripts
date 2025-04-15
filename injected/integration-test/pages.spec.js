@@ -28,6 +28,15 @@ test.describe('Test integration pages', () => {
         }
     }
 
+    test('Test infra', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/infra/pages/conditional-matching.html',
+            './integration-test/test-pages/infra/config/conditional-matching.json',
+        );
+    });
+
     test('Test manipulating APIs', async ({ page }, testInfo) => {
         await testPage(
             page,
