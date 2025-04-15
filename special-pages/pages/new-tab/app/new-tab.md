@@ -16,12 +16,13 @@ children:
 ### `initialSetup`
 - {@link "NewTab Messages".InitialSetupRequest}
 - Returns {@link "NewTab Messages".InitialSetupResponse}
-- See the `initialSetupResponse` section of [example of initial data](../messages/examples/widgets.js)
 - See also
    - [Widget Config](./widget-list/widget-config.md) for the initial page widgets
    - [Update Notification](./update-notification/update-notification.md) for the optional data
    - [Customizer Drawer Feature Flags](./customizer/customizer.md) for optional feature flags like the customizer drawer
    about release notes (windows only).
+
+{@includeCode ../messages/examples/widgets.js#initialSetupResponse}
 
 ## Notifications
 

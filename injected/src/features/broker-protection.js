@@ -58,8 +58,7 @@ export default class BrokerProtection extends ContentFeature {
      */
     async exec(action, data) {
         const retryConfig = this.retryConfigFor(action);
-        const options = { useEnhancedCaptchaSystem: this.getFeatureSettingEnabled('useEnhancedCaptchaSystem') };
-        const { result, exceptions } = await retry(() => execute(action, data, document, options), retryConfig);
+        const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
 
         if (result) {
             if ('success' in result && Array.isArray(result.success.next)) {

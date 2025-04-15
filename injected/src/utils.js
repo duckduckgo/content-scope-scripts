@@ -49,6 +49,14 @@ export function setGlobal(globalObjIn) {
     Error = globalObj.Error;
 }
 
+/**
+ * Used for testing to allow other files to override the globals used within this file.
+ * @returns {globalThis} the global object
+ */
+export function getGlobal() {
+    return globalObj;
+}
+
 // linear feedback shift register to find a random approximation
 export function nextRandom(v) {
     return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
@@ -126,7 +134,9 @@ export function getTabUrl() {
         // @ts-expect-error - globalThis.top is possibly 'null' here
         framingURLString = globalThis.top.location.href;
     } catch {
-        framingURLString = globalThis.document.referrer;
+        // If there's no URL then let's fall back to using the frame ancestors origin which won't have path
+        // Fall back to the referrer if we can't get the top level origin
+        framingURLString = getTopLevelOriginFromFrameAncestors() ?? globalThis.document.referrer;
     }
 
     let framingURL;
@@ -139,18 +149,24 @@ export function getTabUrl() {
 }
 
 /**
- * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
- * @returns {string|null} inferred tab hostname
+ * @returns {string | null}
  */
-export function getTabHostname() {
-    let topURLString = getTabUrl()?.hostname;
+function getTopLevelOriginFromFrameAncestors() {
     // For about:blank, we can't get the top location
     // Not supported in Firefox
     if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
         // ancestorOrigins is reverse order, with the last item being the top frame
-        // @ts-expect-error - globalThis.top is possibly 'null' here
-        topURLString = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+        return globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
     }
+    return null;
+}
+
+/**
+ * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
+ * @returns {string|null} inferred tab hostname
+ */
+export function getTabHostname() {
+    const topURLString = getTabUrl()?.hostname;
     return topURLString || null;
 }
 
