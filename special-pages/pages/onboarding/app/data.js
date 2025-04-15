@@ -217,6 +217,28 @@ export const settingsRowItems = {
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept'),
     }),
+    // Intended only for use with v3
+    'ad-blocking': (t) => ({
+        id: 'ad-blocking',
+        icon: 'v3/ads.svg',
+        title: t('row_ad-blocking_title_v3'),
+        secondaryText: t('row_ad-blocking_desc_v3'),
+        summary: t('row_ad-blocking_title_v3'),
+        kind: 'one-time',
+        acceptText: t('row_ad-blocking_accept_v3'),
+        accepButtonVariant: 'primary',
+    }),
+    // Intended only for use with v3
+    'youtube-ad-blocking': (t) => ({
+        id: 'youtube-ad-blocking',
+        icon: 'v3/video-player.svg',
+        title: t('row_youtube-ad-blocking_title_v3'),
+        secondaryText: t('row_youtube-ad-blocking_desc_v3'),
+        summary: t('row_youtube-ad-blocking_title_v3'),
+        kind: 'one-time',
+        acceptText: t('row_youtube-ad-blocking_accept_v3'),
+        accepButtonVariant: 'primary',
+    }),
 };
 
 /**
