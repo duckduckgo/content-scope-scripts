@@ -40,10 +40,10 @@ export async function initDuckPlayerNative(messages) {
 
         // TODO: move to settings.selectors.videoElement/videoElementContainer or something similar
         const videoElementContainer = document.querySelector('#player .html5-video-player');
-        const videoElement = document.querySelector('#player video');
-        if (videoElement && videoElementContainer) {
+        const videoSelector = '#player video';
+        if (videoElementContainer) {
             sideEffects.push(
-                stopVideoFromPlaying(/** @type {HTMLVideoElement} */ (videoElement)),
+                stopVideoFromPlaying(videoSelector),
                 appendThumbnailOverlay(/** @type {HTMLElement} */ (videoElementContainer)),
             );
         }
