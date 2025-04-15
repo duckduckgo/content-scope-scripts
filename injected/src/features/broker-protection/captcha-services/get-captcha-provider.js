@@ -17,7 +17,7 @@ export function getCaptchaProvider(root, captchaContainer, captchaType) {
         return captchaProvider;
     }
 
-    const detectedProvider = captchaFactory.detectProvider(captchaContainer);
+    const detectedProvider = captchaFactory.detectProvider(root, captchaContainer);
     if (!detectedProvider) {
         return PirError.create(
             `[getCaptchaProvider] could not detect captcha provider for ${captchaType} captcha and element ${captchaContainer}`,
