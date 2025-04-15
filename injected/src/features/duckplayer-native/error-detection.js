@@ -14,15 +14,22 @@ export const YOUTUBE_ERRORS = {
 export class ErrorDetection {
     /** @type {import('./native-messages.js').DuckPlayerNativeMessages} */
     messages;
+    /** @type {((error: YouTubeError) => void)} */
+    errorCallback;
 
-    constructor(messages) {
+    constructor(messages, errorCallback) {
         this.messages = messages;
+        this.errorCallback = errorCallback;
         this.settings = {
             // TODO: Get settings from native
             signInRequiredSelector: '[href*="//support.google.com/youtube/answer/3037019"]',
         };
     }
 
+    /**
+     *
+     * @returns {(() => void)|void}
+     */
     observe() {
         console.log('Setting up error detection...');
         const documentBody = document?.body;
@@ -30,8 +37,8 @@ export class ErrorDetection {
             // Check if iframe already contains error
             if (this.checkForError(documentBody)) {
                 const error = this.getErrorType();
-                this.messages.onYoutubeError(error);
-                return null;
+                this.handleError(error);
+                return;
             }
 
             // Create a MutationObserver instance
@@ -47,8 +54,17 @@ export class ErrorDetection {
                 observer.disconnect();
             };
         }
+    }
 
-        return null;
+    /**
+     *
+     * @param {YouTubeError} error
+     */
+    handleError(error) {
+        if (this.errorCallback) {
+            this.errorCallback(error);
+        }
+        this.messages.onYoutubeError(error);
     }
 
     /**
@@ -64,7 +80,7 @@ export class ErrorDetection {
                         console.log('A node with an error has been added to the document:', node);
                         setTimeout(() => {
                             const error = this.getErrorType();
-                            this.messages.onYoutubeError(error);
+                            this.handleError(error);
                         }, 4000);
                     }
                 });
@@ -88,7 +104,7 @@ export class ErrorDetection {
 
         try {
             const playerResponseJSON = currentWindow.ytcfg?.get('PLAYER_VARS')?.embedded_player_response;
-            console.log("Player response", playerResponseJSON);
+            console.log('Player response', playerResponseJSON);
 
             playerResponse = JSON.parse(playerResponseJSON);
         } catch (e) {
