@@ -2,11 +2,11 @@
 
 ### Test URL params
 
-URL parameters can be used to override the default values of the onboarding flow's configuration. Supported parameters are:
+URL parameters can be used to override the default values of the New Tab Page's configuration. Supported parameters are:
 
 - `locale` - Specifies the language to use for translations. Expects a language code (e.g., `en`, `de`, `fr`).
 - `textLength` - Adjusts the length of translated strings, for testing layout with different text sizes (e.g., `short`, `long`).
-- `display` - Controls which view is rendered. `app` renders the main onboarding flow, `components` renders the component showcase page.
+- `display` - Controls which view is rendered. `app` renders the main New Tab Pgae interface, `components` renders the component showcase page.
 - `platform` - Overrides the detected platform, for testing platform-specific styling (e.g., `macos`, `windows`).
 - `animation` - Controls animation settings. Can be `none` or `view-transitions` to override the stats widget animation config. Also sets a global `data-animation` attribute on the `<body>` tag.
 - `skip-read` - If present, prevents the mock transport from reading persisted state (like widget configs) from localStorage on initialization.
