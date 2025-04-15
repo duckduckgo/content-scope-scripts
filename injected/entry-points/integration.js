@@ -24,6 +24,7 @@ function generateConfig() {
         },
         site: {
             domain: topLevelUrl.hostname,
+            url: topLevelUrl.href,
             isBroken: false,
             allowlisted: false,
             enabledFeatures: [
