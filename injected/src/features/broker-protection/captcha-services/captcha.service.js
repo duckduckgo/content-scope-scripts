@@ -67,7 +67,7 @@ export async function getCaptchaInfo(action, root = document) {
         return createError(captchaContainer.error.message);
     }
 
-    const captchaProvider = getCaptchaProvider(captchaContainer, captchaType);
+    const captchaProvider = getCaptchaProvider(root, captchaContainer, captchaType);
     if (PirError.isError(captchaProvider)) {
         return createError(captchaProvider.error.message);
     }

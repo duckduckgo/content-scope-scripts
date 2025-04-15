@@ -3,17 +3,17 @@ import { captchaFactory } from './providers/registry';
 
 /**
  * Gets the captcha provider for the getCaptchaInfo action
- *
+ * @param {Document | HTMLElement} root
  * @param {HTMLElement} captchaContainer
  * @param {string} captchaType
  */
-export function getCaptchaProvider(captchaContainer, captchaType) {
+export function getCaptchaProvider(root, captchaContainer, captchaType) {
     const captchaProvider = captchaFactory.getProviderByType(captchaType);
     if (!captchaProvider) {
         return PirError.create(`[getCaptchaProvider] could not find captcha provider with type ${captchaType}`);
     }
 
-    if (captchaProvider.isSupportedForElement(captchaContainer)) {
+    if (captchaProvider.isSupportedForElement(root, captchaContainer)) {
         return captchaProvider;
     }
 
