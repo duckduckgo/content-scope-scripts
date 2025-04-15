@@ -53,6 +53,7 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
  */
 export function appendThumbnailOverlay(targetElement) {
     registerCustomElements();
+    console.log('Appending thumbnail overlay');
     const overlay = /** @type {DDGVideoThumbnailOverlay} */ (document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME));
     console.log('Overlay', overlay, targetElement);
     overlay.testMode = true;
