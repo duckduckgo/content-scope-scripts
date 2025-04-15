@@ -59,9 +59,13 @@ test.describe('activity widget', () => {
         const ap = new ActivityPage(page, ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { feed: 'activity', activity: 'empty' } });
-        await ap.hasEmptyTitle();
+        await ap.hasEmptyTrackersOnlyTitle();
         await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel' } });
-        await ap.hasPopuplatedTitle();
+        await ap.hasPopulatedTrackersOnlyTitle();
+        await ntp.openPage({ additional: { feed: 'activity', activity: 'empty', adBlocking: 'enabled' } });
+        await ap.hasEmptyAdsAndTrackersTitle();
+        await ntp.openPage({ additional: { feed: 'activity', activity: 'onlyTopLevel', adBlocking: 'enabled' } });
+        await ap.hasPopulatedAdsAndTrackersTitle();
     });
     test('favorite item', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -119,13 +123,16 @@ test.describe('activity widget', () => {
         await ap.didRender();
         await ap.listsAtMost3TrackerCompanies();
     });
-    test('supported empty trackers states', async ({ page }, workerInfo) => {
+    test('tracker states', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { feed: 'activity' } });
         await ap.didRender();
-        await ap.showsEmptyTrackerState();
+        await ap.showsTrackersOnlyTrackerStates();
+        await ntp.openPage({ additional: { feed: 'activity', adBlocking: 'enabled' } });
+        await ap.didRender();
+        await ap.showsAdsAndTrackersTrackerStates();
     });
     test('after rendering and navigating to a new tab, data is re-requested on return', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);

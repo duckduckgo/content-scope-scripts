@@ -53,6 +53,36 @@ test.describe('onboarding', () => {
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
             await onboarding.keepInTaskbar();
         });
+        test('Then I can turn on enhanced ad blocking', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingPage.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'ad-blocking', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+            await onboarding.skippedCurrent();
+            await onboarding.enableEnhancedAdBlocking();
+        });
+        test('Then I can turn on YouTube ad blocking', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingPage.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'youtube-ad-blocking', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+            await onboarding.skippedCurrent();
+            await onboarding.enableYouTubeAdBlocking();
+        });
         test('The I can skip all', async ({ page }, workerInfo) => {
             const onboarding = OnboardingPage.create(page, workerInfo);
             await onboarding.reducedMotion();
@@ -172,6 +202,36 @@ test.describe('onboarding', () => {
             await onboarding.darkMode();
             await onboarding.openPage();
             await onboarding.completesOrderV3WithoutSettings();
+        });
+        test('shows v3 flow with ad blocking', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingPage.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'ad-blocking', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.darkMode();
+            await onboarding.openPage();
+            await onboarding.completesOrderV3WithAdBlocking();
+        });
+        test('shows v3 flow with YouTube ad blocking', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingPage.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'youtube-ad-blocking', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.darkMode();
+            await onboarding.openPage();
+            await onboarding.completesOrderV3WithYouTubeAdBlocking();
         });
         test.describe('Given I am on the settings step', () => {
             test('When I have choosen to add to dock/taskbar', async ({ page }, workerInfo) => {

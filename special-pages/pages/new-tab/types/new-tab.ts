@@ -749,6 +749,9 @@ export interface NewTabPageSettings {
      */
     autoOpen?: boolean;
   };
+  adBlocking?: {
+    state: "enabled" | "disabled";
+  };
 }
 export interface DefaultStyles {
   /**
