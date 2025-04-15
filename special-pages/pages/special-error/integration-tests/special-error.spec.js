@@ -82,30 +82,24 @@ test.describe('special-error', () => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.overrideTestLinks();
 
-        const expectedURL = `${phishingMalwareHelpPageURL}`;
-
         await special.openPage({ errorId: 'phishing' });
-        await special.opensNewPage('Learn more', expectedURL);
+        await special.opensNewPage('Learn more', phishingMalwareHelpPageURL);
     });
 
     test('opens malware help page in a new window', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.overrideTestLinks();
 
-        const expectedURL = `${phishingMalwareHelpPageURL}`;
-
         await special.openPage({ errorId: 'malware' });
-        await special.opensNewPage('Learn more', expectedURL);
+        await special.opensNewPage('Learn more', phishingMalwareHelpPageURL);
     });
 
     test('opens scam help page in a new window', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.overrideTestLinks();
 
-        const expectedURL = `${phishingMalwareHelpPageURL}`;
-
         await special.openPage({ errorId: 'scam' });
-        await special.opensNewPage('Learn more', expectedURL);
+        await special.opensNewPage('Learn more', phishingMalwareHelpPageURL);
     });
 
     test('opens report form in a new window', async ({ page }, workerInfo) => {
