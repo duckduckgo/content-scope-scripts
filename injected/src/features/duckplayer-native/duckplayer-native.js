@@ -1,8 +1,9 @@
 import { getCurrentTimestamp } from './get-current-timestamp.js';
-import { mediaControl } from './media-control.js';
+// import { mediaControl } from './media-control.js';
 import { muteAudio } from './mute-audio.js';
 import { serpNotify } from './serp-notify.js';
 import { ErrorDetection } from './error-detection.js';
+import { appendThumbnailOverlay } from './overlays/thumbnail-overlay.js';
 
 /**
  *
@@ -32,10 +33,20 @@ export async function initDuckPlayerNative(messages) {
     //     getCurrentTimestamp();
     // });
 
-    messages.onMediaControl(({ pause }) => {
+    const onMediaControlHandler = ({ pause }) => {
         console.log('MEDIA CONTROL', pause);
-        mediaControl(pause);
-    });
+
+        // TODO: move to settings.selectors.videoElementContainer or something similar
+        const targetElement = document.querySelector('#player .html5-video-player');
+        if (targetElement) {
+           const destroy = appendThumbnailOverlay(/** @type {HTMLElement} */(targetElement));
+           sideEffects.push(destroy);
+        }
+
+        // mediaControl(pause);
+    }
+
+    messages.onMediaControl(onMediaControlHandler);
 
     messages.onMuteAudio(({ mute }) => {
         console.log('MUTE AUDIO', mute);
@@ -61,6 +72,8 @@ export async function initDuckPlayerNative(messages) {
     sideEffects.push(() => {
         clearInterval(timestampPolling);
     });
+
+    onMediaControlHandler({ pause: false });
 
     // return async () => {
     //     return await Promise.all(sideEffects.map((destroy) => destroy()));
