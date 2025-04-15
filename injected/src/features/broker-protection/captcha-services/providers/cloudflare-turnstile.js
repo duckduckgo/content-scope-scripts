@@ -47,10 +47,10 @@ export class CloudFlareTurnstileProvider {
      * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      */
     getCaptchaIdentifier(captchaContainerElement) {
-        return  Promise.resolve(
+        return Promise.resolve(
             safeCallWithError(() => getSiteKeyFromAttribute({ captchaContainerElement, siteKeyAttrName: 'data-sitekey' }), {
                 errorMessage: '[CloudFlareTurnstileProvider.getCaptchaIdentifier] could not extract site key',
-            })
+            }),
         );
     }
 
