@@ -134,15 +134,9 @@ export function getTabUrl() {
         // @ts-expect-error - globalThis.top is possibly 'null' here
         framingURLString = globalThis.top.location.href;
     } catch {
-        framingURLString = globalThis.document.referrer;
-    }
-
-    if (!framingURLString) {
-        // This is suboptimal, but we need to get the top level origin in an about:blank frame
-        const topLevelOriginFromFrameAncestors = getTopLevelOriginFromFrameAncestors();
-        if (topLevelOriginFromFrameAncestors) {
-            framingURLString = topLevelOriginFromFrameAncestors;
-        }
+        // If there's no URL then let's fall back to using the frame ancestors origin which won't have path
+        // Fall back to the referrer if we can't get the top level origin
+        framingURLString = getTopLevelOriginFromFrameAncestors() ?? globalThis.document.referrer;
     }
 
     let framingURL;
