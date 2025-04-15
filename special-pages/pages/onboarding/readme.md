@@ -40,8 +40,6 @@ Instead, make your changes in `src/' and then run `npm run build.pages` from the
 
 URL parameters can be used to override the default values of the onboarding flow's configuration. Supported parameters are:
 
--   `locale` - Specifies the language to use for translations. Expects a language code (e.g., `en`, `de`, `fr`).
-
 - `locale` - Specifies the language to use for translations. Expects a language code (e.g., `en`, `de`, `fr`).
 - `textLength` - Adjusts the length of translated strings, for testing layout with different text sizes (e.g., `short`, `long`).
 - `display` - Controls which view is rendered. `app` renders the main onboarding flow, `components` renders the component showcase page.
