@@ -1,4 +1,11 @@
-import { matchHostname, postDebugMessage, initStringExemptionLists, processConfig, satisfiesMinVersion, getTabHostname } from '../src/utils.js';
+import {
+    matchHostname,
+    postDebugMessage,
+    initStringExemptionLists,
+    processConfig,
+    satisfiesMinVersion,
+    getTabHostname,
+} from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
 polyfillProcessGlobals();

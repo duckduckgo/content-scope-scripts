@@ -6,7 +6,7 @@ export function createLocationObject(href, frameAncestorsList = []) {
     return {
         href,
         // @ts-expect-error - ancestorOrigins is not defined in the type definition
-        ancestorOrigins: createDomStringList(frameAncestorsList)
+        ancestorOrigins: createDomStringList(frameAncestorsList),
     };
 }
 
@@ -47,13 +47,13 @@ export function polyfillProcessGlobals(defaultLocation = 'http://localhost:8080'
     // @ts-expect-error - document is not defined in the type definition
     globalThis.document = {
         referrer: defaultLocation,
-        location: createLocationObject(defaultLocation, frameAncestorsList)
+        location: createLocationObject(defaultLocation, frameAncestorsList),
     };
 
     globalThis.location = createLocationObject(defaultLocation, frameAncestorsList);
 
     globalThis.top = Object.assign({}, originalTop, {
-        location: createLocationObject(defaultLocation, frameAncestorsList)
+        location: createLocationObject(defaultLocation, frameAncestorsList),
     });
     if (topisNull) {
         globalThis.top = null;
