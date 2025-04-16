@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature';
-import { withExponentialBackoff } from '../utils';
+import { isBeingFramed, withExponentialBackoff } from '../utils';
 
 export const ANIMATION_DURATION_MS = 1000;
 export const ANIMATION_ITERATIONS = Infinity;
@@ -497,6 +497,9 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     init() {
+        if (isBeingFramed()) {
+            return;
+        }
         this.setButtonSettings();
 
         const handlePath = this.handlePath.bind(this);

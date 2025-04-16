@@ -47,6 +47,11 @@
                 result: window.location.pathname,
                 expected: oldPathname
             })
+            results.push({
+                name: "APIs changing, expecting to match only when the URL is correct",
+                result: navigator.hardwareConcurrency,
+                expected: 222
+            })
 
             return results;
         });
