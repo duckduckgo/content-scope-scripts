@@ -163,7 +163,8 @@
         await import("/build/contentScope.js").catch(console.error)
 
         const settingsFile = '/duckplayer/config/native.json';
-        const featureSettings = await fetch(settingsFile).then(x => x.json())
+        const settings = await fetch(settingsFile).then(x => x.json())
+        console.log('Settings', settings);
 
         document.dispatchEvent(new CustomEvent('content-scope-init-args', {
             detail: {
@@ -180,9 +181,13 @@
                         'duckPlayerNative'
                     ]
                 },
-                featureSettings
+                featureSettings: settings.features,
             }
         }))
+
+        setTimeout(() => {
+            document.dispatchEvent(new CustomEvent('initialSetup', { detail: {} }));
+        })
     })();
 </script>
 
