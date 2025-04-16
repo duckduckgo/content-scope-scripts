@@ -4,6 +4,8 @@ import styles from './PrivacyStats.module.css';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
 import cn from 'classnames';
 import { h } from 'preact';
+import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
+import { useAdBlocking } from '../../settings.provider.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -20,20 +22,35 @@ import { h } from 'preact';
 export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
+    const adBlocking = useAdBlocking();
 
     const none = itemCount === 0;
     const someItems = itemCount > 0;
     const trackerCountFormatted = formatter.format(trackerCount);
-    const allTimeString =
-        trackerCount === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural', { count: trackerCountFormatted });
+
+    let allTimeString;
+    if (trackerCount === 1) {
+        allTimeString = adBlocking ? t('stats_countBlockedAdsAndTrackersSingular') : t('stats_countBlockedSingular');
+    } else {
+        allTimeString = adBlocking
+            ? t('stats_countBlockedAdsAndTrackersPlural', { count: trackerCountFormatted })
+            : t('stats_countBlockedPlural', { count: trackerCountFormatted });
+    }
 
     return (
-        <div className={cn(styles.heading, styles.activityVariant)} data-testid={'ActivityHeading'}>
+        <div
+            className={cn(styles.heading, styles.activityVariant, { [styles.adsAndTrackersVariant]: adBlocking })}
+            data-testid={'ActivityHeading'}
+        >
             <span className={styles.headingIcon}>
-                <img src="./icons/shield.svg" alt="Privacy Shield" />
+                <img src={adBlocking ? './icons/shield-green.svg' : './icons/shield.svg'} alt="Privacy Shield" />
             </span>
             {none && <h2 className={styles.title}>{t('activity_noRecent_title')}</h2>}
-            {someItems && <h2 className={styles.title}>{allTimeString}</h2>}
+            {someItems && (
+                <h2 className={styles.title}>
+                    <Trans str={allTimeString} values={{ count: trackerCountFormatted }} />
+                </h2>
+            )}
             {canExpand && (
                 <span className={styles.widgetExpander}>
                     <ShowHideButtonCircle
@@ -47,8 +64,16 @@ export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount,
                     />
                 </span>
             )}
-            {itemCount === 0 && <p className={styles.subtitle}>{t('activity_noRecent_subtitle')}</p>}
-            {itemCount > 0 && <p className={cn(styles.subtitle, styles.uppercase)}>{t('stats_feedCountBlockedPeriod')}</p>}
+            {itemCount === 0 && (
+                <p className={cn(styles.subtitle, { [styles.indented]: !adBlocking })}>
+                    {adBlocking ? t('activity_noRecentAdsAndTrackers_subtitle') : t('activity_noRecent_subtitle')}
+                </p>
+            )}
+            {itemCount > 0 && (
+                <p className={cn(styles.subtitle, styles.indented, { [styles.uppercase]: !adBlocking })}>
+                    {t('stats_feedCountBlockedPeriod')}
+                </p>
+            )}
         </div>
     );
 }

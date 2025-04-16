@@ -30,16 +30,16 @@
   "devDependencies": {
     "@duckduckgo/messaging": "*",
     "chokidar": "^4.0.3",
-    "fast-check": "^3.23.2",
+    "fast-check": "^4.1.1",
     "http-server": "^14.1.1",
     "web-resource-inliner": "^6.0.1"
   },
   "dependencies": {
-    "@atlaskit/pragmatic-drag-and-drop": "^1.5.0",
+    "@atlaskit/pragmatic-drag-and-drop": "^1.5.2",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.0.3",
     "@formkit/auto-animate": "^0.8.2",
     "@preact/signals": "^2.0.1",
-    "@rive-app/canvas-single": "^2.26.4",
+    "@rive-app/canvas-single": "^2.26.9",
     "classnames": "^2.5.1",
     "lottie-web": "^5.12.2",
     "preact": "^10.25.4"

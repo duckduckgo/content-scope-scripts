@@ -17,6 +17,7 @@ import ConfigFeature from './config-feature.js';
 /**
  * @typedef {object} Site
  * @property {string | null} domain
+ * @property {string | null} url
  * @property {boolean} [isBroken]
  * @property {boolean} [allowlisted]
  * @property {string[]} [enabledFeatures]

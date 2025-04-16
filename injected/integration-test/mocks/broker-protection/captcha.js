@@ -35,6 +35,18 @@ export function createGetRecaptchaInfoAction(actionOverrides = {}) {
 }
 
 /**
+ * @param {Partial<PirAction>} [actionOverrides]
+ */
+export function createGetImageCaptchaInfoAction(actionOverrides = {}) {
+    return createGetCaptchaInfoAction({
+        action: {
+            captchaType: 'image',
+            ...actionOverrides,
+        },
+    });
+}
+
+/**
  * @param {object} params
  * @param {Omit<PirAction, 'id' | 'actionType'>} params.action
  * @param {Record<string, any>} [params.data]
@@ -61,6 +73,18 @@ export function createSolveRecaptchaAction(actionOverrides = {}) {
         action: {
             captchaType: 'recaptcha2',
             selector: '.g-recaptcha',
+            ...actionOverrides,
+        },
+    });
+}
+
+/**
+ * @param {Partial<PirAction>} [actionOverrides]
+ */
+export function createSolveImageCaptchaAction(actionOverrides = {}) {
+    return createSolveCaptchaAction({
+        action: {
+            captchaType: 'image',
             ...actionOverrides,
         },
     });

@@ -11,6 +11,7 @@ import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js';
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
 import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js';
+import { isElementType } from '../src/features/broker-protection/captcha-services/utils/element.js';
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -673,6 +674,32 @@ describe('generators', () => {
                 const streetAddress = generateStreetAddress();
                 expect(typeof streetAddress).toEqual('string');
                 expect(streetAddress).toMatch(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/);
+            });
+        });
+    });
+});
+
+describe('captcha-services', () => {
+    describe('utils', () => {
+        describe('isElementType', () => {
+            it('should return true for single valid element type', () => {
+                const type = 'img';
+                const element = /** @type {HTMLElement} */ ({ tagName: type });
+                expect(isElementType(element, type)).toBe(true);
+            });
+
+            it('should return true for multiple valid element types', () => {
+                const validElementTypes = ['input', 'textarea', 'img', 'svg'];
+                const type = 'svg';
+                const element = /** @type {HTMLElement} */ ({ tagName: type });
+                expect(isElementType(element, validElementTypes)).toBe(true);
+            });
+
+            it('should return false for invalid element types', () => {
+                const validElementTypes = ['input', 'textarea', 'img', 'svg'];
+                const type = 'div';
+                const element = /** @type {HTMLElement} */ ({ tagName: type });
+                expect(isElementType(element, validElementTypes)).toBe(false);
             });
         });
     });
