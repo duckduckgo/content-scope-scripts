@@ -2,6 +2,7 @@ import { createContext, h } from 'preact';
 import { useCallback } from 'preact/hooks';
 import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useThemes } from './themes.js';
+import { applyDefaultStyles } from './utils.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').CustomizerData} CustomizerData
@@ -81,6 +82,18 @@ export function CustomizerProvider({ service, initialData, children }) {
             unsub1();
             unsub2();
             unsub3();
+        };
+    });
+
+    useSignalEffect(() => {
+        const unsub = service.onTheme((evt) => {
+            if (evt.source === 'subscription') {
+                applyDefaultStyles(evt.data.defaultStyles);
+            }
+        });
+
+        return () => {
+            unsub();
         };
     });
 

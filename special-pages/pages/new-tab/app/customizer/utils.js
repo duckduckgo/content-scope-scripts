@@ -20,3 +20,17 @@ export function detectThemeFromHex(backgroundColor) {
     // 128 is the middle value (255/2)
     return luminance < 128 ? 'dark' : 'light';
 }
+
+/**
+ * This will apply default background colors as early as possible.
+ *
+ * @param {import("../../types/new-tab.ts").DefaultStyles | null | undefined} defaultStyles
+ */
+export function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor) {
+        document.body.style.setProperty('--default-light-background-color', defaultStyles.lightBackgroundColor);
+    }
+    if (defaultStyles?.darkBackgroundColor) {
+        document.body.style.setProperty('--default-dark-background-color', defaultStyles.darkBackgroundColor);
+    }
+}
