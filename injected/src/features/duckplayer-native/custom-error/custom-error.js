@@ -1,14 +1,8 @@
-import mobilecss from './custom-error.css';
+import css from './custom-error.css';
 import { createPolicy, html } from '../../../dom-utils.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
 
 /** @typedef {import('../error-detection').YouTubeError} YouTubeError */
-
-export function registerCustomElements() {
-    if (!customElementsGet(CustomError.CUSTOM_TAG_NAME)) {
-        customElementsDefine(CustomError.CUSTOM_TAG_NAME, CustomError);
-    }
-}
 
 /**
  * The custom element that we use to present our UI elements
@@ -27,19 +21,38 @@ export class CustomError extends HTMLElement {
     /** @type {string[]} */
     messages = [];
 
+    static register() {
+        if (!customElementsGet(CustomError.CUSTOM_TAG_NAME)) {
+            customElementsDefine(CustomError.CUSTOM_TAG_NAME, CustomError);
+        }
+    }
+
+    log(message, force = false) {
+        if (this.testMode || force) {
+            console.log(`[custom-error] ${message}`);
+        }
+    }
+
     connectedCallback() {
         this.createMarkupAndStyles();
     }
 
     createMarkupAndStyles() {
         const shadow = this.attachShadow({ mode: this.testMode ? 'open' : 'closed' });
+
         const style = document.createElement('style');
-        style.innerText = mobilecss;
+        style.innerText = css;
+
         const container = document.createElement('div');
+        container.classList.add('wrapper');
         const content = this.render();
         container.innerHTML = this.policy.createHTML(content);
         shadow.append(style, container);
         this.container = container;
+
+        if (this.testMode) {
+            this.log(`Created ${CustomError.CUSTOM_TAG_NAME} with container ${container}`);
+        }
     }
 
     /**
@@ -47,11 +60,12 @@ export class CustomError extends HTMLElement {
      */
     render() {
         if (!this.title || !this.messages) {
-            console.warn('missing error text. Please assign before rendering');
+            console.warn('Missing error title or messages. Please assign before rendering');
             return '';
         }
 
-        const messagesHtml = this.messages.map((message) => html`<p>${message}</p>`);
+        const { title, messages } = this;
+        const messagesHtml = messages.map((message) => html`<p>${message}</p>`);
 
         return html`
             <div class="error mobile">
@@ -59,7 +73,7 @@ export class CustomError extends HTMLElement {
                     <span class="icon"></span>
 
                     <div class="content">
-                        <h1 class="heading">{heading}</h1>
+                        <h1 class="heading">${title}</h1>
                         <div class="messages">${messagesHtml}</div>
                     </div>
                 </div>
@@ -69,20 +83,35 @@ export class CustomError extends HTMLElement {
 }
 
 /**
+ * @param {import('../environment').Environment} environment
+ * @param {YouTubeError} errorId
+ */
+function getErrorStrings(environment, errorId) {
+    // TODO: get from environment strings
+    console.log(`Getting translations for ${errorId} from ${environment}`);
+    return {
+        title: 'YouTube won’t let Duck Player load this video',
+        messages: [
+            'YouTube doesn’t allow this video to be viewed outside of YouTube.',
+            'You can still watch this video on YouTube, but without the added privacy of Duck Player.',
+        ],
+    };
+}
+
+/**
  *
  * @param {HTMLElement} targetElement
- * @param {object} options
- * @param {string} options.title
- * @param {string[]} options.messages
+ * @param {import('../environment').Environment} environment
+ * @param {YouTubeError} errorId
  */
-export function showError(targetElement, { title, messages }) {
-    registerCustomElements();
-    console.log('Appending custom error view');
+export function showError(targetElement, environment, errorId) {
+    const { title, messages } = getErrorStrings(environment, errorId);
+    CustomError.register();
+
     const customError = /** @type {CustomError} */ (document.createElement(CustomError.CUSTOM_TAG_NAME));
-    customError.testMode = true;
+    customError.testMode = environment.isTestMode();
     customError.title = title;
     customError.messages = messages;
-    console.log('Custom error view', customError, targetElement);
     targetElement.appendChild(customError);
 
     return () => {
