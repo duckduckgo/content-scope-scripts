@@ -1,4 +1,4 @@
-import { DDGProxy, DDGReflect, computeLimitedSiteObject, isBeingFramed } from './utils.js';
+import { DDGProxy, DDGReflect, isBeingFramed } from './utils.js';
 import ContentFeature from './content-feature.js';
 
 const urlChangeListeners = new Set();
@@ -14,9 +14,8 @@ export function registerForURLChanges(listener) {
 }
 
 function handleURLChange() {
-    const site = computeLimitedSiteObject();
     for (const listener of urlChangeListeners) {
-        listener(site);
+        listener();
     }
 }
 

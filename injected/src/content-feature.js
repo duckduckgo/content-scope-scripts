@@ -31,7 +31,7 @@ export default class ContentFeature extends ConfigFeature {
     /** @type {boolean} */
     #isDebugFlagSet = false;
     /**
-     * Set this to true if you wish to listen to top level URL changes.
+     * Set this to true if you wish to listen to top level URL changes for config matching.
      * @type {boolean}
      */
     listenForUrlChanges = false;

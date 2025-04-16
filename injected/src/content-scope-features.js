@@ -75,8 +75,15 @@ export async function init(args) {
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
             featureInstance.callInit(args);
-            if (featureInstance.listenForUrlChanges) {
-                registerForURLChanges((args) => featureInstance.urlChanged(args));
+            // Either listenForUrlChanges or urlChanged ensures the feature listens.
+            if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
+                registerForURLChanges(() => {
+                    // The rationale for the two separate call here is to ensure that
+                    // extensions to the class don't need to call super.urlChanged()
+                    featureInstance.recomputeSiteObject();
+                    // Called if the feature instance has a urlChanged method
+                    featureInstance?.urlChanged();
+                });
             }
         }
     });

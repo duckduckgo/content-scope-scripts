@@ -34,7 +34,6 @@ export const DELAY_BEFORE_ANIMATION = 300;
  * 3. Animate the element, or tap it if it should be autotapped.
  */
 export default class AutofillPasswordImport extends ContentFeature {
-    listenForUrlChanges = true;
     #exportButtonSettings;
 
     #settingsButtonSettings;
@@ -491,9 +490,8 @@ export default class AutofillPasswordImport extends ContentFeature {
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
     }
 
-    urlChanged(site) {
+    urlChanged() {
         this.handlePath(window.location.pathname);
-        super.urlChanged(site);
     }
 
     init() {

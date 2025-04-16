@@ -302,7 +302,6 @@ function forgivingSelector(selector) {
 }
 
 export default class ElementHiding extends ContentFeature {
-    listenForUrlChanges = true;
     init() {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         featureInstance = this;
@@ -364,11 +363,10 @@ export default class ElementHiding extends ContentFeature {
         this.activeRules = activeRules;
     }
 
-    urlChanged(site) {
+    urlChanged() {
         if (this.activeRules) {
             this.applyRules(this.activeRules);
         }
-        super.urlChanged(site);
     }
 
     /**

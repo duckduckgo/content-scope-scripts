@@ -28,8 +28,7 @@ export default class ApiManipulation extends ContentFeature {
         }
     }
 
-    urlChanged(site) {
-        super.urlChanged(site);
+    urlChanged() {
         this.init();
     }
 
