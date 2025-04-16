@@ -24,8 +24,13 @@
 
             const newUrl = new URL(window.location.href);
             newUrl.pathname = "/test/test/path";
-            window.history.replaceState(null, '', newUrl.href);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            window.history.pushState(null, '', newUrl.href);
+            await new Promise(resolve => requestIdleCallback(resolve));
+            results.push({
+                name: "Expect URL to be changed",
+                result: window.location.pathname,
+                expected: '/test/test/path'
+            })
             results.push({
                 name: "APIs changing, expecting to match only when the URL is correct",
                 result: navigator.hardwareConcurrency,

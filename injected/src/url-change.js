@@ -16,7 +16,7 @@ export function registerForURLChanges(listener) {
 function handleURLChange() {
     const site = computeLimitedSiteObject();
     for (const listener of urlChangeListeners) {
-        listener.urlChanged(site);
+        listener(site);
     }
 }
 
@@ -26,8 +26,9 @@ function listenForURLChanges() {
     // we use proxy/reflect on history.pushState to call applyRules on page navigations
     const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, 'pushState', {
         apply(target, thisArg, args) {
+            const changeResult = DDGReflect.apply(target, thisArg, args);
             handleURLChange();
-            return DDGReflect.apply(target, thisArg, args);
+            return changeResult;
         },
     });
     historyMethodProxy.overload();

@@ -368,7 +368,7 @@ export default class ElementHiding extends ContentFeature {
         if (this.activeRules) {
             this.applyRules(this.activeRules);
         }
-        super.urlChanged(site)
+        super.urlChanged(site);
     }
 
     /**
