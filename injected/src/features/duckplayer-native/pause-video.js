@@ -3,7 +3,6 @@
  * @param {string} videoSelector
  */
 export function stopVideoFromPlaying(videoSelector) {
-    console.log('Setting up video pause');
     /**
      * Set up the interval - keep calling .pause() to prevent
      * the video from playing

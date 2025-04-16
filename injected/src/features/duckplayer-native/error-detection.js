@@ -1,5 +1,14 @@
 /** @typedef {"age-restricted" | "sign-in-required" | "no-embed" | "unknown"} YouTubeError */
 
+/** @typedef {(error: YouTubeError) => void} ErrorDetectionCallback */
+
+/**
+ * @typedef {object} ErrorDetectionSettings
+ * @property {string} signInRequiredSelector
+ * @property {ErrorDetectionCallback} callback
+ * @property {boolean} testMode
+ */
+
 /** @type {Record<string,YouTubeError>} */
 export const YOUTUBE_ERRORS = {
     ageRestricted: 'age-restricted',
@@ -12,18 +21,26 @@ export const YOUTUBE_ERRORS = {
  * Detects YouTube errors based on DOM queries
  */
 export class ErrorDetection {
-    /** @type {import('./native-messages.js').DuckPlayerNativeMessages} */
-    messages;
-    /** @type {((error: YouTubeError) => void)} */
-    errorCallback;
+    /** @type {string} */
+    signInRequiredSelector;
+    /** @type {ErrorDetectionCallback} */
+    callback;
+    /** @type {boolean} */
+    testMode;
 
-    constructor(messages, errorCallback) {
-        this.messages = messages;
-        this.errorCallback = errorCallback;
-        this.settings = {
-            // TODO: Get settings from native
-            signInRequiredSelector: '[href*="//support.google.com/youtube/answer/3037019"]',
-        };
+    /**
+     * @param {ErrorDetectionSettings} settings
+     */
+    constructor({ signInRequiredSelector, callback, testMode }) {
+        this.signInRequiredSelector = signInRequiredSelector;
+        this.callback = callback;
+        this.testMode = testMode;
+    }
+
+    log(message, force = false) {
+        if (this.testMode || force) {
+            console.log(`[error-detection] ${message}`);
+        }
     }
 
     /**
@@ -31,7 +48,6 @@ export class ErrorDetection {
      * @returns {(() => void)|void}
      */
     observe() {
-        console.log('Setting up error detection...');
         const documentBody = document?.body;
         if (documentBody) {
             // Check if iframe already contains error
@@ -58,13 +74,15 @@ export class ErrorDetection {
 
     /**
      *
-     * @param {YouTubeError} error
+     * @param {YouTubeError} errorId
      */
-    handleError(error) {
-        if (this.errorCallback) {
-            this.errorCallback(error);
+    handleError(errorId) {
+        if (this.callback) {
+            this.log(`Calling error handler for ${errorId}`);
+            this.callback(errorId);
+        } else {
+            console.warn('No error callback found');
         }
-        this.messages.onYoutubeError(error);
     }
 
     /**
@@ -78,10 +96,8 @@ export class ErrorDetection {
                 mutation.addedNodes.forEach((node) => {
                     if (this.checkForError(node)) {
                         console.log('A node with an error has been added to the document:', node);
-                        setTimeout(() => {
-                            const error = this.getErrorType();
-                            this.handleError(error);
-                        }, 4000);
+                        const error = this.getErrorType();
+                        this.handleError(error);
                     }
                 });
             }
@@ -96,8 +112,8 @@ export class ErrorDetection {
         const currentWindow = /** @type {Window & typeof globalThis & { ytcfg: object }} */ (window);
         let playerResponse;
 
-        while (!currentWindow.ytcfg) {
-            console.log('Waiting for ytcfg');
+        if (!currentWindow.ytcfg) {
+            console.log('ytcfg missing!');
         }
 
         console.log('Got ytcfg', currentWindow.ytcfg);
@@ -131,7 +147,7 @@ export class ErrorDetection {
 
             // 2. Check for sign-in support link
             try {
-                if (this.settings?.signInRequiredSelector && !!document.querySelector(this.settings.signInRequiredSelector)) {
+                if (this.signInRequiredSelector && !!document.querySelector(this.signInRequiredSelector)) {
                     console.log('SIGN-IN ERROR');
                     return YOUTUBE_ERRORS.signInRequired;
                 }
@@ -155,7 +171,6 @@ export class ErrorDetection {
             const element = /** @type {HTMLElement} */ (node);
             // Check if element has the error class or contains any children with that class
             const isError = element.classList.contains('ytp-error') || !!element.querySelector('.ytp-error');
-            console.log('Is error?', isError);
             return isError;
         }
 

@@ -32,7 +32,7 @@ export class DuckPlayerNativeMessages {
         // TODO: Replace with class if needed
         this.environment = {
             isIntegrationMode: function () {
-                return false;
+                return true;
             },
         };
     }
@@ -41,9 +41,6 @@ export class DuckPlayerNativeMessages {
      * @returns {Promise<import('../duck-player-native.js').InitialSettings>}
      */
     initialSetup() {
-        if (this.environment.isIntegrationMode()) {
-            return Promise.resolve({ locale: 'en' });
-        }
         return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
     }
 
@@ -52,7 +49,7 @@ export class DuckPlayerNativeMessages {
      * @param {number} timestamp
      */
     onCurrentTimestamp(timestamp) {
-        return this.messaging.notify('onCurrentTimestamp', { timestamp });
+        return this.messaging.notify(constants.MSG_NAME_CURRENT_TIMESTAMP, { timestamp });
     }
 
     /**
@@ -60,8 +57,7 @@ export class DuckPlayerNativeMessages {
      * @param {(mediaControlSettings: mediaControlSettings) => void} callback
      */
     onMediaControl(callback) {
-        console.log('Subscribing to onMediaControl');
-        return this.messaging.subscribe('onMediaControl', callback);
+        return this.messaging.subscribe(constants.MSG_NAME_MEDIA_CONTROL, callback);
     }
 
     /**
@@ -69,8 +65,7 @@ export class DuckPlayerNativeMessages {
      * @param {(muteSettings: muteSettings) => void} callback
      */
     onMuteAudio(callback) {
-        console.log('Subscribing to onMuteAudio');
-        return this.messaging.subscribe('onMuteAudio', callback);
+        return this.messaging.subscribe(constants.MSG_NAME_MUTE_AUDIO, callback);
     }
 
     /**
@@ -78,8 +73,7 @@ export class DuckPlayerNativeMessages {
      * @param {() => void} callback
      */
     onSerpNotify(callback) {
-        console.log('Subscribing to onSerpNotify');
-        return this.messaging.subscribe('onSerpNotify', callback);
+        return this.messaging.subscribe(constants.MSG_NAME_SERP_NOTIFY, callback);
     }
 
     /**
@@ -87,6 +81,6 @@ export class DuckPlayerNativeMessages {
      * @param {string} error
      */
     onYoutubeError(error) {
-        this.messaging.notify('onYoutubeError', { error });
+        this.messaging.notify(constants.MSG_NAME_YOUTUBE_ERROR, { error });
     }
 }
