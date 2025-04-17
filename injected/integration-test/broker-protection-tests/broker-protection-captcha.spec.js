@@ -5,6 +5,8 @@ import {
     createSolveRecaptchaAction,
     createGetImageCaptchaInfoAction,
     createSolveImageCaptchaAction,
+    createGetCloudFlareCaptchaInfoAction,
+    createSolveCloudFlareCaptchaAction,
 } from '../mocks/broker-protection/captcha.js';
 import { BROKER_PROTECTION_CONFIGS } from './tests-config.js';
 
@@ -115,13 +117,14 @@ test.describe('Broker Protection Captcha', () => {
                 await dbp.navigatesTo(imageCaptchaTargetPage);
                 await dbp.receivesInlineAction(createGetImageCaptchaInfoAction({ selector: '#svg-captcha-rendering svg' }));
                 const sucessResponse = await dbp.getSuccessResponse();
+
                 dbp.isCaptchaMatch(sucessResponse, { captchaType: 'image', targetPage: imageCaptchaTargetPage });
             });
 
             test('returns an error response when the selector is not an svg or image tag', async ({ createConfiguredDbp }) => {
                 const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
                 await dbp.navigatesTo(imageCaptchaTargetPage);
-                await dbp.receivesInlineAction(createGetRecaptchaInfoAction({ selector: '#svg-captcha-rendering' }));
+                await dbp.receivesInlineAction(createGetImageCaptchaInfoAction({ selector: '#svg-captcha-rendering' }));
 
                 await dbp.isCaptchaError();
             });
@@ -135,6 +138,52 @@ test.describe('Broker Protection Captcha', () => {
                 dbp.getSuccessResponse();
 
                 await dbp.isCaptchaTokenFilled(imageCaptchaResponseSelector);
+            });
+        });
+    });
+
+    test.describe('cloudflare turnstile', () => {
+        const cloudFlareCaptchaTargetPage = 'cloudflare-captcha.html';
+
+        test.describe('getCaptchaInfo', () => {
+            test('returns the expected response for the correct action data', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(cloudFlareCaptchaTargetPage);
+                await dbp.receivesInlineAction(createGetCloudFlareCaptchaInfoAction({ selector: '#captcha-widget' }));
+                const sucessResponse = await dbp.getSuccessResponse();
+
+                dbp.isCaptchaMatch(sucessResponse, {
+                    captchaType: 'cloudFlareTurnstile',
+                    targetPage: cloudFlareCaptchaTargetPage,
+                    siteKey: '0x4AAAAAAA34NY6rivjWMWoq',
+                });
+            });
+
+            test('returns an error if the sitekey attribute is missing', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(cloudFlareCaptchaTargetPage);
+                await dbp.receivesInlineAction(createGetCloudFlareCaptchaInfoAction({ selector: '#missing-sitekey' }));
+
+                await dbp.isCaptchaError();
+            });
+        });
+
+        test.describe('solveCaptchaInfo', () => {
+            test('returns an error if the callback attribute is missing', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(cloudFlareCaptchaTargetPage);
+                await dbp.receivesInlineAction(createSolveCloudFlareCaptchaAction({ selector: '#missing-callback' }));
+
+                await dbp.isCaptchaError();
+            });
+
+            test('solves the captcha for the correct action data', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(cloudFlareCaptchaTargetPage);
+                await dbp.receivesInlineAction(createSolveCloudFlareCaptchaAction({ selector: '#captcha-widget' }));
+                dbp.getSuccessResponse();
+
+                await dbp.isCaptchaTokenFilled("//input[@name='cf-turnstile-response']");
             });
         });
     });

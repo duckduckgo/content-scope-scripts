@@ -30,7 +30,7 @@ export class CloudFlareTurnstileProvider {
     }
 
     getType() {
-        return 'cloudflareTurnstile';
+        return 'cloudFlareTurnstile';
     }
 
     /**

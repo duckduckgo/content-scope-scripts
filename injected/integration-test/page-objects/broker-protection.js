@@ -94,11 +94,12 @@ export class BrokerProtectionPage {
      * @param {object} captchaParams
      * @param {string} captchaParams.captchaType
      * @param {string} captchaParams.targetPage
+     * @param {string} captchaParams.siteKey
      *
      * @return {void}
      */
-    isCaptchaMatch(response, { captchaType, targetPage }) {
-        const expectedResponse = createCaptchaResponse({ captchaType, targetPage });
+    isCaptchaMatch(response, { captchaType, targetPage, ...overrides }) {
+        const expectedResponse = createCaptchaResponse({ captchaType, targetPage, ...overrides });
 
         switch (captchaType) {
             case 'image':
