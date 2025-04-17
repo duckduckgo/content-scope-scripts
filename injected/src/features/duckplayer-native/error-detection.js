@@ -1,10 +1,13 @@
+import { Logger } from './util';
+
 /** @typedef {"age-restricted" | "sign-in-required" | "no-embed" | "unknown"} YouTubeError */
 
 /** @typedef {(error: YouTubeError) => void} ErrorDetectionCallback */
+/** @typedef {import('./duckplayer-native').DuckPlayerNativeSettings['selectors']} DuckPlayerNativeSelectors */
 
 /**
  * @typedef {object} ErrorDetectionSettings
- * @property {string} signInRequiredSelector
+ * @property {DuckPlayerNativeSelectors} selectors
  * @property {ErrorDetectionCallback} callback
  * @property {boolean} testMode
  */
@@ -21,8 +24,10 @@ export const YOUTUBE_ERRORS = {
  * Detects YouTube errors based on DOM queries
  */
 export class ErrorDetection {
-    /** @type {string} */
-    signInRequiredSelector;
+    /** @type {Logger} */
+    logger;
+    /** @type {DuckPlayerNativeSelectors} */
+    selectors;
     /** @type {ErrorDetectionCallback} */
     callback;
     /** @type {boolean} */
@@ -31,16 +36,17 @@ export class ErrorDetection {
     /**
      * @param {ErrorDetectionSettings} settings
      */
-    constructor({ signInRequiredSelector, callback, testMode }) {
-        this.signInRequiredSelector = signInRequiredSelector;
+    constructor({ selectors, callback, testMode = false }) {
+        if (!selectors?.youtubeError || !selectors?.signInRequiredError || !callback) {
+            throw new Error('Missing selectors or callback props');
+        }
+        this.selectors = selectors;
         this.callback = callback;
         this.testMode = testMode;
-    }
-
-    log(message, force = false) {
-        if (this.testMode || force) {
-            console.log(`[error-detection] ${message}`);
-        }
+        this.logger = new Logger({
+            id: 'ERROR_DETECTION',
+            shouldLog: () => this.testMode,
+        });
     }
 
     /**
@@ -78,10 +84,10 @@ export class ErrorDetection {
      */
     handleError(errorId) {
         if (this.callback) {
-            this.log(`Calling error handler for ${errorId}`);
+            this.logger.log('Calling error handler for', errorId);
             this.callback(errorId);
         } else {
-            console.warn('No error callback found');
+            this.logger.warn('No error callback found');
         }
     }
 
@@ -95,7 +101,7 @@ export class ErrorDetection {
             if (mutation.type === 'childList') {
                 mutation.addedNodes.forEach((node) => {
                     if (this.checkForError(node)) {
-                        console.log('A node with an error has been added to the document:', node);
+                        this.logger.log('A node with an error has been added to the document:', node);
                         const error = this.getErrorType();
                         this.handleError(error);
                     }
@@ -113,18 +119,18 @@ export class ErrorDetection {
         let playerResponse;
 
         if (!currentWindow.ytcfg) {
-            console.log('ytcfg missing!');
+            this.logger.warn('ytcfg missing!');
+        } else {
+            this.logger.log('Got ytcfg', currentWindow.ytcfg);
         }
-
-        console.log('Got ytcfg', currentWindow.ytcfg);
 
         try {
             const playerResponseJSON = currentWindow.ytcfg?.get('PLAYER_VARS')?.embedded_player_response;
-            console.log('Player response', playerResponseJSON);
+            this.logger.log('Player response', playerResponseJSON);
 
             playerResponse = JSON.parse(playerResponseJSON);
         } catch (e) {
-            console.log('Could not parse player response', e);
+            this.logger.log('Could not parse player response', e);
         }
 
         if (typeof playerResponse === 'object') {
@@ -136,28 +142,28 @@ export class ErrorDetection {
             if (status === 'UNPLAYABLE') {
                 // 1.1. Check for presence of desktopLegacyAgeGateReason
                 if (desktopLegacyAgeGateReason === 1) {
-                    console.log('AGE RESTRICTED ERROR');
+                    this.logger.log('AGE RESTRICTED ERROR');
                     return YOUTUBE_ERRORS.ageRestricted;
                 }
 
                 // 1.2. Fall back to embed not allowed error
-                console.log('NO EMBED ERROR');
+                this.logger.log('NO EMBED ERROR');
                 return YOUTUBE_ERRORS.noEmbed;
             }
 
             // 2. Check for sign-in support link
             try {
-                if (this.signInRequiredSelector && !!document.querySelector(this.signInRequiredSelector)) {
-                    console.log('SIGN-IN ERROR');
+                if (document.querySelector(this.selectors.signInRequiredError)) {
+                    this.logger.log('SIGN-IN ERROR');
                     return YOUTUBE_ERRORS.signInRequired;
                 }
             } catch (e) {
-                console.log('Sign-in required query failed', e);
+                this.logger.log('Sign-in required query failed', e);
             }
         }
 
         // 3. Fall back to unknown error
-        console.log('UNKNOWN ERROR');
+        this.logger.log('UNKNOWN ERROR');
         return YOUTUBE_ERRORS.unknown;
     }
 
@@ -168,9 +174,10 @@ export class ErrorDetection {
      */
     checkForError(node) {
         if (node?.nodeType === Node.ELEMENT_NODE) {
+            const { youtubeError } = this.selectors;
             const element = /** @type {HTMLElement} */ (node);
             // Check if element has the error class or contains any children with that class
-            const isError = element.classList.contains('ytp-error') || !!element.querySelector('.ytp-error');
+            const isError = element.matches(youtubeError) || !!element.querySelector(youtubeError);
             return isError;
         }
 
