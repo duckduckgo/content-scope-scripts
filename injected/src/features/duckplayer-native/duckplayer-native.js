@@ -39,6 +39,7 @@ export class DuckPlayerNative {
 
         this.settings = settings;
         this.environment = environment;
+        console.table(environment);
         this.messages = messages;
     }
 
@@ -109,7 +110,7 @@ export class DuckPlayerNative {
 
             const targetElement = document.querySelector(errorContainer);
             if (targetElement) {
-                showError(/** @type {HTMLElement} */ (targetElement), this.environment, errorId);
+                showError(/** @type {HTMLElement} */ (targetElement), errorId, this.environment);
             }
         };
 

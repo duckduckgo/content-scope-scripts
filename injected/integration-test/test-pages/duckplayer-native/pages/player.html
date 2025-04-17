@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>Duck Player - Player Overlay</title>
+    <title>Duck Player Native - Player Overlay</title>
     <link rel="stylesheet" href="../../shared/style.css">
     <style>
         *, *:before, *:after {
@@ -64,6 +64,46 @@
             object-fit: cover;
             display: block;
         }
+
+        .ytp-error {
+            color: white;
+            position: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            line-height: 220%;
+            background-color: rgb(40, 40, 40);
+        }
+
+        .ytp-error .ytp-error-content {
+            position: relative;
+            max-width: 85%;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            margin: 0 auto;
+        }
+
+        .ytp-error .ytp-error-content .ytp-error-icon-container {
+            height: 96px;
+            width: 96px;
+            min-width: 96px;
+            min-height: 96px;
+            float: left
+        }
+
+        .ytp-error .ytp-error-content .ytp-error-content-wrap {
+            margin-top: auto;
+            margin-bottom: auto;
+            margin-left: 16px;
+            height: 100%;
+        }
+
     </style>
 </head>
 <body>
@@ -152,6 +192,51 @@
         </div>
     </div>
 </template>
+
+<template id="age-restricted-error-template">
+    <div class="ytp-error" role="alert" data-layer="4">
+        <div class="ytp-error-content" style="padding-top: 395.5px;">
+            <div class="ytp-error-icon-container"><svg fill="#fff" viewBox="0 0 48 48">
+                    <path d="M0 0h48v48H0V0z" fill="none"></path>
+                    <path
+                        d="M22 30h4v4h-4zm0-16h4v12h-4zm1.99-10C12.94 4 4 12.95 4 24s8.94 20 19.99 20S44 35.05 44 24 35.04 4 23.99 4zM24 40c-8.84 0-16-7.16-16-16S15.16 8 24 8s16 7.16 16 16-7.16 16-16 16z"
+                        fill-opacity="0.7"></path>
+                </svg></div>
+            <div class="ytp-error-content-wrap">
+                <div class="ytp-error-content-wrap-reason"><span><span>This video is age-restricted and only available on
+                            YouTube. </span><a href="//support.google.com/youtube/answer/2802167?hl=en"
+                            target="_blank">Learn more</a></span></div>
+                <div class="ytp-error-content-wrap-subreason">
+                    <div><a href="http://www.youtube.com/watch?v=PGaO6KUR9fk" target="TARGET_NEW_WINDOW">Watch on
+                            YouTube</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="sign-in-error-template">
+    <div class="ytp-error" role="alert" data-layer="4">
+        <div class="ytp-error-content" style="padding-top: 395.5px;">
+            <div class="ytp-error-icon-container"><svg fill="#fff" viewBox="0 0 48 48">
+                    <path d="M0 0h48v48H0V0z" fill="none"></path>
+                    <path
+                        d="M22 30h4v4h-4zm0-16h4v12h-4zm1.99-10C12.94 4 4 12.95 4 24s8.94 20 19.99 20S44 35.05 44 24 35.04 4 23.99 4zM24 40c-8.84 0-16-7.16-16-16S15.16 8 24 8s16 7.16 16 16-7.16 16-16 16z"
+                        fill-opacity="0.7"></path>
+                </svg></div>
+            <div class="ytp-error-content-wrap">
+                <div class="ytp-error-content-wrap-reason"><span><span>This video is age-restricted and only available on
+                            YouTube. </span><a href="//support.google.com/youtube/answer/2802167?hl=en"
+                            target="_blank">Learn more</a></span></div>
+                <div class="ytp-error-content-wrap-subreason">
+                    <div><a href="http://www.youtube.com/watch?v=PGaO6KUR9fk" target="TARGET_NEW_WINDOW">Watch on
+                            YouTube</a></div>
+                </div>
+            </div>
+            <a href="https://support.google.com/youtube/answer/3037019">Sign In</a>
+        </div>
+    </div>
+</template>
 <script>
     (async () => {
         if (!new URLSearchParams(location.search).has('preview')) {
@@ -192,28 +277,62 @@
     const main = document.querySelector('main');
     const html = (selector) => document.querySelector(selector).innerHTML
 
+    const insertHTMLVideoPlayer = () => {
+        const player = main.querySelector('#player');
+        player.innerHTML = `
+        <div class="html5-video-player">
+            <video width="800px" height="600px"></video>
+        </div>
+        `
+    }
+
+    const insertTemplateInMain = (templateId) => {
+        main.innerHTML += html(`template[id="${templateId}"]`);
+    }
+
+    const insertTemplateInVideo = (templateId) => {
+        document.querySelector('.html5-video-player').innerHTML += html(`template[id="${templateId}"]`);
+    }
+
     const knownVariants = {
         "default": () => {
-            main.innerHTML += html('template[id="inner-template"]');
-            main.innerHTML += html('template[id="related-template"]')
-            main.innerHTML += html('template[id="playlist-template"]')
+            insertTemplateInMain('inner-template');
+            insertTemplateInMain('related-template');
+            insertTemplateInMain('playlist-template');
         },
         "mobile": () => {
-            main.innerHTML += html('template[id="inner-template"]');
-            document.documentElement.dataset.layout="mobile"
+            insertTemplateInMain('inner-template');
+            document.documentElement.dataset.layout="mobile";
         },
         "incremental-dom": () => {
             main.innerHTML += `<div class="container"><div id="player"></div></div>`
             setTimeout(() => {
-                const player = main.querySelector('#player');
-                player.innerHTML = `
-                <div class="html5-video-player">
-                    <video width="800px" height="600px"></video>
-                </div>
-                `
-                main.innerHTML += html('template[id="related-template"]')
-                main.innerHTML += html('template[id="playlist-template"]')
+                insertHTMLVideoPlayer();
+                insertTemplateInMain('related-template');
+                insertTemplateInMain('playlist-template');
             }, 200);
+        },
+        "age-restricted-error": () => {
+            main.innerHTML += `<div class="container"><div id="player"></div></div>`
+            setTimeout(() => {
+                insertHTMLVideoPlayer();
+                insertTemplateInMain('related-template');
+                insertTemplateInMain('playlist-template');
+            }, 200);
+            setTimeout(() => {
+                insertTemplateInVideo('age-restricted-error-template');
+            }, 300);
+        },
+        "sign-in-error": () => {
+            main.innerHTML += `<div class="container"><div id="player"></div></div>`
+            setTimeout(() => {
+                insertHTMLVideoPlayer();
+                insertTemplateInMain('related-template');
+                insertTemplateInMain('playlist-template');
+            }, 200);
+            setTimeout(() => {
+                insertTemplateInVideo('sign-in-error-template');
+            }, 300);
         },
     }
 
