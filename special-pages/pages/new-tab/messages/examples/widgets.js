@@ -48,10 +48,15 @@ const initialSetupResponse = {
     locale: 'en',
     platform: { name: 'windows' },
     updateNotification: { content: null },
-    customizer: { theme: 'system', userImages: [], userColor: null, background: { kind: 'default' } },
-    defaultStyles: {
-        lightBackgroundColor: '#E9EBEC',
-        darkBackgroundColor: '#27282A',
+    customizer: {
+        theme: 'system',
+        userImages: [],
+        userColor: null,
+        background: { kind: 'default' },
+        defaultStyles: {
+            lightBackgroundColor: '#E9EBEC',
+            darkBackgroundColor: '#27282A',
+        },
     },
 };
 
