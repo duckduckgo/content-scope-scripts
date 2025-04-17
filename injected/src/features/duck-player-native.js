@@ -6,8 +6,13 @@ import { DuckPlayerNative } from './duckplayer-native/duckplayer-native.js';
 import { Environment } from './duckplayer-native/environment.js';
 
 /**
+ * @typedef {'UNKNOWN'|'YOUTUBE'|'NOCOOKIE'|'SERP'} PageType
+ */
+
+/**
  * @typedef InitialSettings - The initial payload used to communicate render-blocking information
  * @property {string} locale - UI locale
+ * @property {PageType} pageType - The type of page that has been loaded
  */
 
 export class DuckPlayerNativeFeature extends ContentFeature {
