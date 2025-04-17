@@ -3,7 +3,7 @@ import { Logger } from '../util';
 import { createPolicy, html } from '../../../dom-utils.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
 
-/** @typedef {import('../error-detection').YouTubeError} YouTubeError */
+/** @import {YouTubeError} from '../error-detection' */
 
 /**
  * The custom element that we use to present our UI elements

@@ -1,9 +1,11 @@
 import { Logger } from './util';
 
-/** @typedef {"age-restricted" | "sign-in-required" | "no-embed" | "unknown"} YouTubeError */
-
-/** @typedef {(error: YouTubeError) => void} ErrorDetectionCallback */
-/** @typedef {import('./duckplayer-native').DuckPlayerNativeSettings['selectors']} DuckPlayerNativeSelectors */
+/**
+ * @import {DuckPlayerNativeSettings} from './duckplayer-native'
+ * @typedef {"age-restricted" | "sign-in-required" | "no-embed" | "unknown"} YouTubeError
+ * @typedef {DuckPlayerNativeSettings['selectors']} DuckPlayerNativeSelectors
+ * @typedef {(error: YouTubeError) => void} ErrorDetectionCallback
+ */
 
 /**
  * @typedef {object} ErrorDetectionSettings

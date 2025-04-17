@@ -76,7 +76,6 @@ export class DuckPlayerNative {
         const urlParams = new URLSearchParams([
             ['v', videoID],
             ['variant', variant],
-            ['pageType', pageType],
         ]);
 
         const page = this.pages[pageType];
@@ -110,6 +109,66 @@ export class DuckPlayerNative {
         });
     }
 
+    /**
+     * @param {string} name
+     * @param {Record<string, any>} payload
+     */
+    async simulateSubscriptionMessage(name, payload) {
+        await this.collector.simulateSubscriptionMessage('duckPlayerNative', name, payload);
+    }
+
+    /**
+     * Helper for creating an instance per platform
+     * @param {import("@playwright/test").Page} page
+     * @param {import("@playwright/test").TestInfo} testInfo
+     */
+    static create(page, testInfo) {
+        // Read the configuration object to determine which platform we're testing against
+        const { platformInfo, build } = perPlatform(testInfo.project.use);
+        return new DuckPlayerNative(page, build, platformInfo);
+    }
+
+    /**
+     * @return {Promise<string>}
+     */
+    requestWillFail() {
+        return new Promise((resolve, reject) => {
+            // on windows it will be a failed request
+            const timer = setTimeout(() => {
+                reject(new Error('timed out'));
+            }, 5000);
+            this.page.on('framenavigated', (req) => {
+                clearTimeout(timer);
+                resolve(req.url());
+            });
+        });
+    }
+
+    /* Subscriptions */
+
+    /**
+     * @param {object} options
+     */
+    async sendOnMediaControl(options = { pause: true }) {
+        await this.simulateSubscriptionMessage('onMediaControl', options);
+    }
+
+    /**
+     * @param {object} options
+     */
+    async sendOnSerpNotify(options = {}) {
+        await this.simulateSubscriptionMessage('onSerpNotify', options);
+    }
+
+    /**
+     * @param {object} options
+     */
+    async sendOnMuteAudio(options = { mute: true }) {
+        await this.simulateSubscriptionMessage('onMuteAudio', options);
+    }
+
+    /* Messaging assertions */
+
     async didSendInitialHandshake() {
         const messages = await this.collector.waitForMessage('initialSetup');
         expect(messages).toMatchObject([
@@ -138,31 +197,14 @@ export class DuckPlayerNative {
         ]);
     }
 
-    /**
-     * Helper for creating an instance per platform
-     * @param {import("@playwright/test").Page} page
-     * @param {import("@playwright/test").TestInfo} testInfo
-     */
-    static create(page, testInfo) {
-        // Read the configuration object to determine which platform we're testing against
-        const { platformInfo, build } = perPlatform(testInfo.project.use);
-        return new DuckPlayerNative(page, build, platformInfo);
+    /* Thumbnail Overlay assertions */
+
+    async didShowThumbnailOverlay() {
+        await this.page.locator('ddg-video-thumbnail-overlay-mobile').waitFor({ state: 'visible', timeout: 1000 });
     }
 
-    /**
-     * @return {Promise<string>}
-     */
-    requestWillFail() {
-        return new Promise((resolve, reject) => {
-            // on windows it will be a failed request
-            const timer = setTimeout(() => {
-                reject(new Error('timed out'));
-            }, 5000);
-            this.page.on('framenavigated', (req) => {
-                clearTimeout(timer);
-                resolve(req.url());
-            });
-        });
+    async didShowLogoInOverlay() {
+        await this.page.locator('ddg-video-thumbnail-overlay-mobile .logo').waitFor({ state: 'visible', timeout: 1000 });
     }
 }
 
