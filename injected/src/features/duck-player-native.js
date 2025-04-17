@@ -28,7 +28,10 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         /**
          * @type {import("@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js").DuckPlayerNativeSettings}
          */
-        const settings = this.getFeatureSetting('settings') || args?.featureSettings?.duckPlayerNative?.settings || args?.featureSettings?.duckPlayerNative; // TODO: Why doesn't it work with just getFeatureSettings?
+        const settings =
+            this.getFeatureSetting('settings') ||
+            args?.featureSettings?.duckPlayerNative?.settings ||
+            args?.featureSettings?.duckPlayerNative; // TODO: Why doesn't it work with just getFeatureSettings?
         console.log('DUCK PLAYER NATIVE SELECTORS', settings?.selectors);
 
         const locale = args?.locale || args?.language || 'en';

@@ -152,16 +152,16 @@ export class ErrorDetection {
                 this.logger.log('NO EMBED ERROR');
                 return YOUTUBE_ERRORS.noEmbed;
             }
+        }
 
-            // 2. Check for sign-in support link
-            try {
-                if (document.querySelector(this.selectors.signInRequiredError)) {
-                    this.logger.log('SIGN-IN ERROR');
-                    return YOUTUBE_ERRORS.signInRequired;
-                }
-            } catch (e) {
-                this.logger.log('Sign-in required query failed', e);
+        // 2. Check for sign-in support link
+        try {
+            if (document.querySelector(this.selectors.signInRequiredError)) {
+                this.logger.log('SIGN-IN ERROR');
+                return YOUTUBE_ERRORS.signInRequired;
             }
+        } catch (e) {
+            this.logger.log('Sign-in required query failed', e);
         }
 
         // 3. Fall back to unknown error

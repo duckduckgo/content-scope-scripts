@@ -5,6 +5,7 @@ import { ResultsCollector } from './results-collector.js';
 
 /**
  * @import { PageType} from '../../src/features/duck-player-native.js'
+ * @typedef {"default" | "incremental-dom" | "age-restricted-error" | "sign-in-error"} PlayerPageVariants
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -14,6 +15,7 @@ export class DuckPlayerNative {
     /** @type {Partial<Record<PageType, string>>} */
     pages = {
         YOUTUBE: '/duckplayer-native/pages/player.html',
+        NOCOOKIE: '/duckplayer-native/pages/player.html',
     };
 
     /**
@@ -48,7 +50,6 @@ export class DuckPlayerNative {
 
     /**
      * @param {object} [params]
-     * @param {"default" | "incremental-dom"} [params.variant]
      * @param {string} [params.videoID]
      */
     async gotoYouTubePage(params = {}) {
@@ -59,6 +60,14 @@ export class DuckPlayerNative {
         await this.gotoPage('NOCOOKIE', {});
     }
 
+    async gotoAgeRestrictedErrorPage() {
+        await this.gotoPage('NOCOOKIE', { variant: 'age-restricted-error' });
+    }
+
+    async gotoSignInErrorPage() {
+        await this.gotoPage('NOCOOKIE', { variant: 'sign-in-error' });
+    }
+
     async gotoSERP() {
         await this.gotoPage('SERP', {});
     }
@@ -66,7 +75,7 @@ export class DuckPlayerNative {
     /**
      * @param {PageType} pageType
      * @param {object} [params]
-     * @param {"default" | "incremental-dom"} [params.variant]
+     * @param {PlayerPageVariants} [params.variant]
      * @param {string} [params.videoID]
      */
     async gotoPage(pageType, params = {}) {
@@ -205,6 +214,24 @@ export class DuckPlayerNative {
 
     async didShowLogoInOverlay() {
         await this.page.locator('ddg-video-thumbnail-overlay-mobile .logo').waitFor({ state: 'visible', timeout: 1000 });
+    }
+
+    /* Custom Error assertions */
+
+    async didShowGenericError() {
+        await expect(this.page.locator('ddg-video-error')).toMatchAriaSnapshot(`
+            - heading "YouTube won’t let Duck Player load this video" [level=1]
+            - paragraph: YouTube doesn’t allow this video to be viewed outside of YouTube.
+            - paragraph: You can still watch this video on YouTube, but without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowSignInError() {
+        await expect(this.page.locator('ddg-video-error')).toMatchAriaSnapshot(`
+            - heading "YouTube won’t let Duck Player load this video" [level=1]
+            - paragraph: YouTube is blocking this video from loading. If you’re using a VPN, try turning it off and reloading this page.
+            - paragraph: If this doesn’t work, you can still watch this video on YouTube, but without the added privacy of Duck Player.
+          `);
     }
 }
 
