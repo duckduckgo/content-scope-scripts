@@ -63,24 +63,32 @@ export class DuckPlayerNative {
 
         this.logger.log('INITIAL SETUP', initialSetup);
 
-        this.setupMessaging();
-        this.setupErrorDetection();
-        this.setupTimestampPolling();
+        switch (initialSetup.pageType) {
+            case 'YOUTUBE': {
+                this.messages.onMediaControl(this.mediaControlHandler.bind(this));
+                this.messages.onMuteAudio(this.muteAudioHandler.bind(this));
+                this.setupTimestampPolling();
+                break;
+            }
+            case 'NOCOOKIE': {
+                this.setupTimestampPolling();
+                this.setupErrorDetection();
+                break;
+            }
+            case 'SERP': {
+                this.messages.onSerpNotify(this.serpNotifyHandler.bind(this));
+                break;
+            }
+            case 'UNKNOWN':
+            default: {
+                this.logger.log('Unknown page. Not doing anything.');
+            }
+        }
 
         // TODO: Question - when/how does the native side call the teardown handler?
         return async () => {
             return await Promise.all(this.sideEffects.map((destroy) => destroy()));
         };
-    }
-
-    /**
-     * Set up messaging event listeners
-     */
-    setupMessaging() {
-        this.messages.onMediaControl(this.mediaControlHandler.bind(this));
-        this.messages.onMuteAudio(this.muteAudioHandler.bind(this));
-        this.messages.onSerpNotify(this.serpNotifyHandler.bind(this));
-        // this.messages.onCurrentTimestamp(this.currentTimestampHandler.bind(this));
     }
 
     setupErrorDetection() {

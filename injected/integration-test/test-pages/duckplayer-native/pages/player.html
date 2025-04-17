@@ -162,7 +162,7 @@
 
         await import("/build/contentScope.js").catch(console.error)
 
-        const settingsFile = '/duckplayer/config/native.json';
+        const settingsFile = '/duckplayer-native/config/native.json';
         const settings = await fetch(settingsFile).then(x => x.json())
         console.log('Settings', settings);
 
