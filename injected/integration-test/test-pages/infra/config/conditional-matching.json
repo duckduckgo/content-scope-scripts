@@ -1,0 +1,34 @@
+{
+    "features": {
+        "apiManipulation": {
+            "state": "enabled",
+            "settings": {
+                "apiChanges": {
+                    "Navigator.prototype.hardwareConcurrency": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "number",
+                            "value": 222
+                        }
+                    }
+                },
+                "conditionalChanges": [
+                    {
+                        "condition": {
+                            "urlPattern": "/test/*"
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "replace",
+                                "path": "/apiChanges/Navigator.prototype.hardwareConcurrency/getterValue/value",
+                                "value": 333
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "unprotectedTemporary": []
+  }
+  

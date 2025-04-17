@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature';
-import { isBeingFramed, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils';
+import { isBeingFramed, injectGlobalStyles } from '../utils';
 
 let adLabelStrings = [];
 const parser = new DOMParser();
@@ -320,11 +320,11 @@ export default class ElementHiding extends ContentFeature {
 
         // determine whether strict hide rules should be injected as a style tag
         if (shouldInjectStyleTag) {
-            shouldInjectStyleTag = this.matchDomainFeatureSetting('styleTagExceptions').length === 0;
+            shouldInjectStyleTag = this.matchConditionalFeatureSetting('styleTagExceptions').length === 0;
         }
 
         // collect all matching rules for domain
-        const activeDomainRules = this.matchDomainFeatureSetting('domains').flatMap((item) => item.rules);
+        const activeDomainRules = this.matchConditionalFeatureSetting('domains').flatMap((item) => item.rules);
 
         const overrideRules = activeDomainRules.filter((rule) => {
             return rule.type === 'override';
@@ -360,19 +360,13 @@ export default class ElementHiding extends ContentFeature {
         } else {
             applyRules(activeRules);
         }
-        // single page applications don't have a DOMContentLoaded event on navigations, so
-        // we use proxy/reflect on history.pushState to call applyRules on page navigations
-        const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
-            apply(target, thisArg, args) {
-                applyRules(activeRules);
-                return DDGReflect.apply(target, thisArg, args);
-            },
-        });
-        historyMethodProxy.overload();
-        // listen for popstate events in order to run on back/forward navigations
-        window.addEventListener('popstate', () => {
-            applyRules(activeRules);
-        });
+        this.activeRules = activeRules;
+    }
+
+    urlChanged() {
+        if (this.activeRules) {
+            this.applyRules(this.activeRules);
+        }
     }
 
     /**

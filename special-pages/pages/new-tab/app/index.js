@@ -15,6 +15,7 @@ import { CustomizerProvider } from './customizer/CustomizerProvider.js';
 import { CustomizerService } from './customizer/customizer.service.js';
 import { InlineErrorBoundary } from './InlineErrorBoundary.js';
 import { DocumentVisibilityProvider } from '../../../shared/components/DocumentVisibility.js';
+import { applyDefaultStyles } from './customizer/utils.js';
 
 /**
  * @import {Telemetry} from "./telemetry/telemetry.js"
@@ -59,7 +60,8 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
-        .withFeatureState('customizerDrawer', init.settings?.customizerDrawer);
+        .withFeatureState('customizerDrawer', init.settings?.customizerDrawer)
+        .withFeatureState('adBlocking', init.settings?.adBlocking);
 
     if (!window.__playwright_01) {
         console.log('environment:', environment);
@@ -78,7 +80,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
     installGlobalSideEffects(environment, settings);
 
     // apply default styles
-    applyDefaultStyles(init.defaultStyles);
+    applyDefaultStyles(init.customizer?.defaultStyles);
 
     // return early if we're in the 'components' view.
     if (environment.display === 'components') {
@@ -163,20 +165,6 @@ function installGlobalSideEffects(environment, settings) {
     document.body.dataset.platformName = settings.platform.name;
     document.body.dataset.display = environment.display;
     document.body.dataset.animation = environment.urlParams.get('animation') || '';
-}
-
-/**
- * This will apply default background colors as early as possible.
- *
- * @param {import("../types/new-tab.ts").DefaultStyles | null | undefined} defaultStyles
- */
-function applyDefaultStyles(defaultStyles) {
-    if (defaultStyles?.lightBackgroundColor) {
-        document.body.style.setProperty('--default-light-background-color', defaultStyles.lightBackgroundColor);
-    }
-    if (defaultStyles?.darkBackgroundColor) {
-        document.body.style.setProperty('--default-dark-background-color', defaultStyles.darkBackgroundColor);
-    }
 }
 
 /**

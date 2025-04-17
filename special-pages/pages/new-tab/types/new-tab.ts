@@ -731,7 +731,6 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
-  defaultStyles?: null | DefaultStyles;
   customizer?: CustomizerData;
   updateNotification: null | UpdateNotificationData;
 }
@@ -749,6 +748,16 @@ export interface NewTabPageSettings {
      */
     autoOpen?: boolean;
   };
+  adBlocking?: {
+    state: "enabled" | "disabled";
+  };
+}
+export interface CustomizerData {
+  background: BackgroundVariant;
+  theme: BrowserTheme;
+  userImages: UserImage[];
+  userColor: null | HexValueBackground;
+  defaultStyles?: null | DefaultStyles;
 }
 export interface DefaultStyles {
   /**
@@ -759,12 +768,6 @@ export interface DefaultStyles {
    * Optional default light background color. Any HEX value is permitted
    */
   lightBackgroundColor?: string;
-}
-export interface CustomizerData {
-  background: BackgroundVariant;
-  theme: BrowserTheme;
-  userImages: UserImage[];
-  userColor: null | HexValueBackground;
 }
 export interface UpdateNotificationData {
   content: null | UpdateNotification;
@@ -933,6 +936,7 @@ export interface CustomizerOnThemeUpdateSubscription {
 }
 export interface ThemeData {
   theme: BrowserTheme;
+  defaultStyles?: null | DefaultStyles;
 }
 /**
  * Generated from @see "../messages/favorites_onConfigUpdate.subscribe.json"

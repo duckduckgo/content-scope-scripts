@@ -17,6 +17,7 @@ import ConfigFeature from './config-feature.js';
 /**
  * @typedef {object} Site
  * @property {string | null} domain
+ * @property {string | null} url
  * @property {boolean} [isBroken]
  * @property {boolean} [allowlisted]
  * @property {string[]} [enabledFeatures]
@@ -29,6 +30,11 @@ export default class ContentFeature extends ConfigFeature {
     #messaging;
     /** @type {boolean} */
     #isDebugFlagSet = false;
+    /**
+     * Set this to true if you wish to listen to top level URL changes for config matching.
+     * @type {boolean}
+     */
+    listenForUrlChanges = false;
 
     /** @type {ImportMeta} */
     #importConfig;
