@@ -4,6 +4,7 @@ import { getSiteKeyFromAttribute } from '../utils/sitekey';
 import { injectTokenIntoElement } from '../utils/token';
 import { getCallbackFromAttribute } from '../utils/callback';
 import { stringifyFunction } from '../utils/stringify-function';
+import { PirError } from '../../types';
 
 /**
  * @typedef {Object} CloudFlareTurnstileProviderConfig
@@ -47,9 +48,11 @@ export class CloudFlareTurnstileProvider {
      * @param {HTMLElement} captchaContainerElement - The element containing the captcha
      */
     getCaptchaIdentifier(captchaContainerElement) {
+        const sitekeyAttribute = 'data-sitekey';
+
         return Promise.resolve(
-            safeCallWithError(() => getSiteKeyFromAttribute({ captchaContainerElement, siteKeyAttrName: 'data-sitekey' }), {
-                errorMessage: '[CloudFlareTurnstileProvider.getCaptchaIdentifier] could not extract site key',
+            safeCallWithError(() => getSiteKeyFromAttribute({ captchaContainerElement, siteKeyAttrName: sitekeyAttribute }), {
+                errorMessage: '[CloudFlareTurnstileProvider.getCaptchaIdentifier] could not extract site key from attribute: ',
             }),
         );
     }
@@ -63,10 +66,24 @@ export class CloudFlareTurnstileProvider {
      * @returns {boolean} Whether the captcha can be solved
      */
     canSolve(captchaContainerElement) {
-        const callbackFunctionName = getCallbackFromAttribute({ captchaContainerElement, callbackAttrName: 'data-callback' });
-        const hasResponseElement = getElementByTagName(captchaContainerElement, this.#config.responseElementName);
+        const callbackAttribute = 'data-callback';
 
-        return !!callbackFunctionName && !!hasResponseElement;
+        const hasCallback = safeCallWithError(
+            () => getCallbackFromAttribute({ captchaContainerElement, callbackAttrName: callbackAttribute }),
+            {
+                errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not extract callback function name from attribute: ${callbackAttribute}`,
+            },
+        );
+
+        const hasResponseElement = safeCallWithError(() => getElementByTagName(captchaContainerElement, this.#config.responseElementName), {
+            errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not find response element: ${this.#config.responseElementName}`,
+        });
+
+        if (hasCallback instanceof PirError || hasResponseElement instanceof PirError) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -82,8 +99,18 @@ export class CloudFlareTurnstileProvider {
      * @param {string} token - The solved captcha token
      */
     getSolveCallback(captchaContainerElement, token) {
-        const callbackFunctionName = getCallbackFromAttribute({ captchaContainerElement, callbackAttrName: 'data-callback' });
-        const args = { token, callbackFunctionName };
+        const callbackAttribute = 'data-callback';
+
+        const callbackFunctionName = safeCallWithError(
+            () => getCallbackFromAttribute({ captchaContainerElement, callbackAttrName: callbackAttribute }),
+            {
+                errorMessage: `[CloudFlareTurnstileProvider.getSolveCallback] could not extract callback function name from attribute: ${callbackAttribute}`,
+            },
+        );
+
+        if (callbackFunctionName instanceof PirError) {
+            return callbackFunctionName;
+        }
 
         return stringifyFunction({
             /**
@@ -91,11 +118,11 @@ export class CloudFlareTurnstileProvider {
              * @param {string} args.callbackFunctionName - The callback function name
              * @param {string} args.token - The solved captcha token
              */
-            functionBody: function callbackFunc(args) {
+            functionBody: function cloudflareCaptchaCallback(args) {
                 window[args.callbackFunctionName](args.token);
             },
-            functionName: 'callbackFunc',
-            args,
+            functionName: 'cloudflareCaptchaCallback',
+            args: { callbackFunctionName, token },
         });
     }
 
