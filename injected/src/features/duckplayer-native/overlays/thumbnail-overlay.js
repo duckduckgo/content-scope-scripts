@@ -1,7 +1,7 @@
 import css from './thumbnail-overlay.css';
 import { createPolicy, html } from '../../../dom-utils.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
-import { VideoParams, appendImageAsBackground } from '../util';
+import { VideoParams, appendImageAsBackground, Logger } from '../util';
 
 /**
  * The custom element that we use to present our UI elements
@@ -11,6 +11,8 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-thumbnail-overlay-mobile';
 
     policy = createPolicy();
+    /** @type {Logger} */
+    logger;
     /** @type {boolean} */
     testMode = false;
     /** @type {HTMLElement} */
@@ -21,12 +23,6 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     static register() {
         if (!customElementsGet(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) {
             customElementsDefine(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, DDGVideoThumbnailOverlay);
-        }
-    }
-
-    log(message, force = false) {
-        if (this.testMode || force) {
-            console.log(`[thumbnail-overlay] ${message}`);
         }
     }
 
@@ -47,9 +43,7 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
         shadow.append(style, container);
         this.container = container;
 
-        if (this.testMode) {
-            this.log(`Created ${DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME} with container ${container}`);
-        }
+        this.logger?.log('Created', DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, 'with container', container);
         this.appendThumbnail();
     }
 
@@ -58,12 +52,12 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
         const imageUrl = params?.toLargeThumbnailUrl();
 
         if (!imageUrl) {
-            console.warn('Could not get thumbnail url for video id', params?.id);
+            this.logger?.warn('Could not get thumbnail url for video id', params?.id);
             return;
         }
 
         if (this.testMode) {
-            this.log(`Appending thumbnail ${imageUrl}`);
+            this.logger?.log('Appending thumbnail', imageUrl);
         }
         appendImageAsBackground(this.container, '.ddg-vpo-bg', imageUrl);
     }
@@ -87,9 +81,15 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
  * @param {import('../environment').Environment} environment
  */
 export function appendThumbnailOverlay(targetElement, environment) {
+    const logger = new Logger({
+        id: 'THUMBNAIL_OVERLAY',
+        shouldLog: () => environment.isTestMode(),
+    });
+
     DDGVideoThumbnailOverlay.register();
 
     const overlay = /** @type {DDGVideoThumbnailOverlay} */ (document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME));
+    overlay.logger = logger;
     overlay.testMode = environment.isTestMode();
     overlay.href = environment.getPlayerPageHref();
 

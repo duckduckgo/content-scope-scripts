@@ -12,7 +12,7 @@ import { Environment } from './duckplayer-native/environment.js';
 
 export class DuckPlayerNativeFeature extends ContentFeature {
     init(args) {
-        console.log('[duckplayer-native] Loading', args);
+        console.log('DUCK PLAYER NATIVE LOADING', args);
 
         // TODO: Should we keep this?
         /**
@@ -25,8 +25,8 @@ export class DuckPlayerNativeFeature extends ContentFeature {
          */
         // TODO: Why isn't this working?
         // const settings = this.getFeatureSetting('settings');
-        const settings = args?.featureSettings?.duckPlayerNative;
-        console.log('[duckplayer-native] Selectors', settings?.selectors);
+        const settings = args?.featureSettings?.duckPlayerNative?.settings || args?.featureSettings?.duckPlayerNative;
+        console.log('DUCK PLAYER NATIVE SELECTORS', settings?.selectors);
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
