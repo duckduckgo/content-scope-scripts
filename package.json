@@ -53,6 +53,7 @@
     "urlpattern-polyfill": "^10.0.0"
   },
   "dependencies": {
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#bc8932cb98a49e7811a328c38a42feed4a75bb55",
     "immutable-json-patch": "^6.0.1"
   }
 }
