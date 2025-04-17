@@ -6,7 +6,16 @@ const logger = new Logger({
     shouldLog: () => true,
 });
 
-export class TestTransport {
+const url = new URL(window.location.href);
+
+class TestTransport {
+    getInitialSetupData() {
+        const locale = url.searchParams.get('locale') || 'en';
+        const pageType = url.searchParams.get('pageType') || 'UNKNOWN';
+
+        return { locale, pageType };
+    }
+
     notify(_msg) {
         logger.log('Notifying', _msg.method);
 
@@ -28,7 +37,7 @@ export class TestTransport {
         const msg = /** @type {any} */ (_msg);
         switch (msg.method) {
             case constants.MSG_NAME_INITIAL_SETUP: {
-                return Promise.resolve({ locale: 'en' });
+                return Promise.resolve(this.getInitialSetupData());
             }
             default:
                 return Promise.resolve(null);
