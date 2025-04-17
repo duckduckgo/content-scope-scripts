@@ -1949,7 +1949,7 @@
   }
 
   // pages/special-error/app/constants.js
-  var phishingMalwareHelpPageURL = "https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/";
+  var phishingMalwareHelpPageURL = "https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection";
   var reportSiteAsSafeFormURL = "https://duckduckgo.com/malicious-site-protection/report-error";
 
   // pages/special-error/app/hooks/ErrorStrings.jsx

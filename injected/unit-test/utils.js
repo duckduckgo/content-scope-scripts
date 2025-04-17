@@ -1,4 +1,11 @@
-import { matchHostname, postDebugMessage, initStringExemptionLists, processConfig, satisfiesMinVersion } from '../src/utils.js';
+import {
+    matchHostname,
+    postDebugMessage,
+    initStringExemptionLists,
+    processConfig,
+    satisfiesMinVersion,
+    getTabHostname,
+} from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
 polyfillProcessGlobals();
@@ -69,6 +76,7 @@ describe('Helpers checks', () => {
         expect(processedConfig).toEqual({
             site: {
                 domain: 'localhost',
+                url: 'http://localhost:8080/',
                 isBroken: false,
                 allowlisted: false,
                 // testFeatureTooBig is not enabled because it's minSupportedVersion is 100
@@ -147,6 +155,7 @@ describe('Helpers checks', () => {
         expect(processedConfig).toEqual({
             site: {
                 domain: 'localhost',
+                url: 'http://localhost:8080/',
                 isBroken: false,
                 allowlisted: false,
                 // testFeatureTooBig is not enabled because it's minSupportedVersion is 100
@@ -239,6 +248,27 @@ describe('Helpers checks', () => {
             expect(counters.get('testd')).toEqual(5000);
             expect(counters.get('teste')).toEqual(5000);
             expect(counters.get('testf')).toEqual(5000);
+        });
+    });
+
+    describe('utils.getTabHostname', () => {
+        it('returns the hostname of the URL', () => {
+            const hostname = getTabHostname();
+            expect(hostname).toEqual('localhost');
+
+            const reset = polyfillProcessGlobals('http://example.com');
+            const hostname2 = getTabHostname();
+            expect(hostname2).toEqual('example.com');
+            reset();
+
+            const hostname3 = getTabHostname();
+            expect(hostname3).toEqual('localhost');
+
+            // Validates when we're in a frame thats sandboxed so top is null
+            const reset2 = polyfillProcessGlobals('https://bloop.com', ['http://example.com'], true);
+            const hostname5 = getTabHostname();
+            expect(hostname5).toEqual('example.com');
+            reset2();
         });
     });
 });

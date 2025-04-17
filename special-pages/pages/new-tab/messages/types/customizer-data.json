@@ -19,6 +19,16 @@
     },
     "userColor": {
       "$ref": "./user-color-data.json#/definitions/userColor"
+    },
+    "defaultStyles": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "./default-styles.json"
+        }
+      ]
     }
   }
 }

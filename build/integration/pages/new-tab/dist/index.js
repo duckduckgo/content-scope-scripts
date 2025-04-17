@@ -558,6 +558,10 @@
     const settings = x2(SettingsContext).settings;
     return settings.batchedActivityApi.state === "enabled";
   }
+  function useAdBlocking() {
+    const settings = x2(SettingsContext).settings;
+    return settings.adBlocking.state === "enabled";
+  }
   var SettingsContext;
   var init_settings_provider = __esm({
     "pages/new-tab/app/settings.provider.js"() {
@@ -1694,6 +1698,14 @@
     const luminance = 0.2126 * r4 + 0.7152 * g6 + 0.0722 * b4;
     return luminance < 128 ? "dark" : "light";
   }
+  function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor) {
+      document.body.style.setProperty("--default-light-background-color", defaultStyles.lightBackgroundColor);
+    }
+    if (defaultStyles?.darkBackgroundColor) {
+      document.body.style.setProperty("--default-dark-background-color", defaultStyles.darkBackgroundColor);
+    }
+  }
   var init_utils = __esm({
     "pages/new-tab/app/customizer/utils.js"() {
       "use strict";
@@ -2137,6 +2149,16 @@
         unsub3();
       };
     });
+    useSignalEffect(() => {
+      const unsub = service.onTheme((evt) => {
+        if (evt.source === "subscription") {
+          applyDefaultStyles(evt.data.defaultStyles);
+        }
+      });
+      return () => {
+        unsub();
+      };
+    });
     const select = q2(
       (bg) => {
         service.setBackground(bg);
@@ -2169,6 +2191,7 @@
       init_hooks_module();
       init_signals_module();
       init_themes();
+      init_utils();
       CustomizerThemesContext = J({
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
         main: d3("light"),
@@ -20662,10 +20685,12 @@
         heading: "PrivacyStats_heading",
         activityVariant: "PrivacyStats_activityVariant",
         headingIcon: "PrivacyStats_headingIcon",
+        adsAndTrackersVariant: "PrivacyStats_adsAndTrackersVariant",
         title: "PrivacyStats_title",
         widgetExpander: "PrivacyStats_widgetExpander",
         subtitle: "PrivacyStats_subtitle",
         uppercase: "PrivacyStats_uppercase",
+        indented: "PrivacyStats_indented",
         body: "PrivacyStats_body",
         list: "PrivacyStats_list",
         entering: "PrivacyStats_entering",
@@ -20741,22 +20766,40 @@
       {}
     );
     const [formatter] = h2(() => new Intl.NumberFormat());
+    const adBlocking = useAdBlocking();
     const none = itemCount === 0;
     const someItems = itemCount > 0;
     const trackerCountFormatted = formatter.format(trackerCount);
-    const allTimeString = trackerCount === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural", { count: trackerCountFormatted });
-    return /* @__PURE__ */ g("div", { className: (0, import_classnames7.default)(PrivacyStats_default.heading, PrivacyStats_default.activityVariant), "data-testid": "ActivityHeading" }, /* @__PURE__ */ g("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ g("img", { src: "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, t4("activity_noRecent_title")), someItems && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, allTimeString), canExpand && /* @__PURE__ */ g("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ g(
-      ShowHideButtonCircle,
+    let allTimeString;
+    if (trackerCount === 1) {
+      allTimeString = adBlocking ? t4("stats_countBlockedAdsAndTrackersSingular") : t4("stats_countBlockedSingular");
+    } else {
+      allTimeString = adBlocking ? t4("stats_countBlockedAdsAndTrackersPlural", { count: trackerCountFormatted }) : t4("stats_countBlockedPlural", { count: trackerCountFormatted });
+    }
+    return /* @__PURE__ */ g(
+      "div",
       {
-        buttonAttrs: {
-          ...buttonAttrs,
-          "aria-expanded": expansion === "expanded",
-          "aria-pressed": expansion === "expanded"
-        },
-        onClick: onToggle,
-        label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
-      }
-    )), itemCount === 0 && /* @__PURE__ */ g("p", { className: PrivacyStats_default.subtitle }, t4("activity_noRecent_subtitle")), itemCount > 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames7.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t4("stats_feedCountBlockedPeriod")));
+        className: (0, import_classnames7.default)(PrivacyStats_default.heading, PrivacyStats_default.activityVariant, { [PrivacyStats_default.adsAndTrackersVariant]: adBlocking }),
+        "data-testid": "ActivityHeading"
+      },
+      /* @__PURE__ */ g("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ g("img", { src: adBlocking ? "./icons/shield-green.svg" : "./icons/shield.svg", alt: "Privacy Shield" })),
+      none && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, t4("activity_noRecent_title")),
+      someItems && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, /* @__PURE__ */ g(Trans, { str: allTimeString, values: { count: trackerCountFormatted } })),
+      canExpand && /* @__PURE__ */ g("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ g(
+        ShowHideButtonCircle,
+        {
+          buttonAttrs: {
+            ...buttonAttrs,
+            "aria-expanded": expansion === "expanded",
+            "aria-pressed": expansion === "expanded"
+          },
+          onClick: onToggle,
+          label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
+        }
+      )),
+      itemCount === 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames7.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("activity_noRecentAdsAndTrackers_subtitle") : t4("activity_noRecent_subtitle")),
+      itemCount > 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames7.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod"))
+    );
   }
   var import_classnames7;
   var init_ActivityHeading = __esm({
@@ -20768,6 +20811,8 @@
       init_ShowHideButton();
       import_classnames7 = __toESM(require_classnames(), 1);
       init_preact_module();
+      init_TranslationsProvider();
+      init_settings_provider();
     }
   });
 
@@ -20887,6 +20932,7 @@
     const status = useComputed(() => activity.value.trackingStatus[id]);
     const other = status.value.trackerCompanies.slice(DDG_MAX_TRACKER_ICONS - 1);
     const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
+    const adBlocking = useAdBlocking();
     const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, _index) => {
       return /* @__PURE__ */ g(CompanyIcon, { displayName: item.displayName, key: item });
     });
@@ -20896,10 +20942,15 @@
       otherIcon = /* @__PURE__ */ g("span", { title, class: Activity_default.otherIcon }, "+", other.length);
     }
     if (status.value.totalCount === 0) {
-      const text2 = trackersFound ? t4("activity_no_trackers_blocked") : t4("activity_no_trackers");
+      let text2;
+      if (trackersFound) {
+        text2 = adBlocking ? t4("activity_no_adsAndTrackers_blocked") : t4("activity_no_trackers_blocked");
+      } else {
+        text2 = adBlocking ? t4("activity_no_adsAndTrackers") : t4("activity_no_trackers");
+      }
       return /* @__PURE__ */ g("p", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, text2);
     }
-    return /* @__PURE__ */ g("div", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ g("div", { class: Activity_default.companiesIcons }, icons, otherIcon), /* @__PURE__ */ g("div", { class: Activity_default.companiesText }, /* @__PURE__ */ g(Trans, { str: t4("activity_countBlockedPlural", { count: String(status.value.totalCount) }), values: {} })));
+    return /* @__PURE__ */ g("div", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ g("div", { class: Activity_default.companiesIcons }, icons, otherIcon), /* @__PURE__ */ g("div", { class: Activity_default.companiesText }, adBlocking ? /* @__PURE__ */ g(Trans, { str: t4("activity_countBlockedAdsAndTrackersPlural", { count: String(status.value.totalCount) }), values: {} }) : /* @__PURE__ */ g(Trans, { str: t4("activity_countBlockedPlural", { count: String(status.value.totalCount) }), values: {} })));
   }
   function ActivityConfigured({ expansion, toggle, children }) {
     const batched = useBatchedActivityApi();
@@ -23284,7 +23335,7 @@
   function reorder(_ref) {
     var list2 = _ref.list, startIndex = _ref.startIndex, finishIndex = _ref.finishIndex;
     if (startIndex === -1 || finishIndex === -1) {
-      return list2;
+      return Array.from(list2);
     }
     var result = Array.from(list2);
     var _result$splice = result.splice(startIndex, 1), _result$splice2 = _slicedToArray(_result$splice, 1), removed = _result$splice2[0];
@@ -25386,11 +25437,17 @@
       {}
     );
     const [formatter] = h2(() => new Intl.NumberFormat());
+    const adBlocking = useAdBlocking();
     const none = recent === 0;
     const some = recent > 0;
     const alltime = formatter.format(recent);
-    const alltimeTitle = recent === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural", { count: alltime });
-    return /* @__PURE__ */ g("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ g("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ g("img", { src: "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, t4("stats_noRecent")), some && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, alltimeTitle), canExpand && /* @__PURE__ */ g("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ g(
+    let alltimeTitle;
+    if (recent === 1) {
+      alltimeTitle = adBlocking ? t4("stats_countBlockedAdsAndTrackersSingular") : t4("stats_countBlockedSingular");
+    } else {
+      alltimeTitle = adBlocking ? t4("stats_countBlockedAdsAndTrackersPlural", { count: alltime }) : t4("stats_countBlockedPlural", { count: alltime });
+    }
+    return /* @__PURE__ */ g("div", { className: (0, import_classnames13.default)(PrivacyStats_default.heading, { [PrivacyStats_default.adsAndTrackersVariant]: adBlocking }), "data-testid": "PrivacyStatsHeading" }, /* @__PURE__ */ g("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ g("img", { src: adBlocking ? "./icons/shield-green.svg" : "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, adBlocking ? t4("stats_noRecentAdsAndTrackers") : t4("stats_noRecent")), some && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, " ", /* @__PURE__ */ g(Trans, { str: alltimeTitle, values: { count: alltime } })), canExpand && /* @__PURE__ */ g("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ g(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -25401,7 +25458,7 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    )), recent === 0 && /* @__PURE__ */ g("p", { className: PrivacyStats_default.subtitle }, t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames13.default)(PrivacyStats_default.subtitle, PrivacyStats_default.uppercase) }, t4("stats_feedCountBlockedPeriod")));
+    )), recent === 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames13.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("stats_noActivityAdsAndTrackers") : t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames13.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod")));
   }
   var import_classnames13;
   var init_PrivacyStatsHeading = __esm({
@@ -25413,6 +25470,8 @@
       init_ShowHideButton();
       import_classnames13 = __toESM(require_classnames(), 1);
       init_preact_module();
+      init_settings_provider();
+      init_TranslationsProvider();
     }
   });
 
@@ -25638,7 +25697,8 @@
       {}
     );
     const drawer = useCustomizerDrawerSettings();
-    const sectionTitle = drawer.state === "enabled" ? t4("stats_menuTitle_v2") : t4("stats_menuTitle");
+    const adBlocking = useAdBlocking();
+    const sectionTitle = drawer.state === "enabled" || adBlocking ? t4("stats_menuTitle_v2") : t4("stats_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
     useCustomizer({ title: sectionTitle, id, icon: "shield", toggle, visibility: visibility.value, index: index2 });
     if (visibility.value === "hidden") {
@@ -27472,6 +27532,22 @@
       title: "{count} tracking attempts blocked",
       note: "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
     },
+    stats_noActivityAdsAndTrackers: {
+      title: "DuckDuckGo blocks ads and tracking attempts as you browse. Visit a few sites to see how many we block!",
+      note: "Placeholder for when we cannot report any blocked ads and trackers yet"
+    },
+    stats_noRecentAdsAndTrackers: {
+      title: "Ads & tracking protections active",
+      note: "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
+    },
+    stats_countBlockedAdsAndTrackersSingular: {
+      title: "Total of <b>1</b> ad & tracking attempt blocked",
+      note: "The main headline indicating that a single ad or tracking attempt was blocked"
+    },
+    stats_countBlockedAdsAndTrackersPlural: {
+      title: "Total of <b>{count}</b> ads & tracking attempts blocked",
+      note: "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: 'Total of 2 ads & tracking attempts blocked'"
+    },
     stats_feedCountBlockedSingular: {
       title: "1 attempt blocked by DuckDuckGo in the last 7 days",
       note: "A summary description of how many tracking attempts where blocked, when only one exists."
@@ -27700,6 +27776,22 @@
       title: "<b>{count}</b> tracking attempts blocked",
       note: "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
     },
+    activity_noRecentAdsAndTrackers_subtitle: {
+      title: "Recently visited sites will appear here. Keep browsing to see how many ads and trackers we block.",
+      note: "Shown in the place a list of browsing history entries will be displayed."
+    },
+    activity_no_adsAndTrackers: {
+      title: "No ads + Tracking attempts found",
+      note: "Placeholder message indicating that no ads and trackers are detected"
+    },
+    activity_no_adsAndTrackers_blocked: {
+      title: "No ads + Tracking attempts blocked",
+      note: "Placeholder message indicating that no ads and trackers are blocked"
+    },
+    activity_countBlockedAdsAndTrackersPlural: {
+      title: "<b>{count}</b> ads + Tracking attempts blocked",
+      note: "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
+    },
     activity_favoriteAdd: {
       title: "Add {domain} to favorites",
       note: "Button label, allows the user to add the specified domain to their favorites"
@@ -27739,10 +27831,16 @@
      * @param {object} params
      * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {{state: 'enabled' | 'disabled', autoOpen: boolean}} [params.customizerDrawer]
+     * @param {{state: 'enabled' | 'disabled'}} [params.adBlocking]
      */
-    constructor({ platform = { name: "macos" }, customizerDrawer = { state: "disabled", autoOpen: false } }) {
+    constructor({
+      platform = { name: "macos" },
+      customizerDrawer = { state: "disabled", autoOpen: false },
+      adBlocking = { state: "disabled" }
+    }) {
       this.platform = platform;
       this.customizerDrawer = customizerDrawer;
+      this.adBlocking = adBlocking;
     }
     withPlatformName(name2) {
       const valid = ["windows", "macos"];
@@ -27764,7 +27862,7 @@
      */
     withFeatureState(named, settings) {
       if (!settings) return this;
-      const valid = ["customizerDrawer"];
+      const valid = ["customizerDrawer", "adBlocking"];
       if (!valid.includes(named)) {
         console.warn(`Excluding invalid feature key ${named}`);
         return this;
@@ -30517,6 +30615,7 @@
 
   // pages/new-tab/app/index.js
   init_DocumentVisibility();
+  init_utils();
   async function init(root2, messaging2, telemetry2, baseEnvironment2) {
     const result = await callWithRetry(() => messaging2.initialSetup());
     if ("error" in result) {
@@ -30532,7 +30631,7 @@
     }
     const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
     const strings = await getStrings(environment);
-    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withFeatureState("customizerDrawer", init2.settings?.customizerDrawer);
+    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withFeatureState("customizerDrawer", init2.settings?.customizerDrawer).withFeatureState("adBlocking", init2.settings?.adBlocking);
     if (!window.__playwright_01) {
       console.log("environment:", environment);
       console.log("settings:", settings);
@@ -30542,7 +30641,7 @@
       messaging2.reportPageException({ message });
     };
     installGlobalSideEffects(environment, settings);
-    applyDefaultStyles(init2.defaultStyles);
+    applyDefaultStyles(init2.customizer?.defaultStyles);
     if (environment.display === "components") {
       return renderComponents(root2, environment, settings, strings);
     }
@@ -30596,14 +30695,6 @@
     document.body.dataset.platformName = settings.platform.name;
     document.body.dataset.display = environment.display;
     document.body.dataset.animation = environment.urlParams.get("animation") || "";
-  }
-  function applyDefaultStyles(defaultStyles) {
-    if (defaultStyles?.lightBackgroundColor) {
-      document.body.style.setProperty("--default-light-background-color", defaultStyles.lightBackgroundColor);
-    }
-    if (defaultStyles?.darkBackgroundColor) {
-      document.body.style.setProperty("--default-dark-background-color", defaultStyles.darkBackgroundColor);
-    }
   }
   async function resolveEntryPoints(widgets, didCatch) {
     try {
@@ -30921,12 +31012,22 @@
       }
     });
   }
+  function getDefaultStyles() {
+    if (url3.searchParams.get("defaultStyles") === "visual-refresh") {
+      return {
+        lightBackgroundColor: "#E9EBEC",
+        darkBackgroundColor: "#27282A"
+      };
+    }
+    return null;
+  }
   function customizerData() {
     const customizer = {
       userImages: [],
       userColor: null,
       theme: "system",
-      background: { kind: "default" }
+      background: { kind: "default" },
+      defaultStyles: getDefaultStyles()
     };
     if (url3.searchParams.has("background")) {
       const value2 = url3.searchParams.get("background");
@@ -31424,8 +31525,7 @@
               platform: { name: "integration" },
               env: "development",
               locale: "en",
-              updateNotification,
-              defaultStyles: getDefaultStyles()
+              updateNotification
             };
             const feed = url4.searchParams.get("feed") || "stats";
             if (feed === "stats" || feed === "both") {
@@ -31444,6 +31544,9 @@
               }
               initial.customizer = customizerData();
             }
+            if (url4.searchParams.get("adBlocking") === "enabled") {
+              settings.adBlocking = { state: "enabled" };
+            }
             initial.settings = settings;
             return Promise.resolve(initial);
           }
@@ -31453,15 +31556,6 @@
         }
       }
     });
-  }
-  function getDefaultStyles() {
-    if (url4.searchParams.get("defaultStyles") === "visual-refresh") {
-      return {
-        lightBackgroundColor: "#E9EBEC",
-        darkBackgroundColor: "#27282A"
-      };
-    }
-    return null;
   }
   function reorderArray(array, id, toIndex) {
     const fromIndex = array.findIndex((item) => item.id === id);

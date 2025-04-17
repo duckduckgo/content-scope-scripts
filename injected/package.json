@@ -7,6 +7,7 @@
     "bundle-config": "node scripts/bundleConfig.mjs",
     "bundle-entry-points": "node scripts/entry-points.js",
     "build-chrome-mv3": "node scripts/entry-points.js",
+    "build-firefox": "node scripts/entry-points.js",
     "build-locales": "node scripts/buildLocales.js",
     "build-types": "node scripts/types.mjs",
     "bundle-trackers": "node scripts/bundleTrackers.mjs --output ../build/tracker-lookup.json",
@@ -31,12 +32,12 @@
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#ca6101bb972756a87a8960ffb3029f603052ea9d",
-    "@fingerprintjs/fingerprintjs": "^4.5.1",
-    "@types/chrome": "^0.0.308",
+    "@fingerprintjs/fingerprintjs": "^4.6.2",
+    "@types/chrome": "^0.0.315",
     "@types/jasmine": "^5.1.7",
-    "@types/node": "^22.13.9",
+    "@types/node": "^22.14.1",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
-    "fast-check": "^3.23.2",
+    "fast-check": "^4.1.1",
     "jasmine": "^5.6.0",
     "minimist": "^1.2.8"
   }

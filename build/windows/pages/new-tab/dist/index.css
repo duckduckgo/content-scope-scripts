@@ -1223,11 +1223,25 @@ body[data-animate-background=true] {
   width: 20px;
   height: 20px;
 }
+.PrivacyStats_adsAndTrackersVariant .PrivacyStats_headingIcon img {
+  width: 16px;
+  height: 16px;
+}
 .PrivacyStats_title {
   grid-area: title;
   font-size: var(--title-2-font-size);
   font-weight: var(--title-2-font-weight);
   line-height: var(--title-2-line-height);
+}
+.PrivacyStats_adsAndTrackersVariant .PrivacyStats_title {
+  font-size: var(--title-3-em-font-size);
+}
+.PrivacyStats_adsAndTrackersVariant .PrivacyStats_title:has(b) {
+  color: var(--ntp-text-muted);
+}
+.PrivacyStats_adsAndTrackersVariant .PrivacyStats_title b {
+  color: var(--ntp-text-normal);
+  font-weight: var(--title-2-font-weight);
 }
 .PrivacyStats_widgetExpander {
   position: relative;
@@ -1242,11 +1256,18 @@ body[data-animate-background=true] {
 .PrivacyStats_subtitle {
   grid-area: label;
   color: var(--ntp-text-muted);
-  padding-left: 2px;
 }
 .PrivacyStats_subtitle.PrivacyStats_uppercase {
   line-height: 1;
   text-transform: uppercase;
+}
+.PrivacyStats_subtitle.PrivacyStats_indented {
+  padding-left: 2px;
+}
+.PrivacyStats_adsAndTrackersVariant .PrivacyStats_subtitle {
+  font-size: var(--small-label-font-size);
+  letter-spacing: 0.06px;
+  line-height: var(--small-label-line-height);
 }
 .PrivacyStats_body {
   display: grid;

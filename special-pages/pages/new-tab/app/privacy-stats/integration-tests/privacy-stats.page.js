@@ -169,4 +169,32 @@ export class PrivacyStatsPage {
     listFooter() {
         return this.context().getByTestId('ListFooter');
     }
+
+    async hasEmptyTrackersOnlyTitle() {
+        await expect(this.page.getByTestId('PrivacyStatsHeading')).toMatchAriaSnapshot(`
+          - heading "Tracking protections active" [level=2]
+          - paragraph: DuckDuckGo blocks tracking attempts as you browse. Visit a few sites to see how many we block!
+        `);
+    }
+
+    async hasPopulatedTrackersOnlyTitle() {
+        await expect(this.page.getByTestId('PrivacyStatsHeading')).toMatchAriaSnapshot(`
+          - heading "868 tracking attempts blocked" [level=2]
+          - paragraph: Past 7 days
+        `);
+    }
+
+    async hasEmptyAdsAndTrackersTitle() {
+        await expect(this.page.getByTestId('PrivacyStatsHeading')).toMatchAriaSnapshot(`
+          - heading "Ads & tracking protections active" [level=2]
+          - paragraph: DuckDuckGo blocks ads and tracking attempts as you browse. Visit a few sites to see how many we block!
+        `);
+    }
+
+    async hasPopulatedAdsAndTrackersTitle() {
+        await expect(this.page.getByTestId('PrivacyStatsHeading')).toMatchAriaSnapshot(`
+          - heading "Total of 868 ads & tracking attempts blocked" [level=2]
+          - paragraph: Past 7 days
+        `);
+    }
 }
