@@ -6,6 +6,7 @@ import { ErrorDetection } from './error-detection.js';
 import { appendThumbnailOverlay } from './overlays/thumbnail-overlay.js';
 import { stopVideoFromPlaying } from './pause-video.js';
 import { showError } from './custom-error/custom-error.js';
+import { Logger } from './util.js';
 
 /**
  * @typedef {object} DuckPlayerNativeSettings
@@ -13,6 +14,8 @@ import { showError } from './custom-error/custom-error.js';
  */
 
 export class DuckPlayerNative {
+    /** @type {Logger} */
+    logger;
     /** @type {DuckPlayerNativeSettings} */
     settings;
     /** @type {import('./environment.js').Environment} */
@@ -32,16 +35,18 @@ export class DuckPlayerNative {
             throw new Error('Missing arguments');
         }
 
+        this.setupLogger();
+
         this.settings = settings;
         this.environment = environment;
         this.messages = messages;
     }
 
-    // TODO: Is there a class or module that does this already?
-    log(message, force = false) {
-        if (this.environment.isTestMode() || force) {
-            console.log(`[duckplayer-native] ${message}`);
-        }
+    setupLogger() {
+        this.logger = new Logger({
+            id: 'DUCK_PLAYER_NATIVE',
+            shouldLog: () => this.environment.isTestMode(),
+        });
     }
 
     async init() {
@@ -56,7 +61,7 @@ export class DuckPlayerNative {
             return;
         }
 
-        console.log('INITIAL SETUP', initialSetup);
+        this.logger.log('INITIAL SETUP', initialSetup);
 
         this.setupMessaging();
         this.setupErrorDetection();
@@ -79,7 +84,7 @@ export class DuckPlayerNative {
     }
 
     setupErrorDetection() {
-        this.log('Setting up error detection');
+        this.logger.log('Setting up error detection');
         const errorContainer = this.settings.selectors?.errorContainer;
         const signInRequiredError = this.settings.selectors?.signInRequiredError;
         if (!errorContainer || !signInRequiredError) {
@@ -89,7 +94,7 @@ export class DuckPlayerNative {
 
         /** @type {(errorId: import('./error-detection.js').YouTubeError) => void} */
         const errorHandler = (errorId) => {
-            this.log(`Received error ${errorId}`);
+            this.logger.log('Received error', errorId);
 
             // Notify the browser of the error
             this.messages.onYoutubeError(errorId);
@@ -102,7 +107,7 @@ export class DuckPlayerNative {
 
         /** @type {import('./error-detection.js').ErrorDetectionSettings} */
         const errorDetectionSettings = {
-            signInRequiredSelector: signInRequiredError,
+            selectors: this.settings.selectors,
             testMode: this.environment.isTestMode(),
             callback: errorHandler,
         };
@@ -134,7 +139,7 @@ export class DuckPlayerNative {
      * @param {import('./messages.js').mediaControlSettings} settings
      */
     mediaControlHandler({ pause }) {
-        this.log(`Running media control handler. Pause: ${pause}`);
+        this.logger.log('Running media control handler. Pause:', pause);
 
         const videoElement = this.settings.selectors?.videoElement;
         const videoElementContainer = this.settings.selectors?.videoElementContainer;
@@ -159,17 +164,17 @@ export class DuckPlayerNative {
      * @param {import('./messages.js').muteSettings} settings
      */
     muteAudioHandler({ mute }) {
-        this.log(`Running mute audio handler. Mute: ${mute}`);
+        this.logger.log('Running mute audio handler. Mute:', mute);
         muteAudio(mute);
     }
 
     serpNotifyHandler() {
-        this.log('Running SERP notify handler');
+        this.logger.log('Running SERP notify handler');
         serpNotify();
     }
 
     currentTimestampHandler() {
-        this.log('Running current timestamp handler');
+        this.logger.log('Running current timestamp handler');
         getCurrentTimestamp();
     }
 }

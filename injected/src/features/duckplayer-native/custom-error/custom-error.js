@@ -1,4 +1,5 @@
 import css from './custom-error.css';
+import { Logger } from '../util';
 import { createPolicy, html } from '../../../dom-utils.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
 
@@ -12,6 +13,8 @@ export class CustomError extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-error';
 
     policy = createPolicy();
+    /** @type {Logger} */
+    logger;
     /** @type {boolean} */
     testMode = false;
     /** @type {YouTubeError} */
@@ -24,12 +27,6 @@ export class CustomError extends HTMLElement {
     static register() {
         if (!customElementsGet(CustomError.CUSTOM_TAG_NAME)) {
             customElementsDefine(CustomError.CUSTOM_TAG_NAME, CustomError);
-        }
-    }
-
-    log(message, force = false) {
-        if (this.testMode || force) {
-            console.log(`[custom-error] ${message}`);
         }
     }
 
@@ -50,9 +47,7 @@ export class CustomError extends HTMLElement {
         shadow.append(style, container);
         this.container = container;
 
-        if (this.testMode) {
-            this.log(`Created ${CustomError.CUSTOM_TAG_NAME} with container ${container}`);
-        }
+        this.logger?.log('Created', CustomError.CUSTOM_TAG_NAME, 'with container', container);
     }
 
     /**
@@ -88,7 +83,7 @@ export class CustomError extends HTMLElement {
  */
 function getErrorStrings(environment, errorId) {
     // TODO: get from environment strings
-    console.log(`Getting translations for ${errorId} from ${environment}`);
+    console.log('TODO: Get translations for ', errorId, 'from', environment);
     return {
         title: 'YouTube won’t let Duck Player load this video',
         messages: [
@@ -106,9 +101,15 @@ function getErrorStrings(environment, errorId) {
  */
 export function showError(targetElement, environment, errorId) {
     const { title, messages } = getErrorStrings(environment, errorId);
+    const logger = new Logger({
+        id: 'CUSTOM_ERROR',
+        shouldLog: () => environment.isTestMode(),
+    });
+
     CustomError.register();
 
     const customError = /** @type {CustomError} */ (document.createElement(CustomError.CUSTOM_TAG_NAME));
+    customError.logger = logger;
     customError.testMode = environment.isTestMode();
     customError.title = title;
     customError.messages = messages;
