@@ -1,12 +1,14 @@
 import * as constants from './constants.js';
+import { Logger } from './util.js';
 
-function log(message) {
-    console.log(`[mock] ${message}`);
-}
+const logger = new Logger({
+    id: 'MOCK_TRANSPORT',
+    shouldLog: () => true,
+});
 
 export class TestTransport {
     notify(_msg) {
-        log(`Notifying ${_msg.method}`);
+        logger.log('Notifying', _msg.method);
 
         window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
         const msg = /** @type {any} */ (_msg);
@@ -14,13 +16,13 @@ export class TestTransport {
             case constants.MSG_NAME_CURRENT_TIMESTAMP:
                 return;
             default: {
-                console.warn('unhandled notification', msg);
+                logger.warn('unhandled notification', msg);
             }
         }
     }
 
     request(_msg) {
-        log(`Requesting ${_msg.method}`);
+        logger.log('Requesting', _msg.method);
 
         window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
         const msg = /** @type {any} */ (_msg);
@@ -34,7 +36,7 @@ export class TestTransport {
     }
 
     subscribe(_msg, callback) {
-        log(`Subscribing to ${_msg.subscriptionName}`);
+        logger.log('Subscribing to', _msg.subscriptionName);
 
         window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
 
@@ -54,7 +56,7 @@ export class TestTransport {
         }
 
         const callbackTimeout = setTimeout(() => {
-            log(`Calling handler for ${_msg.subscriptionName}`);
+            logger.log('Calling handler for', _msg.subscriptionName);
             callback(response);
         }, timeout);
 
