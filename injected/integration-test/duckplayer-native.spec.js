@@ -42,5 +42,34 @@ test.describe('Duck Player Native thumbnail overlay', () => {
 
         // Then I should see the thumbnail overlay in the page
         await duckPlayer.didShowThumbnailOverlay();
+        await duckPlayer.didShowLogoInOverlay();
+    });
+});
+
+test.describe('Duck Player Native custom error view', () => {
+    test('Shows age-restricted error', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a YouTube page with an age-restricted error
+        await duckPlayer.gotoAgeRestrictedErrorPage();
+
+        // Then I should see the generic error screen
+        await duckPlayer.didShowGenericError();
+    });
+
+    test('Shows sign-in error', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a YouTube page with an age-restricted error
+        await duckPlayer.gotoSignInErrorPage();
+
+        // Then I should see the generic error screen
+        await duckPlayer.didShowSignInError();
     });
 });
