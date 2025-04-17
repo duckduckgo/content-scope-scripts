@@ -39,8 +39,8 @@ export class CloudFlareTurnstileProvider {
      * @returns {boolean} Whether the captcha is supported for the element
      */
     isSupportedForElement(root, _captchaContainerElement) {
-        // Typically we look at the captcha container for isSupportedElement, but cloudflare puts the iframe into the shadow DOM,
-        // so we need to look at the script tags instead
+        // Typically we look within captcha container for isSupportedForElement, but CloudFlare puts the iFrame into the shadow DOM,
+        // so we need to look at the script tags on the page instead
         return !!this._getCaptchaScript(root);
     }
 
