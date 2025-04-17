@@ -78,29 +78,32 @@ export class CustomError extends HTMLElement {
 }
 
 /**
- * @param {import('../environment').Environment} environment
  * @param {YouTubeError} errorId
+ * @param {Record<string, string>} t - Localized strings from environment
  */
-function getErrorStrings(environment, errorId) {
-    // TODO: get from environment strings
-    console.log('TODO: Get translations for ', errorId, 'from', environment);
-    return {
-        title: 'YouTube won’t let Duck Player load this video',
-        messages: [
-            'YouTube doesn’t allow this video to be viewed outside of YouTube.',
-            'You can still watch this video on YouTube, but without the added privacy of Duck Player.',
-        ],
-    };
+function getErrorStrings(errorId, t) {
+    switch (errorId) {
+        case 'sign-in-required':
+            return {
+                title: t.blockedVideoErrorHeading,
+                messages: [t.signInRequiredErrorMessage1, t.signInRequiredErrorMessage2],
+            };
+        default:
+            return {
+                title: t.blockedVideoErrorHeading,
+                messages: [t.blockedVideoErrorMessage1, t.blockedVideoErrorMessage2],
+            };
+    }
 }
 
 /**
  *
  * @param {HTMLElement} targetElement
- * @param {import('../environment').Environment} environment
  * @param {YouTubeError} errorId
+ * @param {import('../environment').Environment} environment
  */
-export function showError(targetElement, environment, errorId) {
-    const { title, messages } = getErrorStrings(environment, errorId);
+export function showError(targetElement, errorId, environment) {
+    const { title, messages } = getErrorStrings(errorId, environment.strings);
     const logger = new Logger({
         id: 'CUSTOM_ERROR',
         shouldLog: () => environment.isTestMode(),

@@ -19,6 +19,9 @@ export class Environment {
         this.locale = params.locale;
     }
 
+    /**
+     * @returns {Record<string, string>}
+     */
     get strings() {
         const matched = this._strings[this.locale];
         if (matched) return matched['native.json'];
