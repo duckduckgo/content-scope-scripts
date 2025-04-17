@@ -52,7 +52,7 @@ export class CloudFlareTurnstileProvider {
 
         return Promise.resolve(
             safeCallWithError(() => getSiteKeyFromAttribute({ captchaContainerElement, siteKeyAttrName: sitekeyAttribute }), {
-                errorMessage: '[CloudFlareTurnstileProvider.getCaptchaIdentifier] could not extract site key from attribute: ',
+                errorMessage: `[CloudFlareTurnstileProvider.getCaptchaIdentifier] could not extract site key from attribute: ${sitekeyAttribute}`,
             }),
         );
     }
@@ -79,7 +79,7 @@ export class CloudFlareTurnstileProvider {
             errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not find response element: ${this.#config.responseElementName}`,
         });
 
-        if (hasCallback instanceof PirError || hasResponseElement instanceof PirError) {
+        if (PirError.isError(hasCallback) || PirError.isError(hasResponseElement)) {
             return false;
         }
 
@@ -108,7 +108,7 @@ export class CloudFlareTurnstileProvider {
             },
         );
 
-        if (callbackFunctionName instanceof PirError) {
+        if (PirError.isError(callbackFunctionName)) {
             return callbackFunctionName;
         }
 
