@@ -30,6 +30,11 @@ export default class ContentFeature extends ConfigFeature {
     #messaging;
     /** @type {boolean} */
     #isDebugFlagSet = false;
+    /**
+     * Set this to true if you wish to listen to top level URL changes for config matching.
+     * @type {boolean}
+     */
+    listenForUrlChanges = false;
 
     /** @type {ImportMeta} */
     #importConfig;
