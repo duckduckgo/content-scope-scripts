@@ -11,7 +11,7 @@ import * as constants from './constants.js';
  */
 
 /**
- * @typedef {import("@duckduckgo/messaging").Messaging} Messaging
+ * @import {Messaging} from '@duckduckgo/messaging'
  *
  * A wrapper for all communications.
  *
