@@ -25,11 +25,12 @@ export class CaptchaFactory {
 
     /**
      * Detect the captcha provider based on the element
+     * @param {Document | HTMLElement} root
      * @param {HTMLElement} element - The element to check
      * @returns {import('./providers/provider.interface').CaptchaProvider|null}
      */
-    detectProvider(element) {
-        return this._getAllProviders().find((provider) => provider.isSupportedForElement(element)) || null;
+    detectProvider(root, element) {
+        return this._getAllProviders().find((provider) => provider.isSupportedForElement(root, element)) || null;
     }
 
     /**
