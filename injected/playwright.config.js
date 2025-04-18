@@ -90,7 +90,7 @@ export default defineConfig({
     retries: process.env.CI ? 2 : 0,
     /* Opt out of parallel tests on CI. */
     workers: process.env.CI ? 1 : undefined,
-    reporter: process.env.CI ? 'github' : [['html', { open: 'never' }]],
+    reporter: 'html',
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     webServer: {
         reuseExistingServer: true,
@@ -105,5 +105,6 @@ export default defineConfig({
         baseURL: 'http://localhost:3220/',
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
+        video: { mode: 'on-first-retry' },
     },
 });
