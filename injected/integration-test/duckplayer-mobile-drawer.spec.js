@@ -3,7 +3,7 @@ import { DuckplayerOverlays } from './page-objects/duckplayer-overlays.js';
 
 test.describe('Duck Player - Drawer UI variant', () => {
     test.describe('Video Player overlays', () => {
-        test("Selecting 'watch here' on mobile abc", async ({ page }, workerInfo) => {
+        test("Selecting 'watch here' on mobile", async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo);
             await overlays.reducedMotion();
 
