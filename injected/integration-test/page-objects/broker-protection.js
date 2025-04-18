@@ -94,7 +94,7 @@ export class BrokerProtectionPage {
      * @param {object} captchaParams
      * @param {string} captchaParams.captchaType
      * @param {string} captchaParams.targetPage
-     * @param {string} captchaParams.siteKey
+     * @param {string} [captchaParams.siteKey]
      *
      * @return {void}
      */
