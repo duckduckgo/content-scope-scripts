@@ -14,9 +14,10 @@ export class ImageProvider {
     }
 
     /**
+     * @param {Document | HTMLElement} _root
      * @param {HTMLElement} captchaImageElement - The captcha image element
      */
-    isSupportedForElement(captchaImageElement) {
+    isSupportedForElement(_root, captchaImageElement) {
         if (!captchaImageElement) {
             return false;
         }

@@ -10,9 +10,10 @@ export class HCaptchaProvider {
     }
 
     /**
+     * @param {Document | HTMLElement} _root
      * @param {HTMLElement} _captchaContainerElement - The element to check
      */
-    isSupportedForElement(_captchaContainerElement) {
+    isSupportedForElement(_root, _captchaContainerElement) {
         // TODO: Implement
         return false;
     }

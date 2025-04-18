@@ -1,6 +1,7 @@
 import { CaptchaFactory } from '../factory';
 import { ReCaptchaProvider } from './recaptcha';
 import { ImageProvider } from './image';
+import { CloudFlareTurnstileProvider } from './cloudflare-turnstile';
 
 const captchaFactory = new CaptchaFactory();
 
@@ -17,6 +18,13 @@ captchaFactory.registerProvider(
         type: 'recaptchaEnterprise',
         providerUrl: 'https://www.google.com/recaptcha/enterprise',
         responseElementName: 'g-recaptcha-response',
+    }),
+);
+
+captchaFactory.registerProvider(
+    new CloudFlareTurnstileProvider({
+        providerUrl: 'https://challenges.cloudflare.com/turnstile/v0',
+        responseElementName: 'cf-turnstile-response',
     }),
 );
 
