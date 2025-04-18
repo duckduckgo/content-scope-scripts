@@ -115,7 +115,7 @@ test.describe('newtab widgets', () => {
         test('with overrides from initial setup (light)', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh', customizerDrawer: 'enabled' } });
+            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh' } });
             await ntp.waitForCustomizer();
             await page.pause();
             await ntp.hasBackgroundColor({ hex: '#E9EBEC' });
@@ -124,7 +124,7 @@ test.describe('newtab widgets', () => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
             await ntp.darkMode();
-            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh', customizerDrawer: 'enabled' } });
+            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh' } });
             await ntp.waitForCustomizer();
             await ntp.hasBackgroundColor({ hex: '#27282A' });
         });

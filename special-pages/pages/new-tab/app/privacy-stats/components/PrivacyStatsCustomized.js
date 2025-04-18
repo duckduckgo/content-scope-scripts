@@ -1,5 +1,4 @@
 import { useTypedTranslationWith } from '../../types.js';
-import { useAdBlocking, useCustomizerDrawerSettings } from '../../settings.provider.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { PrivacyStatsProvider } from './PrivacyStatsProvider.js';
@@ -21,16 +20,11 @@ import { BodyExpanderProvider } from './BodyExpansionProvider.js';
  */
 export function PrivacyStatsCustomized() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const drawer = useCustomizerDrawerSettings();
-    const adBlocking = useAdBlocking();
 
     /**
      * The menu title for the stats widget is changes when the menu is in the sidebar.
      */
-    // prettier-ignore
-    const sectionTitle = drawer.state === 'enabled' || adBlocking
-            ? t('stats_menuTitle_v2')
-            : t('stats_menuTitle');
+    const sectionTitle = t('stats_menuTitle_v2');
 
     const { visibility, id, toggle, index } = useVisibility();
 
