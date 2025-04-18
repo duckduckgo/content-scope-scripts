@@ -23,6 +23,9 @@ The exposed API is a global called contentScopeFeatures and has three methods:
       - 'allowlisted' true if the user has disabled protections.
       - 'domain' the hostname of the site in the URL bar
       - 'enabledFeatures' this is an array of features/ to enable
+- urlChanged
+  - Called when the top frame URL is changed (for Single Page Apps)
+  - Also ensures that path changes for config 'conditional matching' are applied.
 - update
   - Calls the update method on all the features
 

@@ -1183,10 +1183,10 @@
     return unprotectedDomain;
   }
   function computeLimitedSiteObject() {
-    const topLevelHostname = getTabHostname();
+    const tabURL = getTabUrl();
     return {
-      domain: topLevelHostname,
-      url: getTabUrl()?.href || null
+      domain: tabURL?.hostname || null,
+      url: tabURL?.href || null
     };
   }
   function getPlatformVersion(preferences) {
@@ -3650,6 +3650,15 @@
         __privateGet(this, _args).featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
       }
     }
+    /**
+     * Call this when the top URL has changed, to recompute the site object.
+     * This is used to update the path matching for urlPattern.
+     */
+    recomputeSiteObject() {
+      if (__privateGet(this, _args)) {
+        __privateGet(this, _args).site = computeLimitedSiteObject();
+      }
+    }
     get args() {
       return __privateGet(this, _args);
     }
@@ -3903,6 +3912,11 @@
       __privateAdd(this, _messaging);
       /** @type {boolean} */
       __privateAdd(this, _isDebugFlagSet, false);
+      /**
+       * Set this to true if you wish to listen to top level URL changes for config matching.
+       * @type {boolean}
+       */
+      __publicField(this, "listenForUrlChanges", false);
       /** @type {ImportMeta} */
       __privateAdd(this, _importConfig);
       this.setArgs(this.args);
@@ -6562,16 +6576,12 @@
       } else {
         applyRules(activeRules);
       }
-      const historyMethodProxy = new DDGProxy(this, History.prototype, "pushState", {
-        apply(target, thisArg, args) {
-          applyRules(activeRules);
-          return DDGReflect.apply(target, thisArg, args);
-        }
-      });
-      historyMethodProxy.overload();
-      window.addEventListener("popstate", () => {
-        applyRules(activeRules);
-      });
+      this.activeRules = activeRules;
+    }
+    urlChanged() {
+      if (this.activeRules) {
+        this.applyRules(this.activeRules);
+      }
     }
     /**
      * Apply relevant hiding rules to page at set intervals
@@ -6626,6 +6636,10 @@
   // src/features/api-manipulation.js
   init_define_import_meta_trackerLookup();
   var ApiManipulation = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "listenForUrlChanges", true);
+    }
     init() {
       const apiChanges = this.getFeatureSetting("apiChanges");
       if (apiChanges) {
@@ -6637,6 +6651,9 @@
           this.applyApiChange(scope, change);
         }
       }
+    }
+    urlChanged() {
+      this.init();
     }
     /**
      * Checks if the config API change is valid.
@@ -6763,6 +6780,44 @@
     ddg_feature_apiManipulation: ApiManipulation
   };
 
+  // src/url-change.js
+  init_define_import_meta_trackerLookup();
+  var urlChangeListeners = /* @__PURE__ */ new Set();
+  function registerForURLChanges(listener) {
+    if (urlChangeListeners.size === 0) {
+      listenForURLChanges();
+    }
+    urlChangeListeners.add(listener);
+  }
+  function handleURLChange() {
+    for (const listener of urlChangeListeners) {
+      listener();
+    }
+  }
+  function listenForURLChanges() {
+    const urlChangedInstance = new ContentFeature("urlChanged", {}, {});
+    if ("navigation" in globalThis && "addEventListener" in globalThis.navigation) {
+      globalThis.navigation.addEventListener("navigatesuccess", () => {
+        handleURLChange();
+      });
+      return;
+    }
+    if (isBeingFramed()) {
+      return;
+    }
+    const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, "pushState", {
+      apply(target, thisArg, args) {
+        const changeResult = DDGReflect.apply(target, thisArg, args);
+        handleURLChange();
+        return changeResult;
+      }
+    });
+    historyMethodProxy.overload();
+    window.addEventListener("popstate", () => {
+      handleURLChange();
+    });
+  }
+
   // src/content-scope-features.js
   var initArgs = null;
   var updates = [];
@@ -6803,6 +6858,12 @@
     resolvedFeatures.forEach(({ featureInstance: featureInstance2, featureName }) => {
       if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
         featureInstance2.callInit(args);
+        if (featureInstance2.listenForUrlChanges || featureInstance2.urlChanged) {
+          registerForURLChanges(() => {
+            featureInstance2.recomputeSiteObject();
+            featureInstance2?.urlChanged();
+          });
+        }
       }
     });
     while (updates.length) {

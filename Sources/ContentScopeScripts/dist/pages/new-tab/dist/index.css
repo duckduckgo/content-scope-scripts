@@ -1591,6 +1591,9 @@ body[data-animate-background=true] {
 .Tile_draggable:hover {
   transform: scale(1.08);
 }
+[data-theme=dark] .Tile_draggable {
+  border: 1px solid var(--color-white-at-9);
+}
 [data-theme=dark] .Tile_draggable:hover {
   background: rgba(0, 0, 0, 0.24);
 }

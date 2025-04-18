@@ -1,5 +1,5 @@
 import { immutableJSONPatch } from 'immutable-json-patch';
-import { camelcase, computeEnabledFeatures, matchHostname, parseFeatureSettings } from './utils.js';
+import { camelcase, computeEnabledFeatures, matchHostname, parseFeatureSettings, computeLimitedSiteObject } from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
 export default class ConfigFeature {
@@ -26,6 +26,16 @@ export default class ConfigFeature {
         if (this.#bundledConfig && this.#args) {
             const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
             this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
+        }
+    }
+
+    /**
+     * Call this when the top URL has changed, to recompute the site object.
+     * This is used to update the path matching for urlPattern.
+     */
+    recomputeSiteObject() {
+        if (this.#args) {
+            this.#args.site = computeLimitedSiteObject();
         }
     }
 

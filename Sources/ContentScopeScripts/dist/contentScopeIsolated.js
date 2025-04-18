@@ -1612,6 +1612,14 @@
     return globalObj;
   }
   var exemptionLists = {};
+  function shouldExemptUrl(type, url) {
+    for (const regex of exemptionLists[type]) {
+      if (regex.test(url)) {
+        return true;
+      }
+    }
+    return false;
+  }
   var debug = false;
   function initStringExemptionLists(args) {
     const { stringExemptionLists } = args;
@@ -1656,6 +1664,42 @@
   }
   function matchHostname(hostname, exceptionDomain) {
     return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`);
+  }
+  var lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
+  function getStackTraceUrls(stack) {
+    const urls = new Set2();
+    try {
+      const errorLines = stack.split("\n");
+      for (const line of errorLines) {
+        const res = line.match(lineTest);
+        if (res) {
+          urls.add(new URL(res[2], location.href));
+        }
+      }
+    } catch (e) {
+    }
+    return urls;
+  }
+  function getStackTraceOrigins(stack) {
+    const urls = getStackTraceUrls(stack);
+    const origins = new Set2();
+    for (const url of urls) {
+      origins.add(url.hostname);
+    }
+    return origins;
+  }
+  function shouldExemptMethod(type) {
+    if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
+      return false;
+    }
+    const stack = getStack();
+    const errorFiles = getStackTraceUrls(stack);
+    for (const path of errorFiles) {
+      if (shouldExemptUrl(type, path.href)) {
+        return true;
+      }
+    }
+    return false;
   }
   function isFeatureBroken(args, feature) {
     return isPlatformSpecificFeature(feature) ? !args.site.enabledFeatures.includes(feature) : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
@@ -1722,6 +1766,112 @@
         return defaultValue;
     }
   }
+  function getStack() {
+    return new Error3().stack;
+  }
+  function debugSerialize(argsArray) {
+    const maxSerializedSize = 1e3;
+    const serializedArgs = argsArray.map((arg) => {
+      try {
+        const serializableOut = JSON.stringify(arg);
+        if (serializableOut.length > maxSerializedSize) {
+          return `<truncated, length: ${serializableOut.length}, value: ${serializableOut.substring(0, maxSerializedSize)}...>`;
+        }
+        return serializableOut;
+      } catch (e) {
+        return "<unserializable>";
+      }
+    });
+    return JSON.stringify(serializedArgs);
+  }
+  var DDGProxy = class {
+    /**
+     * @param {import('./content-feature').default} feature
+     * @param {P} objectScope
+     * @param {string} property
+     * @param {ProxyObject<P>} proxyObject
+     */
+    constructor(feature, objectScope, property, proxyObject) {
+      this.objectScope = objectScope;
+      this.property = property;
+      this.feature = feature;
+      this.featureName = feature.name;
+      this.camelFeatureName = camelcase(this.featureName);
+      const outputHandler = (...args) => {
+        this.feature.addDebugFlag();
+        const isExempt = shouldExemptMethod(this.camelFeatureName);
+        if (debug) {
+          postDebugMessage(this.camelFeatureName, {
+            isProxy: true,
+            action: isExempt ? "ignore" : "restrict",
+            kind: this.property,
+            documentUrl: document.location.href,
+            stack: getStack(),
+            args: debugSerialize(args[2])
+          });
+        }
+        if (isExempt) {
+          return DDGReflect.apply(args[0], args[1], args[2]);
+        }
+        return proxyObject.apply(...args);
+      };
+      const getMethod = (target, prop, receiver) => {
+        this.feature.addDebugFlag();
+        if (prop === "toString") {
+          const method = Reflect.get(target, prop, receiver).bind(target);
+          Object.defineProperty(method, "toString", {
+            value: String.toString.bind(String.toString),
+            enumerable: false
+          });
+          return method;
+        }
+        return DDGReflect.get(target, prop, receiver);
+      };
+      this._native = objectScope[property];
+      const handler = {};
+      handler.apply = outputHandler;
+      handler.get = getMethod;
+      this.internal = new globalObj.Proxy(objectScope[property], handler);
+    }
+    // Actually apply the proxy to the native property
+    overload() {
+      this.objectScope[this.property] = this.internal;
+    }
+    overloadDescriptor() {
+      this.feature.defineProperty(this.objectScope, this.property, {
+        value: this.internal,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+    }
+  };
+  var maxCounter = /* @__PURE__ */ new Map();
+  function numberOfTimesDebugged(feature) {
+    if (!maxCounter.has(feature)) {
+      maxCounter.set(feature, 1);
+    } else {
+      maxCounter.set(feature, maxCounter.get(feature) + 1);
+    }
+    return maxCounter.get(feature);
+  }
+  var DEBUG_MAX_TIMES = 5e3;
+  function postDebugMessage(feature, message, allowNonDebug = false) {
+    if (!debug && !allowNonDebug) {
+      return;
+    }
+    if (numberOfTimesDebugged(feature) > DEBUG_MAX_TIMES) {
+      return;
+    }
+    if (message.stack) {
+      const scriptOrigins = [...getStackTraceOrigins(message.stack)];
+      message.scriptOrigins = scriptOrigins;
+    }
+    globalObj.postMessage({
+      action: feature,
+      message
+    });
+  }
   var DDGPromise = globalObj.Promise;
   var DDGReflect = globalObj.Reflect;
   function isUnprotectedDomain(topLevelHostname, featureList) {
@@ -1738,10 +1888,10 @@
     return unprotectedDomain;
   }
   function computeLimitedSiteObject() {
-    const topLevelHostname = getTabHostname();
+    const tabURL = getTabUrl();
     return {
-      domain: topLevelHostname,
-      url: getTabUrl()?.href || null
+      domain: tabURL?.hostname || null,
+      url: tabURL?.href || null
     };
   }
   function getPlatformVersion(preferences) {
@@ -4205,6 +4355,15 @@
         __privateGet(this, _args).featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
       }
     }
+    /**
+     * Call this when the top URL has changed, to recompute the site object.
+     * This is used to update the path matching for urlPattern.
+     */
+    recomputeSiteObject() {
+      if (__privateGet(this, _args)) {
+        __privateGet(this, _args).site = computeLimitedSiteObject();
+      }
+    }
     get args() {
       return __privateGet(this, _args);
     }
@@ -4458,6 +4617,11 @@
       __privateAdd(this, _messaging);
       /** @type {boolean} */
       __privateAdd(this, _isDebugFlagSet, false);
+      /**
+       * Set this to true if you wish to listen to top level URL changes for config matching.
+       * @type {boolean}
+       */
+      __publicField(this, "listenForUrlChanges", false);
       /** @type {ImportMeta} */
       __privateAdd(this, _importConfig);
       this.setArgs(this.args);
@@ -13414,6 +13578,44 @@
     ddg_feature_favicon: favicon_default
   };
 
+  // src/url-change.js
+  init_define_import_meta_trackerLookup();
+  var urlChangeListeners = /* @__PURE__ */ new Set();
+  function registerForURLChanges(listener) {
+    if (urlChangeListeners.size === 0) {
+      listenForURLChanges();
+    }
+    urlChangeListeners.add(listener);
+  }
+  function handleURLChange() {
+    for (const listener of urlChangeListeners) {
+      listener();
+    }
+  }
+  function listenForURLChanges() {
+    const urlChangedInstance = new ContentFeature("urlChanged", {}, {});
+    if ("navigation" in globalThis && "addEventListener" in globalThis.navigation) {
+      globalThis.navigation.addEventListener("navigatesuccess", () => {
+        handleURLChange();
+      });
+      return;
+    }
+    if (isBeingFramed()) {
+      return;
+    }
+    const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, "pushState", {
+      apply(target, thisArg, args) {
+        const changeResult = DDGReflect.apply(target, thisArg, args);
+        handleURLChange();
+        return changeResult;
+      }
+    });
+    historyMethodProxy.overload();
+    window.addEventListener("popstate", () => {
+      handleURLChange();
+    });
+  }
+
   // src/content-scope-features.js
   var initArgs = null;
   var updates = [];
@@ -13454,6 +13656,12 @@
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
       if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
         featureInstance.callInit(args);
+        if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
+          registerForURLChanges(() => {
+            featureInstance.recomputeSiteObject();
+            featureInstance?.urlChanged();
+          });
+        }
       }
     });
     while (updates.length) {
