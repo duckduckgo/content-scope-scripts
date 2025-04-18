@@ -117,7 +117,6 @@ test.describe('Broker Protection Captcha', () => {
                 await dbp.navigatesTo(imageCaptchaTargetPage);
                 await dbp.receivesInlineAction(createGetImageCaptchaInfoAction({ selector: '#svg-captcha-rendering svg' }));
                 const sucessResponse = await dbp.getSuccessResponse();
-
                 dbp.isCaptchaMatch(sucessResponse, { captchaType: 'image', targetPage: imageCaptchaTargetPage });
             });
 
