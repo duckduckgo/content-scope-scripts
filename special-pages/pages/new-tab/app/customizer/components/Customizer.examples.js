@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { noop } from '../../utils.js';
 import { CustomizerButton } from './CustomizerMenu.js';
-import { EmbeddedVisibilityMenu, VisibilityMenu } from './VisibilityMenu.js';
+import { EmbeddedVisibilityMenu } from './VisibilityMenu.js';
 import { BackgroundSection } from './BackgroundSection.js';
 import { ColorSelection } from './ColorSelection.js';
 import { GradientSelection } from './GradientSelection.js';
@@ -67,27 +67,6 @@ export const customizerExamples = {
         factory: () => (
             <MaxContent>
                 <CustomizerButton isOpen={true} kind="menu" />
-                <br />
-                <VisibilityMenu
-                    rows={[
-                        {
-                            id: 'favorites',
-                            title: 'Favorites',
-                            icon: 'star',
-                            toggle: noop('toggle favorites'),
-                            visibility: 'hidden',
-                            index: 0,
-                        },
-                        {
-                            id: 'privacyStats',
-                            title: 'Privacy Stats',
-                            icon: 'shield',
-                            toggle: noop('toggle favorites'),
-                            visibility: 'visible',
-                            index: 1,
-                        },
-                    ]}
-                />
                 <br />
                 <div style="width: 206px; border: 1px dotted black">
                     <EmbeddedVisibilityMenu

@@ -7,7 +7,7 @@ export class Settings {
      */
     constructor({
         platform = { name: 'macos' },
-        customizerDrawer = { state: 'disabled', autoOpen: false },
+        customizerDrawer = { state: 'enabled', autoOpen: false },
         adBlocking = { state: 'disabled' },
     }) {
         this.platform = platform;

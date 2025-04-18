@@ -515,16 +515,15 @@ export function mockTransport() {
                         widgetConfigFromStorage.push({ id: 'activity', visibility: 'visible' });
                     }
 
+                    initial.customizer = customizerData();
+
                     /** @type {import('../types/new-tab').NewTabPageSettings} */
-                    const settings = {};
+                    const settings = {
+                        customizerDrawer: { state: 'enabled' },
+                    };
 
-                    if (url.searchParams.get('customizerDrawer') === 'enabled') {
-                        settings.customizerDrawer = { state: 'enabled' };
-                        if (url.searchParams.get('autoOpen') === 'true') {
-                            settings.customizerDrawer.autoOpen = true;
-                        }
-
-                        initial.customizer = customizerData();
+                    if (url.searchParams.get('autoOpen') === 'true' && settings.customizerDrawer) {
+                        settings.customizerDrawer.autoOpen = true;
                     }
 
                     if (url.searchParams.get('adBlocking') === 'enabled') {

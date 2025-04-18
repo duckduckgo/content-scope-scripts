@@ -66,7 +66,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ap = new ActivityPage(page, ntp);
             const customizer = new CustomizerPage(ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { feed: 'activity', customizerDrawer: 'enabled' } });
+            await ntp.openPage({ additional: { feed: 'activity' } });
             await ap.didRender();
             await customizer.opensCustomizer();
             await expect(page).toHaveScreenshot('wide-default-drawer.png', { maxDiffPixels });

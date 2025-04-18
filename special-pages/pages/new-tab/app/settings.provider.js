@@ -21,14 +21,6 @@ export function useCustomizerDrawerSettings() {
 }
 
 /**
- * @returns {"menu" | "drawer"}
- */
-export function useCustomizerKind() {
-    const settings = useContext(SettingsContext).settings;
-    return settings.customizerDrawer.state === 'enabled' ? 'drawer' : 'menu';
-}
-
-/**
  * @returns {boolean}
  */
 export function useBatchedActivityApi() {

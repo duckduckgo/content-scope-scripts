@@ -4,18 +4,19 @@ import { CustomizerPage } from '../app/customizer/integration-tests/customizer.p
 
 test.describe('newtab widgets', () => {
     test('widget config single click', async ({ page }, workerInfo) => {
+        await page.clock.install();
+
         const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
         await ntp.reducedMotion();
         await ntp.openPage();
-
-        // menu
-        await page.getByRole('button', { name: 'Customize' }).click();
+        await cp.opensCustomizer();
 
         // hide
-        await page.locator('label').filter({ hasText: 'Blocked Tracking Attempts' }).click();
+        await page.getByRole('switch', { name: 'Toggle Protection Stats' }).uncheck();
 
         // debounced
-        await page.waitForTimeout(500);
+        await page.clock.fastForward(501);
 
         // verify the single sync call, where one is hidden
         const outgoing = await ntp.mocks.outgoing({ names: ['widgets_setConfig'] });
@@ -90,7 +91,7 @@ test.describe('newtab widgets', () => {
                     },
                     {
                         id: 'privacyStats',
-                        title: 'Blocked Tracking Attempts',
+                        title: 'Protection Stats',
                     },
                 ],
             },
@@ -115,7 +116,7 @@ test.describe('newtab widgets', () => {
         test('with overrides from initial setup (light)', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh', customizerDrawer: 'enabled' } });
+            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh' } });
             await ntp.waitForCustomizer();
             await page.pause();
             await ntp.hasBackgroundColor({ hex: '#E9EBEC' });
@@ -124,7 +125,7 @@ test.describe('newtab widgets', () => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
             await ntp.darkMode();
-            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh', customizerDrawer: 'enabled' } });
+            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh' } });
             await ntp.waitForCustomizer();
             await ntp.hasBackgroundColor({ hex: '#27282A' });
         });

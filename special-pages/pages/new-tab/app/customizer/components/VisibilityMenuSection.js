@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState } from 'preact/hooks';
-import { CustomizerMenu, getItems } from './CustomizerMenu.js';
+import { getItems, UPDATE_EVENT } from './CustomizerMenu.js';
 import { EmbeddedVisibilityMenu } from './VisibilityMenu.js';
 import { h } from 'preact';
 
@@ -13,9 +13,9 @@ export function VisibilityMenuSection() {
             setRowData(getItems());
         }
 
-        window.addEventListener(CustomizerMenu.UPDATE_EVENT, handler);
+        window.addEventListener(UPDATE_EVENT, handler);
         return () => {
-            window.removeEventListener(CustomizerMenu.UPDATE_EVENT, handler);
+            window.removeEventListener(UPDATE_EVENT, handler);
         };
     }, []);
 
