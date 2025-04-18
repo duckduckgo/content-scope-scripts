@@ -503,7 +503,6 @@ export function mockTransport() {
                         env: 'development',
                         locale: 'en',
                         updateNotification,
-                        defaultStyles: getDefaultStyles(),
                     };
 
                     const feed = url.searchParams.get('feed') || 'stats';
@@ -543,20 +542,6 @@ export function mockTransport() {
             }
         },
     });
-}
-
-/**
- * @returns {import("../types/new-tab.js").DefaultStyles | null}
- */
-function getDefaultStyles() {
-    if (url.searchParams.get('defaultStyles') === 'visual-refresh') {
-        // https://app.asana.com/0/1201141132935289/1209349703167198/f
-        return {
-            lightBackgroundColor: '#E9EBEC',
-            darkBackgroundColor: '#27282A',
-        };
-    }
-    return null;
 }
 
 /**

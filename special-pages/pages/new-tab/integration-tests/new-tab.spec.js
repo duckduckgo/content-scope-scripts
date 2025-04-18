@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { NewtabPage } from './new-tab.page.js';
+import { CustomizerPage } from '../app/customizer/integration-tests/customizer.page.js';
 
 test.describe('newtab widgets', () => {
     test('widget config single click', async ({ page }, workerInfo) => {
@@ -114,17 +115,37 @@ test.describe('newtab widgets', () => {
         test('with overrides from initial setup (light)', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh' } });
+            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh', customizerDrawer: 'enabled' } });
             await ntp.waitForCustomizer();
+            await page.pause();
             await ntp.hasBackgroundColor({ hex: '#E9EBEC' });
         });
         test('with overrides from initial setup (dark)', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
             await ntp.darkMode();
-            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh' } });
+            await ntp.openPage({ additional: { defaultStyles: 'visual-refresh', customizerDrawer: 'enabled' } });
             await ntp.waitForCustomizer();
             await ntp.hasBackgroundColor({ hex: '#27282A' });
+        });
+        test('with pushed updated theme value (light)', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const cp = new CustomizerPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({});
+            await ntp.waitForCustomizer();
+            await cp.acceptsThemeUpdateWithDefaults('light', { darkBackgroundColor: '#000000', lightBackgroundColor: '#ffffff' });
+            await ntp.hasBackgroundColor({ hex: '#ffffff' });
+        });
+        test('with pushed updated theme value (dark)', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const cp = new CustomizerPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.darkMode();
+            await ntp.openPage({});
+            await ntp.waitForCustomizer();
+            await cp.acceptsThemeUpdateWithDefaults('dark', { darkBackgroundColor: '#000000', lightBackgroundColor: '#ffffff' });
+            await ntp.hasBackgroundColor({ hex: '#000000' });
         });
     });
 });

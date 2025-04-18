@@ -191,6 +191,17 @@ export class CustomizerPage {
     }
 
     /**
+     * @param {'light' | 'dark'} theme
+     * @param {import("../../../types/new-tab.js").DefaultStyles} defaultStyles
+     */
+    async acceptsThemeUpdateWithDefaults(theme, defaultStyles) {
+        /** @type {import('../../../types/new-tab.js').ThemeData} */
+        const payload = { theme, defaultStyles };
+        /** @type {SubscriptionEventNames} */
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onThemeUpdate'), payload);
+    }
+
+    /**
      * @param {string} color
      */
     async acceptsColorUpdate(color) {
