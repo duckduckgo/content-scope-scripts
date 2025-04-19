@@ -546,10 +546,10 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * Used to inialize extension code in the load phase
  */
 export function computeLimitedSiteObject() {
-    const topLevelHostname = getTabHostname();
+    const tabURL = getTabUrl();
     return {
-        domain: topLevelHostname,
-        url: getTabUrl()?.href || null,
+        domain: tabURL?.hostname || null,
+        url: tabURL?.href || null,
     };
 }
 

@@ -7,6 +7,16 @@
   "properties": {
     "theme": {
       "$ref": "./browser-theme.json"
+    },
+    "defaultStyles": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "./default-styles.json"
+        }
+      ]
     }
   }
 }
