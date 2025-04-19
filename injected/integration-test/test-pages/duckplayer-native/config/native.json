@@ -1,0 +1,19 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "duckPlayerNative": {
+        "state": "enabled",
+        "exceptions": [],
+        "settings": {
+            "selectors": {
+                "errorContainer": "body",
+                "signInRequiredError": "[href*=\"//support.google.com/youtube/answer/3037019\"]",
+                "videoElement": "#player video",
+                "videoElementContainer": "#player .html5-video-player",
+                "youtubeError": ".ytp-error"
+            },
+            "domains": []
+        }
+    }
+  }
+}
