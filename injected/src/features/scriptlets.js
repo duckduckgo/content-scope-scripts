@@ -25,29 +25,30 @@ export class Scriptlets extends ContentFeature {
     }
 
     runScriptlet(scriptlet, source) {
+        const attrs = scriptlet.attrs;
         if (scriptlet.name === 'trustedSetAttr') {
-            trustedSetAttr(source, scriptlet.selector, scriptlet.attr, scriptlet.value);
+            trustedSetAttr(source, attrs.selector, attrs.attr, attrs.value);
         }
         if (scriptlet.name === 'setCookie') {
-            setCookie(source, scriptlet.name, scriptlet.value, scriptlet.path, scriptlet.domain);
+            setCookie(source, attrs.name, attrs.value, attrs.path, attrs.domain);
         }
         if (scriptlet.name === 'removeCookie') {
-            removeCookie(source, scriptlet.match);
+            removeCookie(source, attrs.match);
         }
         if (scriptlet.name === 'setConstant') {
-            setConstant(source, scriptlet.property, scriptlet.value, scriptlet.stack, scriptlet.valueWrapper, scriptlet.setProxyTrap);
+            setConstant(source, attrs.property, attrs.value, attrs.stack, attrs.valueWrapper, attrs.setProxyTrap);
         }
         if (scriptlet.name === 'replaceNodeText') {
-            replaceNodeText(source, scriptlet.node, scriptlet.pattern, scriptlet.replacement);
+            replaceNodeText(source, attrs.node, attrs.pattern, attrs.replacement);
         }
         if (scriptlet.name === 'abortCurrentInlineScript') {
-            abortCurrentInlineScript(source, scriptlet.property, scriptlet.search);
+            abortCurrentInlineScript(source, attrs.property, attrs.search);
         }
         if (scriptlet.name === 'abortOnPropertyRead') {
-            abortOnPropertyRead(source, scriptlet.property)
+            abortOnPropertyRead(source, attrs.property)
         }
         if (scriptlet.name === 'abortOnPropertyWrite') {
-            abortOnPropertyWrite(source, scriptlet.property)
+            abortOnPropertyWrite(source, attrs.property)
         }
     }
 }
