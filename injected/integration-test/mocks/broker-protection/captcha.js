@@ -108,7 +108,7 @@ export function createSolveImageCaptchaAction(actionOverrides = {}) {
 export function createSolveCloudFlareCaptchaAction(actionOverrides = {}) {
     return createSolveCaptchaAction({
         action: {
-            captchaType: 'image',
+            captchaType: 'cloudFlareTurnstile',
             ...actionOverrides,
         },
     });

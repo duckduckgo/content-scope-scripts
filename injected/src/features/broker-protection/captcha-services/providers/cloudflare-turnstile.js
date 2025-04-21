@@ -1,8 +1,7 @@
 import { getElementByTagName, getElementWithSrcStart } from '../../utils/utils';
 import { safeCallWithError } from '../../utils/safe-call';
-import { getSiteKeyFromAttribute } from '../utils/sitekey';
+import { getAttributeValue } from '../utils/attribute';
 import { injectTokenIntoElement } from '../utils/token';
-import { getCallbackFromAttribute } from '../utils/callback';
 import { stringifyFunction } from '../utils/stringify-function';
 import { PirError } from '../../types';
 
@@ -22,11 +21,11 @@ export class CloudFlareTurnstileProvider {
      */
     #config;
 
-    /**
-     * @param {CloudFlareTurnstileProviderConfig} config
-     */
-    constructor(config) {
-        this.#config = config;
+    constructor() {
+        this.#config = {
+            providerUrl: 'https://challenges.cloudflare.com/turnstile/v0',
+            responseElementName: 'cf-turnstile-response',
+        };
     }
 
     getType() {
@@ -51,7 +50,7 @@ export class CloudFlareTurnstileProvider {
         const sitekeyAttribute = 'data-sitekey';
 
         return Promise.resolve(
-            safeCallWithError(() => getSiteKeyFromAttribute({ captchaContainerElement, siteKeyAttrName: sitekeyAttribute }), {
+            safeCallWithError(() => getAttributeValue({ element: captchaContainerElement, attrName: sitekeyAttribute }), {
                 errorMessage: `[CloudFlareTurnstileProvider.getCaptchaIdentifier] could not extract site key from attribute: ${sitekeyAttribute}`,
             }),
         );
@@ -68,18 +67,19 @@ export class CloudFlareTurnstileProvider {
     canSolve(captchaContainerElement) {
         const callbackAttribute = 'data-callback';
 
-        const hasCallback = safeCallWithError(
-            () => getCallbackFromAttribute({ captchaContainerElement, callbackAttrName: callbackAttribute }),
-            {
-                errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not extract callback function name from attribute: ${callbackAttribute}`,
-            },
-        );
+        const hasCallback = safeCallWithError(() => getAttributeValue({ element: captchaContainerElement, attrName: callbackAttribute }), {
+            errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not extract callback function name from attribute: ${callbackAttribute}`,
+        });
+
+        if (PirError.isError(hasCallback)) {
+            return false;
+        }
 
         const hasResponseElement = safeCallWithError(() => getElementByTagName(captchaContainerElement, this.#config.responseElementName), {
             errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not find response element: ${this.#config.responseElementName}`,
         });
 
-        if (PirError.isError(hasCallback) || PirError.isError(hasResponseElement)) {
+        if (PirError.isError(hasResponseElement)) {
             return false;
         }
 

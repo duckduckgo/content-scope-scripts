@@ -21,13 +21,7 @@ captchaFactory.registerProvider(
     }),
 );
 
-captchaFactory.registerProvider(
-    new CloudFlareTurnstileProvider({
-        providerUrl: 'https://challenges.cloudflare.com/turnstile/v0',
-        responseElementName: 'cf-turnstile-response',
-    }),
-);
-
+captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
 captchaFactory.registerProvider(new ImageProvider());
 
 export { captchaFactory };
