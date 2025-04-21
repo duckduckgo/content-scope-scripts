@@ -102,7 +102,7 @@ export class CloudFlareTurnstileProvider {
         const callbackAttribute = 'data-callback';
 
         const callbackFunctionName = safeCallWithError(
-            () => getCallbackFromAttribute({ captchaContainerElement, callbackAttrName: callbackAttribute }),
+            () => getAttributeValue({ element: captchaContainerElement, attrName: callbackAttribute }),
             {
                 errorMessage: `[CloudFlareTurnstileProvider.getSolveCallback] could not extract callback function name from attribute: ${callbackAttribute}`,
             },
