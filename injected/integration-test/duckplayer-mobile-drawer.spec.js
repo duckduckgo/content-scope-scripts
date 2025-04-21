@@ -15,6 +15,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.gotoPlayerPage();
 
             // watch here = overlays removed
+            await overlays.mobile.drawerIsPresented();
             await overlays.mobile.choosesWatchHere();
             await overlays.mobile.overlayIsRemoved();
             await overlays.pixels.sendsPixels([
@@ -34,6 +35,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.gotoPlayerPage();
 
             // watch here = overlays removed
+            await overlays.mobile.drawerIsPresented();
             await overlays.mobile.selectsRemember();
             await overlays.mobile.choosesWatchHere();
             await overlays.mobile.overlayIsRemoved();
@@ -54,6 +56,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
 
+            await overlays.mobile.drawerIsPresented();
             await overlays.mobile.choosesDuckPlayer();
             await overlays.pixels.sendsPixels([
                 { pixelName: 'overlay', params: {} },
@@ -72,6 +75,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
 
+            await overlays.mobile.drawerIsPresented();
             await overlays.mobile.selectsRemember();
             await overlays.mobile.choosesDuckPlayer();
             await overlays.pixels.sendsPixels([
