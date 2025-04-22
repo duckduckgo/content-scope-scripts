@@ -67,7 +67,7 @@ export async function getCaptchaInfo(action, root = document) {
         return createError(captchaContainer.error.message);
     }
 
-    const captchaProvider = getCaptchaProvider(captchaContainer, captchaType);
+    const captchaProvider = getCaptchaProvider(root, captchaContainer, captchaType);
     if (PirError.isError(captchaProvider)) {
         return createError(captchaProvider.error.message);
     }
@@ -75,6 +75,10 @@ export async function getCaptchaInfo(action, root = document) {
     const captchaIdentifier = await captchaProvider.getCaptchaIdentifier(captchaContainer);
     if (!captchaIdentifier) {
         return createError(`could not extract captcha identifier from the container with selector ${selector}`);
+    }
+
+    if (PirError.isError(captchaIdentifier)) {
+        return createError(captchaIdentifier.error.message);
     }
 
     const response = {

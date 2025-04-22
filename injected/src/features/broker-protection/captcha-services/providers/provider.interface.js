@@ -17,10 +17,11 @@ export class CaptchaProvider {
     /**
      * Checks if this provider supports the given element
      * @abstract
+     * @param {Document | HTMLElement} _root
      * @param {HTMLElement} _captchaContainerElement - The element containing the captcha
      * @returns {boolean} True if this provider can handle the element
      */
-    isSupportedForElement(_captchaContainerElement) {
+    isSupportedForElement(_root, _captchaContainerElement) {
         throw new Error('isSupportedForElement() missing implementation');
     }
 
