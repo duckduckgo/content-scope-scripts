@@ -2,6 +2,13 @@ import { immutableJSONPatch } from 'immutable-json-patch';
 import { camelcase, computeEnabledFeatures, matchHostname, parseFeatureSettings, computeLimitedSiteObject } from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
+/**
+ * This class is extended by each feature to implement remote config handling:
+ * - Parsing the remote config, with conditional logic applied,
+ * - Providing API for features to check if they are enabled,
+ * - Providing API for features to get their config.
+ * - For external scripts, it provides API to update the site object for the feature, e.g when the URL has changed.
+ */
 export default class ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     #bundledConfig;
