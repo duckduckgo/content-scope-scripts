@@ -36,9 +36,10 @@ export class ReCaptchaProvider {
     }
 
     /**
+     * @param {Document | HTMLElement} _root
      * @param {HTMLElement} captchaContainerElement
      */
-    isSupportedForElement(captchaContainerElement) {
+    isSupportedForElement(_root, captchaContainerElement) {
         return !!this._getCaptchaElement(captchaContainerElement);
     }
 

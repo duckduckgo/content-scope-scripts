@@ -12986,11 +12986,12 @@
     }
     /**
      * Detect the captcha provider based on the element
+     * @param {Document | HTMLElement} root
      * @param {HTMLElement} element - The element to check
      * @returns {import('./providers/provider.interface').CaptchaProvider|null}
      */
-    detectProvider(element) {
-      return this._getAllProviders().find((provider) => provider.isSupportedForElement(element)) || null;
+    detectProvider(root, element) {
+      return this._getAllProviders().find((provider) => provider.isSupportedForElement(root, element)) || null;
     }
     /**
      * Detect the captcha provider based on the root document
@@ -13151,9 +13152,10 @@
       return __privateGet(this, _config).type;
     }
     /**
+     * @param {Document | HTMLElement} _root
      * @param {HTMLElement} captchaContainerElement
      */
-    isSupportedForElement(captchaContainerElement) {
+    isSupportedForElement(_root, captchaContainerElement) {
       return !!this._getCaptchaElement(captchaContainerElement);
     }
     /**
@@ -13254,9 +13256,10 @@
       return "image";
     }
     /**
+     * @param {Document | HTMLElement} _root
      * @param {HTMLElement} captchaImageElement - The captcha image element
      */
-    isSupportedForElement(captchaImageElement) {
+    isSupportedForElement(_root, captchaImageElement) {
       if (!captchaImageElement) {
         return false;
       }
@@ -13312,6 +13315,125 @@
     return isElementType(element, "img");
   }
 
+  // src/features/broker-protection/captcha-services/providers/cloudflare-turnstile.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/broker-protection/captcha-services/utils/attribute.js
+  init_define_import_meta_trackerLookup();
+  function getAttributeValue({ element, attrName }) {
+    if (!element) {
+      throw Error("[getAttributeValue] element parameter is required");
+    }
+    const attributeValue = element.getAttribute(attrName);
+    if (!attributeValue) {
+      throw Error(`[getAttributeValue] ${attrName} is not defined or has no value`);
+    }
+    return attributeValue;
+  }
+
+  // src/features/broker-protection/captcha-services/providers/cloudflare-turnstile.js
+  var _config2;
+  var CloudFlareTurnstileProvider = class {
+    constructor() {
+      /**
+       * @type {CloudFlareTurnstileProviderConfig}
+       */
+      __privateAdd(this, _config2);
+      __privateSet(this, _config2, {
+        providerUrl: "https://challenges.cloudflare.com/turnstile/v0",
+        responseElementName: "cf-turnstile-response"
+      });
+    }
+    getType() {
+      return "cloudFlareTurnstile";
+    }
+    /**
+     * @param {Document | HTMLElement} root
+     * @param {HTMLElement} _captchaContainerElement
+     * @returns {boolean} Whether the captcha is supported for the element
+     */
+    isSupportedForElement(root, _captchaContainerElement) {
+      return !!this._getCaptchaScript(root);
+    }
+    /**
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     */
+    getCaptchaIdentifier(captchaContainerElement) {
+      const sitekeyAttribute = "data-sitekey";
+      return Promise.resolve(
+        safeCallWithError(() => getAttributeValue({ element: captchaContainerElement, attrName: sitekeyAttribute }), {
+          errorMessage: `[CloudFlareTurnstileProvider.getCaptchaIdentifier] could not extract site key from attribute: ${sitekeyAttribute}`
+        })
+      );
+    }
+    getSupportingCodeToInject() {
+      return null;
+    }
+    /**
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @returns {boolean} Whether the captcha can be solved
+     */
+    canSolve(captchaContainerElement) {
+      const callbackAttribute = "data-callback";
+      const hasCallback = safeCallWithError(() => getAttributeValue({ element: captchaContainerElement, attrName: callbackAttribute }), {
+        errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not extract callback function name from attribute: ${callbackAttribute}`
+      });
+      if (PirError.isError(hasCallback)) {
+        return false;
+      }
+      const hasResponseElement = safeCallWithError(() => getElementByTagName(captchaContainerElement, __privateGet(this, _config2).responseElementName), {
+        errorMessage: `[CloudFlareTurnstileProvider.canSolve] could not find response element: ${__privateGet(this, _config2).responseElementName}`
+      });
+      if (PirError.isError(hasResponseElement)) {
+        return false;
+      }
+      return true;
+    }
+    /**
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {string} token - The solved captcha token
+     */
+    injectToken(captchaContainerElement, token) {
+      return injectTokenIntoElement({ captchaContainerElement, elementName: __privateGet(this, _config2).responseElementName, token });
+    }
+    /**
+     * @param {HTMLElement} captchaContainerElement - The element containing the captcha
+     * @param {string} token - The solved captcha token
+     */
+    getSolveCallback(captchaContainerElement, token) {
+      const callbackAttribute = "data-callback";
+      const callbackFunctionName = safeCallWithError(
+        () => getAttributeValue({ element: captchaContainerElement, attrName: callbackAttribute }),
+        {
+          errorMessage: `[CloudFlareTurnstileProvider.getSolveCallback] could not extract callback function name from attribute: ${callbackAttribute}`
+        }
+      );
+      if (PirError.isError(callbackFunctionName)) {
+        return callbackFunctionName;
+      }
+      return stringifyFunction({
+        /**
+         * @param {Object} args - The arguments passed to the function
+         * @param {string} args.callbackFunctionName - The callback function name
+         * @param {string} args.token - The solved captcha token
+         */
+        functionBody: function cloudflareCaptchaCallback(args) {
+          window[args.callbackFunctionName](args.token);
+        },
+        functionName: "cloudflareCaptchaCallback",
+        args: { callbackFunctionName, token }
+      });
+    }
+    /**
+     * @private
+     * @param {Document | HTMLElement} root - The root element to search in
+     */
+    _getCaptchaScript(root) {
+      return getElementWithSrcStart(root, __privateGet(this, _config2).providerUrl);
+    }
+  };
+  _config2 = new WeakMap();
+
   // src/features/broker-protection/captcha-services/providers/registry.js
   var captchaFactory = new CaptchaFactory();
   captchaFactory.registerProvider(
@@ -13328,18 +13450,19 @@
       responseElementName: "g-recaptcha-response"
     })
   );
+  captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
   captchaFactory.registerProvider(new ImageProvider());
 
   // src/features/broker-protection/captcha-services/get-captcha-provider.js
-  function getCaptchaProvider(captchaContainer, captchaType) {
+  function getCaptchaProvider(root, captchaContainer, captchaType) {
     const captchaProvider = captchaFactory.getProviderByType(captchaType);
     if (!captchaProvider) {
       return PirError.create(`[getCaptchaProvider] could not find captcha provider with type ${captchaType}`);
     }
-    if (captchaProvider.isSupportedForElement(captchaContainer)) {
+    if (captchaProvider.isSupportedForElement(root, captchaContainer)) {
       return captchaProvider;
     }
-    const detectedProvider = captchaFactory.detectProvider(captchaContainer);
+    const detectedProvider = captchaFactory.detectProvider(root, captchaContainer);
     if (!detectedProvider) {
       return PirError.create(
         `[getCaptchaProvider] could not detect captcha provider for ${captchaType} captcha and element ${captchaContainer}`
@@ -13487,13 +13610,16 @@
     if (PirError.isError(captchaContainer)) {
       return createError(captchaContainer.error.message);
     }
-    const captchaProvider = getCaptchaProvider(captchaContainer, captchaType);
+    const captchaProvider = getCaptchaProvider(root, captchaContainer, captchaType);
     if (PirError.isError(captchaProvider)) {
       return createError(captchaProvider.error.message);
     }
     const captchaIdentifier = await captchaProvider.getCaptchaIdentifier(captchaContainer);
     if (!captchaIdentifier) {
       return createError(`could not extract captcha identifier from the container with selector ${selector}`);
+    }
+    if (PirError.isError(captchaIdentifier)) {
+      return createError(captchaIdentifier.error.message);
     }
     const response = {
       url: removeUrlQueryParams(window.location.href),
