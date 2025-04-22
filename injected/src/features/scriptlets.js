@@ -15,7 +15,9 @@ export class Scriptlets extends ContentFeature {
             return;
         }
         /* @type {import('./Scriptlets/src/scriptlets/scriptlets.ts').Source} */
-        const source = {};
+        const source = {
+            verbose: true
+        };
         // TODO populate source
 
         const scriptlets = this.getFeatureSetting('scriptlets');
