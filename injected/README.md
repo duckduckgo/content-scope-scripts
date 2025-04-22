@@ -34,10 +34,7 @@ The exposed API is a global called contentScopeFeatures and has three methods:
 These files stored in the features directory must include an init function and optionally update and load explained in the features lifecycle.
 
 ### `ConfigFeature` class 
-The [ConfigFeature](https://github.com/duckduckgo/content-scope-scripts/blob/main/injected/src/config-feature.js) class is extended by each feature to implement remote config handling. It is responsible for:
-- Parsing the remote config, with conditional logic applied,
-- Providing API for features to check if they are enabled,
-- Providing API for features to get their config.
+The [ConfigFeature](https://github.com/duckduckgo/content-scope-scripts/blob/main/injected/src/config-feature.js) class is extended by each feature to implement remote config handling. It provides the following methods:
 
 `getFeatureSettingEnabled`
   - For simple boolean settings, return true if the setting is 'enabled'
