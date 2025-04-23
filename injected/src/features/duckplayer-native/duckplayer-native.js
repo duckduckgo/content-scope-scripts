@@ -1,12 +1,11 @@
 import { getCurrentTimestamp } from './get-current-timestamp.js';
-// import { mediaControl } from './media-control.js';
 import { muteAudio } from './mute-audio.js';
 import { serpNotify } from './serp-notify.js';
 import { ErrorDetection } from './error-detection.js';
 import { appendThumbnailOverlay } from './overlays/thumbnail-overlay.js';
 import { stopVideoFromPlaying } from './pause-video.js';
 import { showError } from './custom-error/custom-error.js';
-import { Logger } from './util.js';
+import { Logger, SideEffects } from './util.js';
 
 /**
  * @typedef {object} DuckPlayerNativeSettings
@@ -14,6 +13,7 @@ import { Logger } from './util.js';
  */
 
 export class DuckPlayerNative {
+    sideEffects = new SideEffects();
     /** @type {Logger} */
     logger;
     /** @type {DuckPlayerNativeSettings} */
@@ -22,8 +22,6 @@ export class DuckPlayerNative {
     environment;
     /** @type {import('./messages.js').DuckPlayerNativeMessages} */
     messages;
-    /** @type {(() => void|null)[]} */
-    sideEffects = [];
 
     /**
      * @param {DuckPlayerNativeSettings} settings
@@ -39,8 +37,11 @@ export class DuckPlayerNative {
 
         this.settings = settings;
         this.environment = environment;
-        console.table(environment);
         this.messages = messages;
+    }
+
+    destroy() {
+        this.sideEffects.destroy();
     }
 
     setupLogger() {
@@ -66,8 +67,8 @@ export class DuckPlayerNative {
 
         switch (initialSetup.pageType) {
             case 'YOUTUBE': {
-                this.messages.onMediaControl(this.mediaControlHandler.bind(this));
-                this.messages.onMuteAudio(this.muteAudioHandler.bind(this));
+                this.messages.subscribeToMediaControl(this.mediaControlHandler.bind(this));
+                this.messages.subscribeToMuteAudio(this.muteAudioHandler.bind(this));
                 this.setupTimestampPolling();
                 break;
             }
@@ -77,7 +78,7 @@ export class DuckPlayerNative {
                 break;
             }
             case 'SERP': {
-                this.serpNotifyHandler();
+                this.setupSerpNotify();
                 // TODO: Remove below if not needed anymore
                 // this.messages.onSerpNotify(this.serpNotifyHandler.bind(this));
                 break;
@@ -87,11 +88,6 @@ export class DuckPlayerNative {
                 this.logger.log('Unknown page. Not doing anything.');
             }
         }
-
-        // TODO: Question - when/how does the native side call the teardown handler?
-        return async () => {
-            return await Promise.all(this.sideEffects.map((destroy) => destroy()));
-        };
     }
 
     setupErrorDetection() {
@@ -108,7 +104,7 @@ export class DuckPlayerNative {
             this.logger.log('Received error', errorId);
 
             // Notify the browser of the error
-            this.messages.onYoutubeError(errorId);
+            this.messages.notifyYouTubeError(errorId);
 
             const targetElement = document.querySelector(errorContainer);
             if (targetElement) {
@@ -123,11 +119,14 @@ export class DuckPlayerNative {
             callback: errorHandler,
         };
 
-        const errorDetection = new ErrorDetection(errorDetectionSettings);
-        const destroy = errorDetection.observe();
-        if (destroy) {
-            this.sideEffects.push(destroy);
-        }
+        this.sideEffects.add('setting up error detection', () => {
+            const errorDetection = new ErrorDetection(errorDetectionSettings);
+            const destroy = errorDetection.observe();
+
+            return () => {
+                if (destroy) destroy();
+            };
+        });
     }
 
     /**
@@ -135,13 +134,15 @@ export class DuckPlayerNative {
      * TODO: Can we not brute force this?
      */
     setupTimestampPolling() {
-        const timestampPolling = setInterval(() => {
-            const timestamp = getCurrentTimestamp();
-            this.messages.onCurrentTimestamp(timestamp);
-        }, 300);
+        this.sideEffects.add('started polling current timestamp', () => {
+            const timestampPolling = setInterval(() => {
+                const timestamp = getCurrentTimestamp();
+                this.messages.notifyCurrentTimestamp(timestamp);
+            }, 300);
 
-        this.sideEffects.push(() => {
-            clearInterval(timestampPolling);
+            return () => {
+                clearInterval(timestampPolling);
+            };
         });
     }
 
@@ -161,13 +162,11 @@ export class DuckPlayerNative {
 
         const targetElement = document.querySelector(videoElementContainer);
         if (targetElement) {
-            this.sideEffects.push(
-                stopVideoFromPlaying(videoElement),
+            this.sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
+            this.sideEffects.add('appending thumbnail', () =>
                 appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), this.environment),
             );
         }
-
-        // mediaControl(pause);
     }
 
     /**
@@ -179,9 +178,14 @@ export class DuckPlayerNative {
         muteAudio(mute);
     }
 
-    serpNotifyHandler() {
-        this.logger.log('Running SERP notify handler');
-        serpNotify();
+    setupSerpNotify() {
+        if (document.readyState === 'loading') {
+            this.logger.log('Running SERP notify on load');
+            document.addEventListener('DOMContentLoaded', () => serpNotify());
+        } else {
+            this.logger.log('Running SERP notify immediately');
+            serpNotify();
+        }
     }
 
     currentTimestampHandler() {
