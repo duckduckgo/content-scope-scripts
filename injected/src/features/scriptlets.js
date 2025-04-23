@@ -8,6 +8,12 @@ import { abortCurrentInlineScript } from './Scriptlets/src/scriptlets/abort-curr
 import { abortOnPropertyRead } from './Scriptlets/src/scriptlets/abort-on-property-read.js';
 import { abortOnPropertyWrite } from './Scriptlets/src/scriptlets/abort-on-property-write.js';
 import { trustedReplaceNodeText } from './Scriptlets/src/scriptlets/trusted-replace-node-text.js';
+import { preventAddEventListener } from './Scriptlets/src/scriptlets/prevent-addEventListener.js';
+import { preventWindowOpen } from './Scriptlets/src/scriptlets/prevent-window-open.js';
+import { preventSetTimeout } from './Scriptlets/src/scriptlets/prevent-setTimeout.js';
+import { removeNodeText } from './Scriptlets/src/scriptlets/remove-node-text.js';
+import { preventFetch } from './Scriptlets/src/scriptlets/prevent-fetch.js';
+import { disableNewtabLinks } from './Scriptlets/src/scriptlets/disable-newtab-links.js';
 
 export class Scriptlets extends ContentFeature {
     init() {
@@ -51,6 +57,24 @@ export class Scriptlets extends ContentFeature {
         }
         if (scriptlet.name === 'abortOnPropertyWrite') {
             abortOnPropertyWrite(source, attrs.property)
+        }
+        if (scriptlet.name === 'preventAddEventListener') {
+            preventAddEventListener(source, attrs.typeSearch, attrs.listenerSearch, attrs.additionalArgName, attrs.additionalArgValue);
+        }
+        if (scriptlet.name === 'preventWindowOpen') {
+            preventWindowOpen(source, attrs.match, attrs.delay, attrs.replacement);
+        }
+        if (scriptlet.name === 'preventSetTimeout') {
+            preventSetTimeout(source, attrs.matchCallback, attrs.matchDelay);
+        }
+        if (scriptlet.name === 'removeNodeText') {
+            removeNodeText(source, attrs.nodeName, attrs.textMatch, attrs.parentSelector);
+        }
+        if (scriptlet.name === 'preventFetch') {
+            preventFetch(source, attrs.propsToMatch, attrs.responseBody, attrs.responseType);
+        }
+        if (scriptlet.name === 'disableNewtabLinks') {
+            disableNewtabLinks(source);
         }
     }
 }
