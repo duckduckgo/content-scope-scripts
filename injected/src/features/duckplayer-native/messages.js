@@ -48,7 +48,7 @@ export class DuckPlayerNativeMessages {
      * Notifies with current timestamp
      * @param {number} timestamp
      */
-    onCurrentTimestamp(timestamp) {
+    notifyCurrentTimestamp(timestamp) {
         return this.messaging.notify(constants.MSG_NAME_CURRENT_TIMESTAMP, { timestamp });
     }
 
@@ -56,7 +56,7 @@ export class DuckPlayerNativeMessages {
      * Subscribe to media control events
      * @param {(mediaControlSettings: mediaControlSettings) => void} callback
      */
-    onMediaControl(callback) {
+    subscribeToMediaControl(callback) {
         return this.messaging.subscribe(constants.MSG_NAME_MEDIA_CONTROL, callback);
     }
 
@@ -64,7 +64,7 @@ export class DuckPlayerNativeMessages {
      * Subscribe to mute audio events
      * @param {(muteSettings: muteSettings) => void} callback
      */
-    onMuteAudio(callback) {
+    subscribeToMuteAudio(callback) {
         return this.messaging.subscribe(constants.MSG_NAME_MUTE_AUDIO, callback);
     }
 
@@ -72,15 +72,15 @@ export class DuckPlayerNativeMessages {
      * Subscribe to serp proxy events
      * @param {() => void} callback
      */
-    onSerpNotify(callback) {
+    subscribeToSerpNotify(callback) {
         return this.messaging.subscribe(constants.MSG_NAME_SERP_NOTIFY, callback);
     }
 
     /**
      * Notifies browser of YouTube error
-     * @param {string} error
+     * @param {import('./error-detection.js').YouTubeError} error
      */
-    onYoutubeError(error) {
+    notifyYouTubeError(error) {
         this.messaging.notify(constants.MSG_NAME_YOUTUBE_ERROR, { error });
     }
 }
