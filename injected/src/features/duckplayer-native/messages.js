@@ -1,5 +1,7 @@
 import * as constants from './constants.js';
 
+/** @import {YouTubeError} from './error-detection.js' */
+
 /**
  * @typedef {object} muteSettings - Settings passed to the onMute callback
  * @property {boolean} mute - Set to true to mute the video, false to unmute
@@ -69,16 +71,8 @@ export class DuckPlayerNativeMessages {
     }
 
     /**
-     * Subscribe to serp proxy events
-     * @param {() => void} callback
-     */
-    subscribeToSerpNotify(callback) {
-        return this.messaging.subscribe(constants.MSG_NAME_SERP_NOTIFY, callback);
-    }
-
-    /**
      * Notifies browser of YouTube error
-     * @param {import('./error-detection.js').YouTubeError} error
+     * @param {YouTubeError} error
      */
     notifyYouTubeError(error) {
         this.messaging.notify(constants.MSG_NAME_YOUTUBE_ERROR, { error });

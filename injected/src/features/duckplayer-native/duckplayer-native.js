@@ -8,6 +8,13 @@ import { showError } from './custom-error/custom-error.js';
 import { Logger, SideEffects } from './util.js';
 
 /**
+ * @import {DuckPlayerNativeMessages} from './messages.js'
+ * @import {Environment} from './environment.js'
+ * @import {ErrorDetectionSettings} from './error-detection.js'
+ * @import {InitialSettings} from '../duck-player-native.js'
+ */
+
+/**
  * @typedef {object} DuckPlayerNativeSettings
  * @property {import("@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js").DuckPlayerNativeSettings['selectors']} selectors
  */
@@ -18,15 +25,15 @@ export class DuckPlayerNative {
     logger;
     /** @type {DuckPlayerNativeSettings} */
     settings;
-    /** @type {import('./environment.js').Environment} */
+    /** @type {Environment} */
     environment;
-    /** @type {import('./messages.js').DuckPlayerNativeMessages} */
+    /** @type {DuckPlayerNativeMessages} */
     messages;
 
     /**
      * @param {DuckPlayerNativeSettings} settings
      * @param {import('./environment.js').Environment} environment
-     * @param {import('./messages.js').DuckPlayerNativeMessages} messages
+     * @param {DuckPlayerNativeMessages} messages
      */
     constructor(settings, environment, messages) {
         if (!settings || !environment || !messages) {
@@ -52,7 +59,9 @@ export class DuckPlayerNative {
     }
 
     async init() {
-        /** @type {import("../duck-player-native.js").InitialSettings} */
+        /** @type {(() => void)[]} */
+        const onLoad = [];
+        /** @type {InitialSettings} */
         let initialSetup;
 
         // TODO: This seems to get initted twice. Check with Daniel
@@ -69,24 +78,42 @@ export class DuckPlayerNative {
             case 'YOUTUBE': {
                 this.messages.subscribeToMediaControl(this.mediaControlHandler.bind(this));
                 this.messages.subscribeToMuteAudio(this.muteAudioHandler.bind(this));
-                this.setupTimestampPolling();
+                onLoad.push(() => this.setupTimestampPolling());
                 break;
             }
             case 'NOCOOKIE': {
-                this.setupTimestampPolling();
-                this.setupErrorDetection();
+                onLoad.push(() => {
+                    this.setupErrorDetection();
+                    this.setupTimestampPolling();
+                });
                 break;
             }
             case 'SERP': {
-                this.setupSerpNotify();
-                // TODO: Remove below if not needed anymore
-                // this.messages.onSerpNotify(this.serpNotifyHandler.bind(this));
+                onLoad.push(() => {
+                    serpNotify();
+                });
                 break;
             }
             case 'UNKNOWN':
             default: {
                 this.logger.log('Unknown page. Not doing anything.');
             }
+        }
+
+        if (document.readyState === 'loading') {
+            this.sideEffects.add('setting up load event listener', () => {
+                const loadHandler = () => {
+                    onLoad.forEach((callback) => callback());
+                };
+                document.addEventListener('DOMContentLoaded', loadHandler);
+
+                return () => {
+                    document.removeEventListener('DOMContentLoaded', loadHandler);
+                };
+            });
+        } else {
+            this.logger.log('Running load handlers immediately');
+            onLoad.forEach((callback) => callback());
         }
     }
 
@@ -112,7 +139,7 @@ export class DuckPlayerNative {
             }
         };
 
-        /** @type {import('./error-detection.js').ErrorDetectionSettings} */
+        /** @type {ErrorDetectionSettings} */
         const errorDetectionSettings = {
             selectors: this.settings.selectors,
             testMode: this.environment.isTestMode(),
@@ -176,16 +203,6 @@ export class DuckPlayerNative {
     muteAudioHandler({ mute }) {
         this.logger.log('Running mute audio handler. Mute:', mute);
         muteAudio(mute);
-    }
-
-    setupSerpNotify() {
-        if (document.readyState === 'loading') {
-            this.logger.log('Running SERP notify on load');
-            document.addEventListener('DOMContentLoaded', () => serpNotify());
-        } else {
-            this.logger.log('Running SERP notify immediately');
-            serpNotify();
-        }
     }
 
     currentTimestampHandler() {
