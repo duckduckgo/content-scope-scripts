@@ -77,7 +77,9 @@ export class DuckPlayerNative {
                 break;
             }
             case 'SERP': {
-                this.messages.onSerpNotify(this.serpNotifyHandler.bind(this));
+                this.serpNotifyHandler();
+                // TODO: Remove below if not needed anymore
+                // this.messages.onSerpNotify(this.serpNotifyHandler.bind(this));
                 break;
             }
             case 'UNKNOWN':
