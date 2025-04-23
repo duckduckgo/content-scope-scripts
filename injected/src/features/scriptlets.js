@@ -4,10 +4,10 @@ import { trustedSetAttr } from './Scriptlets/src/scriptlets/trusted-set-attr.js'
 import { setCookie } from './Scriptlets/src/scriptlets/set-cookie.js';
 import { removeCookie } from './Scriptlets/src/scriptlets/remove-cookie.js';
 import { setConstant } from './Scriptlets/src/scriptlets/set-constant.js';
-import { replaceNodeText } from './Scriptlets/src/helpers/node-text-utils.js';
 import { abortCurrentInlineScript } from './Scriptlets/src/scriptlets/abort-current-inline-script.js';
 import { abortOnPropertyRead } from './Scriptlets/src/scriptlets/abort-on-property-read.js';
 import { abortOnPropertyWrite } from './Scriptlets/src/scriptlets/abort-on-property-write.js';
+import { trustedReplaceNodeText } from './Scriptlets/src/scriptlets/trusted-replace-node-text.js';
 
 export class Scriptlets extends ContentFeature {
     init() {
@@ -40,8 +40,8 @@ export class Scriptlets extends ContentFeature {
         if (scriptlet.name === 'setConstant') {
             setConstant(source, attrs.property, attrs.value, attrs.stack, attrs.valueWrapper, attrs.setProxyTrap);
         }
-        if (scriptlet.name === 'replaceNodeText') {
-            replaceNodeText(source, attrs.node, attrs.pattern, attrs.replacement);
+        if (scriptlet.name === 'trustedReplaceNodeText') {
+            trustedReplaceNodeText(source, attrs.nodeName, attrs.textMatch, attrs.pattern, attrs.replacement, ...attrs.extraArgs);
         }
         if (scriptlet.name === 'abortCurrentInlineScript') {
             abortCurrentInlineScript(source, attrs.property, attrs.search);
