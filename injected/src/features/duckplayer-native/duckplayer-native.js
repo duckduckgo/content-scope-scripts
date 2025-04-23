@@ -20,7 +20,8 @@ import { Logger, SideEffects } from './util.js';
  */
 
 export class DuckPlayerNative {
-    sideEffects = new SideEffects();
+    /** @type {SideEffects} */
+    sideEffects;
     /** @type {Logger} */
     logger;
     /** @type {DuckPlayerNativeSettings} */
@@ -45,6 +46,9 @@ export class DuckPlayerNative {
         this.settings = settings;
         this.environment = environment;
         this.messages = messages;
+        this.sideEffects = new SideEffects({
+            debug: environment.isTestMode(),
+        });
     }
 
     destroy() {
@@ -68,7 +72,7 @@ export class DuckPlayerNative {
         try {
             initialSetup = await this.messages.initialSetup();
         } catch (e) {
-            console.error(e);
+            this.logger.error(e);
             return;
         }
 
@@ -122,7 +126,7 @@ export class DuckPlayerNative {
         const errorContainer = this.settings.selectors?.errorContainer;
         const signInRequiredError = this.settings.selectors?.signInRequiredError;
         if (!errorContainer || !signInRequiredError) {
-            console.warn('Missing error selectors in configuration');
+            this.logger.warn('Missing error selectors in configuration');
             return;
         }
 
@@ -183,7 +187,7 @@ export class DuckPlayerNative {
         const videoElement = this.settings.selectors?.videoElement;
         const videoElementContainer = this.settings.selectors?.videoElementContainer;
         if (!videoElementContainer || !videoElement) {
-            console.warn('Missing media control selectors in config');
+            this.logger.warn('Missing media control selectors in config');
             return;
         }
 
