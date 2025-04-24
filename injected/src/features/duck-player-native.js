@@ -19,20 +19,17 @@ export class DuckPlayerNativeFeature extends ContentFeature {
     init(args) {
         console.log('DUCK PLAYER NATIVE LOADING', args);
 
-        // TODO: Should we keep this?
+        // TODO: May depend on page type
         /**
          * This feature never operates in a frame
          */
         // if (isBeingFramed()) return;
 
         /**
-         * @type {import("@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js").DuckPlayerNativeSettings}
+         * @type {import("@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js").DuckPlayerNativeSettings['selectors']}
          */
-        const settings =
-            this.getFeatureSetting('settings') ||
-            args?.featureSettings?.duckPlayerNative?.settings ||
-            args?.featureSettings?.duckPlayerNative; // TODO: Why doesn't it work with just getFeatureSettings?
-        console.log('DUCK PLAYER NATIVE SELECTORS', settings?.selectors);
+        const selectors = this.getFeatureSetting('selectors');
+        console.log('DUCK PLAYER NATIVE SELECTORS', selectors);
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
@@ -42,13 +39,16 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             locale,
         });
 
+        // TODO: Decide which feature to run
+
         if (env.isIntegrationMode()) {
             // TODO: Better way than patching transport?
             this.messaging.transport = mockTransport();
         }
 
         const comms = new DuckPlayerNativeMessages(this.messaging);
-        const duckPlayerNative = new DuckPlayerNative(settings, env, comms);
+        // @ts-expect-error TODO: Fix this
+        const duckPlayerNative = new DuckPlayerNative({ selectors }, env, comms);
         duckPlayerNative.init();
     }
 }
