@@ -230,6 +230,50 @@ export class OnboardingPage {
 
     async skippedBookmarksBar() {
         await this.skippedCurrent();
+        await this.page.getByRole('switch', { name: 'Show Bookmarks Bar' }).waitFor();
+        const calls = await this.mocks.outgoing({ names: ['setBookmarksBar'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setBookmarksBar',
+                    params: { enabled: false },
+                },
+            },
+        ]);
+    }
+
+    async skippedSessionRestore() {
+        await this.skippedCurrent();
+        await this.page.getByRole('switch', { name: 'Enable Session Restore' }).waitFor();
+        const calls = await this.mocks.outgoing({ names: ['setSessionRestore'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setSessionRestore',
+                    params: { enabled: false },
+                },
+            },
+        ]);
+    }
+
+    async skippedShowHomeButton() {
+        await this.skippedCurrent();
+        await this.page.getByRole('switch', { name: 'Show Home Button' }).waitFor();
+        const calls = await this.mocks.outgoing({ names: ['setShowHomeButton'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setShowHomeButton',
+                    params: { enabled: false },
+                },
+            },
+        ]);
     }
 
     async canToggleBookmarksBar() {
@@ -252,6 +296,16 @@ export class OnboardingPage {
         // now check the outgoing messages
         const calls = await this.mocks.outgoing({ names: ['setBookmarksBar'] });
         expect(calls).toMatchObject([
+            // initial call from skipping:
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setBookmarksBar',
+                    params: { enabled: false },
+                },
+            },
+            // subsequent calls from toggling:
             {
                 payload: {
                     context: 'specialPages',
@@ -308,6 +362,16 @@ export class OnboardingPage {
         // now check the outgoing messages
         const calls = await this.mocks.outgoing({ names: ['setSessionRestore'] });
         expect(calls).toMatchObject([
+            // initial call from skipping:
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setSessionRestore',
+                    params: { enabled: false },
+                },
+            },
+            // subsequent calls from toggling:
             {
                 payload: {
                     context: 'specialPages',
@@ -347,6 +411,16 @@ export class OnboardingPage {
         // now check the outgoing messages
         const calls = await this.mocks.outgoing({ names: ['setShowHomeButton'] });
         expect(calls).toMatchObject([
+            // initial call from skipping:
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setShowHomeButton',
+                    params: { enabled: false },
+                },
+            },
+            // subsequent calls from toggling:
             {
                 payload: {
                     context: 'specialPages',
@@ -397,7 +471,21 @@ export class OnboardingPage {
         await this.didSetAdBlocking();
     }
 
-    async didSetAdBlocking() {
+    async skipAdBlocking() {
+        const { page } = this;
+        await this.skippedCurrent();
+        await page.getByRole('button', { name: 'Import' }).waitFor();
+        await this.didSetAdBlocking({ enabled: false }); // important that setAdBlocking() is called when skipped so that native apps can fire a pixel
+    }
+
+    async skipYouTubeAdBlocking() {
+        const { page } = this;
+        await this.skippedCurrent();
+        await page.getByRole('button', { name: 'Import' }).waitFor();
+        await this.didSetAdBlocking({ enabled: false }); // important that setAdBlocking() is called when skipped so that native apps can fire a pixel
+    }
+
+    async didSetAdBlocking({ enabled = true } = {}) {
         const calls = await this.mocks.outgoing({ names: ['setAdBlocking'] });
         expect(calls).toMatchObject([
             {
@@ -405,7 +493,7 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setAdBlocking',
-                    params: { enabled: true },
+                    params: { enabled },
                 },
             },
         ]);
