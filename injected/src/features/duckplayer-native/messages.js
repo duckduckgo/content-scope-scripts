@@ -47,8 +47,8 @@ export class DuckPlayerNativeMessages {
     }
 
     /**
-     * Notifies with current timestamp
-     * @param {number} timestamp
+     * Notifies with current timestamp as a string
+     * @param {string} timestamp
      */
     notifyCurrentTimestamp(timestamp) {
         return this.messaging.notify(constants.MSG_NAME_CURRENT_TIMESTAMP, { timestamp });

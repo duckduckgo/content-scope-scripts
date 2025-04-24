@@ -15,6 +15,8 @@ import { Logger, SideEffects } from './util.js';
  * @import {DuckPlayerNativeSettings} from "@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js"
  */
 
+// TODO: Split this into mutually-exclusive classes
+
 export class DuckPlayerNative {
     /** @type {SideEffects} */
     sideEffects;
@@ -164,7 +166,7 @@ export class DuckPlayerNative {
         this.sideEffects.add('started polling current timestamp', () => {
             const timestampPolling = setInterval(() => {
                 const timestamp = getCurrentTimestamp();
-                this.messages.notifyCurrentTimestamp(timestamp);
+                this.messages.notifyCurrentTimestamp(timestamp.toFixed(0));
             }, 300);
 
             return () => {
@@ -203,10 +205,5 @@ export class DuckPlayerNative {
     muteAudioHandler({ mute }) {
         this.logger.log('Running mute audio handler. Mute:', mute);
         muteAudio(mute);
-    }
-
-    currentTimestampHandler() {
-        this.logger.log('Running current timestamp handler');
-        getCurrentTimestamp();
     }
 }
