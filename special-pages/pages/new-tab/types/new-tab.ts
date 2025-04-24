@@ -742,7 +742,7 @@ export interface WidgetListItem {
 }
 export interface NewTabPageSettings {
   customizerDrawer?: {
-    state: "enabled" | "disabled";
+    state: "enabled";
     /**
      * Should the customizer drawer be opened on page load?
      */
