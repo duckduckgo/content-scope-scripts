@@ -43,7 +43,7 @@ export function getSupportingCodeToInject(action) {
         return createError(`could not find captchaProvider with type ${captchaType}`);
     }
 
-    return SuccessResponse.create({ actionID, actionType, response: { code: captchaProvider.getSupportingCodeToInject() } });
+    return SuccessResponse.create({ actionID, actionType, response: { injectedCode: captchaProvider.getSupportingCodeToInject() } });
 }
 
 /**
