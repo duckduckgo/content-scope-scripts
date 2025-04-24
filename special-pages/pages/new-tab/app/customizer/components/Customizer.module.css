@@ -1,22 +1,7 @@
-.root {
-    position: relative
-}
-
 .lowerRightFixed {
     position: absolute;
     bottom: 1rem;
     right: 1rem;
-}
-
-.dropdownMenu {
-    display: none;
-    position: absolute;
-    right: 0;
-    bottom: calc(100% + 10px);
-}
-
-.show {
-    display: block;
 }
 
 /** todo: is this a re-usable button, yet? */
