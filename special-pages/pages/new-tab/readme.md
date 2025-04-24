@@ -22,7 +22,6 @@ URL parameters can be used to override the default values of the New Tab Page's 
 - `favorites` - Specifies which Favorites mock dataset to use. Expects a key from `favorites.data.js` (e.g., `many`, `none`) or a number to generate that many mock favorites.
 - `favorites.config.expansion` - If set to `expanded`, sets the initial state of the Favorites widget to be expanded.
 - `feed` - Controls which primary feed widget(s) are included in the initial setup. Can be `stats`, `activity`, or `both`. Defaults to `stats`.
-- `customizerDrawer` - If set to `enabled`, enables the Customizer feature flag in the initial setup.
-- `autoOpen` - If `customizerDrawer` is `enabled` and this parameter is `true`, sets the `autoOpen` flag for the customizer drawer in the initial setup.
+- `autoOpen` - Sets the `autoOpen` flag for the customizer drawer in the initial setup.
 - `defaultStyles` - If set to `visual-refresh`, applies specific background color variables (`--default-light-background-color`, `--default-dark-background-color`) to the body.
 - `adBlocking` - If set to `enabled`, configures the Activity and Privacy Stats widgets to indicate that both ads and trackers are blocked.
