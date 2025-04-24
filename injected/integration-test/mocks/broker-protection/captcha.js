@@ -47,6 +47,18 @@ export function createGetImageCaptchaInfoAction(actionOverrides = {}) {
 }
 
 /**
+ * @param {Partial<PirAction>} [actionOverrides]
+ */
+export function createGetCloudFlareCaptchaInfoAction(actionOverrides = {}) {
+    return createGetCaptchaInfoAction({
+        action: {
+            captchaType: 'cloudFlareTurnstile',
+            ...actionOverrides,
+        },
+    });
+}
+
+/**
  * @param {object} params
  * @param {Omit<PirAction, 'id' | 'actionType'>} params.action
  * @param {Record<string, any>} [params.data]
@@ -85,6 +97,18 @@ export function createSolveImageCaptchaAction(actionOverrides = {}) {
     return createSolveCaptchaAction({
         action: {
             captchaType: 'image',
+            ...actionOverrides,
+        },
+    });
+}
+
+/**
+ * @param {Partial<PirAction>} [actionOverrides]
+ */
+export function createSolveCloudFlareCaptchaAction(actionOverrides = {}) {
+    return createSolveCaptchaAction({
+        action: {
+            captchaType: 'cloudFlareTurnstile',
             ...actionOverrides,
         },
     });
