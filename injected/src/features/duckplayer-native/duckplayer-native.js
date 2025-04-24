@@ -12,11 +12,7 @@ import { Logger, SideEffects } from './util.js';
  * @import {Environment} from './environment.js'
  * @import {ErrorDetectionSettings} from './error-detection.js'
  * @import {InitialSettings} from '../duck-player-native.js'
- */
-
-/**
- * @typedef {object} DuckPlayerNativeSettings
- * @property {import("@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js").DuckPlayerNativeSettings['selectors']} selectors
+ * @import {DuckPlayerNativeSettings} from "@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js"
  */
 
 export class DuckPlayerNative {
