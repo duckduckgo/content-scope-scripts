@@ -33,7 +33,7 @@ export class Scriptlets extends ContentFeature {
     }
 
     runScriptlet(scriptlet, source) {
-        const attrs = scriptlet.attrs;
+        const attrs = scriptlet.attrs || {};
         if (scriptlet.name === 'trustedSetAttr') {
             trustedSetAttr(source, attrs.selector, attrs.attr, attrs.value);
         }
