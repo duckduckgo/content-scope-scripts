@@ -2,20 +2,20 @@ import ContentFeature from '../content-feature.js';
 // import { isBeingFramed } from '../utils.js';
 import { DuckPlayerNativeMessages } from './duckplayer-native/messages.js';
 import { mockTransport } from './duckplayer-native/mock-transport.js';
-import { DuckPlayerNative } from './duckplayer-native/duckplayer-native.js';
+import { setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/duckplayer-native.js';
 import { Environment } from './duckplayer-native/environment.js';
 
-/**
- * @typedef {'UNKNOWN'|'YOUTUBE'|'NOCOOKIE'|'SERP'} PageType
- */
+/** @import {DuckPlayerNative} from './duckplayer-native/duckplayer-native.js' */
 
 /**
  * @typedef InitialSettings - The initial payload used to communicate render-blocking information
  * @property {string} locale - UI locale
- * @property {PageType} pageType - The type of page that has been loaded
  */
 
 export class DuckPlayerNativeFeature extends ContentFeature {
+    /** @type {DuckPlayerNative} */
+    current;
+
     init(args) {
         console.log('DUCK PLAYER NATIVE LOADING', args);
 
@@ -47,9 +47,37 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         }
 
         const comms = new DuckPlayerNativeMessages(this.messaging);
-        // @ts-expect-error TODO: Fix this
-        const duckPlayerNative = new DuckPlayerNative({ selectors }, env, comms);
-        duckPlayerNative.init();
+        const settings = { selectors };
+
+        comms.subscribeToURLChange((pageType) => {
+            let next;
+
+            switch (pageType) {
+                case 'NOCOOKIE':
+                    next = setupDuckPlayerForNoCookie(settings, env, comms);
+                    break;
+                case 'YOUTUBE':
+                    next = setupDuckPlayerForYouTube(settings, env, comms);
+                    break;
+                case 'SERP':
+                    next = setupDuckPlayerForSerp(settings, env, comms);
+                    break;
+                case 'UNKNOWN':
+                default:
+                    console.warn('No known pageType');
+            }
+
+            if (next) {
+                if (this.current) {
+                    this.current.destroy();
+                }
+                next.init();
+                this.current = next;
+            }
+        });
+
+        /** Fire onReady event */
+        comms.notifyFeatureIsReady();
     }
 }
 
