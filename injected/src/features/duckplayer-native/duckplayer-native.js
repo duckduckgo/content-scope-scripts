@@ -1,4 +1,4 @@
-import { getCurrentTimestamp } from './get-current-timestamp.js';
+import { pollTimestamp } from './get-current-timestamp.js';
 import { muteAudio } from './mute-audio.js';
 import { serpNotify } from './serp-notify.js';
 import { ErrorDetection } from './error-detection.js';
@@ -15,31 +15,45 @@ import { Logger, SideEffects } from './util.js';
  * @import {DuckPlayerNativeSettings} from "@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js"
  */
 
-// TODO: Split this into mutually-exclusive classes
+/**
+ * @typedef {(SideEffects, Logger) => void} CustomEventHandler
+ * @typedef {Pick<DuckPlayerNativeSettings, 'selectors'>} Settings
+ */
+// TODO: Abort controller?
 
 export class DuckPlayerNative {
     /** @type {SideEffects} */
     sideEffects;
     /** @type {Logger} */
     logger;
-    /** @type {DuckPlayerNativeSettings} */
+    /** @type {Settings} */
     settings;
     /** @type {Environment} */
     environment;
     /** @type {DuckPlayerNativeMessages} */
     messages;
+    /** @type {CustomEventHandler} */
+    onInit;
+    /** @type {CustomEventHandler} */
+    onLoad;
 
     /**
-     * @param {DuckPlayerNativeSettings} settings
-     * @param {import('./environment.js').Environment} environment
-     * @param {DuckPlayerNativeMessages} messages
+     * @param {object} options
+     * @param {Settings} options.settings
+     * @param {Environment} options.environment
+     * @param {DuckPlayerNativeMessages} options.messages
+     * @param {CustomEventHandler} [options.onInit]
+     * @param {CustomEventHandler} [options.onLoad]
      */
-    constructor(settings, environment, messages) {
+    constructor({ settings, environment, messages, onInit, onLoad }) {
         if (!settings || !environment || !messages) {
             throw new Error('Missing arguments');
         }
 
         this.setupLogger();
+
+        this.onLoad = onLoad || (() => {});
+        this.onInit = onInit || (() => {});
 
         this.settings = settings;
         this.environment = environment;
@@ -61,8 +75,6 @@ export class DuckPlayerNative {
     }
 
     async init() {
-        /** @type {(() => void)[]} */
-        const onLoad = [];
         /** @type {InitialSettings} */
         let initialSetup;
 
@@ -76,38 +88,15 @@ export class DuckPlayerNative {
 
         this.logger.log('INITIAL SETUP', initialSetup);
 
-        switch (initialSetup.pageType) {
-            case 'YOUTUBE': {
-                this.messages.subscribeToMediaControl(this.mediaControlHandler.bind(this));
-                this.messages.subscribeToMuteAudio(this.muteAudioHandler.bind(this));
-                onLoad.push(() => this.setupTimestampPolling());
-                break;
-            }
-            case 'NOCOOKIE': {
-                onLoad.push(() => {
-                    this.setupErrorDetection();
-                    this.setupTimestampPolling();
-                });
-                break;
-            }
-            case 'SERP': {
-                onLoad.push(() => {
-                    serpNotify();
-                });
-                break;
-            }
-            case 'UNKNOWN':
-            default: {
-                this.logger.log('Unknown page. Not doing anything.');
-            }
-        }
+        this.logger.log('Running init handlers');
+        this.onInit(this.sideEffects, this.logger);
 
         if (document.readyState === 'loading') {
             this.sideEffects.add('setting up load event listener', () => {
                 const loadHandler = () => {
-                    onLoad.forEach((callback) => callback());
+                    this.onLoad(this.sideEffects, this.logger);
                 };
-                document.addEventListener('DOMContentLoaded', loadHandler);
+                document.addEventListener('DOMContentLoaded', loadHandler, { once: true });
 
                 return () => {
                     document.removeEventListener('DOMContentLoaded', loadHandler);
@@ -115,40 +104,106 @@ export class DuckPlayerNative {
             });
         } else {
             this.logger.log('Running load handlers immediately');
-            onLoad.forEach((callback) => callback());
+            this.onLoad(this.sideEffects, this.logger);
         }
     }
+}
 
-    setupErrorDetection() {
-        this.logger.log('Setting up error detection');
-        const errorContainer = this.settings.selectors?.errorContainer;
-        const signInRequiredError = this.settings.selectors?.signInRequiredError;
+/**
+ * @param {Settings} settings
+ * @param {Environment} environment
+ * @param {DuckPlayerNativeMessages} messages
+ */
+export function setupDuckPlayerForYouTube(settings, environment, messages) {
+    const onLoad = (sideEffects) => {
+        sideEffects.add('started polling current timestamp', () => {
+            const handler = (timestamp) => {
+                messages.notifyCurrentTimestamp(timestamp.toFixed(0));
+            };
+
+            return pollTimestamp(300, handler);
+        });
+    };
+
+    const onInit = (sideEffects, logger) => {
+        messages.subscribeToMediaControl(({ pause }) => {
+            logger.log('Running media control handler. Pause:', pause);
+
+            const videoElement = settings.selectors?.videoElement;
+            const videoElementContainer = settings.selectors?.videoElementContainer;
+            if (!videoElementContainer || !videoElement) {
+                logger.warn('Missing media control selectors in config');
+                return;
+            }
+
+            const targetElement = document.querySelector(videoElementContainer);
+            if (targetElement) {
+                sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
+                sideEffects.add('appending thumbnail', () =>
+                    appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), this.environment),
+                );
+            }
+        });
+        messages.subscribeToMuteAudio(({ mute }) => {
+            logger.log('Running mute audio handler. Mute:', mute);
+            muteAudio(mute);
+        });
+    };
+
+    const duckPlayerNative = new DuckPlayerNative({
+        settings,
+        environment,
+        messages,
+        onInit,
+        onLoad,
+    });
+    return duckPlayerNative;
+}
+
+/**
+ * @param {Settings} settings
+ * @param {Environment} environment
+ * @param {DuckPlayerNativeMessages} messages
+ */
+export function setupDuckPlayerForNoCookie(settings, environment, messages) {
+    const onLoad = (sideEffects, logger) => {
+        sideEffects.add('started polling current timestamp', () => {
+            const handler = (timestamp) => {
+                messages.notifyCurrentTimestamp(timestamp.toFixed(0));
+            };
+
+            return pollTimestamp(300, handler);
+        });
+
+        logger.log('Setting up error detection');
+        const errorContainer = settings.selectors?.errorContainer;
+        const signInRequiredError = settings.selectors?.signInRequiredError;
         if (!errorContainer || !signInRequiredError) {
-            this.logger.warn('Missing error selectors in configuration');
+            logger.warn('Missing error selectors in configuration');
             return;
         }
 
         /** @type {(errorId: import('./error-detection.js').YouTubeError) => void} */
         const errorHandler = (errorId) => {
-            this.logger.log('Received error', errorId);
+            logger.log('Received error', errorId);
 
             // Notify the browser of the error
-            this.messages.notifyYouTubeError(errorId);
+            messages.notifyYouTubeError(errorId);
 
             const targetElement = document.querySelector(errorContainer);
             if (targetElement) {
-                showError(/** @type {HTMLElement} */ (targetElement), errorId, this.environment);
+                showError(/** @type {HTMLElement} */ (targetElement), errorId, environment);
             }
         };
 
         /** @type {ErrorDetectionSettings} */
         const errorDetectionSettings = {
-            selectors: this.settings.selectors,
-            testMode: this.environment.isTestMode(),
+            selectors: settings.selectors,
+            testMode: environment.isTestMode(),
             callback: errorHandler,
         };
 
-        this.sideEffects.add('setting up error detection', () => {
+        sideEffects.add('setting up error detection', () => {
             const errorDetection = new ErrorDetection(errorDetectionSettings);
             const destroy = errorDetection.observe();
 
@@ -156,54 +211,32 @@ export class DuckPlayerNative {
                 if (destroy) destroy();
             };
         });
-    }
+    };
 
-    /**
-     * Sends the timestamp to the browser every 300ms
-     * TODO: Can we not brute force this?
-     */
-    setupTimestampPolling() {
-        this.sideEffects.add('started polling current timestamp', () => {
-            const timestampPolling = setInterval(() => {
-                const timestamp = getCurrentTimestamp();
-                this.messages.notifyCurrentTimestamp(timestamp.toFixed(0));
-            }, 300);
+    const duckPlayerNative = new DuckPlayerNative({
+        settings,
+        environment,
+        messages,
+        onLoad,
+    });
+    return duckPlayerNative;
+}
 
-            return () => {
-                clearInterval(timestampPolling);
-            };
-        });
-    }
+/**
+ * @param {Settings} settings
+ * @param {Environment} environment
+ * @param {DuckPlayerNativeMessages} messages
+ */
+export function setupDuckPlayerForSerp(settings, environment, messages) {
+    const onLoad = () => {
+        serpNotify();
+    };
 
-    /**
-     *
-     * @param {import('./messages.js').mediaControlSettings} settings
-     */
-    mediaControlHandler({ pause }) {
-        this.logger.log('Running media control handler. Pause:', pause);
-
-        const videoElement = this.settings.selectors?.videoElement;
-        const videoElementContainer = this.settings.selectors?.videoElementContainer;
-        if (!videoElementContainer || !videoElement) {
-            this.logger.warn('Missing media control selectors in config');
-            return;
-        }
-
-        const targetElement = document.querySelector(videoElementContainer);
-        if (targetElement) {
-            this.sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
-            this.sideEffects.add('appending thumbnail', () =>
-                appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), this.environment),
-            );
-        }
-    }
-
-    /**
-     *
-     * @param {import('./messages.js').muteSettings} settings
-     */
-    muteAudioHandler({ mute }) {
-        this.logger.log('Running mute audio handler. Mute:', mute);
-        muteAudio(mute);
-    }
+    const duckPlayerNative = new DuckPlayerNative({
+        settings,
+        environment,
+        messages,
+        onLoad,
+    });
+    return duckPlayerNative;
 }
