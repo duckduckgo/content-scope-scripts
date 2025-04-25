@@ -49,7 +49,8 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         const comms = new DuckPlayerNativeMessages(this.messaging);
         const settings = { selectors };
 
-        comms.subscribeToURLChange((pageType) => {
+        comms.subscribeToURLChange(({ pageType }) => {
+            console.log('GOT PAGE TYPE', pageType);
             let next;
 
             switch (pageType) {

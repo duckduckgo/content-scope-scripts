@@ -11,9 +11,12 @@ const url = new URL(window.location.href);
 class TestTransport {
     getInitialSetupData() {
         const locale = url.searchParams.get('locale') || 'en';
-        const pageType = url.searchParams.get('pageType') || 'UNKNOWN';
 
-        return { locale, pageType };
+        return { locale };
+    }
+
+    getPageType() {
+        return url.searchParams.get('pageType') || 'UNKNOWN';
     }
 
     notify(_msg) {
@@ -62,7 +65,13 @@ class TestTransport {
                 break;
             case constants.MSG_NAME_SERP_NOTIFY:
                 timeout = 2000;
-        }
+                break;
+            case constants.MSG_NAME_URL_CHANGE:
+                response = { pageType: this.getPageType() };
+                console.log('PAGE TYPE', response);
+                timeout = 100;
+                break;
+            }
 
         const callbackTimeout = setTimeout(() => {
             logger.log('Calling handler for', _msg.subscriptionName);

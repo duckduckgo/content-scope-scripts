@@ -249,7 +249,7 @@
 
         const settingsFile = '/duckplayer-native/config/native.json';
         const settings = await fetch(settingsFile).then(x => x.json())
-        console.log('Settings', settings);
+        console.log('Settings', settings.features['duckPlayerNative']);
 
         document.dispatchEvent(new CustomEvent('content-scope-init-args', {
             detail: {
@@ -266,7 +266,9 @@
                         'duckPlayerNative'
                     ]
                 },
-                featureSettings: settings.features,
+                featureSettings: {
+                    duckPlayerNative: settings.features.duckPlayerNative.settings,
+                }
             }
         }))
     })();
