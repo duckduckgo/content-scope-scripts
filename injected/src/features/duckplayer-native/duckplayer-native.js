@@ -50,6 +50,8 @@ export class DuckPlayerNative {
             throw new Error('Missing arguments');
         }
 
+        console.log('SETTINGS', settings);
+
         this.setupLogger();
 
         this.onLoad = onLoad || (() => {});
