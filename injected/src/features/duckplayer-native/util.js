@@ -118,9 +118,11 @@ export class SideEffects {
 
     /**
      * Remove elements, event listeners etc
+     * @param {string} [name]
      */
-    destroy() {
-        for (const cleanup of this._cleanups) {
+    destroy(name) {
+        const cleanups = name ? this._cleanups.filter(c => c.name === name) : this._cleanups;
+        for (const cleanup of cleanups) {
             if (typeof cleanup.fn === 'function') {
                 try {
                     if (this.debug) {
@@ -134,7 +136,11 @@ export class SideEffects {
                 throw new Error('invalid cleanup');
             }
         }
-        this._cleanups = [];
+        if (name) {
+            this._cleanups = this._cleanups.filter(c => c.name !== name);
+        } else {
+            this._cleanups = [];
+        }
     }
 }
 
