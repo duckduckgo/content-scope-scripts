@@ -71,7 +71,7 @@ class TestTransport {
                 console.log('PAGE TYPE', response);
                 timeout = 100;
                 break;
-            }
+        }
 
         const callbackTimeout = setTimeout(() => {
             logger.log('Calling handler for', _msg.subscriptionName);

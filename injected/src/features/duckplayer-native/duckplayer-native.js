@@ -76,20 +76,7 @@ export class DuckPlayerNative {
         });
     }
 
-    async init() {
-        /** @type {InitialSettings} */
-        let initialSetup;
-
-        // TODO: This seems to get initted twice. Check with Daniel
-        try {
-            initialSetup = await this.messages.initialSetup();
-        } catch (e) {
-            this.logger.error(e);
-            return;
-        }
-
-        this.logger.log('INITIAL SETUP', initialSetup);
-
+    init() {
         this.logger.log('Running init handlers');
         this.onInit(this.sideEffects, this.logger);
 
@@ -108,6 +95,8 @@ export class DuckPlayerNative {
             this.logger.log('Running load handlers immediately');
             this.onLoad(this.sideEffects, this.logger);
         }
+
+        this.messages.notifyFeatureIsReady();
     }
 }
 
@@ -140,12 +129,19 @@ export function setupDuckPlayerForYouTube(settings, environment, messages) {
 
             const targetElement = document.querySelector(videoElementContainer);
             if (targetElement) {
-                sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
-                sideEffects.add('appending thumbnail', () =>
-                    appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), this.environment),
-                );
+
+                if (pause) {
+                    sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
+                    sideEffects.add('appending thumbnail', () =>
+                        appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment),
+                    );
+                } else {
+                    sideEffects.destroy('stopping video from playing');
+                    sideEffects.destroy('appending thumbnail');
+                }
             }
         });
+
         messages.subscribeToMuteAudio(({ mute }) => {
             logger.log('Running mute audio handler. Mute:', mute);
             muteAudio(mute);

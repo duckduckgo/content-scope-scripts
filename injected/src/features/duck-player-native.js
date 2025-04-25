@@ -16,7 +16,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
     /** @type {DuckPlayerNative} */
     current;
 
-    init(args) {
+    async init(args) {
         console.log('DUCK PLAYER NATIVE LOADING', args);
 
         // TODO: May depend on page type
@@ -49,6 +49,20 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         const comms = new DuckPlayerNativeMessages(this.messaging);
         const settings = { selectors };
 
+
+        /** @type {InitialSettings} */
+        let initialSetup;
+
+        // TODO: This seems to get initted twice. Check with Daniel
+        try {
+            initialSetup = await comms.initialSetup();
+        } catch (e) {
+            console.error(e);
+            return;
+        }
+
+        console.log('INITIAL SETUP', initialSetup);
+
         comms.subscribeToURLChange(({ pageType }) => {
             console.log('GOT PAGE TYPE', pageType);
             let next;
@@ -77,9 +91,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
                 this.current = next;
             }
         });
-
-        /** Fire onReady event */
-        comms.notifyFeatureIsReady();
     }
 }
 
