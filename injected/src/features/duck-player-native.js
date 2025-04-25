@@ -49,20 +49,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         const comms = new DuckPlayerNativeMessages(this.messaging);
         const settings = { selectors };
 
-
-        /** @type {InitialSettings} */
-        let initialSetup;
-
-        // TODO: This seems to get initted twice. Check with Daniel
-        try {
-            initialSetup = await comms.initialSetup();
-        } catch (e) {
-            console.error(e);
-            return;
-        }
-
-        console.log('INITIAL SETUP', initialSetup);
-
         comms.subscribeToURLChange(({ pageType }) => {
             console.log('GOT PAGE TYPE', pageType);
             let next;
@@ -91,6 +77,19 @@ export class DuckPlayerNativeFeature extends ContentFeature {
                 this.current = next;
             }
         });
+
+        /** @type {InitialSettings} */
+        let initialSetup;
+
+        // TODO: This seems to get initted twice. Check with Daniel
+        try {
+            initialSetup = await comms.initialSetup();
+        } catch (e) {
+            console.error(e);
+            return;
+        }
+
+        console.log('INITIAL SETUP', initialSetup);
     }
 }
 
