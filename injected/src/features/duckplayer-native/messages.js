@@ -13,6 +13,11 @@ import * as constants from './constants.js';
  */
 
 /**
+ * @typedef {object} urlChangeSettings - Settings passed to the onURLChange callback
+ * @property {PageType} pageType
+ */
+
+/**
  * @typedef {'UNKNOWN'|'YOUTUBE'|'NOCOOKIE'|'SERP'} PageType
  */
 
@@ -76,7 +81,7 @@ export class DuckPlayerNativeMessages {
 
     /**
      * Subscribe to URL change events
-     * @param {(PageType) => void} callback
+     * @param {(urlSettings: urlChangeSettings) => void} callback
      */
     subscribeToURLChange(callback) {
         return this.messaging.subscribe(constants.MSG_NAME_URL_CHANGE, callback);
