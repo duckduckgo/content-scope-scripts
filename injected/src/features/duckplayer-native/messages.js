@@ -100,6 +100,7 @@ export class DuckPlayerNativeMessages {
      * Notifies browser that the feature
      */
     notifyFeatureIsReady() {
+        console.log('FIRING ONDUCKPLAYERREADY');
         this.messaging.notify(constants.MSG_NAME_FEATURE_READY, {});
     }
 }
