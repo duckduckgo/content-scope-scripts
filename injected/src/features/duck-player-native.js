@@ -2,7 +2,7 @@ import ContentFeature from '../content-feature.js';
 // import { isBeingFramed } from '../utils.js';
 import { DuckPlayerNativeMessages } from './duckplayer-native/messages.js';
 import { mockTransport } from './duckplayer-native/mock-transport.js';
-import { setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/duckplayer-native.js';
+import { setupDuckPlayerForEverything, setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/duckplayer-native.js';
 import { Environment } from './duckplayer-native/environment.js';
 
 /** @import {DuckPlayerNative} from './duckplayer-native/duckplayer-native.js' */
@@ -49,24 +49,28 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         const comms = new DuckPlayerNativeMessages(this.messaging);
         const settings = { selectors };
 
+        this.current = setupDuckPlayerForEverything(settings, env, comms);
+
         comms.subscribeToURLChange(({ pageType }) => {
             console.log('GOT PAGE TYPE', pageType);
-            let next;
+            // let next;
+            //
+            // switch (pageType) {
+            //     case 'NOCOOKIE':
+            //         next = setupDuckPlayerForNoCookie(settings, env, comms);
+            //         break;
+            //     case 'YOUTUBE':
+            //         next = setupDuckPlayerForYouTube(settings, env, comms);
+            //         break;
+            //     case 'SERP':
+            //         next = setupDuckPlayerForSerp(settings, env, comms);
+            //         break;
+            //     case 'UNKNOWN':
+            //     default:
+            //         console.warn('No known pageType');
+            // }
 
-            switch (pageType) {
-                case 'NOCOOKIE':
-                    next = setupDuckPlayerForNoCookie(settings, env, comms);
-                    break;
-                case 'YOUTUBE':
-                    next = setupDuckPlayerForYouTube(settings, env, comms);
-                    break;
-                case 'SERP':
-                    next = setupDuckPlayerForSerp(settings, env, comms);
-                    break;
-                case 'UNKNOWN':
-                default:
-                    console.warn('No known pageType');
-            }
+            const next = setupDuckPlayerForEverything(settings, env, comms);
 
             if (next) {
                 console.log('LOADING NEXT INSTANCE', this.current, next);
