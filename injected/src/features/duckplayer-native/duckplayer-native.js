@@ -167,6 +167,104 @@ export function setupDuckPlayerForYouTube(settings, environment, messages) {
  * @param {Environment} environment
  * @param {DuckPlayerNativeMessages} messages
  */
+export function setupDuckPlayerForEverything(settings, environment, messages) {
+    const onLoad = (sideEffects, logger) => {
+        sideEffects.add('started polling current timestamp', () => {
+            const handler = (timestamp) => {
+                messages.notifyCurrentTimestamp(timestamp.toFixed(0));
+            };
+
+            return pollTimestamp(300, handler);
+        });
+
+        const errorContainer = settings.selectors?.errorContainer;
+        const signInRequiredError = settings.selectors?.signInRequiredError;
+        if (!errorContainer || !signInRequiredError) {
+            logger.warn('Missing error selectors in configuration');
+            return;
+        }
+
+        /** @type {(errorId: import('./error-detection.js').YouTubeError) => void} */
+        const errorHandler = (errorId) => {
+            logger.log('Received error', errorId);
+
+            // Notify the browser of the error
+            messages.notifyYouTubeError(errorId);
+
+            const targetElement = document.querySelector(errorContainer);
+            if (targetElement) {
+                showError(/** @type {HTMLElement} */ (targetElement), errorId, environment);
+            }
+        };
+
+        /** @type {ErrorDetectionSettings} */
+        const errorDetectionSettings = {
+            selectors: settings.selectors,
+            testMode: environment.isTestMode(),
+            callback: errorHandler,
+        };
+
+        sideEffects.add('setting up error detection', () => {
+            const errorDetection = new ErrorDetection(errorDetectionSettings);
+            const destroy = errorDetection.observe();
+
+            return () => {
+                if (destroy) destroy();
+            };
+        });
+    };
+
+    const onInit = (sideEffects, logger) => {
+        sideEffects.add('subscribe to media control', () => {
+            return messages.subscribeToMediaControl(({ pause }) => {
+                logger.log('Running media control handler. Pause:', pause);
+
+                const videoElement = settings.selectors?.videoElement;
+                const videoElementContainer = settings.selectors?.videoElementContainer;
+                if (!videoElementContainer || !videoElement) {
+                    logger.warn('Missing media control selectors in config');
+                    return;
+                }
+
+                const targetElement = document.querySelector(videoElementContainer);
+                if (targetElement) {
+
+                    if (pause) {
+                        sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
+                        sideEffects.add('appending thumbnail', () =>
+                            appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment),
+                        );
+                    } else {
+                        sideEffects.destroy('stopping video from playing');
+                        sideEffects.destroy('appending thumbnail');
+                    }
+                }
+            });
+        })
+
+        sideEffects.add('subscribing to mute audio', () => {
+            return messages.subscribeToMuteAudio(({ mute }) => {
+                logger.log('Running mute audio handler. Mute:', mute);
+                muteAudio(mute);
+            });
+        });
+    };
+
+    const duckPlayerNative = new DuckPlayerNative({
+        settings,
+        environment,
+        messages,
+        onInit,
+        onLoad,
+    });
+    return duckPlayerNative;
+}
+
+/**
+ * @param {Settings} settings
+ * @param {Environment} environment
+ * @param {DuckPlayerNativeMessages} messages
+ */
 export function setupDuckPlayerForNoCookie(settings, environment, messages) {
     const onLoad = (sideEffects, logger) => {
         sideEffects.add('started polling current timestamp', () => {
