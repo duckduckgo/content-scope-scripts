@@ -50,6 +50,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         const settings = { selectors };
 
         this.current = setupDuckPlayerForEverything(settings, env, comms);
+        this.current.init();
 
         comms.subscribeToURLChange(({ pageType }) => {
             console.log('GOT PAGE TYPE', pageType);
