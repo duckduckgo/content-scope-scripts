@@ -49,9 +49,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         const comms = new DuckPlayerNativeMessages(this.messaging);
         const settings = { selectors };
 
-        this.current = setupDuckPlayerForEverything(settings, env, comms);
-        this.current.init();
-
         comms.subscribeToURLChange(({ pageType }) => {
             console.log('GOT PAGE TYPE', pageType);
             // let next;
@@ -93,6 +90,9 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             console.error(e);
             return;
         }
+
+        // this.current = setupDuckPlayerForEverything(settings, env, comms);
+        // this.current.init();
 
         console.log('INITIAL SETUP', initialSetup);
     }
