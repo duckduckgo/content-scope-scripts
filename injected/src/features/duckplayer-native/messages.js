@@ -84,6 +84,7 @@ export class DuckPlayerNativeMessages {
      * @param {(urlSettings: urlChangeSettings) => void} callback
      */
     subscribeToURLChange(callback) {
+        console.log('SUBSCRIBING TO URL CHANGE');
         return this.messaging.subscribe(constants.MSG_NAME_URL_CHANGE, callback);
     }
 

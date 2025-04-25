@@ -33,7 +33,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
-            debug: this.isDebug,
+            debug: this.isDebug || true, // TODO: remove
             injectName: import.meta.injectName,
             platform: this.platform,
             locale,
@@ -69,6 +69,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             }
 
             if (next) {
+                console.log('LOADING NEXT INSTANCE', this.current, next);
                 if (this.current) {
                     this.current.destroy();
                 }
