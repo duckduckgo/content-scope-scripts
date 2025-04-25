@@ -117,35 +117,39 @@ export function setupDuckPlayerForYouTube(settings, environment, messages) {
     };
 
     const onInit = (sideEffects, logger) => {
-        messages.subscribeToMediaControl(({ pause }) => {
-            logger.log('Running media control handler. Pause:', pause);
+        sideEffects.add('subscribe to media control', () => {
+            return messages.subscribeToMediaControl(({ pause }) => {
+                logger.log('Running media control handler. Pause:', pause);
 
-            const videoElement = settings.selectors?.videoElement;
-            const videoElementContainer = settings.selectors?.videoElementContainer;
-            if (!videoElementContainer || !videoElement) {
-                logger.warn('Missing media control selectors in config');
-                return;
-            }
-
-            const targetElement = document.querySelector(videoElementContainer);
-            if (targetElement) {
-
-                if (pause) {
-                    sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
-                    sideEffects.add('appending thumbnail', () =>
-                        appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment),
-                    );
-                } else {
-                    sideEffects.destroy('stopping video from playing');
-                    sideEffects.destroy('appending thumbnail');
+                const videoElement = settings.selectors?.videoElement;
+                const videoElementContainer = settings.selectors?.videoElementContainer;
+                if (!videoElementContainer || !videoElement) {
+                    logger.warn('Missing media control selectors in config');
+                    return;
                 }
-            }
-        });
 
-        messages.subscribeToMuteAudio(({ mute }) => {
-            logger.log('Running mute audio handler. Mute:', mute);
-            muteAudio(mute);
-        });
+                const targetElement = document.querySelector(videoElementContainer);
+                if (targetElement) {
+
+                    if (pause) {
+                        sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
+                        sideEffects.add('appending thumbnail', () =>
+                            appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment),
+                        );
+                    } else {
+                        sideEffects.destroy('stopping video from playing');
+                        sideEffects.destroy('appending thumbnail');
+                    }
+                }
+            });
+        })
+
+        sideEffects.add('subscribing to mute audio', () => {
+            return messages.subscribeToMuteAudio(({ mute }) => {
+                logger.log('Running mute audio handler. Mute:', mute);
+                muteAudio(mute);
+            });
+        })
     };
 
     const duckPlayerNative = new DuckPlayerNative({
