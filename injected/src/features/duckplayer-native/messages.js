@@ -13,6 +13,10 @@ import * as constants from './constants.js';
  */
 
 /**
+ * @typedef {'UNKNOWN'|'YOUTUBE'|'NOCOOKIE'|'SERP'} PageType
+ */
+
+/**
  * @import {Messaging} from '@duckduckgo/messaging'
  *
  * A wrapper for all communications.
@@ -71,10 +75,25 @@ export class DuckPlayerNativeMessages {
     }
 
     /**
+     * Subscribe to URL change events
+     * @param {(PageType) => void} callback
+     */
+    subscribeToURLChange(callback) {
+        return this.messaging.subscribe(constants.MSG_NAME_URL_CHANGE, callback);
+    }
+
+    /**
      * Notifies browser of YouTube error
      * @param {YouTubeError} error
      */
     notifyYouTubeError(error) {
         this.messaging.notify(constants.MSG_NAME_YOUTUBE_ERROR, { error });
+    }
+
+    /**
+     * Notifies browser that the feature
+     */
+    notifyFeatureIsReady() {
+        this.messaging.notify(constants.MSG_NAME_FEATURE_READY, {});
     }
 }

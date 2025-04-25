@@ -1,7 +1,7 @@
 import { Logger } from './util';
 
 /**
- * @import {DuckPlayerNativeSettings} from './duckplayer-native'
+ * @import {DuckPlayerNativeSettings} from "@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js"
  * @typedef {"age-restricted" | "sign-in-required" | "no-embed" | "unknown"} YouTubeError
  * @typedef {DuckPlayerNativeSettings['selectors']} DuckPlayerNativeSelectors
  * @typedef {(error: YouTubeError) => void} ErrorDetectionCallback
