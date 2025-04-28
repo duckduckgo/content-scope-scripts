@@ -91,10 +91,10 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             return;
         }
 
+        console.log('INITIAL SETUP', initialSetup);
+
         this.current = setupDuckPlayerForEverything(settings, env, comms);
         this.current.init();
-
-        console.log('INITIAL SETUP', initialSetup);
     }
 }
 
