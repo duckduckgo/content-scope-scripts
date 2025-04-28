@@ -24,10 +24,10 @@
         transform: translateY(0);
 
         &[data-current="welcome"] {
-            transform: translateY(calc(50vh - 288px));
+            transform: translateY(max(50vh - 288px, 0px));
         }
         &[data-current="getStarted"] {
-            transform: translateY(calc(50vh - 288px));
+            transform: translateY(max(50vh - 288px, 0px));
         }
     }
 
