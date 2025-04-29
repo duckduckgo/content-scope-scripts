@@ -66,6 +66,12 @@ export default class DuckPlayerFeature extends ContentFeature {
         if (isBeingFramed()) return;
 
         /**
+         * TODO: Remove this when ready to re-enable Duck Player classic
+         */
+        console.warn('Not initializing Duck Player classic');
+        return;
+
+        /**
          * Just the 'overlays' part of the settings object.
          * @type {import("@duckduckgo/privacy-configuration/schema/features/duckplayer").DuckPlayerSettings['overlays']}
          */

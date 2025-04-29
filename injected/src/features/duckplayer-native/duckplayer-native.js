@@ -96,7 +96,7 @@ export class DuckPlayerNative {
             this.onLoad(this.sideEffects, this.logger);
         }
 
-        this.messages.notifyFeatureIsReady();
+        this.messages.notifyScriptIsReady();
     }
 }
 
