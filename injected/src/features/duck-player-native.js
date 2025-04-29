@@ -51,24 +51,24 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         comms.subscribeToURLChange(({ pageType }) => {
             console.log('GOT PAGE TYPE', pageType);
-            // let next;
-            //
-            // switch (pageType) {
-            //     case 'NOCOOKIE':
-            //         next = setupDuckPlayerForNoCookie(settings, env, comms);
-            //         break;
-            //     case 'YOUTUBE':
-            //         next = setupDuckPlayerForYouTube(settings, env, comms);
-            //         break;
-            //     case 'SERP':
-            //         next = setupDuckPlayerForSerp(settings, env, comms);
-            //         break;
-            //     case 'UNKNOWN':
-            //     default:
-            //         console.warn('No known pageType');
-            // }
+            let next;
 
-            const next = setupDuckPlayerForEverything(settings, env, comms);
+            switch (pageType) {
+                case 'NOCOOKIE':
+                    next = setupDuckPlayerForNoCookie(settings, env, comms);
+                    break;
+                case 'YOUTUBE':
+                    next = setupDuckPlayerForYouTube(settings, env, comms);
+                    break;
+                case 'SERP':
+                    next = setupDuckPlayerForSerp(settings, env, comms);
+                    break;
+                case 'UNKNOWN':
+                default:
+                    console.warn('No known pageType');
+            }
+
+            // const next = setupDuckPlayerForEverything(settings, env, comms);
 
             if (next) {
                 console.log('LOADING NEXT INSTANCE', this.current, next);
@@ -93,8 +93,9 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         console.log('INITIAL SETUP', initialSetup);
 
-        this.current = setupDuckPlayerForEverything(settings, env, comms);
-        this.current.init();
+        comms.notifyFeatureIsReady();
+        // this.current = setupDuckPlayerForEverything(settings, env, comms);
+        // this.current.init();
     }
 }
 
