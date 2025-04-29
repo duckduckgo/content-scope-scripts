@@ -329,6 +329,7 @@ export function setupDuckPlayerForNoCookie(settings, environment, messages) {
  */
 export function setupDuckPlayerForSerp(settings, environment, messages) {
     const onLoad = () => {
+        console.log('SERP NOTIFY');
         serpNotify();
     };
 
