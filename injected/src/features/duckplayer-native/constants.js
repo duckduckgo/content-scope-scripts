@@ -5,4 +5,5 @@ export const MSG_NAME_MUTE_AUDIO = 'onMuteAudio';
 export const MSG_NAME_SERP_NOTIFY = 'onSerpNotify';
 export const MSG_NAME_YOUTUBE_ERROR = 'onYoutubeError';
 export const MSG_NAME_URL_CHANGE = 'onUrlChanged';
-export const MSG_NAME_FEATURE_READY = 'onDuckPlayerReady';
+export const MSG_NAME_FEATURE_READY = 'onDuckPlayerFeatureReady';
+export const MSG_NAME_SCRIPTS_READY = 'onDuckPlayerScriptsReady';
