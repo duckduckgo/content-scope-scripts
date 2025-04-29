@@ -97,10 +97,18 @@ export class DuckPlayerNativeMessages {
     }
 
     /**
-     * Notifies browser that the feature
+     * Notifies browser that the feature is ready
      */
     notifyFeatureIsReady() {
-        console.log('FIRING ONDUCKPLAYERREADY');
+        console.log('FIRING', constants.MSG_NAME_FEATURE_READY);
         this.messaging.notify(constants.MSG_NAME_FEATURE_READY, {});
+    }
+
+    /**
+     * Notifies browser that scripts are ready to be acalled
+     */
+    notifyScriptIsReady() {
+        console.log('FIRING', constants.MSG_NAME_SCRIPTS_READY);
+        this.messaging.notify(constants.MSG_NAME_SCRIPTS_READY, {});
     }
 }
