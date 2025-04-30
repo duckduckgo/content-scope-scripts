@@ -47,15 +47,15 @@
     }
 }
 .foreground.layer1 {
-    background-image: url("../../public/assets/img/layer1.svg");
+    background-image: url("../../public/assets/img/layer1_legacy.svg");
     animation-name: slidein1;
 }
 .foreground.layer2 {
-    background-image: url("../../public/assets/img/layer2.svg");
+    background-image: url("../../public/assets/img/layer2_legacy.svg");
     animation-name: slidein2;
 }
 .foreground.layer3 {
-    background-image: url("../../public/assets/img/layer3.svg");
+    background-image: url("../../public/assets/img/layer3_legacy.svg");
     animation-name: slidein3;
 }
 @media only screen and (max-width: 480px) {
