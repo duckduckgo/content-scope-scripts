@@ -658,15 +658,15 @@ h2 {
   }
 }
 .Background_foreground.Background_layer1 {
-  background-image: url("./layer1-CA2LJ4AF.svg");
+  background-image: url("./layer1_legacy-CA2LJ4AF.svg");
   animation-name: Background_slidein1;
 }
 .Background_foreground.Background_layer2 {
-  background-image: url("./layer2-I3XOFA54.svg");
+  background-image: url("./layer2_legacy-I3XOFA54.svg");
   animation-name: Background_slidein2;
 }
 .Background_foreground.Background_layer3 {
-  background-image: url("./layer3-ZJKIYF3C.svg");
+  background-image: url("./layer3_legacy-ZJKIYF3C.svg");
   animation-name: Background_slidein3;
 }
 @media only screen and (max-width: 480px) {
@@ -1059,10 +1059,10 @@ h2 {
   height: 100vh;
   overflow: hidden;
   background-color: #FDEDE5;
-  background-image: url("./grain-JTV7KOOJ.png"), url("./background-v3-ZJJEKZRE.jpg");
+  background-image: url("./grain-JTV7KOOJ.png"), url("./background-v3-5FMPN72D.jpg");
   background-blend-mode: overlay, normal;
   background-repeat: repeat, no-repeat;
-  background-size: 100px, cover;
+  background-size: 50px, cover;
 }
 @media only screen and (min-width: 481px) {
   .Background_background2 {
@@ -1077,68 +1077,74 @@ h2 {
 @media (prefers-color-scheme: dark) {
   .Background_background2 {
     background-color: #37214F;
-    background-image: url("./grain-dark-UGS45YOQ.png"), url("./background-dark-v3-SVG27AYV.jpg");
+    background-image: url("./grain-dark-UGS45YOQ.png"), url("./background-dark-v3-54EOBOK7.jpg");
     background-blend-mode: overlay, normal;
     background-repeat: repeat, no-repeat;
-    background-size: 100px, cover;
+    background-size: 50px, cover;
   }
 }
 .Background_foreground2 {
   position: absolute;
-  top: 10vh;
+  top: 0;
   left: 0;
   width: 100vw;
-  height: 80vh;
-  background-size: contain;
+  height: 100vh;
   background-repeat: no-repeat;
-  animation-duration: 50s;
+}
+.Background_animated {
+  animation-duration: 30s;
   animation-fill-mode: both;
   animation-timing-function: linear;
 }
+.Background_clouds {
+  background-image: url("./clouds-PIPF2DEZ.svg");
+  background-position: top right;
+  animation-name: Background_offscreen-clouds;
+  animation-duration: 50s;
+}
 @media (prefers-color-scheme: dark) {
-  .Background_foreground2 {
+  .Background_clouds {
     opacity: .1;
   }
 }
-.Background_foreground2.Background_layer12 {
-  background-image: url("./layer1-CA2LJ4AF.svg");
-  animation-name: Background_slidein12;
+.Background_mountains {
+  background-image: url("./mountains-OPQE4D4Y.svg");
+  background-position: bottom right;
 }
-.Background_foreground2.Background_layer22 {
-  background-image: url("./layer2-I3XOFA54.svg");
-  animation-name: Background_slidein22;
+@media (prefers-color-scheme: dark) {
+  .Background_mountains {
+    opacity: .15;
+  }
 }
-.Background_foreground2.Background_layer32 {
-  background-image: url("./layer3-ZJKIYF3C.svg");
-  animation-name: Background_slidein32;
+.Background_stars {
+  background-image: url("./stars-W24DLZLU.svg");
+  background-position: top right;
+  display: none;
+}
+@media screen and (prefers-color-scheme: dark) {
+  .Background_stars {
+    display: block;
+  }
 }
 @media only screen and (max-width: 480px) {
   .Background_foreground2 {
     display: none;
   }
 }
-@keyframes Background_slidein12 {
-  from {
-    transform: translateX(110vw);
-  }
-  to {
-    transform: translateX(40vw);
-  }
-}
-@keyframes Background_slidein22 {
+@keyframes Background_offscreen {
   from {
     transform: translateX(100vw);
   }
   to {
-    transform: translateX(40vw);
+    transform: translateX(0vw);
   }
 }
-@keyframes Background_slidein32 {
+@keyframes Background_offscreen-clouds {
   from {
-    transform: translateX(120vw);
+    transform: translateX(830px);
   }
   to {
-    transform: translateX(40vw);
+    transform: translateX(0vw);
   }
 }
 
@@ -1601,6 +1607,8 @@ h2 {
   mask-position: right var(--sp-8);
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
+  position: relative;
+  left: 1px;
 }
 @media (prefers-color-scheme: dark) {
   .Heading_speechBubbleCallout {
@@ -1740,7 +1748,7 @@ h2 {
 /* pages/onboarding/app/components/v3/Hiker.module.css */
 .Hiker_hiker {
   bottom: 0;
-  position: absolute;
+  position: fixed;
   right: var(--sp-35);
   animation-name: Hiker_hiker-appear;
   animation-duration: 500ms;
@@ -1788,11 +1796,9 @@ h2 {
   transition: transform 0.3s ease-in-out;
   transform: translateY(0);
 }
-[data-app-version="2"] .App2_container[data-current=welcome] {
-  transform: translateY(calc(50vh - 288px));
-}
+[data-app-version="2"] .App2_container[data-current=welcome],
 [data-app-version="2"] .App2_container[data-current=getStarted] {
-  transform: translateY(calc(50vh - 288px));
+  transform: translateY(max(50vh - 288px, 0px));
 }
 [data-app-version="2"] [data-exiting=true] {
   animation-name: none;

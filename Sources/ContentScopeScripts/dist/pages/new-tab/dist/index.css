@@ -412,22 +412,10 @@ body[data-animate-background=true] {
 }
 
 /* pages/new-tab/app/customizer/components/Customizer.module.css */
-.Customizer_root {
-  position: relative;
-}
 .Customizer_lowerRightFixed {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-}
-.Customizer_dropdownMenu {
-  display: none;
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 10px);
-}
-.Customizer_show {
-  display: block;
 }
 .Customizer_customizeButton {
   -webkit-backdrop-filter: blur(48px);
@@ -488,351 +476,6 @@ body[data-animate-background=true] {
 [data-theme=dark] .Icons_chevronArrow {
   fill: white;
   fill-opacity: 0.5;
-}
-
-/* pages/new-tab/app/customizer/components/VisibilityMenu.module.css */
-.VisibilityMenu_dropdownInner {
-  background: var(--ntp-surface-background-color);
-  padding: var(--sp-1);
-  border-radius: var(--border-radius-md);
-  -webkit-backdrop-filter: blur(48px);
-  backdrop-filter: blur(48px);
-  padding-inline: calc(10 * var(--px-in-rem));
-  border: 1px solid var(--color-black-at-9);
-  box-shadow:
-    0px 0px 0px 1px rgba(0, 0, 0, 0.12),
-    0px 8px 16px 0px rgba(0, 0, 0, 0.20),
-    0px 2px 4px 0px rgba(0, 0, 0, 0.15);
-}
-[data-theme=dark] .VisibilityMenu_dropdownInner {
-  border-color: var(--color-white-at-9);
-  box-shadow:
-    0px 0px 0px 1px rgba(255, 255, 255, 0.09) inset,
-    0px 0px 0px 1px rgba(0, 0, 0, 0.50),
-    0px 2px 4px 0px rgba(0, 0, 0, 0.15),
-    0px 8px 16px 0px rgba(0, 0, 0, 0.40);
-}
-.VisibilityMenu_list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-  font-size: var(--title-3-em-font-size);
-}
-.VisibilityMenu_embedded {
-  font-size: var(--body-font-size);
-  gap: 12px;
-}
-.VisibilityMenu_menuItemLabel {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  white-space: nowrap;
-  height: calc(28 * var(--px-in-rem));
-}
-.VisibilityMenu_menuItemLabelEmbedded {
-  white-space: normal;
-  gap: 6px;
-  height: auto;
-}
-.VisibilityMenu_menuItemLabelEmbedded *:last-child {
-  margin-left: auto;
-}
-.VisibilityMenu_menuItemLabelEmbedded input:focus-visible + * {
-  box-shadow: var(--focus-ring);
-}
-.VisibilityMenu_svg {
-  flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
-  display: flex;
-}
-.VisibilityMenu_checkbox {
-  position: absolute;
-  clip: rect(1px, 1px, 1px, 1px);
-  padding: 0;
-  border: 0;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-}
-.VisibilityMenu_checkboxIcon {
-  font-size: 0;
-  width: 1rem;
-  height: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border-radius: var(--border-radius-xs);
-  border: 1px solid var(--color-black-at-48);
-}
-[data-theme=dark] .VisibilityMenu_checkboxIcon {
-  border-color: rgba(255, 255, 255, 0.42);
-  background: rgba(255, 255, 255, 0.12);
-}
-.VisibilityMenu_checkboxIcon:hover {
-  background:
-    linear-gradient(
-      0deg,
-      var(--color-black-at-6) 0%,
-      var(--color-black-at-6) 100%);
-}
-[data-theme=dark] .VisibilityMenu_checkboxIcon:hover {
-  background:
-    linear-gradient(
-      0deg,
-      var(--color-white-at-18) 0%,
-      var(--color-white-at-18) 100%),
-    var(--color-white-at-12);
-}
-.VisibilityMenu_checkboxIcon:active {
-  background:
-    linear-gradient(
-      0deg,
-      var(--color-black-at-12) 0%,
-      var(--color-black-at-12) 100%),
-    var(--color-white-at-60);
-}
-[data-theme=dark] .VisibilityMenu_checkboxIcon:active {
-  background:
-    linear-gradient(
-      0deg,
-      var(--color-white-at-24) 0%,
-      var(--color-white-at-24) 100%),
-    var(--color-white-at-12);
-}
-.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon {
-  background: var(--color-blue-50);
-  border-color: var(--color-blue-50);
-}
-[data-theme=dark] :is(.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon) {
-  background: var(--color-blue-20);
-  border-color: var(--color-blue-20);
-}
-.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon:hover {
-  background: var(--color-blue-60);
-  border-color: var(--color-blue-60);
-}
-[data-theme=dark] :is(.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon:hover) {
-  background: var(--color-blue-30);
-  border-color: var(--color-blue-30);
-}
-.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon:active {
-  background: var(--color-blue-70);
-  border-color: var(--color-blue-70);
-}
-[data-theme=dark] :is(.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon:active) {
-  background: var(--color-blue-40);
-  border-color: var(--color-blue-40);
-}
-.VisibilityMenu_menuItemLabel .VisibilityMenu_checkboxIcon svg path {
-  opacity: 0;
-}
-.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon svg path {
-  stroke: white;
-  opacity: 1;
-}
-[data-theme=dark] :is(.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon svg path) {
-  stroke: black;
-}
-.VisibilityMenu_menuItemLabel input:focus-visible + .VisibilityMenu_checkboxIcon {
-  outline: dotted 1px var(--ntp-focus-outline-color);
-  outline-offset: 2px;
-}
-
-/* shared/components/Switch/Switch.module.css */
-.Switch_label {
-  --switch-width: 40px;
-  --switch-height: 20px;
-  --switch-handle-size: 12px;
-  --switch-handle-color-checked: white;
-  --switch-handle-offset: 4px;
-  --switch-handle-color: var(--color-black-at-60);
-  --switch-checked-offset: translateX(calc(100% + 8px));
-  --track-bg-color: var(--color-black-at-3);
-  --track-border: 1px solid var(--track-border-color);
-  --track-border-color: var(--color-black-at-60);
-  --track-border-radius: 11px;
-  --track-bg-color-active: var(--color-black-at-9);
-  --track-bg-color-checked: var(--ddg-color-primary);
-  --track-border-color-checked: var(--ddg-color-primary);
-  --track-bg-color-checked-active: #2B55CA;
-  --track-border-color-checked-active: #2B55CA;
-  vertical-align: top;
-  isolation: isolate;
-  align-items: flex-start;
-  max-inline-size: 100%;
-  display: inline-flex;
-  position: relative;
-}
-.Switch_label[data-theme=dark] {
-  --track-border-color: var(--color-white-at-60);
-  --track-bg-color: var(--color-black-at-9);
-  --track-bg-color-active: var(--color-white-at-9);
-  --switch-handle-color: var(--color-white-at-84);
-  --switch-handle-color-checked: black;
-  --track-bg-color-checked: var(--ddg-color-primary-dark);
-  --track-border-color-checked: var(--ddg-color-primary-dark);
-  --track-bg-color-checked-active: var(--ddg-color-primary);
-  --track-border-color-checked-active: var(--ddg-color-primary);
-}
-.Switch_label[data-platform-name=macos] {
-  --switch-width: 26px;
-  --switch-height: 15px;
-  --switch-handle-size: 13px;
-  --switch-handle-offset: 1px;
-  --switch-handle-color: var(--color-white-at-84);
-  --switch-checked-offset: translateX(calc(100% - 2px));
-  --track-bg-color: var(--color-black-at-9);
-  --track-border: 0;
-  --track-border-radius: 10px;
-}
-.Switch_label[data-platform-name=macos][data-size=medium] {
-  --switch-width: 32px;
-  --switch-height: 18px;
-  --switch-handle-size: 16px;
-}
-.Switch_label[data-platform-name=macos][data-theme=dark] {
-  --track-bg-color: var(--color-white-at-9);
-  --switch-handle-color-checked: #CECECE;
-}
-.Switch_input {
-  box-sizing: border-box;
-  opacity: .0001;
-  z-index: 1;
-  cursor: default;
-  block-size: 100%;
-  inline-size: 100%;
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: initial;
-  -webkit-appearance: auto;
-  appearance: auto;
-  background-color: initial;
-}
-.Switch_input:active + .Switch_switch:after {
-  background-color: var(--track-bg-color-active);
-}
-.Switch_input:checked + .Switch_switch:before {
-  transform: var(--switch-checked-offset);
-  background-color: var(--switch-handle-color-checked);
-}
-[data-theme=dark][data-platform-name=macos] .Switch_input:checked + .Switch_switch:before {
-  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
-  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
-}
-.Switch_input:checked + .Switch_switch:after {
-  background: var(--track-bg-color-checked);
-  border-color: var(--track-border-color-checked);
-}
-[data-theme=dark][data-platform-name=macos] .Switch_input:checked + .Switch_switch:after {
-  background:
-    linear-gradient(
-      180deg,
-      #3969EF 0%,
-      #2C4AAC 0.01%,
-      #3152BF 100%);
-  box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
-}
-.Switch_input:checked:active + .Switch_switch:after {
-  background-color: var(--track-bg-color-checked-active);
-  border-color: var(--track-border-color-checked-active);
-}
-.Switch_switch {
-  box-sizing: border-box;
-  inline-size: var(--switch-width);
-  margin: 0;
-  vertical-align: middle;
-  will-change: transform;
-  transition-delay: 0s;
-  transition-duration: 0.13s;
-  transition-property: background, border;
-  transition-timing-function: ease-in-out, ease-in-out;
-  block-size: var(--switch-height);
-  border-radius: 10px;
-  flex-grow: 0;
-  flex-shrink: 0;
-  display: inline-block;
-  position: relative;
-  left: 0;
-  right: 0;
-}
-.Switch_switch:before {
-  content: "";
-  box-sizing: border-box;
-  inline-size: var(--switch-handle-size);
-  block-size: var(--switch-handle-size);
-  border-radius: 10px;
-  display: block;
-  position: absolute;
-  top: var(--switch-handle-offset);
-  left: var(--switch-handle-offset);
-  z-index: 1;
-  transition: all .3s;
-  background: var(--switch-handle-color);
-}
-[data-platform-name=macos] .Switch_switch:before {
-  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
-  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
-}
-[data-platform-name=macos][data-theme=dark] .Switch_switch:before {
-  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
-  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
-}
-.Switch_switch:after {
-  border-radius: var(--track-border-radius);
-  content: "";
-  margin: 0;
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  transform: translateX(0);
-  transition: all .3s;
-  border: var(--track-border);
-  background-color: var(--track-bg-color);
-}
-[data-platform-name=macos] .Switch_switch:after {
-  box-shadow: 0px 0.5px 1px 1px rgba(10, 15, 20, 0.04) inset, 0px 0px 0px 0.5px rgba(10, 15, 20, 0.12) inset;
-}
-[data-platform-name=macos][data-theme=dark] .Switch_switch:after {
-  box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
-}
-
-/* pages/new-tab/app/components/BackgroundReceiver.module.css */
-.BackgroundReceiver_root {
-  position: fixed;
-  z-index: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  pointer-events: none;
-}
-.BackgroundReceiver_root[data-state=loadingFirst] {
-  animation-name: BackgroundReceiver_fade-in;
-  animation-fill-mode: both;
-  animation-duration: .25s;
-  animation-iteration-count: 1;
-}
-@keyframes BackgroundReceiver_fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 /* pages/new-tab/app/activity/components/Activity.module.css */
@@ -1668,6 +1311,34 @@ body[data-animate-background=true] {
 }
 [data-item-state=dragging] {
   opacity: 0.4;
+}
+
+/* pages/new-tab/app/components/BackgroundReceiver.module.css */
+.BackgroundReceiver_root {
+  position: fixed;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  pointer-events: none;
+}
+.BackgroundReceiver_root[data-state=loadingFirst] {
+  animation-name: BackgroundReceiver_fade-in;
+  animation-fill-mode: both;
+  animation-duration: .25s;
+  animation-iteration-count: 1;
+}
+@keyframes BackgroundReceiver_fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* shared/components/Button/Button.module.css */
@@ -2697,6 +2368,209 @@ body:not([data-platform-name]) .Button_button:active {
   border-radius: 0 var(--chip-size-half) var(--chip-size-half) 0;
   border: 1px solid var(--color-white-at-9);
   background: var(--color-gray-80);
+}
+
+/* pages/new-tab/app/customizer/components/VisibilityMenu.module.css */
+.VisibilityMenu_list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: var(--title-3-em-font-size);
+}
+.VisibilityMenu_embedded {
+  font-size: var(--body-font-size);
+  gap: 12px;
+}
+.VisibilityMenu_menuItemLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  height: calc(28 * var(--px-in-rem));
+}
+.VisibilityMenu_menuItemLabelEmbedded {
+  white-space: normal;
+  gap: 6px;
+  height: auto;
+}
+.VisibilityMenu_menuItemLabelEmbedded *:last-child {
+  margin-left: auto;
+}
+.VisibilityMenu_menuItemLabelEmbedded input:focus-visible + * {
+  box-shadow: var(--focus-ring);
+}
+.VisibilityMenu_svg {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  display: flex;
+}
+
+/* shared/components/Switch/Switch.module.css */
+.Switch_label {
+  --switch-width: 40px;
+  --switch-height: 20px;
+  --switch-handle-size: 12px;
+  --switch-handle-color-checked: white;
+  --switch-handle-offset: 4px;
+  --switch-handle-color: var(--color-black-at-60);
+  --switch-checked-offset: translateX(calc(100% + 8px));
+  --track-bg-color: var(--color-black-at-3);
+  --track-border: 1px solid var(--track-border-color);
+  --track-border-color: var(--color-black-at-60);
+  --track-border-radius: 11px;
+  --track-bg-color-active: var(--color-black-at-9);
+  --track-bg-color-checked: var(--ddg-color-primary);
+  --track-border-color-checked: var(--ddg-color-primary);
+  --track-bg-color-checked-active: #2B55CA;
+  --track-border-color-checked-active: #2B55CA;
+  vertical-align: top;
+  isolation: isolate;
+  align-items: flex-start;
+  max-inline-size: 100%;
+  display: inline-flex;
+  position: relative;
+}
+.Switch_label[data-theme=dark] {
+  --track-border-color: var(--color-white-at-60);
+  --track-bg-color: var(--color-black-at-9);
+  --track-bg-color-active: var(--color-white-at-9);
+  --switch-handle-color: var(--color-white-at-84);
+  --switch-handle-color-checked: black;
+  --track-bg-color-checked: var(--ddg-color-primary-dark);
+  --track-border-color-checked: var(--ddg-color-primary-dark);
+  --track-bg-color-checked-active: var(--ddg-color-primary);
+  --track-border-color-checked-active: var(--ddg-color-primary);
+}
+.Switch_label[data-platform-name=macos] {
+  --switch-width: 26px;
+  --switch-height: 15px;
+  --switch-handle-size: 13px;
+  --switch-handle-offset: 1px;
+  --switch-handle-color: var(--color-white-at-84);
+  --switch-checked-offset: translateX(calc(100% - 2px));
+  --track-bg-color: var(--color-black-at-9);
+  --track-border: 0;
+  --track-border-radius: 10px;
+}
+.Switch_label[data-platform-name=macos][data-size=medium] {
+  --switch-width: 32px;
+  --switch-height: 18px;
+  --switch-handle-size: 16px;
+}
+.Switch_label[data-platform-name=macos][data-theme=dark] {
+  --track-bg-color: var(--color-white-at-9);
+  --switch-handle-color-checked: #CECECE;
+}
+.Switch_input {
+  box-sizing: border-box;
+  opacity: .0001;
+  z-index: 1;
+  cursor: default;
+  block-size: 100%;
+  inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: initial;
+  -webkit-appearance: auto;
+  appearance: auto;
+  background-color: initial;
+}
+.Switch_input:active + .Switch_switch:after {
+  background-color: var(--track-bg-color-active);
+}
+.Switch_input:checked + .Switch_switch:before {
+  transform: var(--switch-checked-offset);
+  background-color: var(--switch-handle-color-checked);
+}
+[data-theme=dark][data-platform-name=macos] .Switch_input:checked + .Switch_switch:before {
+  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
+  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
+}
+.Switch_input:checked + .Switch_switch:after {
+  background: var(--track-bg-color-checked);
+  border-color: var(--track-border-color-checked);
+}
+[data-theme=dark][data-platform-name=macos] .Switch_input:checked + .Switch_switch:after {
+  background:
+    linear-gradient(
+      180deg,
+      #3969EF 0%,
+      #2C4AAC 0.01%,
+      #3152BF 100%);
+  box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
+}
+.Switch_input:checked:active + .Switch_switch:after {
+  background-color: var(--track-bg-color-checked-active);
+  border-color: var(--track-border-color-checked-active);
+}
+.Switch_switch {
+  box-sizing: border-box;
+  inline-size: var(--switch-width);
+  margin: 0;
+  vertical-align: middle;
+  will-change: transform;
+  transition-delay: 0s;
+  transition-duration: 0.13s;
+  transition-property: background, border;
+  transition-timing-function: ease-in-out, ease-in-out;
+  block-size: var(--switch-height);
+  border-radius: 10px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: inline-block;
+  position: relative;
+  left: 0;
+  right: 0;
+}
+.Switch_switch:before {
+  content: "";
+  box-sizing: border-box;
+  inline-size: var(--switch-handle-size);
+  block-size: var(--switch-handle-size);
+  border-radius: 10px;
+  display: block;
+  position: absolute;
+  top: var(--switch-handle-offset);
+  left: var(--switch-handle-offset);
+  z-index: 1;
+  transition: all .3s;
+  background: var(--switch-handle-color);
+}
+[data-platform-name=macos] .Switch_switch:before {
+  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
+  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
+}
+[data-platform-name=macos][data-theme=dark] .Switch_switch:before {
+  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
+  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
+}
+.Switch_switch:after {
+  border-radius: var(--track-border-radius);
+  content: "";
+  margin: 0;
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translateX(0);
+  transition: all .3s;
+  border: var(--track-border);
+  background-color: var(--track-bg-color);
+}
+[data-platform-name=macos] .Switch_switch:after {
+  box-shadow: 0px 0.5px 1px 1px rgba(10, 15, 20, 0.04) inset, 0px 0px 0px 0.5px rgba(10, 15, 20, 0.12) inset;
+}
+[data-platform-name=macos][data-theme=dark] .Switch_switch:after {
+  box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
 }
 
 /* pages/new-tab/app/components/Components.module.css */

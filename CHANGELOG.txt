@@ -1,4 +1,3 @@
-- Add Cloudflare Turnstile Support (#1633)
-- [ConfigFeature] config feature docs update (#1647)
-- build(deps-dev): bump typedoc in the typescript group (#1645)
-- injected: fixing flaky duckplayer tests (#1639)
+- onboarding: refresh assets (#1659)
+- Onboarding: Fix welcome message appearing off screen (#1650)
+- ntp: remove legacy menu (#1638)

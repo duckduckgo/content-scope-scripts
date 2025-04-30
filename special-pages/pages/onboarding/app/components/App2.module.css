@@ -23,11 +23,11 @@
         transition: transform 0.3s ease-in-out;
         transform: translateY(0);
 
-        &[data-current="welcome"] {
-            transform: translateY(calc(50vh - 288px));
-        }
+        &[data-current="welcome"],
         &[data-current="getStarted"] {
-            transform: translateY(calc(50vh - 288px));
+            /* max() is not supported by stylelint's CSS parser: https://github.com/csstree/csstree/issues/164 */
+            /* stylelint-disable-next-line csstree/validator */
+            transform: translateY(max(50vh - 288px, 0px));
         }
     }
 

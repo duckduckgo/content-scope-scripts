@@ -10107,18 +10107,18 @@
   var Background_default2 = {
     background: "Background_background2",
     foreground: "Background_foreground2",
-    layer1: "Background_layer12",
-    slidein1: "Background_slidein12",
-    layer2: "Background_layer22",
-    slidein2: "Background_slidein22",
-    layer3: "Background_layer32",
-    slidein3: "Background_slidein32"
+    animated: "Background_animated",
+    clouds: "Background_clouds",
+    "offscreen-clouds": "Background_offscreen-clouds",
+    mountains: "Background_mountains",
+    stars: "Background_stars",
+    offscreen: "Background_offscreen"
   };
 
   // pages/onboarding/app/components/v3/Background.js
   var import_classnames6 = __toESM(require_classnames(), 1);
   function Background2() {
-    return /* @__PURE__ */ g("div", { className: Background_default2.background }, /* @__PURE__ */ g("div", { className: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.layer1) }), /* @__PURE__ */ g("div", { className: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.layer2) }), /* @__PURE__ */ g("div", { className: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.layer3) }));
+    return /* @__PURE__ */ g("div", { class: Background_default2.background }, /* @__PURE__ */ g("div", { class: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.animated, Background_default2.clouds) }), /* @__PURE__ */ g("div", { class: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.animated, Background_default2.mountains) }), /* @__PURE__ */ g("div", { class: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.stars) }));
   }
 
   // pages/onboarding/app/components/v3/BeforeAfterProvider.js

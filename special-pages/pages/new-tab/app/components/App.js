@@ -1,15 +1,10 @@
 import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './App.module.css';
-import { useCustomizerDrawerSettings, useCustomizerKind, usePlatformName } from '../settings.provider.js';
+import { useCustomizerDrawerSettings, usePlatformName } from '../settings.provider.js';
 import { WidgetList } from '../widget-list/WidgetList.js';
 import { useGlobalDropzone } from '../dropzone.js';
-import {
-    CustomizerMenu,
-    CustomizerButton,
-    CustomizerMenuPositionedFixed,
-    useContextMenu,
-} from '../customizer/components/CustomizerMenu.js';
+import { CustomizerButton, CustomizerMenuPositionedFixed, useContextMenu } from '../customizer/components/CustomizerMenu.js';
 import { useDrawer, useDrawerControls } from './Drawer.js';
 import { CustomizerDrawer } from '../customizer/components/CustomizerDrawer.js';
 import { BackgroundConsumer } from './BackgroundProvider.js';
@@ -27,8 +22,6 @@ import { InlineErrorBoundary } from '../InlineErrorBoundary.js';
 export function App() {
     const platformName = usePlatformName();
     const customizerDrawer = useCustomizerDrawerSettings();
-
-    const customizerKind = useCustomizerKind();
 
     useGlobalDropzone();
     useContextMenu();
@@ -63,42 +56,37 @@ export function App() {
                 </main>
                 <div class={styles.themeContext} data-theme={main}>
                     <CustomizerMenuPositionedFixed>
-                        {customizerKind === 'menu' && <CustomizerMenu />}
-                        {customizerKind === 'drawer' && (
-                            <CustomizerButton
-                                buttonId={buttonId}
-                                menuId={drawerId}
-                                toggleMenu={toggle}
-                                buttonRef={buttonRef}
-                                isOpen={isOpen}
-                                kind={'drawer'}
-                            />
-                        )}
+                        <CustomizerButton
+                            buttonId={buttonId}
+                            menuId={drawerId}
+                            toggleMenu={toggle}
+                            buttonRef={buttonRef}
+                            isOpen={isOpen}
+                            kind={'drawer'}
+                        />
                     </CustomizerMenuPositionedFixed>
                 </div>
-                {customizerKind === 'drawer' && (
-                    <aside
-                        class={cn(styles.aside, styles.asideLayout, styles.asideScroller)}
-                        tabindex={tabIndex}
-                        aria-hidden={hidden}
-                        data-theme={browser}
-                        data-browser-panel
-                        ref={asideRef}
-                    >
-                        <div class={styles.asideContent}>
-                            <InlineErrorBoundary
-                                context={'Customizer Drawer'}
-                                fallback={(message) => (
-                                    <div class={styles.paddedError}>
-                                        <p>{message}</p>
-                                    </div>
-                                )}
-                            >
-                                <CustomizerDrawer displayChildren={displayChildren} />
-                            </InlineErrorBoundary>
-                        </div>
-                    </aside>
-                )}
+                <aside
+                    class={cn(styles.aside, styles.asideLayout, styles.asideScroller)}
+                    tabindex={tabIndex}
+                    aria-hidden={hidden}
+                    data-theme={browser}
+                    data-browser-panel
+                    ref={asideRef}
+                >
+                    <div class={styles.asideContent}>
+                        <InlineErrorBoundary
+                            context={'Customizer Drawer'}
+                            fallback={(message) => (
+                                <div class={styles.paddedError}>
+                                    <p>{message}</p>
+                                </div>
+                            )}
+                        >
+                            <CustomizerDrawer displayChildren={displayChildren} />
+                        </InlineErrorBoundary>
+                    </div>
+                </aside>
             </div>
         </Fragment>
     );
