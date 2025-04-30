@@ -3,17 +3,17 @@ import * as constants from './constants.js';
 /** @import {YouTubeError} from './error-detection.js' */
 
 /**
- * @typedef {object} muteSettings - Settings passed to the onMute callback
+ * @typedef {object} MuteSettings - Settings passed to the onMute callback
  * @property {boolean} mute - Set to true to mute the video, false to unmute
  */
 
 /**
- * @typedef {object} mediaControlSettings - Settings passed to the onMediaControll callback
+ * @typedef {object} MediaControlSettings - Settings passed to the onMediaControll callback
  * @property {boolean} pause - Set to true to pause the video, false to play
  */
 
 /**
- * @typedef {object} urlChangeSettings - Settings passed to the onURLChange callback
+ * @typedef {object} UrlChangeSettings - Settings passed to the onURLChange callback
  * @property {PageType} pageType
  */
 
@@ -65,7 +65,7 @@ export class DuckPlayerNativeMessages {
 
     /**
      * Subscribe to media control events
-     * @param {(mediaControlSettings: mediaControlSettings) => void} callback
+     * @param {(mediaControlSettings: MediaControlSettings) => void} callback
      */
     subscribeToMediaControl(callback) {
         return this.messaging.subscribe(constants.MSG_NAME_MEDIA_CONTROL, callback);
@@ -73,7 +73,7 @@ export class DuckPlayerNativeMessages {
 
     /**
      * Subscribe to mute audio events
-     * @param {(muteSettings: muteSettings) => void} callback
+     * @param {(muteSettings: MuteSettings) => void} callback
      */
     subscribeToMuteAudio(callback) {
         return this.messaging.subscribe(constants.MSG_NAME_MUTE_AUDIO, callback);
@@ -81,7 +81,7 @@ export class DuckPlayerNativeMessages {
 
     /**
      * Subscribe to URL change events
-     * @param {(urlSettings: urlChangeSettings) => void} callback
+     * @param {(urlSettings: UrlChangeSettings) => void} callback
      */
     subscribeToURLChange(callback) {
         console.log('SUBSCRIBING TO URL CHANGE');
