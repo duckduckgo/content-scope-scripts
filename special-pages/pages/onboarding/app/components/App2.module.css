@@ -3,6 +3,11 @@
     height: 100%;
 }
 
+/* This doesn't need guarding behind app version, because it will be absent elsewhere */
+body:has(main[data-fixed-height="true"]) {
+    overflow-y: hidden;
+}
+
 [data-app-version="2"] {
     .main {
         font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";

@@ -23,6 +23,7 @@ export function App2({ children }) {
     const dispatch = useContext(GlobalDispatch);
 
     const { activeStep, activeStepVisible, exiting, step } = globalState;
+    const entering = step.id === 'welcome' || step.id === 'getStarted';
 
     const advance = () => dispatch({ kind: 'advance' });
 
@@ -51,7 +52,7 @@ export function App2({ children }) {
     };
 
     return (
-        <main className={styles.main} data-platform-name={platformName || 'macos'} data-app-version="2">
+        <main className={styles.main} data-platform-name={platformName || 'macos'} data-app-version="2" data-fixed-height={entering}>
             <Background />
             {debugState && <Debug state={globalState} />}
             <div
@@ -68,7 +69,7 @@ export function App2({ children }) {
                     </BeforeAfterProvider>
                 </ErrorBoundary>
             </div>
-            {(step.id === 'welcome' || step.id === 'getStarted') && <Hiker />}
+            {entering && <Hiker />}
             {children}
         </main>
     );
