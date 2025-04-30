@@ -68,8 +68,8 @@ export default class DuckPlayerFeature extends ContentFeature {
         /**
          * TODO: Remove this when ready to re-enable Duck Player classic
          */
-        console.warn('Not initializing Duck Player classic');
-        return;
+        // console.warn('Not initializing Duck Player classic');
+        // return;
 
         /**
          * Just the 'overlays' part of the settings object.

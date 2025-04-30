@@ -11,13 +11,12 @@ import { Logger, SideEffects } from './util.js';
  * @import {DuckPlayerNativeMessages} from './messages.js'
  * @import {Environment} from './environment.js'
  * @import {ErrorDetectionSettings} from './error-detection.js'
- * @import {InitialSettings} from '../duck-player-native.js'
  * @import {DuckPlayerNativeSettings} from "@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js"
  */
 
 /**
  * @typedef {(SideEffects, Logger) => void} CustomEventHandler
- * @typedef {Pick<DuckPlayerNativeSettings, 'selectors'>} Settings
+ * @typedef {DuckPlayerNativeSettings['selectors']} DuckPlayerNativeSelectors
  */
 // TODO: Abort controller?
 
@@ -26,8 +25,8 @@ export class DuckPlayerNative {
     sideEffects;
     /** @type {Logger} */
     logger;
-    /** @type {Settings} */
-    settings;
+    /** @type {DuckPlayerNativeSelectors} */
+    selectors;
     /** @type {Environment} */
     environment;
     /** @type {DuckPlayerNativeMessages} */
@@ -39,25 +38,25 @@ export class DuckPlayerNative {
 
     /**
      * @param {object} options
-     * @param {Settings} options.settings
+     * @param {DuckPlayerNativeSelectors} options.selectors
      * @param {Environment} options.environment
      * @param {DuckPlayerNativeMessages} options.messages
      * @param {CustomEventHandler} [options.onInit]
      * @param {CustomEventHandler} [options.onLoad]
      */
-    constructor({ settings, environment, messages, onInit, onLoad }) {
-        if (!settings || !environment || !messages) {
+    constructor({ selectors, environment, messages, onInit, onLoad }) {
+        if (!selectors || !environment || !messages) {
             throw new Error('Missing arguments');
         }
 
-        console.log('SETTINGS', settings);
+        console.log('SELECTORS', selectors);
 
         this.setupLogger();
 
         this.onLoad = onLoad || (() => {});
         this.onInit = onInit || (() => {});
 
-        this.settings = settings;
+        this.selectors = selectors;
         this.environment = environment;
         this.messages = messages;
         this.sideEffects = new SideEffects({
@@ -101,11 +100,11 @@ export class DuckPlayerNative {
 }
 
 /**
- * @param {Settings} settings
+ * @param {DuckPlayerNativeSelectors} selectors
  * @param {Environment} environment
  * @param {DuckPlayerNativeMessages} messages
  */
-export function setupDuckPlayerForYouTube(settings, environment, messages) {
+export function setupDuckPlayerForYouTube(selectors, environment, messages) {
     const onLoad = (sideEffects) => {
         sideEffects.add('started polling current timestamp', () => {
             const handler = (timestamp) => {
@@ -121,8 +120,8 @@ export function setupDuckPlayerForYouTube(settings, environment, messages) {
             return messages.subscribeToMediaControl(({ pause }) => {
                 logger.log('Running media control handler. Pause:', pause);
 
-                const videoElement = settings.selectors?.videoElement;
-                const videoElementContainer = settings.selectors?.videoElementContainer;
+                const videoElement = selectors?.videoElement;
+                const videoElementContainer = selectors?.videoElementContainer;
                 if (!videoElementContainer || !videoElement) {
                     logger.warn('Missing media control selectors in config');
                     return;
@@ -130,7 +129,6 @@ export function setupDuckPlayerForYouTube(settings, environment, messages) {
 
                 const targetElement = document.querySelector(videoElementContainer);
                 if (targetElement) {
-
                     if (pause) {
                         sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
                         sideEffects.add('appending thumbnail', () =>
@@ -142,105 +140,7 @@ export function setupDuckPlayerForYouTube(settings, environment, messages) {
                     }
                 }
             });
-        })
-
-        sideEffects.add('subscribing to mute audio', () => {
-            return messages.subscribeToMuteAudio(({ mute }) => {
-                logger.log('Running mute audio handler. Mute:', mute);
-                muteAudio(mute);
-            });
-        })
-    };
-
-    const duckPlayerNative = new DuckPlayerNative({
-        settings,
-        environment,
-        messages,
-        onInit,
-        onLoad,
-    });
-    return duckPlayerNative;
-}
-
-/**
- * @param {Settings} settings
- * @param {Environment} environment
- * @param {DuckPlayerNativeMessages} messages
- */
-export function setupDuckPlayerForEverything(settings, environment, messages) {
-    const onLoad = (sideEffects, logger) => {
-        sideEffects.add('started polling current timestamp', () => {
-            const handler = (timestamp) => {
-                messages.notifyCurrentTimestamp(timestamp.toFixed(0));
-            };
-
-            return pollTimestamp(300, handler);
         });
-
-        const errorContainer = settings.selectors?.errorContainer;
-        const signInRequiredError = settings.selectors?.signInRequiredError;
-        if (!errorContainer || !signInRequiredError) {
-            logger.warn('Missing error selectors in configuration');
-            return;
-        }
-
-        /** @type {(errorId: import('./error-detection.js').YouTubeError) => void} */
-        const errorHandler = (errorId) => {
-            logger.log('Received error', errorId);
-
-            // Notify the browser of the error
-            messages.notifyYouTubeError(errorId);
-
-            const targetElement = document.querySelector(errorContainer);
-            if (targetElement) {
-                showError(/** @type {HTMLElement} */ (targetElement), errorId, environment);
-            }
-        };
-
-        /** @type {ErrorDetectionSettings} */
-        const errorDetectionSettings = {
-            selectors: settings.selectors,
-            testMode: environment.isTestMode(),
-            callback: errorHandler,
-        };
-
-        sideEffects.add('setting up error detection', () => {
-            const errorDetection = new ErrorDetection(errorDetectionSettings);
-            const destroy = errorDetection.observe();
-
-            return () => {
-                if (destroy) destroy();
-            };
-        });
-    };
-
-    const onInit = (sideEffects, logger) => {
-        sideEffects.add('subscribe to media control', () => {
-            return messages.subscribeToMediaControl(({ pause }) => {
-                logger.log('Running media control handler. Pause:', pause);
-
-                const videoElement = settings.selectors?.videoElement;
-                const videoElementContainer = settings.selectors?.videoElementContainer;
-                if (!videoElementContainer || !videoElement) {
-                    logger.warn('Missing media control selectors in config');
-                    return;
-                }
-
-                const targetElement = document.querySelector(videoElementContainer);
-                if (targetElement) {
-
-                    if (pause) {
-                        sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
-                        sideEffects.add('appending thumbnail', () =>
-                            appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment),
-                        );
-                    } else {
-                        sideEffects.destroy('stopping video from playing');
-                        sideEffects.destroy('appending thumbnail');
-                    }
-                }
-            });
-        })
 
         sideEffects.add('subscribing to mute audio', () => {
             return messages.subscribeToMuteAudio(({ mute }) => {
@@ -251,7 +151,7 @@ export function setupDuckPlayerForEverything(settings, environment, messages) {
     };
 
     const duckPlayerNative = new DuckPlayerNative({
-        settings,
+        selectors,
         environment,
         messages,
         onInit,
@@ -261,11 +161,11 @@ export function setupDuckPlayerForEverything(settings, environment, messages) {
 }
 
 /**
- * @param {Settings} settings
+ * @param {DuckPlayerNativeSelectors} selectors
  * @param {Environment} environment
  * @param {DuckPlayerNativeMessages} messages
  */
-export function setupDuckPlayerForNoCookie(settings, environment, messages) {
+export function setupDuckPlayerForNoCookie(selectors, environment, messages) {
     const onLoad = (sideEffects, logger) => {
         sideEffects.add('started polling current timestamp', () => {
             const handler = (timestamp) => {
@@ -276,8 +176,8 @@ export function setupDuckPlayerForNoCookie(settings, environment, messages) {
         });
 
         logger.log('Setting up error detection');
-        const errorContainer = settings.selectors?.errorContainer;
-        const signInRequiredError = settings.selectors?.signInRequiredError;
+        const errorContainer = selectors?.errorContainer;
+        const signInRequiredError = selectors?.signInRequiredError;
         if (!errorContainer || !signInRequiredError) {
             logger.warn('Missing error selectors in configuration');
             return;
@@ -298,7 +198,7 @@ export function setupDuckPlayerForNoCookie(settings, environment, messages) {
 
         /** @type {ErrorDetectionSettings} */
         const errorDetectionSettings = {
-            selectors: settings.selectors,
+            selectors,
             testMode: environment.isTestMode(),
             callback: errorHandler,
         };
@@ -314,7 +214,7 @@ export function setupDuckPlayerForNoCookie(settings, environment, messages) {
     };
 
     const duckPlayerNative = new DuckPlayerNative({
-        settings,
+        selectors,
         environment,
         messages,
         onLoad,
@@ -323,18 +223,18 @@ export function setupDuckPlayerForNoCookie(settings, environment, messages) {
 }
 
 /**
- * @param {Settings} settings
+ * @param {DuckPlayerNativeSelectors} selectors
  * @param {Environment} environment
  * @param {DuckPlayerNativeMessages} messages
  */
-export function setupDuckPlayerForSerp(settings, environment, messages) {
+export function setupDuckPlayerForSerp(selectors, environment, messages) {
     const onLoad = () => {
         console.log('SERP NOTIFY');
         serpNotify();
     };
 
     const duckPlayerNative = new DuckPlayerNative({
-        settings,
+        selectors,
         environment,
         messages,
         onLoad,

@@ -2,14 +2,19 @@ import ContentFeature from '../content-feature.js';
 import { isBeingFramed } from '../utils.js';
 import { DuckPlayerNativeMessages } from './duckplayer-native/messages.js';
 import { mockTransport } from './duckplayer-native/mock-transport.js';
-import { setupDuckPlayerForEverything, setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/duckplayer-native.js';
+import { setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/duckplayer-native.js';
 import { Environment } from './duckplayer-native/environment.js';
 
-/** @import {DuckPlayerNative} from './duckplayer-native/duckplayer-native.js' */
+/**
+ * @import {DuckPlayerNative} from './duckplayer-native/duckplayer-native.js'
+ * @import {DuckPlayerNativeSettings} from '@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js'
+ * @import {UrlChangeSettings} from './duckplayer-native/messages.js'
+ */
 
 /**
  * @typedef InitialSettings - The initial payload used to communicate render-blocking information
  * @property {string} locale - UI locale
+ * @property {UrlChangeSettings['pageType']} pageType - The type of the current page
  */
 
 export class DuckPlayerNativeFeature extends ContentFeature {
@@ -25,9 +30,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
          */
         if (isBeingFramed()) return;
 
-        /**
-         * @type {import("@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js").DuckPlayerNativeSettings['selectors']}
-         */
         const selectors = this.getFeatureSetting('selectors');
         console.log('DUCK PLAYER NATIVE SELECTORS', selectors);
 
@@ -46,38 +48,10 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             this.messaging.transport = mockTransport();
         }
 
-        const comms = new DuckPlayerNativeMessages(this.messaging);
-        const settings = { selectors };
-
-        comms.subscribeToURLChange(({ pageType }) => {
+        const messages = new DuckPlayerNativeMessages(this.messaging);
+        messages.subscribeToURLChange(({ pageType }) => {
             console.log('GOT PAGE TYPE', pageType);
-            let next;
-
-            switch (pageType) {
-                case 'NOCOOKIE':
-                    next = setupDuckPlayerForNoCookie(settings, env, comms);
-                    break;
-                case 'YOUTUBE':
-                    next = setupDuckPlayerForYouTube(settings, env, comms);
-                    break;
-                case 'SERP':
-                    next = setupDuckPlayerForSerp(settings, env, comms);
-                    break;
-                case 'UNKNOWN':
-                default:
-                    console.warn('No known pageType');
-            }
-
-            // const next = setupDuckPlayerForEverything(settings, env, comms);
-
-            if (next) {
-                console.log('LOADING NEXT INSTANCE', this.current, next);
-                if (this.current) {
-                    this.current.destroy();
-                }
-                next.init();
-                this.current = next;
-            }
+            this.urlChangeHandler(pageType, selectors, env, messages);
         });
 
         /** @type {InitialSettings} */
@@ -85,7 +59,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         // TODO: This seems to get initted twice. Check with Daniel
         try {
-            initialSetup = await comms.initialSetup();
+            initialSetup = await messages.initialSetup();
         } catch (e) {
             console.error(e);
             return;
@@ -93,9 +67,49 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         console.log('INITIAL SETUP', initialSetup);
 
-        comms.notifyFeatureIsReady();
-        // this.current = setupDuckPlayerForEverything(settings, env, comms);
-        // this.current.init();
+        if (initialSetup.pageType) {
+            console.log('GOT INITIAL PAGE TYPE', initialSetup.pageType);
+            this.urlChangeHandler(initialSetup.pageType, selectors, env, messages);
+        }
+
+        messages.notifyFeatureIsReady();
+    }
+
+    /**
+     *
+     * @param {UrlChangeSettings['pageType']} pageType
+     * @param {DuckPlayerNativeSettings['selectors']} selectors
+     * @param {Environment} env
+     * @param {DuckPlayerNativeMessages} messages
+     */
+    urlChangeHandler(pageType, selectors, env, messages) {
+        let next;
+
+        switch (pageType) {
+            case 'NOCOOKIE':
+                next = setupDuckPlayerForNoCookie(selectors, env, messages);
+                break;
+            case 'YOUTUBE':
+                next = setupDuckPlayerForYouTube(selectors, env, messages);
+                break;
+            case 'SERP':
+                next = setupDuckPlayerForSerp(selectors, env, messages);
+                break;
+            case 'UNKNOWN':
+            default:
+                console.warn('No known pageType');
+        }
+
+        if (this.current) {
+            console.log('DESTROYING CURRENT INSTANCE', this.current);
+            this.current.destroy();
+        }
+
+        if (next) {
+            console.log('LOADING NEXT INSTANCE', next);
+            next.init();
+            this.current = next;
+        }
     }
 }
 

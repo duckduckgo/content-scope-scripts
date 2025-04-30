@@ -121,7 +121,7 @@ export class SideEffects {
      * @param {string} [name]
      */
     destroy(name) {
-        const cleanups = name ? this._cleanups.filter(c => c.name === name) : this._cleanups;
+        const cleanups = name ? this._cleanups.filter((c) => c.name === name) : this._cleanups;
         for (const cleanup of cleanups) {
             if (typeof cleanup.fn === 'function') {
                 try {
@@ -137,7 +137,7 @@ export class SideEffects {
             }
         }
         if (name) {
-            this._cleanups = this._cleanups.filter(c => c.name !== name);
+            this._cleanups = this._cleanups.filter((c) => c.name !== name);
         } else {
             this._cleanups = [];
         }
