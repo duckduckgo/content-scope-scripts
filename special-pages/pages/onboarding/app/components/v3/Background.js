@@ -4,10 +4,10 @@ import cn from 'classnames';
 
 export function Background() {
     return (
-        <div className={styles.background}>
-            <div className={cn(styles.foreground, styles.layer1)} />
-            <div className={cn(styles.foreground, styles.layer2)} />
-            <div className={cn(styles.foreground, styles.layer3)} />
+        <div class={styles.background}>
+            <div class={cn(styles.foreground, styles.animated, styles.clouds)} />
+            <div class={cn(styles.foreground, styles.animated, styles.mountains)} />
+            <div class={cn(styles.foreground, styles.stars)} />
         </div>
     );
 }

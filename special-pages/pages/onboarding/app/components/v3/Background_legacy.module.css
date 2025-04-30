@@ -8,7 +8,7 @@
 
     /* Modern browsers support multiple `background-size` so add grain */
     background-color: #FDEDE5;
-    background-image: url("../../public/assets/img/grain.png"), url("../../public/assets/img/background.jpg");
+    background-image: url("../../../public/assets/img/grain.png"), url("../../../public/assets/img/background-v3_legacy.jpg");
     background-blend-mode: overlay, normal;
     background-repeat: repeat, no-repeat;
     background-size: 100px, cover;
@@ -21,7 +21,7 @@
     }
     @media (prefers-color-scheme: dark) {
         background-color: #37214F;
-        background-image: url("../../public/assets/img/grain-dark.png"), url("../../public/assets/img/background-dark.jpg");
+        background-image: url("../../../public/assets/img/grain-dark.png"), url("../../../public/assets/img/background-dark-v3_legacy.jpg");
         background-blend-mode: overlay, normal;
         background-repeat: repeat, no-repeat;
         background-size: 100px, cover;
@@ -47,15 +47,15 @@
     }
 }
 .foreground.layer1 {
-    background-image: url("../../public/assets/img/layer1_legacy.svg");
+    background-image: url("../../../public/assets/img/layer1_legacy.svg");
     animation-name: slidein1;
 }
 .foreground.layer2 {
-    background-image: url("../../public/assets/img/layer2_legacy.svg");
+    background-image: url("../../../public/assets/img/layer2_legacy.svg");
     animation-name: slidein2;
 }
 .foreground.layer3 {
-    background-image: url("../../public/assets/img/layer3_legacy.svg");
+    background-image: url("../../../public/assets/img/layer3_legacy.svg");
     animation-name: slidein3;
 }
 @media only screen and (max-width: 480px) {
