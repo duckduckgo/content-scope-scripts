@@ -1,6 +1,6 @@
 .hiker {
     bottom: 0;
-    position: absolute;
+    position: fixed;
     right: var(--sp-35);
 
     animation-name: hiker-appear;
