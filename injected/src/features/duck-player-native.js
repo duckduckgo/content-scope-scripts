@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-// import { isBeingFramed } from '../utils.js';
+import { isBeingFramed } from '../utils.js';
 import { DuckPlayerNativeMessages } from './duckplayer-native/messages.js';
 import { mockTransport } from './duckplayer-native/mock-transport.js';
 import { setupDuckPlayerForEverything, setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/duckplayer-native.js';
@@ -17,13 +17,13 @@ export class DuckPlayerNativeFeature extends ContentFeature {
     current;
 
     async init(args) {
-        console.log('DUCK PLAYER NATIVE LOADING', args);
+        console.log('DUCK PLAYER NATIVE LOADING', args, window.location.href);
 
         // TODO: May depend on page type
         /**
          * This feature never operates in a frame
          */
-        // if (isBeingFramed()) return;
+        if (isBeingFramed()) return;
 
         /**
          * @type {import("@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js").DuckPlayerNativeSettings['selectors']}
