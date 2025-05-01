@@ -82,7 +82,9 @@ export class DuckPlayerNative {
         if (document.readyState === 'loading') {
             this.sideEffects.add('setting up load event listener', () => {
                 const loadHandler = () => {
+                    this.logger.log('Running deferred load handlers');
                     this.onLoad(this.sideEffects, this.logger);
+                    this.messages.notifyScriptIsReady();
                 };
                 document.addEventListener('DOMContentLoaded', loadHandler, { once: true });
 
@@ -93,9 +95,8 @@ export class DuckPlayerNative {
         } else {
             this.logger.log('Running load handlers immediately');
             this.onLoad(this.sideEffects, this.logger);
+            this.messages.notifyScriptIsReady();
         }
-
-        this.messages.notifyScriptIsReady();
     }
 }
 
@@ -118,6 +119,7 @@ export function setupDuckPlayerForYouTube(selectors, environment, messages) {
     const onInit = (sideEffects, logger) => {
         sideEffects.add('subscribe to media control', () => {
             return messages.subscribeToMediaControl(({ pause }) => {
+                console.log('MEDIA CONTROL', pause); // TODO: Remove
                 logger.log('Running media control handler. Pause:', pause);
 
                 const videoElement = selectors?.videoElement;

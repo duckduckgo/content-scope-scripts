@@ -22,20 +22,23 @@ export class DuckPlayerNativeFeature extends ContentFeature {
     current;
 
     async init(args) {
-        console.log('DUCK PLAYER NATIVE LOADING', args, window.location.href);
+        console.log('DUCK PLAYER NATIVE LOADING', args, window.location.href); // TODO: REMOVE
 
         // TODO: May depend on page type
         /**
          * This feature never operates in a frame
          */
-        if (isBeingFramed()) return;
+        if (isBeingFramed()) {
+            console.log('FRAMED. ABORTING.'); // TODO: REMOVE
+            return;
+        }
 
         const selectors = this.getFeatureSetting('selectors');
-        console.log('DUCK PLAYER NATIVE SELECTORS', selectors);
+        console.log('DUCK PLAYER NATIVE SELECTORS', selectors); // TODO: REMOVE
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
-            debug: this.isDebug || true, // TODO: remove
+            debug: this.isDebug || true, // TODO: REMOVE
             injectName: import.meta.injectName,
             platform: this.platform,
             locale,
@@ -68,11 +71,9 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         console.log('INITIAL SETUP', initialSetup);
 
         if (initialSetup.pageType) {
-            console.log('GOT INITIAL PAGE TYPE', initialSetup.pageType);
+            console.log('GOT INITIAL PAGE TYPE', initialSetup.pageType); // TODO: REMOVE
             this.urlChangeHandler(initialSetup.pageType, selectors, env, messages);
         }
-
-        messages.notifyFeatureIsReady();
     }
 
     /**
