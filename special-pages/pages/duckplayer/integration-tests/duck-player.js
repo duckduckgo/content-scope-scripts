@@ -5,9 +5,9 @@ import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
 
 const MOCK_VIDEO_ID = 'VIDEO_ID';
 const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube';
-const youtubeEmbed = (id) => 'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&rel=0&modestbranding=1';
+const youtubeEmbed = (id) => 'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&rel=0&modestbranding=1&color=white';
 const youtubeEmbedIOS = (id) =>
-    'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&muted=1&rel=0&modestbranding=1';
+    'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&muted=1&rel=0&modestbranding=1&color=white';
 const html = {
     unsupported: `<html><head><title>${MOCK_VIDEO_TITLE}</title></head>
 <body>
