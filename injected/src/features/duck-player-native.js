@@ -6,7 +6,7 @@ import { setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForY
 import { Environment } from './duckplayer-native/environment.js';
 
 /**
- * @import {DuckPlayerNative} from './duckplayer-native/duckplayer-native.js'
+ * @import {DuckPlayerNativePage} from './duckplayer-native/duckplayer-native.js'
  * @import {DuckPlayerNativeSettings} from '@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js'
  * @import {UrlChangeSettings} from './duckplayer-native/messages.js'
  */
@@ -15,23 +15,20 @@ import { Environment } from './duckplayer-native/environment.js';
  * @typedef InitialSettings - The initial payload used to communicate render-blocking information
  * @property {string} locale - UI locale
  * @property {UrlChangeSettings['pageType']} pageType - The type of the current page
+ * @property {boolean} playbackPaused - Should video start playing or paused
  */
 
 export class DuckPlayerNativeFeature extends ContentFeature {
-    /** @type {DuckPlayerNative} */
-    current;
+    /** @type {DuckPlayerNativePage} */
+    currentPage;
 
     async init(args) {
         console.log('DUCK PLAYER NATIVE LOADING', args, window.location.href); // TODO: REMOVE
 
-        // TODO: May depend on page type
         /**
          * This feature never operates in a frame
          */
-        if (isBeingFramed()) {
-            console.log('FRAMED. ABORTING.'); // TODO: REMOVE
-            return;
-        }
+        if (isBeingFramed()) return;
 
         const selectors = this.getFeatureSetting('selectors');
         console.log('DUCK PLAYER NATIVE SELECTORS', selectors); // TODO: REMOVE
@@ -44,8 +41,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             locale,
         });
 
-        // TODO: Decide which feature to run
-
         if (env.isIntegrationMode()) {
             // TODO: Better way than patching transport?
             this.messaging.transport = mockTransport();
@@ -53,8 +48,9 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         const messages = new DuckPlayerNativeMessages(this.messaging);
         messages.subscribeToURLChange(({ pageType }) => {
+            const playbackPaused = false; // TODO: Get this from the native notification too?
             console.log('GOT PAGE TYPE', pageType);
-            this.urlChangeHandler(pageType, selectors, env, messages);
+            this.urlChanged(pageType, selectors, playbackPaused, env, messages);
         });
 
         /** @type {InitialSettings} */
@@ -71,8 +67,9 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         console.log('INITIAL SETUP', initialSetup);
 
         if (initialSetup.pageType) {
+            const playbackPaused = initialSetup.playbackPaused || false;
             console.log('GOT INITIAL PAGE TYPE', initialSetup.pageType); // TODO: REMOVE
-            this.urlChangeHandler(initialSetup.pageType, selectors, env, messages);
+            this.urlChanged(initialSetup.pageType, selectors, playbackPaused, env, messages);
         }
     }
 
@@ -80,36 +77,38 @@ export class DuckPlayerNativeFeature extends ContentFeature {
      *
      * @param {UrlChangeSettings['pageType']} pageType
      * @param {DuckPlayerNativeSettings['selectors']} selectors
+     * @param {boolean} playbackPaused
      * @param {Environment} env
      * @param {DuckPlayerNativeMessages} messages
      */
-    urlChangeHandler(pageType, selectors, env, messages) {
-        let next;
+    urlChanged(pageType, selectors, playbackPaused, env, messages) {
+        /** @type {DuckPlayerNativePage | null} */
+        let nextPage = null;
 
         switch (pageType) {
             case 'NOCOOKIE':
-                next = setupDuckPlayerForNoCookie(selectors, env, messages);
+                nextPage = setupDuckPlayerForNoCookie(selectors, env, messages);
                 break;
             case 'YOUTUBE':
-                next = setupDuckPlayerForYouTube(selectors, env, messages);
+                nextPage = setupDuckPlayerForYouTube(selectors, playbackPaused, env, messages);
                 break;
             case 'SERP':
-                next = setupDuckPlayerForSerp(selectors, env, messages);
+                nextPage = setupDuckPlayerForSerp(selectors, env, messages);
                 break;
             case 'UNKNOWN':
             default:
                 console.warn('No known pageType');
         }
 
-        if (this.current) {
-            console.log('DESTROYING CURRENT INSTANCE', this.current);
-            this.current.destroy();
+        if (this.currentPage) {
+            console.log('DESTROYING CURRENT INSTANCE', this.currentPage);
+            this.currentPage.destroy();
         }
 
-        if (next) {
-            console.log('LOADING NEXT INSTANCE', next);
-            next.init();
-            this.current = next;
+        if (nextPage) {
+            console.log('LOADING NEXT INSTANCE', nextPage);
+            nextPage.init();
+            this.currentPage = nextPage;
         }
     }
 }
