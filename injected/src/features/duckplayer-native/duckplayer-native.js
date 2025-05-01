@@ -20,7 +20,7 @@ import { Logger, SideEffects } from './util.js';
  */
 // TODO: Abort controller?
 
-export class DuckPlayerNative {
+export class DuckPlayerNativePage {
     /** @type {SideEffects} */
     sideEffects;
     /** @type {Logger} */
@@ -102,11 +102,37 @@ export class DuckPlayerNative {
 
 /**
  * @param {DuckPlayerNativeSelectors} selectors
+ * @param {boolean} playbackPaused
  * @param {Environment} environment
  * @param {DuckPlayerNativeMessages} messages
  */
-export function setupDuckPlayerForYouTube(selectors, environment, messages) {
-    const onLoad = (sideEffects) => {
+export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment, messages) {
+    const mediaControlHandler = (sideEffects, logger, pause) => {
+        console.log('MEDIA CONTROL', pause); // TODO: Remove
+        logger.log('Running media control handler. Pause:', pause);
+
+        const videoElement = selectors?.videoElement;
+        const videoElementContainer = selectors?.videoElementContainer;
+        if (!videoElementContainer || !videoElement) {
+            logger.warn('Missing media control selectors in config');
+            return;
+        }
+
+        const targetElement = document.querySelector(videoElementContainer);
+        if (targetElement) {
+            if (pause) {
+                sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
+                sideEffects.add('appending thumbnail', () =>
+                    appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment),
+                );
+            } else {
+                sideEffects.destroy('stopping video from playing');
+                sideEffects.destroy('appending thumbnail');
+            }
+        }
+    };
+
+    const onLoad = (sideEffects, logger) => {
         sideEffects.add('started polling current timestamp', () => {
             const handler = (timestamp) => {
                 messages.notifyCurrentTimestamp(timestamp.toFixed(0));
@@ -114,33 +140,18 @@ export function setupDuckPlayerForYouTube(selectors, environment, messages) {
 
             return pollTimestamp(300, handler);
         });
+
+        if (playbackPaused) {
+            console.log('PAUSING VIDEO');
+            mediaControlHandler(sideEffects, logger, !!playbackPaused);
+        }
     };
 
     const onInit = (sideEffects, logger) => {
         sideEffects.add('subscribe to media control', () => {
             return messages.subscribeToMediaControl(({ pause }) => {
-                console.log('MEDIA CONTROL', pause); // TODO: Remove
-                logger.log('Running media control handler. Pause:', pause);
-
-                const videoElement = selectors?.videoElement;
-                const videoElementContainer = selectors?.videoElementContainer;
-                if (!videoElementContainer || !videoElement) {
-                    logger.warn('Missing media control selectors in config');
-                    return;
-                }
-
-                const targetElement = document.querySelector(videoElementContainer);
-                if (targetElement) {
-                    if (pause) {
-                        sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
-                        sideEffects.add('appending thumbnail', () =>
-                            appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment),
-                        );
-                    } else {
-                        sideEffects.destroy('stopping video from playing');
-                        sideEffects.destroy('appending thumbnail');
-                    }
-                }
+                console.log('GOT MC SUB');
+                mediaControlHandler(sideEffects, logger, pause);
             });
         });
 
@@ -152,7 +163,7 @@ export function setupDuckPlayerForYouTube(selectors, environment, messages) {
         });
     };
 
-    const duckPlayerNative = new DuckPlayerNative({
+    const duckPlayerNative = new DuckPlayerNativePage({
         selectors,
         environment,
         messages,
@@ -215,7 +226,7 @@ export function setupDuckPlayerForNoCookie(selectors, environment, messages) {
         });
     };
 
-    const duckPlayerNative = new DuckPlayerNative({
+    const duckPlayerNative = new DuckPlayerNativePage({
         selectors,
         environment,
         messages,
@@ -235,7 +246,7 @@ export function setupDuckPlayerForSerp(selectors, environment, messages) {
         serpNotify();
     };
 
-    const duckPlayerNative = new DuckPlayerNative({
+    const duckPlayerNative = new DuckPlayerNativePage({
         selectors,
         environment,
         messages,
