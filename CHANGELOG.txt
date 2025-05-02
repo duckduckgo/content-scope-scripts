@@ -1,3 +1,1 @@
-- onboarding: refresh assets (#1659)
-- Onboarding: Fix welcome message appearing off screen (#1650)
-- ntp: remove legacy menu (#1638)
+- Add query param color=white to  (#1662)
