@@ -123,7 +123,10 @@ export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment
             if (pause) {
                 sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
                 sideEffects.add('appending thumbnail', () =>
-                    appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment),
+                    appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment, () => {
+                        sideEffects.destroy('stopping video from playing');
+                        sideEffects.destroy('appending thumbnail');
+                    }),
                 );
             } else {
                 sideEffects.destroy('stopping video from playing');
