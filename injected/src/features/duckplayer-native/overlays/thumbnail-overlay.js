@@ -9,6 +9,7 @@ import { VideoParams, appendImageAsBackground, Logger } from '../util';
  */
 export class DDGVideoThumbnailOverlay extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-thumbnail-overlay-mobile';
+    static OVERLAY_CLICKED = 'overlay-clicked';
 
     policy = createPolicy();
     /** @type {Logger} */
@@ -42,6 +43,14 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
         container.innerHTML = this.policy.createHTML(content);
         shadow.append(style, container);
         this.container = container;
+
+        // Add click event listener to the overlay
+        const overlay = container.querySelector('.ddg-video-player-overlay');
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                this.dispatchEvent(new Event(DDGVideoThumbnailOverlay.OVERLAY_CLICKED));
+            });
+        }
 
         this.logger?.log('Created', DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, 'with container', container);
         this.appendThumbnail();
@@ -79,8 +88,9 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
  *
  * @param {HTMLElement} targetElement
  * @param {import('../environment').Environment} environment
+ * @param {() => void} [onClick] Optional callback to be called when the overlay is clicked
  */
-export function appendThumbnailOverlay(targetElement, environment) {
+export function appendThumbnailOverlay(targetElement, environment, onClick) {
     const logger = new Logger({
         id: 'THUMBNAIL_OVERLAY',
         shouldLog: () => environment.isTestMode(),
@@ -92,6 +102,10 @@ export function appendThumbnailOverlay(targetElement, environment) {
     overlay.logger = logger;
     overlay.testMode = environment.isTestMode();
     overlay.href = environment.getPlayerPageHref();
+
+    if (onClick) {
+        overlay.addEventListener(DDGVideoThumbnailOverlay.OVERLAY_CLICKED, onClick);
+    }
 
     targetElement.appendChild(overlay);
 
