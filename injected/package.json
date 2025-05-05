@@ -33,10 +33,10 @@
     "@canvas/image-data": "^1.0.0",
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#ca6101bb972756a87a8960ffb3029f603052ea9d",
     "@fingerprintjs/fingerprintjs": "^4.6.2",
-    "@types/chrome": "^0.0.315",
+    "@types/chrome": "^0.0.319",
     "@types/jasmine": "^5.1.7",
-    "@types/node": "^22.14.1",
-    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@types/node": "^22.15.3",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
     "fast-check": "^4.1.1",
     "jasmine": "^5.6.0",
     "minimist": "^1.2.8"
