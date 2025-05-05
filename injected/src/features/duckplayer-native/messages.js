@@ -100,7 +100,7 @@ export class DuckPlayerNativeMessages {
      * Notifies browser that the feature is ready
      */
     notifyFeatureIsReady() {
-        console.log('FIRING', constants.MSG_NAME_FEATURE_READY);
+        console.log('FIRING', constants.MSG_NAME_FEATURE_READY); // TODO: Remove
         this.messaging.notify(constants.MSG_NAME_FEATURE_READY, {});
     }
 
@@ -108,7 +108,15 @@ export class DuckPlayerNativeMessages {
      * Notifies browser that scripts are ready to be acalled
      */
     notifyScriptIsReady() {
-        console.log('FIRING', constants.MSG_NAME_SCRIPTS_READY);
+        console.log('FIRING', constants.MSG_NAME_SCRIPTS_READY); // TODO: Remove
         this.messaging.notify(constants.MSG_NAME_SCRIPTS_READY, {});
+    }
+
+    /**
+     * Notifies browser that the overlay was dismissed
+     */
+    notifyOverlayDismissed() {
+        console.log('FIRING', constants.MSG_NAME_DISMISS_OVERLAY); // TODO: Remove
+        this.messaging.notify(constants.MSG_NAME_DISMISS_OVERLAY, {});
     }
 }

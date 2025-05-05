@@ -2,7 +2,7 @@ import { pollTimestamp } from './get-current-timestamp.js';
 import { muteAudio } from './mute-audio.js';
 import { serpNotify } from './serp-notify.js';
 import { ErrorDetection } from './error-detection.js';
-import { appendThumbnailOverlay } from './overlays/thumbnail-overlay.js';
+import { appendThumbnailOverlay as showThumbnailOverlay } from './overlays/thumbnail-overlay.js';
 import { stopVideoFromPlaying } from './pause-video.js';
 import { showError } from './custom-error/custom-error.js';
 import { Logger, SideEffects } from './util.js';
@@ -122,12 +122,14 @@ export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment
         if (targetElement) {
             if (pause) {
                 sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
-                sideEffects.add('appending thumbnail', () =>
-                    appendThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment, () => {
+                sideEffects.add('appending thumbnail', () => {
+                    const clickHandler = () => {
+                        messages.notifyOverlayDismissed();
                         sideEffects.destroy('stopping video from playing');
                         sideEffects.destroy('appending thumbnail');
-                    }),
-                );
+                    };
+                    return showThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), environment, clickHandler);
+                });
             } else {
                 sideEffects.destroy('stopping video from playing');
                 sideEffects.destroy('appending thumbnail');
