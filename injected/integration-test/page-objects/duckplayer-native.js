@@ -220,7 +220,7 @@ export class DuckPlayerNative {
                     context: this.collector.messagingContextName,
                     featureName,
                     method: 'onCurrentTimestamp',
-                    params: { timestamp: "0" },
+                    params: { timestamp: '0' },
                 },
             },
         ]);
