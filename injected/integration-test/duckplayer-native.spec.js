@@ -13,6 +13,25 @@ test.describe('Duck Player Native messaging', () => {
 
         // Then Initial Setup should be called
         await duckPlayer.didSendInitialHandshake();
+
+        // And an onDuckPlayerScriptsReady event should be called
+        await duckPlayer.didSendDuckPlayerScriptsReady();
+    });
+
+    test('Responds to onUrlChanged', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a YouTube page
+        await duckPlayer.gotoYouTubePage();
+
+        // And the frontend receives an onUrlChanged event
+        await duckPlayer.sendURLChanged('NOCOOKIE');
+
+        // Then an onDuckPlayerScriptsReady event should be fired twice
+        await duckPlayer.didSendDuckPlayerScriptsReady(2);
     });
 
     test('Polls timestamp on YouTube', async ({ page }, workerInfo) => {
@@ -23,6 +42,19 @@ test.describe('Duck Player Native messaging', () => {
 
         // When I go to a YouTube page
         await duckPlayer.gotoYouTubePage();
+
+        // Then the current timestamp should be polled back to the browser
+        await duckPlayer.didSendCurrentTimestamp();
+    });
+
+    test('Polls timestamp on NoCookie page', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a NoCookie page
+        await duckPlayer.gotoNoCookiePage();
 
         // Then the current timestamp should be polled back to the browser
         await duckPlayer.didSendCurrentTimestamp();
@@ -41,8 +73,30 @@ test.describe('Duck Player Native thumbnail overlay', () => {
         await duckPlayer.sendOnMediaControl();
 
         // Then I should see the thumbnail overlay in the page
-        await duckPlayer.didShowThumbnailOverlay();
+        await duckPlayer.didShowOverlay();
         await duckPlayer.didShowLogoInOverlay();
+    });
+    test('Dismisses overlay on click', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a YouTube page
+        await duckPlayer.gotoYouTubePage();
+        await duckPlayer.sendOnMediaControl();
+
+        // And I see the thumbnail overlay in the page
+        await duckPlayer.didShowOverlay();
+
+        // And I click on the overlay
+        await duckPlayer.clickOnOverlay();
+
+        // Then the overlay should be dismissed
+        await duckPlayer.didDismissOverlay();
+
+        // And a didDismissOverlay event should be fired
+        await duckPlayer.didSendOverlayDismissalMessage();
     });
 });
 

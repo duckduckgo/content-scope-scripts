@@ -4,12 +4,18 @@ import { perPlatform } from '../type-helpers.mjs';
 import { ResultsCollector } from './results-collector.js';
 
 /**
- * @import { PageType} from '../../src/features/duck-player-native.js'
+ * @import { PageType } from '../../src/features/duckplayer-native/messages.js'
  * @typedef {"default" | "incremental-dom" | "age-restricted-error" | "sign-in-error"} PlayerPageVariants
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const configFiles = /** @type {const} */ (['native.json']);
+
+const defaultInitialSetup = {
+    locale: 'en',
+};
+
+const featureName = 'duckPlayerNative';
 
 export class DuckPlayerNative {
     /** @type {Partial<Record<PageType, string>>} */
@@ -29,9 +35,7 @@ export class DuckPlayerNative {
         this.platform = platform;
         this.collector = new ResultsCollector(page, build, platform);
         this.collector.withMockResponse({
-            initialSetup: {
-                locale: 'en',
-            },
+            initialSetup: defaultInitialSetup,
             onCurrentTimestamp: {},
         });
         this.collector.withUserPreferences({
@@ -79,7 +83,7 @@ export class DuckPlayerNative {
      * @param {string} [params.videoID]
      */
     async gotoPage(pageType, params = {}) {
-        await this.pageTypeIs(pageType);
+        await this.withPageType(pageType);
 
         const { variant = 'default', videoID = '123' } = params;
         const urlParams = new URLSearchParams([
@@ -107,14 +111,23 @@ export class DuckPlayerNative {
      * @param {PageType} pageType
      * @return {Promise<void>}
      */
-    async pageTypeIs(pageType) {
-        const initialSetupResponse = {
-            locale: 'en',
-            pageType,
-        };
+    async withPageType(pageType) {
+        const initialSetup = this.collector.mockResponses?.initialSetup || defaultInitialSetup;
 
         await this.collector.updateMockResponse({
-            initialSetup: initialSetupResponse,
+            initialSetup: { pageType, ...initialSetup },
+        });
+    }
+
+    /**
+     * @param {boolean} playbackPaused
+     * @return {Promise<void>}
+     */
+    async withPlaybackPaused(playbackPaused = true) {
+        const initialSetup = this.collector.mockResponses.initialSetup || defaultInitialSetup;
+
+        await this.collector.updateMockResponse({
+            initialSetup: { playbackPaused, ...initialSetup },
         });
     }
 
@@ -123,7 +136,7 @@ export class DuckPlayerNative {
      * @param {Record<string, any>} payload
      */
     async simulateSubscriptionMessage(name, payload) {
-        await this.collector.simulateSubscriptionMessage('duckPlayerNative', name, payload);
+        await this.collector.simulateSubscriptionMessage(featureName, name, payload);
     }
 
     /**
@@ -176,6 +189,13 @@ export class DuckPlayerNative {
         await this.simulateSubscriptionMessage('onMuteAudio', options);
     }
 
+    /**
+     * @param {PageType} pageType
+     */
+    async sendURLChanged(pageType) {
+        await this.simulateSubscriptionMessage('onUrlChanged', { pageType });
+    }
+
     /* Messaging assertions */
 
     async didSendInitialHandshake() {
@@ -184,7 +204,7 @@ export class DuckPlayerNative {
             {
                 payload: {
                     context: this.collector.messagingContextName,
-                    featureName: 'duckPlayerNative',
+                    featureName,
                     method: 'initialSetup',
                     params: {},
                 },
@@ -198,9 +218,9 @@ export class DuckPlayerNative {
             {
                 payload: {
                     context: this.collector.messagingContextName,
-                    featureName: 'duckPlayerNative',
+                    featureName,
                     method: 'onCurrentTimestamp',
-                    params: { timestamp: 0 },
+                    params: { timestamp: "0" },
                 },
             },
         ]);
@@ -208,12 +228,34 @@ export class DuckPlayerNative {
 
     /* Thumbnail Overlay assertions */
 
-    async didShowThumbnailOverlay() {
+    async didShowOverlay() {
         await this.page.locator('ddg-video-thumbnail-overlay-mobile').waitFor({ state: 'visible', timeout: 1000 });
     }
 
     async didShowLogoInOverlay() {
         await this.page.locator('ddg-video-thumbnail-overlay-mobile .logo').waitFor({ state: 'visible', timeout: 1000 });
+    }
+
+    async clickOnOverlay() {
+        await this.page.locator('ddg-video-thumbnail-overlay-mobile').click();
+    }
+
+    async didDismissOverlay() {
+        await this.page.locator('ddg-video-thumbnail-overlay-mobile').waitFor({ state: 'hidden', timeout: 1000 });
+    }
+
+    async didSendOverlayDismissalMessage() {
+        const messages = await this.collector.waitForMessage('didDismissOverlay');
+        expect(messages).toMatchObject([
+            {
+                payload: {
+                    context: this.collector.messagingContextName,
+                    featureName,
+                    method: 'didDismissOverlay',
+                    params: {},
+                },
+            },
+        ]);
     }
 
     /* Custom Error assertions */
@@ -232,6 +274,24 @@ export class DuckPlayerNative {
             - paragraph: YouTube is blocking this video from loading. If you’re using a VPN, try turning it off and reloading this page.
             - paragraph: If this doesn’t work, you can still watch this video on YouTube, but without the added privacy of Duck Player.
           `);
+    }
+
+    /**
+     * @param {number} numberOfCalls - Number of times the message should be received
+     */
+    async didSendDuckPlayerScriptsReady(numberOfCalls = 1) {
+        const expectedMessage = {
+            payload: {
+                context: this.collector.messagingContextName,
+                featureName,
+                method: 'onDuckPlayerScriptsReady',
+                params: {},
+            },
+        };
+        const expectedMessages = Array(numberOfCalls).fill(expectedMessage);
+        const actualMessages = await this.collector.waitForMessage('onDuckPlayerScriptsReady');
+
+        expect(actualMessages).toMatchObject(expectedMessages);
     }
 }
 
