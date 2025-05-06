@@ -31,7 +31,8 @@ export default defineConfig({
             testMatch: [
                 'integration-test/navigator-interface-insecure.js',
                 'integration-test/webcompat.spec.js',
-                'integration-test/message-bridge-apple.spec.js'
+                'integration-test/message-bridge-apple.spec.js',
+                'integration-test/duckplayer-native.spec.js',
             ],
             use: { injectName: 'apple', platform: 'macos' },
         },
@@ -40,7 +41,6 @@ export default defineConfig({
             testMatch: [
                 'integration-test/duckplayer-mobile.spec.js',
                 'integration-test/duckplayer-mobile-drawer.spec.js',
-                'integration-test/duckplayer-native.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
         },
