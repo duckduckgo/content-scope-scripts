@@ -37,6 +37,15 @@ test.describe('Test integration pages', () => {
         );
     });
 
+    test('Test infra with experiments', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/infra/pages/conditional-matching-experiments.html',
+            './integration-test/test-pages/infra/config/conditional-matching-experiments.json',
+        );
+    });
+
     test('Test infra fallback', async ({ page }, testInfo) => {
         await page.addInitScript(() => {
             // This ensures that our fallback code applies and so we simulate other platforms than Chromium.
