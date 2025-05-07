@@ -190,7 +190,7 @@ export default class ConfigFeature {
         if (!currentCohorts) return false;
         return currentCohorts.some((cohort) => {
             return (
-                cohort.feature === "ContentScopeExperiments" &&
+                cohort.feature === 'ContentScopeExperiments' &&
                 cohort.subfeature === experiment.experimentName &&
                 cohort.cohort === experiment.cohort
             );
