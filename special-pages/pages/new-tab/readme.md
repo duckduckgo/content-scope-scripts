@@ -14,8 +14,6 @@ URL parameters can be used to override the default values of the New Tab Page's 
 - `pir` - Specifies which Freemium PIR banner mock data to use. Expects a key from `freemiumPIRDataExamples` (e.g., `example1`).
 - `rmf` - Specifies which Remote Messaging Framework (RMF) mock message to display. Expects a key from `rmfDataExamples` (e.g., `example1`, `example2`).
 - `rmf-delay` - If `rmf` is specified, delays sending the RMF message data update by the given number of milliseconds.
-- `update-notification` - Specifies which update notification mock message to display. Expects a key from `updateNotificationExamples`.
-- `update-notification-delay` - If `update-notification` is specified, delays sending the update notification data by the given number of milliseconds.
 - `stats` - Specifies which Privacy Stats mock dataset to use. Expects a key from `privacyStatsMocks` (e.g., `few`, `many`, `willUpdate`, `growing`).
 - `stats-update-count` - When `stats` is set to `willUpdate` or `growing`, limits the number of mock data updates sent via the subscription.
 - `next-steps` - Specifies which "Next Steps" cards to display. Expects one or more IDs from `nextsteps.data.js`. Can be used multiple times (e.g., `?next-steps=card1&next-steps=card2`).

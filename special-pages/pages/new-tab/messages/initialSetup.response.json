@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["widgets", "widgetConfigs", "locale", "env", "platform", "updateNotification"],
+  "required": ["widgets", "widgetConfigs", "locale", "env", "platform"],
   "properties": {
     "widgets": {
       "$ref": "types/widget-list.json"
@@ -31,16 +31,6 @@
     },
     "customizer": {
       "$ref": "./types/customizer-data.json"
-    },
-    "updateNotification": {
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "$ref": "types/update-notification.json"
-        }
-      ]
     }
   }
 }

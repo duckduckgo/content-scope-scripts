@@ -3,7 +3,6 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 import { privacyStatsMocks } from './privacy-stats/mocks/privacy-stats.mocks.js';
 import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js';
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
-import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
@@ -17,7 +16,6 @@ import { activityMockTransport } from './activity/mocks/activity.mock-transport.
  * @typedef {import('../types/new-tab').NextStepsConfig} NextStepsConfig
  * @typedef {import('../types/new-tab').NextStepsCards} NextStepsCards
  * @typedef {import('../types/new-tab').NextStepsData} NextStepsData
- * @typedef {import('../types/new-tab').UpdateNotificationData} UpdateNotificationData
  * @typedef {import('../types/new-tab').NewTabPageSettings} NewTabPageSettings
  * @typedef {import('../types/new-tab').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
@@ -274,19 +272,6 @@ export function mockTransport() {
                     }
                     return () => {};
                 }
-                case 'updateNotification_onDataUpdate': {
-                    const update = url.searchParams.get('update-notification');
-                    const delay = url.searchParams.get('update-notification-delay');
-                    if (update && delay && update in updateNotificationExamples) {
-                        const ms = parseInt(delay, 10);
-                        const timeout = setTimeout(() => {
-                            const message = updateNotificationExamples[update];
-                            cb(message);
-                        }, ms);
-                        return () => clearTimeout(timeout);
-                    }
-                    return () => {};
-                }
                 case 'favorites_onDataUpdate': {
                     const controller = new AbortController();
                     channel?.addEventListener(
@@ -475,7 +460,6 @@ export function mockTransport() {
                 }
                 case 'initialSetup': {
                     const widgetsFromStorage = read('widgets') || [
-                        { id: 'updateNotification' },
                         { id: 'rmf' },
                         { id: 'freemiumPIRBanner' },
                         { id: 'nextSteps' },
@@ -484,17 +468,6 @@ export function mockTransport() {
 
                     const widgetConfigFromStorage = read('widget_config') || [{ id: 'favorites', visibility: 'visible' }];
 
-                    /** @type {UpdateNotificationData} */
-                    let updateNotification = { content: null };
-                    const isDelayed = url.searchParams.has('update-notification-delay');
-
-                    if (!isDelayed && url.searchParams.has('update-notification')) {
-                        const value = url.searchParams.get('update-notification');
-                        if (value && value in updateNotificationExamples) {
-                            updateNotification = updateNotificationExamples[value];
-                        }
-                    }
-
                     /** @type {import('../types/new-tab.ts').InitialSetupResponse} */
                     const initial = {
                         widgets: widgetsFromStorage,
@@ -502,7 +475,6 @@ export function mockTransport() {
                         platform: { name: 'integration' },
                         env: 'development',
                         locale: 'en',
-                        updateNotification,
                     };
 
                     const feed = url.searchParams.get('feed') || 'stats';

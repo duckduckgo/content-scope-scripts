@@ -33,7 +33,6 @@ const widgetConfig = {
 // prettier-ignore
 const initialSetupResponse = {
     widgets: [
-        { id: 'updateNotification' },
         { id: 'rmf' },
         { id: 'favorites' },
         { id: 'privacyStats' }
@@ -47,7 +46,6 @@ const initialSetupResponse = {
     env: 'production',
     locale: 'en',
     platform: { name: 'windows' },
-    updateNotification: { content: null },
     customizer: {
         theme: 'system',
         userImages: [],
