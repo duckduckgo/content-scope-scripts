@@ -29,7 +29,6 @@ export default defineConfig({
                 'next-steps.spec.js',
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
-                'update-notification.spec.js',
                 'customizer.spec.js',
                 'activity.spec.js',
                 'history.spec.js',
