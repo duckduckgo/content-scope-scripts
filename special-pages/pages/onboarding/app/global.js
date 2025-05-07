@@ -218,36 +218,23 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
  * @param {ImportMeta['platform']} platform
  */
 async function handleSystemSettingUpdate(action, messaging, platform) {
-    const { id, payload, current } = action;
+    const { id, payload } = action;
     switch (id) {
         case 'bookmarks': {
-            if (!current) {
-                messaging.setBookmarksBar(payload);
-            } else {
-                if (payload.enabled) {
-                    messaging.setBookmarksBar(payload);
-                }
-            }
+            messaging.setBookmarksBar(payload);
             return payload;
         }
         case 'session-restore': {
-            if (!current) {
-                messaging.setSessionRestore(payload);
-            } else {
-                if (payload.enabled) {
-                    messaging.setSessionRestore(payload);
-                }
-            }
+            messaging.setSessionRestore(payload);
             return payload;
         }
         case 'home-shortcut': {
-            if (!current) {
-                messaging.setShowHomeButton(payload);
-            } else {
-                if (payload.enabled) {
-                    messaging.setShowHomeButton(payload);
-                }
-            }
+            messaging.setShowHomeButton(payload);
+            return payload;
+        }
+        case 'ad-blocking':
+        case 'youtube-ad-blocking': {
+            messaging.setAdBlocking(payload);
             return payload;
         }
         case 'dock': {
@@ -279,17 +266,6 @@ async function handleSystemSettingUpdate(action, messaging, platform) {
                 return { enabled: true };
             }
             break;
-        }
-        case 'ad-blocking':
-        case 'youtube-ad-blocking': {
-            if (!current) {
-                messaging.setAdBlocking(payload);
-            } else {
-                if (payload.enabled) {
-                    messaging.setAdBlocking(payload);
-                }
-            }
-            return payload;
         }
     }
     if ('value' in payload) {

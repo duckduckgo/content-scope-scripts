@@ -71,6 +71,7 @@ export class EmbedSettings {
 
         url.searchParams.set('rel', '0'); // shows related videos from the same channel as the video
         url.searchParams.set('modestbranding', '1'); // disables showing the YouTube logo in the video control bar
+        url.searchParams.set('color', 'white'); // Forces legacy YouTube player UI
 
         if (this.timestamp && this.timestamp.seconds > 0) {
             url.searchParams.set('start', String(this.timestamp.seconds)); // if timestamp supplied, start video at specific point

@@ -11,7 +11,7 @@
     background-image: url("../../../public/assets/img/grain.png"), url("../../../public/assets/img/background-v3.jpg");
     background-blend-mode: overlay, normal;
     background-repeat: repeat, no-repeat;
-    background-size: 100px, cover;
+    background-size: 50px, cover;
 
     @media only screen and (min-width: 481px) {
         background-size: 100px, 200% 100%;
@@ -24,69 +24,78 @@
         background-image: url("../../../public/assets/img/grain-dark.png"), url("../../../public/assets/img/background-dark-v3.jpg");
         background-blend-mode: overlay, normal;
         background-repeat: repeat, no-repeat;
-        background-size: 100px, cover;
+        background-size: 50px, cover;
     }
 }
 
 .foreground {
     position: absolute;
-    top: 10vh;
+    top: 0;
     left: 0;
     width: 100vw;
-    height: 80vh;
-    background-size: contain;
+    height: 100vh;
     background-repeat: no-repeat;
+}
 
-    animation-duration: 50s;
-
+.animated {
+    animation-duration: 30s;
     animation-fill-mode: both;
     animation-timing-function: linear;
+}
+
+.clouds {
+    background-image: url("../../../public/assets/img/clouds.svg");
+    background-position: top right;
+    animation-name: offscreen-clouds;
+    animation-duration: 50s;
 
     @media (prefers-color-scheme: dark) {
         opacity: .1;
     }
 }
-.foreground.layer1 {
-    background-image: url("../../../public/assets/img/layer1.svg");
-    animation-name: slidein1;
+
+.mountains {
+    background-image: url("../../../public/assets/img/mountains.svg");
+    background-position: bottom right;
+
+    @media (prefers-color-scheme: dark) {
+        opacity: .15;
+    }
 }
-.foreground.layer2 {
-    background-image: url("../../../public/assets/img/layer2.svg");
-    animation-name: slidein2;
+
+.stars {
+    background-image: url("../../../public/assets/img/stars.svg");
+    background-position: top right;
+    display: none;
+
+    @media screen and (prefers-color-scheme: dark) {
+        display: block;
+    }
 }
-.foreground.layer3 {
-    background-image: url("../../../public/assets/img/layer3.svg");
-    animation-name: slidein3;
-}
+
 @media only screen and (max-width: 480px) {
     .foreground {
         display: none
     }
 }
-@keyframes slidein1 {
-    from {
-        transform: translateX(110vw);
-    }
 
-    to {
-        transform: translateX(40vw);
-    }
-}
-@keyframes slidein2 {
+@keyframes offscreen {
     from {
         transform: translateX(100vw);
     }
 
     to {
-        transform: translateX(40vw);
+        transform: translateX(0vw);
     }
 }
-@keyframes slidein3 {
+
+@keyframes offscreen-clouds {
     from {
-        transform: translateX(120vw);
+        /* this accounts for clouds SVG having some 'whitespace' + being pinned to the top right  */
+        transform: translateX(830px);
     }
 
     to {
-        transform: translateX(40vw);
+        transform: translateX(0vw);
     }
 }
