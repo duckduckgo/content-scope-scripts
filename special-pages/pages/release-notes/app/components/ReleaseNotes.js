@@ -40,6 +40,8 @@ function StatusText({ status, version, progress = 0 }) {
     const statusTexts = {
         loaded: t('browserUpToDate'),
         loading: t('checkingForUpdate'),
+        // loadingError: t('loadingError'),
+        loadingError: 'Loading Error',
         updateReady: t('newVersionAvailable'),
         updateError: t('updateError'),
         criticalUpdateReady: t('criticallyOutOfDate'),
@@ -64,6 +66,7 @@ function StatusIcon({ status, className }) {
     const iconClasses = {
         loaded: styles.checkIcon,
         loading: styles.spinnerIcon,
+        loadingError: styles.warningIcon,
         updateReady: styles.alertIcon,
         criticalUpdateReady: styles.warningIcon,
         updateError: styles.warningIcon,
@@ -214,7 +217,7 @@ export function CardContents({ releaseData }) {
     const { status } = releaseData;
     const isLoading = status === 'loading' || status === 'updateDownloading' || status === 'updatePreparing';
 
-    if (isLoading) {
+    if (isLoading || status === 'loadingError') {
         return <ContentPlaceholder />;
     }
 
@@ -306,9 +309,11 @@ export function ReleaseNotes({ releaseData }) {
                 <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion} progress={progress} />
                 {shouldShowButton && <UpdateButton releaseData={releaseData} />}
             </header>
-            <Card className={styles.card}>
-                <CardContents releaseData={releaseData} />
-            </Card>
+            {status !== 'loadingError' && (
+                <Card className={styles.card}>
+                    <CardContents releaseData={releaseData} />
+                </Card>
+            )}
         </article>
     );
 }
