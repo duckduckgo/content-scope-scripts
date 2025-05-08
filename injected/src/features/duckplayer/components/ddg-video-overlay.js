@@ -72,9 +72,9 @@ export class DDGVideoOverlay extends HTMLElement {
                     <button class="ddg-vpo-button ddg-vpo-cancel" type="button">${overlayCopy.buttonOptOut}</button>
                     <a class="ddg-vpo-button ddg-vpo-open" href="#">${overlayCopy.buttonOpen}</a>
                 </div>
-                <div class="ddg-vpo-remember">
+                <!-- <div class="ddg-vpo-remember">
                     <label for="remember"> <input id="remember" type="checkbox" name="ddg-remember" /> ${overlayCopy.rememberLabel} </label>
-                </div>
+                </div> -->
             </div>
         `.toString();
 
