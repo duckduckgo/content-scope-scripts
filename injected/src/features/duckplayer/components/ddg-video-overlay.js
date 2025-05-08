@@ -72,7 +72,7 @@ export class DDGVideoOverlay extends HTMLElement {
                     <button class="ddg-vpo-button ddg-vpo-cancel" type="button">${overlayCopy.buttonOptOut}</button>
                     <a class="ddg-vpo-button ddg-vpo-open" href="#">${overlayCopy.buttonOpen}</a>
                 </div>
-                <div class="ddg-vpo-remember">
+                <div class="ddg-vpo-remember" hidden>
                     <label for="remember"> <input id="remember" type="checkbox" name="ddg-remember" /> ${overlayCopy.rememberLabel} </label>
                 </div>
             </div>
@@ -119,6 +119,7 @@ export class DDGVideoOverlay extends HTMLElement {
         if (!cancelElement) return console.warn('Could not access .ddg-vpo-cancel');
         if (!watchInPlayer) return console.warn('Could not access .ddg-vpo-open');
         const optOutHandler = (e) => {
+            console.log('OPT OUT');
             if (e.isTrusted) {
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
                 if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input');
@@ -126,6 +127,7 @@ export class DDGVideoOverlay extends HTMLElement {
             }
         };
         const watchInPlayerHandler = (e) => {
+            console.log('WATCH IN PLAYER');
             if (e.isTrusted) {
                 e.preventDefault();
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
@@ -133,7 +135,7 @@ export class DDGVideoOverlay extends HTMLElement {
                 this.manager.userOptIn(remember.checked, params);
             }
         };
-        cancelElement.addEventListener('click', optOutHandler);
-        watchInPlayer.addEventListener('click', watchInPlayerHandler);
+        cancelElement.addEventListener('pointerdown', optOutHandler);
+        watchInPlayer.addEventListener('pointerdown', watchInPlayerHandler);
     }
 }
