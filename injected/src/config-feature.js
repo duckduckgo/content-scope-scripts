@@ -16,7 +16,18 @@ export default class ConfigFeature {
     /** @type {string} */
     name;
 
-    /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: import('./content-feature.js').AssetConfig | undefined, site: import('./content-feature.js').Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
+    /**
+     * @type {{
+     *   debug?: boolean,
+     *   desktopModeEnabled?: boolean,
+     *   forcedZoomEnabled?: boolean,
+     *   featureSettings?: Record<string, unknown>,
+     *   assets?: import('./content-feature.js').AssetConfig | undefined,
+     *   site: import('./content-feature.js').Site,
+     *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
+     *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
+     * } | null}
+     */
     #args;
 
     /**
@@ -95,6 +106,9 @@ export default class ConfigFeature {
      * @typedef {object} ConditionBlock
      * @property {string[] | string} [domain]
      * @property {object} [urlPattern]
+     * @property {object} [experiment]
+     * @property {string} [experiment.experimentName]
+     * @property {string} [experiment.cohort]
      */
 
     /**
@@ -121,6 +135,7 @@ export default class ConfigFeature {
         const conditionChecks = {
             domain: this._matchDomainConditional,
             urlPattern: this._matchUrlPatternConditional,
+            experiment: this._matchExperimentConditional,
         };
 
         for (const key in conditionBlock) {
@@ -150,6 +165,36 @@ export default class ConfigFeature {
             }
         }
         return true;
+    }
+
+    /**
+     * Takes a condition block and returns true if the current experiment matches the experimentName and cohort.
+     * Expects:
+     * ```json
+     * {
+     *   "experiment": {
+     *      "experimentName": "experimentName",
+     *      "cohort": "cohort-name"
+     *    }
+     * }
+     * ```
+     * Where featureName "ContentScopeExperiments" has a subfeature "experimentName" and cohort "cohort-name"
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchExperimentConditional(conditionBlock) {
+        if (!conditionBlock.experiment) return false;
+        const experiment = conditionBlock.experiment;
+        if (!experiment.experimentName || !experiment.cohort) return false;
+        const currentCohorts = this.args?.currentCohorts;
+        if (!currentCohorts) return false;
+        return currentCohorts.some((cohort) => {
+            return (
+                cohort.feature === 'ContentScopeExperiments' &&
+                cohort.subfeature === experiment.experimentName &&
+                cohort.cohort === experiment.cohort
+            );
+        });
     }
 
     /**
