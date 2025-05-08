@@ -160,6 +160,14 @@ export class OnboardingPage {
         await this.page.getByRole('button', { name: 'Skip' }).click();
     }
 
+    /**
+     * @param {boolean} adBlockingEnabled
+     */
+    async checkYouTubeText(adBlockingEnabled) {
+        const expectedText = adBlockingEnabled ? 'Watch YouTube ad-free' : 'Play YouTube without targeted ads';
+        await expect(this.page.getByRole('table')).toContainText(expectedText);
+    }
+
     async makeDefault() {
         const { page } = this;
         await page.getByRole('button', { name: 'Make Default' }).click();
