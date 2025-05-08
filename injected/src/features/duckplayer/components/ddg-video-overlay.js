@@ -133,7 +133,7 @@ export class DDGVideoOverlay extends HTMLElement {
                 this.manager.userOptIn(remember.checked, params);
             }
         };
-        cancelElement.addEventListener('click', optOutHandler);
-        watchInPlayer.addEventListener('click', watchInPlayerHandler);
+        cancelElement.addEventListener('pointerdown', optOutHandler);
+        watchInPlayer.addEventListener('pointerdown', watchInPlayerHandler);
     }
 }
