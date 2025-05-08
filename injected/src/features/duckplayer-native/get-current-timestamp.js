@@ -2,8 +2,15 @@
  * @returns {number}
  */
 export function getCurrentTimestamp() {
-    const video = document.querySelector('video');
+    const video = document.querySelector('video'); // TODO: Move to remote config
     return video?.currentTime || 0;
+}
+
+/**
+ * @returns {boolean}
+ */
+function isShowingAd() {
+    return !!document.querySelector('.html5-video-player.ad-showing'); // TODO: Move to remote config
 }
 
 /**
@@ -23,7 +30,12 @@ export function pollTimestamp(interval = 300, callback) {
     }
 
     const timestampPolling = setInterval(() => {
+        if (isShowingAd()) {
+            console.log('Ad showing. Not polling timestamp');
+            return;
+        }
         const timestamp = getCurrentTimestamp();
+        console.log('Polling timestamp', timestamp);
         callback(timestamp);
     }, interval);
 
