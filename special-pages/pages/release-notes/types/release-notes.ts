@@ -11,6 +11,7 @@
  */
 export type UpdateMessage =
   | LoadingState
+  | ReleaseNotesLoadingErrorState
   | ReleaseNotesLoadedState
   | UpdateReadyState
   | UpdateErrorState
@@ -115,6 +116,20 @@ export interface OnUpdateSubscription {
  */
 export interface LoadingState {
   status: "loading";
+  /**
+   * Current version of the app
+   */
+  currentVersion: string;
+  /**
+   * Timestamp of last check for version updates
+   */
+  lastUpdate: number;
+}
+/**
+ * Error loading release notes from request
+ */
+export interface ReleaseNotesLoadingErrorState {
+  status: "loadingError";
   /**
    * Current version of the app
    */
