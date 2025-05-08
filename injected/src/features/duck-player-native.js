@@ -32,6 +32,10 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         const selectors = this.getFeatureSetting('selectors');
         console.log('DUCK PLAYER NATIVE SELECTORS', selectors); // TODO: REMOVE
+        if (!selectors) {
+            console.warn('No selectors found. Check remote config. Feature will not be initialized.');
+            return;
+        }
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
@@ -60,7 +64,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         try {
             initialSetup = await messages.initialSetup();
         } catch (e) {
-            console.error(e);
+            console.warn('Failed to get initial setup', e);
             return;
         }
 
