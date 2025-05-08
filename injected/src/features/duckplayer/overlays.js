@@ -27,12 +27,12 @@ export async function initOverlays(settings, environment, messages) {
     try {
         initialSetup = await messages.initialSetup();
     } catch (e) {
-        console.error(e);
+        console.warn(e);
         return;
     }
 
     if (!initialSetup) {
-        console.error('cannot continue without user settings');
+        console.warn('cannot continue without user settings');
         return;
     }
 
