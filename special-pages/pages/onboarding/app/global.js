@@ -76,6 +76,14 @@ export function reducer(state, action) {
                         /** @type {import('./types').SystemValueId} */
                         const systemValueId = action.id;
 
+                        // skip Duck Player onboarding step when ad blocking is enabled
+                        // note: there's no UI for disabling this setting, so we never need to re-insert duckPlayerSingle into order
+                        const isAdBlockingSetting = systemValueId === 'ad-blocking' || systemValueId === 'youtube-ad-blocking';
+                        const nextOrder =
+                            isAdBlockingSetting && action.payload.enabled
+                                ? state.order.filter((step) => step !== 'duckPlayerSingle')
+                                : state.order;
+
                         /** @type {import('./types').UIValue} */
                         const nextUIState = isCurrent && action.payload.enabled ? 'accepted' : 'skipped';
 
@@ -86,6 +94,7 @@ export function reducer(state, action) {
                                 // bump the step (show the next row)
                                 ...state.step,
                             },
+                            order: nextOrder,
                             activeRow: isCurrent ? state.activeRow + 1 : state.activeRow,
                             values: {
                                 ...state.values,
