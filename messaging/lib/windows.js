@@ -60,6 +60,7 @@ export class WindowsMessagingTransport {
         const outgoing = WindowsRequestMessage.fromRequest(msg, data);
 
         // send the message
+        console.log('🦆 postMessage', JSON.stringify(outgoing, null, 2));
         this.config.methods.postMessage(outgoing);
 
         // compare incoming messages against the `msg.id`
@@ -108,6 +109,7 @@ export class WindowsMessagingTransport {
     subscribe(msg, callback) {
         // compare incoming messages against the `msg.subscriptionName`
         const comparator = (eventData) => {
+            console.log('🦆 response', JSON.stringify(eventData, null, 2));
             return (
                 eventData.featureName === msg.featureName &&
                 eventData.context === msg.context &&
