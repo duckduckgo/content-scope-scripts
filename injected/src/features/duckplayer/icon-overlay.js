@@ -255,7 +255,7 @@ export class IconOverlay {
      * @param {(href: string) => void} callback - the function to execute following a click
      */
     addClickHandler(element, callback) {
-        element.addEventListener('click', (event) => {
+        element.addEventListener('pointerdown', (event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
             const link = /** @type {HTMLElement} */ (event.target).closest('a');
