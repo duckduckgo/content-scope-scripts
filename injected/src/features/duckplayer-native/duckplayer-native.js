@@ -143,7 +143,7 @@ export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment
                 messages.notifyCurrentTimestamp(timestamp.toFixed(0));
             };
 
-            return pollTimestamp(300, handler);
+            return pollTimestamp(300, handler, selectors);
         });
 
         if (playbackPaused) {
@@ -190,7 +190,7 @@ export function setupDuckPlayerForNoCookie(selectors, environment, messages) {
                 messages.notifyCurrentTimestamp(timestamp.toFixed(0));
             };
 
-            return pollTimestamp(300, handler);
+            return pollTimestamp(300, handler, selectors);
         });
 
         logger.log('Setting up error detection');

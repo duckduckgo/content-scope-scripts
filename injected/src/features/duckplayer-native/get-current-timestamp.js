@@ -1,16 +1,12 @@
-/**
- * @returns {number}
- */
-export function getCurrentTimestamp() {
-    const video = document.querySelector('video'); // TODO: Move to remote config
-    return video?.currentTime || 0;
-}
+/** @import { DuckPlayerNativeSelectors } from './duckplayer-native.js'; */
 
 /**
- * @returns {boolean}
+ * @param {string} selector - Selector for the video element
+ * @returns {number}
  */
-function isShowingAd() {
-    return !!document.querySelector('.html5-video-player.ad-showing'); // TODO: Move to remote config
+export function getCurrentTimestamp(selector) {
+    const video = /** @type {HTMLVideoElement|null} */ (document.querySelector(selector));
+    return video?.currentTime || 0;
 }
 
 /**
@@ -22,19 +18,24 @@ function isShowingAd() {
  * TODO: Can we not brute force this?
  * @param {number} interval - Polling interval
  * @param {(number) => void} callback - Callback handler for polling event
+ * @param {DuckPlayerNativeSelectors} selectors - Selectors for the player
  * @returns
  */
-export function pollTimestamp(interval = 300, callback) {
-    if (!callback) {
-        console.error('Timestamp polling failed. No callback defined');
+export function pollTimestamp(interval = 300, callback, selectors) {
+    if (!callback || !selectors) {
+        console.error('Timestamp polling failed. No callback or selectors defined');
     }
+
+    const isShowingAd = () => {
+        return selectors.adShowing && !!document.querySelector(selectors.adShowing);
+    };
 
     const timestampPolling = setInterval(() => {
         if (isShowingAd()) {
             console.log('Ad showing. Not polling timestamp');
             return;
         }
-        const timestamp = getCurrentTimestamp();
+        const timestamp = getCurrentTimestamp(selectors.videoElement);
         console.log('Polling timestamp', timestamp);
         callback(timestamp);
     }, interval);
