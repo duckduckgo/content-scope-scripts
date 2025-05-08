@@ -119,6 +119,7 @@ export class DDGVideoOverlay extends HTMLElement {
         if (!cancelElement) return console.warn('Could not access .ddg-vpo-cancel');
         if (!watchInPlayer) return console.warn('Could not access .ddg-vpo-open');
         const optOutHandler = (e) => {
+            console.log('OPT OUT');
             if (e.isTrusted) {
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
                 if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input');
@@ -126,6 +127,7 @@ export class DDGVideoOverlay extends HTMLElement {
             }
         };
         const watchInPlayerHandler = (e) => {
+            console.log('WATCH IN PLAYER');
             if (e.isTrusted) {
                 e.preventDefault();
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
