@@ -83,10 +83,7 @@ export const stepsConfig = {
             content: <SettingsStep data={settingsRowItems} />,
         };
     },
-    duckPlayerSingle: ({ t, globalState, advance, beforeAfter }) => {
-        const isYouTubeAdBlockingEnabled = globalState.values['youtube-ad-blocking']?.enabled ?? false;
-        const title = isYouTubeAdBlockingEnabled ? t('duckPlayer_alt_title') : t('duckPlayer_title');
-        const subtitle = isYouTubeAdBlockingEnabled ? t('duckPlayer_alt_subtitle') : t('duckPlayer_subtitle');
+    duckPlayerSingle: ({ t, advance, beforeAfter }) => {
         const beforeAfterState = beforeAfter.get();
         const longestText = [t('beforeAfter_duckPlayer_show'), t('beforeAfter_duckPlayer_hide')].reduce((acc, cur) => {
             return cur.length > acc.length ? cur : acc;
@@ -95,8 +92,8 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title,
-                subtitle,
+                title: t('duckPlayer_title'),
+                subtitle: t('duckPlayer_subtitle'),
                 speechBubble: true,
             },
             dismissButton: {
