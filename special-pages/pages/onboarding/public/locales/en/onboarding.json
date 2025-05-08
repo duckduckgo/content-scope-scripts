@@ -393,6 +393,10 @@
     "title": "Play YouTube without targeted ads",
     "note": "The description of a browser privacy feature in the comparison table."
   },
+  "comparison_youtubeAdFree": {
+    "title": "Watch YouTube ad-free",
+    "note": "The description of a browser privacy feature in the comparison table when ad-blocking is enabled."
+  },
   "comparison_fullSupport": {
     "title": "Significant protection",
     "note": "The level of protection offered by a browser on a specific feature in the comparison table."
