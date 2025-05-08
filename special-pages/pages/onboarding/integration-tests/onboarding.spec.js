@@ -31,6 +31,37 @@ test.describe('onboarding', () => {
         await onboarding.openPage({ env: 'app', page: 'welcome', willThrow: true });
         await onboarding.handlesFatalException();
     });
+    test.describe('Given I am on the make default step', () => {
+        test('Then "Watch YouTube ad-free" appears when ad blocking is enabled', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingPage.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'ad-blocking', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
+            await onboarding.checkYouTubeText(true);
+        });
+
+        test('Then "Play YouTube without targeted ads" appears when ad blocking is not enabled', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingPage.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
+            await onboarding.checkYouTubeText(false);
+        });
+    });
     test.describe('Given I am on the summary step', () => {
         test('Then I can exit to search', async ({ page }, workerInfo) => {
             const onboarding = OnboardingPage.create(page, workerInfo);
