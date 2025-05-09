@@ -115,6 +115,9 @@ export interface InitialSetupResponse {
    * Browser locale
    */
   locale: string;
+  platform?: {
+    name: "macos" | "windows" | "android" | "ios" | "integration";
+  };
 }
 /**
  * Generated from @see "../messages/onUpdate.subscribe.json"
