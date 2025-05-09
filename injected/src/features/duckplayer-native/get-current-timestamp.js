@@ -5,7 +5,7 @@
  * @returns {number}
  */
 export function getCurrentTimestamp(selector) {
-    const video = /** @type {HTMLVideoElement|null} */ (document.querySelector(selector));
+    const video = /** @type {HTMLVideoElement|null} */ (document.querySelector("video")); // TODO: Return to remote config
     return video?.currentTime || 0;
 }
 
@@ -22,6 +22,9 @@ export function getCurrentTimestamp(selector) {
  * @returns
  */
 export function pollTimestamp(interval = 300, callback, selectors) {
+    window.addEventListener("message", function(event) {
+        console.log('MESSAGE', event);
+    });
     if (!callback || !selectors) {
         console.error('Timestamp polling failed. No callback or selectors defined');
     }
