@@ -35,6 +35,7 @@ function generateConfig() {
                 'webCompat',
                 'apiManipulation',
                 'duckPlayer',
+                'duckPlayerNative',
             ],
         },
     };

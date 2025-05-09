@@ -154,6 +154,7 @@ export class WebkitMessagingTransport {
      * @param {import('../index.js').RequestMessage} msg
      */
     async request(msg) {
+        console.log('MESSAGE', msg);
         const data = await this.wkSendAndWait(msg.context, msg);
 
         if (isResponseFor(msg, data)) {

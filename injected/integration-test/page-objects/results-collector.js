@@ -244,6 +244,10 @@ export class ResultsCollector {
         return this.build.name === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
     }
 
+    get mockResponses() {
+        return this.#mockResponses;
+    }
+
     /**
      * @param {string} featureName
      * @return {import("@duckduckgo/messaging").MessagingContext}
