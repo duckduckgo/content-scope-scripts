@@ -42,7 +42,7 @@ function StatusText({ status, version, progress = 0 }) {
         loaded: t('browserUpToDate'),
         loading: t('checkingForUpdate'),
         // loadingError: t('loadingError'),
-        loadingError: 'Failed to load release notes',
+        loadingError: 'Error loading update summary',
         updateReady: t('newVersionAvailable'),
         updateError: t('updateError'),
         criticalUpdateReady: t('criticallyOutOfDate'),
@@ -266,7 +266,7 @@ export function UpdateButton({ releaseData }) {
 
     if (status === 'loadingError') {
         // button = <Button onClick={() => messages?.retryFetchReleaseNotes()}>{t('retryGettingReleaseNotes')}</Button>;
-        button = <Button onClick={() => messages?.retryFetchReleaseNotes()}>Retry Getting Release Notes</Button>;
+        button = <Button onClick={() => messages?.retryFetchReleaseNotes()}>Reload Summary</Button>;
     }
 
     if (status === 'updateError') {
@@ -312,6 +312,7 @@ export function ReleaseNotes({ releaseData }) {
     return (
         <article className={styles.article}>
             <header className={styles.heading}>
+                <p>Thanks for choosing DuckDuckGo!</p>
                 <PageTitle title={t('browserReleaseNotes')} />
                 <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion} progress={progress} />
                 {shouldShowButton && <UpdateButton releaseData={releaseData} />}
