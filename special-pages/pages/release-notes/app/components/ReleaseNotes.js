@@ -266,7 +266,11 @@ export function UpdateButton({ releaseData }) {
 
     if (status === 'loadingError') {
         // button = <Button onClick={() => messages?.retryFetchReleaseNotes()}>{t('retryGettingReleaseNotes')}</Button>;
-        button = <Button onClick={() => messages?.retryFetchReleaseNotes()}>Reload Summary</Button>;
+        button = (
+            <Button onClick={() => messages?.retryFetchReleaseNotes()} variant="accentBrand">
+                Reload Summary
+            </Button>
+        );
     }
 
     if (status === 'updateError') {

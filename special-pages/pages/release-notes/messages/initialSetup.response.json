@@ -12,6 +12,16 @@
     "locale": {
       "description": "Browser locale",
       "type": "string"
+    },
+    "platform": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["macos", "windows", "android", "ios", "integration"]
+        }
+      }
     }
   },
   "required": ["env", "locale"]
