@@ -26,6 +26,7 @@ export interface ReleaseNotesMessages {
     | BrowserRestartNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
+    | RetryFetchReleaseNotesNotification
     | RetryUpdateNotification;
   requests: InitialSetupRequest;
   subscriptions: OnUpdateSubscription;
@@ -73,6 +74,17 @@ export interface ReportPageException {
    */
   message: string;
 }
+/**
+ * Generated from @see "../messages/retryFetchReleaseNotes.notify.json"
+ */
+export interface RetryFetchReleaseNotesNotification {
+  method: "retryFetchReleaseNotes";
+  params: RetryFetchReleaseNotes;
+}
+/**
+ * Notifies browser that user has requested to retry fetching release notes after failed attempt.
+ */
+export interface RetryFetchReleaseNotes {}
 /**
  * Generated from @see "../messages/retryUpdate.notify.json"
  */

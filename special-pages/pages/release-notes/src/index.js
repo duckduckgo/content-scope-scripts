@@ -71,6 +71,13 @@ export class ReleaseNotesPage {
     }
 
     /**
+     * Forwards a click on retry fetching release notes button to browser. Added specifically for Windows use-case
+     */
+    retryFetchReleaseNotes() {
+        this.messaging.notify('retryFetchReleaseNotes', {});
+    }
+
+    /**
      * Forwards a click on restart button to browser
      */
     browserRestart() {
