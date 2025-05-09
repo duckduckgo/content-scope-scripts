@@ -11,6 +11,7 @@
  */
 export type UpdateMessage =
   | LoadingState
+  | ReleaseNotesLoadingErrorState
   | ReleaseNotesLoadedState
   | UpdateReadyState
   | UpdateErrorState
@@ -25,6 +26,7 @@ export interface ReleaseNotesMessages {
     | BrowserRestartNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
+    | RetryFetchReleaseNotesNotification
     | RetryUpdateNotification;
   requests: InitialSetupRequest;
   subscriptions: OnUpdateSubscription;
@@ -73,6 +75,17 @@ export interface ReportPageException {
   message: string;
 }
 /**
+ * Generated from @see "../messages/retryFetchReleaseNotes.notify.json"
+ */
+export interface RetryFetchReleaseNotesNotification {
+  method: "retryFetchReleaseNotes";
+  params: RetryFetchReleaseNotes;
+}
+/**
+ * Notifies browser that user has requested to retry fetching release notes after failed attempt.
+ */
+export interface RetryFetchReleaseNotes {}
+/**
  * Generated from @see "../messages/retryUpdate.notify.json"
  */
 export interface RetryUpdateNotification {
@@ -102,6 +115,9 @@ export interface InitialSetupResponse {
    * Browser locale
    */
   locale: string;
+  platform?: {
+    name: "macos" | "windows" | "android" | "ios" | "integration";
+  };
 }
 /**
  * Generated from @see "../messages/onUpdate.subscribe.json"
@@ -115,6 +131,20 @@ export interface OnUpdateSubscription {
  */
 export interface LoadingState {
   status: "loading";
+  /**
+   * Current version of the app
+   */
+  currentVersion: string;
+  /**
+   * Timestamp of last check for version updates
+   */
+  lastUpdate: number;
+}
+/**
+ * Error loading release notes from request
+ */
+export interface ReleaseNotesLoadingErrorState {
+  status: "loadingError";
   /**
    * Current version of the app
    */

@@ -14,6 +14,7 @@ import styles from './ReleaseNotes.module.css';
  * @typedef {import('../../types/release-notes.js').UpdateMessage} UpdateMessage
  * @typedef {import('../../types/release-notes.js').UpdateErrorState} UpdateErrorState
  * @typedef {import('../../types/release-notes.js').UpdateReadyState} UpdateReadyState
+ * @typedef {import('../../types/release-notes.js').ReleaseNotesLoadingErrorState} ReleaseNotesLoadingErrorState
  * @typedef {import('../../types/release-notes.js').ReleaseNotesLoadedState} ReleaseNotesLoadedState
  * @typedef {import('../types.js').Notes} Notes
  */
@@ -40,6 +41,8 @@ function StatusText({ status, version, progress = 0 }) {
     const statusTexts = {
         loaded: t('browserUpToDate'),
         loading: t('checkingForUpdate'),
+        // loadingError: t('loadingError'),
+        loadingError: 'Error loading update summary',
         updateReady: t('newVersionAvailable'),
         updateError: t('updateError'),
         criticalUpdateReady: t('criticallyOutOfDate'),
@@ -64,6 +67,7 @@ function StatusIcon({ status, className }) {
     const iconClasses = {
         loaded: styles.checkIcon,
         loading: styles.spinnerIcon,
+        loadingError: styles.warningIcon,
         updateReady: styles.alertIcon,
         criticalUpdateReady: styles.warningIcon,
         updateError: styles.warningIcon,
@@ -214,7 +218,7 @@ export function CardContents({ releaseData }) {
     const { status } = releaseData;
     const isLoading = status === 'loading' || status === 'updateDownloading' || status === 'updatePreparing';
 
-    if (isLoading) {
+    if (isLoading || status === 'loadingError') {
         return <ContentPlaceholder />;
     }
 
@@ -251,7 +255,7 @@ export function CardContents({ releaseData }) {
 
 /**
  * @param {object} props
- * @param {UpdateReadyState|UpdateErrorState} props.releaseData
+ * @param {UpdateReadyState|UpdateErrorState|ReleaseNotesLoadingErrorState} props.releaseData
  */
 export function UpdateButton({ releaseData }) {
     const { t } = useTypedTranslation();
@@ -259,6 +263,15 @@ export function UpdateButton({ releaseData }) {
 
     const { status } = releaseData;
     let button;
+
+    if (status === 'loadingError') {
+        // button = <Button onClick={() => messages?.retryFetchReleaseNotes()}>{t('retryGettingReleaseNotes')}</Button>;
+        button = (
+            <Button onClick={() => messages?.retryFetchReleaseNotes()} variant="accentBrand">
+                Reload Summary
+            </Button>
+        );
+    }
 
     if (status === 'updateError') {
         button = <Button onClick={() => messages?.retryUpdate()}>{t('retryUpdate')}</Button>;
@@ -297,18 +310,22 @@ export function ReleaseNotes({ releaseData }) {
         }
     }
 
-    const shouldShowButton = status === 'updateReady' || status === 'criticalUpdateReady' || status === 'updateError';
+    const shouldShowButton =
+        status === 'updateReady' || status === 'criticalUpdateReady' || status === 'updateError' || status === 'loadingError';
 
     return (
         <article className={styles.article}>
             <header className={styles.heading}>
+                <p>Thanks for choosing DuckDuckGo!</p>
                 <PageTitle title={t('browserReleaseNotes')} />
                 <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion} progress={progress} />
                 {shouldShowButton && <UpdateButton releaseData={releaseData} />}
             </header>
-            <Card className={styles.card}>
-                <CardContents releaseData={releaseData} />
-            </Card>
+            {status !== 'loadingError' && (
+                <Card className={styles.card}>
+                    <CardContents releaseData={releaseData} />
+                </Card>
+            )}
         </article>
     );
 }
