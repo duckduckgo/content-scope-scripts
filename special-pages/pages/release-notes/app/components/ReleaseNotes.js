@@ -263,6 +263,10 @@ export function UpdateButton({ releaseData }) {
     const { status } = releaseData;
     let button;
 
+    if (status === 'loadingError') {
+        button = <Button onClick={() => messages?.retryFetchReleaseNotes()}>{t('retryGettingReleaseNotes')}</Button>;
+    }
+
     if (status === 'updateError') {
         button = <Button onClick={() => messages?.retryUpdate()}>{t('retryUpdate')}</Button>;
     }
