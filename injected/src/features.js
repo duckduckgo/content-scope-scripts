@@ -34,7 +34,7 @@ const otherFeatures = /** @type {const} */ ([
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: ['webCompat', ...baseFeatures],
-    'apple-isolated': ['duckPlayerNative', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge', 'favicon'],
+    'apple-isolated': ['duckPlayer', 'duckPlayerNative', 'brokerProtection', 'performanceMetrics', 'clickToLoad', 'messageBridge', 'favicon'],
     android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-password-import': ['autofillPasswordImport'],
