@@ -114,6 +114,9 @@ export function Components() {
                 <ReleaseNotes releaseData={sampleData.loaded} />
             </LoadingThen>
             <LoadingThen>
+                <ReleaseNotes releaseData={sampleData.loadingError} />
+            </LoadingThen>
+            <LoadingThen>
                 <ReleaseNotes releaseData={sampleData.updateDownloading} />
             </LoadingThen>
             <LoadingThen>
