@@ -261,7 +261,7 @@ export class SpecialErrorPage {
         await expect(page.getByText('Warning: This site may be a security risk', { exact: true })).toBeVisible();
         await expect(
             page.getByText(
-                'This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. Learn more',
+                'DuckDuckGo Scam Blocker prevented this page from loading because it may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. Learn more',
                 { exact: true },
             ),
         ).toBeVisible();
@@ -282,7 +282,7 @@ export class SpecialErrorPage {
         await expect(page.getByText('Warning: This site may be a security risk', { exact: true })).toBeVisible();
         await expect(
             page.getByText(
-                'DuckDuckGo blocked this page because it may be distributing malware designed to compromise your device or steal your personal information. Learn more',
+                'DuckDuckGo Scam Blocker prevented this page from loading because it may be distributing malware designed to compromise your device or steal your personal information. Learn more',
                 { exact: true },
             ),
         ).toBeVisible();
@@ -303,7 +303,7 @@ export class SpecialErrorPage {
         await expect(page.getByText('Warning: This site may be a security risk', { exact: true })).toBeVisible();
         await expect(
             page.getByText(
-                'DuckDuckGo blocked this page because it may be trying to deceive or manipulate you into transferring money, buying counterfeit goods, or installing malware under false pretenses. Learn more',
+                'DuckDuckGo Scam Blocker prevented this page from loading because it may be trying to deceive or manipulate you into transferring money, buying counterfeit goods, or installing malware under false pretenses. Learn more',
                 { exact: true },
             ),
         ).toBeVisible();
