@@ -106,10 +106,25 @@ export class BatchingPage {
      *
      * @param {number} index - The index of the item to remove from the sample data array.
      */
-    async removesItem(index) {
+    async itemRemovedViaPatch(index) {
         const data = generateSampleData(this.ap.entries);
         data.splice(index, 1);
         const update = toPatch(data);
+        await this.ntp.mocks.simulateSubscriptionMessage(sub('activity_onDataPatch'), update);
+    }
+
+    /**
+     * Simulates removing all items
+     * @param {object} params
+     * @param {number} params.index - The index of the item to remove from the sample data array.
+     * @param {number} params.nextTrackerCount
+     */
+    async removesItem({ index, nextTrackerCount }) {
+        const { page } = this;
+        await page.locator('button[data-action="remove"]').nth(index).click();
+
+        const update = toPatch([]);
+        update.totalTrackersBlocked = nextTrackerCount;
         await this.ntp.mocks.simulateSubscriptionMessage(sub('activity_onDataPatch'), update);
     }
 
@@ -131,7 +146,7 @@ export class BatchingPage {
         });
 
         // now remove the first item via subscription
-        await this.removesItem(0);
+        await this.itemRemovedViaPatch(0);
 
         // now there must have been 2 calls
         const [, second] = await this.ntp.mocks.waitForCallCount({ method: 'activity_getDataForUrls', count: 2 });

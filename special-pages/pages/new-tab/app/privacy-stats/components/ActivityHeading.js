@@ -24,8 +24,8 @@ export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount,
     const [formatter] = useState(() => new Intl.NumberFormat());
     const adBlocking = useAdBlocking();
 
-    const none = itemCount === 0;
-    const someItems = itemCount > 0;
+    const none = itemCount === 0 && trackerCount === 0;
+    const some = itemCount > 0 || trackerCount > 0;
     const trackerCountFormatted = formatter.format(trackerCount);
 
     let allTimeString;
@@ -46,7 +46,7 @@ export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount,
                 <img src={adBlocking ? './icons/shield-green.svg' : './icons/shield.svg'} alt="Privacy Shield" />
             </span>
             {none && <h2 className={styles.title}>{t('activity_noRecent_title')}</h2>}
-            {someItems && (
+            {some && (
                 <h2 className={styles.title}>
                     <Trans str={allTimeString} values={{ count: trackerCountFormatted }} />
                 </h2>
@@ -64,12 +64,12 @@ export function ActivityHeading({ expansion, canExpand, itemCount, trackerCount,
                     />
                 </span>
             )}
-            {itemCount === 0 && (
+            {none && (
                 <p className={cn(styles.subtitle, { [styles.indented]: !adBlocking })}>
                     {adBlocking ? t('activity_noRecentAdsAndTrackers_subtitle') : t('activity_noRecent_subtitle')}
                 </p>
             )}
-            {itemCount > 0 && (
+            {some && (
                 <p className={cn(styles.subtitle, styles.indented, { [styles.uppercase]: !adBlocking })}>
                     {t('stats_feedCountBlockedPeriod')}
                 </p>

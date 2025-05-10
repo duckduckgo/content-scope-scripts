@@ -219,8 +219,34 @@ test.describe('activity widget', () => {
             });
 
             await widget.hasRows(5);
-            await batching.removesItem(0);
+            await batching.itemRemovedViaPatch(0);
             await widget.hasRows(4);
+        });
+        test('patching removes last item and maintains tracker count', async ({ page }, workerInfo) => {
+            test.info().annotations.push({
+                type: 'link',
+                description: 'https://app.asana.com/1/137249556945/project/1207414201589134/task/1210188026604205?focus=true',
+            });
+            test.info().annotations.push({
+                type: 'info',
+                description: `
+                    This test simulates removing the last item in the list. When that occurs, the tracker count
+                    should remain if it was greater than zero. The bug here was that we'd reset back to 'no tracking activity'.
+                `,
+            });
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+
+            const widget = new ActivityPage(page, ntp);
+            const batching = new BatchingPage(page, ntp, widget);
+
+            await ntp.openPage({
+                additional: { feed: 'activity', 'activity.api': 'batched', platform: 'windows', activity: 'singleWithTrackers' },
+            });
+
+            await widget.hasRows(1);
+            await batching.removesItem({ index: 0, nextTrackerCount: 56 }); // from activity/mocks/activity.mocks.js
+            await widget.hasTrackingInfoWithoutButtons();
         });
         test('items are fetched to replace patched removals', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

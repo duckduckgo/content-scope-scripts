@@ -426,4 +426,13 @@ export class ActivityPage {
             - paragraph: Past 7 days
         `);
     }
+
+    async hasTrackingInfoWithoutButtons() {
+        const { page } = this;
+        await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
+          - img "Privacy Shield"
+          - heading "56 tracking attempts blocked" [level=2]
+          - paragraph: Past 7 days
+      `);
+    }
 }
