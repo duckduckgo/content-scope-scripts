@@ -37,13 +37,20 @@ export function activityMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'activity_removeItem': {
+                    // grab the tracker count of the current dataset before we alter it
                     const oldCount = dataset.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0);
+
+                    // now filter the items
                     dataset.activity = dataset.activity.filter((x) => x.url !== msg.params.url);
-                    const cb = subs.get('activity_onDataPatch');
-                    const p = toPatch(dataset.activity);
-                    p.totalTrackersBlocked = oldCount;
+
+                    // create the patch dataset, and use the original tracker count
+                    const patchParams = toPatch(dataset.activity);
+                    patchParams.totalTrackersBlocked = oldCount;
+
+                    // simulate the native side pushing the fresh data back into the page.
                     setTimeout(() => {
-                        cb(p);
+                        const cb = subs.get('activity_onDataPatch');
+                        cb(patchParams);
                     }, 0);
                     break;
                 }
