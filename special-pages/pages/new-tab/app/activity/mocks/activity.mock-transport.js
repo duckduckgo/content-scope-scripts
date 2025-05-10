@@ -36,6 +36,17 @@ export function activityMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
+                case 'activity_removeItem': {
+                    const oldCount = dataset.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0);
+                    dataset.activity = dataset.activity.filter((x) => x.url !== msg.params.url);
+                    const cb = subs.get('activity_onDataPatch');
+                    const p = toPatch(dataset.activity);
+                    p.totalTrackersBlocked = oldCount;
+                    setTimeout(() => {
+                        cb(p);
+                    }, 0);
+                    break;
+                }
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -52,6 +63,9 @@ export function activityMockTransport() {
             }
             if (sub === 'activity_onDataUpdate') {
                 subs.set('activity_onDataUpdate', cb);
+            }
+            if (sub === 'activity_onDataPatch') {
+                subs.set('activity_onDataPatch', cb);
             }
             if (sub === 'activity_onDataUpdate' && url.searchParams.has('flood')) {
                 let count = 0;
