@@ -2,6 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { comparisonTableData, tableIconPrefix } from './data-comparison-table';
 import { useTypedTranslation } from '../../types';
+import { useGlobalState } from '../../global';
 
 import styles from './ComparisonTable.module.css';
 
@@ -69,7 +70,11 @@ export function ComparisonTableRow({ icon, title, statuses }) {
 
 export function ComparisonTable() {
     const { t } = useTypedTranslation();
-    const tableData = comparisonTableData(t);
+    const state = useGlobalState();
+
+    const systemSettingsStep = /** @type {import('../../types').SystemSettingsStep|undefined} */ (state.stepDefinitions.systemSettings);
+    const adBlockingEnabled = systemSettingsStep?.rows?.some((row) => row === 'ad-blocking' || row === 'youtube-ad-blocking') ?? false;
+    const tableData = comparisonTableData(t, adBlockingEnabled);
 
     return (
         <table className={styles.table}>

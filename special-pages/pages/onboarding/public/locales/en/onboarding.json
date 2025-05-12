@@ -285,14 +285,6 @@
     "title": "No targeted ads. No targeted recommendations. Just your video.",
     "note": "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
-  "duckPlayer_alt_title": {
-    "title": "Watch YouTube privately with Duck Player",
-    "note": "Alternative title for Duck Player step when YouTube ad blocking is also offered."
-  },
-  "duckPlayer_alt_subtitle": {
-    "title": "Watching videos in Duck Player won't influence your YouTube recommendations.",
-    "note": "Alternative subtitle for Duck Player step when YouTube ad blocking is also offered."
-  },
   "customize_title_v3": {
     "title": "Let’s customize a few things…",
     "note": "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."
@@ -400,6 +392,10 @@
   "comparison_privateYoutube": {
     "title": "Play YouTube without targeted ads",
     "note": "The description of a browser privacy feature in the comparison table."
+  },
+  "comparison_youtubeAdFree": {
+    "title": "Watch YouTube ad-free",
+    "note": "The description of a browser privacy feature in the comparison table when ad-blocking is enabled."
   },
   "comparison_fullSupport": {
     "title": "Significant protection",

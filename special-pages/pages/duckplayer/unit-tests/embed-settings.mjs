@@ -5,7 +5,7 @@ import { EmbedSettings } from '../app/embed-settings.js';
 describe('creates embed url', () => {
     it('handles duck scheme', () => {
         const actual = EmbedSettings.fromHref('duck://player/123')?.toEmbedUrl();
-        const expected = 'https://www.youtube-nocookie.com/embed/123?iv_load_policy=1&autoplay=1&rel=0&modestbranding=1';
+        const expected = 'https://www.youtube-nocookie.com/embed/123?iv_load_policy=1&autoplay=1&rel=0&modestbranding=1&color=white';
         deepEqual(actual, expected);
     });
     it('handles duck scheme with timestamp', () => {
@@ -15,6 +15,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
+            color: 'white',
             start: '3723',
         };
         if (!actual) throw new Error('unreachable');
@@ -28,6 +29,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
+            color: 'white',
             start: '3723',
         };
         if (!actual) throw new Error('unreachable');
@@ -41,6 +43,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
+            color: 'white',
             start: '3723',
         };
         if (!actual) throw new Error('unreachable');
@@ -54,6 +57,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
+            color: 'white',
         };
         if (!actual) throw new Error('unreachable');
         const asParams = Object.fromEntries(new URL(actual).searchParams);
@@ -67,6 +71,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
+            color: 'white',
             muted: '1',
         };
         if (!actual) throw new Error('unreachable');
@@ -80,6 +85,7 @@ describe('creates embed url', () => {
             iv_load_policy: '1',
             rel: '0',
             modestbranding: '1',
+            color: 'white',
         };
         if (!actual) throw new Error('unreachable');
         const asParams = Object.fromEntries(new URL(actual).searchParams);
@@ -93,6 +99,7 @@ describe('creates embed url', () => {
             autoplay: '1',
             rel: '0',
             modestbranding: '1',
+            color: 'white',
         };
         if (!actual) throw new Error('unreachable');
         const asParams = Object.fromEntries(new URL(actual).searchParams);

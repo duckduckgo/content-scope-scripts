@@ -160,6 +160,14 @@ export class OnboardingPage {
         await this.page.getByRole('button', { name: 'Skip' }).click();
     }
 
+    /**
+     * @param {boolean} adBlockingEnabled
+     */
+    async checkYouTubeText(adBlockingEnabled) {
+        const expectedText = adBlockingEnabled ? 'Watch YouTube ad-free' : 'Play YouTube without targeted ads';
+        await expect(this.page.getByRole('table')).toContainText(expectedText);
+    }
+
     async makeDefault() {
         const { page } = this;
         await page.getByRole('button', { name: 'Make Default' }).click();
@@ -230,6 +238,50 @@ export class OnboardingPage {
 
     async skippedBookmarksBar() {
         await this.skippedCurrent();
+        await this.page.getByRole('switch', { name: 'Show Bookmarks Bar' }).waitFor();
+        const calls = await this.mocks.outgoing({ names: ['setBookmarksBar'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setBookmarksBar',
+                    params: { enabled: false },
+                },
+            },
+        ]);
+    }
+
+    async skippedSessionRestore() {
+        await this.skippedCurrent();
+        await this.page.getByRole('switch', { name: 'Enable Session Restore' }).waitFor();
+        const calls = await this.mocks.outgoing({ names: ['setSessionRestore'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setSessionRestore',
+                    params: { enabled: false },
+                },
+            },
+        ]);
+    }
+
+    async skippedShowHomeButton() {
+        await this.skippedCurrent();
+        await this.page.getByRole('switch', { name: 'Show Home Button' }).waitFor();
+        const calls = await this.mocks.outgoing({ names: ['setShowHomeButton'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setShowHomeButton',
+                    params: { enabled: false },
+                },
+            },
+        ]);
     }
 
     async canToggleBookmarksBar() {
@@ -252,6 +304,16 @@ export class OnboardingPage {
         // now check the outgoing messages
         const calls = await this.mocks.outgoing({ names: ['setBookmarksBar'] });
         expect(calls).toMatchObject([
+            // initial call from skipping:
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setBookmarksBar',
+                    params: { enabled: false },
+                },
+            },
+            // subsequent calls from toggling:
             {
                 payload: {
                     context: 'specialPages',
@@ -308,6 +370,16 @@ export class OnboardingPage {
         // now check the outgoing messages
         const calls = await this.mocks.outgoing({ names: ['setSessionRestore'] });
         expect(calls).toMatchObject([
+            // initial call from skipping:
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setSessionRestore',
+                    params: { enabled: false },
+                },
+            },
+            // subsequent calls from toggling:
             {
                 payload: {
                     context: 'specialPages',
@@ -347,6 +419,16 @@ export class OnboardingPage {
         // now check the outgoing messages
         const calls = await this.mocks.outgoing({ names: ['setShowHomeButton'] });
         expect(calls).toMatchObject([
+            // initial call from skipping:
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'setShowHomeButton',
+                    params: { enabled: false },
+                },
+            },
+            // subsequent calls from toggling:
             {
                 payload: {
                     context: 'specialPages',
@@ -397,7 +479,21 @@ export class OnboardingPage {
         await this.didSetAdBlocking();
     }
 
-    async didSetAdBlocking() {
+    async skipAdBlocking() {
+        const { page } = this;
+        await this.skippedCurrent();
+        await page.getByRole('button', { name: 'Import' }).waitFor();
+        await this.didSetAdBlocking({ enabled: false }); // important that setAdBlocking() is called when skipped so that native apps can fire a pixel
+    }
+
+    async skipYouTubeAdBlocking() {
+        const { page } = this;
+        await this.skippedCurrent();
+        await page.getByRole('button', { name: 'Import' }).waitFor();
+        await this.didSetAdBlocking({ enabled: false }); // important that setAdBlocking() is called when skipped so that native apps can fire a pixel
+    }
+
+    async didSetAdBlocking({ enabled = true } = {}) {
         const calls = await this.mocks.outgoing({ names: ['setAdBlocking'] });
         expect(calls).toMatchObject([
             {
@@ -405,7 +501,7 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'setAdBlocking',
-                    params: { enabled: true },
+                    params: { enabled },
                 },
             },
         ]);
@@ -611,7 +707,10 @@ export class OnboardingPage {
         await this.startBrowsing();
     }
 
-    async completesOrderV3WithAdBlocking() {
+    /**
+     * @param {'ad-blocking'|'youtube-ad-blocking'} adBlockingId
+     */
+    async completesOrderV3WithAdBlockingEnabled(adBlockingId) {
         const { page } = this;
 
         /* Welcome */
@@ -627,22 +726,23 @@ export class OnboardingPage {
         await page.getByText('Excellent!').nth(1).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Next' }).click();
 
-        /* System settings (with ad-blocking) */
+        /* System settings */
         await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 });
         const dockButton = this.build.switch({
             windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
             apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
         });
         await dockButton.click();
-        await page.getByRole('button', { name: 'Turn on Enhanced Ad Blocking', exact: true }).click();
+        await page
+            .getByRole('button', {
+                name: adBlockingId === 'youtube-ad-blocking' ? 'Block Ads' : 'Turn on Enhanced Ad Blocking',
+                exact: true,
+            })
+            .click();
         await page.getByRole('button', { name: 'Import Now', exact: true }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
-        /* Duckplayer */
-        await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 });
-        await page.getByLabel('See Without Duck Player').click();
-        await page.getByLabel('See With Duck Player').click();
-        await page.getByRole('button', { name: 'Next' }).click();
+        /* No Duck Player step as ad blocking was enabled */
 
         /* Customize */
         await page.getByText('Let’s customize a few things').nth(1).waitFor({ timeout: 1000 });
@@ -652,8 +752,9 @@ export class OnboardingPage {
         await this.startBrowsing();
     }
 
-    async completesOrderV3WithYouTubeAdBlocking() {
+    async completesOrderV3WithAdBlockingDisabled() {
         const { page } = this;
+
         /* Welcome */
         await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 });
 
@@ -667,20 +768,19 @@ export class OnboardingPage {
         await page.getByText('Excellent!').nth(1).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Next' }).click();
 
-        /* System settings (with youtube ad-blocking) */
+        /* System settings */
         await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 });
         const dockButton = this.build.switch({
             windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
             apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
         });
         await dockButton.click();
-        await page.getByRole('button', { name: 'Block Ads', exact: true }).click();
+        await page.getByRole('button', { name: 'Skip', exact: true }).click();
         await page.getByRole('button', { name: 'Import Now', exact: true }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
-        /* Duckplayer - alternate title/subtitle */
-        await page.getByText('Watch YouTube privately with Duck Player').nth(1).waitFor({ timeout: 1000 });
-        await expect(page.locator('h2')).toContainText("Watching videos in Duck Player won't influence your YouTube recommendations.");
+        /* Duck Player */
+        await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 });
         await page.getByLabel('See Without Duck Player').click();
         await page.getByLabel('See With Duck Player').click();
         await page.getByRole('button', { name: 'Next' }).click();
