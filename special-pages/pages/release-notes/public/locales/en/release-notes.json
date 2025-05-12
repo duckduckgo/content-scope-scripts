@@ -87,5 +87,9 @@
     "loadingError": {
         "title": "Error loading release notes",
         "note": "A message shown when the application experienced a loading error"
+    },
+    "thankyou": {
+        "title": "Thanks for choosing DuckDuckGo!",
+        "note": "Eyebrow-style text for tag that appears above page header expressing gratitude for choosing DuckDuckGo"
     }
 }

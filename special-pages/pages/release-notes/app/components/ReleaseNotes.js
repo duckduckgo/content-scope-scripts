@@ -1,11 +1,12 @@
 import { Fragment, h } from 'preact';
-import { useMessaging } from '../index';
 import classNames from 'classnames';
+import { useMessaging } from '../index';
 import { useTypedTranslation } from '../types';
+import { Button } from '../../../../shared/components/Button/Button';
+import { Card } from '../../../../shared/components/Card/Card';
 // eslint-disable-next-line no-redeclare
 import { Text } from '../../../../shared/components/Text/Text';
-import { Card } from '../../../../shared/components/Card/Card';
-import { Button } from '../../../../shared/components/Button/Button';
+import { usePlatformName } from '../settings.provider';
 import { ContentPlaceholder } from './ContentPlaceholder';
 
 import styles from './ReleaseNotes.module.css';
@@ -259,13 +260,14 @@ export function CardContents({ releaseData }) {
 export function UpdateButton({ releaseData }) {
     const { t } = useTypedTranslation();
     const { messages } = useMessaging();
+    const platform = usePlatformName();
 
     const { status } = releaseData;
     let button;
 
     if (status === 'loadingError') {
         button = (
-            <Button onClick={() => messages?.retryFetchReleaseNotes()} variant="accentBrand">
+            <Button onClick={() => messages?.retryFetchReleaseNotes()} variant={platform === 'windows' ? 'accentBrand' : 'accent'}>
                 {t('retryGettingReleaseNotes')}
             </Button>
         );
@@ -314,7 +316,7 @@ export function ReleaseNotes({ releaseData }) {
     return (
         <article className={styles.article}>
             <header className={styles.heading}>
-                <p>Thanks for choosing DuckDuckGo!</p>
+                <p>{t('thankyou')}</p>
                 <PageTitle title={t('browserReleaseNotes')} />
                 <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion} progress={progress} />
                 {shouldShowButton && <UpdateButton releaseData={releaseData} />}

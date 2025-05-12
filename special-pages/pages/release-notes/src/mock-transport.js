@@ -42,6 +42,7 @@ export function mockTransport() {
                     return Promise.resolve({
                         env: 'development',
                         locale: 'en',
+                        platform: 'macos',
                     });
                 }
                 default:
