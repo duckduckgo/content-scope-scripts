@@ -25,11 +25,18 @@ export function mockTransport() {
     };
 
     return new TestTransportConfig({
-        notify(_msg) {},
+        notify(_msg) {
+            window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+            /** @type {import('../types/release-notes.ts').ReleaseNotesMessages['notifications']} */
+            const msg = /** @type {any} */ (_msg);
+            console.log('NOTIFY!', msg);
+        },
         request(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/release-notes.ts').ReleaseNotesMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
+            console.log('REQUEST!', msg);
+
             switch (msg.method) {
                 case 'initialSetup': {
                     return Promise.resolve({
@@ -45,6 +52,8 @@ export function mockTransport() {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/release-notes.ts').ReleaseNotesMessages['subscriptions']['subscriptionEvent']} */
             const subscription = /** @type {any} */ (_msg.subscriptionName);
+            console.log('SUBSCRIBE!', subscription);
+
             switch (subscription) {
                 case 'onUpdate': {
                     const searchParams = new URLSearchParams(window.location.search);
