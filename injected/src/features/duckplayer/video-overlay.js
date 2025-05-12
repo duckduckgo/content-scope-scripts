@@ -404,9 +404,11 @@ export class VideoOverlay {
             overlayInteracted: false,
             privatePlayerMode,
         };
+        console.log('🦆 will setUserValues');
         this.messages
             .setUserValues(outgoing)
             .then(() => {
+                console.log('🦆 did setUserValues');
                 if (this.environment.opensVideoOverlayLinksViaMessage) {
                     return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }));
                 }

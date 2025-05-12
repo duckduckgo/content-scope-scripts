@@ -126,6 +126,7 @@ export class DDGVideoOverlay extends HTMLElement {
             }
         };
         const watchInPlayerHandler = (e) => {
+            console.log('🦆 watchInPlayerHandler handler');
             if (e.isTrusted) {
                 e.preventDefault();
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
