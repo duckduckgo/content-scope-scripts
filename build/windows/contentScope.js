@@ -2829,7 +2829,7 @@
     android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-password-import": ["autofillPasswordImport"],
-    windows: ["cookie", ...baseFeatures, "windowsPermissionUsage", "duckPlayer", "brokerProtection", "breakageReporting"],
+    windows: ["cookie", ...baseFeatures, "windowsPermissionUsage", "duckPlayer", "brokerProtection", "breakageReporting", "messageBridge"],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad"],
     "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad"],
@@ -13875,6 +13875,168 @@
     }
   };
 
+  // src/features/message-bridge.js
+  init_define_import_meta_trackerLookup();
+  var MessageBridge = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {Captured} */
+      __publicField(this, "captured", captured_globals_exports);
+      /**
+       * A mapping of feature names to instances of `Messaging`.
+       * This allows the bridge to handle more than 1 feature at a time.
+       * @type {Map<string, Messaging>}
+       */
+      __publicField(this, "proxies", new Map2());
+      /**
+       * If any subscriptions are created, we store the cleanup functions
+       * for later use.
+       * @type {Map<string, () => void>}
+       */
+      __publicField(this, "subscriptions", new Map2());
+      /**
+       * This side of the bridge can only be instantiated once,
+       * so we use this flag to ensure we can handle multiple invocations
+       */
+      __publicField(this, "installed", false);
+    }
+    init(args) {
+      if (isBeingFramed() || !isSecureContext) return;
+      if (!args.messageSecret) return;
+      const { captured: captured2 } = this;
+      function appendToken(eventName) {
+        return `${eventName}-${args.messageSecret}`;
+      }
+      const reply = (incoming) => {
+        if (!args.messageSecret) return this.log("ignoring because args.messageSecret was absent");
+        const eventName = appendToken(incoming.name + "-" + incoming.id);
+        const event = new captured2.CustomEvent(eventName, { detail: incoming });
+        captured2.dispatchEvent(event);
+      };
+      const accept = (ClassType, callback) => {
+        captured2.addEventListener(appendToken(ClassType.NAME), (e) => {
+          this.log(`${ClassType.NAME}`, JSON.stringify(e.detail));
+          const instance = ClassType.create(e.detail);
+          if (instance) {
+            callback(instance);
+          } else {
+            this.log("Failed to create an instance");
+          }
+        });
+      };
+      this.log(`bridge is installing...`);
+      accept(InstallProxy, (install) => {
+        this.installProxyFor(install, args.messagingConfig, reply);
+      });
+      accept(ProxyNotification, (notification) => this.proxyNotification(notification));
+      accept(ProxyRequest, (request) => this.proxyRequest(request, reply));
+      accept(SubscriptionRequest, (subscription) => this.proxySubscription(subscription, reply));
+      accept(SubscriptionUnsubscribe, (unsubscribe) => this.removeSubscription(unsubscribe.id));
+    }
+    /**
+     * Installing a feature proxy is the act of creating a fresh instance of 'Messaging', but
+     * using the same underlying transport
+     *
+     * @param {InstallProxy} install
+     * @param {import('@duckduckgo/messaging').MessagingConfig} config
+     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
+     */
+    installProxyFor(install, config, reply) {
+      const { id, featureName } = install;
+      if (this.proxies.has(featureName)) return this.log("ignoring `installProxyFor` because it exists", featureName);
+      const allowed = this.getFeatureSettingEnabled(featureName);
+      if (!allowed) {
+        return this.log("not installing proxy, because", featureName, "was not enabled");
+      }
+      const ctx = { ...this.messaging.messagingContext, featureName };
+      const messaging = new Messaging(ctx, config);
+      this.proxies.set(featureName, messaging);
+      this.log("did install proxy for ", featureName);
+      reply(new DidInstall({ id }));
+    }
+    /**
+     * @param {ProxyRequest} request
+     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
+     */
+    async proxyRequest(request, reply) {
+      const { id, featureName, method, params } = request;
+      const proxy = this.proxies.get(featureName);
+      if (!proxy) return this.log("proxy was not installed for ", featureName);
+      this.log("will proxy", request);
+      try {
+        const result = await proxy.request(method, params);
+        const responseEvent = new ProxyResponse({
+          method,
+          featureName,
+          result,
+          id
+        });
+        reply(responseEvent);
+      } catch (e) {
+        const errorResponseEvent = new ProxyResponse({
+          method,
+          featureName,
+          error: { message: e.message },
+          id
+        });
+        reply(errorResponseEvent);
+      }
+    }
+    /**
+     * @param {SubscriptionRequest} subscription
+     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
+     */
+    proxySubscription(subscription, reply) {
+      const { id, featureName, subscriptionName } = subscription;
+      const proxy = this.proxies.get(subscription.featureName);
+      if (!proxy) return this.log("proxy was not installed for", featureName);
+      this.log("will setup subscription", subscription);
+      const prev = this.subscriptions.get(id);
+      if (prev) {
+        this.removeSubscription(id);
+      }
+      const unsubscribe = proxy.subscribe(subscriptionName, (data2) => {
+        const responseEvent = new SubscriptionResponse({
+          subscriptionName,
+          featureName,
+          params: data2,
+          id
+        });
+        reply(responseEvent);
+      });
+      this.subscriptions.set(id, unsubscribe);
+    }
+    /**
+     * @param {string} id
+     */
+    removeSubscription(id) {
+      const unsubscribe = this.subscriptions.get(id);
+      this.log(`will remove subscription`, id);
+      unsubscribe?.();
+      this.subscriptions.delete(id);
+    }
+    /**
+     * @param {ProxyNotification} notification
+     */
+    proxyNotification(notification) {
+      const proxy = this.proxies.get(notification.featureName);
+      if (!proxy) return this.log("proxy was not installed for", notification.featureName);
+      this.log("will proxy notification", notification);
+      proxy.notify(notification.method, notification.params);
+    }
+    /**
+     * @param {Parameters<console['log']>} args
+     */
+    log(...args) {
+      if (this.isDebug) {
+        console.log("[isolated]", ...args);
+      }
+    }
+    load(_args2) {
+    }
+  };
+  var message_bridge_default = MessageBridge;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_cookie: CookieFeature,
@@ -13894,7 +14056,8 @@
     ddg_feature_windowsPermissionUsage: WindowsPermissionUsage,
     ddg_feature_duckPlayer: DuckPlayerFeature,
     ddg_feature_brokerProtection: BrokerProtection,
-    ddg_feature_breakageReporting: BreakageReporting
+    ddg_feature_breakageReporting: BreakageReporting,
+    ddg_feature_messageBridge: message_bridge_default
   };
 
   // src/url-change.js
@@ -14024,7 +14187,8 @@
       platform: processedConfig.platform,
       site: processedConfig.site,
       bundledConfig: processedConfig.bundledConfig,
-      messagingConfig: processedConfig.messagingConfig
+      messagingConfig: processedConfig.messagingConfig,
+      messageSecret: processedConfig.messageSecret
     });
     init(processedConfig);
   }
