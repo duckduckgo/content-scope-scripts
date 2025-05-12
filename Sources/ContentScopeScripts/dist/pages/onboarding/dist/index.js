@@ -8906,14 +8906,6 @@
       title: "No targeted ads. No targeted recommendations. Just your video.",
       note: "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
     },
-    duckPlayer_alt_title: {
-      title: "Watch YouTube privately with Duck Player",
-      note: "Alternative title for Duck Player step when YouTube ad blocking is also offered."
-    },
-    duckPlayer_alt_subtitle: {
-      title: "Watching videos in Duck Player won't influence your YouTube recommendations.",
-      note: "Alternative subtitle for Duck Player step when YouTube ad blocking is also offered."
-    },
     customize_title_v3: {
       title: "Let\u2019s customize a few things\u2026",
       note: "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."
@@ -9021,6 +9013,10 @@
     comparison_privateYoutube: {
       title: "Play YouTube without targeted ads",
       note: "The description of a browser privacy feature in the comparison table."
+    },
+    comparison_youtubeAdFree: {
+      title: "Watch YouTube ad-free",
+      note: "The description of a browser privacy feature in the comparison table when ad-blocking is enabled."
     },
     comparison_fullSupport: {
       title: "Significant protection",
@@ -9194,6 +9190,8 @@
               const currentRow = state.step.rows[state.activeRow];
               const isCurrent = currentRow === action.id;
               const systemValueId = action.id;
+              const isAdBlockingSetting = systemValueId === "ad-blocking" || systemValueId === "youtube-ad-blocking";
+              const nextOrder = isAdBlockingSetting && action.payload.enabled ? state.order.filter((step) => step !== "duckPlayerSingle") : state.order;
               const nextUIState = isCurrent && action.payload.enabled ? "accepted" : "skipped";
               return {
                 ...state,
@@ -9202,6 +9200,7 @@
                   // bump the step (show the next row)
                   ...state.step
                 },
+                order: nextOrder,
                 activeRow: isCurrent ? state.activeRow + 1 : state.activeRow,
                 values: {
                   ...state.values,
@@ -9292,36 +9291,23 @@
     return /* @__PURE__ */ g(GlobalContext.Provider, { value: state }, /* @__PURE__ */ g(GlobalDispatch.Provider, { value: proxy }, children));
   }
   async function handleSystemSettingUpdate(action, messaging2, platform) {
-    const { id, payload, current } = action;
+    const { id, payload } = action;
     switch (id) {
       case "bookmarks": {
-        if (!current) {
-          messaging2.setBookmarksBar(payload);
-        } else {
-          if (payload.enabled) {
-            messaging2.setBookmarksBar(payload);
-          }
-        }
+        messaging2.setBookmarksBar(payload);
         return payload;
       }
       case "session-restore": {
-        if (!current) {
-          messaging2.setSessionRestore(payload);
-        } else {
-          if (payload.enabled) {
-            messaging2.setSessionRestore(payload);
-          }
-        }
+        messaging2.setSessionRestore(payload);
         return payload;
       }
       case "home-shortcut": {
-        if (!current) {
-          messaging2.setShowHomeButton(payload);
-        } else {
-          if (payload.enabled) {
-            messaging2.setShowHomeButton(payload);
-          }
-        }
+        messaging2.setShowHomeButton(payload);
+        return payload;
+      }
+      case "ad-blocking":
+      case "youtube-ad-blocking": {
+        messaging2.setAdBlocking(payload);
         return payload;
       }
       case "dock": {
@@ -9347,17 +9333,6 @@
           return { enabled: true };
         }
         break;
-      }
-      case "ad-blocking":
-      case "youtube-ad-blocking": {
-        if (!current) {
-          messaging2.setAdBlocking(payload);
-        } else {
-          if (payload.enabled) {
-            messaging2.setAdBlocking(payload);
-          }
-        }
-        return payload;
       }
     }
     if ("value" in payload) {
@@ -10187,7 +10162,7 @@
     FULL_SUPPORT: "fullSupport"
   };
   var tableIconPrefix = "assets/img/steps/v3/";
-  var comparisonTableData = (t3) => [
+  var comparisonTableData = (t3, adBlockingEnabled = false) => [
     {
       icon: "search.svg",
       title: t3("comparison_searchPrivately"),
@@ -10235,7 +10210,7 @@
     },
     {
       icon: "video-player.svg",
-      title: t3("comparison_privateYoutube"),
+      title: adBlockingEnabled ? t3("comparison_youtubeAdFree") : t3("comparison_privateYoutube"),
       statuses: {
         chrome: SupportStatus.NOT_SUPPORTED,
         safari: SupportStatus.NOT_SUPPORTED,
@@ -10282,7 +10257,13 @@
   }
   function ComparisonTable() {
     const { t: t3 } = useTypedTranslation();
-    const tableData = comparisonTableData(t3);
+    const state = useGlobalState();
+    const systemSettingsStep = (
+      /** @type {import('../../types').SystemSettingsStep|undefined} */
+      state.stepDefinitions.systemSettings
+    );
+    const adBlockingEnabled = systemSettingsStep?.rows?.some((row) => row === "ad-blocking" || row === "youtube-ad-blocking") ?? false;
+    const tableData = comparisonTableData(t3, adBlockingEnabled);
     return /* @__PURE__ */ g("table", { className: ComparisonTable_default.table }, /* @__PURE__ */ g("caption", null), /* @__PURE__ */ g("thead", null, /* @__PURE__ */ g("tr", null, /* @__PURE__ */ g("th", null), /* @__PURE__ */ g(ComparisonTableColumnHeading, { title: "Chrome" }), /* @__PURE__ */ g(ComparisonTableColumnHeading, { title: "DuckDuckGo" }))), /* @__PURE__ */ g("tbody", null, tableData.map((data) => /* @__PURE__ */ g(ComparisonTableRow, { ...data }))));
   }
 
@@ -10569,10 +10550,7 @@
         content: /* @__PURE__ */ g(SettingsStep2, { data: settingsRowItems2 })
       };
     },
-    duckPlayerSingle: ({ t: t3, globalState, advance, beforeAfter }) => {
-      const isYouTubeAdBlockingEnabled = globalState.values["youtube-ad-blocking"]?.enabled ?? false;
-      const title = isYouTubeAdBlockingEnabled ? t3("duckPlayer_alt_title") : t3("duckPlayer_title");
-      const subtitle = isYouTubeAdBlockingEnabled ? t3("duckPlayer_alt_subtitle") : t3("duckPlayer_subtitle");
+    duckPlayerSingle: ({ t: t3, advance, beforeAfter }) => {
       const beforeAfterState = beforeAfter.get();
       const longestText = [t3("beforeAfter_duckPlayer_show"), t3("beforeAfter_duckPlayer_hide")].reduce((acc, cur) => {
         return cur.length > acc.length ? cur : acc;
@@ -10580,8 +10558,8 @@
       return {
         variant: "box",
         heading: {
-          title,
-          subtitle,
+          title: t3("duckPlayer_title"),
+          subtitle: t3("duckPlayer_subtitle"),
           speechBubble: true
         },
         dismissButton: {

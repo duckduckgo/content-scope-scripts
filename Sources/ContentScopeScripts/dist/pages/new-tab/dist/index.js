@@ -20148,8 +20148,8 @@
     );
     const [formatter] = h2(() => new Intl.NumberFormat());
     const adBlocking = useAdBlocking();
-    const none = itemCount === 0;
-    const someItems = itemCount > 0;
+    const none = itemCount === 0 && trackerCount === 0;
+    const some = itemCount > 0 || trackerCount > 0;
     const trackerCountFormatted = formatter.format(trackerCount);
     let allTimeString;
     if (trackerCount === 1) {
@@ -20165,7 +20165,7 @@
       },
       /* @__PURE__ */ g("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ g("img", { src: adBlocking ? "./icons/shield-green.svg" : "./icons/shield.svg", alt: "Privacy Shield" })),
       none && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, t4("activity_noRecent_title")),
-      someItems && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, /* @__PURE__ */ g(Trans, { str: allTimeString, values: { count: trackerCountFormatted } })),
+      some && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, /* @__PURE__ */ g(Trans, { str: allTimeString, values: { count: trackerCountFormatted } })),
       canExpand && /* @__PURE__ */ g("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ g(
         ShowHideButtonCircle,
         {
@@ -20178,8 +20178,8 @@
           label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
         }
       )),
-      itemCount === 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("activity_noRecentAdsAndTrackers_subtitle") : t4("activity_noRecent_subtitle")),
-      itemCount > 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod"))
+      none && /* @__PURE__ */ g("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("activity_noRecentAdsAndTrackers_subtitle") : t4("activity_noRecent_subtitle")),
+      some && /* @__PURE__ */ g("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod"))
     );
   }
   var import_classnames5;
@@ -29594,6 +29594,9 @@
     },
     "activity.noTrackers": {
       factory: () => /* @__PURE__ */ g(Activity, { expansion: "expanded", itemCount: 20, trackerCount: 0, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ g(Mock, { size: 1 }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility: "visible" })))
+    },
+    "activity.noActivity.someTrackers": {
+      factory: () => /* @__PURE__ */ g(Activity, { expansion: "collapsed", itemCount: 0, trackerCount: 56, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ g(Mock, { size: 0 }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility: "visible" })))
     }
   };
   function Mock({ children, size }) {
