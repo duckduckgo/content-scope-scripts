@@ -41,8 +41,7 @@ function StatusText({ status, version, progress = 0 }) {
     const statusTexts = {
         loaded: t('browserUpToDate'),
         loading: t('checkingForUpdate'),
-        // loadingError: t('loadingError'),
-        loadingError: 'Error loading update summary',
+        loadingError: t('loadingError'),
         updateReady: t('newVersionAvailable'),
         updateError: t('updateError'),
         criticalUpdateReady: t('criticallyOutOfDate'),
@@ -265,10 +264,9 @@ export function UpdateButton({ releaseData }) {
     let button;
 
     if (status === 'loadingError') {
-        // button = <Button onClick={() => messages?.retryFetchReleaseNotes()}>{t('retryGettingReleaseNotes')}</Button>;
         button = (
             <Button onClick={() => messages?.retryFetchReleaseNotes()} variant="accentBrand">
-                Reload Summary
+                {t('retryGettingReleaseNotes')}
             </Button>
         );
     }
