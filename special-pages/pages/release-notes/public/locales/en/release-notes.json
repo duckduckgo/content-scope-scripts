@@ -79,5 +79,13 @@
     "somethingWentWrong": {
         "title": "Something went wrong",
         "note": "A message shown when the application experienced a crash"
+    },
+    "retryGettingReleaseNotes": {
+        "title": "Reload Summary",
+        "note": "A button label that allows the user to retry getting the release notes after a loading error"
+    },
+    "loadingError": {
+        "title": "Error loading release notes",
+        "note": "A message shown when the application experienced a loading error"
     }
 }
