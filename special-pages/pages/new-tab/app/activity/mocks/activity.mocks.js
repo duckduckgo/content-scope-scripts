@@ -40,6 +40,23 @@ export const activityMocks = {
             },
         ],
     },
+    singleWithTrackers: {
+        activity: [
+            {
+                favicon: { src: 'selco-icon.png' },
+                url: 'https://example.com',
+                title: 'example.com',
+                etldPlusOne: 'example.com',
+                favorite: false,
+                trackersFound: true,
+                trackingStatus: {
+                    trackerCompanies: [{ displayName: 'Google' }, { displayName: 'Facebook' }, { displayName: 'Amazon' }],
+                    totalCount: 56,
+                },
+                history: [],
+            },
+        ],
+    },
     few: {
         activity: [
             {

@@ -31,6 +31,15 @@ export const activityExamples = {
             </Activity>
         ),
     },
+    'activity.noActivity.someTrackers': {
+        factory: () => (
+            <Activity expansion={'collapsed'} itemCount={0} trackerCount={56} toggle={noop('toggle')} batched={false}>
+                <Mock size={0}>
+                    <ActivityBody canBurn={false} visibility={'visible'} />
+                </Mock>
+            </Activity>
+        ),
+    },
 };
 
 /**
