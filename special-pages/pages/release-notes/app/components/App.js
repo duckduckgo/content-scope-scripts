@@ -38,7 +38,7 @@ export function App({ children }) {
         messages?.reportPageException({ message });
     }
     return (
-        <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'} data-platform-name="windows">
+        <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'}>
             <ErrorBoundary didCatch={({ error }) => didCatch(error)} fallback={<ErrorFallback />}>
                 <header className={styles.header}>
                     <DuckDuckGoLogo />
