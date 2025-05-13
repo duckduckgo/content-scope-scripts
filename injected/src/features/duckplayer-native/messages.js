@@ -1,6 +1,8 @@
 import * as constants from './constants.js';
+import { mockTransport } from './mock-transport.js';
 
 /** @import {YouTubeError} from './error-detection.js' */
+/** @import {Environment} from './environment.js' */
 
 /**
  * @typedef {object} MuteSettings - Settings passed to the onMute callback
@@ -32,20 +34,19 @@ import * as constants from './constants.js';
 export class DuckPlayerNativeMessages {
     /**
      * @param {Messaging} messaging
+     * @param {Environment} environment
      * @internal
      */
-    constructor(messaging) {
+    constructor(messaging, environment) {
         /**
          * @internal
          */
         this.messaging = messaging;
-        // this.environment = environment;
-        // TODO: Replace with class if needed
-        this.environment = {
-            isIntegrationMode: function () {
-                return true;
-            },
-        };
+        this.environment = environment;
+
+        if (this.environment.isIntegrationMode()) {
+            this.messaging.transport = mockTransport(); // TODO: Better way than patching transport?
+        }
     }
 
     /**
@@ -84,7 +85,6 @@ export class DuckPlayerNativeMessages {
      * @param {(urlSettings: UrlChangeSettings) => void} callback
      */
     subscribeToURLChange(callback) {
-        console.log('SUBSCRIBING TO URL CHANGE');
         return this.messaging.subscribe(constants.MSG_NAME_URL_CHANGE, callback);
     }
 
@@ -100,7 +100,6 @@ export class DuckPlayerNativeMessages {
      * Notifies browser that the feature is ready
      */
     notifyFeatureIsReady() {
-        console.log('FIRING', constants.MSG_NAME_FEATURE_READY); // TODO: Remove
         this.messaging.notify(constants.MSG_NAME_FEATURE_READY, {});
     }
 
@@ -108,7 +107,6 @@ export class DuckPlayerNativeMessages {
      * Notifies browser that scripts are ready to be acalled
      */
     notifyScriptIsReady() {
-        console.log('FIRING', constants.MSG_NAME_SCRIPTS_READY); // TODO: Remove
         this.messaging.notify(constants.MSG_NAME_SCRIPTS_READY, {});
     }
 
@@ -116,7 +114,6 @@ export class DuckPlayerNativeMessages {
      * Notifies browser that the overlay was dismissed
      */
     notifyOverlayDismissed() {
-        console.log('FIRING', constants.MSG_NAME_DISMISS_OVERLAY); // TODO: Remove
         this.messaging.notify(constants.MSG_NAME_DISMISS_OVERLAY, {});
     }
 }

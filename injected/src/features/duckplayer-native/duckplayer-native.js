@@ -18,7 +18,6 @@ import { Logger, SideEffects } from './util.js';
  * @typedef {(SideEffects, Logger) => void} CustomEventHandler
  * @typedef {DuckPlayerNativeSettings['selectors']} DuckPlayerNativeSelectors
  */
-// TODO: Abort controller?
 
 export class DuckPlayerNativePage {
     /** @type {SideEffects} */
@@ -48,8 +47,6 @@ export class DuckPlayerNativePage {
         if (!selectors || !environment || !messages) {
             throw new Error('Missing arguments');
         }
-
-        console.log('SELECTORS', selectors);
 
         this.setupLogger();
 
@@ -108,7 +105,6 @@ export class DuckPlayerNativePage {
  */
 export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment, messages) {
     const mediaControlHandler = (sideEffects, logger, pause) => {
-        console.log('MEDIA CONTROL', pause); // TODO: Remove
         logger.log('Running media control handler. Pause:', pause);
 
         const videoElement = selectors?.videoElement;
@@ -147,7 +143,6 @@ export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment
         });
 
         if (playbackPaused) {
-            console.log('PAUSING VIDEO');
             mediaControlHandler(sideEffects, logger, !!playbackPaused);
         }
     };
@@ -155,7 +150,6 @@ export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment
     const onInit = (sideEffects, logger) => {
         sideEffects.add('subscribe to media control', () => {
             return messages.subscribeToMediaControl(({ pause }) => {
-                console.log('GOT MC SUB');
                 mediaControlHandler(sideEffects, logger, pause);
             });
         });
@@ -247,7 +241,6 @@ export function setupDuckPlayerForNoCookie(selectors, environment, messages) {
  */
 export function setupDuckPlayerForSerp(selectors, environment, messages) {
     const onLoad = () => {
-        console.log('SERP NOTIFY');
         serpNotify();
     };
 

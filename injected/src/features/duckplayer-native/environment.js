@@ -1,4 +1,3 @@
-// TODO: Update locales
 import strings from '../../../../build/locales/duckplayer-locales.js';
 
 export class Environment {
