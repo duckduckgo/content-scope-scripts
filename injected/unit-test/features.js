@@ -5,6 +5,7 @@ describe('Features definition', () => {
         // ensuring this order doesn't change, as it recently caused breakage
         expect(platformSupport.apple).toEqual([
             'webCompat',
+            'duckPlayerNative',
             'fingerprintingAudio',
             'fingerprintingBattery',
             'fingerprintingCanvas',
