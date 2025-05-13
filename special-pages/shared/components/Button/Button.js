@@ -6,6 +6,7 @@ import styles from './Button.module.css';
  * @typedef {object} ButtonProps
  * @property {string} [className]
  * @property {'primary'|'standard'|'accent'|'accentBrand'|'ghost'} [variant]
+ * @property {'md'|'lg'|"xl"} [size]
  * @property {'button'|'submit'|'reset'} [type]
  * @property {import("preact").ComponentChild} children
  * @property {import("preact").JSX.MouseEventHandler<EventTarget>} [onClick]
@@ -16,10 +17,10 @@ import styles from './Button.module.css';
  *
  * @param {ButtonProps} props
  */
-export function Button({ variant, className, children, onClick, type = 'button' }) {
+export function Button({ variant, size = 'md', className, children, onClick, type = 'button' }) {
     return (
         <button
-            className={classNames(styles.button, { [styles[`${variant}`]]: !!variant }, className)}
+            className={classNames(styles.button, { [styles[`${variant}`]]: !!variant, [styles[size]]: size }, className)}
             type={type}
             onClick={
                 /**

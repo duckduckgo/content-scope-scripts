@@ -29,13 +29,13 @@ export function mockTransport() {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/release-notes.ts').ReleaseNotesMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
-            console.log('NOTIFY!', msg);
+            console.log('NOTIFY!', msg.method, msg.params);
         },
         request(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/release-notes.ts').ReleaseNotesMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
-            console.log('REQUEST!', msg);
+            console.log('REQUEST!', msg.method, msg);
 
             switch (msg.method) {
                 case 'initialSetup': {
