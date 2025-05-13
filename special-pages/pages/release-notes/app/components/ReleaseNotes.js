@@ -267,11 +267,7 @@ export function UpdateButton({ releaseData }) {
 
     if (status === 'loadingError') {
         button = (
-            <Button
-                onClick={() => messages?.retryFetchReleaseNotes()}
-                variant={platform === 'windows' ? 'accentBrand' : 'accent'}
-                size={platform === 'macos' ? 'lg' : 'md'}
-            >
+            <Button onClick={() => messages?.retryFetchReleaseNotes()} variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
                 {t('retryGettingReleaseNotes')}
             </Button>
         );
@@ -279,11 +275,7 @@ export function UpdateButton({ releaseData }) {
 
     if (status === 'updateError') {
         button = (
-            <Button
-                onClick={() => messages?.retryUpdate()}
-                variant={platform === 'windows' ? 'accentBrand' : 'accent'}
-                size={platform === 'macos' ? 'lg' : 'md'}
-            >
+            <Button onClick={() => messages?.retryUpdate()} variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
                 {t('retryUpdate')}
             </Button>
         );
@@ -294,11 +286,7 @@ export function UpdateButton({ releaseData }) {
         const buttonText = automaticUpdate ? t('restartToUpdate') : t('updateBrowser');
 
         button = (
-            <Button
-                onClick={() => messages?.browserRestart()}
-                variant={platform === 'windows' ? 'accentBrand' : 'accent'}
-                size={platform === 'macos' ? 'lg' : 'md'}
-            >
+            <Button onClick={() => messages?.browserRestart()} variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
                 {buttonText}
             </Button>
         );

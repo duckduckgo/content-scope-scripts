@@ -60,6 +60,7 @@ export function Components() {
 
             <h2>Update Status</h2>
             <UpdateStatus status="loading" version="1.0.1" timestamp={yesterdayInMilliseconds} />
+            <UpdateStatus status="loadingError" version="1.0.1" timestamp={yesterdayInMilliseconds} />
             <UpdateStatus status="loaded" version="1.0.1" timestamp={todayInMilliseconds} />
             <UpdateStatus status="updateReady" version="1.2.0" timestamp={todayInMilliseconds} />
             <UpdateStatus status="criticalUpdateReady" version="1.2.0" timestamp={todayInMilliseconds} />
@@ -69,6 +70,9 @@ export function Components() {
             <hr />
 
             <h2>Update Buttons</h2>
+            <div>
+                <Button>{t('retryGettingReleaseNotes')}</Button>
+            </div>
             <div>
                 <Button>{t('restartToUpdate')}</Button>
             </div>
