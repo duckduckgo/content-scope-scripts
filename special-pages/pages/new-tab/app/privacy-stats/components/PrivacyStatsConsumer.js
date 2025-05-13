@@ -1,7 +1,7 @@
 import { useContext } from 'preact/hooks';
 import { PrivacyStatsContext } from './PrivacyStatsProvider.js';
 import { h } from 'preact';
-import { PrivacyStats } from './PrivacyStats.js';
+import { PrivacyStats, PrivacyStatsBody } from './PrivacyStats.js';
 import { useBodyExpansion } from './BodyExpansionProvider.js';
 
 /**
@@ -25,6 +25,15 @@ export function PrivacyStatsConsumer() {
         return (
             <PrivacyStats expansion={state.config.expansion} secondaryExpansion={secondaryExpansion} data={state.data} toggle={toggle} />
         );
+    }
+    return null;
+}
+
+export function PrivacyStatsAltConsumer() {
+    const { state } = useContext(PrivacyStatsContext);
+    const secondaryExpansion = useBodyExpansion();
+    if (state.status === 'ready') {
+        return <PrivacyStatsBody expansion={secondaryExpansion} trackerCompanies={state.data.trackerCompanies} id={'anything'} />;
     }
     return null;
 }

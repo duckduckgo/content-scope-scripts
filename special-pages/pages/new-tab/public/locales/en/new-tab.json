@@ -41,12 +41,8 @@
     "title": "Dismiss",
     "note": "Button label text for an action that removes the widget from the screen."
   },
-  "stats_menuTitle": {
-    "title": "Blocked Tracking Attempts",
-    "note": "Used as a label in a customization menu"
-  },
-  "stats_menuTitle_v2": {
-    "title": "Protection Stats",
+  "protections_menuTitle": {
+    "title": "Protections Report",
     "note": "Used as a label in a customization menu"
   },
   "stats_noActivity": {
@@ -108,6 +104,14 @@
   "stats_otherCount": {
     "title": "{count} attempts from other networks",
     "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
+  },
+  "stats_menuTitle": {
+    "title": "Blocked Tracking Attempts",
+    "note": "Used as a label in a customization menu"
+  },
+  "stats_menuTitle_v2": {
+    "title": "Protection Stats",
+    "note": "Used as a label in a customization menu"
   },
   "nextSteps_sectionTitle": {
     "title": "Next Steps",
