@@ -13,7 +13,7 @@ test.describe('newtab widgets', () => {
         await cp.opensCustomizer();
 
         // hide
-        await page.getByRole('switch', { name: 'Toggle Protection Stats' }).uncheck();
+        await page.getByRole('switch', { name: 'Toggle Protections Report' }).uncheck();
 
         // debounced
         await page.clock.fastForward(501);
@@ -28,7 +28,7 @@ test.describe('newtab widgets', () => {
                     featureName: 'newTabPage',
                     params: [
                         { id: 'favorites', visibility: 'visible' },
-                        { id: 'privacyStats', visibility: 'hidden' },
+                        { id: 'protections', visibility: 'hidden' },
                     ],
                     method: 'widgets_setConfig',
                 },
@@ -61,7 +61,7 @@ test.describe('newtab widgets', () => {
                     featureName: 'newTabPage',
                     params: [
                         { id: 'favorites', visibility: 'visible' },
-                        { id: 'privacyStats', visibility: 'visible' },
+                        { id: 'protections', visibility: 'visible' },
                     ],
                     method: 'widgets_setConfig',
                 },
@@ -90,8 +90,8 @@ test.describe('newtab widgets', () => {
                         title: 'Favorites',
                     },
                     {
-                        id: 'privacyStats',
-                        title: 'Protection Stats',
+                        id: 'protections',
+                        title: 'Protections Report',
                     },
                 ],
             },

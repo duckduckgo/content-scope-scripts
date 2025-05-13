@@ -11,12 +11,11 @@ import { ACTION_BURN } from '../burning/BurnProvider.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').ActivityData} ActivityData
- * @typedef {import('../../types/new-tab.js').ActivityConfig} ActivityConfig
  * @typedef {import('../../types/new-tab').TrackingStatus} TrackingStatus
  * @typedef {import('../../types/new-tab').HistoryEntry} HistoryEntry
  * @typedef {import('../../types/new-tab').DomainActivity} DomainActivity
- * @typedef {import('../service.hooks.js').State<import("./batched-activity.service.js").Incoming, ActivityConfig>} State
- * @typedef {import('../service.hooks.js').Events<ActivityData, ActivityConfig>} Events
+ * @typedef {import('../service.hooks.js').State<import("./batched-activity.service.js").Incoming, null>} State
+ * @typedef {import('../service.hooks.js').Events<ActivityData, null>} Events
  */
 
 /**
@@ -174,14 +173,15 @@ export function SignalStateProvider({ children }) {
                 console.warn('unhandled action:', action);
             }
         } else if (toggle) {
-            if (state.config?.expansion === 'collapsed' && batched) {
-                const next = activity.value.urls.slice(0, Math.min(service.INITIAL, activity.value.urls.length));
-                setVisibleRange(next);
-            }
+            // todo: what was this fixing?
+            // if (state.config?.expansion === 'collapsed' && batched) {
+            //     const next = activity.value.urls.slice(0, Math.min(service.INITIAL, activity.value.urls.length));
+            //     setVisibleRange(next);
+            // }
         }
     }
 
-    const didClick = useCallback(didClick_, [service, batched, state.config.expansion]);
+    const didClick = useCallback(didClick_, [service, batched]);
     const firstUrls = state.data.activity.map((x) => x.url);
     const keys = useSignal(normalizeKeys([], firstUrls));
 
