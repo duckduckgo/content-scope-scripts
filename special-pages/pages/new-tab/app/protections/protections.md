@@ -2,6 +2,26 @@
 title: Protections Report
 ---
 
+## Setup
+
+- Widget ID: `"protections"`
+- Add it to the `widgets` + `widgetConfigs` fields on [initialSetup](../new-tab.md)
+- Example:
+
+```json
+{
+  "...": "...",
+  "widgets": [
+    {"...":  "..."},
+    {"id": "protections"}
+  ],
+  "widgetConfigs": [
+    {"...":  "..."},
+    {"id": "protections", "visibility": "visible" }
+  ]
+}
+```
+
 ## Requests:
 ### `protections_getData` 
 - {@link "NewTab Messages".ProtectionsGetDataRequest}
