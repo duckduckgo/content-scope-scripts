@@ -26,7 +26,7 @@ title: Protections Report
 ### `protections_getData` 
 - {@link "NewTab Messages".ProtectionsGetDataRequest}
 - Used to fetch the initial data (during the first render)
-- returns {@link "NewTab Messages".PrivacyStatsData}
+- returns {@link "NewTab Messages".ProtectionsData}
 ```json
 {
    "totalCount": 84
@@ -48,7 +48,7 @@ title: Protections Report
 ### `protections_onDataUpdate` 
 - {@link "NewTab Messages".ProtectionsOnDataUpdateSubscription}.
 - The tracker/company data used in the feed.
-- returns {@link "NewTab Messages".PrivacyStatsData}
+- returns {@link "NewTab Messages".ProtectionsData}
 ### `protections_onConfigUpdate` 
 - {@link "NewTab Messages".ProtectionsOnConfigUpdateSubscription}.
 - The widget config
