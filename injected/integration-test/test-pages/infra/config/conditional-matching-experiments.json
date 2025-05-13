@@ -45,40 +45,40 @@
                 "value": 100
               }
             }
-          }
-        },
-        "conditionalChanges": [
-          {
-            "condition": {
-              "experiment": {
-                "experimentName": "bloops",
-                "cohort": "treatment"
-              }
-            },
-            "patchSettings": [
-              {
-                "op": "replace",
-                "path": "/apiChanges/Navigator.prototype.hardwareConcurrency/getterValue/value",
-                "value": 200
-              }
-            ]
           },
-          {
-            "condition": {
-              "experiment": {
-                "experimentName": "bloops",
-                "cohort": "control"
-              }
+          "conditionalChanges": [
+            {
+              "condition": {
+                "experiment": {
+                  "experimentName": "bloops",
+                  "cohort": "treatment"
+                }
+              },
+              "patchSettings": [
+                {
+                  "op": "replace",
+                  "path": "/apiChanges/Navigator.prototype.hardwareConcurrency/getterValue/value",
+                  "value": 200
+                }
+              ]
             },
-            "patchSettings": [
-              {
-                "op": "replace",
-                "path": "/apiChanges/Navigator.prototype.hardwareConcurrency/getterValue/value",
-                "value": 300
-              }
-            ]
-          }
-        ]
+            {
+              "condition": {
+                "experiment": {
+                  "experimentName": "bloops",
+                  "cohort": "control"
+                }
+              },
+              "patchSettings": [
+                {
+                  "op": "replace",
+                  "path": "/apiChanges/Navigator.prototype.hardwareConcurrency/getterValue/value",
+                  "value": 300
+                }
+              ]
+            }
+          ]
+        }
       },
       "exceptions": []
     }

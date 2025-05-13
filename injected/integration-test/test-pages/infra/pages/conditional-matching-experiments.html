@@ -30,11 +30,13 @@
     <script>
         test('Conditional matching experiments', async () => {
             const res = navigator.hardwareConcurrency;
+            // Either is valid here, but 100 is the default which would mean the experiment is not running
+            const expected  = res === 200 ? 200 : 300;
             const results = [
                 {
                     name: "APIs changing, expecting to always match",
                     result: res,
-                    expected: res === 200 || res === 300, // Either is valid here, but 100 is the default which would mean the experiment is not running
+                    expected: expected,
                 }
             ];
             return results;
