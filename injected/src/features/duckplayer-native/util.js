@@ -1,5 +1,3 @@
-// TODO: This was copied from Duck Player. May need a cleanup
-
 /* eslint-disable promise/prefer-await-to-then */
 /**
  * Add an event listener to an element that is only executed if it actually comes from a user action

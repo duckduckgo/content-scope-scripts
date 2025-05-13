@@ -68,7 +68,6 @@ class TestTransport {
                 break;
             case constants.MSG_NAME_URL_CHANGE:
                 response = { pageType: this.getPageType() };
-                console.log('PAGE TYPE', response);
                 timeout = 100;
                 break;
         }

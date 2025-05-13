@@ -1,7 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { isBeingFramed } from '../utils.js';
 import { DuckPlayerNativeMessages } from './duckplayer-native/messages.js';
-import { mockTransport } from './duckplayer-native/mock-transport.js';
 import { setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/duckplayer-native.js';
 import { Environment } from './duckplayer-native/environment.js';
 
@@ -39,18 +38,13 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
-            debug: this.isDebug || true, // TODO: REMOVE
+            debug: this.isDebug,
             injectName: import.meta.injectName,
             platform: this.platform,
             locale,
         });
 
-        if (env.isIntegrationMode()) {
-            // TODO: Better way than patching transport?
-            this.messaging.transport = mockTransport();
-        }
-
-        const messages = new DuckPlayerNativeMessages(this.messaging);
+        const messages = new DuckPlayerNativeMessages(this.messaging, env);
         messages.subscribeToURLChange(({ pageType }) => {
             const playbackPaused = false; // TODO: Get this from the native notification too?
             console.log('GOT PAGE TYPE', pageType);
@@ -60,7 +54,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         /** @type {InitialSettings} */
         let initialSetup;
 
-        // TODO: This seems to get initted twice. Check with Daniel
         try {
             initialSetup = await messages.initialSetup();
         } catch (e) {
