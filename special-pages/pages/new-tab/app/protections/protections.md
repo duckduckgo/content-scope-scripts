@@ -1,0 +1,48 @@
+---
+title: Protections Report
+---
+
+## Requests:
+### `protections_getData` 
+- {@link "NewTab Messages".ProtectionsGetDataRequest}
+- Used to fetch the initial data (during the first render)
+- returns {@link "NewTab Messages".PrivacyStatsData}
+```json
+{
+   "totalCount": 84
+}
+```
+
+### `protections_getConfig` 
+- {@link "NewTab Messages".ProtectionsGetDataRequest}
+- Used to fetch the initial config data (eg: expanded vs collapsed)
+- returns {@link "NewTab Messages".ProtectionsConfig}
+```json
+{
+   "expansion": "collapsed",
+   "feed": "privacy-stats"
+}
+```
+
+## Subscriptions:
+### `protections_onDataUpdate` 
+- {@link "NewTab Messages".ProtectionsOnDataUpdateSubscription}.
+- The tracker/company data used in the feed.
+- returns {@link "NewTab Messages".PrivacyStatsData}
+### `protections_onConfigUpdate` 
+- {@link "NewTab Messages".ProtectionsOnConfigUpdateSubscription}.
+- The widget config
+- returns {@link "NewTab Messages".ProtectionsConfig}
+
+## Notifications:
+### `protections_setConfig` 
+- {@link "NewTab Messages".StatsSetConfigNotification}
+- Sent when the user toggles the expansion of the stats
+- sends {@link "NewTab Messages".ProtectionsConfig}
+- example payload:
+```json
+{
+   "expansion": "collapsed",
+   "feed": "privacy-stats"
+}
+```

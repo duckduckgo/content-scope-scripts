@@ -336,3 +336,31 @@ export function ActivityConsumer() {
     }
     return null;
 }
+
+/**
+ * Use this when you want to render the UI from a context where
+ * the service is available + initial data is ready
+ */
+export function ActivityAltConsumer() {
+    const { state } = useContext(ActivityContext);
+    const service = useContext(ActivityServiceContext);
+    const platformName = usePlatformName();
+    const visibility = useDocumentVisibility();
+    if (service && state.status === 'ready') {
+        if (platformName === 'windows') {
+            return (
+                <SignalStateProvider>
+                    <ActivityBody canBurn={false} visibility={visibility} />
+                </SignalStateProvider>
+            );
+        }
+        return (
+            <SignalStateProvider>
+                <BurnProvider service={service}>
+                    <ActivityBody canBurn={true} visibility={visibility} />
+                </BurnProvider>
+            </SignalStateProvider>
+        );
+    }
+    return null;
+}

@@ -8,6 +8,7 @@ import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
+import { protectionsMockTransport } from './protections/mocks/protections.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -105,6 +106,7 @@ export function mockTransport() {
     const transports = {
         customizer: customizerMockTransport(),
         activity: activityMockTransport(),
+        protections: protectionsMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -513,6 +515,10 @@ export function mockTransport() {
                     if (feed === 'activity' || feed === 'both') {
                         widgetsFromStorage.push({ id: 'activity' });
                         widgetConfigFromStorage.push({ id: 'activity', visibility: 'visible' });
+                    }
+                    if (feed === 'protections') {
+                        widgetsFromStorage.push({ id: 'protections' });
+                        widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
                     }
 
                     initial.customizer = customizerData();

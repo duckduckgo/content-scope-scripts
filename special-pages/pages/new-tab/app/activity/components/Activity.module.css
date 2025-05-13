@@ -1,9 +1,4 @@
 .root {
-
-    --favicon-width: 32px;
-    --heading-gap: 8px;
-
-
     background: var(--ntp-surface-background-color);
     backdrop-filter: blur(48px);
     border: 1px solid var(--ntp-surface-border-color);
@@ -25,6 +20,9 @@
 }
 
 .activity {
+    --favicon-width: 32px;
+    --heading-gap: 8px;
+
     overflow: hidden;
     width: calc(100% + 12px);
     margin-left: -6px;
