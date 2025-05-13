@@ -278,14 +278,30 @@ export function UpdateButton({ releaseData }) {
     }
 
     if (status === 'updateError') {
-        button = <Button onClick={() => messages?.retryUpdate()}>{t('retryUpdate')}</Button>;
+        button = (
+            <Button
+                onClick={() => messages?.retryUpdate()}
+                variant={platform === 'windows' ? 'accentBrand' : 'accent'}
+                size={platform === 'macos' ? 'lg' : 'md'}
+            >
+                {t('retryUpdate')}
+            </Button>
+        );
     }
 
     if (status === 'updateReady' || status === 'criticalUpdateReady') {
         const { automaticUpdate } = releaseData;
         const buttonText = automaticUpdate ? t('restartToUpdate') : t('updateBrowser');
 
-        button = <Button onClick={() => messages?.browserRestart()}>{buttonText}</Button>;
+        button = (
+            <Button
+                onClick={() => messages?.browserRestart()}
+                variant={platform === 'windows' ? 'accentBrand' : 'accent'}
+                size={platform === 'macos' ? 'lg' : 'md'}
+            >
+                {buttonText}
+            </Button>
+        );
     }
 
     if (!button) return null;
