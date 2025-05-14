@@ -1,12 +1,13 @@
 ### Integration
 
-Serve the entire folder found under `build/<PLATFORM>/pages/release-notes`
+Serve the entire folder found under `build/pages/release-notes`
 
 ### Platform Integrations
 
 So far, the following platforms are supported
 
-- macOS
+- macOS (Sparkle build only)
+- Windows
 
 ---
 

@@ -71,6 +71,13 @@ export class ReleaseNotesPage {
     }
 
     /**
+     * Forwards a click on retry fetching release notes button to browser. Added specifically for Windows use-case
+     */
+    retryFetchReleaseNotes() {
+        this.messaging.notify('retryFetchReleaseNotes', {});
+    }
+
+    /**
      * Forwards a click on restart button to browser
      */
     browserRestart() {
@@ -92,8 +99,8 @@ export class ReleaseNotesPage {
         return this.messaging.subscribe('onUpdate', callback);
     }
 }
-
-const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env); // use the build's ENV
+console.log({ meta: import.meta.injectName });
+const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env); // use the build's ENV
 
 // share this in the app, it's an instance of `ReleaseNotesMessages` where all your native comms should be
 const messaging = createSpecialPageMessaging({
