@@ -52,7 +52,7 @@ export async function init(messages, baseEnvironment) {
 
     console.log({ settings });
 
-    // install global side effects that are not specific to any widget
+    // install global side effects for platform-specific styles
     installGlobalSideEffects(environment, settings);
 
     const strings =

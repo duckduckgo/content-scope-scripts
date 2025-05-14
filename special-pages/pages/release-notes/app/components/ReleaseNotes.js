@@ -334,6 +334,9 @@ export function ReleaseNotes({ releaseData }) {
                     <CardContents releaseData={releaseData} />
                 </Card>
             )}
+            <a href="https://duckduckgo.com/updates" target="_blank" className={styles.releaseNotesLink}>
+                {t('whatsNewAtDuckDuckGoLink')}
+            </a>
         </article>
     );
 }
