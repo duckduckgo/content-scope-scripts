@@ -1,7 +1,7 @@
 import { createContext, h } from 'preact';
 import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
-import { reducer, useConfigSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
+import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
 import { ProtectionsService } from '../protections.service.js';
 
 /**
@@ -49,6 +49,9 @@ export function ProtectionsProvider(props) {
 
     // get initial data
     useInitialDataAndConfig({ dispatch, service });
+
+    // subscribe to data updates
+    useDataSubscription({ dispatch, service });
 
     // subscribe to toggle + expose a fn for sync toggling
     const { toggle } = useConfigSubscription({ dispatch, service });
