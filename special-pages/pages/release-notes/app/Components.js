@@ -17,10 +17,12 @@ import {
     UpdateStatus,
 } from './components/ReleaseNotes';
 import { sampleData } from './sampleData.js';
+import { usePlatformName } from './settings.provider';
 
 export function Components() {
     const { t } = useTypedTranslation();
     const { isDarkMode } = useEnv();
+    const platform = usePlatformName();
     const todayInMilliseconds = Date.now();
     const yesterdayInMilliseconds = new Date(todayInMilliseconds - 24 * 60 * 60 * 1000).getTime();
 
@@ -71,16 +73,24 @@ export function Components() {
 
             <h2>Update Buttons</h2>
             <div>
-                <Button>{t('retryGettingReleaseNotes')}</Button>
+                <Button variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                    {t('retryGettingReleaseNotes')}
+                </Button>
             </div>
             <div>
-                <Button>{t('restartToUpdate')}</Button>
+                <Button variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                    {t('restartToUpdate')}
+                </Button>
             </div>
             <div>
-                <Button>{t('updateBrowser')}</Button>
+                <Button variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                    {t('updateBrowser')}
+                </Button>
             </div>
             <div>
-                <Button>{t('retryUpdate')}</Button>
+                <Button variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                    {t('retryUpdate')}
+                </Button>
             </div>
             <hr />
 
