@@ -24,12 +24,12 @@ function generateConfig() {
         },
         currentCohorts: [
             {
-                feature: 'ContentScopeExperiments',
+                feature: 'contentScopeExperiments',
                 subfeature: 'bloops',
                 cohort: 'control',
             },
             {
-                feature: 'ContentScopeExperiments',
+                feature: 'contentScopeExperiments',
                 subfeature: 'test',
                 cohort: 'treatment',
             },
