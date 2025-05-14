@@ -27,7 +27,9 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         /**
          * This feature never operates in a frame
          */
-        if (isBeingFramed()) return;
+        if (isBeingFramed()) {
+            return;
+        }
 
         const selectors = this.getFeatureSetting('selectors');
         console.log('DUCK PLAYER NATIVE SELECTORS', selectors); // TODO: REMOVE
@@ -65,7 +67,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         if (initialSetup.pageType) {
             const playbackPaused = initialSetup.playbackPaused || false;
-            console.log('GOT INITIAL PAGE TYPE', initialSetup.pageType); // TODO: REMOVE
+            console.log('GOT INITIAL PAGE TYPE', initialSetup.pageType, 'playbackPaused', playbackPaused); // TODO: REMOVE
             this.urlChanged(initialSetup.pageType, selectors, playbackPaused, env, messages);
         }
     }
