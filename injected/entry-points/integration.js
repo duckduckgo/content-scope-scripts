@@ -22,6 +22,18 @@ function generateConfig() {
         platform: {
             name: 'extension',
         },
+        currentCohorts: [
+            {
+                feature: 'ContentScopeExperiments',
+                subfeature: 'bloops',
+                cohort: 'control',
+            },
+            {
+                feature: 'ContentScopeExperiments',
+                subfeature: 'test',
+                cohort: 'treatment',
+            },
+        ],
         site: {
             domain: topLevelUrl.hostname,
             url: topLevelUrl.href,
@@ -97,6 +109,7 @@ async function initCode() {
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
+        currentCohorts: processedConfig.currentCohorts,
     });
 
     // mark this phase as loaded
