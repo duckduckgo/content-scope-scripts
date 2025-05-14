@@ -1,1 +1,2 @@
-- windows: enabled message bridge (#1663)
+- Conditional experiment matching (#1661)
+- Move ad blocking setting row to the last position (#1687)

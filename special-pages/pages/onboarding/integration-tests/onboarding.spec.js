@@ -37,7 +37,7 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     systemSettings: {
-                        rows: ['dock', 'ad-blocking', 'import'],
+                        rows: ['dock', 'import', 'ad-blocking'],
                     },
                 },
                 order: 'v3',
@@ -89,13 +89,14 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     systemSettings: {
-                        rows: ['dock', 'ad-blocking', 'import'],
+                        rows: ['dock', 'import', 'ad-blocking'],
                     },
                 },
                 order: 'v3',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+            await onboarding.skippedCurrent();
             await onboarding.skippedCurrent();
             await onboarding.enableEnhancedAdBlocking();
         });
@@ -104,13 +105,14 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     systemSettings: {
-                        rows: ['dock', 'ad-blocking', 'import'],
+                        rows: ['dock', 'import', 'ad-blocking'],
                     },
                 },
                 order: 'v3',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+            await onboarding.skippedCurrent();
             await onboarding.skippedCurrent();
             await onboarding.skipAdBlocking();
         });
@@ -119,13 +121,14 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     systemSettings: {
-                        rows: ['dock', 'youtube-ad-blocking', 'import'],
+                        rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
                 order: 'v3',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+            await onboarding.skippedCurrent();
             await onboarding.skippedCurrent();
             await onboarding.enableYouTubeAdBlocking();
         });
@@ -134,13 +137,14 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     systemSettings: {
-                        rows: ['dock', 'youtube-ad-blocking', 'import'],
+                        rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
                 order: 'v3',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+            await onboarding.skippedCurrent();
             await onboarding.skippedCurrent();
             await onboarding.skipYouTubeAdBlocking();
         });
@@ -269,7 +273,7 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     systemSettings: {
-                        rows: ['dock', 'ad-blocking', 'import'],
+                        rows: ['dock', 'import', 'ad-blocking'],
                     },
                 },
                 order: 'v3',
@@ -284,7 +288,7 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     systemSettings: {
-                        rows: ['dock', 'ad-blocking', 'import'],
+                        rows: ['dock', 'import', 'ad-blocking'],
                     },
                 },
                 order: 'v3',
@@ -299,7 +303,7 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     systemSettings: {
-                        rows: ['dock', 'youtube-ad-blocking', 'import'],
+                        rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
                 order: 'v3',
@@ -314,7 +318,7 @@ test.describe('onboarding', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     systemSettings: {
-                        rows: ['dock', 'youtube-ad-blocking', 'import'],
+                        rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
                 order: 'v3',

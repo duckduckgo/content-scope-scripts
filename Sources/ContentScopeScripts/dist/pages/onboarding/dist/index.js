@@ -12416,7 +12416,7 @@
               stepDefinitions3.systemSettings = {
                 id: "systemSettings",
                 kind: "settings",
-                rows: ["dock", adBlocking === "youtube" ? "youtube-ad-blocking" : "ad-blocking", "import"]
+                rows: ["dock", "import", adBlocking === "youtube" ? "youtube-ad-blocking" : "ad-blocking"]
               };
             }
             return Promise.resolve({
