@@ -107,6 +107,7 @@ export class DuckPlayerNativeMessages {
      * Notifies browser that scripts are ready to be acalled
      */
     notifyScriptIsReady() {
+        console.log('FIRING ON DUCK PLAYER SCRIPTS READY')
         this.messaging.notify(constants.MSG_NAME_SCRIPTS_READY, {});
     }
 
