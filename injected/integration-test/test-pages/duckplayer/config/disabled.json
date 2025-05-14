@@ -1,4 +1,6 @@
 {
+  "readme": "This is a test config for the duckplayer",
+  "version": 123,
   "unprotectedTemporary": [],
   "features": {
     "duckPlayer": {

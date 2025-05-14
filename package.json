@@ -39,7 +39,9 @@
   ],
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#ca6101bb972756a87a8960ffb3029f603052ea9d",
     "@playwright/test": "^1.51.1",
+    "ajv": "^8.17.1",
     "esbuild": "^0.25.2",
     "eslint": "^9.24.0",
     "minimist": "^1.2.8",
@@ -47,6 +49,7 @@
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-csstree-validator": "^3.0.0",
+    "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1",

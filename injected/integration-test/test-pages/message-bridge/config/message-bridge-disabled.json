@@ -1,4 +1,6 @@
 {
+  "readme": "This is a test config for the message bridge",
+  "version": 123,
   "unprotectedTemporary": [],
   "features": {
     "favicon": {

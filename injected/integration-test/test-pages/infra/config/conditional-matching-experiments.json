@@ -1,4 +1,6 @@
 {
+  "readme": "This is a test config for the conditional matching experiments infra",
+  "version": 123,
     "features": {
       "contentScopeExperiments": {
         "exceptions": [],

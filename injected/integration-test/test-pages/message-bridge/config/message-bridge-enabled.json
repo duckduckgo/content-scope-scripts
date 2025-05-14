@@ -1,19 +1,25 @@
 {
+  "readme": "This is a test config for the message bridge",
+  "version": 123,
   "unprotectedTemporary": [],
   "features": {
     "navigatorInterface": {
       "state": "enabled",
-      "exceptions": []
+      "exceptions": [],
+      "hash": "made-up-hash"
     },
     "favicon": {
       "state": "disabled",
-      "exceptions": []
+      "exceptions": [],
+      "hash": "made-up-hash"
     },
     "messageBridge": {
       "exceptions": [],
       "state": "enabled",
+      "hash": "made-up-hash",
       "settings": {
         "exampleFeature": "disabled",
+        "aiChat": "enabled",
         "domains": [
           {
             "domain": "localhost",

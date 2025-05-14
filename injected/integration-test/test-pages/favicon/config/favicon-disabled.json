@@ -1,4 +1,5 @@
 {
+  "readme": "This is a test config for the favicon feature. It is disabled by default.",
   "features": {
     "favicon": {
       "state": "disabled",
