@@ -90,6 +90,6 @@
     },
     "thankyou": {
         "title": "Thanks for choosing DuckDuckGo!",
-        "note": "Eyebrow-style text for tag that appears above page header expressing gratitude for choosing DuckDuckGo"
+        "note": "Subheader text for tag that appears above page header expressing gratitude for choosing DuckDuckGo"
     }
 }
