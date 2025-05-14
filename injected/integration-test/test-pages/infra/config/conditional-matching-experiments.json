@@ -1,14 +1,20 @@
 {
   "readme": "This is a test config for the conditional matching experiments infra",
+  "unprotectedTemporary": [],
   "version": 123,
     "features": {
       "contentScopeExperiments": {
+        "hash": "made-up-hash",
         "exceptions": [],
         "state": "enabled",
         "features": {
           "bloops": {
             "state": "enabled",
-            "rollout": {},
+            "rollout": {
+              "steps": [
+                { "percent": 10 }
+              ]
+            },
             "cohorts": [
               {
                 "name": "control",
@@ -22,7 +28,11 @@
           },
           "test": {
             "state": "enabled",
-            "rollout": {},
+            "rollout": {
+              "steps": [
+                { "percent": 10 }
+              ]
+            },
             "cohorts": [
               {
                 "name": "control",
@@ -38,6 +48,8 @@
       },
       "apiManipulation": {
         "state": "enabled",
+        "hash": "made-up-hash",
+        "exceptions": [],
         "settings": {
           "apiChanges": {
             "Navigator.prototype.hardwareConcurrency": {
@@ -81,7 +93,6 @@
             }
           ]
         }
-      },
-      "exceptions": []
+      }
     }
 }
