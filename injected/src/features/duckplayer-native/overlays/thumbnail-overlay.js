@@ -1,7 +1,7 @@
 import css from './thumbnail-overlay.css';
 import { createPolicy, html } from '../../../dom-utils.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
-import { VideoParams, appendImageAsBackground, Logger } from '../util';
+import { VideoParams, appendImageAsBackground, Logger } from '../../duckplayer/util.js';
 
 /**
  * The custom element that we use to present our UI elements
@@ -87,7 +87,7 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
 /**
  *
  * @param {HTMLElement} targetElement
- * @param {import('../environment').Environment} environment
+ * @param {import("../../duckplayer/environment").Environment} environment
  * @param {() => void} [onClick] Optional callback to be called when the overlay is clicked
  */
 export function appendThumbnailOverlay(targetElement, environment, onClick) {

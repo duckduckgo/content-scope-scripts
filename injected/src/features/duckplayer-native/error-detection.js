@@ -1,4 +1,4 @@
-import { Logger } from './util';
+import { Logger } from '../duckplayer/util.js';
 
 /**
  * @import {DuckPlayerNativeSettings} from "@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js"
