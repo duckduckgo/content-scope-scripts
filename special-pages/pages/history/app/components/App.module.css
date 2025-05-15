@@ -15,7 +15,6 @@ body {
     --main-padding-left: 48px;
     --main-padding-right: 76px;
 
-
     &[data-layout-mode="reduced"] {
         --sidebar-width: 230px;
         --main-padding-left: 28px;
@@ -26,8 +25,8 @@ body {
     grid-template-columns: var(--sidebar-width) 1fr;
     grid-template-rows: max-content 1fr;
     grid-template-areas:
-             'aside header'
-             'aside main';
+            'aside header'
+            'aside main';
     overflow: hidden;
     height: 100vh;
     background-color: var(--history-background-color);
@@ -49,7 +48,7 @@ body {
 .aside {
     grid-area: aside;
     padding: 10px 16px;
-    /* Internals will handle this to accommodate a scrollbar */
+    /* Nav child will handle this to accommodate a scrollbar */
     padding-right: 0;
     border-right: 1px solid var(--history-surface-border-color);
 }
