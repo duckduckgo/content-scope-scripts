@@ -45,7 +45,7 @@ export class DuckPlayerNativeMessages {
         this.environment = environment;
 
         if (this.environment.isIntegrationMode()) {
-            this.messaging.transport = mockTransport(); // TODO: Better way than patching transport?
+            this.messaging.transport = mockTransport();
         }
     }
 
