@@ -19,7 +19,7 @@
 }
 
 .nav {
-    padding-right: var(--scroll-bar);
+    padding-right: .25rem;
 }
 
 .item {
