@@ -239,6 +239,7 @@ export function activityMockTransport() {
                     const config = {
                         expansion: 'expanded',
                     };
+                    // await new Promise((resolve) => setTimeout(resolve, 1200));
                     return Promise.resolve(config);
                 }
                 default: {

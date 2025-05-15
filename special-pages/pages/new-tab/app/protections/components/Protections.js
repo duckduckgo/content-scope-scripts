@@ -8,6 +8,7 @@ import { ActivityAltConsumer } from '../../activity/components/Activity.js';
 import { BodyExpanderProvider } from '../../privacy-stats/components/BodyExpansionProvider.js';
 import { PrivacyStatsAltConsumer } from '../../privacy-stats/components/PrivacyStatsConsumer.js';
 import { PrivacyStatsProvider } from '../../privacy-stats/components/PrivacyStatsProvider.js';
+import { useBlockedCount } from './ProtectionsProvider.js';
 
 /**
  * @import enStrings from "../../strings.json"
@@ -27,7 +28,15 @@ import { PrivacyStatsProvider } from '../../privacy-stats/components/PrivacyStat
  * @param {()=>void} props.toggle
  */
 export function Protections({ expansion = 'expanded', data, feed, toggle, setFeed }) {
-    // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
+    return (
+        <div class={styles.root}>
+            <ProtectionsHeader expansion={expansion} toggle={toggle} initial={data.totalCount} />
+            {expansion === 'expanded' && <ProtectionsBody feed={feed} setFeed={setFeed} />}
+        </div>
+    );
+}
+
+function ProtectionsHeader({ initial, toggle, expansion }) {
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
 
@@ -39,10 +48,13 @@ export function Protections({ expansion = 'expanded', data, feed, toggle, setFee
     }, [WIDGET_ID, TOGGLE_ID]);
 
     return (
-        <div class={styles.root}>
-            <PrivacyStatsHeading recent={data.totalCount} onToggle={toggle} expansion={expansion} canExpand={true} buttonAttrs={attrs} />
-            {expansion === 'expanded' && <ProtectionsBody feed={feed} setFeed={setFeed} />}
-        </div>
+        <PrivacyStatsHeading
+            blockedCount={useBlockedCount(initial)}
+            onToggle={toggle}
+            expansion={expansion}
+            canExpand={true}
+            buttonAttrs={attrs}
+        />
     );
 }
 

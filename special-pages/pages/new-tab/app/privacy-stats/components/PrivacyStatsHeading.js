@@ -12,22 +12,22 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
  * @typedef {enStrings} Strings
  * @param {object} props
  * @param {import('../../../types/new-tab.js').Expansion} props.expansion
- * @param {number} props.recent
+ * @param {number} props.blockedCount
  * @param {boolean} props.canExpand
  * @param {() => void} props.onToggle
  * @param {import('preact').ComponentProps<'button'>} [props.buttonAttrs]
  */
-export function PrivacyStatsHeading({ expansion, canExpand, recent, onToggle, buttonAttrs = {} }) {
+export function PrivacyStatsHeading({ expansion, canExpand, blockedCount, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
     const adBlocking = useAdBlocking();
 
-    const none = recent === 0;
-    const some = recent > 0;
-    const alltime = formatter.format(recent);
+    const none = blockedCount === 0;
+    const some = blockedCount > 0;
+    const alltime = formatter.format(blockedCount);
 
     let alltimeTitle;
-    if (recent === 1) {
+    if (blockedCount === 1) {
         alltimeTitle = adBlocking ? t('stats_countBlockedAdsAndTrackersSingular') : t('stats_countBlockedSingular');
     } else {
         alltimeTitle = adBlocking
@@ -60,12 +60,12 @@ export function PrivacyStatsHeading({ expansion, canExpand, recent, onToggle, bu
                     />
                 </span>
             )}
-            {recent === 0 && (
+            {blockedCount === 0 && (
                 <p className={cn(styles.subtitle, { [styles.indented]: !adBlocking })}>
                     {adBlocking ? t('stats_noActivityAdsAndTrackers') : t('stats_noActivity')}
                 </p>
             )}
-            {recent > 0 && (
+            {blockedCount > 0 && (
                 <p className={cn(styles.subtitle, styles.indented, { [styles.uppercase]: !adBlocking })}>
                     {t('stats_feedCountBlockedPeriod')}
                 </p>
