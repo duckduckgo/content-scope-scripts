@@ -22,8 +22,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
     currentPage;
 
     async init(args) {
-        console.log('Duck Player Native loading...', args, window.location.href);
-
         /**
          * This feature never operates in a frame
          */
@@ -58,8 +56,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             console.warn('Failed to get initial setup', e);
             return;
         }
-
-        console.log('INITIAL SETUP', initialSetup);
 
         if (initialSetup.pageType) {
             const playbackPaused = initialSetup.playbackPaused || false;
