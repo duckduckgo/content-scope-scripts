@@ -22,17 +22,14 @@ export class DuckPlayerNativeFeature extends ContentFeature {
     currentPage;
 
     async init(args) {
-        console.log('DUCK PLAYER NATIVE LOADING', args, window.location.href); // TODO: REMOVE
+        console.log('Duck Player Native loading...', args, window.location.href);
 
         /**
          * This feature never operates in a frame
          */
-        if (isBeingFramed()) {
-            return;
-        }
+        if (isBeingFramed()) return;
 
         const selectors = this.getFeatureSetting('selectors');
-        console.log('DUCK PLAYER NATIVE SELECTORS', selectors); // TODO: REMOVE
         if (!selectors) {
             console.warn('No selectors found. Check remote config. Feature will not be initialized.');
             return;
@@ -49,7 +46,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         const messages = new DuckPlayerNativeMessages(this.messaging, env);
         messages.subscribeToURLChange(({ pageType }) => {
             const playbackPaused = false; // TODO: Get this from the native notification too?
-            console.log('GOT PAGE TYPE', pageType);
             this.urlChanged(pageType, selectors, playbackPaused, env, messages);
         });
 
@@ -67,7 +63,6 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         if (initialSetup.pageType) {
             const playbackPaused = initialSetup.playbackPaused || false;
-            console.log('GOT INITIAL PAGE TYPE', initialSetup.pageType, 'playbackPaused', playbackPaused); // TODO: REMOVE
             this.urlChanged(initialSetup.pageType, selectors, playbackPaused, env, messages);
         }
     }
@@ -100,12 +95,10 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         }
 
         if (this.currentPage) {
-            console.log('DESTROYING CURRENT INSTANCE', this.currentPage);
             this.currentPage.destroy();
         }
 
         if (nextPage) {
-            console.log('LOADING NEXT INSTANCE', nextPage);
             nextPage.init();
             this.currentPage = nextPage;
         }
