@@ -77,7 +77,7 @@ export function App() {
             <header class={styles.header}>
                 <Header />
             </header>
-            <main class={cn(styles.main, styles.customScroller)} ref={mainRef} onClick={onClick}>
+            <main class={cn(styles.main, 'customScroller', styles.customScroller)} ref={mainRef} onClick={onClick}>
                 <ResultsContainer />
             </main>
         </div>
