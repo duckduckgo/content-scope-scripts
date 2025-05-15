@@ -37,7 +37,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
-            debug: this.isDebug || true, // TODO: Can't get this setting from iOS for some reason. Remove before shipping.
+            debug: this.isDebug,
             injectName: import.meta.injectName,
             platform: this.platform,
             locale,
@@ -45,7 +45,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         const messages = new DuckPlayerNativeMessages(this.messaging, env);
         messages.subscribeToURLChange(({ pageType }) => {
-            const playbackPaused = false; // TODO: Get this from the native notification too?
+            const playbackPaused = false; // This can be added to the event data in the future if needed
             this.urlChanged(pageType, selectors, playbackPaused, env, messages);
         });
 
