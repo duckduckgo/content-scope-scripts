@@ -23,7 +23,6 @@
 body {
     --default-light-background-color: var(--color-gray-0);
     --default-dark-background-color: var(--color-gray-85);
-    --scrollbar-width: 18px;
 }
 
 /* This comes from the application settings */
@@ -75,6 +74,12 @@ body {
  * content area and the sidebar nav.
 */
 .customScroller {
+    --scrollbar-width: 18px;
+
+    [data-platform="windows"] & {
+        --scrollbar-width: 15px
+    }
+
     overflow-y: scroll;
 }
 
