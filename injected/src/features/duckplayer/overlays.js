@@ -2,7 +2,6 @@ import { DomState } from './util.js';
 import { ClickInterception, Thumbnails } from './thumbnails.js';
 import { VideoOverlay } from './video-overlay.js';
 import { registerCustomElements } from './components/index.js';
-import strings from '../../../../build/locales/duckplayer-locales.js';
 
 /**
  * @typedef {object} OverlayOptions
@@ -10,12 +9,12 @@ import strings from '../../../../build/locales/duckplayer-locales.js';
  * @property {import("../duck-player.js").OverlaysFeatureSettings} settings
  * @property {import("../duck-player.js").DuckPlayerOverlayMessages} messages
  * @property {import("../duck-player.js").UISettings} ui
- * @property {Environment} environment
+ * @property {import("./environment.js").Environment} environment
  */
 
 /**
  * @param {import("../duck-player.js").OverlaysFeatureSettings} settings - methods to read environment-sensitive things like the current URL etc
- * @param {import("./overlays.js").Environment} environment - methods to read environment-sensitive things like the current URL etc
+ * @param {import("./environment.js").Environment} environment - methods to read environment-sensitive things like the current URL etc
  * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} messages - methods to communicate with a native backend
  */
 export async function initOverlays(settings, environment, messages) {
@@ -166,114 +165,4 @@ function videoOverlaysFeatureFromSettings({ userValues, settings, messages, envi
     if (settings.videoOverlays.state !== 'enabled') return undefined;
 
     return new VideoOverlay({ userValues, settings, environment, messages, ui });
-}
-
-export class Environment {
-    allowedProxyOrigins = ['duckduckgo.com'];
-    _strings = JSON.parse(strings);
-
-    /**
-     * @param {object} params
-     * @param {{name: string}} params.platform
-     * @param {boolean|null|undefined} [params.debug]
-     * @param {ImportMeta['injectName']} params.injectName
-     * @param {string} params.locale
-     */
-    constructor(params) {
-        this.debug = Boolean(params.debug);
-        this.injectName = params.injectName;
-        this.platform = params.platform;
-        this.locale = params.locale;
-    }
-
-    get strings() {
-        const matched = this._strings[this.locale];
-        if (matched) return matched['overlays.json'];
-        return this._strings.en['overlays.json'];
-    }
-
-    /**
-     * This is the URL of the page that the user is currently on
-     * It's abstracted so that we can mock it in tests
-     * @return {string}
-     */
-    getPlayerPageHref() {
-        if (this.debug) {
-            const url = new URL(window.location.href);
-            if (url.hostname === 'www.youtube.com') return window.location.href;
-
-            // reflect certain query params, this is useful for testing
-            if (url.searchParams.has('v')) {
-                const base = new URL('/watch', 'https://youtube.com');
-                base.searchParams.set('v', url.searchParams.get('v') || '');
-                return base.toString();
-            }
-
-            return 'https://youtube.com/watch?v=123';
-        }
-        return window.location.href;
-    }
-
-    getLargeThumbnailSrc(videoId) {
-        const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, 'https://i.ytimg.com');
-        return url.href;
-    }
-
-    setHref(href) {
-        window.location.href = href;
-    }
-
-    hasOneTimeOverride() {
-        try {
-            // #ddg-play is a hard requirement, regardless of referrer
-            if (window.location.hash !== '#ddg-play') return false;
-
-            // double-check that we have something that might be a parseable URL
-            if (typeof document.referrer !== 'string') return false;
-            if (document.referrer.length === 0) return false; // can be empty!
-
-            const { hostname } = new URL(document.referrer);
-            const isAllowed = this.allowedProxyOrigins.includes(hostname);
-            return isAllowed;
-        } catch (e) {
-            console.error(e);
-        }
-        return false;
-    }
-
-    isIntegrationMode() {
-        return this.debug === true && this.injectName === 'integration';
-    }
-
-    isTestMode() {
-        return this.debug === true;
-    }
-
-    get opensVideoOverlayLinksViaMessage() {
-        return this.platform.name !== 'windows';
-    }
-
-    /**
-     * @return {boolean}
-     */
-    get isMobile() {
-        return this.platform.name === 'ios' || this.platform.name === 'android';
-    }
-
-    /**
-     * @return {boolean}
-     */
-    get isDesktop() {
-        return !this.isMobile;
-    }
-
-    /**
-     * @return {'desktop' | 'mobile'}
-     */
-    get layout() {
-        if (this.platform.name === 'ios' || this.platform.name === 'android') {
-            return 'mobile';
-        }
-        return 'desktop';
-    }
 }

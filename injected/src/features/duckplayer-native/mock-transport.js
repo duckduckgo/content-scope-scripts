@@ -1,5 +1,5 @@
 import * as constants from './constants.js';
-import { Logger } from './util.js';
+import { Logger } from '../duckplayer/util.js';
 
 const logger = new Logger({
     id: 'MOCK_TRANSPORT',

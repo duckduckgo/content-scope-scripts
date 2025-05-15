@@ -2,7 +2,7 @@ import * as constants from './constants.js';
 import { mockTransport } from './mock-transport.js';
 
 /** @import {YouTubeError} from './error-detection.js' */
-/** @import {Environment} from './environment.js' */
+/** @import {Environment} from '../duckplayer/environment.js' */
 
 /**
  * @typedef {object} MuteSettings - Settings passed to the onMute callback

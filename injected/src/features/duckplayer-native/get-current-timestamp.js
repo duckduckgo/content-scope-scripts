@@ -13,14 +13,13 @@ export function getCurrentTimestamp(selector) {
  * Sends the timestamp to the browser at an interval
  *
  * @param {number} interval - Polling interval
- * @param {(number) => void} callback - Callback handler for polling event
+ * @param {(timestamp: number) => void} callback - Callback handler for polling event
  * @param {DuckPlayerNativeSelectors} selectors - Selectors for the player
- * @returns
  */
 export function pollTimestamp(interval = 300, callback, selectors) {
     if (!callback || !selectors) {
         console.error('Timestamp polling failed. No callback or selectors defined');
-        return;
+        return () => {};
     }
 
     const isShowingAd = () => {

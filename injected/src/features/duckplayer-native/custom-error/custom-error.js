@@ -1,5 +1,5 @@
 import css from './custom-error.css';
-import { Logger } from '../util';
+import { Logger } from '../../duckplayer/util.js';
 import { createPolicy, html } from '../../../dom-utils.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
 
@@ -100,10 +100,10 @@ function getErrorStrings(errorId, t) {
  *
  * @param {HTMLElement} targetElement
  * @param {YouTubeError} errorId
- * @param {import('../environment').Environment} environment
+ * @param {import('../../duckplayer/environment.js').Environment} environment
  */
 export function showError(targetElement, errorId, environment) {
-    const { title, messages } = getErrorStrings(errorId, environment.strings);
+    const { title, messages } = getErrorStrings(errorId, environment.strings('native.json'));
     const logger = new Logger({
         id: 'CUSTOM_ERROR',
         shouldLog: () => environment.isTestMode(),
