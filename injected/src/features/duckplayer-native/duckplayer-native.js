@@ -30,9 +30,15 @@ export class DuckPlayerNativePage {
     environment;
     /** @type {DuckPlayerNativeMessages} */
     messages;
-    /** @type {CustomEventHandler} */
+    /**
+     * Runs when an instance of this class is initialized
+     * @type {CustomEventHandler}
+     */
     onInit;
-    /** @type {CustomEventHandler} */
+    /**
+     * Runs after the current document has been loaded
+     * @type {CustomEventHandler}
+     */
     onLoad;
 
     /**
@@ -98,6 +104,8 @@ export class DuckPlayerNativePage {
 }
 
 /**
+ * Sets up Duck Player for a YouTube watch page
+ *
  * @param {DuckPlayerNativeSelectors} selectors
  * @param {boolean} playbackPaused
  * @param {Environment} environment
@@ -173,6 +181,8 @@ export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment
 }
 
 /**
+ * Sets up Duck Player for a video player in the YouTube nocookie domain
+ *
  * @param {DuckPlayerNativeSelectors} selectors
  * @param {Environment} environment
  * @param {DuckPlayerNativeMessages} messages
@@ -235,6 +245,8 @@ export function setupDuckPlayerForNoCookie(selectors, environment, messages) {
 }
 
 /**
+ * Sets up Duck Player events for the SERP
+ *
  * @param {DuckPlayerNativeSelectors} selectors
  * @param {Environment} environment
  * @param {DuckPlayerNativeMessages} messages
