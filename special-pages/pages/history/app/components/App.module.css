@@ -91,6 +91,7 @@ body {
  * macOS specific styling to handle dark mode - without this full
  * override you cannot change the track color :(
  */
+[data-platform="integration"],
 [data-platform="macos"] {
     .customScroller {
         --webkit-thumb-color: rgba(136, 136, 136, 0.8);

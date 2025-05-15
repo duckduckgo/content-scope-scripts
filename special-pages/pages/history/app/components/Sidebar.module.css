@@ -19,7 +19,7 @@
 }
 
 .nav {
-    padding-right: .25rem;
+    padding-right: var(--sp-4);
 }
 
 .item {
