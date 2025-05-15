@@ -1,2 +1,1 @@
-- Conditional experiment matching (#1661)
-- Move ad blocking setting row to the last position (#1687)
+- Fix casing experiment matching (#1688)
