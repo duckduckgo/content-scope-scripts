@@ -53,7 +53,7 @@ export function PrivacyStats({ expansion = 'expanded', secondaryExpansion, data,
     return (
         <div class={styles.root}>
             <PrivacyStatsHeading
-                recent={recent}
+                blockedCount={recent}
                 onToggle={toggle}
                 expansion={expansion}
                 canExpand={hasNamedCompanies}

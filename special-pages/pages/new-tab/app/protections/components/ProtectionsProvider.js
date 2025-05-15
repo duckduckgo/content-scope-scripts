@@ -1,8 +1,10 @@
 import { createContext, h } from 'preact';
-import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useEffect, useReducer, useRef, useContext } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
-import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
+import { reducer, useConfigSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
 import { ProtectionsService } from '../protections.service.js';
+import { viewTransition } from '../../utils.js';
+import { useSyncExternalStore } from 'preact/compat';
 
 /**
  * @typedef {import('../../../types/new-tab.js').ProtectionsData} ProtectionsData
@@ -50,11 +52,14 @@ export function ProtectionsProvider(props) {
     // get initial data
     useInitialDataAndConfig({ dispatch, service });
 
-    // subscribe to data updates
-    useDataSubscription({ dispatch, service });
-
     // subscribe to toggle + expose a fn for sync toggling
-    const { toggle } = useConfigSubscription({ dispatch, service });
+    const { toggle: baseToggle } = useConfigSubscription({ dispatch, service });
+
+    const toggle = useCallback(() => {
+        viewTransition(() => {
+            baseToggle();
+        });
+    }, [baseToggle]);
 
     /** @type {(feed: ProtectionsConfig['feed']) => void} */
     const setFeed = useCallback(
@@ -85,4 +90,20 @@ export function useService() {
         };
     }, [ntp]);
     return service;
+}
+
+/**
+ * @param {number} initial
+ */
+export function useBlockedCount(initial) {
+    const service = useContext(ProtectionsServiceContext);
+    return useSyncExternalStore(
+        (callback) => {
+            if (!service) return () => {};
+            return service.onData(callback);
+        },
+        () => {
+            return service?.dataService?.data?.totalCount ?? initial;
+        },
+    );
 }
