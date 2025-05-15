@@ -18,7 +18,7 @@ import { Environment } from './duckplayer/environment.js';
  */
 
 export class DuckPlayerNativeFeature extends ContentFeature {
-    /** @type {DuckPlayerNativePage} */
+    /** @type {{init: () => void, destroy: () => void} | null} */
     currentPage;
 
     async init(args) {

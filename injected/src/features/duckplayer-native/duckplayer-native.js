@@ -15,7 +15,7 @@ import { Logger, SideEffects } from '../duckplayer/util.js';
  */
 
 /**
- * @typedef {(SideEffects, Logger) => void} CustomEventHandler
+ * @typedef {(effects: SideEffects, logger: Logger) => void} CustomEventHandler
  * @typedef {DuckPlayerNativeSettings['selectors']} DuckPlayerNativeSelectors
  */
 
@@ -32,12 +32,12 @@ export class DuckPlayerNativePage {
     messages;
     /**
      * Runs when an instance of this class is initialized
-     * @type {CustomEventHandler}
+     * @type {CustomEventHandler|undefined}
      */
     onInit;
     /**
      * Runs after the current document has been loaded
-     * @type {CustomEventHandler}
+     * @type {CustomEventHandler|undefined}
      */
     onLoad;
 
@@ -56,8 +56,8 @@ export class DuckPlayerNativePage {
 
         this.setupLogger();
 
-        this.onLoad = onLoad || (() => {});
-        this.onInit = onInit || (() => {});
+        this.onLoad = onLoad;
+        this.onInit = onInit;
 
         this.selectors = selectors;
         this.environment = environment;
@@ -80,13 +80,13 @@ export class DuckPlayerNativePage {
 
     init() {
         this.logger.log('Running init handlers');
-        this.onInit(this.sideEffects, this.logger);
+        this.onInit?.(this.sideEffects, this.logger);
 
         if (document.readyState === 'loading') {
             this.sideEffects.add('setting up load event listener', () => {
                 const loadHandler = () => {
                     this.logger.log('Running deferred load handlers');
-                    this.onLoad(this.sideEffects, this.logger);
+                    this.onLoad?.(this.sideEffects, this.logger);
                     this.messages.notifyScriptIsReady();
                 };
                 document.addEventListener('DOMContentLoaded', loadHandler, { once: true });
@@ -97,7 +97,7 @@ export class DuckPlayerNativePage {
             });
         } else {
             this.logger.log('Running load handlers immediately');
-            this.onLoad(this.sideEffects, this.logger);
+            this.onLoad?.(this.sideEffects, this.logger);
             this.messages.notifyScriptIsReady();
         }
     }
@@ -112,6 +112,9 @@ export class DuckPlayerNativePage {
  * @param {DuckPlayerNativeMessages} messages
  */
 export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment, messages) {
+    /**
+     * @type {(sideEffects: SideEffects, logger: Logger, pause: boolean) => void}
+     */
     const mediaControlHandler = (sideEffects, logger, pause) => {
         logger.log('Running media control handler. Pause:', pause);
 
@@ -141,6 +144,7 @@ export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment
         }
     };
 
+    /** @type {CustomEventHandler} */
     const onLoad = (sideEffects, logger) => {
         sideEffects.add('started polling current timestamp', () => {
             const handler = (timestamp) => {
@@ -155,6 +159,7 @@ export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment
         }
     };
 
+    /** @type {CustomEventHandler} */
     const onInit = (sideEffects, logger) => {
         sideEffects.add('subscribe to media control', () => {
             return messages.subscribeToMediaControl(({ pause }) => {
@@ -188,6 +193,7 @@ export function setupDuckPlayerForYouTube(selectors, playbackPaused, environment
  * @param {DuckPlayerNativeMessages} messages
  */
 export function setupDuckPlayerForNoCookie(selectors, environment, messages) {
+    /** @type {CustomEventHandler} */
     const onLoad = (sideEffects, logger) => {
         sideEffects.add('started polling current timestamp', () => {
             const handler = (timestamp) => {
