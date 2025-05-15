@@ -2,7 +2,7 @@ import ContentFeature from '../content-feature.js';
 import { isBeingFramed } from '../utils.js';
 import { DuckPlayerNativeMessages } from './duckplayer-native/messages.js';
 import { setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/duckplayer-native.js';
-import { Environment } from './duckplayer-native/environment.js';
+import { Environment } from './duckplayer/environment.js';
 
 /**
  * @import {DuckPlayerNativePage} from './duckplayer-native/duckplayer-native.js'
@@ -18,7 +18,7 @@ import { Environment } from './duckplayer-native/environment.js';
  */
 
 export class DuckPlayerNativeFeature extends ContentFeature {
-    /** @type {DuckPlayerNativePage} */
+    /** @type {{init: () => void, destroy: () => void} | null} */
     currentPage;
 
     async init(args) {

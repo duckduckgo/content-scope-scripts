@@ -19,12 +19,13 @@ export class Environment {
     }
 
     /**
+     * @param {"overlays.json" | "native.json"} named
      * @returns {Record<string, string>}
      */
-    get strings() {
+    strings(named) {
         const matched = this._strings[this.locale];
-        if (matched) return matched['native.json'];
-        return this._strings.en['native.json'];
+        if (matched) return matched[named];
+        return this._strings.en[named];
     }
 
     /**
@@ -49,8 +50,31 @@ export class Environment {
         return window.location.href;
     }
 
+    getLargeThumbnailSrc(videoId) {
+        const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, 'https://i.ytimg.com');
+        return url.href;
+    }
+
     setHref(href) {
         window.location.href = href;
+    }
+
+    hasOneTimeOverride() {
+        try {
+            // #ddg-play is a hard requirement, regardless of referrer
+            if (window.location.hash !== '#ddg-play') return false;
+
+            // double-check that we have something that might be a parseable URL
+            if (typeof document.referrer !== 'string') return false;
+            if (document.referrer.length === 0) return false; // can be empty!
+
+            const { hostname } = new URL(document.referrer);
+            const isAllowed = this.allowedProxyOrigins.includes(hostname);
+            return isAllowed;
+        } catch (e) {
+            console.error(e);
+        }
+        return false;
     }
 
     isIntegrationMode() {
@@ -59,6 +83,10 @@ export class Environment {
 
     isTestMode() {
         return this.debug === true;
+    }
+
+    get opensVideoOverlayLinksViaMessage() {
+        return this.platform.name !== 'windows';
     }
 
     /**
