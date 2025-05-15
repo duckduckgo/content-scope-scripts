@@ -77,7 +77,7 @@ export function Sidebar({ ranges }) {
     return (
         <div class={styles.stack}>
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
-            <nav class={styles.nav}>
+            <nav class={cn(styles.nav, 'customScroller')}>
                 {ranges.value.map((range) => {
                     return (
                         <Item key={range.id} onClick={onClick} onDelete={onDelete} current={current} range={range.id} count={range.count} />
