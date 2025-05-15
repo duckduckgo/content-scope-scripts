@@ -5,11 +5,11 @@ import { ErrorDetection } from './error-detection.js';
 import { appendThumbnailOverlay as showThumbnailOverlay } from './overlays/thumbnail-overlay.js';
 import { stopVideoFromPlaying } from './pause-video.js';
 import { showError } from './custom-error/custom-error.js';
-import { Logger, SideEffects } from './util.js';
+import { Logger, SideEffects } from '../duckplayer/util.js';
 
 /**
  * @import {DuckPlayerNativeMessages} from './messages.js'
- * @import {Environment} from './environment.js'
+ * @import {Environment} from '../duckplayer/environment.js'
  * @import {ErrorDetectionSettings} from './error-detection.js'
  * @import {DuckPlayerNativeSettings} from "@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js"
  */

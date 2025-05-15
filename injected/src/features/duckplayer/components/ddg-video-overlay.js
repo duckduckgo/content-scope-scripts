@@ -15,7 +15,7 @@ export class DDGVideoOverlay extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-overlay';
     /**
      * @param {object} options
-     * @param {import("../overlays.js").Environment} options.environment
+     * @param {import("../environment.js").Environment} options.environment
      * @param {import("../util").VideoParams} options.params
      * @param {import("../../duck-player.js").UISettings} options.ui
      * @param {VideoOverlay} options.manager
