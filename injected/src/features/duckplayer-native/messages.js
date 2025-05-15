@@ -85,7 +85,6 @@ export class DuckPlayerNativeMessages {
      * @param {(urlSettings: UrlChangeSettings) => void} callback
      */
     subscribeToURLChange(callback) {
-        console.log('SUBSCRIBING TO URL CHANGE');
         return this.messaging.subscribe(constants.MSG_NAME_URL_CHANGE, callback);
     }
 
@@ -108,7 +107,6 @@ export class DuckPlayerNativeMessages {
      * Notifies browser that scripts are ready to be acalled
      */
     notifyScriptIsReady() {
-        console.log('FIRING ON DUCK PLAYER SCRIPTS READY')
         this.messaging.notify(constants.MSG_NAME_SCRIPTS_READY, {});
     }
 
