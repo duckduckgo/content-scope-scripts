@@ -22,20 +22,16 @@ body {
         --main-padding-right: 36px;
     }
 
-    [data-platform="windows"] & {
-        --scrollbar-width: 15px
-    }
-
     display: grid;
     grid-template-columns: var(--sidebar-width) 1fr;
     grid-template-rows: max-content 1fr;
-    grid-template-areas:
-            'aside header'
-            'aside main';
+    grid-template-areas: 'aside header'
+    'aside main';
     overflow: hidden;
     height: 100vh;
     background-color: var(--history-background-color);
 }
+
 .header {
     grid-area: header;
     padding-left: var(--main-padding-left);
@@ -44,9 +40,11 @@ body {
     z-index: 1;
     background-color: var(--history-background-color);
 }
+
 .search {
     justify-self: flex-end;
 }
+
 .aside {
     grid-area: aside;
     padding: 10px 16px;
@@ -54,16 +52,13 @@ body {
     padding-right: 0;
     border-right: 1px solid var(--history-surface-border-color);
 }
+
 .main {
     grid-area: main;
     overflow: auto;
     padding-left: var(--main-padding-left);
-    padding-right: var(--main-padding-right);
-    padding-top: 24px;
-}
-
-.customScroller {
     padding-right: calc(var(--main-padding-right) - var(--scrollbar-width));
+    padding-top: 24px;
 }
 
 .paddedError {
