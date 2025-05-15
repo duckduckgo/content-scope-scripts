@@ -29,8 +29,9 @@ body {
     display: grid;
     grid-template-columns: var(--sidebar-width) 1fr;
     grid-template-rows: max-content 1fr;
-    grid-template-areas: 'aside header'
-    'aside main';
+    grid-template-areas:
+            'aside header'
+            'aside main';
     overflow: hidden;
     height: 100vh;
     background-color: var(--history-background-color);
