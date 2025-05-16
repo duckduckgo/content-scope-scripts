@@ -51,7 +51,7 @@ export class VideoOverlay {
      * @param {object} options
      * @param {import("../duck-player.js").UserValues} options.userValues
      * @param {import("../duck-player.js").OverlaysFeatureSettings} options.settings
-     * @param {import("./overlays.js").Environment} options.environment
+     * @param {import("./environment.js").Environment} options.environment
      * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} options.messages
      * @param {import("../duck-player.js").UISettings} options.ui
      */
@@ -251,7 +251,7 @@ export class VideoOverlay {
         this.sideEffects.add(`appending ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
             const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
             elem.testMode = this.environment.isTestMode();
-            elem.text = mobileStrings(this.environment.strings);
+            elem.text = mobileStrings(this.environment.strings('overlays.json'));
             elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo());
             elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                 return this.mobileOptOut(e.detail.remember).catch(console.error);
@@ -286,7 +286,7 @@ export class VideoOverlay {
 
                 const drawer = /** @type {DDGVideoDrawerMobile} */ (document.createElement(DDGVideoDrawerMobile.CUSTOM_TAG_NAME));
                 drawer.testMode = this.environment.isTestMode();
-                drawer.text = mobileStrings(this.environment.strings);
+                drawer.text = mobileStrings(this.environment.strings('overlays.json'));
                 drawer.addEventListener(DDGVideoDrawerMobile.OPEN_INFO, () => this.messages.openInfo());
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptOut(e.detail.remember).catch(console.error);
