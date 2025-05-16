@@ -78,7 +78,10 @@ export function reducer(state, action) {
 
                         // skip Duck Player onboarding step when ad blocking is enabled
                         // note: there's no UI for disabling this setting, so we never need to re-insert duckPlayerSingle into order
-                        const isAdBlockingSetting = systemValueId === 'ad-blocking' || systemValueId === 'youtube-ad-blocking';
+                        const isAdBlockingSetting =
+                            systemValueId === 'placebo-ad-blocking' ||
+                            systemValueId === 'aggressive-ad-blocking' ||
+                            systemValueId === 'youtube-ad-blocking';
                         const nextOrder =
                             isAdBlockingSetting && action.payload.enabled
                                 ? state.order.filter((step) => step !== 'duckPlayerSingle')
@@ -152,7 +155,8 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             bookmarks: 'idle',
             'session-restore': 'idle',
             'home-shortcut': 'idle',
-            'ad-blocking': 'idle',
+            'placebo-ad-blocking': 'idle',
+            'aggressive-ad-blocking': 'idle',
             'youtube-ad-blocking': 'idle',
         },
     });
@@ -241,7 +245,8 @@ async function handleSystemSettingUpdate(action, messaging, platform) {
             messaging.setShowHomeButton(payload);
             return payload;
         }
-        case 'ad-blocking':
+        case 'placebo-ad-blocking':
+        case 'aggressive-ad-blocking':
         case 'youtube-ad-blocking': {
             messaging.setAdBlocking(payload);
             return payload;

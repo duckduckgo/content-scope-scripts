@@ -27394,16 +27394,16 @@
       note: "Placeholder for when we cannot report any blocked ads and trackers yet"
     },
     stats_noRecentAdsAndTrackers: {
-      title: "Ads & tracking protections active",
+      title: "Protections active",
       note: "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
     },
     stats_countBlockedAdsAndTrackersSingular: {
-      title: "Total of <b>1</b> ad & tracking attempt blocked",
+      title: "<b>1</b> advertising & tracking attempt blocked",
       note: "The main headline indicating that a single ad or tracking attempt was blocked"
     },
     stats_countBlockedAdsAndTrackersPlural: {
-      title: "Total of <b>{count}</b> ads & tracking attempts blocked",
-      note: "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: 'Total of 2 ads & tracking attempts blocked'"
+      title: "<b>{count}</b> advertising & tracking attempts blocked",
+      note: "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
     },
     stats_feedCountBlockedSingular: {
       title: "1 attempt blocked by DuckDuckGo in the last 7 days",

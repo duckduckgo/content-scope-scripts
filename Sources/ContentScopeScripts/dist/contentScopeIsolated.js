@@ -2026,6 +2026,7 @@
       "cookie",
       "messageBridge",
       "duckPlayer",
+      "duckPlayerNative",
       "harmfulApis",
       "webCompat",
       "windowsPermissionUsage",
@@ -2037,8 +2038,16 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", ...baseFeatures],
-    "apple-isolated": ["duckPlayer", "brokerProtection", "performanceMetrics", "clickToLoad", "messageBridge", "favicon"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures],
+    "apple-isolated": [
+      "duckPlayer",
+      "duckPlayerNative",
+      "brokerProtection",
+      "performanceMetrics",
+      "clickToLoad",
+      "messageBridge",
+      "favicon"
+    ],
     android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-password-import": ["autofillPasswordImport"],
@@ -4921,7 +4930,7 @@
   var DuckPlayerOverlayMessages = class {
     /**
      * @param {Messaging} messaging
-     * @param {import('./overlays.js').Environment} environment
+     * @param {import('./environment.js').Environment} environment
      * @internal
      */
     constructor(messaging, environment) {
@@ -5155,9 +5164,11 @@
     }
     /**
      * Remove elements, event listeners etc
+     * @param {string} [name]
      */
-    destroy() {
-      for (const cleanup of this._cleanups) {
+    destroy(name) {
+      const cleanups = name ? this._cleanups.filter((c) => c.name === name) : this._cleanups;
+      for (const cleanup of cleanups) {
         if (typeof cleanup.fn === "function") {
           try {
             if (this.debug) {
@@ -5171,7 +5182,11 @@
           throw new Error("invalid cleanup");
         }
       }
-      this._cleanups = [];
+      if (name) {
+        this._cleanups = this._cleanups.filter((c) => c.name !== name);
+      } else {
+        this._cleanups = [];
+      }
     }
   };
   var _VideoParams = class _VideoParams {
@@ -5192,6 +5207,15 @@
         duckUrl.searchParams.set("t", this.time);
       }
       return duckUrl.href;
+    }
+    /**
+     * Get the large thumbnail URL for the current video id
+     *
+     * @returns {string}
+     */
+    toLargeThumbnailUrl() {
+      const url = new URL(`/vi/${this.id}/maxresdefault.jpg`, "https://i.ytimg.com");
+      return url.href;
     }
     /**
      * Create a VideoParams instance from a href, only if it's on the watch page
@@ -5273,6 +5297,41 @@
     onLoaded(loadedCallback) {
       if (this.loaded) return loadedCallback();
       this.loadedCallbacks.push(loadedCallback);
+    }
+  };
+  var Logger = class {
+    /**
+     * @param {object} options
+     * @param {string} options.id - Prefix added to log output
+     * @param {() => boolean} options.shouldLog - Tells logger whether to output to console
+     */
+    constructor({ id, shouldLog }) {
+      /** @type {string} */
+      __publicField(this, "id");
+      /** @type {() => boolean} */
+      __publicField(this, "shouldLog");
+      if (!id || !shouldLog) {
+        throw new Error("Missing props in Logger");
+      }
+      this.shouldLog = shouldLog;
+      this.id = id;
+    }
+    error(...args) {
+      this.output(console.error, args);
+    }
+    info(...args) {
+      this.output(console.info, args);
+    }
+    log(...args) {
+      this.output(console.log, args);
+    }
+    warn(...args) {
+      this.output(console.warn, args);
+    }
+    output(handler, args) {
+      if (this.shouldLog()) {
+        handler(`${this.id.padEnd(20, " ")} |`, ...args);
+      }
     }
   };
 
@@ -5647,6 +5706,109 @@
     }
   };
 
+  // src/features/duckplayer/environment.js
+  init_define_import_meta_trackerLookup();
+
+  // ../build/locales/duckplayer-locales.js
+  init_define_import_meta_trackerLookup();
+  var duckplayer_locales_default = `{"bg":{"overlays.json":{"videoOverlayTitle2":"\u0412\u043A\u043B\u044E\u0447\u0435\u0442\u0435 Duck Player, \u0437\u0430 \u0434\u0430 \u0433\u043B\u0435\u0434\u0430\u0442\u0435 \u0431\u0435\u0437 \u043D\u0430\u0441\u043E\u0447\u0435\u043D\u0438 \u0440\u0435\u043A\u043B\u0430\u043C\u0438","videoButtonOpen2":"\u0412\u043A\u043B\u044E\u0447\u0432\u0430\u043D\u0435 \u043D\u0430 Duck Player","videoButtonOptOut2":"\u041D\u0435, \u0431\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u044F","rememberLabel":"\u0417\u0430\u043F\u043E\u043C\u043D\u0438 \u043C\u043E\u044F \u0438\u0437\u0431\u043E\u0440"}},"cs":{"overlays.json":{"videoOverlayTitle2":"Zapn\u011Bte si Duck Player a\xA0sledujte videa bez c\xEDlen\xFDch reklam","videoButtonOpen2":"Zapni si Duck Player","videoButtonOptOut2":"Ne, d\u011Bkuji","rememberLabel":"Zapamatovat mou volbu"}},"da":{"overlays.json":{"videoOverlayTitle2":"Sl\xE5 Duck Player til for at se indhold uden m\xE5lrettede reklamer","videoButtonOpen2":"Sl\xE5 Duck Player til","videoButtonOptOut2":"Nej tak.","rememberLabel":"Husk mit valg"}},"de":{"overlays.json":{"videoOverlayTitle2":"Aktiviere den Duck Player, um ohne gezielte Werbung zu schauen","videoButtonOpen2":"Duck Player aktivieren","videoButtonOptOut2":"Nein, danke","rememberLabel":"Meine Auswahl merken"}},"el":{"overlays.json":{"videoOverlayTitle2":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03B9\u03AE\u03C3\u03C4\u03B5 \u03C4\u03BF Duck Player \u03B3\u03B9\u03B1 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03CD\u03B8\u03B7\u03C3\u03B7 \u03C7\u03C9\u03C1\u03AF\u03C2 \u03C3\u03C4\u03BF\u03C7\u03B5\u03C5\u03BC\u03AD\u03BD\u03B5\u03C2 \u03B4\u03B9\u03B1\u03C6\u03B7\u03BC\u03AF\u03C3\u03B5\u03B9\u03C2","videoButtonOpen2":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03AF\u03B7\u03C3\u03B7 \u03C4\u03BF\u03C5 Duck Player","videoButtonOptOut2":"\u038C\u03C7\u03B9, \u03B5\u03C5\u03C7\u03B1\u03C1\u03B9\u03C3\u03C4\u03CE","rememberLabel":"\u0398\u03C5\u03BC\u03B7\u03B8\u03B5\u03AF\u03C4\u03B5 \u03C4\u03B7\u03BD \u03B5\u03C0\u03B9\u03BB\u03BF\u03B3\u03AE \u03BC\u03BF\u03C5"}},"en":{"native.json":{"blockedVideoErrorHeading":"YouTube won\u2019t let Duck Player load this video","blockedVideoErrorMessage1":"YouTube doesn\u2019t allow this video to be viewed outside of YouTube.","blockedVideoErrorMessage2":"You can still watch this video on YouTube, but without the added privacy of Duck Player.","signInRequiredErrorMessage1":"YouTube is blocking this video from loading. If you\u2019re using a VPN, try turning it off and reloading this page.","signInRequiredErrorMessage2":"If this doesn\u2019t work, you can still watch this video on YouTube, but without the added privacy of Duck Player."},"overlays.json":{"videoOverlayTitle2":"Turn on Duck Player to watch without targeted ads","videoButtonOpen2":"Turn On Duck Player","videoButtonOptOut2":"No Thanks","rememberLabel":"Remember my choice"}},"es":{"overlays.json":{"videoOverlayTitle2":"Activa Duck Player para ver sin anuncios personalizados","videoButtonOpen2":"Activar Duck Player","videoButtonOptOut2":"No, gracias","rememberLabel":"Recordar mi elecci\xF3n"}},"et":{"overlays.json":{"videoOverlayTitle2":"Sihitud reklaamideta vaatamiseks l\xFClita sisse Duck Player","videoButtonOpen2":"L\xFClita Duck Player sisse","videoButtonOptOut2":"Ei ait\xE4h","rememberLabel":"J\xE4ta mu valik meelde"}},"fi":{"overlays.json":{"videoOverlayTitle2":"Jos haluat katsoa ilman kohdennettuja mainoksia, ota Duck Player k\xE4ytt\xF6\xF6n","videoButtonOpen2":"Ota Duck Player k\xE4ytt\xF6\xF6n","videoButtonOptOut2":"Ei kiitos","rememberLabel":"Muista valintani"}},"fr":{"overlays.json":{"videoOverlayTitle2":"Activez Duck Player pour une vid\xE9o sans publicit\xE9s cibl\xE9es","videoButtonOpen2":"Activez Duck Player","videoButtonOptOut2":"Non merci","rememberLabel":"M\xE9moriser mon choix"}},"hr":{"overlays.json":{"videoOverlayTitle2":"Uklju\u010Di Duck Player za gledanje bez ciljanih oglasa","videoButtonOpen2":"Uklju\u010Di Duck Player","videoButtonOptOut2":"Ne, hvala","rememberLabel":"Zapamti moj izbor"}},"hu":{"overlays.json":{"videoOverlayTitle2":"Kapcsold be a Duck Playert, hogy c\xE9lzott hirdet\xE9sek n\xE9lk\xFCl vide\xF3zhass","videoButtonOpen2":"Duck Player bekapcsol\xE1sa","videoButtonOptOut2":"Nem, k\xF6sz\xF6n\xF6m","rememberLabel":"V\xE1lasztott be\xE1ll\xEDt\xE1s megjegyz\xE9se"}},"it":{"overlays.json":{"videoOverlayTitle2":"Attiva Duck Player per guardare senza annunci personalizzati","videoButtonOpen2":"Attiva Duck Player","videoButtonOptOut2":"No, grazie","rememberLabel":"Ricorda la mia scelta"}},"lt":{"overlays.json":{"videoOverlayTitle2":"\u012Ejunkite \u201EDuck Player\u201C, kad gal\u0117tum\u0117te \u017Ei\u016Br\u0117ti be tikslini\u0173 reklam\u0173","videoButtonOpen2":"\u012Ejunkite \u201EDuck Player\u201C","videoButtonOptOut2":"Ne, d\u0117koju","rememberLabel":"\u012Esiminti mano pasirinkim\u0105"}},"lv":{"overlays.json":{"videoOverlayTitle2":"Iesl\u0113dz Duck Player, lai skat\u012Btos bez m\u0113r\u0137\u0113t\u0101m rekl\u0101m\u0101m","videoButtonOpen2":"Iesl\u0113gt Duck Player","videoButtonOptOut2":"N\u0113, paldies","rememberLabel":"Atcer\u0113ties manu izv\u0113li"}},"nb":{"overlays.json":{"videoOverlayTitle2":"Sl\xE5 p\xE5 Duck Player for \xE5 se p\xE5 uten m\xE5lrettede annonser","videoButtonOpen2":"Sl\xE5 p\xE5 Duck Player","videoButtonOptOut2":"Nei takk","rememberLabel":"Husk valget mitt"}},"nl":{"overlays.json":{"videoOverlayTitle2":"Zet Duck Player aan om te kijken zonder gerichte advertenties","videoButtonOpen2":"Duck Player aanzetten","videoButtonOptOut2":"Nee, bedankt","rememberLabel":"Mijn keuze onthouden"}},"pl":{"overlays.json":{"videoOverlayTitle2":"W\u0142\u0105cz Duck Player, aby ogl\u0105da\u0107 bez reklam ukierunkowanych","videoButtonOpen2":"W\u0142\u0105cz Duck Player","videoButtonOptOut2":"Nie, dzi\u0119kuj\u0119","rememberLabel":"Zapami\u0119taj m\xF3j wyb\xF3r"}},"pt":{"overlays.json":{"videoOverlayTitle2":"Ativa o Duck Player para ver sem an\xFAncios personalizados","videoButtonOpen2":"Ligar o Duck Player","videoButtonOptOut2":"N\xE3o, obrigado","rememberLabel":"Memorizar a minha op\xE7\xE3o"}},"ro":{"overlays.json":{"videoOverlayTitle2":"Activeaz\u0103 Duck Player pentru a viziona f\u0103r\u0103 reclame direc\u021Bionate","videoButtonOpen2":"Activeaz\u0103 Duck Player","videoButtonOptOut2":"Nu, mul\u021Bumesc","rememberLabel":"Re\u021Bine alegerea mea"}},"ru":{"overlays.json":{"videoOverlayTitle2":"Duck Player\xA0\u2014 \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0431\u0435\u0437 \u0446\u0435\u043B\u0435\u0432\u043E\u0439 \u0440\u0435\u043A\u043B\u0430\u043C\u044B","videoButtonOpen2":"\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C Duck Player","videoButtonOptOut2":"\u041D\u0435\u0442, \u0441\u043F\u0430\u0441\u0438\u0431\u043E","rememberLabel":"\u0417\u0430\u043F\u043E\u043C\u043D\u0438\u0442\u044C \u0432\u044B\u0431\u043E\u0440"}},"sk":{"overlays.json":{"videoOverlayTitle2":"Zapnite Duck Player a pozerajte bez cielen\xFDch rekl\xE1m","videoButtonOpen2":"Zapn\xFA\u0165 prehr\xE1va\u010D Duck Player","videoButtonOptOut2":"Nie, \u010Fakujem","rememberLabel":"Zapam\xE4ta\u0165 si moju vo\u013Ebu"}},"sl":{"overlays.json":{"videoOverlayTitle2":"Vklopite predvajalnik Duck Player za gledanje brez ciljanih oglasov","videoButtonOpen2":"Vklopi predvajalnik Duck Player","videoButtonOptOut2":"Ne, hvala","rememberLabel":"Zapomni si mojo izbiro"}},"sv":{"overlays.json":{"videoOverlayTitle2":"Aktivera Duck Player f\xF6r att titta utan riktade annonser","videoButtonOpen2":"Aktivera Duck Player","videoButtonOptOut2":"Nej tack","rememberLabel":"Kom ih\xE5g mitt val"}},"tr":{"overlays.json":{"videoOverlayTitle2":"Hedeflenmi\u015F reklamlar olmadan izlemek i\xE7in Duck Player'\u0131 a\xE7\u0131n","videoButtonOpen2":"Duck Player'\u0131 A\xE7","videoButtonOptOut2":"Hay\u0131r Te\u015Fekk\xFCrler","rememberLabel":"Se\xE7imimi hat\u0131rla"}}}`;
+
+  // src/features/duckplayer/environment.js
+  var Environment = class {
+    /**
+     * @param {object} params
+     * @param {{name: string}} params.platform
+     * @param {boolean|null|undefined} [params.debug]
+     * @param {ImportMeta['injectName']} params.injectName
+     * @param {string} params.locale
+     */
+    constructor(params) {
+      __publicField(this, "allowedProxyOrigins", ["duckduckgo.com"]);
+      __publicField(this, "_strings", JSON.parse(duckplayer_locales_default));
+      this.debug = Boolean(params.debug);
+      this.injectName = params.injectName;
+      this.platform = params.platform;
+      this.locale = params.locale;
+    }
+    /**
+     * @param {"overlays.json" | "native.json"} named
+     * @returns {Record<string, string>}
+     */
+    strings(named) {
+      const matched = this._strings[this.locale];
+      if (matched) return matched[named];
+      return this._strings.en[named];
+    }
+    /**
+     * This is the URL of the page that the user is currently on
+     * It's abstracted so that we can mock it in tests
+     * @return {string}
+     */
+    getPlayerPageHref() {
+      if (this.debug) {
+        const url = new URL(window.location.href);
+        if (url.hostname === "www.youtube.com") return window.location.href;
+        if (url.searchParams.has("v")) {
+          const base = new URL("/watch", "https://youtube.com");
+          base.searchParams.set("v", url.searchParams.get("v") || "");
+          return base.toString();
+        }
+        return "https://youtube.com/watch?v=123";
+      }
+      return window.location.href;
+    }
+    getLargeThumbnailSrc(videoId) {
+      const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, "https://i.ytimg.com");
+      return url.href;
+    }
+    setHref(href) {
+      window.location.href = href;
+    }
+    hasOneTimeOverride() {
+      try {
+        if (window.location.hash !== "#ddg-play") return false;
+        if (typeof document.referrer !== "string") return false;
+        if (document.referrer.length === 0) return false;
+        const { hostname } = new URL(document.referrer);
+        const isAllowed = this.allowedProxyOrigins.includes(hostname);
+        return isAllowed;
+      } catch (e) {
+        console.error(e);
+      }
+      return false;
+    }
+    isIntegrationMode() {
+      return this.debug === true && this.injectName === "integration";
+    }
+    isTestMode() {
+      return this.debug === true;
+    }
+    get opensVideoOverlayLinksViaMessage() {
+      return this.platform.name !== "windows";
+    }
+    /**
+     * @return {boolean}
+     */
+    get isMobile() {
+      return this.platform.name === "ios" || this.platform.name === "android";
+    }
+    /**
+     * @return {boolean}
+     */
+    get isDesktop() {
+      return !this.isMobile;
+    }
+    /**
+     * @return {'desktop' | 'mobile'}
+     */
+    get layout() {
+      if (this.platform.name === "ios" || this.platform.name === "android") {
+        return "mobile";
+      }
+      return "desktop";
+    }
+  };
+
   // src/features/duckplayer/thumbnails.js
   var Thumbnails = class {
     /**
@@ -5818,7 +5980,7 @@
   var DDGVideoOverlay = class extends HTMLElement {
     /**
      * @param {object} options
-     * @param {import("../overlays.js").Environment} options.environment
+     * @param {import("../environment.js").Environment} options.environment
      * @param {import("../util").VideoParams} options.params
      * @param {import("../../duck-player.js").UISettings} options.ui
      * @param {VideoOverlay} options.manager
@@ -6360,7 +6522,7 @@
      * @param {object} options
      * @param {import("../duck-player.js").UserValues} options.userValues
      * @param {import("../duck-player.js").OverlaysFeatureSettings} options.settings
-     * @param {import("./overlays.js").Environment} options.environment
+     * @param {import("./environment.js").Environment} options.environment
      * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} options.messages
      * @param {import("../duck-player.js").UISettings} options.ui
      */
@@ -6510,7 +6672,7 @@
           document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)
         );
         elem.testMode = this.environment.isTestMode();
-        elem.text = mobileStrings(this.environment.strings);
+        elem.text = mobileStrings(this.environment.strings("overlays.json"));
         elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo());
         elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (e) => {
           return this.mobileOptOut(e.detail.remember).catch(console.error);
@@ -6545,7 +6707,7 @@
             document.createElement(DDGVideoDrawerMobile.CUSTOM_TAG_NAME)
           );
           drawer.testMode = this.environment.isTestMode();
-          drawer.text = mobileStrings(this.environment.strings);
+          drawer.text = mobileStrings(this.environment.strings("overlays.json"));
           drawer.addEventListener(DDGVideoDrawerMobile.OPEN_INFO, () => this.messages.openInfo());
           drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (e) => {
             return this.mobileOptOut(e.detail.remember).catch(console.error);
@@ -6745,10 +6907,6 @@
     }
   }
 
-  // ../build/locales/duckplayer-locales.js
-  init_define_import_meta_trackerLookup();
-  var duckplayer_locales_default = `{"bg":{"overlays.json":{"videoOverlayTitle2":"\u0412\u043A\u043B\u044E\u0447\u0435\u0442\u0435 Duck Player, \u0437\u0430 \u0434\u0430 \u0433\u043B\u0435\u0434\u0430\u0442\u0435 \u0431\u0435\u0437 \u043D\u0430\u0441\u043E\u0447\u0435\u043D\u0438 \u0440\u0435\u043A\u043B\u0430\u043C\u0438","videoButtonOpen2":"\u0412\u043A\u043B\u044E\u0447\u0432\u0430\u043D\u0435 \u043D\u0430 Duck Player","videoButtonOptOut2":"\u041D\u0435, \u0431\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u044F","rememberLabel":"\u0417\u0430\u043F\u043E\u043C\u043D\u0438 \u043C\u043E\u044F \u0438\u0437\u0431\u043E\u0440"}},"cs":{"overlays.json":{"videoOverlayTitle2":"Zapn\u011Bte si Duck Player a\xA0sledujte videa bez c\xEDlen\xFDch reklam","videoButtonOpen2":"Zapni si Duck Player","videoButtonOptOut2":"Ne, d\u011Bkuji","rememberLabel":"Zapamatovat mou volbu"}},"da":{"overlays.json":{"videoOverlayTitle2":"Sl\xE5 Duck Player til for at se indhold uden m\xE5lrettede reklamer","videoButtonOpen2":"Sl\xE5 Duck Player til","videoButtonOptOut2":"Nej tak.","rememberLabel":"Husk mit valg"}},"de":{"overlays.json":{"videoOverlayTitle2":"Aktiviere den Duck Player, um ohne gezielte Werbung zu schauen","videoButtonOpen2":"Duck Player aktivieren","videoButtonOptOut2":"Nein, danke","rememberLabel":"Meine Auswahl merken"}},"el":{"overlays.json":{"videoOverlayTitle2":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03B9\u03AE\u03C3\u03C4\u03B5 \u03C4\u03BF Duck Player \u03B3\u03B9\u03B1 \u03C0\u03B1\u03C1\u03B1\u03BA\u03BF\u03BB\u03BF\u03CD\u03B8\u03B7\u03C3\u03B7 \u03C7\u03C9\u03C1\u03AF\u03C2 \u03C3\u03C4\u03BF\u03C7\u03B5\u03C5\u03BC\u03AD\u03BD\u03B5\u03C2 \u03B4\u03B9\u03B1\u03C6\u03B7\u03BC\u03AF\u03C3\u03B5\u03B9\u03C2","videoButtonOpen2":"\u0395\u03BD\u03B5\u03C1\u03B3\u03BF\u03C0\u03BF\u03AF\u03B7\u03C3\u03B7 \u03C4\u03BF\u03C5 Duck Player","videoButtonOptOut2":"\u038C\u03C7\u03B9, \u03B5\u03C5\u03C7\u03B1\u03C1\u03B9\u03C3\u03C4\u03CE","rememberLabel":"\u0398\u03C5\u03BC\u03B7\u03B8\u03B5\u03AF\u03C4\u03B5 \u03C4\u03B7\u03BD \u03B5\u03C0\u03B9\u03BB\u03BF\u03B3\u03AE \u03BC\u03BF\u03C5"}},"en":{"overlays.json":{"videoOverlayTitle2":"Turn on Duck Player to watch without targeted ads","videoButtonOpen2":"Turn On Duck Player","videoButtonOptOut2":"No Thanks","rememberLabel":"Remember my choice"}},"es":{"overlays.json":{"videoOverlayTitle2":"Activa Duck Player para ver sin anuncios personalizados","videoButtonOpen2":"Activar Duck Player","videoButtonOptOut2":"No, gracias","rememberLabel":"Recordar mi elecci\xF3n"}},"et":{"overlays.json":{"videoOverlayTitle2":"Sihitud reklaamideta vaatamiseks l\xFClita sisse Duck Player","videoButtonOpen2":"L\xFClita Duck Player sisse","videoButtonOptOut2":"Ei ait\xE4h","rememberLabel":"J\xE4ta mu valik meelde"}},"fi":{"overlays.json":{"videoOverlayTitle2":"Jos haluat katsoa ilman kohdennettuja mainoksia, ota Duck Player k\xE4ytt\xF6\xF6n","videoButtonOpen2":"Ota Duck Player k\xE4ytt\xF6\xF6n","videoButtonOptOut2":"Ei kiitos","rememberLabel":"Muista valintani"}},"fr":{"overlays.json":{"videoOverlayTitle2":"Activez Duck Player pour une vid\xE9o sans publicit\xE9s cibl\xE9es","videoButtonOpen2":"Activez Duck Player","videoButtonOptOut2":"Non merci","rememberLabel":"M\xE9moriser mon choix"}},"hr":{"overlays.json":{"videoOverlayTitle2":"Uklju\u010Di Duck Player za gledanje bez ciljanih oglasa","videoButtonOpen2":"Uklju\u010Di Duck Player","videoButtonOptOut2":"Ne, hvala","rememberLabel":"Zapamti moj izbor"}},"hu":{"overlays.json":{"videoOverlayTitle2":"Kapcsold be a Duck Playert, hogy c\xE9lzott hirdet\xE9sek n\xE9lk\xFCl vide\xF3zhass","videoButtonOpen2":"Duck Player bekapcsol\xE1sa","videoButtonOptOut2":"Nem, k\xF6sz\xF6n\xF6m","rememberLabel":"V\xE1lasztott be\xE1ll\xEDt\xE1s megjegyz\xE9se"}},"it":{"overlays.json":{"videoOverlayTitle2":"Attiva Duck Player per guardare senza annunci personalizzati","videoButtonOpen2":"Attiva Duck Player","videoButtonOptOut2":"No, grazie","rememberLabel":"Ricorda la mia scelta"}},"lt":{"overlays.json":{"videoOverlayTitle2":"\u012Ejunkite \u201EDuck Player\u201C, kad gal\u0117tum\u0117te \u017Ei\u016Br\u0117ti be tikslini\u0173 reklam\u0173","videoButtonOpen2":"\u012Ejunkite \u201EDuck Player\u201C","videoButtonOptOut2":"Ne, d\u0117koju","rememberLabel":"\u012Esiminti mano pasirinkim\u0105"}},"lv":{"overlays.json":{"videoOverlayTitle2":"Iesl\u0113dz Duck Player, lai skat\u012Btos bez m\u0113r\u0137\u0113t\u0101m rekl\u0101m\u0101m","videoButtonOpen2":"Iesl\u0113gt Duck Player","videoButtonOptOut2":"N\u0113, paldies","rememberLabel":"Atcer\u0113ties manu izv\u0113li"}},"nb":{"overlays.json":{"videoOverlayTitle2":"Sl\xE5 p\xE5 Duck Player for \xE5 se p\xE5 uten m\xE5lrettede annonser","videoButtonOpen2":"Sl\xE5 p\xE5 Duck Player","videoButtonOptOut2":"Nei takk","rememberLabel":"Husk valget mitt"}},"nl":{"overlays.json":{"videoOverlayTitle2":"Zet Duck Player aan om te kijken zonder gerichte advertenties","videoButtonOpen2":"Duck Player aanzetten","videoButtonOptOut2":"Nee, bedankt","rememberLabel":"Mijn keuze onthouden"}},"pl":{"overlays.json":{"videoOverlayTitle2":"W\u0142\u0105cz Duck Player, aby ogl\u0105da\u0107 bez reklam ukierunkowanych","videoButtonOpen2":"W\u0142\u0105cz Duck Player","videoButtonOptOut2":"Nie, dzi\u0119kuj\u0119","rememberLabel":"Zapami\u0119taj m\xF3j wyb\xF3r"}},"pt":{"overlays.json":{"videoOverlayTitle2":"Ativa o Duck Player para ver sem an\xFAncios personalizados","videoButtonOpen2":"Ligar o Duck Player","videoButtonOptOut2":"N\xE3o, obrigado","rememberLabel":"Memorizar a minha op\xE7\xE3o"}},"ro":{"overlays.json":{"videoOverlayTitle2":"Activeaz\u0103 Duck Player pentru a viziona f\u0103r\u0103 reclame direc\u021Bionate","videoButtonOpen2":"Activeaz\u0103 Duck Player","videoButtonOptOut2":"Nu, mul\u021Bumesc","rememberLabel":"Re\u021Bine alegerea mea"}},"ru":{"overlays.json":{"videoOverlayTitle2":"Duck Player\xA0\u2014 \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0431\u0435\u0437 \u0446\u0435\u043B\u0435\u0432\u043E\u0439 \u0440\u0435\u043A\u043B\u0430\u043C\u044B","videoButtonOpen2":"\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C Duck Player","videoButtonOptOut2":"\u041D\u0435\u0442, \u0441\u043F\u0430\u0441\u0438\u0431\u043E","rememberLabel":"\u0417\u0430\u043F\u043E\u043C\u043D\u0438\u0442\u044C \u0432\u044B\u0431\u043E\u0440"}},"sk":{"overlays.json":{"videoOverlayTitle2":"Zapnite Duck Player a pozerajte bez cielen\xFDch rekl\xE1m","videoButtonOpen2":"Zapn\xFA\u0165 prehr\xE1va\u010D Duck Player","videoButtonOptOut2":"Nie, \u010Fakujem","rememberLabel":"Zapam\xE4ta\u0165 si moju vo\u013Ebu"}},"sl":{"overlays.json":{"videoOverlayTitle2":"Vklopite predvajalnik Duck Player za gledanje brez ciljanih oglasov","videoButtonOpen2":"Vklopi predvajalnik Duck Player","videoButtonOptOut2":"Ne, hvala","rememberLabel":"Zapomni si mojo izbiro"}},"sv":{"overlays.json":{"videoOverlayTitle2":"Aktivera Duck Player f\xF6r att titta utan riktade annonser","videoButtonOpen2":"Aktivera Duck Player","videoButtonOptOut2":"Nej tack","rememberLabel":"Kom ih\xE5g mitt val"}},"tr":{"overlays.json":{"videoOverlayTitle2":"Hedeflenmi\u015F reklamlar olmadan izlemek i\xE7in Duck Player'\u0131 a\xE7\u0131n","videoButtonOpen2":"Duck Player'\u0131 A\xE7","videoButtonOptOut2":"Hay\u0131r Te\u015Fekk\xFCrler","rememberLabel":"Se\xE7imimi hat\u0131rla"}}}`;
-
   // src/features/duckplayer/overlays.js
   async function initOverlays(settings, environment, messages) {
     const domState = new DomState();
@@ -6756,11 +6914,11 @@
     try {
       initialSetup = await messages.initialSetup();
     } catch (e) {
-      console.error(e);
+      console.warn(e);
       return;
     }
     if (!initialSetup) {
-      console.error("cannot continue without user settings");
+      console.warn("cannot continue without user settings");
       return;
     }
     let { userValues, ui } = initialSetup;
@@ -6840,96 +6998,6 @@
     if (settings.videoOverlays.state !== "enabled") return void 0;
     return new VideoOverlay({ userValues, settings, environment, messages, ui });
   }
-  var Environment = class {
-    /**
-     * @param {object} params
-     * @param {{name: string}} params.platform
-     * @param {boolean|null|undefined} [params.debug]
-     * @param {ImportMeta['injectName']} params.injectName
-     * @param {string} params.locale
-     */
-    constructor(params) {
-      __publicField(this, "allowedProxyOrigins", ["duckduckgo.com"]);
-      __publicField(this, "_strings", JSON.parse(duckplayer_locales_default));
-      this.debug = Boolean(params.debug);
-      this.injectName = params.injectName;
-      this.platform = params.platform;
-      this.locale = params.locale;
-    }
-    get strings() {
-      const matched = this._strings[this.locale];
-      if (matched) return matched["overlays.json"];
-      return this._strings.en["overlays.json"];
-    }
-    /**
-     * This is the URL of the page that the user is currently on
-     * It's abstracted so that we can mock it in tests
-     * @return {string}
-     */
-    getPlayerPageHref() {
-      if (this.debug) {
-        const url = new URL(window.location.href);
-        if (url.hostname === "www.youtube.com") return window.location.href;
-        if (url.searchParams.has("v")) {
-          const base = new URL("/watch", "https://youtube.com");
-          base.searchParams.set("v", url.searchParams.get("v") || "");
-          return base.toString();
-        }
-        return "https://youtube.com/watch?v=123";
-      }
-      return window.location.href;
-    }
-    getLargeThumbnailSrc(videoId) {
-      const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, "https://i.ytimg.com");
-      return url.href;
-    }
-    setHref(href) {
-      window.location.href = href;
-    }
-    hasOneTimeOverride() {
-      try {
-        if (window.location.hash !== "#ddg-play") return false;
-        if (typeof document.referrer !== "string") return false;
-        if (document.referrer.length === 0) return false;
-        const { hostname } = new URL(document.referrer);
-        const isAllowed = this.allowedProxyOrigins.includes(hostname);
-        return isAllowed;
-      } catch (e) {
-        console.error(e);
-      }
-      return false;
-    }
-    isIntegrationMode() {
-      return this.debug === true && this.injectName === "integration";
-    }
-    isTestMode() {
-      return this.debug === true;
-    }
-    get opensVideoOverlayLinksViaMessage() {
-      return this.platform.name !== "windows";
-    }
-    /**
-     * @return {boolean}
-     */
-    get isMobile() {
-      return this.platform.name === "ios" || this.platform.name === "android";
-    }
-    /**
-     * @return {boolean}
-     */
-    get isDesktop() {
-      return !this.isMobile;
-    }
-    /**
-     * @return {'desktop' | 'mobile'}
-     */
-    get layout() {
-      if (this.platform.name === "ios" || this.platform.name === "android") {
-        return "mobile";
-      }
-      return "desktop";
-    }
-  };
 
   // src/features/duck-player.js
   var DuckPlayerFeature = class extends ContentFeature {
@@ -6959,6 +7027,1091 @@
       }
     }
   };
+
+  // src/features/duck-player-native.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/duckplayer-native/messages.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/duckplayer-native/constants.js
+  init_define_import_meta_trackerLookup();
+  var MSG_NAME_INITIAL_SETUP2 = "initialSetup";
+  var MSG_NAME_CURRENT_TIMESTAMP = "onCurrentTimestamp";
+  var MSG_NAME_MEDIA_CONTROL = "onMediaControl";
+  var MSG_NAME_MUTE_AUDIO = "onMuteAudio";
+  var MSG_NAME_YOUTUBE_ERROR = "onYoutubeError";
+  var MSG_NAME_URL_CHANGE = "onUrlChanged";
+  var MSG_NAME_FEATURE_READY = "onDuckPlayerFeatureReady";
+  var MSG_NAME_SCRIPTS_READY = "onDuckPlayerScriptsReady";
+  var MSG_NAME_DISMISS_OVERLAY = "didDismissOverlay";
+
+  // src/features/duckplayer-native/messages.js
+  var DuckPlayerNativeMessages = class {
+    /**
+     * @param {Messaging} messaging
+     * @param {Environment} environment
+     * @internal
+     */
+    constructor(messaging, environment) {
+      this.messaging = messaging;
+      this.environment = environment;
+    }
+    /**
+     * @returns {Promise<import('../duck-player-native.js').InitialSettings>}
+     */
+    initialSetup() {
+      return this.messaging.request(MSG_NAME_INITIAL_SETUP2);
+    }
+    /**
+     * Notifies with current timestamp as a string
+     * @param {string} timestamp
+     */
+    notifyCurrentTimestamp(timestamp) {
+      return this.messaging.notify(MSG_NAME_CURRENT_TIMESTAMP, { timestamp });
+    }
+    /**
+     * Subscribe to media control events
+     * @param {(mediaControlSettings: MediaControlSettings) => void} callback
+     */
+    subscribeToMediaControl(callback) {
+      return this.messaging.subscribe(MSG_NAME_MEDIA_CONTROL, callback);
+    }
+    /**
+     * Subscribe to mute audio events
+     * @param {(muteSettings: MuteSettings) => void} callback
+     */
+    subscribeToMuteAudio(callback) {
+      return this.messaging.subscribe(MSG_NAME_MUTE_AUDIO, callback);
+    }
+    /**
+     * Subscribe to URL change events
+     * @param {(urlSettings: UrlChangeSettings) => void} callback
+     */
+    subscribeToURLChange(callback) {
+      return this.messaging.subscribe(MSG_NAME_URL_CHANGE, callback);
+    }
+    /**
+     * Notifies browser of YouTube error
+     * @param {YouTubeError} error
+     */
+    notifyYouTubeError(error) {
+      this.messaging.notify(MSG_NAME_YOUTUBE_ERROR, { error });
+    }
+    /**
+     * Notifies browser that the feature is ready
+     */
+    notifyFeatureIsReady() {
+      this.messaging.notify(MSG_NAME_FEATURE_READY, {});
+    }
+    /**
+     * Notifies browser that scripts are ready to be acalled
+     */
+    notifyScriptIsReady() {
+      this.messaging.notify(MSG_NAME_SCRIPTS_READY, {});
+    }
+    /**
+     * Notifies browser that the overlay was dismissed
+     */
+    notifyOverlayDismissed() {
+      this.messaging.notify(MSG_NAME_DISMISS_OVERLAY, {});
+    }
+  };
+
+  // src/features/duckplayer-native/sub-feature.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/duckplayer-native/sub-features/duck-player-native-youtube.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/duckplayer-native/mute-audio.js
+  init_define_import_meta_trackerLookup();
+  function muteAudio(mute) {
+    document.querySelectorAll("audio, video").forEach((media) => {
+      media.muted = mute;
+    });
+  }
+
+  // src/features/duckplayer-native/get-current-timestamp.js
+  init_define_import_meta_trackerLookup();
+  function getCurrentTimestamp(selector) {
+    const video = (
+      /** @type {HTMLVideoElement|null} */
+      document.querySelector(selector)
+    );
+    return video?.currentTime || 0;
+  }
+  function pollTimestamp(interval = 300, callback, selectors) {
+    if (!callback || !selectors) {
+      console.error("Timestamp polling failed. No callback or selectors defined");
+      return () => {
+      };
+    }
+    const isShowingAd = () => {
+      return selectors.adShowing && !!document.querySelector(selectors.adShowing);
+    };
+    const timestampPolling = setInterval(() => {
+      if (isShowingAd()) return;
+      const timestamp = getCurrentTimestamp(selectors.videoElement);
+      callback(timestamp);
+    }, interval);
+    return () => {
+      clearInterval(timestampPolling);
+    };
+  }
+
+  // src/features/duckplayer-native/pause-video.js
+  init_define_import_meta_trackerLookup();
+  function stopVideoFromPlaying(videoSelector) {
+    const int = setInterval(() => {
+      const video = (
+        /** @type {HTMLVideoElement} */
+        document.querySelector(videoSelector)
+      );
+      if (video?.isConnected) {
+        video.pause();
+      }
+    }, 10);
+    return () => {
+      clearInterval(int);
+      const video = (
+        /** @type {HTMLVideoElement} */
+        document.querySelector(videoSelector)
+      );
+      if (video?.isConnected) {
+        video.play();
+      }
+    };
+  }
+
+  // src/features/duckplayer-native/overlays/thumbnail-overlay.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/duckplayer-native/overlays/thumbnail-overlay.css
+  var thumbnail_overlay_default = `/* -- VIDEO PLAYER OVERLAY */
+:host {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 10000;
+    --title-size: 16px;
+    --title-line-height: 20px;
+    --title-gap: 16px;
+    --button-gap: 6px;
+    --logo-size: 32px;
+    --logo-gap: 8px;
+    --gutter: 16px;
+}
+/* iphone 15 */
+@media screen and (min-width: 390px) {
+    :host {
+        --title-size: 20px;
+        --title-line-height: 25px;
+        --button-gap: 16px;
+        --logo-size: 40px;
+        --logo-gap: 12px;
+        --title-gap: 16px;
+    }
+}
+/* iphone 15 Pro Max */
+@media screen and (min-width: 430px) {
+    :host {
+        --title-size: 22px;
+        --title-gap: 24px;
+        --button-gap: 20px;
+        --logo-gap: 16px;
+    }
+}
+/* small landscape */
+@media screen and (min-width: 568px) {
+}
+/* large landscape */
+@media screen and (min-width: 844px) {
+    :host {
+        --title-gap: 30px;
+        --button-gap: 24px;
+        --logo-size: 48px;
+    }
+}
+
+
+:host * {
+    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+:root *, :root *:after, :root *:before {
+    box-sizing: border-box;
+}
+
+.ddg-video-player-overlay {
+    width: 100%;
+    height: 100%;
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+
+    @media screen and (min-width: 568px) {
+        padding: 0;
+    }
+}
+
+.bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    background-position: center;
+    text-align: center;
+}
+
+.logo {
+    content: " ";
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    background-image: url('data:image/svg+xml,<svg width="90" height="64" viewBox="0 0 90 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M88.119 9.88293C87.0841 6.01134 84.0348 2.96133 80.1625 1.92639C73.1438 0.0461578 44.9996 0.0461578 44.9996 0.0461578C44.9996 0.0461578 16.8562 0.0461578 9.83751 1.92639C5.96518 2.96133 2.91592 6.01134 1.88097 9.88293C0 16.9023 0 31.5456 0 31.5456C0 31.5456 0 46.1896 1.88097 53.2083C2.91592 57.0799 5.96518 60.1306 9.83751 61.1648C16.8562 63.0458 44.9996 63.0458 44.9996 63.0458C44.9996 63.0458 73.1438 63.0458 80.1625 61.1648C84.0348 60.1306 87.0841 57.0799 88.119 53.2083C90 46.1896 90 31.5456 90 31.5456C90 31.5456 90 16.9023 88.119 9.88293Z" fill="%23FF0000"/><path fill-rule="evenodd" clip-rule="evenodd" d="M36.8184 45.3313L60.2688 31.792L36.8184 18.2512V45.3313Z" fill="%23FFFFFE"/></svg>');
+    background-size: 90px 64px;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+`;
+
+  // src/features/duckplayer-native/overlays/thumbnail-overlay.js
+  var _DDGVideoThumbnailOverlay = class _DDGVideoThumbnailOverlay extends HTMLElement {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "policy", createPolicy());
+      /** @type {Logger} */
+      __publicField(this, "logger");
+      /** @type {boolean} */
+      __publicField(this, "testMode", false);
+      /** @type {HTMLElement} */
+      __publicField(this, "container");
+      /** @type {string} */
+      __publicField(this, "href");
+    }
+    static register() {
+      if (!customElementsGet(_DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) {
+        customElementsDefine(_DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, _DDGVideoThumbnailOverlay);
+      }
+    }
+    connectedCallback() {
+      this.createMarkupAndStyles();
+    }
+    createMarkupAndStyles() {
+      const shadow = this.attachShadow({ mode: this.testMode ? "open" : "closed" });
+      const style = document.createElement("style");
+      style.innerText = thumbnail_overlay_default;
+      const container = document.createElement("div");
+      container.classList.add("wrapper");
+      const content = this.render();
+      container.innerHTML = this.policy.createHTML(content);
+      shadow.append(style, container);
+      this.container = container;
+      const overlay = container.querySelector(".ddg-video-player-overlay");
+      if (overlay) {
+        overlay.addEventListener("click", () => {
+          this.dispatchEvent(new Event(_DDGVideoThumbnailOverlay.OVERLAY_CLICKED));
+        });
+      }
+      this.logger?.log("Created", _DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME, "with container", container);
+      this.appendThumbnail();
+    }
+    appendThumbnail() {
+      const params = VideoParams.forWatchPage(this.href);
+      const imageUrl = params?.toLargeThumbnailUrl();
+      if (!imageUrl) {
+        this.logger?.warn("Could not get thumbnail url for video id", params?.id);
+        return;
+      }
+      if (this.testMode) {
+        this.logger?.log("Appending thumbnail", imageUrl);
+      }
+      appendImageAsBackground(this.container, ".ddg-vpo-bg", imageUrl);
+    }
+    /**
+     * @returns {string}
+     */
+    render() {
+      return html`
+            <div class="ddg-video-player-overlay">
+                <div class="bg ddg-vpo-bg"></div>
+                <div class="logo"></div>
+            </div>
+        `.toString();
+    }
+  };
+  __publicField(_DDGVideoThumbnailOverlay, "CUSTOM_TAG_NAME", "ddg-video-thumbnail-overlay-mobile");
+  __publicField(_DDGVideoThumbnailOverlay, "OVERLAY_CLICKED", "overlay-clicked");
+  var DDGVideoThumbnailOverlay2 = _DDGVideoThumbnailOverlay;
+  function appendThumbnailOverlay(targetElement, environment, onClick) {
+    const logger = new Logger({
+      id: "THUMBNAIL_OVERLAY",
+      shouldLog: () => environment.isTestMode()
+    });
+    DDGVideoThumbnailOverlay2.register();
+    const overlay = (
+      /** @type {DDGVideoThumbnailOverlay} */
+      document.createElement(DDGVideoThumbnailOverlay2.CUSTOM_TAG_NAME)
+    );
+    overlay.logger = logger;
+    overlay.testMode = environment.isTestMode();
+    overlay.href = environment.getPlayerPageHref();
+    if (onClick) {
+      overlay.addEventListener(DDGVideoThumbnailOverlay2.OVERLAY_CLICKED, onClick);
+    }
+    targetElement.appendChild(overlay);
+    return () => {
+      document.querySelector(DDGVideoThumbnailOverlay2.CUSTOM_TAG_NAME)?.remove();
+    };
+  }
+
+  // src/features/duckplayer-native/sub-features/duck-player-native-youtube.js
+  var DuckPlayerNativeYoutube = class {
+    /**
+     * @param {object} options
+     * @param {DuckPlayerNativeSelectors} options.selectors
+     * @param {Environment} options.environment
+     * @param {DuckPlayerNativeMessages} options.messages
+     * @param {boolean} options.paused
+     */
+    constructor({ selectors, environment, messages, paused }) {
+      this.environment = environment;
+      this.messages = messages;
+      this.selectors = selectors;
+      this.paused = paused;
+      this.sideEffects = new SideEffects({
+        debug: environment.isTestMode()
+      });
+      this.logger = new Logger({
+        id: "DUCK_PLAYER_NATIVE",
+        shouldLog: () => this.environment.isTestMode()
+      });
+    }
+    onInit() {
+      this.sideEffects.add("subscribe to media control", () => {
+        return this.messages.subscribeToMediaControl(({ pause }) => {
+          this.mediaControlHandler(pause);
+        });
+      });
+      this.sideEffects.add("subscribing to mute audio", () => {
+        return this.messages.subscribeToMuteAudio(({ mute }) => {
+          this.logger.log("Running mute audio handler. Mute:", mute);
+          muteAudio(mute);
+        });
+      });
+    }
+    onLoad() {
+      this.sideEffects.add("started polling current timestamp", () => {
+        const handler = (timestamp) => {
+          this.messages.notifyCurrentTimestamp(timestamp.toFixed(0));
+        };
+        return pollTimestamp(300, handler, this.selectors);
+      });
+      if (this.paused) {
+        this.mediaControlHandler(!!this.paused);
+      }
+    }
+    /**
+     * @param {boolean} pause
+     */
+    mediaControlHandler(pause) {
+      this.logger.log("Running media control handler. Pause:", pause);
+      const videoElement = this.selectors?.videoElement;
+      const videoElementContainer = this.selectors?.videoElementContainer;
+      if (!videoElementContainer || !videoElement) {
+        this.logger.warn("Missing media control selectors in config");
+        return;
+      }
+      const targetElement = document.querySelector(videoElementContainer);
+      if (targetElement) {
+        if (pause) {
+          this.sideEffects.add("stopping video from playing", () => stopVideoFromPlaying(videoElement));
+          this.sideEffects.add("appending thumbnail", () => {
+            const clickHandler = () => {
+              this.messages.notifyOverlayDismissed();
+              this.sideEffects.destroy("stopping video from playing");
+              this.sideEffects.destroy("appending thumbnail");
+            };
+            return appendThumbnailOverlay(
+              /** @type {HTMLElement} */
+              targetElement,
+              this.environment,
+              clickHandler
+            );
+          });
+        } else {
+          this.sideEffects.destroy("stopping video from playing");
+          this.sideEffects.destroy("appending thumbnail");
+        }
+      }
+    }
+    destroy() {
+      this.sideEffects.destroy();
+    }
+  };
+
+  // src/features/duckplayer-native/sub-features/duck-player-native-no-cookie.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/duckplayer-native/custom-error/custom-error.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/duckplayer-native/custom-error/custom-error.css
+  var custom_error_default = `/* -- VIDEO PLAYER OVERLAY */
+:host {
+    --title-size: 16px;
+    --title-line-height: 20px;
+    --title-gap: 16px;
+    --button-gap: 6px;
+    --padding: 4px;
+    --logo-size: 32px;
+    --logo-gap: 8px;
+    --gutter: 16px;
+    --background-color: black;
+    --background-color-alt: #2f2f2f;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1000;
+    height: 100vh;
+}
+/* iphone 15 */
+@media screen and (min-width: 390px) {
+    :host {
+        --title-size: 20px;
+        --title-line-height: 25px;
+        --button-gap: 16px;
+        --logo-size: 40px;
+        --logo-gap: 12px;
+        --title-gap: 16px;
+    }
+}
+/* iphone 15 Pro Max */
+@media screen and (min-width: 430px) {
+    :host {
+        --title-size: 22px;
+        --title-gap: 24px;
+        --button-gap: 20px;
+        --logo-gap: 16px;
+    }
+}
+/* small landscape */
+@media screen and (min-width: 568px) {
+}
+/* large landscape */
+@media screen and (min-width: 844px) {
+    :host {
+        --title-gap: 30px;
+        --button-gap: 24px;
+        --logo-size: 48px;
+    }
+}
+
+
+:host * {
+    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+:root *, :root *:after, :root *:before {
+    box-sizing: border-box;
+}
+
+.wrapper {
+    align-items: center;
+    background-color: var(--background-color);
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    padding: var(--padding);
+}
+
+.error {
+    align-items: center;
+    display: grid;
+    justify-items: center;
+}
+
+.error.mobile {
+    border-radius: var(--inner-radius);
+    overflow: auto;
+
+    /* Prevents automatic text resizing */
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+
+    @media screen and (min-width: 600px) and (min-height: 600px) {
+        aspect-ratio: 16 / 9;
+    }
+}
+
+.error.framed {
+    padding: 4px;
+    border: 4px solid var(--background-color-alt);
+    border-radius: 16px;
+}
+
+.container {
+    background: var(--background-color);
+    column-gap: 24px;
+    display: flex;
+    flex-flow: row;
+    margin: 0;
+    max-width: 680px;
+    padding: 0 40px;
+    row-gap: 4px;
+}
+
+.mobile .container {
+    flex-flow: column;
+    padding: 0 24px;
+
+    @media screen and (min-height: 320px) {
+        margin: 16px 0;
+    }
+
+    @media screen and (min-width: 375px) and (min-height: 400px) {
+        margin: 36px 0;
+    }
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 16px 0;
+
+    @media screen and (min-width: 600px) {
+        margin: 24px 0;
+    }
+}
+
+
+.icon {
+    align-self: center;
+    display: flex;
+    justify-content: center;
+
+    &::before {
+        content: ' ';
+        display: block;
+        background-image: url("data:image/svg+xml,%3Csvg fill='none' viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='red' d='M47.5 70.802c1.945 0 3.484-1.588 3.841-3.5C53.076 58.022 61.218 51 71 51h4.96c2.225 0 4.04-1.774 4.04-4 0-.026-.007-9.022-1.338-14.004a8.02 8.02 0 0 0-5.659-5.658C68.014 26 48 26 48 26s-20.015 0-25.004 1.338a8.01 8.01 0 0 0-5.658 5.658C16 37.986 16 48.401 16 48.401s0 10.416 1.338 15.405a8.01 8.01 0 0 0 5.658 5.658c4.99 1.338 24.504 1.338 24.504 1.338'/%3E%3Cpath fill='%23fff' d='m41.594 58 16.627-9.598-16.627-9.599z'/%3E%3Cpath fill='%23EB102D' d='M87 71c0 8.837-7.163 16-16 16s-16-7.163-16-16 7.163-16 16-16 16 7.163 16 16'/%3E%3Cpath fill='%23fff' d='M73 77.8a2 2 0 1 1-4 0 2 2 0 0 1 4 0m-2.039-4.4c-.706 0-1.334-.49-1.412-1.12l-.942-8.75c-.079-.7.55-1.33 1.412-1.33h1.962c.785 0 1.492.63 1.413 1.33l-.942 8.75c-.157.63-.784 1.12-1.49 1.12Z'/%3E%3Cpath fill='%23CCC' d='M92.501 59c.298 0 .595.12.823.354.454.468.454 1.23 0 1.698l-2.333 2.4a1.145 1.145 0 0 1-1.65 0 1.227 1.227 0 0 1 0-1.698l2.333-2.4c.227-.234.524-.354.822-.354zm-1.166 10.798h3.499c.641 0 1.166.54 1.166 1.2s-.525 1.2-1.166 1.2h-3.499c-.641 0-1.166-.54-1.166-1.2s.525-1.2 1.166-1.2m-1.982 8.754c.227-.234.525-.354.822-.354h.006c.297 0 .595.12.822.354l2.332 2.4c.455.467.455 1.23 0 1.697a1.145 1.145 0 0 1-1.65 0l-2.332-2.4a1.227 1.227 0 0 1 0-1.697'/%3E%3C/svg%3E%0A");
+        background-repeat: no-repeat;
+        height: 48px;
+        width: 48px;
+    }
+
+    @media screen and (max-width: 320px) {
+        display: none;
+    }
+
+    @media screen and (min-width: 600px) and (min-height: 600px) {
+        justify-content: start;
+
+        &::before {
+            background-image: url("data:image/svg+xml,%3Csvg fill='none' viewBox='0 0 128 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23888' d='M16.912 31.049a1.495 1.495 0 0 1 2.114-2.114l1.932 1.932 1.932-1.932a1.495 1.495 0 0 1 2.114 2.114l-1.932 1.932 1.932 1.932a1.495 1.495 0 0 1-2.114 2.114l-1.932-1.933-1.932 1.933a1.494 1.494 0 1 1-2.114-2.114l1.932-1.932zM.582 52.91a1.495 1.495 0 0 1 2.113-2.115l1.292 1.292 1.291-1.292a1.495 1.495 0 1 1 2.114 2.114L6.1 54.2l1.292 1.292a1.495 1.495 0 1 1-2.113 2.114l-1.292-1.292-1.292 1.292a1.495 1.495 0 1 1-2.114-2.114l1.292-1.291zm104.972-15.452a1.496 1.496 0 0 1 2.114-2.114l1.291 1.292 1.292-1.292a1.495 1.495 0 0 1 2.114 2.114l-1.292 1.291 1.292 1.292a1.494 1.494 0 1 1-2.114 2.114l-1.292-1.292-1.291 1.292a1.495 1.495 0 0 1-2.114-2.114l1.292-1.292zM124.5 54c-.825 0-1.5-.675-1.5-1.5s.675-1.5 1.5-1.5 1.5.675 1.5 1.5-.675 1.5-1.5 1.5M24 67c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2' opacity='.2'/%3E%3Cpath fill='red' d='M63.5 70.802c1.945 0 3.484-1.588 3.841-3.5C69.076 58.022 77.218 51 87 51h4.96c2.225 0 4.04-1.774 4.04-4 0-.026-.007-9.022-1.338-14.004a8.02 8.02 0 0 0-5.659-5.658C84.014 26 64 26 64 26s-20.014 0-25.004 1.338a8.01 8.01 0 0 0-5.658 5.658C32 37.986 32 48.401 32 48.401s0 10.416 1.338 15.405a8.01 8.01 0 0 0 5.658 5.658c4.99 1.338 24.504 1.338 24.504 1.338'/%3E%3Cpath fill='%23fff' d='m57.594 58 16.627-9.598-16.627-9.599z'/%3E%3Cpath fill='%23EB102D' d='M103 71c0 8.837-7.163 16-16 16s-16-7.163-16-16 7.163-16 16-16 16 7.163 16 16'/%3E%3Cpath fill='%23fff' d='M89 77.8a2 2 0 1 1-4 0 2 2 0 0 1 4 0m-2.039-4.4c-.706 0-1.334-.49-1.412-1.12l-.942-8.75c-.079-.7.55-1.33 1.412-1.33h1.962c.785 0 1.492.63 1.413 1.33l-.942 8.75c-.157.63-.784 1.12-1.49 1.12Z'/%3E%3Cpath fill='%23CCC' d='M108.501 59c.298 0 .595.12.823.354.454.468.454 1.23 0 1.698l-2.333 2.4a1.145 1.145 0 0 1-1.65 0 1.226 1.226 0 0 1 0-1.698l2.332-2.4c.228-.234.525-.354.823-.354zm-1.166 10.798h3.499c.641 0 1.166.54 1.166 1.2s-.525 1.2-1.166 1.2h-3.499c-.641 0-1.166-.54-1.166-1.2s.525-1.2 1.166-1.2m-1.982 8.754c.227-.234.525-.354.822-.354h.006c.297 0 .595.12.822.354l2.333 2.4c.454.467.454 1.23 0 1.697a1.146 1.146 0 0 1-1.651 0l-2.332-2.4a1.226 1.226 0 0 1 0-1.697'/%3E%3C/svg%3E%0A");
+            height: 96px;
+            width: 128px;
+        }
+    }
+}
+
+.heading {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: calc(24 / 20);
+    margin: 0;
+}
+
+.messages {
+    color: #ccc;
+    font-size: 16px;
+    line-height: calc(24 / 16);
+}
+
+div.messages {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    & p {
+        margin: 0;
+    }
+}
+
+p.messages {
+    margin: 0;
+}
+
+ul.messages {
+    li {
+        list-style: disc;
+        margin-left: 24px;
+    }
+}
+`;
+
+  // src/features/duckplayer-native/custom-error/custom-error.js
+  var _CustomError = class _CustomError extends HTMLElement {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "policy", createPolicy());
+      /** @type {Logger} */
+      __publicField(this, "logger");
+      /** @type {boolean} */
+      __publicField(this, "testMode", false);
+      /** @type {YouTubeError} */
+      __publicField(this, "error");
+      /** @type {string} */
+      __publicField(this, "title", "");
+      /** @type {string[]} */
+      __publicField(this, "messages", []);
+    }
+    static register() {
+      if (!customElementsGet(_CustomError.CUSTOM_TAG_NAME)) {
+        customElementsDefine(_CustomError.CUSTOM_TAG_NAME, _CustomError);
+      }
+    }
+    connectedCallback() {
+      this.createMarkupAndStyles();
+    }
+    createMarkupAndStyles() {
+      const shadow = this.attachShadow({ mode: this.testMode ? "open" : "closed" });
+      const style = document.createElement("style");
+      style.innerText = custom_error_default;
+      const container = document.createElement("div");
+      container.classList.add("wrapper");
+      const content = this.render();
+      container.innerHTML = this.policy.createHTML(content);
+      shadow.append(style, container);
+      this.container = container;
+      this.logger?.log("Created", _CustomError.CUSTOM_TAG_NAME, "with container", container);
+    }
+    /**
+     * @returns {string}
+     */
+    render() {
+      if (!this.title || !this.messages) {
+        console.warn("Missing error title or messages. Please assign before rendering");
+        return "";
+      }
+      const { title, messages } = this;
+      const messagesHtml = messages.map((message) => html`<p>${message}</p>`);
+      return html`
+            <div class="error mobile">
+                <div class="container">
+                    <span class="icon"></span>
+
+                    <div class="content">
+                        <h1 class="heading">${title}</h1>
+                        <div class="messages">${messagesHtml}</div>
+                    </div>
+                </div>
+            </div>
+        `.toString();
+    }
+  };
+  __publicField(_CustomError, "CUSTOM_TAG_NAME", "ddg-video-error");
+  var CustomError = _CustomError;
+  function getErrorStrings(errorId, t) {
+    switch (errorId) {
+      case "sign-in-required":
+        return {
+          title: t.blockedVideoErrorHeading,
+          messages: [t.signInRequiredErrorMessage1, t.signInRequiredErrorMessage2]
+        };
+      default:
+        return {
+          title: t.blockedVideoErrorHeading,
+          messages: [t.blockedVideoErrorMessage1, t.blockedVideoErrorMessage2]
+        };
+    }
+  }
+  function showError(targetElement, errorId, environment) {
+    const { title, messages } = getErrorStrings(errorId, environment.strings("native.json"));
+    const logger = new Logger({
+      id: "CUSTOM_ERROR",
+      shouldLog: () => environment.isTestMode()
+    });
+    CustomError.register();
+    const customError = (
+      /** @type {CustomError} */
+      document.createElement(CustomError.CUSTOM_TAG_NAME)
+    );
+    customError.logger = logger;
+    customError.testMode = environment.isTestMode();
+    customError.title = title;
+    customError.messages = messages;
+    targetElement.appendChild(customError);
+    return () => {
+      document.querySelector(CustomError.CUSTOM_TAG_NAME)?.remove();
+    };
+  }
+
+  // src/features/duckplayer-native/error-detection.js
+  init_define_import_meta_trackerLookup();
+  var YOUTUBE_ERRORS = {
+    ageRestricted: "age-restricted",
+    signInRequired: "sign-in-required",
+    noEmbed: "no-embed",
+    unknown: "unknown"
+  };
+  var ErrorDetection = class {
+    /**
+     * @param {ErrorDetectionSettings} settings
+     */
+    constructor({ selectors, callback, testMode = false }) {
+      /** @type {Logger} */
+      __publicField(this, "logger");
+      /** @type {DuckPlayerNativeSelectors} */
+      __publicField(this, "selectors");
+      /** @type {ErrorDetectionCallback} */
+      __publicField(this, "callback");
+      /** @type {boolean} */
+      __publicField(this, "testMode");
+      if (!selectors?.youtubeError || !selectors?.signInRequiredError || !callback) {
+        throw new Error("Missing selectors or callback props");
+      }
+      this.selectors = selectors;
+      this.callback = callback;
+      this.testMode = testMode;
+      this.logger = new Logger({
+        id: "ERROR_DETECTION",
+        shouldLog: () => this.testMode
+      });
+    }
+    /**
+     *
+     * @returns {(() => void)|void}
+     */
+    observe() {
+      const documentBody = document?.body;
+      if (documentBody) {
+        if (this.checkForError(documentBody)) {
+          const error = this.getErrorType();
+          this.handleError(error);
+          return;
+        }
+        const observer = new MutationObserver(this.handleMutation.bind(this));
+        observer.observe(documentBody, {
+          childList: true,
+          subtree: true
+          // Observe all descendants of the body
+        });
+        return () => {
+          observer.disconnect();
+        };
+      }
+    }
+    /**
+     *
+     * @param {YouTubeError} errorId
+     */
+    handleError(errorId) {
+      if (this.callback) {
+        this.logger.log("Calling error handler for", errorId);
+        this.callback(errorId);
+      } else {
+        this.logger.warn("No error callback found");
+      }
+    }
+    /**
+     * Mutation handler that checks new nodes for error states
+     *
+     * @type {MutationCallback}
+     */
+    handleMutation(mutationsList) {
+      for (const mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          mutation.addedNodes.forEach((node) => {
+            if (this.checkForError(node)) {
+              this.logger.log("A node with an error has been added to the document:", node);
+              const error = this.getErrorType();
+              this.handleError(error);
+            }
+          });
+        }
+      }
+    }
+    /**
+     * Attempts to detect the type of error in the YouTube embed iframe
+     * @returns {YouTubeError}
+     */
+    getErrorType() {
+      const currentWindow = (
+        /** @type {Window & typeof globalThis & { ytcfg: object }} */
+        window
+      );
+      let playerResponse;
+      if (!currentWindow.ytcfg) {
+        this.logger.warn("ytcfg missing!");
+      } else {
+        this.logger.log("Got ytcfg", currentWindow.ytcfg);
+      }
+      try {
+        const playerResponseJSON = currentWindow.ytcfg?.get("PLAYER_VARS")?.embedded_player_response;
+        this.logger.log("Player response", playerResponseJSON);
+        playerResponse = JSON.parse(playerResponseJSON);
+      } catch (e) {
+        this.logger.log("Could not parse player response", e);
+      }
+      if (typeof playerResponse === "object") {
+        const {
+          previewPlayabilityStatus: { desktopLegacyAgeGateReason, status }
+        } = playerResponse;
+        if (status === "UNPLAYABLE") {
+          if (desktopLegacyAgeGateReason === 1) {
+            this.logger.log("AGE RESTRICTED ERROR");
+            return YOUTUBE_ERRORS.ageRestricted;
+          }
+          this.logger.log("NO EMBED ERROR");
+          return YOUTUBE_ERRORS.noEmbed;
+        }
+      }
+      try {
+        if (document.querySelector(this.selectors.signInRequiredError)) {
+          this.logger.log("SIGN-IN ERROR");
+          return YOUTUBE_ERRORS.signInRequired;
+        }
+      } catch (e) {
+        this.logger.log("Sign-in required query failed", e);
+      }
+      this.logger.log("UNKNOWN ERROR");
+      return YOUTUBE_ERRORS.unknown;
+    }
+    /**
+     * Analyses a node and its children to determine if it contains an error state
+     *
+     * @param {Node} [node]
+     */
+    checkForError(node) {
+      if (node?.nodeType === Node.ELEMENT_NODE) {
+        const { youtubeError } = this.selectors;
+        const element = (
+          /** @type {HTMLElement} */
+          node
+        );
+        const isError = element.matches(youtubeError) || !!element.querySelector(youtubeError);
+        return isError;
+      }
+      return false;
+    }
+  };
+
+  // src/features/duckplayer-native/sub-features/duck-player-native-no-cookie.js
+  var DuckPlayerNativeNoCookie = class {
+    /**
+     * @param {object} options
+     * @param {Environment} options.environment
+     * @param {DuckPlayerNativeMessages} options.messages
+     * @param {DuckPlayerNativeSelectors} options.selectors
+     */
+    constructor({ environment, messages, selectors }) {
+      this.environment = environment;
+      this.selectors = selectors;
+      this.messages = messages;
+      this.sideEffects = new SideEffects({
+        debug: environment.isTestMode()
+      });
+      this.logger = new Logger({
+        id: "DUCK_PLAYER_NATIVE",
+        shouldLog: () => this.environment.isTestMode()
+      });
+    }
+    onInit() {
+    }
+    onLoad() {
+      this.sideEffects.add("started polling current timestamp", () => {
+        const handler = (timestamp) => {
+          this.messages.notifyCurrentTimestamp(timestamp.toFixed(0));
+        };
+        return pollTimestamp(300, handler, this.selectors);
+      });
+      this.logger.log("Setting up error detection");
+      const errorContainer = this.selectors?.errorContainer;
+      const signInRequiredError = this.selectors?.signInRequiredError;
+      if (!errorContainer || !signInRequiredError) {
+        this.logger.warn("Missing error selectors in configuration");
+        return;
+      }
+      const errorHandler = (errorId) => {
+        this.logger.log("Received error", errorId);
+        this.messages.notifyYouTubeError(errorId);
+        const targetElement = document.querySelector(errorContainer);
+        if (targetElement) {
+          showError(
+            /** @type {HTMLElement} */
+            targetElement,
+            errorId,
+            this.environment
+          );
+        }
+      };
+      const errorDetectionSettings = {
+        selectors: this.selectors,
+        testMode: this.environment.isTestMode(),
+        callback: errorHandler
+      };
+      this.sideEffects.add("setting up error detection", () => {
+        const errorDetection = new ErrorDetection(errorDetectionSettings);
+        const destroy = errorDetection.observe();
+        return () => {
+          if (destroy) destroy();
+        };
+      });
+    }
+    destroy() {
+      this.sideEffects.destroy();
+    }
+  };
+
+  // src/features/duckplayer-native/sub-features/duck-player-native-serp.js
+  init_define_import_meta_trackerLookup();
+  var DuckPlayerNativeSerp = class {
+    onLoad() {
+      window.dispatchEvent(
+        new CustomEvent("ddg-serp-yt-response", {
+          detail: {
+            kind: "initialSetup",
+            data: {
+              privatePlayerMode: { enabled: {} },
+              overlayInteracted: false
+            }
+          },
+          composed: true,
+          bubbles: true
+        })
+      );
+    }
+    onInit() {
+    }
+    destroy() {
+    }
+  };
+
+  // src/features/duckplayer-native/sub-feature.js
+  function setupDuckPlayerForYouTube(selectors, paused, environment, messages) {
+    return new DuckPlayerNativeYoutube({
+      selectors,
+      environment,
+      messages,
+      paused
+    });
+  }
+  function setupDuckPlayerForNoCookie(selectors, environment, messages) {
+    return new DuckPlayerNativeNoCookie({
+      selectors,
+      environment,
+      messages
+    });
+  }
+  function setupDuckPlayerForSerp() {
+    return new DuckPlayerNativeSerp();
+  }
+
+  // src/features/duck-player-native.js
+  var DuckPlayerNativeFeature = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {DuckPlayerNativeSubFeature | null} */
+      __publicField(this, "currentPage");
+    }
+    async init(args) {
+      if (isBeingFramed()) return;
+      const selectors = this.getFeatureSetting("selectors");
+      if (!selectors) {
+        console.warn("No selectors found. Check remote config. Feature will not be initialized.");
+        return;
+      }
+      const locale = args?.locale || args?.language || "en";
+      const env = new Environment({
+        debug: this.isDebug,
+        injectName: "apple-isolated",
+        platform: this.platform,
+        locale
+      });
+      const messages = new DuckPlayerNativeMessages(this.messaging, env);
+      messages.subscribeToURLChange(({ pageType }) => {
+        const playbackPaused = false;
+        this.urlChanged(pageType, selectors, playbackPaused, env, messages);
+      });
+      let initialSetup;
+      try {
+        initialSetup = await messages.initialSetup();
+      } catch (e) {
+        console.warn("Failed to get initial setup", e);
+        return;
+      }
+      if (initialSetup.pageType) {
+        const playbackPaused = initialSetup.playbackPaused || false;
+        this.urlChanged(initialSetup.pageType, selectors, playbackPaused, env, messages);
+      }
+    }
+    /**
+     *
+     * @param {UrlChangeSettings['pageType']} pageType
+     * @param {DuckPlayerNativeSettings['selectors']} selectors
+     * @param {boolean} playbackPaused
+     * @param {Environment} env
+     * @param {DuckPlayerNativeMessages} messages
+     */
+    urlChanged(pageType, selectors, playbackPaused, env, messages) {
+      let nextPage = null;
+      const logger = new Logger({
+        id: "DUCK_PLAYER_NATIVE",
+        shouldLog: () => env.isTestMode()
+      });
+      switch (pageType) {
+        case "NOCOOKIE":
+          nextPage = setupDuckPlayerForNoCookie(selectors, env, messages);
+          break;
+        case "YOUTUBE":
+          nextPage = setupDuckPlayerForYouTube(selectors, playbackPaused, env, messages);
+          break;
+        case "SERP":
+          nextPage = setupDuckPlayerForSerp();
+          break;
+        case "UNKNOWN":
+        default:
+          console.warn("No known pageType");
+      }
+      if (this.currentPage) {
+        this.currentPage.destroy();
+      }
+      if (nextPage) {
+        logger.log("Running init handlers");
+        nextPage.onInit();
+        this.currentPage = nextPage;
+        if (document.readyState === "loading") {
+          const loadHandler = () => {
+            logger.log("Running deferred load handlers");
+            nextPage.onLoad();
+            messages.notifyScriptIsReady();
+          };
+          document.addEventListener("DOMContentLoaded", loadHandler, { once: true });
+        } else {
+          logger.log("Running load handlers immediately");
+          nextPage.onLoad();
+          messages.notifyScriptIsReady();
+        }
+      }
+    }
+  };
+  var duck_player_native_default = DuckPlayerNativeFeature;
 
   // src/features/broker-protection.js
   init_define_import_meta_trackerLookup();
@@ -13737,6 +14890,7 @@
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_duckPlayer: DuckPlayerFeature,
+    ddg_feature_duckPlayerNative: duck_player_native_default,
     ddg_feature_brokerProtection: BrokerProtection,
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_clickToLoad: ClickToLoad,

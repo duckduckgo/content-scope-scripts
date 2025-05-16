@@ -10,7 +10,8 @@ import { useContext } from 'preact/hooks';
  *   | 'bookmarks'
  *   | 'session-restore'
  *   | 'home-shortcut'
- *   | 'ad-blocking'
+ *   | 'placebo-ad-blocking'
+ *   | 'aggressive-ad-blocking'
  *   | 'youtube-ad-blocking'
  * } SystemValueId - Each setting that can be updated should have a unique ID listed here.
  */

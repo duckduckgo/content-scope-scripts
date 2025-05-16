@@ -35,7 +35,8 @@ import ContentFeature from '../content-feature.js';
 
 import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckplayer/overlay-messages.js';
 import { isBeingFramed } from '../utils.js';
-import { Environment, initOverlays } from './duckplayer/overlays.js';
+import { initOverlays } from './duckplayer/overlays.js';
+import { Environment } from './duckplayer/environment.js';
 
 /**
  * @typedef UserValues - A way to communicate user settings

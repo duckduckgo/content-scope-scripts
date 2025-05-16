@@ -8470,12 +8470,23 @@
       acceptText: t3("row_home-shortcut_accept")
     }),
     // Intended only for use with v3
-    "ad-blocking": (t3) => ({
-      id: "ad-blocking",
+    "placebo-ad-blocking": (t3) => ({
+      id: "placebo-ad-blocking",
       icon: "v3/ads.svg",
-      title: t3("row_ad-blocking_title_v3"),
+      title: t3("row_placebo-ad-blocking_title_v3"),
       secondaryText: t3("row_ad-blocking_desc_v3"),
-      summary: t3("row_ad-blocking_title_v3"),
+      summary: t3("row_placebo-ad-blocking_title_v3"),
+      kind: "one-time",
+      acceptText: t3("row_ad-blocking_accept_v3"),
+      accepButtonVariant: "primary"
+    }),
+    // Intended only for use with v3
+    "aggressive-ad-blocking": (t3) => ({
+      id: "aggressive-ad-blocking",
+      icon: "v3/ads.svg",
+      title: t3("row_aggressive-ad-blocking_title_v3"),
+      secondaryText: t3("row_ad-blocking_desc_v3"),
+      summary: t3("row_aggressive-ad-blocking_title_v3"),
       kind: "one-time",
       acceptText: t3("row_ad-blocking_accept_v3"),
       accepButtonVariant: "primary"
@@ -8966,12 +8977,16 @@
       title: "Get to DuckDuckGo faster.",
       note: "Instructs the user to add DuckDuckGo to their taskbar by clicking Yes on a dialog screen."
     },
-    "row_ad-blocking_title_v3": {
-      title: "Browse faster with even fewer ads",
+    "row_placebo-ad-blocking_title_v3": {
+      title: "Block even more ads",
+      note: "Title for the enhanced ad blocking setting."
+    },
+    "row_aggressive-ad-blocking_title_v3": {
+      title: "Block even more ads, including on YouTube",
       note: "Title for the enhanced ad blocking setting."
     },
     "row_ad-blocking_desc_v3": {
-      title: "Our protections block most ads; enhanced blocking stops even more.",
+      title: "Enhanced ad blocking stops even more ads.",
       note: "Description for the enhanced ad blocking setting."
     },
     "row_ad-blocking_accept_v3": {
@@ -8983,7 +8998,7 @@
       note: "Title for the YouTube ad blocking setting."
     },
     "row_youtube-ad-blocking_desc_v3": {
-      title: "No targeted ads, just your video.",
+      title: "No ads, just your video.",
       note: "Description for the YouTube ad blocking setting."
     },
     "row_youtube-ad-blocking_accept_v3": {
@@ -9190,7 +9205,7 @@
               const currentRow = state.step.rows[state.activeRow];
               const isCurrent = currentRow === action.id;
               const systemValueId = action.id;
-              const isAdBlockingSetting = systemValueId === "ad-blocking" || systemValueId === "youtube-ad-blocking";
+              const isAdBlockingSetting = systemValueId === "placebo-ad-blocking" || systemValueId === "aggressive-ad-blocking" || systemValueId === "youtube-ad-blocking";
               const nextOrder = isAdBlockingSetting && action.payload.enabled ? state.order.filter((step) => step !== "duckPlayerSingle") : state.order;
               const nextUIState = isCurrent && action.payload.enabled ? "accepted" : "skipped";
               return {
@@ -9248,7 +9263,8 @@
         bookmarks: "idle",
         "session-restore": "idle",
         "home-shortcut": "idle",
-        "ad-blocking": "idle",
+        "placebo-ad-blocking": "idle",
+        "aggressive-ad-blocking": "idle",
         "youtube-ad-blocking": "idle"
       }
     });
@@ -9305,7 +9321,8 @@
         messaging2.setShowHomeButton(payload);
         return payload;
       }
-      case "ad-blocking":
+      case "placebo-ad-blocking":
+      case "aggressive-ad-blocking":
       case "youtube-ad-blocking": {
         messaging2.setAdBlocking(payload);
         return payload;
@@ -10262,7 +10279,7 @@
       /** @type {import('../../types').SystemSettingsStep|undefined} */
       state.stepDefinitions.systemSettings
     );
-    const adBlockingEnabled = systemSettingsStep?.rows?.some((row) => row === "ad-blocking" || row === "youtube-ad-blocking") ?? false;
+    const adBlockingEnabled = systemSettingsStep?.rows?.some((row) => row === "aggressive-ad-blocking" || row === "youtube-ad-blocking") ?? false;
     const tableData = comparisonTableData(t3, adBlockingEnabled);
     return /* @__PURE__ */ g("table", { className: ComparisonTable_default.table }, /* @__PURE__ */ g("caption", null), /* @__PURE__ */ g("thead", null, /* @__PURE__ */ g("tr", null, /* @__PURE__ */ g("th", null), /* @__PURE__ */ g(ComparisonTableColumnHeading, { title: "Chrome" }), /* @__PURE__ */ g(ComparisonTableColumnHeading, { title: "DuckDuckGo" }))), /* @__PURE__ */ g("tbody", null, tableData.map((data) => /* @__PURE__ */ g(ComparisonTableRow, { ...data }))));
   }
@@ -10652,10 +10669,19 @@
       acceptText: t3("row_home-shortcut_accept"),
       accepButtonVariant: "secondary"
     }),
-    "ad-blocking": (t3) => ({
-      id: "ad-blocking",
+    "placebo-ad-blocking": (t3) => ({
+      id: "placebo-ad-blocking",
       icon: "v3/ads.svg",
-      title: t3("row_ad-blocking_title_v3"),
+      title: t3("row_placebo-ad-blocking_title_v3"),
+      secondaryText: t3("row_ad-blocking_desc_v3"),
+      kind: "one-time",
+      acceptText: t3("row_ad-blocking_accept_v3"),
+      accepButtonVariant: "primary"
+    }),
+    "aggressive-ad-blocking": (t3) => ({
+      id: "aggressive-ad-blocking",
+      icon: "v3/ads.svg",
+      title: t3("row_aggressive-ad-blocking_title_v3"),
       secondaryText: t3("row_ad-blocking_desc_v3"),
       kind: "one-time",
       acceptText: t3("row_ad-blocking_accept_v3"),
@@ -10663,7 +10689,7 @@
     }),
     "youtube-ad-blocking": (t3) => ({
       id: "youtube-ad-blocking",
-      icon: "v3/video-player.svg",
+      icon: "v3/ads.svg",
       title: t3("row_youtube-ad-blocking_title_v3"),
       secondaryText: t3("row_youtube-ad-blocking_desc_v3"),
       kind: "one-time",
@@ -12412,11 +12438,11 @@
           case "init": {
             const stepDefinitions3 = {};
             const adBlocking = url.searchParams.get("adBlocking");
-            if (adBlocking) {
+            if (adBlocking === "placebo" || adBlocking === "aggressive" || adBlocking === "youtube") {
               stepDefinitions3.systemSettings = {
                 id: "systemSettings",
                 kind: "settings",
-                rows: ["dock", "import", adBlocking === "youtube" ? "youtube-ad-blocking" : "ad-blocking"]
+                rows: ["dock", "import", `${adBlocking}-ad-blocking`]
               };
             }
             return Promise.resolve({

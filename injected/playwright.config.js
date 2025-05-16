@@ -37,7 +37,11 @@ export default defineConfig({
         },
         {
             name: 'ios',
-            testMatch: ['integration-test/duckplayer-mobile.spec.js', 'integration-test/duckplayer-mobile-drawer.spec.js'],
+            testMatch: [
+                'integration-test/duckplayer-mobile.spec.js',
+                'integration-test/duckplayer-mobile-drawer.spec.js',
+                'integration-test/duckplayer-native.spec.js',
+            ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
