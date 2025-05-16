@@ -1,5 +1,4 @@
 import * as constants from './constants.js';
-import { mockTransport } from './mock-transport.js';
 
 /** @import {YouTubeError} from './error-detection.js' */
 /** @import {Environment} from '../duckplayer/environment.js' */
@@ -43,10 +42,6 @@ export class DuckPlayerNativeMessages {
          */
         this.messaging = messaging;
         this.environment = environment;
-
-        if (this.environment.isIntegrationMode()) {
-            this.messaging.transport = mockTransport();
-        }
     }
 
     /**
