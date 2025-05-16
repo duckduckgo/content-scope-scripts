@@ -1,11 +1,12 @@
 import ContentFeature from '../content-feature.js';
 import { isBeingFramed } from '../utils.js';
 import { DuckPlayerNativeMessages } from './duckplayer-native/messages.js';
-import { setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/duckplayer-native.js';
+import { setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/sub-feature.js';
 import { Environment } from './duckplayer/environment.js';
+import { Logger } from './duckplayer/util.js';
 
 /**
- * @import {DuckPlayerNativePage} from './duckplayer-native/duckplayer-native.js'
+ * @import {DuckPlayerNativeSubFeature} from './duckplayer-native/sub-feature.js'
  * @import {DuckPlayerNativeSettings} from '@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js'
  * @import {UrlChangeSettings} from './duckplayer-native/messages.js'
  */
@@ -72,8 +73,13 @@ export class DuckPlayerNativeFeature extends ContentFeature {
      * @param {DuckPlayerNativeMessages} messages
      */
     urlChanged(pageType, selectors, playbackPaused, env, messages) {
-        /** @type {DuckPlayerNativePage | null} */
+        /** @type {DuckPlayerNativeSubFeature | null} */
         let nextPage = null;
+
+        const logger = new Logger({
+            id: 'DUCK_PLAYER_NATIVE',
+            shouldLog: () => env.isTestMode(),
+        });
 
         switch (pageType) {
             case 'NOCOOKIE':
@@ -83,7 +89,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
                 nextPage = setupDuckPlayerForYouTube(selectors, playbackPaused, env, messages);
                 break;
             case 'SERP':
-                nextPage = setupDuckPlayerForSerp(selectors, env, messages);
+                nextPage = setupDuckPlayerForSerp();
                 break;
             case 'UNKNOWN':
             default:
@@ -95,8 +101,21 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         }
 
         if (nextPage) {
-            nextPage.init();
-            this.currentPage = nextPage;
+            logger.log('Running init handlers');
+            nextPage.onInit();
+
+            if (document.readyState === 'loading') {
+                const loadHandler = () => {
+                    logger.log('Running deferred load handlers');
+                    nextPage.onLoad();
+                    messages.notifyScriptIsReady();
+                };
+                document.addEventListener('DOMContentLoaded', loadHandler, { once: true });
+            } else {
+                logger.log('Running load handlers immediately');
+                nextPage.onLoad();
+                messages.notifyScriptIsReady();
+            }
         }
     }
 }
