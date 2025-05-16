@@ -8,10 +8,6 @@
     "trackerCompanies"
   ],
   "properties": {
-    "totalCount": {
-      "description": "Total number of trackers blocked since install",
-      "type": "number"
-    },
     "trackerCompanies": {
       "type": "array",
       "items": {

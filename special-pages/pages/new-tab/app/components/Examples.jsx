@@ -6,6 +6,7 @@ import { otherPrivacyStatsExamples, privacyStatsExamples } from '../privacy-stat
 import { otherRMFExamples, RMFExamples } from '../remote-messaging-framework/components/RMF.examples.js';
 import { updateNotificationExamples } from '../update-notification/components/UpdateNotification.examples.js';
 import { activityExamples } from '../activity/components/Activity.examples.js';
+import { protectionsHeadingExamples } from '../protections/components/ProtectionsHeading.examples.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -23,4 +24,5 @@ export const otherExamples = {
     ...customizerExamples,
     ...updateNotificationExamples,
     ...activityExamples,
+    ...protectionsHeadingExamples,
 };

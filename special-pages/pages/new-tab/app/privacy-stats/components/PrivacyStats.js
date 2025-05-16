@@ -1,12 +1,11 @@
 import { Fragment, h } from 'preact';
 import styles from './PrivacyStats.module.css';
 import { useTypedTranslationWith } from '../../types.js';
-import { useId, useMemo, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import { ShowHideButtonPill } from '../../components/ShowHideButton.jsx';
 import { DDG_STATS_DEFAULT_ROWS, DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
-import { PrivacyStatsHeading } from './PrivacyStatsHeading.js';
 import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.js';
 
 /**
@@ -16,55 +15,6 @@ import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.j
  * @typedef {import('../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
  */
-
-/**
- * @param {object} props
- * @param {Expansion} props.expansion
- * @param {Expansion} [props.secondaryExpansion="expanded"]
- * @param {PrivacyStatsData} props.data
- * @param {()=>void} props.toggle
- */
-export function PrivacyStats({ expansion = 'expanded', secondaryExpansion, data, toggle }) {
-    const expanded = expansion === 'expanded';
-
-    const { hasNamedCompanies, recent } = useMemo(() => {
-        let recent = 0;
-        let hasNamedCompanies = false;
-        for (let i = 0; i < data.trackerCompanies.length; i++) {
-            recent += data.trackerCompanies[i].count;
-            if (!hasNamedCompanies && data.trackerCompanies[i].displayName !== DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
-                hasNamedCompanies = true;
-            }
-        }
-        return { hasNamedCompanies, recent };
-    }, [data.trackerCompanies]);
-
-    // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
-    const WIDGET_ID = useId();
-    const TOGGLE_ID = useId();
-
-    const attrs = useMemo(() => {
-        return {
-            'aria-controls': WIDGET_ID,
-            id: TOGGLE_ID,
-        };
-    }, [WIDGET_ID, TOGGLE_ID]);
-
-    return (
-        <div class={styles.root}>
-            <PrivacyStatsHeading
-                recent={recent}
-                onToggle={toggle}
-                expansion={expansion}
-                canExpand={hasNamedCompanies}
-                buttonAttrs={attrs}
-            />
-            {hasNamedCompanies && expanded && (
-                <PrivacyStatsBody expansion={secondaryExpansion} trackerCompanies={data.trackerCompanies} id={WIDGET_ID} />
-            )}
-        </div>
-    );
-}
 
 /**
  * @param {object} props

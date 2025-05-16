@@ -255,7 +255,7 @@ test.describe('newtab customizer', () => {
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { theme: 'light' } });
         await cp.opensCustomizer();
-        await cp.hidesSection('Protection Stats');
+        await cp.hidesSection('Protections Report');
     });
     test('opening settings', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);

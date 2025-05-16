@@ -2,14 +2,13 @@ import { createContext, h } from 'preact';
 import { useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { PrivacyStatsService } from '../privacy-stats.service.js';
-import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
+import { reducer, useDataSubscription, useInitialData } from '../../service.hooks.js';
 
 /**
  * @typedef {import('../../../types/new-tab.ts').PrivacyStatsData} PrivacyStatsData
- * @typedef {import('../../../types/new-tab.ts').StatsConfig} StatsConfig
  * @typedef {import('../../../types/new-tab.ts').Expansion} Expansion
- * @typedef {import('../../service.hooks.js').State<PrivacyStatsData, StatsConfig>} State
- * @typedef {import('../../service.hooks.js').Events<PrivacyStatsData, StatsConfig>} Events
+ * @typedef {import('../../service.hooks.js').State<PrivacyStatsData, null>} State
+ * @typedef {import('../../service.hooks.js').Events<PrivacyStatsData, null>} Events
  */
 
 /**
@@ -18,10 +17,6 @@ import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndC
 export const PrivacyStatsContext = createContext({
     /** @type {State} */
     state: { status: 'idle', data: null, config: null },
-    /** @type {() => void} */
-    toggle: () => {
-        throw new Error('must implement');
-    },
 });
 
 export const PrivacyStatsDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}));
@@ -47,16 +42,13 @@ export function PrivacyStatsProvider(props) {
     const service = useService();
 
     // get initial data
-    useInitialDataAndConfig({ dispatch, service });
+    useInitialData({ dispatch, service });
 
     // subscribe to data updates
     useDataSubscription({ dispatch, service });
 
-    // subscribe to toggle + expose a fn for sync toggling
-    const { toggle } = useConfigSubscription({ dispatch, service });
-
     return (
-        <PrivacyStatsContext.Provider value={{ state, toggle }}>
+        <PrivacyStatsContext.Provider value={{ state }}>
             <PrivacyStatsDispatchContext.Provider value={dispatch}>{props.children}</PrivacyStatsDispatchContext.Provider>
         </PrivacyStatsContext.Provider>
     );

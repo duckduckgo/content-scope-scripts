@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "allOf": [
     {
-      "$ref": "types/activity-config.json"
+      "$ref": "types/protections-data.json"
     }
   ]
 }

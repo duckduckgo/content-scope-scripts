@@ -1,0 +1,60 @@
+.root {
+    background: var(--ntp-surface-background-color);
+    backdrop-filter: blur(48px);
+    border: 1px solid var(--ntp-surface-border-color);
+    padding: var(--sp-6);
+    border-radius: var(--border-radius-lg);
+    display: grid;
+    align-items: start;
+    grid-template-columns: auto;
+    width: 100%;
+    margin-bottom: var(--ntp-gap);
+
+    &:hover {
+        .listExpander * {
+            opacity: 1;
+        }
+    }
+
+    [data-theme=dark] & {
+        border-color: var(--color-white-at-9);
+    }
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    /*gap: 24px;*/
+}
+
+.switcher {
+    border-radius: 6px;
+    border: 1px solid var(--Stroke-Stroke-02, rgba(0, 0, 0, 0.09));
+    background: var(--Fill-Fill-03, rgba(0, 0, 0, 0.06));
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 24px;
+}
+
+.feed {}
+
+.button {
+    border-radius: 5px;
+    background: transparent;
+    border: 0.5px solid transparent;
+    height: 22px;
+    color: var(--ntp-text-normal);
+}
+
+.active {
+    border-radius: 5px;
+    border: 0.5px solid rgba(0, 0, 0, 0.10);
+    background: var(--Controls-Mac-Buttons-Fill-Default, #FFF);
+
+    /* Mac/Control/Standard */
+    box-shadow: 0px 0.5px 0px 0px var(--Mac-Control-Standard-Highlight-Strong, rgba(255, 255, 255, 0.20)) inset, 0px 1px 0px 0px var(--Mac-Control-Standard-Highlight-Weak, rgba(255, 255, 255, 0.05)) inset, 0px 0px 0px 0.5px var(--Mac-Control-Standard-Shadow-Medium, rgba(0, 0, 0, 0.10)), 0px 0px 1px 0px var(--Mac-Control-Standard-Shadow-Weak, rgba(0, 0, 0, 0.05)), 0px 1px 1px 0px var(--Mac-Control-Standard-Shadow-Strong, rgba(0, 0, 0, 0.20));
+
+    [data-theme=dark] & {
+        color: var(--color-black-at-84);
+    }
+}
