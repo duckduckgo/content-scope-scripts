@@ -19,7 +19,7 @@ import { Logger } from './duckplayer/util.js';
  */
 
 export class DuckPlayerNativeFeature extends ContentFeature {
-    /** @type {{init: () => void, destroy: () => void} | null} */
+    /** @type {DuckPlayerNativeSubFeature | null} */
     currentPage;
 
     async init(args) {
@@ -103,6 +103,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         if (nextPage) {
             logger.log('Running init handlers');
             nextPage.onInit();
+            this.currentPage = nextPage;
 
             if (document.readyState === 'loading') {
                 const loadHandler = () => {
