@@ -73,7 +73,8 @@ export function ComparisonTable() {
     const state = useGlobalState();
 
     const systemSettingsStep = /** @type {import('../../types').SystemSettingsStep|undefined} */ (state.stepDefinitions.systemSettings);
-    const adBlockingEnabled = systemSettingsStep?.rows?.some((row) => row === 'ad-blocking' || row === 'youtube-ad-blocking') ?? false;
+    const adBlockingEnabled =
+        systemSettingsStep?.rows?.some((row) => row === 'aggressive-ad-blocking' || row === 'youtube-ad-blocking') ?? false;
     const tableData = comparisonTableData(t, adBlockingEnabled);
 
     return (
