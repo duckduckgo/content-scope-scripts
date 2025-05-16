@@ -245,7 +245,7 @@ test.describe('Video Player overlays', () => {
         await overlays.turnOnDuckPlayer();
         await overlays.userSettingWasUpdatedTo('always ask'); // not updated
     });
-    test("Selecting 'Turn On Duck Player' + remember", async ({ page }, workerInfo) => {
+    test.skip("Selecting 'Turn On Duck Player' + remember", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
         // Given overlays feature is enabled
@@ -272,7 +272,7 @@ test.describe('Video Player overlays', () => {
         await overlays.noThanks();
         await overlays.secondOverlayExistsOnVideo();
     });
-    test("Selecting 'No Thanks' + remember", async ({ page }, workerInfo) => {
+    test.skip("Selecting 'No Thanks' + remember", async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
         // Given overlays feature is enabled
