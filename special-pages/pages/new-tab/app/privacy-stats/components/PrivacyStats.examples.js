@@ -16,7 +16,7 @@ export const privacyStatsExamples = {
     },
     'stats.few.collapsed': {
         factory: () => (
-            <PrivacyStatsMockProvider config={{ expansion: 'collapsed' }}>
+            <PrivacyStatsMockProvider>
                 <PrivacyStatsConsumer />
             </PrivacyStatsMockProvider>
         ),

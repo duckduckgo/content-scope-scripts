@@ -56,7 +56,7 @@ title: Protections Report
 
 ## Notifications:
 ### `protections_setConfig` 
-- {@link "NewTab Messages".StatsSetConfigNotification}
+- {@link "NewTab Messages".ProtectionsSetConfigNotification}
 - Sent when the user toggles the expansion of the stats
 - sends {@link "NewTab Messages".ProtectionsConfig}
 - example payload:

@@ -14,7 +14,6 @@ import { protectionsMockTransport } from './protections/mocks/protections.mock-t
  * @typedef {import('../types/new-tab').Favorite} Favorite
  * @typedef {import('../types/new-tab').FavoritesData} FavoritesData
  * @typedef {import('../types/new-tab').FavoritesConfig} FavoritesConfig
- * @typedef {import('../types/new-tab').StatsConfig} StatsConfig
  * @typedef {import('../types/new-tab').NextStepsConfig} NextStepsConfig
  * @typedef {import('../types/new-tab').NextStepsCards} NextStepsCards
  * @typedef {import('../types/new-tab').NextStepsData} NextStepsData
@@ -126,14 +125,6 @@ export function mockTransport() {
                     broadcast('widget_config');
                     return;
                 }
-                case 'stats_setConfig': {
-                    if (!msg.params) throw new Error('unreachable');
-
-                    const { animation, ...rest } = msg.params;
-                    write('stats_config', rest);
-                    broadcast('stats_config');
-                    return;
-                }
                 case 'rmf_primaryAction': {
                     console.log('ignoring rmf_primaryAction', msg.params);
                     clearRmf();
@@ -216,22 +207,6 @@ export function mockTransport() {
                         (msg) => {
                             if (msg.data.change === 'widget_config') {
                                 const values = read('widget_config');
-                                if (values) {
-                                    cb(values);
-                                }
-                            }
-                        },
-                        { signal: controller.signal },
-                    );
-                    return () => controller.abort();
-                }
-                case 'stats_onConfigUpdate': {
-                    const controller = new AbortController();
-                    channel?.addEventListener(
-                        'message',
-                        (msg) => {
-                            if (msg.data.change === 'stats_config') {
-                                const values = read('stats_config');
                                 if (values) {
                                     cb(values);
                                 }
@@ -386,18 +361,6 @@ export function mockTransport() {
                         return Promise.resolve(privacyStatsMocks[statsVariant]);
                     }
                     return Promise.resolve(privacyStatsMocks.few);
-                }
-                case 'stats_getConfig': {
-                    /** @type {StatsConfig} */
-                    const defaultConfig = { expansion: 'expanded', animation: { kind: 'auto-animate' } };
-                    const fromStorage = read('stats_config') || defaultConfig;
-                    if (url.searchParams.get('animation') === 'none') {
-                        fromStorage.animation = { kind: 'none' };
-                    }
-                    if (url.searchParams.get('animation') === 'view-transitions') {
-                        fromStorage.animation = { kind: 'view-transitions' };
-                    }
-                    return Promise.resolve(fromStorage);
                 }
                 case 'nextSteps_getConfig': {
                     /** @type {NextStepsConfig} */

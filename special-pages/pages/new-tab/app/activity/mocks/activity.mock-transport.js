@@ -234,14 +234,6 @@ export function activityMockTransport() {
                 }
                 case 'activity_getData':
                     return Promise.resolve(dataset);
-                case 'activity_getConfig': {
-                    /** @type {import('../../../types/new-tab.ts').ActivityConfig} */
-                    const config = {
-                        expansion: 'expanded',
-                    };
-                    // await new Promise((resolve) => setTimeout(resolve, 1200));
-                    return Promise.resolve(config);
-                }
                 default: {
                     return Promise.reject(new Error('unhandled request' + msg));
                 }

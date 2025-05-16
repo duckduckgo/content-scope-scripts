@@ -9,9 +9,8 @@ import { BodyExpansionContext, BodyExpansionApiContext } from '../components/Bod
  * @typedef {import('../../../types/new-tab').TrackerCompany} TrackerCompany
  * @typedef {import('../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
- * @typedef {import('../../../types/new-tab').StatsConfig} StatsConfig
- * @typedef {import('../../service.hooks.js').State<PrivacyStatsData, StatsConfig>} State
- * @typedef {import('../../service.hooks.js').Events<PrivacyStatsData, StatsConfig>} Events
+ * @typedef {import('../../service.hooks.js').State<PrivacyStatsData, null>} State
+ * @typedef {import('../../service.hooks.js').Events<PrivacyStatsData, null>} Events
  */
 
 /**
@@ -20,23 +19,17 @@ import { BodyExpansionContext, BodyExpansionApiContext } from '../components/Bod
  *
  * @param {Object} props - The props object containing the data.
  * @param {import("preact").ComponentChild} [props.children] - The children elements to be rendered.
- * @param {StatsConfig} [props.config]
  * @param {Expansion} [props.bodyExpansion]
  * @param {PrivacyStatsData} [props.data]
  * @param {boolean} [props.ticker] - if true, gradually increment the count of the first company, for testing
  *
  */
 
-export function PrivacyStatsMockProvider({
-    data = privacyStatsMocks.few,
-    config = { expansion: 'expanded', animation: { kind: 'auto-animate' } },
-    ticker = false,
-    children,
-}) {
+export function PrivacyStatsMockProvider({ data = privacyStatsMocks.few, ticker = false, children }) {
     const initial = /** @type {import('../components/PrivacyStatsProvider.js').State} */ ({
         status: 'ready',
         data,
-        config,
+        config: null,
     });
 
     /** @type {[State, import('preact/hooks').Dispatch<Events>]} */
@@ -46,7 +39,6 @@ export function PrivacyStatsMockProvider({
         if (!ticker) return;
         if (state.status === 'ready') {
             const next = {
-                totalCount: state.data.totalCount + 1,
                 trackerCompanies: state.data.trackerCompanies.map((company, index) => {
                     if (index === 0) return { ...company, count: company.count + 1 };
                     return company;
@@ -58,19 +50,10 @@ export function PrivacyStatsMockProvider({
             return () => clearTimeout(time);
         }
         return () => {};
-    }, [state.data?.totalCount, ticker]);
-
-    const toggle = useCallback(() => {
-        if (state.status !== 'ready') return console.warn('was not ready');
-        if (state.config?.expansion === 'expanded') {
-            send({ kind: 'config', config: { ...state.config, expansion: 'collapsed' } });
-        } else {
-            send({ kind: 'config', config: { ...state.config, expansion: 'expanded' } });
-        }
-    }, [state.config?.expansion]);
+    }, [ticker]);
 
     return (
-        <PrivacyStatsContext.Provider value={{ state, toggle }}>
+        <PrivacyStatsContext.Provider value={{ state }}>
             <PrivacyStatsDispatchContext.Provider value={send}>
                 <BodyExpansionMockProvider>{children}</BodyExpansionMockProvider>
             </PrivacyStatsDispatchContext.Provider>

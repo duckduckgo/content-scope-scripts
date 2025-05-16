@@ -4,11 +4,11 @@ import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './Protections.module.css';
 import { ActivityProvider } from '../../activity/ActivityProvider.js';
-import { ActivityAltConsumer } from '../../activity/components/Activity.js';
 import { BodyExpanderProvider } from '../../privacy-stats/components/BodyExpansionProvider.js';
-import { PrivacyStatsAltConsumer } from '../../privacy-stats/components/PrivacyStatsConsumer.js';
 import { PrivacyStatsProvider } from '../../privacy-stats/components/PrivacyStatsProvider.js';
 import { useBlockedCount } from './ProtectionsProvider.js';
+import { ActivityConsumer } from '../../activity/components/Activity.js';
+import { PrivacyStatsConsumer } from '../../privacy-stats/components/PrivacyStatsConsumer.js';
 
 /**
  * @import enStrings from "../../strings.json"
@@ -79,13 +79,13 @@ function ProtectionsBody(props) {
             </div>
             {props.feed === 'activity' && (
                 <ActivityProvider>
-                    <ActivityAltConsumer />
+                    <ActivityConsumer />
                 </ActivityProvider>
             )}
             {props.feed === 'privacy-stats' && (
                 <PrivacyStatsProvider>
                     <BodyExpanderProvider>
-                        <PrivacyStatsAltConsumer />
+                        <PrivacyStatsConsumer />
                     </BodyExpanderProvider>
                 </PrivacyStatsProvider>
             )}

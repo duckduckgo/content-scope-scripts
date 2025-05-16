@@ -18,7 +18,7 @@ export function protectionsMockTransport() {
     /** @type {import('../../../types/new-tab.ts').ProtectionsConfig} */
     const config = {
         expansion: 'expanded',
-        feed: 'activity',
+        feed: 'privacy-stats',
     };
 
     if (url.searchParams.has('protections')) {
@@ -59,7 +59,7 @@ export function protectionsMockTransport() {
                         subs.get(sub)?.(dataset);
                     }, 1000);
                     return () => {
-                        console.log('did cleanuo');
+                        console.log('did cleanup');
                         clearInterval(int);
                     };
                 }
@@ -79,8 +79,8 @@ export function protectionsMockTransport() {
                 case 'protections_getData':
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {
-                    if (url.searchParams.get('protections.feed') === 'privacy-stats') {
-                        config.feed = 'privacy-stats';
+                    if (url.searchParams.get('protections.feed') === 'activity') {
+                        config.feed = 'activity';
                     }
 
                     return Promise.resolve(config);
