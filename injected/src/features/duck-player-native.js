@@ -23,6 +23,8 @@ export class DuckPlayerNativeFeature extends ContentFeature {
     currentPage;
 
     async init(args) {
+        console.log('DPN', args);
+        // alert(`DPN ${JSON.stringify(args)}`);
         /**
          * This feature never operates in a frame
          */
@@ -36,7 +38,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
-            debug: this.isDebug,
+            debug: this.isDebug || true,
             injectName: import.meta.injectName,
             platform: this.platform,
             locale,
@@ -57,6 +59,8 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             console.warn('Failed to get initial setup', e);
             return;
         }
+
+        console.log('DPN INITIAL SETUP', initialSetup);
 
         if (initialSetup.pageType) {
             const playbackPaused = initialSetup.playbackPaused || false;

@@ -35,6 +35,8 @@ export async function initOverlays(settings, environment, messages) {
         return;
     }
 
+    console.log('DPC INITIAL SETUP', initialSetup);
+
     let { userValues, ui } = initialSetup;
 
     /**

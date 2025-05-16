@@ -61,6 +61,8 @@ import { Environment } from './duckplayer/environment.js';
  */
 export default class DuckPlayerFeature extends ContentFeature {
     init(args) {
+        console.log('DPC', args);
+        // alert(`DPN ${JSON.stringify(args)}`);
         /**
          * This feature never operates in a frame
          */
@@ -95,7 +97,7 @@ export default class DuckPlayerFeature extends ContentFeature {
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
-            debug: this.isDebug,
+            debug: this.isDebug || true,
             injectName: import.meta.injectName,
             platform: this.platform,
             locale,

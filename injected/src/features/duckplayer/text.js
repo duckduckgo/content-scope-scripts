@@ -11,7 +11,7 @@ const text = {
         title: 'Tired of targeted YouTube ads and recommendations?',
     },
     videoOverlayTitle2: {
-        title: 'Turn on Duck Player to watch without targeted ads',
+        title: 'Turn on Duck Player to watch without targeted adssssss',
     },
     videoOverlayTitle3: {
         title: 'Drowning in ads on YouTube? {newline} Turn on Duck Player.',
@@ -26,13 +26,13 @@ const text = {
         title: 'Watch in Duck Player',
     },
     videoButtonOpen2: {
-        title: 'Turn On Duck Player',
+        title: 'Turn On Duck Playerrrrr',
     },
     videoButtonOptOut: {
         title: 'Watch Here',
     },
     videoButtonOptOut2: {
-        title: 'No Thanks',
+        title: 'No Thankssssss',
     },
     rememberLabel: {
         title: 'Remember my choice',
