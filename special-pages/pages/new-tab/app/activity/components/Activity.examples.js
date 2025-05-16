@@ -1,6 +1,5 @@
 import { h } from 'preact';
 import { Activity, ActivityBody } from './Activity.js';
-import { noop } from '../../utils.js';
 import { signal } from '@preact/signals';
 import { generateSampleData } from '../mocks/activity.mock-transport.js';
 import { normalizeData, NormalizedDataContext } from '../NormalizeDataProvider.js';

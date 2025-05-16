@@ -1,4 +1,4 @@
-import { Fragment, h } from 'preact';
+import { h } from 'preact';
 import styles from './Activity.module.css';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { memo } from 'preact/compat';
