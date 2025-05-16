@@ -1,17 +1,12 @@
 import { useId, useMemo } from 'preact/hooks';
-import { PrivacyStatsHeading } from '../../privacy-stats/components/PrivacyStatsHeading.js';
 import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './Protections.module.css';
-import { ActivityProvider } from '../../activity/ActivityProvider.js';
-import { BodyExpanderProvider } from '../../privacy-stats/components/BodyExpansionProvider.js';
-import { PrivacyStatsProvider } from '../../privacy-stats/components/PrivacyStatsProvider.js';
-import { useBlockedCount } from './ProtectionsProvider.js';
-import { ActivityConsumer } from '../../activity/components/Activity.js';
-import { PrivacyStatsConsumer } from '../../privacy-stats/components/PrivacyStatsConsumer.js';
+import { ProtectionsHeading } from './ProtectionsHeading.js';
+import { useTypedTranslationWith } from '../../types.js';
 
 /**
- * @import enStrings from "../../strings.json"
+ * @import enStrings from "../strings.json"
  * @typedef {enStrings} Strings
  * @typedef {import('../../../types/new-tab.js').TrackerCompany} TrackerCompany
  * @typedef {import('../../../types/new-tab.js').Expansion} Expansion
@@ -22,21 +17,13 @@ import { PrivacyStatsConsumer } from '../../privacy-stats/components/PrivacyStat
 /**
  * @param {object} props
  * @param {Expansion} props.expansion
- * @param {ProtectionsData} props.data
+ * @param {import("@preact/signals").Signal<number>} props.blockedCountSignal
  * @param {ProtectionsConfig['feed']} props.feed
  * @param {(feed: ProtectionsConfig['feed']) => void} props.setFeed
+ * @param {import("preact").ComponentChild} [props.children]
  * @param {()=>void} props.toggle
  */
-export function Protections({ expansion = 'expanded', data, feed, toggle, setFeed }) {
-    return (
-        <div class={styles.root}>
-            <ProtectionsHeader expansion={expansion} toggle={toggle} initial={data.totalCount} />
-            {expansion === 'expanded' && <ProtectionsBody feed={feed} setFeed={setFeed} />}
-        </div>
-    );
-}
-
-function ProtectionsHeader({ initial, toggle, expansion }) {
+export function Protections({ expansion = 'expanded', children, blockedCountSignal, feed, toggle, setFeed }) {
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
 
@@ -48,47 +35,52 @@ function ProtectionsHeader({ initial, toggle, expansion }) {
     }, [WIDGET_ID, TOGGLE_ID]);
 
     return (
-        <PrivacyStatsHeading
-            blockedCount={useBlockedCount(initial)}
-            onToggle={toggle}
-            expansion={expansion}
-            canExpand={true}
-            buttonAttrs={attrs}
-        />
+        <div class={styles.root}>
+            <ProtectionsHeading
+                blockedCountSignal={blockedCountSignal}
+                onToggle={toggle}
+                expansion={expansion}
+                canExpand={true}
+                buttonAttrs={attrs}
+                feed={feed}
+            />
+            <ProtectionsBody feed={feed} setFeed={setFeed} id={WIDGET_ID} expansion={expansion}>
+                {children}
+            </ProtectionsBody>
+        </div>
     );
 }
 
 /**
  * @param {object} props
  * @param {ProtectionsConfig['feed']} props.feed
+ * @param {string} props.id
+ * @param {Expansion} props.expansion
+ * @param {import("preact").ComponentChild} props.children
  * @param {(feed: ProtectionsConfig['feed']) => void} props.setFeed
  */
-function ProtectionsBody(props) {
+function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
+    const hidden = expansion === 'collapsed';
+    const showing = expansion === 'expanded';
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     return (
-        <Fragment>
-            <div class={styles.switcher}>
-                <button
-                    class={cn(styles.button, props.feed === 'privacy-stats' && styles.active)}
-                    onClick={() => props.setFeed('privacy-stats')}
-                >
-                    Stats
-                </button>
-                <button class={cn(styles.button, props.feed === 'activity' && styles.active)} onClick={() => props.setFeed('activity')}>
-                    Details
-                </button>
-            </div>
-            {props.feed === 'activity' && (
-                <ActivityProvider>
-                    <ActivityConsumer />
-                </ActivityProvider>
+        <div class={styles.body} id={id} aria-hidden={hidden} aria-expanded={showing}>
+            {expansion === 'expanded' && (
+                <Fragment>
+                    <div class={styles.switcher}>
+                        <button
+                            class={cn(styles.button, feed === 'privacy-stats' && styles.active)}
+                            onClick={() => setFeed('privacy-stats')}
+                        >
+                            {t('protections_statsSwitchTitle')}
+                        </button>
+                        <button class={cn(styles.button, feed === 'activity' && styles.active)} onClick={() => setFeed('activity')}>
+                            {t('protections_activitySwitchTitle')}
+                        </button>
+                    </div>
+                    <div class={styles.feed}>{children}</div>
+                </Fragment>
             )}
-            {props.feed === 'privacy-stats' && (
-                <PrivacyStatsProvider>
-                    <BodyExpanderProvider>
-                        <PrivacyStatsConsumer />
-                    </BodyExpanderProvider>
-                </PrivacyStatsProvider>
-            )}
-        </Fragment>
+        </div>
     );
 }

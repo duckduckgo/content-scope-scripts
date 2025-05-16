@@ -1,12 +1,11 @@
 import { Fragment, h } from 'preact';
 import styles from './PrivacyStats.module.css';
 import { useTypedTranslationWith } from '../../types.js';
-import { useId, useMemo, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import { ShowHideButtonPill } from '../../components/ShowHideButton.jsx';
 import { DDG_STATS_DEFAULT_ROWS, DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
-import { PrivacyStatsHeading } from './PrivacyStatsHeading.js';
 import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.js';
 
 /**

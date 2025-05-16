@@ -21,6 +21,12 @@
     }
 }
 
+.body {
+    display: flex;
+    flex-direction: column;
+    /*gap: 24px;*/
+}
+
 .switcher {
     border-radius: 6px;
     border: 1px solid var(--Stroke-Stroke-02, rgba(0, 0, 0, 0.09));
@@ -29,6 +35,8 @@
     grid-template-columns: 1fr 1fr;
     margin-top: 24px;
 }
+
+.feed {}
 
 .button {
     border-radius: 5px;
