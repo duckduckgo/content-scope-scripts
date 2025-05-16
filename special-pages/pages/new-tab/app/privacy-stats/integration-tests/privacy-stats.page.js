@@ -1,6 +1,11 @@
 import { privacyStatsMocks } from '../mocks/privacy-stats.mocks.js';
 import { expect } from '@playwright/test';
 
+const defaultPageParams = {
+    feed: 'protections',
+    'protections.feed': 'privacy-stats',
+};
+
 export class PrivacyStatsPage {
     /**
      * @param {import("@playwright/test").Page} page
@@ -17,7 +22,7 @@ export class PrivacyStatsPage {
      */
     async receive({ count }) {
         /** @type {import("../../../types/new-tab.js").PrivacyStatsData} */
-        const next = { totalCount: 0, trackerCompanies: privacyStatsMocks.many.trackerCompanies.slice(0, count) };
+        const next = { trackerCompanies: privacyStatsMocks.many.trackerCompanies.slice(0, count) };
         await this.ntp.mocks.simulateSubscriptionMessage('stats_onDataUpdate', next);
     }
 
@@ -29,7 +34,7 @@ export class PrivacyStatsPage {
     }
 
     context() {
-        return this.page.locator('[data-entry-point="privacyStats"]');
+        return this.page.locator('[data-entry-point="protections"]');
     }
 
     rows() {
@@ -73,7 +78,7 @@ export class PrivacyStatsPage {
         const rows = this.rows();
 
         // open the NTP with the correct param
-        await this.ntp.openPage({ additional: { stats: 'manyOnlyTop' } });
+        await this.ntp.openPage({ additional: { ...defaultPageParams, stats: 'manyOnlyTop' } });
 
         // control, ensure we have 5 rows
         await expect(rows).toHaveCount(5);
@@ -101,7 +106,7 @@ export class PrivacyStatsPage {
         const rows = this.rows();
 
         // open the NTP with the correct param
-        await this.ntp.openPage({ additional: { stats: 'fewOnlyTop' } });
+        await this.ntp.openPage({ additional: { ...defaultPageParams, stats: 'fewOnlyTop' } });
 
         // control, ensure we have 3 rows
         await expect(rows).toHaveCount(3);
@@ -123,7 +128,7 @@ export class PrivacyStatsPage {
         const rows = this.rows();
 
         // open the NTP with the correct param
-        await this.ntp.openPage({ additional: { stats: 'topAndOneOther' } });
+        await this.ntp.openPage({ additional: { ...defaultPageParams, stats: 'topAndOneOther' } });
 
         // should show all 5 items
         await expect(rows).toHaveCount(5);
@@ -142,7 +147,7 @@ export class PrivacyStatsPage {
         const rows = this.rows();
 
         // open the NTP with the correct param
-        await this.ntp.openPage({ additional: { stats: 'manyTopAndOther' } });
+        await this.ntp.openPage({ additional: { ...defaultPageParams, stats: 'manyTopAndOther' } });
 
         // control, ensure we have 5 rows
         await expect(rows).toHaveCount(5);

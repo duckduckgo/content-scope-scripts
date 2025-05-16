@@ -1,6 +1,5 @@
 /**
  * @typedef {import("../../types/new-tab.js").ActivityData} ActivityData
- * @typedef {import("../../types/new-tab.js").ActivityConfig} ActivityConfig
  * @typedef {import("../../types/new-tab.js").UrlInfo} UrlInfo
  * @typedef {import("../../types/new-tab.js").PatchData} PatchData
  * @typedef {import('../../types/new-tab.js').DomainActivity} DomainActivity
@@ -89,13 +88,6 @@ export class BatchedActivityService {
             return next;
         });
 
-        /** @type {Service<ActivityConfig>} */
-        this.configService = new Service({
-            initial: () => ntp.messaging.request('activity_getConfig'),
-            subscribe: (cb) => ntp.messaging.subscribe('activity_onConfigUpdate', cb),
-            persist: (data) => ntp.messaging.notify('activity_setConfig', data),
-        });
-
         /** @type {EventTarget|null} */
         this.burns = new EventTarget();
         this.burnUnsub = this.ntp.messaging.subscribe('activity_onBurnComplete', () => {
@@ -108,21 +100,17 @@ export class BatchedActivityService {
     }
 
     /**
-     * @returns {Promise<{data: ActivityData; config: ActivityConfig }>}
+     * @returns {Promise<ActivityData>}
      * @internal
      */
     async getInitial() {
-        const configPromise = this.configService.fetchInitial();
-        const dataPromise = this.dataService.fetchInitial();
-        const [config, data] = await Promise.all([configPromise, dataPromise]);
-        return { config, data };
+        return await this.dataService.fetchInitial();
     }
 
     /**
      * @internal
      */
     destroy() {
-        this.configService.destroy();
         this.dataService.destroy();
         this.burnUnsub();
         this.burns = null;
@@ -157,28 +145,6 @@ export class BatchedActivityService {
         } else {
             this.dataService.triggerFetch();
         }
-    }
-
-    /**
-     * @param {(evt: {data: ActivityConfig, source: InvocationSource}) => void} cb
-     * @internal
-     */
-    onConfig(cb) {
-        return this.configService.onData(cb);
-    }
-    /**
-     * Update the in-memory data immediate and persist.
-     * Any state changes will be broadcast to consumers synchronously
-     * @internal
-     */
-    toggleExpansion() {
-        this.configService.update((old) => {
-            if (old.expansion === 'expanded') {
-                return { ...old, expansion: /** @type {const} */ ('collapsed') };
-            } else {
-                return { ...old, expansion: /** @type {const} */ ('expanded') };
-            }
-        });
     }
     /**
      * @param {string} url

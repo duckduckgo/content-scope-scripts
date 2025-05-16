@@ -1,5 +1,5 @@
 import { activityMocks } from '../mocks/activity.mocks.js';
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { generateSampleData } from '../mocks/activity.mock-transport.js';
 
 /**
@@ -44,7 +44,7 @@ export class ActivityPage {
     }
 
     context() {
-        return this.page.locator('[data-entry-point="activity"]');
+        return this.page.locator('[data-entry-point="protections"]');
     }
 
     rows() {
@@ -146,18 +146,20 @@ export class ActivityPage {
         // control: ensure we have 5 first
         await expect(this.context().getByTestId('ActivityItem')).toHaveCount(5);
 
-        // burn 1 item in the list
-        await this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' }).click();
+        await test.step('burn 1 item in the list', async () => {
+            await this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' }).click();
+        });
 
-        // assert the confirm was sent
-        const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_confirmBurn', count: 1 });
-        expect(result[0].payload).toMatchObject({
-            context: 'specialPages',
-            featureName: 'newTabPage',
-            method: 'activity_confirmBurn',
-            params: {
-                url: 'https://example.com',
-            },
+        await test.step('assert the activity_confirmBurn was sent', async () => {
+            const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_confirmBurn', count: 1 });
+            expect(result[0].payload).toMatchObject({
+                context: 'specialPages',
+                featureName: 'newTabPage',
+                method: 'activity_confirmBurn',
+                params: {
+                    url: 'https://example.com',
+                },
+            });
         });
 
         // simulate a small delay from native
