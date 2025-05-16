@@ -33,10 +33,10 @@ import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsC
  */
 export function Activity({ itemCount, batched, children }) {
     return (
-        <Fragment>
+        <div class={styles.root} data-testid="Activity">
             {itemCount > 0 && children}
             {batched && itemCount > 0 && <Loader />}
-        </Fragment>
+        </div>
     );
 }
 
