@@ -470,19 +470,8 @@ export function mockTransport() {
                         updateNotification,
                     };
 
-                    const feed = url.searchParams.get('feed') || 'stats';
-                    if (feed === 'stats' || feed === 'both') {
-                        widgetsFromStorage.push({ id: 'privacyStats' });
-                        widgetConfigFromStorage.push({ id: 'privacyStats', visibility: 'visible' });
-                    }
-                    if (feed === 'activity' || feed === 'both') {
-                        widgetsFromStorage.push({ id: 'activity' });
-                        widgetConfigFromStorage.push({ id: 'activity', visibility: 'visible' });
-                    }
-                    if (feed === 'protections') {
-                        widgetsFromStorage.push({ id: 'protections' });
-                        widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
-                    }
+                    widgetsFromStorage.push({ id: 'protections' });
+                    widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
 
                     initial.customizer = customizerData();
 
