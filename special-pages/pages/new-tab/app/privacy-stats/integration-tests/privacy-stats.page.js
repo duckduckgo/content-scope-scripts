@@ -2,7 +2,6 @@ import { privacyStatsMocks } from '../mocks/privacy-stats.mocks.js';
 import { expect } from '@playwright/test';
 
 const defaultPageParams = {
-    feed: 'protections',
     'protections.feed': 'privacy-stats',
 };
 
@@ -176,28 +175,28 @@ export class PrivacyStatsPage {
     }
 
     async hasEmptyTrackersOnlyTitle() {
-        await expect(this.page.getByTestId('PrivacyStatsHeading')).toMatchAriaSnapshot(`
+        await expect(this.page.getByTestId('ProtectionsHeading')).toMatchAriaSnapshot(`
           - heading "Tracking protections active" [level=2]
           - paragraph: DuckDuckGo blocks tracking attempts as you browse. Visit a few sites to see how many we block!
         `);
     }
 
     async hasPopulatedTrackersOnlyTitle() {
-        await expect(this.page.getByTestId('PrivacyStatsHeading')).toMatchAriaSnapshot(`
+        await expect(this.page.getByTestId('ProtectionsHeading')).toMatchAriaSnapshot(`
           - heading "868 tracking attempts blocked" [level=2]
           - paragraph: Past 7 days
         `);
     }
 
     async hasEmptyAdsAndTrackersTitle() {
-        await expect(this.page.getByTestId('PrivacyStatsHeading')).toMatchAriaSnapshot(`
+        await expect(this.page.getByTestId('ProtectionsHeading')).toMatchAriaSnapshot(`
           - heading "Protections active" [level=2]
           - paragraph: DuckDuckGo blocks ads and tracking attempts as you browse. Visit a few sites to see how many we block!
         `);
     }
 
     async hasPopulatedAdsAndTrackersTitle() {
-        await expect(this.page.getByTestId('PrivacyStatsHeading')).toMatchAriaSnapshot(`
+        await expect(this.page.getByTestId('ProtectionsHeading')).toMatchAriaSnapshot(`
           - heading "868 advertising & tracking attempts blocked" [level=2]
           - paragraph: Past 7 days
         `);

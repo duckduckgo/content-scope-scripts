@@ -77,6 +77,10 @@ export class ActivityPage {
         await this.context().waitFor();
     }
 
+    async ready() {
+        await this.ntp.mocks.waitForCallCount({ method: 'activity_getData', count: 1 });
+    }
+
     async cannotExpandListWhenEmpty() {
         const { page } = this;
 

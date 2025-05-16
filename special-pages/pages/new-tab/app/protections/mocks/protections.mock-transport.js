@@ -77,6 +77,12 @@ export function protectionsMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'protections_getData':
+                    if (url.searchParams.get('stats') === 'none') {
+                        dataset.totalCount = 0;
+                    }
+                    if (url.searchParams.get('activity') === 'empty') {
+                        dataset.totalCount = 0;
+                    }
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {
                     if (url.searchParams.get('protections.feed') === 'activity') {

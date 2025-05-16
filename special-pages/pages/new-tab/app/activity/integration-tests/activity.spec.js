@@ -4,7 +4,6 @@ import { ActivityPage } from './activity.page.js';
 import { BatchingPage } from './batching.page.js';
 
 const defaultPageParams = {
-    feed: 'protections',
     'protections.feed': 'activity',
 };
 
@@ -54,7 +53,7 @@ test.describe('activity widget', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { feed: 'protections', 'protections.feed': 'activity' } });
+        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
         await ap.didRender();
         await ap.burnsItem();
     });

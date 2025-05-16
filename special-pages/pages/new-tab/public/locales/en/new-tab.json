@@ -45,6 +45,22 @@
     "title": "Protections Report",
     "note": "Used as a label in a customization menu"
   },
+  "protections_statsSwitchTitle": {
+    "title": "Stats",
+    "note": "Used as a label in a switch that shows 'privacy stats'"
+  },
+  "protections_activitySwitchTitle": {
+    "title": "Details",
+    "note": "Used as a label in a switch that shows 'privacy stats'"
+  },
+  "stats_menuTitle": {
+    "title": "Blocked Tracking Attempts",
+    "note": "Used as a label in a customization menu"
+  },
+  "stats_menuTitle_v2": {
+    "title": "Protection Stats",
+    "note": "Used as a label in a customization menu"
+  },
   "stats_noActivity": {
     "title": "DuckDuckGo blocks tracking attempts as you browse. Visit a few sites to see how many we block!",
     "note": "Placeholder for when we cannot report any blocked trackers yet"
@@ -104,14 +120,6 @@
   "stats_otherCount": {
     "title": "{count} attempts from other networks",
     "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
-  },
-  "stats_menuTitle": {
-    "title": "Blocked Tracking Attempts",
-    "note": "Used as a label in a customization menu"
-  },
-  "stats_menuTitle_v2": {
-    "title": "Protection Stats",
-    "note": "Used as a label in a customization menu"
   },
   "nextSteps_sectionTitle": {
     "title": "Next Steps",

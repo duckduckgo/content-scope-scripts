@@ -3,7 +3,6 @@ import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { PrivacyStatsPage } from './privacy-stats.page.js';
 
 const defaultPageParams = {
-    feed: 'protections',
     'protections.feed': 'privacy-stats',
 };
 
