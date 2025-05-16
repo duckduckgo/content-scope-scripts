@@ -1,3 +1,6 @@
+.root {
+    display: grid;
+}
 .activity {
     --favicon-width: 32px;
     --heading-gap: 8px;

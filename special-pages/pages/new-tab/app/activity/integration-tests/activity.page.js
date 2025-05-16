@@ -44,7 +44,7 @@ export class ActivityPage {
     }
 
     context() {
-        return this.page.locator('[data-entry-point="protections"]');
+        return this.page.locator('[data-entry-point="protections"] [data-testid="Activity"]');
     }
 
     rows() {
