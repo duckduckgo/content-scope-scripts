@@ -38,7 +38,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ap = new ActivityPage(page, ntp);
             await ntp.reducedMotion();
             await ntp.openPage({ additional: { 'protections.feed': 'activity', activity: 'empty' } });
-            await ap.didRender();
+            await ap.ready();
             await expect(page).toHaveScreenshot('narrow-empty.png', { maxDiffPixels });
         });
     });
