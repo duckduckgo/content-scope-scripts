@@ -1,4 +1,6 @@
-/** @import { DuckPlayerNativeSelectors } from './duckplayer-native.js'; */
+/**
+ * @import { DuckPlayerNativeSelectors } from './sub-feature.js';
+ */
 
 /**
  * @param {string} selector - Selector for the video element

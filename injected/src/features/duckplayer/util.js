@@ -1,17 +1,4 @@
 /* eslint-disable promise/prefer-await-to-then */
-/**
- * Add an event listener to an element that is only executed if it actually comes from a user action
- * @param {Element} element - to attach event to
- * @param {string} event
- * @param {function} callback
- */
-export function addTrustedEventListener(element, event, callback) {
-    element.addEventListener(event, (e) => {
-        if (e.isTrusted) {
-            callback(e);
-        }
-    });
-}
 
 /**
  * Try to load an image first. If the status code is 2xx, then continue
