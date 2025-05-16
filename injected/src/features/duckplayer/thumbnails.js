@@ -54,13 +54,13 @@
 
 import { SideEffects, VideoParams } from './util.js';
 import { IconOverlay } from './icon-overlay.js';
-import { Environment } from './overlays.js';
+import { Environment } from './environment.js';
 import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
 
 /**
  * @typedef ThumbnailParams
  * @property {import("../duck-player.js").OverlaysFeatureSettings} settings
- * @property {import("./overlays.js").Environment} environment
+ * @property {import("./environment.js").Environment} environment
  * @property {import("../duck-player.js").DuckPlayerOverlayMessages} messages
  */
 

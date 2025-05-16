@@ -1,17 +1,4 @@
 /* eslint-disable promise/prefer-await-to-then */
-/**
- * Add an event listener to an element that is only executed if it actually comes from a user action
- * @param {Element} element - to attach event to
- * @param {string} event
- * @param {function} callback
- */
-export function addTrustedEventListener(element, event, callback) {
-    element.addEventListener(event, (e) => {
-        if (e.isTrusted) {
-            callback(e);
-        }
-    });
-}
 
 /**
  * Try to load an image first. If the status code is 2xx, then continue
@@ -116,9 +103,11 @@ export class SideEffects {
 
     /**
      * Remove elements, event listeners etc
+     * @param {string} [name]
      */
-    destroy() {
-        for (const cleanup of this._cleanups) {
+    destroy(name) {
+        const cleanups = name ? this._cleanups.filter((c) => c.name === name) : this._cleanups;
+        for (const cleanup of cleanups) {
             if (typeof cleanup.fn === 'function') {
                 try {
                     if (this.debug) {
@@ -132,7 +121,11 @@ export class SideEffects {
                 throw new Error('invalid cleanup');
             }
         }
-        this._cleanups = [];
+        if (name) {
+            this._cleanups = this._cleanups.filter((c) => c.name !== name);
+        } else {
+            this._cleanups = [];
+        }
     }
 }
 
@@ -177,6 +170,16 @@ export class VideoParams {
             duckUrl.searchParams.set('t', this.time);
         }
         return duckUrl.href;
+    }
+
+    /**
+     * Get the large thumbnail URL for the current video id
+     *
+     * @returns {string}
+     */
+    toLargeThumbnailUrl() {
+        const url = new URL(`/vi/${this.id}/maxresdefault.jpg`, 'https://i.ytimg.com');
+        return url.href;
     }
 
     /**
@@ -280,5 +283,47 @@ export class DomState {
     onLoaded(loadedCallback) {
         if (this.loaded) return loadedCallback();
         this.loadedCallbacks.push(loadedCallback);
+    }
+}
+
+export class Logger {
+    /** @type {string} */
+    id;
+    /** @type {() => boolean} */
+    shouldLog;
+
+    /**
+     * @param {object} options
+     * @param {string} options.id - Prefix added to log output
+     * @param {() => boolean} options.shouldLog - Tells logger whether to output to console
+     */
+    constructor({ id, shouldLog }) {
+        if (!id || !shouldLog) {
+            throw new Error('Missing props in Logger');
+        }
+        this.shouldLog = shouldLog;
+        this.id = id;
+    }
+
+    error(...args) {
+        this.output(console.error, args);
+    }
+
+    info(...args) {
+        this.output(console.info, args);
+    }
+
+    log(...args) {
+        this.output(console.log, args);
+    }
+
+    warn(...args) {
+        this.output(console.warn, args);
+    }
+
+    output(handler, args) {
+        if (this.shouldLog()) {
+            handler(`${this.id.padEnd(20, ' ')} |`, ...args);
+        }
     }
 }
