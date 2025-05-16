@@ -32,17 +32,9 @@ import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsC
  * @param {import("preact").ComponentChild} [props.children]
  */
 export function Activity({ itemCount, batched, children }) {
-    // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
-    const { didClick } = useContext(ActivityInteractionsContext);
-
-    const ref = useRef(null);
-    useOnMiddleClick(ref, didClick);
-
     return (
         <Fragment>
-            <div onClick={didClick} ref={ref}>
-                {itemCount > 0 && children}
-            </div>
+            {itemCount > 0 && children}
             {batched && itemCount > 0 && <Loader />}
         </Fragment>
     );
@@ -59,8 +51,14 @@ export function ActivityBody({ canBurn, visibility }) {
     const { burning, exiting } = useContext(ActivityBurningSignalContext);
     const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
 
+    // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
+    const { didClick } = useContext(ActivityInteractionsContext);
+
+    const ref = useRef(null);
+    useOnMiddleClick(ref, didClick);
+
     return (
-        <ul class={styles.activity} data-busy={busy}>
+        <ul class={styles.activity} data-busy={busy} ref={ref} onClick={didClick}>
             {keys.value.map((id, _index) => {
                 if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={visibility} />;
                 return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={visibility} />;
