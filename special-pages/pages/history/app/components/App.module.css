@@ -36,6 +36,7 @@ body {
     height: 100vh;
     background-color: var(--history-background-color);
 }
+
 .header {
     grid-area: header;
     padding-left: var(--main-padding-left);
@@ -44,14 +45,19 @@ body {
     z-index: 1;
     background-color: var(--history-background-color);
 }
+
 .search {
     justify-self: flex-end;
 }
+
 .aside {
     grid-area: aside;
     padding: 10px 16px;
+    /* Nav child will handle this to accommodate a scrollbar */
+    padding-right: 0;
     border-right: 1px solid var(--history-surface-border-color);
 }
+
 .main {
     grid-area: main;
     overflow: auto;
@@ -60,6 +66,10 @@ body {
     padding-top: 24px;
 }
 
+/**
+  * The scrollbar is a custom scroller that is used in the main
+  * content area and the sidebar nav.
+ */
 .customScroller {
     overflow-y: scroll;
     padding-right: calc(var(--main-padding-right) - var(--scrollbar-width));
@@ -70,6 +80,7 @@ body {
  */
 [data-platform="windows"] {
     .customScroller {
+        overflow-y: auto;
         scrollbar-gutter: stable;
         scrollbar-width: var(--scrollbar-width);
         scrollbar-color: var(--history-scrollbar-controls-color) var(--history-background-color);
@@ -80,6 +91,7 @@ body {
  * macOS specific styling to handle dark mode - without this full
  * override you cannot change the track color :(
  */
+[data-platform="integration"],
 [data-platform="macos"] {
     .customScroller {
         --webkit-thumb-color: rgba(136, 136, 136, 0.8);

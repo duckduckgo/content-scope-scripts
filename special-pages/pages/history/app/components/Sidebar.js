@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './Sidebar.module.css';
+import AppStyles from './App.module.css';
 import { useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { Trash } from '../icons/Trash.js';
@@ -77,7 +78,7 @@ export function Sidebar({ ranges }) {
     return (
         <div class={styles.stack}>
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
-            <nav class={styles.nav}>
+            <nav class={cn(styles.nav, AppStyles.customScroller)}>
                 {ranges.value.map((range) => {
                     return (
                         <Item key={range.id} onClick={onClick} onDelete={onDelete} current={current} range={range.id} count={range.count} />
