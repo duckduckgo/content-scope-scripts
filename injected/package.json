@@ -3,7 +3,8 @@
   "scripts": {
     "postinstall": "npm run copy-sjcl",
     "copy-sjcl": "node scripts/generateSJCL.js",
-    "build": "npm run build-types && npm run build-locales && npm run bundle-trackers && npm run bundle-entry-points",
+    "checkout-submodules": "git submodule update --init --recursive --remote",
+    "build": "npm run checkout-submodules && npm run build-types && npm run build-locales && npm run bundle-trackers && npm run bundle-entry-points",
     "bundle-config": "node scripts/bundleConfig.mjs",
     "bundle-entry-points": "node scripts/entry-points.js",
     "build-chrome-mv3": "node scripts/entry-points.js",
@@ -30,6 +31,7 @@
     "sjcl": "^1.0.8"
   },
   "devDependencies": {
+    "@adguard/scriptlets": "^2.1.6",
     "@canvas/image-data": "^1.0.0",
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#b5c39e2b0592c044d609dfed624db31c3c5bca3b",
     "@fingerprintjs/fingerprintjs": "^4.6.2",
