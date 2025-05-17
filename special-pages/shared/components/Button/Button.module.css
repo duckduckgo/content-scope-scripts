@@ -16,6 +16,10 @@
     opacity: var(--button-opacity);
     padding: 0 var(--sp-3);
 
+    &.lg {
+        height: var(--sp-7);
+    }
+
     &:active {
         background: var(--button-bg--active, var(--button-bg));
         box-shadow: var(--button-shadow--active, var(--button-shadow));
