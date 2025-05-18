@@ -38,7 +38,7 @@ export function App() {
             onClick={() => console.log('did click?')}
         >
             <aside class={styles.aside}>
-                <Sidebar settingScreens={[]} />
+                <Sidebar settingScreens={[{ id: 'privateSearch' }, { id: 'defaultBrowser' }]} />
             </aside>
             <header class={styles.header}>
                 <Header />

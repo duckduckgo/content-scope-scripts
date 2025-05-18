@@ -27,12 +27,13 @@ const iconMap = {
  * Renders a sidebar navigation component with links based on the provided ranges.
  *
  * @param {Object} props - The properties object.
- * @param {import('../../types/settings').SettingsScreen[]} props.settingScreens
+ * @param {SettingsScreen[]} props.settingScreens
  */
 export function Sidebar({ settingScreens }) {
     const { t } = useTypedTranslation();
     const search = useQueryContext();
-    console.log('current search', search);
+    console.log('current search', search.value);
+    console.log(settingScreens);
     const current = useSignal(/** @type {ScreenId} */ ('privateSearch'));
 
     return (
@@ -52,12 +53,12 @@ export function Sidebar({ settingScreens }) {
  *
  * @param {Object} props
  * @param {import('@preact/signals').ReadonlySignal<ScreenId|null>} props.current The current selection with a value property.
- * @param {import('../global/Providers/SettingsServiceProvider').SettingsScreen} props.setting The range represented by this item.
- * @param {(setting: ScreenId) => void} props.onClick Callback function triggered when the range is clicked.
+ * @param {SettingsScreen} props.setting The range represented by this item.
+ * @param {(setting: string) => void} props.onClick Callback function triggered when the range is clicked.
  */
 function Item({ current, setting, onClick }) {
     const { t } = useTypedTranslation();
-    const { buttonLabel } = labels(setting, t);
+    const { buttonLabel } = labels(setting.id, t);
     const classNames = useComputed(() => {
         if (setting.id === 'all' && current.value === null) {
             return cn(styles.item, styles.active);
@@ -85,7 +86,7 @@ function Item({ current, setting, onClick }) {
 }
 
 /**
- * @param {ScreenId} screen
+ * @param {string} screen
  * @param {(s: string) => string} t
  * @return {{ buttonLabel: string}}
  */
