@@ -6,6 +6,7 @@ const config = {
     projectDocuments: [
         'special-pages/pages/new-tab/app/new-tab.md',
         'special-pages/pages/history/app/history.md',
+        'special-pages/pages/settings/app/settings.md',
         'injected/docs/*.md',
     ],
     entryPoints: [

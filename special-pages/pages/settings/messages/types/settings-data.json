@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Settings Data",
+  "type": "object",
+  "required": ["screens"],
+  "properties": {
+    "screens": {
+      "type": "array",
+      "items": {"$ref": "./screen.json"}
+    }
+  }
+}

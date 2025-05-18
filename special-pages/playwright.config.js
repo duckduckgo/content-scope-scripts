@@ -35,6 +35,7 @@ export default defineConfig({
                 'history.spec.js',
                 'history-selections.spec.js',
                 'history.screenshots.spec.js',
+                'settings.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],

@@ -1,0 +1,38 @@
+{
+  "page_title": {
+    "title": "Settings",
+    "note": "The main page title"
+  },
+  "search": {
+    "title": "Search",
+    "note": "The placeholder text in a search input field."
+  },
+  "screen_title_defaultBrowser": {
+    "title": "Private Search",
+    "note": "Private Search"
+  },
+  "screen_title_privateSearch": {
+    "title": "Private Search",
+    "note": "Private Search"
+  },
+  "search_settings": {
+    "title": "Search",
+    "note": ""
+  },
+  "empty_title": {
+    "title": "Nothing to see here!",
+    "note": "Text shown where there are no remaining history entries"
+  },
+  "empty_text": {
+    "title": "No results",
+    "note": "Placeholder text when there's no results to show"
+  },
+  "no_results_title": {
+    "title": "No results found for {term}",
+    "note": "The placeholder {term} will be dynamically replaced with the search term entered by the user. For example, if the user searches for 'cats', the title will become 'No results found for cats'."
+  },
+  "no_results_text": {
+    "title": "Try searching for a different keyword.",
+    "note": "Placeholder text when a search gave no results."
+  }
+}

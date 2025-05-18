@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Settings Screen",
+  "type": "object",
+  "required": ["id"],
+  "properties": {
+    "id": {
+      "type": "string"
+    }
+  }
+}
