@@ -37,7 +37,7 @@ export function Sidebar({ settingScreens }) {
     const nav = useNavContext();
     const navDispatch = useNavDispatch();
     const dispatch = useSettingsServiceDispatch();
-    const current = useSignal(/** @type {ScreenId|null} */ (null));
+    const current = useComputed(() => nav.value.id);
 
     return (
         <div class={styles.stack}>
@@ -63,7 +63,7 @@ export function Sidebar({ settingScreens }) {
  * A component that renders a list item with optional delete actions and a link.
  *
  * @param {Object} props
- * @param {import('@preact/signals').ReadonlySignal<ScreenId|null>} props.current The current selection with a value property.
+ * @param {import('@preact/signals').ReadonlySignal<string|null>} props.current The current selection with a value property.
  * @param {SettingsScreen} props.setting The range represented by this item.
  * @param {(setting: string) => void} props.onClick Callback function triggered when the range is clicked.
  */

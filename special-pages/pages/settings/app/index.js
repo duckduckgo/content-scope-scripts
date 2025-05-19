@@ -14,7 +14,7 @@ import { SettingsServiceProvider } from './global/Providers/SettingsServiceProvi
 import { AppSettings } from './AppSettings.js';
 import { QueryProvider } from './global/Providers/QueryProvider.js';
 import { InlineErrorBoundary } from '../../../shared/components/InlineErrorBoundary.js';
-import { NavProvider } from './global/Providers/NavProvider.js';
+import { NavProvider, pathnameToId } from './global/Providers/NavProvider.js';
 
 /**
  * @param {Element} root
@@ -65,6 +65,7 @@ export async function init(root, messaging, baseEnvironment) {
     const strings = await getStrings(environment);
     const service = new SettingsService(messaging, init.settingsData);
     const query = paramsToQuery(environment.urlParams, 'initial');
+    const initialId = pathnameToId(location.pathname, init.settingsData.screens);
 
     if (environment.display === 'app') {
         render(
@@ -84,7 +85,7 @@ export async function init(root, messaging, baseEnvironment) {
                     <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                         <MessagingContext.Provider value={messaging}>
                             <AppSettingsContext.Provider value={appSettings}>
-                                <NavProvider pathname={location.pathname}>
+                                <NavProvider initialId={initialId}>
                                     <QueryProvider query={query}>
                                         <SettingsServiceProvider service={service}>
                                             <App />

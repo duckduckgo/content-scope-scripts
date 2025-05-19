@@ -13,6 +13,8 @@ import { useSearchCommit } from '../global/hooks/useSearchCommit.js';
 import { usePlatformName } from '../types.js';
 import { useLayoutMode } from '../global/hooks/useLayoutMode.js';
 import { ResultsContainer } from './Results.js';
+import { useNavContext } from '../global/Providers/NavProvider.js';
+import { useComputed } from '@preact/signals';
 
 export function App() {
     const platformName = usePlatformName();
@@ -20,6 +22,8 @@ export function App() {
     const { isDarkMode } = useEnv();
     const query = useQueryContext();
     const mode = useLayoutMode();
+    const nav = useNavContext();
+    const screenId = useComputed(() => nav.value.id);
 
     /**
      * Handlers that are global in nature
@@ -32,6 +36,7 @@ export function App() {
     return (
         <div
             class={styles.layout}
+            data-screen-id={screenId}
             data-theme={isDarkMode ? 'dark' : 'light'}
             data-platform={platformName}
             data-layout-mode={mode}
