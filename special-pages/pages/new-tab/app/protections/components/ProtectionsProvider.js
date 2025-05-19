@@ -1,10 +1,10 @@
 import { createContext, h } from 'preact';
-import { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { reducer, useConfigSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
 import { ProtectionsService } from '../protections.service.js';
 import { viewTransition } from '../../utils.js';
-import { useSignal } from '@preact/signals';
+import { useSignal, useSignalEffect } from '@preact/signals';
 
 /**
  * @typedef {import('../../../types/new-tab.js').ProtectionsData} ProtectionsData
@@ -99,17 +99,10 @@ export function useService() {
 export function useBlockedCount(initial) {
     const service = useService();
     const signal = useSignal(initial);
-    useLayoutEffect(() => {
-        if (!service.current) return;
-        const unsub = service.current.onData((evt) => {
-            if (evt.source === 'subscription') {
-                signal.value = evt.data.totalCount;
-            }
+    useSignalEffect(() => {
+        return service.current?.onData((evt) => {
+            signal.value = evt.data.totalCount;
         });
-
-        return () => {
-            unsub();
-        };
-    }, [signal, service.current]);
+    });
     return signal;
 }
