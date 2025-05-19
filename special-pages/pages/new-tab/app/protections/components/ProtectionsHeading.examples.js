@@ -22,9 +22,7 @@ export const protectionsHeadingExamples = {
                                     expansion={expansion}
                                     toggle={toggle}
                                 >
-                                    <pre>
-                                        <code>{JSON.stringify({ feed, blockedCount: blockedCountSignal.value }, null, 2)}</code>
-                                    </pre>
+                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
                                 </Protections>
                             );
                         }}
@@ -39,9 +37,7 @@ export const protectionsHeadingExamples = {
                                     expansion={expansion}
                                     toggle={toggle}
                                 >
-                                    <pre>
-                                        <code>{JSON.stringify({ feed, blockedCount: blockedCountSignal.value }, null, 2)}</code>
-                                    </pre>
+                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
                                 </Protections>
                             );
                         }}
@@ -56,9 +52,7 @@ export const protectionsHeadingExamples = {
                                     expansion={expansion}
                                     toggle={toggle}
                                 >
-                                    <pre>
-                                        <code>{JSON.stringify({ feed, blockedCount: blockedCountSignal.value }, null, 2)}</code>
-                                    </pre>
+                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
                                 </Protections>
                             );
                         }}
@@ -73,9 +67,7 @@ export const protectionsHeadingExamples = {
                                     expansion={expansion}
                                     toggle={toggle}
                                 >
-                                    <pre>
-                                        <code>{JSON.stringify({ feed, blockedCount: blockedCountSignal.value }, null, 2)}</code>
-                                    </pre>
+                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
                                 </Protections>
                             );
                         }}
@@ -90,9 +82,7 @@ export const protectionsHeadingExamples = {
                                     expansion={expansion}
                                     toggle={toggle}
                                 >
-                                    <pre>
-                                        <code>{JSON.stringify({ feed, blockedCount: blockedCountSignal.value }, null, 2)}</code>
-                                    </pre>
+                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
                                 </Protections>
                             );
                         }}
@@ -102,6 +92,23 @@ export const protectionsHeadingExamples = {
         },
     },
 };
+
+function PrintState(props) {
+    return (
+        <pre style={{ marginTop: '24px' }}>
+            <code>
+                {JSON.stringify(
+                    {
+                        feed: props.feed,
+                        blockedCount: props.blockedCountSignal.value,
+                    },
+                    null,
+                    2,
+                )}
+            </code>
+        </pre>
+    );
+}
 
 /**
  * @typedef {object} Mock

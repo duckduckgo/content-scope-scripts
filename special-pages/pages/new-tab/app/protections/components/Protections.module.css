@@ -24,13 +24,9 @@
 .body {
     display: flex;
     flex-direction: column;
-    /*gap: 24px;*/
 }
 
 .switcher {
-    border-radius: 6px;
-    border: 1px solid var(--Stroke-Stroke-02, rgba(0, 0, 0, 0.09));
-    background: var(--Fill-Fill-03, rgba(0, 0, 0, 0.06));
     display: grid;
     grid-template-columns: 1fr 1fr;
     margin-top: 24px;
@@ -39,22 +35,51 @@
 .feed {}
 
 .button {
-    border-radius: 5px;
-    background: transparent;
-    border: 0.5px solid transparent;
-    height: 22px;
     color: var(--ntp-text-normal);
 }
 
-.active {
-    border-radius: 5px;
-    border: 0.5px solid rgba(0, 0, 0, 0.10);
-    background: var(--Controls-Mac-Buttons-Fill-Default, #FFF);
 
-    /* Mac/Control/Standard */
-    box-shadow: 0px 0.5px 0px 0px var(--Mac-Control-Standard-Highlight-Strong, rgba(255, 255, 255, 0.20)) inset, 0px 1px 0px 0px var(--Mac-Control-Standard-Highlight-Weak, rgba(255, 255, 255, 0.05)) inset, 0px 0px 0px 0.5px var(--Mac-Control-Standard-Shadow-Medium, rgba(0, 0, 0, 0.10)), 0px 0px 1px 0px var(--Mac-Control-Standard-Shadow-Weak, rgba(0, 0, 0, 0.05)), 0px 1px 1px 0px var(--Mac-Control-Standard-Shadow-Strong, rgba(0, 0, 0, 0.20));
+[data-platform-name="windows"] {
+    .button {
+        border-radius: 0;
+        background: transparent;
+        border: 0;
+        border-bottom: 4px solid transparent;
+        height: 30px;
+        cursor: pointer;
+    }
+    .active {
+        border-bottom-color: var(--ddg-color-primary);
 
-    [data-theme=dark] & {
-        color: var(--color-black-at-84);
+        [data-theme="dark"] & {
+            border-bottom-color: var(--ddg-color-primary-dark);
+        }
     }
 }
+
+[data-platform-name="macos"] {
+    .switcher {
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.09);
+        background: rgba(0, 0, 0, 0.06);
+    }
+    .button {
+        border-radius: 5px;
+        background: transparent;
+        border: 0.5px solid transparent;
+        height: 22px;
+    }
+    .active {
+        border-radius: 5px;
+        border: 0.5px solid rgba(0, 0, 0, 0.10);
+        background: #FFF;
+
+        /* Mac/Control/Standard */
+        box-shadow: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 0.5px rgba(0, 0, 0, 0.10), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.20);
+
+        [data-theme=dark] & {
+            color: var(--color-black-at-84);
+        }
+    }
+}
+

@@ -1,26 +1,3 @@
-.root {
-    background: var(--ntp-surface-background-color);
-    backdrop-filter: blur(48px);
-    border: 1px solid var(--ntp-surface-border-color);
-    padding: var(--sp-6);
-    border-radius: var(--border-radius-lg);
-    display: grid;
-    align-items: start;
-    grid-template-columns: auto;
-    width: 100%;
-    margin-bottom: var(--ntp-gap);
-
-    &:hover {
-        .listExpander * {
-            opacity: 1;
-        }
-    }
-
-    [data-theme=dark] & {
-        border-color: var(--color-white-at-9);
-    }
-}
-
 .heading {}
 
 .control {
