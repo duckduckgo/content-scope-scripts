@@ -1,6 +1,8 @@
 import { useSettings } from '../../types.js';
-import { useSignalEffect } from '@preact/signals';
-import { useQueryContext } from '../Providers/QueryProvider.js';
+import { useComputed, useSignalEffect } from '@preact/signals';
+import { useQueryContext, useQueryDispatch } from '../Providers/QueryProvider.js';
+import { useNavContext } from '../Providers/NavProvider.js';
+import { useEffect } from 'preact/hooks';
 
 /**
  * Updates the URL with the latest search term (if present) and dispatches a custom event with the updated query parameters.
@@ -13,6 +15,20 @@ import { useQueryContext } from '../Providers/QueryProvider.js';
 export function useURLReflection() {
     const settings = useSettings();
     const query = useQueryContext();
+    const dispatch = useQueryDispatch();
+    const nav = useNavContext();
+    const navId = useComputed(() => nav.value.id);
+
+    useEffect(() => {
+        return navId.subscribe((x) => {
+            const url = new URL(window.location.href);
+            url.pathname = x;
+            url.searchParams.delete('search');
+            window.history.replaceState(null, '', url.toString());
+            dispatch({ kind: 'reset' });
+        });
+    }, [nav, navId]);
+
     useSignalEffect(() => {
         let timer;
         let count = 0;
@@ -24,12 +40,10 @@ export function useURLReflection() {
                 timer = setTimeout(() => {
                     const url = new URL(window.location.href);
 
-                    url.searchParams.set('q', term);
-                    url.searchParams.delete('range');
-                    url.searchParams.delete('domain');
+                    url.searchParams.set('search', term);
 
                     if (term.trim() === '') {
-                        url.searchParams.delete('q');
+                        url.searchParams.delete('search');
                     }
 
                     window.history.replaceState(null, '', url.toString());

@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './Sidebar.module.css';
-import { useComputed, useSignal } from '@preact/signals';
+import { useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { useQueryContext } from '../global/Providers/QueryProvider.js';
 import { useSettingsServiceDispatch } from '../global/Providers/SettingsServiceProvider.js';

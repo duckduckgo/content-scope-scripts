@@ -1,5 +1,6 @@
 .container {
     position: relative;
+    color: var(--settings-text-normal);
 }
 
 .listItem {
@@ -14,7 +15,6 @@
     width: 100%;
     height: 100%;
     text-align: center;
-    color: var(--settings-text-normal);
     display: grid;
     grid-template-rows: max-content max-content;
     justify-items: center;
