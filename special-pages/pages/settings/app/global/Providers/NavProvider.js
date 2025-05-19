@@ -8,18 +8,18 @@ import { signal, useSignal } from '@preact/signals';
 
 /**
  * @typedef {{
- *   pathname: string,
+ *   id: string | 'unknown',
  * }} NavState - this is the value the entire application can read/observe
  */
 
 /**
- * @typedef {{ kind: 'nav', value: string }} Action
+ * @typedef {{ kind: 'nav', id: string }} Action
  */
 
 const NavContext = createContext(
     /** @type {import('@preact/signals').ReadonlySignal<NavState>} */ (
         signal({
-            pathname: /** @type {string} */ ('/'),
+            id: 'unknown',
         })
     ),
 );
@@ -37,12 +37,12 @@ const NavDispatch = createContext(
  *
  * @param {Object} props - The props object for the component.
  * @param {import('preact').ComponentChild} props.children - The child components wrapped within the provider.
- * @param {string} props.pathname - The initial search term for the context.
+ * @param {string} props.initialId - The initial search term for the context.
  */
-export function NavProvider({ children, pathname }) {
+export function NavProvider({ children, initialId }) {
     /** @type {NavState} */
     const initial = {
-        pathname,
+        id: initialId,
     };
     const navState = useSignal(initial);
 
@@ -51,15 +51,16 @@ export function NavProvider({ children, pathname }) {
      * @param {Action} action
      */
     function dispatch(action) {
-        navState.value = (() => {
+        const nextState = (() => {
             switch (action.kind) {
                 case 'nav': {
-                    return { pathname: action.value };
+                    return { id: action.id };
                 }
                 default:
                     return navState.value;
             }
         })();
+        navState.value = nextState;
     }
 
     const dispatcher = useCallback(dispatch, [navState]);
@@ -83,4 +84,15 @@ export function useNavContext() {
  */
 export function useNavDispatch() {
     return useContext(NavDispatch);
+}
+
+/**
+ * @param {string} pathname
+ * @param {{id: string}[]} screens
+ * @return {string}
+ */
+export function pathnameToId(pathname, screens) {
+    const match = screens.find((screen) => pathname.startsWith(`/${screen.id}`));
+    if (match) return match.id;
+    return screens[0].id;
 }
