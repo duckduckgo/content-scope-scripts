@@ -9,12 +9,12 @@ import { useQueryContext } from '../global/Providers/QueryProvider.js';
 import { useAuxClickHandler } from '../global/hooks/useAuxClickHandler.js';
 import { useLinkClickHandler } from '../global/hooks/useLinkClickHandler.js';
 import { useURLReflection } from '../global/hooks/useURLReflection.js';
-import { useSearchCommit } from '../global/hooks/useSearchCommit.js';
 import { usePlatformName } from '../types.js';
 import { useLayoutMode } from '../global/hooks/useLayoutMode.js';
 import { ResultsContainer } from './Results.js';
 import { useNavContext } from '../global/Providers/NavProvider.js';
 import { useComputed } from '@preact/signals';
+import { ScreenContainer } from './Screen.js';
 
 export function App() {
     const platformName = usePlatformName();
@@ -24,6 +24,8 @@ export function App() {
     const mode = useLayoutMode();
     const nav = useNavContext();
     const screenId = useComputed(() => nav.value.id);
+    const isQuerying = useComputed(() => query.value.term !== null && query.value.term.trim() !== '');
+    const term = useComputed(() => query.value.term || '');
 
     /**
      * Handlers that are global in nature
@@ -31,7 +33,6 @@ export function App() {
     useLinkClickHandler();
     useAuxClickHandler();
     useURLReflection();
-    useSearchCommit();
 
     return (
         <div
@@ -40,7 +41,6 @@ export function App() {
             data-theme={isDarkMode ? 'dark' : 'light'}
             data-platform={platformName}
             data-layout-mode={mode}
-            onClick={() => console.log('did click?')}
         >
             <aside class={styles.aside}>
                 <Sidebar settingScreens={[{ id: 'privateSearch' }, { id: 'defaultBrowser' }]} />
@@ -49,7 +49,8 @@ export function App() {
                 <Header />
             </header>
             <main class={cn(styles.main, styles.customScroller)} ref={mainRef}>
-                <ResultsContainer />
+                {isQuerying.value === true && <ResultsContainer term={term} />}
+                {isQuerying.value === false && <ScreenContainer screenId={screenId} />}
             </main>
         </div>
     );

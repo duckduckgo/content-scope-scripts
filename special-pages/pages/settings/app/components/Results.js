@@ -4,20 +4,27 @@ import { EmptyState } from './Empty.js';
 import { useResultsData } from '../global/Providers/SettingsServiceProvider.js';
 
 /**
- * Access global state and render the results
+ * @import { Signal } from '@preact/signals';
  */
-export function ResultsContainer() {
+
+/**
+ * Access global state and render the results
+ * @param {Object} props
+ * @param {Signal<string>} props.term
+ */
+export function ResultsContainer(props) {
     const results = useResultsData();
     // const dispatch = useSettingsServiceDispatch();
 
-    return <Results results={results} />;
+    return <Results results={results} term={props.term} />;
 }
 
 /**
  * @param {object} props
- * @param {import("@preact/signals").Signal<import("../global/Providers/SettingsServiceProvider.js").Results>} props.results
+ * @param {Signal<import("../global/Providers/SettingsServiceProvider.js").Results>} props.results
+ * @param {Signal<string>} props.term
  */
-export function Results({ results }) {
+export function Results({ results, term }) {
     if (results.value.screens.length === 0) {
         return <EmptyState />;
     }
@@ -25,7 +32,10 @@ export function Results({ results }) {
     return (
         <div class={styles.container}>
             <pre>
-                <code>${JSON.stringify(results.value, null, 2)}</code>
+                <code>{JSON.stringify({ term: term.value }, null, 2)}</code>
+            </pre>
+            <pre>
+                <code>{JSON.stringify(results.value, null, 2)}</code>
             </pre>
         </div>
     );

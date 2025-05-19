@@ -1,6 +1,6 @@
 import { createContext, h } from 'preact';
 import { useCallback, useContext } from 'preact/hooks';
-import { signal } from '@preact/signals';
+import { signal, useSignal } from '@preact/signals';
 import { paramsToQuery } from '../../../../history/app/history.service.js';
 
 /**
@@ -41,8 +41,10 @@ const SettingsServiceDispatchContext = createContext(defaultDispatch);
  * @param {Object} props
  * @param {import("../../settings.service.js").SettingsService} props.service
  * @param {import("preact").ComponentChild} props.children
+ * @param {Results} props.initial
  */
-export function SettingsServiceProvider({ service, children }) {
+export function SettingsServiceProvider({ service, children, initial }) {
+    const results = useSignal(initial);
     /**
      * @param {Action} action
      */
@@ -64,7 +66,11 @@ export function SettingsServiceProvider({ service, children }) {
 
     const dispatcher = useCallback(dispatch, [service]);
 
-    return <SettingsServiceDispatchContext.Provider value={dispatcher}>{children}</SettingsServiceDispatchContext.Provider>;
+    return (
+        <SettingsServiceDispatchContext.Provider value={dispatcher}>
+            <ResultsContext.Provider value={results}>{children}</ResultsContext.Provider>
+        </SettingsServiceDispatchContext.Provider>
+    );
 }
 
 export function useSettingsServiceDispatch() {

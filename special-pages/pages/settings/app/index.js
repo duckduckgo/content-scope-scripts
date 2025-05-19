@@ -87,7 +87,7 @@ export async function init(root, messaging, baseEnvironment) {
                             <AppSettingsContext.Provider value={appSettings}>
                                 <NavProvider initialId={initialId}>
                                     <QueryProvider query={query}>
-                                        <SettingsServiceProvider service={service}>
+                                        <SettingsServiceProvider service={service} initial={init.settingsData}>
                                             <App />
                                         </SettingsServiceProvider>
                                     </QueryProvider>
