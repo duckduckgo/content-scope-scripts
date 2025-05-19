@@ -57,6 +57,8 @@ export function SettingsServiceProvider({ service, children }) {
                 console.log('handle query?', asQuery);
                 break;
             }
+            default:
+                console.warn('unhandled global event', action);
         }
     }
 
