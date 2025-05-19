@@ -41,7 +41,7 @@ export class SettingsTestPage {
                 platform: {
                     name: this.platform.name || 'windows',
                 },
-                settings: {
+                settingsData: {
                     screens: [],
                 },
             },

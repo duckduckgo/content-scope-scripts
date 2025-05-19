@@ -63,7 +63,7 @@ export function mockTransport() {
                         env: 'development',
                         locale: 'en',
                         defaultStyles: getDefaultStyles(),
-                        settings: {
+                        settingsData: {
                             screens: [],
                         },
                     };

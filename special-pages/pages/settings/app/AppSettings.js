@@ -1,4 +1,4 @@
-export class Settings {
+export class AppSettings {
     /**
      * @param {object} params
      * @param {{name: 'macos' | 'windows'}} [params.platform]
@@ -15,7 +15,7 @@ export class Settings {
         /** @type {ImportMeta['platform'][]} */
         const valid = ['windows', 'macos'];
         if (valid.includes(/** @type {any} */ (name))) {
-            return new Settings({
+            return new AppSettings({
                 ...this,
                 platform: { name },
             });
@@ -30,7 +30,7 @@ export class Settings {
         if (!value) return this;
         const input = String(value).trim();
         if (input.match(/^\d+$/)) {
-            return new Settings({
+            return new AppSettings({
                 ...this,
                 typingDebounce: parseInt(input, 10),
             });
@@ -45,7 +45,7 @@ export class Settings {
         if (!value) return this;
         const input = String(value).trim();
         if (input.match(/^\d+$/)) {
-            return new Settings({
+            return new AppSettings({
                 ...this,
                 urlDebounce: parseInt(input, 10),
             });

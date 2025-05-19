@@ -4,6 +4,8 @@ import styles from './Sidebar.module.css';
 import { useComputed, useSignal } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { useQueryContext } from '../global/Providers/QueryProvider.js';
+import { useSettingsServiceDispatch } from '../global/Providers/SettingsServiceProvider.js';
+import { useNavContext, useNavDispatch } from '../global/Providers/NavProvider.js';
 
 // prettier-ignore
 const screenIds = /** @type {const} */([
@@ -32,16 +34,25 @@ const iconMap = {
 export function Sidebar({ settingScreens }) {
     const { t } = useTypedTranslation();
     const search = useQueryContext();
-    console.log('current search', search.value);
-    console.log(settingScreens);
-    const current = useSignal(/** @type {ScreenId} */ ('privateSearch'));
+    const nav = useNavContext();
+    const navDispatch = useNavDispatch();
+    const dispatch = useSettingsServiceDispatch();
+    const current = useSignal(/** @type {ScreenId|null} */ (null));
 
     return (
         <div class={styles.stack}>
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
             <nav class={styles.nav}>
                 {settingScreens.map((settingScreen) => {
-                    return <Item current={current} key={settingScreen.id} onClick={() => console.log('todo')} setting={settingScreen} />;
+                    const id = settingScreen.id;
+                    return (
+                        <Item
+                            current={current}
+                            key={settingScreen.id}
+                            onClick={() => navDispatch({ kind: 'nav', id })}
+                            setting={settingScreen}
+                        />
+                    );
                 })}
             </nav>
         </div>
@@ -68,7 +79,8 @@ function Item({ current, setting, onClick }) {
 
     return (
         <div class={classNames} key={setting.id}>
-            <button
+            <a
+                href={'/' + setting.id}
                 class={styles.link}
                 tabIndex={0}
                 onClick={(e) => {
@@ -80,7 +92,7 @@ function Item({ current, setting, onClick }) {
                     <img src={iconMap[setting.id]} />
                 </span>
                 {buttonLabel}
-            </button>
+            </a>
         </div>
     );
 }

@@ -8,12 +8,13 @@ import enStrings from '../public/locales/en/settings.json';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { callWithRetry } from '../../../shared/call-with-retry.js';
 
-import { MessagingContext, SettingsContext } from './types.js';
+import { MessagingContext, AppSettingsContext } from './types.js';
 import { paramsToQuery, SettingsService } from './settings.service.js';
 import { SettingsServiceProvider } from './global/Providers/SettingsServiceProvider.js';
-import { Settings } from './Settings.js';
+import { AppSettings } from './AppSettings.js';
 import { QueryProvider } from './global/Providers/QueryProvider.js';
 import { InlineErrorBoundary } from '../../../shared/components/InlineErrorBoundary.js';
+import { NavProvider } from './global/Providers/NavProvider.js';
 
 /**
  * @param {Element} root
@@ -38,7 +39,7 @@ export async function init(root, messaging, baseEnvironment) {
         .withDisplay(baseEnvironment.urlParams.get('display'));
 
     // create app-specific settings
-    const settings = new Settings({})
+    const appSettings = new AppSettings({})
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
@@ -48,7 +49,7 @@ export async function init(root, messaging, baseEnvironment) {
     if (!window.__playwright_01) {
         console.log('initialSetup', init);
         console.log('environment', environment);
-        console.log('settings', settings);
+        console.log('appSettings', appSettings);
     }
 
     /**
@@ -62,14 +63,14 @@ export async function init(root, messaging, baseEnvironment) {
     applyDefaultStyles(init.defaultStyles);
 
     const strings = await getStrings(environment);
-    const service = new SettingsService(messaging, init.settings);
+    const service = new SettingsService(messaging, init.settingsData);
     const query = paramsToQuery(environment.urlParams, 'initial');
 
     if (environment.display === 'app') {
         render(
             <InlineErrorBoundary
                 messaging={messaging}
-                context={'Settings view application'}
+                context={'AppSettings view application'}
                 fallback={(message) => {
                     return <AppLevelErrorBoundaryFallback>{message}</AppLevelErrorBoundaryFallback>;
                 }}
@@ -82,13 +83,15 @@ export async function init(root, messaging, baseEnvironment) {
                     <UpdateEnvironment search={window.location.search} />
                     <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                         <MessagingContext.Provider value={messaging}>
-                            <SettingsContext.Provider value={settings}>
-                                <QueryProvider query={query}>
-                                    <SettingsServiceProvider service={service}>
-                                        <App />
-                                    </SettingsServiceProvider>
-                                </QueryProvider>
-                            </SettingsContext.Provider>
+                            <AppSettingsContext.Provider value={appSettings}>
+                                <NavProvider pathname={location.pathname}>
+                                    <QueryProvider query={query}>
+                                        <SettingsServiceProvider service={service}>
+                                            <App />
+                                        </SettingsServiceProvider>
+                                    </QueryProvider>
+                                </NavProvider>
+                            </AppSettingsContext.Provider>
                         </MessagingContext.Provider>
                     </TranslationProvider>
                 </EnvironmentProvider>

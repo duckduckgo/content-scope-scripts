@@ -43,13 +43,7 @@ export function App() {
             <header class={styles.header}>
                 <Header />
             </header>
-            <main
-                class={cn(styles.main, styles.customScroller)}
-                ref={mainRef}
-                onClick={() => {
-                    console.log('click on main');
-                }}
-            >
+            <main class={cn(styles.main, styles.customScroller)} ref={mainRef}>
                 <ResultsContainer />
             </main>
         </div>

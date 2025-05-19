@@ -3,7 +3,7 @@ import { TranslationContext } from '../../../shared/components/TranslationsProvi
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import json from './strings.json';
 import { createContext } from 'preact';
-import { Settings } from './Settings.js';
+import { AppSettings } from './AppSettings.js';
 
 /**
  * This is a wrapper to only allow keys from the default translation file
@@ -17,9 +17,9 @@ export function useTypedTranslation() {
 
 export const MessagingContext = createContext(/** @type {import("../src/index.js").SettingsPage} */ ({}));
 export const useMessaging = () => useContext(MessagingContext);
-export const SettingsContext = createContext(new Settings({ platform: { name: 'macos' } }));
-export const useSettings = () => useContext(SettingsContext);
+export const AppSettingsContext = createContext(new AppSettings({ platform: { name: 'macos' } }));
+export const useSettings = () => useContext(AppSettingsContext);
 
 export function usePlatformName() {
-    return useContext(SettingsContext).platform.name;
+    return useContext(AppSettingsContext).platform.name;
 }

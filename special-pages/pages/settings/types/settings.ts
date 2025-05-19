@@ -62,7 +62,7 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
-  settings: SettingsData;
+  settingsData: SettingsData;
   defaultStyles?: null | DefaultStyles;
 }
 export interface SettingsData {

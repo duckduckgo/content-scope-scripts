@@ -50,6 +50,7 @@ writeTimestamp();
     const ctx = await esbuild.context(opts);
     const { hosts, port } = await ctx.serve({
         servedir: publicDir,
+        fallback: join(publicDir, 'index.html'),
     });
     await ctx.watch({});
     for (const host of hosts) {
