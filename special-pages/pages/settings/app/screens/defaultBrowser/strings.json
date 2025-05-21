@@ -1,0 +1,30 @@
+{
+  "defaultBrowser.screenTitle": {
+    "title": "Default Browser",
+    "note": "Heading for the default browser settings section"
+  },
+  "defaultBrowser.off_opt": {
+    "title": "Off",
+    "note": "Option indicating that the default browser setting is turned off"
+  },
+  "defaultBrowser.ddg_not_default": {
+    "title": "DuckDuckGo is not your default browser.",
+    "note": "Notification message indicating that DuckDuckGo is not set as the default browser"
+  },
+  "defaultBrowser.make_ddg_default": {
+    "title": "Make DuckDuckGo Default...",
+    "note": "Button text to set DuckDuckGo as the default browser"
+  },
+  "defaultBrowser.shortcuts_head": {
+    "title": "Shortcuts",
+    "note": "Heading for the shortcuts settings section"
+  },
+  "defaultBrowser.ddg_not_in_dock": {
+    "title": "DuckDuckGo is not added to the Dock.",
+    "note": "Notification message indicating that DuckDuckGo is not added to the Dock"
+  },
+  "defaultBrowser.add_to_dock": {
+    "title": "Add to Dock...",
+    "note": "Button text to add DuckDuckGo to the Dock"
+  }
+}

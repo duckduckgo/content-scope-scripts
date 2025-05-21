@@ -1,6 +1,12 @@
 .container {
+    --_row-gap: 24px;
+    --row-gap: var(--_row-gap);
+
     position: relative;
     color: var(--settings-text-normal);
+    display: flex;
+    flex-direction: column;
+    gap: var(--row-gap);
 }
 
 .listItem {

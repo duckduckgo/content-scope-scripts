@@ -52,10 +52,9 @@
 
 .link {
     font-size: var(--label-font-size);
-    font-weight: var(--label-font-weight);
+    font-weight: normal;
     line-height: var(--label-line-height);
     color: var(--settings-text-normal);
-
     height: 40px;
     display: flex;
     align-items: center;
