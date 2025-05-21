@@ -53,6 +53,10 @@
     "title": "Details",
     "note": "Used as a label in a switch that shows 'privacy stats'"
   },
+  "protections_noRecent": {
+    "title": "No recent tracking activity",
+    "note": "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
+  },
   "stats_menuTitle": {
     "title": "Blocked Tracking Attempts",
     "note": "Used as a label in a customization menu"
@@ -305,7 +309,7 @@
     "title": "No recent browsing activity",
     "note": "Placeholder to indicate that no browsing activity was seen in the last 7 days"
   },
-  "activity_noRecent_subtitle": {
+  "activity_empty": {
     "title": "Recently visited sites will appear here. Keep browsing to see how many trackers we block.",
     "note": "Shown in the place a list of browsing history entries will be displayed."
   },

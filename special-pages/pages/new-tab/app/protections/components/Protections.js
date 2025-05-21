@@ -42,7 +42,6 @@ export function Protections({ expansion = 'expanded', children, blockedCountSign
                 expansion={expansion}
                 canExpand={true}
                 buttonAttrs={attrs}
-                feed={feed}
             />
             <ProtectionsBody feed={feed} setFeed={setFeed} id={WIDGET_ID} expansion={expansion}>
                 {children}
@@ -83,4 +82,12 @@ function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
             )}
         </div>
     );
+}
+
+/**
+ * @param {object} props
+ * @param {import("preact").ComponentChild} props.children
+ */
+export function ProtectionsBlock({ children }) {
+    return <div class={styles.block}>{children}</div>;
 }

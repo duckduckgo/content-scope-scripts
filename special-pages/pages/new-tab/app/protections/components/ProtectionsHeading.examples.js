@@ -2,6 +2,8 @@ import { Fragment, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { Protections } from './Protections.js';
 import { useSignal } from '@preact/signals';
+import { ActivityEmptyState } from '../../activity/components/Activity.js';
+import { PrivacyStatsEmptyState } from '../../privacy-stats/components/PrivacyStats.js';
 
 /**
  * @import {FeedType} from '../../../types/new-tab.js')
@@ -22,7 +24,7 @@ export const protectionsHeadingExamples = {
                                     expansion={expansion}
                                     toggle={toggle}
                                 >
-                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
+                                    <PrivacyStatsEmptyState />
                                 </Protections>
                             );
                         }}
@@ -37,7 +39,7 @@ export const protectionsHeadingExamples = {
                                     expansion={expansion}
                                     toggle={toggle}
                                 >
-                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
+                                    <ActivityEmptyState />
                                 </Protections>
                             );
                         }}

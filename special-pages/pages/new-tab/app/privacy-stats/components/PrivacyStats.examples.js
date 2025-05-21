@@ -1,6 +1,6 @@
 import { Fragment, h } from 'preact';
 import { BodyExpansionMockProvider, PrivacyStatsMockProvider } from '../mocks/PrivacyStatsMockProvider.js';
-import { ListFooter, PrivacyStatsBody } from './PrivacyStats.js';
+import { ListFooter, PrivacyStats } from './PrivacyStats.js';
 import { privacyStatsMocks } from '../mocks/privacy-stats.mocks.js';
 import { PrivacyStatsConsumer } from './PrivacyStatsConsumer.js';
 
@@ -43,9 +43,7 @@ export const privacyStatsExamples = {
         ),
     },
     'stats.list': {
-        factory: () => (
-            <PrivacyStatsBody trackerCompanies={privacyStatsMocks.few.trackerCompanies} id={'example-stats.list'} expansion={'expanded'} />
-        ),
+        factory: () => <PrivacyStats trackerCompanies={privacyStatsMocks.few.trackerCompanies} expansion={'expanded'} />,
     },
     'stats.footer': {
         factory: () => {

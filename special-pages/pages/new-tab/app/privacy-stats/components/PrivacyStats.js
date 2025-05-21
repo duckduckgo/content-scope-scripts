@@ -7,6 +7,7 @@ import { DDG_STATS_DEFAULT_ROWS, DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../c
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.js';
+import { ProtectionsBlock } from '../../protections/components/Protections.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -20,9 +21,8 @@ import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.j
  * @param {object} props
  * @param {TrackerCompany[]} props.trackerCompanies
  * @param {Expansion} [props.expansion]
- * @param {string} props.id
  */
-export function PrivacyStatsBody({ trackerCompanies, expansion = 'expanded', id }) {
+export function PrivacyStats({ trackerCompanies, expansion = 'expanded' }) {
     const [formatter] = useState(() => new Intl.NumberFormat());
     const sorted = sortStatsForDisplay(trackerCompanies);
     const largestTrackerCount = sorted[0]?.count ?? 0;
@@ -39,11 +39,17 @@ export function PrivacyStatsBody({ trackerCompanies, expansion = 'expanded', id 
         : sorted.slice(0, DDG_STATS_DEFAULT_ROWS);
 
     return (
-        <div id={id} data-testid="PrivacyStatsBody" class={styles.body}>
-            <CompanyList rows={visibleRows} largestTrackerCount={largestTrackerCount} formatter={formatter} />
-            <ListFooter all={sorted} />
+        <div data-testid="PrivacyStatsBody" class={styles.body}>
+            {sorted.length === 0 && <PrivacyStatsEmptyState />}
+            {sorted.length > 0 && <CompanyList rows={visibleRows} largestTrackerCount={largestTrackerCount} formatter={formatter} />}
+            {sorted.length > 0 && <ListFooter all={sorted} />}
         </div>
     );
+}
+
+export function PrivacyStatsEmptyState() {
+    const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
+    return <ProtectionsBlock>{t('stats_noActivity')}</ProtectionsBlock>;
 }
 
 /**

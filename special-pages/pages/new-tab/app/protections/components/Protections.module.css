@@ -32,6 +32,11 @@
     margin-top: 24px;
 }
 
+.block {
+    margin-top: 24px;
+    color: var(--ntp-text-muted);
+}
+
 .feed {}
 
 .button {

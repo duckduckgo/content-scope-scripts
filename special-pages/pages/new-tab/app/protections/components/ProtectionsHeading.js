@@ -16,11 +16,10 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
  * @param {import('../../../types/new-tab.ts').Expansion} props.expansion
  * @param {import("@preact/signals").Signal<number>} props.blockedCountSignal
  * @param {boolean} props.canExpand
- * @param {import('../../../types/new-tab.ts').FeedType} props.feed
  * @param {() => void} props.onToggle
  * @param {import('preact').ComponentProps<'button'>} [props.buttonAttrs]
  */
-export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, feed, buttonAttrs = {} }) {
+export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [formatter] = useState(() => new Intl.NumberFormat());
     const adBlocking = useAdBlocking();
@@ -60,26 +59,14 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
                 )}
             </div>
             <div class={styles.counter}>
-                {none && <h3 class={styles.title}>{adBlocking ? t('stats_noRecentAdsAndTrackers') : t('stats_noRecent')}</h3>}
+                {none && <h3 class={styles.title}>{adBlocking ? t('stats_noRecentAdsAndTrackers') : t('protections_noRecent')}</h3>}
                 {some && (
                     <h3 class={styles.title}>
                         {' '}
                         <Trans str={alltimeTitle} values={{ count: alltime }} />
                     </h3>
                 )}
-                {blockedCount === 0 && feed === 'privacy-stats' && (
-                    <p class={cn(styles.subtitle, { [styles.indented]: !adBlocking })}>
-                        {adBlocking ? t('stats_noActivityAdsAndTrackers') : t('stats_noActivity')}
-                    </p>
-                )}
-                {blockedCount === 0 && feed === 'activity' && (
-                    <p class={cn(styles.subtitle, { [styles.indented]: !adBlocking })}>{t('activity_noRecent_subtitle')}</p>
-                )}
-                {blockedCount > 0 && (
-                    <p class={cn(styles.subtitle, styles.indented, { [styles.uppercase]: !adBlocking })}>
-                        {t('stats_feedCountBlockedPeriod')}
-                    </p>
-                )}
+                <p class={cn(styles.subtitle, styles.indented, { [styles.uppercase]: !adBlocking })}>{t('stats_feedCountBlockedPeriod')}</p>
             </div>
         </div>
     );

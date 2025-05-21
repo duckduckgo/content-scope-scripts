@@ -42,6 +42,6 @@ export class ProtectionsPage {
             totalCount: count,
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        await expect(this.context().getByRole('heading')).toContainText(`${count} tracking attempts blocked`);
+        await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} tracking attempts blocked`);
     }
 }

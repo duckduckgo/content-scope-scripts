@@ -6,6 +6,7 @@
     --favicon-width: 32px;
     --heading-gap: 8px;
 
+
     overflow: hidden;
     width: calc(100% + 12px);
     margin-left: -6px;
@@ -13,6 +14,10 @@
     &:not(:empty) {
         margin-top: 24px;
     }
+}
+
+.block {
+    margin-top: 24px;
 }
 
 .loader {
