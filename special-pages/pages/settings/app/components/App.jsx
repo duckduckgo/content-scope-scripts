@@ -13,8 +13,9 @@ import { usePlatformName } from '../types.js';
 import { useLayoutMode } from '../global/hooks/useLayoutMode.js';
 import { ResultsContainer } from './Results.js';
 import { useNavContext } from '../global/Providers/NavProvider.js';
-import { useComputed } from '@preact/signals';
+import { useComputed, useSignal } from '@preact/signals';
 import { ScreenContainer } from './Screen.js';
+import { defaults } from '../elements/Elements.js';
 
 export function App() {
     const platformName = usePlatformName();
@@ -23,7 +24,16 @@ export function App() {
     const query = useQueryContext();
     const mode = useLayoutMode();
     const nav = useNavContext();
+    const defs = useSignal(defaults());
     const screenId = useComputed(() => nav.value.id);
+    const screenDefinition = useComputed(() => {
+        const match = Object.entries(defs.value).find(([category, value]) => {
+            console.log(value.screens[screenId.value], 'ss');
+            return value.screens[screenId.value];
+        });
+        if (!match) throw new Error('unreachable?');
+        return match[1].screens[screenId.value];
+    });
     const isQuerying = useComputed(() => query.value.term !== null && query.value.term.trim() !== '');
     const term = useComputed(() => query.value.term || '');
 
@@ -50,7 +60,7 @@ export function App() {
             </header>
             <main class={cn(styles.main, styles.customScroller)} ref={mainRef}>
                 {isQuerying.value === true && <ResultsContainer term={term} />}
-                {isQuerying.value === false && <ScreenContainer screenId={screenId} />}
+                {isQuerying.value === false && <ScreenContainer screenId={screenId} screenDefinition={screenDefinition.value} />}
             </main>
         </div>
     );

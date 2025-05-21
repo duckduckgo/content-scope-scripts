@@ -6,7 +6,7 @@
 /**
  * @returns {ElementDefinition[]}
  */
-export function create() {
+export function privateSearchElements() {
     return [
         {
             id: 'privateSearch.titleStatus',

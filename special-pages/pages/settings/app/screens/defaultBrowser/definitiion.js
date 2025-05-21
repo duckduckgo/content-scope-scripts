@@ -6,7 +6,7 @@
 /**
  * @returns {ElementDefinition[]}
  */
-export function create() {
+export function defaultBrowserElements() {
     return [
         {
             id: 'defaultBrowser.titleStatus',

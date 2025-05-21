@@ -4,6 +4,8 @@ import { InlineWarning } from './InlineWarning.js';
 import { SectionTitle } from './SectionTitle.js';
 import { DescriptionLink } from './DescriptionLink.js';
 import { Checkbox } from './Checkbox.js';
+import { privateSearchElements } from '../screens/privateSearch/definitions.js';
+import { defaultBrowserElements } from '../screens/defaultBrowser/definitiion.js';
 
 /**
  * @typedef {{ id: string, kind: "ScreenTitleStatusProps", props: import('./ScreenTitleStatus.js').ScreenTitleStatusProps }
@@ -14,7 +16,9 @@ import { Checkbox } from './Checkbox.js';
  */
 
 /**
+ * @typedef {"privacyPro" | "protections" | "main" | "about" | "dev"} ScreenCategory
  * @typedef {{elements: ElementDefinition[]}} ScreenDefinition
+ * @typedef {{screens: Record<string, ScreenDefinition>}} CategoryDefinition
  */
 
 /**
@@ -23,6 +27,36 @@ import { Checkbox } from './Checkbox.js';
  */
 export function Elements(props) {
     return toComponents(props.elements);
+}
+
+/**
+ * @return {Record<ScreenCategory, CategoryDefinition>}
+ */
+export function defaults() {
+    return {
+        protections: {
+            screens: {
+                privateSearch: {
+                    elements: privateSearchElements(),
+                },
+                defaultBrowser: {
+                    elements: defaultBrowserElements(),
+                },
+            },
+        },
+        privacyPro: {
+            screens: {},
+        },
+        main: {
+            screens: {},
+        },
+        about: {
+            screens: {},
+        },
+        dev: {
+            screens: {},
+        },
+    };
 }
 
 /**
