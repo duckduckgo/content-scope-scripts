@@ -8,7 +8,8 @@ import { useNavContext, useNavDispatch } from '../global/Providers/NavProvider.j
 // prettier-ignore
 const screenIds = /** @type {const} */([
     'privateSearch',
-    'defaultBrowser'
+    'defaultBrowser',
+    'webTrackingProtection'
 ]);
 
 /**
@@ -21,6 +22,7 @@ const screenIds = /** @type {const} */([
 const iconMap = {
     privateSearch: 'icons/all.svg',
     defaultBrowser: 'icons/all.svg',
+    webTrackingProtection: 'icons/all.svg',
 };
 
 /**
@@ -40,14 +42,16 @@ export function Sidebar({ settingsStructure }) {
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
             <nav class={styles.nav}>
                 {settingsStructure.value.groups.map((group) => {
+                    const dynamicLookup = 'group_title_' + group.id;
+                    const groupLabel = t(/** @type {any} */ (dynamicLookup));
                     return (
-                        <Fragment>
-                            {group.id}
+                        <div class={styles.group}>
+                            <small class={styles.groupHeading}>{groupLabel}</small>
                             {group.screenIds.map((id) => {
                                 const match = settingsStructure.value.screens[id];
                                 return <Item current={current} key={id} onClick={() => navDispatch({ kind: 'nav', id })} setting={match} />;
                             })}
-                        </Fragment>
+                        </div>
                     );
                 })}
             </nav>
@@ -102,7 +106,8 @@ function labels(screen, t) {
     switch (screen) {
         case 'privateSearch':
         case 'defaultBrowser':
-            return { buttonLabel: t('screen_title_' + screen) };
+        case 'webTrackingProtection':
+            return { buttonLabel: t(`${screen}.screenTitle`) };
     }
-    throw new Error('missing sidebar');
+    throw new Error('missing sidebar label');
 }

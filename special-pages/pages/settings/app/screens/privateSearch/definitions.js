@@ -23,11 +23,10 @@ export function privateSearch() {
                 },
                 {
                     id: 'privateSearch.description',
-                    kind: 'DescriptionLinkProps',
+                    kind: 'DescriptionLinkDefinition',
                     props: {
                         linkText: 'privateSearch.learn_more_link',
                         description: 'privateSearch.ddg_private_search_info',
-                        onClick: () => console.log('yo!'),
                     },
                 },
                 {

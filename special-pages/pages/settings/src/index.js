@@ -10,7 +10,7 @@ import { Environment } from '../../../shared/environment.js';
 import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging.js';
 import { init } from '../app/index.js';
 import '../../../shared/live-reload.js';
-import { mockTransport } from '../app/mocks/mock-transport.js';
+import { settingsMockTransport } from '../app/mocks/settings.mock-transport.js';
 import { Fragment, h, render } from 'preact';
 
 export class SettingsPage {
@@ -67,7 +67,7 @@ const messaging = createSpecialPageMessaging({
         if (baseEnvironment.injectName !== 'integration') return null;
         let mock = null;
         // eslint-disable-next-line no-labels,no-unused-labels
-        $INTEGRATION: mock = mockTransport();
+        $INTEGRATION: mock = settingsMockTransport();
         return mock;
     },
 });

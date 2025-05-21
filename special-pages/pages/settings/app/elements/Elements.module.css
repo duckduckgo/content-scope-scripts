@@ -52,7 +52,10 @@
 }
 .checkbox {}
 .checkboxText {}
-.checkboxChildren {}
+.checkboxChildren {
+    padding-left: 20px;
+    margin-top: 8px;
+}
 
 
 .text {}

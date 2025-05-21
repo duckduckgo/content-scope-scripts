@@ -4,7 +4,7 @@
     > * {
         min-width: 0
     }
-    gap: 24px;
+    gap: 16px;
 }
 .pageTitle {
     color: var(--settings-text-normal);
@@ -49,6 +49,14 @@
     }
 }
 
+.group + .group {
+    border-top: 1px solid grey;
+}
+
+.groupHeading {
+    display: block;
+    padding: 12px;
+}
 
 .link {
     font-size: var(--label-font-size);

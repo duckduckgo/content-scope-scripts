@@ -23,11 +23,10 @@ export function defaultBrowser() {
                 },
                 {
                     id: 'defaultBrowser.inlineWarning1',
-                    kind: 'InlineWarningProps',
+                    kind: 'InlineWarningDefinition',
                     props: {
                         text: 'defaultBrowser.ddg_not_default',
                         buttonText: 'defaultBrowser.make_ddg_default',
-                        onClick: () => {},
                     },
                 },
                 {
@@ -39,11 +38,10 @@ export function defaultBrowser() {
                 },
                 {
                     id: 'defaultBrowser.inlineWarning2',
-                    kind: 'InlineWarningProps',
+                    kind: 'InlineWarningDefinition',
                     props: {
                         text: 'defaultBrowser.ddg_not_in_dock',
                         buttonText: 'defaultBrowser.add_to_dock',
-                        onClick: () => alert('did add to dock!'),
                     },
                 },
             ],

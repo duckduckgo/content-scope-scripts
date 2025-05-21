@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useContext } from 'preact/hooks';
+import { useCallback, useContext, useEffect } from 'preact/hooks';
 import { signal, useSignal } from '@preact/signals';
 import { paramsToQuery } from '../../../../history/app/history.service.js';
 
@@ -7,6 +7,7 @@ import { paramsToQuery } from '../../../../history/app/history.service.js';
  * @typedef {{kind: 'open-url'; url: string, target: 'new-tab' | 'new-window' | 'same-tab' }
  * | { kind: 'search-commit', params: URLSearchParams, source: import('../../settings.service.js').SettingsQuerySource }
  * | { kind: 'value-change', id: string, value: any }
+ * | { kind: 'button-press', id: string }
  * } Action
  */
 
@@ -56,7 +57,7 @@ export function SettingsServiceProvider({ service, children, data, initialState 
                 console.log('handle query?', asQuery);
                 break;
             }
-            default: {
+            case 'value-change': {
                 const exists = state.value.hasOwnProperty(action.id);
                 if (exists) {
                     state.value = {
@@ -64,11 +65,23 @@ export function SettingsServiceProvider({ service, children, data, initialState 
                         [action.id]: action.value,
                     };
                 }
+                service.onValueChange(action.id, action.value);
+                return;
+            }
+            case 'button-press': {
+                service.onButtonPress(action.id);
+                return;
+            }
+            default: {
                 // console.warn('{exists}', { exists });
                 console.warn('unhandled global event', action);
             }
         }
     }
+
+    useEffect(() => {
+        globalThis._send = dispatch;
+    }, [dispatch]);
 
     const dispatcher = useCallback(dispatch, [service]);
 
