@@ -6,6 +6,7 @@ import { DescriptionLinkWithState } from './DescriptionLink.js';
 import { CheckboxWithState } from './Checkbox.js';
 import { Switch } from './Switch.js';
 import { TextRow } from './TextRow.js';
+import { ButtonRowWithState } from './ButtonRow.js';
 
 /**
  * @param {object} props
@@ -51,6 +52,9 @@ function toComponents(def) {
             }
             case 'TextRowDefinition': {
                 return <TextRow {...d.props} id={d.id} key={d.id} />;
+            }
+            case 'ButtonRowDefinition': {
+                return <ButtonRowWithState {...d.props} id={d.id} key={d.id} />;
             }
             default:
                 throw new Error('not handled!');

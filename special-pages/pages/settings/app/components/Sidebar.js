@@ -10,7 +10,8 @@ const screenIds = /** @type {const} */([
     'privateSearch',
     'defaultBrowser',
     'webTrackingProtection',
-    'cookiePopupProtection'
+    'cookiePopupProtection',
+    'emailProtection'
 ]);
 
 /**
@@ -25,6 +26,7 @@ const iconMap = {
     defaultBrowser: 'icons/all.svg',
     webTrackingProtection: 'icons/all.svg',
     cookiePopupProtection: 'icons/all.svg',
+    emailProtection: 'icons/all.svg',
 };
 
 /**
@@ -110,6 +112,7 @@ function labels(screen, t) {
         case 'defaultBrowser':
         case 'cookiePopupProtection':
         case 'webTrackingProtections':
+        case 'emailProtection':
             return { buttonLabel: t(`${screen}.screenTitle`) };
     }
     return { buttonLabel: 'missing sidebar label' };
