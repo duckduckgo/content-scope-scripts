@@ -15,7 +15,7 @@ import { ResultsContainer } from './Results.js';
 import { useNavContext } from '../global/Providers/NavProvider.js';
 import { useComputed, useSignal } from '@preact/signals';
 import { ScreenContainer } from './Screen.js';
-import { defaults } from '../elements/Elements.js';
+import { useResultsData } from '../global/Providers/SettingsServiceProvider.js';
 
 export function App() {
     const platformName = usePlatformName();
@@ -24,21 +24,17 @@ export function App() {
     const query = useQueryContext();
     const mode = useLayoutMode();
     const nav = useNavContext();
-    const defs = useSignal(defaults());
+    const results = useResultsData();
+    const structure = useComputed(() => results.value);
     const screenId = useComputed(() => nav.value.id);
     const screenDefinition = useComputed(() => {
-        const match = Object.entries(defs.value).find(([category, value]) => {
-            console.log(value.screens[screenId.value], 'ss');
-            return value.screens[screenId.value];
-        });
-        if (!match) throw new Error('unreachable?');
-        return match[1].screens[screenId.value];
+        return structure.value.screens[screenId.value];
     });
     const isQuerying = useComputed(() => query.value.term !== null && query.value.term.trim() !== '');
     const term = useComputed(() => query.value.term || '');
 
     /**
-     * Handlers that are global in nature
+     * Handlers that are global in natures
      */
     useLinkClickHandler();
     useAuxClickHandler();
@@ -53,7 +49,7 @@ export function App() {
             data-layout-mode={mode}
         >
             <aside class={styles.aside}>
-                <Sidebar settingScreens={[{ id: 'privateSearch' }, { id: 'defaultBrowser' }]} />
+                <Sidebar settingsStructure={structure} />
             </aside>
             <header class={styles.header}>
                 <Header />

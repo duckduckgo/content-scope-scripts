@@ -9,7 +9,7 @@ import { TranslationProvider } from '../../../shared/components/TranslationsProv
 import { callWithRetry } from '../../../shared/call-with-retry.js';
 
 import { MessagingContext, AppSettingsContext } from './types.js';
-import { paramsToQuery, SettingsService } from './settings.service.js';
+import { defaults, defaultState, paramsToQuery, SettingsService } from './settings.service.js';
 import { SettingsServiceProvider } from './global/Providers/SettingsServiceProvider.js';
 import { AppSettings } from './AppSettings.js';
 import { QueryProvider } from './global/Providers/QueryProvider.js';
@@ -66,6 +66,9 @@ export async function init(root, messaging, baseEnvironment) {
     const service = new SettingsService(messaging, init.settingsData);
     const query = paramsToQuery(environment.urlParams, 'initial');
     const initialId = pathnameToId(location.pathname, init.settingsData.screens);
+    const structure = defaults();
+    const state = defaultState();
+    console.log({ structure, state });
 
     if (environment.display === 'app') {
         render(
@@ -87,7 +90,7 @@ export async function init(root, messaging, baseEnvironment) {
                             <AppSettingsContext.Provider value={appSettings}>
                                 <NavProvider initialId={initialId}>
                                     <QueryProvider query={query}>
-                                        <SettingsServiceProvider service={service} initial={init.settingsData}>
+                                        <SettingsServiceProvider service={service} data={structure} initialState={state}>
                                             <App />
                                         </SettingsServiceProvider>
                                     </QueryProvider>

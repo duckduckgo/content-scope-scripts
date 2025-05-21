@@ -44,6 +44,7 @@ export class SettingsTestPage {
                 settingsData: {
                     screens: [],
                 },
+                settingsState: {},
             },
         });
     }

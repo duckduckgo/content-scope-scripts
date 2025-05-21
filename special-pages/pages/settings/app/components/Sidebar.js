@@ -1,10 +1,8 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './Sidebar.module.css';
 import { useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
-import { useQueryContext } from '../global/Providers/QueryProvider.js';
-import { useSettingsServiceDispatch } from '../global/Providers/SettingsServiceProvider.js';
 import { useNavContext, useNavDispatch } from '../global/Providers/NavProvider.js';
 
 // prettier-ignore
@@ -29,29 +27,27 @@ const iconMap = {
  * Renders a sidebar navigation component with links based on the provided ranges.
  *
  * @param {Object} props - The properties object.
- * @param {SettingsScreen[]} props.settingScreens
+ * @param {import("@preact/signals").Signal<import('../settings.service').SettingsStructure>} props.settingsStructure
  */
-export function Sidebar({ settingScreens }) {
+export function Sidebar({ settingsStructure }) {
     const { t } = useTypedTranslation();
-    const search = useQueryContext();
     const nav = useNavContext();
     const navDispatch = useNavDispatch();
-    const dispatch = useSettingsServiceDispatch();
     const current = useComputed(() => nav.value.id);
 
     return (
         <div class={styles.stack}>
             <h1 class={styles.pageTitle}>{t('page_title')}</h1>
             <nav class={styles.nav}>
-                {settingScreens.map((settingScreen) => {
-                    const id = settingScreen.id;
+                {settingsStructure.value.groups.map((group) => {
                     return (
-                        <Item
-                            current={current}
-                            key={settingScreen.id}
-                            onClick={() => navDispatch({ kind: 'nav', id })}
-                            setting={settingScreen}
-                        />
+                        <Fragment>
+                            {group.id}
+                            {group.screenIds.map((id) => {
+                                const match = settingsStructure.value.screens[id];
+                                return <Item current={current} key={id} onClick={() => navDispatch({ kind: 'nav', id })} setting={match} />;
+                            })}
+                        </Fragment>
                     );
                 })}
             </nav>
@@ -64,7 +60,7 @@ export function Sidebar({ settingScreens }) {
  *
  * @param {Object} props
  * @param {import('@preact/signals').ReadonlySignal<string|null>} props.current The current selection with a value property.
- * @param {SettingsScreen} props.setting The range represented by this item.
+ * @param {import('../settings.service').ScreenDefinition} props.setting The range represented by this item.
  * @param {(setting: string) => void} props.onClick Callback function triggered when the range is clicked.
  */
 function Item({ current, setting, onClick }) {

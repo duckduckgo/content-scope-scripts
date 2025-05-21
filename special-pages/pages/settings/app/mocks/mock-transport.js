@@ -66,6 +66,7 @@ export function mockTransport() {
                         settingsData: {
                             screens: [{ id: 'defaultBrowser' }, { id: 'privateSearch' }],
                         },
+                        settingsState: {},
                     };
 
                     return Promise.resolve(initial);

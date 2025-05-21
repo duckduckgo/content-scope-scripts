@@ -21,13 +21,13 @@ export function ResultsContainer(props) {
 
 /**
  * @param {object} props
- * @param {Signal<import("../global/Providers/SettingsServiceProvider.js").Results>} props.results
+ * @param {Signal<import("../global/Providers/SettingsServiceProvider.js").Results["data"]>} props.results
  * @param {Signal<string>} props.term
  */
 export function Results({ results, term }) {
-    if (results.value.screens.length === 0) {
-        return <EmptyState />;
-    }
+    // if (results.value.screens.length === 0) {
+    //     return <EmptyState />;
+    // }
 
     return (
         <div class={styles.container}>
