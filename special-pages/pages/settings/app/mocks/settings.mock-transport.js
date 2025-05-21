@@ -40,6 +40,12 @@ export function settingsMockTransport() {
                         }, 500);
                         return () => clearInterval(int);
                     }
+                    if (msg.params.id === 'defaultBrowser.dock.button') {
+                        const int = setTimeout(() => {
+                            subscriptions.get('onValueChanged')?.({ id: 'defaultBrowser.dock.enabled', value: true });
+                        }, 500);
+                        return () => clearInterval(int);
+                    }
                     return alert('will send buttonPress with id: ' + msg.params.id);
                 }
             }

@@ -120,5 +120,6 @@ export function defaultState() {
         'webTrackingProtection.titleStatus': true,
         'privateSearch.titleStatus': true,
         'defaultBrowser.isDefault': false,
+        'defaultBrowser.dock.enabled': false,
     };
 }

@@ -121,6 +121,10 @@
     "title": "DuckDuckGo is not added to the Dock.",
     "note": "Notification message indicating that DuckDuckGo is not added to the Dock"
   },
+  "defaultBrowser.ddg_is_in_dock": {
+    "title": "DuckDuckGo is added to the Dock.",
+    "note": "Notification message indicating that DuckDuckGo is not added to the Dock"
+  },
   "defaultBrowser.add_to_dock": {
     "title": "Add to Dock...",
     "note": "Button text to add DuckDuckGo to the Dock"
