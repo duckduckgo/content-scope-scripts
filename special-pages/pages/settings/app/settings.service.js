@@ -8,6 +8,7 @@
  *   | { id: string, kind: "TextRowDefinition", props: import('./elements/TextRow.js').TextRowDefinition }
  *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
  *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
+ *   | { id: string, kind: "ButtonRowDefinition", props: import('./elements/ButtonRow.js').ButtonRowDefinition }
  *   | {
  *       id: string,
  *       kind: "SwitchDefinition",
@@ -29,6 +30,7 @@ import { privateSearch } from './screens/privateSearch/definitions.js';
 import { defaultBrowser } from './screens/defaultBrowser/definitiion.js';
 import { webTrackingProtection } from './screens/webTrackingProtection/definitions.js';
 import { cookiePopupProtection } from './screens/cookiePopupProtection/definitions.js';
+import { emailProtection } from './screens/emailProtection/definitions.js';
 
 /**
  * @typedef {'initial' | 'user' | 'auto'} SettingsQuerySource
@@ -100,11 +102,12 @@ export function defaults() {
             ...privateSearch(),
             ...webTrackingProtection(),
             ...cookiePopupProtection(),
+            ...emailProtection(),
         },
         groups: [
             {
                 id: 'protections',
-                screenIds: ['defaultBrowser', 'privateSearch', 'webTrackingProtection', 'cookiePopupProtection'],
+                screenIds: ['defaultBrowser', 'privateSearch', 'webTrackingProtection', 'cookiePopupProtection', 'emailProtection'],
             },
         ],
     };
@@ -121,5 +124,6 @@ export function defaultState() {
         'privateSearch.titleStatus': true,
         'defaultBrowser.isDefault': false,
         'defaultBrowser.dock.enabled': false,
+        'emailProtection.enabled': true,
     };
 }

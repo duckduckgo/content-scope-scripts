@@ -1,0 +1,18 @@
+{
+  "emailProtection.screenTitle": {
+    "title": "Email Protection",
+    "note": ""
+  },
+  "emailProtection.ddg_email_protection_info": {
+    "title": "Block email trackers and hide your address without switching your email provider.",
+    "note": ""
+  },
+  "emailProtection.learn_more_link": {
+    "title": "Learn More",
+    "note": ""
+  },
+  "emailProtection.enable_button": {
+    "title": "Enable Email Protection",
+    "note": ""
+  }
+}
