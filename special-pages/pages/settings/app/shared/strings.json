@@ -1,0 +1,42 @@
+{
+  "page_title": {
+    "title": "Settings",
+    "note": "The main page title"
+  },
+  "search": {
+    "title": "Search",
+    "note": "The placeholder text in a search input field."
+  },
+  "search_settings": {
+    "title": "Search",
+    "note": ""
+  },
+  "empty_title": {
+    "title": "Nothing to see here!",
+    "note": "Text shown where there are no remaining history entries"
+  },
+  "empty_text": {
+    "title": "No results",
+    "note": "Placeholder text when there's no results to show"
+  },
+  "no_results_title": {
+    "title": "No results found for {term}",
+    "note": "The placeholder {term} will be dynamically replaced with the search term entered by the user. For example, if the user searches for 'cats', the title will become 'No results found for cats'."
+  },
+  "no_results_text": {
+    "title": "Try searching for a different keyword.",
+    "note": "Placeholder text when a search gave no results."
+  },
+  "status_on": {
+    "title": "On",
+    "note": "Option indicating that the default browser setting is turned on"
+  },
+  "status_on_private": {
+    "title": "Always On",
+    "note": "Option indicating that a setting is 'always on' meaning the use cannot configure it"
+  },
+  "status_off": {
+    "title": "Off",
+    "note": "Option indicating that the default browser setting is turned off"
+  }
+}

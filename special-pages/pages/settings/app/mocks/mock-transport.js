@@ -64,7 +64,7 @@ export function mockTransport() {
                         locale: 'en',
                         defaultStyles: getDefaultStyles(),
                         settingsData: {
-                            screens: [{ id: 'privateSearch' }, { id: 'defaultBrowser' }],
+                            screens: [{ id: 'defaultBrowser' }, { id: 'privateSearch' }],
                         },
                     };
 
