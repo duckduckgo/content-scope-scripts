@@ -17,14 +17,6 @@
     "title": "Search",
     "note": "The placeholder text in a search input field."
   },
-  "screen_title_defaultBrowser": {
-    "title": "Default Browser",
-    "note": "Default Browser"
-  },
-  "screen_title_privateSearch": {
-    "title": "Private Search",
-    "note": "Private Search"
-  },
   "search_settings": {
     "title": "Search",
     "note": ""
@@ -113,6 +105,10 @@
     "title": "DuckDuckGo is not your default browser.",
     "note": "Notification message indicating that DuckDuckGo is not set as the default browser"
   },
+  "defaultBrowser.ddg_is_default": {
+    "title": "DuckDuckGo is your default browser.",
+    "note": "Notification message indicating that DuckDuckGo is not set as the default browser"
+  },
   "defaultBrowser.make_ddg_default": {
     "title": "Make DuckDuckGo Default...",
     "note": "Button text to set DuckDuckGo as the default browser"
@@ -128,5 +124,21 @@
   "defaultBrowser.add_to_dock": {
     "title": "Add to Dock...",
     "note": "Button text to add DuckDuckGo to the Dock"
+  },
+  "cookiePopupProtection.screenTitle": {
+    "title": "Cookie Pop-Up Protection",
+    "note": "Heading for the cookie pop-up protection settings section"
+  },
+  "cookiePopupProtection.ddg_cookie_info": {
+    "title": "DuckDuckGo will try to select the most private settings available and hide these pop-ups for you.",
+    "note": "Informational text explaining how DuckDuckGo handles cookie consent pop-ups"
+  },
+  "cookiePopupProtection.learn_more_link": {
+    "title": "Learn More",
+    "note": "Link text for additional information about cookie pop-up protection"
+  },
+  "cookiePopupProtection.auto_handle_cookie_opt": {
+    "title": "Automatically handle cookie pop-ups",
+    "note": "Checkbox option for enabling automatic handling of cookie consent pop-ups"
   }
 }

@@ -19,6 +19,7 @@ export interface SettingsMessages {
     | ReportPageExceptionNotification
     | ValueChangeNotification;
   requests: InitialSetupRequest;
+  subscriptions: OnValueChangedSubscription;
 }
 /**
  * Generated from @see "../messages/buttonPress.notify.json"
@@ -115,10 +116,25 @@ export interface DefaultStyles {
    */
   lightBackgroundColor?: string;
 }
+/**
+ * Generated from @see "../messages/onValueChanged.subscribe.json"
+ */
+export interface OnValueChangedSubscription {
+  subscriptionEvent: "onValueChanged";
+  params: ValueChangedSubscription;
+}
+export interface ValueChangedSubscription {
+  /**
+   * the id
+   */
+  id: string;
+  value: string | boolean;
+}
 
 declare module "../src/index.js" {
   export interface SettingsPage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SettingsMessages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SettingsMessages>['request']
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SettingsMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SettingsMessages>['subscribe']
   }
 }

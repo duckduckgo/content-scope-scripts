@@ -58,13 +58,16 @@ export function SettingsServiceProvider({ service, children, data, initialState 
                 break;
             }
             case 'value-change': {
+                console.log('action.id', action.id);
                 const exists = state.value.hasOwnProperty(action.id);
                 if (exists) {
+                    console.log('--->');
                     state.value = {
                         ...state.value,
                         [action.id]: action.value,
                     };
                 }
+                console.log('did update state...', state.value);
                 service.onValueChange(action.id, action.value);
                 return;
             }
@@ -81,7 +84,23 @@ export function SettingsServiceProvider({ service, children, data, initialState 
 
     useEffect(() => {
         globalThis._send = dispatch;
-    }, [dispatch]);
+        const unsubs = [
+            service.onValueChanged(({ id, value }) => {
+                const exists = state.value.hasOwnProperty(id);
+                if (exists) {
+                    state.value = {
+                        ...state.value,
+                        [id]: value,
+                    };
+                }
+            }),
+        ];
+        return () => {
+            for (const unsub of unsubs) {
+                unsub?.();
+            }
+        };
+    }, [dispatch, service]);
 
     const dispatcher = useCallback(dispatch, [service]);
 

@@ -11,6 +11,10 @@
     "title": "DuckDuckGo is not your default browser.",
     "note": "Notification message indicating that DuckDuckGo is not set as the default browser"
   },
+  "defaultBrowser.ddg_is_default": {
+    "title": "DuckDuckGo is your default browser.",
+    "note": "Notification message indicating that DuckDuckGo is not set as the default browser"
+  },
   "defaultBrowser.make_ddg_default": {
     "title": "Make DuckDuckGo Default...",
     "note": "Button text to set DuckDuckGo as the default browser"

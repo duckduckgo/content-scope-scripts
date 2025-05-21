@@ -13,9 +13,8 @@ export function webTrackingProtection() {
             elements: [
                 {
                     id: 'webTrackingProtection.titleStatus',
-                    kind: 'ScreenTitleStatusProps',
+                    kind: 'ScreenTitleStatusDefinition',
                     props: {
-                        isOn: true,
                         offText: 'status_off',
                         onText: 'status_on_private',
                         title: 'webTrackingProtection.screenTitle',

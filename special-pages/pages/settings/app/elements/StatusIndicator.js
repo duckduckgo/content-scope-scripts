@@ -3,8 +3,9 @@ import styles from './Elements.module.css';
 
 /**
  * Props for the StatusIndicator components
+ * @import { Signal } from '@preact/signals';
  * @typedef {Object} StatusIndicatorProps
- * @property {boolean} isOn - The current state
+ * @property {Signal<boolean>} isOn - The current state
  */
 
 /**
@@ -25,9 +26,10 @@ export function SimpleStatusIndicator({ isOn }) {
  * @param {StatusIndicatorProps & { description: string }} props - The component props
  */
 export function DetailedStatusIndicator({ isOn, description }) {
+    const on = isOn.value === true;
     return (
         <div class={styles.statusIndicator}>
-            <span class={`${styles.statusCircle} ${isOn ? styles.statusOn : styles.statusOff}`} />
+            <span class={`${styles.statusCircle} ${on ? styles.statusOn : styles.statusOff}`} />
             <span class={styles.statusText}>{description}</span>
         </div>
     );
