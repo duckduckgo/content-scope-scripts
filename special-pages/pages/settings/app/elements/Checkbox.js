@@ -1,19 +1,26 @@
 import { h } from 'preact';
 import styles from './Elements.module.css';
 import { useTranslation } from '../types.js';
+import { useGlobalState, useSettingsServiceDispatch } from '../global/Providers/SettingsServiceProvider';
+import { useComputed } from '@preact/signals';
+
+/**
+ * @typedef {Object} CheckboxDefinition
+ * @property {string} text - The text to display next to checkbox
+ */
 
 /**
  * Props for the Checkbox component
+ * @import { Signal } from '@preact/signals';
  * @typedef {Object} CheckboxProps
- * @property {string} text - The text to display next to checkbox
- * @property {boolean} checked - The checked state of checkbox
+ * @property {Signal<boolean>} checked - The checked state of checkbox
  * @property {(checked: boolean) => void} onChange - Change event handler
  * @property {import('preact').ComponentChildren} [children] - Optional children components
  */
 
 /**
  * A component that renders a checkbox with text and optional children
- * @param {CheckboxProps} props - The component props
+ * @param {CheckboxProps & CheckboxDefinition} props - The component props
  */
 export function Checkbox({ text, checked, onChange, children }) {
     const { t } = useTranslation();
@@ -26,4 +33,14 @@ export function Checkbox({ text, checked, onChange, children }) {
             {children && <div class={styles.checkboxChildren}>{children}</div>}
         </div>
     );
+}
+
+/**
+ * @param {CheckboxDefinition & { id: string }} props - The component props
+ */
+export function CheckboxWithState({ id, ...rest }) {
+    const results = useGlobalState();
+    const dispatch = useSettingsServiceDispatch();
+    const globalValue = useComputed(() => results.value[id]);
+    return <Checkbox {...rest} checked={globalValue} onChange={(value) => dispatch({ kind: 'value-change', id, value })} />;
 }

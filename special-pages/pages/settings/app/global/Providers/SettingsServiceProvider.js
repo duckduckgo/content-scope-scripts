@@ -5,26 +5,20 @@ import { paramsToQuery } from '../../../../history/app/history.service.js';
 
 /**
  * @typedef {{kind: 'open-url'; url: string, target: 'new-tab' | 'new-window' | 'same-tab' }
- * | {kind: 'search-commit', params: URLSearchParams, source: import('../../settings.service.js').SettingsQuerySource}
+ * | { kind: 'search-commit', params: URLSearchParams, source: import('../../settings.service.js').SettingsQuerySource }
+ * | { kind: 'value-change', id: string, value: any }
  * } Action
  */
 
 /**
- * @typedef {object} SettingsScreen
- */
-
-/**
  * @typedef {object} Results
- * @property {SettingsScreen[]} screens
+ * @property {import('../../settings.service.js').SettingsStructure} data
+ * @property {Record<string, any>} state
  */
 
-const ResultsContext = createContext(
-    /** @type {import('@preact/signals').ReadonlySignal<Results>} */ (
-        signal({
-            screens: [],
-        })
-    ),
-);
+const ResultsContext = createContext(/** @type {import('@preact/signals').ReadonlySignal<Results["data"]>} */ (signal({})));
+
+const StateContext = createContext(/** @type {import('@preact/signals').ReadonlySignal<Results["state"]>} */ (signal({})));
 
 /**
  * @param {Action} action
@@ -41,10 +35,13 @@ const SettingsServiceDispatchContext = createContext(defaultDispatch);
  * @param {Object} props
  * @param {import("../../settings.service.js").SettingsService} props.service
  * @param {import("preact").ComponentChild} props.children
- * @param {Results} props.initial
+ * @param {Results["data"]} props.data
+ * @param {Results["state"]} props.initialState
  */
-export function SettingsServiceProvider({ service, children, initial }) {
-    const results = useSignal(initial);
+export function SettingsServiceProvider({ service, children, data, initialState }) {
+    const results = useSignal(data);
+    const state = useSignal(initialState);
+
     /**
      * @param {Action} action
      */
@@ -59,8 +56,17 @@ export function SettingsServiceProvider({ service, children, initial }) {
                 console.log('handle query?', asQuery);
                 break;
             }
-            default:
+            default: {
+                const exists = state.value.hasOwnProperty(action.id);
+                if (exists) {
+                    state.value = {
+                        ...state.value,
+                        [action.id]: action.value,
+                    };
+                }
+                // console.warn('{exists}', { exists });
                 console.warn('unhandled global event', action);
+            }
         }
     }
 
@@ -68,7 +74,9 @@ export function SettingsServiceProvider({ service, children, initial }) {
 
     return (
         <SettingsServiceDispatchContext.Provider value={dispatcher}>
-            <ResultsContext.Provider value={results}>{children}</ResultsContext.Provider>
+            <ResultsContext.Provider value={results}>
+                <StateContext.Provider value={state}>{children}</StateContext.Provider>
+            </ResultsContext.Provider>
         </SettingsServiceDispatchContext.Provider>
     );
 }
@@ -80,4 +88,8 @@ export function useSettingsServiceDispatch() {
 // Hook for consuming the context
 export function useResultsData() {
     return useContext(ResultsContext);
+}
+// Hook for consuming the state context
+export function useGlobalState() {
+    return useContext(StateContext);
 }

@@ -8,7 +8,7 @@ import { Elements } from '../elements/Elements.js';
  * Access global state and render the results
  * @param {Object} props
  * @param {Signal<string>} props.screenId
- * @param {import('../elements/Elements.js').ScreenDefinition} props.screenDefinition
+ * @param {import('../settings.service').ScreenDefinition} props.screenDefinition
  */
 export function ScreenContainer(props) {
     return (

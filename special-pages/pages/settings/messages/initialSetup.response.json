@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["locale", "env", "platform", "settingsData"],
+  "required": ["locale", "env", "platform", "settingsData", "settingsState"],
   "properties": {
     "locale": {
       "type": "string"
@@ -21,6 +21,7 @@
       }
     },
     "settingsData": {"$ref": "./types/settings-data.json"},
+    "settingsState": {"$ref": "./types/settings-state.json"},
     "defaultStyles": {
       "oneOf": [
         {

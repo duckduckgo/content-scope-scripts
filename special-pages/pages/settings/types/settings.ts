@@ -63,6 +63,7 @@ export interface InitialSetupResponse {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
   settingsData: SettingsData;
+  settingsState: SettingsState;
   defaultStyles?: null | DefaultStyles;
 }
 export interface SettingsData {
@@ -71,6 +72,7 @@ export interface SettingsData {
 export interface SettingsScreen {
   id: string;
 }
+export interface SettingsState {}
 export interface DefaultStyles {
   /**
    * Optional default dark background color. Any HEX value is permitted
