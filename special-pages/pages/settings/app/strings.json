@@ -34,5 +34,9 @@
   "no_results_text": {
     "title": "Try searching for a different keyword.",
     "note": "Placeholder text when a search gave no results."
+  },
+  "group_title_protections": {
+    "title": "Privacy Protections",
+    "note": ""
   }
 }

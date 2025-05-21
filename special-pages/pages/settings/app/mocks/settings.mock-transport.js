@@ -15,7 +15,7 @@ function clone(value) {
     return window.structuredClone?.(value) ?? JSON.parse(JSON.stringify(value));
 }
 
-export function mockTransport() {
+export function settingsMockTransport() {
     /** @type {Map<string, (d: any)=>void>} */
     const subscriptions = new Map();
     if ('__playwright_01' in window) {
@@ -32,6 +32,11 @@ export function mockTransport() {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: clone(_msg) });
             /** @type {import('../../types/settings.ts').SettingsMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
+            switch (msg.method) {
+                case 'buttonPress': {
+                    return alert('will send buttonPress with id: ' + msg.params.id);
+                }
+            }
             console.warn('unhandled notification', msg);
         },
         subscribe(_msg, cb) {

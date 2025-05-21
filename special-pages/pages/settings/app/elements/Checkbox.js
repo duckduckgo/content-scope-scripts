@@ -7,6 +7,7 @@ import { useComputed } from '@preact/signals';
 /**
  * @typedef {Object} CheckboxDefinition
  * @property {string} text - The text to display next to checkbox
+ * @property {import("preact").ComponentChildren} [children] - optional children
  */
 
 /**

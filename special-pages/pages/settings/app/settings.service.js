@@ -5,9 +5,9 @@
 /**
  * @typedef {{ id: string, kind: "ScreenTitleStatusProps", props: import('./elements/ScreenTitleStatus.js').ScreenTitleStatusProps }
  *   | { id: string, kind: "SectionTitleProps", props: import('./elements/SectionTitle.js').SectionTitleProps }
- *   | { id: string, kind: "DescriptionLinkProps", props: import('./elements/DescriptionLink.js').DescriptionLinkProps }
- *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition }
- *   | { id: string, kind: "InlineWarningProps", props: import('./elements/InlineWarning.js').InlineWarningProps }} ElementDefinition
+ *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
+ *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
+ *   | { id: string, kind: "InlineWarningDefinition", props: import('./elements/InlineWarning.js').InlineWarningDefinition }} ElementDefinition
  */
 
 /**
@@ -19,6 +19,7 @@
 
 import { privateSearch } from './screens/privateSearch/definitions.js';
 import { defaultBrowser } from './screens/defaultBrowser/definitiion.js';
+import { webTrackingProtection } from './screens/webTrackingProtection/definitions.js';
 
 /**
  * @typedef {'initial' | 'user' | 'auto'} SettingsQuerySource
@@ -41,6 +42,21 @@ export class SettingsService {
      */
     openUrl(url, target) {
         this.settings.messaging.notify('open', { url, target });
+    }
+
+    /**
+     * @param {string} id
+     */
+    onButtonPress(id) {
+        this.settings.messaging.notify('buttonPress', { id });
+    }
+
+    /**
+     * @param {string} id
+     * @param {any} value
+     */
+    onValueChange(id, value) {
+        this.settings.messaging.notify('valueChange', { id, value });
     }
 }
 
@@ -66,11 +82,12 @@ export function defaults() {
         screens: {
             ...privateSearch(),
             ...defaultBrowser(),
+            ...webTrackingProtection(),
         },
         groups: [
             {
                 id: 'protections',
-                screenIds: ['privateSearch', 'defaultBrowser'],
+                screenIds: ['privateSearch', 'defaultBrowser', 'webTrackingProtection'],
             },
         ],
     };

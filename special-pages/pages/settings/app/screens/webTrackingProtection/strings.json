@@ -1,0 +1,26 @@
+{
+  "webTrackingProtection.screenTitle": {
+    "title": "Web Tracking Protection",
+    "note": "Heading for the web tracking protection settings section"
+  },
+  "webTrackingProtection.ddg_tracking_info": {
+    "title": "DuckDuckGo automatically blocks hidden trackers as you browse the web.",
+    "note": "Informational text explaining how DuckDuckGo protects against trackers"
+  },
+  "webTrackingProtection.learn_more_tracking": {
+    "title": "Learn More",
+    "note": "Link text for additional information about tracking protection"
+  },
+  "webTrackingProtection.gpc.global_privacy_opt": {
+    "title": "Enable Global Privacy Control",
+    "note": "Checkbox option for enabling the Global Privacy Control feature"
+  },
+  "webTrackingProtection.gpc.global_privacy_info": {
+    "title": "Tells participating websites not to sell or share your data.",
+    "note": "Explanation of what the Global Privacy Control feature does"
+  },
+  "webTrackingProtection.gpc.learn_more_gpc": {
+    "title": "Learn More",
+    "note": "Link text for additional information about Global Privacy Control"
+  }
+}

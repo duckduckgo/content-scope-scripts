@@ -12,8 +12,26 @@ export type OpenTarget = "same-tab" | "new-tab" | "new-window";
  * Requests, Notifications and Subscriptions from the Settings feature
  */
 export interface SettingsMessages {
-  notifications: OpenNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
+  notifications:
+    | ButtonPressNotification
+    | OpenNotification
+    | ReportInitExceptionNotification
+    | ReportPageExceptionNotification
+    | ValueChangeNotification;
   requests: InitialSetupRequest;
+}
+/**
+ * Generated from @see "../messages/buttonPress.notify.json"
+ */
+export interface ButtonPressNotification {
+  method: "buttonPress";
+  params: SettingsButtonPress;
+}
+export interface SettingsButtonPress {
+  /**
+   * the id
+   */
+  id: string;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -48,6 +66,20 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/valueChange.notify.json"
+ */
+export interface ValueChangeNotification {
+  method: "valueChange";
+  params: SettingsButtonPress1;
+}
+export interface SettingsButtonPress1 {
+  /**
+   * the id
+   */
+  id: string;
+  value: string | boolean;
 }
 /**
  * Generated from @see "../messages/initialSetup.request.json"
