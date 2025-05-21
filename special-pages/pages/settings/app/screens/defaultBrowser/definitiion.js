@@ -53,12 +53,28 @@ export function defaultBrowser() {
                     },
                 },
                 {
-                    id: 'defaultBrowser.inlineWarning2',
-                    kind: 'InlineWarningDefinition',
-                    props: {
-                        text: 'defaultBrowser.ddg_not_in_dock',
-                        buttonText: 'defaultBrowser.add_to_dock',
-                    },
+                    id: 'defaultBrowser.dock',
+                    kind: 'SwitchDefinition',
+                    valueId: 'defaultBrowser.dock.enabled',
+                    off: [
+                        {
+                            id: 'defaultBrowser.dock.button',
+                            kind: 'InlineWarningDefinition',
+                            props: {
+                                text: 'defaultBrowser.ddg_not_in_dock',
+                                buttonText: 'defaultBrowser.add_to_dock',
+                            },
+                        },
+                    ],
+                    on: [
+                        {
+                            id: 'defaultBrowser.inlineWarning2',
+                            kind: 'TextRowDefinition',
+                            props: {
+                                text: 'defaultBrowser.ddg_is_in_dock',
+                            },
+                        },
+                    ],
                 },
             ],
         },
