@@ -1,0 +1,18 @@
+{
+  "cookiePopupProtection.screenTitle": {
+    "title": "Cookie Pop-Up Protection",
+    "note": "Heading for the cookie pop-up protection settings section"
+  },
+  "cookiePopupProtection.ddg_cookie_info": {
+    "title": "DuckDuckGo will try to select the most private settings available and hide these pop-ups for you.",
+    "note": "Informational text explaining how DuckDuckGo handles cookie consent pop-ups"
+  },
+  "cookiePopupProtection.learn_more_link": {
+    "title": "Learn More",
+    "note": "Link text for additional information about cookie pop-up protection"
+  },
+  "cookiePopupProtection.auto_handle_cookie_opt": {
+    "title": "Automatically handle cookie pop-ups",
+    "note": "Checkbox option for enabling automatic handling of cookie consent pop-ups"
+  }
+}

@@ -3,10 +3,18 @@
  */
 
 /**
- * @typedef {{ id: string, kind: "ScreenTitleStatusProps", props: import('./elements/ScreenTitleStatus.js').ScreenTitleStatusProps }
+ * @typedef {{ id: string, valueId?: string, kind: "ScreenTitleStatusDefinition", props: import('./elements/ScreenTitleStatus.js').ScreenTitleStatusDefinition }
  *   | { id: string, kind: "SectionTitleProps", props: import('./elements/SectionTitle.js').SectionTitleProps }
+ *   | { id: string, kind: "TextRowDefinition", props: import('./elements/TextRow.js').TextRowDefinition }
  *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
  *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
+ *   | {
+ *       id: string,
+ *       kind: "SwitchDefinition",
+ *       valueId: string
+ *       on: ElementDefinition[],
+ *       off: ElementDefinition[],
+ *     }
  *   | { id: string, kind: "InlineWarningDefinition", props: import('./elements/InlineWarning.js').InlineWarningDefinition }} ElementDefinition
  */
 
@@ -20,6 +28,7 @@
 import { privateSearch } from './screens/privateSearch/definitions.js';
 import { defaultBrowser } from './screens/defaultBrowser/definitiion.js';
 import { webTrackingProtection } from './screens/webTrackingProtection/definitions.js';
+import { cookiePopupProtection } from './screens/cookiePopupProtection/definitions.js';
 
 /**
  * @typedef {'initial' | 'user' | 'auto'} SettingsQuerySource
@@ -58,6 +67,13 @@ export class SettingsService {
     onValueChange(id, value) {
         this.settings.messaging.notify('valueChange', { id, value });
     }
+
+    /**
+     *
+     */
+    onValueChanged(cb) {
+        return this.settings.messaging.subscribe('onValueChanged', cb);
+    }
 }
 
 /**
@@ -80,14 +96,15 @@ export function paramsToQuery(params, source = 'initial') {
 export function defaults() {
     return {
         screens: {
-            ...privateSearch(),
             ...defaultBrowser(),
+            ...privateSearch(),
             ...webTrackingProtection(),
+            ...cookiePopupProtection(),
         },
         groups: [
             {
                 id: 'protections',
-                screenIds: ['privateSearch', 'defaultBrowser', 'webTrackingProtection'],
+                screenIds: ['defaultBrowser', 'privateSearch', 'webTrackingProtection', 'cookiePopupProtection'],
             },
         ],
     };
@@ -99,5 +116,9 @@ export function defaults() {
 export function defaultState() {
     return {
         'privateSearch.autocomplete_on': true,
+        'cookiePopupProtection.cpm_on': true,
+        'webTrackingProtection.titleStatus': true,
+        'privateSearch.titleStatus': true,
+        'defaultBrowser.isDefault': false,
     };
 }

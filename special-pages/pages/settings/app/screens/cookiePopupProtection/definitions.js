@@ -6,33 +6,34 @@
 /**
  * @returns {Record<string, ScreenDefinition>}
  */
-export function privateSearch() {
+export function cookiePopupProtection() {
     return {
-        privateSearch: {
-            id: 'privateSearch',
+        cookiePopupProtection: {
+            id: 'cookiePopupProtection',
             elements: [
                 {
-                    id: 'privateSearch.titleStatus',
+                    id: 'cookiePopupProtection.titleStatus',
+                    valueId: 'cookiePopupProtection.cpm_on',
                     kind: 'ScreenTitleStatusDefinition',
                     props: {
                         offText: 'status_off',
-                        onText: 'status_on_private',
-                        title: 'privateSearch.screenTitle',
+                        onText: 'status_on',
+                        title: 'cookiePopupProtection.screenTitle',
                     },
                 },
                 {
-                    id: 'privateSearch.description',
+                    id: 'cookiePopupProtection.description',
                     kind: 'DescriptionLinkDefinition',
                     props: {
-                        linkText: 'privateSearch.learn_more_link',
-                        description: 'privateSearch.ddg_private_search_info',
+                        description: 'cookiePopupProtection.ddg_cookie_info',
+                        linkText: 'cookiePopupProtection.learn_more_link',
                     },
                 },
                 {
-                    id: 'privateSearch.autocomplete_on',
+                    id: 'cookiePopupProtection.cpm_on',
                     kind: 'CheckboxDefinition',
                     props: {
-                        text: 'privateSearch.autocomplete_opt',
+                        text: 'cookiePopupProtection.auto_handle_cookie_opt',
                     },
                 },
             ],

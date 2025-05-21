@@ -1,16 +1,18 @@
 import { h } from 'preact';
 import styles from './Elements.module.css';
+import { useTranslation } from '../types.js';
 
 /**
  * Props for the Text component
- * @typedef {Object} TextProps
- * @property {import('preact').ComponentChildren} children - The content to display
+ * @typedef {Object} TextRowDefinition
+ * @property {string} text - The content to display
  */
 
 /**
  * A component that renders text with a specified CSS class
- * @param {TextProps} props - The component props
+ * @param {TextRowDefinition & { id: string }} props - The component props
  */
-export function TextRow({ children }) {
-    return <p class={styles.text}>{children}</p>;
+export function TextRow({ text }) {
+    const { t } = useTranslation();
+    return <p class={styles.text}>{t(text)}</p>;
 }

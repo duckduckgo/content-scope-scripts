@@ -34,6 +34,12 @@ export function settingsMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'buttonPress': {
+                    if (msg.params.id === 'defaultBrowser.inlineWarning2') {
+                        const int = setTimeout(() => {
+                            subscriptions.get('onValueChanged')?.({ id: 'defaultBrowser.isDefault', value: true });
+                        }, 500);
+                        return () => clearInterval(int);
+                    }
                     return alert('will send buttonPress with id: ' + msg.params.id);
                 }
             }
@@ -41,18 +47,17 @@ export function settingsMockTransport() {
         },
         subscribe(_msg, cb) {
             const sub = /** @type {any} */ (_msg.subscriptionName);
+            subscriptions.set(sub, cb);
 
             if ('__playwright_01' in window) {
                 window.__playwright_01?.mocks?.outgoing?.push?.({ payload: clone(_msg) });
-                subscriptions.set(sub, cb);
-                return () => {
-                    subscriptions.delete(sub);
-                };
             }
 
             console.warn('unhandled subscription', _msg);
 
-            return () => {};
+            return () => {
+                subscriptions.delete(sub);
+            };
         },
         // eslint-ignore-next-line require-await
         request(_msg) {

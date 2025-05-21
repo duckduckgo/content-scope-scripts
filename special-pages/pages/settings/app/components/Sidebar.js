@@ -9,7 +9,8 @@ import { useNavContext, useNavDispatch } from '../global/Providers/NavProvider.j
 const screenIds = /** @type {const} */([
     'privateSearch',
     'defaultBrowser',
-    'webTrackingProtection'
+    'webTrackingProtection',
+    'cookiePopupProtection'
 ]);
 
 /**
@@ -23,6 +24,7 @@ const iconMap = {
     privateSearch: 'icons/all.svg',
     defaultBrowser: 'icons/all.svg',
     webTrackingProtection: 'icons/all.svg',
+    cookiePopupProtection: 'icons/all.svg',
 };
 
 /**
@@ -106,8 +108,9 @@ function labels(screen, t) {
     switch (screen) {
         case 'privateSearch':
         case 'defaultBrowser':
-        case 'webTrackingProtection':
+        case 'cookiePopupProtection':
+        case 'webTrackingProtections':
             return { buttonLabel: t(`${screen}.screenTitle`) };
     }
-    throw new Error('missing sidebar label');
+    return { buttonLabel: 'missing sidebar label' };
 }

@@ -65,9 +65,13 @@ export async function init(root, messaging, baseEnvironment) {
     const strings = await getStrings(environment);
     const service = new SettingsService(messaging, init.settingsData);
     const query = paramsToQuery(environment.urlParams, 'initial');
-    const initialId = pathnameToId(location.pathname, init.settingsData.screens);
+
+    // todo: get from service initially
     const structure = defaults();
     const state = defaultState();
+
+    const initialId = pathnameToId(location.pathname, Object.keys(structure.screens));
+
     console.log({ structure, state });
 
     if (environment.display === 'app') {

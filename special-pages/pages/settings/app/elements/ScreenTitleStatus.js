@@ -3,95 +3,45 @@ import { DetailedStatusIndicator } from './StatusIndicator.js';
 import { Row } from './Row.js';
 import { h } from 'preact';
 import { useTranslation } from '../types.js';
+import { useGlobalState } from '../global/Providers/SettingsServiceProvider.js';
+import { useComputed } from '@preact/signals';
 
 /**
  * Props for the ScreenTitleStatus component
- * @typedef {Object} ScreenTitleStatusProps
- * @property {boolean} isOn - The status indicator state
+ * @typedef {Object} ScreenTitleStatusDefinition
  * @property {string} title - The screen title text
  * @property {string} onText - Text to display when status is on
  * @property {string} offText - Text to display when status is off
  */
 
 /**
+ * Props for the ScreenTitleStatus component
+ * @import { Signal } from '@preact/signals';
+ * @typedef {Object} ScreenTitleStatusProps
+ * @property {Signal<boolean>} isOn - The status indicator state
+ */
+
+/**
  * A component that renders a screen title with a status indicator
- * @param {ScreenTitleStatusProps} props - The component props
+ * @param {ScreenTitleStatusDefinition & ScreenTitleStatusProps} props - The component props
  */
 export function ScreenTitleStatus({ isOn, title, onText, offText }) {
     const { t } = useTranslation();
+    console.log({ offText: t(offText), onText: t(onText) });
     return (
         <Row gap={'small'}>
             <ScreenTitle title={t(title)}></ScreenTitle>
-            <DetailedStatusIndicator isOn={isOn} description={isOn ? t(onText) : t(offText)} />
+            <DetailedStatusIndicator isOn={isOn} description={isOn.value ? t(onText) : t(offText)} />
         </Row>
     );
 }
 
 /**
- * Builder class for creating ScreenTitleStatus props
+ * @param {ScreenTitleStatusDefinition & { id: string }} props
  */
-export class ScreenTitleStatusBuilder {
-    /** @type {ScreenTitleStatusProps} */
-    #props = {
-        isOn: false,
-        title: '',
-        onText: '',
-        offText: '',
-    };
-
-    /**
-     * Creates a new ScreenTitleStatusBuilder
-     * @returns {ScreenTitleStatusBuilder}
-     */
-    static create() {
-        return new ScreenTitleStatusBuilder();
-    }
-
-    /**
-     * Sets the status state
-     * @param {boolean} isOn - The status indicator state
-     * @returns {ScreenTitleStatusBuilder}
-     */
-    withStatus(isOn) {
-        this.#props.isOn = isOn;
-        return this;
-    }
-
-    /**
-     * Sets the title text
-     * @param {string} title - The screen title text
-     * @returns {ScreenTitleStatusBuilder}
-     */
-    withTitle(title) {
-        this.#props.title = title;
-        return this;
-    }
-
-    /**
-     * Sets the on status text
-     * @param {string} onText - Text to display when status is on
-     * @returns {ScreenTitleStatusBuilder}
-     */
-    withOnText(onText) {
-        this.#props.onText = onText;
-        return this;
-    }
-
-    /**
-     * Sets the off status text
-     * @param {string} offText - Text to display when status is off
-     * @returns {ScreenTitleStatusBuilder}
-     */
-    withOffText(offText) {
-        this.#props.offText = offText;
-        return this;
-    }
-
-    /**
-     * Builds the final props object
-     * @returns {ScreenTitleStatusProps & { kind: 'ScreenTitleStatusProps', }}
-     */
-    build() {
-        return { ...this.#props, kind: 'ScreenTitleStatusProps' };
-    }
+export function ScreenTitleStatusWithState({ id, ...rest }) {
+    console.log(id);
+    const results = useGlobalState();
+    const globalValue = useComputed(() => results.value[id]);
+    return <ScreenTitleStatus {...rest} isOn={globalValue} />;
 }

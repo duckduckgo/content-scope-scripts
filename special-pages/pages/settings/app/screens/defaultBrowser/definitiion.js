@@ -13,21 +13,37 @@ export function defaultBrowser() {
             elements: [
                 {
                     id: 'defaultBrowser.titleStatus',
-                    kind: 'ScreenTitleStatusProps',
+                    kind: 'ScreenTitleStatusDefinition',
+                    valueId: 'defaultBrowser.isDefault',
                     props: {
-                        isOn: false,
                         offText: 'status_off',
-                        onText: 'status_on_private',
+                        onText: 'status_on',
                         title: 'defaultBrowser.screenTitle',
                     },
                 },
                 {
-                    id: 'defaultBrowser.inlineWarning1',
-                    kind: 'InlineWarningDefinition',
-                    props: {
-                        text: 'defaultBrowser.ddg_not_default',
-                        buttonText: 'defaultBrowser.make_ddg_default',
-                    },
+                    id: 'defaultBrowser.inlineWarning',
+                    kind: 'SwitchDefinition',
+                    valueId: 'defaultBrowser.isDefault',
+                    on: [
+                        {
+                            id: 'defaultBrowser.inlineWarning1',
+                            kind: 'TextRowDefinition',
+                            props: {
+                                text: 'defaultBrowser.ddg_is_default',
+                            },
+                        },
+                    ],
+                    off: [
+                        {
+                            id: 'defaultBrowser.inlineWarning2',
+                            kind: 'InlineWarningDefinition',
+                            props: {
+                                text: 'defaultBrowser.ddg_not_default',
+                                buttonText: 'defaultBrowser.make_ddg_default',
+                            },
+                        },
+                    ],
                 },
                 {
                     id: 'defaultBrowser.sectionTitle',

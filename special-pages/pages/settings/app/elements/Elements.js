@@ -1,9 +1,11 @@
 import { h } from 'preact';
-import { ScreenTitleStatus } from './ScreenTitleStatus.js';
-import { InlineWarning, InlineWarningWithState } from './InlineWarning.js';
+import { ScreenTitleStatusWithState } from './ScreenTitleStatus.js';
+import { InlineWarningWithState } from './InlineWarning.js';
 import { SectionTitle } from './SectionTitle.js';
-import { DescriptionLink, DescriptionLinkWithState } from './DescriptionLink.js';
+import { DescriptionLinkWithState } from './DescriptionLink.js';
 import { CheckboxWithState } from './Checkbox.js';
+import { Switch } from './Switch.js';
+import { TextRow } from './TextRow.js';
 
 /**
  * @param {object} props
@@ -19,8 +21,8 @@ export function Elements(props) {
 function toComponents(def) {
     return def.map((d) => {
         switch (d.kind) {
-            case 'ScreenTitleStatusProps': {
-                return <ScreenTitleStatus {...d.props} key={d.id} />;
+            case 'ScreenTitleStatusDefinition': {
+                return <ScreenTitleStatusWithState {...d.props} id={d.valueId || d.id} key={d.id} />;
             }
             case 'InlineWarningDefinition': {
                 return <InlineWarningWithState {...d.props} id={d.id} key={d.id} />;
@@ -41,6 +43,14 @@ function toComponents(def) {
                     );
                 }
                 return <CheckboxWithState {...d.props} id={d.id} key={d.id} />;
+            }
+            case 'SwitchDefinition': {
+                const on = toComponents(d.on);
+                const off = toComponents(d.off);
+                return <Switch on={on} off={off} valueId={d.valueId} key={d.id} />;
+            }
+            case 'TextRowDefinition': {
+                return <TextRow {...d.props} id={d.id} key={d.id} />;
             }
             default:
                 throw new Error('not handled!');

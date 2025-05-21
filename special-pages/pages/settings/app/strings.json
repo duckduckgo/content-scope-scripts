@@ -7,14 +7,6 @@
     "title": "Search",
     "note": "The placeholder text in a search input field."
   },
-  "screen_title_defaultBrowser": {
-    "title": "Default Browser",
-    "note": "Default Browser"
-  },
-  "screen_title_privateSearch": {
-    "title": "Private Search",
-    "note": "Private Search"
-  },
   "search_settings": {
     "title": "Search",
     "note": ""

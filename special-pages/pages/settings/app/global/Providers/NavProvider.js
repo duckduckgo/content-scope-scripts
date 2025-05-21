@@ -88,11 +88,11 @@ export function useNavDispatch() {
 
 /**
  * @param {string} pathname
- * @param {{id: string}[]} screens
+ * @param {string[]} screens
  * @return {string}
  */
 export function pathnameToId(pathname, screens) {
-    const match = screens.find((screen) => pathname.startsWith(`/${screen.id}`));
-    if (match) return match.id;
-    return screens[0].id;
+    const match = screens.find((screen) => pathname.startsWith(`/${screen}`));
+    if (match) return match;
+    return screens[0];
 }
