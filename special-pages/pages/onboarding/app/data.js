@@ -218,12 +218,23 @@ export const settingsRowItems = {
         acceptText: t('row_home-shortcut_accept'),
     }),
     // Intended only for use with v3
-    'ad-blocking': (t) => ({
-        id: 'ad-blocking',
+    'placebo-ad-blocking': (t) => ({
+        id: 'placebo-ad-blocking',
         icon: 'v3/ads.svg',
-        title: t('row_ad-blocking_title_v3'),
+        title: t('row_placebo-ad-blocking_title_v3'),
         secondaryText: t('row_ad-blocking_desc_v3'),
-        summary: t('row_ad-blocking_title_v3'),
+        summary: t('row_placebo-ad-blocking_title_v3'),
+        kind: 'one-time',
+        acceptText: t('row_ad-blocking_accept_v3'),
+        accepButtonVariant: 'primary',
+    }),
+    // Intended only for use with v3
+    'aggressive-ad-blocking': (t) => ({
+        id: 'aggressive-ad-blocking',
+        icon: 'v3/ads.svg',
+        title: t('row_aggressive-ad-blocking_title_v3'),
+        secondaryText: t('row_ad-blocking_desc_v3'),
+        summary: t('row_aggressive-ad-blocking_title_v3'),
         kind: 'one-time',
         acceptText: t('row_ad-blocking_accept_v3'),
         accepButtonVariant: 'primary',

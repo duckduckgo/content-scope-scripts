@@ -25,11 +25,11 @@ export function mockTransport() {
                     const stepDefinitions = {};
 
                     const adBlocking = url.searchParams.get('adBlocking');
-                    if (adBlocking) {
+                    if (adBlocking === 'placebo' || adBlocking === 'aggressive' || adBlocking === 'youtube') {
                         stepDefinitions.systemSettings = {
                             id: 'systemSettings',
                             kind: 'settings',
-                            rows: ['dock', adBlocking === 'youtube' ? 'youtube-ad-blocking' : 'ad-blocking', 'import'],
+                            rows: ['dock', 'import', `${adBlocking}-ad-blocking`],
                         };
                     }
 

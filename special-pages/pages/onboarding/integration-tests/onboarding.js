@@ -482,14 +482,14 @@ export class OnboardingPage {
     async skipAdBlocking() {
         const { page } = this;
         await this.skippedCurrent();
-        await page.getByRole('button', { name: 'Import' }).waitFor();
+        await page.getByRole('button', { name: 'Next' }).waitFor();
         await this.didSetAdBlocking({ enabled: false }); // important that setAdBlocking() is called when skipped so that native apps can fire a pixel
     }
 
     async skipYouTubeAdBlocking() {
         const { page } = this;
         await this.skippedCurrent();
-        await page.getByRole('button', { name: 'Import' }).waitFor();
+        await page.getByRole('button', { name: 'Next' }).waitFor();
         await this.didSetAdBlocking({ enabled: false }); // important that setAdBlocking() is called when skipped so that native apps can fire a pixel
     }
 
@@ -733,13 +733,13 @@ export class OnboardingPage {
             apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
         });
         await dockButton.click();
+        await page.getByRole('button', { name: 'Import Now', exact: true }).click();
         await page
             .getByRole('button', {
                 name: adBlockingId === 'youtube-ad-blocking' ? 'Block Ads' : 'Turn on Enhanced Ad Blocking',
                 exact: true,
             })
             .click();
-        await page.getByRole('button', { name: 'Import Now', exact: true }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
         /* No Duck Player step as ad blocking was enabled */
@@ -775,8 +775,8 @@ export class OnboardingPage {
             apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
         });
         await dockButton.click();
-        await page.getByRole('button', { name: 'Skip', exact: true }).click();
         await page.getByRole('button', { name: 'Import Now', exact: true }).click();
+        await page.getByRole('button', { name: 'Skip', exact: true }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
         /* Duck Player */
