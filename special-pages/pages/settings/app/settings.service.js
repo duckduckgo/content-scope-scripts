@@ -6,6 +6,7 @@
  * @typedef {{ id: string, valueId?: string, kind: "ScreenTitleStatusDefinition", props: import('./elements/ScreenTitleStatus.js').ScreenTitleStatusDefinition }
  *   | { id: string, kind: "SectionTitleProps", props: import('./elements/SectionTitle.js').SectionTitleProps }
  *   | { id: string, kind: "TextRowDefinition", props: import('./elements/TextRow.js').TextRowDefinition }
+ *   | { id: string, kind: "NearestLocation" }
  *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
  *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
  *   | { id: string, kind: "ButtonRowDefinition", props: import('./elements/ButtonRow.js').ButtonRowDefinition }
@@ -31,6 +32,7 @@ import { defaultBrowser } from './screens/defaultBrowser/definitiion.js';
 import { webTrackingProtection } from './screens/webTrackingProtection/definitions.js';
 import { cookiePopupProtection } from './screens/cookiePopupProtection/definitions.js';
 import { emailProtection } from './screens/emailProtection/definitions.js';
+import { vpn } from './screens/vpn/definitions.js';
 
 /**
  * @typedef {'initial' | 'user' | 'auto'} SettingsQuerySource
@@ -103,11 +105,16 @@ export function defaults() {
             ...webTrackingProtection(),
             ...cookiePopupProtection(),
             ...emailProtection(),
+            ...vpn(),
         },
         groups: [
             {
                 id: 'protections',
                 screenIds: ['defaultBrowser', 'privateSearch', 'webTrackingProtection', 'cookiePopupProtection', 'emailProtection'],
+            },
+            {
+                id: 'privacyPro',
+                screenIds: ['vpn'],
             },
         ],
     };
@@ -125,5 +132,6 @@ export function defaultState() {
         'defaultBrowser.isDefault': false,
         'defaultBrowser.dock.enabled': false,
         'emailProtection.enabled': true,
+        'vpn.location.selector': 'nearest',
     };
 }

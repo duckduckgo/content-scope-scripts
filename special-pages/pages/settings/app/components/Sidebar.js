@@ -5,29 +5,10 @@ import { useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { useNavContext, useNavDispatch } from '../global/Providers/NavProvider.js';
 
-// prettier-ignore
-const screenIds = /** @type {const} */([
-    'privateSearch',
-    'defaultBrowser',
-    'webTrackingProtection',
-    'cookiePopupProtection',
-    'emailProtection'
-]);
-
 /**
  * @import json from "../strings.json"
  * @import {SettingsScreen} from "../../types/settings.js"
- * @typedef {typeof screenIds[number]} ScreenId
  */
-
-/** @type {Record<ScreenId, string>} */
-const iconMap = {
-    privateSearch: 'icons/all.svg',
-    defaultBrowser: 'icons/all.svg',
-    webTrackingProtection: 'icons/all.svg',
-    cookiePopupProtection: 'icons/all.svg',
-    emailProtection: 'icons/all.svg',
-};
 
 /**
  * Renders a sidebar navigation component with links based on the provided ranges.
@@ -49,13 +30,17 @@ export function Sidebar({ settingsStructure }) {
                     const dynamicLookup = 'group_title_' + group.id;
                     const groupLabel = t(/** @type {any} */ (dynamicLookup));
                     return (
-                        <div class={styles.group}>
+                        <Fragment>
                             <small class={styles.groupHeading}>{groupLabel}</small>
-                            {group.screenIds.map((id) => {
-                                const match = settingsStructure.value.screens[id];
-                                return <Item current={current} key={id} onClick={() => navDispatch({ kind: 'nav', id })} setting={match} />;
-                            })}
-                        </div>
+                            <div class={styles.group}>
+                                {group.screenIds.map((id) => {
+                                    const match = settingsStructure.value.screens[id];
+                                    return (
+                                        <Item current={current} key={id} onClick={() => navDispatch({ kind: 'nav', id })} setting={match} />
+                                    );
+                                })}
+                            </div>
+                        </Fragment>
                     );
                 })}
             </nav>
@@ -93,7 +78,7 @@ function Item({ current, setting, onClick }) {
                 }}
             >
                 <span className={styles.icon}>
-                    <img src={iconMap[setting.id]} />
+                    <img src={'icons/all.svg'} />
                 </span>
                 {buttonLabel}
             </a>
@@ -107,13 +92,7 @@ function Item({ current, setting, onClick }) {
  * @return {{ buttonLabel: string}}
  */
 function labels(screen, t) {
-    switch (screen) {
-        case 'privateSearch':
-        case 'defaultBrowser':
-        case 'cookiePopupProtection':
-        case 'webTrackingProtections':
-        case 'emailProtection':
-            return { buttonLabel: t(`${screen}.screenTitle`) };
-    }
-    return { buttonLabel: 'missing sidebar label' };
+    const maybe = t(`${screen}.screenTitle`);
+    if (maybe === '') return { buttonLabel: 'missing sidebar label' };
+    return { buttonLabel: maybe };
 }

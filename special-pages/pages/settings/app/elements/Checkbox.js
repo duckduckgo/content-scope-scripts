@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import styles from './Elements.module.css';
 import { useTranslation } from '../types.js';
-import { useGlobalState, useSettingsServiceDispatch } from '../global/Providers/SettingsServiceProvider';
+import { useGlobalSettingsState, useSettingsServiceDispatch } from '../global/Providers/SettingsServiceProvider';
 import { useComputed } from '@preact/signals';
 
 /**
@@ -40,7 +40,7 @@ export function Checkbox({ text, checked, onChange, children }) {
  * @param {CheckboxDefinition & { id: string }} props - The component props
  */
 export function CheckboxWithState({ id, ...rest }) {
-    const results = useGlobalState();
+    const results = useGlobalSettingsState();
     const dispatch = useSettingsServiceDispatch();
     const globalValue = useComputed(() => results.value[id]);
     return <Checkbox {...rest} checked={globalValue} onChange={(value) => dispatch({ kind: 'value-change', id, value })} />;

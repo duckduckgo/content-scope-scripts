@@ -1,4 +1,4 @@
-import { useGlobalState } from '../global/Providers/SettingsServiceProvider.js';
+import { useGlobalSettingsState } from '../global/Providers/SettingsServiceProvider.js';
 import { useComputed } from '@preact/signals';
 
 /**
@@ -13,7 +13,7 @@ import { useComputed } from '@preact/signals';
  * @param {SwitchDefinition} props - The component props
  */
 export function Switch({ on, off, valueId }) {
-    const state = useGlobalState();
+    const state = useGlobalSettingsState();
     const computed = useComputed(() => state.value[valueId]);
     console.log('{SwitchDefinition', [computed.value]);
     return computed.value ? on : off;

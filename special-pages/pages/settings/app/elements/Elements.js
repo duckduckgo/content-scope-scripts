@@ -7,6 +7,7 @@ import { CheckboxWithState } from './Checkbox.js';
 import { Switch } from './Switch.js';
 import { TextRow } from './TextRow.js';
 import { ButtonRowWithState } from './ButtonRow.js';
+import { NearestLocationWithState } from '../custom/NearestLocation.js';
 
 /**
  * @param {object} props
@@ -55,6 +56,9 @@ function toComponents(def) {
             }
             case 'ButtonRowDefinition': {
                 return <ButtonRowWithState {...d.props} id={d.id} key={d.id} />;
+            }
+            case 'NearestLocation': {
+                return <NearestLocationWithState id={d.id} key={d.id} />;
             }
             default:
                 throw new Error('not handled!');
