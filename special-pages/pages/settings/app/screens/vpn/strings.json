@@ -1,0 +1,26 @@
+{
+  "vpn.screenTitle": {
+    "title": "VPN",
+    "note": ""
+  },
+  "vpn.enable_button": {
+    "title": "Open VPN...",
+    "note": ""
+  },
+  "vpn.location.section_title": {
+    "title": "Location",
+    "note": ""
+  },
+  "vpn.location.nearest.title": {
+    "title": "Nearest Location",
+    "note": ""
+  },
+  "vpn.location.nearest.text": {
+    "title": "Automatically connect to the nearest server we can find",
+    "note": ""
+  },
+  "vpn.location.button_label": {
+    "title": "Change...",
+    "note": ""
+  }
+}

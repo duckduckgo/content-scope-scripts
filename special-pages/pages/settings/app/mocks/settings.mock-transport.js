@@ -46,6 +46,18 @@ export function settingsMockTransport() {
                         }, 500);
                         return () => clearInterval(int);
                     }
+                    if (msg.params.id === 'vpn.location.selector') {
+                        if (confirm('press confirm to simulate switching the UK')) {
+                            subscriptions.get('onValueChanged')?.({ id: 'vpn.location.selector', value: 'uk' });
+                        }
+                        return () => {};
+                    }
+                    if (msg.params.id === 'vpn.location.enableButton') {
+                        if (confirm('press confirm to simulate turning the VPN on')) {
+                            subscriptions.get('onValueChanged')?.({ id: 'vpn.enabled', value: true });
+                        }
+                        return () => {};
+                    }
                     return alert('will send buttonPress with id: ' + msg.params.id);
                 }
             }

@@ -3,7 +3,7 @@ import { DetailedStatusIndicator } from './StatusIndicator.js';
 import { Row } from './Row.js';
 import { h } from 'preact';
 import { useTranslation } from '../types.js';
-import { useGlobalState } from '../global/Providers/SettingsServiceProvider.js';
+import { useGlobalSettingsState } from '../global/Providers/SettingsServiceProvider.js';
 import { useComputed } from '@preact/signals';
 
 /**
@@ -41,7 +41,7 @@ export function ScreenTitleStatus({ isOn, title, onText, offText }) {
  */
 export function ScreenTitleStatusWithState({ id, ...rest }) {
     console.log(id);
-    const results = useGlobalState();
+    const results = useGlobalSettingsState();
     const globalValue = useComputed(() => results.value[id]);
     return <ScreenTitleStatus {...rest} isOn={globalValue} />;
 }

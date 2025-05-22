@@ -53,21 +53,17 @@ export function SettingsServiceProvider({ service, children, data, initialState 
                 break;
             }
             case 'search-commit': {
-                const asQuery = paramsToQuery(action.params, action.source);
-                console.log('handle query?', asQuery);
+                // const asQuery = paramsToQuery(action.params, action.source);
                 break;
             }
             case 'value-change': {
-                console.log('action.id', action.id);
                 const exists = state.value.hasOwnProperty(action.id);
                 if (exists) {
-                    console.log('--->');
                     state.value = {
                         ...state.value,
                         [action.id]: action.value,
                     };
                 }
-                console.log('did update state...', state.value);
                 service.onValueChange(action.id, action.value);
                 return;
             }
@@ -87,12 +83,12 @@ export function SettingsServiceProvider({ service, children, data, initialState 
         const unsubs = [
             service.onValueChanged(({ id, value }) => {
                 const exists = state.value.hasOwnProperty(id);
-                if (exists) {
-                    state.value = {
-                        ...state.value,
-                        [id]: value,
-                    };
-                }
+                console.warn('setting', id, 'to', value);
+                if (!exists) console.warn('setting a value that didnt have a default', id, 'to', value);
+                state.value = {
+                    ...state.value,
+                    [id]: value,
+                };
             }),
         ];
         return () => {
@@ -122,6 +118,6 @@ export function useResultsData() {
     return useContext(ResultsContext);
 }
 // Hook for consuming the state context
-export function useGlobalState() {
+export function useGlobalSettingsState() {
     return useContext(StateContext);
 }
