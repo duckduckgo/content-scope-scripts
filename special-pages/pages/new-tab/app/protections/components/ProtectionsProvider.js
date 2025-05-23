@@ -3,7 +3,6 @@ import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { reducer, useConfigSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
 import { ProtectionsService } from '../protections.service.js';
-import { viewTransition } from '../../utils.js';
 import { useSignal, useSignalEffect } from '@preact/signals';
 
 /**
@@ -53,13 +52,7 @@ export function ProtectionsProvider(props) {
     useInitialDataAndConfig({ dispatch, service });
 
     // subscribe to toggle + expose a fn for sync toggling
-    const { toggle: baseToggle } = useConfigSubscription({ dispatch, service });
-
-    const toggle = useCallback(() => {
-        viewTransition(() => {
-            baseToggle();
-        });
-    }, [baseToggle]);
+    const { toggle } = useConfigSubscription({ dispatch, service });
 
     /** @type {(feed: ProtectionsConfig['feed']) => void} */
     const setFeed = useCallback(

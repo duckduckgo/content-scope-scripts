@@ -85,6 +85,7 @@ function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
 }
 
 /**
+ * Use this block to correctly space elements below the switcher
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  */

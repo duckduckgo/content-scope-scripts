@@ -30,6 +30,9 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     margin-top: 24px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.09);
+    background: rgba(0, 0, 0, 0.06);
 }
 
 .block {
@@ -41,33 +44,45 @@
 
 .button {
     color: var(--ntp-text-normal);
+    border-radius: 5px;
+    background: transparent;
+}
+
+.active {
+    [data-theme=dark] & {
+        color: var(--color-black-at-84);
+    }
 }
 
 
 [data-platform-name="windows"] {
     .button {
-        border-radius: 0;
+        border-radius: 5px;
         background: transparent;
         border: 0;
-        border-bottom: 4px solid transparent;
-        height: 30px;
-        cursor: pointer;
+        height: 26px;
     }
     .active {
-        border-bottom-color: var(--ddg-color-primary);
+        background: white;
+        position: relative;
 
-        [data-theme="dark"] & {
-            border-bottom-color: var(--ddg-color-primary-dark);
+        &:after {
+            content: "";
+            width: 16px;
+            height: 2px;
+            position: absolute;
+            display: block;
+            bottom: 0;
+            transform: translateX(-50%);
+            left: 50%;
+            border-radius: 16px;
+            background: var(--ddg-color-primary);
         }
     }
 }
 
 [data-platform-name="macos"] {
-    .switcher {
-        border-radius: 6px;
-        border: 1px solid rgba(0, 0, 0, 0.09);
-        background: rgba(0, 0, 0, 0.06);
-    }
+    .switcher {}
     .button {
         border-radius: 5px;
         background: transparent;
@@ -81,10 +96,6 @@
 
         /* Mac/Control/Standard */
         box-shadow: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 0.5px rgba(0, 0, 0, 0.10), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.20);
-
-        [data-theme=dark] & {
-            color: var(--color-black-at-84);
-        }
     }
 }
 
