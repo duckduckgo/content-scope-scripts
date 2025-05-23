@@ -21,6 +21,19 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await stats.hasRows(4);
             await expect(page).toHaveScreenshot('stats-few.png', { maxDiffPixels });
         });
+        test('with dataset "few" (dark)', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const stats = new PrivacyStatsPage(page, ntp);
+            await ntp.reducedMotion();
+            await ntp.darkMode();
+
+            // see privacy-stats.mocks.js
+            await ntp.openPage({ additional: { stats: 'few' } });
+
+            // make sure we're screenshotting when data is showing
+            await stats.hasRows(4);
+            await expect(page).toHaveScreenshot('stats-few-dark.png', { maxDiffPixels });
+        });
     });
 
     test.describe('activity widget screenshots narrow', () => {
