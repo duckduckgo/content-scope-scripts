@@ -229,8 +229,8 @@ export default class ConfigFeature {
      * @returns {any}
      */
     _getFeatureSettings(featureName) {
-        const camelFeatureName = featureName || camelcase(this.name);
-        return this.featureSettings?.[camelFeatureName];
+        const camelFeatureName = featureName || this.currentFeatureName;
+        return this.bundledConfig.features[camelFeatureName].settings || {};
     }
 
     get currentFeatureName() {

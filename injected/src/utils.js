@@ -247,12 +247,12 @@ export function iterateDataKey(key, callback) {
 
 const alwaysInitFeatures = new Set(['cookie']);
 
-function alwaysInitExtensionFeatures(args, featureName) {
+export function alwaysInitExtensionFeatures(args, featureName) {
     return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
 }
 
 export function isFeatureBroken(args, feature) {
-    if (alwaysInitExtensionFeatures(args, feature) || isPlatformSpecificFeature(feature)) {
+    if (isPlatformSpecificFeature(feature)) {
         return false;
     }
     return args.site.isBroken || args.site.allowlisted;

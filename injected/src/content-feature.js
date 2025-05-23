@@ -1,4 +1,4 @@
-import { processAttr } from './utils.js';
+import { processAttr, alwaysInitExtensionFeatures } from './utils.js';
 import { PerformanceMonitor } from './performance.js';
 import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js';
 // eslint-disable-next-line no-redeclare
@@ -148,7 +148,7 @@ export default class ContentFeature extends ConfigFeature {
     callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
         this.setArgs(args);
-        if (this.isEnabled()) {
+        if (this.isEnabled() || alwaysInitExtensionFeatures(this.args, this.currentFeatureName)) {
             // Passing this.args is legacy here and features should use this.args or other properties directly
             this.init(this.args);
         }
