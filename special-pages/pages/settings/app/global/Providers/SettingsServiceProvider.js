@@ -1,7 +1,6 @@
 import { createContext, h } from 'preact';
 import { useCallback, useContext, useEffect } from 'preact/hooks';
 import { signal, useSignal } from '@preact/signals';
-import { paramsToQuery } from '../../../../history/app/history.service.js';
 
 /**
  * @typedef {{kind: 'open-url'; url: string, target: 'new-tab' | 'new-window' | 'same-tab' }

@@ -9,6 +9,12 @@
     gap: var(--row-gap);
 }
 
+.debug {
+    border: 1px dotted black;
+    user-select: auto;
+    -webkit-user-select: auto;
+}
+
 .listItem {
     display: block;
     width: 100%;

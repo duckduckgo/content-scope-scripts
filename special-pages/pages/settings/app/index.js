@@ -9,7 +9,7 @@ import { TranslationProvider } from '../../../shared/components/TranslationsProv
 import { callWithRetry } from '../../../shared/call-with-retry.js';
 
 import { MessagingContext, AppSettingsContext } from './types.js';
-import { defaults, defaultState, paramsToQuery, SettingsService } from './settings.service.js';
+import { defaultStructure, defaultState, paramsToQuery, SettingsService } from './settings.service.js';
 import { SettingsServiceProvider } from './global/Providers/SettingsServiceProvider.js';
 import { AppSettings } from './AppSettings.js';
 import { QueryProvider } from './global/Providers/QueryProvider.js';
@@ -67,12 +67,15 @@ export async function init(root, messaging, baseEnvironment) {
     const query = paramsToQuery(environment.urlParams, 'initial');
 
     // todo: get from service initially
-    const structure = defaults();
+    const structure = defaultStructure();
     const state = defaultState();
 
-    const initialId = pathnameToId(location.pathname, Object.keys(structure.screens));
+    const mod = await import('/@runtime.js');
+    const processed = await mod.process({ structure, state }, init);
 
-    console.log({ structure, state });
+    const initialId = pathnameToId(location.pathname, Object.keys(processed.structure.screens));
+
+    console.log(processed.structure);
 
     if (environment.display === 'app') {
         render(
@@ -94,7 +97,11 @@ export async function init(root, messaging, baseEnvironment) {
                             <AppSettingsContext.Provider value={appSettings}>
                                 <NavProvider initialId={initialId}>
                                     <QueryProvider query={query}>
-                                        <SettingsServiceProvider service={service} data={structure} initialState={state}>
+                                        <SettingsServiceProvider
+                                            service={service}
+                                            data={processed.structure}
+                                            initialState={processed.state}
+                                        >
                                             <App />
                                         </SettingsServiceProvider>
                                     </QueryProvider>
