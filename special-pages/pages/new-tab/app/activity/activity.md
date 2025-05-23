@@ -58,11 +58,6 @@ Notes:
     - on `macOS`, `history.title` should be a path-like string to match current implementations
     - `etldPlusOne` will be used for fallback favicons/colors, so the logic should match the NTP
 
-### `activity_getConfig`
-- {@link "NewTab Messages".ActivityGetConfigRequest}
-- Used to fetch the initial config data (eg: expanded vs collapsed)
-- returns {@link "NewTab Messages".ActivityConfig}
-
 ### `activity_getUrls`
 - {@link "NewTab Messages".ActivityGetUrlsRequest}
 - Used to fetch the initial config data (eg: expanded vs collapsed)
@@ -142,23 +137,7 @@ by sending the notification `activity_burnAnimationComplete`
 }
 ```
 
-### `activity_onConfigUpdate` 
-- {@link "NewTab Messages".ActivityOnDataUpdateSubscription }
-- The widget config
-- returns {@link "NewTab Messages".ActivityConfig}
-
 ## Notifications:
-
-### `activity_setConfig` 
-- {@link "NewTab Messages".ActivitySetConfigNotification}
-- Sent when the user toggles the expansion of the activity feed
-- sends {@link "NewTab Messages".ActivityConfig}
-- example payload:
-  ```json
-  {
-    "expansion": "collapsed"
-  }
-  ```
 
 ### `activity_addFavorite`
 - {@link "NewTab Messages".ActivityAddFavoriteNotification}
