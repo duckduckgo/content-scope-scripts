@@ -30,6 +30,9 @@ export function App() {
     const screenDefinition = useComputed(() => {
         return structure.value.screens[screenId.value];
     });
+    const excluded = useComputed(() => {
+        return structure.value.excludedElements;
+    });
     const isQuerying = useComputed(() => query.value.term !== null && query.value.term.trim() !== '');
     const term = useComputed(() => query.value.term || '');
 
@@ -56,7 +59,9 @@ export function App() {
             </header>
             <main class={cn(styles.main, styles.customScroller)} ref={mainRef}>
                 {isQuerying.value === true && <ResultsContainer term={term} />}
-                {isQuerying.value === false && <ScreenContainer screenId={screenId} screenDefinition={screenDefinition.value} />}
+                {isQuerying.value === false && (
+                    <ScreenContainer screenId={screenId} screenDefinition={screenDefinition.value} excludedElements={excluded.value} />
+                )}
             </main>
         </div>
     );

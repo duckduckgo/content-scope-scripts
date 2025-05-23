@@ -27,7 +27,6 @@ import { useComputed } from '@preact/signals';
  */
 export function ScreenTitleStatus({ isOn, title, onText, offText }) {
     const { t } = useTranslation();
-    console.log({ offText: t(offText), onText: t(onText) });
     return (
         <Row gap={'small'}>
             <ScreenTitle title={t(title)}></ScreenTitle>
@@ -37,11 +36,10 @@ export function ScreenTitleStatus({ isOn, title, onText, offText }) {
 }
 
 /**
- * @param {ScreenTitleStatusDefinition & { id: string }} props
+ * @param {ScreenTitleStatusDefinition & { id: string, valueId?: string }} props
  */
-export function ScreenTitleStatusWithState({ id, ...rest }) {
-    console.log(id);
+export function ScreenTitleStatusWithState({ id, valueId, ...rest }) {
     const results = useGlobalSettingsState();
-    const globalValue = useComputed(() => results.value[id]);
+    const globalValue = useComputed(() => results.value[valueId || id]);
     return <ScreenTitleStatus {...rest} isOn={globalValue} />;
 }

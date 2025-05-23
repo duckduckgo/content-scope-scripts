@@ -24,7 +24,11 @@
  * @typedef {"privacyPro" | "protections" | "main" | "about" | "dev"} ScreenCategory
  * @typedef {{elements: ElementDefinition[], id: string}} ScreenDefinition
  * @typedef {{id: string, screenIds: string[]}} ScreenGroup
- * @typedef {{screens: Record<string, ScreenDefinition>, groups: ScreenGroup[]}} SettingsStructure
+ * @typedef {{
+ *    screens: Record<string, ScreenDefinition>,
+ *    groups: ScreenGroup[],
+ *    excludedElements: string[]
+ * }} SettingsStructure
  */
 
 import { privateSearch } from './screens/privateSearch/definitions.js';
@@ -97,8 +101,9 @@ export function paramsToQuery(params, source = 'initial') {
 /**
  * @return {SettingsStructure}
  */
-export function defaults() {
+export function defaultStructure() {
     return {
+        excludedElements: [],
         screens: {
             ...defaultBrowser(),
             ...privateSearch(),

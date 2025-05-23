@@ -23,6 +23,7 @@ export function baseEsbuildOptions(page, injectName, nodeEnv, output) {
         sourcemap: nodeEnv === 'development',
         target: 'safari14',
         logOverride: { 'unsupported-css-nesting': 'silent' },
+        external: ['/@runtime.js'],
         loader: {
             '.js': 'jsx',
             '.module.css': 'local-css',
