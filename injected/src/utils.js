@@ -245,10 +245,17 @@ export function iterateDataKey(key, callback) {
     }
 }
 
-export function isFeatureBroken(args, feature, featureInstance) {
-    return isPlatformSpecificFeature(feature)
-        ? !featureInstance.isEnabled()
-        : args.site.isBroken || args.site.allowlisted || !featureInstance.isEnabled();
+const alwaysInitFeatures = new Set(['cookie']);
+
+function alwaysInitExtensionFeatures(args, featureName) {
+    return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
+}
+
+export function isFeatureBroken(args, feature) {
+    if (alwaysInitExtensionFeatures(args, feature) || isPlatformSpecificFeature(feature)) {
+        return false;
+    }
+    return args.site.isBroken || args.site.allowlisted;
 }
 
 export function camelcase(dashCaseText) {
@@ -665,12 +672,6 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
         allowlisted,
     });
     output.bundledConfig = data;
-    // TODO the ordering here is problematic.
-    // In the new model we need to compute the feature settings within the config-feature I think.
-    const enabledFeatures = computeEnabledFeatures(output, data, topLevelHostname, platformSpecificFeatures);
-    output.site.enabledFeatures = enabledFeatures;
-    // Copy feature settings from remote config to preferences object
-    output.featureSettings = parseFeatureSettings(data, enabledFeatures);
 
     return output;
 }

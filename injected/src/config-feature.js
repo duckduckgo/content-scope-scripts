@@ -6,6 +6,7 @@ import {
     parseFeatureSettings,
     computeLimitedSiteObject,
     isSupportedVersion,
+    isFeatureBroken,
 } from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
@@ -17,9 +18,6 @@ import { URLPattern } from 'urlpattern-polyfill';
  * - For external scripts, it provides API to update the site object for the feature, e.g when the URL has changed.
  */
 export default class ConfigFeature {
-    /** @type {import('./utils.js').RemoteConfig} */
-    #bundledConfig;
-
     /** @type {string} */
     name;
 
@@ -33,7 +31,8 @@ export default class ConfigFeature {
      *   site: import('./content-feature.js').Site,
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
      *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
-     * } | null}
+     *   bundledConfig: import('./utils.js').RemoteConfig,
+     * }}
      */
     #args;
 
@@ -43,8 +42,7 @@ export default class ConfigFeature {
      */
     constructor(name, args) {
         this.name = name;
-        const { bundledConfig, site, platform } = args;
-        this.#bundledConfig = bundledConfig;
+        const { site, platform } = args;
         this.#args = args;
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
@@ -75,7 +73,7 @@ export default class ConfigFeature {
     get featureSettings() {
         // TODO refactor to make faster
         const featureSettings = {};
-        const features = this.#bundledConfig.features || {};
+        const features = this.bundledConfig.features || {};
         for (const [featureName, feature] of Object.entries(features)) {
             featureSettings[featureName] = feature.settings;
         }
@@ -258,11 +256,12 @@ export default class ConfigFeature {
     }
 
     get currentFeatureConfig() {
-        const output = this.#bundledConfig.features[this.currentFeatureName];
+        const output = this.bundledConfig.features[this.currentFeatureName];
         return output;
     }
 
     isEnabled() {
+        if (isFeatureBroken(this.args, this.currentFeatureName)) return false;
         const platformVersion = this.args?.platform?.version;
         // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
         if (this.currentFeatureConfig.minSupportedVersion && platformVersion) {
@@ -416,9 +415,9 @@ export default class ConfigFeature {
     }
 
     /**
-     * @returns {import('./utils.js').RemoteConfig | undefined}
+     * @returns {import('./utils.js').RemoteConfig}
      **/
     get bundledConfig() {
-        return this.#bundledConfig;
+        return this.#args.bundledConfig;
     }
 }

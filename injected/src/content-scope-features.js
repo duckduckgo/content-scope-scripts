@@ -7,7 +7,6 @@ import { registerForURLChanges } from './url-change';
 let initArgs = null;
 const updates = [];
 const features = [];
-const alwaysInitFeatures = new Set(['cookie']);
 const performanceMonitor = new PerformanceMonitor();
 
 // It's important to avoid enabling the features for non-HTML documents (such as
@@ -55,7 +54,7 @@ export function load(args) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
             const featureInstance = new ContentFeature(featureName, importConfig, args);
             featureInstance.callLoad();
-            features.push({ featureName, featureInstance });
+            features.push({ featureInstance });
         }
     }
     mark.end();
@@ -70,10 +69,10 @@ export async function init(args) {
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
     const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+    resolvedFeatures.forEach(({ featureInstance }) => {
         // TODO refactor this to use the registry
-        if (!isFeatureBroken(args, featureName, featureInstance) || alwaysInitExtensionFeatures(args, featureName)) {
-            featureInstance.callInit(args);
+        featureInstance.callInit(args);
+        if (featureInstance.isEnabled()) {
             // Either listenForUrlChanges or urlChanged ensures the feature listens.
             if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
                 registerForURLChanges(() => {
@@ -106,10 +105,6 @@ export function update(args) {
         return;
     }
     updateFeaturesInner(args);
-}
-
-function alwaysInitExtensionFeatures(args, featureName) {
-    return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
 }
 
 async function updateFeaturesInner(args) {
