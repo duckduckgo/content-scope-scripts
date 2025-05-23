@@ -66,7 +66,7 @@ function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
         <div class={styles.body} id={id} aria-hidden={hidden} aria-expanded={showing}>
             {expansion === 'expanded' && (
                 <Fragment>
-                    <div class={styles.switcher}>
+                    <div class={cn(styles.switcher, styles.block)}>
                         <button
                             class={cn(styles.button, feed === 'privacy-stats' && styles.active)}
                             onClick={() => setFeed('privacy-stats')}
