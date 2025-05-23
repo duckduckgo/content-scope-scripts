@@ -1,5 +1,12 @@
 import { immutableJSONPatch } from 'immutable-json-patch';
-import { camelcase, computeEnabledFeatures, matchHostname, parseFeatureSettings, computeLimitedSiteObject } from './utils.js';
+import {
+    camelcase,
+    computeEnabledFeatures,
+    matchHostname,
+    parseFeatureSettings,
+    computeLimitedSiteObject,
+    isSupportedVersion,
+} from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
 /**
@@ -10,7 +17,7 @@ import { URLPattern } from 'urlpattern-polyfill';
  * - For external scripts, it provides API to update the site object for the feature, e.g when the URL has changed.
  */
 export default class ConfigFeature {
-    /** @type {import('./utils.js').RemoteConfig | undefined} */
+    /** @type {import('./utils.js').RemoteConfig} */
     #bundledConfig;
 
     /** @type {string} */
@@ -41,10 +48,10 @@ export default class ConfigFeature {
         this.#args = args;
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
-        if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
-            this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
-        }
+        //if (this.#bundledConfig && this.#args) {
+        //    const enabledFeatures = computeEnabledFeatures(this.#args, bundledConfig, site.domain);
+        //    this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
+        //}
     }
 
     /**
@@ -66,7 +73,14 @@ export default class ConfigFeature {
     }
 
     get featureSettings() {
-        return this.#args?.featureSettings;
+        // TODO refactor to make faster
+        const featureSettings = {};
+        const features = this.#bundledConfig.features || {};
+        for (const [featureName, feature] of Object.entries(features)) {
+            featureSettings[featureName] = feature.settings;
+        }
+        return featureSettings;
+        // return this.#args?.featureSettings;
     }
 
     /**
@@ -239,6 +253,51 @@ export default class ConfigFeature {
         return this.featureSettings?.[camelFeatureName];
     }
 
+    get currentFeatureName() {
+        return camelcase(this.name);
+    }
+
+    get currentFeatureConfig() {
+        const output = this.#bundledConfig.features[this.currentFeatureName];
+        return output;
+    }
+
+    isEnabled() {
+        const platformVersion = this.args?.platform?.version;
+        // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+        if (this.currentFeatureConfig.minSupportedVersion && platformVersion) {
+            if (!isSupportedVersion(this.currentFeatureConfig.minSupportedVersion, platformVersion)) {
+                return false;
+            }
+        }
+        let state = this.currentFeatureConfig.state;
+        const matchingConditionBlocks = this._matchingConditionBlocks();
+        for (const match of matchingConditionBlocks) {
+            if ('state' in match) {
+                state = match.state;
+            }
+        }
+        return state === 'enabled';
+    }
+
+    /**
+     * Returns any matching conditional blocks for the feature.
+     * This is used for patchSettings or feature enabling.
+     * @returns {any[]}
+     */
+    _matchingConditionBlocks(featureName) {
+        const result = this._getFeatureSettings(featureName);
+        // We only support one of these keys at a time, where conditionalChanges takes precedence
+        let conditionalMatches = [];
+        // Presence check using result to avoid the [] default response
+        if (result?.conditionalChanges) {
+            conditionalMatches = this.matchConditionalFeatureSetting('conditionalChanges');
+        } else {
+            conditionalMatches = this.matchConditionalFeatureSetting('domains');
+        }
+        return conditionalMatches;
+    }
+
     /**
      * For simple boolean settings, return true if the setting is 'enabled'
      * For objects, verify the 'state' field is 'enabled'.
@@ -342,14 +401,7 @@ export default class ConfigFeature {
         if (featureKeyName in ['domains', 'conditionalChanges']) {
             throw new Error(`${featureKeyName} is a reserved feature setting key name`);
         }
-        // We only support one of these keys at a time, where conditionalChanges takes precedence
-        let conditionalMatches = [];
-        // Presence check using result to avoid the [] default response
-        if (result?.conditionalChanges) {
-            conditionalMatches = this.matchConditionalFeatureSetting('conditionalChanges');
-        } else {
-            conditionalMatches = this.matchConditionalFeatureSetting('domains');
-        }
+        const conditionalMatches = this._matchingConditionBlocks(featureName);
         for (const match of conditionalMatches) {
             if (match.patchSettings === undefined) {
                 continue;

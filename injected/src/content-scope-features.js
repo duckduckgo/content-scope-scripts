@@ -48,9 +48,7 @@ export function load(args) {
     const featuresToLoad = isGloballyDisabled(args)
         // if we're globally disabled, only allow `platformSpecificFeatures`
         ? platformSpecificFeatures
-        // if available, use `site.enabledFeatures`. The extension doesn't have `site.enabledFeatures` at this
-        // point, which is why we fall back to `bundledFeatureNames`.
-        : args.site.enabledFeatures || bundledFeatureNames;
+        : bundledFeatureNames;
 
     for (const featureName of bundledFeatureNames) {
         if (featuresToLoad.includes(featureName)) {
@@ -73,7 +71,8 @@ export async function init(args) {
     initStringExemptionLists(args);
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
-        if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+        // TODO refactor this to use the registry
+        if (!isFeatureBroken(args, featureName, featureInstance) || alwaysInitExtensionFeatures(args, featureName)) {
             featureInstance.callInit(args);
             // Either listenForUrlChanges or urlChanged ensures the feature listens.
             if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
