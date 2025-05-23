@@ -9,7 +9,6 @@
     grid-template-columns: auto;
     width: 100%;
     margin-bottom: var(--ntp-gap);
-    color: var(--ntp-text-muted);
 
     &:hover {
         .listExpander * {
@@ -46,6 +45,9 @@
 
 .block {
     margin-top: 24px;
+}
+.empty {
+    color: var(--ntp-text-muted);
 }
 
 .feed {}

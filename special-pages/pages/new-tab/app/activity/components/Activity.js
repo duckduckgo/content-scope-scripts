@@ -17,7 +17,7 @@ import { useDocumentVisibility } from '../../../../../shared/components/Document
 import { HistoryItems } from './HistoryItems.js';
 import { NormalizedDataContext, SignalStateProvider } from '../NormalizeDataProvider.js';
 import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsContext.js';
-import { ProtectionsBlock } from '../../protections/components/Protections.js';
+import { ProtectionsEmpty } from '../../protections/components/Protections.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -45,9 +45,9 @@ export function Activity({ itemCount, batched, children }) {
 export function ActivityEmptyState() {
     const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
     return (
-        <ProtectionsBlock>
+        <ProtectionsEmpty>
             <p>{t('activity_empty')}</p>
-        </ProtectionsBlock>
+        </ProtectionsEmpty>
     );
 }
 

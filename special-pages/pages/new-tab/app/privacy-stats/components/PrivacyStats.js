@@ -7,7 +7,7 @@ import { DDG_STATS_DEFAULT_ROWS, DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../c
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.js';
-import { ProtectionsBlock } from '../../protections/components/Protections.js';
+import { ProtectionsEmpty } from '../../protections/components/Protections.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -49,7 +49,7 @@ export function PrivacyStats({ trackerCompanies, expansion = 'expanded' }) {
 
 export function PrivacyStatsEmptyState() {
     const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
-    return <ProtectionsBlock>{t('stats_noActivity')}</ProtectionsBlock>;
+    return <ProtectionsEmpty>{t('stats_noActivity')}</ProtectionsEmpty>;
 }
 
 /**

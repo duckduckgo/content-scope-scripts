@@ -85,10 +85,10 @@ function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
 }
 
 /**
- * Use this block to correctly space elements below the switcher
+ * Use this for empty-state text
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  */
-export function ProtectionsBlock({ children }) {
-    return <div class={styles.block}>{children}</div>;
+export function ProtectionsEmpty({ children }) {
+    return <div class={cn(styles.block, styles.empty)}>{children}</div>;
 }
