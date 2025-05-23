@@ -9,7 +9,7 @@
       "properties": {
         "state": {
           "type": "string",
-          "enum": ["enabled", "disabled"]
+          "enum": ["enabled"]
         },
         "autoOpen": {
           "description": "Should the customizer drawer be opened on page load?",

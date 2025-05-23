@@ -34,7 +34,11 @@ title: Customizer
     "userImages": [],
     "userColor": null,
     "theme": "dark",
-    "background": { "kind": "default" }
+    "background": { "kind": "default" },
+    "defaultStyles": {
+      "lightBackgroundColor": "#E9EBEC",
+      "darkBackgroundColor": "#27282A"
+    }
   }
 }
 ```
@@ -52,7 +56,11 @@ title: Customizer
     "userImages": [],
     "userColor": null,
     "theme": "dark",
-    "background": { "kind": "default" }
+    "background": { "kind": "default" },
+    "defaultStyles": {
+      "lightBackgroundColor": "#E9EBEC",
+      "darkBackgroundColor": "#27282A"
+    }
   }
 }
 ```
@@ -128,6 +136,16 @@ title: Customizer
 {
   "theme": "system"
 } 
+```
+- Or, with optional `defaultStyles` example:
+```json
+{
+  "theme": "system",
+  "defaultStyles": {
+    "lightBackgroundColor": "#E9EBEC",
+    "darkBackgroundColor": "#27282A"
+  }
+}
 ```
   
 ### `customizer_autoOpen`

@@ -50,6 +50,7 @@
     }
 
     [data-theme="dark"] & {
+        border: 1px solid var(--color-white-at-9);
         &:hover {
             background: rgba(0, 0, 0, 0.24);
         }

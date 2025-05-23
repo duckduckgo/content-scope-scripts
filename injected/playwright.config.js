@@ -37,7 +37,11 @@ export default defineConfig({
         },
         {
             name: 'ios',
-            testMatch: ['integration-test/duckplayer-mobile.spec.js', 'integration-test/duckplayer-mobile-drawer.spec.js'],
+            testMatch: [
+                'integration-test/duckplayer-mobile.spec.js',
+                'integration-test/duckplayer-mobile-drawer.spec.js',
+                'integration-test/duckplayer-native.spec.js',
+            ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
@@ -89,8 +93,8 @@ export default defineConfig({
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
     /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : undefined,
-    reporter: process.env.CI ? 'github' : [['html', { open: 'never' }]],
+    workers: process.env.CI ? 2 : undefined,
+    reporter: 'html',
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     webServer: {
         reuseExistingServer: true,
@@ -105,5 +109,6 @@ export default defineConfig({
         baseURL: 'http://localhost:3220/',
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
+        video: { mode: 'on-first-retry' },
     },
 });

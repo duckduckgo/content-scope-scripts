@@ -7,11 +7,18 @@ injected/src/element-hiding.js @duckduckgo/content-scope-scripts-owners @jonatha
 injected/src/features/click-to-load.js @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
 injected/src/features/click-to-load/ @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
 injected/src/locales/click-to-load/ @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
-injected/src/features/broker-protection.js @duckduckgo/content-scope-scripts-owners @brianhall @shakyShane @madblex
-injected/src/features/broker-protection/ @duckduckgo/content-scope-scripts-owners @brianhall @shakyShane @madblex
 injected/src/features/autofill-password-import.js @duckduckgo/content-scope-scripts-owners @dbajpeyi
 
+# Broker protection
+injected/src/features/broker-protection.js @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
+injected/src/features/broker-protection/ @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
+injected/integration-test/page-objects/broker-protection.js @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
+injected/integration-test/broker-protection-tests/ @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
+injected/integration-test/mocks/broker-protection/ @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
+injected/integration-test/test-pages/broker-protection/ @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
+
 # Platform owners
+injected/src/features.js @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs @duckduckgo/android-devs @duckduckgo/team-windows-development @kzar @sammacbeth
 Sources/ @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs
 injected/entry-points/android.js @duckduckgo/content-scope-scripts-owners @duckduckgo/android-devs
 injected/entry-points/extension-mv3.js @duckduckgo/content-scope-scripts-owners @kzar @sammacbeth

@@ -20,8 +20,8 @@ export const tableIconPrefix = 'assets/img/steps/v3/';
  *
  * Safari was removed from the latest comparison table layout. Keeping it the data just in case it comes back.
  *
- * @type {(t: ReturnType<typeof import('../../types')['useTypedTranslation']>['t']) => FeatureSupportData[]} */
-export const comparisonTableData = (t) => [
+ * @type {(t: ReturnType<typeof import('../../types')['useTypedTranslation']>['t'], adBlockingEnabled?: boolean) => FeatureSupportData[]} */
+export const comparisonTableData = (t, adBlockingEnabled = false) => [
     {
         icon: 'search.svg',
         title: t('comparison_searchPrivately'),
@@ -69,7 +69,7 @@ export const comparisonTableData = (t) => [
     },
     {
         icon: 'video-player.svg',
-        title: t('comparison_privateYoutube'),
+        title: adBlockingEnabled ? t('comparison_youtubeAdFree') : t('comparison_privateYoutube'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,

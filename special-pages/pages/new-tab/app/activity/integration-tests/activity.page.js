@@ -420,10 +420,19 @@ export class ActivityPage {
         const { page } = this;
         await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
             - img "Privacy Shield"
-            - heading "Total of 0 ads & tracking attempts blocked" [level=2]
+            - heading "0 advertising & tracking attempts blocked" [level=2]
             - button "Hide recent activity" [expanded] [pressed]:
               - img
             - paragraph: Past 7 days
         `);
+    }
+
+    async hasTrackingInfoWithoutButtons() {
+        const { page } = this;
+        await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
+          - img "Privacy Shield"
+          - heading "56 tracking attempts blocked" [level=2]
+          - paragraph: Past 7 days
+      `);
     }
 }

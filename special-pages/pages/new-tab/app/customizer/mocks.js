@@ -93,6 +93,20 @@ export function customizerMockTransport() {
     });
 }
 
+/**
+ * @returns {import("../../types/new-tab.js").DefaultStyles | null}
+ */
+function getDefaultStyles() {
+    if (url.searchParams.get('defaultStyles') === 'visual-refresh') {
+        // https://app.asana.com/0/1201141132935289/1209349703167198/f
+        return {
+            lightBackgroundColor: '#E9EBEC',
+            darkBackgroundColor: '#27282A',
+        };
+    }
+    return null;
+}
+
 /** @type {()=>import('../../types/new-tab').CustomizerData} */
 export function customizerData() {
     /** @type {import('../../types/new-tab').CustomizerData} */
@@ -101,6 +115,7 @@ export function customizerData() {
         userColor: null,
         theme: 'system',
         background: { kind: 'default' },
+        defaultStyles: getDefaultStyles(),
     };
 
     if (url.searchParams.has('background')) {

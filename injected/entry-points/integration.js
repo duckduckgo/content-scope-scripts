@@ -22,6 +22,18 @@ function generateConfig() {
         platform: {
             name: 'extension',
         },
+        currentCohorts: [
+            {
+                feature: 'contentScopeExperiments',
+                subfeature: 'bloops',
+                cohort: 'control',
+            },
+            {
+                feature: 'contentScopeExperiments',
+                subfeature: 'test',
+                cohort: 'treatment',
+            },
+        ],
         site: {
             domain: topLevelUrl.hostname,
             url: topLevelUrl.href,
@@ -35,6 +47,7 @@ function generateConfig() {
                 'webCompat',
                 'apiManipulation',
                 'duckPlayer',
+                'duckPlayerNative',
             ],
         },
     };
@@ -97,6 +110,7 @@ async function initCode() {
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
+        currentCohorts: processedConfig.currentCohorts,
     });
 
     // mark this phase as loaded

@@ -503,7 +503,6 @@ export function mockTransport() {
                         env: 'development',
                         locale: 'en',
                         updateNotification,
-                        defaultStyles: getDefaultStyles(),
                     };
 
                     const feed = url.searchParams.get('feed') || 'stats';
@@ -516,16 +515,15 @@ export function mockTransport() {
                         widgetConfigFromStorage.push({ id: 'activity', visibility: 'visible' });
                     }
 
+                    initial.customizer = customizerData();
+
                     /** @type {import('../types/new-tab').NewTabPageSettings} */
-                    const settings = {};
+                    const settings = {
+                        customizerDrawer: { state: 'enabled' },
+                    };
 
-                    if (url.searchParams.get('customizerDrawer') === 'enabled') {
-                        settings.customizerDrawer = { state: 'enabled' };
-                        if (url.searchParams.get('autoOpen') === 'true') {
-                            settings.customizerDrawer.autoOpen = true;
-                        }
-
-                        initial.customizer = customizerData();
+                    if (url.searchParams.get('autoOpen') === 'true' && settings.customizerDrawer) {
+                        settings.customizerDrawer.autoOpen = true;
                     }
 
                     if (url.searchParams.get('adBlocking') === 'enabled') {
@@ -543,20 +541,6 @@ export function mockTransport() {
             }
         },
     });
-}
-
-/**
- * @returns {import("../types/new-tab.js").DefaultStyles | null}
- */
-function getDefaultStyles() {
-    if (url.searchParams.get('defaultStyles') === 'visual-refresh') {
-        // https://app.asana.com/0/1201141132935289/1209349703167198/f
-        return {
-            lightBackgroundColor: '#E9EBEC',
-            darkBackgroundColor: '#27282A',
-        };
-    }
-    return null;
 }
 
 /**

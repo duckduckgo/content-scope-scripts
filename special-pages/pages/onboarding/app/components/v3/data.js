@@ -83,10 +83,7 @@ export const stepsConfig = {
             content: <SettingsStep data={settingsRowItems} />,
         };
     },
-    duckPlayerSingle: ({ t, globalState, advance, beforeAfter }) => {
-        const isYouTubeAdBlockingEnabled = globalState.values['youtube-ad-blocking']?.enabled ?? false;
-        const title = isYouTubeAdBlockingEnabled ? t('duckPlayer_alt_title') : t('duckPlayer_title');
-        const subtitle = isYouTubeAdBlockingEnabled ? t('duckPlayer_alt_subtitle') : t('duckPlayer_subtitle');
+    duckPlayerSingle: ({ t, advance, beforeAfter }) => {
         const beforeAfterState = beforeAfter.get();
         const longestText = [t('beforeAfter_duckPlayer_show'), t('beforeAfter_duckPlayer_hide')].reduce((acc, cur) => {
             return cur.length > acc.length ? cur : acc;
@@ -95,8 +92,8 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title,
-                subtitle,
+                title: t('duckPlayer_title'),
+                subtitle: t('duckPlayer_subtitle'),
                 speechBubble: true,
             },
             dismissButton: {
@@ -207,10 +204,19 @@ export const settingsRowItems = {
         acceptText: t('row_home-shortcut_accept'),
         accepButtonVariant: 'secondary',
     }),
-    'ad-blocking': (t) => ({
-        id: 'ad-blocking',
+    'placebo-ad-blocking': (t) => ({
+        id: 'placebo-ad-blocking',
         icon: 'v3/ads.svg',
-        title: t('row_ad-blocking_title_v3'),
+        title: t('row_placebo-ad-blocking_title_v3'),
+        secondaryText: t('row_ad-blocking_desc_v3'),
+        kind: 'one-time',
+        acceptText: t('row_ad-blocking_accept_v3'),
+        accepButtonVariant: 'primary',
+    }),
+    'aggressive-ad-blocking': (t) => ({
+        id: 'aggressive-ad-blocking',
+        icon: 'v3/ads.svg',
+        title: t('row_aggressive-ad-blocking_title_v3'),
         secondaryText: t('row_ad-blocking_desc_v3'),
         kind: 'one-time',
         acceptText: t('row_ad-blocking_accept_v3'),
@@ -218,7 +224,7 @@ export const settingsRowItems = {
     }),
     'youtube-ad-blocking': (t) => ({
         id: 'youtube-ad-blocking',
-        icon: 'v3/video-player.svg',
+        icon: 'v3/ads.svg',
         title: t('row_youtube-ad-blocking_title_v3'),
         secondaryText: t('row_youtube-ad-blocking_desc_v3'),
         kind: 'one-time',

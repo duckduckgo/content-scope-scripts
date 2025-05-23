@@ -285,14 +285,6 @@
     "title": "No targeted ads. No targeted recommendations. Just your video.",
     "note": "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
-  "duckPlayer_alt_title": {
-    "title": "Watch YouTube privately with Duck Player",
-    "note": "Alternative title for Duck Player step when YouTube ad blocking is also offered."
-  },
-  "duckPlayer_alt_subtitle": {
-    "title": "Watching videos in Duck Player won't influence your YouTube recommendations.",
-    "note": "Alternative subtitle for Duck Player step when YouTube ad blocking is also offered."
-  },
   "customize_title_v3": {
     "title": "Let’s customize a few things…",
     "note": "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."
@@ -353,12 +345,16 @@
     "title": "Get to DuckDuckGo faster.",
     "note": "Instructs the user to add DuckDuckGo to their taskbar by clicking Yes on a dialog screen."
   },
-  "row_ad-blocking_title_v3": {
-    "title": "Browse faster with even fewer ads",
+  "row_placebo-ad-blocking_title_v3": {
+    "title": "Block even more ads",
+    "note": "Title for the enhanced ad blocking setting."
+  },
+  "row_aggressive-ad-blocking_title_v3": {
+    "title": "Block even more ads, including on YouTube",
     "note": "Title for the enhanced ad blocking setting."
   },
   "row_ad-blocking_desc_v3": {
-    "title": "Our protections block most ads; enhanced blocking stops even more.",
+    "title": "Enhanced ad blocking stops even more ads.",
     "note": "Description for the enhanced ad blocking setting."
   },
   "row_ad-blocking_accept_v3": {
@@ -370,7 +366,7 @@
     "note": "Title for the YouTube ad blocking setting."
   },
   "row_youtube-ad-blocking_desc_v3": {
-    "title": "No targeted ads, just your video.",
+    "title": "No ads, just your video.",
     "note": "Description for the YouTube ad blocking setting."
   },
   "row_youtube-ad-blocking_accept_v3": {
@@ -400,6 +396,10 @@
   "comparison_privateYoutube": {
     "title": "Play YouTube without targeted ads",
     "note": "The description of a browser privacy feature in the comparison table."
+  },
+  "comparison_youtubeAdFree": {
+    "title": "Watch YouTube ad-free",
+    "note": "The description of a browser privacy feature in the comparison table when ad-blocking is enabled."
   },
   "comparison_fullSupport": {
     "title": "Significant protection",

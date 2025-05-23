@@ -1,7 +1,14 @@
 import { immutableJSONPatch } from 'immutable-json-patch';
-import { camelcase, computeEnabledFeatures, matchHostname, parseFeatureSettings } from './utils.js';
+import { camelcase, computeEnabledFeatures, matchHostname, parseFeatureSettings, computeLimitedSiteObject } from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
+/**
+ * This class is extended by each feature to implement remote config handling:
+ * - Parsing the remote config, with conditional logic applied,
+ * - Providing API for features to check if they are enabled,
+ * - Providing API for features to get their config.
+ * - For external scripts, it provides API to update the site object for the feature, e.g when the URL has changed.
+ */
 export default class ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     #bundledConfig;
@@ -9,7 +16,18 @@ export default class ConfigFeature {
     /** @type {string} */
     name;
 
-    /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: import('./content-feature.js').AssetConfig | undefined, site: import('./content-feature.js').Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
+    /**
+     * @type {{
+     *   debug?: boolean,
+     *   desktopModeEnabled?: boolean,
+     *   forcedZoomEnabled?: boolean,
+     *   featureSettings?: Record<string, unknown>,
+     *   assets?: import('./content-feature.js').AssetConfig | undefined,
+     *   site: import('./content-feature.js').Site,
+     *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
+     *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
+     * } | null}
+     */
     #args;
 
     /**
@@ -26,6 +44,16 @@ export default class ConfigFeature {
         if (this.#bundledConfig && this.#args) {
             const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
             this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
+        }
+    }
+
+    /**
+     * Call this when the top URL has changed, to recompute the site object.
+     * This is used to update the path matching for urlPattern.
+     */
+    recomputeSiteObject() {
+        if (this.#args) {
+            this.#args.site = computeLimitedSiteObject();
         }
     }
 
@@ -78,6 +106,9 @@ export default class ConfigFeature {
      * @typedef {object} ConditionBlock
      * @property {string[] | string} [domain]
      * @property {object} [urlPattern]
+     * @property {object} [experiment]
+     * @property {string} [experiment.experimentName]
+     * @property {string} [experiment.cohort]
      */
 
     /**
@@ -104,6 +135,7 @@ export default class ConfigFeature {
         const conditionChecks = {
             domain: this._matchDomainConditional,
             urlPattern: this._matchUrlPatternConditional,
+            experiment: this._matchExperimentConditional,
         };
 
         for (const key in conditionBlock) {
@@ -133,6 +165,36 @@ export default class ConfigFeature {
             }
         }
         return true;
+    }
+
+    /**
+     * Takes a condition block and returns true if the current experiment matches the experimentName and cohort.
+     * Expects:
+     * ```json
+     * {
+     *   "experiment": {
+     *      "experimentName": "experimentName",
+     *      "cohort": "cohort-name"
+     *    }
+     * }
+     * ```
+     * Where featureName "contentScopeExperiments" has a subfeature "experimentName" and cohort "cohort-name"
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchExperimentConditional(conditionBlock) {
+        if (!conditionBlock.experiment) return false;
+        const experiment = conditionBlock.experiment;
+        if (!experiment.experimentName || !experiment.cohort) return false;
+        const currentCohorts = this.args?.currentCohorts;
+        if (!currentCohorts) return false;
+        return currentCohorts.some((cohort) => {
+            return (
+                cohort.feature === 'contentScopeExperiments' &&
+                cohort.subfeature === experiment.experimentName &&
+                cohort.cohort === experiment.cohort
+            );
+        });
     }
 
     /**

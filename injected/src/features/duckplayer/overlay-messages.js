@@ -12,7 +12,7 @@ import * as constants from './constants.js';
 export class DuckPlayerOverlayMessages {
     /**
      * @param {Messaging} messaging
-     * @param {import('./overlays.js').Environment} environment
+     * @param {import('./environment.js').Environment} environment
      * @internal
      */
     constructor(messaging, environment) {
