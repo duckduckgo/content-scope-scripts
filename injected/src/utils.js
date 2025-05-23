@@ -671,45 +671,10 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
         isBroken,
         allowlisted,
     });
+    output.platformSpecificFeatures = platformSpecificFeatures;
     output.bundledConfig = data;
 
     return output;
-}
-
-const configFeatureRegistry = new Map();
-
-export function getConfigFeature(featureName) {
-    if (configFeatureRegistry.has(featureName)) {
-        return configFeatureRegistry.get(featureName);
-    }
-    return null;
-}
-
-/**
- * Retutns a list of enabled features
- * @param {import('./content-scope-features.js').LoadArgs} args
- * @param {RemoteConfig} data
- * @param {string | null} topLevelHostname
- * @param {string[]} platformSpecificFeatures
- * @returns {string[]}
- */
-export function computeEnabledFeatures(args, data, topLevelHostname, platformSpecificFeatures = []) {
-    const remoteFeatureNames = Object.keys(data.features);
-    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
-        (featureName) => !remoteFeatureNames.includes(featureName),
-    );
-    const enabledFeatures = remoteFeatureNames
-        .filter((featureName) => {
-            const feature = data.features[featureName];
-            let configFeature = getConfigFeature(featureName)
-            if (!configFeature) {
-                configFeature = new ConfigFeature(featureName, args);
-                configFeatureRegistry.set(featureName, configFeature);
-            }
-            return configFeature.isEnabled() && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
-        })
-        .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
-    return enabledFeatures;
 }
 
 /**

@@ -204,7 +204,8 @@ export default class ContentFeature extends ConfigFeature {
 
     callLoad() {
         // Short circuit here if the feature is disabled and we're not in the extension
-        if (!this.isEnabled() && this.platform?.name !== 'extension') {
+        // Ordering matters here as isEnabled doesn't work if the config hasn't loaded yet
+        if (this.platform?.name !== 'extension' && !this.isEnabled()) {
             return;
         }
         const mark = this.monitor.mark(this.name + 'CallLoad');

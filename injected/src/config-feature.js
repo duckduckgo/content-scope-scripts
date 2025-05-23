@@ -7,6 +7,7 @@ import {
     computeLimitedSiteObject,
     isSupportedVersion,
     isFeatureBroken,
+    isUnprotectedDomain,
 } from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
@@ -32,6 +33,7 @@ export default class ConfigFeature {
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
      *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
      *   bundledConfig: import('./utils.js').RemoteConfig,
+     *   platformSpecificFeatures: string[],
      * }}
      */
     #args;
@@ -261,6 +263,13 @@ export default class ConfigFeature {
     }
 
     isEnabled() {
+        if (!this.currentFeatureConfig) {
+            if (this.#args?.debug) {
+                throw new Error(`Feature ${this.currentFeatureName} didn't have config`);
+            }
+            return false;
+        }
+        if (isUnprotectedDomain(this.#args.site.domain, this.currentFeatureConfig.exceptions)) return false;
         if (isFeatureBroken(this.args, this.currentFeatureName)) return false;
         const platformVersion = this.args?.platform?.version;
         // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
@@ -270,6 +279,9 @@ export default class ConfigFeature {
             }
         }
         let state = this.currentFeatureConfig.state;
+        if (state === undefined && this.currentFeatureName in this.#args.platformSpecificFeatures) {
+            state = "enabled";
+        }
         const matchingConditionBlocks = this._matchingConditionBlocks();
         for (const match of matchingConditionBlocks) {
             if ('state' in match) {
