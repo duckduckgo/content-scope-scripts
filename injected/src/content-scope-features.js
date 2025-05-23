@@ -24,6 +24,15 @@ const isHTMLDocument =
  * @property {import('./utils.js').Platform} platform
  * @property {import('./utils.js').RemoteConfig} bundledConfig
  * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
+ * @property {boolean} [debug]
+ * @property {boolean} [desktopModeEnabled]
+ * @property {boolean} [forcedZoomEnabled]
+ * @property {import('./content-feature.js').AssetConfig} [assets]
+ * @property {import('./content-feature.js').Site} site
+ * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
+ * @property {{ feature: string, cohort: string, subfeature: string }[]} [currentCohorts]
+ * @property {import('./utils.js').RemoteConfig} bundledConfig
+ * @property {string[]} platformSpecificFeatures
  * @property {string} [messageSecret] - optional, used in the messageBridge creation
  */
 

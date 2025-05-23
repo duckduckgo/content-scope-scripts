@@ -1,7 +1,6 @@
 import { immutableJSONPatch } from 'immutable-json-patch';
 import {
     camelcase,
-    computeEnabledFeatures,
     matchHostname,
     parseFeatureSettings,
     computeLimitedSiteObject,
@@ -23,18 +22,7 @@ export default class ConfigFeature {
     name;
 
     /**
-     * @type {{
-     *   debug?: boolean,
-     *   desktopModeEnabled?: boolean,
-     *   forcedZoomEnabled?: boolean,
-     *   featureSettings?: Record<string, unknown>,
-     *   assets?: import('./content-feature.js').AssetConfig | undefined,
-     *   site: import('./content-feature.js').Site,
-     *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
-     *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
-     *   bundledConfig: import('./utils.js').RemoteConfig,
-     *   platformSpecificFeatures: string[],
-     * }}
+     * @type {import('./content-scope-features.js').LoadArgs}
      */
     #args;
 
@@ -44,14 +32,7 @@ export default class ConfigFeature {
      */
     constructor(name, args) {
         this.name = name;
-        const { site, platform } = args;
         this.#args = args;
-        // If we have a bundled config, treat it as a regular config
-        // This will be overriden by the remote config if it is available
-        //if (this.#bundledConfig && this.#args) {
-        //    const enabledFeatures = computeEnabledFeatures(this.#args, bundledConfig, site.domain);
-        //    this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
-        //}
     }
 
     /**
@@ -80,7 +61,6 @@ export default class ConfigFeature {
             featureSettings[featureName] = feature.settings;
         }
         return featureSettings;
-        // return this.#args?.featureSettings;
     }
 
     /**
