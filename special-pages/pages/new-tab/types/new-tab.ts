@@ -121,7 +121,6 @@ export interface NewTabMessages {
     | StatsShowLessNotification
     | StatsShowMoreNotification
     | TelemetryEventNotification
-    | UpdateNotificationDismissNotification
     | WidgetsSetConfigNotification;
   requests:
     | ActivityConfirmBurnRequest
@@ -156,7 +155,6 @@ export interface NewTabMessages {
     | RmfOnDataUpdateSubscription
     | StatsOnConfigUpdateSubscription
     | StatsOnDataUpdateSubscription
-    | UpdateNotificationOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription;
 }
 /**
@@ -548,12 +546,6 @@ export interface ExampleTelemetryEvent {
   name: "ntp_example";
 }
 /**
- * Generated from @see "../messages/updateNotification_dismiss.notify.json"
- */
-export interface UpdateNotificationDismissNotification {
-  method: "updateNotification_dismiss";
-}
-/**
  * Generated from @see "../messages/widgets_setConfig.notify.json"
  */
 export interface WidgetsSetConfigNotification {
@@ -732,7 +724,6 @@ export interface InitialSetupResponse {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
   customizer?: CustomizerData;
-  updateNotification: null | UpdateNotificationData;
 }
 export interface WidgetListItem {
   /**
@@ -768,13 +759,6 @@ export interface DefaultStyles {
    * Optional default light background color. Any HEX value is permitted
    */
   lightBackgroundColor?: string;
-}
-export interface UpdateNotificationData {
-  content: null | UpdateNotification;
-}
-export interface UpdateNotification {
-  version: string;
-  notes: string[];
 }
 /**
  * Generated from @see "../messages/nextSteps_getConfig.request.json"
@@ -993,13 +977,6 @@ export interface StatsOnConfigUpdateSubscription {
 export interface StatsOnDataUpdateSubscription {
   subscriptionEvent: "stats_onDataUpdate";
   params: PrivacyStatsData;
-}
-/**
- * Generated from @see "../messages/updateNotification_onDataUpdate.subscribe.json"
- */
-export interface UpdateNotificationOnDataUpdateSubscription {
-  subscriptionEvent: "updateNotification_onDataUpdate";
-  params: UpdateNotificationData;
 }
 /**
  * Generated from @see "../messages/widgets_onConfigUpdated.subscribe.json"
