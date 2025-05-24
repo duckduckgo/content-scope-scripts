@@ -48,6 +48,7 @@ export function useTypedTranslationWith(_context) {
 }
 
 export const MessagingContext = createContext(/** @type {import("../src/index.js").SettingsPage} */ ({}));
+export const StringsContext = createContext(/** @type {Record<string, {title: string}>} */ ({}));
 export const useMessaging = () => useContext(MessagingContext);
 export const AppSettingsContext = createContext(new AppSettings({ platform: { name: 'macos' } }));
 export const useSettings = () => useContext(AppSettingsContext);
@@ -62,4 +63,11 @@ export function usePrivateSearchTranslations() {
 
 export function useDefaultBrowserTranslations() {
     return useTypedTranslationWith(/** @type {import("./screens/defaultBrowser/strings.json") & import("./shared/strings.json")} */ ({}));
+}
+
+/**
+ * @returns {Record<string, {title: string}>}
+ */
+export function useStrings() {
+    return useContext(StringsContext);
 }

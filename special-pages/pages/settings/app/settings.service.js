@@ -8,7 +8,7 @@
  *   | { id: string, kind: "SectionTitleProps", props: import('./elements/SectionTitle.js').SectionTitleProps }
  *   | { id: string, kind: "TextRowDefinition", props: import('./elements/TextRow.js').TextRowDefinition }
  *   | { id: string, kind: "NearestLocation" }
- *   | { id: string, kind: "PrivacyPro" }
+ *   | { id: string, kind: "PrivacyPro", strings: string[] }
  *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
  *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
  *   | { id: string, kind: "ButtonRowDefinition", props: import('./elements/ButtonRow.js').ButtonRowDefinition }
@@ -135,7 +135,7 @@ export function defaultStructure() {
 export function defaultState() {
     return {
         'privateSearch.autocomplete_on': true,
-        'cookiePopupProtection.cpm_on': true,
+        'cookiePopupProtection.base.cpm_on': true,
         'webTrackingProtection.titleStatus': true,
         'privateSearch.titleStatus': true,
         'defaultBrowser.isDefault': false,

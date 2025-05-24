@@ -8,18 +8,25 @@ import { signal, useSignal } from '@preact/signals';
 
 /**
  * @typedef {{
- *   id: string | 'unknown',
+ *   id: string,
+ *   term: null,
+ * } | {
+ *   id: null,
+ *   term: string,
  * }} NavState - this is the value the entire application can read/observe
  */
 
 /**
- * @typedef {{ kind: 'nav', id: string }} Action
+ * @typedef {{ kind: 'nav', id: string }
+ * | {kind:"search"; term: string}
+ * } Action
  */
 
 const NavContext = createContext(
     /** @type {import('@preact/signals').ReadonlySignal<NavState>} */ (
         signal({
             id: 'unknown',
+            term: null,
         })
     ),
 );
@@ -37,13 +44,9 @@ const NavDispatch = createContext(
  *
  * @param {Object} props - The props object for the component.
  * @param {import('preact').ComponentChild} props.children - The child components wrapped within the provider.
- * @param {string} props.initialId - The initial search term for the context.
+ * @param {NavState} props.initial - The initial search term for the context.
  */
-export function NavProvider({ children, initialId }) {
-    /** @type {NavState} */
-    const initial = {
-        id: initialId,
-    };
+export function NavProvider({ children, initial }) {
     const navState = useSignal(initial);
 
     /**
@@ -54,12 +57,23 @@ export function NavProvider({ children, initialId }) {
         const nextState = (() => {
             switch (action.kind) {
                 case 'nav': {
-                    return { id: action.id };
+                    return {
+                        id: action.id,
+                        term: null,
+                    };
+                }
+                case 'search': {
+                    return {
+                        id: null,
+                        term: action.term,
+                    };
                 }
                 default:
+                    console.warn('NavProvider did not handle', action);
                     return navState.value;
             }
         })();
+        // console.log('next nav state', nextState);
         navState.value = nextState;
     }
 
@@ -89,10 +103,13 @@ export function useNavDispatch() {
 /**
  * @param {string} pathname
  * @param {string[]} screens
- * @return {string}
+ * @param {URLSearchParams} params
+ * @return {{id: null, term: string} | {id: string; term: null}}
  */
-export function pathnameToId(pathname, screens) {
+export function pathnameToState(pathname, params, screens) {
     const match = screens.find((screen) => pathname.startsWith(`/${screen}`));
-    if (match) return match;
-    return screens[0];
+    const term = params.get('search') || ''.trim();
+    if (term.length > 0) return { term, id: null };
+    if (match) return { id: match, term: null };
+    return { id: screens[0], term: null };
 }

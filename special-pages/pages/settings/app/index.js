@@ -8,13 +8,13 @@ import enStrings from '../public/locales/en/settings.json';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { callWithRetry } from '../../../shared/call-with-retry.js';
 
-import { MessagingContext, AppSettingsContext } from './types.js';
+import { MessagingContext, AppSettingsContext, StringsContext } from './types.js';
 import { defaultStructure, defaultState, paramsToQuery, SettingsService } from './settings.service.js';
 import { SettingsServiceProvider } from './global/Providers/SettingsServiceProvider.js';
 import { AppSettings } from './AppSettings.js';
 import { QueryProvider } from './global/Providers/QueryProvider.js';
 import { InlineErrorBoundary } from '../../../shared/components/InlineErrorBoundary.js';
-import { NavProvider, pathnameToId } from './global/Providers/NavProvider.js';
+import { NavProvider, pathnameToState } from './global/Providers/NavProvider.js';
 
 /**
  * @param {Element} root
@@ -75,7 +75,7 @@ export async function init(root, messaging, baseEnvironment) {
     const mod = await import('/@runtime.js');
     const processed = await mod.process({ structure, state }, init);
 
-    const initialId = pathnameToId(location.pathname, Object.keys(processed.structure.screens));
+    const initial = pathnameToState(location.pathname, environment.urlParams, Object.keys(processed.structure.screens));
 
     console.log(processed.structure);
 
@@ -94,23 +94,25 @@ export async function init(root, messaging, baseEnvironment) {
                     willThrow={environment.willThrow}
                 >
                     <UpdateEnvironment search={window.location.search} />
-                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                        <MessagingContext.Provider value={messaging}>
-                            <AppSettingsContext.Provider value={appSettings}>
-                                <NavProvider initialId={initialId}>
-                                    <QueryProvider query={query}>
-                                        <SettingsServiceProvider
-                                            service={service}
-                                            data={processed.structure}
-                                            initialState={processed.state}
-                                        >
-                                            <App />
-                                        </SettingsServiceProvider>
-                                    </QueryProvider>
-                                </NavProvider>
-                            </AppSettingsContext.Provider>
-                        </MessagingContext.Provider>
-                    </TranslationProvider>
+                    <StringsContext.Provider value={strings}>
+                        <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                            <MessagingContext.Provider value={messaging}>
+                                <AppSettingsContext.Provider value={appSettings}>
+                                    <NavProvider initial={initial}>
+                                        <QueryProvider query={query}>
+                                            <SettingsServiceProvider
+                                                service={service}
+                                                data={processed.structure}
+                                                initialState={processed.state}
+                                            >
+                                                <App />
+                                            </SettingsServiceProvider>
+                                        </QueryProvider>
+                                    </NavProvider>
+                                </AppSettingsContext.Provider>
+                            </MessagingContext.Provider>
+                        </TranslationProvider>
+                    </StringsContext.Provider>
                 </EnvironmentProvider>
             </InlineErrorBoundary>,
             root,

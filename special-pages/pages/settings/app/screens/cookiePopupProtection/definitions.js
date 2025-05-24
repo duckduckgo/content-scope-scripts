@@ -13,7 +13,7 @@ export function cookiePopupProtection() {
             elements: [
                 {
                     id: 'cookiePopupProtection.titleStatus',
-                    valueId: 'cookiePopupProtection.cpm_on',
+                    valueId: 'cookiePopupProtection.base.cpm_on',
                     kind: 'ScreenTitleStatusDefinition',
                     props: {
                         offText: 'status_off',
@@ -22,18 +22,18 @@ export function cookiePopupProtection() {
                     },
                 },
                 {
-                    id: 'cookiePopupProtection.description',
+                    id: 'cookiePopupProtection.base.description',
                     kind: 'DescriptionLinkDefinition',
                     props: {
-                        description: 'cookiePopupProtection.ddg_cookie_info',
-                        linkText: 'cookiePopupProtection.learn_more_link',
+                        description: 'cookiePopupProtection.base.ddg_cookie_info',
+                        linkText: 'cookiePopupProtection.base.learn_more_link',
                     },
                 },
                 {
-                    id: 'cookiePopupProtection.cpm_on',
+                    id: 'cookiePopupProtection.base.cpm_on',
                     kind: 'CheckboxDefinition',
                     props: {
-                        text: 'cookiePopupProtection.auto_handle_cookie_opt',
+                        text: 'cookiePopupProtection.base.auto_handle_cookie_opt',
                     },
                 },
             ],

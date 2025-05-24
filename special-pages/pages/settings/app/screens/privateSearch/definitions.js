@@ -21,18 +21,18 @@ export function privateSearch() {
                     },
                 },
                 {
-                    id: 'privateSearch.description',
+                    id: 'privateSearch.base.description',
                     kind: 'DescriptionLinkDefinition',
                     props: {
-                        linkText: 'privateSearch.learn_more_link',
-                        description: 'privateSearch.ddg_private_search_info',
+                        linkText: 'privateSearch.base.learn_more_link',
+                        description: 'privateSearch.base.ddg_private_search_info',
                     },
                 },
                 {
-                    id: 'privateSearch.autocomplete_on',
+                    id: 'privateSearch.base.autocomplete_on',
                     kind: 'CheckboxDefinition',
                     props: {
-                        text: 'privateSearch.autocomplete_opt',
+                        text: 'privateSearch.base.autocomplete_opt',
                     },
                 },
             ],

@@ -22,56 +22,56 @@ export function defaultBrowser() {
                     },
                 },
                 {
-                    id: 'defaultBrowser.inlineWarning',
+                    id: 'defaultBrowser.base.inlineWarning',
                     kind: 'SwitchDefinition',
                     valueId: 'defaultBrowser.isDefault',
                     on: [
                         {
-                            id: 'defaultBrowser.inlineWarning1',
+                            id: 'defaultBrowser.base.inlineWarning1',
                             kind: 'TextRowDefinition',
                             props: {
-                                text: 'defaultBrowser.ddg_is_default',
+                                text: 'defaultBrowser.base.ddg_is_default',
                             },
                         },
                     ],
                     off: [
                         {
-                            id: 'defaultBrowser.inlineWarning2',
+                            id: 'defaultBrowser.base.inlineWarning2',
                             kind: 'InlineWarningDefinition',
                             props: {
-                                text: 'defaultBrowser.ddg_not_default',
-                                buttonText: 'defaultBrowser.make_ddg_default',
+                                text: 'defaultBrowser.base.ddg_not_default',
+                                buttonText: 'defaultBrowser.base.make_ddg_default',
                             },
                         },
                     ],
                 },
                 {
-                    id: 'defaultBrowser.sectionTitle',
+                    id: 'defaultBrowser.shortcuts.sectionTitle',
                     kind: 'SectionTitleProps',
                     props: {
-                        title: 'defaultBrowser.shortcuts_head',
+                        title: 'defaultBrowser.shortcuts.head',
                     },
                 },
                 {
-                    id: 'defaultBrowser.dock',
+                    id: 'defaultBrowser.shortcuts.dock',
                     kind: 'SwitchDefinition',
                     valueId: 'defaultBrowser.dock.enabled',
                     off: [
                         {
-                            id: 'defaultBrowser.dock.button',
+                            id: 'defaultBrowser.shortcuts.dock.button',
                             kind: 'InlineWarningDefinition',
                             props: {
-                                text: 'defaultBrowser.ddg_not_in_dock',
-                                buttonText: 'defaultBrowser.add_to_dock',
+                                text: 'defaultBrowser.shortcuts.ddg_not_in_dock',
+                                buttonText: 'defaultBrowser.shortcuts.add_to_dock',
                             },
                         },
                     ],
                     on: [
                         {
-                            id: 'defaultBrowser.inlineWarning2',
+                            id: 'defaultBrowser.shortcuts.inlineWarning2',
                             kind: 'TextRowDefinition',
                             props: {
-                                text: 'defaultBrowser.ddg_is_in_dock',
+                                text: 'defaultBrowser.shortcuts.ddg_is_in_dock',
                             },
                         },
                     ],

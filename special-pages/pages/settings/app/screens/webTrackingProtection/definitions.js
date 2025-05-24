@@ -12,24 +12,24 @@ export function webTrackingProtection() {
             id: 'webTrackingProtection',
             elements: [
                 {
-                    id: 'webTrackingProtection.titleStatus',
+                    id: 'webTrackingProtection.base.titleStatus',
                     kind: 'ScreenTitleStatusDefinition',
                     props: {
                         offText: 'status_off',
                         onText: 'status_on_private',
-                        title: 'webTrackingProtection.screenTitle',
+                        title: 'webTrackingProtection.base.screenTitle',
                     },
                 },
                 {
-                    id: 'webTrackingProtection.description',
+                    id: 'webTrackingProtection.base.description',
                     kind: 'DescriptionLinkDefinition',
                     props: {
-                        linkText: 'webTrackingProtection.learn_more_tracking',
-                        description: 'webTrackingProtection.ddg_tracking_info',
+                        linkText: 'webTrackingProtection.base.learn_more_tracking',
+                        description: 'webTrackingProtection.base.ddg_tracking_info',
                     },
                 },
                 {
-                    id: 'webTrackingProtection.gpc',
+                    id: 'webTrackingProtection.base.gpc',
                     kind: 'CheckboxDefinition',
                     props: {
                         text: 'webTrackingProtection.gpc.global_privacy_opt',
