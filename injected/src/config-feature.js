@@ -1,5 +1,12 @@
 import { immutableJSONPatch } from 'immutable-json-patch';
-import { camelcase, computeEnabledFeatures, matchHostname, parseFeatureSettings, computeLimitedSiteObject } from './utils.js';
+import {
+    camelcase,
+    matchHostname,
+    computeLimitedSiteObject,
+    isSupportedVersion,
+    isFeatureBroken,
+    isUnprotectedDomain,
+} from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
 /**
@@ -10,23 +17,11 @@ import { URLPattern } from 'urlpattern-polyfill';
  * - For external scripts, it provides API to update the site object for the feature, e.g when the URL has changed.
  */
 export default class ConfigFeature {
-    /** @type {import('./utils.js').RemoteConfig | undefined} */
-    #bundledConfig;
-
     /** @type {string} */
     name;
 
     /**
-     * @type {{
-     *   debug?: boolean,
-     *   desktopModeEnabled?: boolean,
-     *   forcedZoomEnabled?: boolean,
-     *   featureSettings?: Record<string, unknown>,
-     *   assets?: import('./content-feature.js').AssetConfig | undefined,
-     *   site: import('./content-feature.js').Site,
-     *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
-     *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
-     * } | null}
+     * @type {import('./content-scope-features.js').LoadArgs}
      */
     #args;
 
@@ -36,15 +31,7 @@ export default class ConfigFeature {
      */
     constructor(name, args) {
         this.name = name;
-        const { bundledConfig, site, platform } = args;
-        this.#bundledConfig = bundledConfig;
         this.#args = args;
-        // If we have a bundled config, treat it as a regular config
-        // This will be overriden by the remote config if it is available
-        if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
-            this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
-        }
     }
 
     /**
@@ -66,7 +53,13 @@ export default class ConfigFeature {
     }
 
     get featureSettings() {
-        return this.#args?.featureSettings;
+        // TODO refactor to make faster
+        const featureSettings = {};
+        const features = this.bundledConfig.features || {};
+        for (const [featureName, feature] of Object.entries(features)) {
+            featureSettings[featureName] = feature.settings;
+        }
+        return featureSettings;
     }
 
     /**
@@ -235,8 +228,64 @@ export default class ConfigFeature {
      * @returns {any}
      */
     _getFeatureSettings(featureName) {
-        const camelFeatureName = featureName || camelcase(this.name);
-        return this.featureSettings?.[camelFeatureName];
+        const camelFeatureName = featureName || this.currentFeatureName;
+        return this.bundledConfig.features[camelFeatureName].settings || {};
+    }
+
+    get currentFeatureName() {
+        return camelcase(this.name);
+    }
+
+    get currentFeatureConfig() {
+        const output = this.bundledConfig.features[this.currentFeatureName];
+        return output;
+    }
+
+    isEnabled() {
+        if (!this.currentFeatureConfig) {
+            if (this.#args?.debug) {
+                throw new Error(`Feature ${this.currentFeatureName} didn't have config`);
+            }
+            return false;
+        }
+        if (isUnprotectedDomain(this.#args.site.domain, this.currentFeatureConfig.exceptions)) return false;
+        if (isFeatureBroken(this.args, this.currentFeatureName)) return false;
+        const platformVersion = this.args?.platform?.version;
+        // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+        if (this.currentFeatureConfig.minSupportedVersion && platformVersion) {
+            if (!isSupportedVersion(this.currentFeatureConfig.minSupportedVersion, platformVersion)) {
+                return false;
+            }
+        }
+        let state = this.currentFeatureConfig.state;
+        if (state === undefined && this.currentFeatureName in this.#args.platformSpecificFeatures) {
+            state = "enabled";
+        }
+        const matchingConditionBlocks = this._matchingConditionBlocks();
+        for (const match of matchingConditionBlocks) {
+            if ('state' in match) {
+                state = match.state;
+            }
+        }
+        return state === 'enabled';
+    }
+
+    /**
+     * Returns any matching conditional blocks for the feature.
+     * This is used for patchSettings or feature enabling.
+     * @returns {any[]}
+     */
+    _matchingConditionBlocks(featureName) {
+        const result = this._getFeatureSettings(featureName);
+        // We only support one of these keys at a time, where conditionalChanges takes precedence
+        let conditionalMatches = [];
+        // Presence check using result to avoid the [] default response
+        if (result?.conditionalChanges) {
+            conditionalMatches = this.matchConditionalFeatureSetting('conditionalChanges');
+        } else {
+            conditionalMatches = this.matchConditionalFeatureSetting('domains');
+        }
+        return conditionalMatches;
     }
 
     /**
@@ -342,14 +391,7 @@ export default class ConfigFeature {
         if (featureKeyName in ['domains', 'conditionalChanges']) {
             throw new Error(`${featureKeyName} is a reserved feature setting key name`);
         }
-        // We only support one of these keys at a time, where conditionalChanges takes precedence
-        let conditionalMatches = [];
-        // Presence check using result to avoid the [] default response
-        if (result?.conditionalChanges) {
-            conditionalMatches = this.matchConditionalFeatureSetting('conditionalChanges');
-        } else {
-            conditionalMatches = this.matchConditionalFeatureSetting('domains');
-        }
+        const conditionalMatches = this._matchingConditionBlocks(featureName);
         for (const match of conditionalMatches) {
             if (match.patchSettings === undefined) {
                 continue;
@@ -364,9 +406,9 @@ export default class ConfigFeature {
     }
 
     /**
-     * @returns {import('./utils.js').RemoteConfig | undefined}
+     * @returns {import('./utils.js').RemoteConfig}
      **/
     get bundledConfig() {
-        return this.#bundledConfig;
+        return this.#args.bundledConfig;
     }
 }

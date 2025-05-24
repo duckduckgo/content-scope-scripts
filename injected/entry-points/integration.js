@@ -14,7 +14,7 @@ function getTopLevelURL() {
     }
 }
 
-function generateConfig() {
+function generateArgs() {
     const topLevelUrl = getTopLevelURL();
     return {
         debug: false,
@@ -38,18 +38,47 @@ function generateConfig() {
             domain: topLevelUrl.hostname,
             url: topLevelUrl.href,
             isBroken: false,
-            allowlisted: false,
-            enabledFeatures: [
-                'fingerprintingCanvas',
-                'fingerprintingScreenSize',
-                'navigatorInterface',
-                'cookie',
-                'webCompat',
-                'apiManipulation',
-                'duckPlayer',
-                'duckPlayerNative',
-            ],
+            allowlisted: false
         },
+        bundledConfig: {
+            features: {
+                fingerprintingCanvas: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                fingerprintingScreenSize: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                navigatorInterface: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                cookie: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                webCompat: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                apiManipulation: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                duckPlayerNative: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+            }
+        }
     };
 }
 
@@ -87,10 +116,10 @@ function mergeDeep(target, ...sources) {
 
 async function initCode() {
     const topLevelUrl = getTopLevelURL();
-    const processedConfig = generateConfig();
+    const processedArgs = generateArgs();
 
     // mock Messaging and allow for tests to intercept them
-    globalThis.cssMessaging = processedConfig.messagingConfig = new TestTransportConfig({
+    globalThis.cssMessaging = processedArgs.messagingConfig = new TestTransportConfig({
         notify() {
             // noop
         },
@@ -104,20 +133,13 @@ async function initCode() {
         },
     });
 
-    load({
-        // @ts-expect-error Types of property 'name' are incompatible.
-        platform: processedConfig.platform,
-        site: processedConfig.site,
-        bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig,
-        currentCohorts: processedConfig.currentCohorts,
-    });
+    load(processedArgs);
 
     // mark this phase as loaded
     setStatus('loaded');
 
     if (!topLevelUrl.searchParams.has('wait-for-init-args')) {
-        await init(processedConfig);
+        await init(processedArgs);
         setStatus('initialized');
         return;
     }
@@ -127,7 +149,7 @@ async function initCode() {
         'content-scope-init-args',
         async (evt) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            const merged = mergeDeep(processedConfig, evt.detail);
+            const merged = mergeDeep(processedArgs, evt.detail);
             // init features
             await init(merged);
 
