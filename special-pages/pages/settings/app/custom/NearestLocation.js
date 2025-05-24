@@ -3,6 +3,7 @@ import styles from './NearestLocation.module.css';
 import { useTranslation } from '../types.js';
 import { useGlobalSettingsState, useSettingsServiceDispatch } from '../global/Providers/SettingsServiceProvider.js';
 import { useComputed } from '@preact/signals';
+import { Boxed } from '../components/Boxed.js';
 
 /**
  * @import { Signal } from '@preact/signals';
@@ -14,23 +15,25 @@ export function NearestLocation({ onClick, location }) {
     const { t } = useTranslation();
     const value = location.value || 'nearest';
     return (
-        <div class={styles.root} data-testid="NearestLocation">
-            {value === 'nearest' && (
-                <Fragment>
-                    <span class={styles.arrow}>{value === 'nearest' && <LocationIcon />}</span>
-                    <p class={styles.title}>{t('vpn.location.nearest.title')}</p>
-                    <p class={styles.text}>{t('vpn.location.nearest.text')}</p>
-                </Fragment>
-            )}
-            {value === 'uk' && (
-                <Fragment>
-                    <p class={styles.title}>UK</p>
-                </Fragment>
-            )}
-            <button class={styles.button} onClick={onClick}>
-                {t('vpn.location.button_label')}
-            </button>
-        </div>
+        <Boxed>
+            <div class={styles.root} data-testid="NearestLocation">
+                {value === 'nearest' && (
+                    <Fragment>
+                        <span class={styles.arrow}>{value === 'nearest' && <LocationIcon />}</span>
+                        <p class={styles.title}>{t('vpn.location.nearest.title')}</p>
+                        <p class={styles.text}>{t('vpn.location.nearest.text')}</p>
+                    </Fragment>
+                )}
+                {value === 'uk' && (
+                    <Fragment>
+                        <p class={styles.title}>UK</p>
+                    </Fragment>
+                )}
+                <button class={styles.button} onClick={onClick}>
+                    {t('vpn.location.button_label')}
+                </button>
+            </div>
+        </Boxed>
     );
 }
 

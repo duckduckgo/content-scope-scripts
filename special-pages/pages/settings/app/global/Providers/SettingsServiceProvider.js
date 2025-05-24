@@ -1,6 +1,6 @@
 import { createContext, h } from 'preact';
 import { useCallback, useContext, useEffect } from 'preact/hooks';
-import { signal, useSignal } from '@preact/signals';
+import { signal, useComputed, useSignal } from '@preact/signals';
 
 /**
  * @typedef {{kind: 'open-url'; url: string, target: 'new-tab' | 'new-window' | 'same-tab' }
@@ -119,4 +119,12 @@ export function useResultsData() {
 // Hook for consuming the state context
 export function useGlobalSettingsState() {
     return useContext(StateContext);
+}
+// Hook for consuming the state context
+/**
+ * @param {string} id
+ */
+export function useSetting(id) {
+    const state = useContext(StateContext);
+    return useComputed(() => state.value[id]);
 }

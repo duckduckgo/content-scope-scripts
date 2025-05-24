@@ -29,7 +29,7 @@ export function ScreenTitleStatus({ isOn, title, onText, offText }) {
     const { t } = useTranslation();
     return (
         <Row gap={'small'}>
-            <ScreenTitle title={t(title)}></ScreenTitle>
+            <ScreenTitle title={title}></ScreenTitle>
             <DetailedStatusIndicator isOn={isOn} description={isOn.value ? t(onText) : t(offText)} />
         </Row>
     );

@@ -70,6 +70,8 @@ export async function init(root, messaging, baseEnvironment) {
     const structure = defaultStructure();
     const state = defaultState();
 
+    // @ts-expect-error - this is a dynamic import
+    // eslint-disable-next-line
     const mod = await import('/@runtime.js');
     const processed = await mod.process({ structure, state }, init);
 
