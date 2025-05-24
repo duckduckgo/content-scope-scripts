@@ -4,9 +4,11 @@
 
 /**
  * @typedef {{ id: string, valueId?: string, kind: "ScreenTitleStatusDefinition", props: import('./elements/ScreenTitleStatus.js').ScreenTitleStatusDefinition }
+ *   | { id: string, kind: "ScreenTitleDefinition", props: import('./elements/ScreenTitle.js').ScreenTitleDefinition }
  *   | { id: string, kind: "SectionTitleProps", props: import('./elements/SectionTitle.js').SectionTitleProps }
  *   | { id: string, kind: "TextRowDefinition", props: import('./elements/TextRow.js').TextRowDefinition }
  *   | { id: string, kind: "NearestLocation" }
+ *   | { id: string, kind: "PrivacyPro" }
  *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
  *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
  *   | { id: string, kind: "ButtonRowDefinition", props: import('./elements/ButtonRow.js').ButtonRowDefinition }
@@ -32,11 +34,12 @@
  */
 
 import { privateSearch } from './screens/privateSearch/definitions.js';
-import { defaultBrowser } from './screens/defaultBrowser/definitiion.js';
+import { defaultBrowser } from './screens/defaultBrowser/definition.js';
 import { webTrackingProtection } from './screens/webTrackingProtection/definitions.js';
 import { cookiePopupProtection } from './screens/cookiePopupProtection/definitions.js';
 import { emailProtection } from './screens/emailProtection/definitions.js';
 import { vpn } from './screens/vpn/definitions.js';
+import { privacyPro } from './screens/privacyPro/defintions.js';
 
 /**
  * @typedef {'initial' | 'user' | 'auto'} SettingsQuerySource
@@ -111,6 +114,7 @@ export function defaultStructure() {
             ...cookiePopupProtection(),
             ...emailProtection(),
             ...vpn(),
+            ...privacyPro(),
         },
         groups: [
             {
@@ -119,7 +123,7 @@ export function defaultStructure() {
             },
             {
                 id: 'privacyPro',
-                screenIds: ['vpn'],
+                screenIds: ['privacyPro', 'vpn'],
             },
         ],
     };
@@ -138,5 +142,7 @@ export function defaultState() {
         'defaultBrowser.dock.enabled': false,
         'emailProtection.enabled': true,
         'vpn.location.selector': 'nearest',
+        /** @type {'none' | 'subscribed'} */
+        'privacyPro.subscription': 'none',
     };
 }

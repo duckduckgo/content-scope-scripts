@@ -1,16 +1,18 @@
 import { h } from 'preact';
 import styles from './Elements.module.css';
+import { useTranslation } from '../types.js';
 
 /**
  * Props for the PageTitle component
- * @typedef {Object} PageTitleProps
+ * @typedef {Object} ScreenTitleDefinition
  * @property {string} title - The title text to display
  */
 
 /**
  * A component that renders a page title
- * @param {PageTitleProps} props - The component props
+ * @param {ScreenTitleDefinition} props - The component props
  */
 export function ScreenTitle({ title }) {
-    return <h1 class={styles.screenTitle}>{title}</h1>;
+    const { t } = useTranslation();
+    return <h1 class={styles.screenTitle}>{t(title)}</h1>;
 }

@@ -1,0 +1,47 @@
+{
+  "privacyPro.screenTitle": {
+    "title": "Privacy Pro"
+  },
+  "privacyPro.signup.title": {
+    "title": "Protect your connection and identity with Privacy Pro"
+  },
+  "privacyPro.signup.description": {
+    "title": "Three premium protections in one subscription."
+  },
+  "privacyPro.signup.get": {
+    "title": "Get Privacy Pro"
+  },
+  "privacyPro.signup.already": {
+    "title": "I Have a Subscription"
+  },
+  "privacyPro.vpn.title": {
+    "title": "VPN"
+  },
+  "privacyPro.vpn.description": {
+    "title": "Full-device protection with the VPN built for speed and security."
+  },
+  "privacyPro.pir.title": {
+    "title": "Personal Information Removal"
+  },
+  "privacyPro.pir.description": {
+    "title": "Find and remove your personal information from sites that store and sell it."
+  },
+  "privacyPro.id.title": {
+    "title": "Identity Theft Restoration"
+  },
+  "privacyPro.id.description": {
+    "title": "Get help restoring stolen accounts and financial losses in the event of identity theft."
+  },
+  "privacyPro.help.title": {
+    "title": "Need help with Privacy Pro?"
+  },
+  "privacyPro.help.description": {
+    "title": "Get answers to frequently asked questions or contact Privacy Pro support from our help pages. Feature availability varies by country."
+  },
+  "privacyPro.links.faq": {
+    "title": "FAQs and Support"
+  },
+  "privacyPro.links.terms": {
+    "title": "Privacy Policy and Terms of Service"
+  }
+}

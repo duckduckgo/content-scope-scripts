@@ -32,7 +32,7 @@ export function vpn() {
                     id: 'vpn.location.nearestLocation',
                     kind: 'SectionTitleProps',
                     props: {
-                        title: 'Location',
+                        title: 'vpn.location.section_title',
                     },
                 },
                 {

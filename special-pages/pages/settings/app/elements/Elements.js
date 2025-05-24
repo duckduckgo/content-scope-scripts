@@ -9,6 +9,8 @@ import { TextRow } from './TextRow.js';
 import { ButtonRowWithState } from './ButtonRow.js';
 import { NearestLocationWithState } from '../custom/NearestLocation.js';
 import { Debug } from '../components/Screen.js';
+import { ScreenTitle } from './ScreenTitle.js';
+import { PrivacyPro, PrivacyProWithState } from '../custom/PrivacyPro.js';
 
 /**
  * @param {object} props
@@ -29,6 +31,9 @@ function toComponents(def, debug = false) {
     return def.map((d) => {
         const item = (() => {
             switch (d.kind) {
+                case 'ScreenTitleDefinition': {
+                    return <ScreenTitle {...d.props} key={d.id} />;
+                }
                 case 'ScreenTitleStatusDefinition': {
                     return <ScreenTitleStatusWithState {...d.props} valueId={d.valueId} id={d.id} key={d.id} />;
                 }
@@ -65,6 +70,9 @@ function toComponents(def, debug = false) {
                 }
                 case 'NearestLocation': {
                     return <NearestLocationWithState id={d.id} key={d.id} />;
+                }
+                case 'PrivacyPro': {
+                    return <PrivacyProWithState id={d.id} key={d.id} />;
                 }
                 default:
                     throw new Error('not handled!');

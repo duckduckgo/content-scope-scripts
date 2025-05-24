@@ -1,5 +1,5 @@
 import styles from './VirtualizedList.module.css';
-import { Fragment, h } from 'preact';
+import { h } from 'preact';
 import { Elements } from '../elements/Elements.js';
 
 /**
@@ -29,7 +29,7 @@ export function Debug({ children, id }) {
             {children}
             <span
                 class={styles.debug}
-                onClick={(e) => {
+                onClick={(_) => {
                     navigator.clipboard.writeText(id);
                 }}
             >
