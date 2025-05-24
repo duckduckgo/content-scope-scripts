@@ -9,7 +9,9 @@
 .gapSmall {
     gap: 12px;
 }
-.screenTitle {}
+.screenTitle {
+    margin-top: 12px;
+}
 .sectionTitle {}
 .titleIndicator {}
 

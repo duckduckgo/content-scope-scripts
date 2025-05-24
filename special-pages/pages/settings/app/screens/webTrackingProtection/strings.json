@@ -1,13 +1,13 @@
 {
-  "webTrackingProtection.screenTitle": {
+  "webTrackingProtection.base.screenTitle": {
     "title": "Web Tracking Protection",
     "note": "Heading for the web tracking protection settings section"
   },
-  "webTrackingProtection.ddg_tracking_info": {
+  "webTrackingProtection.base.ddg_tracking_info": {
     "title": "DuckDuckGo automatically blocks hidden trackers as you browse the web.",
     "note": "Informational text explaining how DuckDuckGo protects against trackers"
   },
-  "webTrackingProtection.learn_more_tracking": {
+  "webTrackingProtection.base.learn_more_tracking": {
     "title": "Learn More",
     "note": "Link text for additional information about tracking protection"
   },

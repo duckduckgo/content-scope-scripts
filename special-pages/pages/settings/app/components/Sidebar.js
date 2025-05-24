@@ -4,6 +4,7 @@ import styles from './Sidebar.module.css';
 import { useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { useNavContext, useNavDispatch } from '../global/Providers/NavProvider.js';
+import { useQueryDispatch } from '../global/Providers/QueryProvider.js';
 
 /**
  * @import json from "../strings.json"
@@ -20,7 +21,13 @@ export function Sidebar({ settingsStructure }) {
     const { t } = useTypedTranslation();
     const nav = useNavContext();
     const navDispatch = useNavDispatch();
+    const queryDispatch = useQueryDispatch();
     const current = useComputed(() => nav.value.id);
+
+    function navigateTo(id) {
+        navDispatch({ kind: 'nav', id });
+        queryDispatch({ kind: 'reset' });
+    }
 
     return (
         <div class={styles.stack}>
@@ -35,9 +42,7 @@ export function Sidebar({ settingsStructure }) {
                             <div class={styles.group}>
                                 {group.screenIds.map((id) => {
                                     const match = settingsStructure.value.screens[id];
-                                    return (
-                                        <Item current={current} key={id} onClick={() => navDispatch({ kind: 'nav', id })} setting={match} />
-                                    );
+                                    return <Item current={current} key={id} onClick={() => navigateTo(id)} setting={match} />;
                                 })}
                             </div>
                         </Fragment>

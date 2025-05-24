@@ -15,6 +15,5 @@ import { useComputed } from '@preact/signals';
 export function Switch({ on, off, valueId }) {
     const state = useGlobalSettingsState();
     const computed = useComputed(() => state.value[valueId]);
-    console.log('{SwitchDefinition', [computed.value]);
     return computed.value ? on : off;
 }

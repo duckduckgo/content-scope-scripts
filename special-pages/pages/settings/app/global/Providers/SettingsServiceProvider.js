@@ -128,3 +128,15 @@ export function useSetting(id) {
     const state = useContext(StateContext);
     return useComputed(() => state.value[id]);
 }
+/**
+ * @import { Signal } from '@preact/signals';
+ * @return {Signal<string>}
+ */
+export function useDefaultScreen() {
+    const results = useResultsData();
+    return useComputed(() => {
+        const id = results.value.groups?.[0]?.screenIds?.[0];
+        if (!id) throw new Error('unreachable - there must be a default screen to show');
+        return id;
+    });
+}

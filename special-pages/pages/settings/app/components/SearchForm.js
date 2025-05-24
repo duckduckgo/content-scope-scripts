@@ -4,6 +4,8 @@ import { usePlatformName, useTypedTranslation } from '../types.js';
 import { useComputed, useSignalEffect } from '@preact/signals';
 import { SearchIcon } from '../icons/Search.js';
 import { useQueryDispatch } from '../global/Providers/QueryProvider.js';
+import { useNavDispatch } from '../global/Providers/NavProvider.js';
+import { useDefaultScreen } from '../global/Providers/SettingsServiceProvider.js';
 
 const INPUT_FIELD_NAME = 'search';
 
@@ -15,6 +17,7 @@ export function SearchForm({ term }) {
     const { t } = useTypedTranslation();
     const value = useComputed(() => term.value || '');
     const dispatch = useQueryDispatch();
+    const navDispatch = useNavDispatch();
     const platformName = usePlatformName();
     useSearchShortcut(platformName);
 
@@ -28,6 +31,7 @@ export function SearchForm({ term }) {
         const term = data.get(INPUT_FIELD_NAME)?.toString();
         invariant(term !== undefined);
         dispatch({ kind: 'search-by-term', value: term });
+        navDispatch({ kind: 'search', term });
     }
 
     /**
@@ -39,6 +43,7 @@ export function SearchForm({ term }) {
         const data = new FormData(submitEvent.currentTarget);
         const term = data.get(INPUT_FIELD_NAME)?.toString();
         dispatch({ kind: 'search-by-term', value: term ?? '' });
+        navDispatch({ kind: 'search', term: term ?? '' });
     }
 
     return (

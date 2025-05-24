@@ -117,3 +117,8 @@ body {
 .paddedErrorRecovery {
     margin-top: 1rem;
 }
+
+::highlight(search-results) {
+    background-color: yellow;
+    color: black;
+}

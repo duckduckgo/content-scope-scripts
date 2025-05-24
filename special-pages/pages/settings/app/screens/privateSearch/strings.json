@@ -3,15 +3,15 @@
     "title": "Private Search",
     "note": "Heading for the private search settings section"
   },
-  "privateSearch.ddg_private_search_info": {
+  "privateSearch.base.ddg_private_search_info": {
     "title": "DuckDuckGo Private Search is your default search engine, so you can search the web without being tracked.",
     "note": "Informational text explaining the privacy benefit of using DuckDuckGo as the default search engine"
   },
-  "privateSearch.learn_more_link": {
+  "privateSearch.base.learn_more_link": {
     "title": "Learn More",
     "note": "Link text for additional information about private search"
   },
-  "privateSearch.autocomplete_opt": {
+  "privateSearch.base.autocomplete_opt": {
     "title": "Autocomplete suggestions",
     "note": "Checkbox option for enabling autocomplete suggestions in search"
   }

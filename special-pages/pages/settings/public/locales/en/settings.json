@@ -53,15 +53,15 @@
     "title": "Off",
     "note": "Option indicating that the default browser setting is turned off"
   },
-  "webTrackingProtection.screenTitle": {
+  "webTrackingProtection.base.screenTitle": {
     "title": "Web Tracking Protection",
     "note": "Heading for the web tracking protection settings section"
   },
-  "webTrackingProtection.ddg_tracking_info": {
+  "webTrackingProtection.base.ddg_tracking_info": {
     "title": "DuckDuckGo automatically blocks hidden trackers as you browse the web.",
     "note": "Informational text explaining how DuckDuckGo protects against trackers"
   },
-  "webTrackingProtection.learn_more_tracking": {
+  "webTrackingProtection.base.learn_more_tracking": {
     "title": "Learn More",
     "note": "Link text for additional information about tracking protection"
   },
@@ -105,15 +105,15 @@
     "title": "Private Search",
     "note": "Heading for the private search settings section"
   },
-  "privateSearch.ddg_private_search_info": {
+  "privateSearch.base.ddg_private_search_info": {
     "title": "DuckDuckGo Private Search is your default search engine, so you can search the web without being tracked.",
     "note": "Informational text explaining the privacy benefit of using DuckDuckGo as the default search engine"
   },
-  "privateSearch.learn_more_link": {
+  "privateSearch.base.learn_more_link": {
     "title": "Learn More",
     "note": "Link text for additional information about private search"
   },
-  "privateSearch.autocomplete_opt": {
+  "privateSearch.base.autocomplete_opt": {
     "title": "Autocomplete suggestions",
     "note": "Checkbox option for enabling autocomplete suggestions in search"
   },
@@ -182,35 +182,35 @@
     "title": "Default Browser",
     "note": "Heading for the default browser settings section"
   },
-  "defaultBrowser.off_opt": {
+  "defaultBrowser.base.off_opt": {
     "title": "Off",
     "note": "Option indicating that the default browser setting is turned off"
   },
-  "defaultBrowser.ddg_not_default": {
+  "defaultBrowser.base.ddg_not_default": {
     "title": "DuckDuckGo is not your default browser.",
     "note": "Notification message indicating that DuckDuckGo is not set as the default browser"
   },
-  "defaultBrowser.ddg_is_default": {
+  "defaultBrowser.base.ddg_is_default": {
     "title": "DuckDuckGo is your default browser.",
     "note": "Notification message indicating that DuckDuckGo is not set as the default browser"
   },
-  "defaultBrowser.make_ddg_default": {
+  "defaultBrowser.base.make_ddg_default": {
     "title": "Make DuckDuckGo Default...",
     "note": "Button text to set DuckDuckGo as the default browser"
   },
-  "defaultBrowser.shortcuts_head": {
+  "defaultBrowser.shortcuts.head": {
     "title": "Shortcuts",
     "note": "Heading for the shortcuts settings section"
   },
-  "defaultBrowser.ddg_not_in_dock": {
+  "defaultBrowser.shortcuts.ddg_not_in_dock": {
     "title": "DuckDuckGo is not added to the Dock.",
     "note": "Notification message indicating that DuckDuckGo is not added to the Dock"
   },
-  "defaultBrowser.ddg_is_in_dock": {
+  "defaultBrowser.shortcuts.ddg_is_in_dock": {
     "title": "DuckDuckGo is added to the Dock.",
     "note": "Notification message indicating that DuckDuckGo is not added to the Dock"
   },
-  "defaultBrowser.add_to_dock": {
+  "defaultBrowser.shortcuts.add_to_dock": {
     "title": "Add to Dock...",
     "note": "Button text to add DuckDuckGo to the Dock"
   },
@@ -218,15 +218,15 @@
     "title": "Cookie Pop-Up Protection",
     "note": "Heading for the cookie pop-up protection settings section"
   },
-  "cookiePopupProtection.ddg_cookie_info": {
+  "cookiePopupProtection.base.ddg_cookie_info": {
     "title": "DuckDuckGo will try to select the most private settings available and hide these pop-ups for you.",
     "note": "Informational text explaining how DuckDuckGo handles cookie consent pop-ups"
   },
-  "cookiePopupProtection.learn_more_link": {
+  "cookiePopupProtection.base.learn_more_link": {
     "title": "Learn More",
     "note": "Link text for additional information about cookie pop-up protection"
   },
-  "cookiePopupProtection.auto_handle_cookie_opt": {
+  "cookiePopupProtection.base.auto_handle_cookie_opt": {
     "title": "Automatically handle cookie pop-ups",
     "note": "Checkbox option for enabling automatic handling of cookie consent pop-ups"
   }

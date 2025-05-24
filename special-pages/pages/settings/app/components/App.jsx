@@ -15,7 +15,7 @@ import { ResultsContainer } from './Results.js';
 import { useNavContext } from '../global/Providers/NavProvider.js';
 import { useComputed, useSignal } from '@preact/signals';
 import { ScreenContainer } from './Screen.js';
-import { useResultsData } from '../global/Providers/SettingsServiceProvider.js';
+import { useDefaultScreen, useResultsData } from '../global/Providers/SettingsServiceProvider.js';
 
 export function App() {
     const platformName = usePlatformName();
@@ -26,7 +26,8 @@ export function App() {
     const nav = useNavContext();
     const results = useResultsData();
     const structure = useComputed(() => results.value);
-    const screenId = useComputed(() => nav.value.id);
+    const defaultScreen = useDefaultScreen();
+    const screenId = useComputed(() => nav.value.id || defaultScreen.value);
     const screenDefinition = useComputed(() => {
         return structure.value.screens[screenId.value];
     });
