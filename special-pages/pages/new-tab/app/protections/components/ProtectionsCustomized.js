@@ -1,11 +1,10 @@
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
-import { PrivacyStatsProvider } from './PrivacyStatsProvider.js';
+import { ProtectionsProvider } from './ProtectionsProvider.js';
 import { h } from 'preact';
 
-import { PrivacyStatsConsumer } from './PrivacyStatsConsumer.js';
-import { BodyExpanderProvider } from './BodyExpansionProvider.js';
+import { ProtectionsConsumer } from './ProtectionsConsumer.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -18,13 +17,13 @@ import { BodyExpanderProvider } from './BodyExpansionProvider.js';
  * It reaches out to access this widget's global visibility, and chooses
  * whether to incur the side effects (data fetching).
  */
-export function PrivacyStatsCustomized() {
+export function ProtectionsCustomized() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     /**
      * The menu title for the stats widget is changes when the menu is in the sidebar.
      */
-    const sectionTitle = t('stats_menuTitle_v2');
+    const sectionTitle = t('protections_menuTitle');
 
     const { visibility, id, toggle, index } = useVisibility();
 
@@ -35,10 +34,8 @@ export function PrivacyStatsCustomized() {
     }
 
     return (
-        <PrivacyStatsProvider>
-            <BodyExpanderProvider>
-                <PrivacyStatsConsumer />
-            </BodyExpanderProvider>
-        </PrivacyStatsProvider>
+        <ProtectionsProvider>
+            <ProtectionsConsumer />
+        </ProtectionsProvider>
     );
 }

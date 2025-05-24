@@ -28,7 +28,7 @@ import { useMessaging } from './types.js';
 
 /**
  * @template D
- * @template {{expansion: import("../types/new-tab").Expansion}|undefined} C
+ * @template {{expansion: import("../types/new-tab").Expansion}|undefined|null} C
  * @param {State<D, C>} state
  * @param {Events<D, C>} event
  */
