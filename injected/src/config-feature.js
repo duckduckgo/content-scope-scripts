@@ -2,7 +2,6 @@ import { immutableJSONPatch } from 'immutable-json-patch';
 import {
     camelcase,
     matchHostname,
-    parseFeatureSettings,
     computeLimitedSiteObject,
     isSupportedVersion,
     isFeatureBroken,

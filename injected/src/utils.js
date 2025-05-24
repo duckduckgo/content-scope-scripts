@@ -1,6 +1,5 @@
 /* eslint-disable no-redeclare, no-global-assign */
 import { Set } from './captured-globals.js';
-import ConfigFeature from './config-feature.js';
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 
@@ -675,26 +674,6 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
     output.bundledConfig = data;
 
     return output;
-}
-
-/**
- * Returns the relevant feature settings for the enabled features
- * @param {RemoteConfig} data
- * @param {string[]} enabledFeatures
- * @returns {Record<string, unknown>}
- */
-export function parseFeatureSettings(data, enabledFeatures) {
-    /** @type {Record<string, unknown>} */
-    const featureSettings = {};
-    const remoteFeatureNames = Object.keys(data.features);
-    remoteFeatureNames.forEach((featureName) => {
-        if (!enabledFeatures.includes(featureName)) {
-            return;
-        }
-
-        featureSettings[featureName] = data.features[featureName].settings;
-    });
-    return featureSettings;
 }
 
 export function isGloballyDisabled(args) {
