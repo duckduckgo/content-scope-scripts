@@ -93,7 +93,7 @@ export class DDGVideoOverlayMobile extends HTMLElement {
             return console.warn('missing elements');
         }
 
-        infoButton.addEventListener('click', () => {
+        infoButton.addEventListener('pointerdown', () => {
             this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO));
         });
 
@@ -108,14 +108,14 @@ export class DDGVideoOverlayMobile extends HTMLElement {
             }
         });
 
-        cancelElement.addEventListener('click', (e) => {
+        cancelElement.addEventListener('pointerdown', (e) => {
             if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();
             this.dispatchEvent(new CustomEvent(DDGVideoOverlayMobile.OPT_OUT, { detail: { remember: remember.checked } }));
         });
 
-        watchInPlayer.addEventListener('click', (e) => {
+        watchInPlayer.addEventListener('pointerdown', (e) => {
             if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();

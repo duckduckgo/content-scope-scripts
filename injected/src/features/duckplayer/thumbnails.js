@@ -116,7 +116,7 @@ export class Thumbnails {
                 }
             };
 
-            parentNode.addEventListener('click', clickHandler, true);
+            parentNode.addEventListener('pointerdown', clickHandler, true);
 
             const removeOverlay = () => {
                 const overlay = icon.getHoverOverlay();
@@ -170,7 +170,7 @@ export class Thumbnails {
 
             return () => {
                 parentNode.removeEventListener('mouseover', mouseOverHandler, true);
-                parentNode.removeEventListener('click', clickHandler, true);
+                parentNode.removeEventListener('pointerdown', clickHandler, true);
                 icon.destroy();
             };
         });
@@ -228,10 +228,10 @@ export class ClickInterception {
                 }
             };
 
-            parentNode.addEventListener('click', clickHandler, true);
+            parentNode.addEventListener('pointerdown', clickHandler, true);
 
             return () => {
-                parentNode.removeEventListener('click', clickHandler, true);
+                parentNode.removeEventListener('pointerdown', clickHandler, true);
             };
         });
     }

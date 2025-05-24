@@ -166,7 +166,7 @@ export class DDGVideoDrawerMobile extends HTMLElement {
         this.overlay = /** @type {HTMLElement} */ (overlay);
         this.drawer = /** @type {HTMLElement} */ (drawer);
 
-        infoButton.addEventListener('click', () => {
+        infoButton.addEventListener('pointerdown', () => {
             this.dispatchEvent(new Event(DDGVideoDrawerMobile.OPEN_INFO));
         });
 
@@ -181,7 +181,7 @@ export class DDGVideoDrawerMobile extends HTMLElement {
             }
         });
 
-        cancelElement.addEventListener('click', (e) => {
+        cancelElement.addEventListener('pointerdown', (e) => {
             if (!e.isTrusted) return;
             e.preventDefault();
             e.stopImmediatePropagation();
@@ -189,7 +189,7 @@ export class DDGVideoDrawerMobile extends HTMLElement {
             this.dispatchEvent(new CustomEvent(DDGVideoDrawerMobile.OPT_OUT, { detail: { remember: remember.checked } }));
         });
 
-        background.addEventListener('click', (e) => {
+        background.addEventListener('pointerdown', (e) => {
             if (!e.isTrusted || e.target !== background) return;
             e.preventDefault();
             e.stopImmediatePropagation();
