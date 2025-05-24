@@ -17,10 +17,12 @@ import {
     UpdateStatus,
 } from './components/ReleaseNotes';
 import { sampleData } from './sampleData.js';
+import { usePlatformName } from './settings.provider';
 
 export function Components() {
     const { t } = useTypedTranslation();
     const { isDarkMode } = useEnv();
+    const platform = usePlatformName();
     const todayInMilliseconds = Date.now();
     const yesterdayInMilliseconds = new Date(todayInMilliseconds - 24 * 60 * 60 * 1000).getTime();
 
@@ -60,6 +62,7 @@ export function Components() {
 
             <h2>Update Status</h2>
             <UpdateStatus status="loading" version="1.0.1" timestamp={yesterdayInMilliseconds} />
+            <UpdateStatus status="loadingError" version="1.0.1" timestamp={yesterdayInMilliseconds} />
             <UpdateStatus status="loaded" version="1.0.1" timestamp={todayInMilliseconds} />
             <UpdateStatus status="updateReady" version="1.2.0" timestamp={todayInMilliseconds} />
             <UpdateStatus status="criticalUpdateReady" version="1.2.0" timestamp={todayInMilliseconds} />
@@ -70,13 +73,24 @@ export function Components() {
 
             <h2>Update Buttons</h2>
             <div>
-                <Button>{t('restartToUpdate')}</Button>
+                <Button variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                    {t('retryGettingReleaseNotes')}
+                </Button>
             </div>
             <div>
-                <Button>{t('updateBrowser')}</Button>
+                <Button variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                    {t('restartToUpdate')}
+                </Button>
             </div>
             <div>
-                <Button>{t('retryUpdate')}</Button>
+                <Button variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                    {t('updateBrowser')}
+                </Button>
+            </div>
+            <div>
+                <Button variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                    {t('retryUpdate')}
+                </Button>
             </div>
             <hr />
 
@@ -112,6 +126,9 @@ export function Components() {
             <ReleaseNotes releaseData={sampleData.loading} />
             <LoadingThen>
                 <ReleaseNotes releaseData={sampleData.loaded} />
+            </LoadingThen>
+            <LoadingThen>
+                <ReleaseNotes releaseData={sampleData.loadingError} />
             </LoadingThen>
             <LoadingThen>
                 <ReleaseNotes releaseData={sampleData.updateDownloading} />
