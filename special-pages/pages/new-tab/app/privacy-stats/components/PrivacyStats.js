@@ -39,7 +39,7 @@ export function PrivacyStats({ trackerCompanies, expansion = 'expanded' }) {
         : sorted.slice(0, DDG_STATS_DEFAULT_ROWS);
 
     return (
-        <div data-testid="PrivacyStatsBody" class={styles.body}>
+        <div class={styles.body}>
             {sorted.length === 0 && <PrivacyStatsEmptyState />}
             {sorted.length > 0 && <CompanyList rows={visibleRows} largestTrackerCount={largestTrackerCount} formatter={formatter} />}
             {sorted.length > 0 && <ListFooter all={sorted} />}

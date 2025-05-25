@@ -20,9 +20,7 @@ import { PrivacyStatsConsumer } from '../../privacy-stats/components/PrivacyStat
  *
  * ```jsx
  * <ProtectionsProvider>
- *     <BodyExpanderProvider>
- *        <ProtectionsConsumer />
- *     </BodyExpanderProvider
+ *   <ProtectionsConsumer />
  * </ProtectionsProvider>
  * ```
  */
