@@ -10,17 +10,17 @@ export function cookiePopupProtection() {
     return {
         cookiePopupProtection: {
             id: 'cookiePopupProtection',
-            elements: [
-                {
-                    id: 'cookiePopupProtection.titleStatus',
-                    valueId: 'cookiePopupProtection.base.cpm_on',
-                    kind: 'ScreenTitleStatusDefinition',
-                    props: {
-                        offText: 'status_off',
-                        onText: 'status_on',
-                        title: 'cookiePopupProtection.screenTitle',
-                    },
+            title: {
+                id: 'cookiePopupProtection.titleStatus',
+                valueId: 'cookiePopupProtection.base.cpm_on',
+                kind: 'ScreenTitleStatusDefinition',
+                props: {
+                    offText: 'status_off',
+                    onText: 'status_on',
+                    title: 'cookiePopupProtection.screenTitle',
                 },
+            },
+            elements: [
                 {
                     id: 'cookiePopupProtection.base.description',
                     kind: 'DescriptionLinkDefinition',

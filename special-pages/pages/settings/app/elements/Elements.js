@@ -10,7 +10,7 @@ import { ButtonRowWithState } from './ButtonRow.js';
 import { NearestLocationWithState } from '../custom/NearestLocation.js';
 import { Debug } from '../components/Screen.js';
 import { ScreenTitle } from './ScreenTitle.js';
-import { PrivacyPro, PrivacyProWithState } from '../custom/PrivacyPro.js';
+import { PrivacyProWithState } from '../custom/PrivacyPro.js';
 
 /**
  * @param {object} props
@@ -21,6 +21,18 @@ import { PrivacyPro, PrivacyProWithState } from '../custom/PrivacyPro.js';
 export function Elements(props) {
     const filtered = props.elements.filter((x) => !props.excluded.includes(x.id));
     return toComponents(filtered, props.debug);
+}
+
+/**
+ * @param {object} props
+ * @param {(import('../settings.service.js').ElementDefinition[][]) | null | undefined} [props.sections]
+ * @param {string[]} props.excluded
+ * @param {boolean} props.debug
+ */
+export function Sections(props) {
+    const filtered = props.sections?.map((inner) => inner.filter((x) => !props.excluded.includes(x.id))).flat();
+    if (Array.isArray(filtered) && filtered.length > 0) return toComponents(filtered, props.debug);
+    return null;
 }
 
 /**

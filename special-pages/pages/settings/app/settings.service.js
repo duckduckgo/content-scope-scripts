@@ -24,7 +24,7 @@
 
 /**
  * @typedef {"privacyPro" | "protections" | "main" | "about" | "dev"} ScreenCategory
- * @typedef {{elements: ElementDefinition[], id: string}} ScreenDefinition
+ * @typedef {{elements: ElementDefinition[], sections?: ElementDefinition[][], id: string, title: ElementDefinition}} ScreenDefinition
  * @typedef {{id: string, screenIds: string[]}} ScreenGroup
  * @typedef {{
  *    screens: Record<string, ScreenDefinition>,

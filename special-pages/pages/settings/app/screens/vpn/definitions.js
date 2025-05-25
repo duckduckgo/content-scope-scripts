@@ -10,17 +10,17 @@ export function vpn() {
     return {
         vpn: {
             id: 'vpn',
-            elements: [
-                {
-                    id: 'vpn.titleStatus',
-                    valueId: 'vpn.enabled',
-                    kind: 'ScreenTitleStatusDefinition',
-                    props: {
-                        offText: 'status_off',
-                        onText: 'status_on',
-                        title: 'vpn.screenTitle',
-                    },
+            title: {
+                id: 'vpn.titleStatus',
+                valueId: 'vpn.enabled',
+                kind: 'ScreenTitleStatusDefinition',
+                props: {
+                    offText: 'status_off',
+                    onText: 'status_on',
+                    title: 'vpn.screenTitle',
                 },
+            },
+            elements: [
                 {
                     id: 'vpn.location.enableButton',
                     kind: 'ButtonRowDefinition',

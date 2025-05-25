@@ -10,16 +10,16 @@ export function privateSearch() {
     return {
         privateSearch: {
             id: 'privateSearch',
-            elements: [
-                {
-                    id: 'privateSearch.titleStatus',
-                    kind: 'ScreenTitleStatusDefinition',
-                    props: {
-                        offText: 'status_off',
-                        onText: 'status_on_private',
-                        title: 'privateSearch.screenTitle',
-                    },
+            title: {
+                id: 'privateSearch.titleStatus',
+                kind: 'ScreenTitleStatusDefinition',
+                props: {
+                    offText: 'status_off',
+                    onText: 'status_on_private',
+                    title: 'privateSearch.screenTitle',
                 },
+            },
+            elements: [
                 {
                     id: 'privateSearch.base.description',
                     kind: 'DescriptionLinkDefinition',

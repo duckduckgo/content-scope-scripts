@@ -1,9 +1,9 @@
 import styles from './VirtualizedList.module.css';
 import { h } from 'preact';
-import { Elements } from '../elements/Elements.js';
+import { Elements, Sections } from '../elements/Elements.js';
 import { useEffect, useRef } from 'preact/hooks';
 import { useQueryContext } from '../global/Providers/QueryProvider.js';
-import { useComputed, useSignalEffect } from '@preact/signals';
+import { useComputed } from '@preact/signals';
 import cn from 'classnames';
 
 /**
@@ -18,8 +18,14 @@ import cn from 'classnames';
 export function ScreenContainer(props) {
     return (
         <div class={styles.container} data-testid="ScreenContainer" data-screen-id={props.screenId}>
+            <Elements elements={[props.screenDefinition.title]} excluded={[]} debug={location.href.includes('debug')} />
             <Elements
                 elements={props.screenDefinition.elements}
+                excluded={props.excludedElements}
+                debug={location.href.includes('debug')}
+            />
+            <Sections
+                sections={props.screenDefinition.sections}
                 excluded={props.excludedElements}
                 debug={location.href.includes('debug')}
             />
@@ -46,9 +52,15 @@ export function ElementsContainer(props) {
             const walker = document.createTreeWalker(ref.current, NodeFilter.SHOW_TEXT);
             const textNodes = [];
             let node;
+
             while ((node = walker.nextNode())) {
                 if (node.textContent?.trim().toLowerCase().includes(lowered)) {
-                    textNodes.push(node);
+                    if (node.parentElement?.tagName === 'H1') {
+                        // console.log('sip?');
+                        // 'Ignore h1'
+                    } else {
+                        textNodes.push(node);
+                    }
                 }
             }
 
@@ -105,7 +117,7 @@ export function ElementsContainer(props) {
         // CSS.highlights.set('search-results', searchHighlight);
     }, []);
     return (
-        <div class={styles.container} data-testid="ElementsContainer" ref={ref}>
+        <div class={styles.container} data-testid="ElementsContainer" ref={/** @type {any} */ (ref)}>
             {props.elements.length === 0 && <Empty text={term} title={'No matches'} />}
             <Elements elements={props.elements} excluded={props.excludedElements} debug={location.href.includes('debug')} />
         </div>

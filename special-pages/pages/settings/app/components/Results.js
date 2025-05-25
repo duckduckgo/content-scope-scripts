@@ -47,6 +47,7 @@ export function Results({ results, term, strings }) {
     const matchedTranslations = useComputed(() => {
         const tree = {};
         const termLowered = term.value.toLowerCase();
+        const matches = [];
         for (const [key, { title }] of Object.entries(strings)) {
             const titleLowered = title?.toLowerCase();
             if (titleLowered?.includes(termLowered)) {
@@ -55,85 +56,82 @@ export function Results({ results, term, strings }) {
                 tree[screen] ??= {};
                 tree[screen][section] ??= [];
                 tree[screen][section].push({ key, title });
+                matches.push({ key, title });
             }
         }
-        return { tree };
+        return { tree, matches };
     });
 
     const visible = useComputed(() => {
         const toRender = [];
-        for (const [screenName, mapping] of Object.entries(matchedTranslations.value.tree)) {
-            const elements = results.value.screens[screenName]?.elements || [];
-            if (elements.length === 0) continue;
-            const elementsForThisScreen = [];
+        const matches = matchedTranslations.value.matches;
 
-            for (const [sectionName, items] of Object.entries(mapping)) {
-                const firstLookup = screenName + '.' + sectionName;
+        for (const { screenIds } of results.value.groups) {
+            for (const screenId of screenIds) {
+                const forScreen = [];
+                const { title, elements, sections } = results.value.screens[screenId];
+                if (sections) {
+                    const sectionMatches = findSections(sections, matches);
+                    forScreen.push(...sectionMatches);
+                } else {
+                    const elementMatches = elements.some((element) => elementUsedTranslation(element, matches));
+                    if (elementMatches) {
+                        forScreen.push(...elements);
+                    }
+                }
 
-                // simple matches where the translation and element ids are aligned
-                const matchingScreenAndSection = elements.filter((element) => {
-                    return element.id.startsWith(firstLookup);
-                });
-
-                // otherwise, look at props?
-                const matchingProps = elements
-                    .filter((element) => 'props' in element)
-                    .map((element) => {
-                        const strings = Object.values(element.props).filter((x) => typeof x === 'string');
-                        return { element, propStrings: strings };
-                    })
-                    .filter(({ propStrings }) => {
-                        return items.find((item) => propStrings.includes(item.key));
-                    })
-                    .map((x) => {
-                        return x.element;
-                    });
-
-                const named = elements
-                    .filter((element) => {
-                        return 'strings' in element;
-                    })
-                    .filter((element) => {
-                        return items.find((item) => element.strings.includes(item.key));
-                    });
-
-                elementsForThisScreen.push(...matchingScreenAndSection, ...named, ...matchingProps);
+                if (forScreen.length) {
+                    toRender.push(title);
+                    toRender.push(...forScreen);
+                }
             }
-            if (elementsForThisScreen.length > 0) {
-                toRender.push(elements[0]); // add title for this screen might be duplicate
-            }
-            toRender.push(...elementsForThisScreen);
         }
+
         return removeDuplicates(toRender);
     });
-
     return <ElementsContainer elements={visible.value} excludedElements={[]} />;
+}
 
-    // return toComponents()
+/**
+ * @param {import('../settings.service.js').ElementDefinition[][]} sections
+ * @param {{key: string, title: string}[]} mapping
+ */
+function findSections(sections, mapping) {
+    const output = [];
+    for (const subsection of sections) {
+        for (const subsectionElement of subsection) {
+            if (elementUsedTranslation(subsectionElement, mapping)) {
+                output.push(...subsection);
+                break;
+            }
+        }
+    }
+    return output;
+}
 
-    // return (
-    //     <div class={styles.container} contenteditable={true}>
-    //         <pre>
-    //             <code>{JSON.stringify({ term: term.value }, null, 2)}</code>
-    //         </pre>
-    //         <pre>
-    //             <code>{JSON.stringify({ visible: visible.value }, null, 2)}</code>
-    //         </pre>
-    //         <pre>
-    //             <code>{JSON.stringify(matches.value, null, 2)}</code>
-    //         </pre>
-    //         <pre>
-    //             <code>{JSON.stringify({ strings }, null, 2)}</code>
-    //         </pre>
-    //         <pre>
-    //             <code>{JSON.stringify(results.value, null, 2)}</code>
-    //         </pre>
-    //     </div>
-    // );
-
-    // return (
-    //     <ul class={styles.container}>
-    //         <li>todo: list of results here</li>
-    //     </ul>
-    // );
+/**
+ * @param {import('../settings.service.js').ElementDefinition} element
+ * @param {{key: string, title: string}[]} mapping
+ * @return {boolean}
+ */
+function elementUsedTranslation(element, mapping) {
+    if ('props' in element) {
+        const strings = Object.values(element.props).filter((x) => typeof x === 'string');
+        const exact = mapping.find((x) => strings.includes(x.key));
+        if (exact) return true;
+    }
+    if (element.kind === 'SwitchDefinition') {
+        const on = element.on.some((el) => elementUsedTranslation(el, mapping));
+        const off = element.off.some((el) => elementUsedTranslation(el, mapping));
+        if (on || off) return true;
+    }
+    if (element.kind === 'CheckboxDefinition') {
+        const some = element.children?.some((el) => elementUsedTranslation(el, mapping));
+        if (some) return true;
+    }
+    if ('strings' in element) {
+        const exact = mapping.find((x) => element.strings.includes(x.key));
+        if (exact) return true;
+    }
+    return false;
 }

@@ -53,7 +53,7 @@
     "title": "Off",
     "note": "Option indicating that the default browser setting is turned off"
   },
-  "webTrackingProtection.base.screenTitle": {
+  "webTrackingProtection.screenTitle": {
     "title": "Web Tracking Protection",
     "note": "Heading for the web tracking protection settings section"
   },

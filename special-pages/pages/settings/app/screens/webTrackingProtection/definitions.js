@@ -10,16 +10,16 @@ export function webTrackingProtection() {
     return {
         webTrackingProtection: {
             id: 'webTrackingProtection',
-            elements: [
-                {
-                    id: 'webTrackingProtection.base.titleStatus',
-                    kind: 'ScreenTitleStatusDefinition',
-                    props: {
-                        offText: 'status_off',
-                        onText: 'status_on_private',
-                        title: 'webTrackingProtection.base.screenTitle',
-                    },
+            title: {
+                id: 'webTrackingProtection.titleStatus',
+                kind: 'ScreenTitleStatusDefinition',
+                props: {
+                    offText: 'status_off',
+                    onText: 'status_on_private',
+                    title: 'webTrackingProtection.screenTitle',
                 },
+            },
+            elements: [
                 {
                     id: 'webTrackingProtection.base.description',
                     kind: 'DescriptionLinkDefinition',

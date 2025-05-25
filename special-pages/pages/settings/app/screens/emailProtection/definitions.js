@@ -10,17 +10,17 @@ export function emailProtection() {
     return {
         emailProtection: {
             id: 'emailProtection',
-            elements: [
-                {
-                    id: 'emailProtection.titleStatus',
-                    valueId: 'emailProtection.enabled',
-                    kind: 'ScreenTitleStatusDefinition',
-                    props: {
-                        offText: 'status_off',
-                        onText: 'status_on',
-                        title: 'emailProtection.screenTitle',
-                    },
+            title: {
+                id: 'emailProtection.titleStatus',
+                valueId: 'emailProtection.enabled',
+                kind: 'ScreenTitleStatusDefinition',
+                props: {
+                    offText: 'status_off',
+                    onText: 'status_on',
+                    title: 'emailProtection.screenTitle',
                 },
+            },
+            elements: [
                 {
                     id: 'emailProtection.description',
                     kind: 'DescriptionLinkDefinition',

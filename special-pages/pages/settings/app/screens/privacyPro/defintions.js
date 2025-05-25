@@ -10,14 +10,14 @@ export function privacyPro() {
     return {
         privacyPro: {
             id: 'privacyPro',
-            elements: [
-                {
-                    kind: 'ScreenTitleDefinition',
-                    id: 'privacyPro.screenTitle',
-                    props: {
-                        title: 'privacyPro.screenTitle',
-                    },
+            title: {
+                kind: 'ScreenTitleDefinition',
+                id: 'privacyPro.screenTitle',
+                props: {
+                    title: 'privacyPro.screenTitle',
                 },
+            },
+            elements: [
                 {
                     kind: 'PrivacyPro',
                     id: 'privacyPro.custom',
