@@ -142,7 +142,6 @@ export function SignalStateProvider({ children }) {
         if (!service) return;
         const anchor = /** @type {HTMLAnchorElement|null} */ (target.closest('a[href][data-url]'));
         const button = /** @type {HTMLButtonElement|null} */ (target.closest('button[value][data-action]'));
-        const toggle = /** @type {HTMLButtonElement|null} */ (target.closest('button[data-toggle]'));
         if (anchor) {
             const url = anchor.dataset.url;
             if (!url) return;
@@ -172,12 +171,6 @@ export function SignalStateProvider({ children }) {
             } else {
                 console.warn('unhandled action:', action);
             }
-        } else if (toggle) {
-            // todo: what was this fixing?
-            // if (state.config?.expansion === 'collapsed' && batched) {
-            //     const next = activity.value.urls.slice(0, Math.min(service.INITIAL, activity.value.urls.length));
-            //     setVisibleRange(next);
-            // }
         }
     }
 
