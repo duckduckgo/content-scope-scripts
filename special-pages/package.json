@@ -35,7 +35,7 @@
     "web-resource-inliner": "^6.0.1"
   },
   "dependencies": {
-    "@atlaskit/pragmatic-drag-and-drop": "^1.5.2",
+    "@atlaskit/pragmatic-drag-and-drop": "^1.7.0",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.0.3",
     "@formkit/auto-animate": "^0.8.2",
     "@preact/signals": "^2.0.1",
