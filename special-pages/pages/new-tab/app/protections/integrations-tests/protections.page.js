@@ -44,4 +44,16 @@ export class ProtectionsPage {
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
         await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} tracking attempts blocked`);
     }
+
+    async hasPolishText() {
+        const heading = this.context().getByTestId('ProtectionsHeading');
+        await expect(heading).toMatchAriaSnapshot(`
+          - img "Privacy Shield"
+          - heading "Raport ochrony" [level=2]
+          - button "Ukryj ostatnią aktywność" [expanded] [pressed]:
+            - img
+          - heading /\\d+ – tyle prób śledzenia zablokowano/ [level=3]
+          - paragraph: Ostatnie 7 dni
+          `);
+    }
 }

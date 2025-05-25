@@ -43,7 +43,7 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
                 <span class={styles.headingIcon}>
                     <img src={'./icons/shield-green.svg'} alt="Privacy Shield" />
                 </span>
-                <h2 class={styles.caption}>Protections Report</h2>
+                <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
                 {canExpand && (
                     <span class={styles.widgetExpander}>
                         <ShowHideButtonCircle

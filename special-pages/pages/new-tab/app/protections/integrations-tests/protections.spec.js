@@ -47,4 +47,13 @@ test.describe('protections report', () => {
         await protections.ready();
         await protections.receivesUpdatedTotal(100);
     });
+    test('localization smoke test', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'protections.feed': 'activity', locale: 'pl' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.hasPolishText();
+    });
 });
