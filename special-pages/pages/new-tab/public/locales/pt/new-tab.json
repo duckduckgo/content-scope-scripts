@@ -40,6 +40,22 @@
     "title" : "Ignorar",
     "note" : "Button label text for an action that removes the widget from the screen."
   },
+  "protections_menuTitle" : {
+    "title" : "Relatório de proteções",
+    "note" : "Used as a label in the main navigation menu. 'Protections' refers to the privacy features that block trackers."
+  },
+  "protections_statsSwitchTitle" : {
+    "title" : "Resumo",
+    "note" : "Used as a label in a toggle switch that shows aggregated privacy statistics. This is one of two options in a view selector (the other is 'Details')."
+  },
+  "protections_activitySwitchTitle" : {
+    "title" : "Detalhes",
+    "note" : "Used as a label in a toggle switch that shows recent browsing activity with tracking information. This is one of two options in a view selector (the other is 'Summary')."
+  },
+  "protections_noRecent" : {
+    "title" : "Nenhuma atividade de rastreamento recente",
+    "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
+  },
   "stats_menuTitle" : {
     "title" : "Tentativas de rastreamento bloqueadas",
     "note" : "Used as a label in a customization menu"
@@ -63,6 +79,22 @@
   "stats_countBlockedPlural" : {
     "title" : "{count} tentativas de rastreamento bloqueadas",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "stats_noActivityAdsAndTrackers" : {
+    "title" : "O DuckDuckGo bloqueia anúncios e tentativas de rastreamento enquanto navegas. Visita alguns sites para veres quantas tentativas bloqueamos!",
+    "note" : "Placeholder for when we cannot report any blocked ads and trackers yet"
+  },
+  "stats_noRecentAdsAndTrackers" : {
+    "title" : "Proteções ativas",
+    "note" : "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
+  },
+  "stats_countBlockedAdsAndTrackersSingular" : {
+    "title" : "<b>1</b> tentativa de publicidade e rastreamento bloqueada",
+    "note" : "The main headline indicating that a single ad or tracking attempt was blocked"
+  },
+  "stats_countBlockedAdsAndTrackersPlural" : {
+    "title" : "<b>{count}</b> tentativas de publicidade e rastreamento bloqueadas",
+    "note" : "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
   },
   "stats_feedCountBlockedSingular" : {
     "title" : "1 tentativa bloqueada pelo DuckDuckGo nos últimos 7 dias",
@@ -291,6 +323,22 @@
   "activity_countBlockedPlural" : {
     "title" : "<b>{count}</b> tentativas de rastreamento bloqueadas",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_noRecentAdsAndTrackers_subtitle" : {
+    "title" : "Os sites visitados recentemente aparecem aqui. Continua a navegar para veres quantos anúncios e rastreadores bloqueamos.",
+    "note" : "Shown in the place a list of browsing history entries will be displayed."
+  },
+  "activity_no_adsAndTrackers" : {
+    "title" : "Nenhum anúncio + tentativa de rastreamento detetados",
+    "note" : "Placeholder message indicating that no ads and trackers are detected"
+  },
+  "activity_no_adsAndTrackers_blocked" : {
+    "title" : "Nenhum anúncio + tentativa de rastreamento bloqueados",
+    "note" : "Placeholder message indicating that no ads and trackers are blocked"
+  },
+  "activity_countBlockedAdsAndTrackersPlural" : {
+    "title" : "<b>{count}</b> anúncios + tentativas de rastreamento bloqueadas",
+    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
   },
   "activity_favoriteAdd" : {
     "title" : "Adicionar {domain} aos favoritos",

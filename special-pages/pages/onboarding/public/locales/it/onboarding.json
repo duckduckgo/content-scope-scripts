@@ -344,6 +344,34 @@
     "title" : "Accedi più velocemente a DuckDuckGo.",
     "note" : "Instructs the user to add DuckDuckGo to their taskbar by clicking Yes on a dialog screen."
   },
+  "row_placebo-ad-blocking_title_v3" : {
+    "title" : "Blocca ancora più annunci",
+    "note" : "Title for the enhanced ad blocking setting."
+  },
+  "row_aggressive-ad-blocking_title_v3" : {
+    "title" : "Blocca un numero ancora maggiore di annunci, anche su YouTube",
+    "note" : "Title for the enhanced ad blocking setting."
+  },
+  "row_ad-blocking_desc_v3" : {
+    "title" : "Il blocco avanzato degli annunci ferma ancora più annunci.",
+    "note" : "Description for the enhanced ad blocking setting."
+  },
+  "row_ad-blocking_accept_v3" : {
+    "title" : "Attiva il blocco avanzato degli annunci",
+    "note" : "Button text to enable enhanced ad blocking."
+  },
+  "row_youtube-ad-blocking_title_v3" : {
+    "title" : "Guarda YouTube senza annunci",
+    "note" : "Title for the YouTube ad blocking setting."
+  },
+  "row_youtube-ad-blocking_desc_v3" : {
+    "title" : "Nessun annuncio, solo il tuo video.",
+    "note" : "Description for the YouTube ad blocking setting."
+  },
+  "row_youtube-ad-blocking_accept_v3" : {
+    "title" : "Blocca gli annunci",
+    "note" : "Button text to enable YouTube ad blocking."
+  },
   "comparison_searchPrivately" : {
     "title" : "Cerca privatamente per impostazione predefinita",
     "note" : "The description of a browser privacy feature in the comparison table."
@@ -367,6 +395,10 @@
   "comparison_privateYoutube" : {
     "title" : "Guarda YouTube senza annunci mirati",
     "note" : "The description of a browser privacy feature in the comparison table."
+  },
+  "comparison_youtubeAdFree" : {
+    "title" : "Guarda YouTube senza annunci",
+    "note" : "The description of a browser privacy feature in the comparison table when ad-blocking is enabled."
   },
   "comparison_fullSupport" : {
     "title" : "Protezione significativa",
