@@ -35,7 +35,6 @@ export async function init(messages, baseEnvironment) {
     }
 
     const init = result.value;
-    console.log('INITIAL DATA', init);
 
     const environment = baseEnvironment
         .withEnv(init.env)
@@ -49,8 +48,6 @@ export async function init(messages, baseEnvironment) {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'));
-
-    console.log({ settings });
 
     // install global side effects for platform-specific styles
     installGlobalSideEffects(environment, settings);

@@ -28,14 +28,13 @@ export function mockTransport() {
         notify(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/release-notes.ts').ReleaseNotesMessages['notifications']} */
-            const msg = /** @type {any} */ (_msg);
-            console.log('NOTIFY!', msg.method, msg.params);
+            // const msg = /** @type {any} */ (_msg);
+            // Uncomment this (^) to enable logging notification messages
         },
         request(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/release-notes.ts').ReleaseNotesMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
-            console.log('REQUEST!', msg.method, msg);
 
             switch (msg.method) {
                 case 'initialSetup': {
@@ -53,7 +52,6 @@ export function mockTransport() {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             /** @type {import('../types/release-notes.ts').ReleaseNotesMessages['subscriptions']['subscriptionEvent']} */
             const subscription = /** @type {any} */ (_msg.subscriptionName);
-            console.log('SUBSCRIBE!', subscription);
 
             switch (subscription) {
                 case 'onUpdate': {

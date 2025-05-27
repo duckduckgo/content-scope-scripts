@@ -112,21 +112,26 @@ body:not([data-platform-name]) {
 
 /* macOs Design System Button Tokens */
 [data-platform-name="macos"] {
+    /* Shared among all variants */
+    --macos-control-focused-shadow: 0 0 0 3px rgba(57, 105, 239, 0.55), 0 0 0 1px rgba(57, 105, 239, 0.55) inset, 0 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+
+    /* Standard button variant */
     --macos-control-standard-background-rest: var(--color-white);
     --macos-control-standard-background-rest--dark: rgba(255, 255, 255, 0.28);
     --macos-control-standard-background-pressed: #e7e7e7;
     --macos-control-standard-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.2) inset, 0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 1px 0 rgba(0, 0, 0, 0.2);
 
-    --macos-control-accent-branded-background-rest: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749DB;
-    --macos-control-accent-branded-background-pressed: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2140C0;
-    --macos-control-accent-branded-background-hover: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749DB;
+    /* Accent Branded variant */
+    --macos-control-accent-branded-background-rest: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749DB;
+    --macos-control-accent-branded-background-pressed: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2140C0;
+    --macos-control-accent-branded-background-hover: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749DB;
     --macos-control-accent-branded-background-disabled: var(--color-white);
+    --macos-control-accent-branded-background-focus: linear-gradient(0deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.16) 100%), #2749DB;
 
     --macos-control-accent-branded-shadow-rest: 0 1px 0 0 rgba(255, 255, 255, 0) inset, 0 1px 0 0 rgba(255, 255, 255, 0) inset, 0 0 0 1px rgba(0, 122, 255, 0.05), 0 0 1px 0 rgba(0, 122, 255, 0.05), 0 1px 1px 0 rgba(0, 122, 255, 0.1);
     --macos-control-accent-branded-shadow-pressed: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 0px 0px 0.5px rgba(0, 122, 255, 0.05), 0px 0px 1px 0px rgba(0, 122, 255, 0.05), 0px 1px 1px 0px rgba(0, 122, 255, 0.10);
     --macos-control-accent-branded-shadow-hover: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 0px 0px 0.5px rgba(0, 122, 255, 0.05), 0px 0px 1px 0px rgba(0, 122, 255, 0.05), 0px 1px 1px 0px rgba(0, 122, 255, 0.10);
     --macos-control-accent-branded-shadow-disabled: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 0.5px rgba(0, 0, 0, 0.10), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.20);
-    --macos-control-focused-shadow: 0 0 0 3px rgba(57, 105, 239, 0.55), 0 0 0 1px rgba(57, 105, 239, 0.55) inset, 0 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 /* macOS Variables */
@@ -172,7 +177,7 @@ body:not([data-platform-name]) {
         --button-opacity--disabled: 0.4;
 
         /* Focus */
-        --button-bg--focus: var(--macos-control-accent-branded-background-pressed);
+        --button-bg--focus: var(--macos-control-accent-branded-background-focus);
         --button-text--focus: var(--color-white);
         --button-shadow--focus: var(--macos-control-focused-shadow);
 
